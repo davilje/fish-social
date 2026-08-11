@@ -1,5 +1,37 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-02-auth] - 2026-08-12
+
+### 策划
+
+- 新增 [Steam身份账号绑定与安全会话.md](./specs/Steam身份账号绑定与安全会话.md)（**已确认** / **STEAM-DESKTOP-02**）
+- 明确 Steam Ticket 验证、`SteamID64 ↔ playerId`、JWT、账号新档和安全审计边界
+- 列出真实 Steam 验收所需的 App ID、测试账号、SDK/插件、Web API Key 和测试环境参数
+- 开发提示词：[steam-desktop-account-auth-dev.prompt.md](./prompts/steam-desktop-account-auth-dev.prompt.md)
+
+### [steam-desktop-04-shell] - 2026-08-11
+
+### 策划
+
+- 新增 [Unity Windows桌面端基础壳.md](./specs/Unity Windows桌面端基础壳.md)（**已实现** / **STEAM-DESKTOP-04**）
+- 拆分 04A～04F：工程基线、窗口生命周期、托盘后台、主界面占位、设置通知、性能发布验证
+- 明确本阶段不接 Steam 登录、Lobby、Networking、Node 实时业务和正式鱼塘玩法
+- 开发提示词：[steam-desktop-shell-dev.prompt.md](./prompts/steam-desktop-shell-dev.prompt.md)
+
+### 实现（04A～04F）
+
+- `fish-social-unity/`：DesktopMain、窗口管理、Win32 托盘、运行时 UGUI 四入口、通知偏好与模拟事件
+- 关闭进托盘；隐藏降帧；构建菜单 `Fish Social → Build Windows Development Player`
+- 冒烟清单：`fish-social-unity/Docs/STEAM-DESKTOP-04-smoke.md`（2026-08-12 全部 PASS）
+
+### 调试收口记录
+
+- 窗口模式：修复普通/无边框/全屏来回切换混乱；统一由 Win32 控制窗口样式和尺寸，普通窗口恢复保存尺寸并允许手动调整。
+- 全屏/无边框：全屏铺满显示器，无边框铺满工作区并保留任务栏；重复点击同一模式不重复应用。
+- 托盘：修复关闭进托盘、托盘显示恢复、真正退出和托盘线程消息窗口生命周期。
+- 通知：修复总开关、免打扰、单项通知即时生效；关闭通知或对应类型后模拟事件完全静默；启用时只显示单条提示。
+- 后台：托盘隐藏后使用低帧率运行，保留后续真实会话生命周期接口。
+
 ### [steam-desktop-01-review] - 2026-08-11
 
 ### 策划
