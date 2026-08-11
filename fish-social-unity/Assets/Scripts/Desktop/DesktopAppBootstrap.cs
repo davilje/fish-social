@@ -1,4 +1,5 @@
 using UnityEngine;
+using FishSocial.Desktop.Auth;
 
 namespace FishSocial.Desktop
 {
@@ -13,6 +14,7 @@ namespace FishSocial.Desktop
         SystemTrayService _tray;
         DesktopNotificationService _notify;
         PanelRouter _router;
+        SteamAuthController _steamAuth;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _allowQuit;
 
@@ -42,6 +44,8 @@ namespace FishSocial.Desktop
             _tray = gameObject.AddComponent<SystemTrayService>();
             _notify = gameObject.AddComponent<DesktopNotificationService>();
             _router = gameObject.AddComponent<PanelRouter>();
+            _steamAuth = gameObject.AddComponent<SteamAuthController>();
+            _steamAuth.Configure(new UnavailableSteamTicketProvider(), "");
             var ui = gameObject.AddComponent<DesktopShellUi>();
 
             _tray.ShowRequested += () =>
@@ -67,6 +71,8 @@ namespace FishSocial.Desktop
             ui.Build(_router);
             Debug.Log("[DesktopShell] STEAM-DESKTOP-04 bootstrap ready");
         }
+
+        public SteamAuthController SteamAuth => _steamAuth;
 
         void OnDestroy()
         {

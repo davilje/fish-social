@@ -11,6 +11,16 @@
 | `PLAYER_ERASE_PEPPER` | 删号匿名化胡椒 |
 | `ALLOWED_ORIGINS` | CORS；**禁止 `*`**（compose 亦不再默认 `*`） |
 
+## Steam 桌面端账号登录
+
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `STEAM_AUTH_ENABLED` | `false` | 显式开启 Steam Ticket 登录 |
+| `STEAM_APP_ID` | 空 | 服务端校验的 Steam App ID |
+| `STEAM_WEB_API_KEY` | 空 | Steam Web API Key；仅放 Node 服务端密钥环境，不进入 Unity/Git |
+
+真实 Steam 登录必须同时配置上述三项；本地 Fake Ticket 测试不得作为真实 Steam 验收。
+
 ## 容量（QUAL-10）
 
 | 变量 | 默认 | 含义 |

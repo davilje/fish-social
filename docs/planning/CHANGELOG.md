@@ -7,6 +7,8 @@
 - 新增 [Steam身份账号绑定与安全会话.md](./specs/Steam身份账号绑定与安全会话.md)（**已确认** / **STEAM-DESKTOP-02**）
 - 明确 Steam Ticket 验证、`SteamID64 ↔ playerId`、JWT、账号新档和安全审计边界
 - 列出真实 Steam 验收所需的 App ID、测试账号、SDK/插件、Web API Key 和测试环境参数
+- 明确商店页面不是前置；Steamworks App、AppID、测试权限、Windows Depot/Build 和服务端 Publisher Web API Key 才是实际联调条件
+- 固定调用链：`GetAuthTicketForWebApi` → HTTPS → `AuthenticateUserTicket` → `SteamID64` → 项目 JWT
 - 开发提示词：[steam-desktop-account-auth-dev.prompt.md](./prompts/steam-desktop-account-auth-dev.prompt.md)
 
 ### [steam-desktop-04-shell] - 2026-08-11

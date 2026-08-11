@@ -52,6 +52,16 @@ STEAM_WEB_API_KEY=
 STEAM_AUTH_ENABLED=false
 ```
 
+## Steamworks 前置边界
+
+- 必须先创建 Steamworks App 并获得 AppID。
+- 测试账号必须拥有该 App 的访问权限。
+- 需要配置 Windows Depot/Build，使测试包可以在 Steam 客户端环境启动。
+- 商店页面可以保持未公开或 Coming Soon；不等待宣传素材、定价和正式发行配置。
+- 客户端使用 `ISteamUser::GetAuthTicketForWebApi` 获取 Ticket。
+- 服务端使用 `ISteamUserAuth::AuthenticateUserTicket` 验证 Ticket。
+- Publisher Web API Key 只能放服务端环境变量，不能进入 Unity。
+
 没有真实 Steam App ID 或 Web API Key 时：
 
 - 可以实现接口、迁移、错误码、Fake Ticket 测试和 Unity 状态机。

@@ -18,6 +18,7 @@ import { registerHttpMetricsMiddleware } from './httpMetricsMiddleware.js';
 import { registerSecurityMiddleware, requireLocalhostDevToken } from './securityMiddleware.js';
 import { db } from './db.js';
 import { getCapacitySnapshot } from './humanCapacity.js';
+import { loginWithSteamTicket, SteamAuthError } from './steamAuth.js';
 
 let startedAt = Date.now();
 let shuttingDown = false;
@@ -193,6 +194,25 @@ export function createApp(
       res.json({ token: signPlayerToken(playerId) });
     });
   }
+
+  app.post('/api/auth/steam', async (req, res) => {
+    const body = req.body as { ticket?: unknown; appId?: unknown };
+    try {
+      const result = await loginWithSteamTicket(
+        body.ticket,
+        body.appId,
+        undefined,
+        req.ip ?? req.socket.remoteAddress ?? 'unknown',
+      );
+      res.json({ ok: true, ...result });
+    } catch (error) {
+      if (error instanceof SteamAuthError) {
+        res.status(error.status).json({ ok: false, error: error.message, code: error.code });
+        return;
+      }
+      res.status(500).json({ ok: false, error: 'Steam 登录失败', code: 'STEAM_INTERNAL_ERROR' });
+    }
+  });
 
   // Prometheus metrics endpoint (default disabled, port 3002)
   if (process.env.METRICS_PROMETHEUS_ENABLED === 'true') {

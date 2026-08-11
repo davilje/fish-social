@@ -62,7 +62,27 @@ Unity Steamworks
 - 签发现有 JWT/Refresh 会话。
 - 对 Socket 连接继续校验 JWT。
 
-### 3.3 数据模型
+### 3.3 鉴权调用链
+
+```text
+Unity
+  ↓ ISteamUser::GetAuthTicketForWebApi
+Steam Ticket
+  ↓ HTTPS
+Fish Social Server
+  ↓ ISteamUserAuth::AuthenticateUserTicket
+Steamworks
+  ↓ 返回可信 SteamID64
+Fish Social Server
+  ↓ 签发项目现有 JWT
+Unity 使用 JWT 访问 REST / Socket
+```
+
+- `AuthenticateUserTicket` 必须由安全服务端调用。
+- Publisher Web API Key 只存在服务端，不能放入 Unity 客户端。
+- 商店页面、宣传素材、定价和正式发行配置不属于本需求前置。
+
+### 3.4 数据模型
 
 建议新增独立映射表，不直接把 SteamID 替换现有 playerId：
 
@@ -102,11 +122,21 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 ### 必须由项目方提供
 
 - Steamworks 合作方账号
+- 已创建的 Steamworks App
 - Steam App ID
 - 可用于测试的 Steam 账号
 - Steamworks SDK 或 Unity Steamworks 原生插件包
 - 服务端 Steam Web API Key
 - 本地/测试服务器地址和端口
+
+商店页面可以保持未公开或 Coming Soon，不要求先完成正式素材、定价和发行配置。
+
+### Steamworks 后台准备
+
+- 为测试账号授予该 App 的访问权限。
+- 配置测试分支和 Windows Depot/Build。
+- 准备可以在 Steam 客户端环境启动的 Windows 测试包。
+- 确认应用权限允许使用所需 Steamworks 接口。
 
 ### 必须先完成的工程条件
 
@@ -142,6 +172,7 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 
 - [ ] Steam 客户端运行时，Unity 能获取 Ticket。
 - [ ] Node 能向 Steam 验证 Ticket，并拒绝伪造/错误 App ID。
+- [ ] 客户端使用 `GetAuthTicketForWebApi`，服务端使用 `AuthenticateUserTicket`。
 - [ ] 首次登录自动创建唯一 playerId。
 - [ ] 同一 Steam 账号再次登录复用原 playerId。
 - [ ] 绑定冲突、Ticket 失效和 Steam 未启动有明确错误。

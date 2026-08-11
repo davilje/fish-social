@@ -301,9 +301,15 @@ if (socialV060.likesTable || socialV060.commentsTable || socialV060.likeCountCol
 }
 
 import { migrateLeaderboardWeeklyBiggest } from './migrations/leaderboard_weekly_biggest.js';
+import { migrateSteamAccounts } from './migrations/steam_accounts.js';
 const weeklyBiggestMigration = migrateLeaderboardWeeklyBiggest(db);
 if (weeklyBiggestMigration.oldSnapshotsCleared) {
   console.log('Migration v0.6.1: cleared old weekly-king snapshots (board_type changed)');
+}
+
+const steamAccountsMigration = migrateSteamAccounts(db);
+if (steamAccountsMigration.tableCreated) {
+  console.log('Migration v1.0-steam-desktop: steam_accounts table created');
 }
 
 initGameConfig();
