@@ -220,7 +220,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "v1.0-steam-desktop",
         "P0",
         "上班族挂机、好友交流、低打扰通知；定义窗口/托盘/后台/主循环",
-        "docs/planning/specs/Steam桌面端独立游戏转型计划.md",
+        "docs/planning/specs/Steam桌面端产品定位与信息架构.md",
         "2026-08-11",
         "",
     ],

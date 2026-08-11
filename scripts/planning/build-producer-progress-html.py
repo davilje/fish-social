@@ -25,7 +25,7 @@ OUT_DOCS_COPY = os.path.join(BASE, "docs", "planning", "策划进度看板.html"
 XLSX_DOCS_FALLBACK = os.path.join(BASE, "docs", "planning", "项目开发需求计划表.xlsx")
 
 DONE = frozenset({"已实现", "已实现（MVP）"})
-OPEN = frozenset({"已确认", "未开始", "待开发"})
+OPEN = frozenset({"评审中", "已确认", "未开始", "待开发"})
 SKIP = frozenset({"已废弃", "已定稿", "已文档化"})  # 不计入「待做进度」分母时单独说明
 
 

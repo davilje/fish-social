@@ -1,5 +1,15 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-01-review] - 2026-08-11
+
+### 策划
+
+- 新增 [Steam桌面端产品定位与信息架构.md](./specs/Steam桌面端产品定位与信息架构.md)（**评审中** / **STEAM-DESKTOP-01**）
+- 明确 Steam 桌面端第一阶段主循环：登录→进塘→挂机→收鱼→聊天→最小化
+- 整理窗口行为、通知、鱼塘、好友 Lobby、账号安全和数据迁移问题，统一等待用户确认
+- 开发提示词：[steam-desktop-product-ia-dev.prompt.md](./prompts/steam-desktop-product-ia-dev.prompt.md)
+- 用户统一确认窗口生命周期、通知、入口、自动收鱼、手动钓点、Lobby、人数、Windows 范围、Rich Presence 和 Steam 新档策略；STEAM-DESKTOP-01 → **已确认**
+
 ### [steam-desktop-transition] - 2026-08-11
 
 ### 策划

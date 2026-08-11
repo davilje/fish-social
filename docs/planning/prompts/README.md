@@ -76,6 +76,7 @@ npm run planning:confirm -- v0.4.0
 | [pond-overlay-backpack-social-dev.prompt.md](./pond-overlay-backpack-social-dev.prompt.md) | FEAT-UI-2：叠加层·榜·bot动态·背�?0�?· **已实�?* |
 | [unity-p0-decision-contract-dev.prompt.md](./unity-p0-decision-contract-dev.prompt.md) | UNITY-P0：决策与契约冻结 · **已实�?* |
 | [steam-desktop-transition-dev.prompt.md](./steam-desktop-transition-dev.prompt.md) | STEAM-DESKTOP-EPIC：Steam 桌面端独立游戏转型与 Unity 并行开发 · **已确认** |
+| [steam-desktop-product-ia-dev.prompt.md](./steam-desktop-product-ia-dev.prompt.md) | STEAM-DESKTOP-01：Steam 桌面端产品定位与信息架构 · **已确认** |
 | [scene-iso-grid-dev.prompt.md](./scene-iso-grid-dev.prompt.md) | FEAT-SCENE-ISO-1/2：等距网格塘+世界 · **已实�?* |
 | [scene-ortho-tilemap-dev.prompt.md](./scene-ortho-tilemap-dev.prompt.md) | FEAT-SCENE-TILE-1：星露谷式正�?Tilemap · **已实�?* |
 | [scene-tile-camera-hud-dev.prompt.md](./scene-tile-camera-hud-dev.prompt.md) | FEAT-SCENE-TILE-2：相机拖拽与 HUD 分层 · **已实�?* |

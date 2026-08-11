@@ -52,6 +52,7 @@
 | [Unity移植工程路径蓝图.md](../product/Unity移植工程路径蓝图.md) | �?| �?| **已文档化** | REF-UNITY-1：Unity+Node 切线�?Phase 0�? |
 | [Unity移植-分阶段需求清�?md](./Unity移植-分阶段需求清�?md) | unity | P0/P1 | **已定�?*（P0 **已实�?*�?| UNITY-EPIC / P0～P5；下一可确�?P1 |
 | [Steam桌面端独立游戏转型计划.md](./Steam桌面端独立游戏转型计划.md) | v1.0-steam-desktop | P0/P1 | **已确认** | STEAM-DESKTOP-EPIC；Steam 定位、Unity 桌面端、账号/Lobby、空鱼塘离线补算与并行顺序 |
+| [Steam桌面端产品定位与信息架构.md](./Steam桌面端产品定位与信息架构.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-01；桌面助手主循环、信息架构、交互边界与统一答复 |
 
 ### 数值与生态（v0.3.x�?
 | 文档 | 版本 | 优先�?| 状�?| 内容 |
