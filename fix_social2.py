@@ -1,0 +1,1 @@
+content = open("mobile/app/social.tsx", "r", encoding="utf-8").read()

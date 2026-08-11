@@ -1,0 +1,26 @@
+{
+  "name": "@fish-social/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "react-native": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./metrics-schema.js": {
+      "import": "./dist/metrics-schema.js",
+      "default": "./dist/metrics-schema.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

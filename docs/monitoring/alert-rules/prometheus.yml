@@ -1,0 +1,43 @@
+groups:
+  - name: fish_social_alerts
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: rate(fish_http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP error rate ({{  | humanizePercentage }})"
+
+      - alert: SlowQuerySpike
+        expr: rate(fish_slow_queries_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High slow query rate ({{  }}/s)"
+
+      - alert: HighSocketDisconnect
+        expr: rate(fish_socket_events_total{event="disconnect"}[5m]) > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High socket disconnect rate ({{  }}/s)"
+
+      - alert: PondDepleted
+        expr: fish_pond_occupancy == 0
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "Pond {{ .pondId }} has no occupants"
+
+      - alert: MetricsQueueBacklog
+        expr: fish_metrics_queue_depth > 1000
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Metrics queue backlog ({{  }} pending)"

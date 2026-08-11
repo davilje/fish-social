@@ -1,0 +1,67 @@
+{
+  "title": "Fish Social - Pond Detail",
+  "uid": "fish-social-pond-detail",
+  "version": 1,
+  "tags": [
+    "fish-social",
+    "pond"
+  ],
+  "schemaVersion": 27,
+  "panels": [
+    {
+      "title": "Pond Occupancy",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "fish_pond_occupancy{pondId=~\"\"}"
+        }
+      ]
+    },
+    {
+      "title": "Bite Events",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_bite_events_total{pondId=~\"\"}[5m])"
+        }
+      ]
+    },
+    {
+      "title": "Socket Events",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_socket_events_total{pondId=~\"\"}[5m])"
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "pond",
+        "type": "query",
+        "query": "label_values(fish_pond_occupancy, pondId)",
+        "refresh": 1
+      }
+    ]
+  }
+}

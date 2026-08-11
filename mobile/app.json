@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Fish Social",
+    "slug": "fish-social",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "fishsocial",
+    "userInterfaceStyle": "light",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "android": {
+      "package": "com.fishsocial.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#4A90A4"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ]
+  }
+}

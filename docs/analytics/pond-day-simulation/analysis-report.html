@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>鱼塘生态数据分析报告 · v0.4.1</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root { --bg:#0f1419; --surface:#1a2332; --card:#243044; --text:#e8edf2; --muted:#8b9cb3; --accent:#4a9eff; --ok:#48bb78; --warn:#ed8936; --bad:#fc8181; --border:#2d3a4d; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Segoe UI","PingFang SC",sans-serif; background:var(--bg); color:var(--text); line-height:1.55; padding:24px; }
+    .wrap { max-width:1060px; margin:0 auto; }
+    h1 { font-size:1.65rem; margin-bottom:6px; }
+    h2 { font-size:1.15rem; margin:28px 0 12px; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:6px; }
+    .meta { color:var(--muted); font-size:.9rem; margin-bottom:20px; }
+    .nav a { color:var(--accent); margin-right:16px; font-size:.9rem; }
+    .hero { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin:20px 0; }
+    .kpi { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; }
+    .kpi .val { font-size:1.8rem; font-weight:700; }
+    .kpi .lbl { font-size:.8rem; color:var(--muted); margin-top:4px; }
+    .kpi.ok .val { color:var(--ok); }
+    .kpi.warn .val { color:var(--warn); }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:16px; }
+    table { width:100%; border-collapse:collapse; font-size:.88rem; }
+    th,td { border:1px solid var(--border); padding:8px 10px; }
+    th { background:var(--card); text-align:left; }
+    td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:.75rem; font-weight:600; }
+    .badge.ok { background:rgba(72,187,120,.2); color:var(--ok); }
+    .badge.warn { background:rgba(237,137,54,.2); color:var(--warn); }
+    .badge.bad { background:rgba(252,129,129,.2); color:var(--bad); }
+    .charts { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+    @media(max-width:768px){ .charts{ grid-template-columns:1fr; } }
+    .chart-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; }
+    .chart-wrap { height:260px; position:relative; }
+    .callout { border-left:4px solid var(--accent); padding:12px 16px; background:rgba(74,158,255,.08); border-radius:0 8px 8px 0; margin:16px 0; }
+    .callout.ok { border-color:var(--ok); background:rgba(72,187,120,.08); }
+    ol { margin-left:20px; }
+    li { margin-bottom:6px; }
+    footer { margin-top:32px; color:var(--muted); font-size:.8rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../index.html">归档索引</a>
+      <a href="report.html">交互模拟报告</a>
+      <a href="../compare.html?runs=2026-07-07-pond-day-v040,2026-07-07-pond-day-v041">v0.4.0 vs v0.4.1</a>
+    </nav>
+
+    <h1>鱼塘生态 · 数据分析报告</h1>
+    <p class="meta">
+      当前规则 <strong>v0.4.1</strong> · 种子 42026 · 模拟时间 2026-07-07T17:06:53.342Z<br>
+      场景：0 / 1 / 3 / 5 / 10 / 20 人/塘 × 四塘 · <strong>7 天</strong>连续钓鱼 · 步长 15min
+    </p>
+
+    <div class="callout warn">
+      <strong>产品目标</strong>：20 人全服日钓 &lt; 100 条<br>
+      <strong>当前实测</strong>（5 人/塘 ≈ 20 人）：<strong>117.9 条/天</strong>（7日合计 825 条，目标的 118%）
+       — 略超目标，可微调 BITE_BASE_SCALE
+    </div>
+
+    <div class="hero">
+      <div class="kpi warn"><div class="val">117.9</div><div class="lbl">日均上岸（5人/塘×4）</div></div>
+      <div class="kpi"><div class="val">825</div><div class="lbl">7日累计上岸</div></div>
+      <div class="kpi ok"><div class="val">0.25</div><div class="lbl">人均上岸 / 小时</div></div>
+      <div class="kpi ok"><div class="val">98.2%</div><div class="lbl">末人口 / 上限（5人/塘）</div></div>
+      <div class="kpi"><div class="val">0.604m</div><div class="lbl">被钓平均体长</div></div>
+    </div>
+
+    <h2>一、版本演进（20 人日产量）</h2>
+    <div class="charts">
+      <div class="chart-box"><h3 style="font-size:.9rem;margin-bottom:8px;color:var(--muted)">四塘日总上岸 · 5人/塘场景</h3><div class="chart-wrap"><canvas id="chartEvolution"></canvas></div></div>
+      <div class="chart-box"><h3 style="font-size:.9rem;margin-bottom:8px;color:var(--muted)">人均时产对比</h3><div class="chart-wrap"><canvas id="chartPerHour"></canvas></div></div>
+    </div>
+    <table>
+      <tr><th>版本</th><th>核心机制</th><th>5人/塘日钓</th><th>人均/天</th><th>人均/时</th><th>人口/上限</th><th>被钓均长</th></tr>
+      <tr>
+        <td><strong>v0.3.1</strong></td><td>全塘 Σ 咬钩</td>
+        <td class="num">4480</td>
+        <td class="num">224.0</td>
+        <td class="num">9.33</td>
+        <td class="num">64.9%</td>
+        <td class="num">0.34m</td>
+      </tr><tr>
+        <td><strong>v0.3.2</strong></td><td>D7/D8 动态补充</td>
+        <td class="num">4721</td>
+        <td class="num">236.1</td>
+        <td class="num">9.84</td>
+        <td class="num">20.4%</td>
+        <td class="num">0.212m</td>
+      </tr><tr>
+        <td><strong>v0.4.0</strong></td><td>钓点分区</td>
+        <td class="num">1235</td>
+        <td class="num">61.8</td>
+        <td class="num">2.57</td>
+        <td class="num">91.6%</td>
+        <td class="num">0.546m</td>
+      </tr><tr>
+        <td><strong>v0.4.1</strong></td><td>单鱼+÷20+幼鱼脱钩</td>
+        <td class="num">117.9</td>
+        <td class="num">5.9</td>
+        <td class="num">0.25</td>
+        <td class="num">98.2%</td>
+        <td class="num">0.604m</td>
+      </tr>
+      <tr style="background:rgba(74,158,255,.1)"><td colspan="2"><strong>目标</strong></td><td class="num">&lt;100</td><td class="num">&lt;5</td><td class="num">~0.21</td><td colspan="2">—</td></tr>
+    </table>
+
+    <h2>二、v0.4.1 规则配置</h2>
+    <table>
+      <tr><th>参数</th><th>取值</th></tr>
+      <tr><td>规则版本</td><td>v0.4.1</td></tr><tr><td>咬钩检测</td><td>60s / 次</td></tr><tr><td>咬钩模型</td><td>本点单鱼抽样（品质权重）</td></tr><tr><td>咬钩率缩放</td><td>×0.05（÷20）</td></tr><tr><td>钓点分区</td><td>是（20 点/塘）</td></tr><tr><td>鱼群迁徙</td><td>40% / 15min</td></tr><tr><td>幼鱼脱钩曲线</td><td>是（0.08–0.35m 抬高）</td></tr><tr><td>补充目标</td><td>100% 上限</td></tr>
+    </table>
+
+    <h2>三、场景对比（四塘合计 · v0.4.1 · 7天）</h2>
+    <table>
+      <tr><th>场景</th><th>日均上岸</th><th>7日合计</th><th>塘/小时</th><th>人/小时</th><th>人口/上限</th><th>被钓均长</th><th>状态</th></tr>
+      <tr>
+        <td>0 人/塘</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">0</td>
+        <td class="num">100%</td>
+        <td class="num">—</td>
+        <td><span class="badge ok">可持续</span></td>
+      </tr><tr>
+        <td>1 人/塘</td>
+        <td class="num">25</td>
+        <td class="num">175</td>
+        <td class="num">0.26</td>
+        <td class="num">0.26</td>
+        <td class="num">100%</td>
+        <td class="num">0.531m</td>
+        <td><span class="badge ok">可持续</span></td>
+      </tr><tr>
+        <td>3 人/塘</td>
+        <td class="num">70</td>
+        <td class="num">490</td>
+        <td class="num">0.73</td>
+        <td class="num">0.24</td>
+        <td class="num">98.9%</td>
+        <td class="num">0.555m</td>
+        <td><span class="badge ok">可持续</span></td>
+      </tr><tr>
+        <td>5 人/塘</td>
+        <td class="num">117.9</td>
+        <td class="num">825</td>
+        <td class="num">1.23</td>
+        <td class="num">0.25</td>
+        <td class="num">98.2%</td>
+        <td class="num">0.604m</td>
+        <td><span class="badge ok">可持续</span></td>
+      </tr><tr>
+        <td>10 人/塘</td>
+        <td class="num">232.7</td>
+        <td class="num">1629</td>
+        <td class="num">2.42</td>
+        <td class="num">0.24</td>
+        <td class="num">98.2%</td>
+        <td class="num">0.561m</td>
+        <td><span class="badge ok">可持续</span></td>
+      </tr><tr>
+        <td>20 人/塘</td>
+        <td class="num">454.9</td>
+        <td class="num">3184</td>
+        <td class="num">4.74</td>
+        <td class="num">0.24</td>
+        <td class="num">97.9%</td>
+        <td class="num">0.552m</td>
+        <td><span class="badge ok">可持续</span></td>
+      </tr>
+    </table>
+
+    <h2>四、7 日趋势（5 人/塘 · 四塘合计）</h2>
+    <div class="charts">
+      <div class="chart-box"><h3 style="font-size:.9rem;margin-bottom:8px;color:var(--muted)">日钓量</h3><div class="chart-wrap"><canvas id="chartDailyCatch"></canvas></div></div>
+      <div class="chart-box"><h3 style="font-size:.9rem;margin-bottom:8px;color:var(--muted)">末人口 / 上限</h3><div class="chart-wrap"><canvas id="chartDailyPop"></canvas></div></div>
+    </div>
+    <table>
+      <tr><th>日次</th><th>日钓量</th><th>人口/上限</th><th>均存活/塘</th></tr>
+      <tr><td>D1</td><td class="num">112</td><td class="num">99.3%</td><td class="num">70.8</td></tr><tr><td>D2</td><td class="num">112</td><td class="num">100%</td><td class="num">71.3</td></tr><tr><td>D3</td><td class="num">136</td><td class="num">98.9%</td><td class="num">70.5</td></tr><tr><td>D4</td><td class="num">113</td><td class="num">99.3%</td><td class="num">70.8</td></tr><tr><td>D5</td><td class="num">97</td><td class="num">98.6%</td><td class="num">70.3</td></tr><tr><td>D6</td><td class="num">124</td><td class="num">99.6%</td><td class="num">71</td></tr><tr><td>D7</td><td class="num">131</td><td class="num">98.2%</td><td class="num">70</td></tr>
+    </table>
+
+    <h2>五、四塘明细（5 人/塘 · 7天末）</h2>
+    <table>
+      <tr><th>鱼塘</th><th>钓走</th><th>剩余/上限</th><th>人口率</th><th>被钓均长</th></tr>
+      <tr>
+        <td>静心湖</td><td class="num">216</td>
+        <td class="num">77 / 80</td>
+        <td class="num">96.3%</td>
+        <td class="num">0.586m</td>
+      </tr><tr>
+        <td>云雾塘</td><td class="num">205</td>
+        <td class="num">69 / 70</td>
+        <td class="num">98.6%</td>
+        <td class="num">0.585m</td>
+      </tr><tr>
+        <td>夕阳湾</td><td class="num">198</td>
+        <td class="num">60 / 60</td>
+        <td class="num">100.0%</td>
+        <td class="num">0.645m</td>
+      </tr><tr>
+        <td>竹林池</td><td class="num">206</td>
+        <td class="num">74 / 75</td>
+        <td class="num">98.7%</td>
+        <td class="num">0.603m</td>
+      </tr>
+    </table>
+
+    <h2>六、品质结构（1 人/塘 · 四塘合计）</h2>
+    <div class="charts">
+      <div class="chart-box"><div class="chart-wrap"><canvas id="chartQuality"></canvas></div></div>
+      <div class="chart-box"><div class="chart-wrap"><canvas id="chartCaughtQuality"></canvas></div></div>
+    </div>
+    <table>
+      <tr><th>品质</th><th>初始占比</th><th>被钓占比</th></tr>
+      <tr>
+        <td>普通</td><td class="num">40.4%</td><td class="num">64%</td>
+      </tr><tr>
+        <td>优良</td><td class="num">28.7%</td><td class="num">32%</td>
+      </tr><tr>
+        <td>稀有</td><td class="num">15.2%</td><td class="num">3.4%</td>
+      </tr><tr>
+        <td>史诗</td><td class="num">8.2%</td><td class="num">0.6%</td>
+      </tr><tr>
+        <td>传说</td><td class="num">4.1%</td><td class="num">0%</td>
+      </tr><tr>
+        <td>神话</td><td class="num">1.8%</td><td class="num">0%</td>
+      </tr><tr>
+        <td>至尊</td><td class="num">1.8%</td><td class="num">0%</td>
+      </tr>
+    </table>
+
+    <h2>七、各品质体长（1 人/塘 · 四塘合计）</h2>
+    <div class="charts">
+      <div class="chart-box"><div class="chart-wrap"><canvas id="chartQualitySize"></canvas></div></div>
+    </div>
+    <table>
+      <tr><th>品质</th><th>初始均长</th><th>期末均长</th><th>被钓均长</th></tr>
+      <tr>
+        <td>普通</td>
+        <td class="num">0.138m</td>
+        <td class="num">0.3m</td>
+        <td class="num">0.3m</td>
+      </tr><tr>
+        <td>优良</td>
+        <td class="num">0.141m</td>
+        <td class="num">0.8m</td>
+        <td class="num">0.8m</td>
+      </tr><tr>
+        <td>稀有</td>
+        <td class="num">0.143m</td>
+        <td class="num">2m</td>
+        <td class="num">1.67m</td>
+      </tr><tr>
+        <td>史诗</td>
+        <td class="num">0.138m</td>
+        <td class="num">4.5m</td>
+        <td class="num">4.5m</td>
+      </tr><tr>
+        <td>传说</td>
+        <td class="num">0.137m</td>
+        <td class="num">9m</td>
+        <td class="num">—</td>
+      </tr><tr>
+        <td>神话</td>
+        <td class="num">0.14m</td>
+        <td class="num">18m</td>
+        <td class="num">—</td>
+      </tr><tr>
+        <td>至尊</td>
+        <td class="num">0.157m</td>
+        <td class="num">40m</td>
+        <td class="num">—</td>
+      </tr>
+    </table>
+
+    <h2>八、分析结论</h2>
+    <div class="card">
+      <ol>
+        <li>模拟周期 7 天连续运营（同场景鱼群状态跨日延续，无每日重置）。</li><li>补充机制有效：无人时约 6h 内满塘。</li><li>1 人/塘为推荐运营态：人口 100% 上限，日均 ~25 条/天（四塘），被钓均长 0.531m。</li><li>3 人/塘：人口 98.9% 上限，日均 ~70 条/天（四塘），被钓均长 0.555m。</li><li>产量达标：5人/塘日均 117.9 条（7日合计 825），人均时产 0.25。</li><li>生态健康：5人/塘人口 98.2% 上限，被钓均长 0.604m。</li><li>7日产量走势：D1 112 条/天 → D7 131 条/天，波动明显（人口 D7 98.2%）。</li><li>10人/塘：日均 232.7 条（7日合计 1629），人均时产 0.24，人口 98.2% 上限。</li><li>20人/塘（满员）：日均 454.9 条（7日合计 3184），人均时产 0.24，人口 97.9% 上限。</li><li>满员长期生态：人口 D1 97.2% → D7 97.9%，可持续。</li>
+        <li><strong>产量达标</strong>：v0.4.1 在 20 人场景下日均 117.9 条（7日合计 825 条），达到「慢节奏鱼塘」设计目标。</li>
+        <li><strong>体验结构</strong>：灰+绿被钓占比 96%；史诗及以上几乎为零 — 稀有鱼需长期留存或社交展示。</li>
+        <li><strong>满员长期</strong>：20人/塘日均 454.9 条，D7 人口 97.9% 上限。</li>
+      </ol>
+    </div>
+
+    <h2>九、后续建议</h2>
+    <div class="card">
+      <ul style="margin-left:18px">
+        <li>当前日均 117.9 条略高于目标 100，可将 <code>BITE_BASE_SCALE</code> 从 0.05 微调至 0.045</li>
+        <li>观察 7 日趋势：若 D7 人口跌破 85% 需加强补充或降低高压场景人均产出</li>
+        <li>紫/红/橙/金 长期零渔获 — 考虑图鉴、他人鱼塘展示等非钓鱼曝光</li>
+        <li>实机验证：1min 检测频率下的等待体感与空杆飘字反馈</li>
+      </ul>
+    </div>
+
+    <footer>
+      数据：simulate-pond-day.ts · 复现 <code>npm run analytics:pond-day</code> ·
+      <a href="report.html" style="color:var(--accent)">交互报告</a>
+    </footer>
+  </div>
+
+  <script>
+    const EVOLUTION = [{"label":"v0.3.1","total":4480,"perHour":9.33},{"label":"v0.3.2","total":4721,"perHour":9.84},{"label":"v0.4.0","total":1235,"perHour":2.57},{"label":"v0.4.1","total":117.9,"perHour":0.25}];
+    const QUALITY = [{"quality":"普通","initPct":40.4,"caughtPct":64,"deltaPp":23.6,"initAvg":0.138,"finalAvg":0.3,"caughtAvg":0.3},{"quality":"优良","initPct":28.7,"caughtPct":32,"deltaPp":3.3,"initAvg":0.141,"finalAvg":0.8,"caughtAvg":0.8},{"quality":"稀有","initPct":15.2,"caughtPct":3.4,"deltaPp":-11.8,"initAvg":0.143,"finalAvg":2,"caughtAvg":1.67},{"quality":"史诗","initPct":8.2,"caughtPct":0.6,"deltaPp":-7.6,"initAvg":0.138,"finalAvg":4.5,"caughtAvg":4.5},{"quality":"传说","initPct":4.1,"caughtPct":0,"deltaPp":-4.1,"initAvg":0.137,"finalAvg":9,"caughtAvg":null},{"quality":"神话","initPct":1.8,"caughtPct":0,"deltaPp":-1.8,"initAvg":0.14,"finalAvg":18,"caughtAvg":null},{"quality":"至尊","initPct":1.8,"caughtPct":0,"deltaPp":-1.8,"initAvg":0.157,"finalAvg":40,"caughtAvg":null}];
+    const DAILY_TREND = [{"day":1,"totalCaught":112,"avgPop":70.8,"popRatio":99.3},{"day":2,"totalCaught":112,"avgPop":71.3,"popRatio":100},{"day":3,"totalCaught":136,"avgPop":70.5,"popRatio":98.9},{"day":4,"totalCaught":113,"avgPop":70.8,"popRatio":99.3},{"day":5,"totalCaught":97,"avgPop":70.3,"popRatio":98.6},{"day":6,"totalCaught":124,"avgPop":71,"popRatio":99.6},{"day":7,"totalCaught":131,"avgPop":70,"popRatio":98.2}];
+    const TARGET = 100;
+
+    const pctLabelPlugin = {
+      id: 'pctLabels',
+      afterDatasetsDraw(chart) {
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return;
+        chart.data.datasets.forEach((dataset, di) => {
+          const meta = chart.getDatasetMeta(di);
+          meta.data.forEach((el, i) => {
+            const val = dataset.data[i];
+            if (val == null || val === 0) return;
+            ctx.save();
+            ctx.font = '11px Segoe UI, sans-serif';
+            ctx.fillStyle = '#e8edf2';
+            ctx.textAlign = 'center';
+            const text = val + '%';
+            if (chart.config.type === 'doughnut') {
+              const pos = el.tooltipPosition();
+              ctx.fillText(text, pos.x, pos.y);
+            } else {
+              ctx.fillText(text, el.x, el.y - 5);
+            }
+            ctx.restore();
+          });
+        });
+      },
+    };
+
+    new Chart(document.getElementById('chartEvolution'), {
+      type: 'bar',
+      data: {
+        labels: EVOLUTION.map(e => e.label),
+        datasets: [
+          { label: '日总上岸', data: EVOLUTION.map(e => e.total), backgroundColor: ['#5c6570','#c05621','#4a9eff','#48bb78'] },
+          { label: '目标上限', data: EVOLUTION.map(() => TARGET), type: 'line', borderColor: '#fc8181', borderDash: [6,4], fill: false, pointRadius: 0 },
+        ],
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { title: { display: true, text: '条/天' } } } },
+    });
+
+    new Chart(document.getElementById('chartPerHour'), {
+      type: 'line',
+      data: {
+        labels: EVOLUTION.map(e => e.label),
+        datasets: [{ label: '人均时产', data: EVOLUTION.map(e => e.perHour), borderColor: '#4a9eff', tension: 0.2, fill: true, backgroundColor: 'rgba(74,158,255,.15)' }],
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { title: { display: true, text: '条/人/小时' } } } },
+    });
+
+    new Chart(document.getElementById('chartQuality'), {
+      type: 'bar',
+      data: {
+        labels: QUALITY.map(q => q.quality),
+        datasets: [
+          { label: '初始占比', data: QUALITY.map(q => q.initPct), backgroundColor: '#5c6570' },
+          { label: '被钓占比', data: QUALITY.map(q => q.caughtPct), backgroundColor: '#4a9eff' },
+        ],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '品质占比：初始 vs 被钓（%）' }, legend: { position: 'top' } }, scales: { y: { max: 100, title: { display: true, text: '%' } } } },
+      plugins: [pctLabelPlugin],
+    });
+
+    const caughtOnly = QUALITY.filter(q => q.caughtPct > 0);
+    new Chart(document.getElementById('chartCaughtQuality'), {
+      type: 'doughnut',
+      data: {
+        labels: caughtOnly.map(q => q.quality),
+        datasets: [{ data: caughtOnly.map(q => q.caughtPct), backgroundColor: ['#9E9E9E','#4CAF50','#2196F3','#9C27B0','#F44336','#FF9800','#FFC107'].slice(0, caughtOnly.length) }],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '被钓品质占比（%）' }, legend: { position: 'right' } } },
+      plugins: [pctLabelPlugin],
+    });
+
+    new Chart(document.getElementById('chartQualitySize'), {
+      type: 'bar',
+      data: {
+        labels: QUALITY.map(q => q.quality),
+        datasets: [
+          { label: '初始均长', data: QUALITY.map(q => q.initAvg), backgroundColor: '#5c6570' },
+          { label: '期末均长', data: QUALITY.map(q => q.finalAvg), backgroundColor: '#4a9eff' },
+          { label: '被钓均长', data: QUALITY.map(q => q.caughtAvg), backgroundColor: '#ed8936' },
+        ],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '各品质均长 (m)' } }, scales: { y: { beginAtZero: true, title: { display: true, text: '米' } } } },
+    });
+
+    if (DAILY_TREND.length) {
+      const dayLabels = DAILY_TREND.map(d => 'D' + d.day);
+      new Chart(document.getElementById('chartDailyCatch'), {
+        type: 'line',
+        data: { labels: dayLabels, datasets: [{ label: '日钓量', data: DAILY_TREND.map(d => d.totalCaught), borderColor: '#4a9eff', tension: 0.2, fill: true, backgroundColor: 'rgba(74,158,255,.15)' }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { title: { display: true, text: '条/天' } } } },
+      });
+      new Chart(document.getElementById('chartDailyPop'), {
+        type: 'line',
+        data: { labels: dayLabels, datasets: [{ label: '人口率', data: DAILY_TREND.map(d => d.popRatio), borderColor: '#48bb78', tension: 0.2 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, title: { display: true, text: '%' } } } },
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+# ARC-06: Fish Social — server + SQLite volume (+ optional monitoring profile)
+# QUAL-05: ALLOWED_ORIGINS is required — no default * (production CORS rejects *)
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-3001}:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_PATH: /data/fish-social.db
+      LOG_DIR: ""
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?ALLOWED_ORIGINS is required e.g. https://app.example.com}
+      ADMIN_SECRET: ${ADMIN_SECRET:?ADMIN_SECRET is required}
+      PLAYER_ERASE_PEPPER: ${PLAYER_ERASE_PEPPER:?PLAYER_ERASE_PEPPER is required}
+      # Optional: OPS_STATIC_ENABLED=false on public hosts
+      OPS_STATIC_ENABLED: ${OPS_STATIC_ENABLED:-false}
+      METRICS_PROMETHEUS_ENABLED: ${METRICS_PROMETHEUS_ENABLED:-false}
+      LOKI_ENABLED: ${LOKI_ENABLED:-false}
+      LOKI_HOST: ${LOKI_HOST:-http://loki:3100}
+    volumes:
+      - fish_social_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+
+volumes:
+  fish_social_data:

@@ -1,0 +1,834 @@
+{
+  "generatedAt": "2026-07-07T18:57:27.500Z",
+  "constants": {
+    "BITE_BASE_SCALE": 0.05,
+    "SIZE_BITE_K": 0.65,
+    "FISH_BITE_CHECK_MS": 60000,
+    "JUVENILE_ESCAPE_SIZE_M": 0.35,
+    "ESCAPE_AT_JUVENILE_MIN": 0.22,
+    "ESCAPE_AT_JUVENILE_MAX": 0.08,
+    "REFERENCE_SIZE_M": 40,
+    "ESCAPE_AT_40M": 0.985,
+    "spotMultExample": 2.5
+  },
+  "qualityCaps": {
+    "gray": 0.3,
+    "green": 0.8,
+    "blue": 2,
+    "purple": 4.5,
+    "red": 9,
+    "orange": 18,
+    "gold": 40
+  },
+  "qualityBiteBase": {
+    "gray": 0.05,
+    "green": 0.032,
+    "blue": 0.018,
+    "purple": 0.008,
+    "red": 0.0035,
+    "orange": 0.0015,
+    "gold": 0.0006
+  },
+  "biteByN": [
+    {
+      "n": 0.1,
+      "gray": 0.1,
+      "green": 0.07,
+      "blue": 0.04,
+      "purple": 0.02,
+      "red": 0.01,
+      "orange": 0,
+      "gold": 0
+    },
+    {
+      "n": 0.2,
+      "gray": 0.12,
+      "green": 0.08,
+      "blue": 0.04,
+      "purple": 0.02,
+      "red": 0.01,
+      "orange": 0,
+      "gold": 0
+    },
+    {
+      "n": 0.3,
+      "gray": 0.14,
+      "green": 0.09,
+      "blue": 0.05,
+      "purple": 0.02,
+      "red": 0.01,
+      "orange": 0,
+      "gold": 0
+    },
+    {
+      "n": 0.4,
+      "gray": 0.15,
+      "green": 0.1,
+      "blue": 0.05,
+      "purple": 0.02,
+      "red": 0.01,
+      "orange": 0,
+      "gold": 0
+    },
+    {
+      "n": 0.5,
+      "gray": 0.17,
+      "green": 0.11,
+      "blue": 0.06,
+      "purple": 0.03,
+      "red": 0.01,
+      "orange": 0.01,
+      "gold": 0
+    },
+    {
+      "n": 0.6,
+      "gray": 0.19,
+      "green": 0.12,
+      "blue": 0.07,
+      "purple": 0.03,
+      "red": 0.01,
+      "orange": 0.01,
+      "gold": 0
+    },
+    {
+      "n": 0.7,
+      "gray": 0.2,
+      "green": 0.13,
+      "blue": 0.07,
+      "purple": 0.03,
+      "red": 0.01,
+      "orange": 0.01,
+      "gold": 0
+    },
+    {
+      "n": 0.8,
+      "gray": 0.22,
+      "green": 0.14,
+      "blue": 0.08,
+      "purple": 0.03,
+      "red": 0.02,
+      "orange": 0.01,
+      "gold": 0
+    },
+    {
+      "n": 0.9,
+      "gray": 0.23,
+      "green": 0.15,
+      "blue": 0.08,
+      "purple": 0.04,
+      "red": 0.02,
+      "orange": 0.01,
+      "gold": 0
+    },
+    {
+      "n": 1,
+      "gray": 0.25,
+      "green": 0.16,
+      "blue": 0.09,
+      "purple": 0.04,
+      "red": 0.02,
+      "orange": 0.01,
+      "gold": 0
+    }
+  ],
+  "biteHeatmap": {
+    "gray": [
+      {
+        "n": 0.1,
+        "sizeM": 0.03,
+        "bitePct": 0.1,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.2,
+        "sizeM": 0.06,
+        "bitePct": 0.12,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.3,
+        "sizeM": 0.09,
+        "bitePct": 0.14,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.4,
+        "sizeM": 0.12,
+        "bitePct": 0.15,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.5,
+        "sizeM": 0.15,
+        "bitePct": 0.17,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.6,
+        "sizeM": 0.18,
+        "bitePct": 0.19,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.7,
+        "sizeM": 0.21,
+        "bitePct": 0.2,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.8,
+        "sizeM": 0.24,
+        "bitePct": 0.22,
+        "basePct": 0.25
+      },
+      {
+        "n": 0.9,
+        "sizeM": 0.27,
+        "bitePct": 0.23,
+        "basePct": 0.25
+      },
+      {
+        "n": 1,
+        "sizeM": 0.3,
+        "bitePct": 0.25,
+        "basePct": 0.25
+      }
+    ],
+    "green": [
+      {
+        "n": 0.1,
+        "sizeM": 0.08,
+        "bitePct": 0.07,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.2,
+        "sizeM": 0.16,
+        "bitePct": 0.08,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.3,
+        "sizeM": 0.24,
+        "bitePct": 0.09,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.4,
+        "sizeM": 0.32,
+        "bitePct": 0.1,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.5,
+        "sizeM": 0.4,
+        "bitePct": 0.11,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.6,
+        "sizeM": 0.48,
+        "bitePct": 0.12,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.7,
+        "sizeM": 0.56,
+        "bitePct": 0.13,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.8,
+        "sizeM": 0.64,
+        "bitePct": 0.14,
+        "basePct": 0.16
+      },
+      {
+        "n": 0.9,
+        "sizeM": 0.72,
+        "bitePct": 0.15,
+        "basePct": 0.16
+      },
+      {
+        "n": 1,
+        "sizeM": 0.8,
+        "bitePct": 0.16,
+        "basePct": 0.16
+      }
+    ],
+    "blue": [
+      {
+        "n": 0.1,
+        "sizeM": 0.2,
+        "bitePct": 0.04,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.2,
+        "sizeM": 0.4,
+        "bitePct": 0.04,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.3,
+        "sizeM": 0.6,
+        "bitePct": 0.05,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.4,
+        "sizeM": 0.8,
+        "bitePct": 0.05,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.5,
+        "sizeM": 1,
+        "bitePct": 0.06,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.6,
+        "sizeM": 1.2,
+        "bitePct": 0.07,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.7,
+        "sizeM": 1.4,
+        "bitePct": 0.07,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.8,
+        "sizeM": 1.6,
+        "bitePct": 0.08,
+        "basePct": 0.09
+      },
+      {
+        "n": 0.9,
+        "sizeM": 1.8,
+        "bitePct": 0.08,
+        "basePct": 0.09
+      },
+      {
+        "n": 1,
+        "sizeM": 2,
+        "bitePct": 0.09,
+        "basePct": 0.09
+      }
+    ],
+    "purple": [
+      {
+        "n": 0.1,
+        "sizeM": 0.45,
+        "bitePct": 0.02,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.2,
+        "sizeM": 0.9,
+        "bitePct": 0.02,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.3,
+        "sizeM": 1.35,
+        "bitePct": 0.02,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.4,
+        "sizeM": 1.8,
+        "bitePct": 0.02,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.5,
+        "sizeM": 2.25,
+        "bitePct": 0.03,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.6,
+        "sizeM": 2.7,
+        "bitePct": 0.03,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.7,
+        "sizeM": 3.15,
+        "bitePct": 0.03,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.8,
+        "sizeM": 3.6,
+        "bitePct": 0.03,
+        "basePct": 0.04
+      },
+      {
+        "n": 0.9,
+        "sizeM": 4.05,
+        "bitePct": 0.04,
+        "basePct": 0.04
+      },
+      {
+        "n": 1,
+        "sizeM": 4.5,
+        "bitePct": 0.04,
+        "basePct": 0.04
+      }
+    ],
+    "red": [
+      {
+        "n": 0.1,
+        "sizeM": 0.9,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.2,
+        "sizeM": 1.8,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.3,
+        "sizeM": 2.7,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.4,
+        "sizeM": 3.6,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.5,
+        "sizeM": 4.5,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.6,
+        "sizeM": 5.4,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.7,
+        "sizeM": 6.3,
+        "bitePct": 0.01,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.8,
+        "sizeM": 7.2,
+        "bitePct": 0.02,
+        "basePct": 0.02
+      },
+      {
+        "n": 0.9,
+        "sizeM": 8.1,
+        "bitePct": 0.02,
+        "basePct": 0.02
+      },
+      {
+        "n": 1,
+        "sizeM": 9,
+        "bitePct": 0.02,
+        "basePct": 0.02
+      }
+    ],
+    "orange": [
+      {
+        "n": 0.1,
+        "sizeM": 1.8,
+        "bitePct": 0,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.2,
+        "sizeM": 3.6,
+        "bitePct": 0,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.3,
+        "sizeM": 5.4,
+        "bitePct": 0,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.4,
+        "sizeM": 7.2,
+        "bitePct": 0,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.5,
+        "sizeM": 9,
+        "bitePct": 0.01,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.6,
+        "sizeM": 10.8,
+        "bitePct": 0.01,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.7,
+        "sizeM": 12.6,
+        "bitePct": 0.01,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.8,
+        "sizeM": 14.4,
+        "bitePct": 0.01,
+        "basePct": 0.01
+      },
+      {
+        "n": 0.9,
+        "sizeM": 16.2,
+        "bitePct": 0.01,
+        "basePct": 0.01
+      },
+      {
+        "n": 1,
+        "sizeM": 18,
+        "bitePct": 0.01,
+        "basePct": 0.01
+      }
+    ],
+    "gold": [
+      {
+        "n": 0.1,
+        "sizeM": 4,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.2,
+        "sizeM": 8,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.3,
+        "sizeM": 12,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.4,
+        "sizeM": 16,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.5,
+        "sizeM": 20,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.6,
+        "sizeM": 24,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.7,
+        "sizeM": 28,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.8,
+        "sizeM": 32,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 0.9,
+        "sizeM": 36,
+        "bitePct": 0,
+        "basePct": 0
+      },
+      {
+        "n": 1,
+        "sizeM": 40,
+        "bitePct": 0,
+        "basePct": 0
+      }
+    ]
+  },
+  "escapeCurve": [
+    {
+      "sizeM": 0.08,
+      "raw": 22,
+      "basic": 22,
+      "master": 0,
+      "hook": 27892
+    },
+    {
+      "sizeM": 0.1,
+      "raw": 20.96,
+      "basic": 20.96,
+      "master": 0,
+      "hook": 34359
+    },
+    {
+      "sizeM": 0.12,
+      "raw": 19.93,
+      "basic": 19.93,
+      "master": 0,
+      "hook": 40823
+    },
+    {
+      "sizeM": 0.14,
+      "raw": 18.89,
+      "basic": 18.89,
+      "master": 0,
+      "hook": 47284
+    },
+    {
+      "sizeM": 0.16,
+      "raw": 17.85,
+      "basic": 17.85,
+      "master": 0,
+      "hook": 53743
+    },
+    {
+      "sizeM": 0.18,
+      "raw": 16.81,
+      "basic": 16.81,
+      "master": 0,
+      "hook": 60199
+    },
+    {
+      "sizeM": 0.2,
+      "raw": 15.78,
+      "basic": 15.78,
+      "master": 0,
+      "hook": 66652
+    },
+    {
+      "sizeM": 0.25,
+      "raw": 13.19,
+      "basic": 13.19,
+      "master": 0,
+      "hook": 82775
+    },
+    {
+      "sizeM": 0.3,
+      "raw": 10.59,
+      "basic": 10.59,
+      "master": 0,
+      "hook": 98881
+    },
+    {
+      "sizeM": 0.35,
+      "raw": 8,
+      "basic": 8,
+      "master": 0,
+      "hook": 114971
+    },
+    {
+      "sizeM": 0.5,
+      "raw": 2.21,
+      "basic": 2.21,
+      "master": 0,
+      "hook": 163145
+    },
+    {
+      "sizeM": 1,
+      "raw": 4.39,
+      "basic": 4.39,
+      "master": 0,
+      "hook": 322665
+    },
+    {
+      "sizeM": 2,
+      "raw": 8.69,
+      "basic": 8.69,
+      "master": 0,
+      "hook": 636820
+    },
+    {
+      "sizeM": 4,
+      "raw": 17.02,
+      "basic": 17.02,
+      "master": 0,
+      "hook": 1245458
+    },
+    {
+      "sizeM": 8,
+      "raw": 32.58,
+      "basic": 32.58,
+      "master": 2.58,
+      "hook": 2383031
+    },
+    {
+      "sizeM": 12,
+      "raw": 46.67,
+      "basic": 46.67,
+      "master": 16.67,
+      "hook": 3412189
+    },
+    {
+      "sizeM": 20,
+      "raw": 70.21,
+      "basic": 70.21,
+      "master": 40.21,
+      "hook": 5132917
+    },
+    {
+      "sizeM": 30,
+      "raw": 90.38,
+      "basic": 90.38,
+      "master": 60.38,
+      "hook": 6606386
+    },
+    {
+      "sizeM": 40,
+      "raw": 98.5,
+      "basic": 98.5,
+      "master": 68.5,
+      "hook": 7200000
+    }
+  ],
+  "juvenileTable": [
+    {
+      "sizeM": 0.08,
+      "escape": 22,
+      "biteGray": 0.13
+    },
+    {
+      "sizeM": 0.1,
+      "escape": 20.96,
+      "biteGray": 0.14
+    },
+    {
+      "sizeM": 0.12,
+      "escape": 19.93,
+      "biteGray": 0.15
+    },
+    {
+      "sizeM": 0.14,
+      "escape": 18.89,
+      "biteGray": 0.16
+    },
+    {
+      "sizeM": 0.16,
+      "escape": 17.85,
+      "biteGray": 0.17
+    },
+    {
+      "sizeM": 0.18,
+      "escape": 16.81,
+      "biteGray": 0.19
+    },
+    {
+      "sizeM": 0.2,
+      "escape": 15.78,
+      "biteGray": 0.2
+    },
+    {
+      "sizeM": 0.22,
+      "escape": 14.74,
+      "biteGray": 0.21
+    },
+    {
+      "sizeM": 0.24,
+      "escape": 13.7,
+      "biteGray": 0.22
+    },
+    {
+      "sizeM": 0.26,
+      "escape": 12.67,
+      "biteGray": 0.23
+    },
+    {
+      "sizeM": 0.28,
+      "escape": 11.63,
+      "biteGray": 0.24
+    },
+    {
+      "sizeM": 0.3,
+      "escape": 10.59,
+      "biteGray": 0.25
+    },
+    {
+      "sizeM": 0.32,
+      "escape": 9.56,
+      "biteGray": 0.25
+    },
+    {
+      "sizeM": 0.34,
+      "escape": 8.52,
+      "biteGray": 0.25
+    }
+  ],
+  "exampleRows": [
+    {
+      "label": "幼鱼灰 0.10m",
+      "q": "gray",
+      "sizeM": 0.1,
+      "cap": 0.3,
+      "n": 0.333,
+      "baseBitePct": 0.14,
+      "spotBitePct": 0.35,
+      "escapePct": 20.96,
+      "pickWeight": 38
+    },
+    {
+      "label": "灰 满尺寸 0.30m",
+      "q": "gray",
+      "sizeM": 0.3,
+      "cap": 0.3,
+      "n": 1,
+      "baseBitePct": 0.25,
+      "spotBitePct": 0.63,
+      "escapePct": 10.59,
+      "pickWeight": 38
+    },
+    {
+      "label": "蓝 半长 1.00m",
+      "q": "blue",
+      "sizeM": 1,
+      "cap": 2,
+      "n": 0.5,
+      "baseBitePct": 0.06,
+      "spotBitePct": 0.15,
+      "escapePct": 4.39,
+      "pickWeight": 18
+    },
+    {
+      "label": "紫 半长 2.25m",
+      "q": "purple",
+      "sizeM": 2.25,
+      "cap": 4.5,
+      "n": 0.5,
+      "baseBitePct": 0.03,
+      "spotBitePct": 0.07,
+      "escapePct": 9.75,
+      "pickWeight": 9
+    },
+    {
+      "label": "金 满尺寸 40m",
+      "q": "gold",
+      "sizeM": 40,
+      "cap": 40,
+      "n": 1,
+      "baseBitePct": 0,
+      "spotBitePct": 0.01,
+      "escapePct": 98.5,
+      "pickWeight": 1
+    }
+  ]
+}

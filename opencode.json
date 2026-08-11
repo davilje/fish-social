@@ -1,0 +1,150 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "task": {
+          "*": "allow"
+        }
+      }
+    },
+    "producer": {
+      "description": "游戏策划 Agent——撰写产品需求文档与功能规格，不写代码",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "docs/planning/**": "allow",
+          "docs/planning/CHANGELOG.md": "allow",
+          "*": "deny"
+        },
+        "bash": "deny"
+      }
+    },
+    "frontend-dev": {
+      "description": "前端开发 Agent——实现 mobile/ 的 React Native/Expo 客户端功能",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "mobile/**": "allow",
+          "*": "deny"
+        },
+        "bash": {
+          "*": "ask",
+          "npm run planning:*": "allow"
+        }
+      }
+    },
+    "backend-dev": {
+      "description": "后端开发 Agent——实现 server/ shared/ scripts/ 的服务端逻辑",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "server/**": "allow",
+          "shared/**": "allow",
+          "scripts/**": "allow",
+          "*": "deny"
+        },
+        "bash": {
+          "*": "ask",
+          "npm run planning:*": "allow"
+        }
+      }
+    },
+    "data-analyst": {
+      "description": "数据分析 Agent——运行模拟、产出分析报表与数据驱动建议",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "docs/analytics/**": "allow",
+          "docs/planning/specs/**": "allow",
+          "*": "deny"
+        },
+        "bash": {
+          "*": "ask",
+          "npm run planning:*": "allow"
+        }
+      }
+    },
+    "backend-ops": {
+      "description": "后端维护分析 Agent——架构方案、性能优化、运维策略",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "docs/planning/specs/**": "allow",
+          "docs/planning/reports/**": "allow",
+          "docs/planning/architecture/**": "allow",
+          "*": "deny"
+        },
+        "bash": {
+          "*": "ask",
+          "npm run planning:*": "allow"
+        }
+      }
+    },
+    "art-director": {
+      "description": "美术总监 Agent——制定美术风格规范、审核美术资源方向",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "docs/art/direction/**": "allow",
+          "docs/art/styleguide/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny"
+      }
+    },
+    "concept-artist": {
+      "description": "原画 Agent——产出 PNG/SVG 美术资源及资源接入文档",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "mobile/assets/**": "allow",
+          "docs/art/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny"
+      }
+    },
+    "motion-designer": {
+      "description": "动效师 Agent——产出 Lottie/SVG 动画动效及动效接入文档",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "mobile/assets/animations/**": "allow",
+          "docs/art/animations/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny"
+      }
+    },
+    "ui-designer": {
+      "description": "UI 设计师 Agent——产出 UI 设计规范、交互原型说明文档",
+      "mode": "all",
+      "permission": {
+        "read": "allow",
+        "edit": {
+          "docs/design/ui/**": "allow",
+          "docs/design/prototypes/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny"
+      }
+    }
+  },
+  "permission": {
+    "skill": {
+      "*": "allow"
+    }
+  }
+}

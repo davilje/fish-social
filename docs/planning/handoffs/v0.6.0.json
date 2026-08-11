@@ -1,0 +1,19 @@
+{
+  "version": "v0.6.0",
+  "source_agent": "planning",
+  "target_agents": [
+    "backend-dev",
+    "frontend-dev"
+  ],
+  "specs": [
+    "docs/planning/specs/社交互动-动态点赞.md",
+    "docs/planning/specs/社交互动-动态评论.md",
+    "docs/planning/specs/排行榜系统.md"
+  ],
+  "handoff_md": "docs/planning/prompts/v0.6.0-backend-dev.prompt.md",
+  "prompts": [
+    "docs/planning/prompts/v0.6.0-backend-dev.prompt.md",
+    "docs/planning/prompts/v0.6.0-frontend-dev.prompt.md"
+  ],
+  "pipeline_status": "handoff_ready"
+}

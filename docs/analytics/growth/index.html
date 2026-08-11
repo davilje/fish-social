@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>增长与经营看板 · Fish Social</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root { --bg:#f4f6f8; --card:#fff; --ink:#1a1d23; --muted:#5c6570; --line:#e2e6eb; --accent:#0e7490; --ok:#0f766e; --warn:#9a3412; --hero:#134e4a; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Segoe UI","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); padding:1.5rem; line-height:1.5; }
+    .wrap { max-width:1100px; margin:0 auto; }
+    h1 { font-size:1.45rem; color:var(--hero); }
+    h2 { font-size:1.1rem; margin:1.5rem 0 0.6rem; padding-bottom:0.3rem; border-bottom:2px solid var(--line); }
+    .meta { color:var(--muted); font-size:0.9rem; margin:0.4rem 0 1rem; }
+    .nav a { color:var(--accent); margin-right:1rem; font-size:0.9rem; }
+    .filters { display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:0.85rem 1rem; margin-bottom:1rem; }
+    .filters label { font-size:0.85rem; color:var(--muted); display:flex; gap:0.35rem; align-items:center; }
+    .filters input, .filters select { border:1px solid var(--line); border-radius:6px; padding:0.35rem 0.5rem; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.65rem; margin-bottom:1rem; }
+    .kpi { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:0.85rem; }
+    .kpi .lbl { font-size:0.75rem; color:var(--muted); }
+    .kpi .val { font-size:1.45rem; font-weight:700; color:var(--hero); }
+    .kpi .delta { font-size:0.8rem; }
+    .delta.up { color:#166534; } .delta.down { color:#b91c1c; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1rem; margin-bottom:1rem; }
+    .chart-wrap { position:relative; height:280px; }
+    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    th, td { border:1px solid var(--line); padding:0.4rem 0.55rem; text-align:right; }
+    th:first-child, td:first-child { text-align:left; }
+    th { background:#f0fdfa; color:var(--muted); }
+    .muted { color:var(--muted); }
+    .gray-zone { opacity:0.72; background:#f8fafc; }
+    .gray-zone h3 { color:var(--muted); font-size:0.95rem; margin-bottom:0.5rem; }
+    .chip-row { display:flex; flex-wrap:wrap; gap:0.5rem; margin:0.5rem 0 0.75rem; }
+    .chip-row label { background:#ecfeff; border:1px solid #a5f3fc; border-radius:999px; padding:0.2rem 0.65rem; font-size:0.82rem; }
+    footer { margin-top:2rem; font-size:0.82rem; color:var(--muted); text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/ops/">运营平台</a>
+      <a href="../index.html">分析归档</a>
+      <a href="../live-vs-sim.html">线上 vs 模拟</a>
+    </div>
+    <h1>增长与经营看板</h1>
+    <p class="meta" id="meta">加载中…</p>
+
+    <div class="filters">
+      <label>近
+        <select id="rangeDays">
+          <option value="14">14 日</option>
+          <option value="30" selected>30 日</option>
+          <option value="60">60 日</option>
+          <option value="90">90 日</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="showFishingDau" checked /> 叠加钓鱼 DAU</label>
+      <label>最小 cohort
+        <input type="number" id="minCohort" value="5" min="1" max="100" style="width:4rem" />
+      </label>
+      <button type="button" id="btnRefresh">应用筛选</button>
+    </div>
+
+    <h2>§A 总览 KPI</h2>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <h2>§B 活跃与新增</h2>
+    <div class="card"><div class="chart-wrap"><canvas id="chartActive"></canvas></div></div>
+
+    <h2>§C 留存</h2>
+    <p class="meta">多选 Dn 控制折线；矩阵未到期显示「未到期」。默认 D1 / D7 / D30。</p>
+    <div class="chip-row" id="dnChips"></div>
+    <div class="card"><div class="chart-wrap"><canvas id="chartRetention"></canvas></div></div>
+    <div class="card" style="overflow:auto">
+      <table id="retentionTable"><thead></thead><tbody></tbody></table>
+    </div>
+
+    <h2>§D 玩法健康</h2>
+    <div class="card"><div class="chart-wrap"><canvas id="chartPlay"></canvas></div></div>
+    <h3 style="font-size:0.95rem;margin:0.75rem 0">新进当日漏斗（最新日）</h3>
+    <div class="kpi-grid" id="funnelGrid"></div>
+
+    <h2>§E 商业化（预留）</h2>
+    <div class="card gray-zone" id="commercialBox">
+      <h3>待接入数据源</h3>
+      <p class="meta">无广告 / IAP / 投放账本时<strong>不展示假数</strong>。预留字段：ARPU、eCPM、CPI、ROAS 等（见规格 OPS-KPI-1 §4.4）。</p>
+    </div>
+
+    <h2>§F 口径说明</h2>
+    <div class="card meta">
+      <ul style="margin-left:1.1rem">
+        <li>时区：Asia/Shanghai 自然日。默认排除 <code>bot-%</code>。</li>
+        <li>NU：当日 <code>players.created_at</code> 新增；DAU：当日任意 <code>fishing_metrics</code> 去重真人。</li>
+        <li>留存：注册日 cohort，第 +N 日有埋点即回访；与单日日报 D1/D7 雏形对齐并扩展。</li>
+        <li>玩法指标复用日报口径（钓获、断线率、人口率等）。</li>
+      </ul>
+    </div>
+
+    <footer>OPS-KPI-1 · <code>npm run analytics:growth</code> · 日批自动刷新</footer>
+  </div>
+  <script>
+    let SERIES = null;
+    let RETENTION = null;
+    let COMMERCIAL = null;
+    let chartActive = null, chartRetention = null, chartPlay = null;
+
+    const DN_ALL = ['d1','d3','d7','d10','d14','d30'];
+
+    function deltaHtml(d) {
+      if (d == null) return '';
+      const cls = d >= 0 ? 'up' : 'down';
+      const sign = d >= 0 ? '+' : '';
+      return '<span class="delta ' + cls + '">' + sign + d + '%</span>';
+    }
+
+    function pct(v) {
+      if (v == null) return '—';
+      return (v * 100).toFixed(1) + '%';
+    }
+
+    function sliceDays(days, n) {
+      if (!days || !days.length) return [];
+      return days.slice(Math.max(0, days.length - n));
+    }
+
+    function selectedDns() {
+      return DN_ALL.filter((d) => {
+        const el = document.getElementById('dn-' + d);
+        return el && el.checked;
+      });
+    }
+
+    function renderKpis(series, n) {
+      const days = sliceDays(series.days, n);
+      const latest = days[days.length - 1];
+      const prev = days.length >= 2 ? days[days.length - 2] : null;
+      const cards = [
+        ['新增 NU', latest?.nu, pctDelta(latest?.nu, prev?.nu)],
+        ['DAU', latest?.dau, pctDelta(latest?.dau, prev?.dau)],
+        ['钓鱼 DAU', latest?.fishing_dau, pctDelta(latest?.fishing_dau, prev?.fishing_dau)],
+        ['WAU', latest?.wau, pctDelta(latest?.wau, prev?.wau)],
+        ['MAU', latest?.mau, pctDelta(latest?.mau, prev?.mau)],
+        ['粘性 DAU/MAU', latest?.stickiness != null ? pct(latest.stickiness) : '—', null],
+        ['新增占 DAU', latest?.nu_share != null ? pct(latest.nu_share) : '—', null],
+      ];
+      document.getElementById('kpiGrid').innerHTML = cards.map(([lbl, val, d]) =>
+        '<div class="kpi"><div class="lbl">' + lbl + '</div><div class="val">' + (val ?? '—') + '</div>' + (d != null ? deltaHtml(d) : '') + '</div>'
+      ).join('');
+    }
+
+    function pctDelta(cur, prev) {
+      if (cur == null || prev == null || prev === 0) return null;
+      return Math.round(((cur - prev) / prev) * 1000) / 10;
+    }
+
+    function renderActiveChart(series, n, showFishing) {
+      const days = sliceDays(series.days, n);
+      const labels = days.map((d) => d.date);
+      const datasets = [
+        { label: 'NU', data: days.map((d) => d.nu), borderColor: '#0e7490', tension: 0.2 },
+        { label: 'DAU', data: days.map((d) => d.dau), borderColor: '#134e4a', tension: 0.2 },
+      ];
+      if (showFishing) {
+        datasets.push({ label: '钓鱼 DAU', data: days.map((d) => d.fishing_dau), borderColor: '#c2410c', tension: 0.2, borderDash: [4, 4] });
+      }
+      if (chartActive) chartActive.destroy();
+      chartActive = new Chart(document.getElementById('chartActive'), {
+        type: 'line',
+        data: { labels, datasets },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+      });
+    }
+
+    function renderRetention(n, minCohort) {
+      const dns = selectedDns();
+      const labels = [];
+      const datasets = dns.map((dn, i) => {
+        const colors = ['#0e7490','#7c3aed','#134e4a','#c2410c','#2563eb','#be123c'];
+        const pts = (RETENTION.seriesByDn[dn] || []).slice(-n).filter((p) => p.cohortSize >= minCohort && p.status === 'ok');
+        return {
+          label: dn.toUpperCase(),
+          data: pts.map((p) => ({ x: p.cohortDate, y: p.rate })),
+          borderColor: colors[i % colors.length],
+          tension: 0.2,
+          parsing: false,
+        };
+      });
+      // unify labels from first series in window
+      const windowCohorts = (RETENTION.cohorts || []).slice(-n);
+      const chartLabels = windowCohorts.map((c) => c.cohortDate);
+      const lineDatasets = dns.map((dn, i) => {
+        const colors = ['#0e7490','#7c3aed','#134e4a','#c2410c','#2563eb','#be123c'];
+        const byDate = new Map((RETENTION.seriesByDn[dn] || []).map((p) => [p.cohortDate, p]));
+        return {
+          label: dn.toUpperCase(),
+          data: chartLabels.map((dt) => {
+            const p = byDate.get(dt);
+            if (!p || p.cohortSize < minCohort || p.status !== 'ok') return null;
+            return p.rate;
+          }),
+          borderColor: colors[i % colors.length],
+          tension: 0.2,
+          spanGaps: true,
+        };
+      });
+      if (chartRetention) chartRetention.destroy();
+      chartRetention = new Chart(document.getElementById('chartRetention'), {
+        type: 'line',
+        data: { labels: chartLabels, datasets: lineDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { title: { display: true, text: '留存率 %' }, suggestedMin: 0, suggestedMax: 100 } },
+        },
+      });
+
+      const thead = document.querySelector('#retentionTable thead');
+      const tbody = document.querySelector('#retentionTable tbody');
+      thead.innerHTML = '<tr><th>注册日</th><th>人数</th>' + DN_ALL.map((d) => '<th>' + d.toUpperCase() + '</th>').join('') + '</tr>';
+      tbody.innerHTML = windowCohorts.map((c) => {
+        const cells = DN_ALL.map((d) => {
+          const cell = c.rates[d];
+          if (!cell || cell.status === 'not_due') return '<td class="muted">未到期</td>';
+          if (cell.status === 'empty' || cell.rate == null) return '<td class="muted">—</td>';
+          return '<td>' + cell.rate + '%</td>';
+        }).join('');
+        return '<tr><td>' + c.cohortDate + '</td><td>' + c.cohortSize + '</td>' + cells + '</tr>';
+      }).join('');
+    }
+
+    function renderPlay(series, n) {
+      const days = sliceDays(series.days, n);
+      if (chartPlay) chartPlay.destroy();
+      chartPlay = new Chart(document.getElementById('chartPlay'), {
+        type: 'line',
+        data: {
+          labels: days.map((d) => d.date),
+          datasets: [
+            { label: '日钓获（总量·背包）', data: days.map((d) => d.daily_catch), borderColor: '#0e7490', yAxisID: 'y', tension: 0.2 },
+            { label: '日钓·真人', data: days.map((d) => d.daily_catch_human), borderColor: '#0369a1', yAxisID: 'y', tension: 0.2 },
+            { label: '日钓·机器人', data: days.map((d) => d.daily_catch_bot), borderColor: '#9333ea', yAxisID: 'y', tension: 0.2, borderDash: [5, 3] },
+            { label: '断线率 %', data: days.map((d) => d.disconnect_rate != null ? +(d.disconnect_rate * 100).toFixed(1) : null), borderColor: '#b91c1c', yAxisID: 'y1', tension: 0.2 },
+            { label: '人口率 %', data: days.map((d) => d.avg_pop_ratio), borderColor: '#166534', yAxisID: 'y1', tension: 0.2, borderDash: [4, 3] },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: { position: 'left', title: { display: true, text: '钓获' } },
+            y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '%' } },
+          },
+        },
+      });
+
+      const latest = days[days.length - 1];
+      const f = latest?.funnel;
+      const funnel = f
+        ? [
+            ['新进', f.nu],
+            ['→ 进塘', f.join],
+            ['→ 开钓', f.fishing_start],
+            ['→ 上钩', f.bite_hook],
+            ['→ 上岸', f.catch],
+          ]
+        : [];
+      document.getElementById('funnelGrid').innerHTML = funnel.map(([lbl, v]) =>
+        '<div class="kpi"><div class="lbl">' + lbl + '</div><div class="val">' + (v ?? '—') + '</div></div>'
+      ).join('') || '<p class="meta">暂无漏斗数据</p>';
+    }
+
+    function renderCommercial() {
+      const box = document.getElementById('commercialBox');
+      const status = COMMERCIAL?.status || 'not_connected';
+      const metrics = (COMMERCIAL?.metrics || []).map((m) => m.id || m).join(' · ') || 'revenue_total · arpu · ecpm · cpi · roas_d7';
+      box.innerHTML = '<h3>待接入数据源（' + status + '）</h3>' +
+        '<p class="meta">禁止假数。预留指标：' + metrics + '。接入支付/广告/投放后再写入 <code>commercial.json</code>。</p>';
+    }
+
+    function apply() {
+      if (!SERIES || !RETENTION) return;
+      const n = Number(document.getElementById('rangeDays').value) || 30;
+      const showFishing = document.getElementById('showFishingDau').checked;
+      const minCohort = Number(document.getElementById('minCohort').value) || 5;
+      renderKpis(SERIES, n);
+      renderActiveChart(SERIES, n, showFishing);
+      renderRetention(n, minCohort);
+      renderPlay(SERIES, n);
+      renderCommercial();
+    }
+
+    async function boot() {
+      const [s, r, c] = await Promise.all([
+        fetch('series.json', { cache: 'no-store' }).then((x) => x.json()),
+        fetch('retention.json', { cache: 'no-store' }).then((x) => x.json()),
+        fetch('commercial.json', { cache: 'no-store' }).then((x) => x.json()).catch(() => ({ status: 'not_connected', metrics: [] })),
+      ]);
+      SERIES = s;
+      RETENTION = r;
+      COMMERCIAL = c;
+      document.getElementById('meta').textContent =
+        '截至 ' + (s.asOf || '—') + ' · 规则 ' + (s.rulesVersion || '—') + ' · 时区 Asia/Shanghai · 生成 ' +
+        (s.generatedAt ? new Date(s.generatedAt).toLocaleString('zh-CN') : '—') +
+        ' · 序列 ' + (s.dayCount || 0) + ' 日';
+
+      const chips = document.getElementById('dnChips');
+      const defaults = new Set(r.defaultDns || ['d1', 'd7', 'd30']);
+      chips.innerHTML = DN_ALL.map((d) =>
+        '<label><input type="checkbox" id="dn-' + d + '"' + (defaults.has(d) ? ' checked' : '') + ' /> ' + d.toUpperCase() + '</label>'
+      ).join('');
+      chips.querySelectorAll('input').forEach((el) => el.addEventListener('change', apply));
+      document.getElementById('btnRefresh').addEventListener('click', apply);
+      document.getElementById('rangeDays').addEventListener('change', apply);
+      document.getElementById('showFishingDau').addEventListener('change', apply);
+      apply();
+    }
+
+    boot().catch((e) => {
+      document.getElementById('meta').textContent = '加载失败：请先运行 npm run analytics:growth — ' + e.message;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+{
+  "generatedAt": "2026-07-07T15:03:42.292Z",
+  "seed": 42026,
+  "scenarioRows": [
+    {
+      "anglers": 0,
+      "totalCaught": 0,
+      "perPondPerHour": 0,
+      "perAnglerPerHour": 0,
+      "popRatio": 100,
+      "avgCaughtSize": 0,
+      "avgFinalSize": 1.593,
+      "status": "baseline"
+    },
+    {
+      "anglers": 1,
+      "totalCaught": 299,
+      "perPondPerHour": 3.1,
+      "perAnglerPerHour": 3.11,
+      "popRatio": 97.5,
+      "avgCaughtSize": 0.622,
+      "avgFinalSize": 1.549,
+      "status": "sustainable"
+    },
+    {
+      "anglers": 3,
+      "totalCaught": 834,
+      "perPondPerHour": 8.7,
+      "perAnglerPerHour": 2.9,
+      "popRatio": 94.4,
+      "avgCaughtSize": 0.573,
+      "avgFinalSize": 1.475,
+      "status": "sustainable"
+    },
+    {
+      "anglers": 5,
+      "totalCaught": 1235,
+      "perPondPerHour": 12.9,
+      "perAnglerPerHour": 2.57,
+      "popRatio": 91.6,
+      "avgCaughtSize": 0.546,
+      "avgFinalSize": 1.317,
+      "status": "sustainable"
+    }
+  ],
+  "qualityShift": [
+    {
+      "quality": "普通",
+      "initPct": 36.3,
+      "caughtPct": 58.9,
+      "deltaPp": 22.6
+    },
+    {
+      "quality": "优良",
+      "initPct": 26.9,
+      "caughtPct": 32.1,
+      "deltaPp": 5.2
+    },
+    {
+      "quality": "稀有",
+      "initPct": 19.3,
+      "caughtPct": 7.7,
+      "deltaPp": -11.6
+    },
+    {
+      "quality": "史诗",
+      "initPct": 10.5,
+      "caughtPct": 1.3,
+      "deltaPp": -9.2
+    },
+    {
+      "quality": "传说",
+      "initPct": 6.4,
+      "caughtPct": 0,
+      "deltaPp": -6.4
+    },
+    {
+      "quality": "神话",
+      "initPct": 0,
+      "caughtPct": 0,
+      "deltaPp": 0
+    },
+    {
+      "quality": "至尊",
+      "initPct": 0.6,
+      "caughtPct": 0,
+      "deltaPp": -0.6
+    }
+  ],
+  "supplementHours": [
+    {
+      "pond": "静心湖",
+      "hours": 5,
+      "max": 80
+    },
+    {
+      "pond": "云雾塘",
+      "hours": 5,
+      "max": 70
+    },
+    {
+      "pond": "夕阳湾",
+      "hours": 4,
+      "max": 60
+    },
+    {
+      "pond": "竹林池",
+      "hours": 5,
+      "max": 75
+    }
+  ],
+  "conclusions": [
+    "补充机制有效：无人时约 5h 内满塘。",
+    "1 人/塘为推荐运营态：人口 97.5% 上限，日钓 ~74 条/塘，被钓均长 0.622m。",
+    "3 人/塘进入消耗态：人口 94.4% 上限，被钓均长降至 0.573m。",
+    "5 人/塘不可持续：人口 91.6% 上限，被钓均长仅 0.546m。"
+  ]
+}

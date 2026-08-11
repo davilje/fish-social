@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BI CSV · 2026-07-19</title>
+  <style>
+    :root { --bg:#0f1419; --card:#1a2332; --text:#e8edf2; --muted:#8b9cb3; --accent:#4a9eff; --border:#2d3a4d; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Segoe UI","PingFang SC",sans-serif; background:var(--bg); color:var(--text); padding:2rem; line-height:1.5; }
+    .wrap { max-width:720px; margin:0 auto; }
+    h1 { font-size:1.4rem; margin-bottom:.35rem; }
+    .meta { color:var(--muted); font-size:.9rem; margin-bottom:1.25rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1rem; }
+    ul { margin:.75rem 0 0 1.2rem; }
+    a { color:var(--accent); }
+    .nav { margin-bottom:1rem; font-size:.9rem; }
+    .nav a { margin-right:1rem; }
+    code { font-size:.85em; background:#243044; padding:.1rem .35rem; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="/analytics/index.html">分析归档</a>
+      <a href="/ops/">运营平台</a>
+      <a href="../latest/">latest</a>
+    </nav>
+    <p class="nav"><a href="../latest/">← 最新导出 (latest)</a></p>
+    <h1>BI 聚合 CSV</h1>
+    <p class="meta">
+      这不是运营看板，是<strong>给 Excel / BI 下载的汇总 CSV</strong>。<br>
+      想看「昨天钓了多少」请回 <a href="/analytics/index.html">分析归档索引</a> 打开日报 HTML。<br>
+      统计日 <code>2026-07-19</code> · 生成 2026-07-19T16:30:03.186Z · 默认<strong>不含</strong>明文 playerId
+    </p>
+    <div class="card">
+      <strong>文件列表</strong>
+      <ul>
+        <li><a href="./daily_pond_stats.csv">daily_pond_stats.csv</a></li>
+<li><a href="./daily_kpi.csv">daily_kpi.csv</a></li>
+<li><a href="./daily_economy.csv">daily_economy.csv</a></li>
+<li><a href="./daily_ecology.csv">daily_ecology.csv</a></li>
+        <li><a href="./manifest.json">manifest.json</a></li>
+      </ul>
+    </div>
+    <p class="meta">聚合级导出，不含明文 player_id · 复现 <code>npm run analytics:export-warehouse</code></p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fish Social · 游戏预览工具</title>
+  <style>
+    :root {
+      --bg: #0f1a1e;
+      --surface: #1a2c33;
+      --surface2: #243a44;
+      --accent: #4a90a4;
+      --accent-light: #6bb8cc;
+      --gold: #ffd700;
+      --text: #e8f0f2;
+      --muted: #8aa4ad;
+      --success: #4caf50;
+      --warn: #ffb74d;
+      --danger: #ef5350;
+      --radius: 14px;
+      --shadow: 0 8px 32px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1a3a4a 0%, #0f1a1e 50%, #1a2c20 100%);
+      padding: 48px 24px 32px;
+      text-align: center;
+      border-bottom: 1px solid rgba(74,144,164,.25);
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--accent-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p { color: var(--muted); margin-top: 8px; font-size: 1.05rem; }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--surface);
+      font-size: .9rem;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .dot.ok { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .dot.err { background: var(--danger); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #357a8c); color: #fff; }
+    .btn-gold { background: linear-gradient(135deg, #c9a227, var(--gold)); color: #1a1a1a; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid rgba(255,255,255,.1); }
+
+    nav.tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 16px 24px;
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    nav.tabs button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .95rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    nav.tabs button:hover { color: var(--text); background: rgba(255,255,255,.05); }
+    nav.tabs button.active { background: var(--accent); color: #fff; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+    .panel { display: none; animation: fadeIn .3s ease; }
+    .panel.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 { font-size: 1.25rem; margin-bottom: 12px; color: var(--accent-light); }
+    .card h3 { font-size: 1rem; margin: 16px 0 8px; color: var(--muted); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
+    .feature-item {
+      padding: 16px;
+      background: var(--surface2);
+      border-radius: 10px;
+      border-left: 3px solid var(--accent);
+    }
+    .feature-item strong { display: block; margin-bottom: 4px; }
+
+    /* World map mock */
+    .map-canvas {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      aspect-ratio: 600 / 480;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #2d4a3e 0%, #1e3328 100%);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 2px solid rgba(74,144,164,.3);
+    }
+
+    .map-region {
+      position: absolute;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      text-shadow: 0 1px 3px rgba(0,0,0,.5);
+    }
+    .map-region:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,.2); z-index: 2; }
+    .map-region.selected { outline: 3px solid var(--gold); z-index: 3; }
+
+    /* Pond mock */
+    .pond-scene {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1;
+      margin: 0 auto;
+      background: radial-gradient(ellipse at center, #3a6b7a 0%, #1e3d47 70%);
+      border-radius: 50%;
+      border: 4px solid #5a9aaa;
+    }
+
+    .pond-user {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      font-weight: 700;
+      animation: bob 3s ease-in-out infinite;
+    }
+    .pond-user.fishing { box-shadow: 0 0 12px var(--gold); }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+    /* Fish card */
+    .fish-card {
+      padding: 16px;
+      border-radius: 10px;
+      text-align: center;
+      border: 2px solid;
+    }
+    .fish-card .icon { font-size: 2.5rem; }
+    .fish-card .name { font-weight: 700; margin-top: 8px; }
+    .fish-card .meta { font-size: .85rem; color: var(--muted); margin-top: 4px; }
+
+    .quality-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .quality-tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+
+    /* Social mock */
+    .post {
+      padding: 14px;
+      background: var(--surface2);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--accent);
+    }
+    .post .author { font-weight: 600; color: var(--accent-light); }
+    .post .time { font-size: .75rem; color: var(--muted); float: right; }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: .9rem;
+    }
+    .chat-bubble.mine { background: var(--accent); margin-left: auto; border-bottom-right-radius: 4px; }
+    .chat-bubble.theirs { background: var(--surface2); border-bottom-left-radius: 4px; }
+
+    .arch-flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px;
+    }
+    .arch-box {
+      padding: 16px 24px;
+      background: var(--surface2);
+      border-radius: 10px;
+      text-align: center;
+      min-width: 120px;
+    }
+    .arch-arrow { color: var(--muted); font-size: 1.5rem; }
+
+    .roll-result {
+      text-align: center;
+      padding: 32px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      margin-top: 16px;
+    }
+    .roll-result .big-icon { font-size: 4rem; }
+    .roll-result .catch-text { font-size: 1.3rem; font-weight: 700; margin-top: 12px; }
+    .roll-result .price { color: var(--gold); font-size: 1.1rem; margin-top: 8px; }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: .85rem;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+
+    code {
+      background: rgba(0,0,0,.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: .85em;
+    }
+
+    .cmd-box {
+      background: #0a1215;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: Consolas, monospace;
+      font-size: .9rem;
+      margin-top: 12px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <h1>🎣 Fish Social</h1>
+    <p>钓鱼社交游戏 · 雏形预览工具</p>
+    <div class="status-bar">
+      <span class="status-pill"><span class="dot" id="dot-server"></span> 服务端 :3001</span>
+      <span class="status-pill"><span class="dot" id="dot-web"></span> Web 预览 :8082</span>
+      <span class="status-pill" id="pill-version">v1 + v2 社交</span>
+    </div>
+    <div class="actions">
+      <a class="btn btn-primary" href="http://localhost:8082" target="_blank" rel="noopener">🚀 打开游戏</a>
+      <button class="btn btn-gold" id="btn-roll">🎲 模拟钓鱼</button>
+      <button class="btn btn-ghost" id="btn-refresh">↻ 刷新状态</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="active" data-tab="overview">概览</button>
+    <button data-tab="map">世界地图</button>
+    <button data-tab="pond">鱼塘</button>
+    <button data-tab="fish">鱼获系统</button>
+    <button data-tab="social">社交系统</button>
+    <button data-tab="dev">开发与启动</button>
+  </nav>
+
+  <main>
+    <!-- 概览 -->
+    <section class="panel active" id="panel-overview">
+      <div class="card">
+        <h2>项目简介</h2>
+        <p>休闲社交挂机钓鱼游戏雏形，包含世界地图、实时鱼塘、背包鱼获、好友与动态、私聊与经济系统。技术栈为 Expo (React Native Web) + Node.js + Socket.io。</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h2>核心玩法 v1</h2>
+          <div class="feature-item"><strong>世界地图</strong>4 个鱼塘区域，点击进入</div>
+          <div class="feature-item" style="margin-top:10px"><strong>二维鱼塘</strong>圆圈头像挂机钓鱼，实时同步</div>
+          <div class="feature-item" style="margin-top:10px"><strong>鱼塘聊天</strong>每塘独立频道，紫品以上全塘公告</div>
+          <div class="feature-item" style="margin-top:10px"><strong>限制</strong>每塘 20 人，每日钓鱼 8 小时</div>
+        </div>
+        <div class="card">
+          <h2>社交系统 v2</h2>
+          <div class="feature-item"><strong>好友</strong>申请 / 同意，查看好友动态</div>
+          <div class="feature-item" style="margin-top:10px"><strong>动态墙</strong>公开分享钓到的鱼</div>
+          <div class="feature-item" style="margin-top:10px"><strong>关注</strong>仅看好友动态</div>
+          <div class="feature-item" style="margin-top:10px"><strong>私聊</strong>好友一对一聊天</div>
+          <div class="feature-item" style="margin-top:10px"><strong>经济</strong>卖鱼得金币（暂无用途）</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>系统架构</h2>
+        <div class="arch-flow">
+          <div class="arch-box">📱 mobile<br><small>Expo Web/App</small></div>
+          <span class="arch-arrow">↔</span>
+          <div class="arch-box">🔌 server<br><small>REST + Socket.io</small></div>
+          <span class="arch-arrow">↔</span>
+          <div class="arch-box">📦 shared<br><small>类型 / 鱼种 / 公式</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 世界地图 -->
+    <section class="panel" id="panel-map">
+      <div class="card">
+        <h2>世界地图预览</h2>
+        <p style="color:var(--muted);margin-bottom:16px">点击区域查看对应鱼塘（示意）</p>
+        <div class="map-canvas" id="map-canvas"></div>
+        <p id="map-selected" style="text-align:center;margin-top:16px;color:var(--accent-light)">点击地图上的区域</p>
+      </div>
+    </section>
+
+    <!-- 鱼塘 -->
+    <section class="panel" id="panel-pond">
+      <div class="card">
+        <h2>鱼塘场景预览</h2>
+        <p style="color:var(--muted);margin-bottom:16px">圆圈代表在线玩家，金色光晕表示钓鱼中</p>
+        <div class="pond-scene" id="pond-scene"></div>
+        <div class="grid-2" style="margin-top:20px">
+          <div>
+            <h3>鱼塘聊天</h3>
+            <div class="chat-bubble theirs">钓友A：今天运气不错！</div>
+            <div class="chat-bubble mine">我：刚钓到一条史诗鲤鱼 🐠</div>
+            <div class="chat-bubble theirs" style="border-left:3px solid #9c27b0">📢 系统：钓友B 钓到了【史诗】大口黑鲈！</div>
+          </div>
+          <div>
+            <h3>在线玩家</h3>
+            <div class="feature-item">钓友A · 钓鱼中 12:34</div>
+            <div class="feature-item" style="margin-top:8px">钓友B · 闲逛</div>
+            <div class="feature-item" style="margin-top:8px">你 · 钓鱼中</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 鱼获 -->
+    <section class="panel" id="panel-fish">
+      <div class="card">
+        <h2>五种鱼类</h2>
+        <div class="grid-3" id="species-grid"></div>
+      </div>
+      <div class="card">
+        <h2>七种品质</h2>
+        <div class="quality-bar" id="quality-bar"></div>
+        <p style="margin-top:12px;color:var(--muted);font-size:.9rem">紫色及以上品质会在鱼塘内全塘公告</p>
+      </div>
+      <div class="card">
+        <h2>钓鱼模拟器</h2>
+        <p style="color:var(--muted)">无需启动服务端，在本地随机模拟一次上钩</p>
+        <div class="roll-result" id="roll-result">
+          <div class="big-icon">🎣</div>
+          <div class="catch-text">点击上方「模拟钓鱼」试试手气</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 社交 -->
+    <section class="panel" id="panel-social">
+      <div class="grid-2">
+        <div class="card">
+          <h2>动态墙</h2>
+          <div class="post">
+            <span class="time">2 分钟前</span>
+            <div class="author">湖心钓客</div>
+            <div>钓到了【稀有】鲤鱼，体长 0.62m 🐠</div>
+          </div>
+          <div class="post">
+            <span class="time">15 分钟前</span>
+            <div class="author">夕阳渔夫</div>
+            <div>钓到了【史诗】黄鳍金枪鱼，体长 1.85m 🦈</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>好友私聊</h2>
+          <div class="chat-bubble theirs">要不要一起去夕阳湾？</div>
+          <div class="chat-bubble mine">好啊，我背包里还有几条能卖的</div>
+          <div class="chat-bubble theirs">卖了换金币先存着 😄</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>社交功能清单</h2>
+        <div class="grid-3">
+          <div class="feature-item"><strong>好友申请</strong>搜索 → 申请 → 同意/拒绝</div>
+          <div class="feature-item"><strong>分享设置</strong>所有人可见 / 仅好友可见</div>
+          <div class="feature-item"><strong>背包操作</strong>出售得金币 · 分享到动态</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 开发 -->
+    <section class="panel" id="panel-dev">
+      <div class="card">
+        <h2>一键启动</h2>
+        <p>在项目根目录执行：</p>
+        <div class="cmd-box">cd C:\Users\Administrator\Projects\fish-social<br>npm run dev</div>
+        <p style="margin-top:12px;color:var(--muted)">将同时启动服务端 <code>:3001</code> 与 Web 预览 <code>:8082</code></p>
+        <div class="actions" style="justify-content:flex-start;margin-top:16px">
+          <a class="btn btn-primary" href="http://localhost:8082" target="_blank">打开 Web 游戏</a>
+          <a class="btn btn-ghost" href="http://localhost:3001/health" target="_blank">检查 API 健康</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2>主要 API</h2>
+        <div class="grid-2">
+          <div>
+            <h3>REST</h3>
+            <ul style="color:var(--muted);padding-left:20px;font-size:.9rem">
+              <li><code>POST /api/players/register</code></li>
+              <li><code>GET /api/posts/wall</code></li>
+              <li><code>POST /api/friends/request</code></li>
+              <li><code>POST /api/inventory/sell</code></li>
+              <li><code>POST /api/dm</code></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Socket</h3>
+            <ul style="color:var(--muted);padding-left:20px;font-size:.9rem">
+              <li><code>register_player</code></li>
+              <li><code>join_pond / fish_bite</code></li>
+              <li><code>dm_message</code></li>
+              <li><code>friend_request</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>双窗口测试社交</h2>
+        <ol style="color:var(--muted);padding-left:20px">
+          <li>打开两个浏览器标签（或一个普通 + 一个隐身窗口）</li>
+          <li>分别进入游戏，点击右上角「社交」</li>
+          <li>在「好友」里搜索对方昵称并发送申请</li>
+          <li>对方同意后，可查看动态、私聊、卖鱼分享</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Fish Social 预览工具 · 双击本 HTML 即可打开 · 项目路径 fish-social/preview.html
+  </footer>
+
+  <script>
+    // ── 游戏数据（与 shared 包一致）──
+    const FISH_QUALITIES = [
+      { id: 'gray', name: '普通', color: '#9E9E9E', weight: 38, baseCoins: 5 },
+      { id: 'green', name: '优良', color: '#4CAF50', weight: 28, baseCoins: 15 },
+      { id: 'blue', name: '稀有', color: '#2196F3', weight: 18, baseCoins: 40 },
+      { id: 'purple', name: '史诗', color: '#9C27B0', weight: 9, baseCoins: 120 },
+      { id: 'red', name: '传说', color: '#F44336', weight: 4, baseCoins: 300 },
+      { id: 'orange', name: '神话', color: '#FF9800', weight: 2, baseCoins: 800 },
+      { id: 'gold', name: '至尊', color: '#FFD700', weight: 1, baseCoins: 2000 },
+    ];
+
+    const FISH_SPECIES = [
+      { id: 'crucian', name: '鲫鱼', icon: '🐟', min: 0.03, max: 0.35 },
+      { id: 'carp', name: '鲤鱼', icon: '🐠', min: 0.08, max: 0.9 },
+      { id: 'bass', name: '大口黑鲈', icon: '🐡', min: 0.15, max: 0.75 },
+      { id: 'tuna', name: '黄鳍金枪鱼', icon: '🦈', min: 0.5, max: 2.3 },
+      { id: 'marlin', name: '蓝旗鱼', icon: '⚔️', min: 1.0, max: 5.0 },
+    ];
+
+    const REGIONS = [
+      { id: 'calm', name: '静心湖', left: '6.7%', top: '16.7%', w: '33%', h: '33%', color: '#4A90A4' },
+      { id: 'mist', name: '云雾塘', left: '46.7%', top: '12.5%', w: '30%', h: '29%', color: '#6B8E7B' },
+      { id: 'sunset', name: '夕阳湾', left: '20%', top: '62.5%', w: '36.7%', h: '31%', color: '#C97B5A' },
+      { id: 'bamboo', name: '竹林池', left: '66.7%', top: '58.3%', w: '26.7%', h: '37.5%', color: '#5A8F5A' },
+    ];
+
+    const POND_USERS = [
+      { name: '你', x: 42, y: 38, fishing: true },
+      { name: 'A', x: 25, y: 55, fishing: true },
+      { name: 'B', x: 65, y: 45, fishing: false },
+      { name: 'C', x: 50, y: 68, fishing: true },
+    ];
+
+    // ── Tab 切换 ──
+    document.querySelectorAll('nav.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── 世界地图 ──
+    const mapCanvas = document.getElementById('map-canvas');
+    const mapSelected = document.getElementById('map-selected');
+    REGIONS.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'map-region';
+      el.style.cssText = `left:${r.left};top:${r.top};width:${r.w};height:${r.h};background:${r.color}`;
+      el.textContent = r.name;
+      el.addEventListener('click', () => {
+        mapCanvas.querySelectorAll('.map-region').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        mapSelected.textContent = `已选择：${r.name} → 进入后可挂机钓鱼（每塘最多 20 人）`;
+      });
+      mapCanvas.appendChild(el);
+    });
+
+    // ── 鱼塘用户 ──
+    const pondScene = document.getElementById('pond-scene');
+    POND_USERS.forEach(u => {
+      const el = document.createElement('div');
+      el.className = 'pond-user' + (u.fishing ? ' fishing' : '');
+      el.style.left = u.x + '%';
+      el.style.top = u.y + '%';
+      el.style.transform = 'translate(-50%,-50%)';
+      el.textContent = u.name;
+      el.title = u.name + (u.fishing ? ' · 钓鱼中' : '');
+      pondScene.appendChild(el);
+    });
+
+    // ── 鱼种 & 品质 ──
+    const speciesGrid = document.getElementById('species-grid');
+    FISH_SPECIES.forEach(s => {
+      speciesGrid.innerHTML += `
+        <div class="fish-card" style="border-color:var(--accent)">
+          <div class="icon">${s.icon}</div>
+          <div class="name">${s.name}</div>
+          <div class="meta">${s.min}m ~ ${s.max}m</div>
+        </div>`;
+    });
+
+    const qualityBar = document.getElementById('quality-bar');
+    FISH_QUALITIES.forEach(q => {
+      qualityBar.innerHTML += `<span class="quality-tag" style="background:${q.color}22;color:${q.color};border:1px solid ${q.color}">${q.name}</span>`;
+    });
+
+    // ── 钓鱼模拟 ──
+    function weightedPick(items) {
+      const total = items.reduce((s, i) => s + i.weight, 0);
+      let r = Math.random() * total;
+      for (const item of items) {
+        r -= item.weight;
+        if (r <= 0) return item;
+      }
+      return items[items.length - 1];
+    }
+
+    function rollFish() {
+      const quality = weightedPick(FISH_QUALITIES.map(q => ({ ...q, weight: q.weight })));
+      const species = FISH_SPECIES[Math.floor(Math.random() * FISH_SPECIES.length)];
+      const size = +(species.min + Math.random() * (species.max - species.min)).toFixed(2);
+      const price = quality.baseCoins + Math.floor(size * 10);
+      const announce = ['purple','red','orange','gold'].includes(quality.id);
+
+      const el = document.getElementById('roll-result');
+      el.innerHTML = `
+        <div class="big-icon">${species.icon}</div>
+        <div class="catch-text" style="color:${quality.color}">【${quality.name}】${species.name}</div>
+        <div class="meta">体长 ${size}m</div>
+        <div class="price">💰 出售可得 ${price} 金币</div>
+        ${announce ? '<div style="margin-top:8px;color:#9c27b0">📢 全塘公告品质！</div>' : ''}`;
+    }
+
+    document.getElementById('btn-roll').addEventListener('click', rollFish);
+
+    // ── 服务状态检测 ──
+    async function checkStatus() {
+      const dotServer = document.getElementById('dot-server');
+      const dotWeb = document.getElementById('dot-web');
+
+      try {
+        const res = await fetch('http://localhost:3001/health', { mode: 'cors', signal: AbortSignal.timeout(3000) });
+        dotServer.className = res.ok ? 'dot ok' : 'dot err';
+      } catch {
+        dotServer.className = 'dot err';
+      }
+
+      try {
+        await fetch('http://localhost:8082', { mode: 'no-cors', signal: AbortSignal.timeout(3000) });
+        dotWeb.className = 'dot ok';
+      } catch {
+        dotWeb.className = 'dot err';
+      }
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', checkStatus);
+    checkStatus();
+    setInterval(checkStatus, 15000);
+  </script>
+</body>
+</html>

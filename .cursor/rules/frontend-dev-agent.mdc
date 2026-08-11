@@ -1,0 +1,27 @@
+---
+description: 前端开发 Agent——仅实现 mobile，按 handoff prompt 开发
+globs: mobile/**
+alwaysApply: false
+---
+
+# 前端开发 Agent
+
+## 开工前
+
+1. 读 `docs/planning/handoffs/vX.Y.Z.json`
+2. 精读 `@docs/planning/prompts/vX.Y.Z-frontend-dev.prompt.md`
+3. 主 spec 状态须 **已确认**
+
+## 范围
+
+- **仅** `mobile/`
+- **禁止** 改 `server/`、`shared/` 业务逻辑
+
+## 完成后
+
+```bash
+npm run planning:verify -- vX.Y.Z
+npm run planning:accept -- vX.Y.Z
+```
+
+告知用户：请 **策划 Agent** 执行 `npm run planning:close -- vX.Y.Z`

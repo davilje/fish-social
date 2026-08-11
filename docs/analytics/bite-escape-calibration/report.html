@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>咬钩 / 脱钩概率校准</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --text:#1a1d23; --muted:#5c6570; --border:#e2e6eb; --accent:#2b6cb0; --accent-soft:#ebf4ff; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Segoe UI","PingFang SC",sans-serif; background:var(--bg); color:var(--text); line-height:1.55; padding:2rem 1.5rem 4rem; }
+    .wrap { max-width:1100px; margin:0 auto; }
+    h1 { font-size:1.75rem; margin-bottom:.35rem; }
+    h2 { font-size:1.15rem; margin:2rem 0 .75rem; padding-bottom:.35rem; border-bottom:2px solid var(--accent); }
+    .meta { color:var(--muted); font-size:.9rem; margin-bottom:1.25rem; }
+    .nav { margin-bottom:1.25rem; font-size:.9rem; }
+    .nav a { color:var(--accent); margin-right:1rem; }
+    .callout { background:var(--accent-soft); border-left:4px solid var(--accent); padding:1rem 1.2rem; border-radius:0 8px 8px 0; margin:1rem 0; font-size:.9rem; }
+    .callout code { background:rgba(0,0,0,.06); padding:.1rem .35rem; border-radius:4px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
+    @media(max-width:768px){ .grid{ grid-template-columns:1fr; } }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem; }
+    .card h3 { font-size:.9rem; color:var(--muted); margin-bottom:.75rem; }
+    .chart-wrap { position:relative; height:280px; }
+    table { width:100%; border-collapse:collapse; font-size:.85rem; margin:.75rem 0; }
+    th,td { border:1px solid var(--border); padding:.45rem .6rem; }
+    th { background:var(--accent-soft); font-weight:600; }
+    td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    td.heat { text-align:center; font-weight:600; font-size:.8rem; }
+    .legend-dot { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; }
+    footer { margin-top:2.5rem; font-size:.8rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../index.html">← 分析归档</a>
+      <a href="../pond-day-simulation/report.html">生态模拟报告</a>
+    </nav>
+    <h1>咬钩 / 脱钩概率校准</h1>
+    <p class="meta">
+      生成 2026-07-07T18:57:27.500Z · 数据源 <code>shared/fishing.ts</code> · 咬钩检测 60s/次<br>
+      复现：<code>npm run report:bite-escape</code>
+    </p>
+
+    <div class="callout">
+      <strong>咬钩</strong>：<code>QUALITY_BITE_BASE[q] × BITE_BASE_SCALE(0.05) × (1 − 0.65 × (1−n))</code>，n = 体长 / 品质上限<br>
+      <strong>脱钩</strong>（运行时）：<strong>仅体长</strong> — 幼鱼 0.08–0.35m 抬高曲线；&gt;0.35m 按 40m 锚点曲线；渔具绝对减免<br>
+      <strong>抽鱼</strong>：本点按品质 <code>FISH_QUALITIES.weight</code> 抽样，与咬钩率无关
+    </div>
+
+    <h2>一、咬钩率 · 品质 × 相对尺寸 n</h2>
+    <div class="grid">
+      <div class="card"><h3>各品质咬钩率 vs n（满尺寸=1）</h3><div class="chart-wrap"><canvas id="chartBiteN"></canvas></div></div>
+      <div class="card"><h3>脱钩率 vs 体长（幼鱼段 + 主曲线）</h3><div class="chart-wrap"><canvas id="chartEscape"></canvas></div></div>
+    </div>
+
+    <table>
+      <tr><th>品质</th><th class="num">n=0.1</th><th class="num">n=0.2</th><th class="num">n=0.3</th><th class="num">n=0.4</th><th class="num">n=0.5</th><th class="num">n=0.6</th><th class="num">n=0.7</th><th class="num">n=0.8</th><th class="num">n=0.9</th><th class="num">n=1</th></tr>
+      <tr><td>普通<br><small style="color:var(--muted)">cap 0.3m</small></td><td class="num heat" style="background:rgb(233,242,254)">0.1%</td><td class="num heat" style="background:rgb(232,242,254)">0.12%</td><td class="num heat" style="background:rgb(232,242,254)">0.14%</td><td class="num heat" style="background:rgb(231,242,254)">0.15%</td><td class="num heat" style="background:rgb(231,241,254)">0.17%</td><td class="num heat" style="background:rgb(230,241,253)">0.19%</td><td class="num heat" style="background:rgb(230,241,253)">0.2%</td><td class="num heat" style="background:rgb(230,240,253)">0.22%</td><td class="num heat" style="background:rgb(229,240,253)">0.23%</td><td class="num heat" style="background:rgb(229,240,253)">0.25%</td></tr><tr><td>优良<br><small style="color:var(--muted)">cap 0.8m</small></td><td class="num heat" style="background:rgb(233,243,254)">0.07%</td><td class="num heat" style="background:rgb(233,243,254)">0.08%</td><td class="num heat" style="background:rgb(233,243,254)">0.09%</td><td class="num heat" style="background:rgb(233,242,254)">0.1%</td><td class="num heat" style="background:rgb(232,242,254)">0.11%</td><td class="num heat" style="background:rgb(232,242,254)">0.12%</td><td class="num heat" style="background:rgb(232,242,254)">0.13%</td><td class="num heat" style="background:rgb(232,242,254)">0.14%</td><td class="num heat" style="background:rgb(231,242,254)">0.15%</td><td class="num heat" style="background:rgb(231,241,254)">0.16%</td></tr><tr><td>稀有<br><small style="color:var(--muted)">cap 2m</small></td><td class="num heat" style="background:rgb(234,243,255)">0.04%</td><td class="num heat" style="background:rgb(234,243,255)">0.04%</td><td class="num heat" style="background:rgb(234,243,255)">0.05%</td><td class="num heat" style="background:rgb(234,243,255)">0.05%</td><td class="num heat" style="background:rgb(234,243,255)">0.06%</td><td class="num heat" style="background:rgb(233,243,254)">0.07%</td><td class="num heat" style="background:rgb(233,243,254)">0.07%</td><td class="num heat" style="background:rgb(233,243,254)">0.08%</td><td class="num heat" style="background:rgb(233,243,254)">0.08%</td><td class="num heat" style="background:rgb(233,243,254)">0.09%</td></tr><tr><td>史诗<br><small style="color:var(--muted)">cap 4.5m</small></td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td><td class="num heat" style="background:rgb(234,244,255)">0.03%</td><td class="num heat" style="background:rgb(234,244,255)">0.03%</td><td class="num heat" style="background:rgb(234,244,255)">0.03%</td><td class="num heat" style="background:rgb(234,244,255)">0.03%</td><td class="num heat" style="background:rgb(234,243,255)">0.04%</td><td class="num heat" style="background:rgb(234,243,255)">0.04%</td></tr><tr><td>传说<br><small style="color:var(--muted)">cap 9m</small></td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td><td class="num heat" style="background:rgb(235,244,255)">0.02%</td></tr><tr><td>神话<br><small style="color:var(--muted)">cap 18m</small></td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td><td class="num heat" style="background:rgb(235,244,255)">0.01%</td></tr><tr><td>至尊<br><small style="color:var(--muted)">cap 40m</small></td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td><td class="num heat" style="background:rgb(235,244,255)">0%</td></tr>
+    </table>
+    <p style="font-size:.8rem;color:var(--muted)">热力格：每 60s 单次咬钩概率（个体 mult=1，钓点 mult=1，无饵）</p>
+
+    <h2>二、脱钩率 · 仅体长</h2>
+    <div class="grid">
+      <div class="card"><h3>收杆窗口 vs 体长</h3><div class="chart-wrap"><canvas id="chartHook"></canvas></div></div>
+      <div class="card"><h3>幼鱼段 0.08–0.35m</h3>
+        <table>
+          <tr><th>体长</th><th>脱钩率</th><th>灰鱼咬钩率</th></tr>
+          <tr><td class="num">0.08m</td><td class="num">22%</td><td class="num">0.13%</td></tr><tr><td class="num">0.10m</td><td class="num">20.96%</td><td class="num">0.14%</td></tr><tr><td class="num">0.12m</td><td class="num">19.93%</td><td class="num">0.15%</td></tr><tr><td class="num">0.14m</td><td class="num">18.89%</td><td class="num">0.16%</td></tr><tr><td class="num">0.16m</td><td class="num">17.85%</td><td class="num">0.17%</td></tr><tr><td class="num">0.18m</td><td class="num">16.81%</td><td class="num">0.19%</td></tr><tr><td class="num">0.20m</td><td class="num">15.78%</td><td class="num">0.2%</td></tr><tr><td class="num">0.22m</td><td class="num">14.74%</td><td class="num">0.21%</td></tr><tr><td class="num">0.24m</td><td class="num">13.7%</td><td class="num">0.22%</td></tr><tr><td class="num">0.26m</td><td class="num">12.67%</td><td class="num">0.23%</td></tr><tr><td class="num">0.28m</td><td class="num">11.63%</td><td class="num">0.24%</td></tr><tr><td class="num">0.30m</td><td class="num">10.59%</td><td class="num">0.25%</td></tr><tr><td class="num">0.32m</td><td class="num">9.56%</td><td class="num">0.25%</td></tr><tr><td class="num">0.34m</td><td class="num">8.52%</td><td class="num">0.25%</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>体长</th><th>原始脱钩</th><th>基础竿</th><th>大师竿(−30%)</th><th>收杆窗口</th></tr>
+      <tr><td class="num">0.08m</td><td class="num">22%</td><td class="num">22%</td><td class="num">0%</td><td class="num">28s</td></tr><tr><td class="num">0.10m</td><td class="num">20.96%</td><td class="num">20.96%</td><td class="num">0%</td><td class="num">34s</td></tr><tr><td class="num">0.12m</td><td class="num">19.93%</td><td class="num">19.93%</td><td class="num">0%</td><td class="num">41s</td></tr><tr><td class="num">0.14m</td><td class="num">18.89%</td><td class="num">18.89%</td><td class="num">0%</td><td class="num">47s</td></tr><tr><td class="num">0.16m</td><td class="num">17.85%</td><td class="num">17.85%</td><td class="num">0%</td><td class="num">54s</td></tr><tr><td class="num">0.18m</td><td class="num">16.81%</td><td class="num">16.81%</td><td class="num">0%</td><td class="num">1.0min</td></tr><tr><td class="num">0.20m</td><td class="num">15.78%</td><td class="num">15.78%</td><td class="num">0%</td><td class="num">1.1min</td></tr><tr><td class="num">0.25m</td><td class="num">13.19%</td><td class="num">13.19%</td><td class="num">0%</td><td class="num">1.4min</td></tr><tr><td class="num">0.30m</td><td class="num">10.59%</td><td class="num">10.59%</td><td class="num">0%</td><td class="num">1.6min</td></tr><tr><td class="num">0.35m</td><td class="num">8%</td><td class="num">8%</td><td class="num">0%</td><td class="num">1.9min</td></tr><tr><td class="num">0.50m</td><td class="num">2.21%</td><td class="num">2.21%</td><td class="num">0%</td><td class="num">2.7min</td></tr><tr><td class="num">1m</td><td class="num">4.39%</td><td class="num">4.39%</td><td class="num">0%</td><td class="num">5.4min</td></tr><tr><td class="num">2m</td><td class="num">8.69%</td><td class="num">8.69%</td><td class="num">0%</td><td class="num">10.6min</td></tr><tr><td class="num">4m</td><td class="num">17.02%</td><td class="num">17.02%</td><td class="num">0%</td><td class="num">20.8min</td></tr><tr><td class="num">8m</td><td class="num">32.58%</td><td class="num">32.58%</td><td class="num">2.58%</td><td class="num">39.7min</td></tr><tr><td class="num">12m</td><td class="num">46.67%</td><td class="num">46.67%</td><td class="num">16.67%</td><td class="num">56.9min</td></tr><tr><td class="num">20m</td><td class="num">70.21%</td><td class="num">70.21%</td><td class="num">40.21%</td><td class="num">1.4h</td></tr><tr><td class="num">30m</td><td class="num">90.38%</td><td class="num">90.38%</td><td class="num">60.38%</td><td class="num">1.8h</td></tr><tr><td class="num">40m</td><td class="num">98.5%</td><td class="num">98.5%</td><td class="num">68.5%</td><td class="num">2.0h</td></tr>
+    </table>
+
+    <h2>三、综合示例（钓点 ×2.5，饵=0，mult=1）</h2>
+    <table>
+      <tr><th>场景</th><th>n</th><th>基础咬钩/60s</th><th>含钓点咬钩/60s</th><th>脱钩</th><th>品质抽中权重</th></tr>
+      <tr>
+        <td>幼鱼灰 0.10m</td>
+        <td class="num">0.333</td>
+        <td class="num">0.14%</td>
+        <td class="num"><strong>0.35%</strong></td>
+        <td class="num">20.96%</td>
+        <td class="num">38</td>
+      </tr><tr>
+        <td>灰 满尺寸 0.30m</td>
+        <td class="num">1</td>
+        <td class="num">0.25%</td>
+        <td class="num"><strong>0.63%</strong></td>
+        <td class="num">10.59%</td>
+        <td class="num">38</td>
+      </tr><tr>
+        <td>蓝 半长 1.00m</td>
+        <td class="num">0.5</td>
+        <td class="num">0.06%</td>
+        <td class="num"><strong>0.15%</strong></td>
+        <td class="num">4.39%</td>
+        <td class="num">18</td>
+      </tr><tr>
+        <td>紫 半长 2.25m</td>
+        <td class="num">0.5</td>
+        <td class="num">0.03%</td>
+        <td class="num"><strong>0.07%</strong></td>
+        <td class="num">9.75%</td>
+        <td class="num">9</td>
+      </tr><tr>
+        <td>金 满尺寸 40m</td>
+        <td class="num">1</td>
+        <td class="num">0%</td>
+        <td class="num"><strong>0.01%</strong></td>
+        <td class="num">98.5%</td>
+        <td class="num">1</td>
+      </tr>
+    </table>
+
+    <h2>四、品质上限与满尺寸基础咬钩</h2>
+    <table>
+      <tr><th>品质</th><th>体长上限</th><th>QUALITY_BITE_BASE</th><th>满尺寸咬钩（×SCALE）</th><th>出率权重</th></tr>
+      <tr>
+        <td><span class="legend-dot" style="background:#9E9E9E"></span>普通</td>
+        <td class="num">0.3m</td>
+        <td class="num">5%</td>
+        <td class="num">0.25%</td>
+        <td class="num">38</td>
+      </tr><tr>
+        <td><span class="legend-dot" style="background:#4CAF50"></span>优良</td>
+        <td class="num">0.8m</td>
+        <td class="num">3.2%</td>
+        <td class="num">0.16%</td>
+        <td class="num">28</td>
+      </tr><tr>
+        <td><span class="legend-dot" style="background:#2196F3"></span>稀有</td>
+        <td class="num">2m</td>
+        <td class="num">1.8%</td>
+        <td class="num">0.09%</td>
+        <td class="num">18</td>
+      </tr><tr>
+        <td><span class="legend-dot" style="background:#9C27B0"></span>史诗</td>
+        <td class="num">4.5m</td>
+        <td class="num">0.8%</td>
+        <td class="num">0.04%</td>
+        <td class="num">9</td>
+      </tr><tr>
+        <td><span class="legend-dot" style="background:#F44336"></span>传说</td>
+        <td class="num">9m</td>
+        <td class="num">0.35%</td>
+        <td class="num">0.02%</td>
+        <td class="num">4</td>
+      </tr><tr>
+        <td><span class="legend-dot" style="background:#FF9800"></span>神话</td>
+        <td class="num">18m</td>
+        <td class="num">0.15%</td>
+        <td class="num">0.01%</td>
+        <td class="num">2</td>
+      </tr><tr>
+        <td><span class="legend-dot" style="background:#FFC107"></span>至尊</td>
+        <td class="num">40m</td>
+        <td class="num">0.06%</td>
+        <td class="num">0%</td>
+        <td class="num">1</td>
+      </tr>
+    </table>
+
+    <footer>
+      与 Admin 鱼塘调试（<code>/api/admin/ponds/:id/fishing-debug</code>）使用同一套公式。
+      生态模拟中的「被钓均长」见 <a href="../pond-day-simulation/report.html">pond-day 报告</a>（实证结果，非本表理论值）。
+    </footer>
+  </div>
+
+  <script>
+    const N_LABELS = ["n=0.1","n=0.2","n=0.3","n=0.4","n=0.5","n=0.6","n=0.7","n=0.8","n=0.9","n=1"];
+    const Q_NAMES = ["普通","优良","稀有","史诗","传说","神话","至尊"];
+    const Q_COLORS = ["#9E9E9E","#4CAF50","#2196F3","#9C27B0","#F44336","#FF9800","#FFC107"];
+    const BITE_BY_N = [{"n":0.1,"gray":0.1,"green":0.07,"blue":0.04,"purple":0.02,"red":0.01,"orange":0,"gold":0},{"n":0.2,"gray":0.12,"green":0.08,"blue":0.04,"purple":0.02,"red":0.01,"orange":0,"gold":0},{"n":0.3,"gray":0.14,"green":0.09,"blue":0.05,"purple":0.02,"red":0.01,"orange":0,"gold":0},{"n":0.4,"gray":0.15,"green":0.1,"blue":0.05,"purple":0.02,"red":0.01,"orange":0,"gold":0},{"n":0.5,"gray":0.17,"green":0.11,"blue":0.06,"purple":0.03,"red":0.01,"orange":0.01,"gold":0},{"n":0.6,"gray":0.19,"green":0.12,"blue":0.07,"purple":0.03,"red":0.01,"orange":0.01,"gold":0},{"n":0.7,"gray":0.2,"green":0.13,"blue":0.07,"purple":0.03,"red":0.01,"orange":0.01,"gold":0},{"n":0.8,"gray":0.22,"green":0.14,"blue":0.08,"purple":0.03,"red":0.02,"orange":0.01,"gold":0},{"n":0.9,"gray":0.23,"green":0.15,"blue":0.08,"purple":0.04,"red":0.02,"orange":0.01,"gold":0},{"n":1,"gray":0.25,"green":0.16,"blue":0.09,"purple":0.04,"red":0.02,"orange":0.01,"gold":0}];
+    const ESCAPE = [{"sizeM":0.08,"raw":22,"basic":22,"master":0,"hook":27892},{"sizeM":0.1,"raw":20.96,"basic":20.96,"master":0,"hook":34359},{"sizeM":0.12,"raw":19.93,"basic":19.93,"master":0,"hook":40823},{"sizeM":0.14,"raw":18.89,"basic":18.89,"master":0,"hook":47284},{"sizeM":0.16,"raw":17.85,"basic":17.85,"master":0,"hook":53743},{"sizeM":0.18,"raw":16.81,"basic":16.81,"master":0,"hook":60199},{"sizeM":0.2,"raw":15.78,"basic":15.78,"master":0,"hook":66652},{"sizeM":0.25,"raw":13.19,"basic":13.19,"master":0,"hook":82775},{"sizeM":0.3,"raw":10.59,"basic":10.59,"master":0,"hook":98881},{"sizeM":0.35,"raw":8,"basic":8,"master":0,"hook":114971},{"sizeM":0.5,"raw":2.21,"basic":2.21,"master":0,"hook":163145},{"sizeM":1,"raw":4.39,"basic":4.39,"master":0,"hook":322665},{"sizeM":2,"raw":8.69,"basic":8.69,"master":0,"hook":636820},{"sizeM":4,"raw":17.02,"basic":17.02,"master":0,"hook":1245458},{"sizeM":8,"raw":32.58,"basic":32.58,"master":2.58,"hook":2383031},{"sizeM":12,"raw":46.67,"basic":46.67,"master":16.67,"hook":3412189},{"sizeM":20,"raw":70.21,"basic":70.21,"master":40.21,"hook":5132917},{"sizeM":30,"raw":90.38,"basic":90.38,"master":60.38,"hook":6606386},{"sizeM":40,"raw":98.5,"basic":98.5,"master":68.5,"hook":7200000}];
+
+    const opts = { responsive: true, maintainAspectRatio: false };
+
+    new Chart(document.getElementById('chartBiteN'), {
+      type: 'line',
+      data: {
+        labels: N_LABELS,
+        datasets: ["gray","green","blue","purple","red","orange","gold"].map((q, i) => ({
+          label: Q_NAMES[i],
+          data: BITE_BY_N.map(row => row[q]),
+          borderColor: Q_COLORS[i],
+          tension: 0.15,
+          pointRadius: 3,
+        })),
+      },
+      options: { ...opts, scales: { y: { title: { display: true, text: '咬钩 % / 60s' }, beginAtZero: true } } },
+    });
+
+    new Chart(document.getElementById('chartEscape'), {
+      type: 'line',
+      data: {
+        labels: ESCAPE.map(r => r.sizeM + 'm'),
+        datasets: [
+          { label: '原始脱钩', data: ESCAPE.map(r => r.raw), borderColor: '#c05621', tension: 0.2 },
+          { label: '基础竿', data: ESCAPE.map(r => r.basic), borderColor: '#2b6cb0', tension: 0.2 },
+          { label: '大师竿', data: ESCAPE.map(r => r.master), borderColor: '#276749', tension: 0.2, borderDash: [4,3] },
+        ],
+      },
+      options: { ...opts, scales: { y: { title: { display: true, text: '脱钩 %' }, max: 100 } } },
+    });
+
+    new Chart(document.getElementById('chartHook'), {
+      type: 'line',
+      data: {
+        labels: ESCAPE.map(r => r.sizeM + 'm'),
+        datasets: [{ label: '收杆窗口 (min)', data: ESCAPE.map(r => r.hook / 60000), borderColor: '#5c6570', tension: 0.2, fill: true, backgroundColor: 'rgba(92,101,112,.1)' }],
+      },
+      options: { ...opts, scales: { y: { title: { display: true, text: '分钟' }, beginAtZero: true } } },
+    });
+  </script>
+</body>
+</html>

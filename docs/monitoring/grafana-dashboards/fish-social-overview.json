@@ -1,0 +1,192 @@
+{
+  "title": "Fish Social - Overview",
+  "uid": "fish-social-overview",
+  "version": 1,
+  "tags": [
+    "fish-social",
+    "overview"
+  ],
+  "schemaVersion": 27,
+  "panels": [
+    {
+      "title": "Online Players",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "fish_online_players"
+        }
+      ]
+    },
+    {
+      "title": "Active Connections",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "fish_socket_connections_active"
+        }
+      ]
+    },
+    {
+      "title": "Metrics Queue Depth",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "fish_metrics_queue_depth"
+        }
+      ]
+    },
+    {
+      "title": "Bot Count",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "fish_bot_count"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Request Rate",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_http_requests_total[5m])"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Error Rate",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_http_requests_total{status=~\"5..\"}[5m])"
+        }
+      ]
+    },
+    {
+      "title": "HTTP P95 Latency",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(fish_http_request_duration_ms_bucket[5m]))"
+        }
+      ]
+    },
+    {
+      "title": "Socket Events",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_socket_events_total[5m])"
+        }
+      ]
+    },
+    {
+      "title": "Slow Queries",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_slow_queries_total[5m])"
+        }
+      ]
+    },
+    {
+      "title": "Bite Events",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "targets": [
+        {
+          "expr": "rate(fish_bite_events_total[5m])"
+        }
+      ]
+    },
+    {
+      "title": "Ecology Tick Duration",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "fish_ecology_tick_duration_ms_bucket"
+        }
+      ]
+    },
+    {
+      "title": "Pond Occupancy",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "fish_pond_occupancy"
+        }
+      ]
+    }
+  ]
+}

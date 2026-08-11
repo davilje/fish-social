@@ -1,0 +1,136 @@
+{
+  "$schema": "./agent-routing.schema.json",
+  "version": 2,
+  "description": "Fish Social 多 Agent 需求路由与验收配置（含 opencode 扩展角色）",
+  "agents": {
+    "planning": {
+      "label": "策划 Agent",
+      "writes": ["docs/planning/specs", "docs/planning/product", "docs/planning/CHANGELOG.md"],
+      "forbidden": ["mobile", "server", "shared"],
+      "cursor_rule": ".cursor/rules/planning-docs.mdc",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "data-analysis": {
+      "label": "数据分析 Agent",
+      "writes": ["docs/analytics", "docs/planning/specs", "docs/planning/reports"],
+      "forbidden": ["mobile", "server"],
+      "cursor_rule": ".cursor/rules/data-analysis-agent.mdc",
+      "default_target": "backend-dev",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "backend-ops-analysis": {
+      "label": "后端维护分析 Agent",
+      "writes": ["docs/planning/specs", "docs/planning/reports"],
+      "forbidden": ["mobile"],
+      "cursor_rule": ".cursor/rules/backend-ops-analysis-agent.mdc",
+      "default_target": "backend-dev",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "backend-dev": {
+      "label": "后端开发 Agent",
+      "writes": ["server", "shared", "scripts"],
+      "forbidden": ["docs/planning/specs"],
+      "cursor_rule": ".cursor/rules/backend-dev-agent.mdc",
+      "on_complete": ["npm run planning:verify -- {version}", "npm run planning:accept -- {version}"]
+    },
+    "frontend-dev": {
+      "label": "前端开发 Agent",
+      "writes": ["mobile"],
+      "forbidden": ["docs/planning/specs"],
+      "cursor_rule": ".cursor/rules/frontend-dev-agent.mdc",
+      "on_complete": ["npm run planning:verify -- {version}", "npm run planning:accept -- {version}"]
+    },
+    "art": {
+      "label": "原画 Agent",
+      "writes": ["mobile/assets", "docs/art"],
+      "forbidden": ["server", "shared"],
+      "cursor_rule": ".cursor/rules/art-agent.mdc",
+      "opencode_agent": "concept-artist",
+      "default_target": "frontend-dev",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "art-director": {
+      "label": "美术总监 Agent",
+      "writes": ["docs/art/direction", "docs/art/styleguide"],
+      "forbidden": ["mobile", "server", "shared"],
+      "opencode_agent": "art-director",
+      "default_target": "frontend-dev",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "motion-designer": {
+      "label": "动效师 Agent",
+      "writes": ["mobile/assets/animations", "docs/art/animations"],
+      "forbidden": ["mobile", "server", "shared"],
+      "opencode_agent": "motion-designer",
+      "default_target": "frontend-dev",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "ui-designer": {
+      "label": "UI 设计师 Agent",
+      "writes": ["docs/design/ui", "docs/design/prototypes"],
+      "forbidden": ["mobile", "server", "shared"],
+      "opencode_agent": "ui-designer",
+      "default_target": "frontend-dev",
+      "on_complete": ["npm run planning:handoff -- {version}"]
+    },
+    "planning-close": {
+      "label": "策划 Agent（结案）",
+      "writes": ["docs/planning"],
+      "description": "验收通过后更新 README / CHANGELOG / 计划表",
+      "on_complete": ["npm run planning:close -- {version}"]
+    }
+  },
+  "routing_rules": [
+    {
+      "id": "mobile-ui",
+      "match": { "tags": ["mobile", "ui", "前端", "客户端", "expo"], "paths": ["mobile/"] },
+      "target": "frontend-dev"
+    },
+    {
+      "id": "server-api",
+      "match": { "tags": ["server", "api", "后端", "socket", "sqlite", "架构", "埋点"], "paths": ["server/", "shared/", "scripts/"] },
+      "target": "backend-dev"
+    },
+    {
+      "id": "fullstack",
+      "match": { "tags": ["全栈", "前后端"] },
+      "target": "both",
+      "targets": ["frontend-dev", "backend-dev"]
+    },
+    {
+      "id": "analytics-pipeline",
+      "match": { "tags": ["数据分析", "模拟", "报表", "analytics"], "source": ["data-analysis"] },
+      "target": "backend-dev"
+    },
+    {
+      "id": "ops-architecture",
+      "match": { "tags": ["运维", "架构", "性能", "鉴权", "checkpoint"], "source": ["backend-ops-analysis"] },
+      "target": "backend-dev"
+    },
+    {
+      "id": "art-assets",
+      "match": { "tags": ["原画", "美术", "贴图", "sprite", "lottie"], "source": ["art"] },
+      "target": "frontend-dev"
+    },
+    {
+      "id": "art-direction",
+      "match": { "tags": ["美术风格", "视觉规范", "色彩", "风格指南"], "source": ["art-director"] },
+      "target": "frontend-dev"
+    },
+    {
+      "id": "motion-animation",
+      "match": { "tags": ["动效", "动画", "lottie", "转场", "tween"], "source": ["motion-designer"] },
+      "target": "frontend-dev"
+    },
+    {
+      "id": "ui-design-spec",
+      "match": { "tags": ["ui", "界面", "交互", "原型", "设计稿"], "source": ["ui-designer"] },
+      "target": "frontend-dev"
+    }
+  ],
+  "default_verify_by_target": {
+    "backend-dev": ["verify:server-observability"],
+    "frontend-dev": [],
+    "both": ["verify:server-observability"]
+  }
+}

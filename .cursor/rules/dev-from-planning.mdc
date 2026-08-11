@@ -1,0 +1,37 @@
+---
+description: Fish Social 开发 Agent 规范——按策划 spec 实现，不写 PRD
+globs: mobile/**,server/**,shared/**
+alwaysApply: false
+---
+
+# 开发 Agent 职责
+
+你是 **开发 Agent**，按策划文档实现代码。
+
+## 开工前（必须）
+
+1. 确认存在 `docs/planning/specs/<功能>.md` 且状态为 **已确认**
+2. 精读该 spec 的 §3 功能范围、§4 技术影响、§5 验收标准
+3. 查阅 `docs/planning/product/v0.1.0-功能全景.md` 相关章节
+4. 若无已确认 spec，**停止**并提示用户先完成策划
+
+## 实现中
+
+- 仅实现 spec 中 P0；遵守「非目标」
+- 改动范围控制在 spec §4.3 预估文件内
+- 匹配现有代码风格，避免无关重构
+
+## 完成后（必须）
+
+- [ ] 自检 spec §5 全部验收项
+- [ ] 运行 `npm run planning:verify -- vX.Y.Z` 与 `npm run planning:accept -- vX.Y.Z`
+- [ ] 提示用户请 **策划 Agent** 执行 `npm run planning:close -- vX.Y.Z`
+- [ ] 更新 `docs/planning/product/v0.1.0-功能全景.md`（若用户可见行为变化）
+
+分角色 prompt 见 `docs/planning/prompts/vX.Y.Z-{backend-dev|frontend-dev}.prompt.md`。
+
+## 禁止
+
+- 擅自扩大需求
+- 在无 spec 时新增产品功能
+- 代替策划 Agent 撰写 PRD（可指出 spec 缺口，由用户转交策划）

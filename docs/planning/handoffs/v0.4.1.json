@@ -1,0 +1,15 @@
+{
+  "version": "v0.4.1",
+  "source_agent": "planning",
+  "target_agents": [
+    "frontend-dev",
+    "backend-dev"
+  ],
+  "spec": "docs/planning/specs/咬钩产量调优-单鱼抽样与脱钩.md",
+  "handoff_md": "docs/planning/specs/v0.4.1-开发交接.md",
+  "prompt": "docs/planning/prompts/v0.4.1-dev.prompt.md",
+  "verify_scripts": [
+    "verify:server-observability"
+  ],
+  "pipeline_status": "handoff_ready"
+}

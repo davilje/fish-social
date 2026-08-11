@@ -1,0 +1,27 @@
+---
+description: 后端开发 Agent——仅实现 server/shared/scripts，按 handoff prompt 开发
+globs: server/**,shared/**,scripts/**
+alwaysApply: false
+---
+
+# 后端开发 Agent
+
+## 开工前
+
+1. 读 `docs/planning/handoffs/vX.Y.Z.json` 确认 `target_agents` 含 `backend-dev`
+2. 精读 `@docs/planning/prompts/vX.Y.Z-backend-dev.prompt.md`（无分角色文件则用 `vX.Y.Z-dev.prompt.md`）
+3. 主 spec 状态须 **已确认**
+
+## 范围
+
+- **仅** `server/`、`shared/`、`scripts/`
+- **禁止** 改 `mobile/`（可读类型）
+
+## 完成后
+
+```bash
+npm run planning:verify -- vX.Y.Z
+npm run planning:accept -- vX.Y.Z
+```
+
+告知用户：请 **策划 Agent** 执行 `npm run planning:close -- vX.Y.Z`

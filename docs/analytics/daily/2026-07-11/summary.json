@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "dateKey": "2026-07-11",
+    "generatedAt": "2026-07-12T04:16:11.083Z",
+    "rulesVersion": "v0.4.1",
+    "timezone": "Asia/Shanghai",
+    "completeness": {
+      "metricCount": 2738,
+      "firstEventAt": 1783766462174,
+      "lastEventAt": 1783783117132
+    }
+  },
+  "kpis": {
+    "kpi_daily_catch": {
+      "value": 10,
+      "prev": 0,
+      "avg7d": 15,
+      "deltaPct": null,
+      "status": "bad"
+    },
+    "kpi_dau": {
+      "value": 40,
+      "prev": 0,
+      "avg7d": 22,
+      "deltaPct": null,
+      "status": null
+    },
+    "kpi_fishing_dau": {
+      "value": 7,
+      "prev": 0,
+      "avg7d": 3,
+      "deltaPct": null,
+      "status": null
+    },
+    "kpi_catch_per_fisher": {
+      "value": 1.43,
+      "prev": null,
+      "avg7d": 15,
+      "deltaPct": null,
+      "status": null
+    },
+    "kpi_disconnect_rate": {
+      "value": 266.7,
+      "prev": null,
+      "avg7d": 324.1,
+      "deltaPct": null,
+      "status": "bad"
+    },
+    "kpi_abandon_rate": {
+      "value": 0,
+      "prev": null,
+      "avg7d": 0,
+      "deltaPct": null,
+      "status": null
+    },
+    "kpi_avg_pop_ratio": {
+      "value": 95.8,
+      "prev": null,
+      "avg7d": 89.6,
+      "deltaPct": null,
+      "status": "ok"
+    }
+  },
+  "sections": {
+    "players": {
+      "dau": 40,
+      "fishingDau": 7,
+      "sessionsPerFisher": 1.29,
+      "avgFishingMs": null,
+      "p50FishingMs": null,
+      "p90FishingMs": null
+    },
+    "retention": {
+      "cohortSize": 0,
+      "d1Rate": null,
+      "d7Rate": null,
+      "note": "当日无新增玩家"
+    },
+    "catch": {
+      "byPond": [
+        {
+          "pondId": "pond-bamboo",
+          "catches": 0,
+          "biteTickHit": 26,
+          "biteTickMiss": 372,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 97.3
+        },
+        {
+          "pondId": "pond-calm",
+          "catches": 10,
+          "biteTickHit": 42,
+          "biteTickMiss": 619,
+          "disconnects": 24,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 95
+        },
+        {
+          "pondId": "pond-mist",
+          "catches": 0,
+          "biteTickHit": 15,
+          "biteTickMiss": 407,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 95.7
+        },
+        {
+          "pondId": "pond-sunset",
+          "catches": 0,
+          "biteTickHit": 20,
+          "biteTickMiss": 421,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 95
+        }
+      ],
+      "byQuality": [
+        {
+          "quality": "gray",
+          "label": "普通",
+          "count": 10
+        }
+      ],
+      "biteHitRate": 0.0536,
+      "escapeRate": 0,
+      "pendingExpiredRate": 0,
+      "totalCatches": 10,
+      "totalDisconnects": 24
+    },
+    "stability": {
+      "disconnectCount": 24,
+      "reconnectCount": 16,
+      "disconnectTimeoutCount": 0,
+      "joinAttempts": 9,
+      "joinSuccessCount": 9,
+      "joinFails": 5,
+      "joinFailRate": 0.5556,
+      "leaveByReason": [
+        {
+          "reason": "navigation_back",
+          "count": 1
+        }
+      ],
+      "phaseInvalidCount": 100
+    },
+    "economy": {
+      "faucetTotal": null,
+      "sinkTotal": 0,
+      "net": null,
+      "faucetAvailable": false,
+      "breakdown": {
+        "faucetBySource": [],
+        "sinkByType": []
+      },
+      "imbalance": {
+        "triggered": false,
+        "days": []
+      },
+      "note": "faucet 埋点缺失（gold_earn），净变化不可算"
+    },
+    "ecology": {
+      "ponds": [
+        {
+          "pondId": "pond-bamboo",
+          "population": 73,
+          "maxPopulation": 75,
+          "popRatio": 97.3,
+          "avgSizeM": 1.662,
+          "byQuality": {
+            "blue": 10,
+            "gold": 1,
+            "gray": 34,
+            "green": 22,
+            "orange": 2,
+            "purple": 3,
+            "red": 1
+          },
+          "status": "ok"
+        },
+        {
+          "pondId": "pond-calm",
+          "population": 76,
+          "maxPopulation": 80,
+          "popRatio": 95,
+          "avgSizeM": 2.135,
+          "byQuality": {
+            "blue": 10,
+            "gold": 2,
+            "gray": 34,
+            "green": 23,
+            "orange": 2,
+            "purple": 4,
+            "red": 1
+          },
+          "status": "ok"
+        },
+        {
+          "pondId": "pond-mist",
+          "population": 67,
+          "maxPopulation": 70,
+          "popRatio": 95.7,
+          "avgSizeM": 1.821,
+          "byQuality": {
+            "blue": 10,
+            "gold": 1,
+            "gray": 30,
+            "green": 22,
+            "orange": 2,
+            "purple": 1,
+            "red": 1
+          },
+          "status": "ok"
+        },
+        {
+          "pondId": "pond-sunset",
+          "population": 57,
+          "maxPopulation": 60,
+          "popRatio": 95,
+          "avgSizeM": 2.589,
+          "byQuality": {
+            "blue": 8,
+            "gold": 1,
+            "gray": 23,
+            "green": 18,
+            "orange": 3,
+            "purple": 3,
+            "red": 1
+          },
+          "status": "ok"
+        }
+      ],
+      "snapshotNote": "基于日批时 pond_fish 快照"
+    },
+    "targetCompare": {
+      "target": 100,
+      "simRef": 117.9,
+      "simScenario": "5 人/塘",
+      "actual": 10,
+      "deviationPct": -91.5,
+      "targetDeviationPct": -90
+    },
+    "rulesHistory": [
+      {
+        "dateKey": "2026-07-05",
+        "rulesVersion": "v0.4.1-test",
+        "dailyCatch": 3
+      },
+      {
+        "dateKey": "2026-07-11",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 10
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "id": "alert_catch_low",
+      "level": "bad",
+      "message": "日钓仅 10 条且 DAU=40"
+    },
+    {
+      "id": "alert_disconnect",
+      "level": "bad",
+      "message": "断线率 266.7% 超过 30%"
+    }
+  ],
+  "kpiIds": [
+    "kpi_daily_catch",
+    "kpi_dau",
+    "kpi_fishing_dau",
+    "kpi_catch_per_fisher",
+    "kpi_disconnect_rate",
+    "kpi_abandon_rate",
+    "kpi_avg_pop_ratio"
+  ]
+}

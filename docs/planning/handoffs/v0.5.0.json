@@ -1,0 +1,15 @@
+{
+  "version": "v0.5.0",
+  "source_agent": "planning",
+  "target_agents": [
+    "backend-dev"
+  ],
+  "spec": "docs/planning/specs/三层数据体系-可观测性补充-v0.6.md",
+  "handoff_md": "docs/planning/prompts/data-platform-phase0-dev.prompt.md",
+  "prompt": "docs/planning/prompts/data-platform-phase0-dev.prompt.md",
+  "verify_scripts": [
+    "verify:server-observability",
+    "verify:data-platform-phase0"
+  ],
+  "pipeline_status": "handoff_ready"
+}

@@ -1,0 +1,52 @@
+{
+  "id": "2026-07-06-pond-day-v031",
+  "type": "pond-day",
+  "title": "鱼塘 24h 生态模拟",
+  "generatedAt": "2026-07-06T12:00:00.000Z",
+  "seed": 42026,
+  "rulesVersion": "v0.3.1",
+  "analysis": {
+    "scenarioRows": [
+      {
+        "anglers": 0,
+        "totalCaught": 0,
+        "perPondPerHour": 0,
+        "perAnglerPerHour": 0,
+        "popRatio": 100,
+        "avgCaughtSize": 0,
+        "avgFinalSize": 1.9,
+        "status": "baseline"
+      },
+      {
+        "anglers": 1,
+        "totalCaught": 1099,
+        "perPondPerHour": 11.4,
+        "perAnglerPerHour": 11.45,
+        "popRatio": 93,
+        "avgCaughtSize": 0.777,
+        "avgFinalSize": 2.877,
+        "status": "sustainable"
+      },
+      {
+        "anglers": 3,
+        "totalCaught": 3311,
+        "perPondPerHour": 34.5,
+        "perAnglerPerHour": 11.5,
+        "popRatio": 76.8,
+        "avgCaughtSize": 0.518,
+        "avgFinalSize": 2.491,
+        "status": "consuming"
+      },
+      {
+        "anglers": 5,
+        "totalCaught": 4480,
+        "perPondPerHour": 46.7,
+        "perAnglerPerHour": 9.33,
+        "popRatio": 64.9,
+        "avgCaughtSize": 0.34,
+        "avgFinalSize": 2.082,
+        "status": "unsustainable"
+      }
+    ]
+  }
+}

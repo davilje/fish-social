@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>鱼塘初始生态 · 体型 · 品质 · 成长</title>
+  <style>
+    :root { --bg:#0f1a1e; --surface:#1a2c33; --text:#e8f0f2; --muted:#8aa4ad; --accent:#4a90a4; }
+    * { box-sizing:border-box; }
+    body { font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); margin:0; padding:24px; line-height:1.5; }
+    h1 { font-size:1.6rem; margin:0 0 8px; }
+    h2 { font-size:1.2rem; margin:24px 0 8px; }
+    h2 small { color:var(--muted); font-weight:normal; }
+    .meta, .note { color:var(--muted); font-size:.9rem; }
+    .pond-panel { background:var(--surface); border-radius:12px; padding:20px; margin:20px 0; border:1px solid #243a44; }
+    .swarm { display:flex; flex-wrap:wrap; gap:6px; align-items:flex-end; padding:12px; background:#243a44; border-radius:8px; margin:12px 0; }
+    .swarm span { line-height:0; }
+    .chart-row { display:flex; flex-wrap:wrap; gap:24px; margin:16px 0; }
+    figure { margin:0; }
+    figcaption { color:var(--muted); font-size:.85rem; margin-bottom:8px; }
+    .data-table { width:100%; border-collapse:collapse; font-size:.9rem; margin-top:12px; }
+    .data-table th, .data-table td { border:1px solid #243a44; padding:8px 10px; text-align:left; }
+    .data-table th { background:#243a44; }
+    .growth-section { background:var(--surface); border-radius:12px; padding:20px; margin:20px 0; border:1px solid #243a44; }
+    nav a { color:var(--accent); margin-right:12px; }
+    .callout { background:#1a3a4a; border-left:4px solid var(--accent); padding:12px 16px; border-radius:0 8px 8px 0; margin:16px 0; }
+  </style>
+</head>
+<body>
+  <h1>鱼塘初始生态 · 体型 · 品质 · 成长</h1>
+  <p class="note">生成时间 2026-07-01T19:13:30.942Z · 公式：rollFishQuality + rollInitialSize + growFishSizeV2 · 成长示范鱼种：carp · POND_GROWTH_RATE_PER_HOUR=0.012</p>
+  <div class="callout">高品质鱼出生时体型更小，但品质尺寸上限更高 → 长期成长空间更大。初始种群约 90% 体长落在 0.05–0.2m。</div>
+  <nav><a href="#pond-calm">静心湖</a><a href="#pond-mist">云雾塘</a><a href="#pond-sunset">夕阳湾</a><a href="#pond-bamboo">竹林池</a><a href="#growth">成长曲线</a></nav>
+  
+<section id="pond-calm" class="pond-panel">
+  <h2>静心湖 <small>(pond-calm)</small></h2>
+  <p class="meta">初始 48 条 · 上限 80 · Monte Carlo 8000 次采样缩放</p>
+  <div class="swarm"><span title="普通 · 0.09m"><svg width="22.46" height="12.353000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.10m"><svg width="23.18" height="12.749" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.11m"><svg width="23.9" height="13.145" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="24.619999999999997" height="13.541" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.34" height="13.937000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.09m"><svg width="22.46" height="12.353000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.10m"><svg width="23.18" height="12.749" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.11m"><svg width="23.9" height="13.145" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="24.619999999999997" height="13.541" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.34" height="13.937000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.09m"><svg width="22.46" height="12.353000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.10m"><svg width="23.18" height="12.749" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.11m"><svg width="23.9" height="13.145" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="24.619999999999997" height="13.541" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.34" height="13.937000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.09m"><svg width="22.46" height="12.353000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.10m"><svg width="23.18" height="12.749" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.11m"><svg width="23.9" height="13.145" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="24.619999999999997" height="13.541" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.10m"><svg width="22.64" height="12.452000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.10m"><svg width="23.36" height="12.848" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.11m"><svg width="24.08" height="13.244" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.12m"><svg width="24.799999999999997" height="13.639999999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.13m"><svg width="25.52" height="14.036000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.10m"><svg width="22.64" height="12.452000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.10m"><svg width="23.36" height="12.848" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.11m"><svg width="24.08" height="13.244" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.12m"><svg width="24.799999999999997" height="13.639999999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.13m"><svg width="25.52" height="14.036000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.10m"><svg width="22.64" height="12.452000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.10m"><svg width="23.36" height="12.848" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.11m"><svg width="24.08" height="13.244" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.09m"><svg width="22.189999999999998" height="12.2045" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.10m"><svg width="22.91" height="12.6005" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.11m"><svg width="23.63" height="12.996500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.11m"><svg width="24.35" height="13.392500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.12m"><svg width="25.07" height="13.7885" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.09m"><svg width="22.189999999999998" height="12.2045" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.10m"><svg width="22.91" height="12.6005" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.11m"><svg width="23.63" height="12.996500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.11m"><svg width="24.35" height="13.392500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.09m"><svg width="21.74" height="11.957" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.09m"><svg width="22.46" height="12.353000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.10m"><svg width="23.18" height="12.749" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.11m"><svg width="23.9" height="13.145" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.08m"><svg width="21.560000000000002" height="11.858000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.09m"><svg width="22.28" height="12.254000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="神话 · 0.09m"><svg width="21.92" height="12.056000000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#FF9800"/>
+  <polygon points="38,14 48,7 48,21" fill="#FF9800"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span></div>
+  <div class="chart-row">
+    <figure><figcaption>品质分布</figcaption><img src="charts/pond-calm-quality.svg" alt="品质分布" width="280"/></figure>
+    <figure><figcaption>体长分布</figcaption><img src="charts/pond-calm-size-hist.svg" alt="体长分布" width="520"/></figure>
+  </div>
+  <table class="data-table"><thead><tr><th>品质</th><th>条数</th><th>占比</th><th>均长</th></tr></thead><tbody><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9E9E9E;border-radius:2px"></span> 普通</td><td>19</td><td>38%</td><td>0.11m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#4CAF50;border-radius:2px"></span> 优良</td><td>13</td><td>27.7%</td><td>0.112m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#2196F3;border-radius:2px"></span> 稀有</td><td>9</td><td>18.8%</td><td>0.107m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9C27B0;border-radius:2px"></span> 史诗</td><td>4</td><td>8.9%</td><td>0.102m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#F44336;border-radius:2px"></span> 传说</td><td>2</td><td>3.9%</td><td>0.1m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#FF9800;border-radius:2px"></span> 神话</td><td>1</td><td>1.8%</td><td>0.104m</td></tr></tbody></table>
+</section>
+<section id="pond-mist" class="pond-panel">
+  <h2>云雾塘 <small>(pond-mist)</small></h2>
+  <p class="meta">初始 42 条 · 上限 70 · Monte Carlo 8000 次采样缩放</p>
+  <div class="swarm"><span title="普通 · 0.13m"><svg width="25.34" height="13.937000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="26.06" height="14.333" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.78" height="14.729000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.15m"><svg width="27.5" height="15.125000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.16m"><svg width="28.22" height="15.521" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.34" height="13.937000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="26.06" height="14.333" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.78" height="14.729000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.15m"><svg width="27.5" height="15.125000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.16m"><svg width="28.22" height="15.521" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.34" height="13.937000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="26.06" height="14.333" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.78" height="14.729000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.15m"><svg width="27.5" height="15.125000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.16m"><svg width="28.22" height="15.521" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.05" height="14.877500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.77" height="15.2735" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.16m"><svg width="28.490000000000002" height="15.669500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.17m"><svg width="29.21" height="16.0655" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.18m"><svg width="29.93" height="16.4615" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.05" height="14.877500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.77" height="15.2735" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.16m"><svg width="28.490000000000002" height="15.669500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.17m"><svg width="29.21" height="16.0655" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.18m"><svg width="29.93" height="16.4615" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.05" height="14.877500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.77" height="15.2735" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.14m"><svg width="26.6" height="14.630000000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.15m"><svg width="27.32" height="15.026000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.16m"><svg width="28.04" height="15.422" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.16m"><svg width="28.759999999999998" height="15.818" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.17m"><svg width="29.479999999999997" height="16.214" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.14m"><svg width="26.6" height="14.630000000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.15m"><svg width="27.32" height="15.026000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.16m"><svg width="28.04" height="15.422" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.14m"><svg width="26.69" height="14.679500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.15m"><svg width="27.41" height="15.075500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.16m"><svg width="28.130000000000003" height="15.471500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.17m"><svg width="28.85" height="15.867500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.13m"><svg width="26.060000000000002" height="14.333000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.14m"><svg width="26.78" height="14.729000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="神话 · 0.13m"><svg width="25.52" height="14.036000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#FF9800"/>
+  <polygon points="38,14 48,7 48,21" fill="#FF9800"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span></div>
+  <div class="chart-row">
+    <figure><figcaption>品质分布</figcaption><img src="charts/pond-mist-quality.svg" alt="品质分布" width="280"/></figure>
+    <figure><figcaption>体长分布</figcaption><img src="charts/pond-mist-size-hist.svg" alt="体长分布" width="520"/></figure>
+  </div>
+  <table class="data-table"><thead><tr><th>品质</th><th>条数</th><th>占比</th><th>均长</th></tr></thead><tbody><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9E9E9E;border-radius:2px"></span> 普通</td><td>15</td><td>38%</td><td>0.142m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#4CAF50;border-radius:2px"></span> 优良</td><td>12</td><td>27.4%</td><td>0.161m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#2196F3;border-radius:2px"></span> 稀有</td><td>8</td><td>18.5%</td><td>0.156m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9C27B0;border-radius:2px"></span> 史诗</td><td>4</td><td>9.3%</td><td>0.157m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#F44336;border-radius:2px"></span> 传说</td><td>2</td><td>3.9%</td><td>0.15m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#FF9800;border-radius:2px"></span> 神话</td><td>1</td><td>2%</td><td>0.144m</td></tr></tbody></table>
+</section>
+<section id="pond-sunset" class="pond-panel">
+  <h2>夕阳湾 <small>(pond-sunset)</small></h2>
+  <p class="meta">初始 36 条 · 上限 60 · Monte Carlo 8000 次采样缩放</p>
+  <div class="swarm"><span title="普通 · 0.23m"><svg width="34.97" height="19.2335" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.24m"><svg width="35.69" height="19.6295" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.25m"><svg width="36.41" height="20.0255" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.26m"><svg width="37.129999999999995" height="20.421499999999998" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.27m"><svg width="37.85" height="20.817500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.23m"><svg width="34.97" height="19.2335" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.24m"><svg width="35.69" height="19.6295" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.25m"><svg width="36.41" height="20.0255" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.26m"><svg width="37.129999999999995" height="20.421499999999998" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.27m"><svg width="37.85" height="20.817500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.23m"><svg width="34.97" height="19.2335" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.24m"><svg width="35.69" height="19.6295" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.25m"><svg width="36.41" height="20.0255" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.26m"><svg width="37.129999999999995" height="20.421499999999998" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.32m"><svg width="43.07" height="23.6885" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.33m"><svg width="43.790000000000006" height="24.084500000000006" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.34m"><svg width="44.510000000000005" height="24.480500000000006" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.35m"><svg width="45.230000000000004" height="24.876500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.36m"><svg width="45.95" height="25.272500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.32m"><svg width="43.07" height="23.6885" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.33m"><svg width="43.790000000000006" height="24.084500000000006" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.34m"><svg width="44.510000000000005" height="24.480500000000006" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.35m"><svg width="45.230000000000004" height="24.876500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.36m"><svg width="45.95" height="25.272500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.37m"><svg width="47.21" height="25.965500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.38m"><svg width="47.93" height="26.361500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.39m"><svg width="48.65" height="26.7575" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.39m"><svg width="49.370000000000005" height="27.153500000000005" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.40m"><svg width="50.09" height="27.549500000000005" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.37m"><svg width="47.21" height="25.965500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.38m"><svg width="47.93" height="26.361500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.37m"><svg width="47.03" height="25.866500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.38m"><svg width="47.75" height="26.262500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.38m"><svg width="48.47" height="26.6585" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.34m"><svg width="44.599999999999994" height="24.529999999999998" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="神话 · 0.31m"><svg width="41.989999999999995" height="23.0945" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#FF9800"/>
+  <polygon points="38,14 48,7 48,21" fill="#FF9800"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span></div>
+  <div class="chart-row">
+    <figure><figcaption>品质分布</figcaption><img src="charts/pond-sunset-quality.svg" alt="品质分布" width="280"/></figure>
+    <figure><figcaption>体长分布</figcaption><img src="charts/pond-sunset-size-hist.svg" alt="体长分布" width="520"/></figure>
+  </div>
+  <table class="data-table"><thead><tr><th>品质</th><th>条数</th><th>占比</th><th>均长</th></tr></thead><tbody><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9E9E9E;border-radius:2px"></span> 普通</td><td>14</td><td>36.5%</td><td>0.249m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#4CAF50;border-radius:2px"></span> 优良</td><td>10</td><td>28.8%</td><td>0.339m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#2196F3;border-radius:2px"></span> 稀有</td><td>7</td><td>18.4%</td><td>0.385m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9C27B0;border-radius:2px"></span> 史诗</td><td>3</td><td>9.2%</td><td>0.383m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#F44336;border-radius:2px"></span> 传说</td><td>1</td><td>4.1%</td><td>0.356m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#FF9800;border-radius:2px"></span> 神话</td><td>1</td><td>2.1%</td><td>0.327m</td></tr></tbody></table>
+</section>
+<section id="pond-bamboo" class="pond-panel">
+  <h2>竹林池 <small>(pond-bamboo)</small></h2>
+  <p class="meta">初始 45 条 · 上限 75 · Monte Carlo 8000 次采样缩放</p>
+  <div class="swarm"><span title="普通 · 0.12m"><svg width="25.25" height="13.887500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.97" height="14.2835" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.689999999999998" height="14.679499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.15m"><svg width="27.41" height="15.075500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.16m"><svg width="28.129999999999995" height="15.471499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="25.25" height="13.887500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.97" height="14.2835" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.689999999999998" height="14.679499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.15m"><svg width="27.41" height="15.075500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.16m"><svg width="28.129999999999995" height="15.471499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="25.25" height="13.887500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.97" height="14.2835" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.689999999999998" height="14.679499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.15m"><svg width="27.41" height="15.075500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.16m"><svg width="28.129999999999995" height="15.471499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.12m"><svg width="25.25" height="13.887500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.13m"><svg width="25.97" height="14.2835" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="普通 · 0.14m"><svg width="26.689999999999998" height="14.679499999999999" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9E9E9E"/>
+  <polygon points="38,14 48,7 48,21" fill="#9E9E9E"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.590000000000003" height="15.174500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.16m"><svg width="28.310000000000002" height="15.570500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.17m"><svg width="29.03" height="15.966500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.18m"><svg width="29.75" height="16.3625" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.18m"><svg width="30.47" height="16.7585" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.590000000000003" height="15.174500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.16m"><svg width="28.310000000000002" height="15.570500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.17m"><svg width="29.03" height="15.966500000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.18m"><svg width="29.75" height="16.3625" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.18m"><svg width="30.47" height="16.7585" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.15m"><svg width="27.590000000000003" height="15.174500000000004" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="优良 · 0.16m"><svg width="28.310000000000002" height="15.570500000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#4CAF50"/>
+  <polygon points="38,14 48,7 48,21" fill="#4CAF50"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.14m"><svg width="26.42" height="14.531000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.15m"><svg width="27.14" height="14.927000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.15m"><svg width="27.86" height="15.323" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.16m"><svg width="28.58" height="15.719000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.17m"><svg width="29.299999999999997" height="16.115" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.14m"><svg width="26.42" height="14.531000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.15m"><svg width="27.14" height="14.927000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="稀有 · 0.15m"><svg width="27.86" height="15.323" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#2196F3"/>
+  <polygon points="38,14 48,7 48,21" fill="#2196F3"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.14m"><svg width="26.78" height="14.729000000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.15m"><svg width="27.5" height="15.125000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.16m"><svg width="28.22" height="15.521" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="史诗 · 0.17m"><svg width="28.94" height="15.917000000000002" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#9C27B0"/>
+  <polygon points="38,14 48,7 48,21" fill="#9C27B0"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.13m"><svg width="25.61" height="14.085500000000001" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="传说 · 0.14m"><svg width="26.33" height="14.4815" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#F44336"/>
+  <polygon points="38,14 48,7 48,21" fill="#F44336"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span><span title="神话 · 0.13m"><svg width="25.700000000000003" height="14.135000000000003" viewBox="0 0 48 28" aria-hidden="true">
+  <ellipse cx="22" cy="14" rx="17" ry="10" fill="#FF9800"/>
+  <polygon points="38,14 48,7 48,21" fill="#FF9800"/>
+  <circle cx="12" cy="11" r="2.5" fill="#e8f0f2"/>
+</svg></span></div>
+  <div class="chart-row">
+    <figure><figcaption>品质分布</figcaption><img src="charts/pond-bamboo-quality.svg" alt="品质分布" width="280"/></figure>
+    <figure><figcaption>体长分布</figcaption><img src="charts/pond-bamboo-size-hist.svg" alt="体长分布" width="520"/></figure>
+  </div>
+  <table class="data-table"><thead><tr><th>品质</th><th>条数</th><th>占比</th><th>均长</th></tr></thead><tbody><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9E9E9E;border-radius:2px"></span> 普通</td><td>18</td><td>39.3%</td><td>0.141m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#4CAF50;border-radius:2px"></span> 优良</td><td>12</td><td>27.7%</td><td>0.167m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#2196F3;border-radius:2px"></span> 稀有</td><td>8</td><td>17.3%</td><td>0.154m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#9C27B0;border-radius:2px"></span> 史诗</td><td>4</td><td>8.6%</td><td>0.158m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#F44336;border-radius:2px"></span> 传说</td><td>2</td><td>4.1%</td><td>0.145m</td></tr><tr><td><span style="display:inline-block;width:12px;height:12px;background:#FF9800;border-radius:2px"></span> 神话</td><td>1</td><td>1.9%</td><td>0.146m</td></tr></tbody></table>
+</section>
+  <section id="growth" class="growth-section">
+    <h2>成长曲线（按品质 · carp 鲤鱼示范）</h2>
+    <p class="meta">纵轴体长(m) · 横轴存活时间(h) · 见 charts/growth-curves-carp.svg</p>
+    <img src="charts/growth-curves-carp.svg" alt="成长曲线" width="640"/>
+    <table class="data-table"><thead><tr><th>品质</th><th>出生</th><th>480h</th><th>上限</th></tr></thead><tbody><tr><td style="color:#9E9E9E">普通</td><td>0.111m</td><td>0.3m</td><td>0.3m</td></tr><tr><td style="color:#4CAF50">优良</td><td>0.12m</td><td>0.67m</td><td>0.8m</td></tr><tr><td style="color:#2196F3">稀有</td><td>0.107m</td><td>0.82m</td><td>2m</td></tr><tr><td style="color:#9C27B0">史诗</td><td>0.096m</td><td>0.84m</td><td>4.5m</td></tr><tr><td style="color:#F44336">传说</td><td>0.087m</td><td>0.83m</td><td>9m</td></tr><tr><td style="color:#FF9800">神话</td><td>0.08m</td><td>0.82m</td><td>18m</td></tr><tr><td style="color:#FFD700">至尊</td><td>0.074m</td><td>0.81m</td><td>40m</td></tr></tbody></table>
+  </section>
+  <p class="note">数据文件：<code>data.json</code> · 由 <code>npm run export:pond-ecology</code> 生成</p>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fish Social · 运营平台入口</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --ink: #1c1917;
+      --muted: #78716c;
+      --card: #fffcf7;
+      --line: #e7e0d5;
+      --accent: #0e7490;
+      --hero: #134e4a;
+      --ok: #0f766e;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+      --warn-ink: #9a3412;
+      --bad: #b91c1c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    header {
+      background: var(--hero);
+      color: #ecfdf5;
+      border-radius: 16px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.25rem;
+    }
+    header h1 { font-size: 1.45rem; font-weight: 700; }
+    header p { opacity: 0.88; margin-top: 0.4rem; font-size: 0.95rem; }
+    h2 {
+      font-size: 1.05rem;
+      margin: 1.5rem 0 0.45rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 2px solid var(--line);
+    }
+    .sec-lead {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 720px) {
+      .grid, .grid-3 { grid-template-columns: 1fr; }
+    }
+    a.card, .card-static {
+      display: block;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s;
+    }
+    a.card:hover { border-color: var(--accent); }
+    a.card strong, .card-static strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      font-size: 1rem;
+    }
+    a.card .what, .card-static .what {
+      font-size: 0.9rem;
+      color: var(--ink);
+      margin-bottom: 0.35rem;
+    }
+    a.card .when, .card-static .when {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .note, .guide {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+    }
+    .guide { color: var(--ink); }
+    .guide h3 {
+      font-size: 0.95rem;
+      color: var(--hero);
+      margin: 0.85rem 0 0.4rem;
+    }
+    .guide h3:first-child { margin-top: 0; }
+    .guide ul { margin: 0.35rem 0 0 1.15rem; }
+    .guide li { margin: 0.35rem 0; }
+    .guide li strong { color: var(--accent); }
+    .note code, .guide code, header code, .warn code, #webHint code, .today code {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.85em;
+      background: #efeae2;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      color: var(--ink);
+    }
+    header code {
+      background: rgba(255,255,255,.15);
+      color: #ecfdf5;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      background: #ccfbf1;
+      color: var(--ok);
+      margin-left: 0.35rem;
+      vertical-align: middle;
+    }
+    .admin-embed {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+    }
+    .admin-embed .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.88rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .admin-embed .bar a { color: var(--accent); }
+    .admin-embed iframe {
+      display: block;
+      width: 100%;
+      height: min(72vh, 820px);
+      border: 0;
+      background: #fff;
+    }
+    a.card.dimmed {
+      opacity: 0.72;
+      border-style: dashed;
+    }
+    a.card .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+    }
+    a.card .badge.online { background: #ccfbf1; color: var(--ok); }
+    a.card .badge.offline { background: #fed7aa; color: var(--warn-ink); }
+    .warn, #webHint {
+      display: none;
+      margin: 0.75rem 0;
+      padding: 0.75rem 0.95rem;
+      border-radius: 10px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      color: var(--warn-ink);
+      font-size: 0.9rem;
+    }
+    .warn.visible, #webHint.visible { display: block; }
+    .status-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    @media (max-width: 720px) { .status-panel { grid-template-columns: 1fr; } }
+    .status-panel .card-static dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.25rem 0.75rem;
+      margin-top: 0.5rem;
+      font-size: 0.88rem;
+    }
+    .status-panel dt { color: var(--muted); }
+    .status-panel dd { font-family: ui-monospace, Consolas, monospace; }
+    .status-panel .ok, .today .ok { color: var(--ok); font-weight: 600; }
+    .status-panel .bad, .today .bad { color: var(--bad); font-weight: 600; }
+    .today .warn-text { color: var(--warn-ink); font-weight: 600; }
+
+    /* 今日运维条 */
+    .today {
+      background: var(--card);
+      border: 2px solid var(--hero);
+      border-radius: 16px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .today-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.85rem;
+    }
+    .today-head h2 {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 1.15rem;
+      color: var(--hero);
+    }
+    .today-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.5rem;
+      padding: 0.45rem 0.95rem;
+      border-radius: 10px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn.secondary {
+      background: transparent;
+      color: var(--accent);
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      margin: 0.75rem 0;
+    }
+    @media (max-width: 720px) { .kpi-row { grid-template-columns: 1fr; } }
+    .kpi {
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      border-radius: 10px;
+      padding: 0.7rem 0.85rem;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .kpi .lbl { font-size: 0.78rem; color: var(--muted); }
+    .kpi .num { font-size: 1.35rem; font-weight: 700; color: var(--hero); font-variant-numeric: tabular-nums; }
+    .today-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 720px) { .today-meta { grid-template-columns: 1fr; } }
+    .today-meta .cell {
+      background: #fafaf9;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+    }
+    .today-meta .cell .lbl { color: var(--muted); font-size: 0.78rem; margin-bottom: 0.2rem; }
+    .quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.65rem 0 0.25rem;
+      align-items: center;
+    }
+    .quick-row input {
+      min-height: 2.5rem;
+      padding: 0.4rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      min-width: 10rem;
+      flex: 1;
+    }
+    details.fold {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.65rem 1rem 1rem;
+      margin-top: 0.75rem;
+    }
+    details.fold > summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--hero);
+      padding: 0.35rem 0;
+      list-style: none;
+    }
+    details.fold > summary::-webkit-details-marker { display: none; }
+    details.fold > summary::before {
+      content: '▸ ';
+      color: var(--muted);
+    }
+    details.fold[open] > summary::before { content: '▾ '; }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Fish Social · 运营平台入口 <span id="svcPill" class="pill" style="background:rgba(255,255,255,.2);color:#ecfdf5">检测中…</span></h1>
+      <p>本页是运维总入口。推荐：双击 <code>打开运营平台.bat</code>，或打开 <code>http://localhost:3001/ops/</code></p>
+    </header>
+
+    <div id="fileProtocolWarn" class="warn">
+      你正在用本地文件打开。Admin / 健康检查需要游戏服。请双击根目录
+      <strong>打开运营平台.bat</strong>（会自动启动服务并打开浏览器），或访问
+      <a href="http://localhost:3001/ops/">http://localhost:3001/ops/</a>
+    </div>
+
+    <div id="serverDownWarn" class="warn">
+      游戏服 HTTP 无响应。请双击 <code>打开运营平台.bat</code>，或在仓库根目录执行 <code>npm run server</code>。
+    </div>
+
+    <!-- 今日运维条（OPS-UX-1 首屏主焦点） -->
+    <section class="today" id="todayOps" aria-label="今日运维">
+      <div class="today-head">
+        <h2>今日运维</h2>
+        <div class="today-actions">
+          <button type="button" class="btn secondary" id="refreshToday">刷新状态</button>
+          <a class="btn" id="yesterdayReportBtn" href="#" data-href-http="" data-href-file="">打开昨日运营日报</a>
+        </div>
+      </div>
+      <p class="sec-lead" id="yesterdayMissing" style="display:none;margin:0 0 0.5rem">
+        昨日报告尚未生成。可先打开
+        <a data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="/analytics/index.html">分析归档索引</a>，
+        或跑 <code>npm run analytics:daily</code> / 计划任务。
+      </p>
+      <div class="kpi-row" id="kpiRow">
+        <a class="kpi" id="kpiCatches" href="#"><div class="lbl">日钓获</div><div class="num" id="kpiCatchesNum">—</div></a>
+        <a class="kpi" id="kpiDau" href="#"><div class="lbl">活跃玩家</div><div class="num" id="kpiDauNum">—</div></a>
+        <a class="kpi" id="kpiDisc" href="#"><div class="lbl">断线次数</div><div class="num" id="kpiDiscNum">—</div></a>
+      </div>
+      <div class="today-meta">
+        <div class="cell">
+          <div class="lbl">运行状态</div>
+          <div id="todaySvc">检测中…</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">内存 RSS</div>
+          <div id="todayRss">—</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">真人在塘</div>
+          <div id="todayHumans">—</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">机器人在塘</div>
+          <div id="todayBots">—</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">告警（T-1）</div>
+          <div id="todayAlerts">检测中…</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">日批任务</div>
+          <div id="todayBatch">检测中…</div>
+        </div>
+      </div>
+    </section>
+
+    <h2>每日必看</h2>
+    <p class="sec-lead">主路径：昨天日报、增长趋势、线上对照、项目进度。工程导出在下方折叠区。</p>
+    <div class="grid">
+      <a class="card" id="dailyMustReport" data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="/analytics/index.html">
+        <strong>昨日运营日报</strong>
+        <p class="what">一键打开 T-1 报告（与上方「今日运维」同一深链）。</p>
+        <p class="when">日会前看产量与告警。</p>
+      </a>
+      <a class="card" data-href-http="/analytics/growth/" data-href-file="docs/analytics/growth/index.html" href="/analytics/growth/">
+        <strong>增长与经营看板</strong>
+        <p class="what">跨日新增 / DAU / 留存 D1–D30 可筛折线；商业化占位。</p>
+        <p class="when">看趋势与留存，不是单日报告。</p>
+      </a>
+      <a class="card" data-href-http="/analytics/live-vs-sim.html" data-href-file="docs/analytics/live-vs-sim.html" href="/analytics/live-vs-sim.html">
+        <strong>线上 vs 模拟</strong>
+        <p class="what">真实日钓与设计/模拟目标对照。</p>
+        <p class="when">调参、怀疑线上偏离时。</p>
+      </a>
+      <a class="card" data-href-http="/策划进度看板.html" data-href-file="策划进度看板.html" href="/策划进度看板.html">
+        <strong>策划进度看板</strong>
+        <p class="what">需求进度 · 离上线 / 千人运营还差哪些。</p>
+        <p class="when">排期与验收（非游戏运营数据）。</p>
+      </a>
+    </div>
+
+    <h2>实时运维 <span class="pill">需游戏服 :3001</span></h2>
+    <p class="sec-lead">需游戏服 :3001 · 密钥见内嵌页（默认 <code>fish-social-debug</code>）。</p>
+
+    <div class="admin-embed">
+      <div class="bar">
+        <span>Admin 内嵌 · 连接失败请用 <code>打开运营平台.bat</code> / <code>npm run server</code></span>
+        <a id="adminOpen" href="http://localhost:3001/admin-web/?tab=players" target="_blank" rel="noopener">全屏打开 ↗</a>
+      </div>
+      <iframe id="adminFrame" title="Fish Social Admin" src="http://localhost:3001/admin-web/?tab=players"></iframe>
+    </div>
+
+    <details class="fold" id="engFold">
+      <summary>更多 · 工程与导出</summary>
+      <p class="sec-lead" style="margin-top:0.5rem">
+        BI / xlsx / cron / 开发说明 / 游戏 Web。BI 是 <strong>Excel 下载页</strong>，不是看板。
+      </p>
+      <div class="grid">
+        <a class="card" id="gameWebCard" href="http://localhost:8082/" target="_blank" rel="noopener">
+          <strong>游戏 Web <span id="webBadge" class="badge offline">检测中…</span></strong>
+          <p class="what">玩家客户端（Expo Web · :8082）。</p>
+          <p class="when">未启动请跑 <code>dev.bat</code> / <code>npm run web</code>。</p>
+        </a>
+        <a class="card" data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="/analytics/index.html">
+          <strong>分析归档索引</strong>
+          <p class="what">历史线上日报 + 模拟/校准报告目录。</p>
+        </a>
+        <a class="card" data-href-http="/analytics/warehouse/latest/" data-href-file="docs/analytics/warehouse/latest/" href="/analytics/warehouse/latest/">
+          <strong>BI CSV（Excel 汇总表下载）</strong>
+          <p class="what">不是看板，是给 Excel / BI 下载的 CSV。<code>latest</code> = 最近一次导出。</p>
+        </a>
+        <a class="card" data-href-http="/项目开发需求计划表.xlsx" data-href-file="项目开发需求计划表.xlsx" href="/项目开发需求计划表.xlsx">
+          <strong>项目开发需求计划表.xlsx</strong>
+          <p class="what">需求编号与状态权威表（<code>npm run planning:master-xlsx</code>）。</p>
+        </a>
+        <a class="card" data-href-http="/v0.4.4-埋点表清单.xlsx" data-href-file="v0.4.4-埋点表清单.xlsx" href="/v0.4.4-埋点表清单.xlsx">
+          <strong>v0.4.4-埋点表清单.xlsx</strong>
+          <p class="what">埋点事件字典（<code>npm run planning:metrics-xlsx</code>）。</p>
+        </a>
+        <a class="card" data-href-http="/docs/ops/daily-analytics-cron.md" data-href-file="docs/ops/daily-analytics-cron.md" href="/docs/ops/daily-analytics-cron.md">
+          <strong>日报定时任务说明</strong>
+          <p class="what">如何装 00:30 自动跑昨日日报。</p>
+        </a>
+        <a class="card" data-href-http="/开发流程说明.html" data-href-file="开发流程说明.html" href="/开发流程说明.html">
+          <strong>开发流程说明</strong>
+          <p class="what">多 Agent / 交接流程。</p>
+        </a>
+        <a class="card" data-href-http="/preview.html" data-href-file="preview.html" href="/preview.html">
+          <strong>游戏预览工具</strong>
+          <p class="what">本地 Web 预览启动说明。</p>
+        </a>
+      </div>
+      <div id="webHint">
+        游戏 Web 未启动 — 请运行 <code>dev.bat</code> 或 <code>npm run web</code>。
+        <strong>运维入口（:3001）≠ 游戏客户端（:8082）</strong>。
+      </div>
+      <details class="fold" style="margin-top:0.75rem;border-style:dashed">
+        <summary>日志说明（OBS-LOG-1）</summary>
+        <p class="sec-lead" style="margin-top:0.5rem">
+          默认安静：fanout 等高频事件只进 Prometheus，不刷 info 日志。
+          需要排障时设 <code>FANOUT_LOG_INFO=1</code> / <code>ECOLOGY_VERBOSE=1</code> 等（见服务端日志规格）。
+        </p>
+      </details>
+    </details>
+
+    <div class="note">
+      <p><strong>关于终端</strong></p>
+      <p style="margin-top:0.5rem">
+        Admin / health 需要游戏服进程在跑：用 <code>打开运营平台.bat</code> 后台启动；
+        也可用 <code>npm run ops:install-daily-task</code> 装日报任务。
+      </p>
+    </div>
+
+    <footer>
+      权威入口：仓库根目录 运营平台.html · http://localhost:3001/ops/
+    </footer>
+  </div>
+  <script>
+    (function () {
+      var isFile = location.protocol === 'file:';
+      if (isFile) {
+        document.getElementById('fileProtocolWarn').classList.add('visible');
+      }
+      function applyHrefLinks() {
+        document.querySelectorAll('a[data-href-http]').forEach(function (a) {
+          var http = a.getAttribute('data-href-http');
+          var file = a.getAttribute('data-href-file');
+          if (http) a.href = isFile ? (file || http) : http;
+        });
+      }
+      applyHrefLinks();
+
+      function base(path) {
+        return isFile ? ('http://localhost:3001' + path) : path;
+      }
+      function shanghaiYesterday() {
+        var fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' });
+        var todayKey = fmt.format(new Date());
+        var start = Date.parse(todayKey + 'T00:00:00+08:00');
+        return fmt.format(new Date(start - 86400000));
+      }
+
+      var t1 = shanghaiYesterday();
+      var reportHttp = '/analytics/daily/' + t1 + '/report.html';
+      var reportFile = 'docs/analytics/daily/' + t1 + '/report.html';
+      var compactHttp = '/analytics/daily/' + t1 + '/compact.json';
+      var compactFile = 'docs/analytics/daily/' + t1 + '/compact.json';
+
+      var pill = document.getElementById('svcPill');
+      var down = document.getElementById('serverDownWarn');
+      function setPill(ok, text) {
+        if (!pill) return;
+        pill.textContent = text;
+        pill.style.background = ok ? '#ccfbf1' : '#fed7aa';
+        pill.style.color = ok ? '#0f766e' : '#9a3412';
+      }
+      function setText(id, text, cls) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = text;
+        el.className = cls || '';
+      }
+      function setHtml(id, html) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+      }
+
+      function adminUrl(tab, extra) {
+        var q = new URLSearchParams();
+        q.set('tab', tab || 'players');
+        if (extra && extra.playerId) q.set('playerId', extra.playerId);
+        if (extra && extra.pondId) q.set('pondId', extra.pondId);
+        return 'http://localhost:3001/admin-web/?' + q.toString();
+      }
+      function setAdminTargets(tab, extra) {
+        var url = adminUrl(tab, extra);
+        var frame = document.getElementById('adminFrame');
+        var open = document.getElementById('adminOpen');
+        if (frame) frame.src = url;
+        if (open) open.href = url;
+      }
+
+      function wireReportLinks(exists) {
+        var btn = document.getElementById('yesterdayReportBtn');
+        var must = document.getElementById('dailyMustReport');
+        var missing = document.getElementById('yesterdayMissing');
+        var hrefHttp = exists ? reportHttp + '#alerts' : '/analytics/index.html';
+        var hrefFile = exists ? reportFile + '#alerts' : 'docs/analytics/index.html';
+        var label = exists
+          ? ('打开昨日运营日报（' + t1 + '）')
+          : ('昨日报告尚未生成 · 打开归档索引');
+        if (btn) {
+          btn.textContent = label;
+          btn.setAttribute('data-href-http', hrefHttp);
+          btn.setAttribute('data-href-file', hrefFile);
+          btn.href = isFile ? hrefFile : hrefHttp;
+          if (!exists) btn.classList.add('secondary');
+          else btn.classList.remove('secondary');
+        }
+        if (must) {
+          must.setAttribute('data-href-http', exists ? reportHttp : '/analytics/index.html');
+          must.setAttribute('data-href-file', exists ? reportFile : 'docs/analytics/index.html');
+          must.href = isFile ? must.getAttribute('data-href-file') : must.getAttribute('data-href-http');
+        }
+        ['kpiCatches', 'kpiDau', 'kpiDisc'].forEach(function (id) {
+          var a = document.getElementById(id);
+          if (!a) return;
+          a.href = isFile ? hrefFile : hrefHttp;
+        });
+        if (missing) missing.style.display = exists ? 'none' : 'block';
+      }
+
+      function loadYesterday() {
+        var url = isFile ? compactFile : compactHttp;
+        return fetch(url, { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) throw new Error('missing');
+            return r.json();
+          })
+          .then(function (c) {
+            wireReportLinks(true);
+            if (c.totalCatches != null) {
+              var hum = c.totalCatchesHuman;
+              var bot = c.totalCatchesBot;
+              var catchTxt = String(c.totalCatches);
+              if (hum != null || bot != null) {
+                catchTxt +=
+                  '<div style="font-size:0.72rem;font-weight:500;color:#64748b;margin-top:0.15rem">真人 ' +
+                  (hum != null ? hum : '—') +
+                  ' · 机器人 ' +
+                  (bot != null ? bot : '—') +
+                  '</div>';
+              }
+              setHtml('kpiCatchesNum', catchTxt);
+            } else {
+              setText('kpiCatchesNum', '—');
+            }
+            setText('kpiDauNum', c.activePlayers != null ? String(c.activePlayers) : '—');
+            setText('kpiDiscNum', c.totalDisconnects != null ? String(c.totalDisconnects) : '—');
+            if (typeof c.alertCount === 'number') {
+              if (c.alertCount === 0) {
+                setHtml('todayAlerts', '<span class="ok">无告警</span> · <a href="' + (isFile ? reportFile + '#alerts' : reportHttp + '#alerts') + '">打开报告</a>');
+              } else {
+                setHtml(
+                  'todayAlerts',
+                  '<a href="' + (isFile ? reportFile + '#alerts' : reportHttp + '#alerts') + '">告警 ' + c.alertCount +
+                    '（红 ' + (c.alertBad ?? 0) + ' · 黄 ' + (c.alertWarn ?? 0) + '）</a>'
+                );
+              }
+            } else {
+              setHtml(
+                'todayAlerts',
+                '未知 · <a href="' + (isFile ? reportFile + '#alerts' : reportHttp + '#alerts') + '">点进报告查看</a>'
+              );
+            }
+          })
+          .catch(function () {
+            wireReportLinks(false);
+            setText('kpiCatchesNum', '—');
+            setText('kpiDauNum', '—');
+            setText('kpiDiscNum', '—');
+            setHtml(
+              'todayAlerts',
+              '报告未生成 · <a data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="' +
+                (isFile ? 'docs/analytics/index.html' : '/analytics/index.html') +
+                '">分析归档索引</a>'
+            );
+          });
+      }
+
+      function loadBatchStatus() {
+        var url = isFile ? 'docs/analytics/daily-batch-status.json' : '/analytics/daily-batch-status.json';
+        return fetch(url, { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) throw new Error('missing');
+            return r.json();
+          })
+          .then(function (s) {
+            var when = s.updatedAt ? new Date(s.updatedAt).toLocaleString('zh-CN') : '—';
+            var ok = !!s.ok;
+            var status = ok ? '<span class="ok">成功</span>' : '<span class="bad">失败</span>';
+            var logHint = !ok
+              ? ' · 查看 <code>logs/daily-analytics/</code>' + (s.logFile ? '（' + s.logFile + '）' : '')
+              : (s.logFile ? ' · ' + s.logFile : '');
+            setHtml(
+              'todayBatch',
+              '上次日批：' + when + ' · 目标日 ' + (s.dateKey || '—') + ' · ' + status + logHint
+            );
+          })
+          .catch(function () {
+            setHtml(
+              'todayBatch',
+              '尚无日批记录（可安装计划任务）· <a data-href-http="/docs/ops/daily-analytics-cron.md" data-href-file="docs/ops/daily-analytics-cron.md" href="' +
+                (isFile ? 'docs/ops/daily-analytics-cron.md' : '/docs/ops/daily-analytics-cron.md') +
+                '">日报定时任务说明</a>'
+            );
+          });
+      }
+
+      function probe() {
+        var healthOk = false;
+        var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 2500);
+        fetch(base('/health'), ctrl ? { signal: ctrl.signal } : {})
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function (j) {
+            clearTimeout(timer);
+            healthOk = !!j.ok;
+            if (down) down.classList.remove('visible');
+            setPill(true, '服务正常');
+            setHtml('todaySvc', healthOk ? '<span class="ok">运行中</span>' : '<span class="warn-text">异常</span>');
+          })
+          .catch(function () {
+            clearTimeout(timer);
+            if (down) down.classList.add('visible');
+            setPill(false, '服务无响应');
+            setHtml('todaySvc', '<span class="bad">无响应</span>');
+            setText('todayRss', '—');
+            setText('todayHumans', '—');
+            setText('todayBots', '—');
+          });
+
+        fetch(base('/ready'))
+          .then(function (r) { return r.json().then(function (j) { return { okHttp: r.ok, j: j }; }); })
+          .then(function (pack) {
+            var j = pack.j;
+            var good = pack.okHttp && j.ok && j.db === 'ok';
+            setText('todayRss', j.memoryMb && j.memoryMb.rss != null ? (j.memoryMb.rss + ' MB') : '—');
+            setText('todayHumans', j.humanInPond != null ? String(j.humanInPond) : '—');
+            setText('todayBots', j.botInPondCount != null ? String(j.botInPondCount) : '—');
+            var svc = document.getElementById('todaySvc');
+            if (svc && svc.textContent.indexOf('无响应') >= 0) return;
+            if (good) {
+              setHtml('todaySvc', '<span class="ok">运行中</span>');
+            } else if (pack.okHttp) {
+              setHtml(
+                'todaySvc',
+                j.draining
+                  ? '<span class="warn-text">停机中</span>'
+                  : '<span class="warn-text">异常</span>'
+              );
+            }
+          })
+          .catch(function () { /* health catch covers */ });
+      }
+
+      function refreshToday() {
+        probe();
+        loadYesterday();
+        loadBatchStatus();
+      }
+
+      document.getElementById('refreshToday').addEventListener('click', function () {
+        refreshToday();
+      });
+
+      refreshToday();
+      setInterval(probe, 15000);
+
+      var webCard = document.getElementById('gameWebCard');
+      var webBadge = document.getElementById('webBadge');
+      var webHint = document.getElementById('webHint');
+      function setWeb(ok) {
+        if (webBadge) {
+          webBadge.textContent = ok ? 'Web 在线' : '未启动';
+          webBadge.className = 'badge ' + (ok ? 'online' : 'offline');
+        }
+        if (webCard) {
+          if (ok) webCard.classList.remove('dimmed');
+          else webCard.classList.add('dimmed');
+        }
+        if (webHint) {
+          if (ok) webHint.classList.remove('visible');
+          else webHint.classList.add('visible');
+        }
+      }
+      function probeWeb() {
+        var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 2000);
+        fetch('http://localhost:8082/', ctrl ? { signal: ctrl.signal, mode: 'no-cors' } : { mode: 'no-cors' })
+          .then(function () { clearTimeout(timer); setWeb(true); })
+          .catch(function () { clearTimeout(timer); setWeb(false); });
+      }
+      probeWeb();
+      setInterval(probeWeb, 15000);
+    })();
+  </script>
+</body>
+</html>

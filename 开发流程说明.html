@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fish Social 开发流程说明</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --accent: #2d7ff9;
+    --accent-light: #e8f0fe;
+    --text: #1a1a2e;
+    --text-secondary: #5a6178;
+    --border: #e2e6ef;
+    --success: #1a9d6b;
+    --warning: #e8a317;
+    --danger: #e74c5e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 56px 24px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+  .hero p { font-size: 1.05rem; opacity: .8; max-width: 640px; margin: 0 auto; }
+  .hero .version { margin-top: 16px; display: inline-block; background: rgba(255,255,255,.12); padding: 4px 16px; border-radius: 20px; font-size: .85rem; }
+
+  /* Layout */
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    border-left: 4px solid var(--accent);
+    padding-left: 14px;
+    margin-bottom: 20px;
+  }
+  .section h3 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 10px; color: var(--text); }
+  .section p, .section li { color: var(--text-secondary); }
+
+  /* Card grid */
+  .card-grid { display: grid; gap: 12px; }
+  .card-grid.cols-2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .card-grid.cols-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    transition: box-shadow .15s;
+  }
+  .card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .card .role-tag {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: var(--accent-light);
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .card .role-tag.prod { background: #fef3e2; color: #b8860b; }
+  .card .role-tag.dev { background: #e3f2fd; color: #1565c0; }
+  .card .role-tag.art { background: #fce4ec; color: #c62828; }
+  .card .role-tag.data { background: #e8f5e9; color: #2e7d32; }
+  .card h4 { margin-bottom: 4px; }
+  .card p { font-size: .9rem; color: var(--text-secondary); line-height: 1.5; }
+  .card .mention { font-family: "SF Mono", "Fira Code", monospace; font-size: .82rem; color: var(--accent); }
+
+  /* Flow diagram */
+  .flow {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px 0;
+    padding: 20px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 16px 0;
+  }
+  .flow .step {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .flow .step-box {
+    background: var(--accent-light);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .88rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow .step-box.highlight {
+    background: var(--accent);
+    color: white;
+  }
+  .flow .step-box.warn { background: #fef3e2; }
+  .flow .step-box.success { background: #e8f5e9; }
+  .flow .arrow { color: #aab; font-size: 1.2rem; margin: 0 4px; }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+    font-size: .9rem;
+  }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f4f6fb; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); }
+  tr:last-child td { border-bottom: none; }
+  code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: .85rem;
+    background: #f0f2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  pre {
+    background: #1a1a2e;
+    color: #e8e8f0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: .85rem;
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+  pre .cmd { color: #7ec8e3; }
+  pre .comment { color: #6a7a8a; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: .78rem;
+    font-weight: 500;
+  }
+  .badge.blue { background: #e3f2fd; color: #1565c0; }
+  .badge.green { background: #e8f5e9; color: #2e7d32; }
+  .badge.orange { background: #fef3e2; color: #b8860b; }
+  .badge.red { background: #fce4ec; color: #c62828; }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.6rem; }
+    .flow { flex-direction: column; align-items: stretch; }
+    .flow .arrow { transform: rotate(90deg); }
+    .card-grid.cols-2, .card-grid.cols-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Fish Social</h1>
+  <p>休闲社交挂机钓鱼游戏 —— 多 Agent 协作开发流程说明</p>
+  <span class="version">Opencode 9 Agent 团队 &middot; Cursor 6 Agent 规则</span>
+</div>
+
+<div class="container">
+
+  <!-- ==================== 1. 团队角色 ==================== -->
+  <div class="section">
+    <h2>一、团队角色</h2>
+    <p style="margin-bottom:16px">整个开发团队由 <strong>9 个 Agent</strong> 组成，按职能分为四层。你（主 Agent / Build 模式）担任<strong>项目经理</strong>，负责调度全流程。</p>
+
+    <h3>策划与设计（产出文档，不写代码）</h3>
+    <div class="card-grid cols-3">
+      <div class="card">
+        <span class="role-tag prod">策划</span>
+        <h4>@producer</h4>
+        <p>撰写功能规格、开发交接 prompt、策划结案</p>
+        <span class="mention">写: docs/planning/</span>
+      </div>
+      <div class="card">
+        <span class="role-tag prod">美术总监</span>
+        <h4>@art-director</h4>
+        <p>制定美术风格规范，审核美术资源方向</p>
+        <span class="mention">写: docs/art/direction/</span>
+      </div>
+      <div class="card">
+        <span class="role-tag prod">UI 设计师</span>
+        <h4>@ui-designer</h4>
+        <p>产出 UI 设计规范、交互原型说明文档</p>
+        <span class="mention">写: docs/design/ui/</span>
+      </div>
+    </div>
+
+    <h3>工程开发（写代码）</h3>
+    <div class="card-grid cols-2">
+      <div class="card">
+        <span class="role-tag dev">前端工程师</span>
+        <h4>@frontend-dev</h4>
+        <p>React Native / Expo 客户端组件与页面</p>
+        <span class="mention">写: mobile/ &nbsp;|&nbsp; 禁: server/</span>
+      </div>
+      <div class="card">
+        <span class="role-tag dev">后端工程师</span>
+        <h4>@backend-dev</h4>
+        <p>Express API、Socket.io、SQLite、共享逻辑</p>
+        <span class="mention">写: server/ shared/ scripts/</span>
+      </div>
+    </div>
+
+    <h3>美术生产（写资源文件）</h3>
+    <div class="card-grid cols-2">
+      <div class="card">
+        <span class="role-tag art">原画</span>
+        <h4>@concept-artist</h4>
+        <p>产出 PNG/SVG 美术资源及资源接入文档</p>
+        <span class="mention">写: mobile/assets/ docs/art/</span>
+      </div>
+      <div class="card">
+        <span class="role-tag art">动效师</span>
+        <h4>@motion-designer</h4>
+        <p>产出 Lottie/SVG 动画及动效接入说明</p>
+        <span class="mention">写: mobile/assets/animations/</span>
+      </div>
+    </div>
+
+    <h3>数据分析与运维（产出报告，不写业务源码）</h3>
+    <div class="card-grid cols-2">
+      <div class="card">
+        <span class="role-tag data">数据分析师</span>
+        <h4>@data-analyst</h4>
+        <p>模拟运行报告、生态调参建议、数据报表</p>
+        <span class="mention">写: docs/analytics/</span>
+      </div>
+      <div class="card">
+        <span class="role-tag data">后端维护</span>
+        <h4>@backend-ops</h4>
+        <p>架构方案、性能优化、运维策略</p>
+        <span class="mention">写: docs/planning/architecture/</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. 完整开发流程 ==================== -->
+  <div class="section">
+    <h2>二、完整开发流程</h2>
+
+    <div class="flow">
+      <div class="step"><span class="step-box highlight">① 提需求</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box">② @producer 写 spec</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box warn">③ 确认范围</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box">④ handoff</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box">⑤ @dev 实现</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box">⑥ verify</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box success">⑦ accept</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box">⑧ @producer close</span></div>
+    </div>
+
+    <h3>步骤详解</h3>
+
+    <table>
+      <tr><th style="width:60px">步骤</th><th>角色</th><th>操作</th></tr>
+      <tr>
+        <td><span class="badge blue">1</span></td>
+        <td>你（项目经理）</td>
+        <td>向 <code>@producer</code> 描述需求目标和验收标准</td>
+      </tr>
+      <tr>
+        <td><span class="badge blue">2</span></td>
+        <td>@producer</td>
+        <td>在 <code>docs/planning/specs/</code> 撰写功能规格，包含背景、交互、API、验收标准、非目标</td>
+      </tr>
+      <tr>
+        <td><span class="badge orange">3</span></td>
+        <td>你（项目经理）</td>
+        <td>审核 spec 内容，确认范围和优先级，spec 状态标记为 <strong>已确认</strong></td>
+      </tr>
+      <tr>
+        <td><span class="badge blue">4</span></td>
+        <td>@producer</td>
+        <td>运行 <code>npm run planning:handoff -- vX.Y.Z</code> → 自动生成分角色 prompt / 更新计划表 / 生成 handoff manifest</td>
+      </tr>
+      <tr>
+        <td><span class="badge blue">5</span></td>
+        <td>@frontend-dev / @backend-dev</td>
+        <td>按对应 prompt 实现代码，严格按 spec P0 范围，不自加功能</td>
+      </tr>
+      <tr>
+        <td><span class="badge blue">6</span></td>
+        <td>@frontend-dev / @backend-dev</td>
+        <td>运行 <code>npm run planning:verify -- vX.Y.Z</code> 执行自动化验收脚本</td>
+      </tr>
+      <tr>
+        <td><span class="badge green">7</span></td>
+        <td>你（项目经理）</td>
+        <td>运行 <code>npm run planning:accept -- vX.Y.Z</code> → 标已实现 / 更新计划表 / 输出 CHANGELOG 草稿</td>
+      </tr>
+      <tr>
+        <td><span class="badge blue">8</span></td>
+        <td>@producer</td>
+        <td>运行 <code>npm run planning:close -- vX.Y.Z</code> → 更新 CHANGELOG / README / 全景文档</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ==================== 3. 团队协作模式 ==================== -->
+  <div class="section">
+    <h2>三、团队协作方式</h2>
+
+    <h3>桌面端（你当前的使用方式）</h3>
+    <p>桌面 App 是<strong>单会话</strong>模式，你在聊天框中输入消息召唤角色。每次 <code>@角色名</code> 会启动一个子任务，执行完返回结果给你：</p>
+    <pre>
+<span class="comment"># 你写一条消息，@ 你要的角色 + 需求</span>
+<span class="cmd">@producer</span> 写一个好友系统的功能规格，参考 docs/planning/specs/ 下的模板
+
+<span class="comment"># 策划执行完返回，你审核通过后继续</span>
+<span class="cmd">@backend-dev</span> 按 docs/planning/handoffs/v0.5.3.json 实现后端
+
+<span class="comment"># 后端完成后</span>
+<span class="cmd">@frontend-dev</span> 按 docs/planning/prompts/v0.5.3-frontend-dev.prompt.md 实现前端</pre>
+    <p><strong>核心逻辑</strong>：你始终在同一个对话里，按 <strong>策划 → 后端 → 前端 → 验收 → 结案</strong> 的顺序，依次 <code>@角色名</code> 交代工作。每个角色完成后退回控制权给你。</p>
+
+    <h3>终端多角色（备选）</h3>
+    <p>如果以后切换到终端使用，可以开多个窗口，每个 Tab 切换锁定一个角色：</p>
+    <pre>
+<span class="comment"># 终端 1：项目经理</span>
+opencode  →  <span class="cmd">Tab</span>  build
+
+<span class="comment"># 终端 2：策划</span>
+opencode  →  <span class="cmd">Tab</span>  @producer
+
+<span class="comment"># 终端 3：前端开发</span>
+opencode  →  <span class="cmd">Tab</span>  @frontend-dev
+
+<span class="comment"># 终端 4：后端开发</span>
+opencode  →  <span class="cmd">Tab</span>  @backend-dev</pre>
+
+    <h3>全流程编排（进阶）</h3>
+    <p>一条指令让主 Agent 依次调度整个 pipeline，适合需求已确认的版本开发：</p>
+    <pre>
+开始开发 v0.5.3，需求在 handoffs/v0.5.3.json 中
+
+<span class="comment"># 主 Agent 自动按序执行 ── 全程无需你手动</span>
+Task → @producer 策划结案 → Task → @backend-dev 实现 → verify
+      → Task → @frontend-dev 实现 → verify
+      → 返回汇总报告</pre>
+  </div>
+
+  <!-- ==================== 4. 文档与文件结构 ==================== -->
+  <div class="section">
+    <h2>四、文档与文件结构</h2>
+    <pre>
+docs/
+├── planning/                 <span class="comment"># @producer 策划工作区</span>
+│   ├── specs/                <span class="comment"># 功能 spec（*.md）</span>
+│   ├── handoffs/             <span class="comment"># 移交状态 manifest（vX.Y.Z.json）</span>
+│   ├── prompts/              <span class="comment"># handoff 后自动生成的分角色 prompt</span>
+│   ├── templates/            <span class="comment"># 文档模板</span>
+│   ├── product/              <span class="comment"># 版本功能全景</span>
+│   └── agent-routing.json    <span class="comment"># 需求路由配置</span>
+├── analytics/                <span class="comment"># @data-analyst 分析工作区</span>
+│   ├── pond-day-simulation/
+│   └── runs/
+├── art/                      <span class="comment"># @art-director / @concept-artist 美术工作区</span>
+│   ├── direction/            <span class="comment"># 美术风格规范</span>
+│   └── animations/           <span class="comment"># 动效说明</span>
+└── design/                   <span class="comment"># @ui-designer UI 设计工作区</span>
+    ├── ui/                   <span class="comment"># UI 设计规范</span>
+    └── prototypes/           <span class="comment"># 交互原型</span></pre>
+  </div>
+
+  <!-- ==================== 5. 命名规范与状态流转 ==================== -->
+  <div class="section">
+    <h2>五、Spec 状态流转</h2>
+    <div class="flow" style="justify-content:center">
+      <div class="step"><span class="step-box warn">草案</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box warn">评审中</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box highlight">已确认</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box success">已实现</span><span class="arrow">→</span></div>
+      <div class="step"><span class="step-box" style="background:#f0f0f0;color:#999">已废弃</span></div>
+    </div>
+    <table>
+      <tr><th>状态</th><th>含义</th><th>触发条件</th></tr>
+      <tr><td><span class="badge orange">草案</span></td><td>策划撰写中，不可开发</td><td>@producer 新建 spec</td></tr>
+      <tr><td><span class="badge orange">评审中</span></td><td>等待项目经理确认范围</td><td>@producer 完成初稿</td></tr>
+      <tr><td><span class="badge blue">已确认</span></td><td>可交给开发 Agent</td><td>你确认 + handoff</td></tr>
+      <tr><td><span class="badge green">已实现</span></td><td>验收通过，代码已提交</td><td>npm run planning:accept</td></tr>
+      <tr><td><span class="badge red">已废弃</span></td><td>被新 spec 替代</td><td>@producer 标注</td></tr>
+    </table>
+  </div>
+
+  <!-- ==================== 6. 命令速查 ==================== -->
+  <div class="section">
+    <h2>六、命令速查</h2>
+    <table>
+      <tr><th>命令</th><th>执行者</th><th>作用</th></tr>
+      <tr><td><code>npm run planning:handoff -- vX.Y.Z</code></td><td>@producer</td><td>登记计划表 + 生成分角色 prompt + 创建 manifest</td></tr>
+      <tr><td><code>npm run planning:status -- vX.Y.Z</code></td><td>任何人</td><td>查看版本开发状态</td></tr>
+      <tr><td><code>npm run planning:verify -- vX.Y.Z</code></td><td>开发 Agent</td><td>运行自动化验收脚本</td></tr>
+      <tr><td><code>npm run planning:accept -- vX.Y.Z</code></td><td>项目经理</td><td>标已实现 + 更新计划表 + 输出 CHANGELOG</td></tr>
+      <tr><td><code>npm run planning:close -- vX.Y.Z</code></td><td>@producer</td><td>策划结案，更新文档</td></tr>
+      <tr><td><code>npm run planning:export</code></td><td>任何人</td><td>仅重建 xlsx 计划表</td></tr>
+      <tr><td><code>npm run verify:a0</code></td><td>开发 Agent</td><td>执行具体功能验证（按 spec 选用）</td></tr>
+      <tr><td><code>npm run dev</code></td><td>任何人</td><td>启动完整开发环境（前端 + 后端）</td></tr>
+    </table>
+  </div>
+
+  <!-- ==================== 7. 版本发布流程 ==================== -->
+  <div class="section">
+    <h2>七、版本发布流程</h2>
+    <table>
+      <tr><th>阶段</th><th>负责</th><th>产出</th></tr>
+      <tr><td>需求策划</td><td>你 → @producer</td><td><code>specs/</code> 文档（已确认）</td></tr>
+      <tr><td>Handoff</td><td>@producer</td><td><code>handoffs/vX.Y.Z.json</code> + <code>prompts/</code> + 计划表</td></tr>
+      <tr><td>开发实现</td><td>@frontend-dev / @backend-dev</td><td>源码变更</td></tr>
+      <tr><td>验证</td><td>@frontend-dev / @backend-dev</td><td>verify 脚本通过</td></tr>
+      <tr><td>验收</td><td>你（项目经理）</td><td><code>accept</code> → CHANGELOG 草稿</td></tr>
+      <tr><td>结案</td><td>@producer</td><td>CHANGELOG / README / 全景文档同步</td></tr>
+    </table>
+    <p style="margin-top:12px;font-size:.9rem;color:var(--text-secondary);">也可将大版本拆成&nbsp;<strong>后端专项</strong>&nbsp;和&nbsp;<strong>前端专项</strong>&nbsp;两个独立 handoff，各自走完整流程。</p>
+  </div>
+
+  <!-- ==================== 8. 与 Cursor 的关系 ==================== -->
+  <div class="section">
+    <h2>八、Opencode 与 Cursor 的关系</h2>
+    <p>本项目同时维护两套 AI 工具配置，共享 <code>docs/planning/</code> 目录下的 handoff 协议：</p>
+    <table>
+      <tr><th></th><th>Opencode（当前）</th><th>Cursor IDE</th></tr>
+      <tr><td>使用场景</td><td>桌面 App / CLI 终端</td><td>IDE 内开发</td></tr>
+      <tr><td>Agent 数量</td><td>9 角色（含美术总监/动效师/UI设计师）</td><td>6 角色</td></tr>
+      <tr><td>配置位置</td><td><code>.opencode/agents/</code></td><td><code>.cursor/rules/</code></td></tr>
+      <tr><td>桌面端操作</td><td>聊天框输入 <code>@角色名 任务描述</code></td><td>—</td></tr>
+      <tr><td>终端操作</td><td>Tab 切换角色 / @召唤</td><td>独立对话 + Rule</td></tr>
+      <tr><td>共享协议</td><td colspan="2"><code>docs/planning/</code> spec/handoff/verify 管线</td></tr>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

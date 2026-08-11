@@ -1,0 +1,404 @@
+{
+  "meta": {
+    "dateKey": "2026-07-15",
+    "generatedAt": "2026-07-15T16:30:02.673Z",
+    "rulesVersion": "v0.4.1",
+    "timezone": "Asia/Shanghai",
+    "completeness": {
+      "metricCount": 1241,
+      "firstEventAt": 1784054987495,
+      "lastEventAt": 1784131186946
+    }
+  },
+  "kpis": {
+    "kpi_daily_catch": {
+      "value": 769,
+      "prev": 3,
+      "avg7d": 110,
+      "deltaPct": 25533.3,
+      "status": "bad",
+      "note": "背包入库 · 真人 2 · 机器人 767"
+    },
+    "kpi_daily_catch_human": {
+      "value": 2,
+      "prev": 3,
+      "avg7d": 1,
+      "deltaPct": -33.3,
+      "status": null
+    },
+    "kpi_daily_catch_bot": {
+      "value": 767,
+      "prev": 0,
+      "avg7d": 110,
+      "deltaPct": null,
+      "status": null
+    },
+    "kpi_dau": {
+      "value": 6,
+      "prev": 1,
+      "avg7d": 31,
+      "deltaPct": 500,
+      "status": null
+    },
+    "kpi_fishing_dau": {
+      "value": 1,
+      "prev": 1,
+      "avg7d": 5,
+      "deltaPct": 0,
+      "status": null
+    },
+    "kpi_catch_per_fisher": {
+      "value": 2,
+      "prev": 3,
+      "avg7d": 1,
+      "deltaPct": -33.3,
+      "status": null
+    },
+    "kpi_disconnect_rate": {
+      "value": 25,
+      "prev": 54.6,
+      "avg7d": 138.55,
+      "deltaPct": -54.2,
+      "status": "warn"
+    },
+    "kpi_abandon_rate": {
+      "value": 38.5,
+      "prev": 0,
+      "avg7d": 6,
+      "deltaPct": null,
+      "status": null
+    },
+    "kpi_avg_pop_ratio": {
+      "value": 64.7,
+      "prev": 92.5,
+      "avg7d": 88.78,
+      "deltaPct": -30.1,
+      "status": "bad"
+    }
+  },
+  "sections": {
+    "players": {
+      "dau": 6,
+      "fishingDau": 1,
+      "sessionsPerFisher": 13,
+      "avgFishingMs": null,
+      "p50FishingMs": null,
+      "p90FishingMs": null
+    },
+    "retention": {
+      "cohortSize": 0,
+      "d1Rate": null,
+      "d7Rate": null,
+      "note": "当日无新增玩家"
+    },
+    "catch": {
+      "source": "inventory",
+      "total": 769,
+      "human": 2,
+      "bot": 767,
+      "metricsAcceptHuman": 2,
+      "byPond": [
+        {
+          "pondId": "pond-calm",
+          "catches": 222,
+          "catchesHuman": 1,
+          "catchesBot": 221,
+          "catchSource": "inventory",
+          "hookCount": 264,
+          "escapeCount": 32,
+          "biteTickHit": 264,
+          "biteTickMiss": 1581,
+          "disconnects": 3,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 72.5
+        },
+        {
+          "pondId": "pond-mist",
+          "catches": 185,
+          "catchesHuman": 0,
+          "catchesBot": 185,
+          "catchSource": "inventory",
+          "hookCount": 213,
+          "escapeCount": 15,
+          "biteTickHit": 213,
+          "biteTickMiss": 1639,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 71.4
+        },
+        {
+          "pondId": "pond-sunset",
+          "catches": 143,
+          "catchesHuman": 0,
+          "catchesBot": 143,
+          "catchSource": "inventory",
+          "hookCount": 177,
+          "escapeCount": 17,
+          "biteTickHit": 177,
+          "biteTickMiss": 1585,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 68.3
+        },
+        {
+          "pondId": "pond-bamboo",
+          "catches": 219,
+          "catchesHuman": 1,
+          "catchesBot": 218,
+          "catchSource": "inventory",
+          "hookCount": 259,
+          "escapeCount": 30,
+          "biteTickHit": 259,
+          "biteTickMiss": 1709,
+          "disconnects": 1,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 46.7
+        }
+      ],
+      "byQuality": [
+        {
+          "quality": "gray",
+          "label": "普通",
+          "count": 396,
+          "human": 2,
+          "bot": 394
+        },
+        {
+          "quality": "green",
+          "label": "优良",
+          "count": 280,
+          "human": 0,
+          "bot": 280
+        },
+        {
+          "quality": "blue",
+          "label": "稀有",
+          "count": 79,
+          "human": 0,
+          "bot": 79
+        },
+        {
+          "quality": "red",
+          "label": "传说",
+          "count": 7,
+          "human": 0,
+          "bot": 7
+        },
+        {
+          "quality": "purple",
+          "label": "史诗",
+          "count": 6,
+          "human": 0,
+          "bot": 6
+        },
+        {
+          "quality": "orange",
+          "label": "神话",
+          "count": 1,
+          "human": 0,
+          "bot": 1
+        }
+      ],
+      "biteHitRate": null,
+      "hookCount": 913,
+      "hookFrequencyPerHour": null,
+      "catchRate": 0.8423,
+      "escapeRate": 0,
+      "pendingExpiredRate": 0,
+      "totalCatches": 769,
+      "totalDisconnects": 4,
+      "metricNote": "产量口径 OPS-CATCH-1：日钓获/品质/分塘均基于 inventory 入库（含 bot）。无 pond_id 历史行按 caught_at 对齐当日 metrics 塘时间线。上钩=bite_hook。"
+    },
+    "stability": {
+      "disconnectCount": 4,
+      "reconnectCount": 3,
+      "disconnectTimeoutCount": 0,
+      "joinAttempts": 16,
+      "joinSuccessCount": 16,
+      "joinFails": 0,
+      "joinFailRate": 0,
+      "leaveByReason": [
+        {
+          "reason": "navigation_back",
+          "count": 9
+        }
+      ],
+      "phaseInvalidCount": 2
+    },
+    "economy": {
+      "faucetTotal": 0,
+      "sinkTotal": 0,
+      "net": 0,
+      "faucetAvailable": true,
+      "breakdown": {
+        "faucetBySource": [],
+        "sinkByType": []
+      },
+      "imbalance": {
+        "triggered": false,
+        "days": [
+          {
+            "dateKey": "2026-07-13",
+            "faucet": 0,
+            "sink": 0,
+            "net": 0
+          },
+          {
+            "dateKey": "2026-07-14",
+            "faucet": 0,
+            "sink": 0,
+            "net": 0
+          },
+          {
+            "dateKey": "2026-07-15",
+            "faucet": 0,
+            "sink": 0,
+            "net": 0
+          }
+        ]
+      },
+      "note": null
+    },
+    "ecology": {
+      "ponds": [
+        {
+          "pondId": "pond-bamboo",
+          "population": 35,
+          "maxPopulation": 75,
+          "popRatio": 46.7,
+          "avgSizeM": 2.177,
+          "byQuality": {
+            "blue": 6,
+            "gold": 1,
+            "gray": 14,
+            "green": 12,
+            "orange": 1,
+            "purple": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-calm",
+          "population": 58,
+          "maxPopulation": 80,
+          "popRatio": 72.5,
+          "avgSizeM": 2.719,
+          "byQuality": {
+            "blue": 9,
+            "gold": 2,
+            "gray": 24,
+            "green": 19,
+            "orange": 2,
+            "purple": 1,
+            "red": 1
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-mist",
+          "population": 50,
+          "maxPopulation": 70,
+          "popRatio": 71.4,
+          "avgSizeM": 1.726,
+          "byQuality": {
+            "blue": 6,
+            "gold": 1,
+            "gray": 22,
+            "green": 17,
+            "orange": 1,
+            "purple": 2,
+            "red": 1
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-sunset",
+          "population": 41,
+          "maxPopulation": 60,
+          "popRatio": 68.3,
+          "avgSizeM": 3.208,
+          "byQuality": {
+            "blue": 5,
+            "gold": 1,
+            "gray": 17,
+            "green": 12,
+            "orange": 3,
+            "purple": 2,
+            "red": 1
+          },
+          "status": "bad"
+        }
+      ],
+      "snapshotNote": "基于日批时 pond_fish 快照"
+    },
+    "targetCompare": {
+      "target": 100,
+      "simRef": 117.9,
+      "simScenario": "5 人/塘",
+      "actual": 769,
+      "actualHuman": 2,
+      "actualTotal": 769,
+      "deviationPct": 552.2,
+      "targetDeviationPct": 669,
+      "humanTargetDeviationPct": -98,
+      "note": "昨日实测=背包总量；真人旁注。设计目标 100 原按真人场景，对照总量会系统性偏大。"
+    },
+    "rulesHistory": [
+      {
+        "dateKey": "2026-07-11",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 10
+      },
+      {
+        "dateKey": "2026-07-12",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 27
+      },
+      {
+        "dateKey": "2026-07-13",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 4
+      },
+      {
+        "dateKey": "2026-07-14",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 3
+      },
+      {
+        "dateKey": "2026-07-15",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 769
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "id": "alert_catch_low",
+      "level": "bad",
+      "message": "真人日钓仅 2 条且 DAU=6"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-bamboo 人口率 46.7% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-sunset 人口率 68.3% < 70%"
+    }
+  ],
+  "kpiIds": [
+    "kpi_daily_catch",
+    "kpi_dau",
+    "kpi_fishing_dau",
+    "kpi_catch_per_fisher",
+    "kpi_disconnect_rate",
+    "kpi_abandon_rate",
+    "kpi_avg_pop_ratio"
+  ]
+}

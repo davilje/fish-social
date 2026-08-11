@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>发布说明 v0.5.0 - Fish Social</title>
+<style>
+:root { --bg:#0f1419; --surface:#1a2332; --text:#e8edf2; --muted:#8b9cb3; --accent:#4a9eff; --border:#2d3a4d; --ok:#48bb78; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:"Segoe UI","PingFang SC",sans-serif; background:var(--bg); color:var(--text); padding:2rem; line-height:1.6; }
+.wrap { max-width:800px; margin:0 auto; }
+h1 { font-size:1.8rem; margin-bottom:.3rem; }
+.meta { color:var(--muted); font-size:.9rem; margin-bottom:2rem; }
+.summary { display:flex; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem 1.5rem; text-align:center; min-width:100px; flex:1; }
+.stat-value { font-size:1.6rem; font-weight:bold; }
+.stat-label { font-size:.8rem; color:var(--muted); margin-top:.25rem; }
+.section { margin-bottom:2rem; }
+.section h2 { font-size:1.2rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid var(--border); display:flex; align-items:center; gap:.5rem; }
+.tag { display:inline-block; padding:.15rem .6rem; border-radius:4px; font-size:.75rem; color:#fff; }
+.items { list-style:none; }
+.items li { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.75rem 1rem; margin-bottom:.5rem; }
+.items li .code { font-family:monospace; color:var(--accent); font-size:.85rem; }
+.items li .desc { color:var(--muted); font-size:.85rem; margin-top:.25rem; }
+.footer { margin-top:3rem; padding-top:1rem; border-top:1px solid var(--border); font-size:.85rem; color:var(--muted); text-align:center; }
+</style></head><body><div class="wrap">
+<h1>发布说明 v0.5.0</h1>
+<p class="meta">2026-07-11</p>
+<div class="summary">
+<div class="stat"><div class="stat-value">45</div><div class="stat-label">已完成</div></div>
+<div class="stat"><div class="stat-value">7</div><div class="stat-label">类型</div></div>
+
+<div class="stat"><div class="stat-value">11</div><div class="stat-label">数据平台</div></div>
+
+<div class="stat"><div class="stat-value">14</div><div class="stat-label">架构</div></div>
+
+<div class="stat"><div class="stat-value">6</div><div class="stat-label">数值</div></div>
+
+<div class="stat"><div class="stat-value">4</div><div class="stat-label">功能</div></div>
+
+<div class="stat"><div class="stat-value">2</div><div class="stat-label">UI</div></div>
+
+<div class="stat"><div class="stat-value">7</div><div class="stat-label">Bug修复</div></div>
+
+<div class="stat"><div class="stat-value">1</div><div class="stat-label">排查</div></div>
+
+</div>
+
+<div class="section"><h2><span class="tag" style="background:#4A9EFF">数据平台</span> (11)</h2><ul class="items">
+
+<li><span class="code">D-L1-01</span> 统一结构化 Logger<div class="desc">pino 统一 JSON 日志，级别策略，日轮转</div></li>
+
+<li><span class="code">D-L1-02</span> 日志级别策略<div class="desc">error/warn/info/debug 按环境变量</div></li>
+
+<li><span class="code">D-L1-03</span> 日志落盘轮转<div class="desc">pino-roll 按日轮转，Docker stdout 模式</div></li>
+
+<li><span class="code">D-L1-05</span> 错误日志 DB 持久化<div class="desc">error_logs 表，90d 保留，Admin 查询增强</div></li>
+
+<li><span class="code">D-L1-08</span> 健康检查 /health + /ready<div class="desc">/health (uptime+version)，/ready (db+metrics+memory)</div></li>
+
+<li><span class="code">D-L2-01</span> 事件字典 Schema<div class="desc">33 条事件定义 dev 校验</div></li>
+
+<li><span class="code">D-L2-02</span> metrics 保留归档<div class="desc">90d 超期导出 jsonl 后删除</div></li>
+
+<li><span class="code">D-L2-03</span> 日聚合表<div class="desc">daily_player_stats+daily_pond_stats</div></li>
+
+<li><span class="code">D-L2-08</span> 埋点 33 条对齐<div class="desc">verify:server-observability 全绿</div></li>
+
+<li><span class="code">D-L2-11</span> SQLite 定时备份<div class="desc">gzip 备份保留 7 份</div></li>
+
+<li><span class="code">D-L3-01</span> 日批分析流水线<div class="desc">compact.json+report.html 每日产出</div></li>
+
+</ul></div>
+
+<div class="section"><h2><span class="tag" style="background:#9B59B6">架构</span> (14)</h2><ul class="items">
+
+<li><span class="code">ARC-01</span> 端口占用排查与维护脚本<div class="desc">npm run ports:check/free</div></li>
+
+<li><span class="code">R0-1</span> 数据库权限 playerId 防伪<div class="desc">账号安全，服务端鉴权</div></li>
+
+<li><span class="code">R0-2</span> 离线状态内存化（进程丢失风险）<div class="desc">玩家状态持久化</div></li>
+
+<li><span class="code">R0-3</span> 定时任务散落<div class="desc">Timer 管理统一</div></li>
+
+<li><span class="code">R0-4</span> 咬钩双重处理<div class="desc">状态机排重</div></li>
+
+<li><span class="code">R1-1</span> 端口冲突<div class="desc">ports:check/free 脚本</div></li>
+
+<li><span class="code">R1-2</span> 映射表碎片（Bot ID 冲突）</li>
+
+<li><span class="code">R1-3</span> 全局可变状态（Admin 实时生效）<div class="desc">gameConfig 运行时配置</div></li>
+
+<li><span class="code">R1-4</span> 优雅停机<div class="desc">metrics 刷盘+连接关闭</div></li>
+
+<li><span class="code">R1-5</span> Socket correlationId 追踪<div class="desc">socket 侧已完成；Admin 过滤待 Phase 1</div></li>
+
+<li><span class="code">R2-1</span> snapshot 全量快照<div class="desc">gameState dirty 索引+增量广播</div></li>
+
+<li><span class="code">R2-2</span> SQLite 写压力<div class="desc">metrics 内存队列+批量落库</div></li>
+
+<li><span class="code">R2-4</span> Admin 安全<div class="desc">Admin Secret+X-Admin-Key</div></li>
+
+<li><span class="code">R2-5</span> Bot 管理<div class="desc">MAX_BOTS_PER_POND+BOT_EVICT_POLICY</div></li>
+
+</ul></div>
+
+<div class="section"><h2><span class="tag" style="background:#F39C12">数值</span> (6)</h2><ul class="items">
+
+<li><span class="code">NUM-01</span> A0 数值重构（初版指数咬钩）<div class="desc">已废弃，被 NUM-02 替代</div></li>
+
+<li><span class="code">NUM-02</span> 数值重构v2（14日成长/乘法钓点/30s）<div class="desc">A0-v2：成长曲线、乘法钓点、Debug</div></li>
+
+<li><span class="code">NUM-03</span> 品质尺寸咬钩脱钩<div class="desc">品质×尺寸咬钩/脱钩公式</div></li>
+
+<li><span class="code">NUM-04</span> 生态调优（咬钩间隔/鱼群恢复）<div class="desc">D1-D8 咬钩间隔、补充、生长曲线</div></li>
+
+<li><span class="code">NUM-05</span> 钓点鱼群流动性与分区咬钩<div class="desc">D9 钓点分区+鱼群迁徙</div></li>
+
+<li><span class="code">NUM-06</span> 咬钩产量调优（单鱼抽样/脱钩）<div class="desc">D10-D12 单鱼抽样、BITE_BASE_SCALE</div></li>
+
+</ul></div>
+
+<div class="section"><h2><span class="tag" style="background:#666">功能</span> (4)</h2><ul class="items">
+
+<li><span class="code">FEAT-01</span> A1 飘字广播<div class="desc">咬钩/脱钩飘字广播</div></li>
+
+<li><span class="code">FEAT-02</span> A2 Debug 面板<div class="desc">Admin 钓鱼概率查询</div></li>
+
+<li><span class="code">FEAT-03</span> B0 商店基础（鱼饵/渔具）<div class="desc">鱼饵消耗、渔具永久购买</div></li>
+
+<li><span class="code">FEAT-04</span> B1 鱼饵偏好<div class="desc">饵对 diet 差异化加成</div></li>
+
+</ul></div>
+
+<div class="section"><h2><span class="tag" style="background:#666">UI</span> (2)</h2><ul class="items">
+
+<li><span class="code">UI-01</span> 社交/商店/图鉴布局修复<div class="desc">UI 体验修复</div></li>
+
+<li><span class="code">UI-02</span> 他人主页优化<div class="desc">他人资料弹窗增强</div></li>
+
+</ul></div>
+
+<div class="section"><h2><span class="tag" style="background:#E74C3C">Bug修复</span> (7)</h2><ul class="items">
+
+<li><span class="code">BUG-01</span> 资料与鱼塘 UI<div class="desc">弹窗闪屏/头像/编辑按钮/鱼塘侧栏合并</div></li>
+
+<li><span class="code">BUG-02</span> 四项体验问题<div class="desc">早期四项体验 BUG</div></li>
+
+<li><span class="code">BUG-03</span> 鱼塘钓鱼时长显示<div class="desc">会话/今日时长、badge</div></li>
+
+<li><span class="code">BUG-04</span> 钓鱼概率与饵文案<div class="desc">30s 判定、Debug%、饵文案</div></li>
+
+<li><span class="code">BUG-05</span> 挂机断线离位<div class="desc">重连定时器、断线可观测</div></li>
+
+<li><span class="code">BUG-06</span> 切页误离塘与计时中断<div class="desc">离塘显式化、切页不 leave</div></li>
+
+<li><span class="code">BUG-07</span> 会话计时广播回归<div class="desc">R2-1 dirty 误伤 sessionFishingMs</div></li>
+
+</ul></div>
+
+<div class="section"><h2><span class="tag" style="background:#666">排查</span> (1)</h2><ul class="items">
+
+<li><span class="code">DIAG-01</span> 挂机断线诊断阶段2-4<div class="desc">弱网矩阵、timeline API、SOP</div></li>
+
+</ul></div>
+
+<div class="section"><h2>总表 Sheets (10)</h2><ul class="items">
+
+<li><span class="code">开发计划</span> (74 rows)</li>
+
+<li><span class="code">数据平台-Phase 0</span> (11 rows)</li>
+
+<li><span class="code">数据平台-Phase 1+</span> (25 rows)</li>
+
+<li><span class="code">架构修复</span> (14 rows)</li>
+
+<li><span class="code">Bug修复</span> (8 rows)</li>
+
+<li><span class="code">功能特性</span> (8 rows)</li>
+
+<li><span class="code">数值与生态</span> (6 rows)</li>
+
+<li><span class="code">排查工具</span> (2 rows)</li>
+
+<li><span class="code">spec 文档清单</span> (39 rows)</li>
+
+<li><span class="code">统计摘要</span> (10 rows)</li>
+
+</ul></div>
+
+<div class="footer"><p>生成自 <code>项目开发需求计划表.xlsx</code> · <a href="../项目开发需求计划表.xlsx" style="color:var(--accent)">下载 xlsx</a></p></div>
+
+</div></body></html>

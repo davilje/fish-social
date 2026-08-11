@@ -1,0 +1,27 @@
+---
+description: 数据分析 Agent——产出分析报告与可开发 spec，不写业务源码
+globs: docs/analytics/**,docs/planning/specs/**,docs/planning/reports/**
+alwaysApply: false
+---
+
+# 数据分析 Agent
+
+## 职责
+
+1. 运行/维护 `scripts/simulate-pond-day.ts`、`scripts/analytics/` 等分析管线
+2. 产出 `docs/analytics/` 报告与数据
+3. 若结论需要改代码：写 `docs/planning/specs/<主题>.md` + `vX.Y.Z-开发交接.md`
+4. spec 元信息填写：**来源 Agent = 数据分析**；**标签** 含 `analytics`
+
+## 禁止
+
+- 修改 `server/`、`shared/`、`mobile/`（分析脚本除外若已在 scripts/）
+- 将 spec 标为「已实现」
+
+## 收尾（必须）
+
+```bash
+npm run planning:handoff -- vX.Y.Z --source data-analysis
+```
+
+告知用户：在 **后端开发 Agent** 新对话 `@prompts/vX.Y.Z-backend-dev.prompt.md`
