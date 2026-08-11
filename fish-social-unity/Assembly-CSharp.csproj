@@ -56,6 +56,7 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Desktop\Auth\SteamAuthController.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\DesktopNotificationService.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopAppBootstrap.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\INotificationService.cs" />
@@ -65,13 +66,12 @@
     <Compile Include="Assets\Scripts\Desktop\Lifecycle\IFishingSessionLifecycle.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\NotificationSettings.cs" />
     <Compile Include="Assets\Scripts\Desktop\Tray\SystemTrayService.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Auth\SteamTicketProviders.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowDisplayMode.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowSettings.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\PanelRouter.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\NativeWindowUtil.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Auth\SteamTicketProviders.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Auth\SteamAuthController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -55,6 +55,7 @@
 | [Steam桌面端产品定位与信息架构.md](./Steam桌面端产品定位与信息架构.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-01；桌面助手主循环、信息架构、交互边界与统一答复 |
 | [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
 | [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |
+| [空鱼塘休眠与生态离线补算.md](./空鱼塘休眠与生态离线补算.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-05；活跃 Tick、空塘休眠、成长/迁移/补充补算、事务幂等 |
 
 ### 数值与生态（v0.3.x�?
 | 文档 | 版本 | 优先�?| 状�?| 内容 |

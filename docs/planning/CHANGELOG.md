@@ -1,5 +1,13 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-05-offline-ecology] - 2026-08-12
+
+### 策划
+
+- 新增 [空鱼塘休眠与生态离线补算.md](./specs/空鱼塘休眠与生态离线补算.md)（**已确认** / **STEAM-DESKTOP-05**）
+- 明确活跃鱼塘实时 Tick、空鱼塘休眠、成长/迁移/补充补算、事务幂等和大跨度性能保护
+- 开发提示词：[steam-desktop-pond-offline-ecology-dev.prompt.md](./prompts/steam-desktop-pond-offline-ecology-dev.prompt.md)
+
 ### [steam-desktop-02-auth] - 2026-08-12
 
 ### 策划

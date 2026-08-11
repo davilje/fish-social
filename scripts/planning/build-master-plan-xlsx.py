@@ -350,7 +350,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "v1.0-steam-desktop",
         "P1",
         "lastSimulatedAt；鱼群迁移/成长补算；幂等唤醒；活跃鱼塘才运行高频 Tick",
-        "docs/planning/specs/Steam桌面端独立游戏转型计划.md",
+        "docs/planning/specs/空鱼塘休眠与生态离线补算.md",
         "2026-08-11",
         "",
     ],
