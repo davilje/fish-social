@@ -53,6 +53,8 @@
 | [Unity移植-分阶段需求清�?md](./Unity移植-分阶段需求清�?md) | unity | P0/P1 | **已定�?*（P0 **已实�?*�?| UNITY-EPIC / P0～P5；下一可确�?P1 |
 | [Steam桌面端独立游戏转型计划.md](./Steam桌面端独立游戏转型计划.md) | v1.0-steam-desktop | P0/P1 | **已确认** | STEAM-DESKTOP-EPIC；Steam 定位、Unity 桌面端、账号/Lobby、空鱼塘离线补算与并行顺序 |
 | [Steam桌面端产品定位与信息架构.md](./Steam桌面端产品定位与信息架构.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-01；桌面助手主循环、信息架构、交互边界与统一答复 |
+| [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
+| [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |
 
 ### 数值与生态（v0.3.x�?
 | 文档 | 版本 | 优先�?| 状�?| 内容 |
