@@ -23,7 +23,6 @@ namespace FishSocial.Desktop
         SocialPondSessionController _pondSession;
         SocialLobbyController _socialLobby;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
-        bool _allowQuit;
 #if !UNITY_EDITOR
         Mutex _singleInstanceMutex;
 #endif
@@ -50,7 +49,6 @@ namespace FishSocial.Desktop
                 Debug.LogWarning("[DesktopShell] another Fish Social instance is already running");
                 _singleInstanceMutex.Dispose();
                 _singleInstanceMutex = null;
-                _allowQuit = true;
                 Application.Quit();
                 return;
             }
@@ -132,14 +130,12 @@ namespace FishSocial.Desktop
 #else
             // The window close button must terminate the process. Hiding to
             // tray remains an explicit action from the tray menu.
-            _allowQuit = true;
             return true;
 #endif
         }
 
         public void QuitForReal()
         {
-            _allowQuit = true;
             if (_window != null && _window.IsWindowVisible && _window.Settings.Mode == WindowDisplayMode.Windowed)
                 _window.ApplySettings(persist: true);
             Application.Quit();

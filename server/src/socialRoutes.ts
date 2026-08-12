@@ -1,5 +1,5 @@
 import type { Express } from 'express';
-import { randomUUID } from 'crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'crypto';
 import type { Server } from 'socket.io';
 import { calcFishSellPrice, PONDS } from '@fish-social/shared';
 import type {
@@ -59,10 +59,14 @@ import {
   tryResolvePlayerId,
 } from './auth.js';
 import { resolveSocketByPlayer } from './sessionRegistry.js';
+import { getJwtSecret } from './auth.js';
 import { db } from './db.js';
+import { logStructuredEvent } from './fishingObservability.js';
 
 const SOCIAL_LOBBY_GAME_VERSION = process.env.GAME_VERSION ?? '1.0-steam-desktop';
 const SOCIAL_LOBBY_PROTOCOL_VERSION = '1.0.0-draft';
+const SOCIAL_LOBBY_TTL_MS = 30 * 60 * 1000;
+const SOCIAL_LOBBY_INVITE_TTL_MS = 10 * 60 * 1000;
 const socialLobbies = new Map<string, {
   lobbyId: string;
   ownerPlayerId: string;
@@ -70,17 +74,77 @@ const socialLobbies = new Map<string, {
   gameVersion: string;
   protocolVersion: string;
   createdAt: number;
+  ownerSteamId64: string;
 }>();
 
 // This registry is only the temporary Steam invitation/authorization layer.
 // It must never own pond lifecycle or pond ecology state; those remain in the
 // persistent pond/session modules and continue offline when no player is in a pond.
 
-function isSteamBoundPlayer(playerId: string): boolean {
+interface SteamBindingRow {
+  player_id: string;
+  steam_id64: string;
+  app_id: string;
+  revoked_at: number | null;
+}
+
+function getSteamBinding(playerId: string): SteamBindingRow | null {
   const row = db.prepare(
-    'SELECT player_id FROM steam_accounts WHERE player_id = ? AND revoked_at IS NULL',
-  ).get(playerId) as { player_id?: string } | undefined;
-  return row?.player_id === playerId;
+    'SELECT player_id, steam_id64, app_id, revoked_at FROM steam_accounts WHERE player_id = ?',
+  ).get(playerId) as SteamBindingRow | undefined;
+  return row ?? null;
+}
+
+function maskPlayerId(playerId: string | null): string | null {
+  if (!playerId) return null;
+  if (playerId.length <= 8) return '***';
+  return `${playerId.slice(0, 4)}…${playerId.slice(-4)}`;
+}
+
+function logLobbyCreateRejected(
+  playerId: string | null,
+  binding: SteamBindingRow | null,
+  body: { lobbyId?: unknown; pondId?: unknown },
+  code: string,
+): void {
+  logStructuredEvent('social_lobby', 'social_lobby_create_rejected', {
+    eventType: 'social_lobby_create_rejected',
+    playerId: maskPlayerId(playerId),
+    steamBindingFound: Boolean(binding),
+    steamIdFound: Boolean(binding?.steam_id64 && /^\d{17}$/.test(binding.steam_id64) && !binding.revoked_at),
+    appId: binding?.app_id ?? process.env.STEAM_APP_ID ?? null,
+    lobbyId: typeof body.lobbyId === 'string' ? body.lobbyId : null,
+    pondId: typeof body.pondId === 'string' ? body.pondId : null,
+    code,
+  });
+}
+
+function encodeInvite(payload: Record<string, unknown>): string {
+  const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = createHmac('sha256', getJwtSecret()).update(body).digest('base64url');
+  return `${body}.${signature}`;
+}
+
+function decodeInvite(token: unknown): Record<string, unknown> | null {
+  if (typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const expected = createHmac('sha256', getJwtSecret()).update(parts[0]).digest('base64url');
+  const actual = Buffer.from(parts[1]);
+  const expectedBytes = Buffer.from(expected);
+  if (actual.length !== expectedBytes.length || !timingSafeEqual(actual, expectedBytes)) return null;
+  try {
+    return JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8')) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function cleanupSocialLobbies(): void {
+  const cutoff = Date.now() - SOCIAL_LOBBY_TTL_MS;
+  for (const [lobbyId, lobby] of socialLobbies) {
+    if (lobby.createdAt < cutoff) socialLobbies.delete(lobbyId);
+  }
 }
 
 function validateLobbyVersions(body: { gameVersion?: unknown; protocolVersion?: unknown }): string | null {
@@ -98,6 +162,7 @@ export function registerSocialRoutes(
   io: Server<ClientToServerEvents, ServerToClientEvents>,
 ): void {
   app.post('/api/social/lobby/create', requireAuth, (req, res) => {
+    cleanupSocialLobbies();
     const playerId = resolveAuthedPlayerId(req);
     const body = req.body as {
       lobbyId?: unknown;
@@ -105,21 +170,36 @@ export function registerSocialRoutes(
       gameVersion?: unknown;
       protocolVersion?: unknown;
     };
-    if (!playerId || !isSteamBoundPlayer(playerId)) {
+    const binding = playerId ? getSteamBinding(playerId) : null;
+    const steamId64 = binding?.revoked_at ? null : binding?.steam_id64 ?? null;
+    const configuredSteamAppId = process.env.STEAM_APP_ID?.trim();
+    const bindingAppMatches = !configuredSteamAppId || binding?.app_id === configuredSteamAppId;
+    if (
+      !playerId ||
+      !getPlayer(playerId) ||
+      !binding ||
+      !steamId64 ||
+      !/^\d{17}$/.test(steamId64) ||
+      !bindingAppMatches
+    ) {
+      logLobbyCreateRejected(playerId, binding, body, 'LOBBY_STEAM_BINDING_REQUIRED');
       res.status(403).json({ ok: false, code: 'LOBBY_STEAM_BINDING_REQUIRED', error: '需要有效的 Steam 账号绑定' });
       return;
     }
     if (typeof body.lobbyId !== 'string' || !/^\d{5,25}$/.test(body.lobbyId)) {
+      logLobbyCreateRejected(playerId, binding, body, 'LOBBY_ID_INVALID');
       res.status(400).json({ ok: false, code: 'LOBBY_ID_INVALID', error: 'Lobby ID 无效' });
       return;
     }
     const pondId = typeof body.pondId === 'string' ? body.pondId : '';
     if (!PONDS.some((pond) => pond.id === pondId)) {
+      logLobbyCreateRejected(playerId, binding, body, 'POND_NOT_FOUND');
       res.status(404).json({ ok: false, code: 'POND_NOT_FOUND', error: '鱼塘不存在' });
       return;
     }
     const versionError = validateLobbyVersions(body);
     if (versionError) {
+      logLobbyCreateRejected(playerId, binding, body, versionError);
       res.status(409).json({ ok: false, code: versionError, error: 'Lobby 版本不兼容' });
       return;
     }
@@ -130,31 +210,82 @@ export function registerSocialRoutes(
       gameVersion: SOCIAL_LOBBY_GAME_VERSION,
       protocolVersion: SOCIAL_LOBBY_PROTOCOL_VERSION,
       createdAt: Date.now(),
+      ownerSteamId64: steamId64,
     };
     socialLobbies.set(lobby.lobbyId, lobby);
     res.status(201).json({ ok: true, lobby });
   });
 
+  app.post('/api/social/lobby/invite', requireAuth, (req, res) => {
+    cleanupSocialLobbies();
+    const playerId = resolveAuthedPlayerId(req);
+    const body = req.body as { lobbyId?: unknown; friendSteamId64?: unknown };
+    const lobbyId = typeof body.lobbyId === 'string' ? body.lobbyId : '';
+    const lobby = socialLobbies.get(lobbyId);
+    const ownerBinding = playerId ? getSteamBinding(playerId) : null;
+    const ownerSteamId64 = ownerBinding?.revoked_at ? null : ownerBinding?.steam_id64 ?? null;
+    if (!lobby) {
+      res.status(404).json({ ok: false, code: 'LOBBY_CACHE_MISSING', error: 'Lobby 已失效，请重新创建' });
+      return;
+    }
+    if (!ownerSteamId64 || lobby.ownerPlayerId !== playerId || lobby.ownerSteamId64 !== ownerSteamId64) {
+      res.status(403).json({ ok: false, code: 'LOBBY_OWNER_REQUIRED', error: '只有 Lobby 创建者可以邀请' });
+      return;
+    }
+    if (typeof body.friendSteamId64 !== 'string' || !/^\d{17}$/.test(body.friendSteamId64)) {
+      res.status(400).json({ ok: false, code: 'LOBBY_TARGET_STEAM_INVALID', error: '被邀请 Steam 账号无效' });
+      return;
+    }
+    const token = encodeInvite({
+      steamId64: body.friendSteamId64,
+      lobbyId,
+      pondId: lobby.pondId,
+      gameVersion: lobby.gameVersion,
+      protocolVersion: lobby.protocolVersion,
+      expiresAt: Date.now() + SOCIAL_LOBBY_INVITE_TTL_MS,
+      nonce: randomUUID(),
+    });
+    res.json({ ok: true, inviteToken: token, expiresAt: Date.now() + SOCIAL_LOBBY_INVITE_TTL_MS });
+  });
+
   app.post('/api/social/lobby/join', requireAuth, (req, res) => {
+    cleanupSocialLobbies();
     const playerId = resolveAuthedPlayerId(req);
     const body = req.body as {
       lobbyId?: unknown;
       gameVersion?: unknown;
       protocolVersion?: unknown;
+      inviteToken?: unknown;
     };
-    if (!playerId || !isSteamBoundPlayer(playerId)) {
+    const binding = playerId ? getSteamBinding(playerId) : null;
+    const steamId64 = binding?.revoked_at ? null : binding?.steam_id64 ?? null;
+    if (!playerId || !binding || !steamId64) {
       res.status(403).json({ ok: false, code: 'LOBBY_STEAM_BINDING_REQUIRED', error: '需要有效的 Steam 账号绑定' });
       return;
     }
     const lobbyId = typeof body.lobbyId === 'string' ? body.lobbyId : '';
     const lobby = socialLobbies.get(lobbyId);
     if (!lobby) {
-      res.status(404).json({ ok: false, code: 'LOBBY_NOT_FOUND', error: 'Lobby 不存在或已失效' });
+      res.status(404).json({ ok: false, code: 'LOBBY_CACHE_MISSING', error: 'Lobby 已失效，请重新创建' });
       return;
     }
     const versionError = validateLobbyVersions(body);
     if (versionError) {
       res.status(409).json({ ok: false, code: versionError, error: 'Lobby 版本不兼容' });
+      return;
+    }
+    const invite = decodeInvite(body.inviteToken);
+    if (
+      !invite ||
+      invite.steamId64 !== steamId64 ||
+      invite.lobbyId !== lobbyId ||
+      invite.pondId !== lobby.pondId ||
+      invite.gameVersion !== lobby.gameVersion ||
+      invite.protocolVersion !== lobby.protocolVersion ||
+      typeof invite.expiresAt !== 'number' ||
+      invite.expiresAt < Date.now()
+    ) {
+      res.status(403).json({ ok: false, code: 'LOBBY_INVITE_INVALID', error: 'Lobby 邀请凭证无效或已过期' });
       return;
     }
     res.json({ ok: true, lobby });
@@ -165,7 +296,7 @@ export function registerSocialRoutes(
     const lobbyId = String((req.body as { lobbyId?: unknown }).lobbyId ?? '');
     const lobby = socialLobbies.get(lobbyId);
     if (!lobby) {
-      res.status(404).json({ ok: false, code: 'LOBBY_NOT_FOUND', error: 'Lobby 不存在或已失效' });
+      res.status(404).json({ ok: false, code: 'LOBBY_CACHE_MISSING', error: 'Lobby 已失效，请重新创建' });
       return;
     }
     if (lobby.ownerPlayerId !== playerId) {

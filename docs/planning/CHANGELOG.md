@@ -1,5 +1,34 @@
 ?# 策划文档变更记录
 
+### [bugfix-steam-lobby-permission-state] - 2026-08-13
+
+### 排障登记
+
+- 登记 **BUG-22**：Steam Lobby 创建权限拒绝与状态残留
+- 新增需求文档：[BUG修复-SteamLobby创建权限与状态残留.md](./specs/BUG修复-SteamLobby创建权限与状态残留.md)
+- 新增开发提示词：[bugfix-steam-lobby-permission-state-dev.prompt.md](./prompts/bugfix-steam-lobby-permission-state-dev.prompt.md)
+- 同步 `项目开发需求计划表.xlsx` 与 `策划进度看板.html`
+
+### 后续优化登记
+
+- 登记 **STEAM-DESKTOP-06**：Steam Lobby 生命周期与邀请反馈优化
+- 根据用户决策跳过本需求，不进入当前版本开发排期
+- 修复范围：服务端稳定错误码与 Steam 绑定诊断、Unity 创建失败回滚、Lobby 与鱼塘生命周期边界
+
+### 范围调整
+
+- **STEAM-DESKTOP-06** 标记为 **已废弃**
+- 后续如确认正式 Lobby 产品方案，再以新需求重新立项
+
+### 开发进展
+
+- 已提交服务端创建权限诊断字段、稳定错误码和绑定/AppID/player 校验
+- 已提交 Unity 错误码展示、创建/加入失败回滚及 Steam Lobby 离开清理
+- 已提交 Steam 创建者自动触发 `LobbyEntered` 的回调防误判处理
+- 已修复测试夹具未隔离 `STEAM_APP_ID` 导致的环境相关 403 误报；定向测试恢复 2/2 通过
+- 完整服务端测试 33/33 通过
+- 用户已完成真实 Unity Windows Development Build + Steam 联调，BUG-22 验收通过
+
 ### [steam-desktop-03-social-lobby] - 2026-08-12
 
 ### 策划

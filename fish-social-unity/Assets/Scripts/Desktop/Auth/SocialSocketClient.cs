@@ -395,6 +395,7 @@ namespace FishSocial.Desktop.Auth
         sealed class InventoryWrapper { public FishInventoryItemDto[] items; }
     }
 
+    #pragma warning disable 0067
     public sealed class UnavailableSocialSocketClient : ISocialSocketClient
     {
         public bool IsConnected => false;
@@ -422,5 +423,6 @@ namespace FishSocial.Desktop.Auth
         public void Pump() { }
         public void Disconnect() { }
     }
+    #pragma warning restore 0067
 }
 

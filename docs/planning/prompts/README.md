@@ -59,6 +59,8 @@ npm run planning:confirm -- v0.4.0
 | [bugfix-daily-quota-single-source-dev.prompt.md](./bugfix-daily-quota-single-source-dev.prompt.md) | BUG-19：每日额度单一口径重构 · **已实现** |
 | [bugfix-quota-remaining-display-regression-dev.prompt.md](./bugfix-quota-remaining-display-regression-dev.prompt.md) | BUG-20：进塘与钓鱼剩余展示回归 · **已实现** |
 | [bugfix-desktop-exit-process-dev.prompt.md](./bugfix-desktop-exit-process-dev.prompt.md) | BUG-21：桌面端关闭后进程残留 · **已实现** |
+| [bugfix-steam-lobby-permission-state-dev.prompt.md](./bugfix-steam-lobby-permission-state-dev.prompt.md) | BUG-22：Steam Lobby 权限诊断与状态回滚 · **已实现** |
+| [steam-desktop-lobby-lifecycle-invite-feedback-dev.prompt.md](./steam-desktop-lobby-lifecycle-invite-feedback-dev.prompt.md) | STEAM-DESKTOP-06：Lobby 生命周期与邀请反馈优化 · **已跳过** |
 | [metrics-hook-escape-counters-dev.prompt.md](./metrics-hook-escape-counters-dev.prompt.md) | D-L2-15：咬�?脱钩计数替代全量 tick |
 | [metrics-phase-transition-compact-dev.prompt.md](./metrics-phase-transition-compact-dev.prompt.md) | D-L2-16：相位跳转短�?f/t/c · **已实�?* |
 | [obs-log-noise-reduction-dev.prompt.md](./obs-log-noise-reduction-dev.prompt.md) | OBS-LOG-1：服务端日志降噪分层 · **已实�?* |

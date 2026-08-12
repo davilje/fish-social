@@ -26,6 +26,14 @@ namespace FishSocial.Desktop.Social
         public SocialLobbyDto lobby;
     }
 
+    [Serializable]
+    sealed class SocialLobbyErrorResponse
+    {
+        public bool ok;
+        public string code;
+        public string error;
+    }
+
     public sealed class SocialLobbyApiClient
     {
         readonly SteamAuthController _auth;
@@ -52,6 +60,7 @@ namespace FishSocial.Desktop.Social
                 pondId,
                 gameVersion,
                 protocolVersion,
+                null,
                 completed);
         }
 
@@ -59,6 +68,7 @@ namespace FishSocial.Desktop.Social
             string lobbyId,
             string gameVersion,
             string protocolVersion,
+            string inviteToken,
             Action<bool, SocialLobbyDto, string> completed)
         {
             yield return Send(
@@ -67,7 +77,37 @@ namespace FishSocial.Desktop.Social
                 null,
                 gameVersion,
                 protocolVersion,
+                inviteToken,
                 completed);
+        }
+
+        public IEnumerator Invite(
+            string lobbyId,
+            string friendSteamId64,
+            Action<bool, string> completed)
+        {
+            if (!CanUse)
+            {
+                completed?.Invoke(false, "请先完成 Steam 登录。");
+                yield break;
+            }
+            var body = JsonUtility.ToJson(new LobbyInvitePayload
+            {
+                lobbyId = lobbyId,
+                friendSteamId64 = friendSteamId64,
+            });
+            using (var request = CreateRequest("/api/social/lobby/invite", body))
+            {
+                yield return request.SendWebRequest();
+                if (IsSuccess(request))
+                {
+                    var response = JsonUtility.FromJson<SocialLobbyInviteResponse>(
+                        request.downloadHandler.text);
+                    completed?.Invoke(true, response.inviteToken);
+                }
+                else
+                    completed?.Invoke(false, ReadError(request));
+            }
         }
 
         public IEnumerator Close(string lobbyId, Action<bool, string> completed)
@@ -94,6 +134,7 @@ namespace FishSocial.Desktop.Social
             string pondId,
             string gameVersion,
             string protocolVersion,
+            string inviteToken,
             Action<bool, SocialLobbyDto, string> completed)
         {
             if (!CanUse)
@@ -107,6 +148,7 @@ namespace FishSocial.Desktop.Social
                 pondId = pondId,
                 gameVersion = gameVersion,
                 protocolVersion = protocolVersion,
+                inviteToken = inviteToken,
             });
             using (var request = CreateRequest(path, body))
             {
@@ -141,12 +183,46 @@ namespace FishSocial.Desktop.Social
 
         static string ReadError(UnityWebRequest request)
         {
+            SocialLobbyErrorResponse response = null;
+            try
+            {
+                response = JsonUtility.FromJson<SocialLobbyErrorResponse>(
+                    request.downloadHandler == null ? string.Empty : request.downloadHandler.text);
+            }
+            catch
+            {
+                // Keep the user-facing fallback stable for malformed responses.
+            }
+
+            var code = response == null ? null : response.code;
+            if (!string.IsNullOrEmpty(code))
+                Debug.LogWarning("[SocialLobby] request rejected code=" + code);
+
+            switch (code)
+            {
+                case "LOBBY_STEAM_BINDING_REQUIRED":
+                    return "当前 Steam 账号尚未完成服务端绑定，请重新登录 Steam。";
+                case "LOBBY_ID_INVALID":
+                    return "Steam Lobby ID 无效，请重新创建 Lobby。";
+                case "POND_NOT_FOUND":
+                    return "选择的鱼塘不存在，请重新选择。";
+                case "LOBBY_GAME_VERSION_MISMATCH":
+                case "LOBBY_PROTOCOL_VERSION_MISMATCH":
+                    return "Lobby 版本不兼容，请更新客户端后重试。";
+                case "LOBBY_OWNER_REQUIRED":
+                    return "只有 Lobby 创建者可以执行此操作。";
+                case "LOBBY_CACHE_MISSING":
+                    return "Lobby 已失效，请重新创建；鱼塘仍可通过其他入口进入。";
+                case "LOBBY_INVITE_INVALID":
+                    return "Lobby 邀请无效或已过期，请重新邀请。";
+            }
+
             if (request.responseCode == 401 || request.responseCode == 403)
-                return "服务端拒绝当前 Lobby 权限。";
+                return "服务端拒绝当前 Lobby 操作，请重新登录后重试。";
             if (request.responseCode == 404)
-                return "Lobby 不存在或已失效。";
+                return "Lobby 或鱼塘不存在，请重新创建。";
             if (request.responseCode == 409)
-                return "Lobby 版本不兼容。";
+                return "Lobby 版本不兼容，请更新客户端后重试。";
             return "无法连接 Lobby 权限服务。";
         }
 
@@ -157,12 +233,27 @@ namespace FishSocial.Desktop.Social
             public string pondId;
             public string gameVersion;
             public string protocolVersion;
+            public string inviteToken;
         }
 
         [Serializable]
         sealed class LobbyClosePayload
         {
             public string lobbyId;
+        }
+
+        [Serializable]
+        sealed class LobbyInvitePayload
+        {
+            public string lobbyId;
+            public string friendSteamId64;
+        }
+
+        [Serializable]
+        sealed class SocialLobbyInviteResponse
+        {
+            public bool ok;
+            public string inviteToken;
         }
     }
 }

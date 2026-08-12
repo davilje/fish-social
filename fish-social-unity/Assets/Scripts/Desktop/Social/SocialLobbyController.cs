@@ -109,7 +109,21 @@ namespace FishSocial.Desktop.Social
         {
             if (!EnsureAuthenticated())
                 return;
-            _adapter.InviteFriend(friendSteamId64);
+            if (string.IsNullOrWhiteSpace(CurrentLobbyId))
+            {
+                Fail("请先创建 Lobby。");
+                return;
+            }
+            StartCoroutine(_api.Invite(CurrentLobbyId, friendSteamId64, (ok, tokenOrMessage) =>
+            {
+                if (!ok)
+                {
+                    Fail(tokenOrMessage);
+                    return;
+                }
+                _adapter.SetLobbyInvite(friendSteamId64, tokenOrMessage);
+                _adapter.InviteFriend(friendSteamId64);
+            }));
         }
 
         public void CloseLobby()
@@ -159,8 +173,8 @@ namespace FishSocial.Desktop.Social
 
         void OnLobbyCreated(string lobbyId, string pondId)
         {
-            CurrentLobbyId = lobbyId;
-            CurrentPondId = pondId;
+            _pendingLobbyId = lobbyId;
+            _pendingPondId = pondId;
             StartCoroutine(_api.Create(
                 lobbyId,
                 pondId,
@@ -170,11 +184,18 @@ namespace FishSocial.Desktop.Social
                 {
                     if (!ok)
                     {
-                        _adapter.CloseLobby();
-                        Fail(message);
+                        RollbackPendingLobby(message);
                         return;
                     }
+                    if (lobby == null)
+                    {
+                        RollbackPendingLobby("服务端返回了无效的 Lobby 状态。");
+                        return;
+                    }
+                    CurrentLobbyId = lobby.lobbyId;
                     CurrentPondId = lobby.pondId;
+                    _pendingLobbyId = null;
+                    _pendingPondId = null;
                     RefreshLobbyMembers();
                     SetState(SocialLobbyState.LobbyJoined, "Lobby 已创建，等待好友加入。");
                 }));
@@ -182,26 +203,46 @@ namespace FishSocial.Desktop.Social
 
         void OnLobbyEntered(string lobbyId)
         {
-            CurrentLobbyId = lobbyId;
+            // Steam also emits LobbyEntered for the local owner after
+            // CreateLobby. That is not an invited join and has no invite
+            // token; the create flow already performs Node authorization.
+            // Treating it as /join would return LOBBY_INVITE_INVALID and
+            // clear the valid CurrentLobbyId before the user can invite.
+            if (lobbyId == _pendingLobbyId || lobbyId == CurrentLobbyId)
+                return;
+
+            _pendingLobbyId = lobbyId;
             if (!_adapter.TryReadLobbyMetadata(
-                    lobbyId, out var pondId, out var gameVersion, out var protocolVersion))
+                    lobbyId,
+                    out var pondId,
+                    out var gameVersion,
+                    out var protocolVersion,
+                    out var inviteToken))
             {
-                Fail("Lobby 元数据缺失或已失效。");
+                RollbackPendingLobby("Lobby 元数据缺失或已失效。");
                 return;
             }
             StartCoroutine(_api.Join(
                 lobbyId,
                 gameVersion,
                 protocolVersion,
+                inviteToken,
                 (ok, lobby, message) =>
                 {
                     if (!ok)
                     {
-                        _adapter.CloseLobby();
-                        Fail(message);
+                        RollbackPendingLobby(message);
                         return;
                     }
+                    if (lobby == null)
+                    {
+                        RollbackPendingLobby("服务端返回了无效的 Lobby 状态。");
+                        return;
+                    }
+                    CurrentLobbyId = lobby.lobbyId;
                     CurrentPondId = lobby.pondId;
+                    _pendingLobbyId = null;
+                    _pendingPondId = null;
                     RefreshLobbyMembers();
                     EnterPond(lobby.pondId);
                 }));
@@ -255,7 +296,28 @@ namespace FishSocial.Desktop.Social
             return false;
         }
 
-        void OnAdapterError(string message) => Fail(message);
+        void OnAdapterError(string message)
+        {
+            if (State == SocialLobbyState.Creating ||
+                State == SocialLobbyState.Joining ||
+                State == SocialLobbyState.WaitingForInvite)
+            {
+                RollbackPendingLobby(message);
+                return;
+            }
+            Fail(message);
+        }
+
+        void RollbackPendingLobby(string message)
+        {
+            _adapter?.CloseLobby();
+            CurrentLobbyId = null;
+            CurrentPondId = null;
+            _pendingLobbyId = null;
+            _pendingPondId = null;
+            SetState(SocialLobbyState.Failed, message);
+            Error?.Invoke(message);
+        }
 
         void Fail(string message)
         {

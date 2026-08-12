@@ -18,7 +18,6 @@ namespace FishSocial.Desktop
         public bool IsReady { get; private set; }
 
         Thread _trayThread;
-        volatile bool _running;
         volatile bool _pendingShow;
         volatile bool _pendingHide;
         volatile bool _pendingExit;
@@ -52,7 +51,6 @@ namespace FishSocial.Desktop
         void Start()
         {
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            _running = true;
             _trayThread = new Thread(TrayThreadMain)
             {
                 IsBackground = true,
@@ -107,7 +105,6 @@ namespace FishSocial.Desktop
 
         void ShutdownTray()
         {
-            _running = false;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
             if (_iconAdded)
             {
@@ -159,7 +156,7 @@ namespace FishSocial.Desktop
                 IsReady = _iconAdded;
 
                 MSG msg;
-                while (_running && GetMessage(out msg, IntPtr.Zero, 0, 0))
+                while (GetMessage(out msg, IntPtr.Zero, 0, 0))
                 {
                     TranslateMessage(ref msg);
                     DispatchMessage(ref msg);
@@ -188,11 +185,10 @@ namespace FishSocial.Desktop
             }
             else if (msg == 0x0011 /* WM_QUIT */)
             {
-                _running = false;
+                // GetMessage returns zero after WM_QUIT.
             }
             else if (msg == 0x0010 /* WM_CLOSE */)
             {
-                _running = false;
                 PostQuitMessage(0);
             }
 

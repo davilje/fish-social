@@ -31,8 +31,15 @@ namespace FishSocial.Desktop.Social
         void InviteFriend(string friendSteamId64);
         void CloseLobby();
         void LeaveLobby();
-        bool TryReadLobbyMetadata(string lobbyId, out string pondId, out string gameVersion, out string protocolVersion);
+        bool TryReadLobbyMetadata(
+            string lobbyId,
+            out string pondId,
+            out string gameVersion,
+            out string protocolVersion,
+            out string inviteToken);
         IReadOnlyList<string> ReadLobbyMembers(string lobbyId);
+        string GetLocalSteamId64();
+        void SetLobbyInvite(string friendSteamId64, string inviteToken);
     }
 
     /// <summary>
@@ -172,8 +179,23 @@ namespace FishSocial.Desktop.Social
         {
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (_currentLobby.m_SteamID != 0)
+            {
                 SteamMatchmaking.SetLobbyJoinable(_currentLobby, false);
+                SteamMatchmaking.LeaveLobby(_currentLobby);
+            }
             _currentLobby = new CSteamID(0);
+#endif
+        }
+
+        public void SetLobbyInvite(string friendSteamId64, string inviteToken)
+        {
+#if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
+            if (_currentLobby.m_SteamID == 0 || string.IsNullOrWhiteSpace(friendSteamId64))
+                return;
+            SteamMatchmaking.SetLobbyData(
+                _currentLobby,
+                "invite_" + friendSteamId64,
+                inviteToken ?? "");
 #endif
         }
 
@@ -190,11 +212,13 @@ namespace FishSocial.Desktop.Social
             string lobbyId,
             out string pondId,
             out string gameVersion,
-            out string protocolVersion)
+            out string protocolVersion,
+            out string inviteToken)
         {
             pondId = null;
             gameVersion = null;
             protocolVersion = null;
+            inviteToken = null;
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (!ulong.TryParse(lobbyId, out var rawId))
                 return false;
@@ -202,6 +226,8 @@ namespace FishSocial.Desktop.Social
             pondId = SteamMatchmaking.GetLobbyData(lobby, PondKey);
             gameVersion = SteamMatchmaking.GetLobbyData(lobby, GameVersionKey);
             protocolVersion = SteamMatchmaking.GetLobbyData(lobby, ProtocolVersionKey);
+            var localSteamId = SteamUser.GetSteamID().m_SteamID.ToString();
+            inviteToken = SteamMatchmaking.GetLobbyData(lobby, "invite_" + localSteamId);
             return !string.IsNullOrWhiteSpace(pondId);
 #else
             return false;
@@ -222,6 +248,15 @@ namespace FishSocial.Desktop.Social
             return members;
         }
 
+        public string GetLocalSteamId64()
+        {
+#if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
+            return IsAvailable ? SteamUser.GetSteamID().m_SteamID.ToString() : null;
+#else
+            return null;
+#endif
+        }
+
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
         void OnLobbyCreated(LobbyCreated_t callback)
         {
@@ -230,7 +265,7 @@ namespace FishSocial.Desktop.Social
                 Error?.Invoke("Lobby 创建失败：" + callback.m_eResult);
                 return;
             }
-            _currentLobby = callback.m_ulSteamIDLobby;
+            _currentLobby = new CSteamID(callback.m_ulSteamIDLobby);
             SteamMatchmaking.SetLobbyData(_currentLobby, PondKey, _pondId ?? "");
             SteamMatchmaking.SetLobbyData(_currentLobby, GameVersionKey, _gameVersion ?? "");
             SteamMatchmaking.SetLobbyData(_currentLobby, ProtocolVersionKey, _protocolVersion ?? "");
@@ -240,7 +275,7 @@ namespace FishSocial.Desktop.Social
 
         void OnLobbyEntered(LobbyEnter_t callback)
         {
-            _currentLobby = callback.m_ulSteamIDLobby;
+            _currentLobby = new CSteamID(callback.m_ulSteamIDLobby);
             if (callback.m_EChatRoomEnterResponse != (uint)EChatRoomEnterResponse.k_EChatRoomEnterResponseSuccess)
             {
                 Error?.Invoke("加入 Lobby 失败。");
