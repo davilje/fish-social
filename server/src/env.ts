@@ -18,6 +18,10 @@ export const CRITICAL_ENV = {
   METRICS_DUAL_WRITE: 'Write SQLite + PG when true',
   METRICS_READ_FROM: 'Must be sqlite (postgres reads unsupported)',
   SHUTDOWN_TIMEOUT_MS: 'Force exit after graceful shutdown starts (default 8000)',
+  STEAM_AUTH_ENABLED: 'Enable Steam Ticket login (default false)',
+  STEAM_APP_ID: 'Configured Steam AppID',
+  STEAM_WEB_API_KEY: 'Server-only Steam Publisher Web API key',
+  STEAM_AUTH_IDENTITY: 'Expected GetAuthTicketForWebApi identity',
 } as const;
 
 export type CriticalEnvKey = keyof typeof CRITICAL_ENV;

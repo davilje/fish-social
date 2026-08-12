@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using FishSocial.Desktop.Auth;
 
 namespace FishSocial.Desktop
 {
@@ -14,6 +15,7 @@ namespace FishSocial.Desktop
         Text _toast;
         float _toastUntil;
         NotificationSettings _notifyDraft;
+        SteamAuthController _steamAuth;
 
         public void Build(PanelRouter router)
         {
@@ -21,6 +23,15 @@ namespace FishSocial.Desktop
             _notifyDraft = DesktopNotificationService.Instance != null
                 ? CloneNotify(DesktopNotificationService.Instance.Settings)
                 : new NotificationSettings();
+            _steamAuth = DesktopAppBootstrap.Instance != null
+                ? DesktopAppBootstrap.Instance.SteamAuth
+                : null;
+            if (_steamAuth != null)
+            {
+                _steamAuth.StateChanged += OnSteamStateChanged;
+                _steamAuth.ErrorMessage += OnSteamError;
+                OnSteamStateChanged(_steamAuth.State);
+            }
 
             var canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasGo.transform.SetParent(transform, false);
@@ -79,6 +90,14 @@ namespace FishSocial.Desktop
             _router.Show(ShellPanelId.Home);
         }
 
+        void OnDestroy()
+        {
+            if (_steamAuth == null)
+                return;
+            _steamAuth.StateChanged -= OnSteamStateChanged;
+            _steamAuth.ErrorMessage -= OnSteamError;
+        }
+
         void Update()
         {
             if (_toast != null && _toast.gameObject.activeSelf && Time.unscaledTime > _toastUntil)
@@ -103,19 +122,65 @@ namespace FishSocial.Desktop
         {
             CreateText(go.transform, "H1", "欢迎回来", 36, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
             CreateText(go.transform, "H2",
-                "这是 Windows 桌面基础壳。真实鱼塘 / Steam / 网络将在后续阶段接入。\n请从左侧进入四个功能占位。",
+                "这是 Windows 桌面基础壳。Steam 身份登录和真实网络正在接入。\n请从左侧进入四个功能占位。",
                 20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 120));
+            CreateButton(go.transform, "SteamLogin", "Steam 登录",
+                new Vector2(32, -230), new Vector2(180, 46), BeginSteamLogin);
             CreateText(go.transform, "H3",
                 "关闭窗口 → 隐藏到托盘（进程继续）\n托盘菜单可「显示窗口」或「退出游戏」",
-                18, TextAnchor.UpperLeft, new Vector2(32, -240), new Vector2(900, 100));
+                18, TextAnchor.UpperLeft, new Vector2(32, -305), new Vector2(900, 100));
             CreateText(go.transform, "H4", "通知测试（开启后右上角显示提示）", 18,
-                TextAnchor.UpperLeft, new Vector2(32, -360), new Vector2(600, 32));
-            CreateButton(go.transform, "HomeBite", "鱼咬钩", new Vector2(32, -405), new Vector2(150, 42),
+                TextAnchor.UpperLeft, new Vector2(32, -420), new Vector2(600, 32));
+            CreateButton(go.transform, "HomeBite", "鱼咬钩", new Vector2(32, -465), new Vector2(150, 42),
                 () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FishBite));
-            CreateButton(go.transform, "HomeInvite", "好友邀请", new Vector2(195, -405), new Vector2(150, 42),
+            CreateButton(go.transform, "HomeInvite", "好友邀请", new Vector2(195, -465), new Vector2(150, 42),
                 () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FriendInvite));
-            CreateButton(go.transform, "HomeError", "连接错误", new Vector2(358, -405), new Vector2(150, 42),
+            CreateButton(go.transform, "HomeError", "连接错误", new Vector2(358, -465), new Vector2(150, 42),
                 () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.ConnectionError));
+        }
+
+        void BeginSteamLogin()
+        {
+            if (_steamAuth == null)
+            {
+                ShowToast("Steam 登录组件尚未初始化。");
+                return;
+            }
+            _steamAuth.BeginLogin();
+        }
+
+        void OnSteamStateChanged(SteamLoginState state)
+        {
+            if (_statusLogin == null)
+                return;
+            switch (state)
+            {
+                case SteamLoginState.Initializing:
+                    _statusLogin.text = "登录：初始化 Steam";
+                    break;
+                case SteamLoginState.RequestingTicket:
+                    _statusLogin.text = "登录：获取 Steam Ticket";
+                    break;
+                case SteamLoginState.Authenticating:
+                    _statusLogin.text = "登录：服务端验证中";
+                    break;
+                case SteamLoginState.Authenticated:
+                    _statusLogin.text = "登录：Steam 已连接";
+                    ShowToast("Steam 登录成功");
+                    break;
+                case SteamLoginState.Failed:
+                    _statusLogin.text = "登录：失败";
+                    break;
+                default:
+                    _statusLogin.text = "登录：未登录";
+                    break;
+            }
+        }
+
+        void OnSteamError(string message)
+        {
+            _statusLogin.text = "登录：失败";
+            ShowToast(message);
         }
 
         void BuildPond(GameObject go)

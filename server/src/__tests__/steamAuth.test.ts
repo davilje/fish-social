@@ -10,12 +10,15 @@ process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'vitest-steam-jwt-secret';
 
 const oldEnabled = process.env.STEAM_AUTH_ENABLED;
 const oldAppId = process.env.STEAM_APP_ID;
+const oldIdentity = process.env.STEAM_AUTH_IDENTITY;
 
 afterEach(() => {
   if (oldEnabled === undefined) delete process.env.STEAM_AUTH_ENABLED;
   else process.env.STEAM_AUTH_ENABLED = oldEnabled;
   if (oldAppId === undefined) delete process.env.STEAM_APP_ID;
   else process.env.STEAM_APP_ID = oldAppId;
+  if (oldIdentity === undefined) delete process.env.STEAM_AUTH_IDENTITY;
+  else process.env.STEAM_AUTH_IDENTITY = oldIdentity;
   db.prepare('DELETE FROM steam_accounts WHERE steam_id64 LIKE ?').run('7656119%');
   db.prepare('DELETE FROM players WHERE player_id LIKE ?').run('steam_%');
 });
@@ -41,6 +44,10 @@ describe('Steam ticket auth', () => {
     await expect(loginWithSteamTicket('ticket', '481', verifier)).rejects.toMatchObject({
       code: 'STEAM_INVALID_APP_ID',
     });
+
+    process.env.STEAM_AUTH_IDENTITY = 'fish-social-server-v1';
+    await expect(loginWithSteamTicket('ticket', '480', verifier, 'test-identity', 'wrong'))
+      .rejects.toMatchObject({ code: 'STEAM_INVALID_IDENTITY' });
   });
 
   it('creates a player once and reuses it for the same SteamID64', async () => {

@@ -78,7 +78,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-transition-dev.prompt.md](./steam-desktop-transition-dev.prompt.md) | STEAM-DESKTOP-EPIC：Steam 桌面端独立游戏转型与 Unity 并行开发 · **已确认** |
 | [steam-desktop-product-ia-dev.prompt.md](./steam-desktop-product-ia-dev.prompt.md) | STEAM-DESKTOP-01：Steam 桌面端产品定位与信息架构 · **已确认** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |
-| [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **已确认** |
+| [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **开发中（真实登录已通过，REST/Socket 待验收）** |
 | [steam-desktop-pond-offline-ecology-dev.prompt.md](./steam-desktop-pond-offline-ecology-dev.prompt.md) | STEAM-DESKTOP-05：空鱼塘休眠与生态离线补算 · **已确认** |
 | [scene-iso-grid-dev.prompt.md](./scene-iso-grid-dev.prompt.md) | FEAT-SCENE-ISO-1/2：等距网格塘+世界 · **已实�?* |
 | [scene-ortho-tilemap-dev.prompt.md](./scene-ortho-tilemap-dev.prompt.md) | FEAT-SCENE-TILE-1：星露谷式正�?Tilemap · **已实�?* |

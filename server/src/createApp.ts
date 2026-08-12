@@ -196,13 +196,14 @@ export function createApp(
   }
 
   app.post('/api/auth/steam', async (req, res) => {
-    const body = req.body as { ticket?: unknown; appId?: unknown };
+    const body = req.body as { ticket?: unknown; appId?: unknown; identity?: unknown };
     try {
       const result = await loginWithSteamTicket(
         body.ticket,
         body.appId,
         undefined,
         req.ip ?? req.socket.remoteAddress ?? 'unknown',
+        body.identity,
       );
       res.json({ ok: true, ...result });
     } catch (error) {

@@ -14,6 +14,12 @@ Or batchmode (see `Docs/STEAM-DESKTOP-04-smoke.md`).
 
 Output: `Builds/Windows64/FishSocialDesktop.exe`
 
+For local Steam login testing, keep the Steam client running and launch the
+generated executable with `Builds/Windows64/steam_appid.txt` beside it.
+The build menu copies the project-root `steam_appid.txt` automatically after a
+successful build. For a real Steam distribution build, launch through Steam
+instead of relying on the local AppID file.
+
 ## Scope
 
 - Window modes, tray hide/exit, placeholder hub UI, notification prefs

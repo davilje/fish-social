@@ -25,6 +25,11 @@
 - 固定调用链：`GetAuthTicketForWebApi` → HTTPS → `AuthenticateUserTicket` → `SteamID64` → 项目 JWT
 - 开发提示词：[steam-desktop-account-auth-dev.prompt.md](./prompts/steam-desktop-account-auth-dev.prompt.md)
 
+### 真实联调进展
+
+- 使用已配置的 Steam AppID、服务端 Publisher Web API Key 和测试账号完成首次真实登录。
+- 服务端日志确认 `steam_login_success`，首次登录成功创建 Steam 玩家档案；重复登录复用、JWT REST 和 Socket 回归待完成。
+
 ### [steam-desktop-04-shell] - 2026-08-11
 
 ### 策划

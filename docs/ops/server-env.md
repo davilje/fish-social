@@ -18,8 +18,9 @@
 | `STEAM_AUTH_ENABLED` | `false` | 显式开启 Steam Ticket 登录 |
 | `STEAM_APP_ID` | 空 | 服务端校验的 Steam App ID |
 | `STEAM_WEB_API_KEY` | 空 | Steam Web API Key；仅放 Node 服务端密钥环境，不进入 Unity/Git |
+| `STEAM_AUTH_IDENTITY` | `fish-social-server-v1` | 服务端要求的 `GetAuthTicketForWebApi` identity |
 
-真实 Steam 登录必须同时配置上述三项；本地 Fake Ticket 测试不得作为真实 Steam 验收。
+真实 Steam 登录必须同时配置上述四项；本地 Fake Ticket 测试不得作为真实 Steam 验收。
 
 ## 容量（QUAL-10）
 

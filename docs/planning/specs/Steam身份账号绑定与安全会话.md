@@ -180,8 +180,41 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 - [ ] Web API Key、Ticket 和 Token 不进入 Git、Unity 包或普通日志。
 - [ ] 本地测试和真实 Steam 测试分开，测试数据可清理。
 
-## 8. 变更记录
+## 8. 当前实施进度
+
+### 已完成
+
+- [x] Unity Package Manager 已安装 Steamworks.NET `2025.163.0`。
+- [x] Unity Windows 客户端已接入 `steam_api64.dll`。
+- [x] 已配置本地 AppID `2713340` 和 `steam_appid.txt`。
+- [x] Unity 已实现 SteamAPI 初始化与回调驱动。
+- [x] `SteamworksTicketProvider` 已替换原占位 Provider。
+- [x] 已确认运行日志出现 `SteamAPI initialized`。
+- [x] 服务端 Publisher API 地址、`identity` 和环境变量边界已确定。
+
+### 尚未完成
+
+- [x] Unity 主界面增加 Steam 登录按钮并调用 `BeginLogin()`。
+- [x] Unity 获取 Ticket 并调用 `/api/auth/steam`，并展示登录状态与用户错误。
+- [x] 服务端接入 `AuthenticateUserTicket` 适配器、账号映射、JWT 签发和稳定错误码。
+- [x] Fake Ticket 单元测试覆盖首次创建、重复登录复用、错误 AppID、无效 Ticket、绑定撤销和 identity 校验。
+- [x] 登录成功后以内存短期会话提供 Access Token 读取接口；现有 Socket 继续校验 JWT。
+- [x] Unity 侧覆盖 Steam 未运行、Ticket 超时、服务端不可用和服务端拒绝提示。
+
+当前代码实现已完成；由于真实 Steam Publisher Web API Key 和 Steam 客户端测试环境不属于仓库，真实 Ticket 验收仍保持未完成，不能将 Fake Ticket 通过写成真实 Steam 验收通过。
+
+### 当前下一步
+
+1. 已使用真实 Steam 参数和测试账号完成首次 Ticket 登录，并创建唯一 `playerId`。
+2. 已使用同一测试账号再次登录，日志显示 `created:false`，确认复用原 `playerId`。
+3. 验证登录返回 JWT 的 REST 请求和 Socket 鉴权。
+4. 通过全部验收项后回写计划表和看板状态。
+
+## 9. 变更记录
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
 | 2026-08-12 | 主 Agent | 将 STEAM-DESKTOP-02 拆为 Steam Ticket、账号映射、JWT 会话和安全验收需求 |
+| 2026-08-12 | 主 Agent | 记录 Steamworks.NET 接入、SteamAPI 初始化结果，并明确真实登录联调为下一出口 |
+| 2026-08-12 | 后端 + Unity | 完成 `/api/auth/steam`、`steam_accounts` 映射、服务端 Ticket 验证适配器、JWT 会话、稳定错误码、Unity 登录按钮/状态展示与超时处理；`npm test` 和 `npm run verify:auth` 通过，真实 Steam 验收待配置外部凭据 |
+| 2026-08-12 | 联调验收 | 真实 Steam Ticket 验证成功：首次登录创建唯一 `playerId`，同一账号再次登录 `created:false` 并复用原账号；待 JWT/Socket 回归 |

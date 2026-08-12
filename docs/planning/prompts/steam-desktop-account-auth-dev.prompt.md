@@ -42,6 +42,110 @@
 5. 将登录状态提供给后续桌面主界面和 Socket 客户端。
 6. Steam 未启动、Ticket 失效、服务端拒绝时显示普通用户可理解的错误。
 
+## 当前实施 checkpoint
+
+以下工作已经完成，不要重复搭建：
+
+- Unity Package Manager 已安装 Steamworks.NET `2025.163.0`。
+- Windows 构建已确认 `SteamAPI initialized`。
+- AppID 为 `2713340`，本地开发使用 `steam_appid.txt`。
+- `steam_api64.dll` 已接入 `Assets/Plugins/x86_64/`。
+- Unity 已有 `SteamworksTicketProvider`，负责 Steam 初始化、回调和 `GetAuthTicketForWebApi`。
+- `SteamAuthController` 已将 Ticket、AppID、identity 发送到 `/api/auth/steam`。
+
+当前只完成 SteamAPI 初始化，**不能宣称 STEAM-DESKTOP-02 已完成**。
+
+## 当前开发任务
+
+### Unity 必做
+
+1. 在桌面主界面增加“Steam 登录”按钮。
+2. 按钮调用 `DesktopAppBootstrap.Instance.SteamAuth.BeginLogin()`。
+3. 订阅 `SteamAuthController.StateChanged` 和 `ErrorMessage`。
+4. 显示初始化、获取 Ticket、服务端验证、成功和失败状态。
+5. 登录成功后保存短期 Access Token，并为后续 REST/Socket 客户端提供读取接口。
+6. 不打印完整 Ticket、Access Token 或 Refresh Token。
+
+### 服务端联调
+
+1. 使用真实 `.env` 启动 Node 服务端：
+
+```text
+STEAM_AUTH_ENABLED=true
+STEAM_APP_ID=2713340
+STEAM_WEB_API_KEY=<server-only>
+STEAM_AUTH_IDENTITY=fish-social-server-v1
+```
+
+2. 确认服务端请求 `partner.steam-api.com` 的
+   `ISteamUserAuth/AuthenticateUserTicket`。
+3. 验证首次登录创建 `playerId`。
+4. 验证同一 Steam 账号重复登录复用原 `playerId`。
+5. 验证错误 AppID、无效 Ticket、Steam 未启动和服务端不可用的错误提示。
+6. 登录成功后验证 JWT REST 请求和 Socket 鉴权。
+
+### 交付与验收
+
+- 先在 Steam 客户端运行的 Windows Development Build 中联调。
+- 本地 Fake Ticket 只能用于接口和错误处理测试，不能替代真实 Steam 验收。
+- 不要把 Publisher Web API Key 写入 Unity、`shared/`、日志或 Git。
+- 完成后运行相关验证、记录测试结果，再回写 `STEAM-DESKTOP-02` 为“已实现”。
+
+## 当前剩余目标：登录后的 REST / Socket 会话验收
+
+真实 Steam Ticket 登录已完成首次创建和重复登录复用验证。当前只处理登录成功后的会话使用，不扩大到好友、Lobby、鱼塘业务或 Steam 商店发布。
+
+### Unity 客户端
+
+1. 在 `fish-social-unity/Assets/Scripts/Desktop/Auth/` 增加窄接口 `IAuthenticatedApiClient`。
+2. 登录成功后使用 `SteamAuthController` 内存中的 Access Token 发起受保护 REST 请求：
+   - `GET /api/inventory/{playerId}`
+   - Header：`Authorization: Bearer <accessToken>`
+3. 增加“验证当前会话”入口或开发构建专用按钮，显示：
+   - 会话验证成功
+   - 服务端返回 401/403
+   - 服务不可用
+4. 不在 UI、Console、文件或异常文本中显示完整 JWT。
+5. 不把 Token 写入 PlayerPrefs、Assets 或 Git；退出进程即清理。
+6. 登录失败或 SignOut 后，REST 验证入口必须不可用。
+
+### Socket 鉴权
+
+1. 先确认 Unity 使用的 Socket.IO 客户端方案与许可证，禁止把移动端 TypeScript 源码复制进 Unity。
+2. 将 Socket 连接封装为 `ISocialSocketClient`，Token 只能通过 `auth.token` 传入。
+3. 连接成功后只验证现有 Socket 鉴权和最小 `join_pond` 握手，不实现好友/Lobby/真实鱼塘业务。
+4. 无 Token、过期 Token、篡改 Token 必须被服务端拒绝。
+5. 若当前 Unity 包暂未引入可审计的 Socket.IO 客户端，先提供 Node `socket.io-client` 集成测试作为服务端门禁，并明确标记 Unity Socket 接入未完成，不得伪造通过。
+
+### 服务端 / 测试
+
+1. 保持 Node 作为 JWT 和玩家数据权威，不新增客户端可自报 `playerId` 的信任路径。
+2. 增加 REST Bearer 成功/401/403 测试。
+3. 增加 Socket `auth.token` 成功/缺失/伪造测试。
+4. 验证 Steam 登录返回的 JWT 与现有 `verifyPlayerToken`、Socket middleware 兼容。
+5. 测试日志不得出现完整 Ticket、JWT 或 Publisher Web API Key。
+
+### 本阶段验收命令
+
+```bash
+npm test
+npm run verify:auth
+```
+
+如增加专用验证脚本，补充 `npm run verify:steam-auth-session`，并分别报告：
+
+- 真实 Steam 首次登录：已通过
+- 真实 Steam 重复登录复用：已通过
+- REST Bearer 会话：待本阶段完成
+- Socket JWT 会话：待本阶段完成
+
+### 完成门槛
+
+- REST 请求使用真实 Steam 登录返回的 JWT 成功访问受保护资源。
+- 合法 JWT 可以通过 Socket 鉴权，缺失/篡改 JWT 被拒绝。
+- Unity 不泄露或持久化敏感凭据。
+- 以上验证通过后，才将 `STEAM-DESKTOP-02` spec、计划表和看板标记为“已实现”。
+
 ## 环境变量
 
 使用示例变量名，不要提交真实值：

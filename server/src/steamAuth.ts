@@ -8,6 +8,7 @@ export type SteamAuthErrorCode =
   | 'STEAM_AUTH_DISABLED'
   | 'STEAM_MISSING_TICKET'
   | 'STEAM_INVALID_APP_ID'
+  | 'STEAM_INVALID_IDENTITY'
   | 'STEAM_NOT_CONFIGURED'
   | 'STEAM_TICKET_INVALID'
   | 'STEAM_BINDING_CONFLICT'
@@ -34,9 +35,6 @@ export interface SteamTicketVerifier {
 
 const getAccountBySteamStmt = db.prepare(
   'SELECT steam_id64, player_id, app_id, revoked_at FROM steam_accounts WHERE steam_id64 = ?',
-);
-const getAccountByPlayerStmt = db.prepare(
-  'SELECT steam_id64, player_id, app_id, revoked_at FROM steam_accounts WHERE player_id = ?',
 );
 const insertAccountStmt = db.prepare(`
   INSERT INTO steam_accounts
@@ -140,6 +138,7 @@ export async function loginWithSteamTicket(
   requestedAppId: unknown,
   verifier: SteamTicketVerifier = new SteamWebApiTicketVerifier(),
   rateKey = 'unknown',
+  requestedIdentity?: unknown,
 ): Promise<SteamLoginResult> {
   if (!isEnabled()) throw new SteamAuthError('STEAM_AUTH_DISABLED', 'Steam 登录未启用', 404);
   assertRateLimit(rateKey);
@@ -156,6 +155,14 @@ export async function loginWithSteamTicket(
   if (typeof requestedAppId !== 'string' || requestedAppId !== appId) {
     audit('steam_login_rejected', { reason: 'invalid_app_id' });
     throw new SteamAuthError('STEAM_INVALID_APP_ID', 'Steam App ID 不匹配');
+  }
+  const configuredIdentity = process.env.STEAM_AUTH_IDENTITY?.trim();
+  if (
+    configuredIdentity &&
+    (typeof requestedIdentity !== 'string' || requestedIdentity !== configuredIdentity)
+  ) {
+    audit('steam_login_rejected', { reason: 'invalid_identity' });
+    throw new SteamAuthError('STEAM_INVALID_IDENTITY', 'Steam 登录身份不匹配');
   }
 
   let identity: SteamTicketIdentity;
@@ -189,10 +196,6 @@ export async function loginWithSteamTicket(
       throw new SteamAuthError('STEAM_BINDING_CONFLICT', 'Steam 账号绑定异常', 409);
     }
   } else {
-    const samePlayer = getAccountByPlayerStmt.get(`steam_${identity.steamId64}`) as unknown;
-    if (samePlayer) {
-      throw new SteamAuthError('STEAM_BINDING_CONFLICT', 'Steam 账号绑定冲突', 409);
-    }
     playerId = `steam_${randomUUID()}`;
     ensurePlayer(playerId, 'Steam玩家');
     insertAccountStmt.run({

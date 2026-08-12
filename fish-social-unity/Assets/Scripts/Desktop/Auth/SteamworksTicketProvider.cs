@@ -18,6 +18,7 @@ namespace FishSocial.Desktop.Auth
         Callback<GetTicketForWebApiResponse_t> _ticketCallback;
         HAuthTicket _activeTicket;
         bool _steamInitialized;
+        string _initializationError;
         Action<byte[]> _onSuccess;
         Action<string> _onFailure;
 #endif
@@ -42,6 +43,7 @@ namespace FishSocial.Desktop.Auth
             _steamInitialized = result == ESteamAPIInitResult.k_ESteamAPIInitResult_OK;
             if (!_steamInitialized)
             {
+                _initializationError = error;
                 Debug.LogWarning("[SteamAuth] SteamAPI 初始化失败: " + error);
                 return;
             }
@@ -66,7 +68,10 @@ namespace FishSocial.Desktop.Auth
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (!IsSteamRunning)
             {
-                onFailure?.Invoke("Steam 客户端未运行或 SteamAPI 初始化失败。");
+                var detail = string.IsNullOrWhiteSpace(_initializationError)
+                    ? "请确认 Steam 客户端已启动，并从 Steam 或带有 steam_appid.txt 的 Development Build 启动。"
+                    : _initializationError;
+                onFailure?.Invoke("Steam 初始化失败：" + detail);
                 return;
             }
 

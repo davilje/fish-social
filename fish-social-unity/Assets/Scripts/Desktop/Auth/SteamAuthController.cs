@@ -62,6 +62,8 @@ namespace FishSocial.Desktop.Auth
         public SteamLoginError LastError { get; private set; } = SteamLoginError.None;
         public string PlayerId { get; private set; }
         public string AccessToken { get; private set; }
+        public bool IsAuthenticated => State == SteamLoginState.Authenticated &&
+                                       !string.IsNullOrEmpty(AccessToken);
         public event Action<SteamLoginState> StateChanged;
         public event Action<string> ErrorMessage;
 
@@ -121,8 +123,16 @@ namespace FishSocial.Desktop.Auth
                 bytes => { ticket = bytes; finished = true; },
                 error => { ticketError = error; finished = true; });
             SetState(SteamLoginState.RequestingTicket);
+            float ticketDeadline = Time.unscaledTime + 15f;
             while (!finished)
+            {
+                if (Time.unscaledTime >= ticketDeadline)
+                {
+                    Fail(SteamLoginError.InvalidTicket, "Steam 登录票据获取超时，请确认 Steam 客户端已启动。");
+                    yield break;
+                }
                 yield return null;
+            }
             if (ticket == null || ticket.Length == 0)
             {
                 Fail(SteamLoginError.MissingTicket, string.IsNullOrEmpty(ticketError)
@@ -146,8 +156,7 @@ namespace FishSocial.Desktop.Auth
                 request.SetRequestHeader("Content-Type", "application/json");
                 yield return request.SendWebRequest();
 
-                if (request.result == UnityWebRequest.Result.ConnectionError ||
-                    request.result == UnityWebRequest.Result.ProtocolError)
+                if (request.result == UnityWebRequest.Result.ConnectionError)
                 {
                     Fail(SteamLoginError.ServerUnavailable, "无法连接 Fish Social 服务，请稍后重试。");
                     yield break;
@@ -161,6 +170,13 @@ namespace FishSocial.Desktop.Auth
                 catch
                 {
                     Fail(SteamLoginError.Unknown, "服务器返回了无法识别的登录结果。");
+                    yield break;
+                }
+                if (request.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Fail(MapError(response == null ? null : response.code),
+                        UserMessage(response == null ? null : response.code,
+                            response == null ? "服务器拒绝了 Steam 登录。" : response.error));
                     yield break;
                 }
                 if (response == null || !response.ok || string.IsNullOrEmpty(response.accessToken))
@@ -202,6 +218,7 @@ namespace FishSocial.Desktop.Auth
             {
                 case "STEAM_AUTH_DISABLED": return SteamLoginError.AuthDisabled;
                 case "STEAM_INVALID_APP_ID": return SteamLoginError.InvalidAppId;
+                case "STEAM_INVALID_IDENTITY": return SteamLoginError.ServerRejected;
                 case "STEAM_MISSING_TICKET": return SteamLoginError.MissingTicket;
                 case "STEAM_TICKET_INVALID": return SteamLoginError.InvalidTicket;
                 case "STEAM_RATE_LIMITED": return SteamLoginError.RateLimited;
@@ -215,6 +232,7 @@ namespace FishSocial.Desktop.Auth
             {
                 case "STEAM_AUTH_DISABLED": return "Steam 登录服务当前未启用。";
                 case "STEAM_INVALID_APP_ID": return "游戏版本与 Steam App ID 不匹配。";
+                case "STEAM_INVALID_IDENTITY": return "Steam 登录配置不匹配，请更新客户端。";
                 case "STEAM_TICKET_INVALID": return "Steam 登录票据已失效，请重试。";
                 case "STEAM_RATE_LIMITED": return "登录请求过于频繁，请稍后再试。";
                 default: return string.IsNullOrEmpty(fallback) ? "Steam 登录被服务器拒绝。" : fallback;
