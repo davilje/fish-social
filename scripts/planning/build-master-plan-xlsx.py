@@ -106,6 +106,97 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-13",
         "2026-08-13",
     ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-07A",
+        "功能",
+        "桌面宠物主视图与鱼塘入口",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "显示自己的 2D 猫咪、钓鱼状态和鱼塘入口；复用已完成桌面壳",
+        "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
+        "2026-08-13",
+        "",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-07B",
+        "功能",
+        "2D 鱼塘环境与自己的猫咪",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "显示池塘环境、钓位、自己的宠物和钓鱼表现",
+        "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
+        "2026-08-13",
+        "",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-07C",
+        "功能",
+        "同塘玩家宠物与状态同步",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "渲染 pond_user_joined/left/updated；显示同塘玩家宠物、昵称和基础状态",
+        "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
+        "2026-08-13",
+        "",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-07D",
+        "功能",
+        "桌面宠物右键菜单",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "在产品窗口/宠物区域提供鱼塘、好友、背包、图鉴、设置、托盘和退出入口",
+        "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
+        "2026-08-13",
+        "",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-07E",
+        "功能",
+        "桌面宠物功能弹窗层",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "好友/聊天、背包、图鉴、设置弹窗；打开关闭不得触发 leave_pond",
+        "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
+        "2026-08-13",
+        "",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-07F",
+        "功能",
+        "桌面宠物主流程与恢复验收",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "串联登录、进塘、挂机、通知、托盘、收鱼、断线恢复并完成 Windows 验收",
+        "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
+        "2026-08-13",
+        "",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-ART-01",
+        "美术",
+        "桌面宠物与鱼塘视觉资源替换",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "提供猫咪宠物、鱼塘环境和基础视觉资源；其他 UI 先由程序使用通用资源",
+        "docs/planning/specs/Steam桌面宠物UI需求拆分.md",
+        "2026-08-13",
+        "",
+    ],
     # —— 2026-08-10 收尾验收：ARC / DP-C / OPS ——
     [
         "已实现",
@@ -238,30 +329,30 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-10",
     ],
     [
-        "已确认",
+        "已文档化",
         "STEAM-DESKTOP-EPIC",
         "产品规划",
         "Steam 桌面端独立游戏转型",
         "—",
         "v1.0-steam-desktop",
         "P0",
-        "Steam 独立游戏定位；Unity Windows 桌面助手；Steam 身份/Lobby；Node 权威服务；空鱼塘离线补算",
+        "规划已完成；实际 Unity 表现层拆分为 STEAM-DESKTOP-07，已完成子需求不重复开发",
         "docs/planning/specs/Steam桌面端独立游戏转型计划.md",
         "2026-08-11",
-        "",
+        "2026-08-13",
     ],
     [
-        "已确认",
+        "已文档化",
         "STEAM-DESKTOP-01",
         "产品规划",
-        "Steam 独立游戏定位与桌面助手信息架构",
+        "2D 多人社交桌面宠物定位、鱼塘场景与信息架构",
         "—",
         "v1.0-steam-desktop",
         "P0",
-        "上班族挂机、好友交流、低打扰通知；定义窗口/托盘/后台/主循环",
+        "规划已完成；桌面宠物、多人鱼塘、右键菜单与弹窗实现转入 STEAM-DESKTOP-07",
         "docs/planning/specs/Steam桌面端产品定位与信息架构.md",
         "2026-08-11",
-        "",
+        "2026-08-13",
     ],
     [
         "已实现",
@@ -423,6 +514,42 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
 
 # ENSURE 行状态优先于「总 spec」元信息同步（避免 phase2 总文档把子编号打回已确认）
 ENSURE_PLAN_IDS = {str(row[1]) for row in ENSURE_PLAN_ROWS}
+REMOVE_PLAN_IDS = {
+    "STEAM-DESKTOP-07",
+    "STEAM-DESKTOP-07A",
+    "STEAM-DESKTOP-07B",
+    "STEAM-DESKTOP-07C",
+    "STEAM-DESKTOP-07D",
+    "STEAM-DESKTOP-07E",
+    "STEAM-DESKTOP-07F",
+    "STEAM-UI-01",
+    "STEAM-UI-02",
+    "STEAM-UI-03",
+    "STEAM-UI-04",
+    "STEAM-UI-05",
+    "STEAM-UI-06",
+    "STEAM-UI-07",
+    "STEAM-UI-PROG-01",
+    "STEAM-UI-ART-01",
+    "STEAM-UI-PROG-02",
+    "STEAM-UI-ART-02",
+    "STEAM-UI-PROG-03",
+    "STEAM-UI-ART-03",
+    "STEAM-UI-PROG-04",
+    "STEAM-UI-ART-04",
+    "STEAM-UI-PROG-05",
+    "STEAM-UI-ART-05",
+    "STEAM-UI-PROG-06",
+    "STEAM-UI-ART-06",
+    "STEAM-UI-PROG-07",
+    "STEAM-UI-ART-07",
+}
+NORMALIZE_PLAN_TYPES = {
+    "UNITY-P0": "架构",
+    "UNITY-P1": "架构",
+    "UNITY-P2": "架构",
+    "UNITY-P3": "架构",
+}
 
 
 def is_metrics_workbook(path: Path) -> bool:
@@ -483,6 +610,20 @@ def ensure_plan_rows(workbook: openpyxl.Workbook) -> int:
         if len(row) > 1 and isinstance(row[1], str) and row[1].strip():
             id_to_row[row[1].strip()] = idx
 
+    rows_to_remove = [
+        idx
+        for idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2)
+        if len(row) > 1 and isinstance(row[1], str) and row[1].strip() in REMOVE_PLAN_IDS
+    ]
+    for existing in reversed(rows_to_remove):
+        ws.delete_rows(existing, 1)
+        changed += 1
+
+    id_to_row = {}
+    for idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        if len(row) > 1 and isinstance(row[1], str) and row[1].strip():
+            id_to_row[row[1].strip()] = idx
+
     for plan_row in ENSURE_PLAN_ROWS:
         plan_id = str(plan_row[1])
         existing = id_to_row.get(plan_id)
@@ -498,6 +639,16 @@ def ensure_plan_rows(workbook: openpyxl.Workbook) -> int:
             if cell.value != value:
                 cell.value = value
                 changed += 1
+
+    for row in ws.iter_rows(min_row=2):
+        if len(row) <= 2:
+            continue
+        if row[2].value == "Unity":
+            row[2].value = "架构"
+            changed += 1
+        elif row[2].value == "UI":
+            row[2].value = "功能"
+            changed += 1
     return changed
 
 
@@ -512,6 +663,18 @@ def update_workbook(path: Path) -> int:
         for row in ws.iter_rows(min_row=2):
             values = [cell.value for cell in row]
             plan_id = values[1] if len(values) > 1 and isinstance(values[1], str) else None
+            if plan_id in NORMALIZE_PLAN_TYPES and len(row) > 2:
+                type_cell = row[2]
+                normalized_type = NORMALIZE_PLAN_TYPES[plan_id]
+                if type_cell.value != normalized_type:
+                    type_cell.value = normalized_type
+                    changed += 1
+            elif len(row) > 2 and row[2].value == "Unity":
+                row[2].value = "架构"
+                changed += 1
+            elif len(row) > 2 and row[2].value == "UI":
+                row[2].value = "功能"
+                changed += 1
             # 子编号若在 ENSURE 中，不以总文档元信息覆盖状态
             if plan_id and plan_id in ENSURE_PLAN_IDS:
                 continue

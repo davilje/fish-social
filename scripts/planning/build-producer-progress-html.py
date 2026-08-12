@@ -41,6 +41,11 @@ def is_done_status(status: str) -> bool:
         return True
     return False
 
+
+def is_closed_status(status: str) -> bool:
+    """Treat completed reference/planning documents as closed for type cards."""
+    return is_done_status(status) or (status or "").strip() == "已文档化"
+
 # 千人运营阶梯：每阶依赖的计划编号；完成比例 = 已实现 / 所列编号
 CAPACITY_STAGES = [
     {
@@ -193,17 +198,14 @@ def bar_html(percent: int, tone: str = "ok") -> str:
     )
 
 
-def type_missing_html(items: list[dict]) -> str:
-    """Render the unfinished tasks hidden behind each type progress card."""
-    missing = [item for item in items if not is_done_status(item["status"])]
-    missing.sort(key=lambda item: (item["status"], item["priority"], item["id"]))
-    if not missing:
-        return '<p class="type-complete">该类型全部完成</p>'
-
+def type_items_html(items: list[dict]) -> str:
+    """Render every task, including completed planning and implementation items."""
+    ordered = sorted(items, key=lambda item: (item["status"], item["priority"], item["id"]))
     rows = []
-    for item in missing:
+    for item in ordered:
+        item_class = " type-item-done" if is_closed_status(item["status"]) else ""
         rows.append(
-            "<li>"
+            f'<li class="type-item{item_class}">'
             f'<code>{html.escape(item["id"])}</code> '
             f'{html.escape(item["name"])} '
             f'<em class="tag">{html.escape(item["status"])}</em>'
@@ -212,7 +214,7 @@ def type_missing_html(items: list[dict]) -> str:
         )
     return (
         '<details class="type-missing">'
-        f'<summary>还差 {len(missing)} 项未完成（点击展开）</summary>'
+        f'<summary>查看全部 {len(ordered)} 项（点击展开）</summary>'
         f'<ul>{"".join(rows)}</ul>'
         "</details>"
     )
@@ -346,7 +348,7 @@ def build_html(rows: list[dict]) -> str:
     type_blocks = []
     for t in sorted(by_type.keys(), key=lambda x: (-len(by_type[x]), x)):
         items = by_type[t]
-        d = sum(1 for x in items if is_done_status(x["status"]))
+        d = sum(1 for x in items if is_closed_status(x["status"]))
         p = pct(d, len(items))
         tone = "ok" if p >= 80 else ("mid" if p >= 40 else "low")
         type_blocks.append(
@@ -354,7 +356,7 @@ def build_html(rows: list[dict]) -> str:
             f'<div class="card-h"><strong>{html.escape(t)}</strong>'
             f'<span class="muted">{d}/{len(items)}</span></div>'
             f'{bar_html(p, tone)}'
-            f'{type_missing_html(items)}</div>'
+            f'{type_items_html(items)}</div>'
         )
 
     capacity_blocks = render_stage_blocks(by_id, CAPACITY_STAGES, "阶段")
@@ -569,6 +571,7 @@ header .sub {{ opacity: 0.85; margin-top: 0.4rem; font-size: 0.95rem; }}
 .type-missing summary {{ cursor: pointer; color: var(--accent); font-weight: 600; }}
 .type-missing ul {{ margin: 0.4rem 0 0 1.1rem; }}
 .type-missing li {{ margin: 0.2rem 0; }}
+.type-missing li.type-item-done {{ color: var(--ok); }}
 .type-complete {{ color: var(--ok); font-size: 0.86rem; margin-top: 0.6rem; }}
 .task-priority {{ color: var(--muted); font-size: 0.8rem; }}
 .tag {{ font-style: normal; color: var(--muted); font-size: 0.8rem; }}

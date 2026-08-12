@@ -1,5 +1,50 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-01-desktop-pet-ia] - 2026-08-13
+
+### 产品定位深化
+
+- 将 **STEAM-DESKTOP-01** 明确为“2D 多人社交桌面宠物”产品
+- 补充桌面宠物主视图、2D 鱼塘环境、同塘玩家宠物显示
+- 补充产品区域右键菜单和好友/背包/图鉴/设置弹窗结构
+- 补充启动、进塘、挂机、通知、弹窗、托盘和异常恢复主流程
+- 更新开发提示词：[steam-desktop-product-ia-dev.prompt.md](./prompts/steam-desktop-product-ia-dev.prompt.md)
+
+### [steam-desktop-07-pet-visual] - 2026-08-13
+
+### 开发拆分
+
+- 将 `STEAM-DESKTOP-EPIC` / `STEAM-DESKTOP-01` 拆分为 **STEAM-DESKTOP-07**
+- 新增桌面宠物、2D 多人鱼塘、同塘玩家宠物、右键菜单、弹窗和主流程验收范围
+- 新增开发提示词：[steam-desktop-pet-visual-dev.prompt.md](./prompts/steam-desktop-pet-visual-dev.prompt.md)
+- 明确复用已完成的 Steam 认证、Lobby、鱼塘会话、桌面壳和离线生态能力，不重复开发
+
+### 规划状态收口
+
+- `STEAM-DESKTOP-EPIC` 与 `STEAM-DESKTOP-01` 的产品规划文件标记为 **已文档化**
+- 实际开发任务统一转入 `STEAM-DESKTOP-07`
+- 看板类型统计将“已文档化”视为规划类项目已关闭，不再显示为未完成开发项
+
+### STEAM-DESKTOP-07 细分
+
+- 移除单独的“功能开发”分类项
+- 将 STEAM-DESKTOP-07 拆为六个独立“功能”项：07A～07F
+- 每个子项分别登记计划状态、依赖、验收范围和开发提示词
+
+### UI 任务线修正
+
+- 修正此前将“UI 功能拆分”和“程序 UI / 美术 UI 分工”混为一体的问题
+- UI 需求改为 `STEAM-UI-PROG-*` 与 `STEAM-UI-ART-*` 两类计划项
+- 程序 UI 负责 Unity 交互、状态绑定、Prefab 和弹窗生命周期
+- 美术 UI 负责视觉资源、图标、动画、布局规范和资源清单
+
+### UI 分类再次收口
+
+- 取消程序 UI / 美术 UI 一对一的 14 项拆分
+- 程序 UI 并入 `STEAM-DESKTOP-07A～07F` 的功能开发项
+- 新增 `STEAM-DESKTOP-ART-01`，统一承载猫咪、鱼塘和基础视觉资源替换
+- Unity `P0～P3` 统一归入 `架构`，不再单独形成 Unity 类型
+
 ### [bugfix-steam-lobby-permission-state] - 2026-08-13
 
 ### 排障登记
