@@ -48,8 +48,9 @@ namespace FishSocial.Desktop
             _notify = gameObject.AddComponent<DesktopNotificationService>();
             _router = gameObject.AddComponent<PanelRouter>();
             _steamAuth = gameObject.AddComponent<SteamAuthController>();
+            var steamTicketProvider = gameObject.AddComponent<SteamworksTicketProvider>();
             _steamAuth.Configure(
-                new UnavailableSteamTicketProvider(),
+                steamTicketProvider,
                 SteamAppId,
                 SteamAuthIdentity);
             var ui = gameObject.AddComponent<DesktopShellUi>();

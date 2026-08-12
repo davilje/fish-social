@@ -49,7 +49,7 @@ namespace FishSocial.Desktop.Auth
     public interface ISteamTicketProvider
     {
         bool IsSteamRunning { get; }
-        void RequestTicket(Action<byte[]> onSuccess, Action<string> onFailure);
+        void RequestTicket(string identity, Action<byte[]> onSuccess, Action<string> onFailure);
     }
 
     public sealed class SteamAuthController : MonoBehaviour
