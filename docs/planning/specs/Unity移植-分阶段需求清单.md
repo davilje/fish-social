@@ -3,7 +3,7 @@
 | 项 | 内容 |
 |----|------|
 | 功能名称 | Unity 移植分阶段需求 |
-| 状态 | **已实现**（P0～P2）；总目标受 `STEAM-DESKTOP-EPIC` 统筹 |
+| 状态 | **已定稿**（P0～P5 规划；其中 P0～P2 已实现，P3～P5 尚未实现）；总目标受 `STEAM-DESKTOP-EPIC` 统筹 |
 | 编号 | **UNITY-EPIC**（总表）· **UNITY-P0～P5**（阶段） |
 | 设计时间 | **2026-07-26** |
 | 完成时间 | P0：**2026-07-26** |
@@ -14,6 +14,66 @@
 
 > 本文件把参考蓝图拆成**可排期、可验收**的 Unity 技术子阶段。产品定位、Steam 账号/Lobby、桌面助手和并行顺序以 [`Steam桌面端独立游戏转型计划.md`](./Steam桌面端独立游戏转型计划.md) 为上位规格。  
 > 原则：权威玩法留在 `server/`；协议先冻结；场景在 Unity **重做**（不平移 RN View）。
+
+---
+
+## 0. UNITY-EPIC 产品规划定义
+
+### 0.1 背景与目标
+
+现有 Fish Social 的玩法权威、生态模拟和社交服务已经位于 Node 服务端，但原客户端主要依赖 Expo/RN，无法直接满足 Windows 桌面宠物、托盘挂机、Steam 身份和低打扰通知的产品形态。`UNITY-EPIC` 用于定义从 RN 客户端切换到 Unity Windows 客户端的完整产品规划边界。
+
+最终目标不是把服务端或运营平台搬进 Unity，而是交付一个可通过 Steam 发行的 Unity Windows 客户端：
+
+- 启动后完成 Steam 身份登录，并通过 JWT 连接现有 Node 服务。
+- 在 Unity 中呈现桌面宠物、2D 鱼塘、同塘玩家和钓鱼状态。
+- 支持窗口、托盘、通知、断线恢复和低打扰挂机。
+- 复用现有服务端的鱼塘、钓鱼、库存、社交和生态权威。
+- 在不依赖 Expo 的情况下完成“选塘 → 钓鱼 → 收鱼 → 背包/社交”的主循环。
+
+### 0.2 用户与场景
+
+| 用户 | 场景 | 期望结果 |
+|------|------|----------|
+| Steam 玩家 | 启动桌面端 | 自动检测 Steam，登录失败时给出可操作提示 |
+| 挂机玩家 | 关闭窗口或隐藏到托盘 | 合法钓鱼会话继续，后台降低渲染负载 |
+| 社交玩家 | 进入同一鱼塘 | 看到自己和其他玩家的宠物、昵称及基础钓鱼状态 |
+| 收鱼玩家 | 鱼咬钩后恢复窗口 | 以服务端状态为准完成收杆、领取和背包更新 |
+| 运维人员 | 查看客户端问题 | 在浏览器运营平台和 Node 日志中排查，不进入 Unity |
+
+### 0.3 产品规划范围
+
+| 规划块 | 对应阶段 | 出口 |
+|--------|----------|------|
+| 迁移决策与契约 | P0～P1 | Unity 与 Node 使用稳定、可追踪的协议和 DTO |
+| 最小可玩网络闭环 | P2 | Windows Development Build 可真实登录、进塘、钓鱼、收鱼和重连 |
+| Unity 正式表现层 | P3 | 等距鱼塘、宠物、钓位、状态反馈与多人排序可用 |
+| Unity 主循环与壳层 | P4 | 选塘、钓鱼、收鱼、背包/商店/社交不依赖 Expo |
+| 发行与运营 | P5 | Steam Windows 包、日志、回滚和 RN 退役策略明确 |
+
+### 0.4 角色、权限与权威边界
+
+- Unity 只提交玩家意图：登录、进塘、选位、开始/停止钓鱼、收鱼、聊天和查询。
+- Node 服务端唯一决定鱼塘权限、占位、钓鱼相位、咬钩结果、收鱼结果、库存、金币、每日额度和生态状态。
+- 客户端不得自行掷骰、生成鱼获、修改库存、伪造在线玩家或仅凭 `pondId` 绕过服务端权限。
+- Steam Lobby 只负责发现、邀请和 `pondId` 映射；鱼塘实体和玩家资产归 Node/SQLite 管理。
+- Admin、运营平台、数据报表和服务端运维继续留在浏览器/Node，不迁入 Unity。
+
+### 0.5 复用的 API / Socket 契约
+
+| 类型 | 范围 | 规则 |
+|------|------|------|
+| REST | `/api/auth/steam`、`/api/world`、players、inventory、shop/gear/codex、friends/DM、posts、leaderboard、client-logs | 优先复用现有接口；破坏性变更须升级 `protocolVersion` |
+| Socket C2S | `register_player`、`join_pond`、`leave_pond`、`start_fishing`、`stop_fishing`、`send_chat`、`accept_catch` | Unity 发送意图，不在客户端实现权威 FSM |
+| Socket S2C | `pond_snapshot`、`pond_user_*`、`fish_bite`、`fish_miss`、`inventory_updated`、`chat_message`、`error` | 以服务端事件驱动表现和恢复 |
+
+### 0.6 总体验收标准
+
+- [x] P0～P2 已按各阶段出口完成，并有对应 Unity/Node 联调记录。
+- [ ] Unity 正式场景具备可拖拽的 2D 鱼塘、钓位、宠物和多人状态表现。
+- [ ] Unity 主循环“选塘 → 钓鱼 → 收鱼 → 背包/社交”不依赖 Expo。
+- [ ] 托盘挂机、通知、断线恢复和服务端快照恢复通过 Windows 验收。
+- [ ] 可提交 Steam 的最小可靠 Windows 包、日志方案和协议兼容回滚方案完成。
 
 ---
 
@@ -66,7 +126,7 @@ UNITY-P5 发布与运维对齐        ← 已定稿
 |---|------|------|
 | 1 | 迁移决策记录 | [`../architecture/Unity迁移决策记录.md`](../architecture/Unity迁移决策记录.md) |
 | 2 | 契约冻结清单 v0 | [`../architecture/Unity契约冻结清单-v0.md`](../architecture/Unity契约冻结清单-v0.md) |
-| 3 | 仓库形态决议 | monorepo `unity/`；`mobile/` 仅紧急修复 |
+| 3 | 仓库形态决议 | monorepo `fish-social-unity/`；`mobile/` 仅紧急修复 |
 | 4 | 版本约定 | 文档 v0 + `protocolVersion` 基线 `1.0.0-draft` |
 
 ### 非目标
@@ -241,5 +301,6 @@ UNITY-P5 发布与运维对齐        ← 已定稿
 
 | 日期 | 说明 |
 |------|------|
+| 2026-08-13 | 完善 UNITY-EPIC 产品规划定义：补充背景目标、用户场景、阶段出口、权限边界、API/Socket 复用和总体验收；明确 P3～P5 尚未完成 |
 | 2026-07-26 | 自 REF-UNITY-1 拆分 UNITY-P0～P5；P0 **已确认**，P1～P5 **已定稿** |
 | 2026-07-26 | UNITY-P0 **已实现**：决策记录 + 契约冻结清单 v0；看板双页签（千人 / Unity） |

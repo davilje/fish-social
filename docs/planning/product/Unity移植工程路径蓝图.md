@@ -121,7 +121,7 @@ Unity 2D 路径天然覆盖 REF-SCENE-1 中的斜 45° / 方格地形 / 拖拽�
 |------|------|
 | 迁移决策记录 | 确认「Unity 客户端 + Node 服」；RN Web 是否并行维护 |
 | 契约清单 | 从 `shared/types.ts` 导出 Socket 事件表 + REST 路径表 |
-| 仓库形态 | 建议 monorepo 增加 `unity/`（或独立 repo + submodule）；`mobile/` 冻结或仅修 bug |
+| 仓库形态 | 采用 monorepo 的 `fish-social-unity/`（`mobile/` 冻结或仅修 bug） |
 | 非目标 | 本阶段不重写 FSM、不换 SQLite |
 
 **出口：** 事件/DTO 有版本号；团队认同切线。

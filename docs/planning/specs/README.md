@@ -57,7 +57,7 @@
 |------|------|--------|------|------|
 | [钓鱼世界与鱼塘场景优化策�?md](../product/钓鱼世界与鱼塘场景优化策�?md) | �?| �?| **已文档化** | REF-SCENE-1：批判与分档改法；立项时另写 FEAT |
 | [Unity移植工程路径蓝图.md](../product/Unity移植工程路径蓝图.md) | �?| �?| **已文档化** | REF-UNITY-1：Unity+Node 切线�?Phase 0�? |
-| [Unity移植-分阶段需求清�?md](./Unity移植-分阶段需求清�?md) | unity | P0/P1 | **已定�?*（P0 **已实�?*�?| UNITY-EPIC / P0～P5；下一可确�?P1 |
+| [Unity移植-分阶段需求清单.md](./Unity移植-分阶段需求清单.md) | unity-client | P0/P1 | **已定稿**（P0～P2 已实现，P3～P5 待开发） | UNITY-EPIC / P0～P5；产品规划与阶段验收总表 |
 | [Steam桌面端独立游戏转型计划.md](./Steam桌面端独立游戏转型计划.md) | v1.0-steam-desktop | P0/P1 | **已文档化** | STEAM-DESKTOP-EPIC；总计划完成，实际开发按子需求推进 |
 | [Steam桌面端产品定位与信息架构.md](./Steam桌面端产品定位与信息架构.md) | v1.0-steam-desktop | P0 | **已文档化** | STEAM-DESKTOP-01；规划完成，实际表现层转入 STEAM-DESKTOP-07 |
 | [Steam桌面宠物与多人鱼塘表现层.md](./Steam桌面宠物与多人鱼塘表现层.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-07；桌面宠物、2D 鱼塘、同塘玩家宠物、右键菜单与弹窗 |

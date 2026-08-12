@@ -25,7 +25,7 @@ OUT_DOCS_COPY = os.path.join(BASE, "docs", "planning", "策划进度看板.html"
 XLSX_DOCS_FALLBACK = os.path.join(BASE, "docs", "planning", "项目开发需求计划表.xlsx")
 
 DONE = frozenset({"已实现", "已实现（MVP）"})
-OPEN = frozenset({"评审中", "已确认", "未开始", "待开发"})
+OPEN = frozenset({"评审中", "已确认", "验收中", "未开始", "待开发"})
 SKIP = frozenset({"已废弃", "已定稿", "已文档化"})  # 不计入「待做进度」分母时单独说明
 
 
@@ -42,9 +42,12 @@ def is_done_status(status: str) -> bool:
     return False
 
 
-def is_closed_status(status: str) -> bool:
-    """Treat completed reference/planning documents as closed for type cards."""
-    return is_done_status(status) or (status or "").strip() == "已文档化"
+def is_type_closed(item: dict) -> bool:
+    """Close planning/reference rows without hiding unfinished implementation work."""
+    status = (item.get("status") or "").strip()
+    if is_done_status(status):
+        return True
+    return item.get("type") in {"产品规划", "参考"} and status in {"已定稿", "已文档化"}
 
 # 千人运营阶梯：每阶依赖的计划编号；完成比例 = 已实现 / 所列编号
 CAPACITY_STAGES = [
@@ -199,11 +202,11 @@ def bar_html(percent: int, tone: str = "ok") -> str:
 
 
 def type_items_html(items: list[dict]) -> str:
-    """Render every task, including completed planning and implementation items."""
+    """Render every task, styling closed planning or implemented items."""
     ordered = sorted(items, key=lambda item: (item["status"], item["priority"], item["id"]))
     rows = []
     for item in ordered:
-        item_class = " type-item-done" if is_closed_status(item["status"]) else ""
+        item_class = " type-item-done" if is_type_closed(item) else ""
         rows.append(
             f'<li class="type-item{item_class}">'
             f'<code>{html.escape(item["id"])}</code> '
@@ -348,13 +351,13 @@ def build_html(rows: list[dict]) -> str:
     type_blocks = []
     for t in sorted(by_type.keys(), key=lambda x: (-len(by_type[x]), x)):
         items = by_type[t]
-        d = sum(1 for x in items if is_closed_status(x["status"]))
+        d = sum(1 for x in items if is_type_closed(x))
         p = pct(d, len(items))
         tone = "ok" if p >= 80 else ("mid" if p >= 40 else "low")
         type_blocks.append(
             f'<div class="card">'
             f'<div class="card-h"><strong>{html.escape(t)}</strong>'
-            f'<span class="muted">{d}/{len(items)}</span></div>'
+            f'<span class="muted">进度 {d}/{len(items)}</span></div>'
             f'{bar_html(p, tone)}'
             f'{type_items_html(items)}</div>'
         )
@@ -672,7 +675,7 @@ footer {{
 <div class="overall-wrap">
   <div class="card-h"><strong>计划表总进度</strong><span class="muted">{done_n} 已实现 / {total} 项</span></div>
   {bar_html(overall, "ok" if overall >= 70 else "mid")}
-  <p class="muted small">不含「已废弃」时的完成度约 {overall}%。「已确认」= 设计好了、还在等开发。「已定稿」= 排队未开工。</p>
+  <p class="muted small">不含「已废弃」时的实现完成度约 {overall}%。「已确认」= 设计好了、还在等开发；「已定稿」= 需求文档已完成、等待开发实现。</p>
 </div>
 
 <div class="stats">
@@ -699,7 +702,8 @@ footer {{
 </section>
 
 <section class="section">
-  <h2>按类型：后端/数据/玩法分别做到哪</h2>
+  <h2>按类型：规划与需求进度</h2>
+  <p class="muted small">产品规划/参考类的已定稿或已文档化表示文档完成；架构和功能类只有已实现才计入开发进度。Unity 页签单独统计实际开发完成度。</p>
   <div class="grid2">
     {"".join(type_blocks)}
   </div>

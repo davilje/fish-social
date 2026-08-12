@@ -78,6 +78,7 @@ npm run planning:confirm -- v0.4.0
 | [pond-social-ui-optimize-dev.prompt.md](./pond-social-ui-optimize-dev.prompt.md) | FEAT-UI-1：鱼塘场景与社交列表 UI · **已实�?* |
 | [pond-overlay-backpack-social-dev.prompt.md](./pond-overlay-backpack-social-dev.prompt.md) | FEAT-UI-2：叠加层·榜·bot动态·背�?0�?· **已实�?* |
 | [unity-p0-decision-contract-dev.prompt.md](./unity-p0-decision-contract-dev.prompt.md) | UNITY-P0：决策与契约冻结 · **已实�?* |
+| [unity-epic-phase-roadmap-dev.prompt.md](./unity-epic-phase-roadmap-dev.prompt.md) | UNITY-EPIC：Unity 移植分阶段需求总表 · **已定稿，P0～P2 已实现，P3～P5 待开发** |
 | [steam-desktop-transition-dev.prompt.md](./steam-desktop-transition-dev.prompt.md) | STEAM-DESKTOP-EPIC：Steam 桌面端独立游戏转型与 Unity 并行开发 · **规划已完成，按子需求开发** |
 | [steam-desktop-product-ia-dev.prompt.md](./steam-desktop-product-ia-dev.prompt.md) | STEAM-DESKTOP-01：Steam 桌面端产品定位与信息架构 · **规划已完成，转入 STEAM-DESKTOP-07** |
 | [steam-desktop-07a-pet-home-dev.prompt.md](./steam-desktop-07a-pet-home-dev.prompt.md) | STEAM-DESKTOP-07A：桌面宠物主视图与鱼塘入口 · **已确认** |

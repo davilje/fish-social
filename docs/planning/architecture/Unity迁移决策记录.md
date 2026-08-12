@@ -27,7 +27,7 @@
 
 | 决策 | 结论 |
 |------|------|
-| 布局 | **monorepo** 增加 `unity/`（与 `mobile/`、`server/`、`shared/` 同仓） |
+| 布局 | **monorepo** 使用 `fish-social-unity/`（与 `mobile/`、`server/`、`shared/` 同仓） |
 | 不采用（默认） | 独立 Unity 仓库（除非后续发行合规强制拆仓，再另立决策） |
 | `shared/` | P1 起拆 `contracts`（wire）vs `rules`（仅 server）；本阶段仅冻结清单 |
 
@@ -71,4 +71,4 @@
 
 | 日期 | 说明 |
 |------|------|
-| 2026-07-26 | UNITY-P0 决策合入；确认 Unity+Node、monorepo `unity/`、`mobile/` 紧急修复策略、协议版本约定 |
+| 2026-07-26 | UNITY-P0 决策合入；确认 Unity+Node、monorepo `fish-social-unity/`、`mobile/` 紧急修复策略、协议版本约定 |
