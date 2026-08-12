@@ -62,6 +62,7 @@ namespace FishSocial.Desktop.Auth
         public SteamLoginError LastError { get; private set; } = SteamLoginError.None;
         public string PlayerId { get; private set; }
         public string AccessToken { get; private set; }
+        public string AuthenticatedPlayerId => IsAuthenticated ? PlayerId : null;
         public bool IsAuthenticated => State == SteamLoginState.Authenticated &&
                                        !string.IsNullOrEmpty(AccessToken);
         public event Action<SteamLoginState> StateChanged;
@@ -98,6 +99,26 @@ namespace FishSocial.Desktop.Auth
             AccessToken = null;
             LastError = SteamLoginError.None;
             SetState(SteamLoginState.SignedOut);
+        }
+
+        public IAuthenticatedApiClient CreateAuthenticatedApiClient()
+        {
+            return new AuthenticatedApiClient(this, serverBaseUrl);
+        }
+
+        public ISocialSocketClient CreateSocialSocketClient()
+        {
+            return new SocketIoSocialSocketClient(serverBaseUrl);
+        }
+
+        internal string GetAccessTokenForRequest()
+        {
+            return IsAuthenticated ? AccessToken : null;
+        }
+
+        internal string GetAccessTokenForSession()
+        {
+            return GetAccessTokenForRequest();
         }
 
         IEnumerator LoginRoutine()

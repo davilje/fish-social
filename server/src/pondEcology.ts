@@ -175,12 +175,26 @@ export function countActiveAnglers(pondId: string): number {
   ).length;
 }
 
+/** Local instant-fishing mode: keep a manually selected spot testable after depletion. */
+export function ensureInstantTestFishAtSpot(pondId: string, spotId: string): boolean {
+  if (listPondFishAtSpot(pondId, spotId).length > 0) return true;
+  const config = getPondStockConfig(pondId);
+  if (!config) return false;
+  const actualByQuality = countFishByQuality(pondId);
+  const fish = createSupplementFish(pondId, config, actualByQuality);
+  if (fish.spotId !== spotId) {
+    db.prepare('UPDATE pond_fish SET spot_id = ? WHERE id = ?').run(spotId, fish.id);
+  }
+  return true;
+}
+
 function insertPondFish(
   pondId: string,
   speciesId: FishSpeciesId,
   quality: FishQuality,
   logPrefix: 'seed' | 'supplement',
   bornAt: number = Date.now(),
+  forcedSpotId?: string,
 ): PondFishEntity {
   const species = getSpecies(speciesId);
   const sizeM = rollJuvenileSize(quality, species);
@@ -188,7 +202,7 @@ function insertPondFish(
   const escapeMultiplier = rollIndividualMultiplier();
   const biteBase = calcQualitySizeBiteRate(quality, sizeM);
   const escapeBase = calcSizeEscapeRate(sizeM);
-  const spotId = pickSpotForPond(pondId);
+  const spotId = forcedSpotId ?? pickSpotForPond(pondId);
   const fish: PondFishEntity = {
     id: randomUUID(),
     pondId,

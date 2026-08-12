@@ -1,5 +1,23 @@
 ?# 策划文档变更记录
 
+### [unity-p1-p2-network-thin-client] - 2026-08-12
+
+### 验收
+
+- **UNITY-P1 / UNITY-P2：已实现**
+- 完成 Unity C# 网络 DTO、Engine.IO/Socket.IO 薄客户端、JWT Socket 鉴权和鱼塘会话控制器。
+- 通过真实 Windows Development Build 验证进塘、选钓位、开始/收杆、咬钩、领取鱼获、背包更新、服务端重启和断线重连。
+- 本地 `FISHING_TEST_MODE=instant` 已验证快速钓鱼闭环，并补齐空钓位测试鱼，避免快速验收永久停留在 `waiting`。
+- Debug 记录与过程：[UNITY-P1-P2-验收与Debug记录-2026-08-12.md](./reports/UNITY-P1-P2-验收与Debug记录-2026-08-12.md)
+
+### [bugfix-desktop-exit-process] - 2026-08-12
+
+### 实现
+
+- 修复 Unity 桌面端关闭按钮被拦截后进程继续驻留的问题
+- 增加桌面端单实例互斥和托盘线程/图标退出清理
+- 登记 **BUG-21** 并同步计划表与进度看板
+
 ### [steam-desktop-05-offline-ecology] - 2026-08-12
 
 ### 实现
@@ -25,10 +43,12 @@
 - 固定调用链：`GetAuthTicketForWebApi` → HTTPS → `AuthenticateUserTicket` → `SteamID64` → 项目 JWT
 - 开发提示词：[steam-desktop-account-auth-dev.prompt.md](./prompts/steam-desktop-account-auth-dev.prompt.md)
 
-### 真实联调进展
+### 真实联调验收
 
-- 使用已配置的 Steam AppID、服务端 Publisher Web API Key 和测试账号完成首次真实登录。
-- 服务端日志确认 `steam_login_success`，首次登录成功创建 Steam 玩家档案；重复登录复用、JWT REST 和 Socket 回归待完成。
+- 使用已配置的 Steam AppID、服务端 Publisher Web API Key 和测试账号完成真实登录。
+- 首次登录创建 Steam 玩家档案，重复登录复用原 `playerId`。
+- JWT REST、Socket 鉴权、进塘、钓鱼、鱼获、背包更新和断线重连均验证通过。
+- **STEAM-DESKTOP-02：已实现**。
 
 ### [steam-desktop-04-shell] - 2026-08-11
 

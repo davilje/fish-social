@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3';
 
-export function migrateSteamAccounts(db: Database): { tableCreated: boolean } {
+export function migrateSteamAccounts(db: Database.Database): { tableCreated: boolean } {
   const existing = db
     .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='steam_accounts'")
     .get();

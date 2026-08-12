@@ -22,6 +22,7 @@ export const CRITICAL_ENV = {
   STEAM_APP_ID: 'Configured Steam AppID',
   STEAM_WEB_API_KEY: 'Server-only Steam Publisher Web API key',
   STEAM_AUTH_IDENTITY: 'Expected GetAuthTicketForWebApi identity',
+  FISHING_TEST_MODE: 'Local-only instant fishing test mode; ignored in production',
 } as const;
 
 export type CriticalEnvKey = keyof typeof CRITICAL_ENV;

@@ -104,9 +104,11 @@ async function testSocketAuthWiring(): Promise<void> {
   console.log('\n=== TC: socket auth wiring in index.ts ===');
   const { isAuthDisabled } = await import('../server/src/auth.js');
   const indexSrc = fs.readFileSync(path.join(rootDir, 'server/src/index.ts'), 'utf8');
+  const socketAuthSrc = fs.readFileSync(path.join(rootDir, 'server/src/socketAuth.ts'), 'utf8');
   const lifecycleSrc = fs.readFileSync(path.join(rootDir, 'server/src/socketLifecycle.ts'), 'utf8');
-  assert(indexSrc.includes('io.use((socket, next)'), 'socket auth middleware present');
-  assert(indexSrc.includes("verifyPlayerToken(token)"), 'socket verifies JWT');
+  assert(indexSrc.includes('io.use(socketAuthMiddleware)'), 'socket auth middleware wired');
+  assert(socketAuthSrc.includes('export function socketAuthMiddleware'), 'socket auth middleware present');
+  assert(socketAuthSrc.includes('verifyPlayerToken(token)'), 'socket verifies JWT');
   assert(lifecycleSrc.includes("resolveSocketPlayerId"), 'join uses auth playerId');
   assert(!isAuthDisabled(), 'verify runs with auth enabled');
 }

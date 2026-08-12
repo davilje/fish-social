@@ -16,6 +16,10 @@ namespace FishSocial.Desktop
         float _toastUntil;
         NotificationSettings _notifyDraft;
         SteamAuthController _steamAuth;
+        IAuthenticatedApiClient _authenticatedApi;
+        SocialPondSessionController _pondSession;
+        Text _pondStatus;
+        Text _inventoryStatus;
 
         public void Build(PanelRouter router)
         {
@@ -28,9 +32,23 @@ namespace FishSocial.Desktop
                 : null;
             if (_steamAuth != null)
             {
+                _authenticatedApi = _steamAuth.CreateAuthenticatedApiClient();
                 _steamAuth.StateChanged += OnSteamStateChanged;
                 _steamAuth.ErrorMessage += OnSteamError;
                 OnSteamStateChanged(_steamAuth.State);
+            }
+            _pondSession = DesktopAppBootstrap.Instance != null
+                ? DesktopAppBootstrap.Instance.PondSession
+                : null;
+            if (_pondSession != null)
+            {
+                _pondSession.StateChanged += OnPondStateChanged;
+                _pondSession.SnapshotChanged += OnPondSnapshot;
+                _pondSession.UserUpdated += OnPondUserUpdated;
+                _pondSession.FishBiteReceived += OnPondFishBite;
+                _pondSession.InventoryUpdated += OnInventoryUpdated;
+                _pondSession.ErrorReceived += OnPondError;
+                OnPondStateChanged(_pondSession.State, null);
             }
 
             var canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -96,6 +114,14 @@ namespace FishSocial.Desktop
                 return;
             _steamAuth.StateChanged -= OnSteamStateChanged;
             _steamAuth.ErrorMessage -= OnSteamError;
+            if (_pondSession == null)
+                return;
+            _pondSession.StateChanged -= OnPondStateChanged;
+            _pondSession.SnapshotChanged -= OnPondSnapshot;
+            _pondSession.UserUpdated -= OnPondUserUpdated;
+            _pondSession.FishBiteReceived -= OnPondFishBite;
+            _pondSession.InventoryUpdated -= OnInventoryUpdated;
+            _pondSession.ErrorReceived -= OnPondError;
         }
 
         void Update()
@@ -126,6 +152,8 @@ namespace FishSocial.Desktop
                 20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 120));
             CreateButton(go.transform, "SteamLogin", "Steam 登录",
                 new Vector2(32, -230), new Vector2(180, 46), BeginSteamLogin);
+            CreateButton(go.transform, "SessionCheck", "验证当前会话",
+                new Vector2(228, -230), new Vector2(200, 46), ValidateCurrentSession);
             CreateText(go.transform, "H3",
                 "关闭窗口 → 隐藏到托盘（进程继续）\n托盘菜单可「显示窗口」或「退出游戏」",
                 18, TextAnchor.UpperLeft, new Vector2(32, -305), new Vector2(900, 100));
@@ -147,6 +175,23 @@ namespace FishSocial.Desktop
                 return;
             }
             _steamAuth.BeginLogin();
+        }
+
+        void ValidateCurrentSession()
+        {
+            if (_authenticatedApi == null || !_authenticatedApi.CanUse)
+            {
+                ShowToast("请先完成 Steam 登录。");
+                return;
+            }
+            StartCoroutine(_authenticatedApi.GetInventory((ok, message) =>
+            {
+                if (ok)
+                {
+                    _statusLogin.text = "登录：会话验证成功";
+                }
+                ShowToast(message);
+            }));
         }
 
         void OnSteamStateChanged(SteamLoginState state)
@@ -183,14 +228,88 @@ namespace FishSocial.Desktop
             ShowToast(message);
         }
 
+        void OnPondStateChanged(SocialSocketState state, string message)
+        {
+            string label;
+            switch (state)
+            {
+                case SocialSocketState.Connecting: label = "连接中"; break;
+                case SocialSocketState.Connected: label = "在线"; break;
+                case SocialSocketState.Reconnecting: label = "重连中"; break;
+                case SocialSocketState.Failed: label = "连接失败"; break;
+                default: label = "断开"; break;
+            }
+            if (_statusConnection != null)
+                _statusConnection.text = "连接：" + label;
+            if (_pondStatus != null && !string.IsNullOrEmpty(message))
+                _pondStatus.text = "连接：" + label + "\n" + message;
+        }
+
+        void OnPondSnapshot(PondSnapshotDto snapshot)
+        {
+            if (_pondStatus == null)
+                return;
+            var count = snapshot?.users?.Length ?? 0;
+            _pondStatus.text = "连接：在线 · 鱼塘用户：" + count +
+                               "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle");
+        }
+
+        void OnPondUserUpdated(PondUserDto user)
+        {
+            if (_pondStatus != null)
+                _pondStatus.text = "连接：在线 · 当前 phase：" + (user?.fishingPhase ?? "idle") +
+                                   "\n当前钓位：" + (user?.spotId ?? "未选择");
+        }
+
+        void OnPondFishBite(PendingFishCatchDto fishCatch)
+        {
+            ShowToast("收到服务端咬钩事件，请点击“领取鱼获”。");
+        }
+
+        void OnInventoryUpdated(FishInventoryItemDto[] items)
+        {
+            var count = items?.Length ?? 0;
+            if (_inventoryStatus != null)
+            {
+                var text = "当前背包鱼获：" + count + " 条";
+                var shown = Mathf.Min(count, 5);
+                for (var i = 0; i < shown; i++)
+                {
+                    var item = items[i];
+                    text += "\n" + (i + 1) + ". " + item.speciesId + " · " +
+                            item.quality + " · " + item.sizeM.ToString("0.00") + "m";
+                }
+                _inventoryStatus.text = text;
+            }
+            ShowToast("背包已更新：" + count + " 条鱼获");
+        }
+
+        void OnPondError(string message)
+        {
+            ShowToast(message);
+        }
+
+        void ShowSocketResult(bool ok, string message)
+        {
+            ShowToast(message);
+        }
+
         void BuildPond(GameObject go)
         {
             CreateText(go.transform, "P1", "鱼塘场景（占位）", 32, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
-            CreateText(go.transform, "P2",
-                "未来可替换为真实等距鱼塘场景，无需重做窗口壳。\n\n当前状态：未连接 · 无会话 · 无真实鱼群数据。",
+            _pondStatus = CreateText(go.transform, "P2",
+                "未来可替换为真实等距鱼塘场景，无需重做窗口壳。\n\n连接：未连接 · 当前 phase：—",
                 20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 160));
-            CreateButton(go.transform, "SimBite", "模拟：鱼咬钩通知", new Vector2(32, -280), new Vector2(280, 48),
-                () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FishBite));
+            CreateButton(go.transform, "ConnectPond", "连接并进塘", new Vector2(32, -280), new Vector2(180, 46),
+                () => _pondSession?.ConnectAndJoin());
+            CreateButton(go.transform, "TakeSpot", "选择 1 号钓位", new Vector2(228, -280), new Vector2(190, 46),
+                () => _pondSession?.TakeFirstSpot(ShowSocketResult));
+            CreateButton(go.transform, "StartFishing", "开始钓鱼", new Vector2(434, -280), new Vector2(150, 46),
+                () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult));
+            CreateButton(go.transform, "StopFishing", "收杆", new Vector2(600, -280), new Vector2(150, 46),
+                () => _pondSession?.StopFishing(ShowSocketResult));
+            CreateButton(go.transform, "AcceptCatch", "领取鱼获", new Vector2(766, -280), new Vector2(150, 46),
+                () => _pondSession?.AcceptLatestCatch(ShowSocketResult));
         }
 
         void BuildFriends(GameObject go)
@@ -205,7 +324,7 @@ namespace FishSocial.Desktop
         void BuildCatch(GameObject go)
         {
             CreateText(go.transform, "C1", "鱼获 / 背包（占位）", 32, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
-            CreateText(go.transform, "C2", "不保存金币、库存、鱼获权威数据。本地仅窗口/通知偏好。", 20,
+            _inventoryStatus = CreateText(go.transform, "C2", "当前背包鱼获：尚未同步", 20,
                 TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 80));
         }
 

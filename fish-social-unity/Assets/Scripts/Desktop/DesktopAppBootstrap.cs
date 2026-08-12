@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 using FishSocial.Desktop.Auth;
 
@@ -18,8 +19,12 @@ namespace FishSocial.Desktop
         DesktopNotificationService _notify;
         PanelRouter _router;
         SteamAuthController _steamAuth;
+        SocialPondSessionController _pondSession;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _allowQuit;
+#if !UNITY_EDITOR
+        Mutex _singleInstanceMutex;
+#endif
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void EnsureBootstrap()
@@ -32,6 +37,22 @@ namespace FishSocial.Desktop
 
         void Awake()
         {
+#if !UNITY_EDITOR
+            bool created;
+            _singleInstanceMutex = new Mutex(
+                true,
+                "Local\\FishSocialDesktop-2713340",
+                out created);
+            if (!created)
+            {
+                Debug.LogWarning("[DesktopShell] another Fish Social instance is already running");
+                _singleInstanceMutex.Dispose();
+                _singleInstanceMutex = null;
+                _allowQuit = true;
+                Application.Quit();
+                return;
+            }
+#endif
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
@@ -53,6 +74,8 @@ namespace FishSocial.Desktop
                 steamTicketProvider,
                 SteamAppId,
                 SteamAuthIdentity);
+            _pondSession = gameObject.AddComponent<SocialPondSessionController>();
+            _pondSession.Configure(_steamAuth);
             var ui = gameObject.AddComponent<DesktopShellUi>();
 
             _tray.ShowRequested += () =>
@@ -80,10 +103,19 @@ namespace FishSocial.Desktop
         }
 
         public SteamAuthController SteamAuth => _steamAuth;
+        public SocialPondSessionController PondSession => _pondSession;
 
         void OnDestroy()
         {
             Application.wantsToQuit -= OnWantsToQuit;
+#if !UNITY_EDITOR
+            if (_singleInstanceMutex != null)
+            {
+                _singleInstanceMutex.ReleaseMutex();
+                _singleInstanceMutex.Dispose();
+                _singleInstanceMutex = null;
+            }
+#endif
         }
 
         bool OnWantsToQuit()
@@ -92,22 +124,10 @@ namespace FishSocial.Desktop
             // Always allow leaving Play Mode in Editor.
             return true;
 #else
-            if (_allowQuit)
-                return true;
-
-            // Close button → tray, keep process alive.
-            if (_tray != null && _tray.IsReady)
-            {
-                _window.HideToTray();
-                _session.NotifyAppHidden();
-            }
-            else
-            {
-                // Never leave the process invisible when the tray icon failed to initialize.
-                _window.Minimize();
-                Debug.LogWarning("[DesktopShell] tray not ready; minimized instead of hiding");
-            }
-            return false;
+            // The window close button must terminate the process. Hiding to
+            // tray remains an explicit action from the tray menu.
+            _allowQuit = true;
+            return true;
 #endif
         }
 

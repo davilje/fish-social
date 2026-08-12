@@ -58,6 +58,7 @@ npm run planning:confirm -- v0.4.0
 | [bugfix-pond-entry-stale-state-dev.prompt.md](./bugfix-pond-entry-stale-state-dev.prompt.md) | BUG-18：进塘首帧状态错误与演示降级 · **已实现** |
 | [bugfix-daily-quota-single-source-dev.prompt.md](./bugfix-daily-quota-single-source-dev.prompt.md) | BUG-19：每日额度单一口径重构 · **已实现** |
 | [bugfix-quota-remaining-display-regression-dev.prompt.md](./bugfix-quota-remaining-display-regression-dev.prompt.md) | BUG-20：进塘与钓鱼剩余展示回归 · **已实现** |
+| [bugfix-desktop-exit-process-dev.prompt.md](./bugfix-desktop-exit-process-dev.prompt.md) | BUG-21：桌面端关闭后进程残留 · **已实现** |
 | [metrics-hook-escape-counters-dev.prompt.md](./metrics-hook-escape-counters-dev.prompt.md) | D-L2-15：咬�?脱钩计数替代全量 tick |
 | [metrics-phase-transition-compact-dev.prompt.md](./metrics-phase-transition-compact-dev.prompt.md) | D-L2-16：相位跳转短�?f/t/c · **已实�?* |
 | [obs-log-noise-reduction-dev.prompt.md](./obs-log-noise-reduction-dev.prompt.md) | OBS-LOG-1：服务端日志降噪分层 · **已实�?* |

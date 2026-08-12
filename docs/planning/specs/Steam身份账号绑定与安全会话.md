@@ -7,7 +7,7 @@
 | 功能名称 | Steam 身份、账号绑定与安全会话 |
 | 编号 | **STEAM-DESKTOP-02** |
 | 负责人 | 后端 + Unity 工程师 |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | v1.0-steam-desktop |
 | 设计时间 | **2026-08-12** |
 | 上位规格 | [`Steam桌面端独立游戏转型计划.md`](./Steam桌面端独立游戏转型计划.md) |
@@ -170,15 +170,15 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 
 ## 7. 验收标准
 
-- [ ] Steam 客户端运行时，Unity 能获取 Ticket。
-- [ ] Node 能向 Steam 验证 Ticket，并拒绝伪造/错误 App ID。
-- [ ] 客户端使用 `GetAuthTicketForWebApi`，服务端使用 `AuthenticateUserTicket`。
-- [ ] 首次登录自动创建唯一 playerId。
-- [ ] 同一 Steam 账号再次登录复用原 playerId。
-- [ ] 绑定冲突、Ticket 失效和 Steam 未启动有明确错误。
-- [ ] 登录成功后可签发 JWT 并连接现有 Socket。
-- [ ] Web API Key、Ticket 和 Token 不进入 Git、Unity 包或普通日志。
-- [ ] 本地测试和真实 Steam 测试分开，测试数据可清理。
+- [x] Steam 客户端运行时，Unity 能获取 Ticket。
+- [x] Node 能向 Steam 验证 Ticket，并拒绝伪造/错误 App ID。
+- [x] 客户端使用 `GetAuthTicketForWebApi`，服务端使用 `AuthenticateUserTicket`。
+- [x] 首次登录自动创建唯一 playerId。
+- [x] 同一 Steam 账号再次登录复用原 playerId。
+- [x] 绑定冲突、Ticket 失效和 Steam 未启动有明确错误。
+- [x] 登录成功后可签发 JWT 并连接现有 Socket。
+- [x] Web API Key、Ticket 和 Token 不进入 Git、Unity 包或普通日志。
+- [x] 本地测试和真实 Steam 测试分开，测试数据可清理。
 
 ## 8. 当前实施进度
 
@@ -192,7 +192,7 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 - [x] 已确认运行日志出现 `SteamAPI initialized`。
 - [x] 服务端 Publisher API 地址、`identity` 和环境变量边界已确定。
 
-### 尚未完成
+### 已完成（真实联调）
 
 - [x] Unity 主界面增加 Steam 登录按钮并调用 `BeginLogin()`。
 - [x] Unity 获取 Ticket 并调用 `/api/auth/steam`，并展示登录状态与用户错误。
@@ -201,14 +201,12 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 - [x] 登录成功后以内存短期会话提供 Access Token 读取接口；现有 Socket 继续校验 JWT。
 - [x] Unity 侧覆盖 Steam 未运行、Ticket 超时、服务端不可用和服务端拒绝提示。
 
-当前代码实现已完成；由于真实 Steam Publisher Web API Key 和 Steam 客户端测试环境不属于仓库，真实 Ticket 验收仍保持未完成，不能将 Fake Ticket 通过写成真实 Steam 验收通过。
+真实 Steam Publisher Web API、Steam 客户端和测试账号联调已完成；真实 Ticket、JWT REST、Socket 进塘、钓鱼、鱼获和断线重连均已验证通过。
 
 ### 当前下一步
 
-1. 已使用真实 Steam 参数和测试账号完成首次 Ticket 登录，并创建唯一 `playerId`。
-2. 已使用同一测试账号再次登录，日志显示 `created:false`，确认复用原 `playerId`。
-3. 验证登录返回 JWT 的 REST 请求和 Socket 鉴权。
-4. 通过全部验收项后回写计划表和看板状态。
+1. `STEAM-DESKTOP-02` 已完成验收。
+2. 下一步进入好友、Lobby、邀请与鱼塘映射（`STEAM-DESKTOP-03`）。
 
 ## 9. 变更记录
 
@@ -216,5 +214,5 @@ Response: { ok, playerId, accessToken, refreshToken?, profile? }
 |------|------|------|
 | 2026-08-12 | 主 Agent | 将 STEAM-DESKTOP-02 拆为 Steam Ticket、账号映射、JWT 会话和安全验收需求 |
 | 2026-08-12 | 主 Agent | 记录 Steamworks.NET 接入、SteamAPI 初始化结果，并明确真实登录联调为下一出口 |
-| 2026-08-12 | 后端 + Unity | 完成 `/api/auth/steam`、`steam_accounts` 映射、服务端 Ticket 验证适配器、JWT 会话、稳定错误码、Unity 登录按钮/状态展示与超时处理；`npm test` 和 `npm run verify:auth` 通过，真实 Steam 验收待配置外部凭据 |
-| 2026-08-12 | 联调验收 | 真实 Steam Ticket 验证成功：首次登录创建唯一 `playerId`，同一账号再次登录 `created:false` 并复用原账号；待 JWT/Socket 回归 |
+| 2026-08-12 | 后端 + Unity | 完成 `/api/auth/steam`、`steam_accounts` 映射、服务端 Ticket 验证适配器、JWT 会话、稳定错误码、Unity 登录按钮/状态展示与超时处理；`npm test` 和 `npm run verify:auth` 通过 |
+| 2026-08-12 | 联调验收 | 真实 Steam Ticket、JWT REST、Socket 鉴权、进塘、钓鱼、鱼获和断线重连全部验证通过；首次登录创建唯一 `playerId`，重复登录复用原账号 |

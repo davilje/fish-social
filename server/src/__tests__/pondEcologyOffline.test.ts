@@ -40,7 +40,7 @@ describe('offline pond ecology', () => {
       Promise.resolve(ensurePondEcologyCurrent(pondId, wakeAt + POND_ECOSYSTEM_TICK_MS)),
       Promise.resolve(ensurePondEcologyCurrent(pondId, wakeAt + POND_ECOSYSTEM_TICK_MS)),
     ]);
-    expect(concurrent.filter((result) => result?.offlineMs > 0)).toHaveLength(1);
+    expect(concurrent.filter((result) => (result?.offlineMs ?? 0) > 0)).toHaveLength(1);
   });
 });
 

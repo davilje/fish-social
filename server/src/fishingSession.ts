@@ -23,10 +23,11 @@ import { getLockedPondFishIds } from './inventory.js';
 import { isCodexNewForPlayer } from './codex.js';
 import {
   getSpotBiteWeight,
+  ensureInstantTestFishAtSpot,
   isPondDepleted,
   listPondFishAtSpot,
 } from './pondEcology.js';
-import { getHookDurationScale } from './runtimeConfig.js';
+import { getHookDurationScale, isInstantFishingTestMode } from './runtimeConfig.js';
 
 export type BiteTickResult = { kind: 'none' } | { kind: 'scheduled' };
 
@@ -51,6 +52,9 @@ function listBiteCandidates(
   excludeIds: ReadonlySet<string>,
 ): PondFishEntity[] {
   if (isPondDepleted(pondId)) return [];
+  if (isInstantFishingTestMode()) {
+    ensureInstantTestFishAtSpot(pondId, spotId);
+  }
   return listPondFishAtSpot(pondId, spotId).filter((f) => !excludeIds.has(f.id));
 }
 
@@ -142,16 +146,18 @@ export function rollBiteHook(
   const baitBonus = baitBiteBonus(equippedBait, target.speciesId);
   const pBite = calcSingleFishBiteProbability(target, spotMultiplier, baitBonus);
 
-  if (Math.random() >= pBite) {
+  if (!isInstantFishingTestMode() && Math.random() >= pBite) {
     return { outcome: 'miss', reason: 'failed', sampledFish: target };
   }
 
   const tackleId = gear?.equippedTackle ?? 'basic';
   const escaped =
+    !isInstantFishingTestMode() &&
     Math.random() <
-    calcEffectiveEscapeRate(target.sizeM, tackleId, target.escapeMultiplier ?? 1.0);
+      calcEffectiveEscapeRate(target.sizeM, tackleId, target.escapeMultiplier ?? 1.0);
   const hookDurationMs = Math.round(
-    calcHookDurationMs(target.quality, target.sizeM, target.speciesId) * getHookDurationScale(),
+    (isInstantFishingTestMode() ? 1000 : calcHookDurationMs(target.quality, target.sizeM, target.speciesId)) *
+      getHookDurationScale(),
   );
 
   return { outcome: 'hooked', event: { fish: target, escaped, hookDurationMs } };

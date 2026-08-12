@@ -23,4 +23,6 @@ instead of relying on the local AppID file.
 ## Scope
 
 - Window modes, tray hide/exit, placeholder hub UI, notification prefs
-- No Steam / Socket.IO / real fishing data in this phase
+- Steamworks.NET initialization, Steam Ticket login and short-lived in-memory JWT
+- Authenticated REST session check and minimal authenticated Socket.IO pond-session path
+- No real fishing, friends, Lobby or Steam Relay business integration in this phase

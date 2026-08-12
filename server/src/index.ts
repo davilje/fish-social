@@ -6,7 +6,7 @@ import { Server } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '@fish-social/shared';
 import './db.js';
 import { installGlobalErrorHandlers, setFatalShutdownHandler } from './errorLog.js';
-import { assertAuthConfigured, isAuthDisabled, verifyPlayerToken } from './auth.js';
+import { assertAuthConfigured } from './auth.js';
 import { assertErasePepperConfigured } from './playerAnonymize.js';
 import { recoverPendingCatchLocksOnStartup } from './playerPondSession.js';
 import { cancelAll as cancelAllTimers } from './timerRegistry.js';
@@ -22,6 +22,8 @@ import { initOtelTracing, shutdownOtelTracing } from './otelTracing.js';
 import { closePostgresPool } from './postgresMetricsStore.js';
 import { flushPlayerPondSessionsOnShutdown } from './shutdownSessions.js';
 import { SERVER_STARTED_AT, getServerLifecycleInfo } from './serverLifecycle.js';
+import { socketAuthMiddleware } from './socketAuth.js';
+import { getBiteCheckMs, isInstantFishingTestMode } from './runtimeConfig.js';
 
 installGlobalErrorHandlers();
 
@@ -67,20 +69,7 @@ const app = createApp(projectRoot, io);
 const httpServer = createServer(app);
 io.attach(httpServer);
 
-io.use((socket, next) => {
-  if (isAuthDisabled()) return next();
-  const token = socket.handshake.auth?.token as string | undefined;
-  const payload = verifyPlayerToken(token);
-  if (!payload) {
-    logStructuredEvent('auth', 'auth_failed', {
-      reason: 'invalid_socket_token',
-      socketId: socket.id,
-    });
-    return next(new Error('unauthorized'));
-  }
-  socket.data.authPlayerId = payload.playerId;
-  next();
-});
+io.use(socketAuthMiddleware);
 
 function roomFanoutCount(pondId: string): number {
   return io.sockets.adapter.rooms.get(pondId)?.size ?? 0;
@@ -165,6 +154,9 @@ setFatalShutdownHandler((reason) => {
 
 function onServerReady() {
   console.log(`Fish Social server running on http://localhost:${PORT}`);
+  console.log(
+    `[fishing-test] instant=${isInstantFishingTestMode()} biteCheckMs=${getBiteCheckMs()}`,
+  );
   logStructuredEvent('startup', 'server_ready', { port: PORT, eventType: 'server_ready' });
   recordFishingMetric('server_start', {
     payload: {

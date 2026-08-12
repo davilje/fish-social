@@ -29,11 +29,20 @@ export function getBiteLambda(): number {
 }
 
 export function getBiteCheckMs(): number {
+  if (isInstantFishingTestMode()) return 1000;
   const val = getRuntimeNumber('FISH_BITE_CHECK_MS', FISH_BITE_CHECK_MS);
   if (!Number.isFinite(val) || val < FISH_BITE_CHECK_MS) {
     return FISH_BITE_CHECK_MS;
   }
   return val;
+}
+
+/**
+ * Local-only fishing test mode. It is deliberately environment-gated and
+ * cannot be enabled in production, so it never changes live game odds.
+ */
+export function isInstantFishingTestMode(): boolean {
+  return process.env.NODE_ENV !== 'production' && process.env.FISHING_TEST_MODE === 'instant';
 }
 
 export function getHookDurationScale(): number {

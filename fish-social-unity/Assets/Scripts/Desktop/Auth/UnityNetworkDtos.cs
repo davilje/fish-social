@@ -1,0 +1,135 @@
+using System;
+
+namespace FishSocial.Desktop.Auth
+{
+    public static class FishSocialProtocol
+    {
+        public const string Version = "1.0.0-draft";
+    }
+
+    public enum SocialSocketState
+    {
+        Disconnected,
+        Connecting,
+        Connected,
+        Reconnecting,
+        Failed,
+    }
+
+    [Serializable]
+    public sealed class JoinPondPayload
+    {
+        public string pondId;
+        public string nickname;
+        public string playerId;
+    }
+
+    [Serializable]
+    public sealed class StartFishingPayload
+    {
+        public string pondId;
+        public string spotId;
+    }
+
+    [Serializable]
+    public sealed class TakeSpotPayload
+    {
+        public string pondId;
+        public string spotId;
+    }
+
+    [Serializable]
+    public sealed class PondSnapshotDto
+    {
+        public PondConfigDto pond;
+        public PondUserDto[] users;
+        public ChatMessageDto[] messages;
+        public FishInventoryItemDto[] inventory;
+    }
+
+    [Serializable]
+    public sealed class PondConfigDto
+    {
+        public string id;
+        public string name;
+        public string regionId;
+        public FishingSpotDto[] spots;
+    }
+
+    [Serializable]
+    public sealed class FishingSpotDto
+    {
+        public string id;
+        public float x;
+        public float y;
+    }
+
+    [Serializable]
+    public sealed class PondUserDto
+    {
+        public string id;
+        public string playerId;
+        public string nickname;
+        public string spotId;
+        public string status;
+        public string fishingPhase;
+        public long fishingStartedAt;
+        public long sessionStartedAt;
+        public long todayFishingMs;
+        public long todayFishingBaseMs;
+        public long todayRemainingMs;
+        public long sessionFishingMs;
+        public bool isBot;
+    }
+
+    [Serializable]
+    public sealed class ChatMessageDto
+    {
+        public string id;
+        public string pondId;
+        public string userId;
+        public string nickname;
+        public string text;
+        public long createdAt;
+    }
+
+    [Serializable]
+    public sealed class PendingFishCatchDto
+    {
+        public string catchId;
+        public string pondFishId;
+        public string speciesId;
+        public string quality;
+        public float sizeM;
+        public int hookDurationMs;
+        public bool isCodexNew;
+    }
+
+    [Serializable]
+    public sealed class FishInventoryItemDto
+    {
+        public string id;
+        public string speciesId;
+        public string quality;
+        public float sizeM;
+        public long caughtAt;
+    }
+
+    [Serializable]
+    public sealed class JoinPondAckDto
+    {
+        public bool ok;
+        public string userId;
+        public string error;
+        public long todayFishingBaseMs;
+        public long todayRemainingMs;
+        public string quotaDateKey;
+    }
+
+    [Serializable]
+    public sealed class SocketActionAckDto
+    {
+        public bool ok;
+        public string error;
+    }
+}
