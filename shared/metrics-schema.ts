@@ -44,6 +44,7 @@ export const FISHING_METRIC_EVENTS: MetricEventSchema[] = [
   { eventType: 'bait_depleted', requiredFields: ['playerId', 'pondId'], optionalFields: ['baitId'], description: '鱼饵耗尽' },
   { eventType: 'server_start', requiredFields: [], optionalFields: ['pid', 'startedAt', 'reason'], description: '服务进程启动' },
   { eventType: 'server_stop', requiredFields: [], optionalFields: ['pid', 'uptimeSec', 'reason'], description: '服务进程优雅停机' },
+  { eventType: 'pond_ecology_catchup', requiredFields: ['pondId'], optionalFields: ['offlineMs', 'replaySteps', 'migrated', 'supplemented', 'durationMs', 'catchupCompacted'], description: '空鱼塘唤醒离线生态补算' },
 ];
 
 export function validateMetricPayload(eventType: string, payload: Record<string, unknown>): string[] {

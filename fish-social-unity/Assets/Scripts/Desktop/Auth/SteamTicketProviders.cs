@@ -11,7 +11,7 @@ namespace FishSocial.Desktop.Auth
     {
         public bool IsSteamRunning => false;
 
-        public void RequestTicket(Action<byte[]> onSuccess, Action<string> onFailure)
+        public void RequestTicket(string identity, Action<byte[]> onSuccess, Action<string> onFailure)
         {
             onFailure?.Invoke("Steamworks 尚未安装或 Steam 未启动。");
         }
@@ -31,7 +31,7 @@ namespace FishSocial.Desktop.Auth
             _ticket = System.Text.Encoding.UTF8.GetBytes(ticket);
         }
 
-        public void RequestTicket(Action<byte[]> onSuccess, Action<string> onFailure)
+        public void RequestTicket(string identity, Action<byte[]> onSuccess, Action<string> onFailure)
         {
             Debug.LogWarning("[SteamAuth] Using local fake ticket; real Steam validation is not covered.");
             onSuccess?.Invoke(_ticket);

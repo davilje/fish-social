@@ -43,6 +43,7 @@ import {
 } from './biteSessionCounters.js';
 import { shouldRejectHumanJoinPond } from './humanCapacity.js';
 import { allowSocketEvent } from './socketEventRateLimit.js';
+import { ensurePondEcologyCurrent } from './pondEcology.js';
 
 interface PondHandlerDeps {
   io: import('socket.io').Server<ClientToServerEvents, ServerToClientEvents>;
@@ -127,6 +128,17 @@ export function registerSocketPondHandlers(
       reason: 'join_pond_attempt',
     });
     ensurePlayer(authPlayerId, payload.nickname);
+    try {
+      ensurePondEcologyCurrent(payload.pondId);
+    } catch {
+      logStructuredEvent('pond_ecology', 'pond_ecology_catchup_failed', {
+        eventType: 'pond_ecology_catchup_failed',
+        pondId: payload.pondId,
+        playerId: authPlayerId,
+      });
+      ack?.({ ok: false, error: '鱼塘生态同步失败，请稍后重试' });
+      return;
+    }
     bindPlayer(authPlayerId, socket.id, socket.data.correlationId as string | undefined);
 
     const disconnected = findDisconnectedUserByPlayerId(payload.pondId, authPlayerId);

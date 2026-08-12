@@ -158,6 +158,7 @@ import { migrateBiteCheckInterval300s } from './migrations/bite_check_interval_3
 import { migratePondSupplementState } from './migrations/pond_supplement_state.js';
 import { migrateAbsoluteGrowthCurve } from './migrations/absolute_growth_curve.js';
 import { migratePondFishSpotId } from './migrations/pond_fish_spot_id.js';
+import { migratePondOfflineEcology } from './migrations/pond_offline_ecology.js';
 import { migrateBiteCheckInterval60s } from './migrations/bite_check_interval_60s.js';
 import { migrateFishingMetricsPlayerIdx } from './migrations/fishing_metrics_player_idx.js';
 import { migrateMetricsDedup } from './migrations/metrics_dedup.js';
@@ -235,6 +236,14 @@ const pondFishSpotId = migratePondFishSpotId(db);
 if (pondFishSpotId.columnAdded || pondFishSpotId.rowsBackfilled > 0) {
   console.log(
     `Migration v0.4.0: pond_fish.spot_id added, backfilled ${pondFishSpotId.rowsBackfilled} rows`,
+  );
+}
+
+const pondOfflineEcology = migratePondOfflineEcology(db);
+if (pondOfflineEcology.columnAdded || pondOfflineEcology.rowsBackfilled > 0) {
+  console.log(
+    `Migration v1.0-steam-desktop: pond_state.last_simulated_at added, ` +
+      `backfilled ${pondOfflineEcology.rowsBackfilled} rows`,
   );
 }
 

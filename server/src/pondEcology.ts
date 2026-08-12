@@ -8,6 +8,7 @@ import {
   PONDS,
   SPOT_BITE_WEIGHT_REFRESH_MS,
   FISH_MIGRATION_FRACTION,
+  FISH_MIGRATION_CHECK_MS,
   FISH_QUALITIES,
   calcEscapeGrowthSize,
   calcQualitySizeBiteRate,
@@ -34,7 +35,7 @@ import {
 
 import { db } from './db.js';
 import { listUsersInPond } from './gameState.js';
-import { isEcologyVerbose } from './fishingObservability.js';
+import { isEcologyVerbose, logStructuredEvent } from './fishingObservability.js';
 
 interface PondFishRow {
   id: string;
@@ -56,6 +57,7 @@ interface PondStateRow {
   last_weight_refresh: number;
   last_supplement_at: number;
   last_migration_at: number;
+  last_simulated_at: number;
 }
 
 function rowToEntity(row: PondFishRow): PondFishEntity {
@@ -91,13 +93,14 @@ const updateFishSizeStmt = db.prepare('UPDATE pond_fish SET size_m = ? WHERE id 
 const updateFishSpotStmt = db.prepare('UPDATE pond_fish SET spot_id = ? WHERE id = ?');
 
 const upsertPondStateStmt = db.prepare(`
-  INSERT INTO pond_state (pond_id, depleted_until, last_weight_refresh, last_supplement_at, last_migration_at)
-  VALUES (@pondId, @depletedUntil, @lastWeightRefresh, @lastSupplementAt, @lastMigrationAt)
+  INSERT INTO pond_state (pond_id, depleted_until, last_weight_refresh, last_supplement_at, last_migration_at, last_simulated_at)
+  VALUES (@pondId, @depletedUntil, @lastWeightRefresh, @lastSupplementAt, @lastMigrationAt, @lastSimulatedAt)
   ON CONFLICT(pond_id) DO UPDATE SET
     depleted_until = excluded.depleted_until,
     last_weight_refresh = excluded.last_weight_refresh,
     last_supplement_at = excluded.last_supplement_at,
-    last_migration_at = excluded.last_migration_at
+    last_migration_at = excluded.last_migration_at,
+    last_simulated_at = excluded.last_simulated_at
 `);
 
 const getPondStateStmt = db.prepare('SELECT * FROM pond_state WHERE pond_id = ?');
@@ -177,6 +180,7 @@ function insertPondFish(
   speciesId: FishSpeciesId,
   quality: FishQuality,
   logPrefix: 'seed' | 'supplement',
+  bornAt: number = Date.now(),
 ): PondFishEntity {
   const species = getSpecies(speciesId);
   const sizeM = rollJuvenileSize(quality, species);
@@ -185,8 +189,6 @@ function insertPondFish(
   const biteBase = calcQualitySizeBiteRate(quality, sizeM);
   const escapeBase = calcSizeEscapeRate(sizeM);
   const spotId = pickSpotForPond(pondId);
-  const bornAt = Date.now();
-
   const fish: PondFishEntity = {
     id: randomUUID(),
     pondId,
@@ -236,9 +238,10 @@ function createSupplementFish(
   pondId: string,
   config: PondStockConfig,
   actualByQuality: Record<FishQuality, number>,
+  bornAt: number = Date.now(),
 ): PondFishEntity {
   const quality = rollSupplementQuality(actualByQuality, config.maxPopulation);
-  return insertPondFish(pondId, pickSpecies(config), quality, 'supplement');
+  return insertPondFish(pondId, pickSpecies(config), quality, 'supplement', bornAt);
 }
 
 function seedPond(pondId: string, count: number): void {
@@ -256,10 +259,11 @@ function getPondStateOrDefault(pondId: string): PondStateRow {
     last_weight_refresh: state?.last_weight_refresh ?? 0,
     last_supplement_at: state?.last_supplement_at ?? 0,
     last_migration_at: state?.last_migration_at ?? 0,
+    last_simulated_at: state?.last_simulated_at ?? 0,
   };
 }
 
-function doSupplement(pondId: string, config: PondStockConfig): number {
+function doSupplement(pondId: string, config: PondStockConfig, bornAt: number = Date.now()): number {
   const currentCount = (countFishStmt.get(pondId) as { c: number }).c;
   const targetCount = Math.floor(config.maxPopulation * POND_SUPPLEMENT_TARGET_RATIO);
   const gap = Math.max(0, targetCount - currentCount);
@@ -272,13 +276,13 @@ function doSupplement(pondId: string, config: PondStockConfig): number {
 
   const actualByQuality = countFishByQuality(pondId);
   for (let i = 0; i < supplementN; i++) {
-    const added = createSupplementFish(pondId, config, actualByQuality);
+    const added = createSupplementFish(pondId, config, actualByQuality, bornAt);
     actualByQuality[added.quality] += 1;
   }
   return supplementN;
 }
 
-function migrateFishSpots(pondId: string): number {
+function migrateFishSpots(pondId: string, random: () => number = Math.random): number {
   const spotIds = getSpotIds(pondId);
   if (spotIds.length === 0) return 0;
 
@@ -289,8 +293,8 @@ function migrateFishSpots(pondId: string): number {
 
   let migrated = 0;
   for (const row of rows) {
-    if (Math.random() > FISH_MIGRATION_FRACTION) continue;
-    const newSpotId = pickMigrationSpot(spotIds, habitatWeights);
+    if (random() > FISH_MIGRATION_FRACTION) continue;
+    const newSpotId = pickMigrationSpot(spotIds, habitatWeights, random);
     if (newSpotId !== row.spot_id) {
       updateFishSpotStmt.run(newSpotId, row.id);
       migrated += 1;
@@ -323,6 +327,7 @@ function trySupplement(pondId: string, config: PondStockConfig, force = false): 
     lastWeightRefresh: state.last_weight_refresh,
     lastSupplementAt: Date.now(),
     lastMigrationAt: state.last_migration_at,
+    lastSimulatedAt: state.last_simulated_at,
   });
 
   if (supplementN > 0 && isEcologyVerbose()) {
@@ -333,7 +338,7 @@ function trySupplement(pondId: string, config: PondStockConfig, force = false): 
   return supplementN;
 }
 
-function refreshSpotWeights(pondId: string): void {
+function refreshSpotWeights(pondId: string, atMs: number = Date.now()): void {
   const pond = PONDS.find((p) => p.id === pondId);
   if (!pond) return;
 
@@ -349,9 +354,10 @@ function refreshSpotWeights(pondId: string): void {
   upsertPondStateStmt.run({
     pondId,
     depletedUntil: state.depleted_until,
-    lastWeightRefresh: Date.now(),
+    lastWeightRefresh: atMs,
     lastSupplementAt: state.last_supplement_at,
     lastMigrationAt: state.last_migration_at,
+    lastSimulatedAt: state.last_simulated_at,
   });
 }
 
@@ -371,6 +377,7 @@ export function initPondEcology(): void {
         lastWeightRefresh: 0,
         lastSupplementAt: Date.now(),
         lastMigrationAt: 0,
+        lastSimulatedAt: Date.now(),
       });
       refreshSpotWeights(pondId);
     } else if (
@@ -444,15 +451,14 @@ export function applyEscapeGrowthBonus(fishId: string): PondFishEntity | null {
   return rowToEntity(row);
 }
 
-function growAllFish(pondId: string): void {
-  const now = Date.now();
+function growAllFish(pondId: string, atMs: number = Date.now()): void {
   // PERF-02: compute then batch-write (caller holds per-pond txn)
   const updates: Array<{ id: string; sizeM: number }> = [];
   for (const row of listFishStmt.all(pondId) as PondFishRow[]) {
     const species = getSpecies(row.species_id as FishSpeciesId);
     const quality = row.quality as PondFishEntity['quality'];
     const birthSizeM = row.birth_size_m ?? row.size_m;
-    const newSize = growFishSizeV2(quality, species, row.size_m, birthSizeM, row.born_at, now);
+    const newSize = growFishSizeV2(quality, species, row.size_m, birthSizeM, row.born_at, atMs);
     if (newSize !== row.size_m) {
       updates.push({ id: row.id, sizeM: newSize });
     }
@@ -462,35 +468,40 @@ function growAllFish(pondId: string): void {
   }
 }
 
-export function tickPondEcology(pondId: string): void {
+export function tickPondEcology(
+  pondId: string,
+  atMs: number = Date.now(),
+  opts?: { activeAnglers?: number; random?: () => number },
+): void {
   const config = getPondStockConfig(pondId);
   if (!config) return;
 
   const state = getPondStateOrDefault(pondId);
-  if (Date.now() - state.last_weight_refresh >= SPOT_BITE_WEIGHT_REFRESH_MS) {
-    refreshSpotWeights(pondId);
+  const random = opts?.random ?? Math.random;
+  if (atMs - state.last_weight_refresh >= SPOT_BITE_WEIGHT_REFRESH_MS) {
+    refreshSpotWeights(pondId, atMs);
   }
 
-  const activeAnglers = countActiveAnglers(pondId);
+  const activeAnglers = opts?.activeAnglers ?? countActiveAnglers(pondId);
   const effectiveCheckMs = calcSupplementCheckMs(activeAnglers);
-  const now = Date.now();
 
-  if (now - state.last_supplement_at >= effectiveCheckMs) {
+  let supplementN = 0;
+  if (atMs - state.last_supplement_at >= effectiveCheckMs) {
     const currentCount = (countFishStmt.get(pondId) as { c: number }).c;
     const gap = Math.max(
       0,
       Math.floor(config.maxPopulation * POND_SUPPLEMENT_TARGET_RATIO) - currentCount,
     );
-    const supplementN = doSupplement(pondId, config);
-    const migrated = migrateFishSpots(pondId);
+    supplementN = doSupplement(pondId, config, atMs);
 
     const refreshed = getPondStateOrDefault(pondId);
     upsertPondStateStmt.run({
       pondId,
       depletedUntil: refreshed.depleted_until,
       lastWeightRefresh: refreshed.last_weight_refresh,
-      lastSupplementAt: now,
-      lastMigrationAt: now,
+      lastSupplementAt: atMs,
+      lastMigrationAt: refreshed.last_migration_at,
+      lastSimulatedAt: atMs,
     });
 
     if (supplementN > 0 && isEcologyVerbose()) {
@@ -498,17 +509,167 @@ export function tickPondEcology(pondId: string): void {
         `[pond supplement] ${pondId} +${supplementN} active=${activeAnglers} checkMs=${effectiveCheckMs} gap=${gap} now=${currentCount + supplementN}`,
       );
     }
+  }
+
+  let migrated = 0;
+  if (state.last_migration_at <= 0) {
+    // Initialize old/seeded ponds without replaying an event from Unix epoch.
+    const current = getPondStateOrDefault(pondId);
+    upsertPondStateStmt.run({
+      pondId,
+      depletedUntil: current.depleted_until,
+      lastWeightRefresh: current.last_weight_refresh,
+      lastSupplementAt: current.last_supplement_at,
+      lastMigrationAt: atMs,
+      lastSimulatedAt: atMs,
+    });
+  } else if (atMs - state.last_migration_at >= FISH_MIGRATION_CHECK_MS) {
+    migrated = migrateFishSpots(pondId, random);
+    const current = getPondStateOrDefault(pondId);
+    upsertPondStateStmt.run({
+      pondId,
+      depletedUntil: current.depleted_until,
+      lastWeightRefresh: current.last_weight_refresh,
+      lastSupplementAt: current.last_supplement_at,
+      lastMigrationAt: atMs,
+      lastSimulatedAt: atMs,
+    });
     if (migrated > 0 && isEcologyVerbose()) {
       console.log(`[pond migration] ${pondId} migrated=${migrated} active=${activeAnglers}`);
     }
   }
 
-  growAllFish(pondId);
+  growAllFish(pondId, atMs);
+  const current = getPondStateOrDefault(pondId);
+  upsertPondStateStmt.run({
+    pondId,
+    depletedUntil: current.depleted_until,
+    lastWeightRefresh: current.last_weight_refresh,
+    lastSupplementAt: current.last_supplement_at,
+    lastMigrationAt: current.last_migration_at,
+    lastSimulatedAt: atMs,
+  });
+}
+
+const OFFLINE_MAX_REPLAY_STEPS = Math.max(
+  1,
+  Number(process.env.POND_OFFLINE_MAX_REPLAY_STEPS ?? 96),
+);
+const OFFLINE_MAX_CATCHUP_MS = Math.max(
+  POND_ECOSYSTEM_TICK_MS,
+  Number(process.env.POND_OFFLINE_MAX_CATCHUP_MS ?? 7 * 24 * 60 * 60 * 1000),
+);
+
+function seededRandom(seed: string): () => number {
+  let value = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    value ^= seed.charCodeAt(i);
+    value = Math.imul(value, 16777619);
+  }
+  return () => {
+    value += 0x6d2b79f5;
+    let t = value;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export interface PondEcologyCatchupResult {
+  pondId: string;
+  offlineMs: number;
+  replaySteps: number;
+  migrated: number;
+  supplemented: number;
+  durationMs: number;
+  catchupCompacted: boolean;
+}
+
+export function ensurePondEcologyCurrent(
+  pondId: string,
+  atMs: number = Date.now(),
+): PondEcologyCatchupResult | null {
+  const startedAt = Date.now();
+  const result = db.transaction(() => {
+    const state = getPondStateOrDefault(pondId);
+    const baseline = state.last_simulated_at || Math.max(
+      state.last_weight_refresh,
+      state.last_supplement_at,
+      state.last_migration_at,
+    ) || atMs;
+    const offlineMs = Math.max(0, atMs - baseline);
+    let replaySteps = 0;
+    let migrated = 0;
+    let supplemented = 0;
+    let catchupCompacted = false;
+
+    if (offlineMs > 0) {
+      const requestedSteps = Math.ceil(offlineMs / POND_ECOSYSTEM_TICK_MS);
+      const replayMs = Math.min(offlineMs, OFFLINE_MAX_CATCHUP_MS);
+      const maxSteps = Math.min(OFFLINE_MAX_REPLAY_STEPS, Math.ceil(replayMs / POND_ECOSYSTEM_TICK_MS));
+      if (requestedSteps > maxSteps || offlineMs > OFFLINE_MAX_CATCHUP_MS) {
+        catchupCompacted = true;
+        const before = getPondStateOrDefault(pondId);
+        tickPondEcology(pondId, atMs, {
+          activeAnglers: 0,
+          random: seededRandom(`${pondId}:${atMs}:compacted`),
+        });
+        const after = getPondStateOrDefault(pondId);
+        migrated += after.last_migration_at > before.last_migration_at ? 1 : 0;
+        supplemented += after.last_supplement_at > before.last_supplement_at ? 1 : 0;
+        replaySteps = 1;
+      } else {
+        let cursor = baseline;
+        while (cursor < atMs && replaySteps < maxSteps) {
+          cursor = Math.min(atMs, cursor + POND_ECOSYSTEM_TICK_MS);
+          const before = getPondStateOrDefault(pondId);
+          tickPondEcology(pondId, cursor, {
+            activeAnglers: 0,
+            random: seededRandom(`${pondId}:${cursor}`),
+          });
+          const after = getPondStateOrDefault(pondId);
+          migrated += after.last_migration_at > before.last_migration_at ? 1 : 0;
+          supplemented += after.last_supplement_at > before.last_supplement_at ? 1 : 0;
+          replaySteps += 1;
+        }
+      }
+    } else {
+      // Keep the anchor initialized for old rows without replaying from epoch.
+      upsertPondStateStmt.run({
+        pondId,
+        depletedUntil: state.depleted_until,
+        lastWeightRefresh: state.last_weight_refresh,
+        lastSupplementAt: state.last_supplement_at,
+        lastMigrationAt: state.last_migration_at,
+        lastSimulatedAt: atMs,
+      });
+    }
+
+    return {
+      pondId,
+      offlineMs,
+      replaySteps,
+      migrated,
+      supplemented,
+      durationMs: Date.now() - startedAt,
+      catchupCompacted,
+    };
+  })();
+
+  logStructuredEvent('pond_ecology', 'pond_ecology_catchup', {
+    eventType: 'pond_ecology_catchup',
+    ...result,
+  });
+  return result;
 }
 
 export function tickAllPonds(): void {
-  // PERF-02: per-pond write txn — avoid locking the whole DB for all ponds
+  // PERF-05: empty ponds remain asleep; their state is caught up on wake.
   for (const pond of PONDS) {
+    const hasConnectedHuman = listUsersInPond(pond.id).some(
+      (user) => !user.isBot && user.fishingPhase !== 'disconnected',
+    );
+    if (!hasConnectedHuman) continue;
     db.transaction(() => {
       tickPondEcology(pond.id);
     })();

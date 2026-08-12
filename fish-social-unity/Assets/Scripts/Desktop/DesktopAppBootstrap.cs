@@ -8,6 +8,9 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopAppBootstrap : MonoBehaviour
     {
+        const string SteamAppId = "2713340";
+        const string SteamAuthIdentity = "fish-social-server-v1";
+
         public static DesktopAppBootstrap Instance { get; private set; }
 
         WindowManager _window;
@@ -45,7 +48,10 @@ namespace FishSocial.Desktop
             _notify = gameObject.AddComponent<DesktopNotificationService>();
             _router = gameObject.AddComponent<PanelRouter>();
             _steamAuth = gameObject.AddComponent<SteamAuthController>();
-            _steamAuth.Configure(new UnavailableSteamTicketProvider(), "");
+            _steamAuth.Configure(
+                new UnavailableSteamTicketProvider(),
+                SteamAppId,
+                SteamAuthIdentity);
             var ui = gameObject.AddComponent<DesktopShellUi>();
 
             _tray.ShowRequested += () =>

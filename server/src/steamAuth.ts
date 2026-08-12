@@ -93,11 +93,16 @@ export class SteamWebApiTicketVerifier implements SteamTicketVerifier {
   async verify(ticket: string, appId: string): Promise<SteamTicketIdentity> {
     const key = process.env.STEAM_WEB_API_KEY?.trim();
     if (!key) throw new SteamAuthError('STEAM_NOT_CONFIGURED', 'Steam 登录尚未配置', 503);
+    const identity = process.env.STEAM_AUTH_IDENTITY?.trim();
+    if (!identity) throw new SteamAuthError('STEAM_NOT_CONFIGURED', 'Steam 登录身份未配置', 503);
 
-    const url = new URL('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/');
+    const url = new URL(
+      'https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/',
+    );
     url.searchParams.set('key', key);
     url.searchParams.set('appid', appId);
     url.searchParams.set('ticket', ticket);
+    url.searchParams.set('identity', identity);
 
     let response: Response;
     try {

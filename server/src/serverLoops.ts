@@ -128,6 +128,7 @@ export function startLoops({ io, roomFanoutCount }: LoopDeps): void {
     const startedAt = Date.now();
     tickAllPonds();
     for (const pond of PONDS) {
+      if (roomFanoutCount(pond.id) === 0) continue;
       // PERF-01: emit ecology without buildSnapshot (no full user list)
       const ecology = getPondEcologySummary(pond.id);
       if (!ecology) continue;

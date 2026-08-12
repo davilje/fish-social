@@ -56,6 +56,7 @@ namespace FishSocial.Desktop.Auth
     {
         [SerializeField] string serverBaseUrl = "http://localhost:3001";
         [SerializeField] string steamAppId = "";
+        [SerializeField] string steamAuthIdentity = "fish-social-server-v1";
 
         public SteamLoginState State { get; private set; } = SteamLoginState.SignedOut;
         public SteamLoginError LastError { get; private set; } = SteamLoginError.None;
@@ -67,10 +68,16 @@ namespace FishSocial.Desktop.Auth
         ISteamTicketProvider _ticketProvider;
         Coroutine _loginRoutine;
 
-        public void Configure(ISteamTicketProvider ticketProvider, string appId)
+        public void Configure(
+            ISteamTicketProvider ticketProvider,
+            string appId,
+            string authIdentity = "fish-social-server-v1")
         {
             _ticketProvider = ticketProvider;
             steamAppId = appId ?? "";
+            steamAuthIdentity = string.IsNullOrWhiteSpace(authIdentity)
+                ? "fish-social-server-v1"
+                : authIdentity;
             SetState(SteamLoginState.SignedOut);
         }
 
@@ -110,6 +117,7 @@ namespace FishSocial.Desktop.Auth
             string ticketError = null;
             bool finished = false;
             _ticketProvider.RequestTicket(
+                steamAuthIdentity,
                 bytes => { ticket = bytes; finished = true; },
                 error => { ticketError = error; finished = true; });
             SetState(SteamLoginState.RequestingTicket);
@@ -127,7 +135,8 @@ namespace FishSocial.Desktop.Auth
             var payload = new SteamLoginRequest
             {
                 ticket = BytesToHex(ticket),
-                appId = steamAppId
+                appId = steamAppId,
+                identity = steamAuthIdentity
             };
             byte[] body = Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload));
             using (var request = new UnityWebRequest(serverBaseUrl.TrimEnd('/') + "/api/auth/steam", "POST"))
@@ -217,6 +226,7 @@ namespace FishSocial.Desktop.Auth
         {
             public string ticket;
             public string appId;
+            public string identity;
         }
     }
 }

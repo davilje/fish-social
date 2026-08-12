@@ -30,6 +30,7 @@ EVENTS = [
     ("B钓位鱼塘", "spot_release", "metrics", "释放钓位", "spotId\nreason", "{}", "P1", "已实现", "gameState.ts"),
     ("B钓位鱼塘", "pond_full_reject", "metrics", "鱼塘满", "pondId", "{}", "P1", "已实现", "gameState.ts"),
     ("B钓位鱼塘", "bot_evicted_for_human", "metrics", "踢 bot 腾位", "botUserId", "{}", "P1", "已实现", "gameState.ts"),
+    ("B钓位鱼塘", "pond_ecology_catchup", "日志", "空鱼塘唤醒时事务化补算生态", "pondId\nofflineMs\nreplaySteps\nmigrated\nsupplemented\ndurationMs\ncatchupCompacted", '{"catchupCompacted":false,"replaySteps":2}', "P1", "已实现", "pondEcology.ts"),
     ("C状态机", "fishing_phase_transition", "metrics+日志", "phase 变更；D-L2-16 metrics 仅短码 f/t/c；ADMIN-OBS-1.3 默认 bot 不落库（METRICS_BOT_PHASE=1 恢复）；日志仍用全称", "f\nt\nc", '{"f":4,"t":5,"c":"bite_hook"}', "P0", "已实现", "fishingObservability.ts"),
     ("C状态机", "phase_transition_invalid", "日志+metrics", "非法跳转；metrics 短码 f/t/c；日志可读全称", "f\nt\nc", '{"f":0,"t":5,"c":"bite_hook"}', "P1", "已实现", "fishingStateMachine.ts"),
     ("D咬钩产出", "bite_tick_miss", "metrics", "waiting 未咬钩（D-L2-15 默认不落库；METRICS_BITE_TICK_PERSIST=1）", "pondId", "{}", "P1", "已废弃默认", "fishingStateMachine.ts"),

@@ -67,11 +67,15 @@ export function calcSpotDestinationWeights(
   });
 }
 
-function weightedPickSpot(spotIds: string[], destWeights: number[]): string {
+function weightedPickSpot(
+  spotIds: string[],
+  destWeights: number[],
+  random: () => number = Math.random,
+): string {
   if (spotIds.length === 0) throw new Error('pickSpot: no spotIds');
   const total = destWeights.reduce((a, b) => a + b, 0);
   if (total <= 0) return spotIds[spotIds.length - 1]!;
-  let r = Math.random() * total;
+  let r = random() * total;
   for (let i = 0; i < spotIds.length; i++) {
     r -= destWeights[i]!;
     if (r <= 0) return spotIds[i]!;
@@ -83,18 +87,20 @@ function weightedPickSpot(spotIds: string[], destWeights: number[]): string {
 export function pickSpotForNewFish(
   spotIds: string[],
   habitatWeights: Record<string, number>,
+  random: () => number = Math.random,
 ): string {
   const weights = calcSpotDestinationWeights(spotIds, habitatWeights);
-  return weightedPickSpot(spotIds, weights);
+  return weightedPickSpot(spotIds, weights, random);
 }
 
 /** 迁徙目的地钓点 */
 export function pickMigrationSpot(
   spotIds: string[],
   habitatWeights: Record<string, number>,
+  random: () => number = Math.random,
 ): string {
   const weights = calcSpotDestinationWeights(spotIds, habitatWeights);
-  return weightedPickSpot(spotIds, weights);
+  return weightedPickSpot(spotIds, weights, random);
 }
 
 /** v0.3.2 D7：有效补充检查间隔（毫秒） */

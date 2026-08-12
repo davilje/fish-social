@@ -342,7 +342,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-12",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-05",
         "架构",
         "空鱼塘休眠与生态离线补算",
@@ -352,7 +352,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "lastSimulatedAt；鱼群迁移/成长补算；幂等唤醒；活跃鱼塘才运行高频 Tick",
         "docs/planning/specs/空鱼塘休眠与生态离线补算.md",
         "2026-08-11",
-        "",
+        "2026-08-12",
     ],
 ]
 
