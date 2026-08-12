@@ -1,7 +1,7 @@
 import type { Express } from 'express';
 import { randomUUID } from 'crypto';
 import type { Server } from 'socket.io';
-import { calcFishSellPrice } from '@fish-social/shared';
+import { calcFishSellPrice, PONDS } from '@fish-social/shared';
 import type {
   ClientToServerEvents,
   LeaderboardBoardType,
@@ -59,6 +59,35 @@ import {
   tryResolvePlayerId,
 } from './auth.js';
 import { resolveSocketByPlayer } from './sessionRegistry.js';
+import { db } from './db.js';
+
+const SOCIAL_LOBBY_GAME_VERSION = process.env.GAME_VERSION ?? '1.0-steam-desktop';
+const SOCIAL_LOBBY_PROTOCOL_VERSION = '1.0.0-draft';
+const socialLobbies = new Map<string, {
+  lobbyId: string;
+  ownerPlayerId: string;
+  pondId: string;
+  gameVersion: string;
+  protocolVersion: string;
+  createdAt: number;
+}>();
+
+// This registry is only the temporary Steam invitation/authorization layer.
+// It must never own pond lifecycle or pond ecology state; those remain in the
+// persistent pond/session modules and continue offline when no player is in a pond.
+
+function isSteamBoundPlayer(playerId: string): boolean {
+  const row = db.prepare(
+    'SELECT player_id FROM steam_accounts WHERE player_id = ? AND revoked_at IS NULL',
+  ).get(playerId) as { player_id?: string } | undefined;
+  return row?.player_id === playerId;
+}
+
+function validateLobbyVersions(body: { gameVersion?: unknown; protocolVersion?: unknown }): string | null {
+  if (body.gameVersion !== SOCIAL_LOBBY_GAME_VERSION) return 'LOBBY_GAME_VERSION_MISMATCH';
+  if (body.protocolVersion !== SOCIAL_LOBBY_PROTOCOL_VERSION) return 'LOBBY_PROTOCOL_VERSION_MISMATCH';
+  return null;
+}
 
 function mintPlayerId(): string {
   return `p_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
@@ -68,6 +97,87 @@ export function registerSocialRoutes(
   app: Express,
   io: Server<ClientToServerEvents, ServerToClientEvents>,
 ): void {
+  app.post('/api/social/lobby/create', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req);
+    const body = req.body as {
+      lobbyId?: unknown;
+      pondId?: unknown;
+      gameVersion?: unknown;
+      protocolVersion?: unknown;
+    };
+    if (!playerId || !isSteamBoundPlayer(playerId)) {
+      res.status(403).json({ ok: false, code: 'LOBBY_STEAM_BINDING_REQUIRED', error: '需要有效的 Steam 账号绑定' });
+      return;
+    }
+    if (typeof body.lobbyId !== 'string' || !/^\d{5,25}$/.test(body.lobbyId)) {
+      res.status(400).json({ ok: false, code: 'LOBBY_ID_INVALID', error: 'Lobby ID 无效' });
+      return;
+    }
+    const pondId = typeof body.pondId === 'string' ? body.pondId : '';
+    if (!PONDS.some((pond) => pond.id === pondId)) {
+      res.status(404).json({ ok: false, code: 'POND_NOT_FOUND', error: '鱼塘不存在' });
+      return;
+    }
+    const versionError = validateLobbyVersions(body);
+    if (versionError) {
+      res.status(409).json({ ok: false, code: versionError, error: 'Lobby 版本不兼容' });
+      return;
+    }
+    const lobby = {
+      lobbyId: body.lobbyId,
+      ownerPlayerId: playerId,
+      pondId,
+      gameVersion: SOCIAL_LOBBY_GAME_VERSION,
+      protocolVersion: SOCIAL_LOBBY_PROTOCOL_VERSION,
+      createdAt: Date.now(),
+    };
+    socialLobbies.set(lobby.lobbyId, lobby);
+    res.status(201).json({ ok: true, lobby });
+  });
+
+  app.post('/api/social/lobby/join', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req);
+    const body = req.body as {
+      lobbyId?: unknown;
+      gameVersion?: unknown;
+      protocolVersion?: unknown;
+    };
+    if (!playerId || !isSteamBoundPlayer(playerId)) {
+      res.status(403).json({ ok: false, code: 'LOBBY_STEAM_BINDING_REQUIRED', error: '需要有效的 Steam 账号绑定' });
+      return;
+    }
+    const lobbyId = typeof body.lobbyId === 'string' ? body.lobbyId : '';
+    const lobby = socialLobbies.get(lobbyId);
+    if (!lobby) {
+      res.status(404).json({ ok: false, code: 'LOBBY_NOT_FOUND', error: 'Lobby 不存在或已失效' });
+      return;
+    }
+    const versionError = validateLobbyVersions(body);
+    if (versionError) {
+      res.status(409).json({ ok: false, code: versionError, error: 'Lobby 版本不兼容' });
+      return;
+    }
+    res.json({ ok: true, lobby });
+  });
+
+  app.post('/api/social/lobby/close', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req);
+    const lobbyId = String((req.body as { lobbyId?: unknown }).lobbyId ?? '');
+    const lobby = socialLobbies.get(lobbyId);
+    if (!lobby) {
+      res.status(404).json({ ok: false, code: 'LOBBY_NOT_FOUND', error: 'Lobby 不存在或已失效' });
+      return;
+    }
+    if (lobby.ownerPlayerId !== playerId) {
+      res.status(403).json({ ok: false, code: 'LOBBY_OWNER_REQUIRED', error: '只有 Lobby 创建者可以关闭' });
+      return;
+    }
+    socialLobbies.delete(lobbyId);
+    // Closing a Steam Lobby only revokes future Lobby joins. It does not
+    // disconnect players, delete the pond, or stop offline ecology simulation.
+    res.json({ ok: true });
+  });
+
   /**
    * SEC-01 注册发 JWT：
    * - AUTH_DISABLED（仅 development）：旧行为，任意 playerId（含已有）可签 token

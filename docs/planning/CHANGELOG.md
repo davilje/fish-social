@@ -1,5 +1,21 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-03-social-lobby] - 2026-08-12
+
+### 策划
+
+- 新增 [Steam好友Lobby邀请与鱼塘映射.md](./specs/Steam好友Lobby邀请与鱼塘映射.md)（**已确认** / **STEAM-DESKTOP-03**）
+- 明确好友、Lobby、邀请、`pondId` 映射和 Node 权限校验边界
+- 明确先使用简化版功能 UI，后续可独立替换正式 UI，不重写社交业务逻辑
+- 开发提示词：[steam-desktop-social-lobby-dev.prompt.md](./prompts/steam-desktop-social-lobby-dev.prompt.md)
+- 架构复核：Lobby 关闭/房主离开不得删除或关闭 `pondId`；空鱼塘按 `last_simulated_at` 休眠与补算
+
+### 实现登记
+
+- 完成 Steam 好友、Lobby、邀请、版本校验和 `pondId` 映射实现。
+- 明确“离开 Lobby”与“离开鱼塘”分离：Lobby 关闭不删除鱼塘，空鱼塘继续离线积累。
+- 按要求跳过双 Steam 账号真实验收；当前记录代表实现完成，不代表双账号联调已通过。
+
 ### [unity-p1-p2-network-thin-client] - 2026-08-12
 
 ### 验收

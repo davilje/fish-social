@@ -1,6 +1,7 @@
 using System.Threading;
 using UnityEngine;
 using FishSocial.Desktop.Auth;
+using FishSocial.Desktop.Social;
 
 namespace FishSocial.Desktop
 {
@@ -20,6 +21,7 @@ namespace FishSocial.Desktop
         PanelRouter _router;
         SteamAuthController _steamAuth;
         SocialPondSessionController _pondSession;
+        SocialLobbyController _socialLobby;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _allowQuit;
 #if !UNITY_EDITOR
@@ -76,6 +78,9 @@ namespace FishSocial.Desktop
                 SteamAuthIdentity);
             _pondSession = gameObject.AddComponent<SocialPondSessionController>();
             _pondSession.Configure(_steamAuth);
+            var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
+            _socialLobby = gameObject.AddComponent<SocialLobbyController>();
+            _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter);
             var ui = gameObject.AddComponent<DesktopShellUi>();
 
             _tray.ShowRequested += () =>
@@ -104,6 +109,7 @@ namespace FishSocial.Desktop
 
         public SteamAuthController SteamAuth => _steamAuth;
         public SocialPondSessionController PondSession => _pondSession;
+        public SocialLobbyController SocialLobby => _socialLobby;
 
         void OnDestroy()
         {

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using FishSocial.Desktop.Auth;
+using FishSocial.Desktop.Social;
 
 namespace FishSocial.Desktop
 {
@@ -18,6 +19,7 @@ namespace FishSocial.Desktop
         SteamAuthController _steamAuth;
         IAuthenticatedApiClient _authenticatedApi;
         SocialPondSessionController _pondSession;
+        SocialLobbyController _socialLobby;
         Text _pondStatus;
         Text _inventoryStatus;
 
@@ -40,6 +42,9 @@ namespace FishSocial.Desktop
             _pondSession = DesktopAppBootstrap.Instance != null
                 ? DesktopAppBootstrap.Instance.PondSession
                 : null;
+            _socialLobby = DesktopAppBootstrap.Instance != null
+                ? DesktopAppBootstrap.Instance.SocialLobby
+                : null;
             if (_pondSession != null)
             {
                 _pondSession.StateChanged += OnPondStateChanged;
@@ -50,6 +55,8 @@ namespace FishSocial.Desktop
                 _pondSession.ErrorReceived += OnPondError;
                 OnPondStateChanged(_pondSession.State, null);
             }
+            if (_socialLobby != null)
+                _socialLobby.Error += OnSocialLobbyError;
 
             var canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasGo.transform.SetParent(transform, false);
@@ -122,6 +129,8 @@ namespace FishSocial.Desktop
             _pondSession.FishBiteReceived -= OnPondFishBite;
             _pondSession.InventoryUpdated -= OnInventoryUpdated;
             _pondSession.ErrorReceived -= OnPondError;
+            if (_socialLobby != null)
+                _socialLobby.Error -= OnSocialLobbyError;
         }
 
         void Update()
@@ -289,6 +298,11 @@ namespace FishSocial.Desktop
             ShowToast(message);
         }
 
+        void OnSocialLobbyError(string message)
+        {
+            ShowToast(message);
+        }
+
         void ShowSocketResult(bool ok, string message)
         {
             ShowToast(message);
@@ -314,11 +328,45 @@ namespace FishSocial.Desktop
 
         void BuildFriends(GameObject go)
         {
-            CreateText(go.transform, "F1", "好友 / 聊天（占位）", 32, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
-            CreateText(go.transform, "F2", "不接 Steam Lobby / 真实聊天。仅入口与通知边界。", 20,
-                TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 80));
-            CreateButton(go.transform, "SimInvite", "模拟：好友邀请", new Vector2(32, -220), new Vector2(280, 48),
-                () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FriendInvite));
+            CreateText(go.transform, "F1", "好友 / Lobby", 32, TextAnchor.UpperLeft,
+                new Vector2(32, -32), new Vector2(600, 48));
+            var friendsText = CreateText(go.transform, "FriendsPanel",
+                "好友列表尚未加载。", 18, TextAnchor.UpperLeft,
+                new Vector2(32, -100), new Vector2(450, 300));
+            var lobbyText = CreateText(go.transform, "LobbyPanel",
+                "Lobby 状态：未登录", 18, TextAnchor.UpperLeft,
+                new Vector2(520, -100), new Vector2(450, 220));
+            if (_socialLobby != null)
+            {
+                go.AddComponent<FriendsPanel>().Bind(_socialLobby, friendsText);
+                go.AddComponent<LobbyPanel>().Bind(_socialLobby, lobbyText);
+            }
+            CreateButton(go.transform, "RefreshFriends", "刷新好友",
+                new Vector2(32, -430), new Vector2(160, 46),
+                () => _socialLobby?.RefreshFriends());
+            CreateButton(go.transform, "CreateLobby", "创建 Lobby",
+                new Vector2(204, -430), new Vector2(160, 46),
+                () => _socialLobby?.CreateLobby("pond-calm"));
+            CreateButton(go.transform, "InviteFirstFriend", "邀请第一位好友",
+                new Vector2(376, -430), new Vector2(190, 46),
+                InviteFirstFriend);
+            CreateButton(go.transform, "CloseLobby", "关闭 Lobby",
+                new Vector2(578, -430), new Vector2(160, 46),
+                () => _socialLobby?.CloseLobby());
+            CreateButton(go.transform, "LeaveLobby", "离开 Lobby",
+                new Vector2(750, -430), new Vector2(160, 46),
+                () => _socialLobby?.LeaveLobby());
+        }
+
+        void InviteFirstFriend()
+        {
+            if (_socialLobby == null || _socialLobby.Friends == null ||
+                _socialLobby.Friends.Count == 0)
+            {
+                ShowToast("请先刷新好友列表。");
+                return;
+            }
+            _socialLobby.InviteFriend(_socialLobby.Friends[0].steamId64);
         }
 
         void BuildCatch(GameObject go)
