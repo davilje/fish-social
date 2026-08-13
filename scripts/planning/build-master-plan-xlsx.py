@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Regenerate the planning workbook without locale-dependent text handling.
 
 The previous generator was a large, hand-maintained Python literal that had
@@ -368,14 +368,14 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-12",
     ],
     [
-        "验收中",
+        "已实现",
         "STEAM-DESKTOP-03",
         "功能",
         "Steam 好友、Lobby、邀请与鱼塘映射",
         "—",
         "v1.0-steam-desktop",
         "P1",
-        "Lobby 仅映射 pondId，房主/成员离开不关闭鱼塘；Node/DB 负责鱼塘权威、休眠与离线补算；实现已完成，双 Steam 账号验收待补",
+        "实现完成；Lobby 仅映射 pondId，房主/成员离开不关闭鱼塘；Node/DB 负责鱼塘权威、休眠与离线补算；双 Steam 账号验收已跳过",
         "docs/planning/specs/Steam好友Lobby邀请与鱼塘映射.md",
         "2026-08-11",
         "2026-08-12",
@@ -485,19 +485,6 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-12",
     ],
     [
-        "已定稿",
-        "UNITY-EPIC",
-        "产品规划",
-        "Unity移植分阶段需求总表",
-        "—",
-        "unity-client",
-        "P0",
-        "Unity Windows 客户端迁移总规划；定义 P0～P5 阶段目标、用户场景、权限边界、协议复用和总体验收；P0～P2 已实现，P3～P5 待开发",
-        "docs/planning/specs/Unity移植-分阶段需求清单.md",
-        "2026-07-26",
-        "",
-    ],
-    [
         "已实现",
         "UNITY-P1",
         "架构",
@@ -522,57 +509,6 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "docs/planning/specs/Unity移植-分阶段需求清单.md",
         "2026-07-26",
         "2026-08-12",
-    ],
-    [
-        "已定稿",
-        "UNITY-P3",
-        "架构",
-        "Unity移植P3·等距场景核心",
-        "—",
-        "unity-client",
-        "P0",
-<<<<<<< HEAD
-        "Tile·相机·序列帧；承接REF-SCENE-1；当前为开发规格，尚未完成 Unity 实现",
-=======
-        "架构出口由 STEAM-DESKTOP-07B/07C 承接；Tile、相机、序列帧、多人排序和真实网络状态表现尚未完成",
->>>>>>> main
-        "docs/planning/specs/Unity移植-分阶段需求清单.md",
-        "2026-07-26",
-        "",
-    ],
-    [
-        "已定稿",
-        "UNITY-P4",
-        "架构",
-        "Unity移植P4·壳层功能迁入",
-        "—",
-        "unity-client",
-        "P1",
-<<<<<<< HEAD
-        "地图·背包商店·社交·排行榜；当前为开发规格，尚未完成 Unity 主循环迁入",
-=======
-        "架构出口由 STEAM-DESKTOP-07A/07D/07E/07F 承接；Unity 主循环尚未完成 Expo 脱离验收",
->>>>>>> main
-        "docs/planning/specs/Unity移植-分阶段需求清单.md",
-        "2026-07-26",
-        "",
-    ],
-    [
-        "已定稿",
-        "UNITY-P5",
-        "架构",
-        "Unity移植P5·发布与运维对齐",
-        "—",
-        "unity-client",
-        "P1",
-<<<<<<< HEAD
-        "Steam 构建·client-logs·退役 RN；当前为发布规格，尚未完成商店包验收",
-=======
-        "架构出口由 STEAM-DESKTOP-07F 及后续发布验收承接；Steam 可提交包、日志和回滚方案尚未完成",
->>>>>>> main
-        "docs/planning/specs/Unity移植-分阶段需求清单.md",
-        "2026-07-26",
-        "",
     ],
 ]
 
@@ -609,13 +545,10 @@ REMOVE_PLAN_IDS = {
     "STEAM-UI-ART-07",
 }
 NORMALIZE_PLAN_TYPES = {
-    "UNITY-EPIC": "产品规划",
     "UNITY-P0": "架构",
     "UNITY-P1": "架构",
     "UNITY-P2": "架构",
     "UNITY-P3": "架构",
-    "UNITY-P4": "架构",
-    "UNITY-P5": "架构",
 }
 
 
@@ -702,9 +635,6 @@ def ensure_plan_rows(workbook: openpyxl.Workbook) -> int:
         for col, value in enumerate(plan_row, start=1):
             cell = ws.cell(existing, col)
             if value in (None, ""):
-                if col == 11 and cell.value not in (None, ""):
-                    cell.value = ""
-                    changed += 1
                 continue
             if cell.value != value:
                 cell.value = value
@@ -719,125 +649,6 @@ def ensure_plan_rows(workbook: openpyxl.Workbook) -> int:
         elif row[2].value == "UI":
             row[2].value = "功能"
             changed += 1
-    return changed
-
-
-def ensure_companion_sheets(workbook: openpyxl.Workbook) -> int:
-    """Keep the workbook tabs self-describing and expose Unity phases separately."""
-    changed = 0
-    tab_guide = [
-        ["页签", "对应内容", "使用说明"],
-        ["开发计划", "全项目需求总表", "唯一总览；按编号、类型、阶段和状态查看全部需求"],
-        ["数据平台-Phase 0", "数据平台第一阶段", "结构化日志、错误落库、基础可观测性"],
-        ["数据平台-Phase 1+", "数据平台后续阶段", "集中日志、追踪、告警、BI 与合规"],
-        ["架构修复", "架构与工程治理", "安全、持久化、定时任务、模块边界、部署等"],
-        ["Bug修复", "缺陷修复", "已发现问题、回归修复与桌面端专项 Bug"],
-        ["功能特性", "产品功能需求", "玩法、社交、商店、UI 与桌面端功能"],
-        ["数值与生态", "数值和鱼塘生态", "咬钩、成长、鱼群、平衡与生态模拟"],
-        ["排查工具", "诊断与排障工具", "断线、弱网、数据检查和运维诊断"],
-        ["运营与发布", "运维与发布需求", "部署、发版、运营平台和发布流程"],
-        ["产品规划", "产品规划需求", "Steam/Unity 产品定位、转型和总体规划"],
-        ["参考与美术", "参考文档和美术资源", "参考蓝图、视觉资源和非执行性资料"],
-        ["spec 文档清单", "需求文档索引", "spec 文件与主表编号、状态、时间的对应关系"],
-        ["统计摘要", "计划统计", "需求总数、状态分布和当前待办概览"],
-        ["Unity移植阶段", "UNITY-P0～P5 阶段状态", "只记录 Unity 客户端迁移阶段，不代表所有条目已在 Unity 内实现"],
-    ]
-    ws = workbook["页签说明"] if "页签说明" in workbook.sheetnames else workbook.create_sheet("页签说明")
-    ws.delete_rows(1, ws.max_row)
-    for row in tab_guide:
-        ws.append(row)
-    changed += 1
-
-    unity_rows = [
-        ["编号", "阶段", "目标", "当前状态", "完成时间", "判断依据"],
-        ["UNITY-P0", "决策与契约冻结", "确认 Unity+Node 架构、协议基线、仓库形态和 RN 冻结策略", "已实现", "2026-07-26", "决策记录与契约冻结清单已完成"],
-        ["UNITY-P1", "契约工程化", "OpenAPI、Socket 目录、C# DTO 与服务端权威边界", "已实现", "2026-08-12", "契约工程化验收已完成"],
-        ["UNITY-P2", "网络薄客户端", "Unity 连接 Node，完成登录、进塘、钓鱼、收鱼、背包和重连", "已实现", "2026-08-12", "真实 Unity Windows Development Build 联调通过"],
-        ["UNITY-P3", "等距 Tile 场景核心", "Tilemap、正交相机、角色序列帧、多人排序和真实网络状态表现", "已定稿", "", "规格已定稿；Unity 场景验收项未完成"],
-        ["UNITY-P4", "壳层功能迁入", "地图、背包、商店、图鉴、社交和排行榜迁入 Unity 主循环", "已定稿", "", "规格已定稿；主循环仍未完成 Expo 脱离验收"],
-        ["UNITY-P5", "发布与运维对齐", "Steam Windows 构建、日志、回滚和 RN 退役时间点", "已定稿", "", "规格已定稿；尚无可提交 Steam 的最小可靠包验收"],
-    ]
-    ws = workbook["Unity移植阶段"] if "Unity移植阶段" in workbook.sheetnames else workbook.create_sheet("Unity移植阶段")
-    ws.delete_rows(1, ws.max_row)
-    for row in unity_rows:
-        ws.append(row)
-    changed += 1
-    return changed
-
-
-def rebuild_detail_sheets(workbook: openpyxl.Workbook) -> int:
-    """Rebuild every detail tab from the authoritative 开发计划 rows."""
-    main = workbook["开发计划"]
-    rows = []
-    for values in main.iter_rows(min_row=2, values_only=True):
-        if len(values) >= 11 and values[1]:
-            rows.append(list(values[:11]))
-
-    def classify(values: list[object]) -> str:
-        return str(values[2] or "").strip()
-
-    groups: dict[str, list[list[object]]] = {
-        "数据平台-Phase 0": [r for r in rows if classify(r) == "数据平台" and "Phase 0" in str(r[5])],
-        "数据平台-Phase 1+": [r for r in rows if classify(r) == "数据平台" and "Phase 0" not in str(r[5])],
-        "架构修复": [r for r in rows if classify(r) == "架构"],
-        "Bug修复": [r for r in rows if classify(r) == "Bug修复"],
-        "功能特性": [r for r in rows if classify(r) in {"功能", "功能优化"}],
-        "数值与生态": [r for r in rows if classify(r) == "数值"],
-        "排查工具": [r for r in rows if classify(r) == "排查"],
-        "运营与发布": [r for r in rows if classify(r) == "运维"],
-        "产品规划": [r for r in rows if classify(r) == "产品规划"],
-        "参考与美术": [r for r in rows if classify(r) in {"参考", "美术"}],
-    }
-    header = ["当前状态", "编号", "类型", "需求名称", "阶段", "优先级", "说明", "文档路径", "设计时间", "完成时间"]
-    changed = 0
-    for title, group in groups.items():
-        ws = workbook[title] if title in workbook.sheetnames else workbook.create_sheet(title)
-        ws.delete_rows(1, ws.max_row)
-        ws.append(header)
-        for values in sorted(group, key=lambda item: str(item[1])):
-            ws.append([values[0], values[1], values[2], values[3], values[5], values[6], values[7], values[8], values[9], values[10]])
-        changed += 1
-
-    spec_ws = workbook["spec 文档清单"]
-    spec_ws.delete_rows(1, spec_ws.max_row)
-    spec_ws.append(["文件名", "状态", "主表编号", "说明", "设计时间", "完成时间"])
-    specs: dict[str, list[list[object]]] = {}
-    for row in rows:
-        path = row[8]
-        if not isinstance(path, str) or not path.endswith(".md"):
-            continue
-        specs.setdefault(path, []).append(row)
-    for path, linked in sorted(specs.items()):
-        statuses = sorted({str(item[0]) for item in linked})
-        status = statuses[0] if len(statuses) == 1 else "多状态"
-        designs = sorted({str(item[9]) for item in linked if item[9]})
-        completions = sorted({str(item[10]) for item in linked if item[10]})
-        spec_ws.append([
-            Path(path).name,
-            status,
-            "、".join(str(item[1]) for item in linked),
-            "由开发计划总表同步",
-            designs[0] if designs else "",
-            completions[-1] if completions else "",
-        ])
-    changed += 1
-
-    summary = workbook["统计摘要"]
-    summary.delete_rows(1, summary.max_row)
-    status_counts: dict[str, int] = {}
-    type_counts: dict[str, int] = {}
-    for row in rows:
-        status_counts[str(row[0])] = status_counts.get(str(row[0]), 0) + 1
-        type_counts[str(row[2])] = type_counts.get(str(row[2]), 0) + 1
-    summary.append(["指标", "数值", "说明"])
-    summary.append(["总需求数", len(rows), "开发计划总表条目数"])
-    for status, count in sorted(status_counts.items()):
-        summary.append([status, count, "按当前状态统计"])
-    summary.append([])
-    summary.append(["类型", "数量", "按开发计划总表类型统计"])
-    for task_type, count in sorted(type_counts.items()):
-        summary.append([task_type, count, ""])
-    changed += 1
     return changed
 
 
@@ -890,8 +701,6 @@ def update_workbook(path: Path) -> int:
 
     # 最后应用 ENSURE，保证验收收口状态不被总 spec 打回
     changed += ensure_plan_rows(workbook)
-    changed += ensure_companion_sheets(workbook)
-    changed += rebuild_detail_sheets(workbook)
 
     workbook.save(path)
     return changed

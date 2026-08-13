@@ -10,7 +10,7 @@
 
 ## 顺序
 
-1. 写迁移决策记录（Unity+Node；`mobile/` 冻结策略；仓库 `fish-social-unity/` 形态）
+1. 写迁移决策记录（Unity+Node；`mobile/` 冻结策略；仓库 `unity/` 形态）  
 2. 导出契约冻结清单 v0：Socket C2S/S2C + 主 REST 路径表  
 3. 约定 protocol/DTO 版本号写法  
 4. 勾选 P0 验收；总表/计划表 P0 → **已实现**（完成日后）  

@@ -100,7 +100,7 @@ UNITY_STAGES = [
         "id": "U0",
         "title": "P0 · 决策与契约冻结",
         "capacity": "切线确认 · 契约清单 v0",
-        "plain": "Unity+Node、monorepo fish-social-unity/、mobile 仅紧急修复、protocolVersion 约定。",
+        "plain": "Unity+Node、monorepo unity/、mobile 仅紧急修复、protocolVersion 约定。",
         "ids": ["UNITY-P0"],
     },
     {

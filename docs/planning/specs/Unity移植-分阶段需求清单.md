@@ -126,7 +126,7 @@ UNITY-P5 发布与运维对齐        ← 已定稿
 |---|------|------|
 | 1 | 迁移决策记录 | [`../architecture/Unity迁移决策记录.md`](../architecture/Unity迁移决策记录.md) |
 | 2 | 契约冻结清单 v0 | [`../architecture/Unity契约冻结清单-v0.md`](../architecture/Unity契约冻结清单-v0.md) |
-| 3 | 仓库形态决议 | monorepo `fish-social-unity/`；`mobile/` 仅紧急修复 |
+| 3 | 仓库形态决议 | monorepo `unity/`；`mobile/` 仅紧急修复 |
 | 4 | 版本约定 | 文档 v0 + `protocolVersion` 基线 `1.0.0-draft` |
 
 ### 非目标
