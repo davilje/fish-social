@@ -71,4 +71,4 @@
 
 | 日期 | 说明 |
 |------|------|
-| 2026-07-26 | UNITY-P0 决策合入；确认 Unity+Node、monorepo `unity/`、`mobile/` 紧急修复策略、协议版本约定 |
+| 2026-07-26 | UNITY-P0 决策合入；确认 Unity+Node、monorepo `fish-social-unity/`、`mobile/` 紧急修复策略、协议版本约定 |

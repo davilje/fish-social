@@ -15,16 +15,16 @@
 
 当前不是重新开始 Steam 转型，而是处于：
 
-> **STEAM-DESKTOP-02「Steam 身份、账号绑定与安全会话」的开发实施阶段，尚未达到“已实现”验收。**
+> **Steam 认证、Unity 桌面壳和 Unity 网络薄客户端已完成；当前进入桌面宠物表现层开发，并同步收口 STEAM-DESKTOP-03 验收。**
 
 当前相关条目状态：
 
 | 编号 | 当前状态 | 说明 |
 |---|---|---|
-| STEAM-DESKTOP-EPIC | 已确认 | Steam 桌面端转型总计划，尚未整体收口 |
-| STEAM-DESKTOP-01 | 已确认 | 产品定位与信息架构已确认，仍可继续细化 |
-| STEAM-DESKTOP-02 | 已确认 | 当前正在实施 Steamworks.NET、Ticket、服务端认证联调 |
-| STEAM-DESKTOP-03 | 已确认 | 好友、Lobby、邀请尚未开始 |
+| STEAM-DESKTOP-EPIC | 已文档化 | Steam 桌面端转型总计划，具体开发已拆至子需求 |
+| STEAM-DESKTOP-01 | 已文档化 | 产品定位与信息架构已完成，表现层转入 STEAM-DESKTOP-07 |
+| STEAM-DESKTOP-02 | 已实现 | Steam Ticket、账号映射、JWT/Socket 真实联调已完成 |
+| STEAM-DESKTOP-03 | 验收中 | Lobby、邀请与 `pondId` 映射已实现，双 Steam 账号验收待补 |
 | STEAM-DESKTOP-04 | 已实现 | Unity Windows 桌面基础壳已完成并通过构建冒烟 |
 | STEAM-DESKTOP-05 | 已实现 | 空鱼塘休眠与生态离线补算已完成 |
 
@@ -333,18 +333,17 @@ Publisher Web API Key 存放位置：
 
 ## 六、Fish Social 当前下一步
 
-当前继续执行 `STEAM-DESKTOP-02`，顺序如下：
+下一阶段按以下顺序执行：
 
-1. 将 Steam 登录按钮接入 `SteamAuthController.BeginLogin()`。
-2. 显示初始化、获取 Ticket、服务端验证、成功和失败状态。
-3. 启动 Node 服务端并确认真实 `.env` 配置。
-4. 使用测试 Steam 账号完成真实 Ticket 验证。
-5. 确认首次登录创建 `playerId`。
-6. 退出后再次登录，确认复用同一 `playerId`。
-7. 登录成功后接入 JWT 和 Socket。
-8. 完成验收后，才将 `STEAM-DESKTOP-02` 回写为“已实现”。
+1. 收口 `STEAM-DESKTOP-03`：补双 Steam 账号、邀请、Lobby→`pondId`、权限拒绝和 Lobby 失效后的重新进塘验收。
+2. 执行 `STEAM-DESKTOP-07A`：桌面宠物主视图和鱼塘入口。
+3. 执行 `STEAM-DESKTOP-07B`：2D 鱼塘、钓位、自己的猫咪和真实钓鱼状态。
+4. 执行 `STEAM-DESKTOP-07C`：同塘玩家宠物、昵称、加入/离开和钓鱼状态同步。
+5. 执行 `STEAM-DESKTOP-07D`、`07E`：窗口内右键菜单和好友/背包/图鉴/设置弹窗。
+6. 执行 `STEAM-DESKTOP-07F`：托盘、通知、断线恢复和完整 Windows 主流程验收。
+7. 在表现接口稳定后并行接入 `STEAM-DESKTOP-ART-01` 视觉资源。
 
-完成 `STEAM-DESKTOP-02` 后，再进入 `UNITY-P1/P2` 网络薄客户端和 `STEAM-DESKTOP-03` 好友/Lobby，不直接跳到完整 Steam Networking。
+`UNITY-P3～P5` 是架构出口：P3 由 07B/07C 承接，P4 由 07A/07D/07E/07F 承接，P5 在 07F 后进入发布、日志和回滚验收；不把它们当作一次性开发包重复执行。
 
 ---
 
