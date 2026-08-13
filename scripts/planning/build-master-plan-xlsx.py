@@ -531,7 +531,11 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "—",
         "unity-client",
         "P0",
+<<<<<<< HEAD
         "Tile·相机·序列帧；承接REF-SCENE-1；当前为开发规格，尚未完成 Unity 实现",
+=======
+        "架构出口由 STEAM-DESKTOP-07B/07C 承接；Tile、相机、序列帧、多人排序和真实网络状态表现尚未完成",
+>>>>>>> main
         "docs/planning/specs/Unity移植-分阶段需求清单.md",
         "2026-07-26",
         "",
@@ -544,7 +548,11 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "—",
         "unity-client",
         "P1",
+<<<<<<< HEAD
         "地图·背包商店·社交·排行榜；当前为开发规格，尚未完成 Unity 主循环迁入",
+=======
+        "架构出口由 STEAM-DESKTOP-07A/07D/07E/07F 承接；Unity 主循环尚未完成 Expo 脱离验收",
+>>>>>>> main
         "docs/planning/specs/Unity移植-分阶段需求清单.md",
         "2026-07-26",
         "",
@@ -557,7 +565,11 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "—",
         "unity-client",
         "P1",
+<<<<<<< HEAD
         "Steam 构建·client-logs·退役 RN；当前为发布规格，尚未完成商店包验收",
+=======
+        "架构出口由 STEAM-DESKTOP-07F 及后续发布验收承接；Steam 可提交包、日志和回滚方案尚未完成",
+>>>>>>> main
         "docs/planning/specs/Unity移植-分阶段需求清单.md",
         "2026-07-26",
         "",

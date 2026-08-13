@@ -1,11 +1,18 @@
 ?# 策划文档变更记录
 
+<<<<<<< HEAD
 ### [planning-audit-unity-status] - 2026-08-13
 
 - 复核实际工程 `fish-social-unity/` 与计划表状态：`UNITY-P0～P2` 保持已实现，`UNITY-P3～P5` 保持已定稿，尚未标记为已实现。
 - 修正 `STEAM-DESKTOP-03`：实现代码已完成，但双 Steam 账号验收跳过，计划状态回退为已确认。
 - 修正 Unity 迁移文档中的工程目录名：`unity/` → `fish-social-unity/`。
 - 完善 `UNITY-EPIC`：补充产品目标、用户场景、阶段出口、权限/API 边界和总体验收，并新增阶段总表开发交接提示词。
+=======
+### [next-stage-steam-desktop-plan] - 2026-08-13
+
+- 重新整理 Steam 桌面宠物下一阶段开发计划：先完成 `STEAM-DESKTOP-03` 验收收口，再按 `07A → 07B → 07C → 07D → 07E → 07F` 执行。
+- 明确 `UNITY-P3～P5` 是架构出口，分别由桌面宠物场景、Unity 主循环和发布验收承接，不作为一次性 Epic 直接开发。
+>>>>>>> main
 
 ### [steam-desktop-01-desktop-pet-ia] - 2026-08-13
 
