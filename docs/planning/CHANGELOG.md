@@ -1,45 +1,11 @@
 ?# 策划文档变更记录
 
-### [steam-desktop-07b-accepted] - 2026-08-15
-
-- `STEAM-DESKTOP-07B` 用户验收通过，计划状态改为 **已实现**。
-- Overlay 默认 `960×480`，以 `pond_snapshot` 渲染 2D 鱼塘、钓位和自己的猫咪（`128×128`）。
-- 快照更新复用场景对象；打开主窗口不销毁鱼塘会话；未实现同塘其他玩家（07C）。
-- 下一阶段：`STEAM-DESKTOP-07C` Overlay 同塘玩家宠物与状态同步。
-
-### [steam-desktop-07a-accepted] - 2026-08-15
-
-- `STEAM-DESKTOP-07A` 用户验收通过，计划状态改为 **已实现**。
-- 落地内容：`480×320` 登录窗口、`1280×720` 主窗口、底部横向导航、256×256 占位猫、`PetStateController` + `SpriteFramePetRenderer`、进入/恢复鱼塘启动原生 Overlay 并隐藏主窗口。
-- 主窗口与 Overlay 共用 `petVisualState`；未启动第二个 Unity Player。
-- 下一阶段：`STEAM-DESKTOP-07B` Overlay 鱼塘场景与自己的猫。
-
-### [steam-desktop-formal-ui-layout] - 2026-08-15
-
-- 将 `STEAM-DESKTOP-07A～07G` 的正式窗口方案统一为：`480×320` 登录窗口、`1280×720` 主窗口、`960×480` 原生鱼塘 Overlay。
-- 明确主窗口使用小猫状态栏和底部横向按钮行；进入鱼塘隐藏主窗口，Overlay 显示鱼塘、自己的猫和同塘玩家。
-- 明确 Overlay 猫咪基准尺寸为 `128×128`，右键菜单支持“打开主窗口”，且主窗口与 Overlay 共用自己的猫状态。
-- 同步更新需求规格、计划表生成源和 07A～07G 开发提示词索引。
-
-### [steam-desktop-07g-accepted] - 2026-08-15
-
-- `STEAM-DESKTOP-07G` 用户验收通过，计划状态改为 **已实现**。
-- 独立 WPF Overlay、Named Pipe 状态同步、隐藏/退出语义、主程序退出时 Overlay 一并清理均已落地。
-- 退出卡死根因已归档：Development Player 原生卸载等待 Overlay 管道线程；修复为进程脱离作业对象、隐藏 `taskkill`、`CancelIoEx` 唤醒管道、Release 包验证。
-- 排查记录：[STEAM-DESKTOP-07G-Overlay卡死排查记录-2026-08-14.md](./reports/STEAM-DESKTOP-07G-Overlay卡死排查记录-2026-08-14.md)。
-
 ### [steam-desktop-07g-native-overlay-architecture] - 2026-08-14
 
 - 根据第二 Unity Player + `UniWindowController` 实测出现的全屏、Skybox、主窗口阻塞、窗口样式损坏和资源占用问题，停止继续修补该方案。
 - `STEAM-DESKTOP-07A`～`07F` 明确只运行 Unity 主窗口，进入鱼塘不得启动第二个 Unity Player。
 - 新增 `STEAM-DESKTOP-07G`：使用独立 WPF/Win32 原生 Overlay，通过 Named Pipe 接收状态和发送命令。
 - 新增开发提示词：[steam-desktop-07g-native-overlay-dev.prompt.md](./prompts/steam-desktop-07g-native-overlay-dev.prompt.md)。
-
-### [steam-desktop-07g-overlay-lifecycle-audit] - 2026-08-14
-
-- 根据 07G 排查记录，补充 Overlay 启动竞态、隐藏/退出语义、进程退出检测、主程序退出顺序和 Named Pipe 写入背压分析。
-- 明确关闭主程序不能只依赖 `OnDestroy()` 或 watchdog，Overlay 重启必须清空已退出进程引用。
-- 新增生命周期修复提示词：[steam-desktop-07g-overlay-lifecycle-fix-dev.prompt.md](./prompts/steam-desktop-07g-overlay-lifecycle-fix-dev.prompt.md)。
 
 ### [steam-desktop-07a-sprite-state-machine] - 2026-08-14
 

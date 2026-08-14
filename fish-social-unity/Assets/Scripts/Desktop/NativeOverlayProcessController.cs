@@ -4,20 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace FishSocial.Desktop
 {
-    public enum NativeOverlayLifecycleState
-    {
-        Stopped,
-        Starting,
-        Running,
-        Hidden,
-        Stopping,
-    }
-
     /// <summary>
     /// Main-process controller for FishSocialOverlay.exe. The native process
     /// never owns authentication or game state; it only renders and sends UI
@@ -25,28 +15,17 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class NativeOverlayProcessController : MonoBehaviour
     {
-        const string OverlayImageName = "FishSocialOverlay";
-
         readonly ConcurrentQueue<string> _incoming = new ConcurrentQueue<string>();
-        readonly ConcurrentQueue<string> _commands = new ConcurrentQueue<string>();
         readonly object _pipeLock = new object();
-        readonly object _lifecycleLock = new object();
-        readonly AutoResetEvent _writeSignal = new AutoResetEvent(false);
         Thread _serverThread;
-        Thread _writerThread;
         NamedPipeServerStream _server;
         StreamWriter _writer;
+        Process _overlayProcess;
         NativeOverlayStateDto _latestState = new NativeOverlayStateDto();
-        Task _startTask;
-        Task _shutdownTask;
         bool _stopping;
-        bool _stateQueued;
-        string _applicationDataPath;
 
         public string PipeName { get; private set; }
         public bool IsConnected { get; private set; }
-        public NativeOverlayLifecycleState LifecycleState { get; private set; } =
-            NativeOverlayLifecycleState.Stopped;
         public event Action<string> CommandReceived;
 
         void Awake()
@@ -54,8 +33,8 @@ namespace FishSocial.Desktop
             if (Application.isEditor)
                 return;
 
-            _applicationDataPath = Application.dataPath;
             PipeName = "FishSocialOverlay-" + Process.GetCurrentProcess().Id;
+            StartPipeServer();
         }
 
         void Update()
@@ -82,6 +61,13 @@ namespace FishSocial.Desktop
                 else if (message.type == "command" && !string.IsNullOrEmpty(message.command))
                     CommandReceived?.Invoke(message.command);
             }
+
+            if (_overlayProcess != null && _overlayProcess.HasExited)
+            {
+                _overlayProcess.Dispose();
+                _overlayProcess = null;
+                IsConnected = false;
+            }
         }
 
         public void StartOverlay()
@@ -89,214 +75,78 @@ namespace FishSocial.Desktop
             if (Application.isEditor)
                 return;
 
-            lock (_lifecycleLock)
+            if (_overlayProcess != null && !_overlayProcess.HasExited)
             {
-                if (LifecycleState == NativeOverlayLifecycleState.Starting ||
-                    LifecycleState == NativeOverlayLifecycleState.Stopping)
-                    return;
-
-                if ((LifecycleState == NativeOverlayLifecycleState.Running ||
-                     LifecycleState == NativeOverlayLifecycleState.Hidden) &&
-                    OverlayImageRunning())
-                {
-                    LifecycleState = NativeOverlayLifecycleState.Running;
-                    SendCommand("show_overlay");
-                    SendLatestState();
-                    return;
-                }
-
-                LifecycleState = NativeOverlayLifecycleState.Starting;
-                _stopping = false;
-                if (_startTask == null || _startTask.IsCompleted)
-                    _startTask = Task.Run(StartOverlayWorker);
+                SendLatestState();
+                return;
             }
-        }
 
-        void StartOverlayWorker()
-        {
+            var executable = FindOverlayExecutable();
+            if (string.IsNullOrEmpty(executable))
+            {
+                UnityEngine.Debug.LogWarning(
+                    "[NativeOverlay] FishSocialOverlay.exe was not found; main window remains usable.");
+                return;
+            }
+
             try
             {
-                var ipcDisabled = IsIpcDisabled();
-                var executable = FindOverlayExecutable(_applicationDataPath);
-                if (string.IsNullOrEmpty(executable))
+                _overlayProcess = Process.Start(new ProcessStartInfo
                 {
-                    UnityEngine.Debug.LogWarning(
-                        "[NativeOverlay] FishSocialOverlay.exe was not found.");
-                    SetLifecycleState(NativeOverlayLifecycleState.Stopped);
-                    return;
-                }
-
-                if (!ipcDisabled)
-                {
-                    StartPipeServer();
-                    StartWriterThread();
-                }
-
-                lock (_lifecycleLock)
-                {
-                    if (LifecycleState != NativeOverlayLifecycleState.Starting)
-                        return;
-                }
-
-                UnityEngine.Debug.Log(
-                    "[NativeOverlay] starting detached process. ipc=" + (!ipcDisabled));
-                var process = DetachedWin32Process.StartBreakaway(
-                    executable,
-                    ipcDisabled ? string.Empty : "--pipe=" + PipeName,
-                    Directory.GetParent(executable).FullName);
-                if (process != null)
-                    process.Dispose();
-
-                lock (_lifecycleLock)
-                {
-                    if (LifecycleState != NativeOverlayLifecycleState.Starting)
-                    {
-                        DetachedWin32Process.TaskkillImage(OverlayImageName + ".exe");
-                        return;
-                    }
-                    LifecycleState = NativeOverlayLifecycleState.Running;
-                }
-                SendLatestState();
+                    FileName = executable,
+                    Arguments = "--pipe=" + PipeName,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WorkingDirectory = Directory.GetParent(executable).FullName,
+                });
             }
             catch (Exception exception)
             {
                 UnityEngine.Debug.LogWarning(
                     "[NativeOverlay] start failed: " + exception.Message);
-                SetLifecycleState(NativeOverlayLifecycleState.Stopped);
             }
-        }
-
-        void SetLifecycleState(NativeOverlayLifecycleState state)
-        {
-            lock (_lifecycleLock)
-                LifecycleState = state;
         }
 
         public void HideOverlay()
         {
-            lock (_lifecycleLock)
-            {
-                if (LifecycleState == NativeOverlayLifecycleState.Running)
-                    LifecycleState = NativeOverlayLifecycleState.Hidden;
-            }
             SendCommand("hide_overlay");
         }
 
         public void ShowOverlay()
         {
             StartOverlay();
+            SendCommand("show_overlay");
         }
 
         public void CloseOverlay()
         {
-            ShutdownOverlayAsync(true);
-        }
+            var process = Interlocked.Exchange(ref _overlayProcess, null);
+            if (process == null)
+                return;
 
-        public Task ShutdownOverlayAsync(bool forceAfterTimeout)
-        {
-            lock (_lifecycleLock)
-            {
-                if (_shutdownTask != null && !_shutdownTask.IsCompleted)
-                    return _shutdownTask;
-                if (LifecycleState == NativeOverlayLifecycleState.Stopped)
-                    return Task.FromResult(0);
-
-                LifecycleState = NativeOverlayLifecycleState.Stopping;
-                _shutdownTask = Task.Run(() => ShutdownOverlayWorker(forceAfterTimeout));
-                return _shutdownTask;
-            }
-        }
-
-        public void ForceTerminateForApplicationQuit()
-        {
-            lock (_lifecycleLock)
-            {
-                if (LifecycleState == NativeOverlayLifecycleState.Stopped)
-                    return;
-                LifecycleState = NativeOverlayLifecycleState.Stopping;
-            }
-
-            UnityEngine.Debug.Log(
-                "[NativeOverlay] aborting pipe and detaching overlay kill for quit.");
-            AbortPipeIo();
-            DetachedWin32Process.TaskkillImage(OverlayImageName + ".exe");
-            SetLifecycleState(NativeOverlayLifecycleState.Stopped);
-        }
-
-        void ShutdownOverlayWorker(bool forceAfterTimeout)
-        {
-            SendCommand("quit_overlay");
-            _writeSignal.Set();
-            AbortPipeIo();
-            if (forceAfterTimeout)
-                DetachedWin32Process.TaskkillImage(OverlayImageName + ".exe");
-            _serverThread = null;
-            _writerThread = null;
-            SetLifecycleState(NativeOverlayLifecycleState.Stopped);
-        }
-
-        void AbortPipeIo()
-        {
-            _stopping = true;
-            _writeSignal.Set();
-
-            IntPtr handle = IntPtr.Zero;
-            lock (_pipeLock)
-            {
-                _writer = null;
-                IsConnected = false;
-                if (_server != null)
-                {
-                    try
-                    {
-                        handle = _server.SafePipeHandle.DangerousGetHandle();
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-            }
-
-            if (handle != IntPtr.Zero && handle != new IntPtr(-1))
+            ThreadPool.QueueUserWorkItem(_ =>
             {
                 try
                 {
-                    DetachedWin32Process.CancelIoEx(handle, IntPtr.Zero);
+                    if (!process.HasExited)
+                        process.Kill();
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
+                    UnityEngine.Debug.LogWarning(
+                        "[NativeOverlay] cleanup failed: " + exception.Message);
                 }
-            }
-
-            try
-            {
-                if (!string.IsNullOrEmpty(PipeName))
+                finally
                 {
-                    using (var dummy = new NamedPipeClientStream(
-                               ".",
-                               PipeName,
-                               PipeDirection.InOut,
-                               PipeOptions.Asynchronous))
-                    {
-                        dummy.Connect(50);
-                    }
+                    process.Dispose();
                 }
-            }
-            catch (Exception)
-            {
-            }
+            });
         }
 
         public void PublishState(NativeOverlayStateDto state)
         {
             if (state == null)
                 return;
-            lock (_lifecycleLock)
-            {
-                if (LifecycleState == NativeOverlayLifecycleState.Stopped ||
-                    LifecycleState == NativeOverlayLifecycleState.Stopping)
-                    return;
-            }
             _latestState = state;
             _latestState.sequence++;
             SendLatestState();
@@ -304,124 +154,47 @@ namespace FishSocial.Desktop
 
         void SendLatestState()
         {
-            lock (_lifecycleLock)
-            {
-                if (LifecycleState == NativeOverlayLifecycleState.Stopped ||
-                    LifecycleState == NativeOverlayLifecycleState.Stopping)
-                    return;
-                _stateQueued = true;
-            }
-            _writeSignal.Set();
+            Send(JsonUtility.ToJson(_latestState));
         }
 
         void SendCommand(string command)
         {
-            lock (_lifecycleLock)
+            Send(JsonUtility.ToJson(new NativeOverlayCommandDto
             {
-                if (LifecycleState == NativeOverlayLifecycleState.Stopped)
+                type = "command",
+                version = 1,
+                command = command,
+            }));
+        }
+
+        void Send(string line)
+        {
+            lock (_pipeLock)
+            {
+                if (_writer == null)
                     return;
-                _commands.Enqueue(JsonUtility.ToJson(new NativeOverlayCommandDto
+
+                try
                 {
-                    type = "command",
-                    version = 1,
-                    command = command,
-                }));
-            }
-            _writeSignal.Set();
-        }
-
-        void StartWriterThread()
-        {
-            if (_writerThread != null && _writerThread.IsAlive)
-                return;
-            _writerThread = new Thread(WriterLoop)
-            {
-                IsBackground = true,
-                Name = "FishSocialNativeOverlayWriter",
-            };
-            _writerThread.Start();
-        }
-
-        void WriterLoop()
-        {
-            while (!_stopping)
-            {
-                _writeSignal.WaitOne(250);
-                while (!_stopping)
+                    _writer.WriteLine(line);
+                    _writer.Flush();
+                }
+                catch (IOException)
                 {
-                    string message = null;
-                    lock (_lifecycleLock)
-                    {
-                        if (_commands.TryDequeue(out var command))
-                            message = command;
-                        else if (_stateQueued)
-                        {
-                            _stateQueued = false;
-                            message = JsonUtility.ToJson(_latestState);
-                        }
-                    }
-
-                    if (message == null)
-                        break;
-
-                    lock (_pipeLock)
-                    {
-                        if (_writer == null)
-                            continue;
-                        try
-                        {
-                            _writer.WriteLine(message);
-                            _writer.Flush();
-                        }
-                        catch (Exception exception) when (
-                            exception is IOException ||
-                            exception is ObjectDisposedException)
-                        {
-                            _writer = null;
-                            IsConnected = false;
-                        }
-                    }
+                    _writer = null;
+                    IsConnected = false;
                 }
             }
         }
 
         void StartPipeServer()
         {
-            if (_serverThread != null && _serverThread.IsAlive)
-                return;
             _serverThread = new Thread(PipeServerLoop)
             {
                 IsBackground = true,
                 Name = "FishSocialNativeOverlayPipe",
             };
             _serverThread.Start();
-        }
-
-        static bool IsIpcDisabled()
-        {
-            return string.Equals(
-                Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_NO_IPC"),
-                "1",
-                StringComparison.OrdinalIgnoreCase);
-        }
-
-        static bool OverlayImageRunning()
-        {
-            try
-            {
-                var processes = Process.GetProcessesByName(OverlayImageName);
-                var running = processes != null && processes.Length > 0;
-                if (processes != null)
-                {
-                    for (var i = 0; i < processes.Length; i++)
-                        processes[i].Dispose();
-                }
-                return running;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
         }
 
         void PipeServerLoop()
@@ -435,10 +208,9 @@ namespace FishSocial.Desktop
                                PipeDirection.InOut,
                                1,
                                PipeTransmissionMode.Byte,
-                               PipeOptions.Asynchronous))
+                               PipeOptions.None))
                     {
-                        lock (_pipeLock)
-                            _server = server;
+                        _server = server;
                         server.WaitForConnection();
                         using (var reader = new StreamReader(server))
                         using (var writer = new StreamWriter(server) { AutoFlush = true })
@@ -467,20 +239,19 @@ namespace FishSocial.Desktop
                     lock (_pipeLock)
                     {
                         _writer = null;
-                        _server = null;
                         IsConnected = false;
                     }
                 }
             }
         }
 
-        static string FindOverlayExecutable(string applicationDataPath)
+        static string FindOverlayExecutable()
         {
             var configured = Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_PATH");
             if (!string.IsNullOrEmpty(configured) && File.Exists(configured))
                 return configured;
 
-            var root = Directory.GetParent(applicationDataPath)?.FullName;
+            var root = Directory.GetParent(Application.dataPath)?.FullName;
             if (string.IsNullOrEmpty(root))
                 return null;
 
@@ -501,7 +272,30 @@ namespace FishSocial.Desktop
         void OnDestroy()
         {
             UnityEngine.Debug.Log("[Shutdown] NativeOverlayProcessController.OnDestroy begin.");
-            ForceTerminateForApplicationQuit();
+            _stopping = true;
+            NamedPipeServerStream server;
+            lock (_pipeLock)
+            {
+                _writer = null;
+                server = _server;
+                _server = null;
+            }
+            if (server != null)
+            {
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    try
+                    {
+                        server.Dispose();
+                    }
+                    catch (Exception exception)
+                    {
+                        UnityEngine.Debug.LogWarning(
+                            "[NativeOverlay] pipe cleanup failed: " + exception.Message);
+                    }
+                });
+            }
+            CloseOverlay();
             UnityEngine.Debug.Log("[Shutdown] NativeOverlayProcessController.OnDestroy complete.");
         }
     }

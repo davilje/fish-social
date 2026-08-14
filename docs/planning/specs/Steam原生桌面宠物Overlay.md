@@ -6,9 +6,9 @@
 |------|------|
 | 功能名称 | Steam 原生桌面宠物 Overlay |
 | 编号 | **STEAM-DESKTOP-07G** |
-| 类型 | Windows 原生客户端 |
+| 类型 | Unity 功能开发 |
 | 负责人 | Windows 客户端工程师 |
-| 状态 | **已实现** |
+| 状态 | **已确认** |
 | 目标版本 | v1.0-steam-desktop |
 | 优先级 | P1 |
 | 设计时间 | **2026-08-14** |
@@ -23,12 +23,10 @@
 ## 2. 功能范围
 
 - 创建独立的 `FishSocialOverlay.exe` 原生 Windows 程序。
-- 默认窗口尺寸为 `960×480`。
+- 默认窗口尺寸为 `480×420`。
 - 无边框、透明、置顶，可拖动。
 - 只对宠物图像区域进行命中测试，透明区域允许点击穿透桌面。
-- 显示鱼塘场景、自己的猫咪和同塘其他用户猫咪；每只猫咪基准尺寸为 `128×128`。
-- 显示登录状态、鱼塘名称和钓鱼状态等 Unity 推送的状态。
-- 右键显示菜单，支持打开主窗口、隐藏 Overlay 和退出 Overlay。
+- 显示宠物占位图、登录状态、鱼塘名称和钓鱼状态。
 - 支持打开主窗口、隐藏 Overlay 和退出 Overlay。
 - Unity 主程序负责启动、关闭和监控 Overlay。
 - 通过 Named Pipe 传输状态和命令。
@@ -77,27 +75,24 @@ Overlay → Unity：
 
 - 不在 Overlay 中实现 Steam 登录。
 - 不在 Overlay 中连接 REST 或 Socket.IO。
-- 不在 Overlay 中实现鱼塘会话、多人玩家业务或钓鱼状态机；Overlay 只渲染 Unity 推送的场景与状态。
+- 不在 Overlay 中实现鱼塘场景、多人玩家或钓鱼状态机。
 - 不在 07G 中引入正式猫咪美术、Spine 或复杂换装。
 - 不修改 Node、mobile 或 shared 的业务协议。
 
 ## 6. 验收标准
 
-- [x] Overlay 是独立原生进程，不加载 Unity Player。
-- [x] 启动后窗口为 `960×480`、无边框、透明、置顶。
-- [x] Overlay 不显示 Skybox、场景背景或 Unity 启动画面。
-- [x] Overlay 可拖动，主窗口仍可正常点击、缩放和拖动。
-- [x] Overlay CPU 占用稳定，不因空闲渲染持续升高。
-- [x] Overlay 关闭后 Unity 主程序不崩溃、不阻塞、不改变窗口模式。
-- [x] 管道断开和 Overlay 异常退出不会卡死 Unity 主线程。
-- [x] 状态序列号可防止旧状态覆盖新状态。
-- [x] Overlay 可渲染鱼塘场景、自己的猫咪和同塘玩家猫咪，猫咪基准尺寸为 `128×128`。
-- [x] Overlay 右键菜单可打开主窗口，且不触发离塘。
-- [x] Windows Release Build 通过主窗口、鱼塘、Overlay 启停和退出测试；退出不再假死，也不再弹出 CMD。
+- [ ] Overlay 是独立原生进程，不加载 Unity Player。
+- [ ] 启动后窗口为 `480×420`、无边框、透明、置顶。
+- [ ] Overlay 不显示 Skybox、场景背景或 Unity 启动画面。
+- [ ] Overlay 可拖动，主窗口仍可正常点击、缩放和拖动。
+- [ ] Overlay CPU 占用稳定，不因空闲渲染持续升高。
+- [ ] Overlay 关闭后 Unity 主程序不崩溃、不阻塞、不改变窗口模式。
+- [ ] 管道断开和 Overlay 异常退出不会卡死 Unity 主线程。
+- [ ] 状态序列号可防止旧状态覆盖新状态。
+- [ ] Windows Development Build 通过主窗口、鱼塘、Overlay 启停和退出测试。
 
 ## 7. 变更记录
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
 | 2026-08-14 | 主 Agent | 新增 07G，替代第二 Unity Player + UniWindowController 的透明 Overlay 方案 |
-| 2026-08-15 | 主 Agent | 用户验收通过：原生 Overlay、Named Pipe、退出生命周期与无窗口 taskkill 兜底已落地；状态改为已实现 |

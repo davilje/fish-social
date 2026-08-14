@@ -6,19 +6,6 @@ using System.Text;
 namespace FishSocialOverlay
 {
     [DataContract]
-    public sealed class OverlaySpotDto
-    {
-        [DataMember(Name = "id")]
-        public string Id { get; set; }
-
-        [DataMember(Name = "x")]
-        public float X { get; set; }
-
-        [DataMember(Name = "y")]
-        public float Y { get; set; }
-    }
-
-    [DataContract]
     public sealed class IpcMessage
     {
         [DataMember(Name = "type")]
@@ -41,27 +28,6 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "fishingPhase")]
         public string FishingPhase { get; set; }
-
-        [DataMember(Name = "petVisualState")]
-        public string PetVisualState { get; set; }
-
-        [DataMember(Name = "pondId")]
-        public string PondId { get; set; }
-
-        [DataMember(Name = "ownSpotId")]
-        public string OwnSpotId { get; set; }
-
-        [DataMember(Name = "ownX")]
-        public float OwnX { get; set; }
-
-        [DataMember(Name = "ownY")]
-        public float OwnY { get; set; }
-
-        [DataMember(Name = "hasOwnPosition")]
-        public bool HasOwnPosition { get; set; }
-
-        [DataMember(Name = "spots")]
-        public OverlaySpotDto[] Spots { get; set; }
 
         [DataMember(Name = "command")]
         public string Command { get; set; }

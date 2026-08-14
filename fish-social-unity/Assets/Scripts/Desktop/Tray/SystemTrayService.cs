@@ -15,16 +15,12 @@ namespace FishSocial.Desktop
         public event Action ShowRequested;
         public event Action HideRequested;
         public event Action ExitRequested;
-        public event Action OverlayShowRequested;
-        public event Action OverlayExitRequested;
         public bool IsReady { get; private set; }
 
         Thread _trayThread;
         volatile bool _pendingShow;
         volatile bool _pendingHide;
         volatile bool _pendingExit;
-        volatile bool _pendingOverlayShow;
-        volatile bool _pendingOverlayExit;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
         WndProc _wndProcKeepAlive;
         IntPtr _hwndMessage;
@@ -85,18 +81,6 @@ namespace FishSocial.Desktop
             {
                 _pendingExit = false;
                 ExitRequested?.Invoke();
-            }
-
-            if (_pendingOverlayShow)
-            {
-                _pendingOverlayShow = false;
-                OverlayShowRequested?.Invoke();
-            }
-
-            if (_pendingOverlayExit)
-            {
-                _pendingOverlayExit = false;
-                OverlayExitRequested?.Invoke();
             }
 
 #if UNITY_EDITOR || !UNITY_STANDALONE_WIN
@@ -220,8 +204,6 @@ namespace FishSocial.Desktop
             var menu = CreatePopupMenu();
             AppendMenu(menu, 0, 1, "显示窗口");
             AppendMenu(menu, 0, 2, "隐藏窗口");
-            AppendMenu(menu, 0, 4, "显示 Overlay");
-            AppendMenu(menu, 0, 5, "退出 Overlay");
             AppendMenu(menu, 0x0800 /* MF_SEPARATOR */, 0, null);
             AppendMenu(menu, 0, 3, "退出游戏");
 
@@ -235,8 +217,6 @@ namespace FishSocial.Desktop
                 case 1: _pendingShow = true; break;
                 case 2: _pendingHide = true; break;
                 case 3: _pendingExit = true; break;
-                case 4: _pendingOverlayShow = true; break;
-                case 5: _pendingOverlayExit = true; break;
             }
         }
 

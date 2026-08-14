@@ -60,8 +60,8 @@
 | [Unity移植-分阶段需求清单.md](./Unity移植-分阶段需求清单.md) | unity-client | P0/P1 | **已定稿**（P0～P2 已实现，P3～P5 待开发） | UNITY-EPIC / P0～P5；产品规划与阶段验收总表 |
 | [Steam桌面端独立游戏转型计划.md](./Steam桌面端独立游戏转型计划.md) | v1.0-steam-desktop | P0/P1 | **已文档化** | STEAM-DESKTOP-EPIC；总计划完成，实际开发按子需求推进 |
 | [Steam桌面端产品定位与信息架构.md](./Steam桌面端产品定位与信息架构.md) | v1.0-steam-desktop | P0 | **已文档化** | STEAM-DESKTOP-01；规划完成，实际表现层转入 STEAM-DESKTOP-07 |
-| [Steam桌面宠物与多人鱼塘表现层.md](./Steam桌面宠物与多人鱼塘表现层.md) | v1.0-steam-desktop | P0 | **已确认**（07A/07B/07G 已实现，07C～07F 待开发） | STEAM-DESKTOP-07；桌面宠物、2D 鱼塘、同塘玩家宠物、右键菜单与弹窗 |
-| [Steam原生桌面宠物Overlay.md](./Steam原生桌面宠物Overlay.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-07G；独立原生透明 Overlay 与 Named Pipe 状态协议 |
+| [Steam桌面宠物与多人鱼塘表现层.md](./Steam桌面宠物与多人鱼塘表现层.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-07；桌面宠物、2D 鱼塘、同塘玩家宠物、右键菜单与弹窗 |
+| [Steam原生桌面宠物Overlay.md](./Steam原生桌面宠物Overlay.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-07G；独立原生透明 Overlay 与 Named Pipe 状态协议 |
 | [Steam桌面宠物UI需求拆分.md](./Steam桌面宠物UI需求拆分.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-UI；程序 UI 并入 07A～07F，美术合并为单一资源替换需求 |
 | [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
 | [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |

@@ -1,26 +1,18 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using FishSocial.Desktop.Auth;
-using FishSocial.Desktop.Pet;
 using FishSocial.Desktop.Social;
 
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Runtime-built UGUI shell: 480×320 login, 1280×720 main with bottom nav and pet home.
+    /// Runtime-built UGUI shell: home + four feature placeholders + toast notifications.
     /// </summary>
     public sealed class DesktopShellUi : MonoBehaviour
     {
         PanelRouter _router;
-        CanvasScaler _scaler;
-        GameObject _loginRoot;
-        GameObject _mainRoot;
-        Text _loginStatus;
         Text _statusLogin;
         Text _statusConnection;
-        Text _statusPond;
-        Text _statusPet;
         Text _toast;
         float _toastUntil;
         NotificationSettings _notifyDraft;
@@ -28,12 +20,10 @@ namespace FishSocial.Desktop
         IAuthenticatedApiClient _authenticatedApi;
         SocialPondSessionController _pondSession;
         SocialLobbyController _socialLobby;
-        PetStateController _petState;
         Text _pondStatus;
         Text _inventoryStatus;
-        Text _petStateLabel;
+        Text _petState;
         Text _petPond;
-        bool _mainShellEntered;
 
         public void Build(PanelRouter router)
         {
@@ -44,14 +34,12 @@ namespace FishSocial.Desktop
             _steamAuth = DesktopAppBootstrap.Instance != null
                 ? DesktopAppBootstrap.Instance.SteamAuth
                 : null;
-            _petState = DesktopAppBootstrap.Instance != null
-                ? DesktopAppBootstrap.Instance.PetState
-                : null;
             if (_steamAuth != null)
             {
                 _authenticatedApi = _steamAuth.CreateAuthenticatedApiClient();
                 _steamAuth.StateChanged += OnSteamStateChanged;
                 _steamAuth.ErrorMessage += OnSteamError;
+                OnSteamStateChanged(_steamAuth.State);
             }
             _pondSession = DesktopAppBootstrap.Instance != null
                 ? DesktopAppBootstrap.Instance.PondSession
@@ -67,145 +55,70 @@ namespace FishSocial.Desktop
                 _pondSession.FishBiteReceived += OnPondFishBite;
                 _pondSession.InventoryUpdated += OnInventoryUpdated;
                 _pondSession.ErrorReceived += OnPondError;
+                OnPondStateChanged(_pondSession.State, null);
             }
             if (_socialLobby != null)
                 _socialLobby.Error += OnSocialLobbyError;
-            if (_petState != null)
-                _petState.StateChanged += OnPetVisualStateChanged;
 
             var canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasGo.transform.SetParent(transform, false);
             var canvas = canvasGo.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _scaler = canvasGo.GetComponent<CanvasScaler>();
-            _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            _scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
-            _scaler.matchWidthOrHeight = 0.5f;
+            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1600, 900);
+            scaler.matchWidthOrHeight = 0.5f;
 
             EnsureEventSystem();
 
-            _loginRoot = CreateStretchPanel("LoginRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
-            BuildLogin(_loginRoot);
-
-            _mainRoot = CreateStretchPanel("MainRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
-            BuildMain(_mainRoot);
-            _mainRoot.SetActive(false);
-
-            _toast = CreateText(canvasGo.transform, "Toast", string.Empty, 18, TextAnchor.LowerCenter,
-                new Vector2(0, 24), new Vector2(400, 48));
-            _toast.alignment = TextAnchor.MiddleCenter;
-            _toast.gameObject.SetActive(false);
-
-            if (_steamAuth != null && _steamAuth.IsAuthenticated)
-                EnterMainShell();
-            else
-                WindowManager.Instance?.ApplyLoginShell();
-
-            if (_steamAuth != null)
-                OnSteamStateChanged(_steamAuth.State);
-            if (_pondSession != null)
-                OnPondStateChanged(_pondSession.State, null);
-            RefreshPetPresentation();
-            _router.Show(ShellPanelId.Home);
-        }
-
-        void BuildLogin(GameObject go)
-        {
-            CreateText(go.transform, "Brand", "Fish Social", 26, TextAnchor.MiddleCenter,
-                new Vector2(0, 70), new Vector2(400, 36));
-            _loginStatus = CreateText(go.transform, "LoginHint", "请使用 Steam 登录", 16, TextAnchor.MiddleCenter,
-                new Vector2(0, 24), new Vector2(400, 48));
-            _loginStatus.color = new Color(0.78f, 0.84f, 0.9f, 1f);
-            CreateCenteredButton(go.transform, "SteamLogin", "Steam 登录",
-                new Vector2(0, -36), new Vector2(200, 44), BeginSteamLogin);
-        }
-
-        void BuildMain(GameObject go)
-        {
-            var header = CreateBar("Header", go.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -80),
+            var root = CreateStretchPanel("Root", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
+            var header = CreateBar("Header", root.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -64),
                 new Color(0.12f, 0.18f, 0.24f, 1f));
-            BindSquarePet(header.transform, "HeaderPet", new Vector2(16, -16), 48, false);
-            CreateText(header.transform, "Title", "Fish Social", 22, TextAnchor.MiddleLeft,
-                new Vector2(76, -22), new Vector2(240, 28));
-            _statusPet = CreateText(header.transform, "PetStatus", "宠物：离线", 14, TextAnchor.MiddleLeft,
-                new Vector2(76, -50), new Vector2(280, 22));
-            _statusLogin = CreateText(header.transform, "LoginStatus", "登录：未登录", 14, TextAnchor.MiddleRight,
-                new Vector2(-16, -14), new Vector2(320, 20));
-            _statusConnection = CreateText(header.transform, "ConnStatus", "连接：离线", 14, TextAnchor.MiddleRight,
-                new Vector2(-16, -34), new Vector2(320, 20));
-            _statusPond = CreateText(header.transform, "PondStatus", "鱼塘：未进入", 14, TextAnchor.MiddleRight,
-                new Vector2(-16, -54), new Vector2(320, 20));
+            CreateText(header.transform, "Title", "Fish Social 桌面端", 28, TextAnchor.MiddleLeft,
+                new Vector2(24, 0), new Vector2(480, 48));
+            _statusLogin = CreateText(header.transform, "LoginStatus", "登录：未接入（占位）", 16, TextAnchor.MiddleRight,
+                new Vector2(-280, 10), new Vector2(260, 24));
+            _statusConnection = CreateText(header.transform, "ConnStatus", "连接：离线（占位）", 16, TextAnchor.MiddleRight,
+                new Vector2(-280, -14), new Vector2(260, 24));
 
-            var nav = CreateBar("Nav", go.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 64),
+            var nav = CreateBar("Nav", root.transform, new Vector2(0, 0), new Vector2(0, 1), new Vector2(220, 0),
                 new Color(0.11f, 0.15f, 0.2f, 1f));
-            var navLayout = nav.AddComponent<HorizontalLayoutGroup>();
-            navLayout.padding = new RectOffset(12, 12, 8, 8);
-            navLayout.spacing = 8;
-            navLayout.childAlignment = TextAnchor.MiddleCenter;
+            var navLayout = nav.AddComponent<VerticalLayoutGroup>();
+            navLayout.padding = new RectOffset(16, 16, 80, 16);
+            navLayout.spacing = 10;
+            navLayout.childAlignment = TextAnchor.UpperCenter;
             navLayout.childControlHeight = true;
             navLayout.childControlWidth = true;
-            navLayout.childForceExpandHeight = true;
+            navLayout.childForceExpandHeight = false;
             navLayout.childForceExpandWidth = true;
 
-            CreateNavButton(nav.transform, "主页", ReturnToPetHome);
-            CreateNavButton(nav.transform, "鱼塘", ShowPondPanel);
-            CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends));
-            CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag));
-            CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery));
-            CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings));
+            CreateNavButton(nav.transform, "鱼塘", () => _router.Show(ShellPanelId.Pond));
+            CreateNavButton(nav.transform, "好友 / 聊天", () => _router.Show(ShellPanelId.Friends));
+            CreateNavButton(nav.transform, "鱼获 / 背包", () => _router.Show(ShellPanelId.CatchBag));
+            CreateNavButton(nav.transform, "设置", () => _router.Show(ShellPanelId.Settings));
+            CreateNavButton(nav.transform, "主页", () => _router.Show(ShellPanelId.Home));
 
-            var content = CreateBar("Content", go.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
+            var content = CreateBar("Content", root.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
                 new Color(0.09f, 0.12f, 0.16f, 1f));
             var contentRt = content.GetComponent<RectTransform>();
-            contentRt.offsetMin = new Vector2(0, 64);
-            contentRt.offsetMax = new Vector2(0, -80);
+            contentRt.offsetMin = new Vector2(220, 0);
+            contentRt.offsetMax = new Vector2(0, -64);
 
             RegisterPanel(content.transform, ShellPanelId.Home, BuildHome);
             RegisterPanel(content.transform, ShellPanelId.Pond, BuildPond);
             RegisterPanel(content.transform, ShellPanelId.Friends, BuildFriends);
             RegisterPanel(content.transform, ShellPanelId.CatchBag, BuildCatch);
-            RegisterPanel(content.transform, ShellPanelId.Gallery, BuildGallery);
             RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettings);
-        }
 
-        void EnterMainShell()
-        {
-            if (_mainShellEntered)
-                return;
-            _mainShellEntered = true;
-            if (_loginRoot != null)
-                _loginRoot.SetActive(false);
-            if (_mainRoot != null)
-                _mainRoot.SetActive(true);
-            if (_scaler != null)
-                _scaler.referenceResolution = new Vector2(
-                    WindowManager.MainDefaultWidth, WindowManager.MainDefaultHeight);
-            WindowManager.Instance?.ApplyMainShell();
-            RefreshPetPresentation();
-        }
-
-        void ReturnToPetHome()
-        {
-            WindowManager.Instance?.ShowFromTray();
+            _toast = CreateText(root.transform, "Toast", string.Empty, 18, TextAnchor.LowerCenter,
+                new Vector2(0, 48), new Vector2(720, 48));
+            _toast.alignment = TextAnchor.MiddleCenter;
+            _toast.gameObject.SetActive(false);
             _router.Show(ShellPanelId.Home);
-        }
-
-        void ShowPondPanel()
-        {
-            WindowManager.Instance?.ShowFromTray();
-            _router.Show(ShellPanelId.Pond);
-        }
-
-        void ShowMainPanel(ShellPanelId id)
-        {
-            WindowManager.Instance?.ShowFromTray();
-            _router.Show(id);
         }
 
         void OnDestroy()
         {
-            if (_petState != null)
-                _petState.StateChanged -= OnPetVisualStateChanged;
             if (_steamAuth == null)
                 return;
             _steamAuth.StateChanged -= OnSteamStateChanged;
@@ -244,80 +157,97 @@ namespace FishSocial.Desktop
 
         void BuildHome(GameObject go)
         {
-            CreateText(go.transform, "H1", "桌面宠物", 28, TextAnchor.UpperLeft,
-                new Vector2(32, -24), new Vector2(400, 40));
-            BindSquarePet(go.transform, "HomePet", new Vector2(0, 36), 256, true);
-            _petStateLabel = CreateText(go.transform, "SessionState", "宠物状态：离线", 20,
-                TextAnchor.MiddleCenter, new Vector2(0, -140), new Vector2(480, 32));
-            _petPond = CreateText(go.transform, "CurrentPond", "当前鱼塘：未进入", 16,
-                TextAnchor.MiddleCenter, new Vector2(0, -172), new Vector2(480, 28));
-            CreateCenteredButton(go.transform, "OpenPond", "进入 / 恢复鱼塘",
-                new Vector2(0, -220), new Vector2(220, 44), OpenPond);
-            CreateCenteredButton(go.transform, "SessionCheck", "验证当前会话",
-                new Vector2(0, -272), new Vector2(180, 36), ValidateCurrentSession);
+            CreateText(go.transform, "H1", "Fish Social 主界面", 36, TextAnchor.UpperLeft,
+                new Vector2(32, -32), new Vector2(600, 48));
+            CreateText(go.transform, "H2",
+                "Steam 登录、地图和鱼塘入口在这里；桌面宠物由独立透明陪伴窗口承载。",
+                20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 48));
+
+            _petState = CreateText(go.transform, "SessionState", "当前状态：等待登录", 22,
+                TextAnchor.UpperLeft, new Vector2(32, -180), new Vector2(720, 40));
+            _petPond = CreateText(go.transform, "CurrentPond", "当前鱼塘：未进入", 20,
+                TextAnchor.UpperLeft, new Vector2(32, -228), new Vector2(720, 36));
+            CreateButton(go.transform, "OpenPond", "进入 / 恢复鱼塘",
+                new Vector2(32, -300), new Vector2(220, 48), OpenPond);
+            CreateButton(go.transform, "SteamLogin", "Steam 登录",
+                new Vector2(268, -300), new Vector2(180, 46), BeginSteamLogin);
+            CreateButton(go.transform, "SessionCheck", "验证当前会话",
+                new Vector2(464, -300), new Vector2(200, 46), ValidateCurrentSession);
+            CreateText(go.transform, "H3",
+                "关闭窗口 → 隐藏到托盘（进程继续）\n托盘菜单可「显示窗口」或「退出游戏」",
+                18, TextAnchor.UpperLeft, new Vector2(32, -390), new Vector2(900, 80));
+            CreateText(go.transform, "H4", "通知测试（开启后右上角显示提示）", 18,
+                TextAnchor.UpperLeft, new Vector2(32, -490), new Vector2(600, 32));
+            CreateButton(go.transform, "HomeBite", "鱼咬钩", new Vector2(32, -535), new Vector2(150, 42),
+                () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FishBite));
+            CreateButton(go.transform, "HomeInvite", "好友邀请", new Vector2(195, -535), new Vector2(150, 42),
+                () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FriendInvite));
+            CreateButton(go.transform, "HomeError", "连接错误", new Vector2(358, -535), new Vector2(150, 42),
+                () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.ConnectionError));
         }
 
         void OpenPond()
         {
+            _router.Show(ShellPanelId.Pond);
             if (_pondSession == null)
             {
                 ShowToast("鱼塘会话尚未初始化。");
                 return;
             }
-
-            _router.Show(ShellPanelId.Pond);
-            DesktopAppBootstrap.Instance?.StartNativeOverlay();
-            WindowManager.Instance?.HideToTray();
-
             if (_pondSession.State == SocialSocketState.Connected ||
                 _pondSession.State == SocialSocketState.Connecting ||
                 _pondSession.State == SocialSocketState.Reconnecting)
             {
+                DesktopAppBootstrap.Instance?.StartNativeOverlay();
                 ShowToast(_pondSession.State == SocialSocketState.Connected
-                    ? "已恢复当前鱼塘，主窗口已隐藏。"
-                    : "鱼塘会话正在连接，主窗口已隐藏。");
-                RefreshPetPresentation();
-                DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+                    ? "已恢复当前鱼塘会话。"
+                    : "鱼塘会话正在连接，请稍候。");
                 return;
             }
-
+            DesktopAppBootstrap.Instance?.StartNativeOverlay();
             _pondSession.ConnectAndJoin();
-            ShowToast("正在进入鱼塘。");
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
-        void RefreshPetPresentation()
+        void SetPetState(string state, Color color)
         {
             if (_petState != null)
-                _petState.RefreshFromApp();
-            ApplyPetLabels(_petState != null ? _petState.Current : PetVisualState.Offline);
+                _petState.text = "状态：" + state;
         }
 
-        void OnPetVisualStateChanged(PetVisualState state)
+        static string FormatPetState(string phase)
         {
-            ApplyPetLabels(state);
-        }
-
-        void ApplyPetLabels(PetVisualState state)
-        {
-            var label = "宠物：" + PetStateController.ToChinese(state);
-            if (_statusPet != null)
-                _statusPet.text = label;
-            if (_petStateLabel != null)
-                _petStateLabel.text = "宠物状态：" + PetStateController.ToChinese(state);
-            if (_petPond != null || _statusPond != null)
+            switch (phase)
             {
-                var inPond = _pondSession != null &&
-                             _pondSession.State == SocialSocketState.Connected;
-                var pondName = inPond
-                    ? (_pondSession.LatestSnapshot?.pond?.name ?? _pondSession.CurrentPondId)
-                    : null;
-                var pondLabel = "鱼塘：" + (string.IsNullOrEmpty(pondName) ? "未进入" : pondName);
-                if (_statusPond != null)
-                    _statusPond.text = pondLabel;
-                if (_petPond != null)
-                    _petPond.text = "当前" + pondLabel;
+                case "baiting":
+                case "casting":
+                case "waiting":
+                    return "钓鱼";
+                case "hooked":
+                    return "咬钩";
+                case "resolving":
+                    return "收鱼";
+                case "seated":
+                case "idle":
+                    return "待机";
+                default:
+                    return string.IsNullOrEmpty(phase) ? "待机" : phase;
+            }
+        }
+
+        static Color GetPetStateColor(string phase)
+        {
+            switch (phase)
+            {
+                case "hooked":
+                    return new Color(0.95f, 0.7f, 0.25f, 1f);
+                case "resolving":
+                    return new Color(0.4f, 0.75f, 1f, 1f);
+                case "baiting":
+                case "casting":
+                case "waiting":
+                    return new Color(0.65f, 0.8f, 1f, 1f);
+                default:
+                    return new Color(0.45f, 0.85f, 0.62f, 1f);
             }
         }
 
@@ -342,55 +272,50 @@ namespace FishSocial.Desktop
             }
             StartCoroutine(_authenticatedApi.GetInventory((ok, message) =>
             {
-                if (ok && _statusLogin != null)
+                if (ok)
+                {
                     _statusLogin.text = "登录：会话验证成功";
+                }
                 ShowToast(message);
             }));
         }
 
         void OnSteamStateChanged(SteamLoginState state)
         {
-            string label;
+            if (_statusLogin == null)
+                return;
             switch (state)
             {
                 case SteamLoginState.Initializing:
-                    label = "登录：初始化 Steam";
+                    _statusLogin.text = "登录：初始化 Steam";
                     break;
                 case SteamLoginState.RequestingTicket:
-                    label = "登录：获取 Steam Ticket";
+                    _statusLogin.text = "登录：获取 Steam Ticket";
                     break;
                 case SteamLoginState.Authenticating:
-                    label = "登录：服务端验证中";
+                    _statusLogin.text = "登录：服务端验证中";
                     break;
                 case SteamLoginState.Authenticated:
-                    label = "登录：Steam 已连接";
-                    EnterMainShell();
+                    _statusLogin.text = "登录：Steam 已连接";
+                    SetPetState("待机", new Color(0.45f, 0.85f, 0.62f, 1f));
                     ShowToast("Steam 登录成功");
                     break;
                 case SteamLoginState.Failed:
-                    label = "登录：失败";
+                    _statusLogin.text = "登录：失败";
+                    SetPetState("登录失败", new Color(0.9f, 0.35f, 0.35f, 1f));
                     break;
                 default:
-                    label = "登录：未登录";
+                    _statusLogin.text = "登录：未登录";
+                    SetPetState("等待登录", new Color(0.65f, 0.7f, 0.76f, 1f));
                     break;
             }
-
-            if (_loginStatus != null)
-                _loginStatus.text = state == SteamLoginState.SignedOut ? "请使用 Steam 登录" : label;
-            if (_statusLogin != null)
-                _statusLogin.text = label;
-            RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
         void OnSteamError(string message)
         {
-            if (_loginStatus != null)
-                _loginStatus.text = "登录：失败";
-            if (_statusLogin != null)
-                _statusLogin.text = "登录：失败";
+            _statusLogin.text = "登录：失败";
             ShowToast(message);
-            RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
@@ -409,19 +334,26 @@ namespace FishSocial.Desktop
                 _statusConnection.text = "连接：" + label;
             if (_pondStatus != null && !string.IsNullOrEmpty(message))
                 _pondStatus.text = "连接：" + label + "\n" + message;
-            RefreshPetPresentation();
+            if (state == SocialSocketState.Connected)
+                SetPetState("已连接，等待鱼塘", new Color(0.45f, 0.85f, 0.62f, 1f));
+            else if (state == SocialSocketState.Reconnecting)
+                SetPetState("重连中", new Color(0.95f, 0.75f, 0.3f, 1f));
+            else if (state == SocialSocketState.Failed)
+                SetPetState("连接失败", new Color(0.9f, 0.35f, 0.35f, 1f));
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
         void OnPondSnapshot(PondSnapshotDto snapshot)
         {
-            if (_pondStatus != null)
-            {
-                var count = snapshot?.users?.Length ?? 0;
-                _pondStatus.text = "连接：在线 · 鱼塘用户：" + count +
-                                   "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle");
-            }
-            RefreshPetPresentation();
+            if (_pondStatus == null)
+                return;
+            var count = snapshot?.users?.Length ?? 0;
+            _pondStatus.text = "连接：在线 · 鱼塘用户：" + count +
+                               "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle");
+            if (_petPond != null)
+                _petPond.text = "当前鱼塘：" +
+                                (snapshot?.pond?.name ?? _pondSession?.CurrentPondId ?? "未进入鱼塘");
+            SetPetState(FormatPetState(_pondSession?.CurrentPhase), GetPetStateColor(_pondSession?.CurrentPhase));
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
@@ -430,15 +362,15 @@ namespace FishSocial.Desktop
             if (_pondStatus != null)
                 _pondStatus.text = "连接：在线 · 当前 phase：" + (user?.fishingPhase ?? "idle") +
                                    "\n当前钓位：" + (user?.spotId ?? "未选择");
-            RefreshPetPresentation();
+            SetPetState(FormatPetState(user?.fishingPhase), GetPetStateColor(user?.fishingPhase));
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
-            RefreshPetPresentation();
+            SetPetState("咬钩", new Color(0.95f, 0.7f, 0.25f, 1f));
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
-            ShowToast("收到服务端咬钩事件，请打开主界面领取鱼获。");
+            ShowToast("收到服务端咬钩事件，请点击“领取鱼获”。");
         }
 
         void OnInventoryUpdated(FishInventoryItemDto[] items)
@@ -456,7 +388,8 @@ namespace FishSocial.Desktop
                 }
                 _inventoryStatus.text = text;
             }
-            RefreshPetPresentation();
+            if (count > 0)
+                SetPetState("收鱼", new Color(0.4f, 0.75f, 1f, 1f));
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
             ShowToast("背包已更新：" + count + " 条鱼获");
         }
@@ -474,31 +407,24 @@ namespace FishSocial.Desktop
         void ShowSocketResult(bool ok, string message)
         {
             ShowToast(message);
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
         void BuildPond(GameObject go)
         {
-            CreateText(go.transform, "P1", "鱼塘（会话工具）", 28, TextAnchor.UpperLeft,
-                new Vector2(32, -24), new Vector2(600, 40));
+            CreateText(go.transform, "P1", "鱼塘场景（占位）", 32, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
             _pondStatus = CreateText(go.transform, "P2",
-                "鱼塘场景在 960×480 Overlay 中渲染。本页只操作会话，打开主界面不会离塘。\n\n连接：未连接 · 当前 phase：—",
-                18, TextAnchor.UpperLeft, new Vector2(32, -80), new Vector2(900, 140));
-            CreateButton(go.transform, "ConnectPond", "连接并进塘", new Vector2(32, -240), new Vector2(180, 46),
+                "未来可替换为真实等距鱼塘场景，无需重做窗口壳。\n\n连接：未连接 · 当前 phase：—",
+                20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 160));
+            CreateButton(go.transform, "ConnectPond", "连接并进塘", new Vector2(32, -280), new Vector2(180, 46),
                 () => _pondSession?.ConnectAndJoin());
-            CreateButton(go.transform, "TakeSpot", "选择 1 号钓位", new Vector2(228, -240), new Vector2(190, 46),
+            CreateButton(go.transform, "TakeSpot", "选择 1 号钓位", new Vector2(228, -280), new Vector2(190, 46),
                 () => _pondSession?.TakeFirstSpot(ShowSocketResult));
-            CreateButton(go.transform, "StartFishing", "开始钓鱼", new Vector2(434, -240), new Vector2(150, 46),
+            CreateButton(go.transform, "StartFishing", "开始钓鱼", new Vector2(434, -280), new Vector2(150, 46),
                 () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult));
-            CreateButton(go.transform, "StopFishing", "收杆", new Vector2(600, -240), new Vector2(150, 46),
+            CreateButton(go.transform, "StopFishing", "收杆", new Vector2(600, -280), new Vector2(150, 46),
                 () => _pondSession?.StopFishing(ShowSocketResult));
-            CreateButton(go.transform, "AcceptCatch", "领取鱼获", new Vector2(766, -240), new Vector2(150, 46),
+            CreateButton(go.transform, "AcceptCatch", "领取鱼获", new Vector2(766, -280), new Vector2(150, 46),
                 () => _pondSession?.AcceptLatestCatch(ShowSocketResult));
-            CreateButton(go.transform, "ReturnHome", "返回主视图", new Vector2(32, -304), new Vector2(180, 46),
-                ReturnToPetHome);
-            CreateButton(go.transform, "EnterOverlay", "进入 / 恢复鱼塘", new Vector2(228, -304), new Vector2(220, 46),
-                OpenPond);
         }
 
         void BuildFriends(GameObject go)
@@ -546,17 +472,8 @@ namespace FishSocial.Desktop
 
         void BuildCatch(GameObject go)
         {
-            CreateText(go.transform, "C1", "鱼获 / 背包（占位）", 32, TextAnchor.UpperLeft,
-                new Vector2(32, -32), new Vector2(600, 48));
+            CreateText(go.transform, "C1", "鱼获 / 背包（占位）", 32, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
             _inventoryStatus = CreateText(go.transform, "C2", "当前背包鱼获：尚未同步", 20,
-                TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 80));
-        }
-
-        void BuildGallery(GameObject go)
-        {
-            CreateText(go.transform, "G1", "图鉴（占位）", 32, TextAnchor.UpperLeft,
-                new Vector2(32, -32), new Vector2(600, 48));
-            CreateText(go.transform, "G2", "07A 仅保留入口。正式图鉴内容属于后续阶段。", 18,
                 TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 80));
         }
 
@@ -644,68 +561,12 @@ namespace FishSocial.Desktop
 
         static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null)
+            if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() != null)
                 return;
             var es = new GameObject("EventSystem",
-                typeof(EventSystem),
-                typeof(StandaloneInputModule));
+                typeof(UnityEngine.EventSystems.EventSystem),
+                typeof(UnityEngine.EventSystems.StandaloneInputModule));
             DontDestroyOnLoad(es);
-        }
-
-        void BindSquarePet(Transform parent, string name, Vector2 anchoredPos, float size, bool enableDrag)
-        {
-            var slot = new GameObject(name + "Slot", typeof(RectTransform));
-            slot.transform.SetParent(parent, false);
-            var slotRt = slot.GetComponent<RectTransform>();
-            if (Mathf.Approximately(size, 256f))
-            {
-                slotRt.anchorMin = new Vector2(0.5f, 0.5f);
-                slotRt.anchorMax = new Vector2(0.5f, 0.5f);
-                slotRt.pivot = new Vector2(0.5f, 0.5f);
-                slotRt.anchoredPosition = anchoredPos;
-            }
-            else
-            {
-                slotRt.anchorMin = new Vector2(0f, 1f);
-                slotRt.anchorMax = new Vector2(0f, 1f);
-                slotRt.pivot = new Vector2(0f, 1f);
-                slotRt.anchoredPosition = anchoredPos;
-            }
-            slotRt.sizeDelta = new Vector2(size, size);
-
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter));
-            go.transform.SetParent(slot.transform, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(size, size);
-            var fitter = go.GetComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
-            fitter.aspectRatio = 1f;
-            var image = go.GetComponent<Image>();
-            image.preserveAspect = true;
-            image.raycastTarget = enableDrag;
-            image.color = Color.white;
-
-            var renderer = go.AddComponent<SpriteFramePetRenderer>();
-            renderer.Bind(image);
-            if (_petState != null)
-                _petState.AddRenderer(renderer);
-
-            if (!enableDrag || _petState == null)
-                return;
-
-            var trigger = go.AddComponent<EventTrigger>();
-            var down = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
-            down.callback.AddListener(_ => _petState.SetDragging(true));
-            trigger.triggers.Add(down);
-            var up = new EventTrigger.Entry { eventID = EventTriggerType.PointerUp };
-            up.callback.AddListener(_ => _petState.SetDragging(false));
-            trigger.triggers.Add(up);
-            var exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
-            exit.callback.AddListener(_ => _petState.SetDragging(false));
-            trigger.triggers.Add(exit);
         }
 
         static GameObject CreateStretchPanel(string name, Transform parent, Color color)
@@ -729,20 +590,13 @@ namespace FishSocial.Desktop
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = anchorMin;
             rt.anchorMax = anchorMax;
+            rt.pivot = new Vector2(anchorMin.x < 1 && anchorMax.x > 0 ? 0.5f : anchorMin.x, anchorMin.y < 1 && anchorMax.y > 0 ? 0.5f : anchorMin.y);
             if (Mathf.Approximately(anchorMin.y, 1f) && Mathf.Approximately(anchorMax.y, 1f))
             {
                 rt.pivot = new Vector2(0.5f, 1f);
+                rt.sizeDelta = new Vector2(0, Mathf.Abs(sizeDelta.y));
                 rt.anchoredPosition = Vector2.zero;
                 rt.offsetMin = new Vector2(0, rt.offsetMin.y);
-                rt.offsetMax = new Vector2(0, 0);
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Abs(sizeDelta.y));
-            }
-            else if (Mathf.Approximately(anchorMin.y, 0f) && Mathf.Approximately(anchorMax.y, 0f) &&
-                     anchorMax.x > anchorMin.x)
-            {
-                rt.pivot = new Vector2(0.5f, 0f);
-                rt.anchoredPosition = Vector2.zero;
-                rt.offsetMin = new Vector2(0, 0);
                 rt.offsetMax = new Vector2(0, 0);
                 rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Abs(sizeDelta.y));
             }
@@ -782,18 +636,9 @@ namespace FishSocial.Desktop
             text.verticalOverflow = VerticalWrapMode.Overflow;
             if (anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.MiddleRight || anchor == TextAnchor.MiddleCenter)
             {
-                if (anchor == TextAnchor.MiddleCenter)
-                {
-                    rt.anchorMin = new Vector2(0.5f, 0.5f);
-                    rt.anchorMax = new Vector2(0.5f, 0.5f);
-                    rt.pivot = new Vector2(0.5f, 0.5f);
-                }
-                else
-                {
-                    rt.anchorMin = new Vector2(anchor == TextAnchor.MiddleRight ? 1 : 0, 1);
-                    rt.anchorMax = rt.anchorMin;
-                    rt.pivot = new Vector2(anchor == TextAnchor.MiddleRight ? 1 : 0, 0.5f);
-                }
+                rt.anchorMin = new Vector2(anchor == TextAnchor.MiddleRight ? 1 : 0, 1);
+                rt.anchorMax = rt.anchorMin;
+                rt.pivot = new Vector2(anchor == TextAnchor.MiddleRight ? 1 : 0, 0.5f);
                 text.alignment = anchor;
             }
 
@@ -812,39 +657,15 @@ namespace FishSocial.Desktop
         {
             var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
-            go.GetComponent<LayoutElement>().preferredHeight = 48;
-            go.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            go.GetComponent<LayoutElement>().preferredHeight = 44;
             go.GetComponent<Image>().color = new Color(0.18f, 0.28f, 0.36f, 1f);
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(120, 28));
+            var text = CreateText(go.transform, "Label", label, 18, TextAnchor.MiddleLeft, new Vector2(12, -8), new Vector2(180, 28));
+            text.alignment = TextAnchor.MiddleLeft;
             var tr = text.GetComponent<RectTransform>();
             tr.anchorMin = Vector2.zero;
             tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
-            go.GetComponent<Button>().onClick.AddListener(onClick);
-        }
-
-        static void CreateCenteredButton(Transform parent, string name, string label, Vector2 anchoredPos, Vector2 size, UnityEngine.Events.UnityAction onClick)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta = size;
-            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
-            var tr = text.GetComponent<RectTransform>();
-            tr.anchorMin = Vector2.zero;
-            tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
+            tr.offsetMin = new Vector2(12, 0);
+            tr.offsetMax = new Vector2(-8, 0);
             go.GetComponent<Button>().onClick.AddListener(onClick);
         }
 

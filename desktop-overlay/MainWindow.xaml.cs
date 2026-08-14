@@ -22,35 +22,14 @@ namespace FishSocialOverlay
         StreamWriter _writer;
         long _latestSequence;
         bool _stopping;
-        readonly bool _safeWindow;
-        PondScenePresenter _scene;
 
         public MainWindow()
         {
             InitializeComponent();
-            _safeWindow = string.Equals(
-                Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_SAFE_WINDOW"),
-                "1",
-                StringComparison.OrdinalIgnoreCase);
-            if (_safeWindow)
-            {
-                AllowsTransparency = false;
-                Background = new SolidColorBrush(Color.FromArgb(245, 27, 38, 51));
-                Topmost = false;
-            }
             _pipeName = ReadArgument("--pipe=");
             SourceInitialized += OnSourceInitialized;
             Loaded += OnLoaded;
             Closing += OnClosing;
-            _scene = new PondScenePresenter(
-                SpotLayer,
-                OwnCat,
-                OwnCatImage,
-                new System.Windows.Shapes.Shape[] { CatEarL, CatEarR, CatBody },
-                PondBackgroundImage,
-                GrassLayer,
-                ShoreLayer,
-                WaterLayer);
         }
 
         void OnLoaded(object sender, RoutedEventArgs e)
@@ -76,9 +55,6 @@ namespace FishSocialOverlay
 
         void OnSourceInitialized(object sender, EventArgs e)
         {
-            if (_safeWindow)
-                return;
-
             var source = (HwndSource)PresentationSource.FromVisual(this);
             source?.AddHook(WindowHook);
         }
@@ -92,8 +68,8 @@ namespace FishSocialOverlay
             var screenX = (short)(lParam.ToInt64() & 0xffff);
             var screenY = (short)((lParam.ToInt64() >> 16) & 0xffff);
             var local = PointFromScreen(new Point(screenX, screenY));
-            var petRect = PondScene.TransformToAncestor(this)
-                .TransformBounds(new Rect(PondScene.RenderSize));
+            var petRect = PetPanel.TransformToAncestor(this)
+                .TransformBounds(new Rect(PetPanel.RenderSize));
             handled = true;
             return petRect.Contains(local)
                 ? new IntPtr(HTCLIENT)
@@ -170,8 +146,6 @@ namespace FishSocialOverlay
                 PondText.Text = "鱼塘：" +
                     (string.IsNullOrWhiteSpace(message.PondName)
                         ? "未进入" : message.PondName);
-                SpotText.Text = "钓位：" + FormatSpot(message);
-                _scene?.Apply(message);
             }
             else if (message.Type == "command")
             {
@@ -181,7 +155,7 @@ namespace FishSocialOverlay
                         Hide();
                         break;
                     case "quit_overlay":
-                        QuitProcess();
+                        Close();
                         break;
                     case "show_overlay":
                         Show();
@@ -212,31 +186,10 @@ namespace FishSocialOverlay
         void QuitOverlay_OnClick(object sender, RoutedEventArgs e)
         {
             SendCommand("quit_overlay");
-            QuitProcess();
+            Close();
         }
 
-        void QuitProcess()
-        {
-            _stopping = true;
-            NamedPipeClientStream pipe;
-            lock (_writeLock)
-            {
-                _writer = null;
-                pipe = _pipe;
-                _pipe = null;
-            }
-            try { pipe?.Dispose(); } catch { }
-            try
-            {
-                Application.Current?.Shutdown();
-            }
-            catch
-            {
-            }
-            Environment.Exit(0);
-        }
-
-        void PondScene_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void PetPanel_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
@@ -251,11 +204,11 @@ namespace FishSocialOverlay
             }
         }
 
-        void PondScene_OnMouseMove(object sender, MouseEventArgs e)
+        void PetPanel_OnMouseMove(object sender, MouseEventArgs e)
         {
         }
 
-        void PondScene_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void PetPanel_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
         }
 
@@ -271,12 +224,6 @@ namespace FishSocialOverlay
 
         void Send(IpcMessage message)
         {
-            var json = message.ToJson();
-            ThreadPool.QueueUserWorkItem(_ => WriteLine(json));
-        }
-
-        void WriteLine(string json)
-        {
             lock (_writeLock)
             {
                 if (_writer == null)
@@ -284,7 +231,7 @@ namespace FishSocialOverlay
 
                 try
                 {
-                    _writer.WriteLine(json);
+                    _writer.WriteLine(message.ToJson());
                     _writer.Flush();
                 }
                 catch (IOException)
@@ -294,33 +241,8 @@ namespace FishSocialOverlay
             }
         }
 
-        static string FormatSpot(IpcMessage message)
-        {
-            if (string.IsNullOrWhiteSpace(message.OwnSpotId))
-                return "未选择";
-            var match = System.Text.RegularExpressions.Regex.Match(
-                message.OwnSpotId, @"(?:^|-)spot-(\d+)$",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            if (match.Success)
-                return match.Groups[1].Value + "号位";
-            return message.OwnSpotId;
-        }
-
         static string FormatFishingState(IpcMessage message)
         {
-            if (!string.IsNullOrEmpty(message.PetVisualState))
-            {
-                switch (message.PetVisualState)
-                {
-                    case "idle": return "待机";
-                    case "fishing": return "钓鱼";
-                    case "hooked": return "咬钩";
-                    case "catching": return "收鱼";
-                    case "dragging": return "拖动";
-                    case "offline": return "离线";
-                }
-            }
-
             switch (message.FishingPhase)
             {
                 case "baiting":
@@ -350,14 +272,11 @@ namespace FishSocialOverlay
         void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _stopping = true;
-            NamedPipeClientStream pipe;
             lock (_writeLock)
             {
                 _writer = null;
-                pipe = _pipe;
-                _pipe = null;
+                _pipe?.Dispose();
             }
-            try { pipe?.Dispose(); } catch { }
         }
     }
 }
