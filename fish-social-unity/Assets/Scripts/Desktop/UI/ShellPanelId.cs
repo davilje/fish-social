@@ -6,6 +6,7 @@ namespace FishSocial.Desktop
         Pond = 1,
         Friends = 2,
         CatchBag = 3,
-        Settings = 4,
+        Gallery = 4,
+        Settings = 5,
     }
 }

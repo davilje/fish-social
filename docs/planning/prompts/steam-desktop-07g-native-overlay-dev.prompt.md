@@ -27,9 +27,12 @@
 
 - 新增独立 Windows 原生项目，推荐 WPF；如仓库已有 Windows 客户端基础设施，可复用但不得引入 Unity Runtime。
 - 输出 `FishSocialOverlay.exe`。
-- 窗口默认 `480×420`。
+- 窗口默认 `960×480`。
 - `WindowStyle=None`、透明背景、置顶。
 - 宠物区域支持拖动。
+- Overlay 内容区域支持鱼塘场景、自己的猫咪和同塘其他用户猫咪。
+- 每只猫咪的显示基准尺寸为 `128×128`，资源保持等比例。
+- Overlay 右键打开菜单，至少提供“打开主窗口”“隐藏 Overlay”“退出”。
 - 透明区域不拦截桌面点击。
 - 不显示 Unity Skybox、Unity Splash 或默认场景。
 - Overlay 空闲时使用有限刷新频率，禁止无限循环高频刷新。
@@ -83,13 +86,14 @@ Overlay → Unity 命令至少包含：
 
 1. 只启动 Unity 主程序，确认普通窗口可缩放、可拖动。
 2. 登录并进入鱼塘，确认主窗口仍可操作。
-3. 启动 Overlay，确认出现 `480×420` 透明无边框窗口。
-4. 确认 Overlay 不显示 Unity Skybox 或场景背景。
+3. 启动 Overlay，确认出现 `960×480` 透明无边框窗口。
+4. 确认 Overlay 显示鱼塘场景和猫咪，且不显示 Unity Skybox 或 Unity 默认场景背景。
 5. 拖动宠物，确认 Overlay 移动而 Unity 主窗口不移动。
 6. 点击 Overlay 的“打开主窗口”，确认 Unity 窗口获得焦点。
-7. 关闭 Overlay，确认 Unity 主程序不崩溃、不冻结。
-8. 强制结束 Overlay，确认 Unity 主程序仍可继续运行。
-9. 后端断开、重连和高频状态更新时，确认 CPU/内存稳定。
+7. 右键 Overlay，确认菜单出现且“打开主窗口”不会触发 `leave_pond`。
+8. 关闭 Overlay，确认 Unity 主程序不崩溃、不冻结。
+9. 强制结束 Overlay，确认 Unity 主程序仍可继续运行。
+10. 后端断开、重连和高频状态更新时，确认 CPU/内存稳定。
 
 ## 禁止事项
 

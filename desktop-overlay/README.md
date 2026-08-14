@@ -8,15 +8,24 @@
 FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id>
 ```
 
-默认窗口为 `480×420`、无边框、透明、置顶，不显示在任务栏。
+默认窗口为 `960×480`、无边框、透明、置顶，不显示在任务栏。鱼塘场景、钓位和自己的猫咪（`128×128`）由 Unity 推送的 `pond_snapshot` 字段驱动。
+
+可替换资源（可选，放在 exe 旁 `OverlayResources/`）：
+
+- `pond.png`：鱼塘背景
+- `cat.png`：自己的猫咪，显示为 `128×128`
+
+未提供时使用占位水面/岸线和矢量猫。
 
 ## IPC
 
 协议为 JSON Lines，`version` 当前为 `1`，状态必须带递增 `sequence`：
 
 ```json
-{"type":"state","version":1,"sequence":12,"loginState":"Authenticated","connectionState":"Connected","pondName":"pond-calm","fishingPhase":"waiting"}
+{"type":"state","version":1,"sequence":12,"loginState":"Authenticated","connectionState":"Connected","pondName":"静水湾","pondId":"pond-calm","fishingPhase":"waiting","petVisualState":"fishing","ownSpotId":"calm-spot-1","ownX":240,"ownY":400,"hasOwnPosition":true,"spots":[{"id":"calm-spot-1","x":240,"y":400}]}
 ```
+
+Overlay 只渲染上述字段，不推断其他玩家，也不维护第二套状态机。
 
 Overlay 回传命令：
 
@@ -31,7 +40,7 @@ Overlay 回传命令：
 - `quit_overlay`
 - `request_snapshot`
 
-Overlay 收到旧 `sequence` 时丢弃，不覆盖当前状态。
+Overlay 收到旧 `sequence` 时丢弃，不覆盖当前状态。打开主窗口不得销毁鱼塘会话。
 
 ## 构建
 
