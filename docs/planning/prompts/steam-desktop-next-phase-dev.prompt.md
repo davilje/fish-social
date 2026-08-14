@@ -1,4 +1,4 @@
-# Steam 桌面端下一阶段开发计划（07A～07F）
+# Steam 桌面端下一阶段开发计划（07A～07G）
 
 你是 Fish Social 的 Unity 前端开发 Agent。策划已完成下一阶段排期，本次只执行尚未完成的桌面宠物表现层，不重复已验收能力。
 
@@ -9,7 +9,8 @@
 - `STEAM-DESKTOP-04`、`04A～04F`：已实现。
 - `STEAM-DESKTOP-05`：已实现。
 - `STEAM-DESKTOP-03`：已实现；核心链路已验证，双 Steam 账号联调因缺少第二测试账号跳过。
-- `STEAM-DESKTOP-07A～07F`：已确认，待开发。
+- `STEAM-DESKTOP-07A～07F`：已确认，待开发；只运行 Unity 主窗口。
+- `STEAM-DESKTOP-07G`：已确认，作为独立原生 Windows Overlay，不能通过第二个 Unity Player 实现。
 - Unity 工程：`fish-social-unity/`。
 
 ## 本阶段目标
@@ -84,11 +85,12 @@ Steam 登录
 - 不重复开发 Steam 登录、P1/P2 网络闭环和 04 基础壳。
 - 不实现 Steam Networking/Relay。
 - 不做透明穿透桌面、系统级置顶或自由拖拽桌面宠物。
+- 07G 另行使用 `steam-desktop-07g-native-overlay-dev.prompt.md` 实现，不得把原生 Overlay 逻辑混入 07A～07F。
 - 不把 Admin/运营平台迁入 Unity。
 
 ## 完成回写
 
-每个子阶段独立验收后，更新对应 `STEAM-DESKTOP-07A～07F` spec、计划表状态和 `docs/planning/CHANGELOG.md`，然后运行：
+每个子阶段独立验收后，更新对应 `STEAM-DESKTOP-07A～07G` spec、计划表状态和 `docs/planning/CHANGELOG.md`，然后运行：
 
 ```text
 npm run planning:master-xlsx

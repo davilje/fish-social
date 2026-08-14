@@ -66,6 +66,7 @@ namespace FishSocial.Desktop.Auth
         public void RequestTicket(string identity, Action<byte[]> onSuccess, Action<string> onFailure)
         {
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
+            Debug.Log("[SteamAuth] Steamworks RequestTicket called. identity=" + identity);
             if (!IsSteamRunning)
             {
                 var detail = string.IsNullOrWhiteSpace(_initializationError)
@@ -92,6 +93,8 @@ namespace FishSocial.Desktop.Auth
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
         void OnTicketReceived(GetTicketForWebApiResponse_t response)
         {
+            Debug.Log("[SteamAuth] Steam ticket callback received. result=" + response.m_eResult +
+                      " bytes=" + response.m_cubTicket);
             if (response.m_eResult != EResult.k_EResultOK)
             {
                 CompleteFailure("Steam 返回登录票据失败: " + response.m_eResult);
@@ -126,11 +129,13 @@ namespace FishSocial.Desktop.Auth
 
         void OnDestroy()
         {
+            Debug.Log("[Shutdown] SteamworksTicketProvider.OnDestroy begin.");
             if (_activeTicket != HAuthTicket.Invalid && _steamInitialized)
                 SteamUser.CancelAuthTicket(_activeTicket);
             _ticketCallback?.Dispose();
             if (_steamInitialized)
                 SteamAPI.Shutdown();
+            Debug.Log("[Shutdown] SteamworksTicketProvider.OnDestroy complete.");
         }
 #endif
     }

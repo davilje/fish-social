@@ -22,7 +22,9 @@ namespace FishSocial.Desktop
         SteamAuthController _steamAuth;
         SocialPondSessionController _pondSession;
         SocialLobbyController _socialLobby;
+        NativeOverlayProcessController _nativeOverlay;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
+        bool _quitWatchdogStarted;
 #if !UNITY_EDITOR
         Mutex _singleInstanceMutex;
 #endif
@@ -76,6 +78,8 @@ namespace FishSocial.Desktop
                 SteamAuthIdentity);
             _pondSession = gameObject.AddComponent<SocialPondSessionController>();
             _pondSession.Configure(_steamAuth);
+            _nativeOverlay = gameObject.AddComponent<NativeOverlayProcessController>();
+            _nativeOverlay.CommandReceived += OnNativeOverlayCommand;
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
             _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter);
@@ -103,15 +107,62 @@ namespace FishSocial.Desktop
 
             ui.Build(_router);
             Debug.Log("[DesktopShell] STEAM-DESKTOP-04 bootstrap ready");
+            PublishNativeOverlayState();
         }
 
         public SteamAuthController SteamAuth => _steamAuth;
         public SocialPondSessionController PondSession => _pondSession;
         public SocialLobbyController SocialLobby => _socialLobby;
 
+        public void StartNativeOverlay()
+        {
+            _nativeOverlay?.StartOverlay();
+            PublishNativeOverlayState();
+        }
+
+        public void PublishNativeOverlayState()
+        {
+            if (_nativeOverlay == null)
+                return;
+
+            var snapshot = _pondSession?.LatestSnapshot;
+            _nativeOverlay.PublishState(new NativeOverlayStateDto
+            {
+                loginState = _steamAuth?.State.ToString() ?? "SignedOut",
+                connectionState = _pondSession?.State.ToString() ?? "Disconnected",
+                pondName = snapshot?.pond?.name ?? string.Empty,
+                fishingPhase = _pondSession?.CurrentPhase ?? "idle",
+            });
+        }
+
+        void OnNativeOverlayCommand(string command)
+        {
+            switch (command)
+            {
+                case "open_main":
+                    _window?.ShowFromTray();
+                    NativeWindowUtil.TryFocusWindow();
+                    break;
+                case "hide_overlay":
+                    _nativeOverlay?.HideOverlay();
+                    break;
+                case "request_snapshot":
+                    PublishNativeOverlayState();
+                    break;
+            }
+        }
+
         void OnDestroy()
         {
+            Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy begin.");
+            StartQuitWatchdog();
             Application.wantsToQuit -= OnWantsToQuit;
+            if (_nativeOverlay != null)
+            {
+                Debug.Log("[Shutdown] closing native overlay.");
+                _nativeOverlay.CommandReceived -= OnNativeOverlayCommand;
+                _nativeOverlay.CloseOverlay();
+            }
 #if !UNITY_EDITOR
             if (_singleInstanceMutex != null)
             {
@@ -120,6 +171,7 @@ namespace FishSocial.Desktop
                 _singleInstanceMutex = null;
             }
 #endif
+            Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy complete.");
         }
 
         bool OnWantsToQuit()
@@ -130,8 +182,36 @@ namespace FishSocial.Desktop
 #else
             // The window close button must terminate the process. Hiding to
             // tray remains an explicit action from the tray menu.
+            Debug.Log("[Shutdown] OnWantsToQuit received.");
+            StartQuitWatchdog();
             return true;
 #endif
+        }
+
+        void StartQuitWatchdog()
+        {
+            if (_quitWatchdogStarted)
+                return;
+
+            _quitWatchdogStarted = true;
+            Debug.Log("[Shutdown] quit watchdog started.");
+            var watchdog = new Thread(() =>
+            {
+                Thread.Sleep(1500);
+                try
+                {
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                }
+                catch
+                {
+                    System.Environment.Exit(0);
+                }
+            })
+            {
+                IsBackground = true,
+                Name = "FishSocialQuitWatchdog",
+            };
+            watchdog.Start();
         }
 
         public void QuitForReal()

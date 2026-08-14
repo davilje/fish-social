@@ -86,6 +86,7 @@ namespace FishSocial.Desktop.Auth
 
         public void BeginLogin()
         {
+            Debug.Log("[SteamAuth] BeginLogin started.");
             if (_loginRoutine != null)
                 StopCoroutine(_loginRoutine);
             _loginRoutine = StartCoroutine(LoginRoutine());
@@ -124,8 +125,12 @@ namespace FishSocial.Desktop.Auth
         IEnumerator LoginRoutine()
         {
             LastError = SteamLoginError.None;
+            Debug.Log("[SteamAuth] LoginRoutine started. provider=" +
+                      (_ticketProvider == null ? "null" : _ticketProvider.GetType().Name) +
+                      " appId=" + steamAppId);
             if (_ticketProvider == null || !_ticketProvider.IsSteamRunning)
             {
+                Debug.LogWarning("[SteamAuth] LoginRoutine stopped: Steam provider is unavailable.");
                 Fail(SteamLoginError.SteamNotRunning, "请先启动 Steam 客户端。");
                 yield break;
             }
@@ -139,6 +144,7 @@ namespace FishSocial.Desktop.Auth
             byte[] ticket = null;
             string ticketError = null;
             bool finished = false;
+            Debug.Log("[SteamAuth] Requesting Steam Web API ticket. identity=" + steamAuthIdentity);
             _ticketProvider.RequestTicket(
                 steamAuthIdentity,
                 bytes => { ticket = bytes; finished = true; },
@@ -156,6 +162,7 @@ namespace FishSocial.Desktop.Auth
             }
             if (ticket == null || ticket.Length == 0)
             {
+                Debug.LogWarning("[SteamAuth] Steam ticket request failed: " + ticketError);
                 Fail(SteamLoginError.MissingTicket, string.IsNullOrEmpty(ticketError)
                     ? "无法从 Steam 获取登录票据。"
                     : ticketError);
@@ -163,6 +170,8 @@ namespace FishSocial.Desktop.Auth
             }
 
             SetState(SteamLoginState.Authenticating);
+            Debug.Log("[SteamAuth] Steam ticket received. bytes=" + ticket.Length +
+                      "; authenticating against " + serverBaseUrl);
             var payload = new SteamLoginRequest
             {
                 ticket = BytesToHex(ticket),
@@ -179,6 +188,7 @@ namespace FishSocial.Desktop.Auth
 
                 if (request.result == UnityWebRequest.Result.ConnectionError)
                 {
+                    Debug.LogWarning("[SteamAuth] Authentication request connection error: " + request.error);
                     Fail(SteamLoginError.ServerUnavailable, "无法连接 Fish Social 服务，请稍后重试。");
                     yield break;
                 }
@@ -195,6 +205,8 @@ namespace FishSocial.Desktop.Auth
                 }
                 if (request.result == UnityWebRequest.Result.ProtocolError)
                 {
+                    Debug.LogWarning("[SteamAuth] Authentication request rejected. code=" +
+                                     (response == null ? "null" : response.code));
                     Fail(MapError(response == null ? null : response.code),
                         UserMessage(response == null ? null : response.code,
                             response == null ? "服务器拒绝了 Steam 登录。" : response.error));
@@ -208,6 +220,7 @@ namespace FishSocial.Desktop.Auth
                 }
                 PlayerId = response.playerId;
                 AccessToken = response.accessToken;
+                Debug.Log("[SteamAuth] Authentication succeeded. playerId=" + PlayerId);
                 SetState(SteamLoginState.Authenticated);
             }
         }

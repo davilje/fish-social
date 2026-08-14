@@ -95,16 +95,19 @@ namespace FishSocial.Desktop
 
         void OnDestroy()
         {
+            Debug.Log("[Shutdown] SystemTrayService.OnDestroy.");
             ShutdownTray();
         }
 
         void OnApplicationQuit()
         {
+            Debug.Log("[Shutdown] SystemTrayService.OnApplicationQuit.");
             ShutdownTray();
         }
 
         void ShutdownTray()
         {
+            Debug.Log("[Shutdown] tray cleanup begin.");
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
             if (_iconAdded)
             {
@@ -120,6 +123,7 @@ namespace FishSocial.Desktop
 #endif
             if (_trayThread != null && _trayThread.IsAlive)
                 _trayThread.Join(500);
+            Debug.Log("[Shutdown] tray cleanup complete.");
         }
 
         public void RequestExit()

@@ -38,6 +38,7 @@ namespace FishSocial.Desktop.Auth
     /// </summary>
     public sealed class SocketIoSocialSocketClient : ISocialSocketClient
     {
+        const int AckTimeoutMs = 10000;
         readonly string _baseUrl;
         readonly ConcurrentQueue<Action> _mainThread = new ConcurrentQueue<Action>();
         readonly Dictionary<int, Action<bool, string>> _pendingAcks =
@@ -65,8 +66,10 @@ namespace FishSocial.Desktop.Auth
 
         public void Connect(string accessToken, Action<bool, string> onCompleted)
         {
+            Debug.Log("[Pond] SocketIoSocialSocketClient.Connect called.");
             if (string.IsNullOrWhiteSpace(accessToken))
             {
+                Debug.LogWarning("[Pond] Socket connect rejected: access token is empty.");
                 Complete(false, "缺少 JWT，无法连接 Socket。", onCompleted);
                 return;
             }
@@ -119,12 +122,17 @@ namespace FishSocial.Desktop.Auth
         public void Disconnect()
         {
             _reconnectRequested = false;
-            _cancel?.Cancel();
-            if (_socket != null)
+            var cancel = _cancel;
+            _cancel = null;
+            cancel?.Cancel();
+            var socket = Interlocked.Exchange(ref _socket, null);
+            if (socket != null)
             {
-                try { _socket.Abort(); } catch { }
-                _socket.Dispose();
-                _socket = null;
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    try { socket.Abort(); } catch { }
+                    try { socket.Dispose(); } catch { }
+                });
             }
             SetState(SocialSocketState.Disconnected, "实时服务已断开。");
         }
@@ -139,9 +147,11 @@ namespace FishSocial.Desktop.Auth
         {
             try
             {
+                Debug.Log("[Pond] Socket.IO handshake starting: " + BuildUri());
                 _socket?.Dispose();
                 _socket = new ClientWebSocket();
                 await _socket.ConnectAsync(BuildUri(), token);
+                Debug.Log("[Pond] WebSocket connected; sending Socket.IO auth packet.");
                 await SendRaw("40" + JsonUtility.ToJson(new SocketAuthPayload { token = _accessToken }), token);
                 await ReadLoop(onCompleted, token);
                 if (_reconnectRequested && !token.IsCancellationRequested)
@@ -157,6 +167,7 @@ namespace FishSocial.Desktop.Auth
             }
             catch (Exception error)
             {
+                Debug.LogWarning("[Pond] Socket.IO connection failed: " + error.Message);
                 Enqueue(() =>
                 {
                     SetState(SocialSocketState.Failed, "实时服务连接失败。");
@@ -278,6 +289,22 @@ namespace FishSocial.Desktop.Auth
             var id = Interlocked.Increment(ref _nextAckId);
             lock (_ackLock) _pendingAcks[id] = onCompleted;
             SendEvent(name, payload, id);
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                Thread.Sleep(AckTimeoutMs);
+                Action<bool, string> callback = null;
+                lock (_ackLock)
+                {
+                    if (_pendingAcks.TryGetValue(id, out callback))
+                        _pendingAcks.Remove(id);
+                }
+
+                if (callback != null)
+                {
+                    Enqueue(() => callback(false,
+                        "服务器未返回 " + name + " 操作结果，请检查服务端日志。"));
+                }
+            });
         }
 
         void SendEvent(string name, string payload, int? ackId)

@@ -63,8 +63,10 @@ namespace FishSocial.Desktop.Auth
 
         public void ConnectAndJoin(string pondId = DefaultPondId, string nickname = "Steam玩家")
         {
+            Debug.Log("[Pond] ConnectAndJoin requested. pondId=" + pondId);
             if (_auth == null || !_auth.IsAuthenticated)
             {
+                Debug.LogWarning("[Pond] ConnectAndJoin rejected: Steam session is not authenticated.");
                 ErrorReceived?.Invoke("请先完成 Steam 登录。");
                 return;
             }
@@ -73,8 +75,10 @@ namespace FishSocial.Desktop.Auth
             _nickname = string.IsNullOrWhiteSpace(nickname) ? "Steam玩家" : nickname;
             _joinRequested = true;
             var token = _auth.GetAccessTokenForSession();
+            Debug.Log("[Pond] Starting Socket.IO connection.");
             _socket.Connect(token, (ok, message) =>
             {
+                Debug.Log("[Pond] Socket.IO connect completed. ok=" + ok + " message=" + message);
                 if (!ok) ErrorReceived?.Invoke(message);
             });
         }
@@ -143,9 +147,11 @@ namespace FishSocial.Desktop.Auth
 
         void OnStateChanged(SocialSocketState state, string message)
         {
+            Debug.Log("[Pond] Socket state changed: " + state + " message=" + message);
             if (state == SocialSocketState.Connected && _joinRequested &&
                 _auth != null && _auth.IsAuthenticated)
             {
+                Debug.Log("[Pond] Socket connected; registering player and joining pond " + CurrentPondId);
                 _socket.RegisterPlayer(_auth.AuthenticatedPlayerId);
                 _socket.JoinPond(new JoinPondPayload
                 {
@@ -196,8 +202,12 @@ namespace FishSocial.Desktop.Auth
 
         void OnDestroy()
         {
+            Debug.Log("[Shutdown] SocialPondSessionController.OnDestroy begin.");
             if (_socket == null)
+            {
+                Debug.Log("[Shutdown] SocialPondSessionController has no socket.");
                 return;
+            }
             _socket.StateChanged -= OnStateChanged;
             _socket.PondSnapshotReceived -= OnSnapshot;
             _socket.PondUserUpdated -= OnUserUpdated;
@@ -205,6 +215,7 @@ namespace FishSocial.Desktop.Auth
             _socket.InventoryUpdated -= OnInventoryUpdated;
             _socket.ErrorReceived -= OnError;
             _socket.Disconnect();
+            Debug.Log("[Shutdown] SocialPondSessionController.OnDestroy complete.");
         }
 
         PondUserDto FindCurrentUser(PondSnapshotDto snapshot)

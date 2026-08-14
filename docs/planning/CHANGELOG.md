@@ -1,5 +1,12 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07g-native-overlay-architecture] - 2026-08-14
+
+- 根据第二 Unity Player + `UniWindowController` 实测出现的全屏、Skybox、主窗口阻塞、窗口样式损坏和资源占用问题，停止继续修补该方案。
+- `STEAM-DESKTOP-07A`～`07F` 明确只运行 Unity 主窗口，进入鱼塘不得启动第二个 Unity Player。
+- 新增 `STEAM-DESKTOP-07G`：使用独立 WPF/Win32 原生 Overlay，通过 Named Pipe 接收状态和发送命令。
+- 新增开发提示词：[steam-desktop-07g-native-overlay-dev.prompt.md](./prompts/steam-desktop-07g-native-overlay-dev.prompt.md)。
+
 ### [steam-desktop-07a-sprite-state-machine] - 2026-08-14
 
 - `STEAM-DESKTOP-07A` 首版动画方案收口为“序列帧 + 宠物状态机”。

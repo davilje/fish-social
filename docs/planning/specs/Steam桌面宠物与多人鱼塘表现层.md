@@ -53,7 +53,8 @@ Steam 启动
 ### 4.1 桌面宠物
 
 - 桌面宠物是主视觉，不是普通头像。
-- 第一阶段使用普通 Windows 桌面窗口，不承诺透明穿透、系统级置顶或自由拖拽。
+- 07A～07F 第一阶段只使用 Unity 主程序的普通 Windows 窗口，不启动第二个 Unity Player。
+- 透明、置顶、桌面穿透和自由拖拽不属于 07A～07F 的实现范围，后续由独立的原生 Overlay 需求（`STEAM-DESKTOP-07G`）承接。
 - 宠物主视图必须能显示当前钓鱼状态和最近通知。
 - 第一阶段先使用空白正方形 2D 猫咪占位 UI，建议基准尺寸 `256×256`，保持等比例显示。
 - 占位资源通过独立 Sprite/Texture2D 或 Prefab 引用接入，后续替换正式猫咪资源不得修改布局、状态控制和网络业务代码。
@@ -88,11 +89,13 @@ Steam 启动
 
 ## 5. 技术边界
 
-- Unity 负责表现、输入、窗口、弹窗、托盘和通知。
+- Unity 主程序负责表现、输入、普通窗口、弹窗、托盘和通知。
+- 原生 Overlay（仅在 `STEAM-DESKTOP-07G` 中实现）只负责桌面宠物窗口和状态展示，不加载 Unity 场景、不运行 Steam/Socket/鱼塘逻辑。
 - Node 负责鱼塘、生态、钓鱼、库存、社交和在线状态权威。
 - 继续使用现有 JWT + Socket.IO。
 - 不把 Steam Lobby 作为鱼塘权威。
 - 不新增一塘一进程。
+- 07A～07F 禁止通过启动第二个 Unity Player 实现透明桌面宠物。
 - 不在本阶段接入 Spine Runtime、正式猫咪美术或复杂换装；Spine 作为后续可替换渲染器。
 - 不修改 `mobile/`。
 - 不将 `Library/`、`Temp/`、构建产物和密钥提交到版本库。
@@ -109,7 +112,7 @@ Steam 启动
 - [ ] 最小化/托盘隐藏后仍保持合法挂机。
 - [ ] 鱼咬钩通知、恢复窗口和收鱼流程可用。
 - [ ] 断线恢复后以服务端快照恢复，不显示伪造多人状态。
-- [ ] Unity Windows Development Build 通过完整主流程。
+- [ ] Unity Windows Development Build 通过完整主流程，且进入鱼塘不会启动第二个 Unity Player。
 
 ## 7. 下一阶段开发计划
 
@@ -123,6 +126,7 @@ Steam 启动
 | 4 | `STEAM-DESKTOP-07D` | 窗口内右键菜单和功能路由 | 菜单可用且不影响窗口外桌面 |
 | 5 | `STEAM-DESKTOP-07E` | 好友/聊天、背包、图鉴、设置弹窗 | 弹窗打开关闭不离塘、不清空会话 |
 | 6 | `STEAM-DESKTOP-07F` | 托盘、通知、断线恢复和完整主流程验收 | Windows Development Build 全流程通过 |
+| 7 | `STEAM-DESKTOP-07G` | 独立原生桌面宠物 Overlay；仅通过 Named Pipe 接收状态和发送命令 | Overlay 不影响 Unity 主窗口，支持透明、置顶、拖动和关闭 |
 
 `STEAM-DESKTOP-03` 的核心功能已实现；双 Steam 账号联调因缺少第二测试账号跳过，不阻塞 07A 开发。`STEAM-DESKTOP-ART-01` 可在 07B 接口稳定后并行替换正式资源。
 
@@ -142,7 +146,7 @@ Steam 启动
 
 - 不重写 Node 鱼塘 FSM、咬钩公式、库存、生态或权限。
 - 不重复开发 Steam 登录、P1/P2 网络闭环和 04 基础壳。
-- 不实现 Steam Networking/Relay、透明穿透桌面或系统级置顶。
+- 不实现 Steam Networking/Relay、透明穿透桌面或系统级置顶；这些能力只在 07G 的原生 Overlay 中实现。
 - 不因打开菜单、弹窗或设置而执行 `leave_pond`。
 
 ## 8. 变更记录
@@ -150,5 +154,6 @@ Steam 启动
 | 日期 | 作者 | 变更 |
 |------|------|------|
 | 2026-08-14 | 主 Agent | 确认 07A 采用“序列帧 + 状态机”作为首版动画方案；渲染器与状态机解耦，Spine 后置为可替换实现 |
+| 2026-08-14 | 主 Agent | 因第二 Unity Player + UniWindowController 方案导致全屏、Skybox、主窗口阻塞和高资源占用，明确 07A～07F 不启动 Unity Overlay，新增独立原生 Overlay 需求 07G |
 | 2026-08-14 | 主 Agent | 确认 STEAM-DESKTOP-03 核心链路已实现；下一阶段从 07A 开始，先使用可替换的空白正方形猫咪占位 UI |
 | 2026-08-13 | 主 Agent | 将 STEAM-DESKTOP-EPIC / 01 拆分为桌面宠物、多人鱼塘表现、右键菜单和弹窗的可执行 Unity 需求 |
