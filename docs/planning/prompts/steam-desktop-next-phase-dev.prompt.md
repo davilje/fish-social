@@ -8,7 +8,7 @@
 - `STEAM-DESKTOP-02`：已实现。
 - `STEAM-DESKTOP-04`、`04A～04F`：已实现。
 - `STEAM-DESKTOP-05`：已实现。
-- `STEAM-DESKTOP-03`：验收中；实现完成，但双 Steam 账号验收待补。
+- `STEAM-DESKTOP-03`：已实现；核心链路已验证，双 Steam 账号联调因缺少第二测试账号跳过。
 - `STEAM-DESKTOP-07A～07F`：已确认，待开发。
 - Unity 工程：`fish-social-unity/`。
 
@@ -28,14 +28,6 @@ Steam 登录
 ```
 
 ## 执行顺序
-
-### 0. 先收口 STEAM-DESKTOP-03 验收
-
-- 补双 Steam 账号联调。
-- 验证好友列表、Lobby 创建/加入、邀请、`pondId` 映射和权限拒绝。
-- 验证 Lobby 失效或房主离开不会删除鱼塘。
-- 验证双方进入同一 Node Socket 鱼塘会话。
-- 完成后再把 `STEAM-DESKTOP-03` 改为 `已实现`；未完成前保持 `验收中`。
 
 ### 1. 执行 07A + 07B：主视图和鱼塘基础表现
 

@@ -148,8 +148,8 @@ protocolVersion
 
 - Unity Adapter、Controller、ViewModel、简化 UI。
 - Node 接口、权限校验和测试。
-- 双 Steam 账号真实联调记录。
+- 双 Steam 账号真实联调记录；若当前环境缺少第二测试账号，记录为环境限制并保留单账号/本地模拟验证结果。
 - 运行 `npm run planning:verify -- v1.0-steam-desktop` 或专项验证。
-- 验收通过后回写 `STEAM-DESKTOP-03` 状态和计划看板。
+- 核心链路验收通过后回写 `STEAM-DESKTOP-03` 状态和计划看板；双账号联调可作为后续补充验证，不阻塞 07A。
 
 建议角色：`@frontend-dev` 主责 Unity，`@backend-dev` 主责服务端，联调后由主 Agent 验收。

@@ -1,5 +1,23 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07a-sprite-state-machine] - 2026-08-14
+
+- `STEAM-DESKTOP-07A` 首版动画方案收口为“序列帧 + 宠物状态机”。
+- 状态机覆盖待机、钓鱼、咬钩、收鱼、拖动和离线状态。
+- 渲染器与状态机解耦，后续可替换为 Spine，不新增需求编号。
+
+### [steam-desktop-03-accepted-07a-placeholder] - 2026-08-14
+
+- `STEAM-DESKTOP-03` 核心链路已验收：Lobby 创建/加入、邀请与 `pondId` 映射、权限拒绝、Lobby 失效后重新进塘、房主离开不删除鱼塘。
+- 双 Steam 账号联调因缺少第二测试账号跳过，不阻塞后续开发；计划状态改为 **已实现**。
+- 下一阶段从 `STEAM-DESKTOP-07A` 开始，先使用可替换的空白正方形 2D 猫咪占位 UI。
+
+### [steam-desktop-03-acceptance-and-07a-kickoff] - 2026-08-14
+
+- `STEAM-DESKTOP-03` 核心链路验收完成：Lobby 创建/加入、邀请与 `pondId` 映射、权限拒绝、Lobby 失效后重新进塘、房主离开不删除鱼塘。
+- 双 Steam 账号联调因缺少第二测试账号跳过，不阻塞后续开发；需求状态改为 **已实现**。
+- 下一阶段从 `STEAM-DESKTOP-07A` 开始，先使用可替换的空白正方形 2D 猫咪占位 UI，后续再替换正式资源。
+
 ### [steam-desktop-01-desktop-pet-ia] - 2026-08-13
 
 ### 产品定位深化

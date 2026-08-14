@@ -81,7 +81,7 @@ npm run planning:confirm -- v0.4.0
 | [unity-epic-phase-roadmap-dev.prompt.md](./unity-epic-phase-roadmap-dev.prompt.md) | UNITY-EPIC：Unity 移植分阶段需求总表 · **已定稿，P0～P2 已实现，P3～P5 待开发** |
 | [steam-desktop-transition-dev.prompt.md](./steam-desktop-transition-dev.prompt.md) | STEAM-DESKTOP-EPIC：Steam 桌面端独立游戏转型与 Unity 并行开发 · **规划已完成，按子需求开发** |
 | [steam-desktop-product-ia-dev.prompt.md](./steam-desktop-product-ia-dev.prompt.md) | STEAM-DESKTOP-01：Steam 桌面端产品定位与信息架构 · **规划已完成，转入 STEAM-DESKTOP-07** |
-| [steam-desktop-07a-pet-home-dev.prompt.md](./steam-desktop-07a-pet-home-dev.prompt.md) | STEAM-DESKTOP-07A：桌面宠物主视图与鱼塘入口 · **已确认** |
+| [steam-desktop-07a-pet-home-dev.prompt.md](./steam-desktop-07a-pet-home-dev.prompt.md) | STEAM-DESKTOP-07A：桌面宠物主视图与鱼塘入口（序列帧 + 状态机，Spine 后置）· **已确认** |
 | [steam-desktop-07b-pond-scene-dev.prompt.md](./steam-desktop-07b-pond-scene-dev.prompt.md) | STEAM-DESKTOP-07B：2D 鱼塘环境与自己的猫咪 · **已确认** |
 | [steam-desktop-07c-multiplayer-pets-dev.prompt.md](./steam-desktop-07c-multiplayer-pets-dev.prompt.md) | STEAM-DESKTOP-07C：同塘玩家宠物与状态同步 · **已确认** |
 | [steam-desktop-07d-context-menu-dev.prompt.md](./steam-desktop-07d-context-menu-dev.prompt.md) | STEAM-DESKTOP-07D：桌面宠物右键菜单 · **已确认** |

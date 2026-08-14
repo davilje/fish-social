@@ -22,6 +22,11 @@ namespace FishSocial.Desktop
         SocialLobbyController _socialLobby;
         Text _pondStatus;
         Text _inventoryStatus;
+        Text _petState;
+        Text _petPond;
+        Image _petImage;
+        [SerializeField] Sprite _petPlaceholderSprite;
+        Sprite _generatedPetSprite;
 
         public void Build(PanelRouter router)
         {
@@ -155,14 +160,51 @@ namespace FishSocial.Desktop
 
         void BuildHome(GameObject go)
         {
-            CreateText(go.transform, "H1", "欢迎回来", 36, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(600, 48));
+            CreateText(go.transform, "H1", "桌面宠物", 36, TextAnchor.UpperLeft,
+                new Vector2(32, -32), new Vector2(600, 48));
             CreateText(go.transform, "H2",
-                "这是 Windows 桌面基础壳。Steam 身份登录和真实网络正在接入。\n请从左侧进入四个功能占位。",
-                20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 120));
+                "你的猫咪会陪你留在桌面上。进入鱼塘后可缩小或隐藏到托盘继续挂机。",
+                20, TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 48));
+
+            var petFrame = new GameObject("PetPlaceholderFrame", typeof(RectTransform), typeof(Image));
+            petFrame.transform.SetParent(go.transform, false);
+            var frameRt = petFrame.GetComponent<RectTransform>();
+            frameRt.anchorMin = new Vector2(0, 1);
+            frameRt.anchorMax = new Vector2(0, 1);
+            frameRt.pivot = new Vector2(0, 1);
+            frameRt.anchoredPosition = new Vector2(48, -176);
+            frameRt.sizeDelta = new Vector2(288, 288);
+            petFrame.GetComponent<Image>().color = new Color(0.12f, 0.18f, 0.24f, 1f);
+
+            _petImage = new GameObject("PetPlaceholder", typeof(RectTransform), typeof(Image),
+                typeof(AspectRatioFitter)).GetComponent<Image>();
+            _petImage.transform.SetParent(petFrame.transform, false);
+            var petRt = _petImage.GetComponent<RectTransform>();
+            petRt.anchorMin = new Vector2(0.5f, 0.5f);
+            petRt.anchorMax = new Vector2(0.5f, 0.5f);
+            petRt.pivot = new Vector2(0.5f, 0.5f);
+            petRt.sizeDelta = new Vector2(256, 256);
+            var fitter = _petImage.GetComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            fitter.aspectRatio = 1f;
+            _petImage.preserveAspect = true;
+            _petImage.sprite = ResolvePetSprite();
+            _petImage.raycastTarget = false;
+
+            _petState = CreateText(go.transform, "PetState", "状态：等待登录", 22,
+                TextAnchor.UpperLeft, new Vector2(384, -176), new Vector2(560, 40));
+            _petPond = CreateText(go.transform, "PetPond", "当前鱼塘：未进入", 20,
+                TextAnchor.UpperLeft, new Vector2(384, -228), new Vector2(560, 36));
+            CreateText(go.transform, "PetHint",
+                "占位猫咪 · 256×256 · 待机 / 钓鱼 / 咬钩 / 收鱼状态入口已预留",
+                16, TextAnchor.UpperLeft, new Vector2(384, -280), new Vector2(640, 56));
+
+            CreateButton(go.transform, "OpenPond", "进入 / 恢复鱼塘",
+                new Vector2(384, -360), new Vector2(220, 48), OpenPond);
             CreateButton(go.transform, "SteamLogin", "Steam 登录",
-                new Vector2(32, -230), new Vector2(180, 46), BeginSteamLogin);
+                new Vector2(620, -360), new Vector2(180, 46), BeginSteamLogin);
             CreateButton(go.transform, "SessionCheck", "验证当前会话",
-                new Vector2(228, -230), new Vector2(200, 46), ValidateCurrentSession);
+                new Vector2(816, -360), new Vector2(200, 46), ValidateCurrentSession);
             CreateText(go.transform, "H3",
                 "关闭窗口 → 隐藏到托盘（进程继续）\n托盘菜单可「显示窗口」或「退出游戏」",
                 18, TextAnchor.UpperLeft, new Vector2(32, -305), new Vector2(900, 100));
@@ -174,6 +216,94 @@ namespace FishSocial.Desktop
                 () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.FriendInvite));
             CreateButton(go.transform, "HomeError", "连接错误", new Vector2(358, -465), new Vector2(150, 42),
                 () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.ConnectionError));
+        }
+
+        void OpenPond()
+        {
+            _router.Show(ShellPanelId.Pond);
+            if (_pondSession == null)
+            {
+                ShowToast("鱼塘会话尚未初始化。");
+                return;
+            }
+            if (_pondSession.State == SocialSocketState.Connected ||
+                _pondSession.State == SocialSocketState.Connecting ||
+                _pondSession.State == SocialSocketState.Reconnecting)
+            {
+                ShowToast(_pondSession.State == SocialSocketState.Connected
+                    ? "已恢复当前鱼塘会话。"
+                    : "鱼塘会话正在连接，请稍候。");
+                return;
+            }
+            _pondSession.ConnectAndJoin();
+        }
+
+        void SetPetState(string state, Color color)
+        {
+            if (_petState != null)
+                _petState.text = "状态：" + state;
+            if (_petImage != null)
+                _petImage.color = color;
+        }
+
+        static string FormatPetState(string phase)
+        {
+            switch (phase)
+            {
+                case "baiting":
+                case "casting":
+                case "waiting":
+                    return "钓鱼";
+                case "hooked":
+                    return "咬钩";
+                case "resolving":
+                    return "收鱼";
+                case "seated":
+                case "idle":
+                    return "待机";
+                default:
+                    return string.IsNullOrEmpty(phase) ? "待机" : phase;
+            }
+        }
+
+        static Color GetPetStateColor(string phase)
+        {
+            switch (phase)
+            {
+                case "hooked":
+                    return new Color(0.95f, 0.7f, 0.25f, 1f);
+                case "resolving":
+                    return new Color(0.4f, 0.75f, 1f, 1f);
+                case "baiting":
+                case "casting":
+                case "waiting":
+                    return new Color(0.65f, 0.8f, 1f, 1f);
+                default:
+                    return new Color(0.45f, 0.85f, 0.62f, 1f);
+            }
+        }
+
+        Sprite ResolvePetSprite()
+        {
+            if (_petPlaceholderSprite != null)
+                return _petPlaceholderSprite;
+
+            var resourceSprite = Resources.Load<Sprite>("DesktopPetPlaceholder");
+            if (resourceSprite != null)
+                return resourceSprite;
+
+            if (_generatedPetSprite != null)
+                return _generatedPetSprite;
+
+            var texture = new Texture2D(256, 256, TextureFormat.RGBA32, false);
+            var pixels = new Color[256 * 256];
+            for (var i = 0; i < pixels.Length; i++)
+                pixels[i] = new Color(0.28f, 0.62f, 0.72f, 1f);
+            texture.SetPixels(pixels);
+            texture.Apply();
+            _generatedPetSprite = Sprite.Create(texture, new Rect(0, 0, 256, 256),
+                new Vector2(0.5f, 0.5f), 100f);
+            return _generatedPetSprite;
         }
 
         void BeginSteamLogin()
@@ -220,13 +350,16 @@ namespace FishSocial.Desktop
                     break;
                 case SteamLoginState.Authenticated:
                     _statusLogin.text = "登录：Steam 已连接";
+                    SetPetState("待机", new Color(0.45f, 0.85f, 0.62f, 1f));
                     ShowToast("Steam 登录成功");
                     break;
                 case SteamLoginState.Failed:
                     _statusLogin.text = "登录：失败";
+                    SetPetState("登录失败", new Color(0.9f, 0.35f, 0.35f, 1f));
                     break;
                 default:
                     _statusLogin.text = "登录：未登录";
+                    SetPetState("等待登录", new Color(0.65f, 0.7f, 0.76f, 1f));
                     break;
             }
         }
@@ -252,6 +385,12 @@ namespace FishSocial.Desktop
                 _statusConnection.text = "连接：" + label;
             if (_pondStatus != null && !string.IsNullOrEmpty(message))
                 _pondStatus.text = "连接：" + label + "\n" + message;
+            if (state == SocialSocketState.Connected)
+                SetPetState("已连接，等待鱼塘", new Color(0.45f, 0.85f, 0.62f, 1f));
+            else if (state == SocialSocketState.Reconnecting)
+                SetPetState("重连中", new Color(0.95f, 0.75f, 0.3f, 1f));
+            else if (state == SocialSocketState.Failed)
+                SetPetState("连接失败", new Color(0.9f, 0.35f, 0.35f, 1f));
         }
 
         void OnPondSnapshot(PondSnapshotDto snapshot)
@@ -261,6 +400,10 @@ namespace FishSocial.Desktop
             var count = snapshot?.users?.Length ?? 0;
             _pondStatus.text = "连接：在线 · 鱼塘用户：" + count +
                                "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle");
+            if (_petPond != null)
+                _petPond.text = "当前鱼塘：" +
+                                (snapshot?.pond?.name ?? _pondSession?.CurrentPondId ?? "未进入鱼塘");
+            SetPetState(FormatPetState(_pondSession?.CurrentPhase), GetPetStateColor(_pondSession?.CurrentPhase));
         }
 
         void OnPondUserUpdated(PondUserDto user)
@@ -268,10 +411,12 @@ namespace FishSocial.Desktop
             if (_pondStatus != null)
                 _pondStatus.text = "连接：在线 · 当前 phase：" + (user?.fishingPhase ?? "idle") +
                                    "\n当前钓位：" + (user?.spotId ?? "未选择");
+            SetPetState(FormatPetState(user?.fishingPhase), GetPetStateColor(user?.fishingPhase));
         }
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
+            SetPetState("咬钩", new Color(0.95f, 0.7f, 0.25f, 1f));
             ShowToast("收到服务端咬钩事件，请点击“领取鱼获”。");
         }
 
@@ -290,6 +435,8 @@ namespace FishSocial.Desktop
                 }
                 _inventoryStatus.text = text;
             }
+            if (count > 0)
+                SetPetState("收鱼", new Color(0.4f, 0.75f, 1f, 1f));
             ShowToast("背包已更新：" + count + " 条鱼获");
         }
 

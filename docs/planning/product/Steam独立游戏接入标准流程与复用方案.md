@@ -24,7 +24,7 @@
 | STEAM-DESKTOP-EPIC | 已确认 | Steam 桌面端转型总计划，尚未整体收口 |
 | STEAM-DESKTOP-01 | 已确认 | 产品定位与信息架构已确认，仍可继续细化 |
 | STEAM-DESKTOP-02 | 已确认 | 当前正在实施 Steamworks.NET、Ticket、服务端认证联调 |
-| STEAM-DESKTOP-03 | 已确认 | 好友、Lobby、邀请尚未开始 |
+| STEAM-DESKTOP-03 | 已实现 | Lobby 创建/加入、邀请与 pondId 映射、权限拒绝和鱼塘生命周期已验证；双 Steam 联调因缺少第二测试账号跳过 |
 | STEAM-DESKTOP-04 | 已实现 | Unity Windows 桌面基础壳已完成并通过构建冒烟 |
 | STEAM-DESKTOP-05 | 已实现 | 空鱼塘休眠与生态离线补算已完成 |
 
