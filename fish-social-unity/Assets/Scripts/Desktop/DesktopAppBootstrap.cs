@@ -78,8 +78,6 @@ namespace FishSocial.Desktop
                 SteamAuthIdentity);
             _pondSession = gameObject.AddComponent<SocialPondSessionController>();
             _pondSession.Configure(_steamAuth);
-            _nativeOverlay = gameObject.AddComponent<NativeOverlayProcessController>();
-            _nativeOverlay.CommandReceived += OnNativeOverlayCommand;
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
             _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter);
@@ -116,8 +114,18 @@ namespace FishSocial.Desktop
 
         public void StartNativeOverlay()
         {
-            _nativeOverlay?.StartOverlay();
+            EnsureNativeOverlay().StartOverlay();
             PublishNativeOverlayState();
+        }
+
+        NativeOverlayProcessController EnsureNativeOverlay()
+        {
+            if (_nativeOverlay != null)
+                return _nativeOverlay;
+
+            _nativeOverlay = gameObject.AddComponent<NativeOverlayProcessController>();
+            _nativeOverlay.CommandReceived += OnNativeOverlayCommand;
+            return _nativeOverlay;
         }
 
         public void PublishNativeOverlayState()
@@ -159,9 +167,7 @@ namespace FishSocial.Desktop
             Application.wantsToQuit -= OnWantsToQuit;
             if (_nativeOverlay != null)
             {
-                Debug.Log("[Shutdown] closing native overlay.");
                 _nativeOverlay.CommandReceived -= OnNativeOverlayCommand;
-                _nativeOverlay.CloseOverlay();
             }
 #if !UNITY_EDITOR
             if (_singleInstanceMutex != null)

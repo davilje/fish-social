@@ -44,6 +44,7 @@ namespace FishSocial.Desktop.Auth
         readonly Dictionary<int, Action<bool, string>> _pendingAcks =
             new Dictionary<int, Action<bool, string>>();
         readonly object _ackLock = new object();
+        readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
         ClientWebSocket _socket;
         CancellationTokenSource _cancel;
         string _accessToken;
@@ -317,10 +318,25 @@ namespace FishSocial.Desktop.Auth
 
         async Task SendRaw(string packet, CancellationToken token)
         {
-            if (_socket == null || _socket.State != WebSocketState.Open)
-                return;
-            var bytes = Encoding.UTF8.GetBytes(packet);
-            await _socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, token);
+            var entered = false;
+            try
+            {
+                await _sendLock.WaitAsync(token);
+                entered = true;
+                if (_socket == null || _socket.State != WebSocketState.Open)
+                    return;
+                var bytes = Encoding.UTF8.GetBytes(packet);
+                await _socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, token);
+            }
+            catch (Exception error)
+            {
+                Debug.LogWarning("[Pond] Socket.IO send failed: " + error.Message);
+            }
+            finally
+            {
+                if (entered)
+                    _sendLock.Release();
+            }
         }
 
         Uri BuildUri()
