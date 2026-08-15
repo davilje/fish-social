@@ -16,9 +16,17 @@ namespace FishSocial.Desktop
         public event Action<WindowDisplayMode> ModeChanged;
         public event Action VisibilityChanged;
 
+        public const int LoginWidth = 480;
+        public const int LoginHeight = 320;
+        public const int MainDefaultWidth = 1280;
+        public const int MainDefaultHeight = 720;
+
         float _saveTimer;
         bool _appliedOnce;
         bool _applying;
+        bool _loginShell = true;
+
+        public bool IsLoginShell => _loginShell;
 
         void Awake()
         {
@@ -36,13 +44,40 @@ namespace FishSocial.Desktop
 
         void Start()
         {
-            ApplySettings(persist: false);
+            if (_loginShell)
+                ApplyLoginShell();
+            else
+                ApplySettings(persist: false);
             _appliedOnce = true;
+        }
+
+        public void ApplyLoginShell()
+        {
+            _loginShell = true;
+            NativeWindowUtil.TrySetWindowed(
+                LoginWidth,
+                LoginHeight,
+                true,
+                Settings.HasPosition ? Settings.PosX : 80,
+                Settings.HasPosition ? Settings.PosY : 80);
+            _appliedOnce = true;
+        }
+
+        public void ApplyMainShell()
+        {
+            _loginShell = false;
+            if (Settings.Width < 960 || Settings.Height < 540)
+            {
+                Settings.Width = MainDefaultWidth;
+                Settings.Height = MainDefaultHeight;
+            }
+
+            ApplySettings(persist: false);
         }
 
         void Update()
         {
-            if (!IsWindowVisible || Settings.Mode != WindowDisplayMode.Windowed)
+            if (_loginShell || !IsWindowVisible || Settings.Mode != WindowDisplayMode.Windowed)
                 return;
 
             _saveTimer += Time.unscaledDeltaTime;
@@ -124,7 +159,7 @@ namespace FishSocial.Desktop
             if (!IsWindowVisible)
                 return;
 
-            if (Settings.Mode == WindowDisplayMode.Windowed)
+            if (!_loginShell && Settings.Mode == WindowDisplayMode.Windowed)
                 CaptureWindowedGeometry(save: true);
 
             IsWindowVisible = false;
@@ -143,7 +178,10 @@ namespace FishSocial.Desktop
 
             IsWindowVisible = true;
             NativeWindowUtil.TryShowWindow(true);
-            ApplySettings(persist: false);
+            if (_loginShell)
+                ApplyLoginShell();
+            else
+                ApplySettings(persist: false);
             NativeWindowUtil.TryFocusWindow();
             BackgroundRenderGate.SetHidden(false);
             VisibilityChanged?.Invoke();
@@ -162,7 +200,7 @@ namespace FishSocial.Desktop
 
         void CaptureWindowedGeometry(bool save = true)
         {
-            if (Screen.fullScreenMode != FullScreenMode.Windowed)
+            if (_loginShell || Screen.fullScreenMode != FullScreenMode.Windowed)
                 return;
 
             Settings.Width = Mathf.Max(960, Screen.width);

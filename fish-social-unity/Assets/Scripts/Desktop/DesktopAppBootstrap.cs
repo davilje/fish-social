@@ -1,6 +1,7 @@
 using System.Threading;
 using UnityEngine;
 using FishSocial.Desktop.Auth;
+using FishSocial.Desktop.Pet;
 using FishSocial.Desktop.Social;
 
 namespace FishSocial.Desktop
@@ -23,8 +24,9 @@ namespace FishSocial.Desktop
         SocialPondSessionController _pondSession;
         SocialLobbyController _socialLobby;
         NativeOverlayProcessController _nativeOverlay;
+        PetStateController _petState;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
-        bool _quitWatchdogStarted;
+        bool _quitFallbackStarted;
 #if !UNITY_EDITOR
         Mutex _singleInstanceMutex;
 #endif
@@ -81,6 +83,8 @@ namespace FishSocial.Desktop
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
             _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter);
+            _petState = gameObject.AddComponent<PetStateController>();
+            _petState.StateChanged += OnPetVisualStateChanged;
             var ui = gameObject.AddComponent<DesktopShellUi>();
 
             _tray.ShowRequested += () =>
@@ -93,6 +97,15 @@ namespace FishSocial.Desktop
                 _window.HideToTray();
                 _session.NotifyAppHidden();
             };
+            _tray.OverlayShowRequested += () =>
+            {
+                if (_nativeOverlay != null)
+                    _nativeOverlay.ShowOverlay();
+            };
+            _tray.OverlayExitRequested += () =>
+            {
+                _nativeOverlay?.CloseOverlay();
+            };
             _tray.ExitRequested += QuitForReal;
 
             _window.VisibilityChanged += () =>
@@ -104,16 +117,27 @@ namespace FishSocial.Desktop
             };
 
             ui.Build(_router);
-            Debug.Log("[DesktopShell] STEAM-DESKTOP-04 bootstrap ready");
+            _petState.RefreshFromApp();
+            Debug.Log("[DesktopShell] STEAM-DESKTOP-07A bootstrap ready");
             PublishNativeOverlayState();
         }
 
         public SteamAuthController SteamAuth => _steamAuth;
         public SocialPondSessionController PondSession => _pondSession;
         public SocialLobbyController SocialLobby => _socialLobby;
+        public PetStateController PetState => _petState;
 
         public void StartNativeOverlay()
         {
+            if (string.Equals(
+                    System.Environment.GetEnvironmentVariable("FISH_SOCIAL_DISABLE_OVERLAY"),
+                    "1",
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.Log("[NativeOverlay] disabled by FISH_SOCIAL_DISABLE_OVERLAY.");
+                return;
+            }
+
             EnsureNativeOverlay().StartOverlay();
             PublishNativeOverlayState();
         }
@@ -133,14 +157,21 @@ namespace FishSocial.Desktop
             if (_nativeOverlay == null)
                 return;
 
-            var snapshot = _pondSession?.LatestSnapshot;
-            _nativeOverlay.PublishState(new NativeOverlayStateDto
+            var dto = new NativeOverlayStateDto
             {
                 loginState = _steamAuth?.State.ToString() ?? "SignedOut",
                 connectionState = _pondSession?.State.ToString() ?? "Disconnected",
-                pondName = snapshot?.pond?.name ?? string.Empty,
                 fishingPhase = _pondSession?.CurrentPhase ?? "idle",
-            });
+                petVisualState = PetStateController.ToWire(
+                    _petState != null ? _petState.Current : PetVisualState.Offline),
+            };
+            OverlayPondStateBuilder.Fill(dto, _pondSession);
+            _nativeOverlay.PublishState(dto);
+        }
+
+        void OnPetVisualStateChanged(PetVisualState _)
+        {
+            PublishNativeOverlayState();
         }
 
         void OnNativeOverlayCommand(string command)
@@ -149,6 +180,7 @@ namespace FishSocial.Desktop
             {
                 case "open_main":
                     _window?.ShowFromTray();
+                    _router?.Show(ShellPanelId.Home);
                     NativeWindowUtil.TryFocusWindow();
                     break;
                 case "hide_overlay":
@@ -163,7 +195,9 @@ namespace FishSocial.Desktop
         void OnDestroy()
         {
             Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy begin.");
-            StartQuitWatchdog();
+            if (_petState != null)
+                _petState.StateChanged -= OnPetVisualStateChanged;
+            _nativeOverlay?.ForceTerminateForApplicationQuit();
             Application.wantsToQuit -= OnWantsToQuit;
             if (_nativeOverlay != null)
             {
@@ -189,35 +223,29 @@ namespace FishSocial.Desktop
             // The window close button must terminate the process. Hiding to
             // tray remains an explicit action from the tray menu.
             Debug.Log("[Shutdown] OnWantsToQuit received.");
-            StartQuitWatchdog();
+            _nativeOverlay?.ForceTerminateForApplicationQuit();
+            StartQuitFallback();
             return true;
 #endif
         }
 
-        void StartQuitWatchdog()
+        void StartQuitFallback()
         {
-            if (_quitWatchdogStarted)
+            if (_quitFallbackStarted)
                 return;
 
-            _quitWatchdogStarted = true;
-            Debug.Log("[Shutdown] quit watchdog started.");
-            var watchdog = new Thread(() =>
+            _quitFallbackStarted = true;
+            var processId = System.Diagnostics.Process.GetCurrentProcess().Id;
+            Debug.Log("[Shutdown] detached quit fallback armed for process " + processId);
+            try
             {
-                Thread.Sleep(1500);
-                try
-                {
-                    System.Diagnostics.Process.GetCurrentProcess().Kill();
-                }
-                catch
-                {
-                    System.Environment.Exit(0);
-                }
-            })
+                DetachedWin32Process.TaskkillPidAfterDelay(processId, 3);
+            }
+            catch (System.Exception exception)
             {
-                IsBackground = true,
-                Name = "FishSocialQuitWatchdog",
-            };
-            watchdog.Start();
+                Debug.LogWarning("[Shutdown] quit fallback could not start: " +
+                    exception.Message);
+            }
         }
 
         public void QuitForReal()

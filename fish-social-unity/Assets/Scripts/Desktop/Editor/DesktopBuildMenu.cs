@@ -18,16 +18,16 @@ namespace FishSocial.Desktop.Editor
         [MenuItem("Fish Social/Build Windows Development Player")]
         public static void BuildWindowsDevelopment()
         {
-            BuildWindowsDevelopment(false);
+            BuildWindowsPlayer(true, true);
         }
 
-        [MenuItem("Fish Social/Build Windows + Native Overlay")]
+        [MenuItem("Fish Social/Build Windows Release + Native Overlay")]
         public static void BuildWindowsWithNativeOverlay()
         {
-            BuildWindowsDevelopment(true);
+            BuildWindowsPlayer(true, false);
         }
 
-        static void BuildWindowsDevelopment(bool includeNativeOverlay)
+        static void BuildWindowsPlayer(bool includeNativeOverlay, bool development)
         {
             try
             {
@@ -56,7 +56,9 @@ namespace FishSocial.Desktop.Editor
                     scenes = new[] { ScenePath },
                     locationPathName = output,
                     target = BuildTarget.StandaloneWindows64,
-                    options = BuildOptions.Development | BuildOptions.AllowDebugging,
+                    options = development
+                        ? BuildOptions.Development | BuildOptions.AllowDebugging
+                        : BuildOptions.None,
                 };
 
                 var report = BuildPipeline.BuildPlayer(options);
@@ -66,7 +68,7 @@ namespace FishSocial.Desktop.Editor
                     var details = report == null
                         ? string.Empty
                         : $"\n错误数：{report.summary.totalErrors}，警告数：{report.summary.totalWarnings}";
-                    FailBuild("Windows Development Build 失败：" + result + details +
+                    FailBuild("Windows Build 失败：" + result + details +
                               "\n\n请查看 Unity Console 获取具体错误。");
                     return;
                 }
@@ -88,13 +90,15 @@ namespace FishSocial.Desktop.Editor
                     !PublishNativeOverlay(projectRoot, outputDirectory))
                     return;
 
-                Debug.Log("[Build] Windows Development Build OK → " + output);
+                Debug.Log("[Build] Windows " + (development ? "Development" : "Release") +
+                          " Build OK → " + output);
                 var smoke = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Docs", "STEAM-DESKTOP-04-smoke.md"));
                 Debug.Log("[Build] Smoke checklist: " + smoke);
                 if (!Application.isBatchMode)
                 {
                     EditorUtility.DisplayDialog("Fish Social 构建完成",
-                        "Windows Development Build 已生成：\n" + output, "确定");
+                        (development ? "Windows Development Build" : "Windows Release Build") +
+                        " 已生成：\n" + output, "确定");
                 }
             }
             catch (Exception error)

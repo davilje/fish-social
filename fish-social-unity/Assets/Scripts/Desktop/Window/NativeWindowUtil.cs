@@ -188,7 +188,7 @@ namespace FishSocial.Desktop
             SetWindowLong(hwnd, GWL_STYLE, style);
             var flags = SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW;
             return SetWindowPos(hwnd, IntPtr.Zero, hasPosition ? x : 0, hasPosition ? y : 0,
-                Mathf.Max(960, width), Mathf.Max(540, height), flags);
+                Mathf.Max(1, width), Mathf.Max(1, height), flags);
         }
 #else
         public static bool TryShowWindow(bool visible) => true;
