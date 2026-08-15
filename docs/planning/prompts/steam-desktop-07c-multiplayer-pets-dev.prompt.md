@@ -1,5 +1,7 @@
 # STEAM-DESKTOP-07C：同塘玩家宠物与状态同步
 
+> 状态：**已实现**（用户验收 2026-08-15）
+
 请在 `fish-social-unity/` 内实现同一鱼塘内其他玩家宠物的表现和状态同步，主要表现于已有的 `960×480` 原生 Overlay。
 本任务只运行一个 Unity 主程序；严禁启动第二个 Unity Player。
 Overlay 不连接 Socket；网络仍由 Unity 现有会话承担。

@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace FishSocialOverlay
 {
@@ -29,10 +30,18 @@ namespace FishSocialOverlay
         readonly Shape _shore;
         readonly Shape _water;
         readonly Dictionary<string, Ellipse> _spotVisuals = new Dictionary<string, Ellipse>();
+        readonly Dictionary<string, OverlayPetActor> _others =
+            new Dictionary<string, OverlayPetActor>();
+        readonly Canvas _actorLayer;
         string _pondId = string.Empty;
+        string _ownVisualState = string.Empty;
+        ImageSource[] _ownFrames = Array.Empty<ImageSource>();
+        int _ownFrameIndex;
+        DispatcherTimer _ownTimer;
 
         public PondScenePresenter(
             Canvas spotLayer,
+            Canvas actorLayer,
             FrameworkElement ownCat,
             Image ownCatImage,
             Shape[] catFills,
@@ -42,6 +51,7 @@ namespace FishSocialOverlay
             Shape water)
         {
             _spotLayer = spotLayer;
+            _actorLayer = actorLayer;
             _ownCat = ownCat;
             _ownCatImage = ownCatImage;
             _catFills = catFills ?? new Shape[0];
@@ -61,12 +71,15 @@ namespace FishSocialOverlay
             if (!string.Equals(pondId, _pondId, StringComparison.Ordinal))
             {
                 ClearSpots();
+                ClearOthers();
                 _pondId = pondId;
             }
 
             SyncSpots(message.Spots);
             PlaceOwnCat(message);
-            TintCat(message.PetVisualState);
+            ApplyOwnVisual(message.PetVisualState);
+            if (message.Users != null)
+                SyncOthers(message);
         }
 
         void SyncSpots(OverlaySpotDto[] spots)
@@ -138,32 +151,98 @@ namespace FishSocialOverlay
 
         void TintCat(string petVisualState)
         {
-            var color = Color.FromRgb(77, 137, 168);
-            switch (petVisualState)
-            {
-                case "fishing":
-                    color = Color.FromRgb(90, 168, 214);
-                    break;
-                case "hooked":
-                    color = Color.FromRgb(232, 156, 64);
-                    break;
-                case "catching":
-                    color = Color.FromRgb(86, 176, 230);
-                    break;
-                case "dragging":
-                    color = Color.FromRgb(232, 210, 86);
-                    break;
-                case "offline":
-                    color = Color.FromRgb(120, 128, 136);
-                    break;
-            }
-
-            var brush = new SolidColorBrush(color);
+            var brush = new SolidColorBrush(OverlayPetActor.StateColor(petVisualState));
             foreach (var shape in _catFills)
             {
                 if (shape != null)
                     shape.Fill = brush;
             }
+        }
+
+        void ApplyOwnVisual(string petVisualState)
+        {
+            TintCat(petVisualState);
+            if (string.Equals(_ownVisualState, petVisualState, StringComparison.Ordinal))
+                return;
+
+            _ownVisualState = petVisualState ?? "idle";
+            _ownFrames = OverlayFrameCache.Get(_ownVisualState);
+            _ownFrameIndex = 0;
+            if (_ownFrames.Length == 0)
+                return;
+
+            _ownCat.Visibility = Visibility.Collapsed;
+            _ownCatImage.Visibility = Visibility.Visible;
+            _ownCatImage.Source = _ownFrames[0];
+            if (_ownTimer == null)
+            {
+                _ownTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(125),
+                };
+                _ownTimer.Tick += OnOwnTick;
+                _ownTimer.Start();
+            }
+        }
+
+        void OnOwnTick(object sender, EventArgs e)
+        {
+            if (_ownFrames.Length <= 1)
+                return;
+            _ownFrameIndex = (_ownFrameIndex + 1) % _ownFrames.Length;
+            _ownCatImage.Source = _ownFrames[_ownFrameIndex];
+        }
+
+        void SyncOthers(IpcMessage message)
+        {
+            var keep = new HashSet<string>(StringComparer.Ordinal);
+            var users = message.Users;
+            for (var i = 0; i < users.Length; i++)
+            {
+                var user = users[i];
+                if (user == null)
+                    continue;
+                var key = !string.IsNullOrEmpty(user.PlayerId) ? user.PlayerId : user.UserId;
+                if (string.IsNullOrEmpty(key))
+                    continue;
+                keep.Add(key);
+                if (!_others.TryGetValue(key, out var actor))
+                {
+                    actor = new OverlayPetActor(key);
+                    _actorLayer.Children.Add(actor);
+                    _others[key] = actor;
+                }
+
+                actor.Apply(user.Nickname, user.PetVisualState, user.IsBot);
+                Point point;
+                if (user.HasPosition)
+                    point = MapToScene(user.X, user.Y, message.Spots);
+                else if (TryFindSpot(message.Spots, user.SpotId, out var sx, out var sy))
+                    point = MapToScene(sx, sy, message.Spots);
+                else
+                    point = WaitingLane(keep.Count - 1);
+                actor.Place(point.X, point.Y);
+            }
+
+            var remove = new List<string>();
+            foreach (var key in _others.Keys)
+            {
+                if (!keep.Contains(key))
+                    remove.Add(key);
+            }
+
+            foreach (var key in remove)
+            {
+                _actorLayer.Children.Remove(_others[key]);
+                _others.Remove(key);
+            }
+        }
+
+        void ClearOthers()
+        {
+            foreach (var actor in _others.Values)
+                _actorLayer.Children.Remove(actor);
+            _others.Clear();
         }
 
         void ClearSpots()
@@ -192,6 +271,33 @@ namespace FishSocialOverlay
                 _ownCatImage.Visibility = Visibility.Visible;
                 _ownCat.Visibility = Visibility.Collapsed;
             }
+        }
+
+        static bool TryFindSpot(
+            OverlaySpotDto[] spots, string spotId, out float x, out float y)
+        {
+            x = 0f;
+            y = 0f;
+            if (spots == null || string.IsNullOrEmpty(spotId))
+                return false;
+            foreach (var spot in spots)
+            {
+                if (spot != null && spot.Id == spotId)
+                {
+                    x = spot.X;
+                    y = spot.Y;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static Point WaitingLane(int index)
+        {
+            var col = index % 6;
+            var row = index / 6;
+            return new Point(96 + col * 140, 56 + row * 44);
         }
 
         static BitmapImage LoadBitmap(string path)

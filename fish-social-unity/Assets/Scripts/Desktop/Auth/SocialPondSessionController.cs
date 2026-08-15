@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FishSocial.Desktop.Auth
@@ -13,6 +14,7 @@ namespace FishSocial.Desktop.Auth
 
         ISocialSocketClient _socket;
         SteamAuthController _auth;
+        readonly Dictionary<string, PondUserDto> _users = new Dictionary<string, PondUserDto>();
         PendingFishCatchDto _latestCatch;
         string _nickname;
         bool _joinRequested;
@@ -35,6 +37,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<SocialSocketState, string> StateChanged;
         public event Action<PondSnapshotDto> SnapshotChanged;
         public event Action<PondUserDto> UserUpdated;
+        public event Action UsersChanged;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<string> ErrorReceived;
@@ -50,6 +53,8 @@ namespace FishSocial.Desktop.Auth
 
             _socket.StateChanged += OnStateChanged;
             _socket.PondSnapshotReceived += OnSnapshot;
+            _socket.PondUserJoined += OnUserJoined;
+            _socket.PondUserLeft += OnUserLeft;
             _socket.PondUserUpdated += OnUserUpdated;
             _socket.FishBiteReceived += OnFishBite;
             _socket.InventoryUpdated += OnInventoryUpdated;
@@ -164,23 +169,60 @@ namespace FishSocial.Desktop.Auth
                         ErrorReceived?.Invoke(joinMessage);
                 });
             }
+            if (state == SocialSocketState.Disconnected ||
+                state == SocialSocketState.Failed)
+            {
+                if (_users.Count > 0)
+                {
+                    _users.Clear();
+                    UsersChanged?.Invoke();
+                }
+            }
+
             StateChanged?.Invoke(state, message);
         }
 
         void OnSnapshot(PondSnapshotDto snapshot)
         {
             LatestSnapshot = snapshot;
+            ReplaceUsers(snapshot?.users);
             CurrentUser = FindCurrentUser(snapshot);
             CurrentInventory = snapshot?.inventory ?? new FishInventoryItemDto[0];
             SnapshotChanged?.Invoke(snapshot);
+            UsersChanged?.Invoke();
+        }
+
+        void OnUserJoined(PondUserDto user)
+        {
+            if (user == null)
+                return;
+            UpsertUser(user);
+            if (IsSelf(user))
+                CurrentUser = user;
+            UsersChanged?.Invoke();
+        }
+
+        void OnUserLeft(string userId)
+        {
+            if (string.IsNullOrEmpty(userId) || !RemoveUser(userId))
+                return;
+            if (CurrentUser != null &&
+                (CurrentUser.id == userId || CurrentUser.playerId == userId))
+                CurrentUser = null;
+            UsersChanged?.Invoke();
         }
 
         void OnUserUpdated(PondUserDto user)
         {
-            if (user == null || _auth == null || user.playerId != _auth.AuthenticatedPlayerId)
+            if (user == null)
                 return;
-            CurrentUser = user;
-            UserUpdated?.Invoke(user);
+            UpsertUser(user);
+            if (IsSelf(user))
+            {
+                CurrentUser = user;
+                UserUpdated?.Invoke(user);
+            }
+            UsersChanged?.Invoke();
         }
 
         void OnFishBite(PendingFishCatchDto fishCatch)
@@ -210,6 +252,8 @@ namespace FishSocial.Desktop.Auth
             }
             _socket.StateChanged -= OnStateChanged;
             _socket.PondSnapshotReceived -= OnSnapshot;
+            _socket.PondUserJoined -= OnUserJoined;
+            _socket.PondUserLeft -= OnUserLeft;
             _socket.PondUserUpdated -= OnUserUpdated;
             _socket.FishBiteReceived -= OnFishBite;
             _socket.InventoryUpdated -= OnInventoryUpdated;
@@ -218,15 +262,87 @@ namespace FishSocial.Desktop.Auth
             Debug.Log("[Shutdown] SocialPondSessionController.OnDestroy complete.");
         }
 
+        public PondUserDto[] VisibleOthers
+        {
+            get
+            {
+                var others = new List<PondUserDto>(_users.Count);
+                foreach (var user in _users.Values)
+                {
+                    if (user != null && !IsSelf(user))
+                        others.Add(user);
+                }
+                return others.ToArray();
+            }
+        }
+
+        void ReplaceUsers(PondUserDto[] users)
+        {
+            _users.Clear();
+            if (users == null)
+                return;
+            for (var i = 0; i < users.Length; i++)
+                UpsertUser(users[i]);
+        }
+
+        void UpsertUser(PondUserDto user)
+        {
+            var key = UserKey(user);
+            if (string.IsNullOrEmpty(key) || user == null)
+                return;
+            _users[key] = user;
+        }
+
+        bool RemoveUser(string idOrPlayerId)
+        {
+            if (_users.Remove(idOrPlayerId))
+                return true;
+            string match = null;
+            foreach (var pair in _users)
+            {
+                if (pair.Value != null &&
+                    (pair.Value.id == idOrPlayerId || pair.Value.playerId == idOrPlayerId))
+                {
+                    match = pair.Key;
+                    break;
+                }
+            }
+
+            return match != null && _users.Remove(match);
+        }
+
+        static string UserKey(PondUserDto user)
+        {
+            if (user == null)
+                return null;
+            if (!string.IsNullOrEmpty(user.id))
+                return user.id;
+            return user.playerId;
+        }
+
+        bool IsSelf(PondUserDto user)
+        {
+            return user != null && _auth != null &&
+                   !string.IsNullOrEmpty(_auth.AuthenticatedPlayerId) &&
+                   user.playerId == _auth.AuthenticatedPlayerId;
+        }
+
         PondUserDto FindCurrentUser(PondSnapshotDto snapshot)
         {
+            foreach (var user in _users.Values)
+            {
+                if (IsSelf(user))
+                    return user;
+            }
+
             if (snapshot?.users == null || _auth == null)
                 return null;
             foreach (var user in snapshot.users)
             {
-                if (user != null && user.playerId == _auth.AuthenticatedPlayerId)
+                if (IsSelf(user))
                     return user;
             }
+
             return null;
         }
     }

@@ -76,6 +76,11 @@ namespace FishSocial.Desktop.Pet
                 return PetVisualState.Idle;
 
             var phase = pond.CurrentPhase ?? string.Empty;
+            return FromFishingPhase(phase);
+        }
+
+        public static PetVisualState FromFishingPhase(string phase)
+        {
             switch (phase)
             {
                 case "hooked":

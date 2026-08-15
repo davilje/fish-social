@@ -1,5 +1,13 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07c-accepted] - 2026-08-15
+
+- `STEAM-DESKTOP-07C` 用户验收通过，计划状态改为 **已实现**。
+- Overlay 以服务端 `pond_snapshot` / `pond_user_joined/left/updated` 显示同塘玩家（含机器人），`fishingPhase` → `petVisualState`，本地序列帧，IPC 不传图。
+- 按 `playerId` 复用对象；无钓位时岸边等待位排列；打开主界面不离塘。
+- 父需求 `STEAM-DESKTOP-07` 仍为 **已确认**（07D～07F 未完成）。
+- 下一阶段：`STEAM-DESKTOP-07D` 桌面宠物右键菜单。
+
 ### [steam-desktop-07c-overlay-frames-sync] - 2026-08-15
 
 - 确认 Steam 桌面与 web/RN **权威相同、表现不同**：不平移移动端页面，不迁移旧档。

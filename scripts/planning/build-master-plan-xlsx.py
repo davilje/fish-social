@@ -133,7 +133,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-07C",
         "功能",
         "同塘玩家宠物与状态同步",
@@ -143,7 +143,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "在 Overlay 渲染 pond_user_joined/left/updated；128×128 统一序列帧；fishingPhase→petVisualState；IPC 不传图、不新开协议",
         "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
         "2026-08-13",
-        "",
+        "2026-08-15",
     ],
     [
         "已确认",

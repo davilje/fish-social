@@ -44,6 +44,7 @@ namespace FishSocialOverlay
             Closing += OnClosing;
             _scene = new PondScenePresenter(
                 SpotLayer,
+                ActorLayer,
                 OwnCat,
                 OwnCatImage,
                 new System.Windows.Shapes.Shape[] { CatEarL, CatEarR, CatBody },

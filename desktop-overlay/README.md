@@ -22,10 +22,10 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id>
 协议为 JSON Lines，`version` 当前为 `1`，状态必须带递增 `sequence`：
 
 ```json
-{"type":"state","version":1,"sequence":12,"loginState":"Authenticated","connectionState":"Connected","pondName":"静水湾","pondId":"pond-calm","fishingPhase":"waiting","petVisualState":"fishing","ownSpotId":"calm-spot-1","ownX":240,"ownY":400,"hasOwnPosition":true,"spots":[{"id":"calm-spot-1","x":240,"y":400}]}
+{"type":"state","version":1,"sequence":12,"loginState":"Authenticated","connectionState":"Connected","pondName":"静水湾","pondId":"pond-calm","fishingPhase":"waiting","petVisualState":"fishing","ownSpotId":"calm-spot-1","ownX":240,"ownY":400,"hasOwnPosition":true,"spots":[{"id":"calm-spot-1","x":240,"y":400}],"users":[{"playerId":"p2","nickname":"同塘玩家","spotId":"calm-spot-2","x":400,"y":360,"hasPosition":true,"petVisualState":"idle"}]}
 ```
 
-Overlay 只渲染上述字段，不推断其他玩家，也不维护第二套状态机。
+Overlay 只渲染 Unity 推送的字段，不连接 Socket，不推断第二套状态机。`users` 为同塘其他玩家，按 `playerId` 复用，快照全量覆盖。IPC 不传贴图。
 
 Overlay 回传命令：
 

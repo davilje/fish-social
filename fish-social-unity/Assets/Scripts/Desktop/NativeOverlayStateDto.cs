@@ -19,6 +19,7 @@ namespace FishSocial.Desktop
         public float ownY;
         public bool hasOwnPosition;
         public NativeOverlaySpotDto[] spots = new NativeOverlaySpotDto[0];
+        public NativeOverlayActorDto[] users = new NativeOverlayActorDto[0];
     }
 
     [Serializable]
@@ -27,6 +28,20 @@ namespace FishSocial.Desktop
         public string id;
         public float x;
         public float y;
+    }
+
+    [Serializable]
+    public sealed class NativeOverlayActorDto
+    {
+        public string playerId;
+        public string userId;
+        public string nickname;
+        public string spotId;
+        public float x;
+        public float y;
+        public bool hasPosition;
+        public string petVisualState;
+        public bool isBot;
     }
 
     [Serializable]

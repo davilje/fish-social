@@ -64,6 +64,7 @@ namespace FishSocial.Desktop
                 _pondSession.StateChanged += OnPondStateChanged;
                 _pondSession.SnapshotChanged += OnPondSnapshot;
                 _pondSession.UserUpdated += OnPondUserUpdated;
+                _pondSession.UsersChanged += OnPondUsersChanged;
                 _pondSession.FishBiteReceived += OnPondFishBite;
                 _pondSession.InventoryUpdated += OnInventoryUpdated;
                 _pondSession.ErrorReceived += OnPondError;
@@ -215,6 +216,7 @@ namespace FishSocial.Desktop
             _pondSession.StateChanged -= OnPondStateChanged;
             _pondSession.SnapshotChanged -= OnPondSnapshot;
             _pondSession.UserUpdated -= OnPondUserUpdated;
+            _pondSession.UsersChanged -= OnPondUsersChanged;
             _pondSession.FishBiteReceived -= OnPondFishBite;
             _pondSession.InventoryUpdated -= OnInventoryUpdated;
             _pondSession.ErrorReceived -= OnPondError;
@@ -419,7 +421,8 @@ namespace FishSocial.Desktop
             {
                 var count = snapshot?.users?.Length ?? 0;
                 _pondStatus.text = "连接：在线 · 鱼塘用户：" + count +
-                                   "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle");
+                                   "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle") +
+                                   FormatOtherPlayers();
             }
             RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
@@ -429,9 +432,35 @@ namespace FishSocial.Desktop
         {
             if (_pondStatus != null)
                 _pondStatus.text = "连接：在线 · 当前 phase：" + (user?.fishingPhase ?? "idle") +
-                                   "\n当前钓位：" + (user?.spotId ?? "未选择");
+                                   "\n当前钓位：" + (user?.spotId ?? "未选择") +
+                                   FormatOtherPlayers();
             RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+        }
+
+        void OnPondUsersChanged()
+        {
+            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+        }
+
+        string FormatOtherPlayers()
+        {
+            var others = _pondSession?.VisibleOthers;
+            if (others == null || others.Length == 0)
+                return "\n同塘玩家：无";
+            var text = "\n同塘玩家：";
+            var shown = Mathf.Min(others.Length, 6);
+            for (var i = 0; i < shown; i++)
+            {
+                var user = others[i];
+                text += "\n· " + (string.IsNullOrEmpty(user.nickname) ? user.playerId : user.nickname) +
+                        " · " + PetStateController.ToChinese(
+                            PetStateController.FromFishingPhase(user.fishingPhase));
+            }
+
+            if (others.Length > shown)
+                text += "\n· …共 " + others.Length + " 人";
+            return text;
         }
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)

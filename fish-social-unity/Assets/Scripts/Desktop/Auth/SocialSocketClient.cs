@@ -15,6 +15,8 @@ namespace FishSocial.Desktop.Auth
         SocialSocketState State { get; }
         event Action<SocialSocketState, string> StateChanged;
         event Action<PondSnapshotDto> PondSnapshotReceived;
+        event Action<PondUserDto> PondUserJoined;
+        event Action<string> PondUserLeft;
         event Action<PondUserDto> PondUserUpdated;
         event Action<PendingFishCatchDto> FishBiteReceived;
         event Action<FishInventoryItemDto[]> InventoryUpdated;
@@ -55,6 +57,8 @@ namespace FishSocial.Desktop.Auth
         public SocialSocketState State { get; private set; } = SocialSocketState.Disconnected;
         public event Action<SocialSocketState, string> StateChanged;
         public event Action<PondSnapshotDto> PondSnapshotReceived;
+        public event Action<PondUserDto> PondUserJoined;
+        public event Action<string> PondUserLeft;
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
@@ -242,6 +246,10 @@ namespace FishSocial.Desktop.Auth
             {
                 if (eventName == "pond_snapshot")
                     PondSnapshotReceived?.Invoke(JsonUtility.FromJson<PondSnapshotDto>(payload));
+                else if (eventName == "pond_user_joined")
+                    PondUserJoined?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
+                else if (eventName == "pond_user_left")
+                    PondUserLeft?.Invoke(Unquote(payload));
                 else if (eventName == "pond_user_updated")
                     PondUserUpdated?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
                 else if (eventName == "fish_bite")
@@ -445,6 +453,8 @@ namespace FishSocial.Desktop.Auth
         public SocialSocketState State => SocialSocketState.Failed;
         public event Action<SocialSocketState, string> StateChanged;
         public event Action<PondSnapshotDto> PondSnapshotReceived;
+        public event Action<PondUserDto> PondUserJoined;
+        public event Action<string> PondUserLeft;
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;

@@ -19,6 +19,37 @@ namespace FishSocialOverlay
     }
 
     [DataContract]
+    public sealed class OverlayUserDto
+    {
+        [DataMember(Name = "playerId")]
+        public string PlayerId { get; set; }
+
+        [DataMember(Name = "userId")]
+        public string UserId { get; set; }
+
+        [DataMember(Name = "nickname")]
+        public string Nickname { get; set; }
+
+        [DataMember(Name = "spotId")]
+        public string SpotId { get; set; }
+
+        [DataMember(Name = "x")]
+        public float X { get; set; }
+
+        [DataMember(Name = "y")]
+        public float Y { get; set; }
+
+        [DataMember(Name = "hasPosition")]
+        public bool HasPosition { get; set; }
+
+        [DataMember(Name = "petVisualState")]
+        public string PetVisualState { get; set; }
+
+        [DataMember(Name = "isBot")]
+        public bool IsBot { get; set; }
+    }
+
+    [DataContract]
     public sealed class IpcMessage
     {
         [DataMember(Name = "type")]
@@ -62,6 +93,9 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "spots")]
         public OverlaySpotDto[] Spots { get; set; }
+
+        [DataMember(Name = "users")]
+        public OverlayUserDto[] Users { get; set; }
 
         [DataMember(Name = "command")]
         public string Command { get; set; }
