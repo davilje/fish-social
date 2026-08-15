@@ -1,5 +1,7 @@
 # STEAM-DESKTOP-07D：桌面宠物右键菜单
 
+> 状态：**已实现**（用户验收 2026-08-16）
+
 请在 `fish-social-unity/` 内实现 Fish Social 产品区域的右键菜单。
 
 ## 必读

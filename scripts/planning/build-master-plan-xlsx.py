@@ -146,7 +146,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-15",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-07D",
         "功能",
         "桌面宠物右键菜单",
@@ -156,7 +156,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "在产品窗口/宠物区域提供鱼塘、好友、背包、图鉴、设置、托盘和退出入口",
         "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
         "2026-08-13",
-        "",
+        "2026-08-16",
     ],
     [
         "已确认",

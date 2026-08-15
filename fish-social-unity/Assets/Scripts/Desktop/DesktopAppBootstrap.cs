@@ -25,6 +25,7 @@ namespace FishSocial.Desktop
         SocialLobbyController _socialLobby;
         NativeOverlayProcessController _nativeOverlay;
         PetStateController _petState;
+        DesktopShellUi _shellUi;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _quitFallbackStarted;
 #if !UNITY_EDITOR
@@ -86,6 +87,7 @@ namespace FishSocial.Desktop
             _petState = gameObject.AddComponent<PetStateController>();
             _petState.StateChanged += OnPetVisualStateChanged;
             var ui = gameObject.AddComponent<DesktopShellUi>();
+            _shellUi = ui;
 
             _tray.ShowRequested += () =>
             {
@@ -182,14 +184,28 @@ namespace FishSocial.Desktop
                     _window?.ShowFromTray();
                     _router?.Show(ShellPanelId.Home);
                     NativeWindowUtil.TryFocusWindow();
-                    break;
+                    return;
                 case "hide_overlay":
                     _nativeOverlay?.HideOverlay();
-                    break;
+                    return;
                 case "request_snapshot":
                     PublishNativeOverlayState();
-                    break;
+                    return;
             }
+
+            if (!DesktopProductMenuCommands.TryParse(command, out var action))
+                return;
+
+            if (action == DesktopProductMenuAction.Quit)
+            {
+                QuitForReal();
+                return;
+            }
+
+            if (action == DesktopProductMenuAction.HideToTray)
+                _nativeOverlay?.HideOverlay();
+
+            _shellUi?.HandleProductMenu(action);
         }
 
         void OnDestroy()

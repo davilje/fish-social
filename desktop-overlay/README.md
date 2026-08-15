@@ -39,6 +39,9 @@ Overlay 回传命令：
 - `hide_overlay`
 - `quit_overlay`
 - `request_snapshot`
+- `menu_pond` / `menu_friends` / `menu_catch` / `menu_gallery` / `menu_settings`
+- `hide_to_tray`
+- `quit_app`
 
 Overlay 收到旧 `sequence` 时丢弃，不覆盖当前状态。打开主窗口不得销毁鱼塘会话。
 

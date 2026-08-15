@@ -10,7 +10,7 @@ namespace FishSocial.Desktop
     /// <summary>
     /// Runtime-built UGUI shell: 480×320 login, 1280×720 main with bottom nav and pet home.
     /// </summary>
-    public sealed class DesktopShellUi : MonoBehaviour
+    public sealed class DesktopShellUi : MonoBehaviour, IDesktopProductMenuHandler
     {
         PanelRouter _router;
         CanvasScaler _scaler;
@@ -34,6 +34,7 @@ namespace FishSocial.Desktop
         Text _petStateLabel;
         Text _petPond;
         bool _mainShellEntered;
+        DesktopProductMenuView _productMenu;
 
         public void Build(PanelRouter router)
         {
@@ -96,6 +97,10 @@ namespace FishSocial.Desktop
                 new Vector2(0, 24), new Vector2(400, 48));
             _toast.alignment = TextAnchor.MiddleCenter;
             _toast.gameObject.SetActive(false);
+
+            _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
+            _productMenu.Bind(canvasGo.transform, _mainRoot.GetComponent<RectTransform>(), this);
+            _router.PanelChanged += OnPanelChanged;
 
             if (_steamAuth != null && _steamAuth.IsAuthenticated)
                 EnterMainShell();
@@ -203,8 +208,44 @@ namespace FishSocial.Desktop
             _router.Show(id);
         }
 
+        public void HandleProductMenu(DesktopProductMenuAction action)
+        {
+            _productMenu?.Hide();
+            switch (action)
+            {
+                case DesktopProductMenuAction.CurrentPond:
+                    OpenPond();
+                    break;
+                case DesktopProductMenuAction.Friends:
+                    ShowMainPanel(ShellPanelId.Friends);
+                    break;
+                case DesktopProductMenuAction.CatchBag:
+                    ShowMainPanel(ShellPanelId.CatchBag);
+                    break;
+                case DesktopProductMenuAction.Gallery:
+                    ShowMainPanel(ShellPanelId.Gallery);
+                    break;
+                case DesktopProductMenuAction.Settings:
+                    ShowMainPanel(ShellPanelId.Settings);
+                    break;
+                case DesktopProductMenuAction.HideToTray:
+                    WindowManager.Instance?.HideToTray();
+                    break;
+                case DesktopProductMenuAction.Quit:
+                    DesktopAppBootstrap.Instance?.QuitForReal();
+                    break;
+            }
+        }
+
+        void OnPanelChanged(ShellPanelId _)
+        {
+            _productMenu?.Hide();
+        }
+
         void OnDestroy()
         {
+            if (_router != null)
+                _router.PanelChanged -= OnPanelChanged;
             if (_petState != null)
                 _petState.StateChanged -= OnPetVisualStateChanged;
             if (_steamAuth == null)
@@ -727,10 +768,22 @@ namespace FishSocial.Desktop
 
             var trigger = go.AddComponent<EventTrigger>();
             var down = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
-            down.callback.AddListener(_ => _petState.SetDragging(true));
+            down.callback.AddListener(evt =>
+            {
+                var pointer = evt as PointerEventData;
+                if (pointer != null && pointer.button != PointerEventData.InputButton.Left)
+                    return;
+                _petState.SetDragging(true);
+            });
             trigger.triggers.Add(down);
             var up = new EventTrigger.Entry { eventID = EventTriggerType.PointerUp };
-            up.callback.AddListener(_ => _petState.SetDragging(false));
+            up.callback.AddListener(evt =>
+            {
+                var pointer = evt as PointerEventData;
+                if (pointer != null && pointer.button != PointerEventData.InputButton.Left)
+                    return;
+                _petState.SetDragging(false);
+            });
             trigger.triggers.Add(up);
             var exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
             exit.callback.AddListener(_ => _petState.SetDragging(false));

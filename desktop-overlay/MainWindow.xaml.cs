@@ -204,16 +204,40 @@ namespace FishSocialOverlay
             SendCommand("open_main");
         }
 
-        void HideOverlay_OnClick(object sender, RoutedEventArgs e)
+        void MenuPond_OnClick(object sender, RoutedEventArgs e)
         {
-            SendCommand("hide_overlay");
+            SendCommand("menu_pond");
+        }
+
+        void MenuFriends_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_friends");
+        }
+
+        void MenuCatch_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_catch");
+        }
+
+        void MenuGallery_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_gallery");
+        }
+
+        void MenuSettings_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_settings");
+        }
+
+        void HideToTray_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("hide_to_tray");
             Hide();
         }
 
-        void QuitOverlay_OnClick(object sender, RoutedEventArgs e)
+        void QuitApp_OnClick(object sender, RoutedEventArgs e)
         {
-            SendCommand("quit_overlay");
-            QuitProcess();
+            SendCommand("quit_app");
         }
 
         void QuitProcess()

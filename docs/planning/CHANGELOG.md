@@ -1,5 +1,20 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07e-web-parity-design] - 2026-08-16
+
+- 新增 `STEAM-DESKTOP-07E-DESIGN`，明确 Web→Steam 的功能与数据对齐范围。
+- 细化好友/聊天、背包、图鉴、设置弹窗的字段、权限、REST/Socket 事件和异常状态。
+- 明确 Steam 版采用桌面布局，不直接迁移 Web 路由；动态墙、Feed、排行榜和商店后置。
+- 更新 `STEAM-DESKTOP-07E` 开发提示词、表现层验收项和规格索引。
+
+### [steam-desktop-07d-accepted] - 2026-08-16
+
+- `STEAM-DESKTOP-07D` 用户验收通过，计划状态改为 **已实现**。
+- 主窗口与 Overlay 鱼塘区域右键菜单提供当前鱼塘、好友与聊天、鱼获/背包、图鉴、设置、隐藏到托盘、退出；菜单视图只分发事件。
+- 不拦截 Windows 桌面系统右键；隐藏到托盘/退出走现有生命周期；菜单操作不 `leave_pond`。弹窗内部仍属 07E。
+- 父需求 `STEAM-DESKTOP-07` 仍为 **已确认**（07E～07F 未完成）。
+- 下一阶段：`STEAM-DESKTOP-07E` 桌面宠物功能弹窗层。
+
 ### [steam-desktop-07c-accepted] - 2026-08-15
 
 - `STEAM-DESKTOP-07C` 用户验收通过，计划状态改为 **已实现**。

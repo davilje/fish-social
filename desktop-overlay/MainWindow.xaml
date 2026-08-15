@@ -24,10 +24,14 @@
                 MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp">
             <Border.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="打开主界面" Click="OpenMain_OnClick" />
-                    <MenuItem Header="隐藏 Overlay" Click="HideOverlay_OnClick" />
+                    <MenuItem Header="当前鱼塘" Click="MenuPond_OnClick" />
+                    <MenuItem Header="好友与聊天" Click="MenuFriends_OnClick" />
+                    <MenuItem Header="鱼获/背包" Click="MenuCatch_OnClick" />
+                    <MenuItem Header="图鉴" Click="MenuGallery_OnClick" />
+                    <MenuItem Header="设置" Click="MenuSettings_OnClick" />
                     <Separator />
-                    <MenuItem Header="退出 Overlay" Click="QuitOverlay_OnClick" />
+                    <MenuItem Header="隐藏到托盘" Click="HideToTray_OnClick" />
+                    <MenuItem Header="退出" Click="QuitApp_OnClick" />
                 </ContextMenu>
             </Border.ContextMenu>
             <Canvas x:Name="SceneCanvas" Width="960" Height="480">
