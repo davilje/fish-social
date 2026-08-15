@@ -140,7 +140,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "—",
         "v1.0-steam-desktop",
         "P0",
-        "渲染 pond_user_joined/left/updated；显示同塘玩家宠物、昵称和基础状态",
+        "在 Overlay 渲染 pond_user_joined/left/updated；128×128 统一序列帧；fishingPhase→petVisualState；IPC 不传图、不新开协议",
         "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
         "2026-08-13",
         "",

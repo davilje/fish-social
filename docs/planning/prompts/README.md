@@ -83,7 +83,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-product-ia-dev.prompt.md](./steam-desktop-product-ia-dev.prompt.md) | STEAM-DESKTOP-01：Steam 桌面端产品定位与信息架构 · **规划已完成，转入 STEAM-DESKTOP-07** |
 | [steam-desktop-07a-pet-home-dev.prompt.md](./steam-desktop-07a-pet-home-dev.prompt.md) | STEAM-DESKTOP-07A：Unity 主窗口内桌面宠物主视图与鱼塘入口（禁止第二 Unity Player）· **已确认** |
 | [steam-desktop-07b-pond-scene-dev.prompt.md](./steam-desktop-07b-pond-scene-dev.prompt.md) | STEAM-DESKTOP-07B：2D 鱼塘环境与自己的猫咪 · **已确认** |
-| [steam-desktop-07c-multiplayer-pets-dev.prompt.md](./steam-desktop-07c-multiplayer-pets-dev.prompt.md) | STEAM-DESKTOP-07C：同塘玩家宠物与状态同步 · **已确认** |
+| [steam-desktop-07c-multiplayer-pets-dev.prompt.md](./steam-desktop-07c-multiplayer-pets-dev.prompt.md) | STEAM-DESKTOP-07C：Overlay 同塘玩家 + 本地序列帧 + 现有 Socket 同步 · **已确认** |
 | [steam-desktop-07d-context-menu-dev.prompt.md](./steam-desktop-07d-context-menu-dev.prompt.md) | STEAM-DESKTOP-07D：桌面宠物右键菜单 · **已确认** |
 | [steam-desktop-07e-modal-layer-dev.prompt.md](./steam-desktop-07e-modal-layer-dev.prompt.md) | STEAM-DESKTOP-07E：桌面宠物功能弹窗层 · **已确认** |
 | [steam-desktop-07f-main-flow-qa-dev.prompt.md](./steam-desktop-07f-main-flow-qa-dev.prompt.md) | STEAM-DESKTOP-07F：桌面宠物主流程与恢复验收 · **已确认** |

@@ -23,12 +23,14 @@
 ## 2. 功能范围
 
 - 创建独立的 `FishSocialOverlay.exe` 原生 Windows 程序。
-- 默认窗口尺寸为 `480×420`。
+- 默认窗口尺寸为 `960×480`（07B 起的正式鱼塘 Overlay；早期占位可为更小窗口）。
 - 无边框、透明、置顶，可拖动。
-- 只对宠物图像区域进行命中测试，透明区域允许点击穿透桌面。
-- 显示宠物占位图、登录状态、鱼塘名称和钓鱼状态。
+- 只对场景/宠物区域进行命中测试，透明区域允许点击穿透桌面。
+- 渲染 Unity 推送的鱼塘场景、钓位、自己的猫和（07C）同塘玩家；猫咪基准 `128×128`。
+- **序列帧在 Overlay 本地播放：** 按 `petVisualState` 切本地帧，Named Pipe **不传图片或逐帧数据**。
+- 显示登录状态、鱼塘名称、钓位和钓鱼状态。
 - 支持打开主窗口、隐藏 Overlay 和退出 Overlay。
-- Unity 主程序负责启动、关闭和监控 Overlay。
+- Unity 主程序负责启动、关闭、监控 Overlay，以及唯一的 Socket 连接。
 - 通过 Named Pipe 传输状态和命令。
 
 ## 3. 技术边界
@@ -49,11 +51,20 @@ Unity → Overlay：
   "type": "state",
   "loginState": "Authenticated",
   "connectionState": "Connected",
-  "pondName": "pond-calm",
+  "pondName": "静水湾",
+  "pondId": "pond-calm",
   "fishingPhase": "waiting",
+  "petVisualState": "fishing",
+  "ownSpotId": "calm-spot-1",
+  "hasOwnPosition": true,
+  "ownX": 240,
+  "ownY": 400,
+  "spots": [{"id": "calm-spot-1", "x": 240, "y": 400}],
   "sequence": 12
 }
 ```
+
+`petVisualState` 取值：`idle`、`fishing`、`hooked`、`catching`、`dragging`、`offline`。Overlay 据此选本地序列帧，不推断第二套状态机。07C 可在同一 `state` 消息中增加同塘用户数组（`playerId`、昵称、钓位、坐标、`petVisualState`），仍不传贴图。
 
 Overlay → Unity：
 
@@ -75,7 +86,8 @@ Overlay → Unity：
 
 - 不在 Overlay 中实现 Steam 登录。
 - 不在 Overlay 中连接 REST 或 Socket.IO。
-- 不在 Overlay 中实现鱼塘场景、多人玩家或钓鱼状态机。
+- 不在 Overlay 中自行推断鱼塘权威、伪造玩家或维护第二套钓鱼状态机；只渲染 Unity 推送的场景与 `petVisualState`。
+- 不通过 IPC 传输序列帧贴图或逐帧像素。
 - 不在 07G 中引入正式猫咪美术、Spine 或复杂换装。
 - 不修改 Node、mobile 或 shared 的业务协议。
 
@@ -95,4 +107,5 @@ Overlay → Unity：
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-15 | 主 Agent | 明确 Overlay 渲染 Unity 推送的鱼塘/宠物；序列帧本地播放；IPC 只传 `petVisualState` 与位置，不传图、不连 Socket |
 | 2026-08-14 | 主 Agent | 新增 07G，替代第二 Unity Player + UniWindowController 的透明 Overlay 方案 |

@@ -1,5 +1,12 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07c-overlay-frames-sync] - 2026-08-15
+
+- 确认 Steam 桌面与 web/RN **权威相同、表现不同**：不平移移动端页面，不迁移旧档。
+- Overlay **支持序列帧**，且必须本地播放：Unity 只推 `petVisualState`，不经 Named Pipe 传图。
+- 同塘同步沿用现有 Socket（`pond_snapshot` / `pond_user_*`），Overlay 不连网；07C 只扩展状态 DTO。
+- 已写入 [`Steam桌面宠物与多人鱼塘表现层.md`](./specs/Steam桌面宠物与多人鱼塘表现层.md)、[`Steam原生桌面宠物Overlay.md`](./specs/Steam原生桌面宠物Overlay.md)、[`Steam桌面端产品定位与信息架构.md`](./specs/Steam桌面端产品定位与信息架构.md) 与 07C 开发提示词。
+
 ### [steam-desktop-07g-native-overlay-architecture] - 2026-08-14
 
 - 根据第二 Unity Player + `UniWindowController` 实测出现的全屏、Skybox、主窗口阻塞、窗口样式损坏和资源占用问题，停止继续修补该方案。

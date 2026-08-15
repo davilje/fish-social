@@ -20,6 +20,20 @@
 
 本需求只负责 Unity 表现层和交互层，不重新实现 Node 权威逻辑。
 
+### 1.1 与先前 web / RN 版本的关系
+
+Steam 桌面版**不平移**移动端页面，也不迁移旧档。鱼塘、钓鱼、库存和在线状态仍由同一套 Node + Socket.IO 权威，表现层不同：
+
+| 项 | web / RN | Steam 桌面（本需求） |
+|----|----------|----------------------|
+| 权威 | `pond_snapshot`、`pond_user_joined/left/updated`、`fish_bite` | 相同，不改协议 |
+| 鱼塘画面 | RN 正交 Tilemap + 头像二头身 | `960×480` 原生 Overlay 占位场景，猫咪基准 `128×128` |
+| 钓鱼动画 | 头像 + phase 文案/气泡/咬钩环，无序列帧状态机 | `PetStateController` + 序列帧渲染器；Overlay **本地播帧** |
+| 入口 | 打开鱼塘页 | `480×320` 登录 → `1280×720` 主窗口 → Overlay 挂机 |
+| 账号 | 移动端档 | Steam 新档 |
+
+07C 不新开网络协议，只把已有快照/事件反映到 Overlay。
+
 ## 2. 拆分阶段
 
 | 阶段 | 内容 | 依赖 | 优先级 |
@@ -60,16 +74,18 @@ Steam 启动
 - 占位资源通过独立 Sprite/Texture2D 或 Prefab 引用接入，后续替换正式猫咪资源不得修改布局、状态控制和网络业务代码。
 - 首版动画方案采用“序列帧 + 宠物状态机”，不把 Spine 作为 07A 的前置依赖。
 - 状态机至少覆盖 `idle`、`fishing`、`hooked`、`catching`、`dragging`、`offline`；没有正式美术时可复用同一张占位图，通过状态文字/颜色区分。
-- 状态机与渲染器解耦，后续可增加 `SpinePetRenderer` 替换 `SpriteFramePetRenderer`，不得改动网络、窗口和鱼塘权威逻辑。
-- 序列帧资源应使用统一尺寸、锚点和中心点，避免状态切换时角色跳位；动画播放速度和循环规则由渲染器配置，不写入服务端。
+- 状态机与渲染器解耦。Unity 主窗口使用 `SpriteFramePetRenderer`；Overlay 使用同等接口的本地序列帧渲染器（WPF）。后续可增加 Spine，不得改动网络、窗口和鱼塘权威逻辑。
+- **Overlay 支持序列帧，且必须本地播放：** Unity 只通过 Named Pipe 推送 `petVisualState`（及位置/钓位），**不传输图片或逐帧数据**。Overlay 按状态切本地帧循环；主窗口隐藏时 Overlay 仍继续播，不依赖 Unity 渲染循环。
+- 序列帧资源应使用统一尺寸、锚点和中心点，避免状态切换时角色跳位；动画播放速度和循环规则由渲染器配置，不写入服务端。可替换路径：主窗口 `Resources/Pet/`，Overlay 旁 `OverlayResources/`（如 `cat-idle-0.png`）。
 
 ### 4.2 多人鱼塘
 
-- 使用服务端快照渲染鱼塘环境和在线玩家。
-- 自己和其他玩家使用统一的 2D 宠物表现接口。
+- 使用服务端快照渲染鱼塘环境和在线玩家。07B/07C 的鱼塘场景和玩家宠物**优先画在 Overlay**；主窗口保留状态栏和恢复入口。
+- 自己和其他玩家使用统一的 2D 宠物表现接口（同一状态枚举、同一 `128×128` 基准、同一序列帧渲染器）。
 - 至少显示昵称、宠物形象和基础钓鱼状态。
-- 收到 `pond_user_joined`、`pond_user_left`、`pond_user_updated` 时更新表现。
-- 不在 Unity 本地伪造多人状态。
+- Unity 订阅 `pond_snapshot`、`pond_user_joined`、`pond_user_left`、`pond_user_updated`，把 `fishingPhase` 映射为 `petVisualState` 后推给 Overlay。Overlay **不连接** REST/Socket，不维护第二套状态机。
+- 断线重连以服务端 `pond_snapshot` 全量覆盖 Overlay 角色列表，按 `playerId` 复用对象，离开则删除；不得残留、不得本地伪造多人状态。
+- 打开主窗口、隐藏 Overlay 或切换面板不得 `leave_pond`，不得重建会话。
 
 ### 4.3 右键菜单与弹窗
 
@@ -89,10 +105,10 @@ Steam 启动
 
 ## 5. 技术边界
 
-- Unity 主程序负责表现、输入、普通窗口、弹窗、托盘和通知。
-- 原生 Overlay（仅在 `STEAM-DESKTOP-07G` 中实现）只负责桌面宠物窗口和状态展示，不加载 Unity 场景、不运行 Steam/Socket/鱼塘逻辑。
+- Unity 主程序负责表现、输入、普通窗口、弹窗、托盘、通知，以及 **唯一** 的 Steam/JWT/Socket.IO 连接。
+- 原生 Overlay 只渲染 Unity 推送的场景与状态（含序列帧），不加载 Unity 场景、不运行 Steam/Socket/鱼塘权威逻辑。
 - Node 负责鱼塘、生态、钓鱼、库存、社交和在线状态权威。
-- 继续使用现有 JWT + Socket.IO。
+- 继续使用现有 JWT + Socket.IO；07C **不新增** 网络协议，只扩展 Overlay 的状态 DTO（同塘用户列表）。
 - 不把 Steam Lobby 作为鱼塘权威。
 - 不新增一塘一进程。
 - 07A～07F 禁止通过启动第二个 Unity Player 实现透明桌面宠物。
@@ -122,7 +138,7 @@ Steam 启动
 |------|------|----------|------|
 | 1 | `STEAM-DESKTOP-07A` | 空白正方形猫咪主视图、登录/Socket/钓鱼状态和鱼塘入口 | 可启动、显示宠物、进入/恢复鱼塘 |
 | 2 | `STEAM-DESKTOP-07B` | 2D 鱼塘、钓位、自己的猫咪和钓鱼状态 | 真实 `pond_snapshot` 驱动鱼塘表现 |
-| 3 | `STEAM-DESKTOP-07C` | 同塘玩家宠物、昵称、加入/离开和状态同步 | 多客户端状态正确呈现 |
+| 3 | `STEAM-DESKTOP-07C` | Overlay 同塘玩家、昵称、进出场；统一序列帧接口；沿用现有 Socket | 多客户端状态正确呈现，IPC 不传图 |
 | 4 | `STEAM-DESKTOP-07D` | 窗口内右键菜单和功能路由 | 菜单可用且不影响窗口外桌面 |
 | 5 | `STEAM-DESKTOP-07E` | 好友/聊天、背包、图鉴、设置弹窗 | 弹窗打开关闭不离塘、不清空会话 |
 | 6 | `STEAM-DESKTOP-07F` | 托盘、通知、断线恢复和完整主流程验收 | Windows Development Build 全流程通过 |
@@ -134,13 +150,14 @@ Steam 启动
 
 | 决策项 | 本阶段方案 | 后续替换 |
 |--------|------------|----------|
-| 角色状态来源 | 现有鱼塘会话事件和窗口交互事件 | 不变 |
-| 动画驱动 | `PetStateController` 状态机 | 不变 |
-| 当前渲染器 | `SpriteFramePetRenderer`，序列帧或占位 Sprite | 可替换为 `SpinePetRenderer` |
+| 角色状态来源 | 现有鱼塘会话事件和窗口交互事件；`fishingPhase` → `petVisualState` | 不变 |
+| 动画驱动 | `PetStateController` 状态机，Unity 与 Overlay 共用同一枚举 | 不变 |
+| 主窗口渲染器 | `SpriteFramePetRenderer` | 可替换为 `SpinePetRenderer` |
+| Overlay 渲染器 | 本地序列帧（WPF）；按 `petVisualState` 切帧，不经 IPC 传图 | 可替换为同状态名的 Spine/正式图 |
 | 资源要求 | 统一尺寸、锚点、状态命名和循环配置 | Spine 动画名映射到同一状态枚举 |
-| 业务边界 | 动画只表现状态，不决定鱼塘、库存或钓鱼结果 | 不变 |
+| 业务边界 | 动画只表现状态，不决定鱼塘、库存或钓鱼结果；帧率与循环不写入服务端 | 不变 |
 
-该决策属于 `STEAM-DESKTOP-07A` 的实现方案收口，不新增需求编号。只有当 Spine 引入换装、角色养成或新的交互业务时，才需要另立需求。
+该决策属于 `STEAM-DESKTOP-07A` 收口，`STEAM-DESKTOP-07C` 把同一套序列帧接到 Overlay 上自己的猫和同塘玩家。不新增需求编号。只有当 Spine 引入换装、角色养成或新的交互业务时，才需要另立需求。
 
 ### 7.2 本阶段不做
 
@@ -153,6 +170,7 @@ Steam 启动
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-15 | 主 Agent | 07C 开工前收口：桌面与 web/RN 权威相同、表现不同；Overlay 本地序列帧（IPC 只传 `petVisualState`）；同塘同步沿用现有 Socket，不新开协议 |
 | 2026-08-14 | 主 Agent | 确认 07A 采用“序列帧 + 状态机”作为首版动画方案；渲染器与状态机解耦，Spine 后置为可替换实现 |
 | 2026-08-14 | 主 Agent | 因第二 Unity Player + UniWindowController 方案导致全屏、Skybox、主窗口阻塞和高资源占用，明确 07A～07F 不启动 Unity Overlay，新增独立原生 Overlay 需求 07G |
 | 2026-08-14 | 主 Agent | 确认 STEAM-DESKTOP-03 核心链路已实现；下一阶段从 07A 开始，先使用可替换的空白正方形猫咪占位 UI |

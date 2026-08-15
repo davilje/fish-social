@@ -9,7 +9,8 @@
 - `STEAM-DESKTOP-04`、`04A～04F`：已实现。
 - `STEAM-DESKTOP-05`：已实现。
 - `STEAM-DESKTOP-03`：已实现；核心链路已验证，双 Steam 账号联调因缺少第二测试账号跳过。
-- `STEAM-DESKTOP-07A～07F`：已确认，待开发；只运行 Unity 主窗口。
+- `STEAM-DESKTOP-07A～07F`：已确认，待开发；Unity 主程序调用原生 Overlay，不启动第二个 Unity Player。
+- Overlay 序列帧本地播放；IPC 只传 `petVisualState`，不传图；同塘同步沿用现有 Socket。
 - `STEAM-DESKTOP-07G`：已确认，作为独立原生 Windows Overlay，不能通过第二个 Unity Player 实现。
 - Unity 工程：`fish-social-unity/`。
 
@@ -44,14 +45,15 @@ Steam 登录
 
 ### 2. 执行 07C：同塘玩家表现
 
-对应 `UNITY-P3` 的多人表现出口。
+对应 `UNITY-P3` 的多人表现出口。主要画在 `960×480` Overlay。
 
-- 显示同塘玩家昵称、宠物和基础钓鱼状态。
-- 正确处理 `pond_user_joined`、`pond_user_left`、`pond_user_updated`。
-- 处理多人遮挡和 y 排序。
-- 不在 Unity 本地伪造在线玩家或钓鱼状态。
+- 显示同塘玩家昵称、`128×128` 宠物和基础钓鱼状态。
+- Unity 处理 `pond_snapshot`、`pond_user_joined`、`pond_user_left`、`pond_user_updated`，映射为 `petVisualState` 后推 Overlay。
+- Overlay 用与自己的猫同一套本地序列帧渲染器；不连 Socket，IPC 不传贴图。
+- 按 `playerId` 复用对象；断线用快照全量覆盖，不残留、不伪造。
+- 打开主窗口不得离塘、不得重建会话。
 
-出口：至少双客户端真实联调通过，玩家进出和状态变化可见。
+出口：至少双客户端真实联调通过，玩家进出和状态变化可见，序列帧随状态切换。
 
 ### 3. 执行 07D + 07E：菜单和弹窗
 
