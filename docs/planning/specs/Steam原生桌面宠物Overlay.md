@@ -24,7 +24,7 @@
 
 - 创建独立的 `FishSocialOverlay.exe` 原生 Windows 程序。
 - 默认窗口尺寸为 `960×480`（07B 起的正式鱼塘 Overlay；早期占位可为更小窗口）。
-- 无边框、透明、置顶，可拖动。
+- 无边框、透明、置顶，可拖动。主窗口因 Overlay 菜单被唤起且可见时，Overlay 必须让出置顶，使主窗口盖在 Overlay 之上（见 `STEAM-DESKTOP-07E`）；主窗口隐藏到托盘后 Overlay 恢复置顶。
 - 只对场景/宠物区域进行命中测试，透明区域允许点击穿透桌面。
 - 渲染 Unity 推送的鱼塘场景、钓位、自己的猫和（07C）同塘玩家；猫咪基准 `128×128`。
 - **序列帧在 Overlay 本地播放：** 按 `petVisualState` 切本地帧，Named Pipe **不传图片或逐帧数据**。
@@ -90,6 +90,7 @@ Overlay → Unity：
 - 不通过 IPC 传输序列帧贴图或逐帧像素。
 - 不在 07G 中引入正式猫咪美术、Spine 或复杂换装。
 - 不修改 Node、mobile 或 shared 的业务协议。
+- **像素级场景对齐**（Unity Canvas Prefab → 布局 JSON → 停用 `MapToScene`）不在 07G，见后续美术 `STEAM-DESKTOP-ART-02`。
 
 ## 6. 验收标准
 
@@ -107,5 +108,7 @@ Overlay → Unity：
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-16 | 策划 | 07E：主窗口可见时 Overlay 让出置顶，避免挡住页签 |
+| 2026-08-16 | 策划 | 像素对齐管线后置为 `STEAM-DESKTOP-ART-02`，07G 仍为占位缩放 |
 | 2026-08-15 | 主 Agent | 明确 Overlay 渲染 Unity 推送的鱼塘/宠物；序列帧本地播放；IPC 只传 `petVisualState` 与位置，不传图、不连 Socket |
 | 2026-08-14 | 主 Agent | 新增 07G，替代第二 Unity Player + UniWindowController 的透明 Overlay 方案 |

@@ -57,6 +57,8 @@
 | [BUG修复-进塘首帧状态与演示降级.md](./specs/BUG修复-进塘首帧状态与演示降级.md) | **已实现** | BUG-18：进塘旧态 / 静默 DEMO / 收杆额度 ack |
 | [BUG修复-每日额度单一口径重构.md](./specs/BUG修复-每日额度单一口径重构.md) | **已实现** | BUG-19：base/session 拆分；checkpoint 不前移锚点 |
 | [BUG修复-进塘与钓鱼剩余展示回归.md](./specs/BUG修复-进塘与钓鱼剩余展示回归.md) | **已实现** | BUG-20：钓鱼中剩余走动；未选钓点防满额 8h |
+| [Steam桌面Overlay场景布局管线.md](./specs/Steam桌面Overlay场景布局管线.md) | **已确认** | STEAM-DESKTOP-ART-02：Unity Canvas Prefab → Overlay 像素布局（后续美术） |
+| [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
 
 ## 数据归档
 

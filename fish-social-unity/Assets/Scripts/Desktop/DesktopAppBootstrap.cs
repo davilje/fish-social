@@ -116,6 +116,7 @@ namespace FishSocial.Desktop
                     _session.NotifyAppVisible();
                 else
                     _session.NotifyAppHidden();
+                PublishNativeOverlayState();
             };
 
             ui.Build(_router);
@@ -168,7 +169,16 @@ namespace FishSocial.Desktop
                     _petState != null ? _petState.Current : PetVisualState.Offline),
             };
             OverlayPondStateBuilder.Fill(dto, _pondSession);
+            dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
             _nativeOverlay.PublishState(dto);
+        }
+
+        public void RaiseMainWindow(ShellPanelId id)
+        {
+            _window?.ShowFromTray();
+            _router?.Show(id);
+            NativeWindowUtil.TryBringToFront();
+            PublishNativeOverlayState();
         }
 
         void OnPetVisualStateChanged(PetVisualState _)
@@ -181,9 +191,7 @@ namespace FishSocial.Desktop
             switch (command)
             {
                 case "open_main":
-                    _window?.ShowFromTray();
-                    _router?.Show(ShellPanelId.Home);
-                    NativeWindowUtil.TryFocusWindow();
+                    RaiseMainWindow(ShellPanelId.Home);
                     return;
                 case "hide_overlay":
                     _nativeOverlay?.HideOverlay();
@@ -233,11 +241,15 @@ namespace FishSocial.Desktop
         bool OnWantsToQuit()
         {
 #if UNITY_EDITOR
-            // Always allow leaving Play Mode in Editor.
             return true;
 #else
-            // The window close button must terminate the process. Hiding to
-            // tray remains an explicit action from the tray menu.
+            if (WindowManager.Instance != null &&
+                WindowManager.Instance.Settings.HideToTrayOnClose)
+            {
+                WindowManager.Instance.HideToTray();
+                return false;
+            }
+
             Debug.Log("[Shutdown] OnWantsToQuit received.");
             _nativeOverlay?.ForceTerminateForApplicationQuit();
             StartQuitFallback();

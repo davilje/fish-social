@@ -18,6 +18,7 @@ namespace FishSocial.Desktop
         public int PosX = 80;
         public int PosY = 80;
         public bool HasPosition;
+        public bool HideToTrayOnClose;
 
         public static WindowSettings LoadOrDefault()
         {

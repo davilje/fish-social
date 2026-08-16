@@ -250,6 +250,8 @@ namespace FishSocial.Desktop.Social
 
         void OnLobbyInviteReceived(string lobbyId)
         {
+            DesktopNotificationService.Instance?.Publish(new DesktopNotification(
+                NotificationKind.FriendInvite, "好友邀请", "收到 Steam Lobby 进塘邀请。"));
             _pendingLobbyId = lobbyId;
             SetState(SocialLobbyState.WaitingForInvite, "收到 Steam Lobby 邀请。");
             JoinLobby(lobbyId);

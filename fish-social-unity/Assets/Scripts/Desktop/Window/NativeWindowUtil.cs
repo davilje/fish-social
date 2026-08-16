@@ -22,7 +22,9 @@ namespace FishSocial.Desktop
         const int SW_MINIMIZE = 6;
         const int SW_RESTORE = 9;
         const int HWND_TOP = 0;
+        const int HWND_NOTOPMOST = -2;
         const uint SWP_NOSIZE = 0x0001;
+        const uint SWP_NOMOVE = 0x0002;
         const uint SWP_NOZORDER = 0x0004;
         const uint SWP_SHOWWINDOW = 0x0040;
         const uint SWP_FRAMECHANGED = 0x0020;
@@ -122,6 +124,18 @@ namespace FishSocial.Desktop
             return hwnd != IntPtr.Zero && SetForegroundWindow(hwnd);
         }
 
+        public static bool TryBringToFront()
+        {
+            var hwnd = Hwnd;
+            if (hwnd == IntPtr.Zero)
+                return false;
+            SetWindowPos(hwnd, new IntPtr(HWND_NOTOPMOST), 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+            SetWindowPos(hwnd, new IntPtr(HWND_TOP), 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+            return SetForegroundWindow(hwnd);
+        }
+
         public static bool TryGetWindowPosition(out int x, out int y)
         {
             x = 0;
@@ -195,6 +209,7 @@ namespace FishSocial.Desktop
         public static bool TryMinimize() => true;
         public static bool TryRestore() => true;
         public static bool TryFocusWindow() => true;
+        public static bool TryBringToFront() => true;
         public static bool TryGetWindowPosition(out int x, out int y)
         {
             x = 0;

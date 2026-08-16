@@ -91,6 +91,74 @@ namespace FishSocial.Desktop.Auth
         public string nickname;
         public string text;
         public long createdAt;
+        public string type;
+    }
+
+    [Serializable]
+    public sealed class SendChatPayload
+    {
+        public string pondId;
+        public string text;
+    }
+
+    [Serializable]
+    public sealed class CodexUnlockDto
+    {
+        public string speciesId;
+        public string speciesName;
+        public bool isFirstCatch;
+    }
+
+    [Serializable]
+    public sealed class FriendInfoDto
+    {
+        public string playerId;
+        public string nickname;
+        public string avatarUrl;
+        public long since;
+    }
+
+    [Serializable]
+    public sealed class FriendRequestDto
+    {
+        public string id;
+        public string fromPlayerId;
+        public string fromNickname;
+        public string toPlayerId;
+        public string toNickname;
+        public string status;
+        public long createdAt;
+    }
+
+    [Serializable]
+    public sealed class DirectMessageDto
+    {
+        public string id;
+        public string fromPlayerId;
+        public string fromNickname;
+        public string toPlayerId;
+        public string text;
+        public long createdAt;
+    }
+
+    [Serializable]
+    public sealed class DmConversationDto
+    {
+        public string friendPlayerId;
+        public string friendNickname;
+        public string lastMessage;
+        public long lastAt;
+        public int unread;
+    }
+
+    [Serializable]
+    public sealed class FishCodexEntryDto
+    {
+        public string speciesId;
+        public int totalCaught;
+        public float maxSizeM;
+        public long firstCaughtAt;
+        public long lastCaughtAt;
     }
 
     [Serializable]

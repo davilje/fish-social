@@ -91,6 +91,9 @@ namespace FishSocialOverlay
         [DataMember(Name = "hasOwnPosition")]
         public bool HasOwnPosition { get; set; }
 
+        [DataMember(Name = "mainWindowRaised")]
+        public bool MainWindowRaised { get; set; }
+
         [DataMember(Name = "spots")]
         public OverlaySpotDto[] Spots { get; set; }
 

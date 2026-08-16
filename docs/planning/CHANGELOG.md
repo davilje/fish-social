@@ -1,5 +1,28 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07e-accepted] - 2026-08-16
+
+- `STEAM-DESKTOP-07E` 用户验收通过，计划状态改为 **已实现**。
+- 好友/聊天、背包、图鉴、设置为主窗口页签；Overlay/底栏菜单切页，不用功能弹窗。
+- 从 Overlay 菜单唤起后主窗口高于 Overlay；回托盘后 Overlay 恢复置顶。
+- 父需求 `STEAM-DESKTOP-07` 仍为 **已确认**（07F 未完成）。
+- 下一阶段：`STEAM-DESKTOP-07F` 桌面宠物主流程与恢复验收。
+
+### [steam-desktop-07e-main-window-tabs] - 2026-08-16
+
+- `STEAM-DESKTOP-07E` 改口径：好友/聊天、背包、图鉴、设置改为主窗口页签，取消功能弹窗。
+- Overlay / 底栏右键菜单只 `Show` 对应 `ShellPanelId`，不 `Open` `DesktopModalHost` 整页。
+- **补充：** 从 Overlay 菜单唤起后，主窗口必须高于 Overlay；回托盘后 Overlay 恢复置顶。
+- 主窗口壳与功能页收为 Prefab。权威设计：[`Steam桌面端Web功能对齐设计.md`](./specs/Steam桌面端Web功能对齐设计.md)。
+- 开发提示词：[`steam-desktop-07e-main-window-tabs-dev.prompt.md`](./prompts/steam-desktop-07e-main-window-tabs-dev.prompt.md)。
+
+### [steam-desktop-art-02-overlay-layout] - 2026-08-16
+
+- 新增美术后续需求 `STEAM-DESKTOP-ART-02`：Unity `960×480` Canvas Prefab 导出布局 JSON，Overlay 按像素表摆图与钓位。
+- Overlay 仍不加载 Prefab/uGUI；Named Pipe 不传图；有布局表的塘停用 `MapToScene` 自动缩放。
+- 规格：[`Steam桌面Overlay场景布局管线.md`](./specs/Steam桌面Overlay场景布局管线.md)；提示词：[`steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md`](./prompts/steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md)。
+- 不阻塞 `STEAM-DESKTOP-07E` / `07F`。
+
 ### [steam-desktop-07e-web-parity-design] - 2026-08-16
 
 - 新增 `STEAM-DESKTOP-07E-DESIGN`，明确 Web→Steam 的功能与数据对齐范围。

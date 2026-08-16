@@ -15,6 +15,7 @@ namespace FishSocial.Desktop.Auth
         ISocialSocketClient _socket;
         SteamAuthController _auth;
         readonly Dictionary<string, PondUserDto> _users = new Dictionary<string, PondUserDto>();
+        readonly List<ChatMessageDto> _messages = new List<ChatMessageDto>();
         PendingFishCatchDto _latestCatch;
         string _nickname;
         bool _joinRequested;
@@ -40,7 +41,13 @@ namespace FishSocial.Desktop.Auth
         public event Action UsersChanged;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
+        public event Action<ChatMessageDto> ChatMessageReceived;
+        public event Action<CodexUnlockDto> CodexUnlocked;
+        public event Action<FriendRequestDto> FriendRequestReceived;
+        public event Action<DirectMessageDto> DmMessageReceived;
         public event Action<string> ErrorReceived;
+        public string Nickname => string.IsNullOrWhiteSpace(_nickname) ? "Steam玩家" : _nickname;
+        public ChatMessageDto[] PondMessages => _messages.ToArray();
 
         public void Configure(SteamAuthController auth)
         {
@@ -58,6 +65,10 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserUpdated += OnUserUpdated;
             _socket.FishBiteReceived += OnFishBite;
             _socket.InventoryUpdated += OnInventoryUpdated;
+            _socket.ChatMessageReceived += OnChatMessage;
+            _socket.CodexUnlocked += OnCodexUnlocked;
+            _socket.FriendRequestReceived += OnFriendRequest;
+            _socket.DmMessageReceived += OnDirectMessage;
             _socket.ErrorReceived += OnError;
         }
 
@@ -144,6 +155,31 @@ namespace FishSocial.Desktop.Auth
             _socket?.AcceptCatch(_latestCatch.catchId, onCompleted);
         }
 
+        public void SendChat(string text, Action<bool, string> onCompleted = null)
+        {
+            var value = text == null ? string.Empty : text.Trim();
+            if (string.IsNullOrEmpty(value))
+            {
+                onCompleted?.Invoke(false, "不能发送空消息。");
+                return;
+            }
+            if (value.Length > 200)
+            {
+                onCompleted?.Invoke(false, "鱼塘聊天最多 200 字。");
+                return;
+            }
+            if (_socket == null || !_socket.IsConnected)
+            {
+                onCompleted?.Invoke(false, "实时服务未连接，请进入鱼塘后重试。");
+                return;
+            }
+            _socket.SendChat(new SendChatPayload
+            {
+                pondId = CurrentPondId,
+                text = value,
+            }, onCompleted);
+        }
+
         public void Disconnect()
         {
             _joinRequested = false;
@@ -188,6 +224,7 @@ namespace FishSocial.Desktop.Auth
             ReplaceUsers(snapshot?.users);
             CurrentUser = FindCurrentUser(snapshot);
             CurrentInventory = snapshot?.inventory ?? new FishInventoryItemDto[0];
+            ReplaceMessages(snapshot?.messages);
             SnapshotChanged?.Invoke(snapshot);
             UsersChanged?.Invoke();
         }
@@ -237,6 +274,29 @@ namespace FishSocial.Desktop.Auth
             InventoryUpdated?.Invoke(CurrentInventory);
         }
 
+        void OnChatMessage(ChatMessageDto message)
+        {
+            if (message == null)
+                return;
+            AppendMessage(message);
+            ChatMessageReceived?.Invoke(message);
+        }
+
+        void OnCodexUnlocked(CodexUnlockDto unlock)
+        {
+            CodexUnlocked?.Invoke(unlock);
+        }
+
+        void OnFriendRequest(FriendRequestDto request)
+        {
+            FriendRequestReceived?.Invoke(request);
+        }
+
+        void OnDirectMessage(DirectMessageDto message)
+        {
+            DmMessageReceived?.Invoke(message);
+        }
+
         void OnError(string message)
         {
             ErrorReceived?.Invoke(message);
@@ -257,6 +317,10 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserUpdated -= OnUserUpdated;
             _socket.FishBiteReceived -= OnFishBite;
             _socket.InventoryUpdated -= OnInventoryUpdated;
+            _socket.ChatMessageReceived -= OnChatMessage;
+            _socket.CodexUnlocked -= OnCodexUnlocked;
+            _socket.FriendRequestReceived -= OnFriendRequest;
+            _socket.DmMessageReceived -= OnDirectMessage;
             _socket.ErrorReceived -= OnError;
             _socket.Disconnect();
             Debug.Log("[Shutdown] SocialPondSessionController.OnDestroy complete.");
@@ -344,6 +408,29 @@ namespace FishSocial.Desktop.Auth
             }
 
             return null;
+        }
+
+        void ReplaceMessages(ChatMessageDto[] messages)
+        {
+            _messages.Clear();
+            if (messages == null)
+                return;
+            for (var i = 0; i < messages.Length; i++)
+                AppendMessage(messages[i]);
+        }
+
+        void AppendMessage(ChatMessageDto message)
+        {
+            if (message == null)
+                return;
+            for (var i = 0; i < _messages.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(message.id) && _messages[i] != null && _messages[i].id == message.id)
+                    return;
+            }
+            _messages.Add(message);
+            while (_messages.Count > 200)
+                _messages.RemoveAt(0);
         }
     }
 }

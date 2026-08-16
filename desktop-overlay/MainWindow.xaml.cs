@@ -173,6 +173,7 @@ namespace FishSocialOverlay
                         ? "未进入" : message.PondName);
                 SpotText.Text = "钓位：" + FormatSpot(message);
                 _scene?.Apply(message);
+                ApplyMainWindowRaised(message.MainWindowRaised);
             }
             else if (message.Type == "command")
             {
@@ -286,12 +287,31 @@ namespace FishSocialOverlay
 
         void SendCommand(string command)
         {
+            if (OpensMainWindow(command))
+                ApplyMainWindowRaised(true);
             Send(new IpcMessage
             {
                 Type = "command",
                 Version = 1,
                 Command = command,
             });
+        }
+
+        void ApplyMainWindowRaised(bool raised)
+        {
+            if (_safeWindow)
+                return;
+            Topmost = !raised;
+        }
+
+        static bool OpensMainWindow(string command)
+        {
+            return command == "open_main" ||
+                   command == "menu_pond" ||
+                   command == "menu_friends" ||
+                   command == "menu_catch" ||
+                   command == "menu_gallery" ||
+                   command == "menu_settings";
         }
 
         void Send(IpcMessage message)

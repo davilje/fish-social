@@ -18,6 +18,7 @@ namespace FishSocial.Desktop
         public float ownX;
         public float ownY;
         public bool hasOwnPosition;
+        public bool mainWindowRaised;
         public NativeOverlaySpotDto[] spots = new NativeOverlaySpotDto[0];
         public NativeOverlayActorDto[] users = new NativeOverlayActorDto[0];
     }

@@ -20,6 +20,10 @@ namespace FishSocial.Desktop.Auth
         event Action<PondUserDto> PondUserUpdated;
         event Action<PendingFishCatchDto> FishBiteReceived;
         event Action<FishInventoryItemDto[]> InventoryUpdated;
+        event Action<ChatMessageDto> ChatMessageReceived;
+        event Action<CodexUnlockDto> CodexUnlocked;
+        event Action<FriendRequestDto> FriendRequestReceived;
+        event Action<DirectMessageDto> DmMessageReceived;
         event Action<string> ErrorReceived;
 
         void Connect(string accessToken, Action<bool, string> onCompleted);
@@ -29,6 +33,7 @@ namespace FishSocial.Desktop.Auth
         void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted);
         void StopFishing(string pondId, Action<bool, string> onCompleted);
         void AcceptCatch(string catchId, Action<bool, string> onCompleted);
+        void SendChat(SendChatPayload payload, Action<bool, string> onCompleted);
         void Pump();
         void Disconnect();
     }
@@ -62,6 +67,10 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
+        public event Action<ChatMessageDto> ChatMessageReceived;
+        public event Action<CodexUnlockDto> CodexUnlocked;
+        public event Action<FriendRequestDto> FriendRequestReceived;
+        public event Action<DirectMessageDto> DmMessageReceived;
         public event Action<string> ErrorReceived;
 
         public SocketIoSocialSocketClient(string baseUrl)
@@ -122,6 +131,11 @@ namespace FishSocial.Desktop.Auth
         public void AcceptCatch(string catchId, Action<bool, string> onCompleted)
         {
             SendEventWithAck("accept_catch", Quote(catchId), onCompleted);
+        }
+
+        public void SendChat(SendChatPayload payload, Action<bool, string> onCompleted)
+        {
+            SendEventWithAck("send_chat", JsonUtility.ToJson(payload), onCompleted);
         }
 
         public void Disconnect()
@@ -256,6 +270,14 @@ namespace FishSocial.Desktop.Auth
                     FishBiteReceived?.Invoke(JsonUtility.FromJson<PendingFishCatchDto>(payload));
                 else if (eventName == "inventory_updated")
                     InventoryUpdated?.Invoke(ParseInventory(payload));
+                else if (eventName == "chat_message")
+                    ChatMessageReceived?.Invoke(JsonUtility.FromJson<ChatMessageDto>(payload));
+                else if (eventName == "codex_unlocked")
+                    CodexUnlocked?.Invoke(JsonUtility.FromJson<CodexUnlockDto>(payload));
+                else if (eventName == "friend_request")
+                    FriendRequestReceived?.Invoke(JsonUtility.FromJson<FriendRequestDto>(payload));
+                else if (eventName == "dm_message")
+                    DmMessageReceived?.Invoke(JsonUtility.FromJson<DirectMessageDto>(payload));
                 else if (eventName == "error")
                     ErrorReceived?.Invoke(Unquote(payload));
             }
@@ -458,6 +480,10 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
+        public event Action<ChatMessageDto> ChatMessageReceived;
+        public event Action<CodexUnlockDto> CodexUnlocked;
+        public event Action<FriendRequestDto> FriendRequestReceived;
+        public event Action<DirectMessageDto> DmMessageReceived;
         public event Action<string> ErrorReceived;
 
         public void Connect(string accessToken, Action<bool, string> onCompleted)
@@ -472,6 +498,8 @@ namespace FishSocial.Desktop.Auth
         public void StopFishing(string pondId, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void AcceptCatch(string catchId, Action<bool, string> onCompleted)
+            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+        public void SendChat(SendChatPayload payload, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void Pump() { }
         public void Disconnect() { }

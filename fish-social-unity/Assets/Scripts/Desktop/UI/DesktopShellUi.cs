@@ -8,7 +8,7 @@ using FishSocial.Desktop.Social;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Runtime-built UGUI shell: 480×320 login, 1280×720 main with bottom nav and pet home.
+    /// Runtime-built UGUI shell: 480×320 login, 1280×720 main with bottom nav and feature tabs.
     /// </summary>
     public sealed class DesktopShellUi : MonoBehaviour, IDesktopProductMenuHandler
     {
@@ -23,25 +23,24 @@ namespace FishSocial.Desktop
         Text _statusPet;
         Text _toast;
         float _toastUntil;
-        NotificationSettings _notifyDraft;
         SteamAuthController _steamAuth;
         IAuthenticatedApiClient _authenticatedApi;
         SocialPondSessionController _pondSession;
         SocialLobbyController _socialLobby;
         PetStateController _petState;
         Text _pondStatus;
-        Text _inventoryStatus;
         Text _petStateLabel;
         Text _petPond;
         bool _mainShellEntered;
         DesktopProductMenuView _productMenu;
+        DesktopSocialModalView _socialPanel;
+        DesktopCatchBagModalView _catchPanel;
+        DesktopGalleryModalView _galleryPanel;
+        DesktopSettingsModalView _settingsPanel;
 
         public void Build(PanelRouter router)
         {
             _router = router;
-            _notifyDraft = DesktopNotificationService.Instance != null
-                ? CloneNotify(DesktopNotificationService.Instance.Settings)
-                : new NotificationSettings();
             _steamAuth = DesktopAppBootstrap.Instance != null
                 ? DesktopAppBootstrap.Instance.SteamAuth
                 : null;
@@ -68,6 +67,7 @@ namespace FishSocial.Desktop
                 _pondSession.UsersChanged += OnPondUsersChanged;
                 _pondSession.FishBiteReceived += OnPondFishBite;
                 _pondSession.InventoryUpdated += OnInventoryUpdated;
+                _pondSession.FriendRequestReceived += OnFriendRequestNotify;
                 _pondSession.ErrorReceived += OnPondError;
             }
             if (_socialLobby != null)
@@ -168,10 +168,10 @@ namespace FishSocial.Desktop
 
             RegisterPanel(content.transform, ShellPanelId.Home, BuildHome);
             RegisterPanel(content.transform, ShellPanelId.Pond, BuildPond);
-            RegisterPanel(content.transform, ShellPanelId.Friends, BuildFriends);
-            RegisterPanel(content.transform, ShellPanelId.CatchBag, BuildCatch);
-            RegisterPanel(content.transform, ShellPanelId.Gallery, BuildGallery);
-            RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettings);
+            RegisterPanel(content.transform, ShellPanelId.Friends, BuildSocialPanel);
+            RegisterPanel(content.transform, ShellPanelId.CatchBag, BuildCatchPanel);
+            RegisterPanel(content.transform, ShellPanelId.Gallery, BuildGalleryPanel);
+            RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettingsPanel);
         }
 
         void EnterMainShell()
@@ -192,20 +192,17 @@ namespace FishSocial.Desktop
 
         void ReturnToPetHome()
         {
-            WindowManager.Instance?.ShowFromTray();
-            _router.Show(ShellPanelId.Home);
+            ShowMainPanel(ShellPanelId.Home);
         }
 
         void ShowPondPanel()
         {
-            WindowManager.Instance?.ShowFromTray();
-            _router.Show(ShellPanelId.Pond);
+            ShowMainPanel(ShellPanelId.Pond);
         }
 
         void ShowMainPanel(ShellPanelId id)
         {
-            WindowManager.Instance?.ShowFromTray();
-            _router.Show(id);
+            DesktopAppBootstrap.Instance?.RaiseMainWindow(id);
         }
 
         public void HandleProductMenu(DesktopProductMenuAction action)
@@ -214,7 +211,7 @@ namespace FishSocial.Desktop
             switch (action)
             {
                 case DesktopProductMenuAction.CurrentPond:
-                    OpenPond();
+                    ShowMainPanel(ShellPanelId.Pond);
                     break;
                 case DesktopProductMenuAction.Friends:
                     ShowMainPanel(ShellPanelId.Friends);
@@ -237,15 +234,36 @@ namespace FishSocial.Desktop
             }
         }
 
-        void OnPanelChanged(ShellPanelId _)
+        void OnPanelChanged(ShellPanelId id)
         {
             _productMenu?.Hide();
+            _socialPanel?.OnClosed();
+            _catchPanel?.OnClosed();
+            _galleryPanel?.OnClosed();
+            switch (id)
+            {
+                case ShellPanelId.Friends:
+                    _socialPanel?.OnOpened();
+                    break;
+                case ShellPanelId.CatchBag:
+                    _catchPanel?.OnOpened();
+                    break;
+                case ShellPanelId.Gallery:
+                    _galleryPanel?.OnOpened();
+                    break;
+                case ShellPanelId.Settings:
+                    _settingsPanel?.OnOpened();
+                    break;
+            }
         }
 
         void OnDestroy()
         {
             if (_router != null)
                 _router.PanelChanged -= OnPanelChanged;
+            _socialPanel?.OnClosed();
+            _catchPanel?.OnClosed();
+            _galleryPanel?.OnClosed();
             if (_petState != null)
                 _petState.StateChanged -= OnPetVisualStateChanged;
             if (_steamAuth == null)
@@ -260,6 +278,7 @@ namespace FishSocial.Desktop
             _pondSession.UsersChanged -= OnPondUsersChanged;
             _pondSession.FishBiteReceived -= OnPondFishBite;
             _pondSession.InventoryUpdated -= OnInventoryUpdated;
+            _pondSession.FriendRequestReceived -= OnFriendRequestNotify;
             _pondSession.ErrorReceived -= OnPondError;
             if (_socialLobby != null)
                 _socialLobby.Error -= OnSocialLobbyError;
@@ -508,27 +527,24 @@ namespace FishSocial.Desktop
         {
             RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : "鱼";
+            DesktopNotificationService.Instance?.Publish(new DesktopNotification(
+                NotificationKind.FishBite, "鱼咬钩", "有" + species + "上钩，请打开主界面领取。"));
             ShowToast("收到服务端咬钩事件，请打开主界面领取鱼获。");
         }
 
         void OnInventoryUpdated(FishInventoryItemDto[] items)
         {
-            var count = items?.Length ?? 0;
-            if (_inventoryStatus != null)
-            {
-                var text = "当前背包鱼获：" + count + " 条";
-                var shown = Mathf.Min(count, 5);
-                for (var i = 0; i < shown; i++)
-                {
-                    var item = items[i];
-                    text += "\n" + (i + 1) + ". " + item.speciesId + " · " +
-                            item.quality + " · " + item.sizeM.ToString("0.00") + "m";
-                }
-                _inventoryStatus.text = text;
-            }
             RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
-            ShowToast("背包已更新：" + count + " 条鱼获");
+            ShowToast("背包已更新：" + (items != null ? items.Length : 0) + " 条鱼获");
+        }
+
+        void OnFriendRequestNotify(FriendRequestDto request)
+        {
+            DesktopNotificationService.Instance?.Publish(new DesktopNotification(
+                NotificationKind.FriendInvite, "好友请求",
+                (request != null ? request.fromNickname : "钓友") + " 想添加你为好友。"));
         }
 
         void OnPondError(string message)
@@ -571,145 +587,28 @@ namespace FishSocial.Desktop
                 OpenPond);
         }
 
-        void BuildFriends(GameObject go)
+        void BuildSocialPanel(GameObject go)
         {
-            CreateText(go.transform, "F1", "好友 / Lobby", 32, TextAnchor.UpperLeft,
-                new Vector2(32, -32), new Vector2(600, 48));
-            var friendsText = CreateText(go.transform, "FriendsPanel",
-                "好友列表尚未加载。", 18, TextAnchor.UpperLeft,
-                new Vector2(32, -100), new Vector2(450, 300));
-            var lobbyText = CreateText(go.transform, "LobbyPanel",
-                "Lobby 状态：未登录", 18, TextAnchor.UpperLeft,
-                new Vector2(520, -100), new Vector2(450, 220));
-            if (_socialLobby != null)
-            {
-                go.AddComponent<FriendsPanel>().Bind(_socialLobby, friendsText);
-                go.AddComponent<LobbyPanel>().Bind(_socialLobby, lobbyText);
-            }
-            CreateButton(go.transform, "RefreshFriends", "刷新好友",
-                new Vector2(32, -430), new Vector2(160, 46),
-                () => _socialLobby?.RefreshFriends());
-            CreateButton(go.transform, "CreateLobby", "创建 Lobby",
-                new Vector2(204, -430), new Vector2(160, 46),
-                () => _socialLobby?.CreateLobby("pond-calm"));
-            CreateButton(go.transform, "InviteFirstFriend", "邀请第一位好友",
-                new Vector2(376, -430), new Vector2(190, 46),
-                InviteFirstFriend);
-            CreateButton(go.transform, "CloseLobby", "关闭 Lobby",
-                new Vector2(578, -430), new Vector2(160, 46),
-                () => _socialLobby?.CloseLobby());
-            CreateButton(go.transform, "LeaveLobby", "离开 Lobby",
-                new Vector2(750, -430), new Vector2(160, 46),
-                () => _socialLobby?.LeaveLobby());
+            _socialPanel = DesktopFeaturePanelFactory.Mount<DesktopSocialModalView>(go.transform,
+                view => view.Bind(_authenticatedApi, _pondSession, _socialLobby));
         }
 
-        void InviteFirstFriend()
+        void BuildCatchPanel(GameObject go)
         {
-            if (_socialLobby == null || _socialLobby.Friends == null ||
-                _socialLobby.Friends.Count == 0)
-            {
-                ShowToast("请先刷新好友列表。");
-                return;
-            }
-            _socialLobby.InviteFriend(_socialLobby.Friends[0].steamId64);
+            _catchPanel = DesktopFeaturePanelFactory.Mount<DesktopCatchBagModalView>(go.transform,
+                view => view.Bind(_authenticatedApi, _pondSession));
         }
 
-        void BuildCatch(GameObject go)
+        void BuildGalleryPanel(GameObject go)
         {
-            CreateText(go.transform, "C1", "鱼获 / 背包（占位）", 32, TextAnchor.UpperLeft,
-                new Vector2(32, -32), new Vector2(600, 48));
-            _inventoryStatus = CreateText(go.transform, "C2", "当前背包鱼获：尚未同步", 20,
-                TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 80));
+            _galleryPanel = DesktopFeaturePanelFactory.Mount<DesktopGalleryModalView>(go.transform,
+                view => view.Bind(_authenticatedApi, _pondSession));
         }
 
-        void BuildGallery(GameObject go)
+        void BuildSettingsPanel(GameObject go)
         {
-            CreateText(go.transform, "G1", "图鉴（占位）", 32, TextAnchor.UpperLeft,
-                new Vector2(32, -32), new Vector2(600, 48));
-            CreateText(go.transform, "G2", "07A 仅保留入口。正式图鉴内容属于后续阶段。", 18,
-                TextAnchor.UpperLeft, new Vector2(32, -100), new Vector2(900, 80));
-        }
-
-        void BuildSettings(GameObject go)
-        {
-            CreateText(go.transform, "S1", "设置", 32, TextAnchor.UpperLeft, new Vector2(32, -32), new Vector2(400, 48));
-
-            float y = -100;
-            CreateText(go.transform, "SM", "窗口模式", 22, TextAnchor.UpperLeft, new Vector2(32, y), new Vector2(200, 36));
-            y -= 50;
-            CreateButton(go.transform, "ModeWin", "普通窗口", new Vector2(32, y), new Vector2(160, 40),
-                () => WindowManager.Instance?.SetMode(WindowDisplayMode.Windowed));
-            CreateButton(go.transform, "ModeBorder", "无边框", new Vector2(210, y), new Vector2(160, 40),
-                () => WindowManager.Instance?.SetMode(WindowDisplayMode.Borderless));
-            CreateButton(go.transform, "ModeFull", "全屏", new Vector2(388, y), new Vector2(160, 40),
-                () => WindowManager.Instance?.SetMode(WindowDisplayMode.Fullscreen));
-
-            y -= 70;
-            CreateText(go.transform, "SN", "通知", 22, TextAnchor.UpperLeft, new Vector2(32, y), new Vector2(200, 36));
-            y -= 48;
-            CreateToggle(go.transform, "EnAll", "启用通知", new Vector2(32, y), _notifyDraft.EnableNotifications,
-                v => SetNotificationPreference(s => s.EnableNotifications = v));
-            y -= 40;
-            CreateToggle(go.transform, "Dnd", "免打扰", new Vector2(32, y), _notifyDraft.DoNotDisturb,
-                v => SetNotificationPreference(s => s.DoNotDisturb = v));
-            y -= 40;
-            CreateToggle(go.transform, "Bite", "鱼咬钩", new Vector2(32, y), _notifyDraft.EnableFishBite,
-                v => SetNotificationPreference(s => s.EnableFishBite = v));
-            y -= 40;
-            CreateToggle(go.transform, "Invite", "好友邀请", new Vector2(32, y), _notifyDraft.EnableFriendInvite,
-                v => SetNotificationPreference(s => s.EnableFriendInvite = v));
-            y -= 40;
-            CreateToggle(go.transform, "Err", "连接错误", new Vector2(32, y), _notifyDraft.EnableConnectionError,
-                v => SetNotificationPreference(s => s.EnableConnectionError = v));
-
-            y -= 60;
-            CreateButton(go.transform, "SavePref", "保存设置", new Vector2(32, y), new Vector2(180, 44), SavePrefs);
-            CreateButton(go.transform, "SimErr", "模拟连接错误", new Vector2(230, y), new Vector2(200, 44),
-                () => DesktopNotificationService.Instance?.PublishSimulated(NotificationKind.ConnectionError));
-            CreateButton(go.transform, "HideTray", "隐藏到托盘", new Vector2(450, y), new Vector2(180, 44),
-                () => WindowManager.Instance?.HideToTray());
-            CreateButton(go.transform, "ExitGame", "退出游戏", new Vector2(650, y), new Vector2(160, 44),
-                () => DesktopAppBootstrap.Instance?.QuitForReal());
-        }
-
-        void SavePrefs()
-        {
-            if (DesktopNotificationService.Instance != null)
-            {
-                var s = DesktopNotificationService.Instance.Settings;
-                s.EnableNotifications = _notifyDraft.EnableNotifications;
-                s.DoNotDisturb = _notifyDraft.DoNotDisturb;
-                s.EnableFishBite = _notifyDraft.EnableFishBite;
-                s.EnableFriendInvite = _notifyDraft.EnableFriendInvite;
-                s.EnableConnectionError = _notifyDraft.EnableConnectionError;
-                DesktopNotificationService.Instance.SaveSettings();
-            }
-
-            WindowManager.Instance?.ApplySettings(persist: true);
-            ShowToast("设置已保存（仅本地窗口/通知偏好）");
-        }
-
-        void SetNotificationPreference(System.Action<NotificationSettings> change)
-        {
-            change(_notifyDraft);
-            if (DesktopNotificationService.Instance == null)
-                return;
-
-            change(DesktopNotificationService.Instance.Settings);
-            DesktopNotificationService.Instance.SaveSettings();
-            ShowToast("通知设置已即时生效");
-        }
-
-        static NotificationSettings CloneNotify(NotificationSettings s)
-        {
-            return new NotificationSettings
-            {
-                EnableNotifications = s.EnableNotifications,
-                DoNotDisturb = s.DoNotDisturb,
-                EnableFishBite = s.EnableFishBite,
-                EnableFriendInvite = s.EnableFriendInvite,
-                EnableConnectionError = s.EnableConnectionError,
-            };
+            _settingsPanel = DesktopFeaturePanelFactory.Mount<DesktopSettingsModalView>(go.transform,
+                view => view.Bind());
         }
 
         static void EnsureEventSystem()
