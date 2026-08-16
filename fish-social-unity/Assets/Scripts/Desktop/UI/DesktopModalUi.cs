@@ -32,6 +32,88 @@ namespace FishSocial.Desktop
             return rt;
         }
 
+        public static Transform FindChild(Transform root, string path)
+        {
+            if (root == null || string.IsNullOrEmpty(path))
+                return null;
+            return root.Find(path);
+        }
+
+        public static T FindComponent<T>(Transform root, string path)
+            where T : Component
+        {
+            var child = FindChild(root, path);
+            return child != null ? child.GetComponent<T>() : null;
+        }
+
+        public static Transform FindDescendant(Transform root, string name)
+        {
+            if (root == null || string.IsNullOrEmpty(name))
+                return null;
+            if (root.name == name)
+                return root;
+            for (var i = 0; i < root.childCount; i++)
+            {
+                var match = FindDescendant(root.GetChild(i), name);
+                if (match != null)
+                    return match;
+            }
+            return null;
+        }
+
+        public static T FindDescendantComponent<T>(Transform root, string name)
+            where T : Component
+        {
+            var child = FindDescendant(root, name);
+            return child != null ? child.GetComponent<T>() : null;
+        }
+
+        public static bool BindButton(
+            Transform root, string path, UnityEngine.Events.UnityAction onClick)
+        {
+            var button = FindComponent<Button>(root, path);
+            if (button == null)
+                return false;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(onClick);
+            return true;
+        }
+
+        public static bool BindToggle(
+            Transform root, string path, bool value, System.Action<bool> onChanged)
+        {
+            var toggle = FindComponent<Toggle>(root, path);
+            if (toggle == null)
+                return false;
+            toggle.onValueChanged.RemoveAllListeners();
+            toggle.SetIsOnWithoutNotify(value);
+            toggle.onValueChanged.AddListener(v => onChanged?.Invoke(v));
+            return true;
+        }
+
+        public static bool BindDescendantButton(
+            Transform root, string name, UnityEngine.Events.UnityAction onClick)
+        {
+            var button = FindDescendantComponent<Button>(root, name);
+            if (button == null)
+                return false;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(onClick);
+            return true;
+        }
+
+        public static bool BindDescendantToggle(
+            Transform root, string name, bool value, System.Action<bool> onChanged)
+        {
+            var toggle = FindDescendantComponent<Toggle>(root, name);
+            if (toggle == null)
+                return false;
+            toggle.onValueChanged.RemoveAllListeners();
+            toggle.SetIsOnWithoutNotify(value);
+            toggle.onValueChanged.AddListener(v => onChanged?.Invoke(v));
+            return true;
+        }
+
         public static GameObject Panel(string name, Transform parent, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
@@ -121,6 +203,8 @@ namespace FishSocial.Desktop
 
         public static void Clear(Transform parent)
         {
+            if (parent == null)
+                return;
             for (var i = parent.childCount - 1; i >= 0; i--)
                 Object.Destroy(parent.GetChild(i).gameObject);
         }

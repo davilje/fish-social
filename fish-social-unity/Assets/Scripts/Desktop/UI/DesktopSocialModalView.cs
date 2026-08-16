@@ -34,15 +34,13 @@ namespace FishSocial.Desktop
             _api = api;
             _pond = pond;
             _lobby = lobby;
-            if (transform.childCount == 0)
-                Build();
+            BindPrefab();
         }
 
         public void OnOpened()
         {
             Subscribe(true);
             ShowTab(_tab);
-            RefreshAll();
         }
 
         public void OnClosed()
@@ -57,20 +55,76 @@ namespace FishSocial.Desktop
 
         void Subscribe(bool on)
         {
-            if (_pond == null)
-                return;
-            _pond.UsersChanged -= OnUsersChanged;
-            _pond.ChatMessageReceived -= OnChat;
-            _pond.FriendRequestReceived -= OnFriendPush;
-            _pond.DmMessageReceived -= OnDmPush;
-            _pond.StateChanged -= OnSocketState;
+            if (_pond != null)
+            {
+                _pond.UsersChanged -= OnUsersChanged;
+                _pond.ChatMessageReceived -= OnChat;
+                _pond.FriendRequestReceived -= OnFriendPush;
+                _pond.DmMessageReceived -= OnDmPush;
+                _pond.StateChanged -= OnSocketState;
+            }
+            if (_lobby != null)
+            {
+                _lobby.FriendsChanged -= OnSteamFriendsChanged;
+                _lobby.Error -= OnLobbyError;
+            }
             if (!on)
                 return;
-            _pond.UsersChanged += OnUsersChanged;
-            _pond.ChatMessageReceived += OnChat;
-            _pond.FriendRequestReceived += OnFriendPush;
-            _pond.DmMessageReceived += OnDmPush;
-            _pond.StateChanged += OnSocketState;
+            if (_pond != null)
+            {
+                _pond.UsersChanged += OnUsersChanged;
+                _pond.ChatMessageReceived += OnChat;
+                _pond.FriendRequestReceived += OnFriendPush;
+                _pond.DmMessageReceived += OnDmPush;
+                _pond.StateChanged += OnSocketState;
+            }
+            if (_lobby != null)
+            {
+                _lobby.FriendsChanged += OnSteamFriendsChanged;
+                _lobby.Error += OnLobbyError;
+            }
+        }
+
+        void OnSteamFriendsChanged(System.Collections.Generic.IReadOnlyList<SteamFriendInfo> _)
+        {
+            if (_tab == 2)
+                StartCoroutine(LoadFriends());
+        }
+
+        void OnLobbyError(string message)
+        {
+            SetStatus(message);
+        }
+
+        void BindPrefab()
+        {
+            _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
+            _onlinePage = DesktopModalUi.FindChild(transform, "OnlinePage")?.gameObject;
+            _chatPage = DesktopModalUi.FindChild(transform, "ChatPage")?.gameObject;
+            _friendsPage = DesktopModalUi.FindChild(transform, "FriendsPage")?.gameObject;
+            _dmPage = DesktopModalUi.FindChild(transform, "DmPage")?.gameObject;
+            _onlineContent = DesktopModalUi.FindChild(transform, "OnlinePage/Scroll/Content");
+            _chatContent = DesktopModalUi.FindChild(transform, "ChatPage/Scroll/Content");
+            _friendsContent = DesktopModalUi.FindChild(transform, "FriendsPage/Scroll/Content");
+            _dmContent = DesktopModalUi.FindChild(transform, "DmPage/List/Content");
+            _messageContent = DesktopModalUi.FindChild(transform, "DmPage/Messages/Content");
+            _chatInput = DesktopModalUi.FindComponent<InputField>(transform, "ChatPage/ChatInput");
+            _dmInput = DesktopModalUi.FindComponent<InputField>(transform, "DmPage/DmInput");
+            _dmTitle = DesktopModalUi.FindComponent<Text>(transform, "DmPage/DmTitle");
+
+            DesktopModalUi.BindButton(transform, "Tabs/T0", () => ShowTab(0));
+            DesktopModalUi.BindButton(transform, "Tabs/T1", () => ShowTab(1));
+            DesktopModalUi.BindButton(transform, "Tabs/T2", () => ShowTab(2));
+            DesktopModalUi.BindButton(transform, "Tabs/T3", () => ShowTab(3));
+            DesktopModalUi.BindButton(transform, "Retry", RefreshAll);
+            DesktopModalUi.BindButton(transform, "ChatPage/SendChat", SendPondChat);
+            DesktopModalUi.BindButton(transform, "DmPage/SendDm", SendDm);
+            if (_status == null || _onlinePage == null || _chatPage == null ||
+                _friendsPage == null || _dmPage == null || _onlineContent == null ||
+                _chatContent == null || _friendsContent == null || _dmContent == null ||
+                _messageContent == null || _chatInput == null || _dmInput == null ||
+                _dmTitle == null)
+                Debug.LogError("[DesktopUI] PanelSocial prefab is missing required controls.");
         }
 
         void OnUsersChanged() => RenderOnline();
@@ -228,10 +282,10 @@ namespace FishSocial.Desktop
         void ShowTab(int tab)
         {
             _tab = tab;
-            _onlinePage.SetActive(tab == 0);
-            _chatPage.SetActive(tab == 1);
-            _friendsPage.SetActive(tab == 2);
-            _dmPage.SetActive(tab == 3);
+            if (_onlinePage != null) _onlinePage.SetActive(tab == 0);
+            if (_chatPage != null) _chatPage.SetActive(tab == 1);
+            if (_friendsPage != null) _friendsPage.SetActive(tab == 2);
+            if (_dmPage != null) _dmPage.SetActive(tab == 3);
             RefreshAll();
         }
 
@@ -248,6 +302,7 @@ namespace FishSocial.Desktop
                     RenderChat();
                     break;
                 case 2:
+                    _lobby?.RefreshFriends();
                     StartCoroutine(LoadFriends());
                     break;
                 default:
@@ -278,6 +333,8 @@ namespace FishSocial.Desktop
 
         void RenderOnline()
         {
+            if (_onlineContent == null)
+                return;
             DesktopModalUi.Clear(_onlineContent);
             var others = _pond != null ? _pond.VisibleOthers : null;
             if (others == null || others.Length == 0)
@@ -298,6 +355,8 @@ namespace FishSocial.Desktop
 
         void RenderChat()
         {
+            if (_chatContent == null)
+                return;
             DesktopModalUi.Clear(_chatContent);
             var messages = _pond != null ? _pond.PondMessages : null;
             if (messages == null || messages.Length == 0)
@@ -340,6 +399,8 @@ namespace FishSocial.Desktop
                 outgoing = outg;
                 if (!ok) error = message;
             });
+            if (_friendsContent == null)
+                yield break;
             DesktopModalUi.Clear(_friendsContent);
             if (!friendsOk && !requestsOk)
             {
@@ -422,10 +483,29 @@ namespace FishSocial.Desktop
 
         void InviteSteam(string steamId)
         {
+            StartCoroutine(InviteSteamRoutine(steamId));
+        }
+
+        IEnumerator InviteSteamRoutine(string steamId)
+        {
             if (_lobby == null)
-                return;
+                yield break;
             if (string.IsNullOrEmpty(_lobby.CurrentLobbyId))
+            {
+                SetStatus("正在创建 Lobby…");
                 _lobby.CreateLobby(_pond != null ? _pond.CurrentPondId : "pond-calm");
+            }
+
+            var deadline = Time.unscaledTime + 8f;
+            while (string.IsNullOrEmpty(_lobby.CurrentLobbyId) && Time.unscaledTime < deadline)
+                yield return null;
+
+            if (string.IsNullOrEmpty(_lobby.CurrentLobbyId))
+            {
+                SetStatus("Lobby 尚未就绪，无法邀请 Steam 好友。");
+                yield break;
+            }
+
             _lobby.InviteFriend(steamId);
             SetStatus("已发送 Steam 进塘邀请。");
         }
@@ -465,6 +545,8 @@ namespace FishSocial.Desktop
                 list = items;
                 error = message;
             });
+            if (_dmContent == null)
+                yield break;
             DesktopModalUi.Clear(_dmContent);
             if (!ok)
             {
@@ -522,15 +604,22 @@ namespace FishSocial.Desktop
         {
             if (_sending)
                 return;
+            if (_pond == null || _pond.State != SocialSocketState.Connected)
+            {
+                SetStatus("请先进入鱼塘后再发送聊天。");
+                return;
+            }
             var text = _chatInput != null ? _chatInput.text : string.Empty;
             _sending = true;
             SetStatus("发送中…");
-            _pond?.SendChat(text, (ok, message) =>
+            _pond.SendChat(text, (ok, message) =>
             {
                 _sending = false;
                 SetStatus(message);
                 if (ok && _chatInput != null)
                     _chatInput.text = string.Empty;
+                if (ok)
+                    RenderChat();
             });
         }
 

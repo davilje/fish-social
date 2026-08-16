@@ -1,57 +1,57 @@
 #if UNITY_EDITOR
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 namespace FishSocial.Desktop.Editor
 {
-    public static class DesktopPrefabBaker
+    public static class DesktopPrefabValidator
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs";
 
-        [MenuItem("Fish Social/Bake Desktop Feature Prefabs")]
-        public static void BakeFeaturePrefabs()
+        [MenuItem("Fish Social/Validate Desktop Prefabs")]
+        static void Validate()
         {
-            Directory.CreateDirectory(Path.Combine(Application.dataPath, "Resources/Desktop/Prefabs"));
-            AssetDatabase.Refresh();
-
-            var root = new GameObject("DesktopPrefabBakeRoot", typeof(RectTransform));
-            try
+            var entries = new[]
             {
-                Bake<DesktopSocialModalView>(root.transform, "PanelSocial",
-                    view => view.Bind(null, null, null));
-                Bake<DesktopCatchBagModalView>(root.transform, "PanelCatch",
-                    view => view.Bind(null, null));
-                Bake<DesktopGalleryModalView>(root.transform, "PanelGallery",
-                    view => view.Bind(null, null));
-                Bake<DesktopSettingsModalView>(root.transform, "PanelSettings",
-                    view => view.Bind());
-            }
-            finally
+                new PrefabEntry("PanelSocial", typeof(DesktopSocialModalView)),
+                new PrefabEntry("PanelCatch", typeof(DesktopCatchBagModalView)),
+                new PrefabEntry("PanelGallery", typeof(DesktopGalleryModalView)),
+                new PrefabEntry("PanelSettings", typeof(DesktopSettingsModalView)),
+            };
+
+            var errors = string.Empty;
+            foreach (var entry in entries)
             {
-                Object.DestroyImmediate(root);
+                var path = Folder + "/" + entry.Name + ".prefab";
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab == null)
+                {
+                    errors += "\n缺少 " + path;
+                    continue;
+                }
+                if (prefab.GetComponent(entry.ComponentType) == null)
+                    errors += "\n" + entry.Name + " 缺少 " + entry.ComponentType.Name;
             }
 
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
             EditorUtility.DisplayDialog(
                 "Desktop Prefabs",
-                "已用 PrefabUtility 保存到：\n" + Folder + "\n\n" +
-                "PanelSocial / PanelCatch / PanelGallery / PanelSettings\n\n" +
-                "之后改布局：打开预制体编辑，不要手写 YAML。",
+                string.IsNullOrEmpty(errors)
+                    ? "4 个桌面功能 Prefab 均可用。\n\n" +
+                      "修改方式：打开 Prefab → 修改 UI → Ctrl+S 保存 → 重新打包。"
+                    : "Prefab 检查失败：" + errors,
                 "确定");
         }
 
-        static void Bake<T>(Transform parent, string name, System.Action<T> bind)
-            where T : MonoBehaviour
+        sealed class PrefabEntry
         {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            DesktopModalUi.Stretch(go);
-            var view = go.AddComponent<T>();
-            bind(view);
-            var path = Folder + "/" + name + ".prefab";
-            PrefabUtility.SaveAsPrefabAsset(go, path);
+            public readonly string Name;
+            public readonly System.Type ComponentType;
+
+            public PrefabEntry(string name, System.Type componentType)
+            {
+                Name = name;
+                ComponentType = componentType;
+            }
         }
     }
 }

@@ -84,13 +84,21 @@ namespace FishSocial.Desktop.Social
         void Awake()
         {
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
-            _initialized = SteamAPI.IsSteamRunning();
+            EnsureSteamCallbacks();
+#endif
+        }
+
+        void EnsureSteamCallbacks()
+        {
+#if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (_initialized)
-            {
-                _lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
-                _lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
-                _lobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnLobbyJoinRequested);
-            }
+                return;
+            _initialized = SteamAPI.IsSteamRunning();
+            if (!_initialized)
+                return;
+            _lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+            _lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+            _lobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnLobbyJoinRequested);
 #endif
         }
 
@@ -105,6 +113,7 @@ namespace FishSocial.Desktop.Social
         public void RefreshFriends()
         {
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
+            EnsureSteamCallbacks();
             if (!IsAvailable)
             {
                 Error?.Invoke("Steam 客户端未运行。");

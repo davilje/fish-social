@@ -7,22 +7,22 @@ namespace FishSocial.Desktop
         public static T Mount<T>(Transform parent, System.Action<T> bind) where T : MonoBehaviour
         {
             var prefab = Resources.Load<GameObject>("Desktop/Prefabs/" + PrefabName<T>());
-            T view;
-            if (prefab != null)
+            if (prefab == null)
             {
-                var instance = Object.Instantiate(prefab, parent, false);
-                instance.name = typeof(T).Name;
-                DesktopModalUi.Stretch(instance);
-                view = instance.GetComponent<T>();
-                if (view == null)
-                    view = instance.AddComponent<T>();
+                Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/" +
+                               PrefabName<T>());
+                return null;
             }
-            else
+
+            var instance = Object.Instantiate(prefab, parent, false);
+            instance.name = typeof(T).Name;
+            var view = instance.GetComponent<T>();
+            if (view == null)
             {
-                var go = new GameObject(typeof(T).Name, typeof(RectTransform));
-                go.transform.SetParent(parent, false);
-                DesktopModalUi.Stretch(go);
-                view = go.AddComponent<T>();
+                Debug.LogError("[DesktopUI] Required component is missing from prefab: " +
+                               PrefabName<T>());
+                Object.Destroy(instance);
+                return null;
             }
 
             bind(view);

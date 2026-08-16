@@ -20,8 +20,12 @@ namespace FishSocial.Desktop
         {
             _api = api;
             _pond = pond;
-            if (transform.childCount == 0)
-                Build();
+            _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
+            _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
+            _grid = DesktopModalUi.FindChild(transform, "Grid/Species");
+            DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
+            if (_status == null || _detail == null || _grid == null)
+                Debug.LogError("[DesktopUI] PanelGallery prefab is missing required controls.");
         }
 
         public void OnOpened()
@@ -134,6 +138,8 @@ namespace FishSocial.Desktop
 
         void RenderGrid()
         {
+            if (_grid == null)
+                return;
             DesktopModalUi.Clear(_grid);
             for (var i = 0; i < DesktopFishCatalog.Species.Length; i++)
             {

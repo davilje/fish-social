@@ -258,33 +258,39 @@ namespace FishSocial.Desktop.Auth
                 return;
             try
             {
-                if (eventName == "pond_snapshot")
-                    PondSnapshotReceived?.Invoke(JsonUtility.FromJson<PondSnapshotDto>(payload));
-                else if (eventName == "pond_user_joined")
-                    PondUserJoined?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
-                else if (eventName == "pond_user_left")
-                    PondUserLeft?.Invoke(Unquote(payload));
-                else if (eventName == "pond_user_updated")
-                    PondUserUpdated?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
-                else if (eventName == "fish_bite")
-                    FishBiteReceived?.Invoke(JsonUtility.FromJson<PendingFishCatchDto>(payload));
-                else if (eventName == "inventory_updated")
-                    InventoryUpdated?.Invoke(ParseInventory(payload));
-                else if (eventName == "chat_message")
-                    ChatMessageReceived?.Invoke(JsonUtility.FromJson<ChatMessageDto>(payload));
-                else if (eventName == "codex_unlocked")
-                    CodexUnlocked?.Invoke(JsonUtility.FromJson<CodexUnlockDto>(payload));
-                else if (eventName == "friend_request")
-                    FriendRequestReceived?.Invoke(JsonUtility.FromJson<FriendRequestDto>(payload));
-                else if (eventName == "dm_message")
-                    DmMessageReceived?.Invoke(JsonUtility.FromJson<DirectMessageDto>(payload));
-                else if (eventName == "error")
-                    ErrorReceived?.Invoke(Unquote(payload));
+                DispatchEvent(eventName, payload);
             }
             catch (Exception error)
             {
-                ErrorReceived?.Invoke("Socket 数据解析失败：" + error.Message);
+                Debug.LogWarning("[Pond] Socket event '" + eventName + "' failed: " + error);
+                ErrorReceived?.Invoke("Socket 事件处理失败：" + eventName);
             }
+        }
+
+        void DispatchEvent(string eventName, string payload)
+        {
+            if (eventName == "pond_snapshot")
+                PondSnapshotReceived?.Invoke(JsonUtility.FromJson<PondSnapshotDto>(payload));
+            else if (eventName == "pond_user_joined")
+                PondUserJoined?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
+            else if (eventName == "pond_user_left")
+                PondUserLeft?.Invoke(Unquote(payload));
+            else if (eventName == "pond_user_updated")
+                PondUserUpdated?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
+            else if (eventName == "fish_bite")
+                FishBiteReceived?.Invoke(JsonUtility.FromJson<PendingFishCatchDto>(payload));
+            else if (eventName == "inventory_updated")
+                InventoryUpdated?.Invoke(ParseInventory(payload));
+            else if (eventName == "chat_message")
+                ChatMessageReceived?.Invoke(JsonUtility.FromJson<ChatMessageDto>(payload));
+            else if (eventName == "codex_unlocked")
+                CodexUnlocked?.Invoke(JsonUtility.FromJson<CodexUnlockDto>(payload));
+            else if (eventName == "friend_request")
+                FriendRequestReceived?.Invoke(JsonUtility.FromJson<FriendRequestDto>(payload));
+            else if (eventName == "dm_message")
+                DmMessageReceived?.Invoke(JsonUtility.FromJson<DirectMessageDto>(payload));
+            else if (eventName == "error")
+                ErrorReceived?.Invoke(Unquote(payload));
         }
 
         void HandleAckPacket(string packet)

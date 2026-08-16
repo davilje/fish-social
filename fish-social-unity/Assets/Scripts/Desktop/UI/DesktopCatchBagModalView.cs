@@ -23,8 +23,16 @@ namespace FishSocial.Desktop
         {
             _api = api;
             _pond = pond;
-            if (transform.childCount == 0)
-                Build();
+            _coins = DesktopModalUi.FindComponent<Text>(transform, "Coins");
+            _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
+            _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
+            _grid = DesktopModalUi.FindChild(transform, "Grid/Slots");
+
+            DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
+            DesktopModalUi.BindButton(transform, "Sell", SellSelected);
+            DesktopModalUi.BindButton(transform, "Share", ShareSelected);
+            if (_coins == null || _status == null || _detail == null || _grid == null)
+                Debug.LogError("[DesktopUI] PanelCatch prefab is missing required controls.");
         }
 
         public void OnOpened()
@@ -125,6 +133,8 @@ namespace FishSocial.Desktop
 
         IEnumerator Load()
         {
+            if (_status == null || _detail == null)
+                yield break;
             if (_api == null || !_api.CanUse)
             {
                 _status.text = "请先完成 Steam 登录。";
@@ -162,6 +172,8 @@ namespace FishSocial.Desktop
 
         void RenderGrid()
         {
+            if (_grid == null)
+                return;
             DesktopModalUi.Clear(_grid);
             var count = Mathf.Max(MinSlots, _items != null ? _items.Length : 0);
             if (_items == null || _items.Length == 0)
