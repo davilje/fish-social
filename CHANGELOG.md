@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **STEAM-DESKTOP-07E**：用户确认主窗口功能页签、好友/聊天、背包、图鉴、设置及 Overlay 层级流程已完成验收。
+
 ### 新增
 
 - **ADMIN-OBS-1.3**：Admin 玩家一览默认页 · Timeline/健康卡片�?· bot 默认停相位埋点（`METRICS_BOT_PHASE=1`）�?运营平台实时区只留内�?- **OPS-UX-1 运营平台入口体验**：今日运维条（T-1 KPI/告警/日批状态）· 每日必看 3 �?· Admin `?tab=&playerId=` 深链 · 工程区折�?- **v0.6.0 社交后端（FEAT-SOC-01/02/03�?*：动态点�?评论、排行榜（metrics 聚合，Asia/Shanghai）；`verify:social-v060`
