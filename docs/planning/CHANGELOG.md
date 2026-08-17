@@ -6,6 +6,14 @@
 - 完成 Overlay 钓位选择、开始钓鱼、收杆、领取鱼获、状态同步、错误回显及拖动命中区域验收。
 - 下一阶段：`STEAM-DESKTOP-08A` 世界地图与鱼塘选择。
 
+### [steam-desktop-08a-07a-accepted] - 2026-08-17
+
+- `STEAM-DESKTOP-08A` 世界地图与鱼塘选择用户验收通过，计划状态改为 **已实现**。
+- Web/shared 鱼塘目录已导入 Unity 世界地图，包含 20 个鱼塘及 `pondId`、名称、`regionId`、主题、坐标和容量。
+- Unity UI Prefab 管理工具验收通过，支持查看、新增、修改高亮、更新和删除无效 Prefab。
+- `STEAM-DESKTOP-07A` 桌面宠物主视图与鱼塘入口用户验收通过，继续保持 **已实现**。
+- 下一阶段：`STEAM-DESKTOP-08B` 商店与装备。
+
 ### [steam-desktop-08f-accepted] - 2026-08-17
 
 - `STEAM-DESKTOP-08F` 用户验收通过，计划状态改为 **已实现**。

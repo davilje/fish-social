@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **STEAM-DESKTOP-08A**：用户验收通过，世界地图选塘进 Overlay（完成时间 2026-08-17）。
 - **STEAM-DESKTOP-08G**：用户验收通过，Overlay 钓位选择、开始钓鱼、收杆、领取鱼获可用（完成时间 2026-08-17）。
 - **STEAM-DESKTOP-08F**：用户验收通过，好友申请接受/拒绝可点、列表刷新不离塘（完成时间 2026-08-17）。
 - **STEAM-DESKTOP-08H**：用户验收通过。PanelSocial 双页社交布局、好友/私聊切换、

@@ -198,7 +198,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-17",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-08A",
         "功能",
         "世界地图与鱼塘选择",
@@ -208,7 +208,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "主窗口超大地图 Image：拖动/滚轮缩放/边界；pondId 坐标绑定；点击进塘并显示 Overlay",
         "docs/planning/specs/Steam桌面端-08A世界地图与鱼塘选择.md",
         "2026-08-17",
-        "",
+        "2026-08-17",
     ],
     [
         "已确认",

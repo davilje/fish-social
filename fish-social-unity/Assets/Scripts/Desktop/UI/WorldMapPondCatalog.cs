@@ -8,6 +8,7 @@ namespace FishSocial.Desktop
     {
         public string pondId;
         public string displayName;
+        public string regionId;
         public string theme;
         [Range(0f, 1f)] public float x;
         [Range(0f, 1f)] public float y;

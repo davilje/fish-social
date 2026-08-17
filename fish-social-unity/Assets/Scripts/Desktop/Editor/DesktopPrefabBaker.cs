@@ -9,7 +9,6 @@ namespace FishSocial.Desktop.Editor
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs";
 
-        [MenuItem("Fish Social/Generate Desktop UI Prefabs")]
         static void Generate()
         {
             var generated = 0;
@@ -69,7 +68,6 @@ namespace FishSocial.Desktop.Editor
             EditorUtility.DisplayDialog("Desktop UI Prefabs", message, "确定");
         }
 
-        [MenuItem("Fish Social/Validate Desktop Prefabs")]
         static void Validate()
         {
             var entries = new[]
@@ -243,7 +241,6 @@ namespace FishSocial.Desktop.Editor
             }
         }
 
-        [MenuItem("Fish Social/Normalize PanelSocial Responsive Layout")]
         static void NormalizePanelSocialResponsiveLayout()
         {
             const string path = Folder + "/PanelSocial.prefab";
@@ -394,7 +391,6 @@ namespace FishSocial.Desktop.Editor
             }
         }
 
-        [MenuItem("Fish Social/Migrate PanelSocial To Two-Column Pages")]
         static void MigratePanelSocial()
         {
             const string path = Folder + "/PanelSocial.prefab";
