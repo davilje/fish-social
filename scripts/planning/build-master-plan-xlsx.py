@@ -172,7 +172,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-17",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-07F",
         "功能",
         "桌面宠物主流程与恢复验收",
@@ -182,7 +182,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "串联登录、进塘、挂机、通知、托盘、收鱼、断线恢复并完成 Windows 验收",
         "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
         "2026-08-13",
-        "",
+        "2026-08-17",
     ],
     [
         "已实现",

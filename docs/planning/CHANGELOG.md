@@ -1,5 +1,11 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07f-accepted] - 2026-08-17
+
+- `STEAM-DESKTOP-07F` 用户验收通过，计划状态改为 **已实现**（设计 2026-08-13，完成 2026-08-17）。
+- Windows Development Build 全流程通过：登录、进塘、Overlay、钓鱼、托盘挂机、咬钩通知、恢复收鱼、页签不离塘、断线按快照恢复；进塘不启动第二个 Unity Player。
+- 父需求 `STEAM-DESKTOP-07` 改为 **已实现**（07A～07G 均完成）。美术 `ART-01` / `ART-02` 仍为已确认。
+
 ### [steam-desktop-07g-accepted] - 2026-08-17
 
 - `STEAM-DESKTOP-07G` 用户验收通过，计划状态改为 **已实现**（设计 2026-08-14，完成 2026-08-17）。

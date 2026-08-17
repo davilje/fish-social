@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **STEAM-DESKTOP-07F**：用户验收通过，托盘挂机、咬钩通知、收鱼、断线快照恢复与 Development Build 全流程完成（完成时间 2026-08-17）。
+- **STEAM-DESKTOP-07**：07A～07G 均已实现。
 - **STEAM-DESKTOP-07G**：用户验收通过，独立 WPF Overlay + Named Pipe（完成时间 2026-08-17）。
 - **STEAM-DESKTOP-07E**：用户确认主窗口功能页签、好友/聊天、背包、图鉴、设置及 Overlay 层级流程已完成验收（完成时间 2026-08-17；Prefab 为唯一功能页来源）。
 - **STEAM-DESKTOP-07A / 07B**：计划状态改为已实现（完成时间 2026-08-14）。

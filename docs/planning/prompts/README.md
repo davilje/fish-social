@@ -87,7 +87,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-07d-context-menu-dev.prompt.md](./steam-desktop-07d-context-menu-dev.prompt.md) | STEAM-DESKTOP-07D：桌面宠物右键菜单 · **已实现** |
 | [steam-desktop-07e-main-window-tabs-dev.prompt.md](./steam-desktop-07e-main-window-tabs-dev.prompt.md) | STEAM-DESKTOP-07E：主窗口功能页签（取代弹窗；主窗口高于 Overlay）· **已实现** |
 | [steam-desktop-07e-modal-layer-dev.prompt.md](./steam-desktop-07e-modal-layer-dev.prompt.md) | （作废）原 07E 弹窗层提示词，改走上一行 |
-| [steam-desktop-07f-main-flow-qa-dev.prompt.md](./steam-desktop-07f-main-flow-qa-dev.prompt.md) | STEAM-DESKTOP-07F：桌面宠物主流程与恢复验收 · **已确认** |
+| [steam-desktop-07f-main-flow-qa-dev.prompt.md](./steam-desktop-07f-main-flow-qa-dev.prompt.md) | STEAM-DESKTOP-07F：桌面宠物主流程与恢复验收 · **已实现** |
 | [steam-desktop-07g-native-overlay-dev.prompt.md](./steam-desktop-07g-native-overlay-dev.prompt.md) | STEAM-DESKTOP-07G：独立原生桌面宠物 Overlay（WPF/Win32 + Named Pipe）· **已实现** |
 | [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已确认** |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已确认** |
