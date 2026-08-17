@@ -11,11 +11,21 @@ namespace FishSocial.Desktop
         const int BackgroundFps = 5;
 
         public static bool IsHidden { get; private set; }
+        public static bool IsOverlayActive { get; private set; }
 
         public static void SetHidden(bool hidden)
         {
             IsHidden = hidden;
-            Application.targetFrameRate = hidden ? BackgroundFps : ForegroundFps;
+            Application.targetFrameRate =
+                hidden && !IsOverlayActive ? BackgroundFps : ForegroundFps;
+            QualitySettings.vSyncCount = 0;
+        }
+
+        public static void SetOverlayActive(bool active)
+        {
+            IsOverlayActive = active;
+            Application.targetFrameRate =
+                IsHidden && !active ? BackgroundFps : ForegroundFps;
             QualitySettings.vSyncCount = 0;
         }
 

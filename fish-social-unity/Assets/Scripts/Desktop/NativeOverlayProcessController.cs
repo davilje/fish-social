@@ -37,6 +37,7 @@ namespace FishSocial.Desktop
         NamedPipeServerStream _server;
         StreamWriter _writer;
         NativeOverlayStateDto _latestState = new NativeOverlayStateDto();
+        long _nextStateSequence;
         Task _startTask;
         Task _shutdownTask;
         bool _stopping;
@@ -99,6 +100,7 @@ namespace FishSocial.Desktop
             if (Application.isEditor)
                 return;
 
+            BackgroundRenderGate.SetOverlayActive(true);
             lock (_lifecycleLock)
             {
                 if (LifecycleState == NativeOverlayLifecycleState.Starting ||
@@ -132,6 +134,7 @@ namespace FishSocial.Desktop
                 {
                     UnityEngine.Debug.LogWarning(
                         "[NativeOverlay] FishSocialOverlay.exe was not found.");
+                    BackgroundRenderGate.SetOverlayActive(false);
                     SetLifecycleState(NativeOverlayLifecycleState.Stopped);
                     return;
                 }
@@ -172,6 +175,7 @@ namespace FishSocial.Desktop
             {
                 UnityEngine.Debug.LogWarning(
                     "[NativeOverlay] start failed: " + exception.Message);
+                BackgroundRenderGate.SetOverlayActive(false);
                 SetLifecycleState(NativeOverlayLifecycleState.Stopped);
             }
         }
@@ -184,6 +188,7 @@ namespace FishSocial.Desktop
 
         public void HideOverlay()
         {
+            BackgroundRenderGate.SetOverlayActive(false);
             lock (_lifecycleLock)
             {
                 if (LifecycleState == NativeOverlayLifecycleState.Running)
@@ -204,6 +209,7 @@ namespace FishSocial.Desktop
 
         public Task ShutdownOverlayAsync(bool forceAfterTimeout)
         {
+            BackgroundRenderGate.SetOverlayActive(false);
             lock (_lifecycleLock)
             {
                 if (_shutdownTask != null && !_shutdownTask.IsCompleted)
@@ -219,6 +225,7 @@ namespace FishSocial.Desktop
 
         public void ForceTerminateForApplicationQuit()
         {
+            BackgroundRenderGate.SetOverlayActive(false);
             lock (_lifecycleLock)
             {
                 if (LifecycleState == NativeOverlayLifecycleState.Stopped)
@@ -308,7 +315,7 @@ namespace FishSocial.Desktop
                     return;
             }
             _latestState = state;
-            _latestState.sequence++;
+            _latestState.sequence = ++_nextStateSequence;
             UnityEngine.Debug.Log(
                 "[Latency][Unity] overlay_state_queued sequence=" +
                 _latestState.sequence +

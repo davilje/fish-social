@@ -1,10 +1,23 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-08i-latency-plan] - 2026-08-18
+
+- 根据 Unity `Player.log` 与 Overlay 延迟日志补充 `STEAM-DESKTOP-08I` 修复方案。
+- 明确主窗口隐藏时 5 FPS 后台节流会阻塞 Overlay 交互，要求 Overlay 活跃期间保持交互帧率。
+- 明确 Socket ACK/错误/连接状态优先级、状态序号持久递增、重复状态丢弃和高频广播下的队列保护。
+- 增加 Overlay → Unity → Socket → ACK → 状态回传的时间戳关联规则，以及 P50/P95 延迟验收指标。
+- `STEAM-DESKTOP-08I` 已完成运行时复测，用户验收通过，状态改为 **已实现**。
+
+### [steam-desktop-08i-accepted] - 2026-08-18
+
+- `STEAM-DESKTOP-08I` 用户验收通过，退出鱼塘、离席、跨塘切换及 Overlay 延迟优化全部完成。
+- 验证 Overlay 活跃期间 Unity 交互帧率、ACK 优先队列、持久状态序号、重复状态丢弃及三段链路时间戳日志。
+
 ### [steam-desktop-08b-accepted] - 2026-08-18
 
 - `STEAM-DESKTOP-08B` 商店与装备用户验收通过，计划状态改为 **已实现**。
 - `PanelShop`、服务端商品/装备同步、购买/装备失败处理及主窗口/Overlay 菜单入口完成验收。
-- 新增鱼塘离席、退出鱼塘、点选钓位直接入座及跨鱼塘切换流程的后续优化分析。
+- 下一阶段：`STEAM-DESKTOP-08E` 个人中心与资料编辑（08 剩余 P1：08E → 08C → 08D）。
 
 ### [steam-desktop-08i-pond-exit-switch] - 2026-08-18
 

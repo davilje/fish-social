@@ -179,7 +179,7 @@ namespace FishSocialOverlay
                 LatencyTrace.Write(
                     "overlay_state_received sequence=" + message.Sequence +
                     " pond=" + (message.PondId ?? string.Empty));
-                if (message.Sequence < _latestSequence)
+                if (message.Sequence <= _latestSequence)
                     return;
                 _latestSequence = message.Sequence;
                 StateText.Text = "状态：" + FormatFishingState(message);

@@ -16,6 +16,13 @@ alwaysApply: false
 4. 用户确认后：spec 状态 **已确认**，更新 `INDEX.md`、`CHANGELOG.md`（策划侧）
 5. 输出 **开发交接提示词**（见 `templates/开发交接说明.md`）
 6. 运行 `npm run planning:handoff -- vX.Y.Z`（登记计划表 + 分角色 prompt + manifest）
+7. 对 Bug、卡顿、延迟和稳定性需求，必须先完成证据化分析，再编写修复方案：
+   - 明确复现步骤、影响范围、发生频率和当前版本/构建。
+   - 按「用户操作 → Overlay → IPC → Unity 主线程 → Socket 发包 → 服务端 → ACK → 状态回传」拆分链路。
+   - 记录每一段的时间戳、请求/命令编号、结果和超时信息；禁止仅凭主观感受判断责任归属。
+   - 区分服务端处理耗时、网络耗时、Unity 帧/队列耗时、Named Pipe 耗时和 Overlay 渲染耗时。
+   - 修复方案必须包含根因、修复范围、非目标、回滚策略、验证步骤和量化验收指标。
+   - 性能问题至少定义操作反馈延迟的目标值（P50/P95）、超时阈值和重复消息/队列积压判定。
 
 多 Agent 协作见 [多Agent工作流.md](../多Agent工作流.md)。
 
@@ -24,6 +31,8 @@ alwaysApply: false
 - **禁止** 修改 `mobile/`、`server/`、`shared/` 及任何源码
 - **禁止** 在 spec 未「已确认」时声称开发已完成
 - **禁止** 代替开发 Agent 实现功能
+- **禁止** 把“重启服务、重新打包、提高帧率”等临时排障动作直接写成最终修复
+- **禁止** 在没有客户端与服务端对应时间戳时断言“服务器慢”或“网络慢”
 
 ## 结束标准
 
@@ -31,3 +40,60 @@ alwaysApply: false
 - spec 文件路径与状态
 - 可复制给开发 Agent 的交接提示词（全文）
 - 明确说明：「策划已完成，请新开开发 Agent 对话执行实现」
+
+## Bug / 性能专项交付标准
+
+修复类需求除常规 spec 外，必须包含以下章节：
+
+### 1. 现象与复现
+
+- 操作步骤和预期结果
+- 实际结果
+- 受影响平台、构建版本、服务端进程启动时间
+- 是否可以稳定复现
+
+### 2. 时间戳证据
+
+跨进程功能至少记录以下节点：
+
+```text
+Overlay command_sent
+Unity overlay_command_received
+Socket event_sent
+Server event_received / state_changed
+Socket ack_received
+Unity state_queued
+Overlay state_received
+```
+
+Unity 日志使用 `Player.log`；原生 Overlay 使用独立日志文件。所有时间统一使用 UTC Unix milliseconds，并携带可关联的 commandId、ackId 或 correlationId。
+
+### 3. 根因分层
+
+必须分别判断：
+
+- 服务端逻辑或数据库耗时
+- Socket/WebSocket 传输和 ACK
+- Unity 主线程帧率、事件队列和状态序列化
+- Named Pipe 读写和写入队列
+- Overlay UI 线程、窗口消息循环和渲染刷新
+
+如果某一层没有证据，应标记为“待验证”，不得直接归因。
+
+### 4. 修复与验收
+
+修复方案应优先保证：
+
+- ACK、错误和连接状态不被普通状态广播阻塞；
+- 状态消息可合并、去重，并使用持久递增序号；
+- Overlay 显示期间不能因为主窗口隐藏而降到不可交互的 Unity 帧率；
+- 断线、超时和空 Socket 必须回调失败结果，不能静默等待；
+- 服务端与客户端版本不匹配时能够明确报错。
+
+验收至少覆盖：
+
+- 首次点击、连续点击、重复点击；
+- 正常网络、服务端重启、Socket 断线；
+- 鱼塘人数高、状态广播频繁；
+- 退出鱼塘、切换鱼塘和重新进入；
+- 操作反馈 P50/P95 及超时比例。

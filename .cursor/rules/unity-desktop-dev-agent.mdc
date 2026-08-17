@@ -36,10 +36,17 @@ alwaysApply: false
 - 所有 REST/Socket 操作处理 loading、empty、error、401/403、超时和重试。
 - UI 点击区域不得被透明 Image、父级拖动区域或文字组件覆盖。
 - 切页、打开菜单、显示主窗口和关闭面板不得触发 `leave_pond` 或重复创建会话。
+- Overlay 显示期间不得因为主窗口隐藏而把 Unity 降到不可交互的后台帧率；Overlay 关闭或隐藏后才允许恢复后台节流。
+- Overlay 命令、Socket ACK 和状态广播必须分离优先级；ACK/错误/连接状态不得被普通鱼塘广播阻塞。
+- Overlay 状态序号必须由发送控制器持久递增；接收端丢弃重复或过期状态，并对完全相同的状态进行合并/去重。
+- 性能修复必须记录 Overlay → IPC → Unity → Socket → ACK → 状态回传的 UTC 毫秒时间戳；不得仅凭视觉感受归因。
+- 正常网络下按钮反馈延迟以 P50/P95 验收，并覆盖高频状态广播、退出鱼塘、跨塘切换、断线和 ACK 超时场景。
 
 ## 完成前验证
 
 - Unity Windows Development/Release Build 可启动。
 - Prefab 引用、Button、Toggle、CanvasScaler 和 DPI 布局无缺失。
 - Overlay 命令、状态序列号、窗口置顶和异常退出可验证。
+- Overlay 显示时 Unity 主线程保持交互帧率；命令 ACK 不受状态消息积压影响。
+- 日志能够关联 `commandId`、Socket `ackId` 和状态 `sequence`，并可计算各阶段耗时。
 - 按对应 spec 的验收项逐项记录结果；用户确认后再回写 spec 为「已实现」。

@@ -62,6 +62,31 @@
 - Socket WebSocket 接收支持分片拼包。
 - 点击后立即显示处理中状态，ACK 后显示最终结果。
 - 为点击、Pipe、Unity、Socket ACK、状态回传和 WPF 渲染增加调试时间戳日志。
+- 主窗口隐藏但 Overlay 运行时，禁止使用 5 FPS 后台节流；Overlay 关闭/隐藏后才恢复后台帧率。
+- Socket ACK、连接状态和错误事件使用高优先级 Unity 主线程队列；普通鱼塘广播每帧限量处理，不能阻塞交互 ACK。
+- `NativeOverlayProcessController` 维护持久递增的状态 `sequence`；WPF 丢弃重复或过期序号，避免重复渲染。
+- 完全相同的状态应合并或跳过发送，避免高频 `pond_user_updated` 造成 IPC 和渲染压力。
+- 日志使用 UTC Unix milliseconds，并关联 Overlay `commandId`、Socket `ackId`、状态 `sequence`。
+
+### 6. 延迟验证
+
+必须从日志计算以下区间：
+
+```text
+Overlay command_sent → Unity command_received
+Unity command_received → Socket event_sent
+Socket event_sent → Socket ack_received
+Socket ack_received → Unity state_queued
+Unity state_queued → Overlay state_received
+```
+
+目标：
+
+- 正常网络按钮反馈 P50 ≤ 100ms；
+- P95 ≤ 300ms；
+- ACK 超时率为 0；
+- 高密度鱼塘状态广播下不得出现持续队列积压；
+- 服务端 `stopping → seated` 的 200ms 状态阶段不计入 ACK 延迟。
 
 ## 禁止
 
@@ -70,6 +95,7 @@
 - 不在 Overlay 内绘制世界地图、商店或其他主窗口页面。
 - 不启动第二个 Unity Player。
 - 不用直接断开 Socket 代替完整的 `leave_pond` 事务。
+- 不以“重启服务端”或“重新打包”替代客户端性能修复。
 
 ## 验收
 
