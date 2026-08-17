@@ -185,7 +185,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-07G",
         "功能",
         "原生桌面宠物 Overlay",
@@ -195,7 +195,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "独立 WPF/Win32 Overlay；不启动第二个 Unity Player；通过 Named Pipe 接收状态并发送命令",
         "docs/planning/specs/Steam原生桌面宠物Overlay.md",
         "2026-08-14",
-        "",
+        "2026-08-17",
     ],
     [
         "已确认",

@@ -1,5 +1,11 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07g-accepted] - 2026-08-17
+
+- `STEAM-DESKTOP-07G` 用户验收通过，计划状态改为 **已实现**（设计 2026-08-14，完成 2026-08-17）。
+- 独立 `FishSocialOverlay.exe`（WPF `960×480`），Named Pipe 收状态/发命令，不启动第二个 Unity Player，不连 Socket、不传图。
+- 父需求 `STEAM-DESKTOP-07` 仍为 **已确认**（07F 未完成）。
+
 ### [steam-desktop-07a-07e-tools-bugs] - 2026-08-17
 
 - 整理 `STEAM-DESKTOP-07A`～`07E` 开发工具与已修缺陷：[`reports/STEAM-DESKTOP-07A-07E-工具与缺陷.md`](./reports/STEAM-DESKTOP-07A-07E-工具与缺陷.md)。
