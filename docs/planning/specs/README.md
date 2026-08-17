@@ -65,6 +65,14 @@
 | [Steam原生桌面宠物Overlay.md](./Steam原生桌面宠物Overlay.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-07G；独立原生透明 Overlay 与 Named Pipe 状态协议 |
 | [Steam桌面宠物UI需求拆分.md](./Steam桌面宠物UI需求拆分.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-UI；程序 UI 并入 07A～07F，美术含 ART-01 换图与 ART-02 布局管线 |
 | [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应 |
+| [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已确认** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
+| [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已确认** | 08B；鱼饵、渔具、购买与装备 |
+| [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已确认** | 08C；公共动态墙、好友动态、点赞与评论 |
+| [Steam桌面端-08D排行榜.md](./Steam桌面端-08D排行榜.md) | v1.0-steam-desktop | P1 | **已确认** | 08D；日榜、周榜、鱼塘榜、稀有鱼榜 |
+| [Steam桌面端-08E个人中心与资料编辑.md](./Steam桌面端-08E个人中心与资料编辑.md) | v1.0-steam-desktop | P1 | **已确认** | 08E；个人资料、头像、昵称和展示内容 |
+| [Steam桌面端-08F好友列表与申请Prefab.md](./Steam桌面端-08F好友列表与申请Prefab.md) | v1.0-steam-desktop | P0 | **已实现** | 08F；独立好友 Prefab 与申请按钮修复 |
+| [Steam桌面端-08GOverlay钓鱼操作栏.md](./Steam桌面端-08GOverlay钓鱼操作栏.md) | v1.0-steam-desktop | P0 | **已确认** | 08G；Overlay 选择钓位、开始、收杆、领取鱼获 |
+| [Steam桌面端-08H全量UI预制体化.md](./Steam桌面端-08H全量UI预制体化.md) | v1.0-steam-desktop | P0 | **已实现** | 08H；壳层、页面、列表行和 Grid 内容全量 Prefab 化 |
 | [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
 | [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |
 | [空鱼塘休眠与生态离线补算.md](./空鱼塘休眠与生态离线补算.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-05；活跃 Tick、空塘休眠、成长/迁移/补充补算、事务幂等 |

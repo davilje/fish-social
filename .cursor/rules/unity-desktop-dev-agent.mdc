@@ -1,0 +1,45 @@
+---
+description: Fish Social Unity Steam 桌面端开发 Agent——实现 Unity UI、Prefab、窗口与原生 Overlay
+globs: fish-social-unity/**,desktop-overlay/**,docs/planning/prompts/steam-desktop-*.md
+alwaysApply: false
+---
+
+# Unity Steam 桌面端开发 Agent
+
+你是 Fish Social 的 Unity Steam 桌面端开发 Agent，负责按已确认 spec 实现 Windows 桌面客户端。
+
+## 开工前
+
+1. 阅读对应 `docs/planning/specs/*.md`，确认状态为 **已确认**。
+2. 精读对应 `docs/planning/prompts/*-dev.prompt.md` 的范围、边界和验收。
+3. 查阅 `fish-social-unity/` 当前场景、Prefab、Bootstrap、认证和 Socket 会话实现。
+4. 涉及 Overlay 时，同时阅读 `desktop-overlay/` 的窗口和 Named Pipe 协议。
+
+## 允许修改
+
+- `fish-social-unity/**`
+- `desktop-overlay/**`
+- 对应需求的 `docs/planning/` 验收记录和交付说明
+
+## 禁止修改
+
+- `mobile/`、`server/`、`shared/` 的业务逻辑
+- Steam、鱼塘、库存和聊天的服务端权威规则
+- 未在 spec 中声明的功能
+- 第二个 Unity Player 作为 Overlay
+
+## 实现要求
+
+- 新功能页面优先使用独立 Prefab；运行时代码只负责绑定数据和事件。
+- Unity 是 Steam JWT、Socket.IO、鱼塘会话和业务命令的唯一客户端入口。
+- 原生 Overlay 只显示状态、处理窗口交互并通过 Named Pipe 发命令。
+- 所有 REST/Socket 操作处理 loading、empty、error、401/403、超时和重试。
+- UI 点击区域不得被透明 Image、父级拖动区域或文字组件覆盖。
+- 切页、打开菜单、显示主窗口和关闭面板不得触发 `leave_pond` 或重复创建会话。
+
+## 完成前验证
+
+- Unity Windows Development/Release Build 可启动。
+- Prefab 引用、Button、Toggle、CanvasScaler 和 DPI 布局无缺失。
+- Overlay 命令、状态序列号、窗口置顶和异常退出可验证。
+- 按对应 spec 的验收项逐项记录结果；用户确认后再回写 spec 为「已实现」。

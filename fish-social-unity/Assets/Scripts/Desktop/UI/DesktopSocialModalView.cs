@@ -13,15 +13,13 @@ namespace FishSocial.Desktop
         SocialPondSessionController _pond;
         SocialLobbyController _lobby;
         int _tab;
+        bool _legacyLayout;
         Text _status;
         Transform _onlineContent;
         Transform _chatContent;
         Transform _friendsContent;
-        Transform _dmContent;
-        GameObject _onlinePage;
-        GameObject _chatPage;
+        GameObject _pondPage;
         GameObject _friendsPage;
-        GameObject _dmPage;
         InputField _chatInput;
         InputField _dmInput;
         Text _dmTitle;
@@ -87,7 +85,7 @@ namespace FishSocial.Desktop
 
         void OnSteamFriendsChanged(System.Collections.Generic.IReadOnlyList<SteamFriendInfo> _)
         {
-            if (_tab == 2)
+            if (_tab == 1)
                 StartCoroutine(LoadFriends());
         }
 
@@ -99,29 +97,55 @@ namespace FishSocial.Desktop
         void BindPrefab()
         {
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
-            _onlinePage = DesktopModalUi.FindChild(transform, "OnlinePage")?.gameObject;
-            _chatPage = DesktopModalUi.FindChild(transform, "ChatPage")?.gameObject;
+            _pondPage = DesktopModalUi.FindChild(transform, "PondPage")?.gameObject;
             _friendsPage = DesktopModalUi.FindChild(transform, "FriendsPage")?.gameObject;
-            _dmPage = DesktopModalUi.FindChild(transform, "DmPage")?.gameObject;
-            _onlineContent = DesktopModalUi.FindChild(transform, "OnlinePage/Scroll/Content");
-            _chatContent = DesktopModalUi.FindChild(transform, "ChatPage/Scroll/Content");
+            _legacyLayout = _pondPage == null;
+            if (_legacyLayout)
+            {
+                _pondPage = DesktopModalUi.FindChild(transform, "OnlinePage")?.gameObject;
+                _onlineContent = DesktopModalUi.FindChild(transform, "OnlinePage/Scroll/Content");
+                _chatContent = DesktopModalUi.FindChild(transform, "ChatPage/Scroll/Content");
+                _chatInput = DesktopModalUi.FindComponent<InputField>(transform, "ChatPage/ChatInput");
+            }
+            else
+            {
+                _onlineContent = DesktopModalUi.FindChild(transform, "PondPage/OnlinePage/Scroll/Content");
+                _chatContent = DesktopModalUi.FindChild(transform, "PondPage/ChatPage/Scroll/Content");
+                _chatInput = DesktopModalUi.FindComponent<InputField>(transform, "PondPage/ChatPage/ChatInput");
+            }
             _friendsContent = DesktopModalUi.FindChild(transform, "FriendsPage/Scroll/Content");
-            _dmContent = DesktopModalUi.FindChild(transform, "DmPage/List/Content");
-            _messageContent = DesktopModalUi.FindChild(transform, "DmPage/Messages/Content");
-            _chatInput = DesktopModalUi.FindComponent<InputField>(transform, "ChatPage/ChatInput");
-            _dmInput = DesktopModalUi.FindComponent<InputField>(transform, "DmPage/DmInput");
-            _dmTitle = DesktopModalUi.FindComponent<Text>(transform, "DmPage/DmTitle");
+            var friendsChatPrefix = DesktopModalUi.FindChild(
+                transform,
+                "FriendsPage/FriendsChatPage") != null
+                ? "FriendsPage/FriendsChatPage/"
+                : "FriendsPage/";
+            _messageContent = DesktopModalUi.FindChild(
+                transform,
+                friendsChatPrefix + "Messages/Content");
+            _dmInput = DesktopModalUi.FindComponent<InputField>(
+                transform,
+                friendsChatPrefix + "DmInput");
+            _dmTitle = DesktopModalUi.FindComponent<Text>(
+                transform,
+                friendsChatPrefix + "DmTitle");
+            if (_legacyLayout)
+            {
+                _messageContent = DesktopModalUi.FindChild(transform, "DmPage/Messages/Content");
+                _dmInput = DesktopModalUi.FindComponent<InputField>(transform, "DmPage/DmInput");
+                _dmTitle = DesktopModalUi.FindComponent<Text>(transform, "DmPage/DmTitle");
+            }
 
             DesktopModalUi.BindButton(transform, "Tabs/T0", () => ShowTab(0));
             DesktopModalUi.BindButton(transform, "Tabs/T1", () => ShowTab(1));
-            DesktopModalUi.BindButton(transform, "Tabs/T2", () => ShowTab(2));
-            DesktopModalUi.BindButton(transform, "Tabs/T3", () => ShowTab(3));
             DesktopModalUi.BindButton(transform, "Retry", RefreshAll);
-            DesktopModalUi.BindButton(transform, "ChatPage/SendChat", SendPondChat);
-            DesktopModalUi.BindButton(transform, "DmPage/SendDm", SendDm);
-            if (_status == null || _onlinePage == null || _chatPage == null ||
-                _friendsPage == null || _dmPage == null || _onlineContent == null ||
-                _chatContent == null || _friendsContent == null || _dmContent == null ||
+            var chatSendPath = _legacyLayout ? "ChatPage/SendChat" : "PondPage/ChatPage/SendChat";
+            var dmSendPath = _legacyLayout
+                ? "DmPage/SendDm"
+                : friendsChatPrefix + "SendDm";
+            DesktopModalUi.BindButton(transform, chatSendPath, SendPondChat);
+            DesktopModalUi.BindButton(transform, dmSendPath, SendDm);
+            if (_status == null || _pondPage == null || _friendsPage == null || _onlineContent == null ||
+                _chatContent == null || _friendsContent == null ||
                 _messageContent == null || _chatInput == null || _dmInput == null ||
                 _dmTitle == null)
                 Debug.LogError("[DesktopUI] PanelSocial prefab is missing required controls.");
@@ -131,15 +155,15 @@ namespace FishSocial.Desktop
         void OnChat(ChatMessageDto _) => RenderChat();
         void OnFriendPush(FriendRequestDto request)
         {
-            if (_tab == 2)
+            if (_tab == 1)
                 StartCoroutine(LoadFriends());
         }
 
         void OnDmPush(DirectMessageDto message)
         {
-            if (_tab == 3)
+            if (_tab == 1)
             {
-                StartCoroutine(LoadConversations());
+                StartCoroutine(LoadFriends());
                 if (message != null && (message.fromPlayerId == _dmFriendId || message.toPlayerId == _dmFriendId))
                     StartCoroutine(LoadMessages(_dmFriendId, _dmFriendName));
             }
@@ -151,141 +175,26 @@ namespace FishSocial.Desktop
                 SetStatus(SocketHint());
         }
 
-        void Build()
-        {
-            var tabs = new GameObject("Tabs", typeof(RectTransform), typeof(HorizontalLayoutGroup));
-            tabs.transform.SetParent(transform, false);
-            var tabsRt = tabs.GetComponent<RectTransform>();
-            tabsRt.anchorMin = new Vector2(0f, 1f);
-            tabsRt.anchorMax = Vector2.one;
-            tabsRt.pivot = new Vector2(0.5f, 1f);
-            tabsRt.sizeDelta = new Vector2(0f, 40f);
-            var tabLayout = tabs.GetComponent<HorizontalLayoutGroup>();
-            tabLayout.spacing = 8;
-            tabLayout.childForceExpandWidth = true;
-            tabLayout.childForceExpandHeight = true;
-            DesktopModalUi.MakeButton(tabs.transform, "T0", "在线钓友", () => ShowTab(0));
-            DesktopModalUi.MakeButton(tabs.transform, "T1", "鱼塘聊天", () => ShowTab(1));
-            DesktopModalUi.MakeButton(tabs.transform, "T2", "好友", () => ShowTab(2));
-            DesktopModalUi.MakeButton(tabs.transform, "T3", "私聊", () => ShowTab(3));
-
-            _status = DesktopModalUi.Label(transform, "Status", string.Empty, 14, TextAnchor.MiddleLeft);
-            var statusRt = _status.rectTransform;
-            statusRt.anchorMin = new Vector2(0f, 1f);
-            statusRt.anchorMax = new Vector2(1f, 1f);
-            statusRt.pivot = new Vector2(0f, 1f);
-            statusRt.anchoredPosition = new Vector2(0f, -44f);
-            statusRt.sizeDelta = new Vector2(0f, 24f);
-
-            var retry = DesktopModalUi.MakeButton(transform, "Retry", "重试", RefreshAll);
-            var retryRt = retry.GetComponent<RectTransform>();
-            retryRt.anchorMin = new Vector2(1f, 1f);
-            retryRt.anchorMax = new Vector2(1f, 1f);
-            retryRt.pivot = new Vector2(1f, 1f);
-            retryRt.sizeDelta = new Vector2(72f, 28f);
-            retryRt.anchoredPosition = new Vector2(0f, -42f);
-
-            _onlinePage = Page("OnlinePage", out _onlineContent);
-            _chatPage = ChatPage();
-            _friendsPage = Page("FriendsPage", out _friendsContent);
-            _dmPage = DmPage();
-        }
-
-        GameObject Page(string name, out Transform content)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(transform, false);
-            var rt = DesktopModalUi.Stretch(go);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = new Vector2(0f, -72f);
-            DesktopModalUi.MakeScroll(go.transform, "Scroll", out content);
-            DesktopModalUi.Stretch(content.parent.gameObject);
-            return go;
-        }
-
-        GameObject ChatPage()
-        {
-            var go = new GameObject("ChatPage", typeof(RectTransform));
-            go.transform.SetParent(transform, false);
-            var rt = DesktopModalUi.Stretch(go);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = new Vector2(0f, -72f);
-            var scroll = DesktopModalUi.MakeScroll(go.transform, "Scroll", out _chatContent);
-            var scrollRt = scroll.GetComponent<RectTransform>();
-            scrollRt.anchorMin = Vector2.zero;
-            scrollRt.anchorMax = Vector2.one;
-            scrollRt.offsetMin = new Vector2(0f, 48f);
-            scrollRt.offsetMax = Vector2.zero;
-            _chatInput = DesktopModalUi.MakeInput(go.transform, "ChatInput", "输入鱼塘消息（最多 200 字）", 200);
-            var inputRt = _chatInput.GetComponent<RectTransform>();
-            inputRt.anchorMin = new Vector2(0f, 0f);
-            inputRt.anchorMax = new Vector2(1f, 0f);
-            inputRt.pivot = new Vector2(0.5f, 0f);
-            inputRt.offsetMin = new Vector2(0f, 0f);
-            inputRt.offsetMax = new Vector2(-88f, 40f);
-            var send = DesktopModalUi.MakeButton(go.transform, "SendChat", "发送", SendPondChat);
-            var sendRt = send.GetComponent<RectTransform>();
-            sendRt.anchorMin = new Vector2(1f, 0f);
-            sendRt.anchorMax = new Vector2(1f, 0f);
-            sendRt.pivot = new Vector2(1f, 0f);
-            sendRt.sizeDelta = new Vector2(80f, 40f);
-            sendRt.anchoredPosition = Vector2.zero;
-            return go;
-        }
-
-        GameObject DmPage()
-        {
-            var go = new GameObject("DmPage", typeof(RectTransform));
-            go.transform.SetParent(transform, false);
-            var rt = DesktopModalUi.Stretch(go);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = new Vector2(0f, -72f);
-            DesktopModalUi.MakeScroll(go.transform, "List", out _dmContent);
-            var listRt = _dmContent.parent.GetComponent<RectTransform>();
-            listRt.anchorMin = new Vector2(0f, 0f);
-            listRt.anchorMax = new Vector2(0.34f, 1f);
-            listRt.offsetMin = Vector2.zero;
-            listRt.offsetMax = new Vector2(-6f, -48f);
-            _dmTitle = DesktopModalUi.Label(go.transform, "DmTitle", "选择一个好友会话", 16, TextAnchor.MiddleLeft);
-            var titleRt = _dmTitle.rectTransform;
-            titleRt.anchorMin = new Vector2(0.34f, 1f);
-            titleRt.anchorMax = Vector2.one;
-            titleRt.pivot = new Vector2(0f, 1f);
-            titleRt.sizeDelta = new Vector2(0f, 28f);
-            titleRt.anchoredPosition = Vector2.zero;
-            Transform messages;
-            var msgScroll = DesktopModalUi.MakeScroll(go.transform, "Messages", out messages);
-            _messageContent = messages;
-            var msgRt = msgScroll.GetComponent<RectTransform>();
-            msgRt.anchorMin = new Vector2(0.34f, 0f);
-            msgRt.anchorMax = Vector2.one;
-            msgRt.offsetMin = new Vector2(6f, 48f);
-            msgRt.offsetMax = Vector2.zero;
-            _dmInput = DesktopModalUi.MakeInput(go.transform, "DmInput", "输入私聊（最多 300 字）", 300);
-            var inputRt = _dmInput.GetComponent<RectTransform>();
-            inputRt.anchorMin = new Vector2(0.34f, 0f);
-            inputRt.anchorMax = Vector2.one;
-            inputRt.pivot = new Vector2(0.5f, 0f);
-            inputRt.offsetMin = new Vector2(6f, 0f);
-            inputRt.offsetMax = new Vector2(-88f, 40f);
-            var send = DesktopModalUi.MakeButton(go.transform, "SendDm", "发送", SendDm);
-            var sendRt = send.GetComponent<RectTransform>();
-            sendRt.anchorMin = new Vector2(1f, 0f);
-            sendRt.anchorMax = new Vector2(1f, 0f);
-            sendRt.pivot = new Vector2(1f, 0f);
-            sendRt.sizeDelta = new Vector2(80f, 40f);
-            return go;
-        }
-
         Transform _messageContent;
 
         void ShowTab(int tab)
         {
-            _tab = tab;
-            if (_onlinePage != null) _onlinePage.SetActive(tab == 0);
-            if (_chatPage != null) _chatPage.SetActive(tab == 1);
-            if (_friendsPage != null) _friendsPage.SetActive(tab == 2);
-            if (_dmPage != null) _dmPage.SetActive(tab == 3);
+            _tab = Mathf.Clamp(tab, 0, 1);
+            if (_legacyLayout)
+            {
+                var online = DesktopModalUi.FindChild(transform, "OnlinePage");
+                var chat = DesktopModalUi.FindChild(transform, "ChatPage");
+                var dm = DesktopModalUi.FindChild(transform, "DmPage");
+                if (online != null) online.gameObject.SetActive(_tab == 0);
+                if (chat != null) chat.gameObject.SetActive(_tab == 0);
+                if (_friendsPage != null) _friendsPage.SetActive(_tab == 1);
+                if (dm != null) dm.gameObject.SetActive(_tab == 1);
+            }
+            else
+            {
+                if (_pondPage != null) _pondPage.SetActive(_tab == 0);
+                if (_friendsPage != null) _friendsPage.SetActive(_tab == 1);
+            }
             RefreshAll();
         }
 
@@ -296,17 +205,13 @@ namespace FishSocial.Desktop
                 case 0:
                     SetStatus(SocketHint());
                     RenderOnline();
-                    break;
-                case 1:
-                    SetStatus(SocketHint());
                     RenderChat();
                     break;
-                case 2:
-                    _lobby?.RefreshFriends();
+                case 1:
+                    SetStatus("好友与私聊");
                     StartCoroutine(LoadFriends());
                     break;
                 default:
-                    StartCoroutine(LoadConversations());
                     break;
             }
         }
@@ -339,17 +244,24 @@ namespace FishSocial.Desktop
             var others = _pond != null ? _pond.VisibleOthers : null;
             if (others == null || others.Length == 0)
             {
-                DesktopModalUi.Row(_onlineContent, "当前鱼塘没有其他在线钓友。");
+                AddTextRow(_onlineContent, "OnlinePlayerRow", "当前鱼塘没有其他在线钓友。");
                 return;
             }
-            DesktopModalUi.Row(_onlineContent, "在线钓友 " + others.Length + " 人（点击查看摘要，不会离塘）");
+            AddTextRow(
+                _onlineContent,
+                "OnlinePlayerRow",
+                "在线钓友 " + others.Length + " 人（点击查看摘要，不会离塘）");
             for (var i = 0; i < others.Length; i++)
             {
                 var user = others[i];
                 var name = string.IsNullOrEmpty(user.nickname) ? user.playerId : user.nickname;
                 var phase = PetStateController.ToChinese(PetStateController.FromFishingPhase(user.fishingPhase));
                 var bot = user.isBot ? " ·机" : string.Empty;
-                DesktopModalUi.Row(_onlineContent, name + bot + " · " + phase + " · 钓位 " + (user.spotId ?? "未选择"), 32);
+                AddTextRow(
+                    _onlineContent,
+                    "OnlinePlayerRow",
+                    name + bot + " · " + phase + " · 钓位 " + (user.spotId ?? "未选择"),
+                    40);
             }
         }
 
@@ -361,15 +273,30 @@ namespace FishSocial.Desktop
             var messages = _pond != null ? _pond.PondMessages : null;
             if (messages == null || messages.Length == 0)
             {
-                DesktopModalUi.Row(_chatContent, "还没有鱼塘聊天。进入鱼塘后即可发送，上限 200 字。");
+                AddTextRow(
+                    _chatContent,
+                    "PondChatMessageRow",
+                    "还没有鱼塘聊天。进入鱼塘后即可发送，上限 200 字。");
                 return;
             }
             for (var i = 0; i < messages.Length; i++)
             {
                 var msg = messages[i];
                 var prefix = msg.type == "announcement" ? "[公告] " : (msg.nickname ?? "钓友") + "：";
-                DesktopModalUi.Row(_chatContent, prefix + msg.text, 36);
+                AddTextRow(_chatContent, "PondChatMessageRow", prefix + msg.text, 40);
             }
+        }
+
+        static void AddTextRow(Transform parent, string prefabName, string text, int height = 36)
+        {
+            var row = DesktopUiPrefabFactory.Instantiate(prefabName, parent);
+            if (row == null)
+                return;
+            var label = DesktopUiPrefabFactory.Child(row, "Name") ??
+                        DesktopUiPrefabFactory.Child(row, "Message");
+            var textComponent = label != null ? label.GetComponent<Text>() : null;
+            if (textComponent != null)
+                textComponent.text = text ?? string.Empty;
         }
 
         IEnumerator LoadFriends()
@@ -405,35 +332,33 @@ namespace FishSocial.Desktop
             if (!friendsOk && !requestsOk)
             {
                 SetStatus(error ?? "好友数据加载失败。");
-                DesktopModalUi.Row(_friendsContent, error ?? "加载失败，请点击重试。");
+                AddTextRow(_friendsContent, "TextStatusRow", error ?? "加载失败，请点击重试。");
                 yield break;
             }
             SetStatus("好友数据已更新。");
-            DesktopModalUi.Row(_friendsContent, "待处理请求");
+            AddTextRow(_friendsContent, "TextStatusRow", "待处理请求");
             if (incoming == null || incoming.Length == 0)
-                DesktopModalUi.Row(_friendsContent, "没有待处理的好友请求。");
+                AddTextRow(_friendsContent, "TextStatusRow", "没有待处理的好友请求。");
             else
             {
                 for (var i = 0; i < incoming.Length; i++)
                     AddRequestRow(incoming[i]);
             }
-            DesktopModalUi.Row(_friendsContent, "好友列表");
+            AddTextRow(_friendsContent, "TextStatusRow", "好友列表");
             if (friends == null || friends.Length == 0)
-                DesktopModalUi.Row(_friendsContent, "还没有游戏内好友。");
+                AddTextRow(_friendsContent, "TextStatusRow", "还没有游戏内好友。");
             else
             {
                 for (var i = 0; i < friends.Length; i++)
                     AddFriendRow(friends[i]);
             }
             if (outgoing != null && outgoing.Length > 0)
-                DesktopModalUi.Row(_friendsContent, "已发出请求：" + outgoing.Length);
-            DesktopModalUi.Row(_friendsContent, "Steam 好友邀请进塘");
+                AddTextRow(_friendsContent, "TextStatusRow", "已发出请求：" + outgoing.Length);
+            AddTextRow(_friendsContent, "TextStatusRow", "Steam 好友邀请进塘");
             if (_lobby == null || _lobby.Friends == null || _lobby.Friends.Count == 0)
             {
-                DesktopModalUi.Row(_friendsContent, "尚未加载 Steam 好友。");
-                var refresh = DesktopModalUi.MakeButton(_friendsContent, "RefreshSteam", "刷新 Steam 好友",
-                    () => _lobby?.RefreshFriends());
-                refresh.GetComponent<LayoutElement>().preferredHeight = 36;
+                AddTextRow(_friendsContent, "TextStatusRow", "尚未加载 Steam 好友。");
+                SetStatus("尚未加载 Steam 好友，可点击顶部重试。");
             }
             else
             {
@@ -444,41 +369,65 @@ namespace FishSocial.Desktop
 
         void AddRequestRow(FriendRequestDto request)
         {
-            var row = new GameObject("Request", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            row.transform.SetParent(_friendsContent, false);
-            row.GetComponent<LayoutElement>().preferredHeight = 36;
-            var layout = row.GetComponent<HorizontalLayoutGroup>();
-            layout.spacing = 8;
-            layout.childForceExpandWidth = false;
-            DesktopModalUi.Row(row.transform, request.fromNickname + " 请求加好友", 32);
-            DesktopModalUi.MakeButton(row.transform, "Accept", "接受", () => StartCoroutine(Accept(request.id)));
-            DesktopModalUi.MakeButton(row.transform, "Reject", "拒绝", () => StartCoroutine(Reject(request.id)));
+            var row = DesktopUiPrefabFactory.Instantiate("FriendRequestRow", _friendsContent);
+            if (row == null)
+                return;
+            var label = DesktopUiPrefabFactory.Child(row, "Name");
+            var labelText = label != null ? label.GetComponent<Text>() : null;
+            if (labelText != null)
+                labelText.text = request.fromNickname + " 请求加好友";
+            var accept = DesktopUiPrefabFactory.Child(row, "Accept");
+            var reject = DesktopUiPrefabFactory.Child(row, "Reject");
+            BindActionButton(accept, () => StartCoroutine(Accept(request.id)));
+            BindActionButton(reject, () => StartCoroutine(Reject(request.id)));
         }
 
         void AddFriendRow(FriendInfoDto friend)
         {
-            var row = new GameObject("Friend", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            row.transform.SetParent(_friendsContent, false);
-            row.GetComponent<LayoutElement>().preferredHeight = 36;
-            row.GetComponent<HorizontalLayoutGroup>().spacing = 8;
-            DesktopModalUi.Row(row.transform, friend.nickname + " · " + friend.playerId, 32);
-            DesktopModalUi.MakeButton(row.transform, "Dm", "私聊", () =>
-            {
-                _tab = 3;
-                ShowTab(3);
-                StartCoroutine(LoadMessages(friend.playerId, friend.nickname));
-            });
-            DesktopModalUi.MakeButton(row.transform, "Remove", "移除", () => StartCoroutine(Remove(friend.playerId)));
+            var row = DesktopUiPrefabFactory.Instantiate("FriendRow", _friendsContent);
+            if (row == null)
+                return;
+            var label = DesktopUiPrefabFactory.Child(row, "Name");
+            var labelText = label != null ? label.GetComponent<Text>() : null;
+            if (labelText != null)
+                labelText.text = friend.nickname + " · " + friend.playerId;
+            var select = row.GetComponent<Button>();
+            BindActionButton(select != null ? select.transform : null, () => SelectFriend(friend));
+            var dm = DesktopUiPrefabFactory.Child(row, "Dm");
+            BindActionButton(dm, () => SelectFriend(friend));
+            var remove = DesktopUiPrefabFactory.Child(row, "Remove");
+            BindActionButton(remove, () => StartCoroutine(Remove(friend.playerId)));
+        }
+
+        void SelectFriend(FriendInfoDto friend)
+        {
+            if (friend == null)
+                return;
+            _tab = 1;
+            ShowTab(1);
+            StartCoroutine(LoadMessages(friend.playerId, friend.nickname));
         }
 
         void AddSteamInviteRow(SteamFriendInfo friend)
         {
-            var row = new GameObject("SteamFriend", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            row.transform.SetParent(_friendsContent, false);
-            row.GetComponent<LayoutElement>().preferredHeight = 36;
-            row.GetComponent<HorizontalLayoutGroup>().spacing = 8;
-            DesktopModalUi.Row(row.transform, friend.name + (friend.online ? " · 在线" : " · 离线"), 32);
-            DesktopModalUi.MakeButton(row.transform, "Invite", "邀请进塘", () => InviteSteam(friend.steamId64));
+            var row = DesktopUiPrefabFactory.Instantiate("SteamInviteRow", _friendsContent);
+            if (row == null)
+                return;
+            var label = DesktopUiPrefabFactory.Child(row, "Name");
+            var labelText = label != null ? label.GetComponent<Text>() : null;
+            if (labelText != null)
+                labelText.text = friend.name + (friend.online ? " · 在线" : " · 离线");
+            var invite = DesktopUiPrefabFactory.Child(row, "Invite");
+            BindActionButton(invite, () => InviteSteam(friend.steamId64));
+        }
+
+        static void BindActionButton(Transform buttonTransform, UnityEngine.Events.UnityAction action)
+        {
+            if (buttonTransform == null)
+                return;
+            var button = buttonTransform.GetComponent<Button>();
+            if (button != null)
+                button.onClick.AddListener(action);
         }
 
         void InviteSteam(string steamId)
@@ -528,53 +477,12 @@ namespace FishSocial.Desktop
             yield return LoadFriends();
         }
 
-        IEnumerator LoadConversations()
-        {
-            if (_api == null || !_api.CanUse)
-            {
-                SetStatus("请先完成 Steam 登录。");
-                yield break;
-            }
-            SetStatus("正在加载私聊…");
-            DmConversationDto[] list = null;
-            var ok = false;
-            string error = null;
-            yield return _api.GetConversations((success, items, message) =>
-            {
-                ok = success;
-                list = items;
-                error = message;
-            });
-            if (_dmContent == null)
-                yield break;
-            DesktopModalUi.Clear(_dmContent);
-            if (!ok)
-            {
-                SetStatus(error);
-                DesktopModalUi.Row(_dmContent, error ?? "私聊加载失败。");
-                yield break;
-            }
-            SetStatus(list != null && list.Length > 0 ? "选择一个会话。" : "还没有私聊会话。可从好友页打开。");
-            if (list == null || list.Length == 0)
-            {
-                DesktopModalUi.Row(_dmContent, "空");
-                yield break;
-            }
-            for (var i = 0; i < list.Length; i++)
-            {
-                var item = list[i];
-                var captured = item;
-                var button = DesktopModalUi.MakeButton(_dmContent, captured.friendPlayerId, captured.friendNickname + "：" + captured.lastMessage,
-                    () => StartCoroutine(LoadMessages(captured.friendPlayerId, captured.friendNickname)));
-                button.GetComponent<LayoutElement>().preferredHeight = 40;
-            }
-        }
-
         IEnumerator LoadMessages(string friendId, string friendName)
         {
             _dmFriendId = friendId;
             _dmFriendName = friendName;
-            _dmTitle.text = "与 " + friendName + " 的私聊";
+            if (_dmTitle != null)
+                _dmTitle.text = "与 " + friendName + " 的私聊";
             DirectMessageDto[] list = null;
             var ok = false;
             string error = null;
@@ -588,15 +496,19 @@ namespace FishSocial.Desktop
             if (!ok)
             {
                 SetStatus(error);
-                DesktopModalUi.Row(_messageContent, error ?? "消息加载失败。");
+                AddTextRow(_messageContent, "DirectMessageRow", error ?? "消息加载失败。");
                 yield break;
             }
             if (list == null || list.Length == 0)
-                DesktopModalUi.Row(_messageContent, "还没有消息。");
+                AddTextRow(_messageContent, "DirectMessageRow", "还没有消息。");
             else
             {
                 for (var i = 0; i < list.Length; i++)
-                    DesktopModalUi.Row(_messageContent, list[i].fromNickname + "：" + list[i].text, 34);
+                    AddTextRow(
+                        _messageContent,
+                        "DirectMessageRow",
+                        list[i].fromNickname + "：" + list[i].text,
+                        40);
             }
         }
 

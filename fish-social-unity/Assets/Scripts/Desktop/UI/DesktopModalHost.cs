@@ -98,9 +98,10 @@ namespace FishSocial.Desktop
 
             var panel = DesktopModalUi.Panel("ModalPanel", _root.transform, DesktopModalUi.PanelColor);
             var rt = panel.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(1040, 580);
+            rt.anchorMin = new Vector2(0.03f, 0.05f);
+            rt.anchorMax = new Vector2(0.97f, 0.95f);
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
             panel.AddComponent<Button>().transition = Selectable.Transition.None;
 
             var header = DesktopModalUi.Panel("Header", panel.transform, DesktopModalUi.Header);

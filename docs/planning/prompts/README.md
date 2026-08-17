@@ -91,6 +91,14 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-07g-native-overlay-dev.prompt.md](./steam-desktop-07g-native-overlay-dev.prompt.md) | STEAM-DESKTOP-07G：独立原生桌面宠物 Overlay（WPF/Win32 + Named Pipe）· **已实现** |
 | [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已确认** |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已确认** |
+| [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已确认** |
+| [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已确认** |
+| [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已确认** |
+| [steam-desktop-08d-leaderboard-dev.prompt.md](./steam-desktop-08d-leaderboard-dev.prompt.md) | STEAM-DESKTOP-08D：排行榜 · **已确认** |
+| [steam-desktop-08e-profile-dev.prompt.md](./steam-desktop-08e-profile-dev.prompt.md) | STEAM-DESKTOP-08E：个人中心与资料编辑 · **已确认** |
+| [steam-desktop-08f-friends-prefab-dev.prompt.md](./steam-desktop-08f-friends-prefab-dev.prompt.md) | STEAM-DESKTOP-08F：好友列表与申请 Prefab · **已实现** |
+| [steam-desktop-08g-overlay-fishing-controls-dev.prompt.md](./steam-desktop-08g-overlay-fishing-controls-dev.prompt.md) | STEAM-DESKTOP-08G：Overlay 钓鱼操作栏 · **已确认** |
+| [steam-desktop-08h-ui-prefab-migration-dev.prompt.md](./steam-desktop-08h-ui-prefab-migration-dev.prompt.md) | STEAM-DESKTOP-08H：全量 UI Prefab 化与动态内容组件 · **已实现** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |
 | [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **开发中（真实登录已通过，REST/Socket 待验收）** |
 | [steam-desktop-pond-offline-ecology-dev.prompt.md](./steam-desktop-pond-offline-ecology-dev.prompt.md) | STEAM-DESKTOP-05：空鱼塘休眠与生态离线补算 · **已确认** |

@@ -28,6 +28,44 @@ namespace FishSocial.Desktop
                 Debug.LogError("[DesktopUI] PanelGallery prefab is missing required controls.");
         }
 
+        void ApplyResponsiveLayout()
+        {
+            var root = transform as RectTransform;
+            if (root == null)
+                return;
+            root.anchorMin = Vector2.zero;
+            root.anchorMax = Vector2.one;
+            root.offsetMin = Vector2.zero;
+            root.offsetMax = Vector2.zero;
+
+            var grid = DesktopModalUi.FindChild(transform, "Grid") as RectTransform;
+            if (grid != null)
+            {
+                grid.anchorMin = Vector2.zero;
+                grid.anchorMax = new Vector2(0.56f, 1f);
+                grid.offsetMin = Vector2.zero;
+                grid.offsetMax = new Vector2(-8f, -36f);
+            }
+
+            var content = _grid != null ? _grid.GetComponent<GridLayoutGroup>() : null;
+            if (content != null)
+            {
+                content.cellSize = new Vector2(92f, 56f);
+                content.spacing = new Vector2(6f, 6f);
+                content.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                content.constraintCount = 4;
+            }
+
+            if (_detail != null)
+            {
+                var detail = _detail.rectTransform;
+                detail.anchorMin = new Vector2(0.56f, 0f);
+                detail.anchorMax = Vector2.one;
+                detail.offsetMin = new Vector2(10f, 8f);
+                detail.offsetMax = new Vector2(-8f, -36f);
+            }
+        }
+
         public void OnOpened()
         {
             if (_pond != null)
@@ -52,55 +90,6 @@ namespace FishSocial.Desktop
             if (unlock != null)
                 _status.text = "新解锁：" + unlock.speciesName;
             StartCoroutine(Load());
-        }
-
-        void Build()
-        {
-            _status = DesktopModalUi.Label(transform, "Status", string.Empty, 16, TextAnchor.MiddleLeft);
-            var statusRt = _status.rectTransform;
-            statusRt.anchorMin = new Vector2(0f, 1f);
-            statusRt.anchorMax = new Vector2(1f, 1f);
-            statusRt.pivot = new Vector2(0f, 1f);
-            statusRt.sizeDelta = new Vector2(-80f, 28f);
-
-            var retry = DesktopModalUi.MakeButton(transform, "Retry", "重试", () => StartCoroutine(Load()));
-            var retryRt = retry.GetComponent<RectTransform>();
-            retryRt.anchorMin = new Vector2(1f, 1f);
-            retryRt.anchorMax = new Vector2(1f, 1f);
-            retryRt.pivot = new Vector2(1f, 1f);
-            retryRt.sizeDelta = new Vector2(72f, 28f);
-
-            var gridGo = new GameObject("Grid", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));
-            gridGo.transform.SetParent(transform, false);
-            gridGo.GetComponent<Image>().color = new Color(0.08f, 0.11f, 0.15f, 1f);
-            var gridRt = gridGo.GetComponent<RectTransform>();
-            gridRt.anchorMin = Vector2.zero;
-            gridRt.anchorMax = new Vector2(0.62f, 1f);
-            gridRt.offsetMin = Vector2.zero;
-            gridRt.offsetMax = new Vector2(-8f, -36f);
-            var content = new GameObject("Species", typeof(RectTransform), typeof(GridLayoutGroup), typeof(ContentSizeFitter));
-            content.transform.SetParent(gridGo.transform, false);
-            var contentRt = content.GetComponent<RectTransform>();
-            contentRt.anchorMin = new Vector2(0f, 1f);
-            contentRt.anchorMax = new Vector2(1f, 1f);
-            contentRt.pivot = new Vector2(0.5f, 1f);
-            var grid = content.GetComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(110f, 56f);
-            grid.spacing = new Vector2(6f, 6f);
-            grid.padding = new RectOffset(8, 8, 8, 8);
-            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 5;
-            content.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            gridGo.GetComponent<ScrollRect>().content = contentRt;
-            gridGo.GetComponent<ScrollRect>().horizontal = false;
-            _grid = content.transform;
-
-            _detail = DesktopModalUi.Label(transform, "Detail", "选择一个鱼种查看图鉴。", 16, TextAnchor.UpperLeft);
-            var detailRt = _detail.rectTransform;
-            detailRt.anchorMin = new Vector2(0.62f, 0f);
-            detailRt.anchorMax = Vector2.one;
-            detailRt.offsetMin = new Vector2(8f, 8f);
-            detailRt.offsetMax = new Vector2(0f, -36f);
         }
 
         IEnumerator Load()
@@ -146,14 +135,22 @@ namespace FishSocial.Desktop
                 var species = DesktopFishCatalog.Species[i];
                 var entry = FindEntry(species.Id);
                 var unlocked = entry != null && entry.totalCaught > 0;
-                var slot = new GameObject(species.Id, typeof(RectTransform), typeof(Image), typeof(Button));
-                slot.transform.SetParent(_grid, false);
-                slot.GetComponent<Image>().color = species.Id == _selectedId ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
+                var slot = DesktopUiPrefabFactory.Instantiate("GallerySpeciesSlot", _grid);
+                if (slot == null)
+                    continue;
+                slot.name = species.Id;
+                var image = slot.GetComponent<Image>();
+                if (image != null)
+                    image.color = species.Id == _selectedId ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
                 var label = unlocked ? species.Name : "？？？";
-                var text = DesktopModalUi.Label(slot.transform, "T", label, 14, TextAnchor.MiddleCenter);
-                DesktopModalUi.Stretch(text.gameObject);
+                var text = DesktopUiPrefabFactory.Child(slot, "Label");
+                var labelText = text != null ? text.GetComponent<Text>() : null;
+                if (labelText != null)
+                    labelText.text = label;
                 var captured = species.Id;
-                slot.GetComponent<Button>().onClick.AddListener(() => Select(captured));
+                var button = slot.GetComponent<Button>();
+                if (button != null)
+                    button.onClick.AddListener(() => Select(captured));
             }
         }
 

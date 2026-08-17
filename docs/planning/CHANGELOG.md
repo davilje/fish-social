@@ -1,5 +1,30 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-08f-accepted] - 2026-08-17
+
+- `STEAM-DESKTOP-08F` 用户验收通过，计划状态改为 **已实现**。
+- 下一阶段：`STEAM-DESKTOP-08G` Overlay 钓鱼操作栏。
+
+### [steam-desktop-08h-ui-prefab-migration] - 2026-08-17
+
+- 新增 `STEAM-DESKTOP-08H`：将 Steam 桌面端壳层、功能页、列表行和 Grid item
+  统一迁移为合法 Unity Prefab。
+- 双栏社交结构确定由 `PanelSocial.prefab` 统一承载，删除未被运行时加载的
+  `PanelFriends`、`PanelFriendRequests`、`PanelDirectMessages`、`PanelPondChat` 副本。
+- 明确好友申请接受/拒绝、Steam 好友邀请、私聊和移除按钮的独立 Button 与统一尺寸。
+- 明确背包格、图鉴格、好友行、聊天行和私聊行的 Prefab 分类，运行时代码只绑定数据和事件。
+- 登记计划表并刷新进度看板，交接提示词为
+  `steam-desktop-08h-ui-prefab-migration-dev.prompt.md`。
+
+### [steam-desktop-08-feature-split] - 2026-08-17
+
+- 将 07A～07G 完成后的后续 Steam 功能拆分为 7 个独立需求：
+  `08A` 世界地图、`08B` 商店、`08C` 动态墙、`08D` 排行榜、`08E` 个人中心、`08F` 好友列表 Prefab、`08G` Overlay 钓鱼操作栏。
+- 明确新增页面均使用独立 Prefab；好友申请接受/拒绝按钮单独布局，修复重叠不可点击问题。
+- 明确世界地图使用可拖动/缩放的大图和与最终美术绑定的 `pondId` 坐标。
+- 确认 Overlay 可承载选择钓位、开始钓鱼、收杆和领取鱼获，业务仍由 Unity/服务端权威执行。
+- 已登记计划表并刷新看板。建议开发顺序：`08F` → `08G` → `08A` → `08B`，然后 P1：`08E` → `08C` → `08D`。
+
 ### [steam-desktop-07f-accepted] - 2026-08-17
 
 - `STEAM-DESKTOP-07F` 用户验收通过，计划状态改为 **已实现**（设计 2026-08-13，完成 2026-08-17）。

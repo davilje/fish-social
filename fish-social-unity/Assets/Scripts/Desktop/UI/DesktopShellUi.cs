@@ -95,6 +95,12 @@ namespace FishSocial.Desktop
 
             _toast = CreateText(canvasGo.transform, "Toast", string.Empty, 18, TextAnchor.LowerCenter,
                 new Vector2(0, 24), new Vector2(400, 48));
+            var toastRt = _toast.rectTransform;
+            toastRt.anchorMin = new Vector2(0.08f, 0f);
+            toastRt.anchorMax = new Vector2(0.92f, 0f);
+            toastRt.pivot = new Vector2(0.5f, 0f);
+            toastRt.anchoredPosition = new Vector2(0f, 78f);
+            toastRt.sizeDelta = new Vector2(0f, 44f);
             _toast.alignment = TextAnchor.MiddleCenter;
             _toast.gameObject.SetActive(false);
 
@@ -313,10 +319,10 @@ namespace FishSocial.Desktop
                 TextAnchor.MiddleCenter, new Vector2(0, -140), new Vector2(480, 32));
             _petPond = CreateText(go.transform, "CurrentPond", "当前鱼塘：未进入", 16,
                 TextAnchor.MiddleCenter, new Vector2(0, -172), new Vector2(480, 28));
-            CreateCenteredButton(go.transform, "OpenPond", "进入 / 恢复鱼塘",
-                new Vector2(0, -220), new Vector2(220, 44), OpenPond);
-            CreateCenteredButton(go.transform, "SessionCheck", "验证当前会话",
-                new Vector2(0, -272), new Vector2(180, 36), ValidateCurrentSession);
+            CreateBottomCenteredButton(go.transform, "OpenPond", "进入 / 恢复鱼塘",
+                20f, new Vector2(220, 44), OpenPond);
+            CreateBottomCenteredButton(go.transform, "SessionCheck", "验证当前会话",
+                72f, new Vector2(180, 36), ValidateCurrentSession);
         }
 
         void OpenPond()
@@ -571,6 +577,7 @@ namespace FishSocial.Desktop
             _pondStatus = CreateText(go.transform, "P2",
                 "鱼塘场景在 960×480 Overlay 中渲染。本页只操作会话，打开主界面不会离塘。\n\n连接：未连接 · 当前 phase：—",
                 18, TextAnchor.UpperLeft, new Vector2(32, -80), new Vector2(900, 140));
+            _pondStatus.verticalOverflow = VerticalWrapMode.Truncate;
             CreateButton(go.transform, "ConnectPond", "连接并进塘", new Vector2(32, -240), new Vector2(180, 46),
                 () => _pondSession?.ConnectAndJoin());
             CreateButton(go.transform, "TakeSpot", "选择 1 号钓位", new Vector2(228, -240), new Vector2(190, 46),
@@ -760,7 +767,8 @@ namespace FishSocial.Desktop
             text.color = Color.white;
             text.alignment = TextAnchor.UpperLeft;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.raycastTarget = false;
             if (anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.MiddleRight || anchor == TextAnchor.MiddleCenter)
             {
                 if (anchor == TextAnchor.MiddleCenter)
@@ -816,6 +824,29 @@ namespace FishSocial.Desktop
             rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta = size;
+            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
+            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
+            var tr = text.GetComponent<RectTransform>();
+            tr.anchorMin = Vector2.zero;
+            tr.anchorMax = Vector2.one;
+            tr.offsetMin = Vector2.zero;
+            tr.offsetMax = Vector2.zero;
+            tr.pivot = new Vector2(0.5f, 0.5f);
+            text.alignment = TextAnchor.MiddleCenter;
+            go.GetComponent<Button>().onClick.AddListener(onClick);
+        }
+
+        static void CreateBottomCenteredButton(Transform parent, string name, string label, float bottom,
+            Vector2 size, UnityEngine.Events.UnityAction onClick)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0f);
+            rt.anchorMax = new Vector2(0.5f, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(0f, bottom);
             rt.sizeDelta = size;
             go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
             var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);

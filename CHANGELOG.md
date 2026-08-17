@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **STEAM-DESKTOP-08F**：用户验收通过，好友申请接受/拒绝可点、列表刷新不离塘（完成时间 2026-08-17）。
+- **STEAM-DESKTOP-08H**：用户验收通过。PanelSocial 双页社交布局、好友/私聊切换、
+  独立列表行与 Grid item Prefab、响应式布局和统一按钮交互已完成（完成时间 2026-08-17）。
+- **STEAM-DESKTOP-08A～08G**：后续功能已确认并登记计划表（设计时间 2026-08-17）。建议顺序 08F → 08G → 08A → 08B，再 08E / 08C / 08D。
 - **STEAM-DESKTOP-07F**：用户验收通过，托盘挂机、咬钩通知、收鱼、断线快照恢复与 Development Build 全流程完成（完成时间 2026-08-17）。
 - **STEAM-DESKTOP-07**：07A～07G 均已实现。
 - **STEAM-DESKTOP-07G**：用户验收通过，独立 WPF Overlay + Named Pipe（完成时间 2026-08-17）。
