@@ -1,5 +1,11 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-08g-accepted] - 2026-08-17
+
+- `STEAM-DESKTOP-08G` 用户验收通过，计划状态改为 **已实现**。
+- 完成 Overlay 钓位选择、开始钓鱼、收杆、领取鱼获、状态同步、错误回显及拖动命中区域验收。
+- 下一阶段：`STEAM-DESKTOP-08A` 世界地图与鱼塘选择。
+
 ### [steam-desktop-08f-accepted] - 2026-08-17
 
 - `STEAM-DESKTOP-08F` 用户验收通过，计划状态改为 **已实现**。
@@ -35,7 +41,7 @@
 
 - `STEAM-DESKTOP-07G` 用户验收通过，计划状态改为 **已实现**（设计 2026-08-14，完成 2026-08-17）。
 - 独立 `FishSocialOverlay.exe`（WPF `960×480`），Named Pipe 收状态/发命令，不启动第二个 Unity Player，不连 Socket、不传图。
-- 父需求 `STEAM-DESKTOP-07` 仍为 **已确认**（07F 未完成）。
+- `STEAM-DESKTOP-07` 表现层父需求与 07A～07G 子需求均已完成；后续开发转入 `STEAM-DESKTOP-08` 系列。
 
 ### [steam-desktop-07a-07e-tools-bugs] - 2026-08-17
 

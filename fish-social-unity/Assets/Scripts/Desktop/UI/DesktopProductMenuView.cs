@@ -16,6 +16,7 @@ namespace FishSocial.Desktop
         static readonly MenuEntry[] Entries =
         {
             new MenuEntry(DesktopProductMenuAction.CurrentPond, "当前鱼塘", false),
+            new MenuEntry(DesktopProductMenuAction.WorldMap, "世界地图", false),
             new MenuEntry(DesktopProductMenuAction.Friends, "好友与聊天", false),
             new MenuEntry(DesktopProductMenuAction.CatchBag, "鱼获/背包", false),
             new MenuEntry(DesktopProductMenuAction.Gallery, "图鉴", false),

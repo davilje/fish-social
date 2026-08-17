@@ -27,6 +27,11 @@ namespace FishSocial.Desktop.Auth
             new FishInventoryItemDto[0];
         public string CurrentPondId { get; private set; } = DefaultPondId;
         public string CurrentPhase => CurrentUser?.fishingPhase ?? "idle";
+        public bool HasPendingCatch => _latestCatch != null;
+        public bool CanStartFishing =>
+            CurrentUser == null ||
+            CurrentPhase == "idle" ||
+            CurrentPhase == "seated";
         public bool CanStopFishing =>
             CurrentPhase == "baiting" || CurrentPhase == "casting" ||
             CurrentPhase == "waiting" || CurrentPhase == "hooked" ||

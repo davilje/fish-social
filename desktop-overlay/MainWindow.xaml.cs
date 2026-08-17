@@ -22,6 +22,7 @@ namespace FishSocialOverlay
         StreamWriter _writer;
         long _latestSequence;
         bool _stopping;
+        string _selectedSpotId = string.Empty;
         readonly bool _safeWindow;
         PondScenePresenter _scene;
 
@@ -52,6 +53,11 @@ namespace FishSocialOverlay
                 GrassLayer,
                 ShoreLayer,
                 WaterLayer);
+            _scene.SpotSelected += spotId =>
+            {
+                _selectedSpotId = spotId ?? string.Empty;
+                TakeSpotButton.IsEnabled = !string.IsNullOrEmpty(_selectedSpotId);
+            };
         }
 
         void OnLoaded(object sender, RoutedEventArgs e)
@@ -93,10 +99,10 @@ namespace FishSocialOverlay
             var screenX = (short)(lParam.ToInt64() & 0xffff);
             var screenY = (short)((lParam.ToInt64() >> 16) & 0xffff);
             var local = PointFromScreen(new Point(screenX, screenY));
-            var petRect = PondScene.TransformToAncestor(this)
+            var sceneRect = PondScene.TransformToAncestor(this)
                 .TransformBounds(new Rect(PondScene.RenderSize));
             handled = true;
-            return petRect.Contains(local)
+            return sceneRect.Contains(local)
                 ? new IntPtr(HTCLIENT)
                 : new IntPtr(HTTRANSPARENT);
         }
@@ -172,7 +178,11 @@ namespace FishSocialOverlay
                     (string.IsNullOrWhiteSpace(message.PondName)
                         ? "未进入" : message.PondName);
                 SpotText.Text = "钓位：" + FormatSpot(message);
+                ErrorText.Text = message.ErrorMessage ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(message.OwnSpotId))
+                    _selectedSpotId = message.OwnSpotId;
                 _scene?.Apply(message);
+                ApplyFishingControls(message);
                 ApplyMainWindowRaised(message.MainWindowRaised);
             }
             else if (message.Type == "command")
@@ -205,9 +215,56 @@ namespace FishSocialOverlay
             SendCommand("open_main");
         }
 
+        void TakeSpot_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("take_spot", _selectedSpotId);
+        }
+
+        void StartFishing_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("start_fishing", _selectedSpotId);
+        }
+
+        void StopFishing_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("stop_fishing");
+        }
+
+        void AcceptCatch_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("accept_catch");
+        }
+
+        void ApplyFishingControls(IpcMessage message)
+        {
+            TakeSpotButton.IsEnabled = HasAction(message, "take_spot") &&
+                                       !string.IsNullOrEmpty(_selectedSpotId);
+            StartFishingButton.IsEnabled = HasAction(message, "start_fishing");
+            StopFishingButton.IsEnabled = HasAction(message, "stop_fishing");
+            AcceptCatchButton.IsEnabled = HasAction(message, "accept_catch");
+        }
+
+        static bool HasAction(IpcMessage message, string action)
+        {
+            if (message?.AvailableActions == null)
+                return false;
+            for (var i = 0; i < message.AvailableActions.Length; i++)
+            {
+                if (string.Equals(message.AvailableActions[i], action,
+                    StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
+        }
+
         void MenuPond_OnClick(object sender, RoutedEventArgs e)
         {
             SendCommand("menu_pond");
+        }
+
+        void MenuMap_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_map");
         }
 
         void MenuFriends_OnClick(object sender, RoutedEventArgs e)
@@ -285,7 +342,7 @@ namespace FishSocialOverlay
         {
         }
 
-        void SendCommand(string command)
+        void SendCommand(string command, string spotId = null)
         {
             if (OpensMainWindow(command))
                 ApplyMainWindowRaised(true);
@@ -294,6 +351,7 @@ namespace FishSocialOverlay
                 Type = "command",
                 Version = 1,
                 Command = command,
+                SpotId = spotId,
             });
         }
 
@@ -308,6 +366,7 @@ namespace FishSocialOverlay
         {
             return command == "open_main" ||
                    command == "menu_pond" ||
+                   command == "menu_map" ||
                    command == "menu_friends" ||
                    command == "menu_catch" ||
                    command == "menu_gallery" ||

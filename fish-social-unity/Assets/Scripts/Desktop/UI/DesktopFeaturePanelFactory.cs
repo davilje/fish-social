@@ -9,6 +9,24 @@ namespace FishSocial.Desktop
             var prefab = Resources.Load<GameObject>("Desktop/Prefabs/" + PrefabName<T>());
             if (prefab == null)
             {
+                if (typeof(T) == typeof(DesktopWorldMapPanel))
+                {
+                    var fallback = new GameObject(
+                        "PanelWorldMap",
+                        typeof(RectTransform),
+                        typeof(UnityEngine.UI.Image),
+                        typeof(DesktopWorldMapPanel));
+                    fallback.transform.SetParent(parent, false);
+                    var fallbackRect = fallback.GetComponent<RectTransform>();
+                    fallbackRect.anchorMin = Vector2.zero;
+                    fallbackRect.anchorMax = Vector2.one;
+                    fallbackRect.offsetMin = Vector2.zero;
+                    fallbackRect.offsetMax = Vector2.zero;
+                    var fallbackView = fallback.GetComponent<T>();
+                    bind(fallbackView);
+                    Debug.LogWarning("[DesktopUI] PanelWorldMap prefab is missing; using editor-generated fallback.");
+                    return fallbackView;
+                }
                 Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/" +
                                PrefabName<T>());
                 return null;
@@ -39,6 +57,8 @@ namespace FishSocial.Desktop
                 return "PanelGallery";
             if (typeof(T) == typeof(DesktopSettingsModalView))
                 return "PanelSettings";
+            if (typeof(T) == typeof(DesktopWorldMapPanel))
+                return "PanelWorldMap";
             return typeof(T).Name;
         }
     }

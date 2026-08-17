@@ -19,6 +19,9 @@ namespace FishSocial.Desktop
         public float ownY;
         public bool hasOwnPosition;
         public bool mainWindowRaised;
+        public bool hasPendingCatch;
+        public string errorMessage = string.Empty;
+        public string[] availableActions = new string[0];
         public NativeOverlaySpotDto[] spots = new NativeOverlaySpotDto[0];
         public NativeOverlayActorDto[] users = new NativeOverlayActorDto[0];
     }
@@ -51,5 +54,6 @@ namespace FishSocial.Desktop
         public string type;
         public int version;
         public string command;
+        public string spotId;
     }
 }

@@ -57,6 +57,7 @@ namespace FishSocial.Desktop.Editor
                 ref errors);
             generated += GenerateSlotPrefab("CatchSlot", ref errors);
             generated += GenerateSlotPrefab("GallerySpeciesSlot", ref errors);
+            generated += GenerateWorldMapPrefab(ref errors);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -77,6 +78,7 @@ namespace FishSocial.Desktop.Editor
                 new PrefabEntry("PanelCatch", typeof(DesktopCatchBagModalView)),
                 new PrefabEntry("PanelGallery", typeof(DesktopGalleryModalView)),
                 new PrefabEntry("PanelSettings", typeof(DesktopSettingsModalView)),
+                new PrefabEntry("PanelWorldMap", typeof(DesktopWorldMapPanel)),
             };
 
             var errors = string.Empty;
@@ -155,6 +157,90 @@ namespace FishSocial.Desktop.Editor
                       "修改方式：打开 Prefab → 修改 UI → Ctrl+S 保存 → 重新打包。"
                     : "Prefab 检查失败：" + errors,
                 "确定");
+        }
+
+        static int GenerateWorldMapPrefab(ref string errors)
+        {
+            try
+            {
+                var root = new GameObject(
+                    "PanelWorldMap",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(DesktopWorldMapPanel));
+                var rootRect = root.GetComponent<RectTransform>();
+                Stretch(rootRect);
+                root.GetComponent<Image>().color = new Color(0.07f, 0.1f, 0.14f, 1f);
+
+                var viewport = new GameObject(
+                    "Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+                viewport.transform.SetParent(root.transform, false);
+                var viewportRect = viewport.GetComponent<RectTransform>();
+                viewportRect.anchorMin = Vector2.zero;
+                viewportRect.anchorMax = new Vector2(0.68f, 1f);
+                viewportRect.offsetMin = Vector2.zero;
+                viewportRect.offsetMax = Vector2.zero;
+                viewport.GetComponent<Image>().color = new Color(0.12f, 0.2f, 0.18f, 1f);
+
+                var content = new GameObject("MapContent", typeof(RectTransform));
+                content.transform.SetParent(viewport.transform, false);
+                var contentRect = content.GetComponent<RectTransform>();
+                contentRect.anchorMin = new Vector2(0.5f, 0.5f);
+                contentRect.anchorMax = new Vector2(0.5f, 0.5f);
+                contentRect.pivot = new Vector2(0.5f, 0.5f);
+                contentRect.sizeDelta = new Vector2(2200f, 1300f);
+
+                var map = new GameObject("MapImage", typeof(RectTransform), typeof(Image));
+                map.transform.SetParent(content.transform, false);
+                var mapRect = map.GetComponent<RectTransform>();
+                Stretch(mapRect);
+                map.GetComponent<Image>().color = new Color(0.16f, 0.3f, 0.24f, 1f);
+
+                var markers = new GameObject("MarkerLayer", typeof(RectTransform));
+                markers.transform.SetParent(content.transform, false);
+                var markerRect = markers.GetComponent<RectTransform>();
+                Stretch(markerRect);
+
+                var details = new GameObject("Details", typeof(RectTransform), typeof(Image));
+                details.transform.SetParent(root.transform, false);
+                var detailsRect = details.GetComponent<RectTransform>();
+                detailsRect.anchorMin = new Vector2(0.68f, 0f);
+                detailsRect.anchorMax = Vector2.one;
+                detailsRect.offsetMin = Vector2.zero;
+                detailsRect.offsetMax = Vector2.zero;
+                details.GetComponent<Image>().color = new Color(0.08f, 0.12f, 0.16f, 0.96f);
+                var detailsText = CreateLabel(details.transform, "DetailsText");
+                detailsText.text = "请选择地图上的鱼塘。";
+                detailsText.fontSize = 18;
+                detailsText.rectTransform.anchorMin = new Vector2(0.08f, 0.55f);
+                detailsText.rectTransform.anchorMax = new Vector2(0.92f, 0.95f);
+                detailsText.rectTransform.offsetMin = Vector2.zero;
+                detailsText.rectTransform.offsetMax = Vector2.zero;
+                var statusText = CreateLabel(details.transform, "StatusText");
+                statusText.rectTransform.anchorMin = new Vector2(0.08f, 0.28f);
+                statusText.rectTransform.anchorMax = new Vector2(0.92f, 0.5f);
+                statusText.rectTransform.offsetMin = Vector2.zero;
+                statusText.rectTransform.offsetMax = Vector2.zero;
+                var enter = CreateButton(details.transform, "EnterPond", "进入鱼塘");
+                var enterRect = enter.GetComponent<RectTransform>();
+                enterRect.anchorMin = new Vector2(0.08f, 0.13f);
+                enterRect.anchorMax = new Vector2(0.92f, 0.22f);
+                enterRect.offsetMin = Vector2.zero;
+                enterRect.offsetMax = Vector2.zero;
+                var reset = CreateButton(details.transform, "ResetView", "重置地图");
+                var resetRect = reset.GetComponent<RectTransform>();
+                resetRect.anchorMin = new Vector2(0.08f, 0.04f);
+                resetRect.anchorMax = new Vector2(0.92f, 0.11f);
+                resetRect.offsetMin = Vector2.zero;
+                resetRect.offsetMax = Vector2.zero;
+
+                return SaveGeneratedPrefab(root, "PanelWorldMap", ref errors);
+            }
+            catch (System.Exception error)
+            {
+                errors += "\nPanelWorldMap：" + error.Message;
+                return 0;
+            }
         }
 
         [MenuItem("Fish Social/Normalize PanelSocial Responsive Layout")]

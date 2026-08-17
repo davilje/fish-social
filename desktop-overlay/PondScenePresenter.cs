@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Windows.Input;
 
 namespace FishSocialOverlay
 {
@@ -38,6 +39,7 @@ namespace FishSocialOverlay
         ImageSource[] _ownFrames = Array.Empty<ImageSource>();
         int _ownFrameIndex;
         DispatcherTimer _ownTimer;
+        public event Action<string> SpotSelected;
 
         public PondScenePresenter(
             Canvas spotLayer,
@@ -104,6 +106,7 @@ namespace FishSocialOverlay
                             StrokeThickness = 2,
                             Tag = spot.Id,
                         };
+                        marker.MouseLeftButtonDown += Spot_OnMouseLeftButtonDown;
                         _spotLayer.Children.Add(marker);
                         _spotVisuals[spot.Id] = marker;
                     }
@@ -128,6 +131,14 @@ namespace FishSocialOverlay
                 _spotLayer.Children.Remove(_spotVisuals[id]);
                 _spotVisuals.Remove(id);
             }
+        }
+
+        void Spot_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var marker = sender as Ellipse;
+            if (marker?.Tag is string spotId)
+                SpotSelected?.Invoke(spotId);
+            e.Handled = true;
         }
 
         void PlaceOwnCat(IpcMessage message)

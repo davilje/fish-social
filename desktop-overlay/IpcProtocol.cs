@@ -94,6 +94,15 @@ namespace FishSocialOverlay
         [DataMember(Name = "mainWindowRaised")]
         public bool MainWindowRaised { get; set; }
 
+        [DataMember(Name = "hasPendingCatch")]
+        public bool HasPendingCatch { get; set; }
+
+        [DataMember(Name = "errorMessage")]
+        public string ErrorMessage { get; set; }
+
+        [DataMember(Name = "availableActions")]
+        public string[] AvailableActions { get; set; }
+
         [DataMember(Name = "spots")]
         public OverlaySpotDto[] Spots { get; set; }
 
@@ -102,6 +111,9 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "command")]
         public string Command { get; set; }
+
+        [DataMember(Name = "spotId")]
+        public string SpotId { get; set; }
 
         public static IpcMessage Parse(string json)
         {

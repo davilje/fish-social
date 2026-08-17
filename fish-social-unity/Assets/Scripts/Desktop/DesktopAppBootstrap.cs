@@ -26,6 +26,7 @@ namespace FishSocial.Desktop
         NativeOverlayProcessController _nativeOverlay;
         PetStateController _petState;
         DesktopShellUi _shellUi;
+        string _nativeOverlayError = string.Empty;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _quitFallbackStarted;
 #if !UNITY_EDITOR
@@ -81,6 +82,12 @@ namespace FishSocial.Desktop
                 SteamAuthIdentity);
             _pondSession = gameObject.AddComponent<SocialPondSessionController>();
             _pondSession.Configure(_steamAuth);
+            _pondSession.StateChanged += OnPondStateChanged;
+            _pondSession.SnapshotChanged += OnPondSnapshotChanged;
+            _pondSession.UserUpdated += OnPondUserUpdated;
+            _pondSession.UsersChanged += OnPondUsersChanged;
+            _pondSession.FishBiteReceived += OnPondFishBite;
+            _pondSession.ErrorReceived += OnPondError;
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
             _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter);
@@ -167,6 +174,7 @@ namespace FishSocial.Desktop
                 fishingPhase = _pondSession?.CurrentPhase ?? "idle",
                 petVisualState = PetStateController.ToWire(
                     _petState != null ? _petState.Current : PetVisualState.Offline),
+                errorMessage = _nativeOverlayError ?? string.Empty,
             };
             OverlayPondStateBuilder.Fill(dto, _pondSession);
             dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
@@ -186,8 +194,46 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
-        void OnNativeOverlayCommand(string command)
+        void OnPondStateChanged(SocialSocketState state, string message)
         {
+            if (state == SocialSocketState.Connected)
+                _nativeOverlayError = string.Empty;
+            else if (!string.IsNullOrEmpty(message))
+                _nativeOverlayError = message;
+            PublishNativeOverlayState();
+        }
+
+        void OnPondSnapshotChanged(PondSnapshotDto _)
+        {
+            PublishNativeOverlayState();
+        }
+
+        void OnPondUserUpdated(PondUserDto _)
+        {
+            PublishNativeOverlayState();
+        }
+
+        void OnPondUsersChanged()
+        {
+            PublishNativeOverlayState();
+        }
+
+        void OnPondFishBite(PendingFishCatchDto _)
+        {
+            PublishNativeOverlayState();
+        }
+
+        void OnPondError(string message)
+        {
+            _nativeOverlayError = message ?? "鱼塘操作失败。";
+            PublishNativeOverlayState();
+        }
+
+        void OnNativeOverlayCommand(NativeOverlayCommandDto message)
+        {
+            if (message == null)
+                return;
+            var command = message.command;
             switch (command)
             {
                 case "open_main":
@@ -198,6 +244,24 @@ namespace FishSocial.Desktop
                     return;
                 case "request_snapshot":
                     PublishNativeOverlayState();
+                    return;
+                case "take_spot":
+                    ExecuteOverlayCommand(
+                        callback => _pondSession?.TakeSpot(message.spotId, callback));
+                    return;
+                case "start_fishing":
+                    ExecuteOverlayCommand(
+                        callback => _pondSession?.StartFishing(
+                            string.IsNullOrEmpty(message.spotId)
+                                ? _pondSession?.FirstSpotId
+                                : message.spotId,
+                            callback));
+                    return;
+                case "stop_fishing":
+                    ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback));
+                    return;
+                case "accept_catch":
+                    ExecuteOverlayCommand(callback => _pondSession?.AcceptLatestCatch(callback));
                     return;
             }
 
@@ -216,11 +280,36 @@ namespace FishSocial.Desktop
             _shellUi?.HandleProductMenu(action);
         }
 
+        void ExecuteOverlayCommand(System.Action<System.Action<bool, string>> operation)
+        {
+            if (_pondSession == null)
+            {
+                _nativeOverlayError = "鱼塘会话尚未初始化。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            operation((ok, message) =>
+            {
+                _nativeOverlayError = ok ? string.Empty : (message ?? "操作失败。");
+                PublishNativeOverlayState();
+            });
+        }
+
         void OnDestroy()
         {
             Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy begin.");
             if (_petState != null)
                 _petState.StateChanged -= OnPetVisualStateChanged;
+            if (_pondSession != null)
+            {
+                _pondSession.StateChanged -= OnPondStateChanged;
+                _pondSession.SnapshotChanged -= OnPondSnapshotChanged;
+                _pondSession.UserUpdated -= OnPondUserUpdated;
+                _pondSession.UsersChanged -= OnPondUsersChanged;
+                _pondSession.FishBiteReceived -= OnPondFishBite;
+                _pondSession.ErrorReceived -= OnPondError;
+            }
             _nativeOverlay?.ForceTerminateForApplicationQuit();
             Application.wantsToQuit -= OnWantsToQuit;
             if (_nativeOverlay != null)

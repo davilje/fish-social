@@ -3,6 +3,7 @@ namespace FishSocial.Desktop
     public enum DesktopProductMenuAction
     {
         CurrentPond,
+        WorldMap,
         Friends,
         CatchBag,
         Gallery,
@@ -19,6 +20,7 @@ namespace FishSocial.Desktop
     public static class DesktopProductMenuCommands
     {
         public const string Pond = "menu_pond";
+        public const string Map = "menu_map";
         public const string Friends = "menu_friends";
         public const string CatchBag = "menu_catch";
         public const string Gallery = "menu_gallery";
@@ -32,6 +34,9 @@ namespace FishSocial.Desktop
             {
                 case Pond:
                     action = DesktopProductMenuAction.CurrentPond;
+                    return true;
+                case Map:
+                    action = DesktopProductMenuAction.WorldMap;
                     return true;
                 case Friends:
                     action = DesktopProductMenuAction.Friends;

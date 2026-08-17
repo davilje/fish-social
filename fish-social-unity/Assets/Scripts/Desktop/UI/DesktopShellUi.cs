@@ -37,6 +37,7 @@ namespace FishSocial.Desktop
         DesktopCatchBagModalView _catchPanel;
         DesktopGalleryModalView _galleryPanel;
         DesktopSettingsModalView _settingsPanel;
+        DesktopWorldMapPanel _worldMapPanel;
 
         public void Build(PanelRouter router)
         {
@@ -161,6 +162,8 @@ namespace FishSocial.Desktop
 
             CreateNavButton(nav.transform, "主页", ReturnToPetHome);
             CreateNavButton(nav.transform, "鱼塘", ShowPondPanel);
+            CreateNavButton(nav.transform, "世界地图",
+                () => ShowMainPanel(ShellPanelId.WorldMap));
             CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends));
             CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag));
             CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery));
@@ -174,6 +177,7 @@ namespace FishSocial.Desktop
 
             RegisterPanel(content.transform, ShellPanelId.Home, BuildHome);
             RegisterPanel(content.transform, ShellPanelId.Pond, BuildPond);
+            RegisterPanel(content.transform, ShellPanelId.WorldMap, BuildWorldMap);
             RegisterPanel(content.transform, ShellPanelId.Friends, BuildSocialPanel);
             RegisterPanel(content.transform, ShellPanelId.CatchBag, BuildCatchPanel);
             RegisterPanel(content.transform, ShellPanelId.Gallery, BuildGalleryPanel);
@@ -218,6 +222,9 @@ namespace FishSocial.Desktop
             {
                 case DesktopProductMenuAction.CurrentPond:
                     ShowMainPanel(ShellPanelId.Pond);
+                    break;
+                case DesktopProductMenuAction.WorldMap:
+                    ShowMainPanel(ShellPanelId.WorldMap);
                     break;
                 case DesktopProductMenuAction.Friends:
                     ShowMainPanel(ShellPanelId.Friends);
@@ -592,6 +599,13 @@ namespace FishSocial.Desktop
                 ReturnToPetHome);
             CreateButton(go.transform, "EnterOverlay", "进入 / 恢复鱼塘", new Vector2(228, -304), new Vector2(220, 46),
                 OpenPond);
+        }
+
+        void BuildWorldMap(GameObject go)
+        {
+            _worldMapPanel = DesktopFeaturePanelFactory.Mount<DesktopWorldMapPanel>(
+                go.transform,
+                view => view.Bind(_pondSession));
         }
 
         void BuildSocialPanel(GameObject go)

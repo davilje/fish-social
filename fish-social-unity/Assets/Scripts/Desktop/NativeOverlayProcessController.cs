@@ -47,7 +47,7 @@ namespace FishSocial.Desktop
         public bool IsConnected { get; private set; }
         public NativeOverlayLifecycleState LifecycleState { get; private set; } =
             NativeOverlayLifecycleState.Stopped;
-        public event Action<string> CommandReceived;
+        public event Action<NativeOverlayCommandDto> CommandReceived;
 
         void Awake()
         {
@@ -80,7 +80,7 @@ namespace FishSocial.Desktop
                     SendLatestState();
                 }
                 else if (message.type == "command" && !string.IsNullOrEmpty(message.command))
-                    CommandReceived?.Invoke(message.command);
+                    CommandReceived?.Invoke(message);
             }
         }
 

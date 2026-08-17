@@ -4,9 +4,10 @@ namespace FishSocial.Desktop
     {
         Home = 0,
         Pond = 1,
-        Friends = 2,
-        CatchBag = 3,
-        Gallery = 4,
-        Settings = 5,
+        WorldMap = 2,
+        Friends = 3,
+        CatchBag = 4,
+        Gallery = 5,
+        Settings = 6,
     }
 }

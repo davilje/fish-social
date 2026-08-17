@@ -25,6 +25,7 @@
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="当前鱼塘" Click="MenuPond_OnClick" />
+                    <MenuItem Header="世界地图" Click="MenuMap_OnClick" />
                     <MenuItem Header="好友与聊天" Click="MenuFriends_OnClick" />
                     <MenuItem Header="鱼获/背包" Click="MenuCatch_OnClick" />
                     <MenuItem Header="图鉴" Click="MenuGallery_OnClick" />
@@ -123,6 +124,47 @@
                                    FontSize="13"
                                    Margin="0,2,0,0" />
                     </StackPanel>
+                </Border>
+                <Border x:Name="ControlBar"
+                        Width="928"
+                        Height="62"
+                        Canvas.Left="16"
+                        Canvas.Top="402"
+                        Background="#DD0F1820"
+                        CornerRadius="10"
+                        Padding="8">
+                    <DockPanel LastChildFill="False">
+                        <TextBlock x:Name="ErrorText"
+                                   Width="250"
+                                   VerticalAlignment="Center"
+                                   Foreground="#FFFFA6A6"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,8,0" />
+                        <Button x:Name="TakeSpotButton"
+                                Content="选择钓位"
+                                Width="108"
+                                Height="38"
+                                Margin="4,0"
+                                Click="TakeSpot_OnClick" />
+                        <Button x:Name="StartFishingButton"
+                                Content="开始钓鱼"
+                                Width="108"
+                                Height="38"
+                                Margin="4,0"
+                                Click="StartFishing_OnClick" />
+                        <Button x:Name="StopFishingButton"
+                                Content="收杆"
+                                Width="92"
+                                Height="38"
+                                Margin="4,0"
+                                Click="StopFishing_OnClick" />
+                        <Button x:Name="AcceptCatchButton"
+                                Content="领取鱼获"
+                                Width="108"
+                                Height="38"
+                                Margin="4,0"
+                                Click="AcceptCatch_OnClick" />
+                    </DockPanel>
                 </Border>
                 <Button Content="打开主界面"
                         Width="120"

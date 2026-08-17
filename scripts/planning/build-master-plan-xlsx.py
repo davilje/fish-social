@@ -276,7 +276,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-17",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-08G",
         "功能",
         "Overlay 钓鱼操作栏",
@@ -286,7 +286,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "Overlay 底部选钓位/开始/收杆/领鱼获；Pipe 发命令；Unity/Node 保留权威",
         "docs/planning/specs/Steam桌面端-08GOverlay钓鱼操作栏.md",
         "2026-08-17",
-        "",
+        "2026-08-17",
     ],
     [
         "已实现",

@@ -24,6 +24,26 @@ namespace FishSocial.Desktop
             dto.spots = MapSpots(snapshot?.pond?.spots);
             FillOwnPosition(dto);
             dto.users = MapOthers(pond, dto.spots);
+            dto.hasPendingCatch = pond != null && pond.HasPendingCatch;
+            dto.availableActions = MapAvailableActions(pond);
+        }
+
+        static string[] MapAvailableActions(SocialPondSessionController pond)
+        {
+            if (pond == null || pond.State != SocialSocketState.Connected)
+                return new string[0];
+
+            var actions = new System.Collections.Generic.List<string>();
+            var hasSpot = !string.IsNullOrEmpty(pond.CurrentUser?.spotId);
+            if (!hasSpot)
+                actions.Add("take_spot");
+            if (hasSpot && pond.CanStartFishing)
+                actions.Add("start_fishing");
+            if (pond.CanStopFishing)
+                actions.Add("stop_fishing");
+            if (pond.HasPendingCatch)
+                actions.Add("accept_catch");
+            return actions.ToArray();
         }
 
         static NativeOverlaySpotDto[] MapSpots(FishingSpotDto[] source)
