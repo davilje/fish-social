@@ -107,7 +107,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-13",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-07A",
         "功能",
         "桌面宠物主视图与鱼塘入口",
@@ -117,10 +117,10 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "显示自己的 2D 猫咪、钓鱼状态和鱼塘入口；采用序列帧+状态机，复用已完成桌面壳",
         "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
         "2026-08-13",
-        "",
+        "2026-08-14",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-07B",
         "功能",
         "2D 鱼塘环境与自己的猫咪",
@@ -130,7 +130,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "显示池塘环境、钓位、自己的宠物和钓鱼表现",
         "docs/planning/specs/Steam桌面宠物与多人鱼塘表现层.md",
         "2026-08-13",
-        "",
+        "2026-08-14",
     ],
     [
         "已实现",
@@ -169,7 +169,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "好友/聊天、背包、图鉴、设置为主窗口页签；Overlay 菜单切页且主窗口高于 Overlay；不用功能弹窗",
         "docs/planning/specs/Steam桌面端Web功能对齐设计.md",
         "2026-08-13",
-        "2026-08-16",
+        "2026-08-17",
     ],
     [
         "已确认",

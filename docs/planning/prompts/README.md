@@ -81,8 +81,8 @@ npm run planning:confirm -- v0.4.0
 | [unity-epic-phase-roadmap-dev.prompt.md](./unity-epic-phase-roadmap-dev.prompt.md) | UNITY-EPIC：Unity 移植分阶段需求总表 · **已定稿，P0～P2 已实现，P3～P5 待开发** |
 | [steam-desktop-transition-dev.prompt.md](./steam-desktop-transition-dev.prompt.md) | STEAM-DESKTOP-EPIC：Steam 桌面端独立游戏转型与 Unity 并行开发 · **规划已完成，按子需求开发** |
 | [steam-desktop-product-ia-dev.prompt.md](./steam-desktop-product-ia-dev.prompt.md) | STEAM-DESKTOP-01：Steam 桌面端产品定位与信息架构 · **规划已完成，转入 STEAM-DESKTOP-07** |
-| [steam-desktop-07a-pet-home-dev.prompt.md](./steam-desktop-07a-pet-home-dev.prompt.md) | STEAM-DESKTOP-07A：Unity 主窗口内桌面宠物主视图与鱼塘入口（禁止第二 Unity Player）· **已确认** |
-| [steam-desktop-07b-pond-scene-dev.prompt.md](./steam-desktop-07b-pond-scene-dev.prompt.md) | STEAM-DESKTOP-07B：2D 鱼塘环境与自己的猫咪 · **已确认** |
+| [steam-desktop-07a-pet-home-dev.prompt.md](./steam-desktop-07a-pet-home-dev.prompt.md) | STEAM-DESKTOP-07A：Unity 主窗口内桌面宠物主视图与鱼塘入口（禁止第二 Unity Player）· **已实现** |
+| [steam-desktop-07b-pond-scene-dev.prompt.md](./steam-desktop-07b-pond-scene-dev.prompt.md) | STEAM-DESKTOP-07B：2D 鱼塘环境与自己的猫咪 · **已实现** |
 | [steam-desktop-07c-multiplayer-pets-dev.prompt.md](./steam-desktop-07c-multiplayer-pets-dev.prompt.md) | STEAM-DESKTOP-07C：Overlay 同塘玩家 + 本地序列帧 + 现有 Socket 同步 · **已实现** |
 | [steam-desktop-07d-context-menu-dev.prompt.md](./steam-desktop-07d-context-menu-dev.prompt.md) | STEAM-DESKTOP-07D：桌面宠物右键菜单 · **已实现** |
 | [steam-desktop-07e-main-window-tabs-dev.prompt.md](./steam-desktop-07e-main-window-tabs-dev.prompt.md) | STEAM-DESKTOP-07E：主窗口功能页签（取代弹窗；主窗口高于 Overlay）· **已实现** |

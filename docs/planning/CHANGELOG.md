@@ -1,5 +1,11 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-07a-07e-tools-bugs] - 2026-08-17
+
+- 整理 `STEAM-DESKTOP-07A`～`07E` 开发工具与已修缺陷：[`reports/STEAM-DESKTOP-07A-07E-工具与缺陷.md`](./reports/STEAM-DESKTOP-07A-07E-工具与缺陷.md)。
+- `07A` / `07B` 计划状态改为 **已实现**（完成时间 2026-08-14）；`07E` 完成时间更新为 **2026-08-17**（Prefab 为唯一功能页来源，用户确认完全正确）。
+- 父需求 `STEAM-DESKTOP-07` 仍为 **已确认**（07F 未完成）。
+
 ### [steam-desktop-07e-accepted] - 2026-08-16
 
 - `STEAM-DESKTOP-07E` 用户验收通过，计划状态改为 **已实现**。

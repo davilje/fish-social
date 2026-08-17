@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- **STEAM-DESKTOP-07E**：用户确认主窗口功能页签、好友/聊天、背包、图鉴、设置及 Overlay 层级流程已完成验收。
+- **STEAM-DESKTOP-07E**：用户确认主窗口功能页签、好友/聊天、背包、图鉴、设置及 Overlay 层级流程已完成验收（完成时间 2026-08-17；Prefab 为唯一功能页来源）。
+- **STEAM-DESKTOP-07A / 07B**：计划状态改为已实现（完成时间 2026-08-14）。
+- 07A～07E 工具与已修缺陷说明：`docs/planning/reports/STEAM-DESKTOP-07A-07E-工具与缺陷.md`。
 
 ### 新增
 
