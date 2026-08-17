@@ -12,6 +12,7 @@ export const RATE_LIMITED_SOCKET_EVENTS = new Set([
   'send_chat',
   'start_fishing',
   'take_spot',
+  'leave_spot',
   'stop_fishing',
   'accept_catch',
 ]);

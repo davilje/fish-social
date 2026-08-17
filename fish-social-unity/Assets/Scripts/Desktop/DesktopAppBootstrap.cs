@@ -249,6 +249,10 @@ namespace FishSocial.Desktop
                     ExecuteOverlayCommand(
                         callback => _pondSession?.TakeSpot(message.spotId, callback));
                     return;
+                case "leave_spot":
+                    ExecuteOverlayCommand(
+                        callback => _pondSession?.LeaveSpot(callback));
+                    return;
                 case "start_fishing":
                     ExecuteOverlayCommand(
                         callback => _pondSession?.StartFishing(
@@ -262,6 +266,9 @@ namespace FishSocial.Desktop
                     return;
                 case "accept_catch":
                     ExecuteOverlayCommand(callback => _pondSession?.AcceptLatestCatch(callback));
+                    return;
+                case "exit_pond":
+                    ExitPondFromOverlay();
                     return;
             }
 
@@ -289,9 +296,33 @@ namespace FishSocial.Desktop
                 return;
             }
 
+            _nativeOverlayError = string.Empty;
+            PublishNativeOverlayState();
             operation((ok, message) =>
             {
                 _nativeOverlayError = ok ? string.Empty : (message ?? "操作失败。");
+                PublishNativeOverlayState();
+            });
+        }
+
+        void ExitPondFromOverlay()
+        {
+            if (_pondSession == null)
+            {
+                _nativeOverlayError = "鱼塘会话尚未初始化。";
+                PublishNativeOverlayState();
+                return;
+            }
+            _nativeOverlayError = "正在退出鱼塘…";
+            PublishNativeOverlayState();
+            _pondSession.ExitPond((ok, message) =>
+            {
+                _nativeOverlayError = ok ? string.Empty : (message ?? "退出鱼塘失败。");
+                if (ok)
+                {
+                    _nativeOverlay?.CloseOverlay();
+                    RaiseMainWindow(ShellPanelId.Home);
+                }
                 PublishNativeOverlayState();
             });
         }

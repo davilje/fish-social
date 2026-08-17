@@ -21,6 +21,7 @@ namespace FishSocialOverlay
         NamedPipeClientStream _pipe;
         StreamWriter _writer;
         long _latestSequence;
+        long _nextCommandId;
         bool _stopping;
         string _selectedSpotId = string.Empty;
         readonly bool _safeWindow;
@@ -56,8 +57,13 @@ namespace FishSocialOverlay
             _scene.SpotSelected += spotId =>
             {
                 _selectedSpotId = spotId ?? string.Empty;
-                TakeSpotButton.IsEnabled = !string.IsNullOrEmpty(_selectedSpotId);
+                if (!string.IsNullOrEmpty(_selectedSpotId))
+                {
+                    StateText.Text = "状态：正在选择钓位…";
+                    SendCommand("take_spot", _selectedSpotId);
+                }
             };
+            TakeSpotButton.Visibility = Visibility.Collapsed;
         }
 
         void OnLoaded(object sender, RoutedEventArgs e)
@@ -170,6 +176,9 @@ namespace FishSocialOverlay
         {
             if (message.Type == "state")
             {
+                LatencyTrace.Write(
+                    "overlay_state_received sequence=" + message.Sequence +
+                    " pond=" + (message.PondId ?? string.Empty));
                 if (message.Sequence < _latestSequence)
                     return;
                 _latestSequence = message.Sequence;
@@ -220,6 +229,18 @@ namespace FishSocialOverlay
             SendCommand("take_spot", _selectedSpotId);
         }
 
+        void LeaveSpot_OnClick(object sender, RoutedEventArgs e)
+        {
+            StateText.Text = "状态：正在离席…";
+            SendCommand("leave_spot");
+        }
+
+        void ExitPond_OnClick(object sender, RoutedEventArgs e)
+        {
+            StateText.Text = "状态：正在退出鱼塘…";
+            SendCommand("exit_pond");
+        }
+
         void StartFishing_OnClick(object sender, RoutedEventArgs e)
         {
             SendCommand("start_fishing", _selectedSpotId);
@@ -237,11 +258,12 @@ namespace FishSocialOverlay
 
         void ApplyFishingControls(IpcMessage message)
         {
-            TakeSpotButton.IsEnabled = HasAction(message, "take_spot") &&
-                                       !string.IsNullOrEmpty(_selectedSpotId);
+            TakeSpotButton.IsEnabled = false;
             StartFishingButton.IsEnabled = HasAction(message, "start_fishing");
             StopFishingButton.IsEnabled = HasAction(message, "stop_fishing");
             AcceptCatchButton.IsEnabled = HasAction(message, "accept_catch");
+            LeaveSpotButton.IsEnabled = HasAction(message, "leave_spot");
+            ExitPondButton.IsEnabled = HasAction(message, "exit_pond");
         }
 
         static bool HasAction(IpcMessage message, string action)
@@ -265,6 +287,11 @@ namespace FishSocialOverlay
         void MenuMap_OnClick(object sender, RoutedEventArgs e)
         {
             SendCommand("menu_map");
+        }
+
+        void MenuShop_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_shop");
         }
 
         void MenuFriends_OnClick(object sender, RoutedEventArgs e)
@@ -344,6 +371,11 @@ namespace FishSocialOverlay
 
         void SendCommand(string command, string spotId = null)
         {
+            var commandId = Interlocked.Increment(ref _nextCommandId);
+            var sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            LatencyTrace.Write(
+                "overlay_command_sent id=" + commandId +
+                " command=" + command);
             if (OpensMainWindow(command))
                 ApplyMainWindowRaised(true);
             Send(new IpcMessage
@@ -352,6 +384,8 @@ namespace FishSocialOverlay
                 Version = 1,
                 Command = command,
                 SpotId = spotId,
+                CommandId = commandId,
+                SentAtMs = sentAtMs,
             });
         }
 

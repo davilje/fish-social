@@ -38,6 +38,7 @@ namespace FishSocial.Desktop
         DesktopGalleryModalView _galleryPanel;
         DesktopSettingsModalView _settingsPanel;
         DesktopWorldMapPanel _worldMapPanel;
+        DesktopShopPanel _shopPanel;
 
         public void Build(PanelRouter router)
         {
@@ -164,6 +165,7 @@ namespace FishSocial.Desktop
             CreateNavButton(nav.transform, "鱼塘", ShowPondPanel);
             CreateNavButton(nav.transform, "世界地图",
                 () => ShowMainPanel(ShellPanelId.WorldMap));
+            CreateNavButton(nav.transform, "商店", () => ShowMainPanel(ShellPanelId.Shop));
             CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends));
             CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag));
             CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery));
@@ -178,6 +180,7 @@ namespace FishSocial.Desktop
             RegisterPanel(content.transform, ShellPanelId.Home, BuildHome);
             RegisterPanel(content.transform, ShellPanelId.Pond, BuildPond);
             RegisterPanel(content.transform, ShellPanelId.WorldMap, BuildWorldMap);
+            RegisterPanel(content.transform, ShellPanelId.Shop, BuildShop);
             RegisterPanel(content.transform, ShellPanelId.Friends, BuildSocialPanel);
             RegisterPanel(content.transform, ShellPanelId.CatchBag, BuildCatchPanel);
             RegisterPanel(content.transform, ShellPanelId.Gallery, BuildGalleryPanel);
@@ -226,6 +229,9 @@ namespace FishSocial.Desktop
                 case DesktopProductMenuAction.WorldMap:
                     ShowMainPanel(ShellPanelId.WorldMap);
                     break;
+                case DesktopProductMenuAction.Shop:
+                    ShowMainPanel(ShellPanelId.Shop);
+                    break;
                 case DesktopProductMenuAction.Friends:
                     ShowMainPanel(ShellPanelId.Friends);
                     break;
@@ -253,8 +259,12 @@ namespace FishSocial.Desktop
             _socialPanel?.OnClosed();
             _catchPanel?.OnClosed();
             _galleryPanel?.OnClosed();
+            _shopPanel?.OnClosed();
             switch (id)
             {
+                case ShellPanelId.Shop:
+                    _shopPanel?.OnOpened();
+                    break;
                 case ShellPanelId.Friends:
                     _socialPanel?.OnOpened();
                     break;
@@ -277,6 +287,7 @@ namespace FishSocial.Desktop
             _socialPanel?.OnClosed();
             _catchPanel?.OnClosed();
             _galleryPanel?.OnClosed();
+            _shopPanel?.OnClosed();
             if (_petState != null)
                 _petState.StateChanged -= OnPetVisualStateChanged;
             if (_steamAuth == null)
@@ -606,6 +617,13 @@ namespace FishSocial.Desktop
             _worldMapPanel = DesktopFeaturePanelFactory.Mount<DesktopWorldMapPanel>(
                 go.transform,
                 view => view.Bind(_pondSession));
+        }
+
+        void BuildShop(GameObject go)
+        {
+            _shopPanel = DesktopFeaturePanelFactory.Mount<DesktopShopPanel>(
+                go.transform,
+                view => view.Bind(_authenticatedApi));
         }
 
         void BuildSocialPanel(GameObject go)

@@ -26,6 +26,7 @@
                 <ContextMenu>
                     <MenuItem Header="当前鱼塘" Click="MenuPond_OnClick" />
                     <MenuItem Header="世界地图" Click="MenuMap_OnClick" />
+                    <MenuItem Header="商店与装备" Click="MenuShop_OnClick" />
                     <MenuItem Header="好友与聊天" Click="MenuFriends_OnClick" />
                     <MenuItem Header="鱼获/背包" Click="MenuCatch_OnClick" />
                     <MenuItem Header="图鉴" Click="MenuGallery_OnClick" />
@@ -135,7 +136,7 @@
                         Padding="8">
                     <DockPanel LastChildFill="False">
                         <TextBlock x:Name="ErrorText"
-                                   Width="250"
+                                   Width="220"
                                    VerticalAlignment="Center"
                                    Foreground="#FFFFA6A6"
                                    TextWrapping="Wrap"
@@ -164,6 +165,18 @@
                                 Height="38"
                                 Margin="4,0"
                                 Click="AcceptCatch_OnClick" />
+                        <Button x:Name="LeaveSpotButton"
+                                Content="离席"
+                                Width="92"
+                                Height="38"
+                                Margin="4,0"
+                                Click="LeaveSpot_OnClick" />
+                        <Button x:Name="ExitPondButton"
+                                Content="退出鱼塘"
+                                Width="108"
+                                Height="38"
+                                Margin="4,0"
+                                Click="ExitPond_OnClick" />
                     </DockPanel>
                 </Border>
                 <Button Content="打开主界面"

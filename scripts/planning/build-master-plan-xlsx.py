@@ -211,7 +211,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-17",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-08B",
         "功能",
         "商店与装备",
@@ -221,7 +221,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "PanelShop：鱼饵/渔具购买与装备；金币库存以服务端为准；Overlay 只 menu_shop 切页",
         "docs/planning/specs/Steam桌面端-08B商店与装备.md",
         "2026-08-17",
-        "",
+        "2026-08-18",
     ],
     [
         "已确认",
@@ -300,6 +300,19 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "docs/planning/specs/Steam桌面端-08H全量UI预制体化.md",
         "2026-08-17",
         "2026-08-17",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-08I",
+        "Bug 修复 / 功能优化",
+        "鱼塘退出与跨塘切换优化",
+        "—",
+        "v1.0-steam-desktop",
+        "P0",
+        "Overlay 点击钓位直接入座；新增离席/退出鱼塘；收杆领鱼离席后跨塘切换；优化 Named Pipe 与 Socket 反馈延迟",
+        "docs/planning/specs/Steam桌面端-08I鱼塘退出与跨塘切换优化.md",
+        "2026-08-18",
+        "",
     ],
     [
         "已确认",

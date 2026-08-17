@@ -55,5 +55,7 @@ namespace FishSocial.Desktop
         public int version;
         public string command;
         public string spotId;
+        public long commandId;
+        public long sentAtMs;
     }
 }

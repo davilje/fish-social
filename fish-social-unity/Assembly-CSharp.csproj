@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopSettingsModalView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopGalleryModalView.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\WorldMapPondCatalog.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamAuthController.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\DesktopNotificationService.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopModalHost.cs" />
@@ -66,7 +67,9 @@
     <Compile Include="Assets\Scripts\Desktop\Pet\SpriteFramePetRenderer.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\FriendsPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamworksTicketProvider.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopUiPrefabFactory.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\UnityNetworkDtos.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopWorldMapPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\IPetRenderer.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\SteamSocialLobbyAdapter.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\SocialLobbyApiClient.cs" />
@@ -100,10 +103,8 @@
     <Compile Include="Assets\Scripts\Desktop\Pet\PetVisualState.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\PlaceholderPetFrames.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopShopPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\AuthenticatedApiClient.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\DesktopUiPrefabFactory.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\WorldMapPondCatalog.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\DesktopWorldMapPanel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

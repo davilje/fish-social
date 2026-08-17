@@ -2,9 +2,36 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System;
 
 namespace FishSocialOverlay
 {
+    internal static class LatencyTrace
+    {
+        static readonly object Sync = new object();
+        static readonly string Path = System.IO.Path.Combine(
+            System.IO.Path.GetTempPath(), "FishSocialOverlay-latency.log");
+
+        public static void Write(string message)
+        {
+            try
+            {
+                lock (Sync)
+                {
+                    File.AppendAllText(
+                        Path,
+                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() +
+                        " " + message + Environment.NewLine,
+                        Encoding.UTF8);
+                }
+            }
+            catch
+            {
+                // Diagnostics must never affect Overlay interaction.
+            }
+        }
+    }
+
     [DataContract]
     public sealed class OverlaySpotDto
     {
@@ -114,6 +141,12 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "spotId")]
         public string SpotId { get; set; }
+
+        [DataMember(Name = "commandId")]
+        public long CommandId { get; set; }
+
+        [DataMember(Name = "sentAtMs")]
+        public long SentAtMs { get; set; }
 
         public static IpcMessage Parse(string json)
         {

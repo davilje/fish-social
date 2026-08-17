@@ -39,6 +39,19 @@ namespace FishSocial.Desktop.Auth
     }
 
     [Serializable]
+    public sealed class LeaveSpotPayload
+    {
+        public string pondId;
+    }
+
+    [Serializable]
+    public sealed class LeavePondPayload
+    {
+        public string pondId;
+        public string reason;
+    }
+
+    [Serializable]
     public sealed class PondSnapshotDto
     {
         public PondConfigDto pond;
@@ -181,6 +194,50 @@ namespace FishSocial.Desktop.Auth
         public string quality;
         public float sizeM;
         public long caughtAt;
+    }
+
+    [Serializable]
+    public sealed class ShopBaitDto
+    {
+        public string id;
+        public string name;
+        public string icon;
+        public int price;
+        public float globalBonus;
+        public bool consumed;
+    }
+
+    [Serializable]
+    public sealed class ShopTackleDto
+    {
+        public string id;
+        public string name;
+        public string icon;
+        public int price;
+        public float escapeReduction;
+    }
+
+    [Serializable]
+    public sealed class ShopGearDto
+    {
+        public string equippedBait = "basic";
+        public string equippedTackle = "basic";
+        public string[] ownedTackles = new string[0];
+        public int basic;
+        public int corn;
+        public int pellet;
+        public int live;
+
+        public int BaitCount(string baitId)
+        {
+            switch (baitId)
+            {
+                case "corn": return corn;
+                case "pellet": return pellet;
+                case "live": return live;
+                default: return basic;
+            }
+        }
     }
 
     [Serializable]

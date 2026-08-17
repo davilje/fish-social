@@ -1,5 +1,18 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-08b-accepted] - 2026-08-18
+
+- `STEAM-DESKTOP-08B` 商店与装备用户验收通过，计划状态改为 **已实现**。
+- `PanelShop`、服务端商品/装备同步、购买/装备失败处理及主窗口/Overlay 菜单入口完成验收。
+- 新增鱼塘离席、退出鱼塘、点选钓位直接入座及跨鱼塘切换流程的后续优化分析。
+
+### [steam-desktop-08i-pond-exit-switch] - 2026-08-18
+
+- 新增 `STEAM-DESKTOP-08I`：鱼塘退出、离席、跨塘切换与 Overlay 反馈延迟优化。
+- 明确 `leave_spot`、`leave_pond`、收杆/领鱼/离席事务，以及世界地图跨塘切换的生命周期边界。
+- 明确 Overlay 点击钓位直接入座、底部新增离席/退出鱼塘按钮和 Named Pipe 命令优先级优化。
+- 登记计划表并生成开发交接提示词，状态为 **已确认**。
+
 ### [steam-desktop-08g-accepted] - 2026-08-17
 
 - `STEAM-DESKTOP-08G` 用户验收通过，计划状态改为 **已实现**。

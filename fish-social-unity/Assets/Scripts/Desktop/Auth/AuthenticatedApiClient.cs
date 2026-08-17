@@ -24,6 +24,12 @@ namespace FishSocial.Desktop.Auth
         IEnumerator SendDirectMessage(string toPlayerId, string fromNickname, string text, Action<bool, DirectMessageDto, string> onCompleted);
         IEnumerator SellFish(string fishId, Action<bool, int, int, FishInventoryItemDto[], string> onCompleted);
         IEnumerator ShareFish(string fishId, string nickname, Action<bool, string> onCompleted);
+        IEnumerator GetShopCatalog(Action<bool, ShopBaitDto[], ShopTackleDto[], string> onCompleted);
+        IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted);
+        IEnumerator BuyBait(string baitId, int quantity, Action<bool, ShopGearDto, int, string> onCompleted);
+        IEnumerator BuyTackle(string tackleId, Action<bool, ShopGearDto, int, string> onCompleted);
+        IEnumerator EquipBait(string baitId, Action<bool, ShopGearDto, string> onCompleted);
+        IEnumerator EquipTackle(string tackleId, Action<bool, ShopGearDto, string> onCompleted);
     }
 
     /// <summary>
@@ -245,6 +251,153 @@ namespace FishSocial.Desktop.Auth
                 (ok, _, message) => onCompleted?.Invoke(ok, ok ? "已分享到动态。" : message));
         }
 
+        public IEnumerator GetShopCatalog(
+            Action<bool, ShopBaitDto[], ShopTackleDto[], string> onCompleted)
+        {
+            ShopBaitDto[] baits = new ShopBaitDto[0];
+            ShopTackleDto[] tackles = new ShopTackleDto[0];
+            string error = null;
+            var ok = false;
+            yield return GetJson("/api/shop/baits", (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (success)
+                {
+                    var parsed = JsonUtility.FromJson<BaitCatalogResponse>(json);
+                    baits = parsed != null && parsed.baits != null
+                        ? parsed.baits : new ShopBaitDto[0];
+                }
+            });
+            if (ok)
+            {
+                yield return GetJson("/api/shop/tackle", (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                    {
+                        var parsed = JsonUtility.FromJson<TackleCatalogResponse>(json);
+                        tackles = parsed != null && parsed.tackles != null
+                            ? parsed.tackles : new ShopTackleDto[0];
+                    }
+                });
+            }
+            onCompleted?.Invoke(ok, baits, tackles, error);
+        }
+
+        public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
+        {
+            ShopGearDto gear = null;
+            var coins = 0;
+            string error = null;
+            var ok = false;
+            yield return GetJson(
+                "/api/player/gear?playerId=" + Uri.EscapeDataString(PlayerId ?? ""),
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (!success)
+                        return;
+                    var parsed = JsonUtility.FromJson<GearEnvelope>(json);
+                    gear = parsed != null ? parsed.gear : null;
+                    coins = parsed != null ? parsed.coins : 0;
+                    ParseBaitInventory(json, gear);
+                });
+            onCompleted?.Invoke(ok, gear ?? new ShopGearDto(), coins, error);
+        }
+
+        public IEnumerator BuyBait(
+            string baitId, int quantity,
+            Action<bool, ShopGearDto, int, string> onCompleted)
+        {
+            yield return ShopMutation(
+                "/api/shop/baits/buy",
+                JsonUtility.ToJson(new BuyBaitPayload
+                {
+                    playerId = PlayerId,
+                    baitId = baitId,
+                    quantity = quantity,
+                }),
+                onCompleted);
+        }
+
+        public IEnumerator BuyTackle(
+            string tackleId,
+            Action<bool, ShopGearDto, int, string> onCompleted)
+        {
+            yield return ShopMutation(
+                "/api/shop/tackle/buy",
+                JsonUtility.ToJson(new BuyTacklePayload
+                {
+                    playerId = PlayerId,
+                    tackleId = tackleId,
+                }),
+                onCompleted);
+        }
+
+        public IEnumerator EquipBait(
+            string baitId, Action<bool, ShopGearDto, string> onCompleted)
+        {
+            yield return EquipMutation(
+                "/api/player/equip/bait",
+                JsonUtility.ToJson(new EquipPayload { playerId = PlayerId, baitId = baitId }),
+                onCompleted);
+        }
+
+        public IEnumerator EquipTackle(
+            string tackleId, Action<bool, ShopGearDto, string> onCompleted)
+        {
+            yield return EquipMutation(
+                "/api/player/equip/tackle",
+                JsonUtility.ToJson(new EquipPayload { playerId = PlayerId, tackleId = tackleId }),
+                onCompleted);
+        }
+
+        IEnumerator ShopMutation(
+            string path, string body,
+            Action<bool, ShopGearDto, int, string> onCompleted)
+        {
+            ShopMutationResponse parsed = null;
+            string raw = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson(path, body, (success, json, message) =>
+            {
+                ok = success;
+                raw = json;
+                error = message;
+                if (success)
+                    parsed = JsonUtility.FromJson<ShopMutationResponse>(json);
+            }, Guid.NewGuid().ToString("N"));
+            var gear = parsed != null ? parsed.gear : null;
+            ParseBaitInventory(raw, gear);
+            onCompleted?.Invoke(ok, gear ?? new ShopGearDto(),
+                parsed != null ? parsed.coins : 0, error);
+        }
+
+        IEnumerator EquipMutation(
+            string path, string body,
+            Action<bool, ShopGearDto, string> onCompleted)
+        {
+            ShopGearResponse parsed = null;
+            string raw = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson(path, body, (success, json, message) =>
+            {
+                ok = success;
+                raw = json;
+                error = message;
+                if (success)
+                    parsed = JsonUtility.FromJson<ShopGearResponse>(json);
+            });
+            var gear = parsed != null ? parsed.gear : null;
+            ParseBaitInventory(raw, gear);
+            onCompleted?.Invoke(ok, gear ?? new ShopGearDto(), error);
+        }
+
         IEnumerator GetJson(string path, Action<bool, string, string> onCompleted)
         {
             if (!CanUse)
@@ -262,7 +415,9 @@ namespace FishSocial.Desktop.Auth
             }
         }
 
-        IEnumerator PostJson(string path, string body, Action<bool, string, string> onCompleted)
+        IEnumerator PostJson(
+            string path, string body, Action<bool, string, string> onCompleted,
+            string idempotencyKey = null)
         {
             if (!CanUse)
             {
@@ -277,6 +432,8 @@ namespace FishSocial.Desktop.Auth
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
                 request.SetRequestHeader("Authorization", "Bearer " + _auth.GetAccessTokenForRequest());
+                if (!string.IsNullOrEmpty(idempotencyKey))
+                    request.SetRequestHeader("X-Idempotency-Key", idempotencyKey);
                 yield return request.SendWebRequest();
                 Complete(request, onCompleted);
             }
@@ -319,6 +476,25 @@ namespace FishSocial.Desktop.Auth
             return "请求失败（HTTP " + request.responseCode + "）。";
         }
 
+        static void ParseBaitInventory(string json, ShopGearDto gear)
+        {
+            if (gear == null || string.IsNullOrEmpty(json))
+                return;
+            gear.basic = ExtractInt(json, "basic");
+            gear.corn = ExtractInt(json, "corn");
+            gear.pellet = ExtractInt(json, "pellet");
+            gear.live = ExtractInt(json, "live");
+        }
+
+        static int ExtractInt(string json, string key)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                json, "\"" + key + "\"\\s*:\\s*(-?\\d+)");
+            int value;
+            return match.Success && int.TryParse(match.Groups[1].Value, out value)
+                ? value : 0;
+        }
+
         [Serializable] sealed class InventoryItemsResponse { public FishInventoryItemDto[] items; }
         [Serializable] sealed class GearResponse { public int coins; }
         [Serializable] sealed class CodexResponse { public FishCodexEntryDto[] entries; }
@@ -333,6 +509,14 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class SendDmPayload { public string fromPlayerId; public string fromNickname; public string toPlayerId; public string text; }
         [Serializable] sealed class SellPayload { public string playerId; public string fishId; }
         [Serializable] sealed class SharePayload { public string playerId; public string nickname; public string fishId; }
+        [Serializable] sealed class BaitCatalogResponse { public ShopBaitDto[] baits; }
+        [Serializable] sealed class TackleCatalogResponse { public ShopTackleDto[] tackles; }
+        [Serializable] sealed class GearEnvelope { public ShopGearDto gear; public int coins; }
+        [Serializable] sealed class ShopMutationResponse { public ShopGearDto gear; public int coins; }
+        [Serializable] sealed class ShopGearResponse { public ShopGearDto gear; }
+        [Serializable] sealed class BuyBaitPayload { public string playerId; public string baitId; public int quantity; }
+        [Serializable] sealed class BuyTacklePayload { public string playerId; public string tackleId; }
+        [Serializable] sealed class EquipPayload { public string playerId; public string baitId; public string tackleId; }
         [Serializable] sealed class ApiErrorResponse { public string error; }
     }
 }

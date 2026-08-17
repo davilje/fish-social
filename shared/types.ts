@@ -346,7 +346,14 @@ export interface ClientToServerEvents {
       quotaDateKey?: string;
     }) => void,
   ) => void;
-  leave_pond: (payload: string | LeavePondPayload) => void;
+  leave_pond: (
+    payload: string | LeavePondPayload,
+    ack?: (result: { ok: boolean; error?: string }) => void,
+  ) => void;
+  leave_spot: (
+    payload: { pondId: string },
+    ack?: (result: { ok: boolean; error?: string }) => void,
+  ) => void;
   start_fishing: (payload: StartFishingPayload, ack?: (result: { ok: boolean; error?: string }) => void) => void;
   take_spot: (payload: TakeSpotPayload, ack?: (result: { ok: boolean; error?: string }) => void) => void;
   stop_fishing: (

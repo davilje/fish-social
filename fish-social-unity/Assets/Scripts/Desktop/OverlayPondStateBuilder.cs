@@ -43,6 +43,10 @@ namespace FishSocial.Desktop
                 actions.Add("stop_fishing");
             if (pond.HasPendingCatch)
                 actions.Add("accept_catch");
+            if (hasSpot && !pond.CanStopFishing)
+                actions.Add("leave_spot");
+            if (!pond.IsTransitioning)
+                actions.Add("exit_pond");
             return actions.ToArray();
         }
 

@@ -222,6 +222,20 @@ namespace FishSocial.Desktop
                 return;
             }
             SetStatus("正在进入 " + _selected.displayName + "…");
+            if (_pond.State == SocialSocketState.Connected)
+            {
+                _pond.SwitchPond(_selected.pondId, (ok, message) =>
+                {
+                    SetStatus(message);
+                    if (!ok)
+                        return;
+                    DesktopAppBootstrap.Instance?.StartNativeOverlay();
+                    WindowManager.Instance?.HideToTray();
+                    DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+                });
+                return;
+            }
+
             _pond.ConnectAndJoin(_selected.pondId, "Steam玩家");
             DesktopAppBootstrap.Instance?.StartNativeOverlay();
             WindowManager.Instance?.HideToTray();

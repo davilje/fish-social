@@ -4,6 +4,7 @@ namespace FishSocial.Desktop
     {
         CurrentPond,
         WorldMap,
+        Shop,
         Friends,
         CatchBag,
         Gallery,
@@ -21,6 +22,7 @@ namespace FishSocial.Desktop
     {
         public const string Pond = "menu_pond";
         public const string Map = "menu_map";
+        public const string Shop = "menu_shop";
         public const string Friends = "menu_friends";
         public const string CatchBag = "menu_catch";
         public const string Gallery = "menu_gallery";
@@ -37,6 +39,9 @@ namespace FishSocial.Desktop
                     return true;
                 case Map:
                     action = DesktopProductMenuAction.WorldMap;
+                    return true;
+                case Shop:
+                    action = DesktopProductMenuAction.Shop;
                     return true;
                 case Friends:
                     action = DesktopProductMenuAction.Friends;

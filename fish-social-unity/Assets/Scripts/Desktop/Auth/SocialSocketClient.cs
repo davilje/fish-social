@@ -29,6 +29,8 @@ namespace FishSocial.Desktop.Auth
         void Connect(string accessToken, Action<bool, string> onCompleted);
         void RegisterPlayer(string playerId);
         void JoinPond(JoinPondPayload payload, Action<bool, string> onCompleted);
+        void LeaveSpot(string pondId, Action<bool, string> onCompleted);
+        void LeavePond(string pondId, string reason, Action<bool, string> onCompleted);
         void TakeSpot(TakeSpotPayload payload, Action<bool, string> onCompleted);
         void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted);
         void StopFishing(string pondId, Action<bool, string> onCompleted);
@@ -48,6 +50,8 @@ namespace FishSocial.Desktop.Auth
         const int AckTimeoutMs = 10000;
         readonly string _baseUrl;
         readonly ConcurrentQueue<Action> _mainThread = new ConcurrentQueue<Action>();
+        readonly ConcurrentQueue<Action> _priorityMainThread =
+            new ConcurrentQueue<Action>();
         readonly Dictionary<int, Action<bool, string>> _pendingAcks =
             new Dictionary<int, Action<bool, string>>();
         readonly object _ackLock = new object();
@@ -113,6 +117,26 @@ namespace FishSocial.Desktop.Auth
             SendEventWithAck("join_pond", JsonUtility.ToJson(payload), onCompleted);
         }
 
+        public void LeaveSpot(string pondId, Action<bool, string> onCompleted)
+        {
+            SendEventWithAck(
+                "leave_spot",
+                JsonUtility.ToJson(new LeaveSpotPayload { pondId = pondId }),
+                onCompleted);
+        }
+
+        public void LeavePond(string pondId, string reason, Action<bool, string> onCompleted)
+        {
+            SendEventWithAck(
+                "leave_pond",
+                JsonUtility.ToJson(new LeavePondPayload
+                {
+                    pondId = pondId,
+                    reason = reason,
+                }),
+                onCompleted);
+        }
+
         public void TakeSpot(TakeSpotPayload payload, Action<bool, string> onCompleted)
         {
             SendEventWithAck("take_spot", JsonUtility.ToJson(payload), onCompleted);
@@ -158,8 +182,21 @@ namespace FishSocial.Desktop.Auth
 
         public void Pump()
         {
+            // ACKs and connection state must not wait behind a burst of pond
+            // snapshots/user updates. Overlay commands are interactive and
+            // should be acknowledged on the next available Unity frame.
+            while (_priorityMainThread.TryDequeue(out var priorityAction))
+                priorityAction?.Invoke();
+
+            // Bound normal event work so a busy pond cannot monopolize the
+            // Unity main thread and make the overlay controls feel laggy.
+            var processed = 0;
             while (_mainThread.TryDequeue(out var action))
+            {
                 action?.Invoke();
+                if (++processed >= 64)
+                    break;
+            }
         }
 
         async Task ConnectLoop(Action<bool, string> onCompleted, CancellationToken token)
@@ -211,13 +248,25 @@ namespace FishSocial.Desktop.Auth
                 if (result.MessageType == WebSocketMessageType.Close)
                     break;
 
-                var packet = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                var message = new StringBuilder();
+                message.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
+                while (!result.EndOfMessage)
+                {
+                    result = await _socket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+                    message.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
+                }
+                var packet = message.ToString();
                 if (packet == "2")
                 {
                     await SendRaw("3", token);
                     continue;
                 }
-                Enqueue(() => HandlePacket(packet, onCompleted));
+                if (packet.StartsWith("40", StringComparison.Ordinal) ||
+                    packet.StartsWith("43", StringComparison.Ordinal) ||
+                    packet.StartsWith("44", StringComparison.Ordinal))
+                    EnqueuePriority(() => HandlePacket(packet, onCompleted));
+                else
+                    Enqueue(() => HandlePacket(packet, onCompleted));
             }
         }
 
@@ -313,6 +362,10 @@ namespace FishSocial.Desktop.Auth
             var result = string.IsNullOrEmpty(payload) || payload == "null"
                 ? new SocketActionAckDto { ok = true }
                 : JsonUtility.FromJson<SocketActionAckDto>(payload);
+            Debug.Log(
+                "[Latency][Socket] ack_received id=" + id +
+                " ok=" + result.ok +
+                " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             ack(result.ok, result.ok ? "操作成功。" : result.error);
         }
 
@@ -325,6 +378,10 @@ namespace FishSocial.Desktop.Auth
             }
             var id = Interlocked.Increment(ref _nextAckId);
             lock (_ackLock) _pendingAcks[id] = onCompleted;
+            Debug.Log(
+                "[Latency][Socket] event_sent id=" + id +
+                " event=" + name +
+                " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             SendEvent(name, payload, id);
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -338,7 +395,11 @@ namespace FishSocial.Desktop.Auth
 
                 if (callback != null)
                 {
-                    Enqueue(() => callback(false,
+                    Debug.LogWarning(
+                        "[Latency][Socket] ack_timeout id=" + id +
+                        " event=" + name +
+                        " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+                    EnqueuePriority(() => callback(false,
                         "服务器未返回 " + name + " 操作结果，请检查服务端日志。"));
                 }
             });
@@ -388,6 +449,8 @@ namespace FishSocial.Desktop.Auth
         }
 
         void Enqueue(Action action) => _mainThread.Enqueue(action);
+
+        void EnqueuePriority(Action action) => _priorityMainThread.Enqueue(action);
 
         Action<bool, string> TakeAck(int id)
         {
@@ -496,6 +559,10 @@ namespace FishSocial.Desktop.Auth
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void RegisterPlayer(string playerId) { }
         public void JoinPond(JoinPondPayload payload, Action<bool, string> onCompleted)
+            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+        public void LeaveSpot(string pondId, Action<bool, string> onCompleted)
+            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+        public void LeavePond(string pondId, string reason, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void TakeSpot(TakeSpotPayload payload, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");

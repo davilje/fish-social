@@ -9,6 +9,59 @@ namespace FishSocial.Desktop.Editor
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs";
 
+        [MenuItem("Fish Social/Create PanelShop Prefab")]
+        public static void GeneratePanelShopPrefab()
+        {
+            const string outputName = "PanelShop";
+            var path = Folder + "/" + outputName + ".prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+            {
+                EditorUtility.DisplayDialog(
+                    "PanelShop",
+                    "PanelShop.prefab 已存在，未覆盖手动布局。",
+                    "确定");
+                return;
+            }
+
+            var root = new GameObject(
+                outputName,
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(DesktopShopPanel));
+            Stretch(root.GetComponent<RectTransform>());
+            root.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+            var errors = string.Empty;
+            var created = SaveGeneratedPrefab(root, outputName, ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            EditorUtility.DisplayDialog(
+                "PanelShop",
+                created == 1
+                    ? "已创建 PanelShop.prefab。运行时只绑定服务端商店数据，不覆盖 Prefab 布局。"
+                    : "创建失败：" + errors,
+                "确定");
+        }
+
+        [MenuItem("Fish Social/Populate PanelShop Responsive Layout")]
+        public static void PopulatePanelShopPrefab()
+        {
+            const string path = Folder + "/PanelShop.prefab";
+            var root = PrefabUtility.LoadPrefabContents(path);
+            if (root == null)
+            {
+                Debug.LogError("[DesktopUI] PanelShop.prefab 不存在，请先创建。");
+                return;
+            }
+
+            var panel = root.GetComponent<DesktopShopPanel>();
+            if (panel != null)
+                panel.BuildEditorLayout();
+            PrefabUtility.SaveAsPrefabAsset(root, path);
+            PrefabUtility.UnloadPrefabContents(root);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
         static void Generate()
         {
             var generated = 0;
@@ -77,6 +130,7 @@ namespace FishSocial.Desktop.Editor
                 new PrefabEntry("PanelGallery", typeof(DesktopGalleryModalView)),
                 new PrefabEntry("PanelSettings", typeof(DesktopSettingsModalView)),
                 new PrefabEntry("PanelWorldMap", typeof(DesktopWorldMapPanel)),
+                new PrefabEntry("PanelShop", typeof(DesktopShopPanel)),
             };
 
             var errors = string.Empty;

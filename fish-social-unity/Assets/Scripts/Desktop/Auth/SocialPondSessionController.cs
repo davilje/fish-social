@@ -19,6 +19,8 @@ namespace FishSocial.Desktop.Auth
         PendingFishCatchDto _latestCatch;
         string _nickname;
         bool _joinRequested;
+        bool _transitionBusy;
+        bool _switchingPond;
 
         public SocialSocketState State => _socket?.State ?? SocialSocketState.Disconnected;
         public PondSnapshotDto LatestSnapshot { get; private set; }
@@ -36,6 +38,8 @@ namespace FishSocial.Desktop.Auth
             CurrentPhase == "baiting" || CurrentPhase == "casting" ||
             CurrentPhase == "waiting" || CurrentPhase == "hooked" ||
             CurrentPhase == "resolving";
+        public bool IsTransitioning => _transitionBusy;
+        public bool HasSpot => CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.spotId);
         public string FirstSpotId =>
             LatestSnapshot?.pond?.spots != null && LatestSnapshot.pond.spots.Length > 0
                 ? LatestSnapshot.pond.spots[0].id
@@ -85,6 +89,11 @@ namespace FishSocial.Desktop.Auth
         public void ConnectAndJoin(string pondId = DefaultPondId, string nickname = "Steam玩家")
         {
             Debug.Log("[Pond] ConnectAndJoin requested. pondId=" + pondId);
+            if (_transitionBusy)
+            {
+                ErrorReceived?.Invoke("鱼塘操作正在进行，请稍候。");
+                return;
+            }
             if (_auth == null || !_auth.IsAuthenticated)
             {
                 Debug.LogWarning("[Pond] ConnectAndJoin rejected: Steam session is not authenticated.");
@@ -92,7 +101,14 @@ namespace FishSocial.Desktop.Auth
                 return;
             }
 
-            CurrentPondId = string.IsNullOrWhiteSpace(pondId) ? DefaultPondId : pondId;
+            pondId = string.IsNullOrWhiteSpace(pondId) ? DefaultPondId : pondId;
+            if (_socket != null && _socket.IsConnected &&
+                !string.Equals(CurrentPondId, pondId, StringComparison.Ordinal))
+            {
+                SwitchPond(pondId);
+                return;
+            }
+            CurrentPondId = pondId;
             _nickname = string.IsNullOrWhiteSpace(nickname) ? "Steam玩家" : nickname;
             _joinRequested = true;
             var token = _auth.GetAccessTokenForSession();
@@ -157,7 +173,178 @@ namespace FishSocial.Desktop.Auth
                     onCompleted?.Invoke(false, "当前没有待领取的鱼获。");
                 return;
             }
-            _socket?.AcceptCatch(_latestCatch.catchId, onCompleted);
+            _socket?.AcceptCatch(_latestCatch.catchId, (ok, message) =>
+            {
+                if (ok)
+                    _latestCatch = null;
+                onCompleted?.Invoke(ok, message);
+            });
+        }
+
+        public void LeaveSpot(Action<bool, string> onCompleted = null)
+        {
+            if (!HasSpot)
+            {
+                onCompleted?.Invoke(true, "当前没有占用钓位。");
+                return;
+            }
+            _socket?.LeaveSpot(CurrentPondId, onCompleted);
+        }
+
+        public void ExitPond(Action<bool, string> onCompleted = null)
+        {
+            if (_transitionBusy)
+            {
+                onCompleted?.Invoke(false, "鱼塘操作正在进行，请稍候。");
+                return;
+            }
+            _transitionBusy = true;
+            _switchingPond = false;
+            ExitPondStopFishing(onCompleted);
+        }
+
+        void ExitPondStopFishing(Action<bool, string> onCompleted)
+        {
+            if (!CanStopFishing)
+            {
+                ExitPondAcceptCatch(onCompleted);
+                return;
+            }
+            StopFishing((ok, message) =>
+            {
+                if (!ok)
+                {
+                    FinishTransition(false, message, onCompleted);
+                    return;
+                }
+                ExitPondAcceptCatch(onCompleted);
+            });
+        }
+
+        void ExitPondAcceptCatch(Action<bool, string> onCompleted)
+        {
+            if (!HasPendingCatch)
+            {
+                ExitPondLeaveSpot(onCompleted);
+                return;
+            }
+            AcceptLatestCatch((ok, message) =>
+            {
+                if (!ok)
+                {
+                    FinishTransition(false, message, onCompleted);
+                    return;
+                }
+                ExitPondLeaveSpot(onCompleted);
+            });
+        }
+
+        void ExitPondLeaveSpot(Action<bool, string> onCompleted)
+        {
+            LeaveSpot((ok, message) =>
+            {
+                if (!ok)
+                {
+                    FinishTransition(false, message, onCompleted);
+                    return;
+                }
+                if (_socket == null || !_socket.IsConnected)
+                {
+                    ClearLocalPondState();
+                    FinishTransition(true, "已退出鱼塘。", onCompleted);
+                    return;
+                }
+                _socket.LeavePond(CurrentPondId, "user_explicit", (left, leaveMessage) =>
+                {
+                    if (!left)
+                    {
+                        FinishTransition(false, leaveMessage, onCompleted);
+                        return;
+                    }
+                    _joinRequested = _switchingPond;
+                    if (!_switchingPond)
+                        _socket.Disconnect();
+                    ClearLocalPondState();
+                    FinishTransition(true, "已退出鱼塘。", onCompleted);
+                });
+            });
+        }
+
+        public void SwitchPond(string pondId, Action<bool, string> onCompleted = null)
+        {
+            if (string.IsNullOrWhiteSpace(pondId))
+            {
+                onCompleted?.Invoke(false, "目标鱼塘无效。");
+                return;
+            }
+            if (_transitionBusy)
+            {
+                onCompleted?.Invoke(false, "鱼塘切换正在进行，请稍候。");
+                return;
+            }
+            if (string.Equals(CurrentPondId, pondId, StringComparison.Ordinal) &&
+                _socket != null && _socket.IsConnected)
+            {
+                onCompleted?.Invoke(true, "已在目标鱼塘。");
+                return;
+            }
+
+            _transitionBusy = true;
+            _switchingPond = true;
+            ExitPondStopFishing((ok, message) =>
+            {
+                if (!ok)
+                {
+                    FinishTransition(false, message, onCompleted);
+                    return;
+                }
+                JoinTargetPond(pondId, onCompleted);
+            });
+        }
+
+        void JoinTargetPond(string pondId, Action<bool, string> onCompleted)
+        {
+            CurrentPondId = pondId;
+            _joinRequested = true;
+            if (_socket == null || !_socket.IsConnected)
+            {
+                FinishTransition(false, "实时服务已断开，请重新进入鱼塘。", onCompleted);
+                return;
+            }
+            _socket.RegisterPlayer(_auth.AuthenticatedPlayerId);
+            _socket.JoinPond(new JoinPondPayload
+            {
+                pondId = CurrentPondId,
+                nickname = Nickname,
+                playerId = _auth.AuthenticatedPlayerId,
+            }, (ok, message) =>
+            {
+                if (!ok)
+                {
+                    FinishTransition(false, message, onCompleted);
+                    return;
+                }
+                FinishTransition(true, "已进入新鱼塘。", onCompleted);
+            });
+        }
+
+        void FinishTransition(bool ok, string message, Action<bool, string> onCompleted)
+        {
+            _transitionBusy = false;
+            if (!ok)
+                _switchingPond = false;
+            onCompleted?.Invoke(ok, message);
+        }
+
+        void ClearLocalPondState()
+        {
+            LatestSnapshot = null;
+            CurrentUser = null;
+            CurrentInventory = new FishInventoryItemDto[0];
+            _latestCatch = null;
+            _users.Clear();
+            _messages.Clear();
+            UsersChanged?.Invoke();
         }
 
         public void SendChat(string text, Action<bool, string> onCompleted = null)

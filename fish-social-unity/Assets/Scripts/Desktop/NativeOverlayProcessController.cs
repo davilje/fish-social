@@ -80,7 +80,17 @@ namespace FishSocial.Desktop
                     SendLatestState();
                 }
                 else if (message.type == "command" && !string.IsNullOrEmpty(message.command))
+                {
+                    var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    UnityEngine.Debug.Log(
+                        "[Latency][Unity] overlay_command_received id=" +
+                        message.commandId +
+                        " command=" + message.command +
+                        " ipcMs=" + (message.sentAtMs > 0
+                            ? nowMs - message.sentAtMs : -1) +
+                        " atMs=" + nowMs);
                     CommandReceived?.Invoke(message);
+                }
             }
         }
 
@@ -299,6 +309,10 @@ namespace FishSocial.Desktop
             }
             _latestState = state;
             _latestState.sequence++;
+            UnityEngine.Debug.Log(
+                "[Latency][Unity] overlay_state_queued sequence=" +
+                _latestState.sequence +
+                " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             SendLatestState();
         }
 
@@ -346,7 +360,9 @@ namespace FishSocial.Desktop
         {
             while (!_stopping)
             {
-                _writeSignal.WaitOne(250);
+                // Commands and the latest coalesced state wake the writer
+                // immediately; a timed wait added a fixed 250ms tail latency.
+                _writeSignal.WaitOne();
                 while (!_stopping)
                 {
                     string message = null;

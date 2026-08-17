@@ -137,6 +137,56 @@ export function leavePond(socketId: string): PondUser | null {
   return user ?? null;
 }
 
+export function leaveSpot(
+  socketId: string,
+  pondId: string,
+): { ok: true; user: PondUser } | { ok: false; error: string } {
+  const session = sessions.get(socketId);
+  if (!session || session.pondId !== pondId) {
+    return { ok: false, error: '请先加入鱼塘' };
+  }
+
+  const user = ensurePondUsers(pondId).get(session.userId);
+  if (!user) return { ok: false, error: '用户不存在' };
+  if (!user.spotId) return { ok: true, user };
+
+  const phase = user.fishingPhase ?? 'idle';
+  if ((isFishingActive(phase) &&
+       phase !== 'stopping' &&
+       phase !== 'resolving') ||
+      user.status === 'fishing') {
+    return { ok: false, error: '请先收杆再离席' };
+  }
+  if (phase !== 'seated' && phase !== 'stopping' && phase !== 'resolving') {
+    return { ok: false, error: '当前不在可离席状态' };
+  }
+
+  const spotId = user.spotId;
+  cancelByUser(session.userId);
+  if (phase === 'stopping' || phase === 'resolving')
+    settleFishingSession(user, Date.now(), 'leave_spot', { mode: 'finalize' });
+  user.spotId = null;
+  user.status = 'idle';
+  user.fishingPhase = 'idle';
+  user.fishingStartedAt = null;
+  user.sessionStartedAt = null;
+  user.phaseEndsAt = null;
+  user.phaseContext = { isRebait: false };
+  upsertPlayerPondSession(user, pondId);
+  recordFishingMetric('spot_release', {
+    playerId: session.playerId,
+    pondId,
+    payload: {
+      userId: user.id,
+      spotId,
+      fishingPhase: user.fishingPhase,
+      reason: 'leave_spot',
+      eventId: `spot_release:${user.id}:${spotId}:leave_spot`,
+    },
+  });
+  return { ok: true, user };
+}
+
 export function startFishing(
   socketId: string,
   pondId: string,
@@ -186,9 +236,10 @@ export function startFishing(
 
   ensureFishingDayRollover(user);
   const now = Date.now();
+  const currentStatus = user.status as string;
   const todayMs =
     getTodayFishingMs(session.playerId) +
-    (user.status === 'fishing' && user.fishingStartedAt
+    (currentStatus === 'fishing' && user.fishingStartedAt
       ? safeFishingElapsedMs(user.fishingStartedAt, now)
       : 0);
   if (todayMs >= MAX_DAILY_FISHING_MS) {

@@ -15,6 +15,7 @@ import {
   getPondUser,
   joinPond,
   leavePond,
+  leaveSpot,
   postAnnouncement,
   reconnectSession,
   removeDisconnectedUser,
@@ -334,7 +335,7 @@ export function registerSocketPondHandlers(
     });
   });
 
-  socket.on('leave_pond', (raw) => {
+  socket.on('leave_pond', (raw, ack) => {
     const { pondId, reason } = parseLeavePondPayload(raw);
     const session = getSession(socket.id);
     const user = leavePond(socket.id);
@@ -373,6 +374,18 @@ export function registerSocketPondHandlers(
       });
     }
     if (session) cancelByUser(session.userId);
+    ack?.({ ok: true });
+  });
+
+  socket.on('leave_spot', (payload, ack) => {
+    if (rejectIfRateLimited('leave_spot', ack)) return;
+    const result = leaveSpot(socket.id, payload.pondId);
+    if (!result.ok) {
+      ack?.({ ok: false, error: result.error });
+      return;
+    }
+    io.to(payload.pondId).emit('pond_user_updated', enrichPondUser(result.user));
+    ack?.({ ok: true });
   });
 
   socket.on('start_fishing', (payload, ack) => {

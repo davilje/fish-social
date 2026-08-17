@@ -21,6 +21,7 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("PanelGallery", "图鉴物种网格页面骨架。", typeof(DesktopGalleryModalView)),
             new PrefabDefinition("PanelSettings", "桌面端设置页面。", typeof(DesktopSettingsModalView)),
             new PrefabDefinition("PanelWorldMap", "世界地图大图、标记层和鱼塘详情区域。", typeof(DesktopWorldMapPanel)),
+            new PrefabDefinition("PanelShop", "鱼饵/渔具页签、商品卡片、金币和购买/装备操作。", typeof(DesktopShopPanel)),
             new PrefabDefinition("FriendRow", "好友列表中的单个好友行，包含私聊和移除按钮。", null),
             new PrefabDefinition("FriendRequestRow", "好友申请行，包含接受和拒绝按钮。", null),
             new PrefabDefinition("SteamInviteRow", "Steam 好友邀请行，包含邀请进塘按钮。", null),
