@@ -40,35 +40,35 @@ const insertPostStmt = db.prepare(`
 const getPostStmt = db.prepare(`SELECT * FROM social_posts WHERE id = ?`);
 const listWallStmt = db.prepare(`
   SELECT * FROM social_posts WHERE visibility = 'public'
-  ORDER BY created_at DESC LIMIT ${MAX_POSTS}
+  ORDER BY created_at DESC LIMIT ? OFFSET ?
 `);
 const listWallByLikesStmt = db.prepare(`
   SELECT * FROM social_posts WHERE visibility = 'public'
-  ORDER BY like_count DESC, created_at DESC LIMIT ${MAX_POSTS}
+  ORDER BY like_count DESC, created_at DESC LIMIT ? OFFSET ?
 `);
 const listFriendsFeedStmt = db.prepare(`
   SELECT p.* FROM social_posts p
-  WHERE p.player_id = @viewer
+  WHERE p.player_id = ?
      OR (
        EXISTS (
          SELECT 1 FROM friend_links f
-         WHERE f.player_id = @viewer AND f.friend_id = p.player_id
+         WHERE f.player_id = ? AND f.friend_id = p.player_id
        )
        AND p.visibility IN ('public', 'friends')
      )
-  ORDER BY p.created_at DESC LIMIT ${MAX_POSTS}
+  ORDER BY p.created_at DESC LIMIT ? OFFSET ?
 `);
 const listFriendsFeedByLikesStmt = db.prepare(`
   SELECT p.* FROM social_posts p
-  WHERE p.player_id = @viewer
+  WHERE p.player_id = ?
      OR (
        EXISTS (
          SELECT 1 FROM friend_links f
-         WHERE f.player_id = @viewer AND f.friend_id = p.player_id
+         WHERE f.player_id = ? AND f.friend_id = p.player_id
        )
        AND p.visibility IN ('public', 'friends')
      )
-  ORDER BY p.like_count DESC, p.created_at DESC LIMIT ${MAX_POSTS}
+  ORDER BY p.like_count DESC, p.created_at DESC LIMIT ? OFFSET ?
 `);
 const listPlayerPostsStmt = db.prepare(`
   SELECT * FROM social_posts WHERE player_id = ?
@@ -232,9 +232,15 @@ export function createPost(
 export function getWallPosts(
   viewerId?: string | null,
   sort: 'time' | 'likes' = 'time',
+  limit = 50,
+  offset = 0,
 ): SocialPost[] {
+  const safeLimit = Math.min(Math.max(1, limit), 50);
+  const safeOffset = Math.max(0, offset);
   const rows = (
-    sort === 'likes' ? listWallByLikesStmt.all() : listWallStmt.all()
+    sort === 'likes'
+      ? listWallByLikesStmt.all(safeLimit, safeOffset)
+      : listWallStmt.all(safeLimit, safeOffset)
   ) as PostRow[];
   return enrichPostsWithLikes(rows.map(rowToPost), viewerId);
 }
@@ -242,10 +248,14 @@ export function getWallPosts(
 export function getFriendsPosts(
   viewerPlayerId: string,
   sort: 'time' | 'likes' = 'time',
+  limit = 50,
+  offset = 0,
 ): SocialPost[] {
   const stmt = sort === 'likes' ? listFriendsFeedByLikesStmt : listFriendsFeedStmt;
+  const safeLimit = Math.min(Math.max(1, limit), 50);
+  const safeOffset = Math.max(0, offset);
   return enrichPostsWithLikes(
-    (stmt.all({ viewer: viewerPlayerId }) as PostRow[]).map(rowToPost),
+    (stmt.all(viewerPlayerId, viewerPlayerId, safeLimit, safeOffset) as PostRow[]).map(rowToPost),
     viewerPlayerId,
   );
 }

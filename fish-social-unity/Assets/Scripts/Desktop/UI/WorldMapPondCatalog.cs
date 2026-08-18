@@ -18,7 +18,7 @@ namespace FishSocial.Desktop
     [Serializable]
     sealed class WorldMapPondCatalogDocument
     {
-        public WorldMapPondDefinition[] ponds;
+        public WorldMapPondDefinition[] ponds = null;
     }
 
     public static class WorldMapPondCatalog

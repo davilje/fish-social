@@ -24,6 +24,9 @@ namespace FishSocial.Desktop.Auth
         event Action<CodexUnlockDto> CodexUnlocked;
         event Action<FriendRequestDto> FriendRequestReceived;
         event Action<DirectMessageDto> DmMessageReceived;
+        event Action<PostLikedDto> PostLikedReceived;
+        event Action<PostCommentedDto> PostCommentedReceived;
+        event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
         event Action<string> ErrorReceived;
 
         void Connect(string accessToken, Action<bool, string> onCompleted);
@@ -75,6 +78,9 @@ namespace FishSocial.Desktop.Auth
         public event Action<CodexUnlockDto> CodexUnlocked;
         public event Action<FriendRequestDto> FriendRequestReceived;
         public event Action<DirectMessageDto> DmMessageReceived;
+        public event Action<PostLikedDto> PostLikedReceived;
+        public event Action<PostCommentedDto> PostCommentedReceived;
+        public event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
         public event Action<string> ErrorReceived;
 
         public SocketIoSocialSocketClient(string baseUrl)
@@ -338,6 +344,12 @@ namespace FishSocial.Desktop.Auth
                 FriendRequestReceived?.Invoke(JsonUtility.FromJson<FriendRequestDto>(payload));
             else if (eventName == "dm_message")
                 DmMessageReceived?.Invoke(JsonUtility.FromJson<DirectMessageDto>(payload));
+            else if (eventName == "post_liked")
+                PostLikedReceived?.Invoke(JsonUtility.FromJson<PostLikedDto>(payload));
+            else if (eventName == "post_commented")
+                PostCommentedReceived?.Invoke(JsonUtility.FromJson<PostCommentedDto>(payload));
+            else if (eventName == "post_comment_deleted")
+                PostCommentDeletedReceived?.Invoke(JsonUtility.FromJson<PostCommentDeletedDto>(payload));
             else if (eventName == "error")
                 ErrorReceived?.Invoke(Unquote(payload));
         }
@@ -529,12 +541,14 @@ namespace FishSocial.Desktop.Auth
             return true;
         }
 
+        #pragma warning disable 0649
         [Serializable]
         sealed class SocketAuthPayload { public string token; }
         [Serializable]
         sealed class StringValue { public string value; }
         [Serializable]
         sealed class InventoryWrapper { public FishInventoryItemDto[] items; }
+        #pragma warning restore 0649
     }
 
     #pragma warning disable 0067
@@ -553,6 +567,9 @@ namespace FishSocial.Desktop.Auth
         public event Action<CodexUnlockDto> CodexUnlocked;
         public event Action<FriendRequestDto> FriendRequestReceived;
         public event Action<DirectMessageDto> DmMessageReceived;
+        public event Action<PostLikedDto> PostLikedReceived;
+        public event Action<PostCommentedDto> PostCommentedReceived;
+        public event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
         public event Action<string> ErrorReceived;
 
         public void Connect(string accessToken, Action<bool, string> onCompleted)

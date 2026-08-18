@@ -309,6 +309,16 @@ namespace FishSocialOverlay
             SendCommand("menu_gallery");
         }
 
+        void MenuProfile_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_profile");
+        }
+
+        void MenuFeed_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_feed");
+        }
+
         void MenuSettings_OnClick(object sender, RoutedEventArgs e)
         {
             SendCommand("menu_settings");
@@ -401,9 +411,11 @@ namespace FishSocialOverlay
             return command == "open_main" ||
                    command == "menu_pond" ||
                    command == "menu_map" ||
+                   command == "menu_shop" ||
                    command == "menu_friends" ||
                    command == "menu_catch" ||
                    command == "menu_gallery" ||
+                   command == "menu_profile" ||
                    command == "menu_settings";
         }
 

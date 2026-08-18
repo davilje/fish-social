@@ -54,6 +54,9 @@ namespace FishSocial.Desktop.Auth
         public event Action<CodexUnlockDto> CodexUnlocked;
         public event Action<FriendRequestDto> FriendRequestReceived;
         public event Action<DirectMessageDto> DmMessageReceived;
+        public event Action<PostLikedDto> PostLikedReceived;
+        public event Action<PostCommentedDto> PostCommentedReceived;
+        public event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
         public event Action<string> ErrorReceived;
         public string Nickname => string.IsNullOrWhiteSpace(_nickname) ? "Steam玩家" : _nickname;
         public ChatMessageDto[] PondMessages => _messages.ToArray();
@@ -78,6 +81,9 @@ namespace FishSocial.Desktop.Auth
             _socket.CodexUnlocked += OnCodexUnlocked;
             _socket.FriendRequestReceived += OnFriendRequest;
             _socket.DmMessageReceived += OnDirectMessage;
+            _socket.PostLikedReceived += OnPostLiked;
+            _socket.PostCommentedReceived += OnPostCommented;
+            _socket.PostCommentDeletedReceived += OnPostCommentDeleted;
             _socket.ErrorReceived += OnError;
         }
 
@@ -86,7 +92,13 @@ namespace FishSocial.Desktop.Auth
             _socket?.Pump();
         }
 
-        public void ConnectAndJoin(string pondId = DefaultPondId, string nickname = "Steam玩家")
+        public void ApplyGameNickname(string nickname)
+        {
+            if (!string.IsNullOrWhiteSpace(nickname))
+                _nickname = nickname.Trim();
+        }
+
+        public void ConnectAndJoin(string pondId = DefaultPondId, string nickname = null)
         {
             Debug.Log("[Pond] ConnectAndJoin requested. pondId=" + pondId);
             if (_transitionBusy)
@@ -109,7 +121,10 @@ namespace FishSocial.Desktop.Auth
                 return;
             }
             CurrentPondId = pondId;
-            _nickname = string.IsNullOrWhiteSpace(nickname) ? "Steam玩家" : nickname;
+            if (!string.IsNullOrWhiteSpace(nickname))
+                ApplyGameNickname(nickname);
+            if (string.IsNullOrWhiteSpace(_nickname))
+                _nickname = "Steam玩家";
             _joinRequested = true;
             var token = _auth.GetAccessTokenForSession();
             Debug.Log("[Pond] Starting Socket.IO connection.");
@@ -489,6 +504,21 @@ namespace FishSocial.Desktop.Auth
             DmMessageReceived?.Invoke(message);
         }
 
+        void OnPostLiked(PostLikedDto message)
+        {
+            PostLikedReceived?.Invoke(message);
+        }
+
+        void OnPostCommented(PostCommentedDto message)
+        {
+            PostCommentedReceived?.Invoke(message);
+        }
+
+        void OnPostCommentDeleted(PostCommentDeletedDto message)
+        {
+            PostCommentDeletedReceived?.Invoke(message);
+        }
+
         void OnError(string message)
         {
             ErrorReceived?.Invoke(message);
@@ -513,6 +543,9 @@ namespace FishSocial.Desktop.Auth
             _socket.CodexUnlocked -= OnCodexUnlocked;
             _socket.FriendRequestReceived -= OnFriendRequest;
             _socket.DmMessageReceived -= OnDirectMessage;
+            _socket.PostLikedReceived -= OnPostLiked;
+            _socket.PostCommentedReceived -= OnPostCommented;
+            _socket.PostCommentDeletedReceived -= OnPostCommentDeleted;
             _socket.ErrorReceived -= OnError;
             _socket.Disconnect();
             Debug.Log("[Shutdown] SocialPondSessionController.OnDestroy complete.");

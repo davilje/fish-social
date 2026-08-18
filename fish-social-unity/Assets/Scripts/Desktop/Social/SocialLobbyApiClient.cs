@@ -6,6 +6,7 @@ using FishSocial.Desktop.Auth;
 
 namespace FishSocial.Desktop.Social
 {
+    #pragma warning disable 0649
     [Serializable]
     public sealed class SocialLobbyDto
     {
@@ -101,9 +102,12 @@ namespace FishSocial.Desktop.Social
                 yield return request.SendWebRequest();
                 if (IsSuccess(request))
                 {
-                    var response = JsonUtility.FromJson<SocialLobbyInviteResponse>(
-                        request.downloadHandler.text);
-                    completed?.Invoke(true, response.inviteToken);
+                    SocialLobbyInviteResponse response;
+                    string error;
+                    var ok = TryParseResponse(
+                        request.downloadHandler == null ? null : request.downloadHandler.text,
+                        out response, out error, "inviteToken");
+                    completed?.Invoke(ok, ok ? response.inviteToken : error);
                 }
                 else
                     completed?.Invoke(false, ReadError(request));
@@ -155,8 +159,22 @@ namespace FishSocial.Desktop.Social
                 yield return request.SendWebRequest();
                 if (IsSuccess(request))
                 {
-                    var response = JsonUtility.FromJson<SocialLobbyResponse>(request.downloadHandler.text);
-                    completed?.Invoke(true, response?.lobby, "Lobby 权限校验通过。");
+                    SocialLobbyResponse response;
+                    string error;
+                    var ok = TryParseResponse(
+                        request.downloadHandler == null ? null : request.downloadHandler.text,
+                        out response, out error, "lobby");
+                    if (ok && response.lobby != null &&
+                        !string.IsNullOrEmpty(response.lobby.lobbyId) &&
+                        !string.IsNullOrEmpty(response.lobby.pondId))
+                    {
+                        completed?.Invoke(true, response.lobby, "Lobby 权限校验通过。");
+                    }
+                    else
+                    {
+                        completed?.Invoke(false, null,
+                            ok ? "服务端 Lobby 响应缺少 lobbyId 或 pondId。" : error);
+                    }
                 }
                 else
                 {
@@ -226,6 +244,50 @@ namespace FishSocial.Desktop.Social
             return "无法连接 Lobby 权限服务。";
         }
 
+        static bool TryParseResponse<T>(
+            string json,
+            out T parsed,
+            out string error,
+            params string[] requiredFields)
+            where T : class
+        {
+            parsed = null;
+            error = null;
+            if (string.IsNullOrEmpty(json))
+            {
+                error = "服务端响应为空。";
+                return false;
+            }
+
+            try
+            {
+                parsed = JsonUtility.FromJson<T>(json);
+            }
+            catch (Exception exception)
+            {
+                error = "服务端响应格式错误：" + exception.Message;
+                return false;
+            }
+            if (parsed == null)
+            {
+                error = "服务端响应格式错误。";
+                return false;
+            }
+            for (var i = 0; i < requiredFields.Length; i++)
+            {
+                var field = requiredFields[i];
+                if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    json,
+                    "\"" + System.Text.RegularExpressions.Regex.Escape(field) +
+                    "\"\\s*:"))
+                {
+                    error = "服务端响应缺少字段：" + field;
+                    return false;
+                }
+            }
+            return true;
+        }
+
         [Serializable]
         sealed class LobbyPayload
         {
@@ -255,5 +317,6 @@ namespace FishSocial.Desktop.Social
             public bool ok;
             public string inviteToken;
         }
+        #pragma warning restore 0649
     }
 }

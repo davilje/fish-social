@@ -250,7 +250,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-08E",
         "功能",
         "个人中心与资料编辑",
@@ -260,7 +260,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "PanelProfile/Edit：昵称头像展示鱼获；不改 SteamID、不迁移旧档",
         "docs/planning/specs/Steam桌面端-08E个人中心与资料编辑.md",
         "2026-08-17",
-        "",
+        "2026-08-18",
     ],
     [
         "已实现",

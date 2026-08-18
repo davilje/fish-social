@@ -46,6 +46,7 @@ namespace FishSocial.Desktop.Social
     /// Steam friends/lobby adapter. It owns Steamworks callbacks; UI and
     /// SocialLobbyController never call Steamworks directly.
     /// </summary>
+    #pragma warning disable 0067
     public sealed class SteamSocialLobbyAdapter : MonoBehaviour, ISteamSocialLobbyAdapter
     {
         const string PondKey = "pondId";
@@ -306,4 +307,5 @@ namespace FishSocial.Desktop.Social
         }
 #endif
     }
+    #pragma warning restore 0067
 }

@@ -236,7 +236,7 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            _pond.ConnectAndJoin(_selected.pondId, "Steam玩家");
+            _pond.ConnectAndJoin(_selected.pondId);
             DesktopAppBootstrap.Instance?.StartNativeOverlay();
             WindowManager.Instance?.HideToTray();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();

@@ -9,7 +9,97 @@ namespace FishSocial.Desktop.Editor
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs";
 
-        [MenuItem("Fish Social/Create PanelShop Prefab")]
+        public static void GeneratePanelProfilePrefabs()
+        {
+            GenerateNamedPanel(
+                "PanelProfile",
+                typeof(DesktopProfilePanel),
+                "已创建 PanelProfile.prefab。运行时只绑定服务端资料，不覆盖 Prefab 布局。");
+            GenerateNamedPanel(
+                "PanelProfileEdit",
+                typeof(DesktopProfileEditPanel),
+                "已创建 PanelProfileEdit.prefab。运行时只绑定编辑状态，不覆盖 Prefab 布局。");
+            var errors = string.Empty;
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/ShowcaseSlot.prefab") == null)
+                GenerateSlotPrefab("ShowcaseSlot", ref errors);
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/AvatarChoice.prefab") == null)
+                GenerateSlotPrefab("AvatarChoice", ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            if (!string.IsNullOrEmpty(errors))
+                EditorUtility.DisplayDialog("PanelProfile", "格子 Prefab：" + errors, "确定");
+        }
+
+        public static void PopulatePanelProfilePrefabs()
+        {
+            PopulateNamedPanel("PanelProfile", (root) =>
+            {
+                var panel = root.GetComponent<DesktopProfilePanel>();
+                if (panel != null)
+                    panel.BuildEditorLayout();
+            });
+            PopulateNamedPanel("PanelProfileEdit", (root) =>
+            {
+                var panel = root.GetComponent<DesktopProfileEditPanel>();
+                if (panel != null)
+                    panel.BuildEditorLayout();
+            });
+        }
+
+        public static void GeneratePanelSocialFeedPrefab()
+        {
+            GenerateNamedPanel(
+                "PanelSocialFeed",
+                typeof(DesktopSocialFeedPanel),
+                "已创建 PanelSocialFeed.prefab。运行时只绑定服务端动态数据，不覆盖 Prefab 布局。");
+            var errors = string.Empty;
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    Folder + "/SocialPostCard.prefab") == null)
+                GenerateSocialPostCardPrefab(ref errors);
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    Folder + "/PostCommentRow.prefab") == null)
+                GeneratePostCommentRowPrefab(ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            if (!string.IsNullOrEmpty(errors))
+                Debug.LogError("[DesktopPrefabBaker] Social feed prefab: " + errors);
+        }
+
+        public static void PopulatePanelSocialFeedPrefab()
+        {
+            PopulateNamedPanel("PanelSocialFeed", root =>
+            {
+                var panel = root.GetComponent<DesktopSocialFeedPanel>();
+                if (panel != null)
+                    panel.BuildEditorLayout();
+            });
+            if (!HasSocialPostCardStructure())
+            {
+                var errors = string.Empty;
+                GenerateSocialPostCardPrefab(ref errors);
+                GeneratePostCommentRowPrefab(ref errors);
+                if (!string.IsNullOrEmpty(errors))
+                    Debug.LogError("[DesktopPrefabBaker] Social card rebuild: " + errors);
+            }
+        }
+
+        static bool HasSocialPostCardStructure()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/SocialPostCard.prefab");
+            return prefab != null &&
+                   prefab.GetComponent<DesktopSocialPostCard>() != null &&
+                   prefab.transform.Find("Header/AuthorText") != null &&
+                   prefab.transform.Find("Photo") != null &&
+                   prefab.transform.Find("BodyText") != null &&
+                   prefab.transform.Find("FishInfoText") != null &&
+                   prefab.transform.Find("Actions/LikeButton") != null &&
+                   prefab.transform.Find("Actions/CommentsButton") != null &&
+                   prefab.transform.Find("CommentsPanel/CommentsContent") != null &&
+                   prefab.transform.Find("CommentsPanel/CommentInput") != null &&
+                   prefab.transform.Find("CommentsPanel/SendButton") != null;
+        }
+
         public static void GeneratePanelShopPrefab()
         {
             const string outputName = "PanelShop";
@@ -42,7 +132,6 @@ namespace FishSocial.Desktop.Editor
                 "确定");
         }
 
-        [MenuItem("Fish Social/Populate PanelShop Responsive Layout")]
         public static void PopulatePanelShopPrefab()
         {
             const string path = Folder + "/PanelShop.prefab";
@@ -56,6 +145,50 @@ namespace FishSocial.Desktop.Editor
             var panel = root.GetComponent<DesktopShopPanel>();
             if (panel != null)
                 panel.BuildEditorLayout();
+            PrefabUtility.SaveAsPrefabAsset(root, path);
+            PrefabUtility.UnloadPrefabContents(root);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
+        static void GenerateNamedPanel(string outputName, System.Type componentType, string createdMessage)
+        {
+            var path = Folder + "/" + outputName + ".prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+            {
+                EditorUtility.DisplayDialog(outputName, outputName + ".prefab 已存在，未覆盖手动布局。", "确定");
+                return;
+            }
+
+            var root = new GameObject(
+                outputName,
+                typeof(RectTransform),
+                typeof(Image),
+                componentType);
+            Stretch(root.GetComponent<RectTransform>());
+            root.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+            var errors = string.Empty;
+            var created = SaveGeneratedPrefab(root, outputName, ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            EditorUtility.DisplayDialog(
+                outputName,
+                created == 1 ? createdMessage : "创建失败：" + errors,
+                "确定");
+        }
+
+        static void PopulateNamedPanel(string outputName, System.Action<GameObject> populate)
+        {
+            var path = Folder + "/" + outputName + ".prefab";
+            var root = PrefabUtility.LoadPrefabContents(path);
+            if (root == null)
+            {
+                Debug.LogError("[DesktopUI] " + outputName + ".prefab 不存在，请先创建。");
+                return;
+            }
+
+            if (populate != null)
+                populate(root);
             PrefabUtility.SaveAsPrefabAsset(root, path);
             PrefabUtility.UnloadPrefabContents(root);
             AssetDatabase.SaveAssets();
@@ -108,6 +241,8 @@ namespace FishSocial.Desktop.Editor
                 "Message",
                 ref errors);
             generated += GenerateSlotPrefab("CatchSlot", ref errors);
+            generated += GenerateSlotPrefab("ShowcaseSlot", ref errors);
+            generated += GenerateSlotPrefab("AvatarChoice", ref errors);
             generated += GenerateSlotPrefab("GallerySpeciesSlot", ref errors);
             generated += GenerateWorldMapPrefab(ref errors);
 
@@ -131,6 +266,9 @@ namespace FishSocial.Desktop.Editor
                 new PrefabEntry("PanelSettings", typeof(DesktopSettingsModalView)),
                 new PrefabEntry("PanelWorldMap", typeof(DesktopWorldMapPanel)),
                 new PrefabEntry("PanelShop", typeof(DesktopShopPanel)),
+                new PrefabEntry("PanelProfile", typeof(DesktopProfilePanel)),
+                new PrefabEntry("PanelProfileEdit", typeof(DesktopProfileEditPanel)),
+                new PrefabEntry("PanelSocialFeed", typeof(DesktopSocialFeedPanel)),
             };
 
             var errors = string.Empty;
@@ -159,7 +297,11 @@ namespace FishSocial.Desktop.Editor
                 "DirectMessageRow",
                 "TextStatusRow",
                 "CatchSlot",
+                "ShowcaseSlot",
+                "AvatarChoice",
                 "GallerySpeciesSlot",
+                "SocialPostCard",
+                "PostCommentRow",
             };
             for (var i = 0; i < itemPrefabs.Length; i++)
             {
@@ -167,6 +309,14 @@ namespace FishSocial.Desktop.Editor
                 if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
                     errors += "\n缺少 " + path;
             }
+            if (!HasSocialPostCardStructure())
+                errors += "\nSocialPostCard 不是完整数据绑定结构，请执行“初始化”";
+            var commentRow = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/PostCommentRow.prefab");
+            if (commentRow != null &&
+                (commentRow.transform.Find("Text") == null ||
+                 commentRow.transform.Find("Delete") == null))
+                errors += "\nPostCommentRow 缺少 Text 或 Delete 节点";
             var socialPath = Folder + "/PanelSocial.prefab";
             var social = AssetDatabase.LoadAssetAtPath<GameObject>(socialPath);
             if (social != null)
@@ -699,6 +849,173 @@ namespace FishSocial.Desktop.Editor
                 errors += "\n" + outputName + "：" + error.Message;
                 return 0;
             }
+        }
+
+        static int GenerateSocialPostCardPrefab(ref string errors)
+        {
+            const string path = Folder + "/SocialPostCard.prefab";
+            try
+            {
+                AssetDatabase.DeleteAsset(path);
+                var root = new GameObject(
+                    "SocialPostCard",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(VerticalLayoutGroup),
+                    typeof(LayoutElement),
+                    typeof(DesktopSocialPostCard));
+                root.GetComponent<Image>().color = new Color(0.13f, 0.18f, 0.23f, 1f);
+                var rootLayout = root.GetComponent<VerticalLayoutGroup>();
+                rootLayout.padding = new RectOffset(16, 16, 12, 12);
+                rootLayout.spacing = 6f;
+                rootLayout.childControlWidth = true;
+                rootLayout.childControlHeight = true;
+                rootLayout.childForceExpandWidth = true;
+
+                var header = NewContainer(root.transform, "Header",
+                    typeof(HorizontalLayoutGroup));
+                var headerLayout = header.GetComponent<HorizontalLayoutGroup>();
+                headerLayout.childControlWidth = true;
+                headerLayout.childControlHeight = true;
+                headerLayout.childForceExpandWidth = true;
+                var author = CreateLabel(header.transform, "AuthorText");
+                author.fontSize = 18;
+
+                var photo = new GameObject("Photo", typeof(RectTransform), typeof(Image),
+                    typeof(LayoutElement));
+                photo.transform.SetParent(root.transform, false);
+                photo.GetComponent<Image>().color = new Color(0.08f, 0.11f, 0.14f, 1f);
+                var photoLayout = photo.GetComponent<LayoutElement>();
+                photoLayout.minHeight = 150f;
+                photoLayout.preferredHeight = 180f;
+
+                var body = CreateLabel(root.transform, "BodyText");
+                body.fontSize = 16;
+                body.GetComponent<LayoutElement>().minHeight = 48f;
+                var fishInfo = CreateLabel(root.transform, "FishInfoText");
+                fishInfo.fontSize = 14;
+
+                var actions = NewContainer(root.transform, "Actions",
+                    typeof(HorizontalLayoutGroup));
+                var actionLayout = actions.GetComponent<HorizontalLayoutGroup>();
+                actionLayout.spacing = 12f;
+                actionLayout.childControlWidth = false;
+                actionLayout.childControlHeight = true;
+                CreateButton(actions.transform, "LikeButton", "点赞 0");
+                CreateButton(actions.transform, "CommentsButton", "评论 0");
+
+                var comments = NewContainer(root.transform, "CommentsPanel",
+                    typeof(Image), typeof(VerticalLayoutGroup));
+                comments.GetComponent<Image>().color = new Color(0.09f, 0.13f, 0.17f, 1f);
+                var commentsLayout = comments.GetComponent<VerticalLayoutGroup>();
+                commentsLayout.padding = new RectOffset(8, 8, 8, 8);
+                commentsLayout.spacing = 4f;
+                commentsLayout.childControlWidth = true;
+                commentsLayout.childControlHeight = true;
+                var content = NewContainer(comments.transform, "CommentsContent",
+                    typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+                var contentLayout = content.GetComponent<VerticalLayoutGroup>();
+                contentLayout.spacing = 4f;
+                contentLayout.childControlWidth = true;
+                contentLayout.childControlHeight = true;
+                content.GetComponent<ContentSizeFitter>().verticalFit =
+                    ContentSizeFitter.FitMode.PreferredSize;
+                var input = CreateInput(comments.transform, "CommentInput",
+                    "写评论（最多 200 字）");
+                var send = CreateButton(comments.transform, "SendButton", "发送评论");
+                comments.SetActive(false);
+
+                var component = root.GetComponent<DesktopSocialPostCard>();
+                var serialized = new SerializedObject(component);
+                SetReference(serialized, "_authorText", author);
+                SetReference(serialized, "_photo", photo.GetComponent<Image>());
+                SetReference(serialized, "_bodyText", body);
+                SetReference(serialized, "_fishInfoText", fishInfo);
+                SetReference(serialized, "_likeButton", actions.transform.Find("LikeButton")
+                    .GetComponent<Button>());
+                SetReference(serialized, "_commentsButton", actions.transform.Find("CommentsButton")
+                    .GetComponent<Button>());
+                SetReference(serialized, "_commentsPanel", comments.gameObject);
+                SetReference(serialized, "_commentsContent", content.GetComponent<RectTransform>());
+                SetReference(serialized, "_commentInput", input);
+                SetReference(serialized, "_sendCommentButton", send);
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                return SaveGeneratedPrefab(root, "SocialPostCard", ref errors);
+            }
+            catch (System.Exception error)
+            {
+                errors += "\nSocialPostCard：" + error.Message;
+                return 0;
+            }
+        }
+
+        static int GeneratePostCommentRowPrefab(ref string errors)
+        {
+            try
+            {
+                const string name = "PostCommentRow";
+                AssetDatabase.DeleteAsset(Folder + "/" + name + ".prefab");
+                var root = NewContainer(null, name, typeof(HorizontalLayoutGroup),
+                    typeof(LayoutElement));
+                var layout = root.GetComponent<HorizontalLayoutGroup>();
+                layout.spacing = 8f;
+                layout.childControlWidth = true;
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = false;
+                var element = root.GetComponent<LayoutElement>();
+                element.minHeight = 32f;
+                element.preferredHeight = 32f;
+                var text = CreateLabel(root.transform, "Text");
+                text.GetComponent<LayoutElement>().flexibleWidth = 1f;
+                CreateButton(root.transform, "Delete", "删除");
+                return SaveGeneratedPrefab(root, name, ref errors);
+            }
+            catch (System.Exception error)
+            {
+                errors += "\nPostCommentRow：" + error.Message;
+                return 0;
+            }
+        }
+
+        static GameObject NewContainer(
+            Transform parent, string name, params System.Type[] extraComponents)
+        {
+            var types = new System.Type[1 + extraComponents.Length];
+            types[0] = typeof(RectTransform);
+            for (var i = 0; i < extraComponents.Length; i++)
+                types[i + 1] = extraComponents[i];
+            var root = new GameObject(name, types);
+            if (parent != null)
+                root.transform.SetParent(parent, false);
+            return root;
+        }
+
+        static InputField CreateInput(Transform parent, string name, string placeholder)
+        {
+            var root = new GameObject(name, typeof(RectTransform), typeof(Image),
+                typeof(InputField), typeof(LayoutElement));
+            root.transform.SetParent(parent, false);
+            root.GetComponent<Image>().color = new Color(0.16f, 0.21f, 0.26f, 1f);
+            var element = root.GetComponent<LayoutElement>();
+            element.minHeight = 34f;
+            element.preferredHeight = 34f;
+            var input = root.GetComponent<InputField>();
+            var text = CreateLabel(root.transform, "Text");
+            var hint = CreateLabel(root.transform, "Placeholder");
+            hint.text = placeholder;
+            hint.color = new Color(0.65f, 0.7f, 0.74f, 1f);
+            Stretch(text.rectTransform);
+            Stretch(hint.rectTransform);
+            input.textComponent = text;
+            input.placeholder = hint;
+            return input;
+        }
+
+        static void SetReference(SerializedObject serialized, string name, UnityEngine.Object value)
+        {
+            var property = serialized.FindProperty(name);
+            if (property != null)
+                property.objectReferenceValue = value;
         }
 
         static GameObject CreateRowRoot(string name)

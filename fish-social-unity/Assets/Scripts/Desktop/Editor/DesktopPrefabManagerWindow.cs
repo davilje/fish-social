@@ -22,6 +22,11 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("PanelSettings", "桌面端设置页面。", typeof(DesktopSettingsModalView)),
             new PrefabDefinition("PanelWorldMap", "世界地图大图、标记层和鱼塘详情区域。", typeof(DesktopWorldMapPanel)),
             new PrefabDefinition("PanelShop", "鱼饵/渔具页签、商品卡片、金币和购买/装备操作。", typeof(DesktopShopPanel)),
+            new PrefabDefinition("PanelProfile", "个人中心：昵称、头像、玩家 ID、在线状态和展示鱼获。", typeof(DesktopProfilePanel)),
+            new PrefabDefinition("PanelProfileEdit", "资料编辑：昵称、简介、默认头像和展示格保存。", typeof(DesktopProfileEditPanel)),
+            new PrefabDefinition("PanelSocialFeed", "动态墙：公共/好友动态、加载状态和互动操作。", typeof(DesktopSocialFeedPanel)),
+            new PrefabDefinition("SocialPostCard", "动态墙中的单条鱼获分享卡片。", null),
+            new PrefabDefinition("PostCommentRow", "动态卡片中的单条评论和删除操作。", null),
             new PrefabDefinition("FriendRow", "好友列表中的单个好友行，包含私聊和移除按钮。", null),
             new PrefabDefinition("FriendRequestRow", "好友申请行，包含接受和拒绝按钮。", null),
             new PrefabDefinition("SteamInviteRow", "Steam 好友邀请行，包含邀请进塘按钮。", null),
@@ -31,6 +36,8 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("DirectMessageRow", "私聊窗口中的单条消息。", null),
             new PrefabDefinition("TextStatusRow", "列表加载中、空状态和错误状态的文本行。", null),
             new PrefabDefinition("CatchSlot", "背包中的单个鱼获格子。", null),
+            new PrefabDefinition("ShowcaseSlot", "个人中心展示鱼获格子。", null),
+            new PrefabDefinition("AvatarChoice", "默认头像选择格子。", null),
             new PrefabDefinition("GallerySpeciesSlot", "图鉴中的单个物种格子。", null),
         };
 
@@ -136,6 +143,13 @@ namespace FishSocial.Desktop.Editor
 
                     if (status == PrefabStatus.Valid)
                     {
+                        if (NeedsLayoutBootstrap(definition.Name) &&
+                            GUILayout.Button("初始化", GUILayout.Width(56f)))
+                        {
+                            PopulateDefinition(definition.Name);
+                            AssetDatabase.Refresh();
+                            Repaint();
+                        }
                         var pending = HasPendingChanges(path);
                         var action = pending ? "更新" : "查看";
                         var tooltip = pending
@@ -158,7 +172,96 @@ namespace FishSocial.Desktop.Editor
                         DeletePrefab(definition.Name, path);
                 }
                 if (prefab == null)
+                {
                     EditorGUILayout.LabelField("路径", path, EditorStyles.miniLabel);
+                    if (GUILayout.Button("创建", GUILayout.Width(56f)))
+                    {
+                        CreateDefinition(definition.Name);
+                        AssetDatabase.Refresh();
+                        Repaint();
+                    }
+                }
+            }
+        }
+
+        static bool NeedsLayoutBootstrap(string name)
+        {
+            if (name != "PanelProfile" &&
+                name != "PanelProfileEdit" &&
+                name != "PanelShop" &&
+                name != "PanelSocialFeed" &&
+                name != "SocialPostCard" &&
+                name != "PostCommentRow")
+                return false;
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/" + name + ".prefab");
+            if (prefab == null)
+                return false;
+            if (name == "PanelSocialFeed")
+                return prefab.transform.Find("Header/Public") == null ||
+                       prefab.transform.Find("Header/Friends") == null ||
+                       prefab.transform.Find("Scroll/Viewport/Content") == null;
+            if (name == "SocialPostCard")
+                return prefab.GetComponent<DesktopSocialPostCard>() == null ||
+                       prefab.transform.Find("Header/AuthorText") == null ||
+                       prefab.transform.Find("Photo") == null ||
+                       prefab.transform.Find("Actions/LikeButton") == null ||
+                       prefab.transform.Find("Actions/CommentsButton") == null ||
+                       prefab.transform.Find("CommentsPanel/CommentsContent") == null ||
+                       prefab.transform.Find("CommentsPanel/CommentInput") == null ||
+                       prefab.transform.Find("CommentsPanel/SendButton") == null;
+            if (name == "PostCommentRow")
+                return prefab.transform.Find("Text") == null ||
+                       prefab.transform.Find("Delete") == null;
+            return prefab.transform.Find("Header") == null;
+        }
+
+        static void PopulateDefinition(string name)
+        {
+            switch (name)
+            {
+                case "PanelProfile":
+                case "PanelProfileEdit":
+                    DesktopPrefabValidator.PopulatePanelProfilePrefabs();
+                    break;
+                case "PanelShop":
+                    DesktopPrefabValidator.PopulatePanelShopPrefab();
+                    break;
+                case "PanelSocialFeed":
+                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
+                    break;
+                case "SocialPostCard":
+                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
+                    break;
+                case "PostCommentRow":
+                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
+                    break;
+            }
+        }
+
+        static void CreateDefinition(string name)
+        {
+            switch (name)
+            {
+                case "PanelProfile":
+                case "PanelProfileEdit":
+                    DesktopPrefabValidator.GeneratePanelProfilePrefabs();
+                    break;
+                case "PanelShop":
+                    DesktopPrefabValidator.GeneratePanelShopPrefab();
+                    break;
+                case "PanelSocialFeed":
+                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
+                    break;
+                case "SocialPostCard":
+                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
+                    break;
+                case "PostCommentRow":
+                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
+                    break;
+                default:
+                    Debug.LogWarning("[DesktopUI] 请使用“新增 Prefab”创建：" + name);
+                    break;
             }
         }
 

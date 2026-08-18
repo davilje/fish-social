@@ -39,7 +39,7 @@ Overlay 回传命令：
 - `hide_overlay`
 - `quit_overlay`
 - `request_snapshot`
-- `menu_pond` / `menu_friends` / `menu_catch` / `menu_gallery` / `menu_settings`
+- `menu_pond` / `menu_map` / `menu_shop` / `menu_friends` / `menu_catch` / `menu_gallery` / `menu_profile` / `menu_settings`
 - `hide_to_tray`
 - `quit_app`
 

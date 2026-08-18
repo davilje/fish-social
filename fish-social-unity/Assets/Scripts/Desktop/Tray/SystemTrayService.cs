@@ -19,7 +19,7 @@ namespace FishSocial.Desktop
         public event Action OverlayExitRequested;
         public bool IsReady { get; private set; }
 
-        Thread _trayThread;
+        Thread _trayThread = null;
         volatile bool _pendingShow;
         volatile bool _pendingHide;
         volatile bool _pendingExit;

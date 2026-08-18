@@ -45,6 +45,12 @@ namespace FishSocial.Desktop
                     Debug.LogWarning("[DesktopUI] PanelShop prefab is missing; using editor-generated fallback.");
                     return fallbackView;
                 }
+                if (typeof(T) == typeof(DesktopProfilePanel))
+                    return MountFallback<T>(parent, "PanelProfile", bind);
+                if (typeof(T) == typeof(DesktopProfileEditPanel))
+                    return MountFallback<T>(parent, "PanelProfileEdit", bind);
+                if (typeof(T) == typeof(DesktopSocialFeedPanel))
+                    return MountFallback<T>(parent, "PanelSocialFeed", bind);
                 Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/" +
                                PrefabName<T>());
                 return null;
@@ -55,6 +61,11 @@ namespace FishSocial.Desktop
             var view = instance.GetComponent<T>();
             if (view == null)
             {
+                if (typeof(T) == typeof(DesktopSocialFeedPanel))
+                {
+                    Object.Destroy(instance);
+                    return MountFallback<T>(parent, "PanelSocialFeed", bind);
+                }
                 Debug.LogError("[DesktopUI] Required component is missing from prefab: " +
                                PrefabName<T>());
                 Object.Destroy(instance);
@@ -63,6 +74,27 @@ namespace FishSocial.Desktop
 
             bind(view);
             return view;
+        }
+
+        static T MountFallback<T>(Transform parent, string name, System.Action<T> bind)
+            where T : MonoBehaviour
+        {
+            var fallback = new GameObject(
+                name,
+                typeof(RectTransform),
+                typeof(UnityEngine.UI.Image),
+                typeof(T));
+            fallback.transform.SetParent(parent, false);
+            var fallbackRect = fallback.GetComponent<RectTransform>();
+            fallbackRect.anchorMin = Vector2.zero;
+            fallbackRect.anchorMax = Vector2.one;
+            fallbackRect.offsetMin = Vector2.zero;
+            fallbackRect.offsetMax = Vector2.zero;
+            var fallbackView = fallback.GetComponent<T>();
+            bind(fallbackView);
+            Debug.LogWarning("[DesktopUI] " + name +
+                             " prefab is missing; using editor-generated fallback.");
+            return fallbackView;
         }
 
         static string PrefabName<T>()
@@ -79,6 +111,12 @@ namespace FishSocial.Desktop
                 return "PanelWorldMap";
             if (typeof(T) == typeof(DesktopShopPanel))
                 return "PanelShop";
+            if (typeof(T) == typeof(DesktopProfilePanel))
+                return "PanelProfile";
+            if (typeof(T) == typeof(DesktopProfileEditPanel))
+                return "PanelProfileEdit";
+            if (typeof(T) == typeof(DesktopSocialFeedPanel))
+                return "PanelSocialFeed";
             return typeof(T).Name;
         }
     }

@@ -1,5 +1,11 @@
 ?# 策划文档变更记录
 
+### [steam-desktop-08e-accepted] - 2026-08-18
+
+- `STEAM-DESKTOP-08E` 个人中心与资料编辑用户验收通过，计划状态改为 **已实现**。
+- 验证个人资料服务端回读、昵称/简介/头像/展示鱼获编辑、失败重试，以及编辑期间不离开鱼塘、不重建 Overlay。
+- 恢复 SteamID 到既有玩家记录后，确认 2 条背包鱼获、1 条好友关联和 2659 条钓鱼记录可见。
+
 ### [steam-desktop-08i-latency-plan] - 2026-08-18
 
 - 根据 Unity `Player.log` 与 Overlay 延迟日志补充 `STEAM-DESKTOP-08I` 修复方案。

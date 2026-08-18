@@ -8,7 +8,9 @@ namespace FishSocial.Desktop
         Friends,
         CatchBag,
         Gallery,
+        Profile,
         Settings,
+        SocialFeed,
         HideToTray,
         Quit,
     }
@@ -26,7 +28,9 @@ namespace FishSocial.Desktop
         public const string Friends = "menu_friends";
         public const string CatchBag = "menu_catch";
         public const string Gallery = "menu_gallery";
+        public const string Profile = "menu_profile";
         public const string Settings = "menu_settings";
+        public const string SocialFeed = "menu_feed";
         public const string HideToTray = "hide_to_tray";
         public const string Quit = "quit_app";
 
@@ -52,8 +56,14 @@ namespace FishSocial.Desktop
                 case Gallery:
                     action = DesktopProductMenuAction.Gallery;
                     return true;
+                case Profile:
+                    action = DesktopProductMenuAction.Profile;
+                    return true;
                 case Settings:
                     action = DesktopProductMenuAction.Settings;
+                    return true;
+                case SocialFeed:
+                    action = DesktopProductMenuAction.SocialFeed;
                     return true;
                 case HideToTray:
                     action = DesktopProductMenuAction.HideToTray;

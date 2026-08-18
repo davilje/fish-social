@@ -265,7 +265,7 @@ namespace FishSocial.Desktop.Social
                 return;
             }
             SetState(SocialLobbyState.EnteringPond, "正在进入鱼塘 " + pondId + "。");
-            _pondSession.ConnectAndJoin(pondId, "Steam玩家");
+            _pondSession.ConnectAndJoin(pondId);
         }
 
         void OnPondSnapshot(PondSnapshotDto snapshot)

@@ -96,6 +96,8 @@ namespace FishSocial.Desktop
 
         void BindPrefab()
         {
+            var panelImage = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
+            panelImage.color = new Color(0.07f, 0.10f, 0.14f, 1f);
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
             _pondPage = DesktopModalUi.FindChild(transform, "PondPage")?.gameObject;
             _friendsPage = DesktopModalUi.FindChild(transform, "FriendsPage")?.gameObject;

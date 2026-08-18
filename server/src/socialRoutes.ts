@@ -475,12 +475,30 @@ export function registerSocialRoutes(
   app.get('/api/posts/wall', (req, res) => {
     const viewerId = tryResolvePlayerId(req);
     const sort = req.query.sort === 'likes' ? 'likes' : 'time';
-    res.json({ posts: getWallPosts(viewerId, sort) });
+    const limit = Number(req.query.limit ?? 50);
+    const offset = Number(req.query.offset ?? 0);
+    res.json({
+      posts: getWallPosts(
+        viewerId,
+        sort,
+        Number.isFinite(limit) ? limit : 50,
+        Number.isFinite(offset) ? offset : 0,
+      ),
+    });
   });
 
   app.get('/api/posts/friends/:playerId', requireSelf('playerId'), (req, res) => {
     const sort = req.query.sort === 'likes' ? 'likes' : 'time';
-    res.json({ posts: getFriendsPosts(req.params.playerId, sort) });
+    const limit = Number(req.query.limit ?? 50);
+    const offset = Number(req.query.offset ?? 0);
+    res.json({
+      posts: getFriendsPosts(
+        req.params.playerId,
+        sort,
+        Number.isFinite(limit) ? limit : 50,
+        Number.isFinite(offset) ? offset : 0,
+      ),
+    });
   });
 
   app.post('/api/posts', requireAuth, (req, res) => {

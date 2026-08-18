@@ -10,5 +10,8 @@ namespace FishSocial.Desktop
         CatchBag = 5,
         Gallery = 6,
         Settings = 7,
+        Profile = 8,
+        ProfileEdit = 9,
+        SocialFeed = 10,
     }
 }

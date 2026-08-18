@@ -69,7 +69,7 @@
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
 | [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已确认** | 08C；公共动态墙、好友动态、点赞与评论 |
 | [Steam桌面端-08D排行榜.md](./Steam桌面端-08D排行榜.md) | v1.0-steam-desktop | P1 | **已确认** | 08D；日榜、周榜、鱼塘榜、稀有鱼榜 |
-| [Steam桌面端-08E个人中心与资料编辑.md](./Steam桌面端-08E个人中心与资料编辑.md) | v1.0-steam-desktop | P1 | **已确认** | 08E；个人资料、头像、昵称和展示内容 |
+| [Steam桌面端-08E个人中心与资料编辑.md](./Steam桌面端-08E个人中心与资料编辑.md) | v1.0-steam-desktop | P1 | **已实现** | 08E；个人资料、头像、昵称和展示内容 |
 | [Steam桌面端-08F好友列表与申请Prefab.md](./Steam桌面端-08F好友列表与申请Prefab.md) | v1.0-steam-desktop | P0 | **已实现** | 08F；独立好友 Prefab 与申请按钮修复 |
 | [Steam桌面端-08GOverlay钓鱼操作栏.md](./Steam桌面端-08GOverlay钓鱼操作栏.md) | v1.0-steam-desktop | P0 | **已实现** | 08G；Overlay 选择钓位、开始、收杆、领取鱼获 |
 | [Steam桌面端-08H全量UI预制体化.md](./Steam桌面端-08H全量UI预制体化.md) | v1.0-steam-desktop | P0 | **已实现** | 08H；壳层、页面、列表行和 Grid 内容全量 Prefab 化 |

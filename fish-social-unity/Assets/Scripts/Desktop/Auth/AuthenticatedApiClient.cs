@@ -30,6 +30,19 @@ namespace FishSocial.Desktop.Auth
         IEnumerator BuyTackle(string tackleId, Action<bool, ShopGearDto, int, string> onCompleted);
         IEnumerator EquipBait(string baitId, Action<bool, ShopGearDto, string> onCompleted);
         IEnumerator EquipTackle(string tackleId, Action<bool, ShopGearDto, string> onCompleted);
+        string BaseUrl { get; }
+        IEnumerator GetPlayerProfile(Action<bool, PlayerProfileDto, string> onCompleted);
+        IEnumerator UpdatePlayerProfile(
+            string nickname, string bio, string avatarUrl,
+            Action<bool, PlayerProfileDto, string> onCompleted);
+        IEnumerator SetShowcase(string[] slots, Action<bool, PlayerProfileDto, string> onCompleted);
+        IEnumerator GetSocialFeed(
+            bool friendsOnly, int limit, int offset,
+            Action<bool, SocialPostDto[], string> onCompleted);
+        IEnumerator GetPostComments(string postId, Action<bool, PostCommentDto[], int, string> onCompleted);
+        IEnumerator TogglePostLike(string postId, Action<bool, bool, int, string> onCompleted);
+        IEnumerator AddPostComment(string postId, string text, Action<bool, PostCommentDto, int, string> onCompleted);
+        IEnumerator DeletePostComment(string postId, string commentId, Action<bool, int, string> onCompleted);
     }
 
     /// <summary>
@@ -43,6 +56,7 @@ namespace FishSocial.Desktop.Auth
 
         public bool CanUse => _auth != null && _auth.IsAuthenticated;
         public string PlayerId => _auth != null ? _auth.AuthenticatedPlayerId : null;
+        public string BaseUrl => _baseUrl;
 
         public AuthenticatedApiClient(SteamAuthController auth, string baseUrl)
         {
@@ -67,7 +81,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<InventoryItemsResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "items");
                 });
             onCompleted?.Invoke(ok, parsed != null && parsed.items != null ? parsed.items : new FishInventoryItemDto[0], error);
         }
@@ -83,7 +97,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<GearResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "coins");
                 });
             onCompleted?.Invoke(ok, parsed != null ? parsed.coins : 0, error);
         }
@@ -99,7 +113,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<CodexResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "entries");
                 });
             onCompleted?.Invoke(ok, parsed != null && parsed.entries != null ? parsed.entries : new FishCodexEntryDto[0], error);
         }
@@ -115,7 +129,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<FriendsResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "friends");
                 });
             onCompleted?.Invoke(ok, parsed != null && parsed.friends != null ? parsed.friends : new FriendInfoDto[0], error);
         }
@@ -131,7 +145,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<FriendRequestsResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "incoming", "outgoing");
                 });
             onCompleted?.Invoke(
                 ok,
@@ -172,7 +186,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<ConversationsResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "conversations");
                 });
             onCompleted?.Invoke(ok, parsed != null && parsed.conversations != null ? parsed.conversations : new DmConversationDto[0], error);
         }
@@ -189,7 +203,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<MessagesResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "messages");
                 });
             onCompleted?.Invoke(ok, parsed != null && parsed.messages != null ? parsed.messages : new DirectMessageDto[0], error);
         }
@@ -212,7 +226,7 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<SendDmResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error, "message");
                 });
             onCompleted?.Invoke(ok, parsed != null ? parsed.message : null, error);
         }
@@ -229,7 +243,8 @@ namespace FishSocial.Desktop.Auth
                     ok = success;
                     error = message;
                     if (success)
-                        parsed = JsonUtility.FromJson<SellResponse>(json);
+                        ok = TryParseResponse(json, out parsed, out error,
+                            "coinsEarned", "totalCoins", "items");
                 });
             onCompleted?.Invoke(
                 ok,
@@ -264,7 +279,9 @@ namespace FishSocial.Desktop.Auth
                 error = message;
                 if (success)
                 {
-                    var parsed = JsonUtility.FromJson<BaitCatalogResponse>(json);
+                    BaitCatalogResponse parsed;
+                    if (!TryParseResponse(json, out parsed, out error, "baits"))
+                        ok = false;
                     baits = parsed != null && parsed.baits != null
                         ? parsed.baits : new ShopBaitDto[0];
                 }
@@ -277,7 +294,9 @@ namespace FishSocial.Desktop.Auth
                     error = message;
                     if (success)
                     {
-                        var parsed = JsonUtility.FromJson<TackleCatalogResponse>(json);
+                        TackleCatalogResponse parsed;
+                        if (!TryParseResponse(json, out parsed, out error, "tackles"))
+                            ok = false;
                         tackles = parsed != null && parsed.tackles != null
                             ? parsed.tackles : new ShopTackleDto[0];
                     }
@@ -286,6 +305,117 @@ namespace FishSocial.Desktop.Auth
             onCompleted?.Invoke(ok, baits, tackles, error);
         }
 
+        public IEnumerator GetSocialFeed(
+            bool friendsOnly, int limit, int offset,
+            Action<bool, SocialPostDto[], string> onCompleted)
+        {
+            SocialPostsResponse parsed = null;
+            string error = null;
+            var ok = false;
+            var path = friendsOnly
+                ? "/api/posts/friends/" + Uri.EscapeDataString(PlayerId ?? "") +
+                  "?limit=" + Mathf.Clamp(limit, 1, 50) + "&offset=" + Mathf.Max(0, offset)
+                : "/api/posts/wall?limit=" + Mathf.Clamp(limit, 1, 50) +
+                  "&offset=" + Mathf.Max(0, offset);
+            yield return GetJson(path, (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                    if (success)
+                        ok = TryParseResponse(json, out parsed, out error, "posts");
+            });
+            onCompleted?.Invoke(
+                ok,
+                parsed != null && parsed.posts != null ? parsed.posts : new SocialPostDto[0],
+                error);
+        }
+
+        public IEnumerator GetPostComments(
+            string postId, Action<bool, PostCommentDto[], int, string> onCompleted)
+        {
+            PostCommentsResponse parsed = null;
+            string error = null;
+            var ok = false;
+            yield return GetJson(
+                "/api/posts/" + Uri.EscapeDataString(postId ?? "") + "/comments",
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseResponse(json, out parsed, out error,
+                            "comments", "commentCount");
+                });
+            onCompleted?.Invoke(
+                ok,
+                parsed != null && parsed.comments != null
+                    ? parsed.comments : new PostCommentDto[0],
+                parsed != null ? parsed.commentCount : 0,
+                error);
+        }
+
+        public IEnumerator TogglePostLike(
+            string postId, Action<bool, bool, int, string> onCompleted)
+        {
+            LikeResponse parsed = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson(
+                "/api/posts/" + Uri.EscapeDataString(postId ?? "") + "/like",
+                "{}",
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseResponse(json, out parsed, out error,
+                            "liked", "likeCount");
+                });
+            onCompleted?.Invoke(ok, parsed != null && parsed.liked,
+                parsed != null ? parsed.likeCount : 0, error);
+        }
+
+        public IEnumerator AddPostComment(
+            string postId, string text,
+            Action<bool, PostCommentDto, int, string> onCompleted)
+        {
+            PostCommentResponse parsed = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson(
+                "/api/posts/" + Uri.EscapeDataString(postId ?? "") + "/comments",
+                JsonUtility.ToJson(new CommentPayload { text = text ?? "" }),
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseResponse(json, out parsed, out error,
+                            "comment", "commentCount");
+                });
+            onCompleted?.Invoke(ok, parsed != null ? parsed.comment : null,
+                parsed != null ? parsed.commentCount : 0, error);
+        }
+
+        public IEnumerator DeletePostComment(
+            string postId, string commentId, Action<bool, int, string> onCompleted)
+        {
+            DeleteCommentResponse parsed = null;
+            string error = null;
+            var ok = false;
+            yield return DeleteJson(
+                "/api/posts/" + Uri.EscapeDataString(postId ?? "") +
+                "/comments/" + Uri.EscapeDataString(commentId ?? ""),
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseResponse(json, out parsed, out error,
+                            "ok", "commentCount");
+                });
+            onCompleted?.Invoke(ok, parsed != null ? parsed.commentCount : 0, error);
+        }
         public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
         {
             ShopGearDto gear = null;
@@ -300,7 +430,9 @@ namespace FishSocial.Desktop.Auth
                     error = message;
                     if (!success)
                         return;
-                    var parsed = JsonUtility.FromJson<GearEnvelope>(json);
+                    GearEnvelope parsed;
+                    if (!TryParseResponse(json, out parsed, out error, "gear", "coins"))
+                        ok = false;
                     gear = parsed != null ? parsed.gear : null;
                     coins = parsed != null ? parsed.coins : 0;
                     ParseBaitInventory(json, gear);
@@ -355,6 +487,61 @@ namespace FishSocial.Desktop.Auth
                 onCompleted);
         }
 
+        public IEnumerator GetPlayerProfile(Action<bool, PlayerProfileDto, string> onCompleted)
+        {
+            PlayerProfileDto profile = null;
+            string error = null;
+            var ok = false;
+            yield return GetJson(
+                "/api/players/" + Uri.EscapeDataString(PlayerId ?? ""),
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParsePlayerProfile(json, out profile, out error);
+                });
+            onCompleted?.Invoke(ok, profile, error);
+        }
+
+        public IEnumerator UpdatePlayerProfile(
+            string nickname, string bio, string avatarUrl,
+            Action<bool, PlayerProfileDto, string> onCompleted)
+        {
+            var body = "{\"nickname\":" + Quote(nickname) +
+                       ",\"bio\":" + Quote(bio ?? "");
+            if (!string.IsNullOrEmpty(avatarUrl))
+                body += ",\"avatarUrl\":" + Quote(avatarUrl);
+            body += "}";
+            yield return MutateProfile(
+                "/api/players/" + Uri.EscapeDataString(PlayerId ?? "") + "/profile",
+                body, onCompleted);
+        }
+
+        public IEnumerator SetShowcase(
+            string[] slots, Action<bool, PlayerProfileDto, string> onCompleted)
+        {
+            yield return MutateProfile(
+                "/api/players/" + Uri.EscapeDataString(PlayerId ?? "") + "/showcase",
+                BuildShowcaseBody(slots), onCompleted);
+        }
+
+        IEnumerator MutateProfile(
+            string path, string body, Action<bool, PlayerProfileDto, string> onCompleted)
+        {
+            PlayerProfileDto profile = null;
+            string error = null;
+            var ok = false;
+            yield return PutJson(path, body, (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (success)
+                    ok = TryParsePlayerProfile(json, out profile, out error);
+            });
+            onCompleted?.Invoke(ok, profile, error);
+        }
+
         IEnumerator ShopMutation(
             string path, string body,
             Action<bool, ShopGearDto, int, string> onCompleted)
@@ -369,7 +556,7 @@ namespace FishSocial.Desktop.Auth
                 raw = json;
                 error = message;
                 if (success)
-                    parsed = JsonUtility.FromJson<ShopMutationResponse>(json);
+                    ok = TryParseResponse(json, out parsed, out error, "gear", "coins");
             }, Guid.NewGuid().ToString("N"));
             var gear = parsed != null ? parsed.gear : null;
             ParseBaitInventory(raw, gear);
@@ -391,7 +578,7 @@ namespace FishSocial.Desktop.Auth
                 raw = json;
                 error = message;
                 if (success)
-                    parsed = JsonUtility.FromJson<ShopGearResponse>(json);
+                    ok = TryParseResponse(json, out parsed, out error, "gear");
             });
             var gear = parsed != null ? parsed.gear : null;
             ParseBaitInventory(raw, gear);
@@ -409,6 +596,44 @@ namespace FishSocial.Desktop.Auth
             using (var request = UnityWebRequest.Get(_baseUrl + path))
             {
                 request.timeout = TimeoutSeconds;
+                request.SetRequestHeader("Authorization", "Bearer " + _auth.GetAccessTokenForRequest());
+                yield return request.SendWebRequest();
+                Complete(request, onCompleted);
+            }
+        }
+
+        IEnumerator PutJson(string path, string body, Action<bool, string, string> onCompleted)
+        {
+            if (!CanUse)
+            {
+                onCompleted?.Invoke(false, null, "当前没有有效的 Steam 会话。");
+                yield break;
+            }
+
+            using (var request = new UnityWebRequest(_baseUrl + path, "PUT"))
+            {
+                request.timeout = TimeoutSeconds;
+                request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body ?? "{}"));
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", "Bearer " + _auth.GetAccessTokenForRequest());
+                yield return request.SendWebRequest();
+                Complete(request, onCompleted);
+            }
+        }
+
+        IEnumerator DeleteJson(string path, Action<bool, string, string> onCompleted)
+        {
+            if (!CanUse)
+            {
+                onCompleted?.Invoke(false, null, "当前没有有效的 Steam 会话。");
+                yield break;
+            }
+
+            using (var request = UnityWebRequest.Delete(_baseUrl + path))
+            {
+                request.timeout = TimeoutSeconds;
+                request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Authorization", "Bearer " + _auth.GetAccessTokenForRequest());
                 yield return request.SendWebRequest();
                 Complete(request, onCompleted);
@@ -476,6 +701,85 @@ namespace FishSocial.Desktop.Auth
             return "请求失败（HTTP " + request.responseCode + "）。";
         }
 
+        static bool TryParseResponse<T>(
+            string json,
+            out T parsed,
+            out string error,
+            params string[] requiredFields)
+            where T : class
+        {
+            parsed = null;
+            error = null;
+            if (string.IsNullOrEmpty(json))
+            {
+                error = "服务端响应为空。";
+                return false;
+            }
+
+            try
+            {
+                parsed = JsonUtility.FromJson<T>(json);
+            }
+            catch (Exception exception)
+            {
+                error = "服务端响应格式错误：" + exception.Message;
+                return false;
+            }
+
+            if (parsed == null)
+            {
+                error = "服务端响应格式错误。";
+                return false;
+            }
+
+            for (var i = 0; i < requiredFields.Length; i++)
+            {
+                var field = requiredFields[i];
+                if (string.IsNullOrEmpty(field) ||
+                    !System.Text.RegularExpressions.Regex.IsMatch(
+                        json,
+                        "\"" + System.Text.RegularExpressions.Regex.Escape(field) +
+                        "\"\\s*:"))
+                {
+                    error = "服务端响应缺少字段：" + field;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        static bool TryParsePlayerProfile(
+            string json,
+            out PlayerProfileDto profile,
+            out string error)
+        {
+            profile = null;
+            ProfileEnvelope envelope;
+            if (!TryParseResponse(json, out envelope, out error, "profile") ||
+                envelope.profile == null)
+            {
+                error = string.IsNullOrEmpty(error)
+                    ? "服务端响应缺少 profile。"
+                    : error;
+                return false;
+            }
+
+            profile = envelope.profile;
+            if (string.IsNullOrEmpty(profile.playerId) ||
+                string.IsNullOrEmpty(profile.nickname))
+            {
+                profile = null;
+                error = "服务端个人资料缺少 playerId 或 nickname。";
+                return false;
+            }
+            profile.showcaseFishIds = NormalizeShowcase(profile.showcaseFishIds);
+            if (profile.avatarUrl == null)
+                profile.avatarUrl = string.Empty;
+            if (profile.bio == null)
+                profile.bio = string.Empty;
+            return true;
+        }
+
         static void ParseBaitInventory(string json, ShopGearDto gear)
         {
             if (gear == null || string.IsNullOrEmpty(json))
@@ -495,6 +799,42 @@ namespace FishSocial.Desktop.Auth
                 ? value : 0;
         }
 
+        static string[] NormalizeShowcase(string[] source)
+        {
+            var slots = new string[PlayerProfileDto.ShowcaseSlotCount];
+            for (var i = 0; i < slots.Length; i++)
+            {
+                slots[i] = source != null && i < source.Length && !string.IsNullOrEmpty(source[i])
+                    ? source[i]
+                    : string.Empty;
+            }
+            return slots;
+        }
+
+        static string BuildShowcaseBody(string[] slots)
+        {
+            var normalized = NormalizeShowcase(slots);
+            var builder = new StringBuilder("{\"slots\":[");
+            for (var i = 0; i < normalized.Length; i++)
+            {
+                if (i > 0)
+                    builder.Append(',');
+                builder.Append(string.IsNullOrEmpty(normalized[i])
+                    ? "null"
+                    : Quote(normalized[i]));
+            }
+            builder.Append("]}");
+            return builder.ToString();
+        }
+
+        static string Quote(string value)
+        {
+            return JsonUtility.ToJson(new StringValue { value = value ?? "" })
+                .Replace("{\"value\":", "")
+                .TrimEnd('}');
+        }
+
+        #pragma warning disable 0649
         [Serializable] sealed class InventoryItemsResponse { public FishInventoryItemDto[] items; }
         [Serializable] sealed class GearResponse { public int coins; }
         [Serializable] sealed class CodexResponse { public FishCodexEntryDto[] entries; }
@@ -518,5 +858,14 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class BuyTacklePayload { public string playerId; public string tackleId; }
         [Serializable] sealed class EquipPayload { public string playerId; public string baitId; public string tackleId; }
         [Serializable] sealed class ApiErrorResponse { public string error; }
+        [Serializable] sealed class ProfileEnvelope { public PlayerProfileDto profile; }
+        [Serializable] sealed class SocialPostsResponse { public SocialPostDto[] posts; }
+        [Serializable] sealed class PostCommentsResponse { public PostCommentDto[] comments; public int commentCount; }
+        [Serializable] sealed class LikeResponse { public bool liked; public int likeCount; }
+        [Serializable] sealed class PostCommentResponse { public PostCommentDto comment; public int commentCount; }
+        [Serializable] sealed class DeleteCommentResponse { public bool ok; public int commentCount; }
+        [Serializable] sealed class CommentPayload { public string text; }
+        [Serializable] sealed class StringValue { public string value; }
+        #pragma warning restore 0649
     }
 }

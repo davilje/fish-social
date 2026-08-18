@@ -257,4 +257,71 @@ namespace FishSocial.Desktop.Auth
         public bool ok;
         public string error;
     }
+
+    [Serializable]
+    public sealed class PlayerProfileDto
+    {
+        public const int ShowcaseSlotCount = 8;
+        public string playerId;
+        public string nickname;
+        public int coins;
+        public string shareVisibility;
+        public long createdAt;
+        public string avatarUrl;
+        public string bio;
+        public string[] showcaseFishIds;
+    }
+
+    [Serializable]
+    public sealed class SocialPostDto
+    {
+        public string id;
+        public string playerId;
+        public string nickname;
+        public string authorAvatarUrl;
+        public FishInventoryItemDto fish;
+        public string text;
+        public string photoUrl;
+        public string visibility;
+        public long createdAt;
+        public int likeCount;
+        public int commentCount;
+        public bool likedByMe;
+    }
+
+    [Serializable]
+    public sealed class PostCommentDto
+    {
+        public string id;
+        public string postId;
+        public string playerId;
+        public string nickname;
+        public string avatarUrl;
+        public string text;
+        public long createdAt;
+    }
+
+    [Serializable]
+    public sealed class PostLikedDto
+    {
+        public string postId;
+        public string playerId;
+        public bool liked;
+        public int likeCount;
+    }
+
+    [Serializable]
+    public sealed class PostCommentedDto
+    {
+        public string postId;
+        public PostCommentDto comment;
+    }
+
+    [Serializable]
+    public sealed class PostCommentDeletedDto
+    {
+        public string postId;
+        public string commentId;
+        public int commentCount;
+    }
 }

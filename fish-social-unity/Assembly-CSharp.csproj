@@ -56,6 +56,7 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopSocialPostCard.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopSettingsModalView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopGalleryModalView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\WorldMapPondCatalog.cs" />
@@ -63,10 +64,12 @@
     <Compile Include="Assets\Scripts\Desktop\Notifications\DesktopNotificationService.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopModalHost.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopAppBootstrap.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopProfileEditPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SocialPondSessionController.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\SpriteFramePetRenderer.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\FriendsPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamworksTicketProvider.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopSocialFeedPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopUiPrefabFactory.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\UnityNetworkDtos.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopWorldMapPanel.cs" />
@@ -89,8 +92,10 @@
     <Compile Include="Assets\Scripts\Desktop\Notifications\NotificationSettings.cs" />
     <Compile Include="Assets\Scripts\Desktop\Tray\SystemTrayService.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamTicketProviders.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopDefaultAvatars.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProductMenuAction.cs" />
     <Compile Include="Assets\Scripts\Desktop\DetachedWin32Process.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\DesktopProfilePanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\OverlayPondStateBuilder.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowDisplayMode.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowSettings.cs" />
