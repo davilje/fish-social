@@ -99,8 +99,11 @@ namespace FishSocial.Desktop
             if (_publicTab == null || _friendsTab == null || _status == null ||
                 _content == null || _scroll == null)
             {
-                ClearUiHierarchy();
-                BuildFallbackUi();
+                Debug.LogError(
+                    "[DesktopUI] PanelSocialFeed Prefab 缺少必需控件。" +
+                    "请在 Unity Prefab Manager 中执行“初始化”，" +
+                    "运行时不会再重建或覆盖手动布局。");
+                return;
             }
 
             if (_publicTab != null)
@@ -363,6 +366,8 @@ namespace FishSocial.Desktop
             headerRt.sizeDelta = new Vector2(0, 48);
             _publicTab = AddButton(header.transform, "公共动态", 130);
             _friendsTab = AddButton(header.transform, "好友动态", 130);
+            _publicTab.gameObject.name = "Public";
+            _friendsTab.gameObject.name = "Friends";
 
             var statusGo = new GameObject("Status", typeof(RectTransform), typeof(Text));
             statusGo.transform.SetParent(transform, false);
@@ -403,6 +408,8 @@ namespace FishSocial.Desktop
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var rect = scroll.GetComponent<ScrollRect>();
             _scroll = rect;
+            rect.horizontal = false;
+            rect.vertical = true;
             rect.viewport = viewportRt;
             rect.content = _content;
         }
