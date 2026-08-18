@@ -67,7 +67,7 @@
 | [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应 |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
-| [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已确认** | 08C；公共动态墙、好友动态、点赞与评论 |
+| [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已实现** | 08C；公共动态墙、好友动态、分页、动态卡片 Prefab、点赞与评论 |
 | [Steam桌面端-08D排行榜.md](./Steam桌面端-08D排行榜.md) | v1.0-steam-desktop | P1 | **已确认** | 08D；日榜、周榜、鱼塘榜、稀有鱼榜 |
 | [Steam桌面端-08E个人中心与资料编辑.md](./Steam桌面端-08E个人中心与资料编辑.md) | v1.0-steam-desktop | P1 | **已实现** | 08E；个人资料、头像、昵称和展示内容 |
 | [Steam桌面端-08F好友列表与申请Prefab.md](./Steam桌面端-08F好友列表与申请Prefab.md) | v1.0-steam-desktop | P0 | **已实现** | 08F；独立好友 Prefab 与申请按钮修复 |
