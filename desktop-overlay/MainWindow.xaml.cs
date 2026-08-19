@@ -319,6 +319,11 @@ namespace FishSocialOverlay
             SendCommand("menu_feed");
         }
 
+        void MenuLeaderboard_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("menu_leaderboard");
+        }
+
         void MenuSettings_OnClick(object sender, RoutedEventArgs e)
         {
             SendCommand("menu_settings");
@@ -416,7 +421,9 @@ namespace FishSocialOverlay
                    command == "menu_catch" ||
                    command == "menu_gallery" ||
                    command == "menu_profile" ||
-                   command == "menu_settings";
+                   command == "menu_settings" ||
+                   command == "menu_feed" ||
+                   command == "menu_leaderboard";
         }
 
         void Send(IpcMessage message)

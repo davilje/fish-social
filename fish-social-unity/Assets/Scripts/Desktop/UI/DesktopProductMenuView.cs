@@ -24,6 +24,7 @@ namespace FishSocial.Desktop
             new MenuEntry(DesktopProductMenuAction.Profile, "个人中心", false),
             new MenuEntry(DesktopProductMenuAction.Settings, "设置", false),
             new MenuEntry(DesktopProductMenuAction.SocialFeed, "动态墙", false),
+            new MenuEntry(DesktopProductMenuAction.Leaderboard, "排行榜", false),
             new MenuEntry(DesktopProductMenuAction.HideToTray, "隐藏到托盘", true),
             new MenuEntry(DesktopProductMenuAction.Quit, "退出", true),
         };

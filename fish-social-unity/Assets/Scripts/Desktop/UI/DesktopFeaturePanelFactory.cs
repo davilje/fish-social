@@ -51,6 +51,8 @@ namespace FishSocial.Desktop
                     return MountFallback<T>(parent, "PanelProfileEdit", bind);
                 if (typeof(T) == typeof(DesktopSocialFeedPanel))
                     return MountFallback<T>(parent, "PanelSocialFeed", bind);
+                if (typeof(T) == typeof(DesktopLeaderboardPanel))
+                    return MountFallback<T>(parent, "PanelLeaderboard", bind);
                 Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/" +
                                PrefabName<T>());
                 return null;
@@ -65,6 +67,11 @@ namespace FishSocial.Desktop
                 {
                     Object.Destroy(instance);
                     return MountFallback<T>(parent, "PanelSocialFeed", bind);
+                }
+                if (typeof(T) == typeof(DesktopLeaderboardPanel))
+                {
+                    Object.Destroy(instance);
+                    return MountFallback<T>(parent, "PanelLeaderboard", bind);
                 }
                 Debug.LogError("[DesktopUI] Required component is missing from prefab: " +
                                PrefabName<T>());
@@ -117,6 +124,8 @@ namespace FishSocial.Desktop
                 return "PanelProfileEdit";
             if (typeof(T) == typeof(DesktopSocialFeedPanel))
                 return "PanelSocialFeed";
+            if (typeof(T) == typeof(DesktopLeaderboardPanel))
+                return "PanelLeaderboard";
             return typeof(T).Name;
         }
     }

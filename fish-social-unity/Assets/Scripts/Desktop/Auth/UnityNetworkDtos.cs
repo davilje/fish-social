@@ -324,4 +324,34 @@ namespace FishSocial.Desktop.Auth
         public string commentId;
         public int commentCount;
     }
+
+    [Serializable]
+    public sealed class LeaderboardExtraDto
+    {
+        public string speciesId;
+        public float sizeM;
+        public string pondId;
+        public int catchCount;
+        public long caughtAt;
+    }
+
+    [Serializable]
+    public sealed class LeaderboardEntryDto
+    {
+        public int rank;
+        public string playerId;
+        public string nickname;
+        public string avatarUrl;
+        public float value;
+        public LeaderboardExtraDto extra;
+    }
+
+    [Serializable]
+    public sealed class LeaderboardMyRankDto
+    {
+        public int rank;
+        public bool hasRank;
+        public float value;
+        public LeaderboardEntryDto entry;
+    }
 }

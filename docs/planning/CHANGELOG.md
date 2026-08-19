@@ -1,4 +1,16 @@
-?# 策划文档变更记录
+# 策划文档变更记录
+
+### [steam-desktop-08d-accepted] - 2026-08-19
+
+- `STEAM-DESKTOP-08D` 排行榜用户验收通过，计划状态改为 **已实现**。
+- 完成日/周/鱼塘/稀有四榜、固定 Image 领奖台、纵向列表、我的排名，以及主窗口/Overlay `menu_leaderboard` 入口。
+- 验证切榜不触发 `leave_pond`，不重建 Overlay / Socket。
+
+### [steam-desktop-08d-podium-layout] - 2026-08-19
+
+- 用户确认 `STEAM-DESKTOP-08D` UI：保留日榜、周榜、鱼塘榜、稀有榜四类，不沿用 `FEAT-SOC-03b` 的「仅日/周」。
+- Top 1–3 为固定 Image 领奖台（左 2 / 中 1 / 右 3），占位含昵称、头像、用户数据；缺人空位。
+- 第 4 名及以后在下方独立纵向 `ScrollRect`，禁用横向滚动；切页不离塘。
 
 ### [steam-desktop-08c-accepted] - 2026-08-19
 

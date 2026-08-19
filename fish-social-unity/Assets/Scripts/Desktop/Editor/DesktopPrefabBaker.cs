@@ -65,6 +65,49 @@ namespace FishSocial.Desktop.Editor
                 Debug.LogError("[DesktopPrefabBaker] Social feed prefab: " + errors);
         }
 
+        public static void GeneratePanelLeaderboardPrefab()
+        {
+            GenerateNamedPanel(
+                "PanelLeaderboard",
+                typeof(DesktopLeaderboardPanel),
+                "已创建 PanelLeaderboard.prefab。运行时只绑定服务端排行榜数据，不覆盖 Prefab 布局。");
+            var errors = string.Empty;
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(
+                    Folder + "/LeaderboardRow.prefab") == null)
+                GenerateLeaderboardRowPrefab(ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            if (!string.IsNullOrEmpty(errors))
+                Debug.LogError("[DesktopPrefabBaker] Leaderboard prefab: " + errors);
+        }
+
+        public static void PopulatePanelLeaderboardPrefab()
+        {
+            PopulateNamedPanel("PanelLeaderboard", root =>
+            {
+                var panel = root.GetComponent<DesktopLeaderboardPanel>();
+                if (panel != null)
+                    panel.BuildEditorLayout();
+            });
+            if (!HasLeaderboardRowStructure())
+            {
+                var errors = string.Empty;
+                GenerateLeaderboardRowPrefab(ref errors);
+                if (!string.IsNullOrEmpty(errors))
+                    Debug.LogError("[DesktopPrefabBaker] Leaderboard row rebuild: " + errors);
+            }
+        }
+
+        static bool HasLeaderboardRowStructure()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/LeaderboardRow.prefab");
+            return prefab != null &&
+                   prefab.transform.Find("Rank") != null &&
+                   prefab.transform.Find("Nickname") != null &&
+                   prefab.transform.Find("Value") != null;
+        }
+
         public static void PopulatePanelSocialFeedPrefab()
         {
             PopulateNamedPanel("PanelSocialFeed", root =>
@@ -269,6 +312,7 @@ namespace FishSocial.Desktop.Editor
                 new PrefabEntry("PanelProfile", typeof(DesktopProfilePanel)),
                 new PrefabEntry("PanelProfileEdit", typeof(DesktopProfileEditPanel)),
                 new PrefabEntry("PanelSocialFeed", typeof(DesktopSocialFeedPanel)),
+                new PrefabEntry("PanelLeaderboard", typeof(DesktopLeaderboardPanel)),
             };
 
             var errors = string.Empty;
@@ -302,6 +346,7 @@ namespace FishSocial.Desktop.Editor
                 "GallerySpeciesSlot",
                 "SocialPostCard",
                 "PostCommentRow",
+                "LeaderboardRow",
             };
             for (var i = 0; i < itemPrefabs.Length; i++)
             {
@@ -311,6 +356,8 @@ namespace FishSocial.Desktop.Editor
             }
             if (!HasSocialPostCardStructure())
                 errors += "\nSocialPostCard 不是完整数据绑定结构，请执行“初始化”";
+            if (!HasLeaderboardRowStructure())
+                errors += "\nLeaderboardRow 不是完整数据绑定结构，请执行“初始化”";
             var commentRow = AssetDatabase.LoadAssetAtPath<GameObject>(
                 Folder + "/PostCommentRow.prefab");
             if (commentRow != null &&
@@ -973,6 +1020,36 @@ namespace FishSocial.Desktop.Editor
             catch (System.Exception error)
             {
                 errors += "\nPostCommentRow：" + error.Message;
+                return 0;
+            }
+        }
+
+        static int GenerateLeaderboardRowPrefab(ref string errors)
+        {
+            try
+            {
+                const string name = "LeaderboardRow";
+                AssetDatabase.DeleteAsset(Folder + "/" + name + ".prefab");
+                var root = NewContainer(null, name, typeof(Image),
+                    typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+                root.GetComponent<Image>().color = new Color(0.13f, 0.18f, 0.23f, 1f);
+                var layout = root.GetComponent<HorizontalLayoutGroup>();
+                layout.padding = new RectOffset(10, 10, 6, 6);
+                layout.spacing = 10f;
+                layout.childControlWidth = true;
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = false;
+                var element = root.GetComponent<LayoutElement>();
+                element.minHeight = 40f;
+                element.preferredHeight = 40f;
+                CreateLabel(root.transform, "Rank").text = "#4";
+                CreateLabel(root.transform, "Nickname").text = "钓友";
+                CreateLabel(root.transform, "Value").text = "成绩";
+                return SaveGeneratedPrefab(root, name, ref errors);
+            }
+            catch (System.Exception error)
+            {
+                errors += "\nLeaderboardRow：" + error.Message;
                 return 0;
             }
         }

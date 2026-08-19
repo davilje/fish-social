@@ -25,8 +25,10 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("PanelProfile", "个人中心：昵称、头像、玩家 ID、在线状态和展示鱼获。", typeof(DesktopProfilePanel)),
             new PrefabDefinition("PanelProfileEdit", "资料编辑：昵称、简介、默认头像和展示格保存。", typeof(DesktopProfileEditPanel)),
             new PrefabDefinition("PanelSocialFeed", "动态墙：公共/好友动态、加载状态和互动操作。", typeof(DesktopSocialFeedPanel)),
+            new PrefabDefinition("PanelLeaderboard", "排行榜：日/周/鱼塘/稀有榜、领奖台和纵向列表。", typeof(DesktopLeaderboardPanel)),
             new PrefabDefinition("SocialPostCard", "动态墙中的单条鱼获分享卡片。", null),
             new PrefabDefinition("PostCommentRow", "动态卡片中的单条评论和删除操作。", null),
+            new PrefabDefinition("LeaderboardRow", "排行榜第 4 名及以后的单行。", null),
             new PrefabDefinition("FriendRow", "好友列表中的单个好友行，包含私聊和移除按钮。", null),
             new PrefabDefinition("FriendRequestRow", "好友申请行，包含接受和拒绝按钮。", null),
             new PrefabDefinition("SteamInviteRow", "Steam 好友邀请行，包含邀请进塘按钮。", null),
@@ -190,8 +192,10 @@ namespace FishSocial.Desktop.Editor
                 name != "PanelProfileEdit" &&
                 name != "PanelShop" &&
                 name != "PanelSocialFeed" &&
+                name != "PanelLeaderboard" &&
                 name != "SocialPostCard" &&
-                name != "PostCommentRow")
+                name != "PostCommentRow" &&
+                name != "LeaderboardRow")
                 return false;
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 Folder + "/" + name + ".prefab");
@@ -201,6 +205,16 @@ namespace FishSocial.Desktop.Editor
                 return prefab.transform.Find("Header/Public") == null ||
                        prefab.transform.Find("Header/Friends") == null ||
                        prefab.transform.Find("Scroll/Viewport/Content") == null;
+            if (name == "PanelLeaderboard")
+                return prefab.transform.Find("Tabs/Daily") == null ||
+                       prefab.transform.Find("Tabs/Weekly") == null ||
+                       prefab.transform.Find("Tabs/Pond") == null ||
+                       prefab.transform.Find("Tabs/Rare") == null ||
+                       prefab.transform.Find("Podium/Slot1") == null ||
+                       prefab.transform.Find("Podium/Slot2") == null ||
+                       prefab.transform.Find("Podium/Slot3") == null ||
+                       prefab.transform.Find("Scroll/Viewport/Content") == null ||
+                       prefab.transform.Find("MyRank") == null;
             if (name == "SocialPostCard")
                 return prefab.GetComponent<DesktopSocialPostCard>() == null ||
                        prefab.transform.Find("Header/AuthorText") == null ||
@@ -213,6 +227,10 @@ namespace FishSocial.Desktop.Editor
             if (name == "PostCommentRow")
                 return prefab.transform.Find("Text") == null ||
                        prefab.transform.Find("Delete") == null;
+            if (name == "LeaderboardRow")
+                return prefab.transform.Find("Rank") == null ||
+                       prefab.transform.Find("Nickname") == null ||
+                       prefab.transform.Find("Value") == null;
             return prefab.transform.Find("Header") == null;
         }
 
@@ -229,6 +247,10 @@ namespace FishSocial.Desktop.Editor
                     break;
                 case "PanelSocialFeed":
                     DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
+                    break;
+                case "PanelLeaderboard":
+                case "LeaderboardRow":
+                    DesktopPrefabValidator.PopulatePanelLeaderboardPrefab();
                     break;
                 case "SocialPostCard":
                     DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
@@ -252,6 +274,10 @@ namespace FishSocial.Desktop.Editor
                     break;
                 case "PanelSocialFeed":
                     DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
+                    break;
+                case "PanelLeaderboard":
+                case "LeaderboardRow":
+                    DesktopPrefabValidator.GeneratePanelLeaderboardPrefab();
                     break;
                 case "SocialPostCard":
                     DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();

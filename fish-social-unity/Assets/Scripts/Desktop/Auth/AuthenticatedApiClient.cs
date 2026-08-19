@@ -43,6 +43,12 @@ namespace FishSocial.Desktop.Auth
         IEnumerator TogglePostLike(string postId, Action<bool, bool, int, string> onCompleted);
         IEnumerator AddPostComment(string postId, string text, Action<bool, PostCommentDto, int, string> onCompleted);
         IEnumerator DeletePostComment(string postId, string commentId, Action<bool, int, string> onCompleted);
+        IEnumerator GetLeaderboard(
+            string boardType, string pondId, int limit,
+            Action<bool, LeaderboardEntryDto[], string, string> onCompleted);
+        IEnumerator GetMyLeaderboardRank(
+            string boardType, string pondId,
+            Action<bool, LeaderboardMyRankDto, string> onCompleted);
     }
 
     /// <summary>
@@ -416,6 +422,85 @@ namespace FishSocial.Desktop.Auth
                             "ok", "commentCount");
                 });
             onCompleted?.Invoke(ok, parsed != null ? parsed.commentCount : 0, error);
+        }
+
+        public IEnumerator GetLeaderboard(
+            string boardType, string pondId, int limit,
+            Action<bool, LeaderboardEntryDto[], string, string> onCompleted)
+        {
+            LeaderboardListResponse parsed = null;
+            string error = null;
+            var ok = false;
+            var safeLimit = Mathf.Clamp(limit, 1, 50);
+            string path;
+            if (boardType == "daily_biggest")
+                path = "/api/leaderboard/daily-biggest?limit=" + safeLimit;
+            else if (boardType == "weekly_king")
+                path = "/api/leaderboard/weekly-king?limit=" + safeLimit;
+            else if (boardType == "rare")
+                path = "/api/leaderboard/rare?limit=" + safeLimit;
+            else if (boardType == "pond")
+            {
+                if (string.IsNullOrEmpty(pondId))
+                {
+                    onCompleted?.Invoke(false, new LeaderboardEntryDto[0], null,
+                        "请先进入鱼塘后再查看鱼塘榜。");
+                    yield break;
+                }
+                path = "/api/leaderboard/pond/" + Uri.EscapeDataString(pondId) +
+                       "?limit=" + safeLimit;
+            }
+            else
+            {
+                onCompleted?.Invoke(false, new LeaderboardEntryDto[0], null, "未知榜单类型。");
+                yield break;
+            }
+
+            yield return GetJson(path, (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (success)
+                    ok = TryParseResponse(json, out parsed, out error, "entries");
+            });
+            onCompleted?.Invoke(
+                ok,
+                parsed != null && parsed.entries != null
+                    ? parsed.entries : new LeaderboardEntryDto[0],
+                parsed != null ? parsed.periodKey : null,
+                error);
+        }
+
+        public IEnumerator GetMyLeaderboardRank(
+            string boardType, string pondId,
+            Action<bool, LeaderboardMyRankDto, string> onCompleted)
+        {
+            LeaderboardMyRankDto parsed = null;
+            string error = null;
+            var ok = false;
+            var path = "/api/leaderboard/my-rank?boardType=" +
+                       Uri.EscapeDataString(boardType ?? "") +
+                       "&limit=50";
+            if (boardType == "pond" && !string.IsNullOrEmpty(pondId))
+                path += "&pondId=" + Uri.EscapeDataString(pondId);
+
+            yield return GetJson(path, (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (!success)
+                    return;
+                if (!TryParseResponse(json, out parsed, out error, "value"))
+                {
+                    ok = false;
+                    return;
+                }
+                parsed.hasRank = json != null &&
+                                 !System.Text.RegularExpressions.Regex.IsMatch(
+                                     json, "\"rank\"\\s*:\\s*null") &&
+                                 parsed.rank > 0;
+            });
+            onCompleted?.Invoke(ok, parsed ?? new LeaderboardMyRankDto(), error);
         }
         public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
         {
@@ -871,6 +956,11 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class DeleteCommentResponse { public bool ok; public int commentCount; }
         [Serializable] sealed class CommentPayload { public string text; }
         [Serializable] sealed class StringValue { public string value; }
+        [Serializable] sealed class LeaderboardListResponse
+        {
+            public LeaderboardEntryDto[] entries;
+            public string periodKey;
+        }
         #pragma warning restore 0649
     }
 }

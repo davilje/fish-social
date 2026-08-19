@@ -42,6 +42,7 @@ namespace FishSocial.Desktop
         DesktopProfilePanel _profilePanel;
         DesktopProfileEditPanel _profileEditPanel;
         DesktopSocialFeedPanel _socialFeedPanel;
+        DesktopLeaderboardPanel _leaderboardPanel;
 
         public void Build(PanelRouter router)
         {
@@ -174,6 +175,7 @@ namespace FishSocial.Desktop
             CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery));
             CreateNavButton(nav.transform, "我的", () => ShowMainPanel(ShellPanelId.Profile));
             CreateNavButton(nav.transform, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed));
+            CreateNavButton(nav.transform, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard));
             CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings));
 
             var content = CreateBar("Content", go.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
@@ -192,6 +194,7 @@ namespace FishSocial.Desktop
             RegisterPanel(content.transform, ShellPanelId.Profile, BuildProfilePanel);
             RegisterPanel(content.transform, ShellPanelId.ProfileEdit, BuildProfileEditPanel);
             RegisterPanel(content.transform, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
+            RegisterPanel(content.transform, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
             RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettingsPanel);
         }
 
@@ -258,6 +261,9 @@ namespace FishSocial.Desktop
                 case DesktopProductMenuAction.SocialFeed:
                     ShowMainPanel(ShellPanelId.SocialFeed);
                     break;
+                case DesktopProductMenuAction.Leaderboard:
+                    ShowMainPanel(ShellPanelId.Leaderboard);
+                    break;
                 case DesktopProductMenuAction.HideToTray:
                     WindowManager.Instance?.HideToTray();
                     break;
@@ -277,6 +283,7 @@ namespace FishSocial.Desktop
             _profilePanel?.OnClosed();
             _profileEditPanel?.OnClosed();
             _socialFeedPanel?.OnClosed();
+            _leaderboardPanel?.OnClosed();
             switch (id)
             {
                 case ShellPanelId.Shop:
@@ -300,6 +307,9 @@ namespace FishSocial.Desktop
                 case ShellPanelId.SocialFeed:
                     _socialFeedPanel?.OnOpened();
                     break;
+                case ShellPanelId.Leaderboard:
+                    _leaderboardPanel?.OnOpened();
+                    break;
                 case ShellPanelId.Settings:
                     _settingsPanel?.OnOpened();
                     break;
@@ -317,6 +327,7 @@ namespace FishSocial.Desktop
             _profilePanel?.OnClosed();
             _profileEditPanel?.OnClosed();
             _socialFeedPanel?.OnClosed();
+            _leaderboardPanel?.OnClosed();
             if (_petState != null)
                 _petState.StateChanged -= OnPetVisualStateChanged;
             if (_steamAuth == null)
@@ -678,6 +689,13 @@ namespace FishSocial.Desktop
         void BuildSocialFeedPanel(GameObject go)
         {
             _socialFeedPanel = DesktopFeaturePanelFactory.Mount<DesktopSocialFeedPanel>(
+                go.transform,
+                view => view.Bind(_authenticatedApi, _pondSession));
+        }
+
+        void BuildLeaderboardPanel(GameObject go)
+        {
+            _leaderboardPanel = DesktopFeaturePanelFactory.Mount<DesktopLeaderboardPanel>(
                 go.transform,
                 view => view.Bind(_authenticatedApi, _pondSession));
         }

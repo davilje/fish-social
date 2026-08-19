@@ -11,6 +11,7 @@ namespace FishSocial.Desktop
         Profile,
         Settings,
         SocialFeed,
+        Leaderboard,
         HideToTray,
         Quit,
     }
@@ -31,6 +32,7 @@ namespace FishSocial.Desktop
         public const string Profile = "menu_profile";
         public const string Settings = "menu_settings";
         public const string SocialFeed = "menu_feed";
+        public const string Leaderboard = "menu_leaderboard";
         public const string HideToTray = "hide_to_tray";
         public const string Quit = "quit_app";
 
@@ -64,6 +66,9 @@ namespace FishSocial.Desktop
                     return true;
                 case SocialFeed:
                     action = DesktopProductMenuAction.SocialFeed;
+                    return true;
+                case Leaderboard:
+                    action = DesktopProductMenuAction.Leaderboard;
                     return true;
                 case HideToTray:
                     action = DesktopProductMenuAction.HideToTray;

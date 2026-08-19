@@ -94,7 +94,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |
 | [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已实现** |
-| [steam-desktop-08d-leaderboard-dev.prompt.md](./steam-desktop-08d-leaderboard-dev.prompt.md) | STEAM-DESKTOP-08D：排行榜 · **已确认** |
+| [steam-desktop-08d-leaderboard-dev.prompt.md](./steam-desktop-08d-leaderboard-dev.prompt.md) | STEAM-DESKTOP-08D：排行榜（四榜 + 固定领奖台）· **已实现** |
 | [steam-desktop-08e-profile-dev.prompt.md](./steam-desktop-08e-profile-dev.prompt.md) | STEAM-DESKTOP-08E：个人中心与资料编辑 · **已实现** |
 | [steam-desktop-08f-friends-prefab-dev.prompt.md](./steam-desktop-08f-friends-prefab-dev.prompt.md) | STEAM-DESKTOP-08F：好友列表与申请 Prefab · **已实现** |
 | [steam-desktop-08g-overlay-fishing-controls-dev.prompt.md](./steam-desktop-08g-overlay-fishing-controls-dev.prompt.md) | STEAM-DESKTOP-08G：Overlay 钓鱼操作栏 · **已实现** |

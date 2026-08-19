@@ -13,5 +13,6 @@ namespace FishSocial.Desktop
         Profile = 8,
         ProfileEdit = 9,
         SocialFeed = 10,
+        Leaderboard = 11,
     }
 }
