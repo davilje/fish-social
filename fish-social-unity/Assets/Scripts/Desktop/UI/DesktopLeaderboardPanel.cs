@@ -14,7 +14,7 @@ namespace FishSocial.Desktop
     {
         const int PageLimit = 50;
         const int RowsPerFrame = 12;
-        const float TabDebounceSeconds = 0.12f;
+        const float ClientCacheSeconds = 300f;
         const string BoardDaily = "daily_biggest";
         const string BoardWeekly = "weekly_king";
         const string BoardPond = "pond";
@@ -36,11 +36,20 @@ namespace FishSocial.Desktop
         PodiumSlot _podium3;
         string _boardType = BoardDaily;
         Coroutine _loadRoutine;
-        Coroutine _debounceRoutine;
-        Coroutine _boardRequest;
-        Coroutine _myRankRequest;
+        Coroutine _prefetchRoutine;
         int _loadGeneration;
+        int _prefetchEpoch;
         readonly List<GameObject> _rowPool = new List<GameObject>(48);
+        readonly Dictionary<string, BoardCache> _clientCache =
+            new Dictionary<string, BoardCache>();
+
+        struct BoardCache
+        {
+            public LeaderboardEntryDto[] entries;
+            public LeaderboardMyRankDto myRank;
+            public bool hasMyRank;
+            public float fetchedAt;
+        }
 
         struct PodiumSlot
         {
@@ -59,12 +68,16 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            _boardType = BoardDaily;
+            EnsureUi();
             RefreshNow();
+            StartPrefetchOthers(BoardDaily);
         }
 
         public void OnClosed()
         {
             CancelLoads();
+            StopPrefetch();
             _loadGeneration++;
         }
 
@@ -129,36 +142,20 @@ namespace FishSocial.Desktop
         void BindTab(Button button, string boardType)
         {
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() =>
-            {
-                if (_boardType == boardType)
-                    return;
-                _boardType = boardType;
-                ScheduleRefresh();
-            });
+            button.onClick.AddListener(() => SelectBoard(boardType));
         }
 
-        void ScheduleRefresh()
+        void SelectBoard(string boardType)
         {
-            if (_debounceRoutine != null)
-                StopCoroutine(_debounceRoutine);
-            _debounceRoutine = StartCoroutine(DebouncedRefresh());
-        }
-
-        IEnumerator DebouncedRefresh()
-        {
-            yield return new WaitForSecondsRealtime(TabDebounceSeconds);
-            _debounceRoutine = null;
+            if (_boardType == boardType && _loadRoutine == null)
+                return;
+            _boardType = boardType;
             RefreshNow();
+            StartPrefetchOthers(boardType);
         }
 
         void RefreshNow()
         {
-            if (_debounceRoutine != null)
-            {
-                StopCoroutine(_debounceRoutine);
-                _debounceRoutine = null;
-            }
             CancelLoads();
             var generation = ++_loadGeneration;
             _loadRoutine = StartCoroutine(LoadRoutine(generation));
@@ -171,29 +168,150 @@ namespace FishSocial.Desktop
                 StopCoroutine(_loadRoutine);
                 _loadRoutine = null;
             }
-            if (_boardRequest != null)
+        }
+
+        void StopPrefetch()
+        {
+            _prefetchEpoch++;
+            if (_prefetchRoutine != null)
             {
-                StopCoroutine(_boardRequest);
-                _boardRequest = null;
+                StopCoroutine(_prefetchRoutine);
+                _prefetchRoutine = null;
             }
-            if (_myRankRequest != null)
+        }
+
+        bool IsPrefetchCancelled(int epoch)
+        {
+            return epoch != _prefetchEpoch;
+        }
+
+        bool TryGetFreshCache(string cacheKey, out BoardCache cached)
+        {
+            return _clientCache.TryGetValue(cacheKey, out cached) &&
+                   Time.unscaledTime - cached.fetchedAt < ClientCacheSeconds;
+        }
+
+        void StartPrefetchOthers(string exceptBoardType)
+        {
+            if (!isActiveAndEnabled)
+                return;
+            StopPrefetch();
+            _prefetchRoutine = StartCoroutine(PrefetchOthersRoutine(exceptBoardType));
+        }
+
+        IEnumerator PrefetchOthersRoutine(string exceptBoardType)
+        {
+            var epoch = _prefetchEpoch;
+            if (_api == null || !_api.CanUse)
             {
-                StopCoroutine(_myRankRequest);
-                _myRankRequest = null;
+                _prefetchRoutine = null;
+                yield break;
             }
+
+            var pondId = _pond != null ? _pond.CurrentPondId : null;
+            var boards = new[]
+            {
+                BoardDaily,
+                BoardWeekly,
+                BoardRare,
+                BoardPond,
+            };
+            for (var i = 0; i < boards.Length; i++)
+            {
+                if (IsPrefetchCancelled(epoch))
+                    yield break;
+                var boardType = boards[i];
+                if (boardType == exceptBoardType)
+                    continue;
+                if (boardType == BoardPond && string.IsNullOrEmpty(pondId))
+                    continue;
+                yield return PrefetchBoardSilent(boardType, pondId, epoch);
+            }
+
+            _prefetchRoutine = null;
+        }
+
+        IEnumerator PrefetchBoardSilent(string boardType, string pondId, int epoch)
+        {
+            var cacheKey = BuildCacheKey(boardType, pondId);
+            if (TryGetFreshCache(cacheKey, out _))
+                yield break;
+
+            var done = false;
+            var ok = false;
+            LeaderboardEntryDto[] entries = null;
+            yield return RunBoardRequestPrefetch(
+                boardType, pondId, epoch,
+                (success, items, error) =>
+                {
+                    ok = success;
+                    entries = items;
+                    done = true;
+                });
+            while (!done)
+            {
+                if (IsPrefetchCancelled(epoch))
+                    yield break;
+                yield return null;
+            }
+
+            if (IsPrefetchCancelled(epoch) || !ok || entries == null)
+                yield break;
+
+            StoreCache(cacheKey, entries, false, null);
+
+            var myDone = false;
+            var myOk = false;
+            LeaderboardMyRankDto myRank = null;
+            yield return RunMyRankRequestPrefetch(
+                boardType, pondId, epoch,
+                (success, rank) =>
+                {
+                    myOk = success;
+                    if (success)
+                        myRank = rank;
+                    myDone = true;
+                });
+            while (!myDone)
+            {
+                if (IsPrefetchCancelled(epoch))
+                    yield break;
+                yield return null;
+            }
+
+            if (IsPrefetchCancelled(epoch))
+                yield break;
+
+            if (myOk)
+                StoreCache(cacheKey, entries, true, myRank);
+        }
+
+        bool IsStaleGeneration(int generation, string boardType)
+        {
+            return generation != _loadGeneration || _boardType != boardType;
         }
 
         IEnumerator LoadRoutine(int generation)
         {
-            SetStatus("正在加载排行榜…");
+            try
+            {
+                yield return LoadRoutineBody(generation);
+            }
+            finally
+            {
+                if (generation == _loadGeneration)
+                    _loadRoutine = null;
+            }
+        }
 
+        IEnumerator LoadRoutineBody(int generation)
+        {
             if (_api == null || !_api.CanUse)
             {
                 SetStatus("当前没有有效的 Steam 会话。");
                 HideAllRows();
                 RenderPodium(null, null, null, _boardType);
                 SetMyRank(null, _boardType);
-                _loadRoutine = null;
                 yield break;
             }
 
@@ -205,53 +323,47 @@ namespace FishSocial.Desktop
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);
-                _loadRoutine = null;
                 yield break;
             }
+
+            var cacheKey = BuildCacheKey(boardType, pondId);
+            BoardCache cached;
+            var hasCached = TryGetFreshCache(cacheKey, out cached);
+            if (hasCached)
+            {
+                yield return ApplyBoardData(
+                    cached.entries, boardType, generation, cached.hasMyRank ? cached.myRank : null);
+                if (IsStaleGeneration(generation, boardType))
+                    yield break;
+                SetStatus(string.Empty);
+                if (!cached.hasMyRank)
+                    yield return FetchMyRankOnly(boardType, pondId, cacheKey, generation, cached.entries);
+                yield break;
+            }
+
+            SetStatus("正在加载排行榜…");
 
             var boardDone = false;
             var boardOk = false;
             LeaderboardEntryDto[] entries = null;
             string boardError = null;
-            var myDone = false;
-            var myOk = false;
-            LeaderboardMyRankDto myRank = null;
-
-            _boardRequest = StartCoroutine(RunEnumerator(
-                _api.GetLeaderboard(boardType, pondId, PageLimit,
-                    (success, items, periodKey, message) =>
-                    {
-                        boardOk = success;
-                        entries = items;
-                        boardError = message;
-                    }),
-                () =>
+            yield return RunBoardRequest(
+                boardType, pondId, generation,
+                (success, items, error) =>
                 {
+                    boardOk = success;
+                    entries = items;
+                    boardError = error;
                     boardDone = true;
-                    _boardRequest = null;
-                }));
-            _myRankRequest = StartCoroutine(RunEnumerator(
-                _api.GetMyLeaderboardRank(boardType, pondId,
-                    (success, rank, message) =>
-                    {
-                        myOk = success;
-                        if (success)
-                            myRank = rank;
-                    }),
-                () =>
-                {
-                    myDone = true;
-                    _myRankRequest = null;
-                }));
-
-            while (!boardDone || !myDone)
+                });
+            while (!boardDone)
             {
-                if (generation != _loadGeneration)
+                if (IsStaleGeneration(generation, boardType))
                     yield break;
                 yield return null;
             }
 
-            if (generation != _loadGeneration)
+            if (IsStaleGeneration(generation, boardType))
                 yield break;
 
             if (!boardOk)
@@ -260,17 +372,16 @@ namespace FishSocial.Desktop
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);
-                _loadRoutine = null;
                 yield break;
             }
 
             if (entries == null || entries.Length == 0)
             {
+                StoreCache(cacheKey, new LeaderboardEntryDto[0], false, null);
                 SetStatus("当前榜单暂无数据。");
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
-                SetMyRank(myOk ? myRank : null, boardType);
-                _loadRoutine = null;
+                SetMyRank(null, boardType);
                 yield break;
             }
 
@@ -284,30 +395,182 @@ namespace FishSocial.Desktop
                     HideAllRows();
                     RenderPodium(null, null, null, boardType);
                     SetMyRank(null, boardType);
-                    _loadRoutine = null;
                     yield break;
                 }
+            }
+
+            yield return ApplyBoardData(entries, boardType, generation, null);
+            if (IsStaleGeneration(generation, boardType))
+                yield break;
+            StoreCache(cacheKey, entries, false, null);
+            SetStatus(string.Empty);
+            yield return FetchMyRankOnly(boardType, pondId, cacheKey, generation, entries);
+        }
+
+        IEnumerator FetchMyRankOnly(
+            string boardType,
+            string pondId,
+            string cacheKey,
+            int generation,
+            LeaderboardEntryDto[] entries)
+        {
+            var myDone = false;
+            var myOk = false;
+            LeaderboardMyRankDto myRank = null;
+            yield return RunMyRankRequest(
+                boardType, pondId, generation,
+                (success, rank) =>
+                {
+                    myOk = success;
+                    if (success)
+                        myRank = rank;
+                    myDone = true;
+                });
+            while (!myDone)
+            {
+                if (IsStaleGeneration(generation, boardType))
+                    yield break;
+                yield return null;
+            }
+
+            if (IsStaleGeneration(generation, boardType))
+                yield break;
+
+            if (myOk)
+            {
+                SetMyRank(myRank, boardType);
+                StoreCache(cacheKey, entries, true, myRank);
+            }
+            else
+            {
+                SetMyRank(null, boardType);
+            }
+        }
+
+        IEnumerator RunBoardRequest(
+            string boardType,
+            string pondId,
+            int generation,
+            System.Action<bool, LeaderboardEntryDto[], string> onCompleted)
+        {
+            var completed = false;
+            var request = _api.GetLeaderboard(boardType, pondId, PageLimit,
+                (success, items, periodKey, message) =>
+                {
+                    if (!IsStaleGeneration(generation, boardType))
+                        onCompleted?.Invoke(success, items, message);
+                    completed = true;
+                });
+            if (request != null)
+                yield return request;
+            if (!completed)
+                onCompleted?.Invoke(false, null, "排行榜请求已取消。");
+        }
+
+        IEnumerator RunBoardRequestPrefetch(
+            string boardType,
+            string pondId,
+            int epoch,
+            System.Action<bool, LeaderboardEntryDto[], string> onCompleted)
+        {
+            var completed = false;
+            var request = _api.GetLeaderboard(boardType, pondId, PageLimit,
+                (success, items, periodKey, message) =>
+                {
+                    if (!IsPrefetchCancelled(epoch))
+                        onCompleted?.Invoke(success, items, message);
+                    completed = true;
+                });
+            if (request != null)
+                yield return request;
+            if (!completed)
+                onCompleted?.Invoke(false, null, "排行榜请求已取消。");
+        }
+
+        IEnumerator RunMyRankRequest(
+            string boardType,
+            string pondId,
+            int generation,
+            System.Action<bool, LeaderboardMyRankDto> onCompleted)
+        {
+            var completed = false;
+            var request = _api.GetMyLeaderboardRank(boardType, pondId,
+                (success, rank, message) =>
+                {
+                    if (!IsStaleGeneration(generation, boardType))
+                        onCompleted?.Invoke(success, rank);
+                    completed = true;
+                });
+            if (request != null)
+                yield return request;
+            if (!completed)
+                onCompleted?.Invoke(false, null);
+        }
+
+        IEnumerator RunMyRankRequestPrefetch(
+            string boardType,
+            string pondId,
+            int epoch,
+            System.Action<bool, LeaderboardMyRankDto> onCompleted)
+        {
+            var completed = false;
+            var request = _api.GetMyLeaderboardRank(boardType, pondId,
+                (success, rank, message) =>
+                {
+                    if (!IsPrefetchCancelled(epoch))
+                        onCompleted?.Invoke(success, rank);
+                    completed = true;
+                });
+            if (request != null)
+                yield return request;
+            if (!completed)
+                onCompleted?.Invoke(false, null);
+        }
+
+        static string BuildCacheKey(string boardType, string pondId)
+        {
+            return boardType + "|" + (pondId ?? string.Empty);
+        }
+
+        void StoreCache(
+            string cacheKey,
+            LeaderboardEntryDto[] entries,
+            bool hasMyRank,
+            LeaderboardMyRankDto myRank)
+        {
+            _clientCache[cacheKey] = new BoardCache
+            {
+                entries = entries,
+                myRank = myRank,
+                hasMyRank = hasMyRank,
+                fetchedAt = Time.unscaledTime,
+            };
+        }
+
+        IEnumerator ApplyBoardData(
+            LeaderboardEntryDto[] entries,
+            string boardType,
+            int generation,
+            LeaderboardMyRankDto myRank)
+        {
+            if (entries == null || entries.Length == 0)
+            {
+                HideAllRows();
+                RenderPodium(null, null, null, boardType);
+                if (myRank != null)
+                    SetMyRank(myRank, boardType);
+                yield break;
             }
 
             var first = FindRank(entries, 1);
             var second = FindRank(entries, 2);
             var third = FindRank(entries, 3);
             RenderPodium(first, second, third, boardType);
-
             yield return BindRows(entries, boardType, generation);
-            if (generation != _loadGeneration)
+            if (IsStaleGeneration(generation, boardType))
                 yield break;
-
-            SetMyRank(myOk ? myRank : null, boardType);
-            SetStatus(string.Empty);
-            _loadRoutine = null;
-        }
-
-        static IEnumerator RunEnumerator(IEnumerator routine, System.Action onCompleted)
-        {
-            if (routine != null)
-                yield return routine;
-            onCompleted?.Invoke();
+            if (myRank != null)
+                SetMyRank(myRank, boardType);
         }
 
         IEnumerator BindRows(
@@ -324,7 +587,7 @@ namespace FishSocial.Desktop
             var sourceIndex = 0;
             while (bound < needed)
             {
-                if (generation != _loadGeneration)
+                if (IsStaleGeneration(generation, boardType))
                     yield break;
 
                 var batchEnd = Mathf.Min(bound + RowsPerFrame, needed);

@@ -1,6 +1,6 @@
 ---
 description: Fish Social Unity Steam 桌面端开发 Agent——实现 Unity UI、Prefab、窗口与原生 Overlay
-globs: fish-social-unity/**,desktop-overlay/**,docs/planning/prompts/steam-desktop-*.md
+globs: fish-social-unity/**,desktop-overlay/**,docs/planning/prompts/steam-desktop-*.md,docs/planning/specs/Steam桌面端-09*.md,docs/planning/specs/Steam桌面端-08*.md
 alwaysApply: false
 ---
 
@@ -13,7 +13,8 @@ alwaysApply: false
 1. 阅读对应 `docs/planning/specs/*.md`，确认状态为 **已确认**。
 2. 精读对应 `docs/planning/prompts/*-dev.prompt.md` 的范围、边界和验收。
 3. 查阅 `fish-social-unity/` 当前场景、Prefab、Bootstrap、认证和 Socket 会话实现。
-4. 涉及 Overlay 时，同时阅读 `desktop-overlay/` 的窗口和 Named Pipe 协议。
+4. 涉及 Overlay 时，同时阅读 `desktop-overlay/` 的窗口和 Named Pipe 协议（`IpcProtocol.cs`、`OverlayPetActor.cs`、`MainWindow.xaml.cs`）。
+5. 社交 REST 路径以 `mobile/lib/socialApi.ts` 为**只读对照**；实现写在 `AuthenticatedApiClient.cs`，**不改** `server/` / `shared/`。
 
 ## 允许修改
 
@@ -42,6 +43,55 @@ alwaysApply: false
 - 性能修复必须记录 Overlay → IPC → Unity → Socket → ACK → 状态回传的 UTC 毫秒时间戳；不得仅凭视觉感受归因。
 - 正常网络下按钮反馈延迟以 P50/P95 验收，并覆盖高频状态广播、退出鱼塘、跨塘切换、断线和 ACK 超时场景。
 
+## Overlay 扩展（STEAM-DESKTOP-09A–09D）
+
+均由 **本 Agent** 完成（Unity + WPF Overlay）；**不要** 交给 `frontend-dev-agent` / `backend-dev-agent`。
+
+**推荐顺序**：**09D（布局/角色 P0）** → 09B（IPC + 悬停仅时长，可与 09D 合并开发）→ 09A → 09C。
+
+### 09D 布局与角色表现（P0，优先）
+
+- **尺寸**：`960×560`；`BodySize/CatSize=64`（原 128 的 50%）。
+- **昵称**：塘内**每位**用户默认显示在宠物**上方**；Bot **不加**「·机」。
+- **默认表现**：钓鱼中 icon/短文案；上钩 **圆环进度条**（`hookDeadlineMs`）；idle 不显示。
+- **左上收纳菜单**：默认收起；展开纵向含「打开主界面」+ 原 08G 钓鱼操作；位于状态/鱼塘/钓位胶囊**上方**；**移除**底部横栏与右上独立按钮。
+- **08G supersede**：操作语义不变，布局迁入 09D。
+
+### 09A 玩家右键菜单
+
+- **WPF**：`OverlayPetActor` 右键 `ContextMenu`（资料 / 加好友 / 私聊 / 点赞）；`e.Handled = true`，不与 `PondScene` 产品级 `ContextMenu`、钓位左键、场景拖动冲突。
+- **IPC 命令**（带 `playerId` + `commandId`）：`player_open_profile` · `player_add_friend` · `player_open_dm` · `player_like_recent`。
+- **Unity 分发**：`DesktopAppBootstrap.OnNativeOverlayCommand` → 社交桥（可新建 `OverlayPlayerSocialBridge.cs`）。
+- **主窗口路由**：`DesktopAppBootstrap.RaiseMainWindow(ShellPanelId)` + `DesktopShellUi`；资料/私聊需 `mainWindowRaised=true` 让 Overlay 取消置顶。
+- **API 缺口（在 Unity 客户端补，不改服务端）**：
+  - `GET /api/players/:id/public-view`（他人资料；现 `GetPlayerProfile` 仅 self）
+  - `POST /api/friends/request`（发好友请求；现仅有 accept/reject）
+  - 复用已有 `GetSocialPosts` / `TogglePostLike` / `GetConversations` + DM API
+- **不做**：Overlay 内完整资料页；新 Socket 事件。
+
+### 09B 悬停钓鱼时长（收窄）
+
+- **默认**状态/圆环由 **09D** 负责；09B 仅 IPC 字段 + 悬停 Tooltip。
+- **悬停 ≥300ms**：Tooltip **仅**本局 `sessionFishingMs` 或收杆剩余；**不**重复 icon/圆环。
+- **扩展 DTO**：`fishingPhase` · `sessionFishingMs` · `hookDeadlineMs`；Overlay **不本地推算**。
+- **回归**：不出现 BUG-13 式「0 秒闪烁」。
+
+### 09C 鱼塘聊天气泡与输入
+
+- **修订 07E 口径**：Overlay 仅**轻量公屏**（最近 N 条气泡 + 单行输入）；完整历史 / 私聊 / 好友列表仍在 `PanelSocial`（`DesktopSocialModalView`）。
+- **Unity**：订阅 `chat_message` → 环形缓冲 → `PublishState` 附带 `recentChats[]`；已有 `SocialPondSessionController.SendChat`。
+- **IPC**：Overlay → `send_pond_chat { text }`；成功清空输入，失败写 `errorMessage`。
+- **WPF**：气泡层在角色之上；输入条与 08G 底部操作栏共存，HitTest 不挡钓位/按钮。
+- **不做**：Overlay 私聊 UI；富文本 / 图片。
+
+### 关键文件
+
+| 层 | 路径 |
+|----|------|
+| Overlay WPF | `desktop-overlay/OverlayPetActor.cs` · `PondScenePresenter.cs` · `MainWindow.xaml(.cs)` · `IpcProtocol.cs` |
+| Unity IPC | `NativeOverlayStateDto.cs` · `NativeOverlayProcessController.cs` · `OverlayPondStateBuilder.cs` · `DesktopAppBootstrap.cs` |
+| Unity 社交 | `AuthenticatedApiClient.cs` · `SocialPondSessionController.cs` · `DesktopShellUi.cs` · `DesktopSocialModalView.cs` |
+
 ## 完成前验证
 
 - Unity Windows Development/Release Build 可启动。
@@ -49,4 +99,6 @@ alwaysApply: false
 - Overlay 命令、状态序列号、窗口置顶和异常退出可验证。
 - Overlay 显示时 Unity 主线程保持交互帧率；命令 ACK 不受状态消息积压影响。
 - 日志能够关联 `commandId`、Socket `ackId` 和状态 `sequence`，并可计算各阶段耗时。
+- 09D：960×560、64px、默认状态/圆环、左上收纳菜单、Bot 无「·机」。
+- 09B：悬停 Tooltip 仅时长；DTO 字段齐全。
 - 按对应 spec 的验收项逐项记录结果；用户确认后再回写 spec 为「已实现」。

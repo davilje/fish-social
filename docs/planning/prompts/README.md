@@ -100,6 +100,10 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-08g-overlay-fishing-controls-dev.prompt.md](./steam-desktop-08g-overlay-fishing-controls-dev.prompt.md) | STEAM-DESKTOP-08G：Overlay 钓鱼操作栏 · **已实现** |
 | [steam-desktop-08h-ui-prefab-migration-dev.prompt.md](./steam-desktop-08h-ui-prefab-migration-dev.prompt.md) | STEAM-DESKTOP-08H：全量 UI Prefab 化与动态内容组件 · **已实现** |
 | [steam-desktop-08i-pond-exit-switch-latency-dev.prompt.md](./steam-desktop-08i-pond-exit-switch-latency-dev.prompt.md) | STEAM-DESKTOP-08I：鱼塘退出、跨塘切换与 Overlay 延迟优化 · **已实现** |
+| [steam-desktop-09a-overlay-player-menu-dev.prompt.md](./steam-desktop-09a-overlay-player-menu-dev.prompt.md) | STEAM-DESKTOP-09A：Overlay 玩家右键菜单 |
+| [steam-desktop-09b-overlay-hover-status-dev.prompt.md](./steam-desktop-09b-overlay-hover-status-dev.prompt.md) | STEAM-DESKTOP-09B：Overlay 悬停状态与钓鱼时长 |
+| [steam-desktop-09c-overlay-pond-chat-dev.prompt.md](./steam-desktop-09c-overlay-pond-chat-dev.prompt.md) | STEAM-DESKTOP-09C：Overlay 鱼塘聊天气泡与输入 |
+| [steam-desktop-09d-overlay-layout-dev.prompt.md](./steam-desktop-09d-overlay-layout-dev.prompt.md) | STEAM-DESKTOP-09D：Overlay 布局与角色表现优化 · **P0 先做** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |
 | [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **开发中（真实登录已通过，REST/Socket 待验收）** |
 | [steam-desktop-pond-offline-ecology-dev.prompt.md](./steam-desktop-pond-offline-ecology-dev.prompt.md) | STEAM-DESKTOP-05：空鱼塘休眠与生态离线补算 · **已确认** |

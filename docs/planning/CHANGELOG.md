@@ -1,5 +1,35 @@
 # 策划文档变更记录
 
+### [steam-desktop-09d-overlay-layout] - 2026-08-20
+
+- 新增 **STEAM-DESKTOP-09D** Overlay 布局与角色表现优化（**已确认** / P0）：
+  - 窗口 **960×560**；宠物 **64×64**（原 50%）
+  - 塘内每位用户昵称默认在头像上方；Bot 不显示「·机」
+  - 默认显示钓鱼状态 + 上钩圆环；**悬停仅显示钓鱼时长**（09B 收窄）
+  - 底部横栏与右上「打开主界面」合并为**左上纵向收纳菜单**（位于状态/鱼塘/钓位之上）
+- 修订 **STEAM-DESKTOP-09B** spec/prompt：不再沿用 Web「他人默认隐藏状态」
+- Prompt：`steam-desktop-09d-overlay-layout-dev.prompt.md`
+
+### [steam-desktop-09-overlay-social] - 2026-08-19
+
+- 新增 Overlay 社交扩展三条 **已确认** 需求（登记计划表 + 开发提示词）：
+  - **STEAM-DESKTOP-09A** 玩家右键菜单（资料 / 加好友 / 私聊 / 点赞）
+  - **STEAM-DESKTOP-09B** 悬停状态与钓鱼时长 Tooltip（对齐 FEAT-UI-1）
+  - **STEAM-DESKTOP-09C** 鱼塘公屏聊天气泡 + 紧凑输入（修订 07E「聊天仅主窗口」为轻量 Overlay 公屏）
+- Spec：`Steam桌面端-09A/B/C*.md`；Prompt：`steam-desktop-09a/b/c-*-dev.prompt.md`
+
+### [feat-soc-03b-accepted] - 2026-08-19
+
+- `FEAT-SOC-03b` 排行榜入口与领奖台改版用户验收通过，计划状态改为 **已实现**。
+- Web：首页 `LeaderboardButton` → `/leaderboard`；仅日/周分栏；Top3 领奖台（2-1-3）；4+ 纵向列表；社交中心排行 Tab 跳转独立页。
+- 服务端：`weekly-king` 改为本周单条最大鱼（`pickBestPerPlayer` + `sizeM`），与 daily-biggest 同结构。
+- P1 首页 Top3 预览条未做，不影响验收。
+
+### [steam-desktop-08d-accepted-final] - 2026-08-20
+
+- `STEAM-DESKTOP-08D` 排行榜终验通过，计划完成时间更新为 **2026-08-20**。
+- 修复 Tab 切换协程竞态、客户端缓存与后台预拉；四榜切换、领奖台、纵向列表、我的排名与 `menu_leaderboard` 入口均符合 spec。
+
 ### [steam-desktop-08d-accepted] - 2026-08-19
 
 - `STEAM-DESKTOP-08D` 排行榜用户验收通过，计划状态改为 **已实现**。

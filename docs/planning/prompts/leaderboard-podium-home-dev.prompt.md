@@ -21,6 +21,6 @@
 
 ## 完成后
 
-- [ ] 勾选 spec §4  
-- [ ] 更新 FEAT-SOC-03b 状态与 CHANGELOG  
-- [ ] 若有 verify：扩展或手测日/周最大鱼 + 无稀有入口  
+- [x] 勾选 spec §4  
+- [x] 更新 FEAT-SOC-03b 状态与 CHANGELOG  
+- [x] 若有 verify：扩展或手测日/周最大鱼 + 无稀有入口  

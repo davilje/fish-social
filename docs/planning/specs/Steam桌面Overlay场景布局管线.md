@@ -212,4 +212,5 @@ Unity 运行时（唯一业务进程）
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-20 | 策划 | **STEAM-DESKTOP-09D**：Overlay 正式画布增至 **960×560**；后续导出 JSON 的 `canvas.height` 与 09D 对齐（宽仍 960） |
 | 2026-08-16 | 策划 | 初稿：Unity Canvas Prefab → 布局 JSON → Overlay 像素真相处；类型归入美术 `STEAM-DESKTOP-ART-02` |
