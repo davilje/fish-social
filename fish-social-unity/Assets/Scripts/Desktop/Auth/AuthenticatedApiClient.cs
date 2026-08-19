@@ -32,6 +32,12 @@ namespace FishSocial.Desktop.Auth
         IEnumerator EquipTackle(string tackleId, Action<bool, ShopGearDto, string> onCompleted);
         string BaseUrl { get; }
         IEnumerator GetPlayerProfile(Action<bool, PlayerProfileDto, string> onCompleted);
+        IEnumerator GetPublicPlayerView(
+            string playerId, int limit,
+            Action<bool, PublicPlayerViewDto, string> onCompleted);
+        IEnumerator SendFriendRequest(
+            string toPlayerId, string fromNickname,
+            Action<bool, string> onCompleted);
         IEnumerator UpdatePlayerProfile(
             string nickname, string bio, string avatarUrl,
             Action<bool, PlayerProfileDto, string> onCompleted);
@@ -590,6 +596,40 @@ namespace FishSocial.Desktop.Auth
             onCompleted?.Invoke(ok, profile, error);
         }
 
+        public IEnumerator GetPublicPlayerView(
+            string playerId, int limit,
+            Action<bool, PublicPlayerViewDto, string> onCompleted)
+        {
+            PublicPlayerViewDto view = null;
+            string error = null;
+            var ok = false;
+            var path = "/api/players/" + Uri.EscapeDataString(playerId ?? "") +
+                       "/public-view?viewer=" + Uri.EscapeDataString(PlayerId ?? "") +
+                       "&limit=" + Mathf.Clamp(limit, 1, 50);
+            yield return GetJson(path, (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (success)
+                    ok = TryParsePublicPlayerView(json, out view, out error);
+            });
+            onCompleted?.Invoke(ok, view, error);
+        }
+
+        public IEnumerator SendFriendRequest(
+            string toPlayerId, string fromNickname,
+            Action<bool, string> onCompleted)
+        {
+            var body = JsonUtility.ToJson(new FriendRequestPayload
+            {
+                fromPlayerId = PlayerId,
+                fromNickname = fromNickname ?? "钓友",
+                toPlayerId = toPlayerId,
+            });
+            yield return PostJson("/api/friends/request", body,
+                (ok, _, message) => onCompleted?.Invoke(ok, message));
+        }
+
         public IEnumerator UpdatePlayerProfile(
             string nickname, string bio, string avatarUrl,
             Action<bool, PlayerProfileDto, string> onCompleted)
@@ -870,6 +910,35 @@ namespace FishSocial.Desktop.Auth
             return true;
         }
 
+        static bool TryParsePublicPlayerView(
+            string json,
+            out PublicPlayerViewDto view,
+            out string error)
+        {
+            view = null;
+            PublicViewEnvelope envelope;
+            if (!TryParseResponse(json, out envelope, out error, "view") ||
+                envelope.view == null ||
+                envelope.view.profile == null)
+            {
+                Debug.LogWarning("[AuthenticatedApi] Missing public view envelope.");
+                error = ProtocolError;
+                return false;
+            }
+
+            view = envelope.view;
+            if (view.showcaseFish == null)
+                view.showcaseFish = new FishInventoryItemDto[0];
+            if (view.posts == null)
+                view.posts = new SocialPostDto[0];
+            view.profile.showcaseFishIds = NormalizeShowcase(view.profile.showcaseFishIds);
+            if (view.profile.avatarUrl == null)
+                view.profile.avatarUrl = string.Empty;
+            if (view.profile.bio == null)
+                view.profile.bio = string.Empty;
+            return true;
+        }
+
         static void ParseBaitInventory(string json, ShopGearDto gear)
         {
             if (gear == null || string.IsNullOrEmpty(json))
@@ -949,6 +1018,13 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class EquipPayload { public string playerId; public string baitId; public string tackleId; }
         [Serializable] sealed class ApiErrorResponse { public string error; }
         [Serializable] sealed class ProfileEnvelope { public PlayerProfileDto profile; }
+        [Serializable] sealed class PublicViewEnvelope { public PublicPlayerViewDto view; }
+        [Serializable] sealed class FriendRequestPayload
+        {
+            public string fromPlayerId;
+            public string fromNickname;
+            public string toPlayerId;
+        }
         [Serializable] sealed class SocialPostsResponse { public SocialPostDto[] posts; }
         [Serializable] sealed class PostCommentsResponse { public PostCommentDto[] comments; public int commentCount; }
         [Serializable] sealed class LikeResponse { public bool liked; public int likeCount; }

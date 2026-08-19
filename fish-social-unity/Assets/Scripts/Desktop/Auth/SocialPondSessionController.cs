@@ -60,6 +60,18 @@ namespace FishSocial.Desktop.Auth
         public event Action<string> ErrorReceived;
         public string Nickname => string.IsNullOrWhiteSpace(_nickname) ? "Steam玩家" : _nickname;
         public ChatMessageDto[] PondMessages => _messages.ToArray();
+        public const int OverlayRecentChatLimit = 20;
+
+        public ChatMessageDto[] OverlayRecentChats()
+        {
+            var count = Math.Min(OverlayRecentChatLimit, _messages.Count);
+            if (count <= 0)
+                return new ChatMessageDto[0];
+            var start = _messages.Count - count;
+            var slice = new ChatMessageDto[count];
+            _messages.CopyTo(start, slice, 0, count);
+            return slice;
+        }
 
         public void Configure(SteamAuthController auth)
         {
@@ -75,6 +87,7 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserJoined += OnUserJoined;
             _socket.PondUserLeft += OnUserLeft;
             _socket.PondUserUpdated += OnUserUpdated;
+            _socket.SessionTimerTick += OnSessionTimerTick;
             _socket.FishBiteReceived += OnFishBite;
             _socket.InventoryUpdated += OnInventoryUpdated;
             _socket.ChatMessageReceived += OnChatMessage;
@@ -469,6 +482,57 @@ namespace FishSocial.Desktop.Auth
             UsersChanged?.Invoke();
         }
 
+        void OnSessionTimerTick(SessionTimerTickDto tick)
+        {
+            if (tick == null || string.IsNullOrEmpty(tick.userId))
+                return;
+
+            PondUserDto user = null;
+            if (_users.TryGetValue(tick.userId, out user))
+            {
+                ApplySessionTimerTick(user, tick);
+            }
+            else
+            {
+                foreach (var pair in _users)
+                {
+                    if (pair.Value != null &&
+                        (pair.Value.id == tick.userId || pair.Value.playerId == tick.userId))
+                    {
+                        user = pair.Value;
+                        ApplySessionTimerTick(user, tick);
+                        break;
+                    }
+                }
+            }
+
+            if (user == null)
+                return;
+
+            if (IsSelf(user))
+                CurrentUser = user;
+            UsersChanged?.Invoke();
+        }
+
+        static void ApplySessionTimerTick(PondUserDto user, SessionTimerTickDto tick)
+        {
+            var nextMs = Math.Max(0, tick.sessionFishingMs);
+            if (nextMs == 0 && user.sessionFishingMs > 0 &&
+                IsFishingPhaseActive(user.fishingPhase))
+                return;
+
+            user.sessionFishingMs = nextMs;
+        }
+
+        static bool IsFishingPhaseActive(string phase)
+        {
+            return phase == "waiting" ||
+                   phase == "baiting" ||
+                   phase == "casting" ||
+                   phase == "hooked" ||
+                   phase == "resolving";
+        }
+
         void OnFishBite(PendingFishCatchDto fishCatch)
         {
             _latestCatch = fishCatch;
@@ -537,6 +601,7 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserJoined -= OnUserJoined;
             _socket.PondUserLeft -= OnUserLeft;
             _socket.PondUserUpdated -= OnUserUpdated;
+            _socket.SessionTimerTick -= OnSessionTimerTick;
             _socket.FishBiteReceived -= OnFishBite;
             _socket.InventoryUpdated -= OnInventoryUpdated;
             _socket.ChatMessageReceived -= OnChatMessage;
@@ -567,11 +632,21 @@ namespace FishSocial.Desktop.Auth
 
         void ReplaceUsers(PondUserDto[] users)
         {
+            var previous = new Dictionary<string, PondUserDto>(_users);
             _users.Clear();
             if (users == null)
                 return;
             for (var i = 0; i < users.Length; i++)
-                UpsertUser(users[i]);
+            {
+                var incoming = users[i];
+                var key = UserKey(incoming);
+                if (string.IsNullOrEmpty(key) || incoming == null)
+                    continue;
+                if (previous.TryGetValue(key, out var prev))
+                    _users[key] = PondUserMerge.Merge(prev, incoming);
+                else
+                    _users[key] = incoming;
+            }
         }
 
         void UpsertUser(PondUserDto user)
@@ -579,7 +654,10 @@ namespace FishSocial.Desktop.Auth
             var key = UserKey(user);
             if (string.IsNullOrEmpty(key) || user == null)
                 return;
-            _users[key] = user;
+            if (_users.TryGetValue(key, out var prev))
+                _users[key] = PondUserMerge.Merge(prev, user);
+            else
+                _users[key] = user;
         }
 
         bool RemoveUser(string idOrPlayerId)

@@ -18,6 +18,7 @@ namespace FishSocial.Desktop.Auth
         event Action<PondUserDto> PondUserJoined;
         event Action<string> PondUserLeft;
         event Action<PondUserDto> PondUserUpdated;
+        event Action<SessionTimerTickDto> SessionTimerTick;
         event Action<PendingFishCatchDto> FishBiteReceived;
         event Action<FishInventoryItemDto[]> InventoryUpdated;
         event Action<ChatMessageDto> ChatMessageReceived;
@@ -72,6 +73,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserJoined;
         public event Action<string> PondUserLeft;
         public event Action<PondUserDto> PondUserUpdated;
+        public event Action<SessionTimerTickDto> SessionTimerTick;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
@@ -332,6 +334,8 @@ namespace FishSocial.Desktop.Auth
                 PondUserLeft?.Invoke(Unquote(payload));
             else if (eventName == "pond_user_updated")
                 PondUserUpdated?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
+            else if (eventName == "session_timer_tick")
+                SessionTimerTick?.Invoke(JsonUtility.FromJson<SessionTimerTickDto>(payload));
             else if (eventName == "fish_bite")
                 FishBiteReceived?.Invoke(JsonUtility.FromJson<PendingFishCatchDto>(payload));
             else if (eventName == "inventory_updated")
@@ -561,6 +565,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserJoined;
         public event Action<string> PondUserLeft;
         public event Action<PondUserDto> PondUserUpdated;
+        public event Action<SessionTimerTickDto> SessionTimerTick;
         public event Action<PendingFishCatchDto> FishBiteReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;

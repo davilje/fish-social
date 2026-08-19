@@ -74,10 +74,10 @@
 | [Steam桌面端-08GOverlay钓鱼操作栏.md](./Steam桌面端-08GOverlay钓鱼操作栏.md) | v1.0-steam-desktop | P0 | **已实现** | 08G；Overlay 选择钓位、开始、收杆、领取鱼获 |
 | [Steam桌面端-08H全量UI预制体化.md](./Steam桌面端-08H全量UI预制体化.md) | v1.0-steam-desktop | P0 | **已实现** | 08H；壳层、页面、列表行和 Grid 内容全量 Prefab 化 |
 | [Steam桌面端-08I鱼塘退出与跨塘切换优化.md](./Steam桌面端-08I鱼塘退出与跨塘切换优化.md) | v1.0-steam-desktop | P0 | **已实现** | 08I；离席、退出鱼塘、跨塘切换与 Overlay 延迟优化 |
-| [Steam桌面端-09AOverlay玩家右键菜单.md](./Steam桌面端-09AOverlay玩家右键菜单.md) | v1.0-steam-desktop | P1 | **已确认** | 09A；右键玩家：资料、加好友、私聊、点赞 |
-| [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | v1.0-steam-desktop | P1 | **已确认** | 09B；悬停 Tooltip；对齐 FEAT-UI-1 |
-| [Steam桌面端-09COverlay鱼塘聊天气泡与输入.md](./Steam桌面端-09COverlay鱼塘聊天气泡与输入.md) | v1.0-steam-desktop | P1 | **已确认** | 09C；Overlay 公屏气泡+输入；完整聊天仍主窗口 |
-| [Steam桌面端-09DOverlay布局与角色表现优化.md](./Steam桌面端-09DOverlay布局与角色表现优化.md) | v1.0-steam-desktop | P0 | **已确认** | 09D；960×560、64px、默认状态/圆环、左上收纳菜单 |
+| [Steam桌面端-09AOverlay玩家右键菜单.md](./Steam桌面端-09AOverlay玩家右键菜单.md) | v1.0-steam-desktop | P1 | **已实现** | 09A；右键玩家：资料、加好友、私聊、点赞 |
+| [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | v1.0-steam-desktop | P1 | **已实现** | 09B；悬停仅时长 Tooltip + IPC 时长字段 |
+| [Steam桌面端-09COverlay鱼塘聊天气泡与输入.md](./Steam桌面端-09COverlay鱼塘聊天气泡与输入.md) | v1.0-steam-desktop | P1 | **已实现** | 09C；Overlay 公屏气泡+输入；完整聊天仍主窗口 |
+| [Steam桌面端-09DOverlay布局与角色表现优化.md](./Steam桌面端-09DOverlay布局与角色表现优化.md) | v1.0-steam-desktop | P0 | **已实现** | 09D；960×560、64px、默认状态/圆环、左上收纳菜单 |
 | [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
 | [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |
 | [空鱼塘休眠与生态离线补算.md](./空鱼塘休眠与生态离线补算.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-05；活跃 Tick、空塘休眠、成长/迁移/补充补算、事务幂等 |

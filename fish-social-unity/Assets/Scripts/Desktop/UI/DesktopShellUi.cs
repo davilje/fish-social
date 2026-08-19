@@ -44,6 +44,20 @@ namespace FishSocial.Desktop
         DesktopSocialFeedPanel _socialFeedPanel;
         DesktopLeaderboardPanel _leaderboardPanel;
 
+        public IAuthenticatedApiClient AuthenticatedApi => _authenticatedApi;
+
+        public void OpenOtherPlayerProfile(string playerId)
+        {
+            _profilePanel?.ShowOtherPlayer(playerId);
+            ShowMainPanel(ShellPanelId.Profile);
+        }
+
+        public void OpenDirectMessage(string playerId, string nickname)
+        {
+            ShowMainPanel(ShellPanelId.Friends);
+            _socialPanel?.OpenDirectMessage(playerId, nickname);
+        }
+
         public void Build(PanelRouter router)
         {
             _router = router;
@@ -173,7 +187,11 @@ namespace FishSocial.Desktop
             CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends));
             CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag));
             CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery));
-            CreateNavButton(nav.transform, "我的", () => ShowMainPanel(ShellPanelId.Profile));
+            CreateNavButton(nav.transform, "我的", () =>
+            {
+                _profilePanel?.ShowSelfProfile();
+                ShowMainPanel(ShellPanelId.Profile);
+            });
             CreateNavButton(nav.transform, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed));
             CreateNavButton(nav.transform, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard));
             CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings));
@@ -633,7 +651,7 @@ namespace FishSocial.Desktop
             CreateText(go.transform, "P1", "鱼塘（会话工具）", 28, TextAnchor.UpperLeft,
                 new Vector2(32, -24), new Vector2(600, 40));
             _pondStatus = CreateText(go.transform, "P2",
-                "鱼塘场景在 960×480 Overlay 中渲染。本页只操作会话，打开主界面不会离塘。\n\n连接：未连接 · 当前 phase：—",
+                "鱼塘场景在 960×560 Overlay 中渲染。本页只操作会话，打开主界面不会离塘。\n\n连接：未连接 · 当前 phase：—",
                 18, TextAnchor.UpperLeft, new Vector2(32, -80), new Vector2(900, 140));
             _pondStatus.verticalOverflow = VerticalWrapMode.Truncate;
             CreateButton(go.transform, "ConnectPond", "连接并进塘", new Vector2(32, -240), new Vector2(180, 46),

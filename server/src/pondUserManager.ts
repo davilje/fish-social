@@ -763,6 +763,7 @@ export function startBotFishing(
   user.status = 'fishing';
   // FISH-BOT-2：仅回拨内存锚点，不预写 daily_fishing
   user.fishingStartedAt = now - elapsed;
+  user.sessionStartedAt = user.fishingStartedAt;
   user.fishingDayKey = todayKey();
   user.fishingPhase = 'waiting';
   user.phaseEndsAt = null;

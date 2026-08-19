@@ -1,5 +1,39 @@
 # 策划文档变更记录
 
+### [steam-desktop-09c-accepted] - 2026-08-20
+
+- `STEAM-DESKTOP-09C` Overlay 鱼塘聊天气泡与输入用户验收通过，计划状态改为 **已实现**。
+- 交付：左下公屏最近消息气泡 + 紧凑输入（≤200 字）；IPC `recentChats[]` / `send_pond_chat`；Unity 环形缓冲 + 现有 `SendChat`。
+- **STEAM-DESKTOP-09（09A–09D）** 四条 Overlay 扩展需求全部 **已实现**。
+
+### [steam-desktop-09c-overlay-pond-chat] - 2026-08-20
+
+- **STEAM-DESKTOP-09C** Overlay 鱼塘公屏聊天气泡与输入 **开发交付**。
+- Overlay：左下最近 20 条公屏气泡 + 底部紧凑输入（placeholder「说点什么…」，≤200 字，空消息不可发）。
+- IPC：状态 `recentChats[]`；命令 `send_pond_chat { text }`。Unity 订阅 `chat_message` 环形缓冲并走现有 `SendChat`；Overlay 不直连 Socket。
+- **07E 扩展**：完整历史 / 私聊 / 好友列表仍在主窗口 `PanelSocial`；Overlay 仅为挂机路径轻量公屏。
+- 涉及：`desktop-overlay/`、`fish-social-unity/Assets/Scripts/Desktop/`（DTO / `OverlayPondStateBuilder` / `DesktopAppBootstrap` / `SocialPondSessionController`）。
+
+### [steam-desktop-09b-accepted] - 2026-08-20
+
+- `STEAM-DESKTOP-09B` Overlay 悬停状态与钓鱼时长用户验收通过，计划状态改为 **已实现**。
+- 交付：IPC `fishingPhase` / `sessionFishingMs` / `hookDeadlineMs`；悬停 ≥300ms Tooltip **仅**本局时长或收杆剩余。
+- 验收修复：悬停双卡片残留；Bot 钓鱼时长计时异常。
+- 涉及：`desktop-overlay/`（悬停 Tooltip）、`fish-social-unity/Assets/Scripts/Desktop/`（DTO / `PondUserMerge` / tick 合并）。
+
+### [steam-desktop-09a-accepted] - 2026-08-20
+
+- `STEAM-DESKTOP-09A` Overlay 玩家右键菜单用户验收通过，计划状态改为 **已实现**。
+- 交付：同塘玩家右键 ContextMenu（查看资料 / 添加好友 / 私聊 / 点赞互动）；IPC `player_*` + `playerId`；Unity `OverlayPlayerSocialBridge` 路由主窗口资料/私聊与 REST 社交 API。
+- 涉及：`desktop-overlay/OverlayPetActor.cs`、`IpcProtocol.cs`、`fish-social-unity/Assets/Scripts/Desktop/OverlayPlayerSocialBridge.cs` 等。
+
+### [steam-desktop-09d-accepted] - 2026-08-20
+
+- `STEAM-DESKTOP-09D` Overlay 布局与角色表现优化用户验收通过，计划状态改为 **已实现**。
+- 交付：Overlay **960×560**；宠物 **64×64**；左上收纳菜单（含 08G 钓鱼操作）；默认昵称/状态/上钩圆环；悬停 ≥300ms 仅时长 Tooltip；Bot 无「·机」。
+- IPC：`fishingPhase` / `sessionFishingMs` / `hookDeadlineMs` / `ownNickname` 已落地（09B 字段合并进本需求）。
+- 涉及：`desktop-overlay/`、`fish-social-unity/Assets/Scripts/Desktop/`（Overlay DTO、Socket `session_timer_tick`、启动参数）。
+
 ### [steam-desktop-09d-overlay-layout] - 2026-08-20
 
 - 新增 **STEAM-DESKTOP-09D** Overlay 布局与角色表现优化（**已确认** / P0）：

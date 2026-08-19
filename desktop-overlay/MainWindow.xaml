@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Fish Social Overlay"
         Width="960"
-        Height="480"
+        Height="560"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -14,11 +14,11 @@
     <Grid Background="Transparent">
         <Border x:Name="PondScene"
                 Width="960"
-                Height="480"
+                Height="560"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="18"
-                ClipToBounds="True"
+                ClipToBounds="False"
                 MouseLeftButtonDown="PondScene_OnMouseLeftButtonDown"
                 MouseMove="PondScene_OnMouseMove"
                 MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp">
@@ -39,155 +39,209 @@
                     <MenuItem Header="退出" Click="QuitApp_OnClick" />
                 </ContextMenu>
             </Border.ContextMenu>
-            <Canvas x:Name="SceneCanvas" Width="960" Height="480">
+            <Canvas x:Name="SceneCanvas" Width="960" Height="560">
+                <!-- Z0: 场景底图 -->
                 <Image x:Name="PondBackgroundImage"
                        Width="960"
-                       Height="480"
+                       Height="560"
                        Stretch="UniformToFill"
-                       Visibility="Collapsed" />
+                       Visibility="Collapsed"
+                       Panel.ZIndex="0" />
                 <Rectangle x:Name="GrassLayer"
                            Width="960"
-                           Height="480"
-                           Fill="#E62F4A3A" />
+                           Height="560"
+                           Fill="#E62F4A3A"
+                           Panel.ZIndex="0" />
                 <Ellipse x:Name="ShoreLayer"
                          Width="760"
-                         Height="340"
+                         Height="400"
                          Canvas.Left="100"
-                         Canvas.Top="70"
-                         Fill="#CC8B6A45" />
+                         Canvas.Top="80"
+                         Fill="#CC8B6A45"
+                         Panel.ZIndex="0" />
                 <Ellipse x:Name="WaterLayer"
                          Width="700"
-                         Height="300"
+                         Height="360"
                          Canvas.Left="130"
-                         Canvas.Top="90"
-                         Fill="#CC2A6F8F" />
-                <Canvas x:Name="SpotLayer" Width="960" Height="480" />
+                         Canvas.Top="100"
+                         Fill="#CC2A6F8F"
+                         Panel.ZIndex="0" />
+                <!-- Z5: 钓位 -->
+                <Canvas x:Name="SpotLayer" Width="960" Height="560" Panel.ZIndex="5" />
                 <Viewbox x:Name="OwnCat"
-                         Width="128"
-                         Height="128"
-                         Canvas.Left="416"
-                         Canvas.Top="280"
-                         Stretch="Uniform">
-                    <Canvas Width="220" Height="220">
-                        <Polygon x:Name="CatEarL"
-                                 Points="48,70 68,18 103,62"
-                                 Fill="#FF4D89A8"
-                                 Stroke="#FFB8E1EF"
-                                 StrokeThickness="3" />
-                        <Polygon x:Name="CatEarR"
-                                 Points="117,62 152,18 172,70"
-                                 Fill="#FF4D89A8"
-                                 Stroke="#FFB8E1EF"
-                                 StrokeThickness="3" />
-                        <Ellipse x:Name="CatBody"
-                                 Width="150"
-                                 Height="145"
-                                 Canvas.Left="35"
-                                 Canvas.Top="52"
-                                 Fill="#FF4D89A8"
-                                 Stroke="#FFB8E1EF"
-                                 StrokeThickness="3" />
-                        <Ellipse Width="16" Height="22"
-                                 Canvas.Left="76"
-                                 Canvas.Top="102"
-                                 Fill="#FF16212B" />
-                        <Ellipse Width="16" Height="22"
-                                 Canvas.Left="128"
-                                 Canvas.Top="102"
-                                 Fill="#FF16212B" />
-                        <Ellipse Width="12" Height="8"
-                                 Canvas.Left="104"
-                                 Canvas.Top="139"
-                                 Fill="#FFF3C969" />
-                    </Canvas>
-                </Viewbox>
+                         Width="64"
+                         Height="64"
+                         Canvas.Left="448"
+                         Canvas.Top="320"
+                         Stretch="Uniform"
+                         Visibility="Collapsed"
+                         Panel.ZIndex="10" />
                 <Image x:Name="OwnCatImage"
-                       Width="128"
-                       Height="128"
+                       Width="64"
+                       Height="64"
                        Stretch="Uniform"
-                       Visibility="Collapsed" />
-                <Canvas x:Name="ActorLayer" Width="960" Height="480" />
-                <Border Canvas.Left="16"
-                        Canvas.Top="12"
-                        Background="#990F1820"
-                        CornerRadius="10"
-                        Padding="10,6">
+                       Visibility="Collapsed"
+                       Panel.ZIndex="10" />
+                <!-- Z10: 角色 -->
+                <Canvas x:Name="ActorLayer" Width="960" Height="560" Panel.ZIndex="10" />
+                <!-- Z50: 悬停卡片（高于所有角色，低于菜单/操作栏） -->
+                <Canvas x:Name="HoverLayer" Width="960" Height="560" Panel.ZIndex="50" IsHitTestVisible="False" />
+                <!-- Z55: 角色头顶聊天气泡 -->
+                <Canvas x:Name="ChatBubbleLayer" Width="960" Height="560" Panel.ZIndex="55" IsHitTestVisible="False" />
+                <!-- Z100: 左上菜单 + 状态 -->
+                <StackPanel Canvas.Left="8"
+                            Canvas.Top="8"
+                            Panel.ZIndex="100"
+                            Width="220">
+                    <Button x:Name="MenuToggleButton"
+                            Content="≡"
+                            Width="36"
+                            Height="32"
+                            HorizontalAlignment="Left"
+                            Click="MenuToggle_OnClick" />
+                    <Border x:Name="MenuPanel"
+                            Visibility="Collapsed"
+                            Background="#DD0F1820"
+                            CornerRadius="8"
+                            Padding="6"
+                            Margin="0,4,0,0">
+                        <StackPanel>
+                            <Button Content="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
+                            <Button Content="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
+                            <Button Content="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
+                            <Button Content="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
+                            <Button Content="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
+                            <Button Content="设置" Height="32" Margin="0,0,0,4" Click="MenuSettings_OnClick" />
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="StatusCapsule"
+                            Background="#990F1820"
+                            CornerRadius="10"
+                            Padding="10,6"
+                            Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock x:Name="StateText"
+                                       Text="状态：等待主界面"
+                                       Foreground="White"
+                                       FontSize="16" />
+                            <TextBlock x:Name="PondText"
+                                       Text="鱼塘：未连接"
+                                       Foreground="#FFD4E3EA"
+                                       FontSize="13"
+                                       Margin="0,2,0,0" />
+                            <TextBlock x:Name="SpotText"
+                                       Text="钓位：未选择"
+                                       Foreground="#FFD4E3EA"
+                                       FontSize="13"
+                                       Margin="0,2,0,0" />
+                            <TextBlock x:Name="ErrorText"
+                                       Foreground="#FFFFA6A6"
+                                       TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                <!-- Z100: 右上 — 打开主界面 + 退出鱼塘 -->
+                <StackPanel Orientation="Horizontal"
+                            Canvas.Left="736"
+                            Canvas.Top="8"
+                            Panel.ZIndex="100">
+                    <Button x:Name="OpenMainButton"
+                            Content="打开主界面"
+                            Width="100"
+                            Height="40"
+                            Margin="0,0,8,0"
+                            Click="OpenMain_OnClick" />
+                    <Button x:Name="ExitPondButton"
+                            Content="退出鱼塘"
+                            Width="100"
+                            Height="40"
+                            Click="ExitPond_OnClick" />
+                </StackPanel>
+                <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
+                <StackPanel Canvas.Left="844"
+                            Canvas.Top="464"
+                            Panel.ZIndex="100">
+                    <Button x:Name="FishingToggleButton"
+                            Content="开始钓鱼"
+                            Width="100"
+                            Height="40"
+                            Margin="0,0,0,8"
+                            Click="FishingToggle_OnClick" />
+                    <Button x:Name="CatchLeaveButton"
+                            Content="离席"
+                            Width="100"
+                            Height="40"
+                            Click="CatchLeave_OnClick" />
+                </StackPanel>
+                <!-- Z100: 可收缩公屏聊天窗（合并预览 + 输入） -->
+                <Border x:Name="ChatDockChrome"
+                        Canvas.Left="8"
+                        Canvas.Top="516"
+                        Width="720"
+                        Panel.ZIndex="100"
+                        Background="#DD0F1820"
+                        CornerRadius="8"
+                        Padding="4"
+                        PreviewMouseLeftButtonDown="ChatInput_OnPreviewMouseLeftButtonDown">
                     <StackPanel>
-                        <TextBlock x:Name="StateText"
-                                   Text="状态：等待主界面"
-                                   Foreground="White"
-                                   FontSize="16" />
-                        <TextBlock x:Name="PondText"
-                                   Text="鱼塘：未连接"
-                                   Foreground="#FFD4E3EA"
-                                   FontSize="13"
-                                   Margin="0,2,0,0" />
-                        <TextBlock x:Name="SpotText"
-                                   Text="钓位：未选择"
-                                   Foreground="#FFD4E3EA"
-                                   FontSize="13"
-                                   Margin="0,2,0,0" />
+                        <Grid Height="28">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="ChatLatestPreview"
+                                       Text="暂无公屏消息"
+                                       Foreground="#FFD4E3EA"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,4,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Button x:Name="ChatDockToggle"
+                                    Grid.Column="1"
+                                    Content="▲"
+                                    Width="28"
+                                    Height="24"
+                                    Padding="0"
+                                    Click="ChatDockToggle_OnClick" />
+                        </Grid>
+                        <Grid x:Name="ChatDockExpanded" Visibility="Collapsed" Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBox x:Name="ChatInputBox"
+                                         MaxLength="200"
+                                         MaxLines="1"
+                                         Height="28"
+                                         VerticalContentAlignment="Center"
+                                         Background="#FF1B2633"
+                                         Foreground="White"
+                                         CaretBrush="White"
+                                         BorderThickness="0"
+                                         Padding="8,0"
+                                         TextChanged="ChatInputBox_OnTextChanged"
+                                         KeyDown="ChatInputBox_OnKeyDown" />
+                                <TextBlock x:Name="ChatPlaceholder"
+                                           Text="说点什么…"
+                                           Foreground="#88FFFFFF"
+                                           IsHitTestVisible="False"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0" />
+                            </Grid>
+                            <Button x:Name="ChatSendButton"
+                                    Grid.Column="1"
+                                    Content="发送"
+                                    Width="64"
+                                    Height="28"
+                                    Margin="6,0,0,0"
+                                    IsEnabled="False"
+                                    Click="ChatSend_OnClick" />
+                        </Grid>
                     </StackPanel>
                 </Border>
-                <Border x:Name="ControlBar"
-                        Width="928"
-                        Height="62"
-                        Canvas.Left="16"
-                        Canvas.Top="402"
-                        Background="#DD0F1820"
-                        CornerRadius="10"
-                        Padding="8">
-                    <DockPanel LastChildFill="False">
-                        <TextBlock x:Name="ErrorText"
-                                   Width="220"
-                                   VerticalAlignment="Center"
-                                   Foreground="#FFFFA6A6"
-                                   TextWrapping="Wrap"
-                                   Margin="0,0,8,0" />
-                        <Button x:Name="TakeSpotButton"
-                                Content="选择钓位"
-                                Width="108"
-                                Height="38"
-                                Margin="4,0"
-                                Click="TakeSpot_OnClick" />
-                        <Button x:Name="StartFishingButton"
-                                Content="开始钓鱼"
-                                Width="108"
-                                Height="38"
-                                Margin="4,0"
-                                Click="StartFishing_OnClick" />
-                        <Button x:Name="StopFishingButton"
-                                Content="收杆"
-                                Width="92"
-                                Height="38"
-                                Margin="4,0"
-                                Click="StopFishing_OnClick" />
-                        <Button x:Name="AcceptCatchButton"
-                                Content="领取鱼获"
-                                Width="108"
-                                Height="38"
-                                Margin="4,0"
-                                Click="AcceptCatch_OnClick" />
-                        <Button x:Name="LeaveSpotButton"
-                                Content="离席"
-                                Width="92"
-                                Height="38"
-                                Margin="4,0"
-                                Click="LeaveSpot_OnClick" />
-                        <Button x:Name="ExitPondButton"
-                                Content="退出鱼塘"
-                                Width="108"
-                                Height="38"
-                                Margin="4,0"
-                                Click="ExitPond_OnClick" />
-                    </DockPanel>
-                </Border>
-                <Button Content="打开主界面"
-                        Width="120"
-                        Height="30"
-                        Canvas.Left="820"
-                        Canvas.Top="16"
-                        Click="OpenMain_OnClick" />
             </Canvas>
         </Border>
     </Grid>

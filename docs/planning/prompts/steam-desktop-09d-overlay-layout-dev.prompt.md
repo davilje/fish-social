@@ -26,6 +26,6 @@
 
 ## 完成后
 
-- [ ] 勾选 spec §4
-- [ ] 更新 ART-02 spec 画布高度说明
-- [ ] 验收后更新 CHANGELOG
+- [x] 勾选 spec §4
+- [x] 更新 ART-02 spec 画布高度说明
+- [x] 验收后更新 CHANGELOG（2026-08-20 已实现）

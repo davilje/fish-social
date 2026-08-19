@@ -72,8 +72,42 @@ namespace FishSocialOverlay
         [DataMember(Name = "petVisualState")]
         public string PetVisualState { get; set; }
 
+        [DataMember(Name = "fishingPhase")]
+        public string FishingPhase { get; set; }
+
+        [DataMember(Name = "sessionFishingMs")]
+        public long SessionFishingMs { get; set; }
+
+        [DataMember(Name = "hookDeadlineMs")]
+        public long HookDeadlineMs { get; set; }
+
+        [DataMember(Name = "fishingStartedAt")]
+        public long FishingStartedAt { get; set; }
+
         [DataMember(Name = "isBot")]
         public bool IsBot { get; set; }
+    }
+
+    [DataContract]
+    public sealed class OverlayChatDto
+    {
+        [DataMember(Name = "messageId")]
+        public string MessageId { get; set; }
+
+        [DataMember(Name = "userId")]
+        public string UserId { get; set; }
+
+        [DataMember(Name = "playerId")]
+        public string PlayerId { get; set; }
+
+        [DataMember(Name = "nickname")]
+        public string Nickname { get; set; }
+
+        [DataMember(Name = "text")]
+        public string Text { get; set; }
+
+        [DataMember(Name = "sentAtMs")]
+        public long SentAtMs { get; set; }
     }
 
     [DataContract]
@@ -102,6 +136,24 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "petVisualState")]
         public string PetVisualState { get; set; }
+
+        [DataMember(Name = "ownNickname")]
+        public string OwnNickname { get; set; }
+
+        [DataMember(Name = "ownPlayerId")]
+        public string OwnPlayerId { get; set; }
+
+        [DataMember(Name = "ownUserId")]
+        public string OwnUserId { get; set; }
+
+        [DataMember(Name = "sessionFishingMs")]
+        public long SessionFishingMs { get; set; }
+
+        [DataMember(Name = "hookDeadlineMs")]
+        public long HookDeadlineMs { get; set; }
+
+        [DataMember(Name = "ownFishingStartedAt")]
+        public long OwnFishingStartedAt { get; set; }
 
         [DataMember(Name = "pondId")]
         public string PondId { get; set; }
@@ -136,11 +188,20 @@ namespace FishSocialOverlay
         [DataMember(Name = "users")]
         public OverlayUserDto[] Users { get; set; }
 
+        [DataMember(Name = "recentChats")]
+        public OverlayChatDto[] RecentChats { get; set; }
+
         [DataMember(Name = "command")]
         public string Command { get; set; }
 
+        [DataMember(Name = "text")]
+        public string Text { get; set; }
+
         [DataMember(Name = "spotId")]
         public string SpotId { get; set; }
+
+        [DataMember(Name = "playerId")]
+        public string PlayerId { get; set; }
 
         [DataMember(Name = "commandId")]
         public long CommandId { get; set; }

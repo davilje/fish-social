@@ -27,6 +27,7 @@ namespace FishSocial.Desktop
         PetStateController _petState;
         DesktopShellUi _shellUi;
         string _nativeOverlayError = string.Empty;
+        OverlayPlayerSocialBridge _playerSocialBridge;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _quitFallbackStarted;
 #if !UNITY_EDITOR
@@ -87,6 +88,7 @@ namespace FishSocial.Desktop
             _pondSession.UserUpdated += OnPondUserUpdated;
             _pondSession.UsersChanged += OnPondUsersChanged;
             _pondSession.FishBiteReceived += OnPondFishBite;
+            _pondSession.ChatMessageReceived += OnPondChatMessage;
             _pondSession.ErrorReceived += OnPondError;
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
@@ -127,6 +129,13 @@ namespace FishSocial.Desktop
             };
 
             ui.Build(_router);
+            _playerSocialBridge = new OverlayPlayerSocialBridge(
+                this,
+                _shellUi.AuthenticatedApi,
+                _pondSession,
+                _shellUi,
+                PublishNativeOverlayState,
+                message => _nativeOverlayError = message ?? string.Empty);
             _petState.RefreshFromApp();
             Debug.Log("[DesktopShell] STEAM-DESKTOP-07A bootstrap ready");
             PublishNativeOverlayState();
@@ -223,6 +232,11 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
+        void OnPondChatMessage(ChatMessageDto _)
+        {
+            PublishNativeOverlayState();
+        }
+
         void OnPondError(string message)
         {
             _nativeOverlayError = message ?? "鱼塘操作失败。";
@@ -269,6 +283,16 @@ namespace FishSocial.Desktop
                     return;
                 case "exit_pond":
                     ExitPondFromOverlay();
+                    return;
+                case "player_open_profile":
+                case "player_add_friend":
+                case "player_open_dm":
+                case "player_like_recent":
+                    _playerSocialBridge?.Handle(message);
+                    return;
+                case "send_pond_chat":
+                    ExecuteOverlayCommand(
+                        callback => _pondSession?.SendChat(message.text, callback));
                     return;
             }
 
@@ -339,6 +363,7 @@ namespace FishSocial.Desktop
                 _pondSession.UserUpdated -= OnPondUserUpdated;
                 _pondSession.UsersChanged -= OnPondUsersChanged;
                 _pondSession.FishBiteReceived -= OnPondFishBite;
+                _pondSession.ChatMessageReceived -= OnPondChatMessage;
                 _pondSession.ErrorReceived -= OnPondError;
             }
             _nativeOverlay?.ForceTerminateForApplicationQuit();

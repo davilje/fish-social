@@ -41,6 +41,15 @@ namespace FishSocial.Desktop
             ShowTab(_tab);
         }
 
+        public void OpenDirectMessage(string playerId, string nickname)
+        {
+            if (string.IsNullOrEmpty(playerId))
+                return;
+            _tab = 1;
+            ShowTab(1);
+            StartCoroutine(LoadMessages(playerId, nickname ?? "钓友"));
+        }
+
         public void OnClosed()
         {
             Subscribe(false);

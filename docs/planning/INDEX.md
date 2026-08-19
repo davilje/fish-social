@@ -59,10 +59,10 @@
 | [BUG修复-进塘与钓鱼剩余展示回归.md](./specs/BUG修复-进塘与钓鱼剩余展示回归.md) | **已实现** | BUG-20：钓鱼中剩余走动；未选钓点防满额 8h |
 | [Steam桌面Overlay场景布局管线.md](./specs/Steam桌面Overlay场景布局管线.md) | **已确认** | STEAM-DESKTOP-ART-02：Unity Canvas Prefab → Overlay 像素布局（后续美术） |
 | [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
-| [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已确认** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |
-| [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./specs/Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | **已确认** | STEAM-DESKTOP-09B：悬停 Tooltip，对齐 Web FEAT-UI-1 |
-| [Steam桌面端-09COverlay鱼塘聊天气泡与输入.md](./specs/Steam桌面端-09COverlay鱼塘聊天气泡与输入.md) | **已确认** | STEAM-DESKTOP-09C：Overlay 公屏聊天气泡+输入（扩展 07E） |
-| [Steam桌面端-09DOverlay布局与角色表现优化.md](./specs/Steam桌面端-09DOverlay布局与角色表现优化.md) | **已确认** | STEAM-DESKTOP-09D：960×560、64px、默认状态/圆环、左上收纳菜单 |
+| [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已实现** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |
+| [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./specs/Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | **已实现** | STEAM-DESKTOP-09B：悬停仅时长 Tooltip + IPC 字段 |
+| [Steam桌面端-09COverlay鱼塘聊天气泡与输入.md](./specs/Steam桌面端-09COverlay鱼塘聊天气泡与输入.md) | **已实现** | STEAM-DESKTOP-09C：Overlay 公屏聊天气泡+输入 |
+| [Steam桌面端-09DOverlay布局与角色表现优化.md](./specs/Steam桌面端-09DOverlay布局与角色表现优化.md) | **已实现** | STEAM-DESKTOP-09D：960×560、64px、默认状态/圆环、左上收纳菜单 |
 
 ## 数据归档
 

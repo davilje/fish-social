@@ -1,3 +1,4 @@
+using System;
 using FishSocial.Desktop.Auth;
 using FishSocial.Desktop.Pet;
 
@@ -18,12 +19,19 @@ namespace FishSocial.Desktop
             dto.pondId = pond != null ? pond.CurrentPondId ?? string.Empty : string.Empty;
             dto.pondName = snapshot?.pond?.name ?? string.Empty;
             dto.ownSpotId = pond?.CurrentUser?.spotId ?? string.Empty;
+            dto.ownNickname = pond?.CurrentUser?.nickname ?? pond?.Nickname ?? string.Empty;
+            dto.ownPlayerId = pond?.CurrentUser?.playerId ?? string.Empty;
+            dto.ownUserId = pond?.CurrentUser?.id ?? string.Empty;
+            dto.sessionFishingMs = ResolveSessionFishingMs(pond != null ? pond.CurrentUser : null);
+            dto.hookDeadlineMs = pond?.CurrentUser?.phaseEndsAt ?? 0L;
+            dto.ownFishingStartedAt = SessionAnchor(pond != null ? pond.CurrentUser : null);
             dto.hasOwnPosition = false;
             dto.ownX = 0f;
             dto.ownY = 0f;
             dto.spots = MapSpots(snapshot?.pond?.spots);
             FillOwnPosition(dto);
             dto.users = MapOthers(pond, dto.spots);
+            dto.recentChats = MapRecentChats(pond);
             dto.hasPendingCatch = pond != null && pond.HasPendingCatch;
             dto.availableActions = MapAvailableActions(pond);
         }
@@ -48,6 +56,54 @@ namespace FishSocial.Desktop
             if (!pond.IsTransitioning)
                 actions.Add("exit_pond");
             return actions.ToArray();
+        }
+
+        static NativeOverlayChatDto[] MapRecentChats(SocialPondSessionController pond)
+        {
+            var source = pond != null ? pond.OverlayRecentChats() : null;
+            if (source == null || source.Length == 0)
+                return new NativeOverlayChatDto[0];
+
+            var chats = new NativeOverlayChatDto[source.Length];
+            for (var i = 0; i < source.Length; i++)
+            {
+                var message = source[i];
+                var userId = message != null ? message.userId ?? string.Empty : string.Empty;
+                chats[i] = new NativeOverlayChatDto
+                {
+                    messageId = message != null ? message.id ?? string.Empty : string.Empty,
+                    userId = userId,
+                    playerId = ResolvePlayerId(pond, userId),
+                    nickname = message != null ? message.nickname ?? string.Empty : string.Empty,
+                    text = message != null ? message.text ?? string.Empty : string.Empty,
+                    sentAtMs = message != null ? message.createdAt : 0L,
+                };
+            }
+
+            return chats;
+        }
+
+        static string ResolvePlayerId(SocialPondSessionController pond, string userId)
+        {
+            if (string.IsNullOrEmpty(userId) || pond == null)
+                return string.Empty;
+
+            var self = pond.CurrentUser;
+            if (self != null && string.Equals(self.id, userId, StringComparison.Ordinal))
+                return self.playerId ?? string.Empty;
+
+            var others = pond.VisibleOthers;
+            if (others == null)
+                return string.Empty;
+
+            for (var i = 0; i < others.Length; i++)
+            {
+                var user = others[i];
+                if (user != null && string.Equals(user.id, userId, StringComparison.Ordinal))
+                    return user.playerId ?? string.Empty;
+            }
+
+            return string.Empty;
         }
 
         static NativeOverlaySpotDto[] MapSpots(FishingSpotDto[] source)
@@ -105,6 +161,10 @@ namespace FishSocial.Desktop
                     spotId = user != null ? user.spotId ?? string.Empty : string.Empty,
                     petVisualState = PetStateController.ToWire(
                         PetStateController.FromFishingPhase(user != null ? user.fishingPhase : null)),
+                    fishingPhase = user != null ? user.fishingPhase ?? string.Empty : string.Empty,
+                    sessionFishingMs = ResolveSessionFishingMs(user),
+                    hookDeadlineMs = user != null ? user.phaseEndsAt : 0L,
+                    fishingStartedAt = SessionAnchor(user),
                     isBot = user != null && user.isBot,
                 };
                 if (TryFindSpot(spots, actor.spotId, out var x, out var y))
@@ -118,6 +178,37 @@ namespace FishSocial.Desktop
             }
 
             return users;
+        }
+
+        static long ResolveSessionFishingMs(PondUserDto user)
+        {
+            if (user == null)
+                return 0;
+            if (user.sessionFishingMs > 0)
+                return user.sessionFishingMs;
+            var anchor = SessionAnchor(user);
+            if (anchor <= 0 || !IsFishingPhase(user.fishingPhase))
+                return 0;
+            var elapsed = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - anchor;
+            return elapsed > 0 ? elapsed : 0;
+        }
+
+        static long SessionAnchor(PondUserDto user)
+        {
+            if (user == null)
+                return 0;
+            if (user.fishingStartedAt > 0)
+                return user.fishingStartedAt;
+            return user.sessionStartedAt > 0 ? user.sessionStartedAt : 0;
+        }
+
+        static bool IsFishingPhase(string phase)
+        {
+            return phase == "waiting" ||
+                   phase == "baiting" ||
+                   phase == "casting" ||
+                   phase == "hooked" ||
+                   phase == "resolving";
         }
 
         static bool TryFindSpot(

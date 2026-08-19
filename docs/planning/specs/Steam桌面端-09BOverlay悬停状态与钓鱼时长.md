@@ -6,10 +6,11 @@
 |---|---|
 | 编号 | `STEAM-DESKTOP-09B` |
 | 类型 | 功能 |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | v1.0-steam-desktop |
 | 优先级 | P1 |
 | 设计时间 | **2026-08-19** |
+| 完成时间 | **2026-08-20** |
 | 依赖 | 07C（同塘玩家）、PERF-03b（`session_timer_tick`） |
 | 前置参考 | [`鱼塘场景与社交列表UI优化.md`](./鱼塘场景与社交列表UI优化.md)（**FEAT-UI-1** · Web 悬停气泡） |
 
@@ -105,11 +106,11 @@ Overlay **只渲染**，本地不算时长；收到新 `sequence` 全量覆盖�
 
 ## 5. 验收标准
 
-- [ ] DTO 含 `fishingPhase` · `sessionFishingMs` · `hookDeadlineMs`（own + users）
-- [ ] 悬停 ≥300ms **仅**显示时长/收杆剩余；移出消失
-- [ ] Tooltip 不重复 09D 默认状态 icon/圆环
-- [ ] 时长随 tick 更新，不出现 BUG-13 式「0 秒闪烁」
-- [ ] 高人数鱼塘（≥10）悬停仍流畅，无 Tooltip 残留
+- [x] DTO 含 `fishingPhase` · `sessionFishingMs` · `hookDeadlineMs`（own + users）
+- [x] 悬停 ≥300ms **仅**显示时长/收杆剩余；移出消失
+- [x] Tooltip 不重复 09D 默认状态 icon/圆环
+- [x] 时长随 tick 更新，不出现 BUG-13 式「0 秒闪烁」（`PondUserMerge` + tick 守卫）
+- [x] 高人数鱼塘（≥10）悬停仍流畅，无 Tooltip 残留（Popup + 拖动时 `CancelTooltip`）
 
 ---
 
@@ -135,3 +136,4 @@ Overlay **只渲染**，本地不算时长；收到新 `sequence` 全量覆盖�
 |------|------|
 | 2026-08-19 | 初稿：Overlay 他人悬停 Tooltip；IPC 扩展 session/phase；对齐 FEAT-UI-1 |
 | 2026-08-20 | 修订：默认状态/圆环移交 09D；09B 收窄为 IPC + 悬停仅时长 |
+| 2026-08-20 | 用户验收通过 → **已实现**；修复悬停双卡片残留与 Bot 钓鱼时长计时异常 |

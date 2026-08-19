@@ -92,7 +92,15 @@ namespace FishSocial.Desktop.Auth
         public long todayFishingBaseMs;
         public long todayRemainingMs;
         public long sessionFishingMs;
+        public long phaseEndsAt;
         public bool isBot;
+    }
+
+    [Serializable]
+    public sealed class SessionTimerTickDto
+    {
+        public string userId;
+        public long sessionFishingMs;
     }
 
     [Serializable]
@@ -270,6 +278,24 @@ namespace FishSocial.Desktop.Auth
         public string avatarUrl;
         public string bio;
         public string[] showcaseFishIds;
+    }
+
+    [Serializable]
+    public sealed class PublicPlayerProfileDto
+    {
+        public string playerId;
+        public string nickname;
+        public string avatarUrl;
+        public string bio;
+        public string[] showcaseFishIds;
+    }
+
+    [Serializable]
+    public sealed class PublicPlayerViewDto
+    {
+        public PublicPlayerProfileDto profile;
+        public FishInventoryItemDto[] showcaseFish;
+        public SocialPostDto[] posts;
     }
 
     [Serializable]

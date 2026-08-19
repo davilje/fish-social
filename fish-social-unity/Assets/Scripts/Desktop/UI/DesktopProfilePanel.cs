@@ -28,6 +28,7 @@ namespace FishSocial.Desktop
         FishInventoryItemDto[] _inventory = new FishInventoryItemDto[0];
         Coroutine _loadRoutine;
         Coroutine _avatarRoutine;
+        string _viewingOtherPlayerId;
 
         public void Bind(
             IAuthenticatedApiClient api,
@@ -43,6 +44,18 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            Refresh();
+        }
+
+        public void ShowOtherPlayer(string playerId)
+        {
+            _viewingOtherPlayerId = playerId ?? string.Empty;
+            Refresh();
+        }
+
+        public void ShowSelfProfile()
+        {
+            _viewingOtherPlayerId = null;
             Refresh();
         }
 
@@ -103,6 +116,13 @@ namespace FishSocial.Desktop
             }
 
             SetStatus("正在加载个人资料…");
+            if (!string.IsNullOrEmpty(_viewingOtherPlayerId))
+            {
+                yield return LoadOtherPlayerRoutine(_viewingOtherPlayerId);
+                _loadRoutine = null;
+                yield break;
+            }
+
             var done = false;
             var ok = false;
             string error = null;
@@ -151,8 +171,64 @@ namespace FishSocial.Desktop
             _loadRoutine = null;
         }
 
+        IEnumerator LoadOtherPlayerRoutine(string playerId)
+        {
+            SetStatus("正在加载玩家资料…");
+            var done = false;
+            var ok = false;
+            string error = null;
+            PublicPlayerViewDto view = null;
+            yield return _api.GetPublicPlayerView(playerId, 20, (success, loaded, message) =>
+            {
+                ok = success;
+                view = loaded;
+                error = message;
+                done = true;
+            });
+            while (!done)
+                yield return null;
+
+            if (!ok || view == null || view.profile == null)
+            {
+                SetStatus(error ?? "玩家资料加载失败，请点击重试。");
+                yield break;
+            }
+
+            var profile = MapPublicProfile(view.profile);
+            _inventory = view.showcaseFish ?? new FishInventoryItemDto[0];
+            RenderOtherPlayer(profile);
+            RenderShowcase(profile);
+            SetStatus("已加载 " + profile.nickname + " 的资料摘要。");
+        }
+
+        static PlayerProfileDto MapPublicProfile(PublicPlayerProfileDto source)
+        {
+            return new PlayerProfileDto
+            {
+                playerId = source.playerId,
+                nickname = source.nickname,
+                bio = source.bio,
+                avatarUrl = source.avatarUrl,
+                showcaseFishIds = source.showcaseFishIds,
+                coins = 0,
+            };
+        }
+
+        void RenderOtherPlayer(PlayerProfileDto profile)
+        {
+            Render(profile);
+            if (_edit != null)
+                _edit.gameObject.SetActive(false);
+            if (_coins != null)
+                _coins.text = "他人资料";
+            if (_online != null)
+                _online.text = "同塘玩家";
+        }
+
         void Render(PlayerProfileDto profile)
         {
+            if (_edit != null)
+                _edit.gameObject.SetActive(string.IsNullOrEmpty(_viewingOtherPlayerId));
             if (profile == null)
                 return;
             if (_nickname != null)

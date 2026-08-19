@@ -22,7 +22,7 @@
 
 ### 1.1 背景
 
-当前 Overlay（`FishSocialOverlay.exe`，`960×480`）把服务端钓位世界坐标用 `MapToScene` **自动缩放到画布**。美术替换 `OverlayResources/pond.png` 后，猫和钓位点不会落在图上的岸/石上，只能“大概在框里”。
+当前 Overlay（`FishSocialOverlay.exe`，`960×560`）把服务端钓位世界坐标用 `MapToScene` **自动缩放到画布**。美术替换 `OverlayResources/pond.png` 后，猫和钓位点不会落在图上的岸/石上，只能“大概在框里”。
 
 产品需要：在 Unity 里用 **与 Overlay 同尺寸的 Canvas** 摆 2D 场景，存成 Prefab，再导出物体坐标；Overlay 按同一套数字 **像素级一一对应** 摆本地 PNG。
 
@@ -34,7 +34,7 @@ Overlay 是独立 WPF 进程，**不能**加载 Unity Prefab、Canvas 或 uGUI�
 
 ### 1.2 目标
 
-- Unity 作为 **Overlay 场景编辑器**：`960×480` Canvas 上摆背景、装饰、钓位锚点；保存 Prefab。
+- Unity 作为 **Overlay 场景编辑器**：`960×560` Canvas 上摆背景、装饰、钓位锚点；保存 Prefab。
 - 编辑器导出 **布局表 JSON**（不是 Prefab 字节、不是贴图）。
 - Overlay 作为 **播放器**：读布局表 + 本地图，按导出坐标摆放；钓位像素坐标为真相，**停止**对该塘使用 `MapToScene` 自动缩放。
 - 钓鱼权威仍在服务端：Prefab 钓位必须绑定已有 `spotId`；人站哪由 `pond_snapshot` 的 `spotId` 决定。
@@ -56,7 +56,7 @@ Overlay 是独立 WPF 进程，**不能**加载 Unity Prefab、Canvas 或 uGUI�
 
 | 角色 | 场景 | 期望结果 |
 |------|------|----------|
-| 美术 | 在 Unity 中打开 Overlay 布局 Prefab，按 `960×480` 摆塘、岸、钓位锚点 | 所见即 Overlay 上的像素位置 |
+| 美术 | 在 Unity 中打开 Overlay 布局 Prefab，按 `960×560` 摆塘、岸、钓位锚点 | 所见即 Overlay 上的像素位置 |
 | 程序 | 菜单导出布局 JSON，构建时拷到 Overlay 旁 | Overlay 启动后按表摆图，无需手写坐标 |
 | 玩家 | 进塘后 Overlay 显示鱼塘 | 猫站在图上的钓位，不随世界坐标被整体缩放漂移 |
 | 玩家 | 无钓位（等待位） | 使用布局表中的 waiting 区域；无表时回退现有岸边排列 |
@@ -69,7 +69,7 @@ Overlay 是独立 WPF 进程，**不能**加载 Unity Prefab、Canvas 或 uGUI�
 
 | # | 功能点 | 优先级 | 说明 |
 |---|--------|--------|------|
-| 1 | Overlay 布局 Prefab 规范 | P0 | 固定 Canvas `960×480`、原点与锚点；物体挂 `kind` / `spotId` / 资源名 |
+| 1 | Overlay 布局 Prefab 规范 | P0 | 固定 Canvas `960×560`、原点与锚点；物体挂 `kind` / `spotId` / 资源名 |
 | 2 | 编辑器导出布局 JSON | P0 | 根据 Prefab `RectTransform` 写出 Overlay 坐标系（左上原点、Y 向下） |
 | 3 | Overlay 读表摆放静态层 | P0 | 背景与装饰按 `sprite` 文件名加载 `OverlayResources/` |
 | 4 | Overlay 钓位像素表 | P0 | `kind=spot` 的 `spotId` → `(x,y)`；猫站该点，不再对该塘 `MapToScene` |
@@ -81,7 +81,7 @@ Overlay 是独立 WPF 进程，**不能**加载 Unity Prefab、Canvas 或 uGUI�
 
 ```text
 Unity Editor（编辑器，不进 Overlay 进程）
-  960×480 Canvas Prefab
+  960×560 Canvas Prefab
         ↓ 导出
   OverlayResources/layouts/<pondId>.json
   OverlayResources/*.png          ← ART-01 交付的图，文件名与 JSON.sprite 一致
@@ -98,15 +98,15 @@ Unity 运行时（唯一业务进程）
 ### 3.3 交互与 UI（编辑侧）
 
 - 推荐路径：`fish-social-unity/Assets/Desktop/OverlayLayouts/<pondId>.prefab`（实现时可微调，须写入 README）。
-- Canvas：`Screen Space - Overlay` 或固定像素预览均可；**导出必须以 960×480 逻辑像素为准**。
-- `Canvas Scaler`：Constant Pixel Size，Reference `960×480`，Scale Factor `1`。
+- Canvas：`Screen Space - Overlay` 或固定像素预览均可；**导出必须以 960×560 逻辑像素为准**。
+- `Canvas Scaler`：Constant Pixel Size，Reference `960×560`，Scale Factor `1`。
 - 每个钓位物体：组件或命名约定必须带 **现有** `spotId`（如 `calm-spot-1`），禁止只放无名空物体。
 - 编辑器菜单建议：`Fish Social → Export Overlay Layout`；可一次导出当前 Prefab 或全部塘。
-- 导出失败（缺 `spotId`、画布不是 960×480、重名）必须在 Console 报明确错误，不得写出半份表。
+- 导出失败（缺 `spotId`、画布不是 960×560、重名）必须在 Console 报明确错误，不得写出半份表。
 
 ### 3.4 规则与数值
 
-- Overlay 窗口仍为 **960×480**（07B/07G）。
+- Overlay 窗口仍为 **960×560**（07B/07G/09D）。
 - 猫咪显示基准仍为 **128×128**；猫的落点以钓位锚点为准（锚点建议为猫脚底中心；JSON 须写清 `anchor`：`bottom-center` 或等价 pivot）。
 - 不改 `shared/` 钓位列表；布局表 `spotId` 必须是该塘快照里会出现的 id。
 - 多塘：一塘一份 JSON，文件名或字段内 `pondId` 与进塘 id 一致（如 `pond-calm`）。
@@ -125,13 +125,13 @@ Unity 运行时（唯一业务进程）
 {
   "version": 1,
   "pondId": "pond-calm",
-  "canvas": { "width": 960, "height": 480, "origin": "top-left" },
+  "canvas": { "width": 960, "height": 560, "origin": "top-left" },
   "objects": [
     {
       "id": "pond-bg",
       "kind": "sprite",
       "sprite": "pond.png",
-      "x": 0, "y": 0, "w": 960, "h": 480,
+      "x": 0, "y": 0, "w": 960, "h": 560,
       "z": 0
     },
     {
@@ -181,8 +181,8 @@ Unity 运行时（唯一业务进程）
 
 ## 5. 验收标准
 
-- [ ] 存在可打开的 `960×480` Overlay 布局 Prefab；钓位物体带合法 `spotId`。
-- [ ] 编辑器能从 Prefab 导出 JSON；坐标为 Overlay 左上原点；画布尺寸为 960×480。
+- [ ] 存在可打开的 `960×560` Overlay 布局 Prefab；钓位物体带合法 `spotId`。
+- [ ] 编辑器能从 Prefab 导出 JSON；坐标为 Overlay 左上原点；画布尺寸为 960×560。
 - [ ] Overlay 启动后按 JSON 摆放对应 PNG；同一 `spotId` 在 Unity 预览与 Overlay 上像素位置一致（允许 1px 级圆整误差）。
 - [ ] 玩家占用某 `spotId` 时，猫出现在该锚点，**不再**按服务端世界坐标自动缩放整塘。
 - [ ] Named Pipe 不传输图片或 Prefab；Overlay 仍不连 Socket。

@@ -3,13 +3,16 @@ using System.IO;
 using System.IO.Pipes;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 
 namespace FishSocialOverlay
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IOverlayPlayerMenuHost
     {
         const int WM_NCHITTEST = 0x0084;
         const int HTCLIENT = 1;
@@ -25,11 +28,27 @@ namespace FishSocialOverlay
         bool _stopping;
         string _selectedSpotId = string.Empty;
         readonly bool _safeWindow;
+        bool _menuExpanded;
+        bool _canStartFishing;
+        bool _canStopFishing;
+        bool _canAcceptCatch;
+        bool _canLeaveSpot;
+        bool _canExitPond;
         PondScenePresenter _scene;
+        OverlayChatPresenter _chat;
+        OverlayChatBubblePresenter _chatBubbles;
+        DispatcherTimer _chatAckTimer;
+        bool _awaitingChatAck;
+        string _pendingChatText = string.Empty;
+        bool _socketConnected;
+        bool _chatDockExpanded;
+        bool _chatHistoryPrimed;
+        string _lastPondId = string.Empty;
 
         public MainWindow()
         {
             InitializeComponent();
+            ApplyWindowSizeFromArgs();
             _safeWindow = string.Equals(
                 Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_SAFE_WINDOW"),
                 "1",
@@ -47,13 +66,12 @@ namespace FishSocialOverlay
             _scene = new PondScenePresenter(
                 SpotLayer,
                 ActorLayer,
-                OwnCat,
-                OwnCatImage,
-                new System.Windows.Shapes.Shape[] { CatEarL, CatEarR, CatBody },
+                HoverLayer,
                 PondBackgroundImage,
                 GrassLayer,
                 ShoreLayer,
-                WaterLayer);
+                WaterLayer,
+                this);
             _scene.SpotSelected += spotId =>
             {
                 _selectedSpotId = spotId ?? string.Empty;
@@ -63,7 +81,48 @@ namespace FishSocialOverlay
                     SendCommand("take_spot", _selectedSpotId);
                 }
             };
-            TakeSpotButton.Visibility = Visibility.Collapsed;
+            _chat = new OverlayChatPresenter(ChatLatestPreview);
+            _chatBubbles = new OverlayChatBubblePresenter(
+                ChatBubbleLayer,
+                playerId => _scene?.TryResolveActor(playerId));
+            _chatAckTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+            _chatAckTimer.Tick += ChatAckTimer_OnTick;
+        }
+
+        void ApplyWindowSizeFromArgs()
+        {
+            var width = ReadIntArgument("--width=", 960);
+            var height = ReadIntArgument("--height=", 560);
+            if (width <= 0)
+                width = 960;
+            if (height <= 0)
+                height = 560;
+            Width = width;
+            Height = height;
+            PondScene.Width = width;
+            PondScene.Height = height;
+            SceneCanvas.Width = width;
+            SceneCanvas.Height = height;
+            PondBackgroundImage.Width = width;
+            PondBackgroundImage.Height = height;
+            GrassLayer.Width = width;
+            GrassLayer.Height = height;
+            SpotLayer.Width = width;
+            SpotLayer.Height = height;
+            ActorLayer.Width = width;
+            ActorLayer.Height = height;
+            HoverLayer.Width = width;
+            HoverLayer.Height = height;
+            ChatBubbleLayer.Width = width;
+            ChatBubbleLayer.Height = height;
+            ChatDockChrome.Width = Math.Max(280, width - 240);
+            Canvas.SetTop(ChatDockChrome, height - (_chatDockExpanded ? 68 : 36));
+        }
+
+        void MenuToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            _menuExpanded = !_menuExpanded;
+            MenuPanel.Visibility = _menuExpanded ? Visibility.Visible : Visibility.Collapsed;
         }
 
         void OnLoaded(object sender, RoutedEventArgs e)
@@ -192,6 +251,7 @@ namespace FishSocialOverlay
                     _selectedSpotId = message.OwnSpotId;
                 _scene?.Apply(message);
                 ApplyFishingControls(message);
+                ApplyPondChat(message);
                 ApplyMainWindowRaised(message.MainWindowRaised);
             }
             else if (message.Type == "command")
@@ -224,15 +284,23 @@ namespace FishSocialOverlay
             SendCommand("open_main");
         }
 
-        void TakeSpot_OnClick(object sender, RoutedEventArgs e)
+        void FishingToggle_OnClick(object sender, RoutedEventArgs e)
         {
-            SendCommand("take_spot", _selectedSpotId);
+            if (_canStopFishing)
+                SendCommand("stop_fishing");
+            else if (_canStartFishing)
+                SendCommand("start_fishing", _selectedSpotId);
         }
 
-        void LeaveSpot_OnClick(object sender, RoutedEventArgs e)
+        void CatchLeave_OnClick(object sender, RoutedEventArgs e)
         {
-            StateText.Text = "状态：正在离席…";
-            SendCommand("leave_spot");
+            if (_canAcceptCatch)
+                SendCommand("accept_catch");
+            else if (_canLeaveSpot)
+            {
+                StateText.Text = "状态：正在离席…";
+                SendCommand("leave_spot");
+            }
         }
 
         void ExitPond_OnClick(object sender, RoutedEventArgs e)
@@ -241,29 +309,51 @@ namespace FishSocialOverlay
             SendCommand("exit_pond");
         }
 
-        void StartFishing_OnClick(object sender, RoutedEventArgs e)
-        {
-            SendCommand("start_fishing", _selectedSpotId);
-        }
-
-        void StopFishing_OnClick(object sender, RoutedEventArgs e)
-        {
-            SendCommand("stop_fishing");
-        }
-
-        void AcceptCatch_OnClick(object sender, RoutedEventArgs e)
-        {
-            SendCommand("accept_catch");
-        }
-
         void ApplyFishingControls(IpcMessage message)
         {
-            TakeSpotButton.IsEnabled = false;
-            StartFishingButton.IsEnabled = HasAction(message, "start_fishing");
-            StopFishingButton.IsEnabled = HasAction(message, "stop_fishing");
-            AcceptCatchButton.IsEnabled = HasAction(message, "accept_catch");
-            LeaveSpotButton.IsEnabled = HasAction(message, "leave_spot");
-            ExitPondButton.IsEnabled = HasAction(message, "exit_pond");
+            _canStartFishing = HasAction(message, "start_fishing");
+            _canStopFishing = HasAction(message, "stop_fishing");
+            _canAcceptCatch = HasAction(message, "accept_catch");
+            _canLeaveSpot = HasAction(message, "leave_spot");
+            _canExitPond = HasAction(message, "exit_pond");
+
+            if (_canStopFishing)
+            {
+                FishingToggleButton.Content = "收杆";
+                FishingToggleButton.IsEnabled = true;
+                FishingToggleButton.Visibility = Visibility.Visible;
+            }
+            else if (_canStartFishing)
+            {
+                FishingToggleButton.Content = "开始钓鱼";
+                FishingToggleButton.IsEnabled = true;
+                FishingToggleButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                FishingToggleButton.IsEnabled = false;
+                FishingToggleButton.Visibility = Visibility.Collapsed;
+            }
+
+            if (_canAcceptCatch)
+            {
+                CatchLeaveButton.Content = "领取鱼获";
+                CatchLeaveButton.IsEnabled = true;
+                CatchLeaveButton.Visibility = Visibility.Visible;
+            }
+            else if (_canLeaveSpot)
+            {
+                CatchLeaveButton.Content = "离席";
+                CatchLeaveButton.IsEnabled = true;
+                CatchLeaveButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CatchLeaveButton.IsEnabled = false;
+                CatchLeaveButton.Visibility = Visibility.Collapsed;
+            }
+
+            ExitPondButton.IsEnabled = _canExitPond;
         }
 
         static bool HasAction(IpcMessage message, string action)
@@ -365,6 +455,11 @@ namespace FishSocialOverlay
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
+            if (IsUnderElement(e.OriginalSource as DependencyObject, ChatDockChrome))
+                return;
+
+            OverlayInteractionState.SceneDragging = true;
+            _scene?.CancelAllHovers();
 
             try
             {
@@ -382,6 +477,7 @@ namespace FishSocialOverlay
 
         void PondScene_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            OverlayInteractionState.SceneDragging = false;
         }
 
         void SendCommand(string command, string spotId = null)
@@ -399,6 +495,185 @@ namespace FishSocialOverlay
                 Version = 1,
                 Command = command,
                 SpotId = spotId,
+                CommandId = commandId,
+                SentAtMs = sentAtMs,
+            });
+        }
+
+        void ChatDockToggle_OnClick(object sender, RoutedEventArgs e)
+        {
+            _chatDockExpanded = !_chatDockExpanded;
+            ChatDockExpanded.Visibility = _chatDockExpanded
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            ChatDockToggle.Content = _chatDockExpanded ? "▼" : "▲";
+            Canvas.SetTop(
+                ChatDockChrome,
+                SceneCanvas.Height - (_chatDockExpanded ? 68 : 36));
+        }
+
+        void ChatInput_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            OverlayInteractionState.SceneDragging = false;
+        }
+
+        void ChatInputBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            ChatPlaceholder.Visibility = string.IsNullOrEmpty(ChatInputBox.Text)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            UpdateChatSendEnabled();
+        }
+
+        void ChatInputBox_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+                TrySendPondChat();
+            }
+        }
+
+        void ChatSend_OnClick(object sender, RoutedEventArgs e)
+        {
+            TrySendPondChat();
+        }
+
+        void TrySendPondChat()
+        {
+            var text = (ChatInputBox.Text ?? string.Empty).Trim();
+            if (text.Length == 0 || text.Length > 200 || _awaitingChatAck)
+                return;
+            if (!_socketConnected)
+            {
+                ErrorText.Text = "实时服务未连接，请进入鱼塘后重试。";
+                return;
+            }
+
+            _pendingChatText = text;
+            _awaitingChatAck = true;
+            UpdateChatSendEnabled();
+            _chatAckTimer.Stop();
+            _chatAckTimer.Start();
+            SendPondChatCommand(text);
+        }
+
+        void SendPondChatCommand(string text)
+        {
+            var commandId = Interlocked.Increment(ref _nextCommandId);
+            var sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            LatencyTrace.Write(
+                "overlay_command_sent id=" + commandId +
+                " command=send_pond_chat");
+            Send(new IpcMessage
+            {
+                Type = "command",
+                Version = 1,
+                Command = "send_pond_chat",
+                Text = text,
+                CommandId = commandId,
+                SentAtMs = sentAtMs,
+            });
+        }
+
+        void ApplyPondChat(IpcMessage message)
+        {
+            _socketConnected = string.Equals(
+                message.ConnectionState, "Connected", StringComparison.Ordinal);
+
+            var pondId = message.PondId ?? string.Empty;
+            if (!string.Equals(pondId, _lastPondId, StringComparison.Ordinal))
+            {
+                _lastPondId = pondId;
+                _chatHistoryPrimed = false;
+                _chatBubbles?.ResetPond();
+            }
+
+            var replayHistory = !_chatHistoryPrimed;
+            if (replayHistory &&
+                message.RecentChats != null &&
+                message.RecentChats.Length > 0)
+                _chatHistoryPrimed = true;
+
+            _chatBubbles?.ProcessMessages(message.RecentChats, replayHistory);
+            _chat?.UpdateLatest(message.RecentChats);
+            if (_awaitingChatAck)
+            {
+                if (OverlayChatPresenter.ContainsText(message.RecentChats, _pendingChatText))
+                    FinishChatAck(true);
+                else if (!string.IsNullOrWhiteSpace(message.ErrorMessage))
+                    FinishChatAck(false);
+            }
+
+            UpdateChatSendEnabled();
+        }
+
+        void ChatAckTimer_OnTick(object sender, EventArgs e)
+        {
+            if (!_awaitingChatAck)
+                return;
+            FinishChatAck(false);
+            if (string.IsNullOrWhiteSpace(ErrorText.Text))
+                ErrorText.Text = "发送超时，请重试。";
+        }
+
+        void FinishChatAck(bool success)
+        {
+            _chatAckTimer.Stop();
+            _awaitingChatAck = false;
+            if (success)
+            {
+                ChatInputBox.Text = string.Empty;
+                _pendingChatText = string.Empty;
+            }
+
+            UpdateChatSendEnabled();
+        }
+
+        void UpdateChatSendEnabled()
+        {
+            var text = (ChatInputBox.Text ?? string.Empty).Trim();
+            ChatSendButton.IsEnabled =
+                !_awaitingChatAck &&
+                _socketConnected &&
+                text.Length > 0 &&
+                text.Length <= 200;
+        }
+
+        static bool IsUnderElement(DependencyObject source, DependencyObject root)
+        {
+            while (source != null)
+            {
+                if (ReferenceEquals(source, root))
+                    return true;
+                if (source is Visual || source is Visual3D)
+                    source = VisualTreeHelper.GetParent(source);
+                else
+                    source = LogicalTreeHelper.GetParent(source);
+            }
+
+            return false;
+        }
+
+        public void SendPlayerCommand(string command, string playerId)
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+                return;
+
+            var commandId = Interlocked.Increment(ref _nextCommandId);
+            var sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            LatencyTrace.Write(
+                "overlay_command_sent id=" + commandId +
+                " command=" + command +
+                " playerId=" + playerId);
+            if (OpensMainWindow(command))
+                ApplyMainWindowRaised(true);
+            Send(new IpcMessage
+            {
+                Type = "command",
+                Version = 1,
+                Command = command,
+                PlayerId = playerId,
                 CommandId = commandId,
                 SentAtMs = sentAtMs,
             });
@@ -423,7 +698,9 @@ namespace FishSocialOverlay
                    command == "menu_profile" ||
                    command == "menu_settings" ||
                    command == "menu_feed" ||
-                   command == "menu_leaderboard";
+                   command == "menu_leaderboard" ||
+                   command == "player_open_profile" ||
+                   command == "player_open_dm";
         }
 
         void Send(IpcMessage message)
@@ -502,6 +779,12 @@ namespace FishSocialOverlay
                     return arg.Substring(prefix.Length);
             }
             return string.Empty;
+        }
+
+        static int ReadIntArgument(string prefix, int fallback)
+        {
+            var raw = ReadArgument(prefix);
+            return int.TryParse(raw, out var value) ? value : fallback;
         }
 
         void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)

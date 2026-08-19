@@ -25,5 +25,5 @@
 
 ## 完成后
 
-- [ ] 勾选 spec §5
-- [ ] 验收后更新 spec 状态与 CHANGELOG
+- [x] 勾选 spec §5
+- [x] 验收后更新 spec 状态与 CHANGELOG

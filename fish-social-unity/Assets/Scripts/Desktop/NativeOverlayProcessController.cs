@@ -26,6 +26,8 @@ namespace FishSocial.Desktop
     public sealed class NativeOverlayProcessController : MonoBehaviour
     {
         const string OverlayImageName = "FishSocialOverlay";
+        public const int OverlayWidth = 960;
+        public const int OverlayHeight = 560;
 
         readonly ConcurrentQueue<string> _incoming = new ConcurrentQueue<string>();
         readonly ConcurrentQueue<string> _commands = new ConcurrentQueue<string>();
@@ -155,7 +157,11 @@ namespace FishSocial.Desktop
                     "[NativeOverlay] starting detached process. ipc=" + (!ipcDisabled));
                 var process = DetachedWin32Process.StartBreakaway(
                     executable,
-                    ipcDisabled ? string.Empty : "--pipe=" + PipeName,
+                    ipcDisabled
+                        ? string.Empty
+                        : "--pipe=" + PipeName +
+                          " --width=" + OverlayWidth +
+                          " --height=" + OverlayHeight,
                     Directory.GetParent(executable).FullName);
                 if (process != null)
                     process.Dispose();

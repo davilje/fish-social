@@ -6,26 +6,24 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 using System.Windows.Input;
 
 namespace FishSocialOverlay
 {
     /// <summary>
-    /// Renders pond water, spots and the local cat from Unity-pushed snapshot
-    /// fields. Snapshot updates move existing visuals; they do not rebuild the
-    /// scene graph unless the pond or spot id set changes.
+    /// Renders pond water, spots and pond pets from Unity-pushed snapshot fields.
     /// </summary>
     public sealed class PondScenePresenter
     {
         public const double SceneWidth = 960;
-        public const double SceneHeight = 480;
-        public const double CatSize = 128;
+        public const double SceneHeight = 560;
+        public const double CatSize = 64;
+        const string OwnActorKey = "__own__";
 
         readonly Canvas _spotLayer;
-        readonly FrameworkElement _ownCat;
-        readonly Image _ownCatImage;
-        readonly Shape[] _catFills;
+        readonly Canvas _actorLayer;
+        readonly OverlayHoverPresenter _hoverPresenter;
+        readonly IOverlayPlayerMenuHost _menuHost;
         readonly Image _backgroundImage;
         readonly Shape _grass;
         readonly Shape _shore;
@@ -33,35 +31,60 @@ namespace FishSocialOverlay
         readonly Dictionary<string, Ellipse> _spotVisuals = new Dictionary<string, Ellipse>();
         readonly Dictionary<string, OverlayPetActor> _others =
             new Dictionary<string, OverlayPetActor>();
-        readonly Canvas _actorLayer;
+        OverlayPetActor _ownActor;
         string _pondId = string.Empty;
-        string _ownVisualState = string.Empty;
-        ImageSource[] _ownFrames = Array.Empty<ImageSource>();
-        int _ownFrameIndex;
-        DispatcherTimer _ownTimer;
+        string _ownPlayerId = string.Empty;
+        string _ownUserId = string.Empty;
+        readonly Dictionary<string, OverlayPetActor> _actorsByUserId =
+            new Dictionary<string, OverlayPetActor>(StringComparer.Ordinal);
         public event Action<string> SpotSelected;
 
         public PondScenePresenter(
             Canvas spotLayer,
             Canvas actorLayer,
-            FrameworkElement ownCat,
-            Image ownCatImage,
-            Shape[] catFills,
+            Canvas hoverLayer,
             Image backgroundImage,
             Shape grass,
             Shape shore,
-            Shape water)
+            Shape water,
+            IOverlayPlayerMenuHost menuHost)
         {
             _spotLayer = spotLayer;
             _actorLayer = actorLayer;
-            _ownCat = ownCat;
-            _ownCatImage = ownCatImage;
-            _catFills = catFills ?? new Shape[0];
+            _hoverPresenter = new OverlayHoverPresenter(hoverLayer);
+            _menuHost = menuHost;
             _backgroundImage = backgroundImage;
             _grass = grass;
             _shore = shore;
             _water = water;
             TryLoadReplaceableArt();
+        }
+
+        public void CancelAllHovers()
+        {
+            _hoverPresenter.HideAllHoverCards();
+            if (_ownActor != null)
+                _ownActor.CancelTooltip();
+            foreach (var actor in _others.Values)
+                actor.CancelTooltip();
+        }
+
+        public FrameworkElement TryResolveActor(string actorKey)
+        {
+            if (string.IsNullOrEmpty(actorKey))
+                return null;
+            if (!string.IsNullOrEmpty(_ownUserId) &&
+                string.Equals(actorKey, _ownUserId, StringComparison.Ordinal))
+                return _ownActor;
+            if (!string.IsNullOrEmpty(_ownPlayerId) &&
+                string.Equals(actorKey, _ownPlayerId, StringComparison.Ordinal))
+                return _ownActor;
+            if (_actorsByUserId.TryGetValue(actorKey, out var byUser))
+                return byUser;
+            if (_others.TryGetValue(actorKey, out var actor))
+                return actor;
+
+            return null;
         }
 
         public void Apply(IpcMessage message)
@@ -77,9 +100,11 @@ namespace FishSocialOverlay
                 _pondId = pondId;
             }
 
+            _ownPlayerId = message.OwnPlayerId ?? string.Empty;
+            _ownUserId = message.OwnUserId ?? string.Empty;
+
             SyncSpots(message.Spots);
-            PlaceOwnCat(message);
-            ApplyOwnVisual(message.PetVisualState);
+            ApplyOwnActor(message);
             if (message.Users != null)
                 SyncOthers(message);
         }
@@ -141,72 +166,33 @@ namespace FishSocialOverlay
             e.Handled = true;
         }
 
-        void PlaceOwnCat(IpcMessage message)
+        void ApplyOwnActor(IpcMessage message)
         {
+            if (_ownActor == null)
+            {
+                _ownActor = new OverlayPetActor(OwnActorKey, _hoverPresenter);
+                _actorLayer.Children.Add(_ownActor);
+            }
+
             Point point;
             if (message.HasOwnPosition)
                 point = MapToScene(message.OwnX, message.OwnY, message.Spots);
             else
-                point = new Point(SceneWidth / 2, SceneHeight - CatSize / 2 - 24);
-
-            var left = Clamp(point.X - CatSize / 2, 8, SceneWidth - CatSize - 8);
-            var top = Clamp(point.Y - CatSize / 2, 8, SceneHeight - CatSize - 8);
-            Canvas.SetLeft(_ownCat, left);
-            Canvas.SetTop(_ownCat, top);
-            if (_ownCatImage.Visibility == Visibility.Visible)
-            {
-                Canvas.SetLeft(_ownCatImage, left);
-                Canvas.SetTop(_ownCatImage, top);
-            }
-        }
-
-        void TintCat(string petVisualState)
-        {
-            var brush = new SolidColorBrush(OverlayPetActor.StateColor(petVisualState));
-            foreach (var shape in _catFills)
-            {
-                if (shape != null)
-                    shape.Fill = brush;
-            }
-        }
-
-        void ApplyOwnVisual(string petVisualState)
-        {
-            TintCat(petVisualState);
-            if (string.Equals(_ownVisualState, petVisualState, StringComparison.Ordinal))
-                return;
-
-            _ownVisualState = petVisualState ?? "idle";
-            _ownFrames = OverlayFrameCache.Get(_ownVisualState);
-            _ownFrameIndex = 0;
-            if (_ownFrames.Length == 0)
-                return;
-
-            _ownCat.Visibility = Visibility.Collapsed;
-            _ownCatImage.Visibility = Visibility.Visible;
-            _ownCatImage.Source = _ownFrames[0];
-            if (_ownTimer == null)
-            {
-                _ownTimer = new DispatcherTimer
-                {
-                    Interval = TimeSpan.FromMilliseconds(125),
-                };
-                _ownTimer.Tick += OnOwnTick;
-                _ownTimer.Start();
-            }
-        }
-
-        void OnOwnTick(object sender, EventArgs e)
-        {
-            if (_ownFrames.Length <= 1)
-                return;
-            _ownFrameIndex = (_ownFrameIndex + 1) % _ownFrames.Length;
-            _ownCatImage.Source = _ownFrames[_ownFrameIndex];
+                point = new Point(SceneWidth / 2, SceneHeight - CatSize / 2 - 32);
+            _ownActor.Place(point.X, point.Y);
+            _ownActor.Apply(
+                message.OwnNickname,
+                message.PetVisualState,
+                message.FishingPhase,
+                message.SessionFishingMs,
+                message.HookDeadlineMs,
+                message.OwnFishingStartedAt);
         }
 
         void SyncOthers(IpcMessage message)
         {
             var keep = new HashSet<string>(StringComparer.Ordinal);
+            _actorsByUserId.Clear();
             var users = message.Users;
             for (var i = 0; i < users.Length; i++)
             {
@@ -219,12 +205,25 @@ namespace FishSocialOverlay
                 keep.Add(key);
                 if (!_others.TryGetValue(key, out var actor))
                 {
-                    actor = new OverlayPetActor(key);
+                    actor = new OverlayPetActor(key, _hoverPresenter);
+                    actor.ConfigurePlayerMenu(
+                        user.PlayerId,
+                        user.IsBot,
+                        _menuHost);
                     _actorLayer.Children.Add(actor);
                     _others[key] = actor;
                 }
+                else
+                {
+                    actor.ConfigurePlayerMenu(
+                        user.PlayerId,
+                        user.IsBot,
+                        _menuHost);
+                }
 
-                actor.Apply(user.Nickname, user.PetVisualState, user.IsBot);
+                if (!string.IsNullOrEmpty(user.UserId))
+                    _actorsByUserId[user.UserId] = actor;
+
                 Point point;
                 if (user.HasPosition)
                     point = MapToScene(user.X, user.Y, message.Spots);
@@ -233,6 +232,13 @@ namespace FishSocialOverlay
                 else
                     point = WaitingLane(keep.Count - 1);
                 actor.Place(point.X, point.Y);
+                actor.Apply(
+                    user.Nickname,
+                    user.PetVisualState,
+                    user.FishingPhase,
+                    user.SessionFishingMs,
+                    user.HookDeadlineMs,
+                    user.FishingStartedAt);
             }
 
             var remove = new List<string>();
@@ -244,6 +250,8 @@ namespace FishSocialOverlay
 
             foreach (var key in remove)
             {
+                _others[key].CancelTooltip();
+                _hoverPresenter.RemoveActor(key);
                 _actorLayer.Children.Remove(_others[key]);
                 _others.Remove(key);
             }
@@ -251,9 +259,20 @@ namespace FishSocialOverlay
 
         void ClearOthers()
         {
-            foreach (var actor in _others.Values)
-                _actorLayer.Children.Remove(actor);
-            _others.Clear();
+            CancelAllHovers();
+            _actorsByUserId.Clear();
+            if (_ownActor != null)
+            {
+                _hoverPresenter.RemoveActor(OwnActorKey);
+                _actorLayer.Children.Remove(_ownActor);
+                _ownActor = null;
+            }
+            foreach (var key in new List<string>(_others.Keys))
+            {
+                _hoverPresenter.RemoveActor(key);
+                _actorLayer.Children.Remove(_others[key]);
+                _others.Remove(key);
+            }
         }
 
         void ClearSpots()
@@ -266,7 +285,6 @@ namespace FishSocialOverlay
         {
             var root = AppDomain.CurrentDomain.BaseDirectory;
             var pondPath = System.IO.Path.Combine(root, "OverlayResources", "pond.png");
-            var catPath = System.IO.Path.Combine(root, "OverlayResources", "cat.png");
             if (File.Exists(pondPath))
             {
                 _backgroundImage.Source = LoadBitmap(pondPath);
@@ -274,13 +292,6 @@ namespace FishSocialOverlay
                 _grass.Visibility = Visibility.Collapsed;
                 _shore.Visibility = Visibility.Collapsed;
                 _water.Visibility = Visibility.Collapsed;
-            }
-
-            if (File.Exists(catPath))
-            {
-                _ownCatImage.Source = LoadBitmap(catPath);
-                _ownCatImage.Visibility = Visibility.Visible;
-                _ownCat.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -308,7 +319,7 @@ namespace FishSocialOverlay
         {
             var col = index % 6;
             var row = index / 6;
-            return new Point(96 + col * 140, 56 + row * 44);
+            return new Point(96 + col * 140, 72 + row * 44);
         }
 
         static BitmapImage LoadBitmap(string path)
@@ -379,15 +390,6 @@ namespace FishSocialOverlay
                 minY -= 64;
                 maxY += 64;
             }
-        }
-
-        static double Clamp(double value, double min, double max)
-        {
-            if (value < min)
-                return min;
-            if (value > max)
-                return max;
-            return value;
         }
     }
 }

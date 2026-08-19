@@ -25,6 +25,6 @@
 
 ## 完成后
 
-- [ ] 勾选 spec §5
-- [ ] 更新 07E CHANGELOG 补 09C 扩展说明
-- [ ] 验收后更新 spec 状态与 CHANGELOG
+- [x] 勾选 spec §5
+- [x] 更新 07E CHANGELOG 补 09C 扩展说明
+- [x] 验收后更新 spec 状态与 CHANGELOG（**已实现** 2026-08-20）
