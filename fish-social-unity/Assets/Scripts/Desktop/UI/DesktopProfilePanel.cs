@@ -126,9 +126,13 @@ namespace FishSocial.Desktop
 
             DesktopProfileCache.Latest = profile;
             var inventoryDone = false;
+            var inventoryOk = false;
+            string inventoryError = null;
             FishInventoryItemDto[] inventory = null;
             yield return _api.GetInventoryItems((success, items, message) =>
             {
+                inventoryOk = success;
+                inventoryError = message;
                 if (success)
                     inventory = items;
                 inventoryDone = true;
@@ -137,6 +141,12 @@ namespace FishSocial.Desktop
                 yield return null;
             _inventory = inventory ?? (_pond != null ? _pond.CurrentInventory : null);
             Render(profile);
+            if (!inventoryOk)
+            {
+                _loadRoutine = null;
+                SetStatus(inventoryError ?? "背包数据加载失败，请点击重试。");
+                yield break;
+            }
             SetStatus("资料已与服务端同步。");
             _loadRoutine = null;
         }

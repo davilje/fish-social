@@ -35,7 +35,12 @@ namespace FishSocial.Desktop
             try
             {
                 var document = JsonUtility.FromJson<WorldMapPondCatalogDocument>(asset.text);
-                return document?.ponds ?? new WorldMapPondDefinition[0];
+                if (document == null || document.ponds == null)
+                {
+                    Debug.LogError("[WorldMap] Pond catalog is missing the ponds array.");
+                    return new WorldMapPondDefinition[0];
+                }
+                return document.ponds;
             }
             catch (Exception error)
             {

@@ -51,6 +51,7 @@ namespace FishSocial.Desktop.Auth
     public sealed class AuthenticatedApiClient : IAuthenticatedApiClient
     {
         const int TimeoutSeconds = 15;
+        const string ProtocolError = "服务端响应格式错误，请重试。";
         readonly SteamAuthController _auth;
         readonly string _baseUrl;
 
@@ -712,7 +713,8 @@ namespace FishSocial.Desktop.Auth
             error = null;
             if (string.IsNullOrEmpty(json))
             {
-                error = "服务端响应为空。";
+                Debug.LogWarning("[AuthenticatedApi] Empty successful response.");
+                error = ProtocolError;
                 return false;
             }
 
@@ -722,13 +724,15 @@ namespace FishSocial.Desktop.Auth
             }
             catch (Exception exception)
             {
-                error = "服务端响应格式错误：" + exception.Message;
+                Debug.LogWarning("[AuthenticatedApi] Invalid JSON response: " + exception.Message);
+                error = ProtocolError;
                 return false;
             }
 
             if (parsed == null)
             {
-                error = "服务端响应格式错误。";
+                Debug.LogWarning("[AuthenticatedApi] Response deserialized to null.");
+                error = ProtocolError;
                 return false;
             }
 
@@ -741,7 +745,8 @@ namespace FishSocial.Desktop.Auth
                         "\"" + System.Text.RegularExpressions.Regex.Escape(field) +
                         "\"\\s*:"))
                 {
-                    error = "服务端响应缺少字段：" + field;
+                    Debug.LogWarning("[AuthenticatedApi] Missing response field: " + field);
+                    error = ProtocolError;
                     return false;
                 }
             }
@@ -758,9 +763,8 @@ namespace FishSocial.Desktop.Auth
             if (!TryParseResponse(json, out envelope, out error, "profile") ||
                 envelope.profile == null)
             {
-                error = string.IsNullOrEmpty(error)
-                    ? "服务端响应缺少 profile。"
-                    : error;
+                Debug.LogWarning("[AuthenticatedApi] Missing profile envelope.");
+                error = ProtocolError;
                 return false;
             }
 
@@ -769,7 +773,8 @@ namespace FishSocial.Desktop.Auth
                 string.IsNullOrEmpty(profile.nickname))
             {
                 profile = null;
-                error = "服务端个人资料缺少 playerId 或 nickname。";
+                Debug.LogWarning("[AuthenticatedApi] Profile missing playerId or nickname.");
+                error = ProtocolError;
                 return false;
             }
             profile.showcaseFishIds = NormalizeShowcase(profile.showcaseFishIds);

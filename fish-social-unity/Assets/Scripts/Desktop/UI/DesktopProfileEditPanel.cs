@@ -157,8 +157,10 @@ namespace FishSocial.Desktop
                 yield return null;
 
             var inventoryDone = false;
+            var inventoryOk = false;
             yield return _api.GetInventoryItems((ok, items, message) =>
             {
+                inventoryOk = ok;
                 if (ok)
                     _inventory = items ?? new FishInventoryItemDto[0];
                 else if (profileError == null)
@@ -172,6 +174,13 @@ namespace FishSocial.Desktop
             {
                 _loadRoutine = null;
                 SetStatus(profileError ?? "资料加载失败，请点击重试。");
+                yield break;
+            }
+
+            if (!inventoryOk)
+            {
+                _loadRoutine = null;
+                SetStatus(profileError ?? "背包数据加载失败，请点击重试。");
                 yield break;
             }
 

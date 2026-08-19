@@ -37,6 +37,7 @@ namespace FishSocial.Desktop.Social
 
     public sealed class SocialLobbyApiClient
     {
+        const string ProtocolError = "服务端响应格式错误，请重试。";
         readonly SteamAuthController _auth;
         readonly string _baseUrl;
 
@@ -173,7 +174,7 @@ namespace FishSocial.Desktop.Social
                     else
                     {
                         completed?.Invoke(false, null,
-                            ok ? "服务端 Lobby 响应缺少 lobbyId 或 pondId。" : error);
+                            ok ? ProtocolError : error);
                     }
                 }
                 else
@@ -255,7 +256,8 @@ namespace FishSocial.Desktop.Social
             error = null;
             if (string.IsNullOrEmpty(json))
             {
-                error = "服务端响应为空。";
+                Debug.LogWarning("[SocialLobby] Empty successful response.");
+                error = ProtocolError;
                 return false;
             }
 
@@ -265,12 +267,14 @@ namespace FishSocial.Desktop.Social
             }
             catch (Exception exception)
             {
-                error = "服务端响应格式错误：" + exception.Message;
+                Debug.LogWarning("[SocialLobby] Invalid JSON response: " + exception.Message);
+                error = ProtocolError;
                 return false;
             }
             if (parsed == null)
             {
-                error = "服务端响应格式错误。";
+                Debug.LogWarning("[SocialLobby] Response deserialized to null.");
+                error = ProtocolError;
                 return false;
             }
             for (var i = 0; i < requiredFields.Length; i++)
@@ -281,7 +285,8 @@ namespace FishSocial.Desktop.Social
                     "\"" + System.Text.RegularExpressions.Regex.Escape(field) +
                     "\"\\s*:"))
                 {
-                    error = "服务端响应缺少字段：" + field;
+                    Debug.LogWarning("[SocialLobby] Missing response field: " + field);
+                    error = ProtocolError;
                     return false;
                 }
             }
