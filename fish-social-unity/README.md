@@ -20,9 +20,31 @@ The build menu copies the project-root `steam_appid.txt` automatically after a
 successful build. For a real Steam distribution build, launch through Steam
 instead of relying on the local AppID file.
 
+## Server URL (`STEAM-DESKTOP-10`)
+
+Steam login, REST, and Socket.IO share one `serverBaseUrl`. Resolve order:
+
+1. Environment variable `FISH_SOCIAL_SERVER_URL`
+2. `server.json` beside the EXE (Standalone) or Unity project root (Editor)
+3. Default `http://localhost:3001`
+
+Example `server.json`:
+
+```json
+{
+  "serverBaseUrl": "http://192.168.1.100:3001"
+}
+```
+
+The build menu copies `server.json.example` into `Builds/Windows64/`.
+Rename/copy to `server.json` and edit the URL for LAN or public-server tests.
+The Settings panel can edit/save the server address, test `/health`, and shows the
+active URL; bootstrap also logs `[DesktopShell] serverBaseUrl=... source=...`.
+For home public-IP联调 (STEAM-DESKTOP-10A), run root `本机公网联调检查.bat`.
+
 ## Scope
 
-- Window modes, tray hide/exit, placeholder hub UI, notification prefs
+- Window modes, tray hide/exit, hub UI, notification prefs
 - Steamworks.NET initialization, Steam Ticket login and short-lived in-memory JWT
-- Authenticated REST session check and minimal authenticated Socket.IO pond-session path
-- No real fishing, friends, Lobby or Steam Relay business integration in this phase
+- Configurable Node server URL for local / LAN / public联调
+- Authenticated REST and Socket.IO pond session

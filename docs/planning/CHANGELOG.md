@@ -1,5 +1,41 @@
 # 策划文档变更记录
 
+### [fish-v07-r1-split] - 2026-08-21
+
+- 拆分 **EPIC-FISH-V07** 钓鱼玩法扩展 R1：Epic 索引 + 五张已确认功能票。
+- 编号：`FEAT-PROG-01`、`FEAT-GEAR-01`、`STEAM-DESKTOP-08A2`、`FEAT-RISK-01`、`FEAT-SPOT-01`（均 **已确认**，设计 2026-08-21）。
+- 建议实现序：PROG → GEAR → 08A2 → RISK → SPOT；固定数值表驱动，不进云库。
+- 规格：[钓鱼玩法扩展-v0.7-Epic.md](./specs/钓鱼玩法扩展-v0.7-Epic.md) 及关联子 spec。
+- 开发提示词：`feat-prog-01-*` / `feat-gear-01-*` / `steam-desktop-08a2-*` / `feat-risk-01-*` / `feat-spot-01-*`。
+
+### [steam-desktop-10b-cloud-reserved] - 2026-08-20
+
+- 登记 **STEAM-DESKTOP-10B** 云服务器联调为 **已确认（保留/暂缓）**。
+- **STEAM-DESKTOP-10A** 因 WAN CGNAT（`100.111.98.148`）→ **已废弃**。
+- 当前版本基线：**本机 / 局域网联机**；上云时仅改 `server.json` 即可切换。
+- 规格：[Steam桌面端云服务器联调保留.md](./specs/Steam桌面端云服务器联调保留.md)
+
+### [steam-desktop-10a-home-public] - 2026-08-20
+
+- 立项 **STEAM-DESKTOP-10A**：本机公网映射联调（方案 A）；后因 CGNAT **已废弃**。
+- 设置页保存/`health` 测试与本机检查脚本仍保留给局域网使用。
+- 规格：[Steam桌面端本机公网映射联调.md](./specs/Steam桌面端本机公网映射联调.md)
+
+### [steam-desktop-10-accepted] - 2026-08-20
+
+- **STEAM-DESKTOP-10** 用户验收通过，状态改为 **已实现**（设计/完成：2026-08-20）。
+- Windows Build 日志：`serverBaseUrl=http://localhost:3001 source=file:.../Builds/Windows64/server.json`
+- 设置页显示当前服务器；Steam 登录正常。
+- 公网迁云与外地联调仍按规格 §6 手册执行，不阻塞本需求结案。
+
+### [steam-desktop-10-public-server-url] - 2026-08-20
+
+- 登记 **STEAM-DESKTOP-10**：公网联调与服务器地址配置（**已确认**）。
+- 最优方案：本机开发与验收 → 需要外网时再上云；本机服可迁云。
+- P0 开发：Unity 读取 `server.json` / `FISH_SOCIAL_SERVER_URL`，统一注入 Steam 登录、Lobby、Socket。
+- 新增规格：[Steam桌面端公网联调与服务器地址配置.md](./specs/Steam桌面端公网联调与服务器地址配置.md)
+- 开发提示词：[steam-desktop-public-server-url-dev.prompt.md](./prompts/steam-desktop-public-server-url-dev.prompt.md)
+
 ### [steam-desktop-09c-accepted] - 2026-08-20
 
 - `STEAM-DESKTOP-09C` Overlay 鱼塘聊天气泡与输入用户验收通过，计划状态改为 **已实现**。

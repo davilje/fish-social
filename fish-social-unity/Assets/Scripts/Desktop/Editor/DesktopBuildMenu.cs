@@ -12,6 +12,7 @@ namespace FishSocial.Desktop.Editor
         const string ScenePath = "Assets/Scenes/DesktopMain.unity";
         const string OutputDir = "Builds/Windows64";
         const string SteamAppIdFile = "steam_appid.txt";
+        const string ServerJsonExampleFile = "server.json.example";
         const string OverlayProjectPath = "../desktop-overlay/FishSocialOverlay.csproj";
         const string OverlayOutputDir = "FishSocialOverlay";
 
@@ -84,6 +85,20 @@ namespace FishSocial.Desktop.Editor
                 {
                     Debug.LogWarning("[Build] Missing " + SteamAppIdFile +
                                      "; direct Steamworks launch may not initialize.");
+                }
+
+                var serverJsonExampleSource = Path.Combine(projectRoot, ServerJsonExampleFile);
+                if (File.Exists(serverJsonExampleSource))
+                {
+                    File.Copy(serverJsonExampleSource,
+                        Path.Combine(outputDirectory, ServerJsonExampleFile), true);
+                    Debug.Log("[Build] Copied " + ServerJsonExampleFile +
+                              " beside the Windows build output.");
+                }
+                else
+                {
+                    Debug.LogWarning("[Build] Missing " + ServerJsonExampleFile +
+                                     "; copy manually for LAN/public server overrides.");
                 }
 
                 if (includeNativeOverlay &&

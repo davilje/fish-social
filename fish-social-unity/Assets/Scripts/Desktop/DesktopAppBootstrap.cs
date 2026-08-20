@@ -30,6 +30,7 @@ namespace FishSocial.Desktop
         OverlayPlayerSocialBridge _playerSocialBridge;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _quitFallbackStarted;
+        string _serverBaseUrl = DesktopServerConfig.DefaultServerBaseUrl;
 #if !UNITY_EDITOR
         Mutex _singleInstanceMutex;
 #endif
@@ -75,12 +76,16 @@ namespace FishSocial.Desktop
             _tray = gameObject.AddComponent<SystemTrayService>();
             _notify = gameObject.AddComponent<DesktopNotificationService>();
             _router = gameObject.AddComponent<PanelRouter>();
+            _serverBaseUrl = DesktopServerConfig.Resolve(out var serverUrlSource);
+            Debug.Log("[DesktopShell] serverBaseUrl=" + _serverBaseUrl +
+                      " source=" + serverUrlSource);
             _steamAuth = gameObject.AddComponent<SteamAuthController>();
             var steamTicketProvider = gameObject.AddComponent<SteamworksTicketProvider>();
             _steamAuth.Configure(
                 steamTicketProvider,
                 SteamAppId,
-                SteamAuthIdentity);
+                SteamAuthIdentity,
+                _serverBaseUrl);
             _pondSession = gameObject.AddComponent<SocialPondSessionController>();
             _pondSession.Configure(_steamAuth);
             _pondSession.StateChanged += OnPondStateChanged;
@@ -92,7 +97,7 @@ namespace FishSocial.Desktop
             _pondSession.ErrorReceived += OnPondError;
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
-            _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter);
+            _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter, _serverBaseUrl);
             _petState = gameObject.AddComponent<PetStateController>();
             _petState.StateChanged += OnPetVisualStateChanged;
             var ui = gameObject.AddComponent<DesktopShellUi>();
@@ -145,6 +150,7 @@ namespace FishSocial.Desktop
         public SocialPondSessionController PondSession => _pondSession;
         public SocialLobbyController SocialLobby => _socialLobby;
         public PetStateController PetState => _petState;
+        public string ServerBaseUrl => _serverBaseUrl;
 
         public void StartNativeOverlay()
         {

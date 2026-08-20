@@ -78,10 +78,24 @@
 | [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | v1.0-steam-desktop | P1 | **已实现** | 09B；悬停仅时长 Tooltip + IPC 时长字段 |
 | [Steam桌面端-09COverlay鱼塘聊天气泡与输入.md](./Steam桌面端-09COverlay鱼塘聊天气泡与输入.md) | v1.0-steam-desktop | P1 | **已实现** | 09C；Overlay 公屏气泡+输入；完整聊天仍主窗口 |
 | [Steam桌面端-09DOverlay布局与角色表现优化.md](./Steam桌面端-09DOverlay布局与角色表现优化.md) | v1.0-steam-desktop | P0 | **已实现** | 09D；960×560、64px、默认状态/圆环、左上收纳菜单 |
+| [Steam桌面端公网联调与服务器地址配置.md](./Steam桌面端公网联调与服务器地址配置.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-10；可配置 serverBaseUrl；本机/局域网基线 |
+| [Steam桌面端本机公网映射联调.md](./Steam桌面端本机公网映射联调.md) | v1.0-steam-desktop | P1 | **已废弃** | STEAM-DESKTOP-10A；CGNAT 导致本机公网不可行 |
+| [Steam桌面端云服务器联调保留.md](./Steam桌面端云服务器联调保留.md) | v1.0-steam-desktop | P2 | **已确认（保留）** | STEAM-DESKTOP-10B；上云暂缓，随时可切 |
 | [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
 | [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |
 | [空鱼塘休眠与生态离线补算.md](./空鱼塘休眠与生态离线补算.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-05；活跃 Tick、空塘休眠、成长/迁移/补充补算、事务幂等 |
 | [BUG修复-桌面端关闭后进程残留.md](./BUG修复-桌面端关闭后进程残留.md) | v1.0-steam-desktop | P0 | **已实现** | BUG-21；关闭退出、托盘清理和桌面端单实例 |
+
+### 钓鱼玩法扩展（v0.7 R1）
+
+| 文档 | 阶段 | 优先级 | 状态 | 内容 |
+|------|------|--------|------|------|
+| [钓鱼玩法扩展-v0.7-Epic.md](./钓鱼玩法扩展-v0.7-Epic.md) | Epic | P0 | **已确认** | EPIC-FISH-V07；15 条覆盖与 R1 拆票索引 |
+| [鱼塘分级与玩家成长.md](./鱼塘分级与玩家成长.md) | PROG | P0 | **已确认** | FEAT-PROG-01；七类塘、双熟练度、每2h扣费、新手、卖价、数值表 |
+| [钓具与鱼饵配置.md](./钓具与鱼饵配置.md) | GEAR | P0 | **已确认** | FEAT-GEAR-01；竿弱加成断竿买新、饵按次扣金、船仅商店 |
+| [Steam桌面端-08A2世界地图分区与进塘扣费.md](./Steam桌面端-08A2世界地图分区与进塘扣费.md) | 08A2 | P0 | **已确认** | 六区锁态、巨物暂闭、进塘扣费确认 |
+| [禁止钓鱼塘巡警事件.md](./禁止钓鱼塘巡警事件.md) | RISK | P1 | **已确认** | FEAT-RISK-01；巡警 10s、免罚短禁/超时罚款日禁 |
+| [钓位点位线索文字泡.md](./钓位点位线索文字泡.md) | SPOT | P1 | **已确认** | FEAT-SPOT-01；Overlay 点位环境线索泡（薄） |
 
 ### 数值与生态（v0.3.x�?
 | 文档 | 版本 | 优先�?| 状�?| 内容 |

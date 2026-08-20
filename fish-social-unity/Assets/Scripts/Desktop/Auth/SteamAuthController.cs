@@ -63,6 +63,7 @@ namespace FishSocial.Desktop.Auth
         public string PlayerId { get; private set; }
         public string AccessToken { get; private set; }
         public string AuthenticatedPlayerId => IsAuthenticated ? PlayerId : null;
+        public string ServerBaseUrl => serverBaseUrl;
         public bool IsAuthenticated => State == SteamLoginState.Authenticated &&
                                        !string.IsNullOrEmpty(AccessToken);
         public event Action<SteamLoginState> StateChanged;
@@ -74,13 +75,20 @@ namespace FishSocial.Desktop.Auth
         public void Configure(
             ISteamTicketProvider ticketProvider,
             string appId,
-            string authIdentity = "fish-social-server-v1")
+            string authIdentity = "fish-social-server-v1",
+            string resolvedServerBaseUrl = null)
         {
             _ticketProvider = ticketProvider;
             steamAppId = appId ?? "";
             steamAuthIdentity = string.IsNullOrWhiteSpace(authIdentity)
                 ? "fish-social-server-v1"
                 : authIdentity;
+            if (FishSocial.Desktop.DesktopServerConfig.TryNormalize(resolvedServerBaseUrl, out var normalized))
+                serverBaseUrl = normalized;
+            else if (FishSocial.Desktop.DesktopServerConfig.TryNormalize(serverBaseUrl, out var existing))
+                serverBaseUrl = existing;
+            else
+                serverBaseUrl = FishSocial.Desktop.DesktopServerConfig.DefaultServerBaseUrl;
             SetState(SteamLoginState.SignedOut);
         }
 

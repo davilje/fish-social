@@ -104,6 +104,13 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-09b-overlay-hover-status-dev.prompt.md](./steam-desktop-09b-overlay-hover-status-dev.prompt.md) | STEAM-DESKTOP-09B：Overlay 悬停钓鱼时长 · **已实现** |
 | [steam-desktop-09c-overlay-pond-chat-dev.prompt.md](./steam-desktop-09c-overlay-pond-chat-dev.prompt.md) | STEAM-DESKTOP-09C：Overlay 鱼塘聊天气泡与输入 · **已实现** |
 | [steam-desktop-09d-overlay-layout-dev.prompt.md](./steam-desktop-09d-overlay-layout-dev.prompt.md) | STEAM-DESKTOP-09D：Overlay 布局与角色表现优化 · **已实现** |
+| [steam-desktop-public-server-url-dev.prompt.md](./steam-desktop-public-server-url-dev.prompt.md) | STEAM-DESKTOP-10：公网联调与可配置 serverBaseUrl · **已实现** |
+| [steam-desktop-home-public-server-dev.prompt.md](./steam-desktop-home-public-server-dev.prompt.md) | STEAM-DESKTOP-10A：本机公网映射 · **已废弃（CGNAT）** |
+| [feat-prog-01-pond-tiers-growth-dev.prompt.md](./feat-prog-01-pond-tiers-growth-dev.prompt.md) | FEAT-PROG-01：鱼塘分级与玩家成长 · **已确认** |
+| [feat-gear-01-rods-baits-dev.prompt.md](./feat-gear-01-rods-baits-dev.prompt.md) | FEAT-GEAR-01：钓具与鱼饵配置 · **已确认** |
+| [steam-desktop-08a2-map-zones-fee-dev.prompt.md](./steam-desktop-08a2-map-zones-fee-dev.prompt.md) | STEAM-DESKTOP-08A2：世界地图分区与进塘扣费确认 · **已确认** |
+| [feat-risk-01-forbidden-police-dev.prompt.md](./feat-risk-01-forbidden-police-dev.prompt.md) | FEAT-RISK-01：禁止钓鱼塘巡警事件 · **已确认** |
+| [feat-spot-01-spot-clue-bubbles-dev.prompt.md](./feat-spot-01-spot-clue-bubbles-dev.prompt.md) | FEAT-SPOT-01：钓位点位线索文字泡 · **已确认** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |
 | [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **开发中（真实登录已通过，REST/Socket 待验收）** |
 | [steam-desktop-pond-offline-ecology-dev.prompt.md](./steam-desktop-pond-offline-ecology-dev.prompt.md) | STEAM-DESKTOP-05：空鱼塘休眠与生态离线补算 · **已确认** |
