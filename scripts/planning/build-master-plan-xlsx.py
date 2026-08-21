@@ -393,7 +393,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "",
     ],
     [
-        "已确认",
+        "已实现",
         "FEAT-PROG-01",
         "功能",
         "鱼塘分级与玩家成长",
@@ -403,7 +403,20 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "七类塘、双熟练度、每2h扣费、新手塘、卖价公式、固定数值表导出",
         "docs/planning/specs/鱼塘分级与玩家成长.md",
         "2026-08-21",
-        "",
+        "2026-08-21",
+    ],
+    [
+        "已实现",
+        "STEAM-DESKTOP-11",
+        "功能",
+        "新手引导本地教学关",
+        "—",
+        "v0.7",
+        "P0",
+        "Overlay 本地教学关；5秒必上钩/圆圈；自动入包弹窗",
+        "docs/planning/specs/Steam桌面端-新手引导本地教学关.md",
+        "2026-08-21",
+        "2026-08-21",
     ],
     [
         "已确认",
@@ -1032,7 +1045,7 @@ def update_workbook(path: Path) -> int:
                         if target is not None and target.value in (None, ""):
                             target.value = completed
                             changed += 1
-                        break
+                break
 
     # 最后应用 ENSURE，保证验收收口状态不被总 spec 打回
     changed += ensure_plan_rows(workbook)

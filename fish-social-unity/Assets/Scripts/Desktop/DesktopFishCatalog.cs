@@ -109,7 +109,12 @@ namespace FishSocial.Desktop
             return QualityNames.TryGetValue(quality, out name) ? name : quality;
         }
 
-        public static int EstimateSellPrice(string quality, float sizeM)
+        public static int EstimateSellPrice(string quality, float sizeM, string speciesId = null)
+        {
+            return DesktopGameData.EstimateSellPrice(quality, sizeM, speciesId);
+        }
+
+        public static int LegacyEstimateSellPrice(string quality, float sizeM)
         {
             int baseCoins;
             if (!QualityBaseCoins.TryGetValue(quality ?? "", out baseCoins))

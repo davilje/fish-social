@@ -9,6 +9,8 @@ import {
   calcHookDurationMs,
   calcQualitySizeBiteRate,
   calcSingleFishBiteProbability,
+  getGamePondDef,
+  getPondModifier,
   getSpeciesDiet,
   pickSpotFishCandidate,
   type BaitId,
@@ -58,8 +60,24 @@ function listBiteCandidates(
   return listPondFishAtSpot(pondId, spotId).filter((f) => !excludeIds.has(f.id));
 }
 
-function qualityPickWeight(quality: PondFishEntity['quality']): number {
-  return FISH_QUALITIES.find((q) => q.id === quality)?.weight ?? 1;
+function pondRateMuls(pondId: string): { bite: number; escape: number; qualitySkew: number } {
+  const def = getGamePondDef(pondId);
+  if (!def) return { bite: 1, escape: 1, qualitySkew: 1 };
+  const mod = getPondModifier(def.pondCategory);
+  return {
+    bite: mod.biteRateMul,
+    escape: mod.escapeRateMul,
+    qualitySkew: mod.qualityWeightSkew,
+  };
+}
+
+function qualityPickWeight(quality: PondFishEntity['quality'], skew = 1): number {
+  const base = FISH_QUALITIES.find((q) => q.id === quality)?.weight ?? 1;
+  // skew < 1 pushes toward lower qualities by raising gray/green relative weight
+  if (skew >= 1) return base;
+  const idx = FISH_QUALITIES.findIndex((q) => q.id === quality);
+  const lowBoost = 1 + (1 - skew) * Math.max(0, 3 - idx);
+  return base * lowBoost;
 }
 
 function buildSpotFishDebugEntries(
@@ -79,14 +97,16 @@ function buildSpotFishDebugEntries(
 
   const spotMultiplier = getSpotBiteWeight(pondId, spotId);
   const equippedBait = gear?.equippedBait ?? 'basic';
-  const pickWeights = candidates.map((fish) => qualityPickWeight(fish.quality));
+  const muls = pondRateMuls(pondId);
+  const pickWeights = candidates.map((fish) => qualityPickWeight(fish.quality, muls.qualitySkew));
   const totalPickWeight = pickWeights.reduce((a, b) => a + b, 0);
 
   return candidates.map((fish, index) => {
     const bonus = baitBiteBonus(equippedBait, fish.speciesId);
     const baseBite =
       calcQualitySizeBiteRate(fish.quality, fish.sizeM) * (fish.biteMultiplier ?? 1.0);
-    const effectiveBite = calcSingleFishBiteProbability(fish, spotMultiplier, bonus);
+    const effectiveBite =
+      calcSingleFishBiteProbability(fish, spotMultiplier, bonus) * muls.bite;
     const qualityPickShare = totalPickWeight > 0 ? pickWeights[index]! / totalPickWeight : 0;
     return { fish, effectiveBite, baitBonus: bonus, baseBite, qualityPickShare };
   });
@@ -142,9 +162,10 @@ export function rollBiteHook(
 
   const spotMultiplier = getSpotBiteWeight(pondId, spotId);
   const equippedBait = gear?.equippedBait ?? 'basic';
+  const muls = pondRateMuls(pondId);
   const target = pickSpotFishCandidate(candidates);
   const baitBonus = baitBiteBonus(equippedBait, target.speciesId);
-  const pBite = calcSingleFishBiteProbability(target, spotMultiplier, baitBonus);
+  const pBite = calcSingleFishBiteProbability(target, spotMultiplier, baitBonus) * muls.bite;
 
   if (!isInstantFishingTestMode() && Math.random() >= pBite) {
     return { outcome: 'miss', reason: 'failed', sampledFish: target };
@@ -154,7 +175,8 @@ export function rollBiteHook(
   const escaped =
     !isInstantFishingTestMode() &&
     Math.random() <
-      calcEffectiveEscapeRate(target.sizeM, tackleId, target.escapeMultiplier ?? 1.0);
+      calcEffectiveEscapeRate(target.sizeM, tackleId, target.escapeMultiplier ?? 1.0) *
+        muls.escape;
   const hookDurationMs = Math.round(
     (isInstantFishingTestMode() ? 1000 : calcHookDurationMs(target.quality, target.sizeM, target.speciesId)) *
       getHookDurationScale(),

@@ -1,12 +1,15 @@
 using System;
 using FishSocial.Desktop.Auth;
+using FishSocial.Desktop.Onboarding;
 using FishSocial.Desktop.Pet;
 
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Copies authoritative pond_snapshot / roster fields into the Overlay DTO.
-    /// Overlay only renders; it does not invent spots or other players.
+    /// Copies pond_snapshot into the Overlay DTO, or the local onboarding tutorial
+    /// when DesktopOnboardingController is active.
+    /// Overlay only renders; it does not invent spots or other players except the
+    /// scripted STEAM-DESKTOP-11 tutorial spots.
     /// </summary>
     public static class OverlayPondStateBuilder
     {
@@ -14,6 +17,13 @@ namespace FishSocial.Desktop
         {
             if (dto == null)
                 return;
+
+            var onboarding = DesktopOnboardingController.Instance;
+            if (onboarding != null && onboarding.IsOnboardingActive)
+            {
+                onboarding.FillOverlayState(dto);
+                return;
+            }
 
             var snapshot = pond != null ? pond.LatestSnapshot : null;
             dto.pondId = pond != null ? pond.CurrentPondId ?? string.Empty : string.Empty;
@@ -34,6 +44,13 @@ namespace FishSocial.Desktop
             dto.recentChats = MapRecentChats(pond);
             dto.hasPendingCatch = pond != null && pond.HasPendingCatch;
             dto.availableActions = MapAvailableActions(pond);
+            dto.guideTip = string.Empty;
+            dto.lockFeatureNav = false;
+            dto.overlayPromptKind = string.Empty;
+            dto.overlayPromptTitle = string.Empty;
+            dto.overlayPromptBody = string.Empty;
+            dto.overlayPromptButton = string.Empty;
+            dto.overlayPromptDeadlineMs = 0;
         }
 
         static string[] MapAvailableActions(SocialPondSessionController pond)

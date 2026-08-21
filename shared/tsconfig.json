@@ -7,9 +7,17 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": "."
   },
   "include": ["*.ts"],
-  "exclude": ["dist"]
+  "exclude": [
+    "dist",
+    "generated",
+    "gameData.ts",
+    "gameData.web.ts",
+    "gameData.native.ts"
+  ]
 }
+

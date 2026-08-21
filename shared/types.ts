@@ -344,6 +344,16 @@ export interface ClientToServerEvents {
       todayFishingBaseMs?: number;
       todayRemainingMs?: number;
       quotaDateKey?: string;
+      /** FEAT-PROG-01 入场费提示 */
+      feePer2h?: number;
+      maxFeeChargesPerDay?: number;
+      todayFeeCharges?: number;
+      feeProgressMs?: number;
+      needsFeeToContinue?: boolean;
+      coins?: number;
+      pondCategory?: string | null;
+      onboardingCompleted?: boolean;
+      playerLevel?: number;
     }) => void,
   ) => void;
   leave_pond: (

@@ -45,6 +45,10 @@ export const FISHING_METRIC_EVENTS: MetricEventSchema[] = [
   { eventType: 'server_start', requiredFields: [], optionalFields: ['pid', 'startedAt', 'reason'], description: '服务进程启动' },
   { eventType: 'server_stop', requiredFields: [], optionalFields: ['pid', 'uptimeSec', 'reason'], description: '服务进程优雅停机' },
   { eventType: 'pond_ecology_catchup', requiredFields: ['pondId'], optionalFields: ['offlineMs', 'replaySteps', 'migrated', 'supplemented', 'durationMs', 'catchupCompacted'], description: '空鱼塘唤醒离线生态补算' },
+  { eventType: 'admission_fee_charged', requiredFields: ['playerId', 'pondId'], optionalFields: ['feePer2h', 'chargeIndex', 'progressMs', 'coinsAfter'], description: 'FEAT-PROG-01：收费塘满2h扣费成功' },
+  { eventType: 'fishing_stopped_insufficient_gold', requiredFields: ['playerId', 'pondId'], optionalFields: ['feePer2h', 'charges', 'progressMs', 'coins'], description: 'FEAT-PROG-01：金币不足停钓' },
+  { eventType: 'onboarding_completed', requiredFields: ['playerId'], optionalFields: ['pondId', 'completedAt'], description: 'FEAT-PROG-01：新手引导完成' },
+  { eventType: 'pond_proficiency_capped', requiredFields: ['playerId', 'pondId'], optionalFields: ['pondLevel', 'playerLevel', 'source', 'fishingMs'], description: 'FEAT-PROG-01：塘熟练度满/锁满停发塘XP' },
 ];
 
 export function validateMetricPayload(eventType: string, payload: Record<string, unknown>): string[] {

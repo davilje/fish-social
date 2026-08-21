@@ -37,6 +37,13 @@ export const SPOT_BITE_WEIGHT_REFRESH_MS = 5 * 60 * 1000;
 /** 钓鱼结果弹窗自动关闭时间（毫秒） */
 export const FISHING_PROMPT_AUTO_CLOSE_MS = 5000;
 
+/** FEAT-PROG-01：新手个人塘 */
+export const NOVICE_POND_ID = 'pond-novice';
+/** 新手塘：进入 waiting 后固定等待多久必咬钩 */
+export const NOVICE_WAIT_BITE_MS = 5_000;
+/** 新手塘：上钩后收杆窗口 */
+export const NOVICE_HOOK_MS = 5_000;
+
 /** 机器人最短停留时间（1 小时） */
 export const BOT_MIN_STAY_MS = 60 * 60 * 1000;
 

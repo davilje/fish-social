@@ -55,6 +55,9 @@ namespace FishSocial.Desktop.Auth
         IEnumerator GetMyLeaderboardRank(
             string boardType, string pondId,
             Action<bool, LeaderboardMyRankDto, string> onCompleted);
+        IEnumerator GetFishingProgress(Action<bool, FishingProgressDto, string> onCompleted);
+        IEnumerator CompleteOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
+        IEnumerator ResetOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
     }
 
     /// <summary>
@@ -508,6 +511,54 @@ namespace FishSocial.Desktop.Auth
             });
             onCompleted?.Invoke(ok, parsed ?? new LeaderboardMyRankDto(), error);
         }
+
+        public IEnumerator GetFishingProgress(Action<bool, FishingProgressDto, string> onCompleted)
+        {
+            FishingProgressDto progress = null;
+            string error = null;
+            var ok = false;
+            yield return GetJson("/api/progress/me", (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (success)
+                    ok = TryParseFishingProgress(json, out progress, out error);
+            });
+            onCompleted?.Invoke(ok, progress, error);
+        }
+
+        public IEnumerator CompleteOnboarding(Action<bool, FishingProgressDto, string> onCompleted)
+        {
+            FishingProgressDto progress = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson("/api/progress/complete-onboarding", "{}",
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseFishingProgress(json, out progress, out error);
+                });
+            onCompleted?.Invoke(ok, progress, error);
+        }
+
+        public IEnumerator ResetOnboarding(Action<bool, FishingProgressDto, string> onCompleted)
+        {
+            FishingProgressDto progress = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson("/api/progress/reset-onboarding", "{}",
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseFishingProgress(json, out progress, out error);
+                });
+            onCompleted?.Invoke(ok, progress, error);
+        }
+
         public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
         {
             ShopGearDto gear = null;
@@ -939,6 +990,27 @@ namespace FishSocial.Desktop.Auth
             return true;
         }
 
+        static bool TryParseFishingProgress(
+            string json,
+            out FishingProgressDto progress,
+            out string error)
+        {
+            progress = null;
+            ProgressEnvelope envelope;
+            if (!TryParseResponse(json, out envelope, out error, "progress") ||
+                envelope.progress == null)
+            {
+                Debug.LogWarning("[AuthenticatedApi] Missing progress envelope.");
+                error = ProtocolError;
+                return false;
+            }
+
+            progress = envelope.progress;
+            if (progress.pondProficiencies == null)
+                progress.pondProficiencies = new PondProficiencyDto[0];
+            return true;
+        }
+
         static void ParseBaitInventory(string json, ShopGearDto gear)
         {
             if (gear == null || string.IsNullOrEmpty(json))
@@ -1037,6 +1109,7 @@ namespace FishSocial.Desktop.Auth
             public LeaderboardEntryDto[] entries;
             public string periodKey;
         }
+        [Serializable] sealed class ProgressEnvelope { public FishingProgressDto progress; }
         #pragma warning restore 0649
     }
 }

@@ -284,9 +284,14 @@ import { migrateClientLogs } from './migrations/client_logs.js';
 import { migrateAuditLog } from './migrations/audit_log.js';
 import { migrateSocialV060 } from './migrations/social_v060.js';
 import { migrateInventoryPondId } from './migrations/inventory_pond_id.js';
+import { migratePlayerProgress } from './migrations/player_progress.js';
 const invPond = migrateInventoryPondId(db);
 if (invPond.columnAdded) {
   console.log('Migration: inventory.pond_id column added');
+}
+const playerProgressMig = migratePlayerProgress(db);
+if (playerProgressMig.tablesCreated.length > 0) {
+  console.log(`Migration FEAT-PROG-01: ${playerProgressMig.tablesCreated.join(', ')}`);
 }
 const corrMigration = migrateCorrelationId(db);
 if (corrMigration.columnAdded) {

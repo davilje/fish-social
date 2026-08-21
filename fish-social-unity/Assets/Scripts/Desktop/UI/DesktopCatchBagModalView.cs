@@ -192,7 +192,7 @@ namespace FishSocial.Desktop
             _selectedId = item.id;
             var species = DesktopFishCatalog.SpeciesName(item.speciesId);
             var quality = DesktopFishCatalog.QualityName(item.quality);
-            var estimate = DesktopFishCatalog.EstimateSellPrice(item.quality, item.sizeM);
+            var estimate = DesktopFishCatalog.EstimateSellPrice(item.quality, item.sizeM, item.speciesId);
             _detail.text = "鱼种：" + species +
                            "\n品质：" + quality +
                            "\n体长：" + item.sizeM.ToString("0.00") + "m" +

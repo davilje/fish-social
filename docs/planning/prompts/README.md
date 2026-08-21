@@ -106,7 +106,8 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-09d-overlay-layout-dev.prompt.md](./steam-desktop-09d-overlay-layout-dev.prompt.md) | STEAM-DESKTOP-09D：Overlay 布局与角色表现优化 · **已实现** |
 | [steam-desktop-public-server-url-dev.prompt.md](./steam-desktop-public-server-url-dev.prompt.md) | STEAM-DESKTOP-10：公网联调与可配置 serverBaseUrl · **已实现** |
 | [steam-desktop-home-public-server-dev.prompt.md](./steam-desktop-home-public-server-dev.prompt.md) | STEAM-DESKTOP-10A：本机公网映射 · **已废弃（CGNAT）** |
-| [feat-prog-01-pond-tiers-growth-dev.prompt.md](./feat-prog-01-pond-tiers-growth-dev.prompt.md) | FEAT-PROG-01：鱼塘分级与玩家成长 · **已确认** |
+| [feat-prog-01-pond-tiers-growth-dev.prompt.md](./feat-prog-01-pond-tiers-growth-dev.prompt.md) | FEAT-PROG-01：鱼塘分级与玩家成长 · **已实现** |
+| [steam-desktop-11-local-onboarding-dev.prompt.md](./steam-desktop-11-local-onboarding-dev.prompt.md) | STEAM-DESKTOP-11：新手引导本地教学关 · **已实现** |
 | [feat-gear-01-rods-baits-dev.prompt.md](./feat-gear-01-rods-baits-dev.prompt.md) | FEAT-GEAR-01：钓具与鱼饵配置 · **已确认** |
 | [steam-desktop-08a2-map-zones-fee-dev.prompt.md](./steam-desktop-08a2-map-zones-fee-dev.prompt.md) | STEAM-DESKTOP-08A2：世界地图分区与进塘扣费确认 · **已确认** |
 | [feat-risk-01-forbidden-police-dev.prompt.md](./feat-risk-01-forbidden-police-dev.prompt.md) | FEAT-RISK-01：禁止钓鱼塘巡警事件 · **已确认** |

@@ -11,6 +11,7 @@ import {
   schedulePendingExpireTimer,
 } from './playerPondSession.js';
 import { cancelByKind } from './timerRegistry.js';
+import { grantCatchProgress, completeOnboarding } from './playerProgress.js';
 
 const pendingByUser = new Map<string, PendingFishCatch>();
 /** pondFishId → session userId，防止同一条鱼同时 pending 给多人 */
@@ -235,6 +236,14 @@ export function acceptCatch(
     },
     { pondId: pondId ?? null },
   );
+
+  if (pondId) {
+    grantCatchProgress(playerId, pondId, pending.speciesId, pending.quality);
+    if (pondId === 'pond-novice') {
+      completeOnboarding(playerId);
+    }
+  }
+
   return { ok: true, item };
 }
 

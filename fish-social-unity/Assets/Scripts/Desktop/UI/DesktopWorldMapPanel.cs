@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using FishSocial.Desktop.Auth;
+using FishSocial.Desktop.Onboarding;
 
 namespace FishSocial.Desktop
 {
@@ -23,19 +24,24 @@ namespace FishSocial.Desktop
         Button _enter;
         Button _reset;
         SocialPondSessionController _pond;
-        WorldMapPondDefinition[] _ponds = new WorldMapPondDefinition[0];
-        readonly Dictionary<string, WorldMapPondDefinition> _byId =
-            new Dictionary<string, WorldMapPondDefinition>(StringComparer.Ordinal);
-        WorldMapPondDefinition _selected;
+        IAuthenticatedApiClient _api;
+        WorldMapPondView[] _ponds = new WorldMapPondView[0];
+        readonly Dictionary<string, WorldMapPondView> _byId =
+            new Dictionary<string, WorldMapPondView>(StringComparer.Ordinal);
+        WorldMapPondView _selected;
+        FishingProgressDto _progress;
+        string _feeConfirmPondId;
+        bool _waitingEnter;
         Vector2 _dragStart;
         Vector2 _contentStart;
         float _zoom = 1f;
 
-        public void Bind(SocialPondSessionController pond)
+        public void Bind(SocialPondSessionController pond, IAuthenticatedApiClient api)
         {
             _pond = pond;
+            _api = api;
             EnsureUi();
-            _ponds = WorldMapPondCatalog.Load();
+            _ponds = WorldMapPondCatalog.LoadVisible();
             _byId.Clear();
             for (var i = 0; i < _ponds.Length; i++)
                 if (_ponds[i] != null && !string.IsNullOrEmpty(_ponds[i].pondId))
@@ -44,12 +50,31 @@ namespace FishSocial.Desktop
             {
                 _pond.ErrorReceived += OnPondError;
                 _pond.StateChanged += OnPondStateChanged;
+                _pond.SnapshotChanged += OnPondSnapshot;
             }
             BuildMarkers();
             SelectById(_pond != null ? _pond.CurrentPondId : null);
             SetStatus(_pond == null ? "请先完成 Steam 登录。" :
-                "地图坐标由配置驱动，鱼塘状态由服务端返回。");
+                "颜色表示鱼塘类型；灰色为未开放或未解锁。");
             ClampContent();
+        }
+
+        public void OnOpened()
+        {
+            if (_api == null || !_api.CanUse)
+                return;
+            StartCoroutine(LoadProgress());
+        }
+
+        System.Collections.IEnumerator LoadProgress()
+        {
+            yield return _api.GetFishingProgress((ok, dto, _) =>
+            {
+                if (ok)
+                    _progress = dto;
+            });
+            BuildMarkers();
+            Select(_selected);
         }
 
         void EnsureUi()
@@ -166,18 +191,23 @@ namespace FishSocial.Desktop
             {
                 if (item == null || string.IsNullOrEmpty(item.pondId))
                     continue;
+                var locked = IsLocked(item);
                 var marker = NewRect("Pond_" + item.pondId, _markerLayer);
                 marker.anchorMin = new Vector2(item.x, 1f - item.y);
                 marker.anchorMax = marker.anchorMin;
-                marker.sizeDelta = new Vector2(58f, 58f);
+                marker.sizeDelta = new Vector2(64f, 64f);
                 marker.gameObject.AddComponent<Image>().color =
-                    new Color(0.95f, 0.75f, 0.28f, 0.95f);
+                    DesktopGameData.CategoryColor(item.pondCategory, locked);
                 var button = marker.gameObject.AddComponent<Button>();
                 var captured = item;
                 button.onClick.AddListener(() => Select(captured));
-                var label = EnsureText(marker, "Label", item.displayName);
+                var caption = item.displayName + "\n" +
+                              DesktopGameData.CategoryLabel(item.pondCategory);
+                if (locked)
+                    caption += "\n锁";
+                var label = EnsureText(marker, "Label", caption);
                 label.alignment = TextAnchor.MiddleCenter;
-                label.fontSize = 11;
+                label.fontSize = 10;
                 label.rectTransform.anchorMin = Vector2.zero;
                 label.rectTransform.anchorMax = Vector2.one;
                 label.rectTransform.offsetMin = Vector2.zero;
@@ -187,59 +217,161 @@ namespace FishSocial.Desktop
 
         void SelectById(string pondId)
         {
-            WorldMapPondDefinition item;
+            WorldMapPondView item;
             if (!string.IsNullOrEmpty(pondId) && _byId.TryGetValue(pondId, out item))
                 Select(item);
             else
                 Select(_ponds.Length > 0 ? _ponds[0] : null);
         }
 
-        void Select(WorldMapPondDefinition item)
+        void Select(WorldMapPondView item)
         {
             _selected = item;
+            _feeConfirmPondId = null;
             if (_selected == null)
             {
                 _details.text = "暂无可用鱼塘坐标配置。";
-                _enter.interactable = false;
+                SetEnterLabel("进入鱼塘", false);
                 return;
             }
-            var online = _pond != null && _pond.CurrentPondId == _selected.pondId &&
-                         _pond.LatestSnapshot != null
-                ? (_pond.LatestSnapshot.users == null ? 0 : _pond.LatestSnapshot.users.Length).ToString()
-                : "进入后由服务端同步";
-            _details.text = _selected.displayName + "\n\n主题：" + _selected.theme +
-                            "\npondId：" + _selected.pondId +
-                            "\n在线人数：" + online +
+
+            var locked = IsLocked(_selected);
+            var reason = AccessReason(_selected);
+            var feeLine = _selected.feePer2h > 0
+                ? "每 2 小时扣费：" + _selected.feePer2h + " 金币"
+                : "入场费：免费";
+            var today = _progress != null ? _progress.todayFeeCharges : 0;
+            var maxFee = _selected.maxFeeChargesPerDay > 0 ? _selected.maxFeeChargesPerDay : 4;
+            if (_selected.feePer2h > 0)
+                feeLine += "\n今日已扣：" + today + " / " + maxFee + " 次";
+            var levelLine = _selected.minPlayerLevel > 0
+                ? "需要钓鱼等级 " + _selected.minPlayerLevel +
+                  "（当前 " + (_progress != null ? _progress.level : 0) + "）"
+                : "等级要求：无";
+
+            _details.text = _selected.displayName +
+                            "\n类型：" + DesktopGameData.CategoryLabel(_selected.pondCategory) +
+                            "\n状态：" + reason +
+                            "\n" + levelLine +
+                            "\n" + feeLine +
+                            "\n主题：" + _selected.theme +
                             "\n容量：" + _selected.capacity;
-            _enter.interactable = _pond != null;
+
+            if (locked)
+                SetEnterLabel("暂不可进入", false);
+            else if (_selected.feePer2h > 0)
+                SetEnterLabel("确认进入", true);
+            else
+                SetEnterLabel("进入鱼塘", true);
         }
 
         void EnterSelectedPond()
         {
+            if (DesktopOnboardingController.Instance != null &&
+                DesktopOnboardingController.Instance.IsOnboardingActive)
+            {
+                SetStatus("请先完成新手引导。");
+                return;
+            }
             if (_selected == null || _pond == null)
             {
                 SetStatus("请选择有效鱼塘，或等待会话初始化。");
                 return;
             }
+            if (IsLocked(_selected))
+            {
+                SetStatus(AccessReason(_selected));
+                return;
+            }
+            if (_selected.feePer2h > 0 && _feeConfirmPondId != _selected.pondId)
+            {
+                _feeConfirmPondId = _selected.pondId;
+                var today = _progress != null ? _progress.todayFeeCharges : 0;
+                var maxFee = _selected.maxFeeChargesPerDay > 0 ? _selected.maxFeeChargesPerDay : 4;
+                SetStatus("收费塘：每满 2 小时扣 " + _selected.feePer2h +
+                          " 金币，今日已扣 " + today + "/" + maxFee +
+                          "。再点一次确认进入。");
+                SetEnterLabel("再次确认进入", true);
+                return;
+            }
+
             SetStatus("正在进入 " + _selected.displayName + "…");
+            _waitingEnter = true;
             if (_pond.State == SocialSocketState.Connected)
             {
                 _pond.SwitchPond(_selected.pondId, (ok, message) =>
                 {
                     SetStatus(message);
                     if (!ok)
+                    {
+                        _waitingEnter = false;
                         return;
-                    DesktopAppBootstrap.Instance?.StartNativeOverlay();
-                    WindowManager.Instance?.HideToTray();
-                    DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+                    }
+                    OpenOverlay();
+                    _waitingEnter = false;
                 });
                 return;
             }
 
             _pond.ConnectAndJoin(_selected.pondId);
+        }
+
+        void OnPondSnapshot(PondSnapshotDto _)
+        {
+            if (!_waitingEnter || _selected == null || _pond == null)
+                return;
+            if (!string.Equals(_pond.CurrentPondId, _selected.pondId, StringComparison.Ordinal))
+                return;
+            if (_pond.CurrentUser == null)
+                return;
+            _waitingEnter = false;
+            OpenOverlay();
+        }
+
+        static void OpenOverlay()
+        {
             DesktopAppBootstrap.Instance?.StartNativeOverlay();
             WindowManager.Instance?.HideToTray();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+        }
+
+        bool IsLocked(WorldMapPondView pond)
+        {
+            if (pond == null)
+                return true;
+            if (!pond.isOpen || pond.pondCategory == "giant")
+                return true;
+            if (_progress != null && !_progress.onboardingCompleted)
+                return true;
+            if (pond.minPlayerLevel > 0 &&
+                (_progress == null || _progress.level < pond.minPlayerLevel))
+                return true;
+            return false;
+        }
+
+        string AccessReason(WorldMapPondView pond)
+        {
+            if (pond.pondCategory == "giant" || !pond.isOpen)
+                return "暂未开放";
+            if (_progress != null && !_progress.onboardingCompleted)
+                return "请先完成新手引导";
+            if (pond.minPlayerLevel > 0 &&
+                (_progress == null || _progress.level < pond.minPlayerLevel))
+            {
+                var current = _progress != null ? _progress.level : 0;
+                return "需要钓鱼等级 " + pond.minPlayerLevel + "（当前 " + current + "）";
+            }
+            return "可进入";
+        }
+
+        void SetEnterLabel(string label, bool enabled)
+        {
+            if (_enter == null)
+                return;
+            _enter.interactable = enabled && _pond != null;
+            var text = _enter.GetComponentInChildren<Text>();
+            if (text != null)
+                text.text = label;
         }
 
         void OnPondStateChanged(SocialSocketState state, string message)
@@ -255,6 +387,7 @@ namespace FishSocial.Desktop
 
         void OnPondError(string message)
         {
+            _waitingEnter = false;
             SetStatus(string.IsNullOrEmpty(message) ? "进入失败，可重试。" : message);
         }
 
@@ -313,6 +446,7 @@ namespace FishSocial.Desktop
                 return;
             _pond.ErrorReceived -= OnPondError;
             _pond.StateChanged -= OnPondStateChanged;
+            _pond.SnapshotChanged -= OnPondSnapshot;
         }
     }
 }

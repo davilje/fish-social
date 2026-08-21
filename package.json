@@ -51,6 +51,8 @@
     "verify:admin-observability": "npm run build:shared && npx tsx scripts/verify-admin-observability-v1.ts",
     "verify:capacity-limit": "npm run build:shared && npx tsx scripts/verify-capacity-limit.ts",
     "verify:feat05-c1": "npm run build:shared && npx tsx scripts/verify-feat05-c1.ts",
+    "verify:feat-prog-01": "npm run build:shared && npx tsx scripts/verify-feat-prog-01.ts",
+    "verify:feat-prog-01-server": "npm run build:shared && npx tsx scripts/verify-feat-prog-01-server.ts",
     "test": "npm run build:shared && npm run test --workspace=server",
     "docker:build": "docker build -t fish-social:latest .",
     "docker:up": "docker compose up -d",
@@ -95,7 +97,9 @@
     "planning:master-xlsx": "python scripts/planning/build-master-plan-xlsx.py && python scripts/planning/build-producer-progress-html.py",
     "planning:progress-html": "python scripts/planning/build-producer-progress-html.py",
     "planning:release-html": "python scripts/planning/generate-release-html.py",
-    "planning:release": "python scripts/planning/build-master-plan-xlsx.py && python scripts/planning/build-producer-progress-html.py && python scripts/planning/generate-release-html.py"
+    "planning:release": "python scripts/planning/build-master-plan-xlsx.py && python scripts/planning/build-producer-progress-html.py && python scripts/planning/generate-release-html.py",
+    "game-data:build": "python scripts/game-data/build_balance_xlsx.py",
+    "game-data:export": "python scripts/game-data/export-balance-xlsx-to-json.py"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -263,5 +263,12 @@ export const POND_STOCK_CONFIGS: PondStockConfig[] = POND_CATALOG.map((p, i) => 
 }));
 
 export function getPondStockConfig(pondId: string): PondStockConfig | undefined {
-  return POND_STOCK_CONFIGS.find((c) => c.pondId === pondId);
+  const found = POND_STOCK_CONFIGS.find((c) => c.pondId === pondId);
+  if (found) return found;
+  // FEAT-PROG-01：新手塘复用静心湖生态模板
+  if (pondId === 'pond-novice') {
+    const calm = POND_STOCK_CONFIGS.find((c) => c.pondId === 'pond-calm');
+    if (calm) return { ...calm, pondId: 'pond-novice' };
+  }
+  return undefined;
 }

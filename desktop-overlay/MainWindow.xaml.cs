@@ -44,6 +44,8 @@ namespace FishSocialOverlay
         bool _chatDockExpanded;
         bool _chatHistoryPrimed;
         string _lastPondId = string.Empty;
+        DispatcherTimer _promptTimer;
+        long _promptDeadlineMs;
 
         public MainWindow()
         {
@@ -87,6 +89,8 @@ namespace FishSocialOverlay
                 playerId => _scene?.TryResolveActor(playerId));
             _chatAckTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
             _chatAckTimer.Tick += ChatAckTimer_OnTick;
+            _promptTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+            _promptTimer.Tick += PromptTimer_OnTick;
         }
 
         void ApplyWindowSizeFromArgs()
@@ -252,6 +256,9 @@ namespace FishSocialOverlay
                 _scene?.Apply(message);
                 ApplyFishingControls(message);
                 ApplyPondChat(message);
+                ApplyGuideTip(message);
+                ApplyFeatureNavLock(message);
+                ApplyOverlayPrompt(message);
                 ApplyMainWindowRaised(message.MainWindowRaised);
             }
             else if (message.Type == "command")
@@ -608,6 +615,90 @@ namespace FishSocialOverlay
             UpdateChatSendEnabled();
         }
 
+        void ApplyGuideTip(IpcMessage message)
+        {
+            var tip = message.GuideTip ?? string.Empty;
+            GuideTipChrome.Visibility = Visibility.Collapsed;
+            GuideTipText.Text = string.Empty;
+            if (string.IsNullOrWhiteSpace(tip))
+            {
+                _chatBubbles?.ClearGuide();
+                return;
+            }
+
+            var actor = _scene?.TryResolveActor(message.OwnUserId)
+                ?? _scene?.TryResolveActor(message.OwnPlayerId);
+            _chatBubbles?.ShowGuide(tip, actor);
+        }
+
+        void ApplyFeatureNavLock(IpcMessage message)
+        {
+            var enabled = !message.LockFeatureNav;
+            MenuMapButton.IsEnabled = enabled;
+            MenuShopButton.IsEnabled = enabled;
+            MenuFriendsButton.IsEnabled = enabled;
+            MenuCatchButton.IsEnabled = enabled;
+            MenuLeaderboardButton.IsEnabled = enabled;
+            CtxMenuPond.IsEnabled = enabled;
+            CtxMenuMap.IsEnabled = enabled;
+            CtxMenuShop.IsEnabled = enabled;
+            CtxMenuFriends.IsEnabled = enabled;
+            CtxMenuCatch.IsEnabled = enabled;
+            CtxMenuGallery.IsEnabled = enabled;
+            CtxMenuProfile.IsEnabled = enabled;
+            CtxMenuFeed.IsEnabled = enabled;
+            CtxMenuLeaderboard.IsEnabled = enabled;
+        }
+
+        void ApplyOverlayPrompt(IpcMessage message)
+        {
+            var kind = message.OverlayPromptKind ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(kind))
+            {
+                OverlayPromptChrome.Visibility = Visibility.Collapsed;
+                _promptDeadlineMs = 0;
+                _promptTimer.Stop();
+                OverlayPromptCountdown.Text = string.Empty;
+                return;
+            }
+
+            OverlayPromptTitle.Text = message.OverlayPromptTitle ?? string.Empty;
+            OverlayPromptBody.Text = message.OverlayPromptBody ?? string.Empty;
+            OverlayPromptButton.Content = string.IsNullOrWhiteSpace(message.OverlayPromptButton)
+                ? "确认"
+                : message.OverlayPromptButton;
+            _promptDeadlineMs = message.OverlayPromptDeadlineMs;
+            OverlayPromptChrome.Visibility = Visibility.Visible;
+            RefreshPromptCountdown();
+            if (_promptDeadlineMs > 0)
+                _promptTimer.Start();
+            else
+                _promptTimer.Stop();
+        }
+
+        void PromptTimer_OnTick(object sender, EventArgs e)
+        {
+            RefreshPromptCountdown();
+        }
+
+        void RefreshPromptCountdown()
+        {
+            if (_promptDeadlineMs <= 0)
+            {
+                OverlayPromptCountdown.Text = string.Empty;
+                return;
+            }
+
+            var leftMs = _promptDeadlineMs - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var leftSec = Math.Max(0, (int)Math.Ceiling(leftMs / 1000.0));
+            OverlayPromptCountdown.Text = leftSec + " 秒后自动关闭";
+        }
+
+        void OverlayPromptConfirm_OnClick(object sender, RoutedEventArgs e)
+        {
+            SendCommand("confirm_overlay_prompt");
+        }
+
         void ChatAckTimer_OnTick(object sender, EventArgs e)
         {
             if (!_awaitingChatAck)
@@ -742,31 +833,42 @@ namespace FishSocialOverlay
 
         static string FormatFishingState(IpcMessage message)
         {
+            if (message.ConnectionState != "Connected")
+                return "离线";
+
+            var fromPhase = FormatPhaseLabel(message.FishingPhase);
+            if (!string.IsNullOrEmpty(fromPhase))
+                return fromPhase;
+
             if (!string.IsNullOrEmpty(message.PetVisualState))
             {
                 switch (message.PetVisualState)
                 {
                     case "idle": return "待机";
                     case "fishing": return "钓鱼";
-                    case "hooked": return "咬钩";
+                    case "hooked": return "上钩";
                     case "catching": return "收鱼";
                     case "dragging": return "拖动";
                     case "offline": return "离线";
                 }
             }
 
-            switch (message.FishingPhase)
+            return "待机";
+        }
+
+        internal static string FormatPhaseLabel(string phase)
+        {
+            switch (phase)
             {
-                case "baiting":
-                case "casting":
-                case "waiting":
-                    return "钓鱼";
-                case "hooked":
-                    return "咬钩";
-                case "resolving":
-                    return "收鱼";
-                default:
-                    return message.ConnectionState == "Connected" ? "待机" : "离线";
+                case "idle": return "待机";
+                case "seated": return "坐下";
+                case "baiting": return "装饵";
+                case "casting": return "抛竿";
+                case "waiting": return "等待";
+                case "hooked": return "上钩";
+                case "resolving": return "收鱼";
+                case "stopping": return "收杆";
+                default: return string.Empty;
             }
         }
 
@@ -790,6 +892,7 @@ namespace FishSocialOverlay
         void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _stopping = true;
+            _promptTimer?.Stop();
             NamedPipeClientStream pipe;
             lock (_writeLock)
             {

@@ -1,5 +1,37 @@
 # 策划文档变更记录
 
+### [feat-prog-01-accepted] - 2026-08-21
+
+- **FEAT-PROG-01** 用户验收通过，状态 **已实现**（设计/完成 2026-08-21）。
+- 七类塘准入、双熟练度、每 2h 扣费、卖价公式、数值表导出、野外/水库咬钩乘子已落地；新手教学关见 **STEAM-DESKTOP-11**。
+- 验收接受过渡期：生态鱼种仍硬编码 STOCK 轮转（`pond_fish_pool` JSON 已导出未驱动 spawn）。商店读表仍属 **FEAT-GEAR-01**。
+
+### [steam-desktop-11-accepted] - 2026-08-21
+
+- **STEAM-DESKTOP-11** 用户验收通过，状态 **已实现**（设计/完成 2026-08-21）。
+- 关联 **FEAT-PROG-01** 仍为已确认：地图类型/锁态、巨物暂闭、背包参考价已补代码，商店读表属 **FEAT-GEAR-01**。
+
+### [steam-desktop-11-onboarding-ux] - 2026-08-21
+
+- **STEAM-DESKTOP-11** 修订：引导气泡随换位/离席跟随；去掉 Overlay 顶栏与主窗口重复文案；引导中锁定世界地图等功能栏。
+- 领鱼对齐 Web：自动入包 + 鱼获弹窗（确认或 5 秒）→ 完成确认后离开教学关；phase 显示装饵/抛竿/等待/上钩/收鱼。
+
+### [steam-desktop-11-local-onboarding] - 2026-08-21
+
+- 立项 **STEAM-DESKTOP-11**：新手引导改为 Overlay **本地教学关**（5 秒必上钩 / 5 秒圆圈），不 `join pond-novice`、不走正式塘咬钩循环。
+- 服务端只权威保存 `onboardingCompleted`；领取打 `complete-onboarding`。
+- 同步修订 **FEAT-PROG-01** §3.4 与 Epic #12。
+- 规格：[Steam桌面端-新手引导本地教学关.md](./specs/Steam桌面端-新手引导本地教学关.md)
+- 开发提示词：[steam-desktop-11-local-onboarding-dev.prompt.md](./prompts/steam-desktop-11-local-onboarding-dev.prompt.md)
+
+### [feat-prog-01-impl] - 2026-08-21
+
+- **FEAT-PROG-01** 代码落地（待用户验收后再改 spec 为已实现）：
+  - `钓鱼玩法固定数值表.xlsx` + `npm run game-data:export` → `shared/generated/game-data/` + Unity `Resources/GameData/`
+  - 七类塘准入、`pond-novice`、双熟练度、每 2h 扣费、新卖价公式、野外/水库乘子
+  - Unity：首登强制 Overlay 新手引导
+  - 自检：`npm run verify:feat-prog-01`
+
 ### [fish-v07-r1-split] - 2026-08-21
 
 - 拆分 **EPIC-FISH-V07** 钓鱼玩法扩展 R1：Epic 索引 + 五张已确认功能票。

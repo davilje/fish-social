@@ -23,8 +23,15 @@ import {
   markConversationRead,
   sendDirectMessage,
 } from './dm.js';
-import { getInventory, sellFish, getFishById } from './inventory.js';
+import { getInventory, sellFish, getFishById, addFishToInventory } from './inventory.js';
 import { recordFishingMetric } from './fishingMetrics.js';
+import {
+  completeOnboarding,
+  ensurePlayerProgress,
+  getProgressPublicView,
+  grantCatchProgress,
+  resetOnboarding,
+} from './playerProgress.js';
 import { createPost, getFriendsPosts, getWallPosts } from './posts.js';
 import {
   addPostComment,
@@ -345,11 +352,46 @@ export function registerSocialRoutes(
     res.json({ profile, token: signPlayerToken(playerId) });
   });
 
-  // SEC-02: private profile (coins etc.) — self only
   app.get('/api/players/:playerId', requireSelf('playerId'), (req, res) => {
     const profile = getPlayer(req.params.playerId);
     if (!profile) return res.status(404).json({ error: '玩家不存在' });
     res.json({ profile });
+  });
+
+  /** FEAT-PROG-01：钓鱼等级 / 引导 / 扣费进度 */
+  app.get('/api/progress/me', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req);
+    if (!playerId) return res.status(401).json({ error: 'unauthorized' });
+    res.json({ progress: getProgressPublicView(playerId) });
+  });
+
+  app.post('/api/progress/complete-onboarding', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req);
+    if (!playerId) return res.status(401).json({ error: 'unauthorized' });
+    const before = ensurePlayerProgress(playerId);
+    const progress = completeOnboarding(playerId);
+    if (!before.onboardingCompleted) {
+      addFishToInventory(
+        playerId,
+        {
+          speciesId: 'crucian',
+          quality: 'gray',
+          sizeM: 0.18,
+          caughtAt: Date.now(),
+          pondId: 'pond-novice',
+        },
+        { pondId: 'pond-novice' },
+      );
+      grantCatchProgress(playerId, 'pond-novice', 'crucian', 'gray');
+    }
+    res.json({ progress: getProgressPublicView(playerId), completed: progress.onboardingCompleted });
+  });
+
+  app.post('/api/progress/reset-onboarding', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req);
+    if (!playerId) return res.status(401).json({ error: 'unauthorized' });
+    const progress = resetOnboarding(playerId);
+    res.json({ progress: getProgressPublicView(playerId), completed: progress.onboardingCompleted });
   });
 
   // Public: others' profile page — no PII beyond public view (SEC §2.1)

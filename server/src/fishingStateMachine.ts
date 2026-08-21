@@ -4,6 +4,7 @@ import {
   getBait,
   PONDS,
   MAX_DAILY_FISHING_MS,
+  NOVICE_POND_ID,
   isFishingActive,
   compactPhaseTransitionPayload,
   type ClientToServerEvents,
@@ -56,6 +57,7 @@ import {
   type BiteHookEvent,
   type FisherGearContext,
 } from './fishingSession.js';
+import { canStartFishingWithFee } from './playerProgress.js';
 import { getLockedPondFishIds, getPendingCatch, lockPendingCatch } from './inventory.js';
 import { isCodexNewForPlayer } from './codex.js';
 import { applyEscapeGrowthBonus } from './pondEcology.js';
@@ -280,6 +282,10 @@ export function beginFishingSequence(
   }
   if (user.playerId && getTodayFishingMs(user.playerId) >= MAX_DAILY_FISHING_MS) {
     return { ok: false, error: '今日钓鱼时长已用完' };
+  }
+  if (user.playerId) {
+    const feeGate = canStartFishingWithFee(user.playerId, pondId);
+    if (!feeGate.ok) return feeGate;
   }
 
   sessionFlagsByUser.delete(userId);
@@ -677,6 +683,14 @@ function advanceFromResolving(
   if (!user.playerId || !hasBaitForContinue(user.playerId)) {
     flushFishingSessionToToday(user);
     const next = transitionPhase(user, pondId, 'seated', 0, 'bait_insufficient');
+    emitPondUserUpdated(io, pondId, next);
+    return;
+  }
+
+  // FEAT-PROG-01：新手塘首获后停在 seated，等领取后离塘，不自动续钓
+  if (pondId === NOVICE_POND_ID) {
+    flushFishingSessionToToday(user);
+    const next = transitionPhase(user, pondId, 'seated', 0, 'novice_catch_seated');
     emitPondUserUpdated(io, pondId, next);
     return;
   }

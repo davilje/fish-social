@@ -14,12 +14,28 @@ export const WORLD_POND_REGIONS: WorldPondRegion[] = POND_CATALOG.map((p, i) => 
 }));
 
 /** 各鱼塘配置：钓位坐标来自正交 Tile 岸格中心 */
-export const PONDS: PondConfig[] = POND_CATALOG.map((p) => ({
+const CATALOG_PONDS: PondConfig[] = POND_CATALOG.map((p) => ({
   id: p.id,
   name: p.name,
   regionId: p.regionId,
   spots: buildPondSpotsFromTiles(p.id),
 }));
+
+/** FEAT-PROG-01：新手个人塘（复用静心湖钓位布局，不上世界地图） */
+function buildNovicePond(): PondConfig {
+  const calmSpots = buildPondSpotsFromTiles('pond-calm');
+  return {
+    id: 'pond-novice',
+    name: '新手练习塘',
+    regionId: 'region-novice',
+    spots: calmSpots.map((s) => ({
+      ...s,
+      id: s.id.replace(/^calm-/, 'novice-'),
+    })),
+  };
+}
+
+export const PONDS: PondConfig[] = [...CATALOG_PONDS, buildNovicePond()];
 
 const calmGrid = getPondTileMap('pond-calm');
 export const POND_SCENE_CENTER = { ...calmGrid.waterCenter };

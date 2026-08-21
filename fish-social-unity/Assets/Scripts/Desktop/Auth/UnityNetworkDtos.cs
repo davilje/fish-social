@@ -380,4 +380,28 @@ namespace FishSocial.Desktop.Auth
         public float value;
         public LeaderboardEntryDto entry;
     }
+
+    [Serializable]
+    public sealed class PondProficiencyDto
+    {
+        public string pondId;
+        public int level;
+        public int xp;
+    }
+
+    /// <summary>
+    /// Public fishing progress from GET /api/progress/me (FEAT-PROG-01).
+    /// </summary>
+    [Serializable]
+    public sealed class FishingProgressDto
+    {
+        public int level;
+        public int xp;
+        public bool onboardingCompleted;
+        public long onboardingCompletedAt;
+        public int todayFeeCharges;
+        public long feeProgressMs;
+        public bool needsFeeToContinue;
+        public PondProficiencyDto[] pondProficiencies;
+    }
 }

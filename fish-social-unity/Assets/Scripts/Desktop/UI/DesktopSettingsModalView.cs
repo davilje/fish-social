@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using FishSocial.Desktop.Onboarding;
 
 namespace FishSocial.Desktop
 {
@@ -74,6 +75,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindDescendantButton(transform, "退出游戏",
                 () => DesktopAppBootstrap.Instance?.QuitForReal());
             EnsureServerUrlControls();
+            EnsureResetOnboardingButton();
             ValidatePrefabBindings();
         }
 
@@ -174,6 +176,41 @@ namespace FishSocial.Desktop
             }
 
             RefreshServerUrlControls();
+        }
+
+        void EnsureResetOnboardingButton()
+        {
+            if (DesktopModalUi.FindDescendant(transform, "重置新手引导") != null)
+            {
+                DesktopModalUi.BindDescendantButton(transform, "重置新手引导", OnResetOnboardingClicked);
+                return;
+            }
+
+            var parent = DesktopModalUi.FindDescendant(transform, "SettingsContent");
+            if (parent == null)
+                parent = transform;
+
+            var button = DesktopModalUi.MakeButton(
+                parent, "重置新手引导", "重置新手引导", OnResetOnboardingClicked);
+            var rt = button.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(29f, -550f);
+            rt.sizeDelta = new Vector2(280f, 36f);
+        }
+
+        void OnResetOnboardingClicked()
+        {
+            var onboarding = DesktopOnboardingController.Instance;
+            if (onboarding == null)
+            {
+                SetServerStatus("新手引导未就绪。", false);
+                return;
+            }
+
+            SetServerStatus("正在重置新手引导…", true);
+            onboarding.ResetAndRestartOnboarding();
         }
 
         void RefreshServerUrlControls()

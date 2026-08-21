@@ -23,6 +23,11 @@ import {
 } from './fishingObservability.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import {
+  applyAdmissionFeeProgress,
+  grantDurationPondXp,
+} from './playerProgress.js';
+import { handleStopFishing } from './fishingStateMachine.js';
+import {
   applyCheckpointToUser,
   deletePlayerPondSession,
   isCheckpointExpired,
@@ -469,6 +474,17 @@ export function computeSessionFishingMs(user: PondUser, atMs: number = nowMs()):
 /** BUG-19：finalize | checkpoint；advance 为 checkpoint 兼容别名 */
 export type SettleFishingMode = 'finalize' | 'checkpoint' | 'advance';
 
+const feeStopByUserId = new Map<string, { pondId: string; message: string }>();
+
+export function consumeFeeStopRequest(
+  userId: string,
+): { pondId: string; message: string } | null {
+  const hit = feeStopByUserId.get(userId);
+  if (!hit) return null;
+  feeStopByUserId.delete(userId);
+  return hit;
+}
+
 /**
  * BUG-19 统一结算出口（幂等）。
  * - finalize：入账后清空展示锚点与 checkpoint（stop / leave / disconnect / 相位收尾）
@@ -479,7 +495,7 @@ export function settleFishingSession(
   user: PondUser,
   atMs: number = nowMs(),
   reason: string = 'settle',
-  opts?: { mode?: SettleFishingMode },
+  opts?: { mode?: SettleFishingMode; pondId?: string },
 ): number {
   const rawMode: SettleFishingMode = opts?.mode ?? 'finalize';
   const mode: 'finalize' | 'checkpoint' = rawMode === 'advance' ? 'checkpoint' : rawMode;
@@ -534,6 +550,20 @@ export function settleFishingSession(
   } else {
     setSessionAnchors(user, null);
     clearQuotaCheckpoint(user.id);
+  }
+
+  if (credited > 0 && user.playerId && !user.isBot) {
+    const pondId = opts?.pondId;
+    if (pondId) {
+      grantDurationPondXp(user.playerId, pondId, credited);
+      const fee = applyAdmissionFeeProgress(user.playerId, pondId, credited);
+      if (fee.kind === 'insufficient') {
+        feeStopByUserId.set(user.id, {
+          pondId,
+          message: `金币不足，已停止钓鱼（需要 ${fee.feePer2h} 金币支付下一时段）`,
+        });
+      }
+    }
   }
 
   logStructuredEvent('fishing_settle', 'fishing_session_settled', {
@@ -615,10 +645,18 @@ export function syncHumanQuotaAndEmit(
           getSessionStartedAt(user) != null)
       ) {
         if (user.status !== 'fishing') user.status = 'fishing';
-        segmentCredited = settleFishingSession(user, atMs, 'segment_tick', { mode: 'checkpoint' });
+        segmentCredited = settleFishingSession(user, atMs, 'segment_tick', {
+          mode: 'checkpoint',
+          pondId: pond.id,
+        });
         // 契约：checkpoint 不得改展示锚点
         if (getSessionStartedAt(user) !== sessionBefore && sessionBefore != null) {
           setSessionAnchors(user, sessionBefore);
+        }
+        const feeStop = consumeFeeStopRequest(user.id);
+        if (feeStop) {
+          handleStopFishing(io, feeStop.pondId, user.id);
+          io.to(pond.id).emit('error', feeStop.message);
         }
       } else {
         ensureFishingDayRollover(user, atMs);

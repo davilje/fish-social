@@ -24,16 +24,16 @@
                 MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp">
             <Border.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="当前鱼塘" Click="MenuPond_OnClick" />
-                    <MenuItem Header="世界地图" Click="MenuMap_OnClick" />
-                    <MenuItem Header="商店与装备" Click="MenuShop_OnClick" />
-                    <MenuItem Header="好友与聊天" Click="MenuFriends_OnClick" />
-                    <MenuItem Header="鱼获/背包" Click="MenuCatch_OnClick" />
-                    <MenuItem Header="图鉴" Click="MenuGallery_OnClick" />
-                    <MenuItem Header="个人中心" Click="MenuProfile_OnClick" />
-                    <MenuItem Header="动态墙" Click="MenuFeed_OnClick" />
-                    <MenuItem Header="排行榜" Click="MenuLeaderboard_OnClick" />
-                    <MenuItem Header="设置" Click="MenuSettings_OnClick" />
+                    <MenuItem x:Name="CtxMenuPond" Header="当前鱼塘" Click="MenuPond_OnClick" />
+                    <MenuItem x:Name="CtxMenuMap" Header="世界地图" Click="MenuMap_OnClick" />
+                    <MenuItem x:Name="CtxMenuShop" Header="商店与装备" Click="MenuShop_OnClick" />
+                    <MenuItem x:Name="CtxMenuFriends" Header="好友与聊天" Click="MenuFriends_OnClick" />
+                    <MenuItem x:Name="CtxMenuCatch" Header="鱼获/背包" Click="MenuCatch_OnClick" />
+                    <MenuItem x:Name="CtxMenuGallery" Header="图鉴" Click="MenuGallery_OnClick" />
+                    <MenuItem x:Name="CtxMenuProfile" Header="个人中心" Click="MenuProfile_OnClick" />
+                    <MenuItem x:Name="CtxMenuFeed" Header="动态墙" Click="MenuFeed_OnClick" />
+                    <MenuItem x:Name="CtxMenuLeaderboard" Header="排行榜" Click="MenuLeaderboard_OnClick" />
+                    <MenuItem x:Name="CtxMenuSettings" Header="设置" Click="MenuSettings_OnClick" />
                     <Separator />
                     <MenuItem Header="隐藏到托盘" Click="HideToTray_OnClick" />
                     <MenuItem Header="退出" Click="QuitApp_OnClick" />
@@ -88,6 +88,25 @@
                 <Canvas x:Name="HoverLayer" Width="960" Height="560" Panel.ZIndex="50" IsHitTestVisible="False" />
                 <!-- Z55: 角色头顶聊天气泡 -->
                 <Canvas x:Name="ChatBubbleLayer" Width="960" Height="560" Panel.ZIndex="55" IsHitTestVisible="False" />
+                <!-- Z110: unused (guide lives on ChatBubbleLayer above the pet) -->
+                <Border x:Name="GuideTipChrome"
+                        Canvas.Left="120"
+                        Canvas.Top="12"
+                        Width="720"
+                        Panel.ZIndex="110"
+                        Background="#EE1B3A4A"
+                        CornerRadius="10"
+                        Padding="12,8"
+                        Visibility="Collapsed"
+                        IsHitTestVisible="False">
+                    <TextBlock x:Name="GuideTipText"
+                               Text=""
+                               Foreground="White"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center" />
+                </Border>
                 <!-- Z100: 左上菜单 + 状态 -->
                 <StackPanel Canvas.Left="8"
                             Canvas.Top="8"
@@ -106,12 +125,12 @@
                             Padding="6"
                             Margin="0,4,0,0">
                         <StackPanel>
-                            <Button Content="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
-                            <Button Content="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
-                            <Button Content="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
-                            <Button Content="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
-                            <Button Content="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
-                            <Button Content="设置" Height="32" Margin="0,0,0,4" Click="MenuSettings_OnClick" />
+                            <Button x:Name="MenuMapButton" Content="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
+                            <Button x:Name="MenuShopButton" Content="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
+                            <Button x:Name="MenuFriendsButton" Content="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
+                            <Button x:Name="MenuCatchButton" Content="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
+                            <Button x:Name="MenuLeaderboardButton" Content="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
+                            <Button x:Name="MenuSettingsButton" Content="设置" Height="32" Click="MenuSettings_OnClick" />
                         </StackPanel>
                     </Border>
                     <Border x:Name="StatusCapsule"
@@ -243,6 +262,44 @@
                     </StackPanel>
                 </Border>
             </Canvas>
+        </Border>
+        <Border x:Name="OverlayPromptChrome"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Width="320"
+                Visibility="Collapsed"
+                Background="#F2FFFFFF"
+                CornerRadius="16"
+                Padding="22,20"
+                Panel.ZIndex="300">
+            <StackPanel>
+                <TextBlock x:Name="OverlayPromptTitle"
+                           Text=""
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#FF2C5F6F"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap" />
+                <TextBlock x:Name="OverlayPromptBody"
+                           Text=""
+                           FontSize="14"
+                           Foreground="#FF555555"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Margin="0,14,0,0"
+                           LineHeight="22" />
+                <TextBlock x:Name="OverlayPromptCountdown"
+                           Text=""
+                           FontSize="12"
+                           Foreground="#FF999999"
+                           TextAlignment="Center"
+                           Margin="0,12,0,0" />
+                <Button x:Name="OverlayPromptButton"
+                        Content="确认"
+                        Height="40"
+                        Margin="40,16,40,0"
+                        Click="OverlayPromptConfirm_OnClick" />
+            </StackPanel>
         </Border>
     </Grid>
 </Window>

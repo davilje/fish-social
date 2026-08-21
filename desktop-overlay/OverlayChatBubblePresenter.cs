@@ -66,8 +66,119 @@ namespace FishSocialOverlay
 
         public void HideAll()
         {
+            DetachGuideActor();
+            _guideText = string.Empty;
             _activeByPlayer.Clear();
             _layer.Children.Clear();
+        }
+
+        const string GuideKey = "__guide__";
+        FrameworkElement _guideActor;
+        string _guideText = string.Empty;
+
+        /// <summary>Sticky onboarding tip bubble above own pet (does not auto-fade).</summary>
+        public void ShowGuide(string text, FrameworkElement actor)
+        {
+            if (string.IsNullOrWhiteSpace(text) || actor == null)
+            {
+                ClearGuide();
+                return;
+            }
+
+            var trimmed = text.Trim();
+            if (string.Equals(_guideText, trimmed, StringComparison.Ordinal) &&
+                ReferenceEquals(_guideActor, actor) &&
+                _activeByPlayer.ContainsKey(GuideKey))
+            {
+                FollowGuide();
+                return;
+            }
+
+            DetachGuideActor();
+            if (_activeByPlayer.TryGetValue(GuideKey, out var previous))
+            {
+                _layer.Children.Remove(previous);
+                _activeByPlayer.Remove(GuideKey);
+            }
+
+            var label = new TextBlock
+            {
+                Text = trimmed,
+                Foreground = Brushes.White,
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                MaxWidth = 200,
+            };
+
+            var bubble = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(235, 27, 58, 74)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(255, 120, 190, 210)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(10, 6, 10, 6),
+                Child = label,
+                Opacity = 1,
+                IsHitTestVisible = false,
+            };
+
+            _layer.Children.Add(bubble);
+            _activeByPlayer[GuideKey] = bubble;
+            _guideText = trimmed;
+            AttachGuideActor(actor);
+            FollowGuide();
+            Panel.SetZIndex(bubble, 20);
+        }
+
+        public void ClearGuide()
+        {
+            DetachGuideActor();
+            _guideText = string.Empty;
+            if (_activeByPlayer.TryGetValue(GuideKey, out var bubble))
+            {
+                _layer.Children.Remove(bubble);
+                _activeByPlayer.Remove(GuideKey);
+            }
+        }
+
+        void AttachGuideActor(FrameworkElement actor)
+        {
+            DetachGuideActor();
+            _guideActor = actor;
+            if (_guideActor != null)
+                _guideActor.LayoutUpdated += OnGuideLayoutUpdated;
+        }
+
+        void DetachGuideActor()
+        {
+            if (_guideActor != null)
+                _guideActor.LayoutUpdated -= OnGuideLayoutUpdated;
+            _guideActor = null;
+        }
+
+        void OnGuideLayoutUpdated(object sender, EventArgs e)
+        {
+            FollowGuideImmediate();
+        }
+
+        void FollowGuide()
+        {
+            FollowGuideImmediate();
+            var actor = _guideActor;
+            if (actor == null)
+                return;
+            actor.Dispatcher.BeginInvoke(new Action(FollowGuideImmediate), DispatcherPriority.Loaded);
+        }
+
+        void FollowGuideImmediate()
+        {
+            if (_guideActor == null)
+                return;
+            if (!_activeByPlayer.TryGetValue(GuideKey, out var bubble))
+                return;
+            PositionBubble(bubble, _guideActor);
         }
 
         void ShowBubble(OverlayChatDto chat)
@@ -125,16 +236,21 @@ namespace FishSocialOverlay
 
         void PositionBubble(Border bubble, FrameworkElement actor)
         {
-            bubble.Measure(new Size(BubbleMaxWidth + 32, double.PositiveInfinity));
+            var maxWidth = BubbleMaxWidth + 32;
+            var label = bubble.Child as TextBlock;
+            if (label != null && label.MaxWidth > 0)
+                maxWidth = label.MaxWidth + 24;
+            bubble.Measure(new Size(maxWidth, double.PositiveInfinity));
             var size = bubble.DesiredSize;
             if (size.Width < 40)
-                size = new Size(40, size.Height);
+                size = new Size(Math.Max(40, bubble.ActualWidth), Math.Max(size.Height, bubble.ActualHeight));
 
+            var actorWidth = actor.ActualWidth > 1 ? actor.ActualWidth : OverlayPetActor.BodySize;
             Point anchor;
             try
             {
                 anchor = actor.TranslatePoint(
-                    new Point(actor.ActualWidth * 0.5, 0),
+                    new Point(actorWidth * 0.5, 0),
                     _layer);
             }
             catch (InvalidOperationException)

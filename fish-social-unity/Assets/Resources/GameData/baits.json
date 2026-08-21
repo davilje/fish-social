@@ -1,0 +1,46 @@
+[
+  {
+    "baitId": "bait-basic",
+    "name": "基础杂饵",
+    "diet": "any",
+    "unlockPlayerLevel": 0,
+    "costGoldPerUse": 0,
+    "biteBonusHerbivore": 0,
+    "biteBonusOmnivore": 0,
+    "biteBonusCarnivore": 0,
+    "isDefaultInfinite": true
+  },
+  {
+    "baitId": "bait-veg",
+    "name": "谷物饵",
+    "diet": "herbivore",
+    "unlockPlayerLevel": 2,
+    "costGoldPerUse": 15,
+    "biteBonusHerbivore": 0.06,
+    "biteBonusOmnivore": 0.01,
+    "biteBonusCarnivore": 0.01,
+    "isDefaultInfinite": false
+  },
+  {
+    "baitId": "bait-mix",
+    "name": "腥香饵",
+    "diet": "omnivore",
+    "unlockPlayerLevel": 3,
+    "costGoldPerUse": 20,
+    "biteBonusHerbivore": 0.01,
+    "biteBonusOmnivore": 0.06,
+    "biteBonusCarnivore": 0.01,
+    "isDefaultInfinite": false
+  },
+  {
+    "baitId": "bait-meat",
+    "name": "荤腥饵",
+    "diet": "carnivore",
+    "unlockPlayerLevel": 4,
+    "costGoldPerUse": 25,
+    "biteBonusHerbivore": 0.01,
+    "biteBonusOmnivore": 0.01,
+    "biteBonusCarnivore": 0.07,
+    "isDefaultInfinite": false
+  }
+]

@@ -44,6 +44,10 @@ EVENTS = [
     ("D咬钩产出", "fishing_start", "metrics", "开始钓鱼", "pondId", "{}", "P1", "已实现", "fishingStateMachine.ts"),
     ("D咬钩产出", "fishing_stop", "metrics", "停止钓鱼", "pondId", "{}", "P1", "已实现", "fishingStateMachine.ts"),
     ("D咬钩产出", "abandon_fishing", "metrics", "<30s 停止", "pondId", "{}", "P1", "已实现", "fishingMetrics.ts"),
+    ("D成长进度", "admission_fee_charged", "metrics", "收费塘满2h扣费成功", "playerId\npondId\nfeePer2h", '{"feePer2h":200,"chargeIndex":1}', "P0", "已实现", "playerProgress.ts"),
+    ("D成长进度", "fishing_stopped_insufficient_gold", "metrics", "金币不足停钓", "playerId\npondId", '{"feePer2h":200}', "P0", "已实现", "playerProgress.ts"),
+    ("D成长进度", "onboarding_completed", "metrics", "新手引导完成", "playerId", '{"pondId":"pond-novice"}', "P0", "已实现", "playerProgress.ts"),
+    ("D成长进度", "pond_proficiency_capped", "metrics", "塘熟练度满/锁满停发塘XP", "playerId\npondId", '{"source":"catch"}', "P1", "已实现", "playerProgress.ts"),
     ("E性能", "tick_fishing_phases_duration_ms", "聚合日志", "200ms tick 耗时", "durationMs", "{}", "P2", "已实现", "serverLoops.ts"),
     ("E性能", "bite_check_loop_duration_ms", "聚合日志", "咬钩循环耗时", "durationMs", "{}", "P2", "已实现", "serverLoops.ts"),
     ("E性能", "snapshot_build_duration_ms", "聚合日志", "buildSnapshot 耗时", "durationMs\npondId", "{}", "P2", "已实现", "gameState.ts"),
@@ -57,6 +61,7 @@ CAT_SHEETS = {
     "B钓位鱼塘": "B-钓位与鱼塘",
     "C状态机": "C-状态机",
     "D咬钩产出": "D-咬钩与产出",
+    "D成长进度": "D-成长与进度",
     "E性能": "E-系统性能",
 }
 

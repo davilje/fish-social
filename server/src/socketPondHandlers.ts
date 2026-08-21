@@ -28,6 +28,7 @@ import {
 } from './gameState.js';
 import { acceptCatch, getInventory } from './inventory.js';
 import { ensurePlayer } from './players.js';
+import { checkJoinPondAccess } from './playerProgress.js';
 import { autoShareEpicCatch } from './posts.js';
 import { emitEvictedBots } from './bots.js';
 import { beginFishingSequence, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
@@ -38,6 +39,7 @@ import { logStructuredEvent, recordStructuredMetric } from './fishingObservabili
 import { bindPlayer, bindPondUser, resolveBySocket, unbindSocket } from './sessionRegistry.js';
 import { cancelBySocket, cancelByUser } from './timerRegistry.js';
 import { withTraceSpan } from './otelTracing.js';
+import { buildJoinFeeHint, ensurePlayerProgress } from './playerProgress.js';
 import {
   biteSessionMetricPayload,
   clearBiteSessionCounters,
@@ -59,6 +61,22 @@ function parseLeavePondPayload(
     return { pondId: raw, reason: 'legacy_unknown' };
   }
   return { pondId: raw.pondId, reason: raw.reason ?? 'legacy_unknown' };
+}
+
+function buildJoinSuccessAck(playerId: string, pondId: string, userId: string) {
+  const baseMs = getTodayFishingMs(playerId);
+  const fee = buildJoinFeeHint(playerId, pondId);
+  const progress = ensurePlayerProgress(playerId);
+  return {
+    ok: true as const,
+    userId,
+    todayFishingBaseMs: baseMs,
+    todayRemainingMs: Math.max(0, MAX_DAILY_FISHING_MS - baseMs),
+    quotaDateKey: todayKey(),
+    ...fee,
+    onboardingCompleted: progress.onboardingCompleted,
+    playerLevel: progress.level,
+  };
 }
 
 export function registerSocketPondHandlers(
@@ -129,6 +147,25 @@ export function registerSocketPondHandlers(
       reason: 'join_pond_attempt',
     });
     ensurePlayer(authPlayerId, payload.nickname);
+    const access = checkJoinPondAccess(authPlayerId, payload.pondId);
+    if (!access.ok) {
+      logStructuredEvent('join_pond', 'join_pond_fail', {
+        playerId: authPlayerId,
+        socketId: socket.id,
+        pondId: payload.pondId,
+        reason: 'pond_access',
+        ackError: access.error,
+      });
+      recordStructuredMetric('join_pond_fail', {
+        playerId: authPlayerId,
+        socketId: socket.id,
+        pondId: payload.pondId,
+        reason: 'pond_access',
+        ackError: access.error,
+      });
+      ack?.({ ok: false, error: access.error ?? '无法进入该鱼塘' });
+      return;
+    }
     try {
       ensurePondEcologyCurrent(payload.pondId);
     } catch {
@@ -199,16 +236,7 @@ export function registerSocketPondHandlers(
           disconnectDurationMs:
             disconnected.disconnectedAt != null ? Date.now() - disconnected.disconnectedAt : undefined,
         });
-        {
-          const baseMs = getTodayFishingMs(authPlayerId);
-          ack?.({
-            ok: true,
-            userId: user.id,
-            todayFishingBaseMs: baseMs,
-            todayRemainingMs: Math.max(0, MAX_DAILY_FISHING_MS - baseMs),
-            quotaDateKey: todayKey(),
-          });
-        }
+        ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, user.id));
         return;
       }
     }
@@ -250,16 +278,7 @@ export function registerSocketPondHandlers(
         reason: 'join_pond_success',
         joinKind: 'checkpoint_restore',
       });
-      {
-        const baseMs = getTodayFishingMs(authPlayerId);
-        ack?.({
-          ok: true,
-          userId: checkpointUser.id,
-          todayFishingBaseMs: baseMs,
-          todayRemainingMs: Math.max(0, MAX_DAILY_FISHING_MS - baseMs),
-          quotaDateKey: todayKey(),
-        });
-      }
+      ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, checkpointUser.id));
       return;
     }
 
@@ -322,16 +341,7 @@ export function registerSocketPondHandlers(
       reason: 'join_pond_success',
       joinKind: 'fresh',
     });
-    {
-      const baseMs = getTodayFishingMs(authPlayerId);
-      ack?.({
-        ok: true,
-        userId: result.user.id,
-        todayFishingBaseMs: baseMs,
-        todayRemainingMs: Math.max(0, MAX_DAILY_FISHING_MS - baseMs),
-        quotaDateKey: todayKey(),
-      });
-    }
+    ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, result.user.id));
     });
   });
 

@@ -39,6 +39,11 @@ namespace FishSocial.Desktop.Auth
             CurrentPhase == "waiting" || CurrentPhase == "hooked" ||
             CurrentPhase == "resolving";
         public bool IsTransitioning => _transitionBusy;
+        /// <summary>
+        /// When set (e.g. pond-novice during onboarding), ConnectAndJoin/SwitchPond
+        /// to any other pond is rejected.
+        /// </summary>
+        public string AllowedPondIdOnly { get; set; }
         public bool HasSpot => CurrentUser != null && !string.IsNullOrEmpty(CurrentUser.spotId);
         public string FirstSpotId =>
             LatestSnapshot?.pond?.spots != null && LatestSnapshot.pond.spots.Length > 0
@@ -127,6 +132,12 @@ namespace FishSocial.Desktop.Auth
             }
 
             pondId = string.IsNullOrWhiteSpace(pondId) ? DefaultPondId : pondId;
+            string reject;
+            if (TryRejectRestrictedPond(pondId, out reject))
+            {
+                ErrorReceived?.Invoke(reject);
+                return;
+            }
             if (_socket != null && _socket.IsConnected &&
                 !string.Equals(CurrentPondId, pondId, StringComparison.Ordinal))
             {
@@ -258,7 +269,8 @@ namespace FishSocial.Desktop.Auth
             }
             AcceptLatestCatch((ok, message) =>
             {
-                if (!ok)
+                // 领取可能已由 Overlay「领取鱼获」完成；离塘时视为已收下即可。
+                if (!ok && !IsCatchAlreadyClaimed(message))
                 {
                     FinishTransition(false, message, onCompleted);
                     return;
@@ -308,6 +320,13 @@ namespace FishSocial.Desktop.Auth
             if (_transitionBusy)
             {
                 onCompleted?.Invoke(false, "鱼塘切换正在进行，请稍候。");
+                return;
+            }
+            string reject;
+            if (TryRejectRestrictedPond(pondId, out reject))
+            {
+                ErrorReceived?.Invoke(reject);
+                onCompleted?.Invoke(false, reject);
                 return;
             }
             if (string.Equals(CurrentPondId, pondId, StringComparison.Ordinal) &&
@@ -362,6 +381,25 @@ namespace FishSocial.Desktop.Auth
             if (!ok)
                 _switchingPond = false;
             onCompleted?.Invoke(ok, message);
+        }
+
+        bool TryRejectRestrictedPond(string pondId, out string message)
+        {
+            message = null;
+            if (string.IsNullOrEmpty(AllowedPondIdOnly))
+                return false;
+            if (string.Equals(pondId, AllowedPondIdOnly, StringComparison.Ordinal))
+                return false;
+            message = "新手引导进行中，请先完成新手塘流程（不可跳过）。";
+            return true;
+        }
+
+        static bool IsCatchAlreadyClaimed(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return false;
+            return message.IndexOf("没有待领取", StringComparison.Ordinal) >= 0
+                || message.IndexOf("鱼已过期", StringComparison.Ordinal) >= 0;
         }
 
         void ClearLocalPondState()

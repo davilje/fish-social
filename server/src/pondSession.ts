@@ -30,6 +30,7 @@ import {
   settleFishingSession,
   todayKey,
 } from './pondUserManager.js';
+import { checkJoinPondAccess } from './playerProgress.js';
 
 export interface SessionMeta {
   userId: string;
@@ -77,6 +78,16 @@ export function joinPond(
   const pond = getPondById(pondId);
   if (!pond) return { ok: false, error: '鱼塘不存在' };
 
+  const access = checkJoinPondAccess(playerId, pondId);
+  if (!access.ok) {
+    recordFishingMetric('join_pond_fail', {
+      playerId,
+      pondId,
+      payload: { socketId, reason: 'pond_access', ackError: access.error },
+    });
+    return { ok: false, error: access.error };
+  }
+
   const users = ensurePondUsers(pondId);
   const evictedUserIds = evictBotsForHuman(pondId);
   if (users.size >= MAX_POND_USERS) {
@@ -111,7 +122,10 @@ export function leavePond(socketId: string): PondUser | null {
   const users = ensurePondUsers(session.pondId);
   const user = users.get(session.userId);
   if (user) {
-    settleFishingSession(user, Date.now(), 'leave_pond', { mode: 'finalize' });
+    settleFishingSession(user, Date.now(), 'leave_pond', {
+      mode: 'finalize',
+      pondId: session.pondId,
+    });
   }
   if (user?.spotId) {
     recordFishingMetric('spot_release', {
@@ -164,7 +178,10 @@ export function leaveSpot(
   const spotId = user.spotId;
   cancelByUser(session.userId);
   if (phase === 'stopping' || phase === 'resolving')
-    settleFishingSession(user, Date.now(), 'leave_spot', { mode: 'finalize' });
+    settleFishingSession(user, Date.now(), 'leave_spot', {
+      mode: 'finalize',
+      pondId,
+    });
   user.spotId = null;
   user.status = 'idle';
   user.fishingPhase = 'idle';
@@ -295,7 +312,10 @@ export function stopFishing(socketId: string, pondId: string): { ok: true; user:
   if (!user) return { ok: false, error: '用户不存在' };
 
   if (user.status === 'fishing' && user.fishingStartedAt !== null) {
-    settleFishingSession(user, Date.now(), 'stop_fishing', { mode: 'finalize' });
+    settleFishingSession(user, Date.now(), 'stop_fishing', {
+      mode: 'finalize',
+      pondId,
+    });
   }
 
   user.status = 'idle';

@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/鱼塘分级与玩家成长.md`（**已确认** / **FEAT-PROG-01**）
+1. `docs/planning/specs/鱼塘分级与玩家成长.md`（**已实现** / **FEAT-PROG-01**）
 2. `docs/planning/specs/钓鱼玩法扩展-v0.7-Epic.md`（范围与非目标）
 3. 现有挂机钓鱼、日 8h 额度、Steam 登录相关服务端与 Unity 进塘路径
 
@@ -14,7 +14,7 @@
 2. 七类 `pondCategory`、解锁/开放、`pond-novice` 与引导完成态（服务端权威）。
 3. 玩家钓鱼等级 + 每塘 10 级熟练度；满/锁满停发塘 XP；时长塘 XP 按表。
 4. 进塘确认后按有效钓鱼时长每满 2h 扣费；日最多 4 次；金币不足停钓并提示。
-5. 新手：首登 Overlay 引导、不可跳过；结束后关 Overlay 回主界面且不可再进新手塘。
+5. 新手完成态仍由服务端权威；**教学关交互见 STEAM-DESKTOP-11**（本地 Overlay，不进正式塘循环）。
 6. 卖价公式 + 野外/水库相对高级乘子。
 7. verify / 自检对照 spec 验收条。
 
@@ -28,9 +28,9 @@
 对照 spec §验收；完成后按 Skill `planning-progress-sync`：
 spec→**已实现** + `build-master-plan-xlsx.py` 完成时间 + `npm run planning:master-xlsx`。
 
-- [ ] 七类规则与扣费/新手/卖价按表落地
-- [ ] JSON 导出可被 Node/Unity 读取
-- [ ] 相关自测通过
+- [x] 七类规则与扣费/新手/卖价按表落地
+- [x] JSON 导出可被 Node/Unity 读取
+- [x] 相关自测通过
 
 ## 派发
 

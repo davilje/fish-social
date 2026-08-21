@@ -1,6 +1,7 @@
 using System.Threading;
 using UnityEngine;
 using FishSocial.Desktop.Auth;
+using FishSocial.Desktop.Onboarding;
 using FishSocial.Desktop.Pet;
 using FishSocial.Desktop.Social;
 
@@ -26,6 +27,7 @@ namespace FishSocial.Desktop
         NativeOverlayProcessController _nativeOverlay;
         PetStateController _petState;
         DesktopShellUi _shellUi;
+        DesktopOnboardingController _onboarding;
         string _nativeOverlayError = string.Empty;
         OverlayPlayerSocialBridge _playerSocialBridge;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
@@ -141,6 +143,12 @@ namespace FishSocial.Desktop
                 _shellUi,
                 PublishNativeOverlayState,
                 message => _nativeOverlayError = message ?? string.Empty);
+            _onboarding = gameObject.AddComponent<DesktopOnboardingController>();
+            _onboarding.Configure(
+                _steamAuth,
+                _shellUi.AuthenticatedApi,
+                _pondSession,
+                _shellUi);
             _petState.RefreshFromApp();
             Debug.Log("[DesktopShell] STEAM-DESKTOP-07A bootstrap ready");
             PublishNativeOverlayState();
@@ -164,6 +172,12 @@ namespace FishSocial.Desktop
             }
 
             EnsureNativeOverlay().StartOverlay();
+            PublishNativeOverlayState();
+        }
+
+        public void CloseNativeOverlay()
+        {
+            _nativeOverlay?.CloseOverlay();
             PublishNativeOverlayState();
         }
 
@@ -198,6 +212,17 @@ namespace FishSocial.Desktop
 
         public void RaiseMainWindow(ShellPanelId id)
         {
+            if (_onboarding != null &&
+                _onboarding.IsOnboardingActive &&
+                id != ShellPanelId.Settings)
+            {
+                _window?.ShowFromTray();
+                NativeWindowUtil.TryBringToFront();
+                _shellUi?.SetStatusMessage("请先完成新手引导。");
+                PublishNativeOverlayState();
+                return;
+            }
+
             _window?.ShowFromTray();
             _router?.Show(id);
             NativeWindowUtil.TryBringToFront();
@@ -246,6 +271,8 @@ namespace FishSocial.Desktop
         void OnPondError(string message)
         {
             _nativeOverlayError = message ?? "鱼塘操作失败。";
+            if (!string.IsNullOrEmpty(message) && message.IndexOf("金币不足") >= 0)
+                _shellUi?.SetStatusMessage(message);
             PublishNativeOverlayState();
         }
 
@@ -253,6 +280,11 @@ namespace FishSocial.Desktop
         {
             if (message == null)
                 return;
+            if (_onboarding != null && _onboarding.HandleOverlayCommand(message))
+            {
+                PublishNativeOverlayState();
+                return;
+            }
             var command = message.command;
             switch (command)
             {

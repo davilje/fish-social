@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -43,8 +45,21 @@ namespace FishSocial.Desktop
         DesktopProfileEditPanel _profileEditPanel;
         DesktopSocialFeedPanel _socialFeedPanel;
         DesktopLeaderboardPanel _leaderboardPanel;
+        readonly List<Button> _lockableNavButtons = new List<Button>();
+        bool _onboardingLock;
 
         public IAuthenticatedApiClient AuthenticatedApi => _authenticatedApi;
+
+        public void SetStatusMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return;
+            if (_statusPond != null)
+                _statusPond.text = message;
+            else if (_statusConnection != null)
+                _statusConnection.text = message;
+            ShowToast(message);
+        }
 
         public void OpenOtherPlayerProfile(string playerId)
         {
@@ -179,22 +194,22 @@ namespace FishSocial.Desktop
             navLayout.childForceExpandHeight = true;
             navLayout.childForceExpandWidth = true;
 
-            CreateNavButton(nav.transform, "主页", ReturnToPetHome);
-            CreateNavButton(nav.transform, "鱼塘", ShowPondPanel);
+            CreateNavButton(nav.transform, "主页", ReturnToPetHome, true);
+            CreateNavButton(nav.transform, "鱼塘", ShowPondPanel, true);
             CreateNavButton(nav.transform, "世界地图",
-                () => ShowMainPanel(ShellPanelId.WorldMap));
-            CreateNavButton(nav.transform, "商店", () => ShowMainPanel(ShellPanelId.Shop));
-            CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends));
-            CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag));
-            CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery));
+                () => ShowMainPanel(ShellPanelId.WorldMap), true);
+            CreateNavButton(nav.transform, "商店", () => ShowMainPanel(ShellPanelId.Shop), true);
+            CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends), true);
+            CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag), true);
+            CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery), true);
             CreateNavButton(nav.transform, "我的", () =>
             {
                 _profilePanel?.ShowSelfProfile();
                 ShowMainPanel(ShellPanelId.Profile);
-            });
-            CreateNavButton(nav.transform, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed));
-            CreateNavButton(nav.transform, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard));
-            CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings));
+            }, true);
+            CreateNavButton(nav.transform, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed), true);
+            CreateNavButton(nav.transform, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard), true);
+            CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings), false);
 
             var content = CreateBar("Content", go.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
                 new Color(0.09f, 0.12f, 0.16f, 1f));
@@ -242,14 +257,39 @@ namespace FishSocial.Desktop
             ShowMainPanel(ShellPanelId.Pond);
         }
 
+        public void SetOnboardingLock(bool locked)
+        {
+            _onboardingLock = locked;
+            for (var i = 0; i < _lockableNavButtons.Count; i++)
+            {
+                if (_lockableNavButtons[i] != null)
+                    _lockableNavButtons[i].interactable = !locked;
+            }
+        }
+
         void ShowMainPanel(ShellPanelId id)
         {
+            if (_onboardingLock && id != ShellPanelId.Settings)
+            {
+                SetStatusMessage("请先完成新手引导。");
+                return;
+            }
+
             DesktopAppBootstrap.Instance?.RaiseMainWindow(id);
         }
 
         public void HandleProductMenu(DesktopProductMenuAction action)
         {
             _productMenu?.Hide();
+            if (_onboardingLock &&
+                action != DesktopProductMenuAction.Settings &&
+                action != DesktopProductMenuAction.HideToTray &&
+                action != DesktopProductMenuAction.Quit)
+            {
+                SetStatusMessage("请先完成新手引导。");
+                return;
+            }
+
             switch (action)
             {
                 case DesktopProductMenuAction.CurrentPond:
@@ -327,6 +367,9 @@ namespace FishSocial.Desktop
                     break;
                 case ShellPanelId.Leaderboard:
                     _leaderboardPanel?.OnOpened();
+                    break;
+                case ShellPanelId.WorldMap:
+                    _worldMapPanel?.OnOpened();
                     break;
                 case ShellPanelId.Settings:
                     _settingsPanel?.OnOpened();
@@ -631,7 +674,10 @@ namespace FishSocial.Desktop
 
         void OnPondError(string message)
         {
-            ShowToast(message);
+            if (!string.IsNullOrEmpty(message) && message.IndexOf("金币不足") >= 0)
+                SetStatusMessage(message);
+            else
+                ShowToast(message);
         }
 
         void OnSocialLobbyError(string message)
@@ -674,7 +720,7 @@ namespace FishSocial.Desktop
         {
             _worldMapPanel = DesktopFeaturePanelFactory.Mount<DesktopWorldMapPanel>(
                 go.transform,
-                view => view.Bind(_pondSession));
+                view => view.Bind(_pondSession, _authenticatedApi));
         }
 
         void BuildShop(GameObject go)
@@ -921,7 +967,8 @@ namespace FishSocial.Desktop
             return text;
         }
 
-        static void CreateNavButton(Transform parent, string label, UnityEngine.Events.UnityAction onClick)
+        void CreateNavButton(
+            Transform parent, string label, UnityEngine.Events.UnityAction onClick, bool lockDuringOnboarding)
         {
             var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
@@ -936,7 +983,10 @@ namespace FishSocial.Desktop
             tr.offsetMax = Vector2.zero;
             tr.pivot = new Vector2(0.5f, 0.5f);
             text.alignment = TextAnchor.MiddleCenter;
-            go.GetComponent<Button>().onClick.AddListener(onClick);
+            var button = go.GetComponent<Button>();
+            button.onClick.AddListener(onClick);
+            if (lockDuringOnboarding)
+                _lockableNavButtons.Add(button);
         }
 
         static void CreateCenteredButton(Transform parent, string name, string label, Vector2 anchoredPos, Vector2 size, UnityEngine.Events.UnityAction onClick)

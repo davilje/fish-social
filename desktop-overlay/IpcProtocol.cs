@@ -179,6 +179,27 @@ namespace FishSocialOverlay
         [DataMember(Name = "errorMessage")]
         public string ErrorMessage { get; set; }
 
+        [DataMember(Name = "guideTip")]
+        public string GuideTip { get; set; }
+
+        [DataMember(Name = "lockFeatureNav")]
+        public bool LockFeatureNav { get; set; }
+
+        [DataMember(Name = "overlayPromptKind")]
+        public string OverlayPromptKind { get; set; }
+
+        [DataMember(Name = "overlayPromptTitle")]
+        public string OverlayPromptTitle { get; set; }
+
+        [DataMember(Name = "overlayPromptBody")]
+        public string OverlayPromptBody { get; set; }
+
+        [DataMember(Name = "overlayPromptButton")]
+        public string OverlayPromptButton { get; set; }
+
+        [DataMember(Name = "overlayPromptDeadlineMs")]
+        public long OverlayPromptDeadlineMs { get; set; }
+
         [DataMember(Name = "availableActions")]
         public string[] AvailableActions { get; set; }
 

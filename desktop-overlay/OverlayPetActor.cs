@@ -365,14 +365,11 @@ namespace FishSocialOverlay
 
         string FormatStatusText()
         {
-            if (IsHookedPhase(_fishingPhase))
-                return "咬钩";
-            if (IsFishingPhase(_fishingPhase))
-                return "钓鱼";
-            if (string.Equals(_fishingPhase, "resolving", StringComparison.Ordinal) ||
-                string.Equals(_visualState, "catching", StringComparison.OrdinalIgnoreCase))
-                return "收鱼";
-            return string.Empty;
+            var label = MainWindow.FormatPhaseLabel(_fishingPhase);
+            if (string.Equals(label, "待机", StringComparison.Ordinal) ||
+                string.Equals(label, "坐下", StringComparison.Ordinal))
+                return string.Empty;
+            return label ?? string.Empty;
         }
 
         string BuildHoverText()
@@ -447,7 +444,11 @@ namespace FishSocialOverlay
 
         static bool IsFishingPhase(string phase)
         {
-            return phase == "waiting" || phase == "baiting" || phase == "casting";
+            return phase == "waiting" ||
+                   phase == "baiting" ||
+                   phase == "casting" ||
+                   phase == "resolving" ||
+                   phase == "stopping";
         }
 
         static bool IsHookedPhase(string phase)
