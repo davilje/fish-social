@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto';
 import type { Server } from 'socket.io';
 import {
-  getBait,
   PONDS,
   MAX_DAILY_FISHING_MS,
   NOVICE_POND_ID,
@@ -31,9 +30,11 @@ import {
 import { ensureFishingStartedAt } from './fishingStartedAt.js';
 import {
   applyTackleDurabilityOnEscape,
+  canStartFishingWithRod,
+  chargeBaitUse,
   consumeBaitAtBaitingStart,
-  getPlayerGear,
   prepareGearForBiteTick,
+  resolveBaitForBite,
 } from './gear.js';
 import { getConfigBool } from './gameConfig.js';
 import { recordFishingMetric } from './fishingMetrics.js';
@@ -207,13 +208,8 @@ function clearHook(userId: string): void {
   hookContextByUser.delete(userId);
 }
 
-function hasBaitForContinue(playerId: string): boolean {
-  const gear = getPlayerGear(playerId);
-  if (!gear) return false;
-  const bait = getBait(gear.equippedBait);
-  if (!bait) return true;
-  if (!bait.consumed) return true;
-  return (gear.baitInventory[gear.equippedBait] ?? 0) > 0;
+function hasGearForContinue(playerId: string): boolean {
+  return canStartFishingWithRod(playerId).ok;
 }
 
 function enterBaiting(
@@ -262,7 +258,7 @@ function enterBaiting(
   }
 
   user.equippedBaitId = consume.gear.equippedBait;
-  user.equippedTackleId = consume.gear.equippedTackle;
+  user.equippedTackleId = consume.gear.equippedRod || consume.gear.equippedTackle;
   const duration = Math.max(PHASE_MS.minBaiting, PHASE_MS.baiting);
   const next = transitionPhase(user, pondId, 'baiting', duration, isRebait ? 'auto_continue' : 'start_fishing', { isRebait }, { socketId });
   emitPondUserUpdated(io, pondId, next);
@@ -286,6 +282,8 @@ export function beginFishingSequence(
   if (user.playerId) {
     const feeGate = canStartFishingWithFee(user.playerId, pondId);
     if (!feeGate.ok) return feeGate;
+    const rodGate = canStartFishingWithRod(user.playerId);
+    if (!rodGate.ok) return rodGate;
   }
 
   sessionFlagsByUser.delete(userId);
@@ -680,7 +678,7 @@ function advanceFromResolving(
     return;
   }
 
-  if (!user.playerId || !hasBaitForContinue(user.playerId)) {
+  if (!user.playerId || !hasGearForContinue(user.playerId)) {
     flushFishingSessionToToday(user);
     const next = transitionPhase(user, pondId, 'seated', 0, 'bait_insufficient');
     emitPondUserUpdated(io, pondId, next);
@@ -756,9 +754,15 @@ export function processWaitingBiteTick(
   if (getPendingCatch(userId)) return false;
 
   const gearState = prepareGearForBiteTick(playerId);
+  let baitPick: { baitId: string; cost: number } = { baitId: gearState.equippedBait, cost: 0 };
   const gear: FisherGearContext = {
     equippedBait: gearState.equippedBait,
     equippedTackle: gearState.equippedTackle,
+    equippedRod: gearState.equippedRod,
+    resolveBait: (speciesId) => {
+      baitPick = resolveBaitForBite(playerId, speciesId);
+      return baitPick.baitId;
+    },
   };
 
   const result = rollBiteHook(pondId, spotId, getLockedPondFishIds(), gear);
@@ -780,6 +784,11 @@ export function processWaitingBiteTick(
     emitFishingMissFloatText(io, pondId, userId);
     return false;
   }
+
+  if (baitPick.cost > 0) {
+    chargeBaitUse(playerId, baitPick.baitId, baitPick.cost);
+  }
+  user.equippedBaitId = baitPick.baitId;
 
   if (isBiteTickPersistEnabled()) {
     recordFishingMetric('bite_tick_hit', {

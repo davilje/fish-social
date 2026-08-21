@@ -330,7 +330,22 @@ export interface ServerToClientEvents {
     commentId: string;
     commentCount: number;
   }) => void;
+  /** FEAT-RISK-01：禁止塘巡警事件（仅发给当事玩家） */
+  police_raid: (payload: PoliceRaidPayload) => void;
   error: (message: string) => void;
+}
+
+export type PoliceRaidStatus = 'warning' | 'escaped' | 'fined';
+
+export interface PoliceRaidPayload {
+  status: PoliceRaidStatus;
+  raidId: string;
+  pondId: string;
+  text: string;
+  deadlineMs: number;
+  coinsAfter?: number;
+  charged?: number;
+  message: string;
 }
 
 export interface ClientToServerEvents {

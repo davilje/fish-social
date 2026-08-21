@@ -21,7 +21,7 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("PanelGallery", "图鉴物种网格页面骨架。", typeof(DesktopGalleryModalView)),
             new PrefabDefinition("PanelSettings", "桌面端设置页面。", typeof(DesktopSettingsModalView)),
             new PrefabDefinition("PanelWorldMap", "世界地图大图、标记层和鱼塘详情区域。", typeof(DesktopWorldMapPanel)),
-            new PrefabDefinition("PanelShop", "鱼饵/渔具页签、商品卡片、金币和购买/装备操作。", typeof(DesktopShopPanel)),
+            new PrefabDefinition("PanelShop", "鱼饵/钓竿/船具页签、商品卡片、金币和购买/装备操作。", typeof(DesktopShopPanel)),
             new PrefabDefinition("PanelProfile", "个人中心：昵称、头像、玩家 ID、在线状态和展示鱼获。", typeof(DesktopProfilePanel)),
             new PrefabDefinition("PanelProfileEdit", "资料编辑：昵称、简介、默认头像和展示格保存。", typeof(DesktopProfileEditPanel)),
             new PrefabDefinition("PanelSocialFeed", "动态墙：公共/好友动态、加载状态和互动操作。", typeof(DesktopSocialFeedPanel)),
@@ -191,6 +191,7 @@ namespace FishSocial.Desktop.Editor
             if (name != "PanelProfile" &&
                 name != "PanelProfileEdit" &&
                 name != "PanelShop" &&
+                name != "PanelSettings" &&
                 name != "PanelSocialFeed" &&
                 name != "PanelLeaderboard" &&
                 name != "SocialPostCard" &&
@@ -201,6 +202,11 @@ namespace FishSocial.Desktop.Editor
                 Folder + "/" + name + ".prefab");
             if (prefab == null)
                 return false;
+            if (name == "PanelSettings")
+                return DesktopModalUi.FindDescendant(prefab.transform, "服务器地址输入") == null ||
+                       DesktopModalUi.FindDescendant(prefab.transform, "保存服务器地址") == null ||
+                       DesktopModalUi.FindDescendant(prefab.transform, "测试服务器连接") == null ||
+                       DesktopModalUi.FindDescendant(prefab.transform, "重置新手引导") == null;
             if (name == "PanelSocialFeed")
                 return prefab.transform.Find("Header/Public") == null ||
                        prefab.transform.Find("Header/Friends") == null ||
@@ -244,6 +250,9 @@ namespace FishSocial.Desktop.Editor
                     break;
                 case "PanelShop":
                     DesktopPrefabValidator.PopulatePanelShopPrefab();
+                    break;
+                case "PanelSettings":
+                    DesktopPrefabValidator.PopulatePanelSettingsPrefab();
                     break;
                 case "PanelSocialFeed":
                     DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();

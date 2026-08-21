@@ -13,6 +13,7 @@ import {
   getPondModifier,
   getSpeciesDiet,
   pickSpotFishCandidate,
+  rodBiteMultiplier,
   type BaitId,
   type ClientToServerEvents,
   type PendingFishCatch,
@@ -44,8 +45,10 @@ export type RollBiteHookResult =
   | { outcome: 'miss'; reason: 'empty' | 'failed'; sampledFish?: PondFishEntity };
 
 export interface FisherGearContext {
-  equippedBait: BaitId;
-  equippedTackle: TackleId;
+  equippedBait: BaitId | string;
+  equippedTackle: TackleId | string;
+  equippedRod?: string;
+  resolveBait?: (speciesId: string) => string;
 }
 
 function listBiteCandidates(
@@ -105,8 +108,13 @@ function buildSpotFishDebugEntries(
     const bonus = baitBiteBonus(equippedBait, fish.speciesId);
     const baseBite =
       calcQualitySizeBiteRate(fish.quality, fish.sizeM) * (fish.biteMultiplier ?? 1.0);
+    const rodMul = rodBiteMultiplier(
+      gear?.equippedRod ?? String(gear?.equippedTackle ?? ''),
+      fish.quality,
+      fish.speciesId,
+    );
     const effectiveBite =
-      calcSingleFishBiteProbability(fish, spotMultiplier, bonus) * muls.bite;
+      calcSingleFishBiteProbability(fish, spotMultiplier, bonus) * muls.bite * rodMul;
     const qualityPickShare = totalPickWeight > 0 ? pickWeights[index]! / totalPickWeight : 0;
     return { fish, effectiveBite, baitBonus: bonus, baseBite, qualityPickShare };
   });
@@ -161,17 +169,25 @@ export function rollBiteHook(
   }
 
   const spotMultiplier = getSpotBiteWeight(pondId, spotId);
-  const equippedBait = gear?.equippedBait ?? 'basic';
   const muls = pondRateMuls(pondId);
   const target = pickSpotFishCandidate(candidates);
+  const equippedBait = gear?.resolveBait
+    ? gear.resolveBait(target.speciesId)
+    : (gear?.equippedBait ?? 'bait-basic');
   const baitBonus = baitBiteBonus(equippedBait, target.speciesId);
-  const pBite = calcSingleFishBiteProbability(target, spotMultiplier, baitBonus) * muls.bite;
+  const rodMul = rodBiteMultiplier(
+    gear?.equippedRod ?? String(gear?.equippedTackle ?? ''),
+    target.quality,
+    target.speciesId,
+  );
+  const pBite =
+    calcSingleFishBiteProbability(target, spotMultiplier, baitBonus) * muls.bite * rodMul;
 
   if (!isInstantFishingTestMode() && Math.random() >= pBite) {
     return { outcome: 'miss', reason: 'failed', sampledFish: target };
   }
 
-  const tackleId = gear?.equippedTackle ?? 'basic';
+  const tackleId = gear?.equippedRod || gear?.equippedTackle || 'basic';
   const escaped =
     !isInstantFishingTestMode() &&
     Math.random() <

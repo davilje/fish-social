@@ -316,6 +316,12 @@ namespace FishSocialOverlay
             SendCommand("exit_pond");
         }
 
+        void PoliceDebug_OnClick(object sender, RoutedEventArgs e)
+        {
+            ErrorText.Text = "正在请求服务端出警…";
+            SendCommand("debug_police_raid");
+        }
+
         void ApplyFishingControls(IpcMessage message)
         {
             _canStartFishing = HasAction(message, "start_fishing");
@@ -323,6 +329,10 @@ namespace FishSocialOverlay
             _canAcceptCatch = HasAction(message, "accept_catch");
             _canLeaveSpot = HasAction(message, "leave_spot");
             _canExitPond = HasAction(message, "exit_pond");
+            var canPoliceDebug = HasAction(message, "debug_police_raid");
+            PoliceDebugButton.Visibility = canPoliceDebug
+                ? Visibility.Visible
+                : Visibility.Collapsed;
 
             if (_canStopFishing)
             {

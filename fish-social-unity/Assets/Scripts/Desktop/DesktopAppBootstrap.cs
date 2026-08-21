@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading;
 using UnityEngine;
 using FishSocial.Desktop.Auth;
@@ -29,6 +30,7 @@ namespace FishSocial.Desktop
         DesktopShellUi _shellUi;
         DesktopOnboardingController _onboarding;
         string _nativeOverlayError = string.Empty;
+        Coroutine _policeRaidRoutine;
         OverlayPlayerSocialBridge _playerSocialBridge;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _quitFallbackStarted;
@@ -96,6 +98,7 @@ namespace FishSocial.Desktop
             _pondSession.UsersChanged += OnPondUsersChanged;
             _pondSession.FishBiteReceived += OnPondFishBite;
             _pondSession.ChatMessageReceived += OnPondChatMessage;
+            _pondSession.PoliceRaidReceived += OnPondPoliceRaid;
             _pondSession.ErrorReceived += OnPondError;
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
@@ -268,6 +271,23 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
+        void OnPondPoliceRaid(PoliceRaidDto raid)
+        {
+            PublishNativeOverlayState();
+            if (raid == null)
+                return;
+            var title = raid.status == "warning" ? "巡警来了" : "巡警事件";
+            var body = !string.IsNullOrEmpty(raid.message)
+                ? raid.message
+                : (!string.IsNullOrEmpty(raid.text) ? raid.text : PoliceRaidDto.WarningText);
+            var windowVisible = _window != null && _window.IsWindowVisible;
+            if (raid.status == "warning" && !windowVisible)
+                return;
+            DesktopNotificationService.Instance?.Publish(new DesktopNotification(
+                NotificationKind.SystemWarning, title, body));
+            _shellUi?.SetStatusMessage(body);
+        }
+
         void OnPondError(string message)
         {
             _nativeOverlayError = message ?? "鱼塘操作失败。";
@@ -332,6 +352,9 @@ namespace FishSocial.Desktop
                     ExecuteOverlayCommand(
                         callback => _pondSession?.SendChat(message.text, callback));
                     return;
+                case "debug_police_raid":
+                    ExecuteOverlayPoliceRaid();
+                    return;
             }
 
             if (!DesktopProductMenuCommands.TryParse(command, out var action))
@@ -347,6 +370,33 @@ namespace FishSocial.Desktop
                 _nativeOverlay?.HideOverlay();
 
             _shellUi?.HandleProductMenu(action);
+        }
+
+        void ExecuteOverlayPoliceRaid()
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+            {
+                _nativeOverlayError = "需先登录后再一键出警。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (_policeRaidRoutine != null)
+                StopCoroutine(_policeRaidRoutine);
+            _policeRaidRoutine = StartCoroutine(TriggerPoliceRaidRoutine(api));
+        }
+
+        IEnumerator TriggerPoliceRaidRoutine(IAuthenticatedApiClient api)
+        {
+            _nativeOverlayError = "正在请求服务端出警…";
+            PublishNativeOverlayState();
+            yield return api.TriggerDebugPoliceRaid((ok, message) =>
+            {
+                _nativeOverlayError = ok ? string.Empty : (message ?? "出警失败。");
+            });
+            PublishNativeOverlayState();
+            _policeRaidRoutine = null;
         }
 
         void ExecuteOverlayCommand(System.Action<System.Action<bool, string>> operation)
@@ -402,6 +452,7 @@ namespace FishSocial.Desktop
                 _pondSession.UsersChanged -= OnPondUsersChanged;
                 _pondSession.FishBiteReceived -= OnPondFishBite;
                 _pondSession.ChatMessageReceived -= OnPondChatMessage;
+                _pondSession.PoliceRaidReceived -= OnPondPoliceRaid;
                 _pondSession.ErrorReceived -= OnPondError;
             }
             _nativeOverlay?.ForceTerminateForApplicationQuit();

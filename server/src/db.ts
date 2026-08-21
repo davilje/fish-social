@@ -293,6 +293,11 @@ const playerProgressMig = migratePlayerProgress(db);
 if (playerProgressMig.tablesCreated.length > 0) {
   console.log(`Migration FEAT-PROG-01: ${playerProgressMig.tablesCreated.join(', ')}`);
 }
+import { migrateForbiddenBans } from './migrations/player_forbidden_bans.js';
+const forbiddenBanMig = migrateForbiddenBans(db);
+if (forbiddenBanMig.tableCreated) {
+  console.log('Migration FEAT-RISK-01: player_forbidden_bans');
+}
 const corrMigration = migrateCorrelationId(db);
 if (corrMigration.columnAdded) {
   console.log('Migration: fishing_metrics.correlation_id column added');

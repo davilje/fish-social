@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/Steam桌面端-08A2世界地图分区与进塘扣费.md`（**已确认** / **STEAM-DESKTOP-08A2**）
+1. `docs/planning/specs/Steam桌面端-08A2世界地图分区与进塘扣费.md`（**已实现** / **STEAM-DESKTOP-08A2**）
 2. `docs/planning/specs/鱼塘分级与玩家成长.md`（分类/锁态/扣费口径）
 3. 已实现 `STEAM-DESKTOP-08A` 世界地图相关脚本（如 `DesktopWorldMapPanel`）
 

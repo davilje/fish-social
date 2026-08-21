@@ -144,6 +144,19 @@ export function deductCoins(
   return { ok: true, coins: p.coins };
 }
 
+/** FEAT-RISK-01：罚款不足则归零。 */
+export function deductCoinsUpTo(
+  playerId: string,
+  amount: number,
+): { charged: number; coinsAfter: number } {
+  const p = getPlayer(playerId);
+  if (!p || amount <= 0) return { charged: 0, coinsAfter: p?.coins ?? 0 };
+  const charged = Math.min(p.coins, amount);
+  p.coins -= charged;
+  saveProfile(p);
+  return { charged, coinsAfter: p.coins };
+}
+
 export function setShareVisibility(
   playerId: string,
   visibility: ShareVisibility,

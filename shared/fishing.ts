@@ -1,6 +1,8 @@
 import type { FishDiet, FishQuality, FishSpecies, FishSpeciesId, RolledFish } from './fish';
 import { FISH_QUALITIES, MIN_FISH_SIZE_M, MAX_FISH_SIZE_M, getSpecies, rollFishQuality, rollFishSpecies } from './fish';
 import type { PondFishEntity } from './pondEcology';
+import { getRodDef } from './gameData.client';
+import { gameBaitBiteBonus } from './gearRules';
 
 /** @deprecated A0-v2 已废弃指数模型，保留仅供旧脚本兼容 */
 export const BITE_LAMBDA = 0.02;
@@ -277,7 +279,8 @@ export function calcEffectiveEscapeRate(
   escapeMultiplier = 1.0,
 ): number {
   const base = calcSizeEscapeRate(sizeM) * escapeMultiplier;
-  const reduction = tackleEscapeReduction(tackleId);
+  const rod = getRodDef(tackleId);
+  const reduction = rod ? rod.escapeReduction : tackleEscapeReduction(tackleId);
   return Math.max(0, Math.min(1, base - reduction));
 }
 
@@ -488,7 +491,7 @@ export function rollFishCatch(): RolledFish {
 export type FishingFloatTextKind = 'hook' | 'escape' | 'miss' | 'cast';
 
 /** B0 鱼饵 / 渔具 */
-export type BaitId = 'basic' | 'corn' | 'pellet' | 'live';
+export type BaitId = 'basic' | 'corn' | 'pellet' | 'live' | 'bait-basic' | 'bait-veg' | 'bait-mix' | 'bait-meat';
 export type TackleId = 'basic' | 'carbon' | 'pro' | 'master';
 
 export type ShopErrorCode =
@@ -524,6 +527,13 @@ export interface PlayerGearState {
   ownedTackles: TackleId[];
   /** C3：渔具耐久 0~100 */
   tackleDurability: Record<string, number>;
+  /** FEAT-GEAR-01 */
+  equippedRod: string;
+  ownedRods: string[];
+  rodOversizeLandings: Record<string, number>;
+  unlockedBaits: string[];
+  ownedVessels: string[];
+  starterRodGranted: boolean;
 }
 
 export interface BaitDepletedPayload {
@@ -582,8 +592,10 @@ export function getTackle(tackleId: string): TackleConfig | undefined {
   return TACKLES.find((t) => t.id === tackleId);
 }
 
-/** B1：饵加成 = globalBonus + affinityByDiet[species.diet] */
+/** B1：饵加成 = 表 diet 加成，或旧 SKU global+affinity */
 export function baitBiteBonus(baitId: BaitId | string, speciesId: FishSpeciesId): number {
+  const fromTable = gameBaitBiteBonus(String(baitId), speciesId);
+  if (fromTable != null) return fromTable;
   const bait = getBait(baitId);
   if (!bait) return 0;
   const species = getSpecies(speciesId);

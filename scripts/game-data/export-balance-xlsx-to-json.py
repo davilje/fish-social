@@ -17,6 +17,7 @@ XLSX = ROOT / "钓鱼玩法固定数值表.xlsx"
 OUT_SHARED = ROOT / "shared" / "generated" / "game-data"
 OUT_UNITY = ROOT / "fish-social-unity" / "Assets" / "Resources" / "GameData"
 BUILD_SCRIPT = Path(__file__).resolve().parent / "build_balance_xlsx.py"
+SKIP_EXPORT_SHEETS = {"字段说明"}
 
 
 def cell_value(v):
@@ -27,6 +28,15 @@ def cell_value(v):
     if isinstance(v, float) and v == int(v):
         return int(v)
     return v
+
+
+def is_zh_header_row(cells) -> bool:
+    nonempty = [c for c in cells if c is not None and str(c).strip() != ""]
+    if not nonempty:
+        return False
+    if any(isinstance(c, (int, float)) and not isinstance(c, bool) for c in nonempty):
+        return False
+    return any("\u4e00" <= ch <= "\u9fff" for c in nonempty for ch in str(c))
 
 
 def sheet_to_rows(ws) -> list[dict]:
@@ -40,8 +50,12 @@ def sheet_to_rows(ws) -> list[dict]:
     if not headers:
         return []
     out: list[dict] = []
+    skipped_zh = False
     for raw in rows_iter:
         if raw is None or all(c is None or (isinstance(c, str) and not str(c).strip()) for c in raw):
+            continue
+        if not skipped_zh and is_zh_header_row(raw):
+            skipped_zh = True
             continue
         row: dict = {}
         for i, key in enumerate(headers):
@@ -97,6 +111,8 @@ def export() -> None:
     exported: dict[str, Path] = {}
 
     for name in sheet_names:
+        if name in SKIP_EXPORT_SHEETS:
+            continue
         ws = wb[name]
         rows = sheet_to_rows(ws)
         if name == "_meta":
@@ -113,7 +129,7 @@ def export() -> None:
         "version": version,
         "source": XLSX.name,
         "exportedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "sheets": sheet_names,
+        "sheets": [name for name in sheet_names if name not in SKIP_EXPORT_SHEETS],
     }
     write_json(OUT_SHARED / "_index.json", index)
 

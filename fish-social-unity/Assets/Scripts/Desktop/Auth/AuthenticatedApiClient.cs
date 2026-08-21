@@ -24,10 +24,11 @@ namespace FishSocial.Desktop.Auth
         IEnumerator SendDirectMessage(string toPlayerId, string fromNickname, string text, Action<bool, DirectMessageDto, string> onCompleted);
         IEnumerator SellFish(string fishId, Action<bool, int, int, FishInventoryItemDto[], string> onCompleted);
         IEnumerator ShareFish(string fishId, string nickname, Action<bool, string> onCompleted);
-        IEnumerator GetShopCatalog(Action<bool, ShopBaitDto[], ShopTackleDto[], string> onCompleted);
+        IEnumerator GetShopCatalog(Action<bool, ShopBaitDto[], ShopTackleDto[], ShopVesselDto[], string> onCompleted);
         IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted);
         IEnumerator BuyBait(string baitId, int quantity, Action<bool, ShopGearDto, int, string> onCompleted);
         IEnumerator BuyTackle(string tackleId, Action<bool, ShopGearDto, int, string> onCompleted);
+        IEnumerator BuyVessel(string vesselId, Action<bool, ShopGearDto, int, string> onCompleted);
         IEnumerator EquipBait(string baitId, Action<bool, ShopGearDto, string> onCompleted);
         IEnumerator EquipTackle(string tackleId, Action<bool, ShopGearDto, string> onCompleted);
         string BaseUrl { get; }
@@ -58,6 +59,7 @@ namespace FishSocial.Desktop.Auth
         IEnumerator GetFishingProgress(Action<bool, FishingProgressDto, string> onCompleted);
         IEnumerator CompleteOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
         IEnumerator ResetOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
+        IEnumerator TriggerDebugPoliceRaid(Action<bool, string> onCompleted);
     }
 
     /// <summary>
@@ -283,10 +285,11 @@ namespace FishSocial.Desktop.Auth
         }
 
         public IEnumerator GetShopCatalog(
-            Action<bool, ShopBaitDto[], ShopTackleDto[], string> onCompleted)
+            Action<bool, ShopBaitDto[], ShopTackleDto[], ShopVesselDto[], string> onCompleted)
         {
             ShopBaitDto[] baits = new ShopBaitDto[0];
             ShopTackleDto[] tackles = new ShopTackleDto[0];
+            ShopVesselDto[] vessels = new ShopVesselDto[0];
             string error = null;
             var ok = false;
             yield return GetJson("/api/shop/baits", (success, json, message) =>
@@ -318,7 +321,21 @@ namespace FishSocial.Desktop.Auth
                     }
                 });
             }
-            onCompleted?.Invoke(ok, baits, tackles, error);
+            if (ok)
+            {
+                yield return GetJson("/api/shop/vessels", (success, json, message) =>
+                {
+                    if (!success)
+                        return;
+                    VesselCatalogResponse parsed;
+                    string vesselError;
+                    if (!TryParseResponse(json, out parsed, out vesselError, "vessels"))
+                        return;
+                    vessels = parsed != null && parsed.vessels != null
+                        ? parsed.vessels : new ShopVesselDto[0];
+                });
+            }
+            onCompleted?.Invoke(ok, baits, tackles, vessels, error);
         }
 
         public IEnumerator GetSocialFeed(
@@ -559,6 +576,19 @@ namespace FishSocial.Desktop.Auth
             onCompleted?.Invoke(ok, progress, error);
         }
 
+        public IEnumerator TriggerDebugPoliceRaid(Action<bool, string> onCompleted)
+        {
+            string error = null;
+            var ok = false;
+            yield return PostJson("/api/debug/police-raid", "{}",
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                });
+            onCompleted?.Invoke(ok, error);
+        }
+
         public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
         {
             ShopGearDto gear = null;
@@ -579,6 +609,14 @@ namespace FishSocial.Desktop.Auth
                     gear = parsed != null ? parsed.gear : null;
                     coins = parsed != null ? parsed.coins : 0;
                     ParseBaitInventory(json, gear);
+                    HydrateGearArrays(json, gear);
+                    if (gear != null)
+                    {
+                        if (gear.ownedRods == null) gear.ownedRods = new string[0];
+                        if (gear.unlockedBaits == null) gear.unlockedBaits = new string[0];
+                        if (gear.ownedVessels == null) gear.ownedVessels = new string[0];
+                        if (parsed.playerLevel > 0) gear.playerLevel = parsed.playerLevel;
+                    }
                 });
             onCompleted?.Invoke(ok, gear ?? new ShopGearDto(), coins, error);
         }
@@ -608,6 +646,20 @@ namespace FishSocial.Desktop.Auth
                 {
                     playerId = PlayerId,
                     tackleId = tackleId,
+                }),
+                onCompleted);
+        }
+
+        public IEnumerator BuyVessel(
+            string vesselId,
+            Action<bool, ShopGearDto, int, string> onCompleted)
+        {
+            yield return ShopMutation(
+                "/api/shop/vessels/buy",
+                JsonUtility.ToJson(new BuyVesselPayload
+                {
+                    playerId = PlayerId,
+                    vesselId = vesselId,
                 }),
                 onCompleted);
         }
@@ -737,6 +789,7 @@ namespace FishSocial.Desktop.Auth
             }, Guid.NewGuid().ToString("N"));
             var gear = parsed != null ? parsed.gear : null;
             ParseBaitInventory(raw, gear);
+            HydrateGearArrays(raw, gear);
             onCompleted?.Invoke(ok, gear ?? new ShopGearDto(),
                 parsed != null ? parsed.coins : 0, error);
         }
@@ -759,6 +812,7 @@ namespace FishSocial.Desktop.Auth
             });
             var gear = parsed != null ? parsed.gear : null;
             ParseBaitInventory(raw, gear);
+            HydrateGearArrays(raw, gear);
             onCompleted?.Invoke(ok, gear ?? new ShopGearDto(), error);
         }
 
@@ -1021,6 +1075,60 @@ namespace FishSocial.Desktop.Auth
             gear.live = ExtractInt(json, "live");
         }
 
+        static void HydrateGearArrays(string json, ShopGearDto gear)
+        {
+            if (gear == null || string.IsNullOrEmpty(json))
+                return;
+            MergeStringArray(ref gear.ownedRods, ExtractStringArray(json, "ownedRods"));
+            MergeStringArray(ref gear.unlockedBaits, ExtractStringArray(json, "unlockedBaits"));
+            MergeStringArray(ref gear.ownedVessels, ExtractStringArray(json, "ownedVessels"));
+            if (string.IsNullOrEmpty(gear.equippedRod))
+            {
+                var equipped = ExtractQuoted(json, "equippedRod");
+                if (!string.IsNullOrEmpty(equipped))
+                    gear.equippedRod = equipped;
+            }
+        }
+
+        static void MergeStringArray(ref string[] target, string[] extra)
+        {
+            if (extra == null || extra.Length == 0)
+                return;
+            if (target == null || target.Length == 0)
+            {
+                target = extra;
+                return;
+            }
+            var merged = new System.Collections.Generic.List<string>(target);
+            for (var i = 0; i < extra.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(extra[i]) && !merged.Contains(extra[i]))
+                    merged.Add(extra[i]);
+            }
+            target = merged.ToArray();
+        }
+
+        static string[] ExtractStringArray(string json, string key)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                json, "\"" + key + "\"\\s*:\\s*\\[([^\\]]*?)\\]");
+            if (!match.Success)
+                return new string[0];
+            var found = System.Text.RegularExpressions.Regex.Matches(
+                match.Groups[1].Value, "\"([^\"]+)\"");
+            var values = new string[found.Count];
+            for (var i = 0; i < found.Count; i++)
+                values[i] = found[i].Groups[1].Value;
+            return values;
+        }
+
+        static string ExtractQuoted(string json, string key)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                json, "\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
+
         static int ExtractInt(string json, string key)
         {
             var match = System.Text.RegularExpressions.Regex.Match(
@@ -1082,11 +1190,13 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class SharePayload { public string playerId; public string nickname; public string fishId; }
         [Serializable] sealed class BaitCatalogResponse { public ShopBaitDto[] baits; }
         [Serializable] sealed class TackleCatalogResponse { public ShopTackleDto[] tackles; }
-        [Serializable] sealed class GearEnvelope { public ShopGearDto gear; public int coins; }
+        [Serializable] sealed class VesselCatalogResponse { public ShopVesselDto[] vessels; }
+        [Serializable] sealed class GearEnvelope { public ShopGearDto gear; public int coins; public int playerLevel; }
         [Serializable] sealed class ShopMutationResponse { public ShopGearDto gear; public int coins; }
         [Serializable] sealed class ShopGearResponse { public ShopGearDto gear; }
         [Serializable] sealed class BuyBaitPayload { public string playerId; public string baitId; public int quantity; }
         [Serializable] sealed class BuyTacklePayload { public string playerId; public string tackleId; }
+        [Serializable] sealed class BuyVesselPayload { public string playerId; public string vesselId; }
         [Serializable] sealed class EquipPayload { public string playerId; public string baitId; public string tackleId; }
         [Serializable] sealed class ApiErrorResponse { public string error; }
         [Serializable] sealed class ProfileEnvelope { public PlayerProfileDto profile; }

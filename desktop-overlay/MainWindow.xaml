@@ -161,22 +161,33 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <!-- Z100: 右上 — 打开主界面 + 退出鱼塘 -->
-                <StackPanel Orientation="Horizontal"
-                            Canvas.Left="736"
+                <!-- Z100: 右上 — 打开主界面 + 退出鱼塘；禁止塘 Debug 出警 -->
+                <StackPanel Canvas.Left="736"
                             Canvas.Top="8"
                             Panel.ZIndex="100">
-                    <Button x:Name="OpenMainButton"
-                            Content="打开主界面"
-                            Width="100"
-                            Height="40"
-                            Margin="0,0,8,0"
-                            Click="OpenMain_OnClick" />
-                    <Button x:Name="ExitPondButton"
-                            Content="退出鱼塘"
-                            Width="100"
-                            Height="40"
-                            Click="ExitPond_OnClick" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="OpenMainButton"
+                                Content="打开主界面"
+                                Width="100"
+                                Height="40"
+                                Margin="0,0,8,0"
+                                Click="OpenMain_OnClick" />
+                        <Button x:Name="ExitPondButton"
+                                Content="退出鱼塘"
+                                Width="100"
+                                Height="40"
+                                Click="ExitPond_OnClick" />
+                    </StackPanel>
+                    <Button x:Name="PoliceDebugButton"
+                            Content="一键出警"
+                            Width="208"
+                            Height="36"
+                            Margin="0,8,0,0"
+                            HorizontalAlignment="Right"
+                            Visibility="Collapsed"
+                            Background="#E8B86138"
+                            Foreground="White"
+                            Click="PoliceDebug_OnClick" />
                 </StackPanel>
                 <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
                 <StackPanel Canvas.Left="844"

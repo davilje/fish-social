@@ -10,6 +10,7 @@ import {
 import { db } from './db.js';
 import { deductCoins, getPlayer } from './players.js';
 import { recordFishingMetric } from './fishingMetrics.js';
+import { grantStarterRod } from './gear.js';
 
 export interface PlayerFishingProgress {
   playerId: string;
@@ -155,6 +156,7 @@ export function completeOnboarding(playerId: string): PlayerFishingProgress {
       pondId: 'pond-novice',
       payload: { completedAt: progress.onboardingCompletedAt },
     });
+    grantStarterRod(playerId);
   }
   return progress;
 }

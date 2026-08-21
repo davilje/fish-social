@@ -49,6 +49,12 @@ export const FISHING_METRIC_EVENTS: MetricEventSchema[] = [
   { eventType: 'fishing_stopped_insufficient_gold', requiredFields: ['playerId', 'pondId'], optionalFields: ['feePer2h', 'charges', 'progressMs', 'coins'], description: 'FEAT-PROG-01：金币不足停钓' },
   { eventType: 'onboarding_completed', requiredFields: ['playerId'], optionalFields: ['pondId', 'completedAt'], description: 'FEAT-PROG-01：新手引导完成' },
   { eventType: 'pond_proficiency_capped', requiredFields: ['playerId', 'pondId'], optionalFields: ['pondLevel', 'playerLevel', 'source', 'fishingMs'], description: 'FEAT-PROG-01：塘熟练度满/锁满停发塘XP' },
+  { eventType: 'bait_use', requiredFields: ['playerId'], optionalFields: ['baitId', 'cost', 'coinsAfter'], description: 'FEAT-GEAR-01：咬钩使用进阶饵扣金' },
+  { eventType: 'rod_buy', requiredFields: ['playerId'], optionalFields: ['rodId', 'cost'], description: 'FEAT-GEAR-01：购买钓竿' },
+  { eventType: 'rod_broke', requiredFields: ['playerId'], optionalFields: ['rodId', 'sizeM', 'oversizeLandings', 'pondId'], description: 'FEAT-GEAR-01：超规格满N次销毁钓竿' },
+  { eventType: 'vessel_buy', requiredFields: ['playerId'], optionalFields: ['vesselId', 'cost'], description: 'FEAT-GEAR-01：购买船具（不可用）' },
+  { eventType: 'forbidden_pond_fine', requiredFields: ['playerId', 'pondId'], optionalFields: ['charged', 'coinsAfter', 'fineGold', 'raidId'], description: 'FEAT-RISK-01：禁止塘巡警超时罚款+当日禁钓' },
+  { eventType: 'forbidden_pond_escaped', requiredFields: ['playerId', 'pondId'], optionalFields: ['untilMs', 'raidId'], description: 'FEAT-RISK-01：禁止塘巡警时限内离塘免罚，2h禁入' },
 ];
 
 export function validateMetricPayload(eventType: string, payload: Record<string, unknown>): string[] {

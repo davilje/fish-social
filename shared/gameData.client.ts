@@ -8,12 +8,15 @@ import type {
   FishSellQualityDef,
   FishSpeciesGameDef,
   FishXpDef,
+  GameBaitDef,
   GameDataMeta,
   GamePondDef,
   PlayerLevelDef,
   PondCategory,
   PondLevelDef,
   PondModifierDef,
+  RodDef,
+  VesselDef,
 } from './gameDataTypes';
 
 import metaJson from './generated/game-data/_meta.json';
@@ -24,18 +27,24 @@ import fishSellJson from './generated/game-data/fish_sell.json';
 import modifiersJson from './generated/game-data/pond_modifiers.json';
 import fishXpJson from './generated/game-data/fish_xp.json';
 import speciesJson from './generated/game-data/fish_species.json';
+import rodsJson from './generated/game-data/rods.json';
+import baitsJson from './generated/game-data/baits.json';
+import vesselsJson from './generated/game-data/vessels.json';
 
 export type {
   CatchGroup,
   FishSellQualityDef,
   FishSpeciesGameDef,
   FishXpDef,
+  GameBaitDef,
   GameDataMeta,
   GamePondDef,
   PlayerLevelDef,
   PondCategory,
   PondLevelDef,
   PondModifierDef,
+  RodDef,
+  VesselDef,
 } from './gameDataTypes';
 
 export { ADMISSION_FEE_SLICE_MS } from './gameDataTypes';
@@ -48,6 +57,9 @@ const fishSell = fishSellJson as Array<Record<string, unknown>>;
 const modifiersList = modifiersJson as PondModifierDef[];
 const fishXpList = fishXpJson as FishXpDef[];
 const speciesList = speciesJson as FishSpeciesGameDef[];
+const rodsList = rodsJson as RodDef[];
+const baitsList = baitsJson as GameBaitDef[];
+const vesselsList = vesselsJson as VesselDef[];
 
 const ponds = new Map(pondsList.map((p) => [p.pondId, p]));
 const playerLevels = new Map(playerLevelsList.map((r) => [r.level, r]));
@@ -64,6 +76,9 @@ for (const row of fishSell) {
 const modifiers = new Map(modifiersList.map((m) => [m.category, m]));
 const fishXp = new Map(fishXpList.map((r) => [`${r.speciesId}:${r.quality}`, r]));
 const species = new Map(speciesList.map((s) => [s.speciesId, s]));
+const rods = new Map(rodsList.map((r) => [r.rodId, r]));
+const baits = new Map(baitsList.map((b) => [b.baitId, b]));
+const vessels = new Map(vesselsList.map((v) => [v.vesselId, v]));
 
 export function getGameDataMeta(): GameDataMeta {
   return meta;
@@ -101,6 +116,34 @@ export function getPondModifier(category: PondCategory): PondModifierDef {
 
 export function getCatchGroup(speciesId: string): CatchGroup {
   return species.get(speciesId)?.catchGroup ?? 'still_bait';
+}
+
+export function getGameSpeciesDiet(speciesId: string): string {
+  return species.get(speciesId)?.diet ?? 'omnivore';
+}
+
+export function getRodDef(rodId: string): RodDef | undefined {
+  return rods.get(rodId);
+}
+
+export function listRods(): RodDef[] {
+  return [...rodsList];
+}
+
+export function getGameBaitDef(baitId: string): GameBaitDef | undefined {
+  return baits.get(baitId);
+}
+
+export function listGameBaits(): GameBaitDef[] {
+  return [...baitsList];
+}
+
+export function getVesselDef(vesselId: string): VesselDef | undefined {
+  return vessels.get(vesselId);
+}
+
+export function listVessels(): VesselDef[] {
+  return [...vesselsList];
 }
 
 export function getFishXpGrant(

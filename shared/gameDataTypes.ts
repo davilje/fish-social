@@ -58,6 +58,12 @@ export interface PondModifierDef {
   qualityWeightSkew: number;
   sizeCapMul: number;
   pondXpMul: number;
+  /** FEAT-RISK-01：禁止塘每小时出警概率；其它分级为 0 */
+  fineChancePerHour?: number;
+  /** FEAT-RISK-01：超时罚款金币；不足归零 */
+  fineGold?: number;
+  /** FEAT-RISK-01：出警后离塘时限（毫秒） */
+  policeWarningMs?: number;
 }
 
 export interface FishXpDef {
@@ -73,6 +79,50 @@ export interface FishSpeciesGameDef {
   name: string;
   diet: string;
   catchGroup: CatchGroup;
+}
+
+export interface RodDef {
+  rodId: string;
+  name: string;
+  subType: string;
+  priceGold: number;
+  biteBonus: number;
+  escapeReduction: number;
+  breakSizeM: number;
+  breakMaxLandings: number;
+  fitGray: number;
+  fitGreen: number;
+  fitBlue: number;
+  fitPurple: number;
+  fitRed: number;
+  fitOrange: number;
+  fitGold: number;
+  fitStillBait: number;
+  fitStreamLight: number;
+  fitLurePredator: number;
+  fitCastHeavy: number;
+  fitGiantGame: number;
+}
+
+export interface GameBaitDef {
+  baitId: string;
+  name: string;
+  diet: string;
+  unlockPlayerLevel: number;
+  costGoldPerUse: number;
+  biteBonusHerbivore: number;
+  biteBonusOmnivore: number;
+  biteBonusCarnivore: number;
+  isDefaultInfinite: boolean;
+}
+
+export interface VesselDef {
+  vesselId: string;
+  name: string;
+  unlockPlayerLevel: number;
+  priceGold: number;
+  placeholderCatchCount: number;
+  enabledUse: boolean;
 }
 
 export interface GameDataMeta {

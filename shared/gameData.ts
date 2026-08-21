@@ -12,12 +12,15 @@ import type {
   FishSellQualityDef,
   FishSpeciesGameDef,
   FishXpDef,
+  GameBaitDef,
   GameDataMeta,
   GamePondDef,
   PlayerLevelDef,
   PondCategory,
   PondLevelDef,
   PondModifierDef,
+  RodDef,
+  VesselDef,
 } from './gameDataTypes';
 
 export type {
@@ -25,12 +28,15 @@ export type {
   FishSellQualityDef,
   FishSpeciesGameDef,
   FishXpDef,
+  GameBaitDef,
   GameDataMeta,
   GamePondDef,
   PlayerLevelDef,
   PondCategory,
   PondLevelDef,
   PondModifierDef,
+  RodDef,
+  VesselDef,
 } from './gameDataTypes';
 
 export { ADMISSION_FEE_SLICE_MS } from './gameDataTypes';
@@ -74,6 +80,12 @@ let cached: {
   modifiers: Map<PondCategory, PondModifierDef>;
   fishXp: Map<string, FishXpDef>;
   species: Map<string, FishSpeciesGameDef>;
+  rods: Map<string, RodDef>;
+  baits: Map<string, GameBaitDef>;
+  vessels: Map<string, VesselDef>;
+  rodsList: RodDef[];
+  baitsList: GameBaitDef[];
+  vesselsList: VesselDef[];
 } | null = null;
 
 function ensureLoaded() {
@@ -87,6 +99,9 @@ function ensureLoaded() {
   const modifiersList = readJson<PondModifierDef[]>(dir, 'pond_modifiers.json');
   const fishXpList = readJson<FishXpDef[]>(dir, 'fish_xp.json');
   const speciesList = readJson<FishSpeciesGameDef[]>(dir, 'fish_species.json');
+  const rodsList = readJson<RodDef[]>(dir, 'rods.json');
+  const baitsList = readJson<GameBaitDef[]>(dir, 'baits.json');
+  const vesselsList = readJson<VesselDef[]>(dir, 'vessels.json');
 
   const ponds = new Map(pondsList.map((p) => [p.pondId, p]));
   const playerLevels = new Map(playerLevelsList.map((r) => [r.level, r]));
@@ -103,6 +118,9 @@ function ensureLoaded() {
   const modifiers = new Map(modifiersList.map((m) => [m.category, m]));
   const fishXp = new Map(fishXpList.map((r) => [`${r.speciesId}:${r.quality}`, r]));
   const species = new Map(speciesList.map((s) => [s.speciesId, s]));
+  const rods = new Map(rodsList.map((r) => [r.rodId, r]));
+  const baits = new Map(baitsList.map((b) => [b.baitId, b]));
+  const vessels = new Map(vesselsList.map((v) => [v.vesselId, v]));
 
   cached = {
     meta,
@@ -114,6 +132,12 @@ function ensureLoaded() {
     modifiers,
     fishXp,
     species,
+    rods,
+    baits,
+    vessels,
+    rodsList,
+    baitsList,
+    vesselsList,
   };
   return cached;
 }
@@ -154,6 +178,34 @@ export function getPondModifier(category: PondCategory): PondModifierDef {
 
 export function getCatchGroup(speciesId: string): CatchGroup {
   return ensureLoaded().species.get(speciesId)?.catchGroup ?? 'still_bait';
+}
+
+export function getGameSpeciesDiet(speciesId: string): string {
+  return ensureLoaded().species.get(speciesId)?.diet ?? 'omnivore';
+}
+
+export function getRodDef(rodId: string): RodDef | undefined {
+  return ensureLoaded().rods.get(rodId);
+}
+
+export function listRods(): RodDef[] {
+  return [...ensureLoaded().rodsList];
+}
+
+export function getGameBaitDef(baitId: string): GameBaitDef | undefined {
+  return ensureLoaded().baits.get(baitId);
+}
+
+export function listGameBaits(): GameBaitDef[] {
+  return [...ensureLoaded().baitsList];
+}
+
+export function getVesselDef(vesselId: string): VesselDef | undefined {
+  return ensureLoaded().vessels.get(vesselId);
+}
+
+export function listVessels(): VesselDef[] {
+  return [...ensureLoaded().vesselsList];
 }
 
 export function getFishXpGrant(

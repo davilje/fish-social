@@ -44,7 +44,7 @@ namespace FishSocial.Desktop
             dto.recentChats = MapRecentChats(pond);
             dto.hasPendingCatch = pond != null && pond.HasPendingCatch;
             dto.availableActions = MapAvailableActions(pond);
-            dto.guideTip = string.Empty;
+            dto.guideTip = ResolvePoliceGuideTip(pond);
             dto.lockFeatureNav = false;
             dto.overlayPromptKind = string.Empty;
             dto.overlayPromptTitle = string.Empty;
@@ -72,7 +72,26 @@ namespace FishSocial.Desktop
                 actions.Add("leave_spot");
             if (!pond.IsTransitioning)
                 actions.Add("exit_pond");
+            if (ShowPoliceDebug(pond.CurrentPondId))
+                actions.Add("debug_police_raid");
             return actions.ToArray();
+        }
+
+        static bool ShowPoliceDebug(string pondId)
+        {
+            var pond = DesktopGameData.GetPond(pondId);
+            return pond != null && pond.pondCategory == "forbidden";
+        }
+
+        static string ResolvePoliceGuideTip(SocialPondSessionController pond)
+        {
+            var raid = pond != null ? pond.ActivePoliceRaid : null;
+            if (raid == null || raid.status != "warning")
+                return string.Empty;
+            if (raid.deadlineMs > 0 &&
+                raid.deadlineMs < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
+                return string.Empty;
+            return string.IsNullOrEmpty(raid.text) ? PoliceRaidDto.WarningText : raid.text;
         }
 
         static NativeOverlayChatDto[] MapRecentChats(SocialPondSessionController pond)

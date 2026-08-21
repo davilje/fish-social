@@ -29,6 +29,7 @@ import {
 import { acceptCatch, getInventory } from './inventory.js';
 import { ensurePlayer } from './players.js';
 import { checkJoinPondAccess } from './playerProgress.js';
+import { checkForbiddenPondBan } from './forbiddenPolice.js';
 import { autoShareEpicCatch } from './posts.js';
 import { emitEvictedBots } from './bots.js';
 import { beginFishingSequence, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
@@ -164,6 +165,25 @@ export function registerSocketPondHandlers(
         ackError: access.error,
       });
       ack?.({ ok: false, error: access.error ?? '无法进入该鱼塘' });
+      return;
+    }
+    const ban = checkForbiddenPondBan(authPlayerId, payload.pondId);
+    if (!ban.ok) {
+      logStructuredEvent('join_pond', 'join_pond_fail', {
+        playerId: authPlayerId,
+        socketId: socket.id,
+        pondId: payload.pondId,
+        reason: 'police_ban',
+        ackError: ban.error,
+      });
+      recordStructuredMetric('join_pond_fail', {
+        playerId: authPlayerId,
+        socketId: socket.id,
+        pondId: payload.pondId,
+        reason: 'police_ban',
+        ackError: ban.error,
+      });
+      ack?.({ ok: false, error: ban.error });
       return;
     }
     try {
@@ -412,6 +432,13 @@ export function registerSocketPondHandlers(
     if (payload.spotId && payload.spotId !== current.spotId) {
       ack?.({ ok: false, error: '当前钓点已变化，请重新选择' });
       return;
+    }
+    if (current.playerId) {
+      const ban = checkForbiddenPondBan(current.playerId, payload.pondId);
+      if (!ban.ok) {
+        ack?.({ ok: false, error: ban.error });
+        return;
+      }
     }
     const seq = beginFishingSequence(io, payload.pondId, current.id, socket.id);
     if (!seq.ok) {

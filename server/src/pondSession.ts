@@ -31,6 +31,7 @@ import {
   todayKey,
 } from './pondUserManager.js';
 import { checkJoinPondAccess } from './playerProgress.js';
+import { checkForbiddenPondBan, notePoliceLeaveIfNeeded } from './forbiddenPolice.js';
 
 export interface SessionMeta {
   userId: string;
@@ -88,6 +89,16 @@ export function joinPond(
     return { ok: false, error: access.error };
   }
 
+  const ban = checkForbiddenPondBan(playerId, pondId);
+  if (!ban.ok) {
+    recordFishingMetric('join_pond_fail', {
+      playerId,
+      pondId,
+      payload: { socketId, reason: 'police_ban', ackError: ban.error },
+    });
+    return { ok: false, error: ban.error };
+  }
+
   const users = ensurePondUsers(pondId);
   const evictedUserIds = evictBotsForHuman(pondId);
   if (users.size >= MAX_POND_USERS) {
@@ -118,6 +129,8 @@ export function joinPond(
 export function leavePond(socketId: string): PondUser | null {
   const session = sessions.get(socketId);
   if (!session) return null;
+
+  notePoliceLeaveIfNeeded(session.playerId, session.pondId);
 
   const users = ensurePondUsers(session.pondId);
   const user = users.get(session.userId);

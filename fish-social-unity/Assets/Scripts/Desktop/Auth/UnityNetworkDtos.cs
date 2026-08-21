@@ -116,6 +116,20 @@ namespace FishSocial.Desktop.Auth
     }
 
     [Serializable]
+    public sealed class PoliceRaidDto
+    {
+        public const string WarningText = "巡警来了！快跑！";
+        public string status;
+        public string raidId;
+        public string pondId;
+        public string text;
+        public long deadlineMs;
+        public int coinsAfter;
+        public int charged;
+        public string message;
+    }
+
+    [Serializable]
     public sealed class SendChatPayload
     {
         public string pondId;
@@ -213,6 +227,13 @@ namespace FishSocial.Desktop.Auth
         public int price;
         public float globalBonus;
         public bool consumed;
+        public string diet;
+        public int unlockPlayerLevel;
+        public int costGoldPerUse;
+        public bool isDefaultInfinite;
+        public float biteBonusHerbivore;
+        public float biteBonusOmnivore;
+        public float biteBonusCarnivore;
     }
 
     [Serializable]
@@ -223,14 +244,46 @@ namespace FishSocial.Desktop.Auth
         public string icon;
         public int price;
         public float escapeReduction;
+        public float biteBonus;
+        public string subType;
+        public float breakSizeM;
+        public int breakMaxLandings;
+        public float fitGray;
+        public float fitGreen;
+        public float fitBlue;
+        public float fitPurple;
+        public float fitRed;
+        public float fitOrange;
+        public float fitGold;
+        public float fitStillBait;
+        public float fitStreamLight;
+        public float fitLurePredator;
+        public float fitCastHeavy;
+        public float fitGiantGame;
+    }
+
+    [Serializable]
+    public sealed class ShopVesselDto
+    {
+        public string vesselId;
+        public string name;
+        public int unlockPlayerLevel;
+        public int priceGold;
+        public int placeholderCatchCount;
+        public bool enabledUse;
     }
 
     [Serializable]
     public sealed class ShopGearDto
     {
-        public string equippedBait = "basic";
+        public string equippedBait = "bait-basic";
         public string equippedTackle = "basic";
+        public string equippedRod = "";
         public string[] ownedTackles = new string[0];
+        public string[] ownedRods = new string[0];
+        public string[] unlockedBaits = new string[0];
+        public string[] ownedVessels = new string[0];
+        public int playerLevel = 1;
         public int basic;
         public int corn;
         public int pellet;

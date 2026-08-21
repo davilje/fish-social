@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/钓具与鱼饵配置.md`（**已确认** / **FEAT-GEAR-01**）
+1. `docs/planning/specs/钓具与鱼饵配置.md`（**已实现** / **FEAT-GEAR-01**）
 2. `docs/planning/specs/鱼塘分级与玩家成长.md`（数值表字段、玩家等级）
 3. `docs/planning/specs/Steam桌面端-08B商店与装备.md`（已实现商店基线）
 

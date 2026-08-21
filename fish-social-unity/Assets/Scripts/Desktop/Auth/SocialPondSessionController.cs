@@ -62,7 +62,9 @@ namespace FishSocial.Desktop.Auth
         public event Action<PostLikedDto> PostLikedReceived;
         public event Action<PostCommentedDto> PostCommentedReceived;
         public event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
+        public event Action<PoliceRaidDto> PoliceRaidReceived;
         public event Action<string> ErrorReceived;
+        public PoliceRaidDto ActivePoliceRaid { get; private set; }
         public string Nickname => string.IsNullOrWhiteSpace(_nickname) ? "Steam玩家" : _nickname;
         public ChatMessageDto[] PondMessages => _messages.ToArray();
         public const int OverlayRecentChatLimit = 20;
@@ -102,6 +104,7 @@ namespace FishSocial.Desktop.Auth
             _socket.PostLikedReceived += OnPostLiked;
             _socket.PostCommentedReceived += OnPostCommented;
             _socket.PostCommentDeletedReceived += OnPostCommentDeleted;
+            _socket.PoliceRaidReceived += OnPoliceRaid;
             _socket.ErrorReceived += OnError;
         }
 
@@ -410,6 +413,7 @@ namespace FishSocial.Desktop.Auth
             _latestCatch = null;
             _users.Clear();
             _messages.Clear();
+            ActivePoliceRaid = null;
             UsersChanged?.Invoke();
         }
 
@@ -621,6 +625,32 @@ namespace FishSocial.Desktop.Auth
             PostCommentDeletedReceived?.Invoke(message);
         }
 
+        void OnPoliceRaid(PoliceRaidDto raid)
+        {
+            if (raid == null)
+                return;
+            if (raid.status == "warning")
+            {
+                ActivePoliceRaid = raid;
+                PoliceRaidReceived?.Invoke(raid);
+                return;
+            }
+
+            ActivePoliceRaid = null;
+            if (raid.status == "fined")
+                ApplyPoliceEject(raid.message);
+            PoliceRaidReceived?.Invoke(raid);
+        }
+
+        void ApplyPoliceEject(string message)
+        {
+            if (_socket != null && _socket.IsConnected)
+                _socket.Disconnect();
+            ClearLocalPondState();
+            if (!string.IsNullOrEmpty(message))
+                ErrorReceived?.Invoke(message);
+        }
+
         void OnError(string message)
         {
             ErrorReceived?.Invoke(message);
@@ -649,6 +679,7 @@ namespace FishSocial.Desktop.Auth
             _socket.PostLikedReceived -= OnPostLiked;
             _socket.PostCommentedReceived -= OnPostCommented;
             _socket.PostCommentDeletedReceived -= OnPostCommentDeleted;
+            _socket.PoliceRaidReceived -= OnPoliceRaid;
             _socket.ErrorReceived -= OnError;
             _socket.Disconnect();
             Debug.Log("[Shutdown] SocialPondSessionController.OnDestroy complete.");

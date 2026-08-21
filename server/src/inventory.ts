@@ -12,6 +12,7 @@ import {
 } from './playerPondSession.js';
 import { cancelByKind } from './timerRegistry.js';
 import { grantCatchProgress, completeOnboarding } from './playerProgress.js';
+import { noteRodOversizeLanding } from './gear.js';
 
 const pendingByUser = new Map<string, PendingFishCatch>();
 /** pondFishId → session userId，防止同一条鱼同时 pending 给多人 */
@@ -243,6 +244,8 @@ export function acceptCatch(
       completeOnboarding(playerId);
     }
   }
+
+  noteRodOversizeLanding(playerId, pending.sizeM);
 
   return { ok: true, item };
 }

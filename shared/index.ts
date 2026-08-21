@@ -6,6 +6,8 @@ export * from './economy';
 export * from './gameData.client';
 export * from './pondAccess';
 export * from './playerProgressRules';
+export * from './gearRules';
+export * from './riskRules';
 export * from './ponds';
 export * from './pondCatalog';
 export * from './tileMath';

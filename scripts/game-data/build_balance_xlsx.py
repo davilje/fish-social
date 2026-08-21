@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from openpyxl import Workbook
+from openpyxl.comments import Comment
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -154,14 +155,15 @@ SPECIES_MULT = [
 ]
 
 POND_MODIFIERS = [
-    # category, biteRateMul, escapeRateMul, infoRevealMul, qualityWeightSkew, sizeCapMul, pondXpMul
-    ("advanced", 1, 1, 1, 1, 1, 1),
-    ("novice", 1, 1, 1, 1, 1, 1),
-    ("veteran", 1, 1, 1, 1, 1, 1),
-    ("wilderness", 0.75, 1.10, 0.70, 0.85, 0.95, 1.10),
-    ("reservoir", 0.65, 1.0, 0.55, 0.85, 1.0, 1.15),
-    ("forbidden", 0.90, 1, 1, 1, 1, 1),
-    ("giant", 1, 1, 1, 1, 1, 1),
+    # category, biteRateMul, escapeRateMul, infoRevealMul, qualityWeightSkew, sizeCapMul, pondXpMul,
+    # fineChancePerHour, fineGold, policeWarningMs
+    ("advanced", 1, 1, 1, 1, 1, 1, 0, 0, 0),
+    ("novice", 1, 1, 1, 1, 1, 1, 0, 0, 0),
+    ("veteran", 1, 1, 1, 1, 1, 1, 0, 0, 0),
+    ("wilderness", 0.75, 1.10, 0.70, 0.85, 0.95, 1.10, 0, 0, 0),
+    ("reservoir", 0.65, 1.0, 0.55, 0.85, 1.0, 1.15, 0, 0, 0),
+    ("forbidden", 0.90, 1, 1, 1, 1, 1, 0.15, 800, 10000),
+    ("giant", 1, 1, 1, 1, 1, 1, 0, 0, 0),
 ]
 
 # rods: fitStillBait / fitStreamLight / fitLurePredator / fitCastHeavy / fitGiantGame
@@ -242,6 +244,112 @@ SPOT_CLUES = [
 ]
 
 
+# sheet, field, 中文名, 说明 — exported JSON still uses English keys in row 1.
+FIELD_DOCS: list[tuple[str, str, str, str]] = [
+    ("_meta", "key", "键", "全局常量名，如 SIZE_EXP、version。"),
+    ("_meta", "value", "值", "对应常量的数值或备注。"),
+    ("ponds", "pondId", "鱼塘ID", "程序主键，进塘/扣费/地图都用这个。"),
+    ("ponds", "name", "鱼塘名", "中文显示名。"),
+    ("ponds", "pondCategory", "鱼塘分级", "novice/advanced/veteran/wilderness/reservoir/forbidden/giant。"),
+    ("ponds", "mapZoneId", "地图分区", "世界地图分区 ID。"),
+    ("ponds", "feePer2h", "每2小时入场费", "金币；0 表示不收费。"),
+    ("ponds", "maxFeeChargesPerDay", "每日扣费次数上限", "按 2 小时切片累计。"),
+    ("ponds", "unlock", "解锁条件", "onboarding / level:N / guide_only。"),
+    ("ponds", "isOpen", "是否开放", "FALSE 的塘不能进（如巨物塘壳）。"),
+    ("ponds", "showOnWorldMap", "是否上地图", "FALSE 则世界地图不画（新手练习塘）。"),
+    ("ponds", "minPlayerLevel", "最低钓鱼等级", "低于此等级不能进塘。"),
+    ("ponds", "mapX", "地图X", "世界地图坐标 0~1。"),
+    ("ponds", "mapY", "地图Y", "世界地图坐标 0~1。"),
+    ("player_levels", "level", "钓鱼等级", "1~20。"),
+    ("player_levels", "xpToNext", "升到下级所需经验", "20 级为 0。"),
+    ("player_levels", "pondXpPerHour", "每小时鱼塘熟练度", "挂机时长折算塘经验的参考。"),
+    ("player_levels", "maxPondLevel", "可达到的最高塘等级", "玩家等级对塘升级的软上限。"),
+    ("pond_levels", "level", "鱼塘等级", "1~10。"),
+    ("pond_levels", "xpToNext", "升到下级所需塘经验", "10 级为 0。"),
+    ("fish_species", "speciesId", "鱼种ID", "程序主键。"),
+    ("fish_species", "name", "中文名", "商店/图鉴显示。"),
+    ("fish_species", "diet", "食性", "herbivore 草食 / omnivore 杂食 / carnivore 肉食。"),
+    ("fish_species", "catchGroup", "钓组", "still_bait 静水底钓 / stream_light 溪流轻口 / lure_predator 路亚掠食 / cast_heavy 重抛 / giant_game 巨物。"),
+    ("fish_species", "typicalMinM", "典型最小体长m", "展示参考，不是硬帽。"),
+    ("fish_species", "typicalMaxM", "典型最大体长m", "展示参考，不是硬帽。"),
+    ("fish_xp", "speciesId", "鱼种ID", "与 fish_species 对齐。"),
+    ("fish_xp", "speciesName", "中文名", "便于策划阅读。"),
+    ("fish_xp", "quality", "品质", "gray/green/blue/purple/red/orange/gold。"),
+    ("fish_xp", "playerXp", "玩家经验", "钓上该品质该种鱼给玩家的经验。"),
+    ("fish_xp", "pondXp", "鱼塘经验", "同时给当前塘熟练度的经验。"),
+    ("fish_sell", "quality", "品质", "卖价品质底表；空行表示下面是钓组系数。"),
+    ("fish_sell", "QUALITY_BASE", "品质底价", "卖价公式底数。"),
+    ("fish_sell", "SIZE_REF", "体长参考m", "卖价公式尺寸归一化。"),
+    ("fish_sell", "MIN_SELL", "最低卖价", "向下取整后的保底。"),
+    ("fish_sell", "catchGroup", "钓组", "SPECIES_MULT 所对应的钓组。"),
+    ("fish_sell", "SPECIES_MULT", "钓组卖价系数", "乘在品质底价上。"),
+    ("pond_modifiers", "category", "鱼塘分级", "与 ponds.pondCategory 对应。"),
+    ("pond_modifiers", "biteRateMul", "咬钩倍率", "塘级对咬钩率的乘区。"),
+    ("pond_modifiers", "escapeRateMul", "脱钩倍率", "塘级对脱钩率的乘区。"),
+    ("pond_modifiers", "infoRevealMul", "信息揭示倍率", "线索/信息量。"),
+    ("pond_modifiers", "qualityWeightSkew", "品质权重倾斜", ">1 偏向高品质。"),
+    ("pond_modifiers", "sizeCapMul", "体长上限倍率", "乘在鱼种尺寸帽上。"),
+    ("pond_modifiers", "pondXpMul", "塘经验倍率", "该分级塘熟练度获取。"),
+    ("pond_modifiers", "fineChancePerHour", "每小时出警概率", "仅 forbidden 使用，初值 0.15。其它分级填 0。"),
+    ("pond_modifiers", "fineGold", "超时罚款金币", "不足则归零。仅 forbidden 使用，初值 800。"),
+    ("pond_modifiers", "policeWarningMs", "出警时限毫秒", "时限内离塘免罚。仅 forbidden 使用，初值 10000。"),
+    ("pond_fish_pool", "pondId", "鱼塘ID", "该塘可出的鱼。"),
+    ("pond_fish_pool", "speciesId", "鱼种ID", "库存模板条目。"),
+    ("pond_fish_pool", "role", "角色", "common 常驻 / rare 稀有。"),
+    ("pond_fish_pool", "spawnWeight", "刷新权重", "相对权重。"),
+    ("pond_fish_pool", "enabled", "是否启用", "FALSE 则该条不参与刷新。"),
+    ("pond_quality_cap", "pondId", "鱼塘ID", "品质软帽。"),
+    ("pond_quality_cap", "minQuality", "最低品质", "该塘随机品质下限。"),
+    ("pond_quality_cap", "maxQuality", "最高品质", "该塘随机品质上限。"),
+    ("pond_quality_cap", "notes", "备注", "策划说明，不进规则。"),
+    ("pond_fish_size_cap", "pondId", "鱼塘ID", "体长硬帽。"),
+    ("pond_fish_size_cap", "speciesId", "鱼种ID", "该塘该种鱼。"),
+    ("pond_fish_size_cap", "quality", "品质", "按品质分档的尺寸帽。"),
+    ("pond_fish_size_cap", "minSizeM", "最小体长m", "随机体长下限。"),
+    ("pond_fish_size_cap", "maxSizeM", "最大体长m", "随机体长上限。"),
+    ("rods", "rodId", "钓竿ID", "程序主键，商店与装备用。"),
+    ("rods", "name", "中文名", "商店显示名。"),
+    ("rods", "subType", "竿型", "手竿入门/台钓/溪流/矶钓/路亚/海竿/重路亚/巨物。"),
+    ("rods", "priceGold", "金币价格", "0 表示新手赠送，商店不可回购。"),
+    ("rods", "biteBonus", "咬钩加成", "加在咬钩判定上的弱加成，如 0.03 = +3%。"),
+    ("rods", "escapeReduction", "防脱", "降低脱钩率的弱减免，如 0.04 = -4%。"),
+    ("rods", "breakSizeM", "超规格体长m", "成功钓上大于该体长的鱼计入超规格。"),
+    ("rods", "breakMaxLandings", "超规格成功上限", "累计满 N 次后当前装备竿销毁，不能修理。"),
+    ("rods", "fitGray", "灰品质适配", "乘区；>1 更合适，<1 不合适。"),
+    ("rods", "fitGreen", "绿品质适配", "乘区。"),
+    ("rods", "fitBlue", "蓝品质适配", "乘区。"),
+    ("rods", "fitPurple", "紫品质适配", "乘区。"),
+    ("rods", "fitRed", "红品质适配", "乘区。"),
+    ("rods", "fitOrange", "橙品质适配", "乘区。"),
+    ("rods", "fitGold", "金品质适配", "乘区。"),
+    ("rods", "fitStillBait", "静水底钓适配", "对应 catchGroup=still_bait。"),
+    ("rods", "fitStreamLight", "溪流轻口适配", "对应 catchGroup=stream_light。"),
+    ("rods", "fitLurePredator", "路亚掠食适配", "对应 catchGroup=lure_predator。"),
+    ("rods", "fitCastHeavy", "重抛适配", "对应 catchGroup=cast_heavy。"),
+    ("rods", "fitGiantGame", "巨物适配", "对应 catchGroup=giant_game。"),
+    ("baits", "baitId", "鱼饵ID", "程序主键。"),
+    ("baits", "name", "中文名", "商店显示名。"),
+    ("baits", "diet", "对口食性", "any 通用 / herbivore 草食 / omnivore 杂食 / carnivore 肉食。"),
+    ("baits", "unlockPlayerLevel", "解锁钓鱼等级", "0 表示开局可用。"),
+    ("baits", "costGoldPerUse", "每次扣金", "咬钩成功时扣除；0 表示不扣金。不进货、无库存。"),
+    ("baits", "biteBonusHerbivore", "对草食咬钩加成", "如 0.06 = +6%。"),
+    ("baits", "biteBonusOmnivore", "对杂食咬钩加成", "如 0.06 = +6%。"),
+    ("baits", "biteBonusCarnivore", "对肉食咬钩加成", "如 0.07 = +7%。"),
+    ("baits", "isDefaultInfinite", "是否无限基础饵", "TRUE 的饵永不短缺，也不扣金。"),
+    ("vessels", "vesselId", "船具ID", "程序主键。"),
+    ("vessels", "name", "中文名", "商店显示名。"),
+    ("vessels", "unlockPlayerLevel", "解锁钓鱼等级", "低于此等级不能买。"),
+    ("vessels", "priceGold", "金币价格", "一次性购入。"),
+    ("vessels", "placeholderCatchCount", "占位捕捞次数", "表内预留，当前不生效。"),
+    ("vessels", "enabledUse", "是否允许使用", "FALSE：可买但不可装备、不可开船。"),
+    ("spot_clues", "pondId", "鱼塘ID", "线索所属塘。"),
+    ("spot_clues", "spotId", "钓点ID", "点位主键。"),
+    ("spot_clues", "minPlayerLevel", "最低钓鱼等级", "未达到不显示该线索。"),
+    ("spot_clues", "minPondLevel", "最低塘等级", "未达到不显示该线索。"),
+    ("spot_clues", "clueText", "线索文案", "悬停/靠近时显示的中文。"),
+]
+
+
 def style_header(ws) -> None:
     for cell in ws[1]:
         cell.font = HEADER_FONT
@@ -261,10 +369,41 @@ def autosize(ws, max_width: int = 28) -> None:
 def write_sheet(wb: Workbook, title: str, headers: list[str], rows: list[tuple]) -> None:
     ws = wb.create_sheet(title)
     ws.append(headers)
+    zh_row = [
+        next((zh for sheet, field, zh, _desc in FIELD_DOCS if sheet == title and field == h), "")
+        for h in headers
+    ]
+    if any(zh_row):
+        ws.append(zh_row)
+        for cell in ws[2]:
+            cell.font = Font(italic=True, color="1F4E78")
+            cell.alignment = Alignment(wrap_text=True, vertical="center")
+    comments_map = {
+        field: (zh, desc)
+        for sheet, field, zh, desc in FIELD_DOCS
+        if sheet == title
+    }
+    for idx, header in enumerate(headers, start=1):
+        meta = comments_map.get(header)
+        if not meta:
+            continue
+        zh, desc = meta
+        ws.cell(1, idx).comment = Comment(f"{zh}\n{desc}".strip(), "策划")
     for row in rows:
         ws.append(list(row))
     style_header(ws)
     autosize(ws)
+
+
+def write_field_docs(wb: Workbook) -> None:
+    ws = wb.create_sheet("字段说明", 0)
+    ws.append(["表名", "字段名", "中文名", "说明"])
+    for row in FIELD_DOCS:
+        ws.append(list(row))
+    style_header(ws)
+    autosize(ws, 56)
+    ws.column_dimensions["D"].width = 64
+    ws.freeze_panes = "A2"
 
 
 def build() -> Path:
@@ -273,6 +412,7 @@ def build() -> Path:
     default = wb.active
     wb.remove(default)
 
+    write_field_docs(wb)
     write_sheet(wb, "_meta", list(META_ROWS[0]), META_ROWS[1:])
 
     pond_rows = [(*p, 0, 0) for p in PONDS]
@@ -337,6 +477,9 @@ def build() -> Path:
             "qualityWeightSkew",
             "sizeCapMul",
             "pondXpMul",
+            "fineChancePerHour",
+            "fineGold",
+            "policeWarningMs",
         ],
         POND_MODIFIERS,
     )

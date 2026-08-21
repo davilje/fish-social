@@ -1,32 +1,32 @@
 import type { Express, Request, Response } from 'express';
 import type { Server } from 'socket.io';
 import {
-  BAITS,
-  TACKLES,
-  getBait,
-  getTackle,
-  type BaitId,
+  BASIC_BAIT_ID,
+  getRodDef,
+  getVesselDef,
+  listGameBaits,
+  listRods,
+  listVessels,
   type ClientToServerEvents,
   type PlayerGearState,
   type ServerToClientEvents,
   type ShopErrorCode,
-  type TackleId,
 } from '@fish-social/shared';
 import {
-  addBaitToInventory,
-  addOwnedTackle,
+  addOwnedRod,
+  addOwnedVessel,
   ensurePlayerGear,
   equipBait,
-  equipTackle,
+  equipRod,
   repairTackle,
 } from './gear.js';
 import { getPlayerCodex } from './codex.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { deductCoins, getPlayer } from './players.js';
+import { ensurePlayerProgress } from './playerProgress.js';
 import { requireAuth, resolveAuthedPlayerId } from './auth.js';
 import { resolveSocketByPlayer } from './sessionRegistry.js';
 
-const MAX_BUY_QUANTITY = 100;
 const IDEMPOTENCY_TTL_MS = 10 * 60 * 1000;
 
 interface IdempotencyEntry {
@@ -36,6 +36,10 @@ interface IdempotencyEntry {
 }
 
 const idempotencyCache = new Map<string, IdempotencyEntry>();
+
+function gearLevel(playerId: string): number {
+  return ensurePlayerProgress(playerId).level;
+}
 
 function shopError(res: Response, status: number, code: ShopErrorCode, message: string): void {
   res.status(status).json({ error: message, code });
@@ -106,11 +110,55 @@ export function registerShopRoutes(
   io?: Server<ClientToServerEvents, ServerToClientEvents>,
 ): void {
   app.get('/api/shop/baits', (_req, res) => {
-    res.json({ baits: BAITS });
+    res.json({
+      baits: listGameBaits().map((b) => ({
+        id: b.baitId,
+        name: b.name,
+        icon: b.isDefaultInfinite ? '🪱' : '🎣',
+        price: b.costGoldPerUse,
+        globalBonus: Math.max(b.biteBonusHerbivore, b.biteBonusOmnivore, b.biteBonusCarnivore),
+        consumed: !b.isDefaultInfinite,
+        diet: b.diet,
+        unlockPlayerLevel: b.unlockPlayerLevel,
+        costGoldPerUse: b.costGoldPerUse,
+        isDefaultInfinite: b.isDefaultInfinite,
+        biteBonusHerbivore: b.biteBonusHerbivore,
+        biteBonusOmnivore: b.biteBonusOmnivore,
+        biteBonusCarnivore: b.biteBonusCarnivore,
+      })),
+    });
   });
 
   app.get('/api/shop/tackle', (_req, res) => {
-    res.json({ tackles: TACKLES });
+    res.json({
+      tackles: listRods().map((r) => ({
+        id: r.rodId,
+        name: r.name,
+        icon: '🎣',
+        price: r.priceGold,
+        escapeReduction: r.escapeReduction,
+        biteBonus: r.biteBonus,
+        subType: r.subType,
+        breakSizeM: r.breakSizeM,
+        breakMaxLandings: r.breakMaxLandings,
+        fitGray: r.fitGray,
+        fitGreen: r.fitGreen,
+        fitBlue: r.fitBlue,
+        fitPurple: r.fitPurple,
+        fitRed: r.fitRed,
+        fitOrange: r.fitOrange,
+        fitGold: r.fitGold,
+        fitStillBait: r.fitStillBait,
+        fitStreamLight: r.fitStreamLight,
+        fitLurePredator: r.fitLurePredator,
+        fitCastHeavy: r.fitCastHeavy,
+        fitGiantGame: r.fitGiantGame,
+      })),
+    });
+  });
+
+  app.get('/api/shop/vessels', (_req, res) => {
+    res.json({ vessels: listVessels() });
   });
 
   app.get('/api/player/gear', requireAuth, (req, res) => {
@@ -118,42 +166,11 @@ export function registerShopRoutes(
     if (!playerId) return;
     const gear = ensurePlayerGear(playerId);
     const profile = getPlayer(playerId)!;
-    res.json({ gear, coins: profile.coins });
+    res.json({ gear, coins: profile.coins, playerLevel: gearLevel(playerId) });
   });
 
   app.post('/api/shop/baits/buy', requireAuth, (req, res) => {
-    const playerId = requirePlayerId(req, res);
-    if (!playerId) return;
-    if (readIdempotent(req, res, playerId, 'buy-bait')) return;
-
-    const { baitId, quantity } = req.body as { baitId?: string; quantity?: number };
-    const bait = baitId ? getBait(baitId) : undefined;
-    if (!bait || bait.id === 'basic') {
-      shopError(res, 400, 'INVALID_ITEM', '无效的鱼饵');
-      return;
-    }
-    const qty = Number(quantity);
-    if (!Number.isFinite(qty) || qty <= 0 || qty > MAX_BUY_QUANTITY) {
-      shopError(res, 400, 'INVALID_QUANTITY', '购买数量无效');
-      return;
-    }
-
-    const totalCost = bait.price * qty;
-    const spend = deductCoins(playerId, totalCost);
-    if (!spend.ok) {
-      shopError(res, 400, spend.code, '金币不足');
-      return;
-    }
-
-    const gear = addBaitToInventory(playerId, bait.id as BaitId, qty);
-    const body = { ok: true, gear, coins: spend.coins, baitId: bait.id, quantity: qty };
-    writeIdempotent(req, playerId, 'buy-bait', 200, body);
-    recordFishingMetric('bait_buy', {
-      playerId,
-      payload: { baitId: bait.id, quantity: qty, cost: totalCost },
-    });
-    emitGearUpdated(io, playerId, gear);
-    res.json(body);
+    shopError(res, 400, 'INVALID_ITEM', '鱼饵无需进货，按钓鱼等级解锁，咬钩时按次扣金');
   });
 
   app.post('/api/shop/tackle/buy', requireAuth, (req, res) => {
@@ -161,31 +178,69 @@ export function registerShopRoutes(
     if (!playerId) return;
     if (readIdempotent(req, res, playerId, 'buy-tackle')) return;
 
-    const { tackleId } = req.body as { tackleId?: string };
-    const tackle = tackleId ? getTackle(tackleId) : undefined;
-    if (!tackle || tackle.id === 'basic') {
-      shopError(res, 400, 'INVALID_ITEM', '无效的渔具');
+    const { tackleId, rodId } = req.body as { tackleId?: string; rodId?: string };
+    const id = rodId || tackleId;
+    const rod = id ? getRodDef(id) : undefined;
+    if (!rod || rod.priceGold <= 0) {
+      shopError(res, 400, 'INVALID_ITEM', '无效的钓竿');
       return;
     }
 
     const gearBefore = ensurePlayerGear(playerId);
-    if (gearBefore.ownedTackles.includes(tackle.id as TackleId)) {
-      shopError(res, 400, 'ALREADY_OWNED', '已拥有该渔具');
+    if (gearBefore.ownedRods.includes(rod.rodId)) {
+      shopError(res, 400, 'ALREADY_OWNED', '已拥有该钓竿');
       return;
     }
 
-    const spend = deductCoins(playerId, tackle.price);
+    const spend = deductCoins(playerId, rod.priceGold);
     if (!spend.ok) {
       shopError(res, 400, spend.code, '金币不足');
       return;
     }
 
-    const gear = addOwnedTackle(playerId, tackle.id as TackleId);
-    const body = { ok: true, gear, coins: spend.coins, tackleId: tackle.id };
+    const gear = addOwnedRod(playerId, rod.rodId);
+    const body = { ok: true, gear, coins: spend.coins, tackleId: rod.rodId, rodId: rod.rodId };
     writeIdempotent(req, playerId, 'buy-tackle', 200, body);
-    recordFishingMetric('tackle_buy', {
+    recordFishingMetric('rod_buy', {
       playerId,
-      payload: { tackleId: tackle.id, cost: tackle.price },
+      payload: { rodId: rod.rodId, cost: rod.priceGold },
+    });
+    emitGearUpdated(io, playerId, gear);
+    res.json(body);
+  });
+
+  app.post('/api/shop/vessels/buy', requireAuth, (req, res) => {
+    const playerId = requirePlayerId(req, res);
+    if (!playerId) return;
+    if (readIdempotent(req, res, playerId, 'buy-vessel')) return;
+
+    const { vesselId } = req.body as { vesselId?: string };
+    const vessel = vesselId ? getVesselDef(vesselId) : undefined;
+    if (!vessel) {
+      shopError(res, 400, 'INVALID_ITEM', '无效的船具');
+      return;
+    }
+    const level = gearLevel(playerId);
+    if (level < vessel.unlockPlayerLevel) {
+      shopError(res, 400, 'INVALID_ITEM', `需要钓鱼等级 ${vessel.unlockPlayerLevel}`);
+      return;
+    }
+    const gearBefore = ensurePlayerGear(playerId);
+    if (gearBefore.ownedVessels.includes(vessel.vesselId)) {
+      shopError(res, 400, 'ALREADY_OWNED', '已拥有该船具');
+      return;
+    }
+    const spend = deductCoins(playerId, vessel.priceGold);
+    if (!spend.ok) {
+      shopError(res, 400, spend.code, '金币不足');
+      return;
+    }
+    const gear = addOwnedVessel(playerId, vessel.vesselId);
+    const body = { ok: true, gear, coins: spend.coins, vesselId: vessel.vesselId };
+    writeIdempotent(req, playerId, 'buy-vessel', 200, body);
+    recordFishingMetric('vessel_buy', {
+      playerId,
+      payload: { vesselId: vessel.vesselId, cost: vessel.priceGold },
     });
     emitGearUpdated(io, playerId, gear);
     res.json(body);
@@ -196,22 +251,12 @@ export function registerShopRoutes(
     if (!playerId) return;
 
     const { baitId } = req.body as { baitId?: string };
-    const bait = baitId ? getBait(baitId) : undefined;
-    if (!bait) {
-      shopError(res, 400, 'INVALID_ITEM', '无效的鱼饵');
+    if (!baitId || baitId !== BASIC_BAIT_ID) {
+      shopError(res, 400, 'INVALID_ITEM', '进阶饵在咬钩时自动选用，无需装备');
       return;
     }
 
-    const gearBefore = ensurePlayerGear(playerId);
-    if (bait.consumed) {
-      const count = gearBefore.baitInventory[bait.id] ?? 0;
-      if (count <= 0 && bait.id !== 'basic') {
-        shopError(res, 400, 'NOT_IN_INVENTORY', '背包中没有该鱼饵');
-        return;
-      }
-    }
-
-    const gear = equipBait(playerId, bait.id as BaitId);
+    const gear = equipBait(playerId, baitId);
     emitGearUpdated(io, playerId, gear);
     res.json({ ok: true, gear });
   });
@@ -220,20 +265,21 @@ export function registerShopRoutes(
     const playerId = requirePlayerId(req, res);
     if (!playerId) return;
 
-    const { tackleId } = req.body as { tackleId?: string };
-    const tackle = tackleId ? getTackle(tackleId) : undefined;
-    if (!tackle) {
-      shopError(res, 400, 'INVALID_ITEM', '无效的渔具');
+    const { tackleId, rodId } = req.body as { tackleId?: string; rodId?: string };
+    const id = rodId || tackleId;
+    const rod = id ? getRodDef(id) : undefined;
+    if (!rod) {
+      shopError(res, 400, 'INVALID_ITEM', '无效的钓竿');
       return;
     }
 
     const gearBefore = ensurePlayerGear(playerId);
-    if (!gearBefore.ownedTackles.includes(tackle.id as TackleId)) {
-      shopError(res, 400, 'NOT_IN_INVENTORY', '未拥有该渔具');
+    if (!gearBefore.ownedRods.includes(rod.rodId)) {
+      shopError(res, 400, 'NOT_IN_INVENTORY', '未拥有该钓竿');
       return;
     }
 
-    const gear = equipTackle(playerId, tackle.id as TackleId);
+    const gear = equipRod(playerId, rod.rodId);
     emitGearUpdated(io, playerId, gear);
     res.json({ ok: true, gear });
   });

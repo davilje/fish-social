@@ -11,6 +11,7 @@ import { listPondOccupancy } from './gameState.js';
 import { registerSocialRoutes } from './socialRoutes.js';
 import { registerShopRoutes } from './shop.js';
 import { registerAdminRoutes } from './admin.js';
+import { registerForbiddenPoliceRoutes } from './forbiddenPolice.js';
 import { runWithCorrelationId } from './fishingObservability.js';
 import { getPendingMetricsCount } from './fishingMetrics.js';
 import { getMetricsContent } from './metricsPrometheus.js';
@@ -279,6 +280,7 @@ export function createApp(
 
   registerSocialRoutes(app, io);
   registerShopRoutes(app, io);
+  registerForbiddenPoliceRoutes(app);
   registerAdminRoutes(app);
 
   return app;

@@ -39,6 +39,8 @@ namespace FishSocial.Desktop
 
         public bool Allows(NotificationKind kind)
         {
+            if (kind == NotificationKind.SystemWarning)
+                return true;
             if (!EnableNotifications || DoNotDisturb)
                 return false;
             switch (kind)

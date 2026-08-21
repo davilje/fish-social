@@ -12,6 +12,8 @@ import { startBotLoop } from './bots.js';
 import { getPondEcologySummary, tickAllPonds } from './pondEcology.js';
 import { getBiteCheckMs, scheduleRuntimeInterval, applyRuntimeConfigFromDb } from './runtimeConfig.js';
 import { processWaitingBiteTick, tickFishingPhases } from './fishingStateMachine.js';
+import { leavePond } from './pondSession.js';
+import { bindPoliceRuntime, tickPoliceRaids } from './forbiddenPolice.js';
 import { logStructuredEvent, shouldLogPerf, shouldLogFanoutInfo } from './fishingObservability.js';
 import { resolveSocketByUser } from './sessionRegistry.js';
 import {
@@ -37,6 +39,7 @@ let started = false;
 export function startLoops({ io, roomFanoutCount }: LoopDeps): void {
   if (started) return;
   started = true;
+  bindPoliceRuntime(io, leavePond);
 
   const phaseTimer = setInterval(() => {
     const startedAt = Date.now();
@@ -76,6 +79,7 @@ export function startLoops({ io, roomFanoutCount }: LoopDeps): void {
         });
       }
     }
+    tickPoliceRaids();
   }, 1000);
   stopFns.push(() => clearInterval(sessionTimer));
 

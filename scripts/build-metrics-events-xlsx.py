@@ -48,6 +48,12 @@ EVENTS = [
     ("D成长进度", "fishing_stopped_insufficient_gold", "metrics", "金币不足停钓", "playerId\npondId", '{"feePer2h":200}', "P0", "已实现", "playerProgress.ts"),
     ("D成长进度", "onboarding_completed", "metrics", "新手引导完成", "playerId", '{"pondId":"pond-novice"}', "P0", "已实现", "playerProgress.ts"),
     ("D成长进度", "pond_proficiency_capped", "metrics", "塘熟练度满/锁满停发塘XP", "playerId\npondId", '{"source":"catch"}', "P1", "已实现", "playerProgress.ts"),
+    ("D装备", "bait_use", "metrics", "咬钩使用进阶饵扣金", "playerId\nbaitId\ncost", '{"baitId":"bait-veg","cost":15}', "P0", "已实现", "gear.ts"),
+    ("D装备", "rod_buy", "metrics", "购买钓竿", "playerId\nrodId", '{"rodId":"rod-tai","cost":2500}', "P0", "已实现", "shop.ts"),
+    ("D装备", "rod_broke", "metrics", "超规格满N次销毁钓竿", "playerId\nrodId", '{"sizeM":0.5,"oversizeLandings":3}', "P0", "已实现", "gear.ts"),
+    ("D装备", "vessel_buy", "metrics", "购买船具（不可使用）", "playerId\nvesselId", '{"vesselId":"vessel-raft","cost":15000}', "P1", "已实现", "shop.ts"),
+    ("D风险", "forbidden_pond_fine", "metrics", "禁止塘巡警超时罚款+当日禁钓", "playerId\npondId", '{"charged":800,"coinsAfter":0}', "P0", "已实现", "forbiddenPolice.ts"),
+    ("D风险", "forbidden_pond_escaped", "metrics", "禁止塘巡警时限内离塘免罚，2h禁入", "playerId\npondId", '{"untilMs":0}', "P0", "已实现", "forbiddenPolice.ts"),
     ("E性能", "tick_fishing_phases_duration_ms", "聚合日志", "200ms tick 耗时", "durationMs", "{}", "P2", "已实现", "serverLoops.ts"),
     ("E性能", "bite_check_loop_duration_ms", "聚合日志", "咬钩循环耗时", "durationMs", "{}", "P2", "已实现", "serverLoops.ts"),
     ("E性能", "snapshot_build_duration_ms", "聚合日志", "buildSnapshot 耗时", "durationMs\npondId", "{}", "P2", "已实现", "gameState.ts"),
@@ -62,6 +68,8 @@ CAT_SHEETS = {
     "C状态机": "C-状态机",
     "D咬钩产出": "D-咬钩与产出",
     "D成长进度": "D-成长与进度",
+    "D装备": "D-装备",
+    "D风险": "D-风险事件",
     "E性能": "E-系统性能",
 }
 

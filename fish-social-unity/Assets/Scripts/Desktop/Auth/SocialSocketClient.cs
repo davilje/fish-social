@@ -28,6 +28,7 @@ namespace FishSocial.Desktop.Auth
         event Action<PostLikedDto> PostLikedReceived;
         event Action<PostCommentedDto> PostCommentedReceived;
         event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
+        event Action<PoliceRaidDto> PoliceRaidReceived;
         event Action<string> ErrorReceived;
 
         void Connect(string accessToken, Action<bool, string> onCompleted);
@@ -83,6 +84,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PostLikedDto> PostLikedReceived;
         public event Action<PostCommentedDto> PostCommentedReceived;
         public event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
+        public event Action<PoliceRaidDto> PoliceRaidReceived;
         public event Action<string> ErrorReceived;
 
         public SocketIoSocialSocketClient(string baseUrl)
@@ -354,6 +356,8 @@ namespace FishSocial.Desktop.Auth
                 PostCommentedReceived?.Invoke(JsonUtility.FromJson<PostCommentedDto>(payload));
             else if (eventName == "post_comment_deleted")
                 PostCommentDeletedReceived?.Invoke(JsonUtility.FromJson<PostCommentDeletedDto>(payload));
+            else if (eventName == "police_raid")
+                PoliceRaidReceived?.Invoke(JsonUtility.FromJson<PoliceRaidDto>(payload));
             else if (eventName == "error")
                 ErrorReceived?.Invoke(Unquote(payload));
         }
@@ -575,6 +579,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PostLikedDto> PostLikedReceived;
         public event Action<PostCommentedDto> PostCommentedReceived;
         public event Action<PostCommentDeletedDto> PostCommentDeletedReceived;
+        public event Action<PoliceRaidDto> PoliceRaidReceived;
         public event Action<string> ErrorReceived;
 
         public void Connect(string accessToken, Action<bool, string> onCompleted)

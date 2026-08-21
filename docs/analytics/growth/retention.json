@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-20T16:31:26.972Z",
+  "generatedAt": "2026-08-21T16:31:29.765Z",
   "timezone": "Asia/Shanghai",
-  "asOf": "2026-08-21",
+  "asOf": "2026-08-22",
   "humansOnly": true,
   "dns": [
     "d1",
@@ -18,42 +18,6 @@
   ],
   "minCohortDefault": 5,
   "cohorts": [
-    {
-      "cohortDate": "2026-05-23",
-      "cohortSize": 0,
-      "rates": {
-        "d1": {
-          "rate": null,
-          "status": "empty",
-          "targetDate": "2026-05-24"
-        },
-        "d3": {
-          "rate": null,
-          "status": "empty",
-          "targetDate": "2026-05-26"
-        },
-        "d7": {
-          "rate": null,
-          "status": "empty",
-          "targetDate": "2026-05-30"
-        },
-        "d10": {
-          "rate": null,
-          "status": "empty",
-          "targetDate": "2026-06-02"
-        },
-        "d14": {
-          "rate": null,
-          "status": "empty",
-          "targetDate": "2026-06-06"
-        },
-        "d30": {
-          "rate": null,
-          "status": "empty",
-          "targetDate": "2026-06-22"
-        }
-      }
-    },
     {
       "cohortDate": "2026-05-24",
       "cohortSize": 0,
@@ -2245,7 +2209,7 @@
         },
         "d30": {
           "rate": null,
-          "status": "not_due",
+          "status": "empty",
           "targetDate": "2026-08-22"
         }
       }
@@ -2816,7 +2780,7 @@
         },
         "d14": {
           "rate": null,
-          "status": "not_due",
+          "status": "empty",
           "targetDate": "2026-08-22"
         },
         "d30": {
@@ -2955,7 +2919,7 @@
         },
         "d10": {
           "rate": null,
-          "status": "not_due",
+          "status": "empty",
           "targetDate": "2026-08-22"
         },
         "d14": {
@@ -3058,7 +3022,7 @@
         },
         "d7": {
           "rate": null,
-          "status": "not_due",
+          "status": "empty",
           "targetDate": "2026-08-22"
         },
         "d10": {
@@ -3197,7 +3161,7 @@
         },
         "d3": {
           "rate": null,
-          "status": "not_due",
+          "status": "empty",
           "targetDate": "2026-08-22"
         },
         "d7": {
@@ -3257,17 +3221,47 @@
           "targetDate": "2026-09-19"
         }
       }
+    },
+    {
+      "cohortDate": "2026-08-21",
+      "cohortSize": 2,
+      "rates": {
+        "d1": {
+          "rate": 0,
+          "status": "ok",
+          "targetDate": "2026-08-22"
+        },
+        "d3": {
+          "rate": null,
+          "status": "not_due",
+          "targetDate": "2026-08-24"
+        },
+        "d7": {
+          "rate": null,
+          "status": "not_due",
+          "targetDate": "2026-08-28"
+        },
+        "d10": {
+          "rate": null,
+          "status": "not_due",
+          "targetDate": "2026-08-31"
+        },
+        "d14": {
+          "rate": null,
+          "status": "not_due",
+          "targetDate": "2026-09-04"
+        },
+        "d30": {
+          "rate": null,
+          "status": "not_due",
+          "targetDate": "2026-09-20"
+        }
+      }
     }
   ],
   "seriesByDn": {
     "d1": [
       {
-        "cohortDate": "2026-05-23",
-        "rate": null,
-        "cohortSize": 0,
-        "status": "empty"
-      },
-      {
         "cohortDate": "2026-05-24",
         "rate": null,
         "cohortSize": 0,
@@ -3800,15 +3794,15 @@
         "rate": null,
         "cohortSize": 0,
         "status": "empty"
+      },
+      {
+        "cohortDate": "2026-08-21",
+        "rate": 0,
+        "cohortSize": 2,
+        "status": "ok"
       }
     ],
     "d3": [
-      {
-        "cohortDate": "2026-05-23",
-        "rate": null,
-        "cohortSize": 0,
-        "status": "empty"
-      },
       {
         "cohortDate": "2026-05-24",
         "rate": null,
@@ -4335,23 +4329,23 @@
         "cohortDate": "2026-08-19",
         "rate": null,
         "cohortSize": 0,
-        "status": "not_due"
+        "status": "empty"
       },
       {
         "cohortDate": "2026-08-20",
         "rate": null,
         "cohortSize": 0,
+        "status": "not_due"
+      },
+      {
+        "cohortDate": "2026-08-21",
+        "rate": null,
+        "cohortSize": 2,
         "status": "not_due"
       }
     ],
     "d7": [
       {
-        "cohortDate": "2026-05-23",
-        "rate": null,
-        "cohortSize": 0,
-        "status": "empty"
-      },
-      {
         "cohortDate": "2026-05-24",
         "rate": null,
         "cohortSize": 0,
@@ -4853,7 +4847,7 @@
         "cohortDate": "2026-08-15",
         "rate": null,
         "cohortSize": 0,
-        "status": "not_due"
+        "status": "empty"
       },
       {
         "cohortDate": "2026-08-16",
@@ -4883,17 +4877,17 @@
         "cohortDate": "2026-08-20",
         "rate": null,
         "cohortSize": 0,
+        "status": "not_due"
+      },
+      {
+        "cohortDate": "2026-08-21",
+        "rate": null,
+        "cohortSize": 2,
         "status": "not_due"
       }
     ],
     "d10": [
       {
-        "cohortDate": "2026-05-23",
-        "rate": null,
-        "cohortSize": 0,
-        "status": "empty"
-      },
-      {
         "cohortDate": "2026-05-24",
         "rate": null,
         "cohortSize": 0,
@@ -5377,7 +5371,7 @@
         "cohortDate": "2026-08-12",
         "rate": null,
         "cohortSize": 0,
-        "status": "not_due"
+        "status": "empty"
       },
       {
         "cohortDate": "2026-08-13",
@@ -5425,17 +5419,17 @@
         "cohortDate": "2026-08-20",
         "rate": null,
         "cohortSize": 0,
+        "status": "not_due"
+      },
+      {
+        "cohortDate": "2026-08-21",
+        "rate": null,
+        "cohortSize": 2,
         "status": "not_due"
       }
     ],
     "d14": [
       {
-        "cohortDate": "2026-05-23",
-        "rate": null,
-        "cohortSize": 0,
-        "status": "empty"
-      },
-      {
         "cohortDate": "2026-05-24",
         "rate": null,
         "cohortSize": 0,
@@ -5895,7 +5889,7 @@
         "cohortDate": "2026-08-08",
         "rate": null,
         "cohortSize": 0,
-        "status": "not_due"
+        "status": "empty"
       },
       {
         "cohortDate": "2026-08-09",
@@ -5967,17 +5961,17 @@
         "cohortDate": "2026-08-20",
         "rate": null,
         "cohortSize": 0,
+        "status": "not_due"
+      },
+      {
+        "cohortDate": "2026-08-21",
+        "rate": null,
+        "cohortSize": 2,
         "status": "not_due"
       }
     ],
     "d30": [
       {
-        "cohortDate": "2026-05-23",
-        "rate": null,
-        "cohortSize": 0,
-        "status": "empty"
-      },
-      {
         "cohortDate": "2026-05-24",
         "rate": null,
         "cohortSize": 0,
@@ -6341,7 +6335,7 @@
         "cohortDate": "2026-07-23",
         "rate": null,
         "cohortSize": 0,
-        "status": "not_due"
+        "status": "empty"
       },
       {
         "cohortDate": "2026-07-24",
@@ -6509,6 +6503,12 @@
         "cohortDate": "2026-08-20",
         "rate": null,
         "cohortSize": 0,
+        "status": "not_due"
+      },
+      {
+        "cohortDate": "2026-08-21",
+        "rate": null,
+        "cohortSize": 2,
         "status": "not_due"
       }
     ]

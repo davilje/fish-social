@@ -5,6 +5,7 @@ namespace FishSocial.Desktop
         FishBite = 0,
         FriendInvite = 1,
         ConnectionError = 2,
+        SystemWarning = 3,
     }
 
     public readonly struct DesktopNotification

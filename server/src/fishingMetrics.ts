@@ -101,8 +101,12 @@ export type FishingMetricEvent =
   | 'onboarding_completed'
 
   | 'pond_proficiency_capped'
-
-
+  | 'bait_use'
+  | 'rod_buy'
+  | 'rod_broke'
+  | 'vessel_buy'
+  | 'forbidden_pond_fine'
+  | 'forbidden_pond_escaped';
 
 const IDEMPOTENT_EVENTS = new Set<FishingMetricEvent>(['catch_accept', 'pending_catch_accept']);
 

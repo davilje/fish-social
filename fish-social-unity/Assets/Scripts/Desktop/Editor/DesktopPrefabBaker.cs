@@ -194,6 +194,148 @@ namespace FishSocial.Desktop.Editor
             AssetDatabase.Refresh();
         }
 
+        public static void PopulatePanelSettingsPrefab()
+        {
+            PopulateNamedPanel("PanelSettings", EnsurePanelSettingsControls);
+        }
+
+        static void EnsurePanelSettingsControls(GameObject root)
+        {
+            var content = DesktopModalUi.FindDescendant(root.transform, "SettingsContent");
+            if (content == null)
+            {
+                Debug.LogError("[DesktopUI] PanelSettings.prefab 缺少 SettingsContent。");
+                return;
+            }
+
+            const float shift = 220f;
+            var windowFound = DesktopModalUi.FindDescendant(content, "窗口模式");
+            var windowRt = windowFound != null ? windowFound.GetComponent<RectTransform>() : null;
+
+            if (windowRt != null && windowRt.anchoredPosition.y > -200f)
+            {
+                for (var i = 0; i < content.childCount; i++)
+                {
+                    var child = content.GetChild(i) as RectTransform;
+                    if (child == null)
+                        continue;
+                    var p = child.anchoredPosition;
+                    child.anchoredPosition = new Vector2(p.x, p.y - shift);
+                }
+            }
+
+            var contentRt = content as RectTransform ?? content.GetComponent<RectTransform>();
+            if (contentRt != null && contentRt.sizeDelta.y < 980f)
+                contentRt.sizeDelta = new Vector2(contentRt.sizeDelta.x, 980f);
+
+            EnsureSettingsLabel(content, "服务器", "服务器", 20f, -16f, 400f, 28f, 20, Color.white, false);
+            EnsureSettingsLabel(
+                content, "当前服务器", "当前服务器：", 29f, -52f, -58f, 24f, 15,
+                new Color(0.85f, 0.9f, 0.93f, 1f), true);
+            EnsureSettingsInput(content, "服务器地址输入", "http://公网或局域网IP:3001", -84f);
+            EnsureSettingsButton(content, "保存服务器地址", 29f, -128f, 200f, DesktopModalUi.Button);
+            EnsureSettingsButton(content, "测试服务器连接", 241f, -128f, 200f, DesktopModalUi.Button);
+            var police = DesktopModalUi.FindDescendant(content, "一键出警（Debug）");
+            if (police != null)
+                UnityEngine.Object.DestroyImmediate(police.gameObject);
+            EnsureSettingsLabel(
+                content, "服务器连接状态",
+                "保存后请重启客户端；可用「测试服务器连接」检查 /health。",
+                29f, -172f, -58f, 40f, 14, new Color(0.75f, 0.82f, 0.88f, 1f), true);
+            EnsureSettingsButton(content, "重置新手引导", 29f, -220f, 280f, DesktopModalUi.Button);
+        }
+
+        static void EnsureSettingsLabel(
+            Transform content,
+            string name,
+            string text,
+            float x,
+            float y,
+            float width,
+            float height,
+            int fontSize,
+            Color color,
+            bool stretch)
+        {
+            var existing = DesktopModalUi.FindDescendant(content, name);
+            Text label;
+            RectTransform rt;
+            if (existing == null)
+            {
+                label = DesktopModalUi.Label(content, name, text, fontSize, TextAnchor.MiddleLeft);
+                rt = label.rectTransform;
+            }
+            else
+            {
+                label = existing.GetComponent<Text>();
+                rt = existing.GetComponent<RectTransform>();
+            }
+
+            if (label != null)
+            {
+                label.text = text;
+                label.fontSize = fontSize;
+                label.color = color;
+                label.alignment = TextAnchor.MiddleLeft;
+            }
+
+            PlaceSettingsRect(rt, x, y, width, height, stretch);
+        }
+
+        static void EnsureSettingsButton(
+            Transform content, string name, float x, float y, float width, Color color)
+        {
+            var existing = DesktopModalUi.FindDescendant(content, name);
+            RectTransform rt;
+            if (existing == null)
+            {
+                var button = DesktopModalUi.MakeButton(content, name, name, () => { });
+                button.onClick.RemoveAllListeners();
+                rt = button.GetComponent<RectTransform>();
+                var image = button.GetComponent<Image>();
+                if (image != null)
+                    image.color = color;
+            }
+            else
+            {
+                rt = existing.GetComponent<RectTransform>();
+                var image = existing.GetComponent<Image>();
+                if (image != null)
+                    image.color = color;
+            }
+
+            PlaceSettingsRect(rt, x, y, width, 36f, false);
+        }
+
+        static void EnsureSettingsInput(Transform content, string name, string placeholder, float y)
+        {
+            var existing = DesktopModalUi.FindDescendant(content, name);
+            RectTransform rt;
+            if (existing == null)
+            {
+                var input = DesktopModalUi.MakeInput(content, name, placeholder, 256);
+                rt = input.GetComponent<RectTransform>();
+            }
+            else
+            {
+                rt = existing.GetComponent<RectTransform>();
+            }
+
+            PlaceSettingsRect(rt, 29f, y, -58f, 36f, true);
+        }
+
+        static void PlaceSettingsRect(
+            RectTransform rt, float x, float y, float width, float height, bool stretch)
+        {
+            if (rt == null)
+                return;
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = stretch ? new Vector2(1f, 1f) : new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(x, y);
+            rt.sizeDelta = new Vector2(width, height);
+        }
+
         static void GenerateNamedPanel(string outputName, System.Type componentType, string createdMessage)
         {
             var path = Folder + "/" + outputName + ".prefab";
