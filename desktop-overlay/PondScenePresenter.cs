@@ -87,6 +87,21 @@ namespace FishSocialOverlay
             return null;
         }
 
+        public FrameworkElement TryResolveOwnActor()
+        {
+            return _ownActor;
+        }
+
+        public FrameworkElement TryResolveSpot(string spotId)
+        {
+            if (string.IsNullOrEmpty(spotId))
+                return null;
+            Ellipse marker;
+            if (_spotVisuals.TryGetValue(spotId, out marker))
+                return marker;
+            return null;
+        }
+
         public void Apply(IpcMessage message)
         {
             if (message == null)

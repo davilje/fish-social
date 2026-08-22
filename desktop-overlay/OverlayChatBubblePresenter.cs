@@ -64,9 +64,57 @@ namespace FishSocialOverlay
             }
         }
 
+        /// <summary>
+        /// Private observation bubble (FEAT-SPOT-01). Not public chat history.
+        /// Anchors to own actor when actorKey is empty.
+        /// </summary>
+        public void ProcessObservation(OverlayChatDto chat, FrameworkElement ownActor)
+        {
+            if (chat == null || string.IsNullOrEmpty(chat.MessageId) ||
+                string.IsNullOrWhiteSpace(chat.Text))
+                return;
+
+            var actor = ownActor;
+            if (actor == null)
+            {
+                var key = !string.IsNullOrEmpty(chat.UserId)
+                    ? chat.UserId
+                    : chat.PlayerId ?? string.Empty;
+                actor = _resolveActor(key);
+            }
+            if (actor == null)
+                return;
+
+            if (!_seenMessageIds.Add(chat.MessageId))
+            {
+                if (_activeByPlayer.ContainsKey(ObservationKey))
+                {
+                    AttachObservationActor(actor);
+                    FollowObservation();
+                }
+                return;
+            }
+
+            ShowObservationBubble(chat, actor);
+        }
+
+        const string ObservationKey = "__observation__";
+        FrameworkElement _observationActor;
+
+        public void ClearObservation()
+        {
+            DetachObservationActor();
+            if (_activeByPlayer.TryGetValue(ObservationKey, out var bubble))
+            {
+                _layer.Children.Remove(bubble);
+                _activeByPlayer.Remove(ObservationKey);
+            }
+        }
+
         public void HideAll()
         {
             DetachGuideActor();
+            DetachObservationActor();
             _guideText = string.Empty;
             _activeByPlayer.Clear();
             _layer.Children.Clear();
@@ -181,6 +229,86 @@ namespace FishSocialOverlay
             PositionBubble(bubble, _guideActor);
         }
 
+        void AttachObservationActor(FrameworkElement actor)
+        {
+            DetachObservationActor();
+            _observationActor = actor;
+            if (_observationActor != null)
+                _observationActor.LayoutUpdated += OnObservationLayoutUpdated;
+        }
+
+        void DetachObservationActor()
+        {
+            if (_observationActor != null)
+                _observationActor.LayoutUpdated -= OnObservationLayoutUpdated;
+            _observationActor = null;
+        }
+
+        void OnObservationLayoutUpdated(object sender, EventArgs e)
+        {
+            FollowObservationImmediate();
+        }
+
+        void FollowObservation()
+        {
+            FollowObservationImmediate();
+            var actor = _observationActor;
+            if (actor == null)
+                return;
+            actor.Dispatcher.BeginInvoke(
+                new Action(FollowObservationImmediate),
+                DispatcherPriority.Loaded);
+        }
+
+        void FollowObservationImmediate()
+        {
+            if (_observationActor == null)
+                return;
+            if (!_activeByPlayer.TryGetValue(ObservationKey, out var bubble))
+                return;
+            PositionBubble(bubble, _observationActor);
+        }
+
+        void ShowObservationBubble(OverlayChatDto chat, FrameworkElement actor)
+        {
+            ClearObservation();
+
+            var text = string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim();
+            if (text.Length > 80)
+                text = text.Substring(0, 77) + "…";
+
+            var label = new TextBlock
+            {
+                Text = text,
+                Foreground = Brushes.White,
+                FontSize = 11,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                MaxWidth = BubbleMaxWidth,
+            };
+
+            var bubble = new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(8, 5, 8, 5),
+                Child = label,
+                Opacity = 0,
+                RenderTransformOrigin = new Point(0.5, 1.0),
+                RenderTransform = new ScaleTransform(0.5, 0.5),
+                IsHitTestVisible = false,
+            };
+
+            _layer.Children.Add(bubble);
+            _activeByPlayer[ObservationKey] = bubble;
+            AttachObservationActor(actor);
+            FollowObservation();
+            Panel.SetZIndex(bubble, 10);
+
+            RunPopIn(bubble);
+            ScheduleFadeOut(bubble, ObservationKey);
+        }
+
         void ShowBubble(OverlayChatDto chat)
         {
             var actorKey = !string.IsNullOrEmpty(chat.UserId)
@@ -193,10 +321,15 @@ namespace FishSocialOverlay
             if (actor == null)
                 return;
 
-            if (_activeByPlayer.TryGetValue(actorKey, out var previous))
+            ShowBubbleForActor(chat, actor, actorKey);
+        }
+
+        void ShowBubbleForActor(OverlayChatDto chat, FrameworkElement actor, string bubbleKey)
+        {
+            if (_activeByPlayer.TryGetValue(bubbleKey, out var previous))
             {
                 _layer.Children.Remove(previous);
-                _activeByPlayer.Remove(actorKey);
+                _activeByPlayer.Remove(bubbleKey);
             }
 
             var text = string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim();
@@ -226,12 +359,12 @@ namespace FishSocialOverlay
             };
 
             _layer.Children.Add(bubble);
-            _activeByPlayer[actorKey] = bubble;
+            _activeByPlayer[bubbleKey] = bubble;
             PositionBubble(bubble, actor);
             Panel.SetZIndex(bubble, 10);
 
             RunPopIn(bubble);
-            ScheduleFadeOut(bubble, actorKey);
+            ScheduleFadeOut(bubble, bubbleKey);
         }
 
         void PositionBubble(Border bubble, FrameworkElement actor)
@@ -332,7 +465,11 @@ namespace FishSocialOverlay
                     _layer.Children.Remove(bubble);
                     if (_activeByPlayer.TryGetValue(playerId, out var active) &&
                         ReferenceEquals(active, bubble))
+                    {
                         _activeByPlayer.Remove(playerId);
+                        if (string.Equals(playerId, ObservationKey, StringComparison.Ordinal))
+                            DetachObservationActor();
+                    }
                 };
                 bubble.BeginAnimation(UIElement.OpacityProperty, fade);
             };

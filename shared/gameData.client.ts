@@ -96,6 +96,14 @@ export function getPlayerLevelDef(level: number): PlayerLevelDef | undefined {
   return playerLevels.get(level);
 }
 
+export function getMaxPlayerLevel(): number {
+  let max = 1;
+  for (const row of playerLevelsList) {
+    if (row.level > max) max = row.level;
+  }
+  return max;
+}
+
 export function getPondLevelDef(level: number): PondLevelDef | undefined {
   return pondLevels.get(level);
 }

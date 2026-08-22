@@ -53,7 +53,11 @@ export function bindPoliceRuntime(
 }
 
 export function isPoliceDebugEnabled(): boolean {
-  return process.env.NODE_ENV !== 'production' || process.env.POLICE_RAID_DEBUG === '1';
+  return (
+    process.env.NODE_ENV !== 'production' ||
+    process.env.POLICE_RAID_DEBUG === '1' ||
+    process.env.GAMEPLAY_DEBUG === '1'
+  );
 }
 
 function pondDisplayName(pondId: string): string {
@@ -243,19 +247,23 @@ export function tickPoliceRaids(now: number = Date.now()): void {
   resolveExpiredRaids(now);
 }
 
-export function forceTriggerPoliceRaid(
+export function findLivePondUser(
   playerId: string,
-): { ok: true; message: string } | { ok: false; error: string } {
-  let found: { pondId: string; user: PondUser } | null = null;
+): { pondId: string; user: PondUser } | null {
   for (const pond of PONDS) {
     for (const user of listUsersInPond(pond.id)) {
       if (user.playerId === playerId && !user.isBot) {
-        found = { pondId: pond.id, user };
-        break;
+        return { pondId: pond.id, user };
       }
     }
-    if (found) break;
   }
+  return null;
+}
+
+export function forceTriggerPoliceRaid(
+  playerId: string,
+): { ok: true; message: string } | { ok: false; error: string } {
+  const found = findLivePondUser(playerId);
   if (!found) return { ok: false, error: '当前不在鱼塘' };
   const def = getGamePondDef(found.pondId);
   if (def?.pondCategory !== 'forbidden') return { ok: false, error: '当前不是禁止钓鱼塘' };

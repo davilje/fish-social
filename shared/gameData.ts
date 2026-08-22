@@ -158,6 +158,14 @@ export function getPlayerLevelDef(level: number): PlayerLevelDef | undefined {
   return ensureLoaded().playerLevels.get(level);
 }
 
+export function getMaxPlayerLevel(): number {
+  let max = 1;
+  for (const level of ensureLoaded().playerLevels.keys()) {
+    if (level > max) max = level;
+  }
+  return max;
+}
+
 export function getPondLevelDef(level: number): PondLevelDef | undefined {
   return ensureLoaded().pondLevels.get(level);
 }

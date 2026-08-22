@@ -256,6 +256,7 @@ namespace FishSocialOverlay
                 _scene?.Apply(message);
                 ApplyFishingControls(message);
                 ApplyPondChat(message);
+                ApplyObservation(message);
                 ApplyGuideTip(message);
                 ApplyFeatureNavLock(message);
                 ApplyOverlayPrompt(message);
@@ -322,6 +323,43 @@ namespace FishSocialOverlay
             SendCommand("debug_police_raid");
         }
 
+        void GameplayDebug_OnClick(object sender, RoutedEventArgs e)
+        {
+            var open = GameplayDebugPanel.Visibility != Visibility.Visible;
+            GameplayDebugPanel.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        void GameplayDebugLevelUp_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("level_up");
+        void GameplayDebugLevelMax_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("level_max");
+        void GameplayDebugPondUp_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("pond_level_up");
+        void GameplayDebugPondMax_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("pond_level_max");
+        void GameplayDebugGold_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("add_gold");
+        void GameplayDebugFish_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("grant_fish");
+        void GameplayDebugFee_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("advance_fee_2h");
+
+        void SendGameplayDebug(string action)
+        {
+            ErrorText.Text = "正在执行 Debug…";
+            var commandId = Interlocked.Increment(ref _nextCommandId);
+            var sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            Send(new IpcMessage
+            {
+                Type = "command",
+                Version = 1,
+                Command = "gameplay_debug",
+                Text = action,
+                CommandId = commandId,
+                SentAtMs = sentAtMs,
+            });
+        }
+
         void ApplyFishingControls(IpcMessage message)
         {
             _canStartFishing = HasAction(message, "start_fishing");
@@ -333,6 +371,12 @@ namespace FishSocialOverlay
             PoliceDebugButton.Visibility = canPoliceDebug
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+            var canGameplayDebug = HasAction(message, "gameplay_debug");
+            GameplayDebugButton.Visibility = canGameplayDebug
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            if (!canGameplayDebug)
+                GameplayDebugPanel.Visibility = Visibility.Collapsed;
 
             if (_canStopFishing)
             {
@@ -591,6 +635,20 @@ namespace FishSocialOverlay
                 CommandId = commandId,
                 SentAtMs = sentAtMs,
             });
+        }
+
+        void ApplyObservation(IpcMessage message)
+        {
+            if (message?.Observation == null ||
+                string.IsNullOrWhiteSpace(message.Observation.Text))
+            {
+                _chatBubbles?.ClearObservation();
+                return;
+            }
+            var actor = _scene?.TryResolveActor(message.OwnUserId)
+                ?? _scene?.TryResolveActor(message.OwnPlayerId)
+                ?? _scene?.TryResolveOwnActor();
+            _chatBubbles?.ProcessObservation(message.Observation, actor);
         }
 
         void ApplyPondChat(IpcMessage message)

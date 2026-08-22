@@ -212,6 +212,9 @@ namespace FishSocialOverlay
         [DataMember(Name = "recentChats")]
         public OverlayChatDto[] RecentChats { get; set; }
 
+        [DataMember(Name = "observation")]
+        public OverlayChatDto Observation { get; set; }
+
         [DataMember(Name = "command")]
         public string Command { get; set; }
 

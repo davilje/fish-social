@@ -13,7 +13,10 @@ namespace FishSocial.Desktop
     /// </summary>
     public static class OverlayPondStateBuilder
     {
-        public static void Fill(NativeOverlayStateDto dto, SocialPondSessionController pond)
+        public static void Fill(
+            NativeOverlayStateDto dto,
+            SocialPondSessionController pond,
+            FishingProgressDto progress = null)
         {
             if (dto == null)
                 return;
@@ -45,6 +48,13 @@ namespace FishSocial.Desktop
             dto.hasPendingCatch = pond != null && pond.HasPendingCatch;
             dto.availableActions = MapAvailableActions(pond);
             dto.guideTip = ResolvePoliceGuideTip(pond);
+            if (pond == null || pond.State != SocialSocketState.Connected)
+            {
+                SpotObservationController.Clear();
+                dto.observation = null;
+            }
+            else
+                dto.observation = ResolveObservation(dto.pondId, dto.ownSpotId, progress);
             dto.lockFeatureNav = false;
             dto.overlayPromptKind = string.Empty;
             dto.overlayPromptTitle = string.Empty;
@@ -55,10 +65,12 @@ namespace FishSocial.Desktop
 
         static string[] MapAvailableActions(SocialPondSessionController pond)
         {
-            if (pond == null || pond.State != SocialSocketState.Connected)
-                return new string[0];
-
             var actions = new System.Collections.Generic.List<string>();
+            if (GameplayDebugGate.IsClientEnabled())
+                actions.Add("gameplay_debug");
+            if (pond == null || pond.State != SocialSocketState.Connected)
+                return actions.ToArray();
+
             var hasSpot = !string.IsNullOrEmpty(pond.CurrentUser?.spotId);
             if (!hasSpot)
                 actions.Add("take_spot");
@@ -75,6 +87,19 @@ namespace FishSocial.Desktop
             if (ShowPoliceDebug(pond.CurrentPondId))
                 actions.Add("debug_police_raid");
             return actions.ToArray();
+        }
+
+        static NativeOverlayChatDto ResolveObservation(
+            string pondId, string ownSpotId, FishingProgressDto progress)
+        {
+            var onboarding = DesktopOnboardingController.Instance;
+            if (onboarding != null && onboarding.IsOnboardingActive)
+            {
+                SpotObservationController.Clear();
+                return null;
+            }
+
+            return SpotObservationController.Resolve(pondId, ownSpotId, progress);
         }
 
         static bool ShowPoliceDebug(string pondId)

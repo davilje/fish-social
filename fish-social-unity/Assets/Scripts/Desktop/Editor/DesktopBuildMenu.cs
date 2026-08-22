@@ -10,22 +10,35 @@ namespace FishSocial.Desktop.Editor
     public static class DesktopBuildMenu
     {
         const string ScenePath = "Assets/Scenes/DesktopMain.unity";
-        const string OutputDir = "Builds/Windows64";
+        const string ReleaseOutputDir = "Builds/Windows64";
+        const string DebugOutputDir = "Builds/Windows64-Debug";
         const string SteamAppIdFile = "steam_appid.txt";
         const string ServerJsonExampleFile = "server.json.example";
         const string OverlayProjectPath = "../desktop-overlay/FishSocialOverlay.csproj";
         const string OverlayOutputDir = "FishSocialOverlay";
 
-        [MenuItem("Fish Social/Build Windows Development Player")]
+        [MenuItem("Fish Social/一键打包 Debug 包", false, 1)]
         public static void BuildWindowsDevelopment()
         {
             BuildWindowsPlayer(true, true);
         }
 
-        [MenuItem("Fish Social/Build Windows Release + Native Overlay")]
+        [MenuItem("Fish Social/一键打包 Release 包", false, 2)]
         public static void BuildWindowsWithNativeOverlay()
         {
             BuildWindowsPlayer(true, false);
+        }
+
+        [MenuItem("Fish Social/Build Windows Development Player", false, 21)]
+        public static void BuildWindowsDevelopmentAlias()
+        {
+            BuildWindowsDevelopment();
+        }
+
+        [MenuItem("Fish Social/Build Windows Release + Native Overlay", false, 22)]
+        public static void BuildWindowsReleaseAlias()
+        {
+            BuildWindowsWithNativeOverlay();
         }
 
         static void BuildWindowsPlayer(bool includeNativeOverlay, bool development)
@@ -40,7 +53,8 @@ namespace FishSocial.Desktop.Editor
 
                 EnsureSceneInBuildSettings();
                 var projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-                var outputDirectory = Path.Combine(projectRoot, OutputDir);
+                var outputDirectory = Path.Combine(
+                    projectRoot, development ? DebugOutputDir : ReleaseOutputDir);
                 Directory.CreateDirectory(outputDirectory);
                 var output = Path.Combine(outputDirectory, "FishSocialDesktop.exe");
 
@@ -105,15 +119,17 @@ namespace FishSocial.Desktop.Editor
                     !PublishNativeOverlay(projectRoot, outputDirectory))
                     return;
 
-                Debug.Log("[Build] Windows " + (development ? "Development" : "Release") +
+                Debug.Log("[Build] Windows " + (development ? "Debug" : "Release") +
                           " Build OK → " + output);
                 var smoke = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Docs", "STEAM-DESKTOP-04-smoke.md"));
                 Debug.Log("[Build] Smoke checklist: " + smoke);
                 if (!Application.isBatchMode)
                 {
+                    var kind = development
+                        ? "Debug 包（Development + Overlay，含玩法 Debug 菜单）"
+                        : "Release 包（不含玩法 Debug 入口）";
                     EditorUtility.DisplayDialog("Fish Social 构建完成",
-                        (development ? "Windows Development Build" : "Windows Release Build") +
-                        " 已生成：\n" + output, "确定");
+                        kind + " 已生成：\n" + output, "确定");
                 }
             }
             catch (Exception error)

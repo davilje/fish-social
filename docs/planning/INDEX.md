@@ -44,7 +44,8 @@
 | [钓具与鱼饵配置.md](./specs/钓具与鱼饵配置.md) | **已实现** | FEAT-GEAR-01：竿弱加成与断竿买新、饵按次扣金、船仅商店 |
 | [Steam桌面端-08A2世界地图分区与进塘扣费.md](./specs/Steam桌面端-08A2世界地图分区与进塘扣费.md) | **已实现** | STEAM-DESKTOP-08A2：六区锁态、巨物暂闭、进塘扣费确认 |
 | [禁止钓鱼塘巡警事件.md](./specs/禁止钓鱼塘巡警事件.md) | **已实现** | FEAT-RISK-01：巡警气泡 10s、免罚短禁/超时罚款日禁 |
-| [钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md) | **已确认** | FEAT-SPOT-01：Overlay 点位环境线索泡（薄） |
+| [钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md) | **已实现** | FEAT-SPOT-01：坐席后聊天泡；表驱动随机；habitat/activity |
+| [Steam桌面端-玩法Debug菜单.md](./specs/Steam桌面端-玩法Debug菜单.md) | **已实现** | STEAM-DESKTOP-12：开发版玩法 Debug 菜单（升级/出警/+2h 等） |
 | [v0.2.4-开发交接.md](./specs/v0.2.4-开发交接.md) | **已确认** | Debug 合并面板 + 商店 §8.2 |
 
 | [Unity移植-分阶段需求清单.md](./specs/Unity移植-分阶段需求清单.md) | **已定稿** | **UNITY-EPIC**：Unity 客户端 P0～P5 产品规划、阶段出口与验收 |

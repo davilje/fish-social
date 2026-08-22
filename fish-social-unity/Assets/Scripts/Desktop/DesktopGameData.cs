@@ -112,9 +112,34 @@ namespace FishSocial.Desktop
             public bool enabledUse;
         }
 
+        [Serializable]
+        public sealed class SpotClueTextDef
+        {
+            public string clueId;
+            public string clueType;
+            public string clueText;
+            public int weight = 1;
+            public int minPlayerLevel;
+            public int minPondLevel;
+            public string pondCategory;
+            public string spotTag;
+            public string speciesHint;
+            public bool enabled = true;
+        }
+
+        [Serializable]
+        public sealed class SpotTagDef
+        {
+            public string pondId;
+            public string spotId;
+            public string tags;
+        }
+
         sealed class RodArray { public RodDef[] items; }
         sealed class BaitArray { public BaitDef[] items; }
         sealed class VesselArray { public VesselDef[] items; }
+        sealed class SpotClueTextArray { public SpotClueTextDef[] items; }
+        sealed class SpotTagArray { public SpotTagDef[] items; }
 
         static bool _loaded;
         static PondDef[] _ponds = new PondDef[0];
@@ -123,6 +148,8 @@ namespace FishSocial.Desktop
         static RodDef[] _rods = new RodDef[0];
         static BaitDef[] _baits = new BaitDef[0];
         static VesselDef[] _vessels = new VesselDef[0];
+        static SpotClueTextDef[] _spotClueTexts = new SpotClueTextDef[0];
+        static SpotTagDef[] _spotTags = new SpotTagDef[0];
         static float _sizeExp = 1.15f;
 
         public static PondDef[] Ponds
@@ -145,6 +172,24 @@ namespace FishSocial.Desktop
                     return _ponds[i];
             }
             return null;
+        }
+
+        public static SpotClueTextDef[] SpotClueTexts
+        {
+            get
+            {
+                EnsureLoaded();
+                return _spotClueTexts;
+            }
+        }
+
+        public static SpotTagDef[] SpotTags
+        {
+            get
+            {
+                EnsureLoaded();
+                return _spotTags;
+            }
         }
 
         public static string CategoryLabel(string category)
@@ -332,6 +377,12 @@ namespace FishSocial.Desktop
                 wrap => wrap != null ? wrap.items : null);
             _vessels = ParseArray<VesselArray, VesselDef>(
                 Resources.Load<TextAsset>("GameData/vessels"),
+                wrap => wrap != null ? wrap.items : null);
+            _spotClueTexts = ParseArray<SpotClueTextArray, SpotClueTextDef>(
+                Resources.Load<TextAsset>("GameData/spot_clue_texts"),
+                wrap => wrap != null ? wrap.items : null);
+            _spotTags = ParseArray<SpotTagArray, SpotTagDef>(
+                Resources.Load<TextAsset>("GameData/spot_tags"),
                 wrap => wrap != null ? wrap.items : null);
         }
 

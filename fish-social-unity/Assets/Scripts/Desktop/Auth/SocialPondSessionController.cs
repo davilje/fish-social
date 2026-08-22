@@ -54,6 +54,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> UserUpdated;
         public event Action UsersChanged;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action CatchAccepted;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
         public event Action<CodexUnlockDto> CodexUnlocked;
@@ -218,7 +219,10 @@ namespace FishSocial.Desktop.Auth
             _socket?.AcceptCatch(_latestCatch.catchId, (ok, message) =>
             {
                 if (ok)
+                {
                     _latestCatch = null;
+                    CatchAccepted?.Invoke();
+                }
                 onCompleted?.Invoke(ok, message);
             });
         }
@@ -585,6 +589,11 @@ namespace FishSocial.Desktop.Auth
         {
             CurrentInventory = items ?? new FishInventoryItemDto[0];
             InventoryUpdated?.Invoke(CurrentInventory);
+        }
+
+        public void ReplaceInventory(FishInventoryItemDto[] items)
+        {
+            OnInventoryUpdated(items);
         }
 
         void OnChatMessage(ChatMessageDto message)

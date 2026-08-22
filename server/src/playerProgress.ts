@@ -458,3 +458,23 @@ export function getProgressPublicView(playerId: string) {
     needsFeeToContinue: fee.needsFeeToContinue,
   };
 }
+
+export function setPlayerLevelForDebug(playerId: string, level: number): PlayerFishingProgress {
+  const progress = ensurePlayerProgress(playerId);
+  progress.level = Math.max(1, level);
+  progress.xp = 0;
+  savePlayerProgress(progress);
+  return progress;
+}
+
+export function setPondProficiencyLevelForDebug(
+  playerId: string,
+  pondId: string,
+  level: number,
+): PondProficiencyRow {
+  const row = getPondProficiency(playerId, pondId);
+  row.level = Math.max(1, level);
+  row.xp = 0;
+  savePondProficiency(playerId, row);
+  return row;
+}

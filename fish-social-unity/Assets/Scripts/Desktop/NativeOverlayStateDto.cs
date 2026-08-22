@@ -38,6 +38,7 @@ namespace FishSocial.Desktop
         public NativeOverlaySpotDto[] spots = new NativeOverlaySpotDto[0];
         public NativeOverlayActorDto[] users = new NativeOverlayActorDto[0];
         public NativeOverlayChatDto[] recentChats = new NativeOverlayChatDto[0];
+        public NativeOverlayChatDto observation;
     }
 
     [Serializable]

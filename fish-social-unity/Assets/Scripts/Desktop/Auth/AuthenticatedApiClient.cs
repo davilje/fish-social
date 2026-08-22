@@ -60,6 +60,7 @@ namespace FishSocial.Desktop.Auth
         IEnumerator CompleteOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
         IEnumerator ResetOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
         IEnumerator TriggerDebugPoliceRaid(Action<bool, string> onCompleted);
+        IEnumerator PostGameplayDebug(string action, Action<bool, string> onCompleted);
     }
 
     /// <summary>
@@ -589,6 +590,32 @@ namespace FishSocial.Desktop.Auth
             onCompleted?.Invoke(ok, error);
         }
 
+        public IEnumerator PostGameplayDebug(string action, Action<bool, string> onCompleted)
+        {
+            string error = null;
+            var ok = false;
+            var body = "{\"action\":" + Quote(action ?? "") + "}";
+            yield return PostJson("/api/debug/gameplay", body,
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (!success)
+                        return;
+                    GameplayDebugResponse parsed = null;
+                    try
+                    {
+                        parsed = JsonUtility.FromJson<GameplayDebugResponse>(json);
+                    }
+                    catch
+                    {
+                    }
+                    if (parsed != null && !string.IsNullOrEmpty(parsed.message))
+                        error = parsed.message;
+                });
+            onCompleted?.Invoke(ok, error);
+        }
+
         public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
         {
             ShopGearDto gear = null;
@@ -909,14 +936,6 @@ namespace FishSocial.Desktop.Auth
 
         static string ReadError(UnityWebRequest request)
         {
-            if (request.responseCode == 401 || request.responseCode == 403)
-                return "服务端拒绝当前会话（" + request.responseCode + "），请重新登录。";
-            if (request.result == UnityWebRequest.Result.ConnectionError ||
-                request.result == UnityWebRequest.Result.DataProcessingError)
-                return "无法连接 Fish Social 服务，请检查网络后重试。";
-            if (request.responseCode == 0)
-                return "请求超时或服务不可达，请稍后重试。";
-
             ApiErrorResponse parsed = null;
             try
             {
@@ -929,6 +948,17 @@ namespace FishSocial.Desktop.Auth
 
             if (parsed != null && !string.IsNullOrEmpty(parsed.error))
                 return parsed.error;
+
+            if (request.responseCode == 404)
+                return "服务端没有该接口（HTTP 404）。请重启 Node 服务后再试。";
+            if (request.responseCode == 401 || request.responseCode == 403)
+                return "服务端拒绝当前会话（" + request.responseCode + "），请重新登录。";
+            if (request.result == UnityWebRequest.Result.ConnectionError ||
+                request.result == UnityWebRequest.Result.DataProcessingError)
+                return "无法连接 Fish Social 服务，请检查网络后重试。";
+            if (request.responseCode == 0)
+                return "请求超时或服务不可达，请稍后重试。";
+
             return "请求失败（HTTP " + request.responseCode + "）。";
         }
 
@@ -1220,6 +1250,7 @@ namespace FishSocial.Desktop.Auth
             public string periodKey;
         }
         [Serializable] sealed class ProgressEnvelope { public FishingProgressDto progress; }
+        [Serializable] sealed class GameplayDebugResponse { public bool ok; public string message; public string error; public string action; }
         #pragma warning restore 0649
     }
 }

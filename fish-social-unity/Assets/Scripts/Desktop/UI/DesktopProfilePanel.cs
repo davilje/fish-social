@@ -50,13 +50,15 @@ namespace FishSocial.Desktop
         public void ShowOtherPlayer(string playerId)
         {
             _viewingOtherPlayerId = playerId ?? string.Empty;
-            Refresh();
+            if (isActiveAndEnabled)
+                Refresh();
         }
 
         public void ShowSelfProfile()
         {
             _viewingOtherPlayerId = null;
-            Refresh();
+            if (isActiveAndEnabled)
+                Refresh();
         }
 
         public void OnClosed()
@@ -103,6 +105,8 @@ namespace FishSocial.Desktop
 
         void Refresh()
         {
+            if (!isActiveAndEnabled)
+                return;
             StopLoad();
             _loadRoutine = StartCoroutine(LoadRoutine());
         }
@@ -257,6 +261,8 @@ namespace FishSocial.Desktop
             }
             if (_avatarRoutine != null)
                 StopCoroutine(_avatarRoutine);
+            if (!isActiveAndEnabled)
+                return;
             _avatarRoutine = StartCoroutine(LoadAvatarRoutine(profile));
         }
 

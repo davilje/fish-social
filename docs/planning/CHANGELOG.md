@@ -1,5 +1,47 @@
 # 策划文档变更记录
 
+### [feat-spot-01-accepted] - 2026-08-22
+
+- **FEAT-SPOT-01** 用户验收通过，状态改为 **已实现**（设计 2026-08-21 / 完成 2026-08-22）。
+- 交付：坐席后 09C 私有观察泡；`spot_clue_texts` + `spot_tags` 表加权随机 habitat/activity；换点重抽；无点位常驻字；换座泡跟随宠物定位。
+- 自检：`npm run verify:feat-spot-01`
+- 规格：[钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md)
+
+### [steam-desktop-12-accepted] - 2026-08-22
+
+- **STEAM-DESKTOP-12** 用户验收通过，状态改为 **已实现**（设计 2026-08-22 / 完成 2026-08-22）。
+- 交付：Overlay「Debug」+ Unity F8；`POST /api/debug/gameplay`（升级/满级/塘熟练度/加钱/出警/鱼获/+2h）；埋点 `gameplay_debug_action`。
+- 自检：`npm run verify:steam-desktop-12`、`npm run verify:steam-desktop-12-server`
+- 规格：[Steam桌面端-玩法Debug菜单.md](./specs/Steam桌面端-玩法Debug菜单.md)
+
+### [feat-spot-01-revise-chat-bubble] - 2026-08-22
+
+- 修订 **FEAT-SPOT-01**：取消钓位旁常驻字 → **坐席后**用 **09C 聊天文字泡**（仅本玩家）。
+- 机制：全部文案入 `spot_clue_texts` 表；点位**不固定**文案，**加权随机**；类型 `habitat`（鱼喜环境）+ `activity`（鱼情观察）；约 30 条现实经验种子文案。
+- 规格：[钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md)
+- **开发已按修订落地**（Unity 抽选 + Overlay 私有观察泡）；自检 `npm run verify:feat-spot-01`；规格仍为 **已确认**，待验收。
+
+### [steam-desktop-12-impl] - 2026-08-22
+
+- **STEAM-DESKTOP-12** 开发落地：统一玩法 Debug 菜单。入口为开发版 Overlay 右上「Debug」与 Unity **F8**（Editor 托盘仍占 F9）；Release 默认无入口，需 `FISH_SOCIAL_GAMEPLAY_DEBUG=1`。服务端 `POST /api/debug/gameplay`，生产需 `GAMEPLAY_DEBUG=1`。
+- 动作：升级 / 满级 / 当前塘熟练度 +1 或锁顶 / +100 万金 / 一键出警（与 RISK-01 同源）/ 发放鲫鱼·灰·0.18m / 入场费进度 +2h。
+- 埋点：`gameplay_debug_action`
+- 自检：`npm run verify:steam-desktop-12`、`npm run verify:steam-desktop-12-server`
+- 规格仍为 **已确认**，待用户验收后再改 **已实现**。
+
+### [steam-desktop-12-gameplay-debug] - 2026-08-22
+
+- 立项 **STEAM-DESKTOP-12**：开发版统一玩法 Debug 菜单（呼出/关闭；升级；满级；塘熟练度；+100万金；一键出警；获得鱼获；钓鱼时长 +2h 测扣费）。
+- 规格：[Steam桌面端-玩法Debug菜单.md](./specs/Steam桌面端-玩法Debug菜单.md)
+- 开发提示词：[steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./prompts/steam-desktop-12-gameplay-debug-menu-dev.prompt.md)
+
+### [feat-spot-01-impl] - 2026-08-22
+
+- **FEAT-SPOT-01** 开发落地：Unity 读 `spot_clues`，按玩家等级 + 当前塘熟练度过滤后经 IPC 下发；Overlay 钓位旁粘性文字泡（复用聊天气泡样式，仅本玩家可见）。换塘 / 领鱼刷新进度。文案占位，不暴露 bite/escape。
+- 自检：`npm run verify:feat-spot-01`
+- 规格仍为 **已确认**，待用户验收后再改 **已实现**。
+- 规格：[钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md)
+
 ### [feat-risk-01-accepted] - 2026-08-22
 
 - **FEAT-RISK-01** 用户验收通过，状态改为 **已实现**（设计 2026-08-21 / 完成 2026-08-22）。

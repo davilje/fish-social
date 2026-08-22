@@ -178,6 +178,7 @@ namespace FishSocial.Desktop.Onboarding
             dto.spots = TutorialSpots;
             dto.users = new NativeOverlayActorDto[0];
             dto.recentChats = new NativeOverlayChatDto[0];
+            dto.observation = null;
             dto.availableActions = MapActions();
             dto.guideTip = ResolveGuideTip();
             dto.errorMessage = LastError ?? string.Empty;

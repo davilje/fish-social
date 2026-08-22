@@ -54,6 +54,7 @@ EVENTS = [
     ("D装备", "vessel_buy", "metrics", "购买船具（不可使用）", "playerId\nvesselId", '{"vesselId":"vessel-raft","cost":15000}', "P1", "已实现", "shop.ts"),
     ("D风险", "forbidden_pond_fine", "metrics", "禁止塘巡警超时罚款+当日禁钓", "playerId\npondId", '{"charged":800,"coinsAfter":0}', "P0", "已实现", "forbiddenPolice.ts"),
     ("D风险", "forbidden_pond_escaped", "metrics", "禁止塘巡警时限内离塘免罚，2h禁入", "playerId\npondId", '{"untilMs":0}', "P0", "已实现", "forbiddenPolice.ts"),
+    ("D成长进度", "gameplay_debug_action", "metrics", "玩法 Debug 菜单操作", "playerId\naction", '{"action":"level_up","ok":true}', "P1", "已实现", "gameplayDebug.ts"),
     ("E性能", "tick_fishing_phases_duration_ms", "聚合日志", "200ms tick 耗时", "durationMs", "{}", "P2", "已实现", "serverLoops.ts"),
     ("E性能", "bite_check_loop_duration_ms", "聚合日志", "咬钩循环耗时", "durationMs", "{}", "P2", "已实现", "serverLoops.ts"),
     ("E性能", "snapshot_build_duration_ms", "聚合日志", "buildSnapshot 耗时", "durationMs\npondId", "{}", "P2", "已实现", "gameState.ts"),

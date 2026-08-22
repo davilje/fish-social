@@ -111,7 +111,8 @@ npm run planning:confirm -- v0.4.0
 | [feat-gear-01-rods-baits-dev.prompt.md](./feat-gear-01-rods-baits-dev.prompt.md) | FEAT-GEAR-01：钓具与鱼饵配置 · **已实现** |
 | [steam-desktop-08a2-map-zones-fee-dev.prompt.md](./steam-desktop-08a2-map-zones-fee-dev.prompt.md) | STEAM-DESKTOP-08A2：世界地图分区与进塘扣费确认 · **已实现** |
 | [feat-risk-01-forbidden-police-dev.prompt.md](./feat-risk-01-forbidden-police-dev.prompt.md) | FEAT-RISK-01：禁止钓鱼塘巡警事件 · **已实现** |
-| [feat-spot-01-spot-clue-bubbles-dev.prompt.md](./feat-spot-01-spot-clue-bubbles-dev.prompt.md) | FEAT-SPOT-01：钓位点位线索文字泡 · **已确认** |
+| [feat-spot-01-spot-clue-bubbles-dev.prompt.md](./feat-spot-01-spot-clue-bubbles-dev.prompt.md) | FEAT-SPOT-01：坐席后聊天泡 / 表随机 habitat·activity · **已实现** |
+| [steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./steam-desktop-12-gameplay-debug-menu-dev.prompt.md) | STEAM-DESKTOP-12：玩法 Debug 菜单 · **已实现** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |
 | [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **开发中（真实登录已通过，REST/Socket 待验收）** |
 | [steam-desktop-pond-offline-ecology-dev.prompt.md](./steam-desktop-pond-offline-ecology-dev.prompt.md) | STEAM-DESKTOP-05：空鱼塘休眠与生态离线补算 · **已确认** |

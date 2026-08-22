@@ -55,6 +55,7 @@ export const FISHING_METRIC_EVENTS: MetricEventSchema[] = [
   { eventType: 'vessel_buy', requiredFields: ['playerId'], optionalFields: ['vesselId', 'cost'], description: 'FEAT-GEAR-01：购买船具（不可用）' },
   { eventType: 'forbidden_pond_fine', requiredFields: ['playerId', 'pondId'], optionalFields: ['charged', 'coinsAfter', 'fineGold', 'raidId'], description: 'FEAT-RISK-01：禁止塘巡警超时罚款+当日禁钓' },
   { eventType: 'forbidden_pond_escaped', requiredFields: ['playerId', 'pondId'], optionalFields: ['untilMs', 'raidId'], description: 'FEAT-RISK-01：禁止塘巡警时限内离塘免罚，2h禁入' },
+  { eventType: 'gameplay_debug_action', requiredFields: ['playerId', 'action'], optionalFields: ['pondId', 'ok', 'message'], description: 'STEAM-DESKTOP-12：玩法 Debug 菜单操作' },
 ];
 
 export function validateMetricPayload(eventType: string, payload: Record<string, unknown>): string[] {

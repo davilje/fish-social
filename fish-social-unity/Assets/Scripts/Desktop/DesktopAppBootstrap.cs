@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Threading;
 using UnityEngine;
@@ -32,6 +33,9 @@ namespace FishSocial.Desktop
         string _nativeOverlayError = string.Empty;
         Coroutine _policeRaidRoutine;
         OverlayPlayerSocialBridge _playerSocialBridge;
+        DesktopGameplayDebugMenu _gameplayDebug;
+        FishingProgressDto _fishingProgress;
+        Coroutine _progressRoutine;
         PlaceholderFishingSessionLifecycle _session = new PlaceholderFishingSessionLifecycle();
         bool _quitFallbackStarted;
         string _serverBaseUrl = DesktopServerConfig.DefaultServerBaseUrl;
@@ -97,6 +101,7 @@ namespace FishSocial.Desktop
             _pondSession.UserUpdated += OnPondUserUpdated;
             _pondSession.UsersChanged += OnPondUsersChanged;
             _pondSession.FishBiteReceived += OnPondFishBite;
+            _pondSession.CatchAccepted += OnPondCatchAccepted;
             _pondSession.ChatMessageReceived += OnPondChatMessage;
             _pondSession.PoliceRaidReceived += OnPondPoliceRaid;
             _pondSession.ErrorReceived += OnPondError;
@@ -139,6 +144,21 @@ namespace FishSocial.Desktop
             };
 
             ui.Build(_router);
+            _gameplayDebug = gameObject.AddComponent<DesktopGameplayDebugMenu>();
+            _gameplayDebug.Configure(
+                _shellUi.AuthenticatedApi,
+                _pondSession,
+                message =>
+                {
+                    _nativeOverlayError = message ?? string.Empty;
+                    _shellUi?.SetStatusMessage(message);
+                    PublishNativeOverlayState();
+                },
+                () =>
+                {
+                    QueueFishingProgressRefresh();
+                    StartCoroutine(RefreshInventoryAfterDebug());
+                });
             _playerSocialBridge = new OverlayPlayerSocialBridge(
                 this,
                 _shellUi.AuthenticatedApi,
@@ -175,6 +195,7 @@ namespace FishSocial.Desktop
             }
 
             EnsureNativeOverlay().StartOverlay();
+            QueueFishingProgressRefresh();
             PublishNativeOverlayState();
         }
 
@@ -208,9 +229,34 @@ namespace FishSocial.Desktop
                     _petState != null ? _petState.Current : PetVisualState.Offline),
                 errorMessage = _nativeOverlayError ?? string.Empty,
             };
-            OverlayPondStateBuilder.Fill(dto, _pondSession);
+            OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
             dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
             _nativeOverlay.PublishState(dto);
+        }
+
+        void QueueFishingProgressRefresh()
+        {
+            if (_progressRoutine != null)
+                StopCoroutine(_progressRoutine);
+            _progressRoutine = StartCoroutine(RefreshFishingProgressRoutine());
+        }
+
+        IEnumerator RefreshFishingProgressRoutine()
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+            {
+                _progressRoutine = null;
+                yield break;
+            }
+
+            yield return api.GetFishingProgress((ok, dto, _) =>
+            {
+                if (ok && dto != null)
+                    _fishingProgress = dto;
+            });
+            _progressRoutine = null;
+            PublishNativeOverlayState();
         }
 
         public void RaiseMainWindow(ShellPanelId id)
@@ -240,7 +286,10 @@ namespace FishSocial.Desktop
         void OnPondStateChanged(SocialSocketState state, string message)
         {
             if (state == SocialSocketState.Connected)
+            {
                 _nativeOverlayError = string.Empty;
+                QueueFishingProgressRefresh();
+            }
             else if (!string.IsNullOrEmpty(message))
                 _nativeOverlayError = message;
             PublishNativeOverlayState();
@@ -264,6 +313,11 @@ namespace FishSocial.Desktop
         void OnPondFishBite(PendingFishCatchDto _)
         {
             PublishNativeOverlayState();
+        }
+
+        void OnPondCatchAccepted()
+        {
+            QueueFishingProgressRefresh();
         }
 
         void OnPondChatMessage(ChatMessageDto _)
@@ -355,6 +409,9 @@ namespace FishSocial.Desktop
                 case "debug_police_raid":
                     ExecuteOverlayPoliceRaid();
                     return;
+                case "gameplay_debug":
+                    ExecuteOverlayGameplayDebug(message.text);
+                    return;
             }
 
             if (!DesktopProductMenuCommands.TryParse(command, out var action))
@@ -385,6 +442,37 @@ namespace FishSocial.Desktop
             if (_policeRaidRoutine != null)
                 StopCoroutine(_policeRaidRoutine);
             _policeRaidRoutine = StartCoroutine(TriggerPoliceRaidRoutine(api));
+        }
+
+        void ExecuteOverlayGameplayDebug(string action)
+        {
+            if (!GameplayDebugGate.IsClientEnabled())
+            {
+                _nativeOverlayError = "当前客户端未开启玩法 Debug。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (string.Equals(action, "toggle", StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(action))
+            {
+                _gameplayDebug?.Toggle();
+                return;
+            }
+
+            _gameplayDebug?.RunAction(action);
+        }
+
+        IEnumerator RefreshInventoryAfterDebug()
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+                yield break;
+            yield return api.GetInventoryItems((ok, items, _) =>
+            {
+                if (ok)
+                    _pondSession?.ReplaceInventory(items);
+            });
         }
 
         IEnumerator TriggerPoliceRaidRoutine(IAuthenticatedApiClient api)

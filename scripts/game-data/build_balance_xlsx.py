@@ -238,9 +238,49 @@ POND_FISH_POOL = [
     ("pond-calm", "trout", "rare", 0.1, True),
 ]
 
-SPOT_CLUES = [
-    ("pond-calm", "spot-1", 1, 1, "这片水很清澈"),
-    ("pond-calm", "spot-2", 3, 2, "这边水草很多"),
+# FEAT-SPOT-01 revised: clue library (not one-text-per-spot).
+# Columns: clueId, clueType, clueText, weight, minPlayerLevel, minPondLevel,
+#          pondCategory, spotTag, speciesHint, enabled
+SPOT_CLUE_TEXTS = [
+    ("h-01", "habitat", "鲫鱼爱往草缝和凹岸钻，亮水中央往往不是它们的主场。", 1, 0, 0, "", "weed", "crucian", True),
+    ("h-02", "habitat", "「鲤鱼钓凸，鲫鱼钓凹」——凹湾浅草边，常是板鲫爱转的地方。", 1, 0, 0, "", "weed", "crucian", True),
+    ("h-03", "habitat", "进水口附近溶氧足、食物多，鲫鲤都爱在缓流一侧停留。", 1, 0, 0, "", "inlet", "crucian,carp", True),
+    ("h-04", "habitat", "树荫弱光处更对鲤鱼胃口，大晴天它们不爱长时间晒在亮水。", 1, 0, 0, "", "shade", "carp", True),
+    ("h-05", "habitat", "深浅交界、沟坎斜坡像「鱼道」，鲤鱼常沿这些结构巡游。", 1, 0, 0, "", "structure", "carp", True),
+    ("h-06", "habitat", "乱石、木桩、桥墩旁藏食又藏身，鲤鱼、鲶类都可能路过。", 1, 0, 0, "", "structure", "carp", True),
+    ("h-07", "habitat", "草鱼爱贴草缘和芦苇空隙活动，岸边有果树、庄稼的一侧更香。", 1, 0, 0, "", "weed", "grass", True),
+    ("h-08", "habitat", "大坝拐角、洄水湾流速缓，草青一类大鱼爱在这里歇脚。", 1, 0, 0, "", "inlet", "grass", True),
+    ("h-09", "habitat", "水色清中带浊才宜钓；清澈见底往往反而难有大货久留。", 1, 0, 0, "", "clear", "", True),
+    ("h-10", "habitat", "水像泥浆看不清饵，鱼也难开口——过浑的点要谨慎。", 1, 0, 0, "", "muddy", "", True),
+    ("h-11", "habitat", "下风口容易聚浮游饵和氧气，夏秋很多鱼喜欢贴着风口转。", 1, 0, 0, "", "inlet", "", True),
+    ("h-12", "habitat", "夏钓荫、夏钓深：大太阳时树荫或略深处，比浅滩更稳妥。", 1, 0, 0, "", "shade", "", True),
+    ("h-13", "habitat", "洄湾里食物沉降、水流缓和，杂食鱼常来这里觅食。", 1, 0, 0, "", "inlet", "carp,crucian", True),
+    ("h-14", "habitat", "水草太密又无啃食痕迹，未必有草鱼；倒可能藏着小鲫在缝里。", 1, 0, 0, "", "weed", "crucian", True),
+    ("h-15", "habitat", "铧尖、凸嘴延伸进大水面，像鲤鱼通勤必经的「路口」。", 1, 0, 0, "", "structure", "carp", True),
+    ("a-01", "activity", "水面死寂如镜、半天不起波，多半开口差，或鱼不在这层活动。", 1, 0, 0, "", "", "", True),
+    ("a-02", "activity", "偶尔有鱼花、涟漪，说明这片水里还有活性，值得守一阵。", 1, 0, 0, "", "", "", True),
+    ("a-03", "activity", "细密成串的小泡像断了的珍珠，老钓友常当鲫鱼星来看。", 1, 0, 0, "", "", "", True),
+    ("a-04", "activity", "一大片杂乱气泡夹着浑浊，像锅底翻开——很像鲤鱼在拱泥。", 1, 0, 0, "", "muddy", "", True),
+    ("a-05", "activity", "突兀冒出的大单泡、啪一下散掉，草边出现时要当心草鱼路过。", 1, 0, 0, "", "weed", "", True),
+    ("a-06", "activity", "位置固定、大小均匀、节奏死板的泡，更像沼气泡，别当鱼星。", 1, 0, 0, "", "", "", True),
+    ("a-07", "activity", "水草残缺、只剩茎秆，说明有鱼在啃，草鳊类可能性上升。", 1, 0, 0, "", "weed", "", True),
+    ("a-08", "activity", "草叶轻轻摇，未必是大风——有时是鱼在草下拱食。", 1, 0, 0, "", "weed", "", True),
+    ("a-09", "activity", "小杂鱼在边子窜，深处未必没货，但闹窝时要有心理准备。", 1, 0, 0, "", "", "", True),
+    ("a-10", "activity", "能闻到淡淡腥气、听见远处啪水，说明这片水域并不空。", 1, 0, 0, "", "", "", True),
+    ("a-11", "activity", "鱼群长时间浮头嚼水，多是缺氧，硬钓往往白费力气。", 1, 0, 0, "", "", "", True),
+    ("a-12", "activity", "人影一晃鱼就炸窝逃窜，说明这里刚受惊，先缓一缓再落饵。", 1, 0, 0, "", "", "", True),
+    ("a-13", "activity", "星泡跟着移动、大小不一，比「定点死泡」更像活鱼在觅食。", 1, 0, 0, "", "", "", True),
+    ("a-14", "activity", "窝边星泡突然变密变快，常是鱼群进窝、活性上来了。", 1, 0, 0, "", "", "", True),
+    ("a-15", "activity", "水色发绿过肥时，鱼饱腹懒开口，鱼情会显得「闷」。", 1, 0, 0, "", "", "", True),
+]
+
+# Optional per-spot tags (pondId, spotId, tags CSV). Empty sheet still exports [].
+SPOT_TAGS = [
+    ("pond-calm", "calm-spot-1", "clear,weed"),
+    ("pond-calm", "calm-spot-2", "weed,shade"),
+    ("pond-calm", "calm-spot-3", "inlet"),
+    ("pond-calm", "calm-spot-4", "structure"),
+    ("pond-calm", "calm-spot-5", "muddy"),
 ]
 
 
@@ -342,11 +382,19 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("vessels", "priceGold", "金币价格", "一次性购入。"),
     ("vessels", "placeholderCatchCount", "占位捕捞次数", "表内预留，当前不生效。"),
     ("vessels", "enabledUse", "是否允许使用", "FALSE：可买但不可装备、不可开船。"),
-    ("spot_clues", "pondId", "鱼塘ID", "线索所属塘。"),
-    ("spot_clues", "spotId", "钓点ID", "点位主键。"),
-    ("spot_clues", "minPlayerLevel", "最低钓鱼等级", "未达到不显示该线索。"),
-    ("spot_clues", "minPondLevel", "最低塘等级", "未达到不显示该线索。"),
-    ("spot_clues", "clueText", "线索文案", "悬停/靠近时显示的中文。"),
+    ("spot_clue_texts", "clueId", "线索ID", "唯一主键。"),
+    ("spot_clue_texts", "clueType", "线索类型", "habitat 鱼喜环境 / activity 鱼情观察。"),
+    ("spot_clue_texts", "clueText", "线索文案", "坐席后聊天气泡展示的中文。"),
+    ("spot_clue_texts", "weight", "权重", "加权随机相对权重，默认 1。"),
+    ("spot_clue_texts", "minPlayerLevel", "最低钓鱼等级", "未达到不进入抽选池。"),
+    ("spot_clue_texts", "minPondLevel", "最低塘熟练度", "未达到不进入抽选池。"),
+    ("spot_clue_texts", "pondCategory", "塘分级过滤", "空=全塘；否则仅匹配该分级。"),
+    ("spot_clue_texts", "spotTag", "点位标签过滤", "空=不限；与 spot_tags.tags 命中任一即可。"),
+    ("spot_clue_texts", "speciesHint", "鱼种备注", "策划备注，UI 可不显示。"),
+    ("spot_clue_texts", "enabled", "是否启用", "FALSE 不参与抽选。"),
+    ("spot_tags", "pondId", "鱼塘ID", "点位所属塘。"),
+    ("spot_tags", "spotId", "钓点ID", "与运行时 spotId 对齐。"),
+    ("spot_tags", "tags", "标签列表", "逗号分隔，如 weed,shade。"),
 ]
 
 
@@ -568,9 +616,26 @@ def build() -> Path:
 
     write_sheet(
         wb,
-        "spot_clues",
-        ["pondId", "spotId", "minPlayerLevel", "minPondLevel", "clueText"],
-        SPOT_CLUES,
+        "spot_clue_texts",
+        [
+            "clueId",
+            "clueType",
+            "clueText",
+            "weight",
+            "minPlayerLevel",
+            "minPondLevel",
+            "pondCategory",
+            "spotTag",
+            "speciesHint",
+            "enabled",
+        ],
+        SPOT_CLUE_TEXTS,
+    )
+    write_sheet(
+        wb,
+        "spot_tags",
+        ["pondId", "spotId", "tags"],
+        SPOT_TAGS,
     )
 
     wb.save(OUT)

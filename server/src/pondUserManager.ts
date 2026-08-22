@@ -476,6 +476,10 @@ export type SettleFishingMode = 'finalize' | 'checkpoint' | 'advance';
 
 const feeStopByUserId = new Map<string, { pondId: string; message: string }>();
 
+export function requestFeeStop(userId: string, pondId: string, message: string): void {
+  feeStopByUserId.set(userId, { pondId, message });
+}
+
 export function consumeFeeStopRequest(
   userId: string,
 ): { pondId: string; message: string } | null {

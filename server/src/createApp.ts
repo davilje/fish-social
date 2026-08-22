@@ -12,6 +12,7 @@ import { registerSocialRoutes } from './socialRoutes.js';
 import { registerShopRoutes } from './shop.js';
 import { registerAdminRoutes } from './admin.js';
 import { registerForbiddenPoliceRoutes } from './forbiddenPolice.js';
+import { registerGameplayDebugRoutes } from './gameplayDebug.js';
 import { runWithCorrelationId } from './fishingObservability.js';
 import { getPendingMetricsCount } from './fishingMetrics.js';
 import { getMetricsContent } from './metricsPrometheus.js';
@@ -281,6 +282,7 @@ export function createApp(
   registerSocialRoutes(app, io);
   registerShopRoutes(app, io);
   registerForbiddenPoliceRoutes(app);
+  registerGameplayDebugRoutes(app, io);
   registerAdminRoutes(app);
 
   return app;
