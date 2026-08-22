@@ -113,6 +113,9 @@ npm run planning:confirm -- v0.4.0
 | [feat-risk-01-forbidden-police-dev.prompt.md](./feat-risk-01-forbidden-police-dev.prompt.md) | FEAT-RISK-01：禁止钓鱼塘巡警事件 · **已实现** |
 | [feat-spot-01-spot-clue-bubbles-dev.prompt.md](./feat-spot-01-spot-clue-bubbles-dev.prompt.md) | FEAT-SPOT-01：坐席后聊天泡 / 表随机 habitat·activity · **已实现** |
 | [steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./steam-desktop-12-gameplay-debug-menu-dev.prompt.md) | STEAM-DESKTOP-12：玩法 Debug 菜单 · **已实现** |
+| [feat-return-01-return-fish-dev.prompt.md](./feat-return-01-return-fish-dev.prompt.md) | FEAT-RETURN-01：回鱼机制 · **已确认** |
+| [feat-ground-01-groundbait-dev.prompt.md](./feat-ground-01-groundbait-dev.prompt.md) | FEAT-GROUND-01：打窝机制 · **已确认** |
+| [feat-album-01-profile-codex-album-dev.prompt.md](./feat-album-01-profile-codex-album-dev.prompt.md) | FEAT-ALBUM-01：个人中心/相册/成就 · **已确认** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |
 | [steam-desktop-account-auth-dev.prompt.md](./steam-desktop-account-auth-dev.prompt.md) | STEAM-DESKTOP-02：Steam 身份、账号绑定与安全会话 · **开发中（真实登录已通过，REST/Socket 待验收）** |
 | [steam-desktop-pond-offline-ecology-dev.prompt.md](./steam-desktop-pond-offline-ecology-dev.prompt.md) | STEAM-DESKTOP-05：空鱼塘休眠与生态离线补算 · **已确认** |

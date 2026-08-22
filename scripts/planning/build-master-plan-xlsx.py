@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Regenerate the planning workbook without locale-dependent text handling.
 
 The previous generator was a large, hand-maintained Python literal that had
@@ -482,6 +482,45 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "docs/planning/specs/Steam桌面端-玩法Debug菜单.md",
         "2026-08-22",
         "2026-08-22",
+    ],
+    [
+        "已确认",
+        "FEAT-RETURN-01",
+        "功能",
+        "回鱼机制",
+        "—",
+        "v0.7",
+        "P0",
+        "回塘增重、品质/尺寸准入、金≈卖价×0.7+熟练度；收杆+背包入口",
+        "docs/planning/specs/回鱼机制.md",
+        "2026-08-23",
+        "",
+    ],
+    [
+        "已确认",
+        "FEAT-GROUND-01",
+        "功能",
+        "打窝机制",
+        "—",
+        "v0.7",
+        "P1",
+        "Overlay并列循环打窝；50层非线性；0.5~1.5%/层曲线；附近鱼小幅尺寸",
+        "docs/planning/specs/打窝机制.md",
+        "2026-08-23",
+        "",
+    ],
+    [
+        "已确认",
+        "FEAT-ALBUM-01",
+        "功能",
+        "钓鱼相册与成就",
+        "—",
+        "v0.7",
+        "P1",
+        "个人中心大改：资料+展示柜+图鉴+相册墙+成就；他人可见精选",
+        "docs/planning/specs/钓鱼相册与成就.md",
+        "2026-08-23",
+        "",
     ],
     [
         "已实现",

@@ -1,5 +1,16 @@
 # 策划文档变更记录
 
+### [v0.7-r2-specs] - 2026-08-23
+
+- **EPIC-FISH-V07** 增 R2 章节：R1 已交付说明；开题三票。
+- 立项并 **已确认**：
+  - **FEAT-RETURN-01** 回鱼机制（回塘增重、准入、金≈卖价×0.7）
+  - **FEAT-GROUND-01** 打窝机制（Overlay 并列循环、50 层非线性、0.5~1.5%/层曲线、附近鱼小幅尺寸）
+  - **FEAT-ALBUM-01** 钓鱼相册与成就（个人中心大改 UI、相册墙、成就）
+- 规格：`docs/planning/specs/回鱼机制.md`、`打窝机制.md`、`钓鱼相册与成就.md`
+- 开发提示词：`feat-return-01-return-fish-dev.prompt.md`、`feat-ground-01-groundbait-dev.prompt.md`、`feat-album-01-profile-codex-album-dev.prompt.md`
+- UI 草案：[steam-profile-hub.md](../design/ui/steam-profile-hub.md)
+
 ### [feat-spot-01-accepted] - 2026-08-22
 
 - **FEAT-SPOT-01** 用户验收通过，状态改为 **已实现**（设计 2026-08-21 / 完成 2026-08-22）。
