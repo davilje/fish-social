@@ -58,6 +58,8 @@
     "verify:feat-risk-01": "npm run build:shared && npx tsx scripts/verify-feat-risk-01.ts",
     "verify:feat-risk-01-server": "npm run build:shared && npx tsx scripts/verify-feat-risk-01-server.ts",
     "verify:feat-spot-01": "npx tsx scripts/verify-feat-spot-01.ts",
+    "verify:feat-return-01": "npm run build:shared && npx tsx scripts/verify-feat-return-01.ts",
+    "verify:feat-return-01-server": "npm run build:shared && npx tsx scripts/verify-feat-return-01-server.ts",
     "verify:steam-desktop-12": "npm run build:shared && npx tsx scripts/verify-steam-desktop-12.ts",
     "verify:steam-desktop-12-server": "npm run build:shared && npx tsx scripts/verify-steam-desktop-12-server.ts",
     "test": "npm run build:shared && npm run test --workspace=server",

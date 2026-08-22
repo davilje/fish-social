@@ -17,6 +17,7 @@ import type {
   PondModifierDef,
   RodDef,
   VesselDef,
+  ReturnRulesDef,
 } from './gameDataTypes';
 
 import metaJson from './generated/game-data/_meta.json';
@@ -30,6 +31,7 @@ import speciesJson from './generated/game-data/fish_species.json';
 import rodsJson from './generated/game-data/rods.json';
 import baitsJson from './generated/game-data/baits.json';
 import vesselsJson from './generated/game-data/vessels.json';
+import returnRulesJson from './generated/game-data/return_rules.json';
 
 export type {
   CatchGroup,
@@ -45,6 +47,7 @@ export type {
   PondModifierDef,
   RodDef,
   VesselDef,
+  ReturnRulesDef,
 } from './gameDataTypes';
 
 export { ADMISSION_FEE_SLICE_MS } from './gameDataTypes';
@@ -60,6 +63,7 @@ const speciesList = speciesJson as FishSpeciesGameDef[];
 const rodsList = rodsJson as RodDef[];
 const baitsList = baitsJson as GameBaitDef[];
 const vesselsList = vesselsJson as VesselDef[];
+const returnRulesList = returnRulesJson as ReturnRulesDef[];
 
 const ponds = new Map(pondsList.map((p) => [p.pondId, p]));
 const playerLevels = new Map(playerLevelsList.map((r) => [r.level, r]));
@@ -174,6 +178,35 @@ export function getSellQualityDef(quality: FishQuality): FishSellQualityDef | un
 
 export function getSpeciesSellMult(catchGroup: string): number {
   return speciesMult.get(catchGroup) ?? 1;
+}
+
+const DEFAULT_RETURN_RULES: ReturnRulesDef = {
+  minQuality: 'gray',
+  minSizeRatio: 0.2,
+  maxSizeRatio: 1.0,
+  goldMulVsSell: 0.7,
+  playerXp: 8,
+  pondXp: 4,
+  sizeGainMinM: 0.02,
+  sizeGainMaxM: 0.05,
+  sizeGainMode: 'uniform_random',
+};
+
+/** FEAT-RETURN-01：回鱼规则（表首行；缺表时用默认） */
+export function getReturnRules(): ReturnRulesDef {
+  const row = returnRulesList[0];
+  if (!row) return { ...DEFAULT_RETURN_RULES };
+  return {
+    minQuality: row.minQuality || DEFAULT_RETURN_RULES.minQuality,
+    minSizeRatio: Number(row.minSizeRatio) || DEFAULT_RETURN_RULES.minSizeRatio,
+    maxSizeRatio: Number(row.maxSizeRatio) || DEFAULT_RETURN_RULES.maxSizeRatio,
+    goldMulVsSell: Number(row.goldMulVsSell) || DEFAULT_RETURN_RULES.goldMulVsSell,
+    playerXp: Math.max(0, Math.floor(Number(row.playerXp) || 0)),
+    pondXp: Math.max(0, Math.floor(Number(row.pondXp) || 0)),
+    sizeGainMinM: Number(row.sizeGainMinM) || DEFAULT_RETURN_RULES.sizeGainMinM,
+    sizeGainMaxM: Number(row.sizeGainMaxM) || DEFAULT_RETURN_RULES.sizeGainMaxM,
+    sizeGainMode: row.sizeGainMode || DEFAULT_RETURN_RULES.sizeGainMode,
+  };
 }
 
 export function reloadGameDataForTests(): void {

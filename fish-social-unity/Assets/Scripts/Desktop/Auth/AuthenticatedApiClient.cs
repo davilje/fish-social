@@ -23,6 +23,9 @@ namespace FishSocial.Desktop.Auth
         IEnumerator GetDirectMessages(string friendPlayerId, Action<bool, DirectMessageDto[], string> onCompleted);
         IEnumerator SendDirectMessage(string toPlayerId, string fromNickname, string text, Action<bool, DirectMessageDto, string> onCompleted);
         IEnumerator SellFish(string fishId, Action<bool, int, int, FishInventoryItemDto[], string> onCompleted);
+        IEnumerator ReturnFishToPond(
+            string inventoryItemId,
+            Action<bool, int, int, int, float, float, int, FishInventoryItemDto[], string> onCompleted);
         IEnumerator ShareFish(string fishId, string nickname, Action<bool, string> onCompleted);
         IEnumerator GetShopCatalog(Action<bool, ShopBaitDto[], ShopTackleDto[], ShopVesselDto[], string> onCompleted);
         IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted);
@@ -268,6 +271,39 @@ namespace FishSocial.Desktop.Auth
             onCompleted?.Invoke(
                 ok,
                 parsed != null ? parsed.coinsEarned : 0,
+                parsed != null ? parsed.totalCoins : 0,
+                parsed != null && parsed.items != null ? parsed.items : new FishInventoryItemDto[0],
+                error);
+        }
+
+        public IEnumerator ReturnFishToPond(
+            string inventoryItemId,
+            Action<bool, int, int, int, float, float, int, FishInventoryItemDto[], string> onCompleted)
+        {
+            ReturnFishResponse parsed = null;
+            string error = null;
+            var ok = false;
+            yield return PostJson("/api/inventory/return-to-pond",
+                JsonUtility.ToJson(new ReturnFishPayload
+                {
+                    playerId = PlayerId,
+                    inventoryItemId = inventoryItemId,
+                }),
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseResponse(json, out parsed, out error,
+                            "gold", "playerXp", "pondXp", "newSizeM", "items");
+                });
+            onCompleted?.Invoke(
+                ok,
+                parsed != null ? parsed.gold : 0,
+                parsed != null ? parsed.playerXp : 0,
+                parsed != null ? parsed.pondXp : 0,
+                parsed != null ? parsed.newSizeM : 0f,
+                parsed != null ? parsed.sizeGainM : 0f,
                 parsed != null ? parsed.totalCoins : 0,
                 parsed != null && parsed.items != null ? parsed.items : new FishInventoryItemDto[0],
                 error);
@@ -1213,10 +1249,21 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class MessagesResponse { public DirectMessageDto[] messages; }
         [Serializable] sealed class SendDmResponse { public DirectMessageDto message; }
         [Serializable] sealed class SellResponse { public int coinsEarned; public int totalCoins; public FishInventoryItemDto[] items; }
+        [Serializable] sealed class ReturnFishResponse
+        {
+            public int gold;
+            public int playerXp;
+            public int pondXp;
+            public float newSizeM;
+            public float sizeGainM;
+            public int totalCoins;
+            public FishInventoryItemDto[] items;
+        }
         [Serializable] sealed class FriendActionPayload { public string playerId; public string requestId; }
         [Serializable] sealed class RemoveFriendPayload { public string playerId; public string friendPlayerId; }
         [Serializable] sealed class SendDmPayload { public string fromPlayerId; public string fromNickname; public string toPlayerId; public string text; }
         [Serializable] sealed class SellPayload { public string playerId; public string fishId; }
+        [Serializable] sealed class ReturnFishPayload { public string playerId; public string inventoryItemId; }
         [Serializable] sealed class SharePayload { public string playerId; public string nickname; public string fishId; }
         [Serializable] sealed class BaitCatalogResponse { public ShopBaitDto[] baits; }
         [Serializable] sealed class TackleCatalogResponse { public ShopTackleDto[] tackles; }

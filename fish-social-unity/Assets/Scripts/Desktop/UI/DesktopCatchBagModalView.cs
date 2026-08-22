@@ -8,12 +8,14 @@ namespace FishSocial.Desktop
     public sealed class DesktopCatchBagModalView : MonoBehaviour
     {
         const int MinSlots = 80;
+        const float ReturnGoldMul = 0.7f;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         Text _status;
         Text _coins;
         Text _detail;
         Transform _grid;
+        Button _returnButton;
         FishInventoryItemDto[] _items = new FishInventoryItemDto[0];
         int _coinsValue;
         string _selectedId;
@@ -31,8 +33,24 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
             DesktopModalUi.BindButton(transform, "Sell", SellSelected);
             DesktopModalUi.BindButton(transform, "Share", ShareSelected);
+            EnsureReturnButton();
             if (_coins == null || _status == null || _detail == null || _grid == null)
                 Debug.LogError("[DesktopUI] PanelCatch prefab is missing required controls.");
+        }
+
+        void EnsureReturnButton()
+        {
+            if (!DesktopModalUi.BindButton(transform, "Return", ReturnSelected))
+            {
+                var sell = DesktopModalUi.FindChild(transform, "Sell");
+                var parent = sell != null ? sell.parent : transform;
+                _returnButton = DesktopModalUi.MakeButton(parent, "Return", "回鱼", ReturnSelected);
+            }
+            else
+            {
+                _returnButton = DesktopModalUi.FindComponent<Button>(transform, "Return");
+            }
+            RefreshReturnButton();
         }
 
         void ApplyResponsiveLayout()
@@ -72,8 +90,9 @@ namespace FishSocial.Desktop
                 detail.offsetMax = new Vector2(-8f, -36f);
             }
 
-            SetBottomButton("Sell", 0.58f, 0.76f);
-            SetBottomButton("Share", 0.76f, 1f);
+            SetBottomButton("Sell", 0.58f, 0.72f);
+            SetBottomButton("Return", 0.72f, 0.86f);
+            SetBottomButton("Share", 0.86f, 1f);
         }
 
         void SetBottomButton(string name, float minX, float maxX)
@@ -91,6 +110,8 @@ namespace FishSocial.Desktop
         {
             if (_pond != null)
                 _pond.InventoryUpdated += OnInventory;
+            ApplyResponsiveLayout();
+            RefreshReturnButton();
             StartCoroutine(Load());
         }
 
@@ -110,6 +131,20 @@ namespace FishSocial.Desktop
         {
             _items = items ?? new FishInventoryItemDto[0];
             RenderGrid();
+        }
+
+        bool CanReturnHere()
+        {
+            return _pond != null &&
+                   _pond.HasSpot &&
+                   !string.IsNullOrEmpty(_pond.CurrentPondId);
+        }
+
+        void RefreshReturnButton()
+        {
+            if (_returnButton == null)
+                return;
+            _returnButton.interactable = CanReturnHere() && !_busy;
         }
 
         IEnumerator Load()
@@ -148,6 +183,7 @@ namespace FishSocial.Desktop
             else
                 _coins.text = "金币：暂不可用";
             _status.text = itemsOk ? "已占用 " + _items.Length + " / " + Mathf.Max(MinSlots, _items.Length) : error;
+            RefreshReturnButton();
             RenderGrid();
         }
 
@@ -192,11 +228,17 @@ namespace FishSocial.Desktop
             _selectedId = item.id;
             var species = DesktopFishCatalog.SpeciesName(item.speciesId);
             var quality = DesktopFishCatalog.QualityName(item.quality);
-            var estimate = DesktopFishCatalog.EstimateSellPrice(item.quality, item.sizeM, item.speciesId);
+            var sell = DesktopFishCatalog.EstimateSellPrice(item.quality, item.sizeM, item.speciesId);
+            var returnGold = Mathf.FloorToInt(sell * ReturnGoldMul);
+            var seatHint = CanReturnHere()
+                ? "可回当前塘（约增重 0.02~0.05m）"
+                : "回鱼需在当前鱼塘钓位";
             _detail.text = "鱼种：" + species +
                            "\n品质：" + quality +
                            "\n体长：" + item.sizeM.ToString("0.00") + "m" +
-                           "\n参考售价：" + estimate + " 金币（以服务端出售结果为准）";
+                           "\n参考售价：" + sell + " 金币" +
+                           "\n回鱼约得：" + returnGold + " 金币（卖价×70%）" +
+                           "\n" + seatHint;
             RenderGrid();
         }
 
@@ -208,10 +250,12 @@ namespace FishSocial.Desktop
                 return;
             }
             _busy = true;
+            RefreshReturnButton();
             _status.text = "正在出售…";
             StartCoroutine(_api.SellFish(_selectedId, (ok, earned, total, items, message) =>
             {
                 _busy = false;
+                RefreshReturnButton();
                 if (!ok)
                 {
                     _status.text = message;
@@ -227,6 +271,47 @@ namespace FishSocial.Desktop
             }));
         }
 
+        void ReturnSelected()
+        {
+            if (_busy || string.IsNullOrEmpty(_selectedId))
+            {
+                _status.text = "请先选中一条鱼获。";
+                return;
+            }
+            if (!CanReturnHere())
+            {
+                _status.text = "需在当前鱼塘钓位才能回鱼。";
+                return;
+            }
+            _busy = true;
+            RefreshReturnButton();
+            _status.text = "正在回鱼…";
+            StartCoroutine(_api.ReturnFishToPond(_selectedId,
+                (ok, gold, playerXp, pondXp, newSizeM, sizeGainM, totalCoins, items, message) =>
+                {
+                    _busy = false;
+                    RefreshReturnButton();
+                    if (!ok)
+                    {
+                        _status.text = message ?? "回鱼失败。";
+                        return;
+                    }
+                    _items = items ?? new FishInventoryItemDto[0];
+                    if (totalCoins > 0 || gold > 0)
+                    {
+                        _coinsValue = totalCoins;
+                        _coins.text = "金币：" + _coinsValue;
+                    }
+                    _selectedId = null;
+                    _status.text = "回鱼成功：+" + gold + " 金，玩家XP +" + playerXp +
+                                   "，塘XP +" + pondXp +
+                                   "，塘内增重约 " + sizeGainM.ToString("0.00") + "m" +
+                                   "（现 " + newSizeM.ToString("0.00") + "m）。";
+                    _detail.text = _status.text;
+                    RenderGrid();
+                }));
+        }
+
         void ShareSelected()
         {
             if (_busy || string.IsNullOrEmpty(_selectedId))
@@ -235,11 +320,13 @@ namespace FishSocial.Desktop
                 return;
             }
             _busy = true;
+            RefreshReturnButton();
             _status.text = "正在分享…";
             var nickname = _pond != null ? _pond.Nickname : "Steam玩家";
             StartCoroutine(_api.ShareFish(_selectedId, nickname, (ok, message) =>
             {
                 _busy = false;
+                RefreshReturnButton();
                 _status.text = message;
             }));
         }

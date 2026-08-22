@@ -24,6 +24,7 @@ import {
   sendDirectMessage,
 } from './dm.js';
 import { getInventory, sellFish, getFishById, addFishToInventory } from './inventory.js';
+import { returnFishToPond } from './returnFish.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import {
   completeOnboarding,
@@ -713,6 +714,28 @@ export function registerSocialRoutes(
       coinsEarned: coins,
       totalCoins: total,
       items: getInventory(playerId),
+    });
+  });
+
+  app.post('/api/inventory/return-to-pond', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req, (req.body as { playerId?: string }).playerId);
+    const body = req.body as { inventoryItemId?: string; fishId?: string };
+    const inventoryItemId = body.inventoryItemId || body.fishId;
+    if (!playerId || !inventoryItemId) {
+      return res.status(400).json({ error: '参数不完整', code: 'ITEM_NOT_FOUND' });
+    }
+    const result = returnFishToPond(playerId, inventoryItemId);
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error, code: result.code });
+    }
+    res.json({
+      gold: result.gold,
+      playerXp: result.playerXp,
+      pondXp: result.pondXp,
+      newSizeM: result.newSizeM,
+      sizeGainM: result.sizeGainM,
+      totalCoins: result.totalCoins,
+      items: result.items,
     });
   });
 

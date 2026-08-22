@@ -406,6 +406,58 @@ export function grantCatchProgress(
   return { progress, proficiency, pondXpCapped: result.pondXpCapped };
 }
 
+/** FEAT-RETURN-01：固定表驱动 XP（走 grantCatchXp 锁级规则） */
+export function grantReturnProgress(
+  playerId: string,
+  pondId: string,
+  playerXp: number,
+  pondXp: number,
+): {
+  progress: PlayerFishingProgress;
+  proficiency: PondProficiencyRow;
+  playerXpGranted: number;
+  pondXpGranted: number;
+  pondXpCapped: boolean;
+} {
+  const progress = ensurePlayerProgress(playerId);
+  const proficiency = getPondProficiency(playerId, pondId);
+  const result = grantCatchXp(
+    { level: progress.level, xp: progress.xp },
+    { level: proficiency.level, xp: proficiency.xp },
+    Math.max(0, Math.floor(playerXp)),
+    Math.max(0, Math.floor(pondXp)),
+    pondId,
+  );
+
+  progress.level = result.player.level;
+  progress.xp = result.player.xp;
+  savePlayerProgress(progress);
+
+  proficiency.level = result.pond.level;
+  proficiency.xp = result.pond.xp;
+  savePondProficiency(playerId, proficiency);
+
+  if (result.pondXpCapped) {
+    recordFishingMetric('pond_proficiency_capped', {
+      playerId,
+      pondId,
+      payload: {
+        pondLevel: proficiency.level,
+        playerLevel: progress.level,
+        source: 'return',
+      },
+    });
+  }
+
+  return {
+    progress,
+    proficiency,
+    playerXpGranted: result.playerXpGranted,
+    pondXpGranted: result.pondXpGranted,
+    pondXpCapped: result.pondXpCapped,
+  };
+}
+
 export function grantDurationPondXp(
   playerId: string,
   pondId: string,

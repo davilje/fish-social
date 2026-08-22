@@ -107,7 +107,8 @@ export type FishingMetricEvent =
   | 'vessel_buy'
   | 'forbidden_pond_fine'
   | 'forbidden_pond_escaped'
-  | 'gameplay_debug_action';
+  | 'gameplay_debug_action'
+  | 'fish_returned_to_pond';
 
 const IDEMPOTENT_EVENTS = new Set<FishingMetricEvent>(['catch_accept', 'pending_catch_accept']);
 

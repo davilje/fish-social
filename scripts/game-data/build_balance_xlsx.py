@@ -68,6 +68,13 @@ PONDS = [
     ("pond-novice", "新手练习塘", "novice", "", 0, 0, "guide_only", True, False, 0),
 ]
 
+# FEAT-RETURN-01：单行全局规则（回鱼准入与奖励）
+RETURN_RULES = [
+    # minQuality, minSizeRatio, maxSizeRatio, goldMulVsSell, playerXp, pondXp,
+    # sizeGainMinM, sizeGainMaxM, sizeGainMode
+    ("gray", 0.2, 1.0, 0.70, 8, 4, 0.02, 0.05, "uniform_random"),
+]
+
 PLAYER_LEVELS = [
     # level, xpToNext, pondXpPerHour, maxPondLevel
     (1, 100, 12, 1),
@@ -304,6 +311,15 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("player_levels", "xpToNext", "升到下级所需经验", "20 级为 0。"),
     ("player_levels", "pondXpPerHour", "每小时鱼塘熟练度", "挂机时长折算塘经验的参考。"),
     ("player_levels", "maxPondLevel", "可达到的最高塘等级", "玩家等级对塘升级的软上限。"),
+    ("return_rules", "minQuality", "最低品质", "低于此品质不可回鱼；gray=灰及以上。"),
+    ("return_rules", "minSizeRatio", "最小体长比", "相对品质最大体长的下限，如 0.2。"),
+    ("return_rules", "maxSizeRatio", "最大体长比", "相对品质最大体长的上限；1.0 表示满尺寸不可回。"),
+    ("return_rules", "goldMulVsSell", "回鱼金倍率", "回鱼金 = floor(卖价 × 本倍率)，建议 0.70。"),
+    ("return_rules", "playerXp", "玩家经验", "每次回鱼发给玩家的熟练度。"),
+    ("return_rules", "pondXp", "鱼塘经验", "每次回鱼发给当前塘熟练度。"),
+    ("return_rules", "sizeGainMinM", "增重下限m", "塘内实体增重下限。"),
+    ("return_rules", "sizeGainMaxM", "增重上限m", "塘内实体增重上限。"),
+    ("return_rules", "sizeGainMode", "增重模式", "uniform_random=区间均匀随机。"),
     ("pond_levels", "level", "鱼塘等级", "1~10。"),
     ("pond_levels", "xpToNext", "升到下级所需塘经验", "10 级为 0。"),
     ("fish_species", "speciesId", "鱼种ID", "程序主键。"),
@@ -471,6 +487,23 @@ def build() -> Path:
         "player_levels",
         ["level", "xpToNext", "pondXpPerHour", "maxPondLevel"],
         PLAYER_LEVELS,
+    )
+
+    write_sheet(
+        wb,
+        "return_rules",
+        [
+            "minQuality",
+            "minSizeRatio",
+            "maxSizeRatio",
+            "goldMulVsSell",
+            "playerXp",
+            "pondXp",
+            "sizeGainMinM",
+            "sizeGainMaxM",
+            "sizeGainMode",
+        ],
+        RETURN_RULES,
     )
 
     write_sheet(

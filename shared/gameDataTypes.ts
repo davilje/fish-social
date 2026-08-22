@@ -50,6 +50,19 @@ export interface FishSellQualityDef {
   MIN_SELL: number;
 }
 
+/** FEAT-RETURN-01：回鱼全局规则（表通常仅一行） */
+export interface ReturnRulesDef {
+  minQuality: FishQuality;
+  minSizeRatio: number;
+  maxSizeRatio: number;
+  goldMulVsSell: number;
+  playerXp: number;
+  pondXp: number;
+  sizeGainMinM: number;
+  sizeGainMaxM: number;
+  sizeGainMode: 'uniform_random' | string;
+}
+
 export interface PondModifierDef {
   category: PondCategory;
   biteRateMul: number;

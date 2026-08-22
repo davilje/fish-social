@@ -40,6 +40,19 @@ export function calcFishSellPrice(
   return Math.max(sold, row.MIN_SELL);
 }
 
+/** FEAT-RETURN-01：回鱼金 = floor(卖价 × goldMulVsSell) */
+export function calcFishReturnGold(
+  item: Pick<FishInventoryItem, 'quality' | 'sizeM'> & { speciesId?: string },
+  goldMulVsSell?: number,
+): number {
+  const sell = calcFishSellPrice(item);
+  const mul =
+    goldMulVsSell != null && Number.isFinite(goldMulVsSell)
+      ? goldMulVsSell
+      : 0.7;
+  return Math.max(0, Math.floor(sell * mul));
+}
+
 export function formatPostFishText(item: Pick<FishInventoryItem, 'speciesId' | 'quality' | 'sizeM'>): string {
   const species = getSpecies(item.speciesId);
   const q = getQualityInfo(item.quality);
