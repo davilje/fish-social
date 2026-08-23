@@ -31,6 +31,7 @@ namespace FishSocialOverlay
         bool _menuExpanded;
         bool _canStartFishing;
         bool _canStopFishing;
+        bool _canGroundbait;
         bool _canAcceptCatch;
         bool _canLeaveSpot;
         bool _canExitPond;
@@ -300,6 +301,13 @@ namespace FishSocialOverlay
                 SendCommand("start_fishing", _selectedSpotId);
         }
 
+        void Groundbait_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!_canGroundbait)
+                return;
+            SendCommand("groundbait_start", _selectedSpotId);
+        }
+
         void CatchLeave_OnClick(object sender, RoutedEventArgs e)
         {
             if (_canAcceptCatch)
@@ -341,8 +349,14 @@ namespace FishSocialOverlay
             SendGameplayDebug("add_gold");
         void GameplayDebugFish_OnClick(object sender, RoutedEventArgs e) =>
             SendGameplayDebug("grant_fish");
+        void GameplayDebugFishMax_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("grant_fish_max_size");
+        void GameplayDebugFishEpic_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("grant_fish_epic_plus");
         void GameplayDebugFee_OnClick(object sender, RoutedEventArgs e) =>
             SendGameplayDebug("advance_fee_2h");
+        void GameplayDebugResetDuration_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("reset_fishing_duration");
 
         void SendGameplayDebug(string action)
         {
@@ -364,6 +378,7 @@ namespace FishSocialOverlay
         {
             _canStartFishing = HasAction(message, "start_fishing");
             _canStopFishing = HasAction(message, "stop_fishing");
+            _canGroundbait = HasAction(message, "groundbait_start");
             _canAcceptCatch = HasAction(message, "accept_catch");
             _canLeaveSpot = HasAction(message, "leave_spot");
             _canExitPond = HasAction(message, "exit_pond");
@@ -396,6 +411,26 @@ namespace FishSocialOverlay
                 FishingToggleButton.Visibility = Visibility.Collapsed;
             }
 
+            if (_canGroundbait)
+            {
+                GroundbaitButton.Visibility = Visibility.Visible;
+                GroundbaitButton.IsEnabled = true;
+                GroundbaitButton.Content = "打窝";
+            }
+            else if (string.Equals(message.FishingPhase, "groundbaiting", StringComparison.Ordinal))
+            {
+                GroundbaitButton.Visibility = Visibility.Visible;
+                GroundbaitButton.IsEnabled = false;
+                GroundbaitButton.Content = "打窝中…";
+            }
+            else
+            {
+                GroundbaitButton.Visibility = Visibility.Collapsed;
+                GroundbaitButton.IsEnabled = false;
+            }
+
+            ApplyGroundbaitStatus(message);
+
             if (_canAcceptCatch)
             {
                 CatchLeaveButton.Content = "领取鱼获";
@@ -415,6 +450,29 @@ namespace FishSocialOverlay
             }
 
             ExitPondButton.IsEnabled = _canExitPond;
+        }
+
+        void ApplyGroundbaitStatus(IpcMessage message)
+        {
+            var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
+            var stack = Math.Max(0, message.GroundbaitStack);
+            if (stack <= 0 &&
+                !string.Equals(message.FishingPhase, "groundbaiting", StringComparison.Ordinal) &&
+                !_canGroundbait)
+            {
+                GroundbaitStatusText.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var bitePct = message.GroundbaitBiteBonus * 100f;
+            var sizeMm = message.GroundbaitSizeBonus;
+            GroundbaitStatusText.Text =
+                "窝 " + stack + "/" + max +
+                "\n咬+" + bitePct.ToString("0.0") + "%" +
+                "\n尺+" + sizeMm.ToString("0.000") + "m";
+            if (message.GroundbaitBitesLeft > 0)
+                GroundbaitStatusText.Text += "\n剩" + message.GroundbaitBitesLeft + "口";
+            GroundbaitStatusText.Visibility = Visibility.Visible;
         }
 
         static bool HasAction(IpcMessage message, string action)

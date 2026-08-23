@@ -49,6 +49,16 @@ import { withTraceSpan } from './otelTracing.js';
 import { resolveCorrelationIdByPlayer } from './sessionRegistry.js';
 import { notifyBotHookCatch } from './botHookCatch.js';
 import {
+  applyGroundbaitCastComplete,
+  getActiveGroundbaitBiteBonus,
+  getActiveGroundbaitSizeBonus,
+  noteGroundbaitBite,
+  recordGroundbaitRejected,
+  tryStartGroundbaitCast,
+  clearGroundbait,
+} from './groundbait.js';
+import { canStartFishingWithFee } from './playerProgress.js';
+import {
   upsertPlayerPondSession,
   deletePlayerPondSession,
 } from './playerPondSession.js';
@@ -58,7 +68,6 @@ import {
   type BiteHookEvent,
   type FisherGearContext,
 } from './fishingSession.js';
-import { canStartFishingWithFee } from './playerProgress.js';
 import { getLockedPondFishIds, getPendingCatch, lockPendingCatch } from './inventory.js';
 import { isCodexNewForPlayer } from './codex.js';
 import { applyEscapeGrowthBonus } from './pondEcology.js';
@@ -99,7 +108,8 @@ const hookContextByUser = new Map<string, HookContext>();
 const sessionFlagsByUser = new Map<string, SessionFlags>();
 const VALID_PHASE_TRANSITIONS: Record<FishingPhase, FishingPhase[]> = {
   idle: ['seated', 'disconnected'],
-  seated: ['baiting', 'idle', 'disconnected'],
+  seated: ['baiting', 'groundbaiting', 'idle', 'disconnected'],
+  groundbaiting: ['seated', 'disconnected'],
   baiting: ['casting', 'seated', 'disconnected'],
   casting: ['waiting', 'disconnected'],
   waiting: ['hooked', 'stopping', 'disconnected'],
@@ -297,6 +307,51 @@ export function beginFishingSequence(
   if (!next) return { ok: false, error: '装饵失败' };
   recordFishingMetric('fishing_start', { playerId: user.playerId, pondId });
   return { ok: true, user: next };
+}
+
+export function beginGroundbaitSequence(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  pondId: string,
+  userId: string,
+  groundbaitId: string,
+  socketId?: string,
+): { ok: true; user: PondUser } | { ok: false; error: string; code?: string } {
+  const user = getUserById(pondId, userId);
+  if (!user?.spotId) return { ok: false, error: '请先选择钓点', code: 'NOT_SEATED' };
+  if (user.fishingPhase !== 'seated') {
+    return { ok: false, error: '当前状态无法打窝', code: 'NOT_SEATED' };
+  }
+  if (!user.playerId) return { ok: false, error: '玩家无效', code: 'NOT_SEATED' };
+
+  const started = tryStartGroundbaitCast(user.playerId, user, groundbaitId);
+  if (!started.ok) {
+    recordGroundbaitRejected(user.playerId, pondId, started.reason, started.code);
+    return { ok: false, error: started.error, code: started.code };
+  }
+
+  const next = transitionPhase(
+    user,
+    pondId,
+    'groundbaiting',
+    started.castDurationMs,
+    'groundbait_start',
+    undefined,
+    { socketId },
+  );
+  emitPondUserUpdated(io, pondId, next);
+  return { ok: true, user: next };
+}
+
+function advanceFromGroundbaiting(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  pondId: string,
+  user: PondUser,
+): void {
+  if (user.playerId) {
+    applyGroundbaitCastComplete(user.playerId, user, pondId);
+  }
+  const next = transitionPhase(user, pondId, 'seated', 0, 'groundbait_complete');
+  emitPondUserUpdated(io, pondId, next);
 }
 
 export function handleStopFishing(
@@ -693,6 +748,23 @@ function advanceFromResolving(
     return;
   }
 
+  // 日额度满或收费塘日扣满：停在 seated，不自动续钓（可落座、不可开钓）
+  if (user.playerId) {
+    if (getTodayFishingMs(user.playerId) >= MAX_DAILY_FISHING_MS) {
+      flushFishingSessionToToday(user);
+      const next = transitionPhase(user, pondId, 'seated', 0, 'daily_quota_exhausted');
+      emitPondUserUpdated(io, pondId, next);
+      return;
+    }
+    const feeGate = canStartFishingWithFee(user.playerId, pondId);
+    if (!feeGate.ok) {
+      flushFishingSessionToToday(user);
+      const next = transitionPhase(user, pondId, 'seated', 0, 'fee_or_quota_block');
+      emitPondUserUpdated(io, pondId, next);
+      return;
+    }
+  }
+
   enterBaiting(io, pondId, user, true, socketId);
 }
 
@@ -763,6 +835,8 @@ export function processWaitingBiteTick(
       baitPick = resolveBaitForBite(playerId, speciesId);
       return baitPick.baitId;
     },
+    groundbaitBiteBonus: getActiveGroundbaitBiteBonus(user),
+    groundbaitSizeBonus: getActiveGroundbaitSizeBonus(user),
   };
 
   const result = rollBiteHook(pondId, spotId, getLockedPondFishIds(), gear);
@@ -789,6 +863,7 @@ export function processWaitingBiteTick(
     chargeBaitUse(playerId, baitPick.baitId, baitPick.cost);
   }
   user.equippedBaitId = baitPick.baitId;
+  noteGroundbaitBite(user);
 
   if (isBiteTickPersistEnabled()) {
     recordFishingMetric('bite_tick_hit', {
@@ -832,6 +907,9 @@ export function tickFishingPhases(
       const socketId = socketByUserId.get(user.id) ?? null;
 
       switch (user.fishingPhase) {
+        case 'groundbaiting':
+          advanceFromGroundbaiting(io, pondId, user);
+          break;
         case 'baiting':
           advanceFromBaiting(io, pondId, user);
           break;

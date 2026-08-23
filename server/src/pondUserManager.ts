@@ -6,10 +6,13 @@ import {
   DEFAULT_AVATARS,
   defaultAvatarPath,
   getPondById,
+  getGamePondDef,
   isFishingActive,
+  resolvePondFeePer2h,
   type ClientToServerEvents,
   type PondSnapshot,
   type PondUser,
+  type ReturnFeeMode,
   type ServerToClientEvents,
 } from '@fish-social/shared';
 import type { Server } from 'socket.io';
@@ -123,6 +126,31 @@ export function addFishingMsForDate(playerId: string, dateKey: string, deltaMs: 
 
 export function getTodayFishingMs(playerId: string, atMs: number = nowMs()): number {
   return getFishingMsForDate(playerId, todayKey(atMs));
+}
+
+/** STEAM Debug：清零当日 daily_fishing 记录；塘内内存态由调用方同步。 */
+export function clearTodayFishingMsRecord(playerId: string, atMs: number = nowMs()): void {
+  const dateKey = todayKey(atMs);
+  db.prepare('DELETE FROM daily_fishing WHERE user_id = ? AND date_key = ?').run(playerId, dateKey);
+}
+
+/**
+ * Debug：清今日已用时长；若正在钓，重锚定会话/checkpoint，避免下一 tick 把旧会话秒数又加回来。
+ */
+export function debugResetTodayFishingDuration(user: PondUser, atMs: number = nowMs()): void {
+  if (user.playerId) clearTodayFishingMsRecord(user.playerId, atMs);
+  ensureFishingDayRollover(user, atMs);
+  const fishing =
+    isActivelyFishing(user) ||
+    (isFishingActive(user.fishingPhase) &&
+      user.fishingPhase !== 'stopping' &&
+      getSessionStartedAt(user) != null);
+  if (fishing) {
+    setSessionAnchors(user, atMs);
+    initQuotaCheckpoint(user.id, atMs);
+  }
+  user.todayFishingMs = 0;
+  user.todayFishingBaseMs = 0;
 }
 
 export function addTodayFishingMs(playerId: string, deltaMs: number, atMs: number = nowMs()): number {
@@ -560,12 +588,30 @@ export function settleFishingSession(
     const pondId = opts?.pondId;
     if (pondId) {
       grantDurationPondXp(user.playerId, pondId, credited);
-      const fee = applyAdmissionFeeProgress(user.playerId, pondId, credited);
+      const fee = applyAdmissionFeeProgress(
+        user.playerId,
+        pondId,
+        credited,
+        user.returnFeeMode,
+      );
       if (fee.kind === 'insufficient') {
         feeStopByUserId.set(user.id, {
           pondId,
           message: `金币不足，已停止钓鱼（需要 ${fee.feePer2h} 金币支付下一时段）`,
         });
+      } else {
+        const pondDef = getGamePondDef(pondId);
+        const maxC =
+          pondDef && pondDef.maxFeeChargesPerDay > 0 ? pondDef.maxFeeChargesPerDay : 4;
+        const modeFee = pondDef
+          ? resolvePondFeePer2h(pondDef, user.returnFeeMode ?? 'sell_only')
+          : 0;
+        if (pondDef && modeFee > 0 && fee.state.charges >= maxC) {
+          feeStopByUserId.set(user.id, {
+            pondId,
+            message: '今日钓鱼时长已用完',
+          });
+        }
       }
     }
   }
@@ -661,6 +707,9 @@ export function syncHumanQuotaAndEmit(
         if (feeStop) {
           handleStopFishing(io, feeStop.pondId, user.id);
           io.to(pond.id).emit('error', feeStop.message);
+        } else if (getTodayFishingMs(user.playerId, atMs) >= MAX_DAILY_FISHING_MS && isActivelyFishing(user)) {
+          handleStopFishing(io, pond.id, user.id);
+          io.to(pond.id).emit('error', '今日钓鱼时长已用完');
         }
       } else {
         ensureFishingDayRollover(user, atMs);
@@ -716,6 +765,7 @@ export function createHumanPondUser(
   pondId: string,
   playerId: string,
   nickname: string,
+  returnFeeMode: ReturnFeeMode = 'sell_only',
 ): PondUser {
   const users = ensurePondUsers(pondId);
   const userId = randomUUID();
@@ -734,6 +784,7 @@ export function createHumanPondUser(
     fishingDayKey: todayKey(),
     fishingPhase: 'idle',
     phaseEndsAt: null,
+    returnFeeMode,
   };
   users.set(userId, user);
   markUserDirty(pondId, userId);

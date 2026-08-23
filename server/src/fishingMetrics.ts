@@ -108,7 +108,13 @@ export type FishingMetricEvent =
   | 'forbidden_pond_fine'
   | 'forbidden_pond_escaped'
   | 'gameplay_debug_action'
-  | 'fish_returned_to_pond';
+  | 'fish_returned_to_pond'
+  | 'groundbait_cast_started'
+  | 'groundbait_applied'
+  | 'groundbait_rejected'
+  | 'achievement_unlocked'
+  | 'album_pin_changed'
+  | 'profile_hub_opened';
 
 const IDEMPOTENT_EVENTS = new Set<FishingMetricEvent>(['catch_accept', 'pending_catch_accept']);
 

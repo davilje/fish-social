@@ -22,10 +22,12 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("PanelSettings", "桌面端设置页面。", typeof(DesktopSettingsModalView)),
             new PrefabDefinition("PanelWorldMap", "世界地图大图、标记层和鱼塘详情区域。", typeof(DesktopWorldMapPanel)),
             new PrefabDefinition("PanelShop", "鱼饵/钓竿/船具页签、商品卡片、金币和购买/装备操作。", typeof(DesktopShopPanel)),
-            new PrefabDefinition("PanelProfile", "个人中心：昵称、头像、玩家 ID、在线状态和展示鱼获。", typeof(DesktopProfilePanel)),
+            new PrefabDefinition("PanelProfile", "（旧）个人资料弹窗骨架，主路径已迁至 PanelProfileHub。", typeof(DesktopProfilePanel)),
             new PrefabDefinition("PanelProfileEdit", "资料编辑：昵称、简介、默认头像和展示格保存。", typeof(DesktopProfileEditPanel)),
+            new PrefabDefinition("PanelProfileHub", "FEAT-ALBUM-01 个人中心：侧栏资料/展示柜/图鉴/相册/成就。", typeof(DesktopProfileHubPanel)),
             new PrefabDefinition("PanelSocialFeed", "动态墙：公共/好友动态、加载状态和互动操作。", typeof(DesktopSocialFeedPanel)),
             new PrefabDefinition("PanelLeaderboard", "排行榜：日/周/鱼塘/稀有榜、领奖台和纵向列表。", typeof(DesktopLeaderboardPanel)),
+            new PrefabDefinition("AchievementRow", "个人中心成就列表中的单行。", null),
             new PrefabDefinition("SocialPostCard", "动态墙中的单条鱼获分享卡片。", null),
             new PrefabDefinition("PostCommentRow", "动态卡片中的单条评论和删除操作。", null),
             new PrefabDefinition("LeaderboardRow", "排行榜第 4 名及以后的单行。", null),
@@ -190,18 +192,24 @@ namespace FishSocial.Desktop.Editor
         {
             if (name != "PanelProfile" &&
                 name != "PanelProfileEdit" &&
+                name != "PanelProfileHub" &&
                 name != "PanelShop" &&
                 name != "PanelSettings" &&
                 name != "PanelSocialFeed" &&
                 name != "PanelLeaderboard" &&
                 name != "SocialPostCard" &&
                 name != "PostCommentRow" &&
-                name != "LeaderboardRow")
+                name != "LeaderboardRow" &&
+                name != "AchievementRow")
                 return false;
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 Folder + "/" + name + ".prefab");
             if (prefab == null)
                 return false;
+            if (name == "PanelProfileHub")
+                return !DesktopPrefabValidator.HasProfileHubStructure();
+            if (name == "AchievementRow")
+                return prefab.transform.Find("Label") == null;
             if (name == "PanelSettings")
                 return DesktopModalUi.FindDescendant(prefab.transform, "服务器地址输入") == null ||
                        DesktopModalUi.FindDescendant(prefab.transform, "保存服务器地址") == null ||
@@ -248,6 +256,10 @@ namespace FishSocial.Desktop.Editor
                 case "PanelProfileEdit":
                     DesktopPrefabValidator.PopulatePanelProfilePrefabs();
                     break;
+                case "PanelProfileHub":
+                case "AchievementRow":
+                    DesktopPrefabValidator.PopulatePanelProfileHubPrefab();
+                    break;
                 case "PanelShop":
                     DesktopPrefabValidator.PopulatePanelShopPrefab();
                     break;
@@ -277,6 +289,10 @@ namespace FishSocial.Desktop.Editor
                 case "PanelProfile":
                 case "PanelProfileEdit":
                     DesktopPrefabValidator.GeneratePanelProfilePrefabs();
+                    break;
+                case "PanelProfileHub":
+                case "AchievementRow":
+                    DesktopPrefabValidator.GeneratePanelProfileHubPrefab();
                     break;
                 case "PanelShop":
                     DesktopPrefabValidator.GeneratePanelShopPrefab();

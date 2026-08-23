@@ -18,6 +18,8 @@ import type {
   RodDef,
   VesselDef,
   ReturnRulesDef,
+  GroundbaitDef,
+  AchievementDef,
 } from './gameDataTypes';
 
 import metaJson from './generated/game-data/_meta.json';
@@ -32,6 +34,8 @@ import rodsJson from './generated/game-data/rods.json';
 import baitsJson from './generated/game-data/baits.json';
 import vesselsJson from './generated/game-data/vessels.json';
 import returnRulesJson from './generated/game-data/return_rules.json';
+import groundbaitsJson from './generated/game-data/groundbaits.json';
+import achievementsJson from './generated/game-data/achievements.json';
 
 export type {
   CatchGroup,
@@ -48,6 +52,8 @@ export type {
   RodDef,
   VesselDef,
   ReturnRulesDef,
+  GroundbaitDef,
+  AchievementDef,
 } from './gameDataTypes';
 
 export { ADMISSION_FEE_SLICE_MS } from './gameDataTypes';
@@ -64,6 +70,13 @@ const rodsList = rodsJson as RodDef[];
 const baitsList = baitsJson as GameBaitDef[];
 const vesselsList = vesselsJson as VesselDef[];
 const returnRulesList = returnRulesJson as ReturnRulesDef[];
+const groundbaitsList = groundbaitsJson as GroundbaitDef[];
+const achievementsList = (achievementsJson as AchievementDef[]).map((a) => ({
+  ...a,
+  isHidden: Boolean((a as AchievementDef).isHidden),
+  conditionValue: Number(a.conditionValue),
+  sortOrder: Number(a.sortOrder),
+}));
 
 const ponds = new Map(pondsList.map((p) => [p.pondId, p]));
 const playerLevels = new Map(playerLevelsList.map((r) => [r.level, r]));
@@ -83,6 +96,8 @@ const species = new Map(speciesList.map((s) => [s.speciesId, s]));
 const rods = new Map(rodsList.map((r) => [r.rodId, r]));
 const baits = new Map(baitsList.map((b) => [b.baitId, b]));
 const vessels = new Map(vesselsList.map((v) => [v.vesselId, v]));
+const groundbaits = new Map(groundbaitsList.map((g) => [g.groundbaitId, g]));
+const achievements = new Map(achievementsList.map((a) => [a.achievementId, a]));
 
 export function getGameDataMeta(): GameDataMeta {
   return meta;
@@ -150,6 +165,37 @@ export function listGameBaits(): GameBaitDef[] {
   return [...baitsList];
 }
 
+export function getGroundbaitDef(groundbaitId: string): GroundbaitDef | undefined {
+  return groundbaits.get(groundbaitId);
+}
+
+export function listGroundbaits(): GroundbaitDef[] {
+  return [...groundbaitsList];
+}
+
+export function getGroundbaitMaxStack(): number {
+  const v = Number(meta.maxStackCount);
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : 50;
+}
+
+export function getBiteMulGlobalCap(): number {
+  const v = Number(meta.biteMulGlobalCap);
+  return Number.isFinite(v) && v > 0 ? v : 1.5;
+}
+
+export function getAlbumPinCap(): number {
+  const v = Number(meta.albumPinCap);
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : 12;
+}
+
+export function getAchievementDef(achievementId: string): AchievementDef | undefined {
+  return achievements.get(achievementId);
+}
+
+export function listAchievements(): AchievementDef[] {
+  return [...achievementsList].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
 export function getVesselDef(vesselId: string): VesselDef | undefined {
   return vessels.get(vesselId);
 }
@@ -206,6 +252,8 @@ export function getReturnRules(): ReturnRulesDef {
     sizeGainMinM: Number(row.sizeGainMinM) || DEFAULT_RETURN_RULES.sizeGainMinM,
     sizeGainMaxM: Number(row.sizeGainMaxM) || DEFAULT_RETURN_RULES.sizeGainMaxM,
     sizeGainMode: row.sizeGainMode || DEFAULT_RETURN_RULES.sizeGainMode,
+    autoMinQuality: (row.autoMinQuality as ReturnRulesDef['autoMinQuality']) || 'purple',
+    autoMinSizeRatio: Number(row.autoMinSizeRatio) || 0.75,
   };
 }
 

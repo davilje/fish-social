@@ -135,6 +135,11 @@ namespace FishSocial.Desktop
 
         bool CanReturnHere()
         {
+            var mode = _pond != null && _pond.CurrentUser != null
+                ? _pond.CurrentUser.returnFeeMode
+                : null;
+            if (mode == "sell_only" || mode == "auto_return")
+                return false;
             return _pond != null &&
                    _pond.HasSpot &&
                    !string.IsNullOrEmpty(_pond.CurrentPondId);
@@ -144,6 +149,31 @@ namespace FishSocial.Desktop
         {
             if (_returnButton == null)
                 return;
+            var mode = _pond != null && _pond.CurrentUser != null
+                ? _pond.CurrentUser.returnFeeMode
+                : null;
+            if (mode == "sell_only")
+            {
+                _returnButton.gameObject.SetActive(true);
+                _returnButton.interactable = false;
+                var label = _returnButton.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = "本局出售档";
+                return;
+            }
+            if (mode == "auto_return")
+            {
+                _returnButton.gameObject.SetActive(true);
+                _returnButton.interactable = false;
+                var label = _returnButton.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = "自动回鱼档";
+                return;
+            }
+            _returnButton.gameObject.SetActive(true);
+            var defaultLabel = _returnButton.GetComponentInChildren<Text>();
+            if (defaultLabel != null && defaultLabel.text != "回鱼")
+                defaultLabel.text = "回鱼";
             _returnButton.interactable = CanReturnHere() && !_busy;
         }
 

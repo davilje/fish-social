@@ -23,6 +23,7 @@ namespace FishSocial.Desktop.Auth
         event Action<FishInventoryItemDto[]> InventoryUpdated;
         event Action<ChatMessageDto> ChatMessageReceived;
         event Action<CodexUnlockDto> CodexUnlocked;
+        event Action<AchievementUnlockDto> AchievementUnlocked;
         event Action<FriendRequestDto> FriendRequestReceived;
         event Action<DirectMessageDto> DmMessageReceived;
         event Action<PostLikedDto> PostLikedReceived;
@@ -38,6 +39,7 @@ namespace FishSocial.Desktop.Auth
         void LeavePond(string pondId, string reason, Action<bool, string> onCompleted);
         void TakeSpot(TakeSpotPayload payload, Action<bool, string> onCompleted);
         void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted);
+        void StartGroundbait(GroundbaitStartPayload payload, Action<bool, string> onCompleted);
         void StopFishing(string pondId, Action<bool, string> onCompleted);
         void AcceptCatch(string catchId, Action<bool, string> onCompleted);
         void SendChat(SendChatPayload payload, Action<bool, string> onCompleted);
@@ -79,6 +81,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
         public event Action<CodexUnlockDto> CodexUnlocked;
+        public event Action<AchievementUnlockDto> AchievementUnlocked;
         public event Action<FriendRequestDto> FriendRequestReceived;
         public event Action<DirectMessageDto> DmMessageReceived;
         public event Action<PostLikedDto> PostLikedReceived;
@@ -155,6 +158,11 @@ namespace FishSocial.Desktop.Auth
         public void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted)
         {
             SendEventWithAck("start_fishing", JsonUtility.ToJson(payload), onCompleted);
+        }
+
+        public void StartGroundbait(GroundbaitStartPayload payload, Action<bool, string> onCompleted)
+        {
+            SendEventWithAck("groundbait_start", JsonUtility.ToJson(payload), onCompleted);
         }
 
         public void StopFishing(string pondId, Action<bool, string> onCompleted)
@@ -346,6 +354,8 @@ namespace FishSocial.Desktop.Auth
                 ChatMessageReceived?.Invoke(JsonUtility.FromJson<ChatMessageDto>(payload));
             else if (eventName == "codex_unlocked")
                 CodexUnlocked?.Invoke(JsonUtility.FromJson<CodexUnlockDto>(payload));
+            else if (eventName == "achievement_unlocked")
+                AchievementUnlocked?.Invoke(JsonUtility.FromJson<AchievementUnlockDto>(payload));
             else if (eventName == "friend_request")
                 FriendRequestReceived?.Invoke(JsonUtility.FromJson<FriendRequestDto>(payload));
             else if (eventName == "dm_message")
@@ -574,6 +584,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
         public event Action<CodexUnlockDto> CodexUnlocked;
+        public event Action<AchievementUnlockDto> AchievementUnlocked;
         public event Action<FriendRequestDto> FriendRequestReceived;
         public event Action<DirectMessageDto> DmMessageReceived;
         public event Action<PostLikedDto> PostLikedReceived;
@@ -594,6 +605,8 @@ namespace FishSocial.Desktop.Auth
         public void TakeSpot(TakeSpotPayload payload, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted)
+            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+        public void StartGroundbait(GroundbaitStartPayload payload, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void StopFishing(string pondId, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");

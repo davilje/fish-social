@@ -270,6 +270,10 @@ if (playerPondSession.tablesCreated.length > 0) {
   console.log(`Migration v0.5: ${playerPondSession.tablesCreated.join(', ')}`);
 }
 
+import { migratePlayerPondSessionReturnFee } from './migrations/player_pond_session_return_fee.js';
+migratePlayerPondSessionReturnFee(db);
+console.log('Migration: player_pond_session.return_fee_mode ensured');
+
 import { migrateErrorLogs } from './migrations/error_logs.js';
 import { migrateDailyStats } from './migrations/daily_stats.js';
 migrateErrorLogs(db);
@@ -329,6 +333,12 @@ if (weeklyBiggestMigration.oldSnapshotsCleared) {
 const steamAccountsMigration = migrateSteamAccounts(db);
 if (steamAccountsMigration.tableCreated) {
   console.log('Migration v1.0-steam-desktop: steam_accounts table created');
+}
+
+import { migratePlayerAlbumAchievements } from './migrations/player_album_achievements.js';
+const albumAchMig = migratePlayerAlbumAchievements(db);
+if (albumAchMig.tablesCreated.length > 0) {
+  console.log(`Migration FEAT-ALBUM-01: ${albumAchMig.tablesCreated.join(', ')}`);
 }
 
 initGameConfig();

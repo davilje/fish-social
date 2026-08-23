@@ -47,6 +47,7 @@ namespace FishSocial.Desktop
             dto.recentChats = MapRecentChats(pond);
             dto.hasPendingCatch = pond != null && pond.HasPendingCatch;
             dto.availableActions = MapAvailableActions(pond);
+            FillGroundbaitHud(dto, pond);
             dto.guideTip = ResolvePoliceGuideTip(pond);
             if (pond == null || pond.State != SocialSocketState.Connected)
             {
@@ -74,8 +75,10 @@ namespace FishSocial.Desktop
             var hasSpot = !string.IsNullOrEmpty(pond.CurrentUser?.spotId);
             if (!hasSpot)
                 actions.Add("take_spot");
-            if (hasSpot && pond.CanStartFishing)
+            if (hasSpot && pond.CanStartFishing && !pond.IsGroundbaiting)
                 actions.Add("start_fishing");
+            if (hasSpot && pond.CanGroundbait)
+                actions.Add("groundbait_start");
             if (pond.CanStopFishing)
                 actions.Add("stop_fishing");
             if (pond.HasPendingCatch)
@@ -100,6 +103,26 @@ namespace FishSocial.Desktop
             }
 
             return SpotObservationController.Resolve(pondId, ownSpotId, progress);
+        }
+
+        static void FillGroundbaitHud(NativeOverlayStateDto dto, SocialPondSessionController pond)
+        {
+            dto.groundbaitMaxStack = 50;
+            dto.groundbaitStack = 0;
+            dto.groundbaitBiteBonus = 0f;
+            dto.groundbaitSizeBonus = 0f;
+            dto.groundbaitExpiresAt = 0;
+            dto.groundbaitBitesLeft = 0;
+            var gb = pond != null && pond.CurrentUser != null
+                ? pond.CurrentUser.groundbait
+                : null;
+            if (gb == null)
+                return;
+            dto.groundbaitStack = gb.stackCount;
+            dto.groundbaitBiteBonus = gb.biteBonus;
+            dto.groundbaitSizeBonus = gb.sizeBonus;
+            dto.groundbaitExpiresAt = gb.expiresAt;
+            dto.groundbaitBitesLeft = gb.bitesLeft;
         }
 
         static bool ShowPoliceDebug(string pondId)

@@ -30,6 +30,176 @@ namespace FishSocial.Desktop.Editor
                 EditorUtility.DisplayDialog("PanelProfile", "格子 Prefab：" + errors, "确定");
         }
 
+        public static void GeneratePanelProfileHubPrefab()
+        {
+            GenerateNamedPanel(
+                "PanelProfileHub",
+                typeof(DesktopProfileHubPanel),
+                "已创建 PanelProfileHub.prefab。请再执行「初始化」写入 Shell 侧栏与五区内容。");
+            var errors = string.Empty;
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/ShowcaseSlot.prefab") == null)
+                GenerateSlotPrefab("ShowcaseSlot", ref errors);
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/AchievementRow.prefab") == null)
+                GenerateAchievementRowPrefab(ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            if (!string.IsNullOrEmpty(errors))
+                Debug.LogError("[DesktopPrefabBaker] ProfileHub slots: " + errors);
+        }
+
+        public static void PopulatePanelProfileHubPrefab()
+        {
+            PopulateNamedPanel("PanelProfileHub", root =>
+            {
+                var panel = root.GetComponent<DesktopProfileHubPanel>();
+                if (panel != null)
+                    panel.BuildEditorLayout();
+            });
+            var errors = string.Empty;
+            if (!HasAchievementRowStructure())
+                GenerateAchievementRowPrefab(ref errors);
+            if (!string.IsNullOrEmpty(errors))
+                Debug.LogError("[DesktopPrefabBaker] AchievementRow: " + errors);
+        }
+
+        /// <summary>
+        /// 脚本编译后若 Prefab 缺失或结构不全，自动 Bake（仅 Editor，非 Play）。
+        /// </summary>
+        [UnityEditor.InitializeOnLoadMethod]
+        static void AutoBakeProfileHubIfNeeded()
+        {
+            EditorApplication.delayCall += () =>
+            {
+                if (EditorApplication.isPlayingOrWillChangePlaymode)
+                    return;
+                try
+                {
+                    if (HasProfileHubStructure())
+                        return;
+                    Debug.Log("[DesktopPrefabBaker] PanelProfileHub 缺失或结构不全，自动 Bake…");
+                    BakePanelProfileHub();
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError("[DesktopPrefabBaker] AutoBakePanelProfileHub failed: " + ex);
+                }
+            };
+        }
+
+        [MenuItem("Fish Social/Bake PanelProfileHub")]
+        public static void BakePanelProfileHubMenu()
+        {
+            try
+            {
+                BakePanelProfileHub();
+                EditorUtility.DisplayDialog(
+                    "PanelProfileHub",
+                    "已 Bake PanelProfileHub.prefab（含 Shell 侧栏五区）与 AchievementRow。",
+                    "确定");
+            }
+            catch (System.Exception ex)
+            {
+                EditorUtility.DisplayDialog("PanelProfileHub", ex.Message, "确定");
+            }
+        }
+
+        /// <summary>
+        /// Batchmode：Unity.exe -batchmode -quit -projectPath ... -executeMethod FishSocial.Desktop.Editor.DesktopPrefabValidator.BakePanelProfileHub
+        /// </summary>
+        public static void BakePanelProfileHub()
+        {
+            var path = Folder + "/PanelProfileHub.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+            {
+                var root = new GameObject(
+                    "PanelProfileHub",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(DesktopProfileHubPanel));
+                Stretch(root.GetComponent<RectTransform>());
+                root.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+                var errors = string.Empty;
+                if (SaveGeneratedPrefab(root, "PanelProfileHub", ref errors) != 1)
+                    throw new System.InvalidOperationException("创建 PanelProfileHub 失败：" + errors);
+            }
+
+            PopulatePanelProfileHubPrefab();
+            var slotErrors = string.Empty;
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/ShowcaseSlot.prefab") == null)
+                GenerateSlotPrefab("ShowcaseSlot", ref slotErrors);
+            if (!HasAchievementRowStructure())
+                GenerateAchievementRowPrefab(ref slotErrors);
+            if (!string.IsNullOrEmpty(slotErrors))
+                Debug.LogWarning("[DesktopPrefabBaker] slot warnings: " + slotErrors);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            if (!HasProfileHubStructure())
+                throw new System.InvalidOperationException(
+                    "PanelProfileHub.prefab 结构校验失败，缺少 Shell/侧栏/五区节点。");
+            Debug.Log("[DesktopPrefabBaker] BakePanelProfileHub ok: " + path);
+        }
+
+        public static bool HasProfileHubStructure()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/PanelProfileHub.prefab");
+            if (prefab == null)
+                return false;
+            var root = prefab.transform;
+            return prefab.GetComponent<DesktopProfileHubPanel>() != null &&
+                   root.Find("Shell/Header/Title") != null &&
+                   root.Find("Shell/Header/Edit") != null &&
+                   root.Find("Shell/Sidebar/Tab_资料") != null &&
+                   root.Find("Shell/Content/Tab_资料/Avatar") != null &&
+                   root.Find("Shell/Content/Tab_展示柜/ShowcaseGrid/Viewport/Content") != null &&
+                   root.Find("Shell/Content/Tab_图鉴/CodexGrid/Viewport/Content") != null &&
+                   root.Find("Shell/Content/Tab_相册/AlbumStage/SlotL/Photo") != null &&
+                   root.Find("Shell/Content/Tab_相册/AlbumStage/SlotR/Photo") != null &&
+                   root.Find("Shell/Content/Tab_相册/Prev") != null &&
+                   root.Find("Shell/Content/Tab_相册/Next") != null &&
+                   root.Find("Shell/Content/Tab_成就/Achievements/Viewport/Content") != null &&
+                   root.Find("Shell/Status") != null;
+        }
+
+        static bool HasAchievementRowStructure()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/AchievementRow.prefab");
+            return prefab != null && prefab.transform.Find("Label") != null;
+        }
+
+        static int GenerateAchievementRowPrefab(ref string errors)
+        {
+            try
+            {
+                const string name = "AchievementRow";
+                AssetDatabase.DeleteAsset(Folder + "/" + name + ".prefab");
+                var root = new GameObject(
+                    name,
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(LayoutElement));
+                root.GetComponent<Image>().color = new Color(0.45f, 0.48f, 0.52f, 1f);
+                var element = root.GetComponent<LayoutElement>();
+                element.minHeight = 72f;
+                element.preferredHeight = 72f;
+                CreateLabel(root.transform, "Label");
+                var label = root.transform.Find("Label").GetComponent<Text>();
+                label.fontSize = 18;
+                label.alignment = TextAnchor.MiddleLeft;
+                Stretch(label.rectTransform);
+                label.rectTransform.offsetMin = new Vector2(16, 8);
+                label.rectTransform.offsetMax = new Vector2(-16, -8);
+                return SaveGeneratedPrefab(root, name, ref errors);
+            }
+            catch (System.Exception error)
+            {
+                errors += "\nAchievementRow：" + error.Message;
+                return 0;
+            }
+        }
+
         public static void PopulatePanelProfilePrefabs()
         {
             PopulateNamedPanel("PanelProfile", (root) =>
@@ -453,6 +623,7 @@ namespace FishSocial.Desktop.Editor
                 new PrefabEntry("PanelShop", typeof(DesktopShopPanel)),
                 new PrefabEntry("PanelProfile", typeof(DesktopProfilePanel)),
                 new PrefabEntry("PanelProfileEdit", typeof(DesktopProfileEditPanel)),
+                new PrefabEntry("PanelProfileHub", typeof(DesktopProfileHubPanel)),
                 new PrefabEntry("PanelSocialFeed", typeof(DesktopSocialFeedPanel)),
                 new PrefabEntry("PanelLeaderboard", typeof(DesktopLeaderboardPanel)),
             };
@@ -489,6 +660,7 @@ namespace FishSocial.Desktop.Editor
                 "SocialPostCard",
                 "PostCommentRow",
                 "LeaderboardRow",
+                "AchievementRow",
             };
             for (var i = 0; i < itemPrefabs.Length; i++)
             {
@@ -500,6 +672,11 @@ namespace FishSocial.Desktop.Editor
                 errors += "\nSocialPostCard 不是完整数据绑定结构，请执行“初始化”";
             if (!HasLeaderboardRowStructure())
                 errors += "\nLeaderboardRow 不是完整数据绑定结构，请执行“初始化”";
+            if (!HasAchievementRowStructure())
+                errors += "\nAchievementRow 缺少 Label，请执行 PanelProfileHub 初始化";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/PanelProfileHub.prefab") != null &&
+                !HasProfileHubStructure())
+                errors += "\nPanelProfileHub 缺少 Shell/侧栏/五区，请执行 Bake/初始化";
             var commentRow = AssetDatabase.LoadAssetAtPath<GameObject>(
                 Folder + "/PostCommentRow.prefab");
             if (commentRow != null &&

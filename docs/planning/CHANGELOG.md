@@ -1,5 +1,34 @@
 # 策划文档变更记录
 
+### [v0.7-r2-accepted] - 2026-08-24
+
+- **R2 全部验收结案**：`FEAT-RETURN-01` / `FEAT-RETURN-02` / `FEAT-GROUND-01` / `FEAT-ALBUM-01` / `BUG-23` → **已实现**。
+- `FEAT-GROUND-01` 完成时间 **2026-08-24**；Epic 增 **R3 候选**（巨物/夜钓/船QTE/活动社交/AI照/数值表接线）。
+- 自检：`npm run verify:feat-ground-01`、`verify:feat-ground-01-server`
+- 规格：[钓鱼玩法扩展-v0.7-Epic.md](./specs/钓鱼玩法扩展-v0.7-Epic.md)、[打窝机制.md](./specs/打窝机制.md)
+
+### [feat-return-02-accepted] - 2026-08-24
+
+- **FEAT-RETURN-02** 用户验收通过 → **已实现**（设计 2026-08-23 / 完成 2026-08-24）。
+- 交付：进塘双价选择（`sell_only` / `auto_return`）；扣费按档；达标鱼自动回塘（复用 RETURN-01）；出售档禁用回鱼；埋点 `return_fee_mode_selected` / `fish_auto_returned`。
+- 自检：`npm run verify:feat-return-02`
+- 规格：[双价塘与自动回鱼.md](./specs/双价塘与自动回鱼.md)
+
+### [feat-album-01-accepted] - 2026-08-23
+
+- **FEAT-ALBUM-01** 用户验收通过 → **已实现**（设计/完成 2026-08-23）。
+- 交付：个人中心壳（资料/展示柜/图鉴/相册/成就）；`PanelProfileHub` Prefab；相册自动入墙（N=12）、双卡满铺分页、纪念照；成就表驱动；`GET /api/players/:id/profile-hub`。
+- 自检：`npm run verify:feat-album-01`
+- 规格：[钓鱼相册与成就.md](./specs/钓鱼相册与成就.md)
+
+### [bug-23-quota-daycap + return-02] - 2026-08-23
+
+- **BUG-23** 已修复并 **已实现**：收费塘扣满 4 次 / 日满 8h 后不可 `start_fishing`；仍可落座；自动续钓与 tick 停钓对齐 Web。自检 `npm run verify:quota-daycap`。
+- **FEAT-RETURN-01** 用户验收通过 → **已实现**（设计/完成 2026-08-23）。
+- 立项 **FEAT-RETURN-02** 双价塘与自动回鱼（**已确认**）：进塘二选一收费；可回鱼档达标自动回鱼。
+- 规格：`BUG修复-日额度满后仍可开钓.md`、`双价塘与自动回鱼.md`
+- 开发提示词：`feat-return-02-dual-fee-auto-return-dev.prompt.md`
+
 ### [v0.7-r2-specs] - 2026-08-23
 
 - **EPIC-FISH-V07** 增 R2 章节：R1 已交付说明；开题三票。

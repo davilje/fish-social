@@ -22,6 +22,8 @@ namespace FishSocial.Desktop.Auth
         public string pondId;
         public string nickname;
         public string playerId;
+        // FEAT-RETURN-02
+        public string returnFeeMode;
     }
 
     [Serializable]
@@ -29,6 +31,13 @@ namespace FishSocial.Desktop.Auth
     {
         public string pondId;
         public string spotId;
+    }
+
+    [Serializable]
+    public sealed class GroundbaitStartPayload
+    {
+        public string pondId;
+        public string groundbaitId;
     }
 
     [Serializable]
@@ -94,6 +103,20 @@ namespace FishSocial.Desktop.Auth
         public long sessionFishingMs;
         public long phaseEndsAt;
         public bool isBot;
+        public PondUserGroundbaitDto groundbait;
+        // FEAT-RETURN-02
+        public string returnFeeMode;
+    }
+
+    [Serializable]
+    public sealed class PondUserGroundbaitDto
+    {
+        public string groundbaitId;
+        public int stackCount;
+        public long expiresAt;
+        public int bitesLeft;
+        public float biteBonus;
+        public float sizeBonus;
     }
 
     [Serializable]
@@ -216,6 +239,7 @@ namespace FishSocial.Desktop.Auth
         public string quality;
         public float sizeM;
         public long caughtAt;
+        public string pondId;
     }
 
     [Serializable]
@@ -310,6 +334,10 @@ namespace FishSocial.Desktop.Auth
         public long todayFishingBaseMs;
         public long todayRemainingMs;
         public string quotaDateKey;
+        public string returnFeeMode;
+        public int feePer2hSellOnly;
+        public int feePer2hAutoReturn;
+        public bool allowsAutoReturn;
     }
 
     [Serializable]
@@ -331,6 +359,86 @@ namespace FishSocial.Desktop.Auth
         public string avatarUrl;
         public string bio;
         public string[] showcaseFishIds;
+    }
+
+    [Serializable]
+    public sealed class AlbumCardDto
+    {
+        public string id;
+        public string speciesId;
+        public string quality;
+        public float sizeM;
+        public string pondId;
+        public string pondName;
+        public string source;
+        public long eventAt;
+        public string inventoryItemId;
+        public string photoUrl;
+    }
+
+    [Serializable]
+    public sealed class AchievementViewDto
+    {
+        public string achievementId;
+        public string name;
+        public string desc;
+        public string iconKey;
+        public string category;
+        public string conditionType;
+        public float conditionValue;
+        public int sortOrder;
+        public bool isHidden;
+        public bool unlocked;
+        public long unlockedAt;
+    }
+
+    [Serializable]
+    public sealed class AchievementUnlockDto
+    {
+        public string achievementId;
+        public string name;
+        public string desc;
+    }
+
+    [Serializable]
+    public sealed class ProfileHubProgressDto
+    {
+        public int level;
+        public int xp;
+    }
+
+    [Serializable]
+    public sealed class ProfileHubCodexSummaryDto
+    {
+        public int unlockedCount;
+        public int totalSpecies;
+    }
+
+    [Serializable]
+    public sealed class ProfileHubProfileDto
+    {
+        public string playerId;
+        public string nickname;
+        public string avatarUrl;
+        public string bio;
+        public string shareVisibility;
+        public int coins;
+        public string[] showcaseFishIds;
+    }
+
+    [Serializable]
+    public sealed class ProfileHubDto
+    {
+        public bool isSelf;
+        public bool canEdit;
+        public ProfileHubProfileDto profile;
+        public ProfileHubProgressDto progress;
+        public FishInventoryItemDto[] showcaseFish;
+        public ProfileHubCodexSummaryDto codexSummary;
+        public AlbumCardDto[] albumPins;
+        public AlbumCardDto[] albumCandidates;
+        public AchievementViewDto[] achievements;
+        public int albumPinCap;
     }
 
     [Serializable]

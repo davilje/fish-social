@@ -42,6 +42,7 @@ namespace FishSocial.Desktop
         DesktopWorldMapPanel _worldMapPanel;
         DesktopShopPanel _shopPanel;
         DesktopProfilePanel _profilePanel;
+        DesktopProfileHubPanel _profileHubPanel;
         DesktopProfileEditPanel _profileEditPanel;
         DesktopSocialFeedPanel _socialFeedPanel;
         DesktopLeaderboardPanel _leaderboardPanel;
@@ -63,7 +64,13 @@ namespace FishSocial.Desktop
 
         public void OpenOtherPlayerProfile(string playerId)
         {
-            _profilePanel?.ShowOtherPlayer(playerId);
+            _profileHubPanel?.ShowOtherPlayer(playerId);
+            ShowMainPanel(ShellPanelId.Profile);
+        }
+
+        public void OpenProfileHub(DesktopProfileHubPanel.HubTab tab = DesktopProfileHubPanel.HubTab.Profile)
+        {
+            _profileHubPanel?.ShowSelf(tab);
             ShowMainPanel(ShellPanelId.Profile);
         }
 
@@ -201,12 +208,7 @@ namespace FishSocial.Desktop
             CreateNavButton(nav.transform, "商店", () => ShowMainPanel(ShellPanelId.Shop), true);
             CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends), true);
             CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag), true);
-            CreateNavButton(nav.transform, "图鉴", () => ShowMainPanel(ShellPanelId.Gallery), true);
-            CreateNavButton(nav.transform, "我的", () =>
-            {
-                _profilePanel?.ShowSelfProfile();
-                ShowMainPanel(ShellPanelId.Profile);
-            }, true);
+            CreateNavButton(nav.transform, "个人中心", () => OpenProfileHub(), true);
             CreateNavButton(nav.transform, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed), true);
             CreateNavButton(nav.transform, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard), true);
             CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings), false);
@@ -275,6 +277,13 @@ namespace FishSocial.Desktop
                 return;
             }
 
+            // FEAT-ALBUM-01：独立图鉴入口并入个人中心
+            if (id == ShellPanelId.Gallery)
+            {
+                _profileHubPanel?.ShowSelf(DesktopProfileHubPanel.HubTab.Codex);
+                id = ShellPanelId.Profile;
+            }
+
             DesktopAppBootstrap.Instance?.RaiseMainWindow(id);
         }
 
@@ -308,10 +317,10 @@ namespace FishSocial.Desktop
                     ShowMainPanel(ShellPanelId.CatchBag);
                     break;
                 case DesktopProductMenuAction.Gallery:
-                    ShowMainPanel(ShellPanelId.Gallery);
+                    OpenProfileHub(DesktopProfileHubPanel.HubTab.Codex);
                     break;
                 case DesktopProductMenuAction.Profile:
-                    ShowMainPanel(ShellPanelId.Profile);
+                    OpenProfileHub();
                     break;
                 case DesktopProductMenuAction.Settings:
                     ShowMainPanel(ShellPanelId.Settings);
@@ -339,6 +348,7 @@ namespace FishSocial.Desktop
             _galleryPanel?.OnClosed();
             _shopPanel?.OnClosed();
             _profilePanel?.OnClosed();
+            _profileHubPanel?.OnClosed();
             _profileEditPanel?.OnClosed();
             _socialFeedPanel?.OnClosed();
             _leaderboardPanel?.OnClosed();
@@ -354,10 +364,17 @@ namespace FishSocial.Desktop
                     _catchPanel?.OnOpened();
                     break;
                 case ShellPanelId.Gallery:
-                    _galleryPanel?.OnOpened();
+                    // FEAT-ALBUM-01：图鉴并入个人中心
+                    if (_profileHubPanel != null)
+                    {
+                        _profileHubPanel.ShowSelf(DesktopProfileHubPanel.HubTab.Codex);
+                        _profileHubPanel.OnOpened();
+                    }
+                    else
+                        _galleryPanel?.OnOpened();
                     break;
                 case ShellPanelId.Profile:
-                    _profilePanel?.OnOpened();
+                    _profileHubPanel?.OnOpened();
                     break;
                 case ShellPanelId.ProfileEdit:
                     _profileEditPanel?.OnOpened();
@@ -386,6 +403,7 @@ namespace FishSocial.Desktop
             _galleryPanel?.OnClosed();
             _shopPanel?.OnClosed();
             _profilePanel?.OnClosed();
+            _profileHubPanel?.OnClosed();
             _profileEditPanel?.OnClosed();
             _socialFeedPanel?.OnClosed();
             _leaderboardPanel?.OnClosed();
@@ -732,12 +750,15 @@ namespace FishSocial.Desktop
 
         void BuildProfilePanel(GameObject go)
         {
-            _profilePanel = DesktopFeaturePanelFactory.Mount<DesktopProfilePanel>(
+            _profileHubPanel = DesktopFeaturePanelFactory.Mount<DesktopProfileHubPanel>(
                 go.transform,
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
-                    () => ShowMainPanel(ShellPanelId.ProfileEdit)));
+                    () => ShowMainPanel(ShellPanelId.ProfileEdit),
+                    SetStatusMessage));
+            // Keep legacy profile panel available for edit back-compat paths if needed.
+            _profilePanel = null;
         }
 
         void BuildProfileEditPanel(GameObject go)
@@ -747,7 +768,7 @@ namespace FishSocial.Desktop
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
-                    () => ShowMainPanel(ShellPanelId.Profile)));
+                    () => OpenProfileHub()));
         }
 
         void BuildSocialFeedPanel(GameObject go)

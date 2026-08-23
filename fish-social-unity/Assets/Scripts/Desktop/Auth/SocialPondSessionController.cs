@@ -21,6 +21,7 @@ namespace FishSocial.Desktop.Auth
         bool _joinRequested;
         bool _transitionBusy;
         bool _switchingPond;
+        string _pendingReturnFeeMode = "sell_only";
 
         public SocialSocketState State => _socket?.State ?? SocialSocketState.Disconnected;
         public PondSnapshotDto LatestSnapshot { get; private set; }
@@ -34,6 +35,17 @@ namespace FishSocial.Desktop.Auth
             CurrentUser == null ||
             CurrentPhase == "idle" ||
             CurrentPhase == "seated";
+        public bool CanGroundbait =>
+            HasSpot && CurrentPhase == "seated" && !IsGroundbaitStackFull;
+        public bool IsGroundbaiting => CurrentPhase == "groundbaiting";
+        public bool IsGroundbaitStackFull
+        {
+            get
+            {
+                var gb = CurrentUser != null ? CurrentUser.groundbait : null;
+                return gb != null && gb.stackCount >= 50;
+            }
+        }
         public bool CanStopFishing =>
             CurrentPhase == "baiting" || CurrentPhase == "casting" ||
             CurrentPhase == "waiting" || CurrentPhase == "hooked" ||
@@ -58,6 +70,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
         public event Action<CodexUnlockDto> CodexUnlocked;
+        public event Action<AchievementUnlockDto> AchievementUnlocked;
         public event Action<FriendRequestDto> FriendRequestReceived;
         public event Action<DirectMessageDto> DmMessageReceived;
         public event Action<PostLikedDto> PostLikedReceived;
@@ -100,6 +113,7 @@ namespace FishSocial.Desktop.Auth
             _socket.InventoryUpdated += OnInventoryUpdated;
             _socket.ChatMessageReceived += OnChatMessage;
             _socket.CodexUnlocked += OnCodexUnlocked;
+            _socket.AchievementUnlocked += OnAchievementUnlocked;
             _socket.FriendRequestReceived += OnFriendRequest;
             _socket.DmMessageReceived += OnDirectMessage;
             _socket.PostLikedReceived += OnPostLiked;
@@ -120,8 +134,17 @@ namespace FishSocial.Desktop.Auth
                 _nickname = nickname.Trim();
         }
 
-        public void ConnectAndJoin(string pondId = DefaultPondId, string nickname = null)
+        public void SetPendingReturnFeeMode(string mode)
         {
+            _pendingReturnFeeMode = string.Equals(mode, "auto_return", StringComparison.Ordinal)
+                ? "auto_return"
+                : "sell_only";
+        }
+
+        public void ConnectAndJoin(string pondId = DefaultPondId, string nickname = null, string returnFeeMode = null)
+        {
+            if (!string.IsNullOrEmpty(returnFeeMode))
+                SetPendingReturnFeeMode(returnFeeMode);
             Debug.Log("[Pond] ConnectAndJoin requested. pondId=" + pondId);
             if (_transitionBusy)
             {
@@ -145,7 +168,7 @@ namespace FishSocial.Desktop.Auth
             if (_socket != null && _socket.IsConnected &&
                 !string.Equals(CurrentPondId, pondId, StringComparison.Ordinal))
             {
-                SwitchPond(pondId);
+                SwitchPond(pondId, null, _pendingReturnFeeMode);
                 return;
             }
             CurrentPondId = pondId;
@@ -188,6 +211,28 @@ namespace FishSocial.Desktop.Auth
             {
                 pondId = CurrentPondId,
                 spotId = spotId,
+            }, onCompleted);
+        }
+
+        public void StartGroundbait(string groundbaitId, Action<bool, string> onCompleted = null)
+        {
+            if (!CanGroundbait)
+            {
+                if (IsGroundbaitStackFull)
+                    onCompleted?.Invoke(false, "已达打窝上限");
+                else
+                    onCompleted?.Invoke(false, "请先坐席后再打窝");
+                return;
+            }
+            if (string.IsNullOrEmpty(groundbaitId))
+            {
+                onCompleted?.Invoke(false, "请选择窝料");
+                return;
+            }
+            _socket?.StartGroundbait(new GroundbaitStartPayload
+            {
+                pondId = CurrentPondId,
+                groundbaitId = groundbaitId,
             }, onCompleted);
         }
 
@@ -317,8 +362,10 @@ namespace FishSocial.Desktop.Auth
             });
         }
 
-        public void SwitchPond(string pondId, Action<bool, string> onCompleted = null)
+        public void SwitchPond(string pondId, Action<bool, string> onCompleted = null, string returnFeeMode = null)
         {
+            if (!string.IsNullOrEmpty(returnFeeMode))
+                SetPendingReturnFeeMode(returnFeeMode);
             if (string.IsNullOrWhiteSpace(pondId))
             {
                 onCompleted?.Invoke(false, "目标鱼塘无效。");
@@ -371,6 +418,7 @@ namespace FishSocial.Desktop.Auth
                 pondId = CurrentPondId,
                 nickname = Nickname,
                 playerId = _auth.AuthenticatedPlayerId,
+                returnFeeMode = _pendingReturnFeeMode,
             }, (ok, message) =>
             {
                 if (!ok)
@@ -465,6 +513,7 @@ namespace FishSocial.Desktop.Auth
                     pondId = CurrentPondId,
                     nickname = _nickname,
                     playerId = _auth.AuthenticatedPlayerId,
+                    returnFeeMode = _pendingReturnFeeMode,
                 }, (joined, joinMessage) =>
                 {
                     if (!joined)
@@ -609,6 +658,11 @@ namespace FishSocial.Desktop.Auth
             CodexUnlocked?.Invoke(unlock);
         }
 
+        void OnAchievementUnlocked(AchievementUnlockDto unlock)
+        {
+            AchievementUnlocked?.Invoke(unlock);
+        }
+
         void OnFriendRequest(FriendRequestDto request)
         {
             FriendRequestReceived?.Invoke(request);
@@ -683,6 +737,7 @@ namespace FishSocial.Desktop.Auth
             _socket.InventoryUpdated -= OnInventoryUpdated;
             _socket.ChatMessageReceived -= OnChatMessage;
             _socket.CodexUnlocked -= OnCodexUnlocked;
+            _socket.AchievementUnlocked -= OnAchievementUnlocked;
             _socket.FriendRequestReceived -= OnFriendRequest;
             _socket.DmMessageReceived -= OnDirectMessage;
             _socket.PostLikedReceived -= OnPostLiked;

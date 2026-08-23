@@ -6,6 +6,7 @@ const KNOWN_CLIENT_EVENTS = new Set<keyof ClientToServerEvents>([
   'join_pond',
   'leave_pond',
   'start_fishing',
+  'groundbait_start',
   'stop_fishing',
   'send_chat',
   'accept_catch',

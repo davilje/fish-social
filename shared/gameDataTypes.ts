@@ -21,7 +21,14 @@ export interface GamePondDef {
   name: string;
   pondCategory: PondCategory;
   mapZoneId: string;
+  /** @deprecated 兼容旧表；新逻辑用 feePer2hSellOnly */
   feePer2h: number;
+  /** FEAT-RETURN-02：不可回鱼档每 2h 扣费 */
+  feePer2hSellOnly?: number;
+  /** FEAT-RETURN-02：可自动回鱼档每 2h 扣费 */
+  feePer2hAutoReturn?: number;
+  /** FEAT-RETURN-02：是否提供进塘双价选择 */
+  allowsAutoReturn?: boolean;
   maxFeeChargesPerDay: number;
   unlock: string;
   isOpen: boolean;
@@ -61,6 +68,10 @@ export interface ReturnRulesDef {
   sizeGainMinM: number;
   sizeGainMaxM: number;
   sizeGainMode: 'uniform_random' | string;
+  /** FEAT-RETURN-02：自动回鱼最低品质（默认 purple） */
+  autoMinQuality?: FishQuality;
+  /** FEAT-RETURN-02：自动回鱼最低体长比（相对种 max，默认 0.75） */
+  autoMinSizeRatio?: number;
 }
 
 export interface PondModifierDef {
@@ -129,6 +140,35 @@ export interface GameBaitDef {
   isDefaultInfinite: boolean;
 }
 
+/** FEAT-GROUND-01：窝料定义 */
+export interface GroundbaitDef {
+  groundbaitId: string;
+  name: string;
+  unlockPlayerLevel: number;
+  costGoldPerUse: number;
+  castDurationMs: number;
+  durationMin: number;
+  maxBites: number;
+  perStackBiteBonus: number;
+  maxBonus: number;
+  stackK: number;
+  sizeBonusPerStack: number;
+  maxSizeBonus: number;
+}
+
+/** FEAT-ALBUM-01：成就定义（数值表 achievements） */
+export interface AchievementDef {
+  achievementId: string;
+  name: string;
+  desc: string;
+  iconKey: string;
+  category: string;
+  conditionType: string;
+  conditionValue: number;
+  sortOrder: number;
+  isHidden: boolean;
+}
+
 export interface VesselDef {
   vesselId: string;
   name: string;
@@ -142,6 +182,11 @@ export interface GameDataMeta {
   version: string;
   SIZE_EXP: number;
   maxFeeChargesPerDayDefault: number;
+  /** FEAT-GROUND-01 */
+  maxStackCount?: number;
+  biteMulGlobalCap?: number;
+  /** FEAT-ALBUM-01：相册精选上限 */
+  albumPinCap?: number;
   schemaNote?: string;
 }
 

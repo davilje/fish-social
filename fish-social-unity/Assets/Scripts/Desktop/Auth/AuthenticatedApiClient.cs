@@ -36,6 +36,12 @@ namespace FishSocial.Desktop.Auth
         IEnumerator EquipTackle(string tackleId, Action<bool, ShopGearDto, string> onCompleted);
         string BaseUrl { get; }
         IEnumerator GetPlayerProfile(Action<bool, PlayerProfileDto, string> onCompleted);
+        IEnumerator GetProfileHub(
+            string playerId, string tab,
+            Action<bool, ProfileHubDto, string> onCompleted);
+        IEnumerator ChangeAlbumPin(
+            string action, string candidateOrPinId,
+            Action<bool, AlbumCardDto[], string> onCompleted);
         IEnumerator GetPublicPlayerView(
             string playerId, int limit,
             Action<bool, PublicPlayerViewDto, string> onCompleted);
@@ -762,6 +768,50 @@ namespace FishSocial.Desktop.Auth
             onCompleted?.Invoke(ok, profile, error);
         }
 
+        public IEnumerator GetProfileHub(
+            string playerId, string tab,
+            Action<bool, ProfileHubDto, string> onCompleted)
+        {
+            ProfileHubDto hub = null;
+            string error = null;
+            var ok = false;
+            var target = string.IsNullOrEmpty(playerId) ? PlayerId : playerId;
+            var path = "/api/players/" + Uri.EscapeDataString(target ?? "") +
+                       "/profile-hub?viewer=" + Uri.EscapeDataString(PlayerId ?? "") +
+                       "&tab=" + Uri.EscapeDataString(tab ?? "profile");
+            yield return GetJson(path, (success, json, message) =>
+            {
+                ok = success;
+                error = message;
+                if (success)
+                    ok = TryParseProfileHub(json, out hub, out error);
+            });
+            onCompleted?.Invoke(ok, hub, error);
+        }
+
+        public IEnumerator ChangeAlbumPin(
+            string action, string candidateOrPinId,
+            Action<bool, AlbumCardDto[], string> onCompleted)
+        {
+            AlbumCardDto[] pins = null;
+            string error = null;
+            var ok = false;
+            var body = "{\"action\":" + Quote(action ?? "pin") +
+                       ",\"candidateId\":" + Quote(candidateOrPinId ?? "") +
+                       ",\"pinId\":" + Quote(candidateOrPinId ?? "") + "}";
+            yield return PutJson(
+                "/api/players/" + Uri.EscapeDataString(PlayerId ?? "") + "/album/pins",
+                body,
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (success)
+                        ok = TryParseAlbumPins(json, out pins, out error);
+                });
+            onCompleted?.Invoke(ok, pins, error);
+        }
+
         public IEnumerator GetPublicPlayerView(
             string playerId, int limit,
             Action<bool, PublicPlayerViewDto, string> onCompleted)
@@ -1081,6 +1131,55 @@ namespace FishSocial.Desktop.Auth
             return true;
         }
 
+        static bool TryParseProfileHub(
+            string json,
+            out ProfileHubDto hub,
+            out string error)
+        {
+            hub = null;
+            ProfileHubEnvelope envelope;
+            if (!TryParseResponse(json, out envelope, out error, "hub") ||
+                envelope.hub == null ||
+                envelope.hub.profile == null)
+            {
+                Debug.LogWarning("[AuthenticatedApi] Missing profile-hub envelope.");
+                error = ProtocolError;
+                return false;
+            }
+
+            hub = envelope.hub;
+            if (hub.showcaseFish == null)
+                hub.showcaseFish = new FishInventoryItemDto[0];
+            if (hub.albumPins == null)
+                hub.albumPins = new AlbumCardDto[0];
+            if (hub.albumCandidates == null)
+                hub.albumCandidates = new AlbumCardDto[0];
+            if (hub.achievements == null)
+                hub.achievements = new AchievementViewDto[0];
+            if (hub.profile.showcaseFishIds == null)
+                hub.profile.showcaseFishIds = new string[0];
+            if (hub.profile.avatarUrl == null)
+                hub.profile.avatarUrl = string.Empty;
+            if (hub.profile.bio == null)
+                hub.profile.bio = string.Empty;
+            if (hub.albumPinCap <= 0)
+                hub.albumPinCap = 12;
+            return true;
+        }
+
+        static bool TryParseAlbumPins(
+            string json,
+            out AlbumCardDto[] pins,
+            out string error)
+        {
+            pins = null;
+            AlbumPinsEnvelope envelope;
+            if (!TryParseResponse(json, out envelope, out error, "pins"))
+                return false;
+            pins = envelope.pins ?? new AlbumCardDto[0];
+            return true;
+        }
+
         static bool TryParsePublicPlayerView(
             string json,
             out PublicPlayerViewDto view,
@@ -1277,6 +1376,8 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class EquipPayload { public string playerId; public string baitId; public string tackleId; }
         [Serializable] sealed class ApiErrorResponse { public string error; }
         [Serializable] sealed class ProfileEnvelope { public PlayerProfileDto profile; }
+        [Serializable] sealed class ProfileHubEnvelope { public ProfileHubDto hub; }
+        [Serializable] sealed class AlbumPinsEnvelope { public AlbumCardDto[] pins; public int pinCount; }
         [Serializable] sealed class PublicViewEnvelope { public PublicPlayerViewDto view; }
         [Serializable] sealed class FriendRequestPayload
         {

@@ -49,6 +49,9 @@ export interface FisherGearContext {
   equippedTackle: TackleId | string;
   equippedRod?: string;
   resolveBait?: (speciesId: string) => string;
+  /** FEAT-GROUND-01 */
+  groundbaitBiteBonus?: number;
+  groundbaitSizeBonus?: number;
 }
 
 function listBiteCandidates(
@@ -180,8 +183,19 @@ export function rollBiteHook(
     target.quality,
     target.speciesId,
   );
-  const pBite =
-    calcSingleFishBiteProbability(target, spotMultiplier, baitBonus) * muls.bite * rodMul;
+  const gbBonus = Math.max(0, gear?.groundbaitBiteBonus ?? 0);
+  const sizeBonus = Math.max(0, gear?.groundbaitSizeBonus ?? 0);
+  const biteTarget =
+    sizeBonus > 0 ? { ...target, sizeM: target.sizeM + sizeBonus } : target;
+  let pBite =
+    calcSingleFishBiteProbability(biteTarget, spotMultiplier, baitBonus) *
+    muls.bite *
+    rodMul;
+  if (gbBonus > 0) {
+    pBite = Math.min(1, pBite * (1 + gbBonus));
+  }
+  // soft global cap relative to no-groundbait baseline is applied in applyGroundbaitToBiteMul
+  // when composing outside; here we keep local 1+gb multiply.
 
   if (!isInstantFishingTestMode() && Math.random() >= pBite) {
     return { outcome: 'miss', reason: 'failed', sampledFish: target };
@@ -191,14 +205,21 @@ export function rollBiteHook(
   const escaped =
     !isInstantFishingTestMode() &&
     Math.random() <
-      calcEffectiveEscapeRate(target.sizeM, tackleId, target.escapeMultiplier ?? 1.0) *
+      calcEffectiveEscapeRate(biteTarget.sizeM, tackleId, target.escapeMultiplier ?? 1.0) *
         muls.escape;
   const hookDurationMs = Math.round(
-    (isInstantFishingTestMode() ? 1000 : calcHookDurationMs(target.quality, target.sizeM, target.speciesId)) *
+    (isInstantFishingTestMode() ? 1000 : calcHookDurationMs(target.quality, biteTarget.sizeM, target.speciesId)) *
       getHookDurationScale(),
   );
 
-  return { outcome: 'hooked', event: { fish: target, escaped, hookDurationMs } };
+  return {
+    outcome: 'hooked',
+    event: {
+      fish: sizeBonus > 0 ? { ...target, sizeM: biteTarget.sizeM } : target,
+      escaped,
+      hookDurationMs,
+    },
+  };
 }
 
 export function buildCatchData(

@@ -5,12 +5,24 @@ import {
   getFishXpGrant,
   getGamePondDef,
   grantCatchXp,
+  pondAllowsDualFee,
+  resolvePondFeePer2h,
   type FishQuality,
+  type ReturnFeeMode,
 } from '@fish-social/shared';
 import { db } from './db.js';
 import { deductCoins, getPlayer } from './players.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { grantStarterRod } from './gear.js';
+import { findLivePondUser } from './forbiddenPolice.js';
+
+function resolveSessionReturnFeeMode(playerId: string, pondId: string): ReturnFeeMode {
+  const live = findLivePondUser(playerId);
+  if (live && live.pondId === pondId && live.user.returnFeeMode) {
+    return live.user.returnFeeMode;
+  }
+  return 'sell_only';
+}
 
 export interface PlayerFishingProgress {
   playerId: string;
@@ -261,8 +273,13 @@ export function buildJoinFeeHint(playerId: string, pondId: string) {
   const pond = getGamePondDef(pondId);
   const fee = getAdmissionFeeState(playerId);
   const profile = getPlayer(playerId);
+  const feePer2hSellOnly = pond ? resolvePondFeePer2h(pond, 'sell_only') : 0;
+  const feePer2hAutoReturn = pond ? resolvePondFeePer2h(pond, 'auto_return') : 0;
   return {
-    feePer2h: pond?.feePer2h ?? 0,
+    feePer2h: feePer2hSellOnly,
+    feePer2hSellOnly,
+    feePer2hAutoReturn,
+    allowsAutoReturn: pond ? pondAllowsDualFee(pond) : false,
     maxFeeChargesPerDay: pond?.maxFeeChargesPerDay ?? 0,
     todayFeeCharges: fee.charges,
     feeProgressMs: fee.progressMs,
@@ -275,18 +292,26 @@ export function buildJoinFeeHint(playerId: string, pondId: string) {
 export function canStartFishingWithFee(
   playerId: string,
   pondId: string,
+  returnFeeMode?: ReturnFeeMode,
 ): { ok: true } | { ok: false; error: string } {
   const pond = getGamePondDef(pondId);
-  if (!pond || pond.feePer2h <= 0) return { ok: true };
+  const mode = returnFeeMode ?? resolveSessionReturnFeeMode(playerId, pondId);
+  const feePer2h = pond ? resolvePondFeePer2h(pond, mode) : 0;
+  if (!pond || feePer2h <= 0) return { ok: true };
 
   const fee = getAdmissionFeeState(playerId);
+  const maxCharges = pond.maxFeeChargesPerDay > 0 ? pond.maxFeeChargesPerDay : 4;
+  if (fee.charges >= maxCharges) {
+    return { ok: false, error: '今日钓鱼时长已用完' };
+  }
+
   if (!fee.needsFeeToContinue) return { ok: true };
 
   const profile = getPlayer(playerId);
-  if (!profile || profile.coins < pond.feePer2h) {
+  if (!profile || profile.coins < feePer2h) {
     return {
       ok: false,
-      error: `金币不足，无法支付下一时段入场费（需要 ${pond.feePer2h}）`,
+      error: `金币不足，无法支付下一时段入场费（需要 ${feePer2h}）`,
     };
   }
   return { ok: true };
@@ -303,9 +328,12 @@ export function applyAdmissionFeeProgress(
   playerId: string,
   pondId: string,
   deltaMs: number,
+  returnFeeMode?: ReturnFeeMode,
 ): FeeTickResult {
   const pond = getGamePondDef(pondId);
-  if (!pond || pond.feePer2h <= 0 || deltaMs <= 0) {
+  const mode = returnFeeMode ?? resolveSessionReturnFeeMode(playerId, pondId);
+  const feePer2h = pond ? resolvePondFeePer2h(pond, mode) : 0;
+  if (!pond || feePer2h <= 0 || deltaMs <= 0) {
     return { kind: 'ok', charged: 0, state: getAdmissionFeeState(playerId) };
   }
 
@@ -319,7 +347,7 @@ export function applyAdmissionFeeProgress(
     const nextThreshold = (state.charges + 1) * ADMISSION_FEE_SLICE_MS;
     if (state.progressMs < nextThreshold) break;
 
-    const result = deductCoins(playerId, pond.feePer2h);
+    const result = deductCoins(playerId, feePer2h);
     if (!result.ok) {
       state.needsFeeToContinue = true;
       saveAdmissionFeeState(state);
@@ -327,23 +355,25 @@ export function applyAdmissionFeeProgress(
         playerId,
         pondId,
         payload: {
-          feePer2h: pond.feePer2h,
+          feePer2h,
+          returnFeeMode: mode,
           charges: state.charges,
           progressMs: state.progressMs,
           coins: getPlayer(playerId)?.coins ?? 0,
         },
       });
-      return { kind: 'insufficient', state, feePer2h: pond.feePer2h };
+      return { kind: 'insufficient', state, feePer2h };
     }
 
     state.charges += 1;
     state.needsFeeToContinue = false;
-    charged += pond.feePer2h;
+    charged += feePer2h;
     recordFishingMetric('admission_fee_charged', {
       playerId,
       pondId,
       payload: {
-        feePer2h: pond.feePer2h,
+        feePer2h,
+        returnFeeMode: mode,
         chargeIndex: state.charges,
         progressMs: state.progressMs,
         coinsAfter: result.coins,

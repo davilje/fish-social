@@ -204,8 +204,10 @@
                             CornerRadius="8"
                             Padding="8"
                             Margin="0,8,0,0"
-                            Width="208"
+                            Width="220"
+                            MaxHeight="420"
                             HorizontalAlignment="Right">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
                         <StackPanel>
                             <Button Content="升级" Height="28" Margin="0,0,0,4" Click="GameplayDebugLevelUp_OnClick" />
                             <Button Content="升至满级" Height="28" Margin="0,0,0,4" Click="GameplayDebugLevelMax_OnClick" />
@@ -214,13 +216,17 @@
                             <Button Content="+100万金币" Height="28" Margin="0,0,0,4" Click="GameplayDebugGold_OnClick" />
                             <Button Content="一键出警" Height="28" Margin="0,0,0,4" Click="PoliceDebug_OnClick" />
                             <Button Content="获得鱼获" Height="28" Margin="0,0,0,4" Click="GameplayDebugFish_OnClick" />
-                            <Button Content="钓鱼时长 +2h" Height="28" Click="GameplayDebugFee_OnClick" />
+                            <Button Content="最大尺寸鱼" Height="28" Margin="0,0,0,4" Click="GameplayDebugFishMax_OnClick" />
+                            <Button Content="史诗及以上鱼" Height="28" Margin="0,0,0,4" Click="GameplayDebugFishEpic_OnClick" />
+                            <Button Content="钓鱼时长 +2h" Height="28" Margin="0,0,0,4" Click="GameplayDebugFee_OnClick" />
+                            <Button Content="重置钓鱼时长" Height="28" Click="GameplayDebugResetDuration_OnClick" />
                         </StackPanel>
+                        </ScrollViewer>
                     </Border>
                 </StackPanel>
                 <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
                 <StackPanel Canvas.Left="844"
-                            Canvas.Top="464"
+                            Canvas.Top="420"
                             Panel.ZIndex="100">
                     <Button x:Name="FishingToggleButton"
                             Content="开始钓鱼"
@@ -228,6 +234,20 @@
                             Height="40"
                             Margin="0,0,0,8"
                             Click="FishingToggle_OnClick" />
+                    <Button x:Name="GroundbaitButton"
+                            Content="打窝"
+                            Width="100"
+                            Height="40"
+                            Margin="0,0,0,8"
+                            Visibility="Collapsed"
+                            Click="Groundbait_OnClick" />
+                    <TextBlock x:Name="GroundbaitStatusText"
+                               Width="100"
+                               TextWrapping="Wrap"
+                               Foreground="#FFD4E3EA"
+                               FontSize="11"
+                               Margin="0,0,0,8"
+                               Visibility="Collapsed" />
                     <Button x:Name="CatchLeaveButton"
                             Content="离席"
                             Width="100"

@@ -1,5 +1,5 @@
 /**
- * FEAT-RETURN-01：回鱼 — 准入校验、删包、塘内增重、发金+XP。
+ * FEAT-RETURN-01 + FEAT-RETURN-02：回鱼 — 准入校验、删包、塘内增重、发金+XP；自动回鱼触发。
  */
 import {
   calcFishReturnGold,
@@ -7,6 +7,7 @@ import {
   getQualityMaxSize,
   getReturnRules,
   getSpecies,
+  isAutoReturnEligible,
   qualityIndex,
   type FishQuality,
   type FishSpeciesId,
@@ -17,13 +18,17 @@ import { findLivePondUser } from './forbiddenPolice.js';
 import { addCoins } from './players.js';
 import { grantReturnProgress } from './playerProgress.js';
 import { recordFishingMetric } from './fishingMetrics.js';
+import { addAlbumCandidate } from './album.js';
+import { tryUnlockAchievements } from './achievements.js';
 
 export type ReturnFishErrorCode =
   | 'NOT_IN_POND'
   | 'QUALITY_TOO_LOW'
   | 'SIZE_OUT_OF_RANGE'
   | 'AT_MAX_SIZE'
-  | 'ITEM_NOT_FOUND';
+  | 'ITEM_NOT_FOUND'
+  | 'SELL_ONLY_MODE'
+  | 'AUTO_RETURN_MODE';
 
 export type ReturnFishOk = {
   ok: true;
@@ -42,6 +47,11 @@ export type ReturnFishFail = {
   code: ReturnFishErrorCode;
 };
 
+export type AutoReturnSkip = {
+  ok: false;
+  skipped: true;
+};
+
 function rollSizeGain(minM: number, maxM: number): number {
   const lo = Math.min(minM, maxM);
   const hi = Math.max(minM, maxM);
@@ -52,6 +62,7 @@ function rollSizeGain(minM: number, maxM: number): number {
 export function returnFishToPond(
   playerId: string,
   inventoryItemId: string,
+  opts?: { auto?: boolean },
 ): ReturnFishOk | ReturnFishFail {
   const live = findLivePondUser(playerId);
   if (!live || !live.user.spotId) {
@@ -60,6 +71,23 @@ export function returnFishToPond(
       error: '需在当前鱼塘钓位才能回鱼',
       code: 'NOT_IN_POND',
     };
+  }
+
+  if (!opts?.auto) {
+    if (live.user.returnFeeMode === 'sell_only') {
+      return {
+        ok: false,
+        error: '本局为出售档，不可回鱼',
+        code: 'SELL_ONLY_MODE',
+      };
+    }
+    if (live.user.returnFeeMode === 'auto_return') {
+      return {
+        ok: false,
+        error: '本局为自动回鱼档，达标鱼将自动回塘',
+        code: 'AUTO_RETURN_MODE',
+      };
+    }
   }
 
   const fish = getFishById(playerId, inventoryItemId);
@@ -127,20 +155,30 @@ export function returnFishToPond(
     rules.pondXp,
   );
 
+  const metricPayload = {
+    speciesId: removed.speciesId,
+    sizeM: removed.sizeM,
+    gold,
+    sizeGainM: grown.sizeGainApplied,
+    quality: removed.quality,
+    newSizeM: grown.entity.sizeM,
+    sellGold: calcFishSellPrice(removed),
+    spawned: grown.spawned,
+    auto: opts?.auto === true,
+  };
+
   recordFishingMetric('fish_returned_to_pond', {
     playerId,
     pondId: live.pondId,
-    payload: {
-      speciesId: removed.speciesId,
-      sizeM: removed.sizeM,
-      gold,
-      sizeGainM: grown.sizeGainApplied,
-      quality: removed.quality,
-      newSizeM: grown.entity.sizeM,
-      sellGold: calcFishSellPrice(removed),
-      spawned: grown.spawned,
-    },
+    payload: metricPayload,
   });
+  if (opts?.auto) {
+    recordFishingMetric('fish_auto_returned', {
+      playerId,
+      pondId: live.pondId,
+      payload: metricPayload,
+    });
+  }
   recordFishingMetric('gold_earn', {
     playerId,
     payload: {
@@ -152,6 +190,17 @@ export function returnFishToPond(
     },
   });
 
+  addAlbumCandidate({
+    playerId,
+    speciesId: removed.speciesId,
+    quality: removed.quality,
+    sizeM: removed.sizeM,
+    pondId: live.pondId,
+    source: 'return',
+    inventoryItemId,
+  });
+  tryUnlockAchievements(playerId);
+
   return {
     ok: true,
     gold,
@@ -162,4 +211,21 @@ export function returnFishToPond(
     totalCoins,
     items: getInventory(playerId),
   };
+}
+
+export function tryAutoReturnFish(
+  playerId: string,
+  inventoryItemId: string,
+): ReturnFishOk | ReturnFishFail | AutoReturnSkip {
+  const live = findLivePondUser(playerId);
+  if (!live || live.user.returnFeeMode !== 'auto_return' || !live.user.spotId) {
+    return { ok: false, skipped: true };
+  }
+  const fish = getFishById(playerId, inventoryItemId);
+  if (!fish || !isAutoReturnEligible(fish, getReturnRules())) {
+    return { ok: false, skipped: true };
+  }
+  const result = returnFishToPond(playerId, inventoryItemId, { auto: true });
+  if (result.ok) return result;
+  return result;
 }

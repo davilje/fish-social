@@ -14,6 +14,9 @@ namespace FishSocial.Desktop
         public float y;
         public int capacity = 20;
         public int feePer2h;
+        public int feePer2hSellOnly;
+        public int feePer2hAutoReturn;
+        public bool allowsAutoReturn;
         public int maxFeeChargesPerDay;
         public int minPlayerLevel;
         public bool isOpen = true;
@@ -71,7 +74,10 @@ namespace FishSocial.Desktop
                     x = coord != null ? coord.x : pond.mapX,
                     y = coord != null ? coord.y : pond.mapY,
                     capacity = coord != null ? coord.capacity : 20,
-                    feePer2h = pond.feePer2h,
+                    feePer2h = pond.feePer2hSellOnly > 0 ? pond.feePer2hSellOnly : pond.feePer2h,
+                    feePer2hSellOnly = pond.feePer2hSellOnly > 0 ? pond.feePer2hSellOnly : pond.feePer2h,
+                    feePer2hAutoReturn = pond.feePer2hAutoReturn,
+                    allowsAutoReturn = pond.allowsAutoReturn,
                     maxFeeChargesPerDay = pond.maxFeeChargesPerDay,
                     minPlayerLevel = pond.minPlayerLevel,
                     isOpen = pond.isOpen && pond.pondCategory != "giant",

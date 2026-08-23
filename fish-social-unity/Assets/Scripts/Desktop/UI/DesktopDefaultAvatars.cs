@@ -1,3 +1,4 @@
+using System;
 using FishSocial.Desktop.Auth;
 
 namespace FishSocial.Desktop
@@ -67,6 +68,39 @@ namespace FishSocial.Desktop
             if (string.IsNullOrEmpty(nickname))
                 return "钓";
             return nickname.Substring(0, 1);
+        }
+
+        /// <summary>
+        /// Mirrors shared/fishingPhotos.ts — same paths as social feed epic catch photos.
+        /// </summary>
+        public static string ResolveFishingPhotoPath(string avatarUrl, string playerId)
+        {
+            const string photoDir = "/image/fishing_photos";
+            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith(photoDir + "/"))
+                return avatarUrl;
+
+            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith(Directory + "/"))
+            {
+                var filename = avatarUrl.Substring(Directory.Length + 1);
+                for (var i = 0; i < All.Length; i++)
+                {
+                    if (All[i].Filename == filename)
+                        return photoDir + "/cat_fishing_" + All[i].Id + ".png";
+                }
+            }
+
+            var index = 0;
+            if (!string.IsNullOrEmpty(playerId))
+            {
+                var hash = 0;
+                for (var i = 0; i < playerId.Length; i++)
+                {
+                    hash = ((hash << 5) - hash) + playerId[i];
+                    hash |= 0;
+                }
+                index = Math.Abs(hash) % All.Length;
+            }
+            return photoDir + "/cat_fishing_" + All[index].Id + ".png";
         }
     }
 

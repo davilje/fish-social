@@ -56,7 +56,15 @@ export const FISHING_METRIC_EVENTS: MetricEventSchema[] = [
   { eventType: 'forbidden_pond_fine', requiredFields: ['playerId', 'pondId'], optionalFields: ['charged', 'coinsAfter', 'fineGold', 'raidId'], description: 'FEAT-RISK-01：禁止塘巡警超时罚款+当日禁钓' },
   { eventType: 'forbidden_pond_escaped', requiredFields: ['playerId', 'pondId'], optionalFields: ['untilMs', 'raidId'], description: 'FEAT-RISK-01：禁止塘巡警时限内离塘免罚，2h禁入' },
   { eventType: 'gameplay_debug_action', requiredFields: ['playerId', 'action'], optionalFields: ['pondId', 'ok', 'message'], description: 'STEAM-DESKTOP-12：玩法 Debug 菜单操作' },
-  { eventType: 'fish_returned_to_pond', requiredFields: ['playerId', 'pondId'], optionalFields: ['speciesId', 'sizeM', 'gold', 'sizeGainM', 'quality', 'newSizeM', 'sellGold', 'spawned'], description: 'FEAT-RETURN-01：回鱼入塘增重并发奖' },
+  { eventType: 'fish_returned_to_pond', requiredFields: ['playerId', 'pondId'], optionalFields: ['speciesId', 'sizeM', 'gold', 'sizeGainM', 'quality', 'newSizeM', 'sellGold', 'spawned', 'auto'], description: 'FEAT-RETURN-01：回鱼入塘增重并发奖' },
+  { eventType: 'return_fee_mode_selected', requiredFields: ['playerId', 'pondId'], optionalFields: ['mode', 'feePer2h'], description: 'FEAT-RETURN-02：进塘双价模式选择' },
+  { eventType: 'fish_auto_returned', requiredFields: ['playerId', 'pondId'], optionalFields: ['speciesId', 'sizeM', 'gold', 'sizeGainM', 'quality', 'newSizeM', 'sellGold', 'spawned', 'auto'], description: 'FEAT-RETURN-02：达标鱼自动回塘' },
+  { eventType: 'groundbait_cast_started', requiredFields: ['playerId'], optionalFields: ['pondId', 'groundbaitId', 'costGold', 'stackBefore'], description: 'FEAT-GROUND-01：开始打窝扣金' },
+  { eventType: 'groundbait_applied', requiredFields: ['playerId', 'pondId'], optionalFields: ['groundbaitId', 'stackAfter', 'biteBonus', 'sizeBonus'], description: 'FEAT-GROUND-01：打窝完成叠层' },
+  { eventType: 'groundbait_rejected', requiredFields: ['playerId'], optionalFields: ['pondId', 'reason', 'code'], description: 'FEAT-GROUND-01：打窝拒绝' },
+  { eventType: 'achievement_unlocked', requiredFields: ['playerId'], optionalFields: ['achievementId'], description: 'FEAT-ALBUM-01：成就解锁' },
+  { eventType: 'album_pin_changed', requiredFields: ['playerId'], optionalFields: ['pinCount', 'action'], description: 'FEAT-ALBUM-01：相册钉选变更' },
+  { eventType: 'profile_hub_opened', requiredFields: ['playerId'], optionalFields: ['tab'], description: 'FEAT-ALBUM-01：打开个人中心' },
 ];
 
 export function validateMetricPayload(eventType: string, payload: Record<string, unknown>): string[] {

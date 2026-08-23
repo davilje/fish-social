@@ -4,6 +4,7 @@ export type UserStatus = 'idle' | 'fishing';
 export type FishingPhase =
   | 'idle'
   | 'seated'
+  | 'groundbaiting'
   | 'baiting'
   | 'casting'
   | 'waiting'
@@ -11,6 +12,16 @@ export type FishingPhase =
   | 'resolving'
   | 'stopping'
   | 'disconnected';
+
+/** FEAT-GROUND-01：会话内窝效（内存，可不落库） */
+export interface PondUserGroundbaitState {
+  groundbaitId: string;
+  stackCount: number;
+  expiresAt: number;
+  bitesLeft: number;
+  biteBonus: number;
+  sizeBonus: number;
+}
 
 export interface PondUserPhaseContext {
   isRebait?: boolean;
@@ -47,7 +58,7 @@ export type {
   PublicPlayerView,
 } from './social';
 
-export type ShareVisibility = 'public' | 'friends';
+export type ShareVisibility = 'public' | 'friends' | 'private';
 
 /** 与 fishingStateMachine 一致：计入活跃钓鱼的 phase */
 export function isFishingActive(phase?: FishingPhase): boolean {
@@ -157,6 +168,10 @@ export interface PondUser {
   equippedBaitId?: string;
   equippedTackleId?: string;
   disconnectedAt?: number | null;
+  /** FEAT-GROUND-01：当前钓位窝效 */
+  groundbait?: PondUserGroundbaitState | null;
+  /** FEAT-RETURN-02：进塘时选定的收费/回鱼模式，本局不可改 */
+  returnFeeMode?: 'sell_only' | 'auto_return';
 }
 
 export interface ChatMessage {
@@ -274,6 +289,8 @@ export interface JoinPondPayload {
   pondId: string;
   nickname: string;
   playerId: string;
+  /** FEAT-RETURN-02：双价塘必选 sell_only | auto_return */
+  returnFeeMode?: 'sell_only' | 'auto_return';
 }
 
 export interface StartFishingPayload {
@@ -313,6 +330,12 @@ export interface ServerToClientEvents {
   bait_depleted: (payload: BaitDepletedPayload) => void;
   gear_updated: (gear: PlayerGearState) => void;
   codex_unlocked: (payload: CodexUnlockPayload) => void;
+  /** FEAT-ALBUM-01 */
+  achievement_unlocked: (payload: {
+    achievementId: string;
+    name: string;
+    desc: string;
+  }) => void;
   inventory_updated: (items: FishInventoryItem[]) => void;
   dm_message: (message: DirectMessage) => void;
   friend_request: (request: FriendRequest) => void;
@@ -361,6 +384,11 @@ export interface ClientToServerEvents {
       quotaDateKey?: string;
       /** FEAT-PROG-01 入场费提示 */
       feePer2h?: number;
+      /** FEAT-RETURN-02 */
+      feePer2hSellOnly?: number;
+      feePer2hAutoReturn?: number;
+      allowsAutoReturn?: boolean;
+      returnFeeMode?: 'sell_only' | 'auto_return';
       maxFeeChargesPerDay?: number;
       todayFeeCharges?: number;
       feeProgressMs?: number;
@@ -380,6 +408,10 @@ export interface ClientToServerEvents {
     ack?: (result: { ok: boolean; error?: string }) => void,
   ) => void;
   start_fishing: (payload: StartFishingPayload, ack?: (result: { ok: boolean; error?: string }) => void) => void;
+  groundbait_start: (
+    payload: { pondId: string; groundbaitId: string },
+    ack?: (result: { ok: boolean; error?: string; code?: string }) => void,
+  ) => void;
   take_spot: (payload: TakeSpotPayload, ack?: (result: { ok: boolean; error?: string }) => void) => void;
   stop_fishing: (
     pondId: string,

@@ -31,7 +31,11 @@ namespace FishSocial.Desktop
         WorldMapPondView _selected;
         FishingProgressDto _progress;
         string _feeConfirmPondId;
+        string _returnFeeMode;
+        string _lastSelectedPondId;
         bool _waitingEnter;
+        Button _modeSell;
+        Button _modeAuto;
         Vector2 _dragStart;
         Vector2 _contentStart;
         float _zoom = 1f;
@@ -93,6 +97,77 @@ namespace FishSocial.Desktop
             _enter.onClick.AddListener(EnterSelectedPond);
             _reset.onClick.RemoveAllListeners();
             _reset.onClick.AddListener(ResetView);
+            EnsureFeeModeButtons(_enter != null ? _enter.transform.parent : transform);
+        }
+
+        void EnsureFeeModeButtons(Transform parent)
+        {
+            if (parent == null || _modeSell != null)
+                return;
+            _modeSell = EnsureButton(parent, "ModeSell", "出售档（仅卖）");
+            _modeAuto = EnsureButton(parent, "ModeAuto", "回鱼档（自动）");
+            var sellRect = _modeSell.GetComponent<RectTransform>();
+            var autoRect = _modeAuto.GetComponent<RectTransform>();
+            if (sellRect != null)
+            {
+                sellRect.anchorMin = new Vector2(0.02f, 0.18f);
+                sellRect.anchorMax = new Vector2(0.49f, 0.26f);
+                sellRect.offsetMin = Vector2.zero;
+                sellRect.offsetMax = Vector2.zero;
+            }
+            if (autoRect != null)
+            {
+                autoRect.anchorMin = new Vector2(0.51f, 0.18f);
+                autoRect.anchorMax = new Vector2(0.98f, 0.26f);
+                autoRect.offsetMin = Vector2.zero;
+                autoRect.offsetMax = Vector2.zero;
+            }
+            _modeSell.onClick.AddListener(() => SelectReturnFeeMode("sell_only"));
+            _modeAuto.onClick.AddListener(() => SelectReturnFeeMode("auto_return"));
+            RefreshFeeModeButtons();
+        }
+
+        void SelectReturnFeeMode(string mode)
+        {
+            _returnFeeMode = mode;
+            _feeConfirmPondId = null;
+            RefreshFeeModeButtons();
+            if (_selected != null)
+            {
+                var fee = mode == "auto_return" ? _selected.feePer2hAutoReturn : _selected.feePer2hSellOnly;
+                SetStatus((mode == "auto_return" ? "已选回鱼档" : "已选出售档") +
+                          "：每 2h " + fee + " 金币。再点确认进入。");
+            }
+            Select(_selected);
+        }
+
+        void RefreshFeeModeButtons()
+        {
+            var show = PondHasDualFee(_selected);
+            if (_modeSell != null)
+                _modeSell.gameObject.SetActive(show);
+            if (_modeAuto != null)
+                _modeAuto.gameObject.SetActive(show);
+            if (!show)
+                return;
+            TintModeButton(_modeSell, _returnFeeMode == "sell_only");
+            TintModeButton(_modeAuto, _returnFeeMode == "auto_return");
+        }
+
+        static void TintModeButton(Button button, bool selected)
+        {
+            if (button == null)
+                return;
+            var image = button.GetComponent<Image>();
+            if (image != null)
+                image.color = selected
+                    ? new Color(0.18f, 0.45f, 0.32f, 1f)
+                    : new Color(0.2f, 0.24f, 0.28f, 1f);
+        }
+
+        static bool PondHasDualFee(WorldMapPondView pond)
+        {
+            return pond != null && pond.allowsAutoReturn && pond.feePer2hSellOnly > 0;
         }
 
         T Find<T>(string path) where T : Component
@@ -230,6 +305,17 @@ namespace FishSocial.Desktop
             _feeConfirmPondId = null;
             if (_selected == null)
             {
+                _returnFeeMode = "sell_only";
+                _lastSelectedPondId = null;
+            }
+            else if (!string.Equals(_lastSelectedPondId, _selected.pondId, StringComparison.Ordinal))
+            {
+                _lastSelectedPondId = _selected.pondId;
+                _returnFeeMode = PondHasDualFee(_selected) ? null : "sell_only";
+            }
+            RefreshFeeModeButtons();
+            if (_selected == null)
+            {
                 _details.text = "暂无可用鱼塘坐标配置。";
                 SetEnterLabel("进入鱼塘", false);
                 return;
@@ -237,12 +323,18 @@ namespace FishSocial.Desktop
 
             var locked = IsLocked(_selected);
             var reason = AccessReason(_selected);
-            var feeLine = _selected.feePer2h > 0
-                ? "每 2 小时扣费：" + _selected.feePer2h + " 金币"
-                : "入场费：免费";
+            var feeLine = PondHasDualFee(_selected)
+                ? "出售档：每 2h " + _selected.feePer2hSellOnly + " 金币（仅可卖）" +
+                  "\n回鱼档：每 2h " + _selected.feePer2hAutoReturn + " 金币（达标自动回塘）"
+                : _selected.feePer2h > 0
+                    ? "每 2 小时扣费：" + _selected.feePer2h + " 金币"
+                    : "入场费：免费";
             var today = _progress != null ? _progress.todayFeeCharges : 0;
             var maxFee = _selected.maxFeeChargesPerDay > 0 ? _selected.maxFeeChargesPerDay : 4;
-            if (_selected.feePer2h > 0)
+            var activeFee = _returnFeeMode == "auto_return" && PondHasDualFee(_selected)
+                ? _selected.feePer2hAutoReturn
+                : (_selected.feePer2hSellOnly > 0 ? _selected.feePer2hSellOnly : _selected.feePer2h);
+            if (activeFee > 0)
                 feeLine += "\n今日已扣：" + today + " / " + maxFee + " 次";
             var levelLine = _selected.minPlayerLevel > 0
                 ? "需要钓鱼等级 " + _selected.minPlayerLevel +
@@ -259,7 +351,9 @@ namespace FishSocial.Desktop
 
             if (locked)
                 SetEnterLabel("暂不可进入", false);
-            else if (_selected.feePer2h > 0)
+            else if (PondHasDualFee(_selected) && string.IsNullOrEmpty(_returnFeeMode))
+                SetEnterLabel("请先选收费模式", false);
+            else if (activeFee > 0)
                 SetEnterLabel("确认进入", true);
             else
                 SetEnterLabel("进入鱼塘", true);
@@ -283,18 +377,28 @@ namespace FishSocial.Desktop
                 SetStatus(AccessReason(_selected));
                 return;
             }
-            if (_selected.feePer2h > 0 && _feeConfirmPondId != _selected.pondId)
+            if (PondHasDualFee(_selected) && string.IsNullOrEmpty(_returnFeeMode))
+            {
+                SetStatus("请先选择「出售档」或「回鱼档」。");
+                return;
+            }
+            var activeFee = _returnFeeMode == "auto_return" && PondHasDualFee(_selected)
+                ? _selected.feePer2hAutoReturn
+                : (_selected.feePer2hSellOnly > 0 ? _selected.feePer2hSellOnly : _selected.feePer2h);
+            if (activeFee > 0 && _feeConfirmPondId != _selected.pondId)
             {
                 _feeConfirmPondId = _selected.pondId;
                 var today = _progress != null ? _progress.todayFeeCharges : 0;
                 var maxFee = _selected.maxFeeChargesPerDay > 0 ? _selected.maxFeeChargesPerDay : 4;
-                SetStatus("收费塘：每满 2 小时扣 " + _selected.feePer2h +
+                var modeLabel = _returnFeeMode == "auto_return" ? "回鱼档" : "出售档";
+                SetStatus(modeLabel + "：每满 2 小时扣 " + activeFee +
                           " 金币，今日已扣 " + today + "/" + maxFee +
                           "。再点一次确认进入。");
                 SetEnterLabel("再次确认进入", true);
                 return;
             }
 
+            _pond.SetPendingReturnFeeMode(string.IsNullOrEmpty(_returnFeeMode) ? "sell_only" : _returnFeeMode);
             SetStatus("正在进入 " + _selected.displayName + "…");
             _waitingEnter = true;
             if (_pond.State == SocialSocketState.Connected)

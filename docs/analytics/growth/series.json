@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-22T16:32:11.701Z",
+  "generatedAt": "2026-08-23T16:32:15.424Z",
   "timezone": "Asia/Shanghai",
   "rulesVersion": "v0.4.1",
-  "asOf": "2026-08-22",
+  "asOf": "2026-08-23",
   "dayCount": 90,
   "humansOnly": true,
   "kpiCards": {
     "nu": {
-      "value": 0,
-      "prev": 2,
-      "deltaPct": -100
+      "value": 9,
+      "prev": 0,
+      "deltaPct": null
     },
     "dau": {
       "value": 1,
@@ -37,39 +37,12 @@
       "deltaPct": 0
     },
     "nu_share": {
-      "value": 0,
-      "prev": 2,
-      "deltaPct": -100
+      "value": 9,
+      "prev": 0,
+      "deltaPct": null
     }
   },
   "days": [
-    {
-      "date": "2026-05-25",
-      "nu": 0,
-      "dau": 0,
-      "fishing_dau": 0,
-      "wau": 0,
-      "mau": 0,
-      "nu_share": null,
-      "stickiness": null,
-      "daily_catch": 0,
-      "daily_catch_human": 0,
-      "daily_catch_bot": 0,
-      "catch_per_fisher": null,
-      "avg_session_ms": null,
-      "disconnect_rate": null,
-      "abandon_rate": null,
-      "escape_rate": null,
-      "join_fail_rate": null,
-      "avg_pop_ratio": null,
-      "funnel": {
-        "nu": 0,
-        "join": 0,
-        "fishing_start": 0,
-        "bite_hook": 0,
-        "catch": 0
-      }
-    },
     {
       "date": "2026-05-26",
       "nu": 0,
@@ -2467,6 +2440,33 @@
       "avg_pop_ratio": 44.8,
       "funnel": {
         "nu": 0,
+        "join": 0,
+        "fishing_start": 0,
+        "bite_hook": 0,
+        "catch": 0
+      }
+    },
+    {
+      "date": "2026-08-23",
+      "nu": 9,
+      "dau": 1,
+      "fishing_dau": 1,
+      "wau": 3,
+      "mau": 8,
+      "nu_share": 9,
+      "stickiness": 0.125,
+      "daily_catch": 63,
+      "daily_catch_human": 23,
+      "daily_catch_bot": 40,
+      "catch_per_fisher": 23,
+      "avg_session_ms": null,
+      "disconnect_rate": 0.1818,
+      "abandon_rate": 1,
+      "escape_rate": 0.1277,
+      "join_fail_rate": 0,
+      "avg_pop_ratio": 45.7,
+      "funnel": {
+        "nu": 9,
         "join": 0,
         "fishing_start": 0,
         "bite_hook": 0,

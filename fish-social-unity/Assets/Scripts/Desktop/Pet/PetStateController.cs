@@ -90,6 +90,7 @@ namespace FishSocial.Desktop.Pet
                 case "baiting":
                 case "casting":
                 case "waiting":
+                case "groundbaiting":
                     return PetVisualState.Fishing;
                 default:
                     return PetVisualState.Idle;

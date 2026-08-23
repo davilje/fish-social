@@ -19,16 +19,6 @@ namespace FishSocial.Desktop
             public float BaseEscapeRate;
         }
 
-        public sealed class BaitInfo
-        {
-            public string Id;
-            public string Name;
-            public float GlobalBonus;
-            public float Herbivore;
-            public float Omnivore;
-            public float Carnivore;
-        }
-
         static readonly Dictionary<string, string> QualityNames = new Dictionary<string, string>
         {
             { "gray", "普通" },
@@ -73,14 +63,6 @@ namespace FishSocial.Desktop
             S("pike", "狗鱼", "carnivore", 0.06f, 0.18f),
             S("marlin", "蓝旗鱼", "carnivore", 0.04f, 0.25f),
             S("sturgeon", "鲟鱼", "carnivore", 0.04f, 0.25f),
-        };
-
-        static readonly BaitInfo[] Baits =
-        {
-            new BaitInfo { Id = "basic", Name = "蚯蚓", GlobalBonus = 0f },
-            new BaitInfo { Id = "corn", Name = "玉米粒", GlobalBonus = 0.02f, Herbivore = 0.06f, Omnivore = 0.02f },
-            new BaitInfo { Id = "pellet", Name = "商品颗粒", GlobalBonus = 0.05f, Herbivore = 0.03f, Omnivore = 0.03f, Carnivore = 0.03f },
-            new BaitInfo { Id = "live", Name = "活虾", GlobalBonus = 0.04f, Omnivore = 0.04f, Carnivore = 0.14f },
         };
 
         public static SpeciesInfo GetSpecies(string speciesId)
@@ -144,16 +126,21 @@ namespace FishSocial.Desktop
         {
             if (species == null)
                 return "—";
-            var ranked = new List<KeyValuePair<float, string>>(Baits.Length);
-            for (var i = 0; i < Baits.Length; i++)
+            var baits = DesktopGameData.ListBaits();
+            if (baits == null || baits.Length == 0)
+                return "—";
+
+            var ranked = new List<KeyValuePair<float, string>>(baits.Length);
+            for (var i = 0; i < baits.Length; i++)
             {
-                var bait = Baits[i];
-                var affinity = 0f;
-                if (species.Diet == "herbivore") affinity = bait.Herbivore;
-                else if (species.Diet == "carnivore") affinity = bait.Carnivore;
-                else affinity = bait.Omnivore;
-                ranked.Add(new KeyValuePair<float, string>(bait.GlobalBonus + affinity, bait.Name));
+                var bait = baits[i];
+                if (bait == null || string.IsNullOrEmpty(bait.name))
+                    continue;
+                ranked.Add(new KeyValuePair<float, string>(
+                    ScoreBaitForDiet(bait, species.Diet), bait.name));
             }
+            if (ranked.Count == 0)
+                return "—";
             ranked.Sort((a, b) => b.Key.CompareTo(a.Key));
             var count = Math.Min(3, ranked.Count);
             var text = string.Empty;
@@ -163,6 +150,25 @@ namespace FishSocial.Desktop
                 text += ranked[i].Value;
             }
             return text;
+        }
+
+        static float ScoreBaitForDiet(DesktopGameData.BaitDef bait, string diet)
+        {
+            if (bait == null)
+                return 0f;
+            // Prefer matching diet bonus from GameData/baits（与商店同源）。
+            float score;
+            if (diet == "herbivore")
+                score = bait.biteBonusHerbivore;
+            else if (diet == "carnivore")
+                score = bait.biteBonusCarnivore;
+            else
+                score = bait.biteBonusOmnivore;
+            if (bait.diet == "any")
+                score += 0.001f;
+            else if (!string.IsNullOrEmpty(bait.diet) && bait.diet == diet)
+                score += 0.02f;
+            return score;
         }
 
         static SpeciesInfo S(string id, string name, string diet, float bite, float escape)

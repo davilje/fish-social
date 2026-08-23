@@ -17,6 +17,9 @@ namespace FishSocial.Desktop
             public string pondCategory;
             public string mapZoneId;
             public int feePer2h;
+            public int feePer2hSellOnly;
+            public int feePer2hAutoReturn;
+            public bool allowsAutoReturn;
             public int maxFeeChargesPerDay;
             public string unlock;
             public bool isOpen = true;
@@ -272,6 +275,12 @@ namespace FishSocial.Desktop
                     return _baits[i];
             }
             return null;
+        }
+
+        public static BaitDef[] ListBaits()
+        {
+            EnsureLoaded();
+            return _baits ?? new BaitDef[0];
         }
 
         public static VesselDef GetVessel(string vesselId)

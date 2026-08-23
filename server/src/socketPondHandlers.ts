@@ -27,14 +27,18 @@ import {
   todayKey,
 } from './gameState.js';
 import { acceptCatch, getInventory } from './inventory.js';
+import { tryAutoReturnFish } from './returnFish.js';
 import { ensurePlayer } from './players.js';
 import { checkJoinPondAccess } from './playerProgress.js';
+import { getGamePondDef, resolvePondFeePer2h } from '@fish-social/shared';
 import { checkForbiddenPondBan } from './forbiddenPolice.js';
 import { autoShareEpicCatch } from './posts.js';
 import { emitEvictedBots } from './bots.js';
-import { beginFishingSequence, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
+import { beginFishingSequence, beginGroundbaitSequence, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
 import { recordFishingMetric } from './fishingMetrics.js';
-import { recordCodexCatch } from './codex.js';
+import { recordCodexCatch, isCodexNewForPlayer } from './codex.js';
+import { addAlbumCandidate } from './album.js';
+import { tryUnlockAchievements } from './achievements.js';
 import { getQualityInfo, getSpecies, isAnnounceQuality, type ServerToClientEvents as ServerEvents } from '@fish-social/shared';
 import { logStructuredEvent, recordStructuredMetric } from './fishingObservability.js';
 import { bindPlayer, bindPondUser, resolveBySocket, unbindSocket } from './sessionRegistry.js';
@@ -64,7 +68,12 @@ function parseLeavePondPayload(
   return { pondId: raw.pondId, reason: raw.reason ?? 'legacy_unknown' };
 }
 
-function buildJoinSuccessAck(playerId: string, pondId: string, userId: string) {
+function buildJoinSuccessAck(
+  playerId: string,
+  pondId: string,
+  userId: string,
+  returnFeeMode?: 'sell_only' | 'auto_return',
+) {
   const baseMs = getTodayFishingMs(playerId);
   const fee = buildJoinFeeHint(playerId, pondId);
   const progress = ensurePlayerProgress(playerId);
@@ -74,6 +83,7 @@ function buildJoinSuccessAck(playerId: string, pondId: string, userId: string) {
     todayFishingBaseMs: baseMs,
     todayRemainingMs: Math.max(0, MAX_DAILY_FISHING_MS - baseMs),
     quotaDateKey: todayKey(),
+    returnFeeMode: returnFeeMode ?? 'sell_only',
     ...fee,
     onboardingCompleted: progress.onboardingCompleted,
     playerLevel: progress.level,
@@ -302,7 +312,13 @@ export function registerSocketPondHandlers(
       return;
     }
 
-    const result = joinPond(socket.id, payload.pondId, payload.nickname, authPlayerId);
+    const result = joinPond(
+      socket.id,
+      payload.pondId,
+      payload.nickname,
+      authPlayerId,
+      payload.returnFeeMode,
+    );
     if (!result.ok) {
       logStructuredEvent('join_pond', 'join_pond_fail', {
         playerId: authPlayerId,
@@ -361,7 +377,16 @@ export function registerSocketPondHandlers(
       reason: 'join_pond_success',
       joinKind: 'fresh',
     });
-    ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, result.user.id));
+    const pondDef = getGamePondDef(payload.pondId);
+    recordFishingMetric('return_fee_mode_selected', {
+      playerId: authPlayerId,
+      pondId: payload.pondId,
+      payload: {
+        mode: result.returnFeeMode,
+        feePer2h: pondDef ? resolvePondFeePer2h(pondDef, result.returnFeeMode) : 0,
+      },
+    });
+    ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, result.user.id, result.returnFeeMode));
     });
   });
 
@@ -448,6 +473,31 @@ export function registerSocketPondHandlers(
     ack?.({ ok: true });
   });
 
+  socket.on('groundbait_start', (payload, ack) => {
+    if (rejectIfRateLimited('groundbait_start', ack)) return;
+    const current = getPondUser(socket.id, payload.pondId);
+    if (!current) {
+      ack?.({ ok: false, error: '请先加入鱼塘', code: 'NOT_SEATED' });
+      return;
+    }
+    if (!payload.groundbaitId) {
+      ack?.({ ok: false, error: '请选择窝料', code: 'LOCKED' });
+      return;
+    }
+    const seq = beginGroundbaitSequence(
+      io,
+      payload.pondId,
+      current.id,
+      payload.groundbaitId,
+      socket.id,
+    );
+    if (!seq.ok) {
+      ack?.({ ok: false, error: seq.error, code: seq.code });
+      return;
+    }
+    ack?.({ ok: true });
+  });
+
   socket.on('take_spot', (payload, ack) => {
     if (rejectIfRateLimited('take_spot', ack)) return;
     const result = startFishing(socket.id, payload.pondId, payload.spotId);
@@ -523,10 +573,47 @@ export function registerSocketPondHandlers(
         eventId: catchId,
       },
     });
+    const wasNewCodex = isCodexNewForPlayer(session.playerId, result.item.speciesId);
     const codexUnlock = recordCodexCatch(session.playerId, result.item.speciesId, result.item.sizeM);
     if (codexUnlock) socket.emit('codex_unlocked', codexUnlock);
+
+    addAlbumCandidate({
+      playerId: session.playerId,
+      speciesId: result.item.speciesId,
+      quality: result.item.quality,
+      sizeM: result.item.sizeM,
+      pondId: session.pondId,
+      source: wasNewCodex ? 'first_codex' : 'catch',
+      inventoryItemId: result.item.id,
+    });
+
+    const newly = tryUnlockAchievements(session.playerId);
+    for (const ach of newly) {
+      socket.emit('achievement_unlocked', {
+        achievementId: ach.achievementId,
+        name: ach.name,
+        desc: ach.desc,
+      });
+    }
+
     socket.emit('inventory_updated', getInventory(session.playerId));
-    ack?.({ ok: true, item: result.item });
+
+    const autoResult = tryAutoReturnFish(session.playerId, result.item.id);
+    if (autoResult.ok) {
+      socket.emit('inventory_updated', autoResult.items);
+      ack?.({
+        ok: true,
+        autoReturned: true,
+        gold: autoResult.gold,
+        playerXp: autoResult.playerXp,
+        pondXp: autoResult.pondXp,
+        newSizeM: autoResult.newSizeM,
+        sizeGainM: autoResult.sizeGainM,
+        totalCoins: autoResult.totalCoins,
+      });
+    } else {
+      ack?.({ ok: true, item: result.item });
+    }
 
     if (isAnnounceQuality(result.item.quality)) {
       const species = getSpecies(result.item.speciesId);

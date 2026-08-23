@@ -106,6 +106,8 @@ namespace FishSocial.Desktop.Auth
                 sessionFishingMs = source.sessionFishingMs,
                 phaseEndsAt = source.phaseEndsAt,
                 isBot = source.isBot,
+                groundbait = source.groundbait,
+                returnFeeMode = source.returnFeeMode,
             };
         }
 

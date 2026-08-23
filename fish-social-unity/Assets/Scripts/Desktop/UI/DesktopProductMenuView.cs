@@ -20,7 +20,6 @@ namespace FishSocial.Desktop
             new MenuEntry(DesktopProductMenuAction.Shop, "商店与装备", false),
             new MenuEntry(DesktopProductMenuAction.Friends, "好友与聊天", false),
             new MenuEntry(DesktopProductMenuAction.CatchBag, "鱼获/背包", false),
-            new MenuEntry(DesktopProductMenuAction.Gallery, "图鉴", false),
             new MenuEntry(DesktopProductMenuAction.Profile, "个人中心", false),
             new MenuEntry(DesktopProductMenuAction.Settings, "设置", false),
             new MenuEntry(DesktopProductMenuAction.SocialFeed, "动态墙", false),

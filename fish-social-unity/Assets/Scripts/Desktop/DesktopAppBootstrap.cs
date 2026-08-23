@@ -230,6 +230,17 @@ namespace FishSocial.Desktop
                 errorMessage = _nativeOverlayError ?? string.Empty,
             };
             OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
+            if (!string.IsNullOrEmpty(_pendingGroundbaitBubble))
+            {
+                dto.observation = new NativeOverlayChatDto
+                {
+                    messageId = "gb-tip-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    nickname = "打窝",
+                    text = _pendingGroundbaitBubble,
+                    sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                };
+                _pendingGroundbaitBubble = null;
+            }
             dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
             _nativeOverlay.PublishState(dto);
         }
@@ -387,6 +398,9 @@ namespace FishSocial.Desktop
                                 : message.spotId,
                             callback));
                     return;
+                case "groundbait_start":
+                    ExecuteOverlayGroundbait(message.spotId);
+                    return;
                 case "stop_fishing":
                     ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback));
                     return;
@@ -504,6 +518,56 @@ namespace FishSocial.Desktop
                 PublishNativeOverlayState();
             });
         }
+
+        void ExecuteOverlayGroundbait(string preferredId)
+        {
+            if (_pondSession == null)
+            {
+                _nativeOverlayError = "鱼塘会话尚未初始化。";
+                PublishNativeOverlayState();
+                return;
+            }
+            var id = ResolveGroundbaitId(preferredId);
+            if (string.IsNullOrEmpty(id))
+            {
+                _nativeOverlayError = "尚未解锁任何窝料（需钓鱼等级 3）";
+                PublishNativeOverlayState();
+                return;
+            }
+            _nativeOverlayError = string.Empty;
+            PublishNativeOverlayState();
+            _pondSession.StartGroundbait(id, (ok, message) =>
+            {
+                _nativeOverlayError = ok ? string.Empty : (message ?? "打窝失败。");
+                // Gold / cap errors surface as Overlay bubble via observation-style tip
+                if (!ok && !string.IsNullOrEmpty(message) &&
+                    (message.Contains("金币") || message.Contains("上限")))
+                    QueueGroundbaitBubble(message);
+                PublishNativeOverlayState();
+            });
+        }
+
+        string ResolveGroundbaitId(string preferredId)
+        {
+            if (!string.IsNullOrEmpty(preferredId) &&
+                (preferredId == "gb-basic" || preferredId == "gb-mix" || preferredId == "gb-premium"))
+                return preferredId;
+            var level = _fishingProgress != null && _fishingProgress.level > 0
+                ? _fishingProgress.level
+                : 1;
+            if (level >= 7) return "gb-premium";
+            if (level >= 5) return "gb-mix";
+            if (level >= 3) return "gb-basic";
+            return string.Empty;
+        }
+
+        void QueueGroundbaitBubble(string text)
+        {
+            // Transient private bubble via observation DTO next publish
+            _pendingGroundbaitBubble = text;
+        }
+
+        string _pendingGroundbaitBubble;
 
         void ExitPondFromOverlay()
         {

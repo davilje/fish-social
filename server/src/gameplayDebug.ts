@@ -2,14 +2,25 @@ import type { Express, Request, Response } from 'express';
 import type { Server } from 'socket.io';
 import {
   ADMISSION_FEE_SLICE_MS,
+  FISH_SPECIES,
   getGamePondDef,
   getMaxPlayerLevel,
   getPlayerLevelDef,
+  getQualityMaxSize,
+  getSpecies,
   isFishingActive,
+  type AchievementDef,
   type ClientToServerEvents,
+  type CodexUnlockPayload,
+  type FishInventoryItem,
+  type FishQuality,
+  type FishSpeciesId,
   type ServerToClientEvents,
 } from '@fish-social/shared';
 import { requireAuth, resolveAuthedPlayerId } from './auth.js';
+import { addAlbumCandidate } from './album.js';
+import { tryUnlockAchievements } from './achievements.js';
+import { isCodexNewForPlayer, recordCodexCatch } from './codex.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import {
   findLivePondUser,
@@ -25,7 +36,12 @@ import {
   setPlayerLevelForDebug,
   setPondProficiencyLevelForDebug,
 } from './playerProgress.js';
-import { requestFeeStop } from './pondUserManager.js';
+import {
+  clearTodayFishingMsRecord,
+  debugResetTodayFishingDuration,
+  emitPondUserUpdated,
+  requestFeeStop,
+} from './pondUserManager.js';
 import { resolveSocketByPlayer } from './sessionRegistry.js';
 
 export const GAMEPLAY_DEBUG_ACTIONS = [
@@ -36,7 +52,10 @@ export const GAMEPLAY_DEBUG_ACTIONS = [
   'add_gold',
   'police_raid',
   'grant_fish',
+  'grant_fish_max_size',
+  'grant_fish_epic_plus',
   'advance_fee_2h',
+  'reset_fishing_duration',
 ] as const;
 
 export type GameplayDebugAction = (typeof GAMEPLAY_DEBUG_ACTIONS)[number];
@@ -49,6 +68,13 @@ export const GAMEPLAY_DEBUG_FISH = {
 };
 
 const POND_TABLE_MAX = 10;
+
+/** 最近一次发放鱼获的副作用（供路由推 Socket） */
+let lastFishSideEffects: {
+  playerId: string;
+  codex: CodexUnlockPayload | null;
+  achievements: AchievementDef[];
+} | null = null;
 
 export function isGameplayDebugEnabled(): boolean {
   return process.env.NODE_ENV !== 'production' || process.env.GAMEPLAY_DEBUG === '1';
@@ -66,12 +92,45 @@ function isKnownAction(value: string): value is GameplayDebugAction {
 
 export type GameplayDebugResult =
   | { ok: true; message: string; action: GameplayDebugAction; pondId?: string }
-  | { ok: false; error: string; action?: string };
+  | { ok: false; error: string; action?: string; pondId?: string };
+
+/** 与正式领鱼一致：图鉴 + 相册自动入墙 + 成就 */
+function finalizeDebugFishGrant(
+  playerId: string,
+  item: FishInventoryItem,
+  pondId: string | undefined,
+  label: string,
+): { message: string; pondId?: string } {
+  const speciesId = item.speciesId as FishSpeciesId;
+  const wasNewCodex = isCodexNewForPlayer(playerId, speciesId);
+  const codex = recordCodexCatch(playerId, speciesId, item.sizeM);
+  addAlbumCandidate({
+    playerId,
+    speciesId: item.speciesId,
+    quality: item.quality,
+    sizeM: item.sizeM,
+    pondId: pondId ?? null,
+    source: wasNewCodex ? 'first_codex' : 'catch',
+    inventoryItemId: item.id,
+  });
+  const achievements = tryUnlockAchievements(playerId);
+  lastFishSideEffects = { playerId, codex, achievements };
+  return { pondId, message: label };
+}
+
+function pickSpeciesForQuality(quality: FishQuality) {
+  const candidates = FISH_SPECIES.filter(
+    (s) => (s.qualityAffinity?.[quality] ?? 0) > 0,
+  );
+  if (candidates.length === 0) return FISH_SPECIES[FISH_SPECIES.length - 1];
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
 
 export function executeGameplayDebugAction(
   playerId: string,
   action: string,
 ): GameplayDebugResult {
+  lastFishSideEffects = null;
   if (!isKnownAction(action)) {
     return { ok: false, error: '未知 Debug 动作', action };
   }
@@ -180,12 +239,63 @@ export function executeGameplayDebugAction(
       },
       { pondId: pondId ?? 'pond-calm' },
     );
-    return {
-      ok: true,
-      action,
-      pondId,
-      message: `已发放调试鱼获：鲫鱼·灰·${GAMEPLAY_DEBUG_FISH.sizeM}m（id=${item.id}）`,
-    };
+    const grant = finalizeDebugFishGrant(
+      playerId,
+      item,
+      pondId ?? 'pond-calm',
+      `已发放调试鱼获：鲫鱼·灰·${GAMEPLAY_DEBUG_FISH.sizeM}m（id=${item.id}）`,
+    );
+    return { ok: true, action, pondId: grant.pondId, message: grant.message };
+  }
+
+  if (action === 'grant_fish_max_size') {
+    const quality: FishQuality = 'gold';
+    const species = pickSpeciesForQuality(quality);
+    const sizeM = getQualityMaxSize(quality, getSpecies(species.id));
+    const item = addFishToInventory(
+      playerId,
+      {
+        speciesId: species.id,
+        quality,
+        sizeM,
+        caughtAt: Date.now(),
+        pondId: pondId ?? 'pond-calm',
+      },
+      { pondId: pondId ?? 'pond-calm' },
+    );
+    const grant = finalizeDebugFishGrant(
+      playerId,
+      item,
+      pondId ?? 'pond-calm',
+      `已发放最大尺寸鱼获：${species.name}·至尊·${sizeM}m（已入相册）`,
+    );
+    return { ok: true, action, pondId: grant.pondId, message: grant.message };
+  }
+
+  if (action === 'grant_fish_epic_plus') {
+    const epicQualities: FishQuality[] = ['purple', 'red', 'orange', 'gold'];
+    const quality = epicQualities[Math.floor(Math.random() * epicQualities.length)];
+    const species = pickSpeciesForQuality(quality);
+    const sizeM =
+      Math.round(getQualityMaxSize(quality, getSpecies(species.id)) * 0.92 * 100) / 100;
+    const item = addFishToInventory(
+      playerId,
+      {
+        speciesId: species.id as FishSpeciesId,
+        quality,
+        sizeM,
+        caughtAt: Date.now(),
+        pondId: pondId ?? 'pond-calm',
+      },
+      { pondId: pondId ?? 'pond-calm' },
+    );
+    const grant = finalizeDebugFishGrant(
+      playerId,
+      item,
+      pondId ?? 'pond-calm',
+      `已发放高品质鱼获：${species.name}·${quality}·${sizeM}m（已入相册）`,
+    );
+    return { ok: true, action, pondId: grant.pondId, message: grant.message };
   }
 
   if (action === 'advance_fee_2h') {
@@ -223,6 +333,20 @@ export function executeGameplayDebugAction(
     };
   }
 
+  if (action === 'reset_fishing_duration') {
+    if (live) {
+      debugResetTodayFishingDuration(live.user);
+    } else {
+      clearTodayFishingMsRecord(playerId);
+    }
+    return {
+      ok: true,
+      action,
+      pondId,
+      message: '已重置今日钓鱼时长为 0',
+    };
+  }
+
   return { ok: false, error: '未知 Debug 动作', action };
 }
 
@@ -256,10 +380,35 @@ export function registerGameplayDebugRoutes(
       res.status(400).json(result);
       return;
     }
-    if (action === 'grant_fish') {
-      const socketId = resolveSocketByPlayer(playerId);
-      if (socketId) io.to(socketId).emit('inventory_updated', getInventory(playerId));
+
+    const socketId = resolveSocketByPlayer(playerId);
+    const live = findLivePondUser(playerId);
+
+    if (
+      action === 'grant_fish' ||
+      action === 'grant_fish_max_size' ||
+      action === 'grant_fish_epic_plus'
+    ) {
+      if (socketId) {
+        io.to(socketId).emit('inventory_updated', getInventory(playerId));
+        const side = lastFishSideEffects;
+        if (side && side.playerId === playerId) {
+          if (side.codex) io.to(socketId).emit('codex_unlocked', side.codex);
+          for (const ach of side.achievements) {
+            io.to(socketId).emit('achievement_unlocked', {
+              achievementId: ach.achievementId,
+              name: ach.name,
+              desc: ach.desc,
+            });
+          }
+        }
+      }
     }
+
+    if (action === 'reset_fishing_duration' && live) {
+      emitPondUserUpdated(io, live.pondId, live.user);
+    }
+
     res.json({
       ...result,
       progress: getProgressPublicView(playerId),

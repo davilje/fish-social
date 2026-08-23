@@ -200,6 +200,24 @@ namespace FishSocialOverlay
         [DataMember(Name = "overlayPromptDeadlineMs")]
         public long OverlayPromptDeadlineMs { get; set; }
 
+        [DataMember(Name = "groundbaitStack")]
+        public int GroundbaitStack { get; set; }
+
+        [DataMember(Name = "groundbaitMaxStack")]
+        public int GroundbaitMaxStack { get; set; }
+
+        [DataMember(Name = "groundbaitBiteBonus")]
+        public float GroundbaitBiteBonus { get; set; }
+
+        [DataMember(Name = "groundbaitSizeBonus")]
+        public float GroundbaitSizeBonus { get; set; }
+
+        [DataMember(Name = "groundbaitExpiresAt")]
+        public long GroundbaitExpiresAt { get; set; }
+
+        [DataMember(Name = "groundbaitBitesLeft")]
+        public int GroundbaitBitesLeft { get; set; }
+
         [DataMember(Name = "availableActions")]
         public string[] AvailableActions { get; set; }
 

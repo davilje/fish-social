@@ -47,6 +47,8 @@ namespace FishSocial.Desktop
                 }
                 if (typeof(T) == typeof(DesktopProfilePanel))
                     return MountFallback<T>(parent, "PanelProfile", bind);
+                if (typeof(T) == typeof(DesktopProfileHubPanel))
+                    return MountFallback<T>(parent, "PanelProfileHub", bind);
                 if (typeof(T) == typeof(DesktopProfileEditPanel))
                     return MountFallback<T>(parent, "PanelProfileEdit", bind);
                 if (typeof(T) == typeof(DesktopSocialFeedPanel))
@@ -120,6 +122,8 @@ namespace FishSocial.Desktop
                 return "PanelShop";
             if (typeof(T) == typeof(DesktopProfilePanel))
                 return "PanelProfile";
+            if (typeof(T) == typeof(DesktopProfileHubPanel))
+                return "PanelProfileHub";
             if (typeof(T) == typeof(DesktopProfileEditPanel))
                 return "PanelProfileEdit";
             if (typeof(T) == typeof(DesktopSocialFeedPanel))

@@ -19,7 +19,10 @@ namespace FishSocial.Desktop
             "add_gold",
             "police_raid",
             "grant_fish",
+            "grant_fish_max_size",
+            "grant_fish_epic_plus",
             "advance_fee_2h",
+            "reset_fishing_duration",
         };
 
         static readonly string[] Labels =
@@ -31,7 +34,10 @@ namespace FishSocial.Desktop
             "获得 1000000 金钱",
             "一键出警",
             "获得鱼获",
+            "获得最大尺寸鱼",
+            "获得史诗及以上鱼",
             "当前鱼塘钓鱼时长 +2 小时",
+            "重置今日钓鱼时长",
         };
 
         IAuthenticatedApiClient _api;
@@ -89,7 +95,7 @@ namespace FishSocial.Desktop
                 return;
 
             const float width = 360f;
-            const float height = 420f;
+            const float height = 520f;
             var rect = new Rect(Screen.width - width - 24f, 72f, width, height);
             GUI.Box(rect, "玩法 Debug（F8 关闭）");
             var inner = new Rect(rect.x + 12f, rect.y + 32f, rect.width - 24f, rect.height - 44f);

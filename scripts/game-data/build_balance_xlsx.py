@@ -25,7 +25,10 @@ META_ROWS = [
     ("version", "1.0.0"),
     ("SIZE_EXP", 1.15),
     ("maxFeeChargesPerDayDefault", 4),
-    ("schemaNote", "FEAT-PROG-01"),
+    ("maxStackCount", 50),
+    ("biteMulGlobalCap", 1.5),
+    ("albumPinCap", 12),
+    ("schemaNote", "FEAT-PROG-01+RETURN-01+GROUND-01+ALBUM-01"),
 ]
 
 PONDS_HEADER = [
@@ -34,6 +37,9 @@ PONDS_HEADER = [
     "pondCategory",
     "mapZoneId",
     "feePer2h",
+    "feePer2hSellOnly",
+    "feePer2hAutoReturn",
+    "allowsAutoReturn",
     "maxFeeChargesPerDay",
     "unlock",
     "isOpen",
@@ -71,8 +77,8 @@ PONDS = [
 # FEAT-RETURN-01：单行全局规则（回鱼准入与奖励）
 RETURN_RULES = [
     # minQuality, minSizeRatio, maxSizeRatio, goldMulVsSell, playerXp, pondXp,
-    # sizeGainMinM, sizeGainMaxM, sizeGainMode
-    ("gray", 0.2, 1.0, 0.70, 8, 4, 0.02, 0.05, "uniform_random"),
+    # sizeGainMinM, sizeGainMaxM, sizeGainMode, autoMinQuality, autoMinSizeRatio
+    ("gray", 0.2, 1.0, 0.70, 8, 4, 0.02, 0.05, "uniform_random", "purple", 0.75),
 ]
 
 PLAYER_LEVELS = [
@@ -229,6 +235,27 @@ BAITS = [
     ("bait-meat", "荤腥饵", "carnivore", 4, 25, 0.01, 0.01, 0.07, False),
 ]
 
+# FEAT-GROUND-01
+GROUNDBAITS = [
+    # groundbaitId, name, unlockPlayerLevel, costGoldPerUse, castDurationMs,
+    # durationMin, maxBites, perStackBiteBonus, maxBonus, stackK,
+    # sizeBonusPerStack, maxSizeBonus
+    ("gb-basic", "基础窝料", 3, 30, 3000, 20, 8, 0.006, 0.08, 0.08, 0.003, 0.08),
+    ("gb-mix", "混合窝料", 5, 50, 5000, 25, 10, 0.010, 0.12, 0.07, 0.004, 0.10),
+    ("gb-premium", "精品窝料", 7, 80, 8000, 30, 12, 0.014, 0.18, 0.06, 0.005, 0.12),
+]
+
+# FEAT-ALBUM-01
+ACHIEVEMENTS = [
+    # achievementId, name, desc, iconKey, category, conditionType, conditionValue, sortOrder, isHidden
+    ("ach-first-catch", "初出茅庐", "首次将鱼收入背包", "ach_first_catch", "catch", "catch_count", 1, 10, False),
+    ("ach-codex-5", "图鉴新芽", "图鉴解锁达到 5 种", "ach_codex_5", "progress", "codex_count", 5, 20, False),
+    ("ach-codex-20", "博物渔者", "图鉴解锁达到 20 种", "ach_codex_20", "progress", "codex_count", 20, 30, False),
+    ("ach-return-1", "放生有情", "成功回鱼至少 1 次", "ach_return_1", "catch", "return_count", 1, 40, False),
+    ("ach-big-08", "大鱼临门", "单次捕获尺寸达到 0.8m", "ach_big_08", "catch", "max_size", 0.8, 50, False),
+    ("ach-album-3", "相册收藏家", "相册精选钉选达到 3 张", "ach_album_3", "album", "album_pins", 3, 60, False),
+]
+
 VESSELS = [
     ("vessel-raft", "筏钓日票", 12, 15000, 8, False),
     ("vessel-boat", "路亚小艇", 14, 35000, 12, False),
@@ -295,11 +322,16 @@ SPOT_TAGS = [
 FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("_meta", "key", "键", "全局常量名，如 SIZE_EXP、version。"),
     ("_meta", "value", "值", "对应常量的数值或备注。"),
+    ("_meta", "maxStackCount", "打窝层数上限", "FEAT-GROUND-01 全局硬 cap，默认 50。"),
+    ("_meta", "biteMulGlobalCap", "咬钩总倍率软帽", "相对无窝基线的全局 soft cap，建议 1.5。"),
     ("ponds", "pondId", "鱼塘ID", "程序主键，进塘/扣费/地图都用这个。"),
     ("ponds", "name", "鱼塘名", "中文显示名。"),
     ("ponds", "pondCategory", "鱼塘分级", "novice/advanced/veteran/wilderness/reservoir/forbidden/giant。"),
     ("ponds", "mapZoneId", "地图分区", "世界地图分区 ID。"),
-    ("ponds", "feePer2h", "每2小时入场费", "金币；0 表示不收费。"),
+    ("ponds", "feePer2h", "每2小时入场费", "金币；0 表示不收费；兼容字段=出售档。"),
+    ("ponds", "feePer2hSellOnly", "出售档每2h费", "FEAT-RETURN-02 不可回鱼档扣费。"),
+    ("ponds", "feePer2hAutoReturn", "回鱼档每2h费", "FEAT-RETURN-02 自动回鱼档扣费。"),
+    ("ponds", "allowsAutoReturn", "允许双价选择", "TRUE 时进塘需选 sell_only/auto_return。"),
     ("ponds", "maxFeeChargesPerDay", "每日扣费次数上限", "按 2 小时切片累计。"),
     ("ponds", "unlock", "解锁条件", "onboarding / level:N / guide_only。"),
     ("ponds", "isOpen", "是否开放", "FALSE 的塘不能进（如巨物塘壳）。"),
@@ -320,6 +352,8 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("return_rules", "sizeGainMinM", "增重下限m", "塘内实体增重下限。"),
     ("return_rules", "sizeGainMaxM", "增重上限m", "塘内实体增重上限。"),
     ("return_rules", "sizeGainMode", "增重模式", "uniform_random=区间均匀随机。"),
+    ("return_rules", "autoMinQuality", "自动回鱼最低品质", "FEAT-RETURN-02 如 purple。"),
+    ("return_rules", "autoMinSizeRatio", "自动回鱼最低体长比", "相对品质 max，如 0.75。"),
     ("pond_levels", "level", "鱼塘等级", "1~10。"),
     ("pond_levels", "xpToNext", "升到下级所需塘经验", "10 级为 0。"),
     ("fish_species", "speciesId", "鱼种ID", "程序主键。"),
@@ -392,6 +426,18 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("baits", "biteBonusOmnivore", "对杂食咬钩加成", "如 0.06 = +6%。"),
     ("baits", "biteBonusCarnivore", "对肉食咬钩加成", "如 0.07 = +7%。"),
     ("baits", "isDefaultInfinite", "是否无限基础饵", "TRUE 的饵永不短缺，也不扣金。"),
+    ("groundbaits", "groundbaitId", "窝料ID", "程序主键。"),
+    ("groundbaits", "name", "中文名", "Overlay 显示名。"),
+    ("groundbaits", "unlockPlayerLevel", "解锁钓鱼等级", "低于此等级不可打窝。"),
+    ("groundbaits", "costGoldPerUse", "单次金币", "打窝开始时扣除。"),
+    ("groundbaits", "castDurationMs", "打窝等待毫秒", "groundbaiting phase 时长。"),
+    ("groundbaits", "durationMin", "持续分钟", "与 maxBites 先到失效。"),
+    ("groundbaits", "maxBites", "持续口数", "与 durationMin 先到失效。"),
+    ("groundbaits", "perStackBiteBonus", "每层咬钩参考", "策划标注；实际用 maxBonus/stackK 曲线。"),
+    ("groundbaits", "maxBonus", "咬钩加成渐近上限", "bonus=maxBonus*(1-exp(-stackK*stack))。"),
+    ("groundbaits", "stackK", "曲线速率", "非线性叠层速率。"),
+    ("groundbaits", "sizeBonusPerStack", "尺寸每层增益m", "临时，不写库。"),
+    ("groundbaits", "maxSizeBonus", "尺寸增益总帽m", "临时 sizeBonus 上限。"),
     ("vessels", "vesselId", "船具ID", "程序主键。"),
     ("vessels", "name", "中文名", "商店显示名。"),
     ("vessels", "unlockPlayerLevel", "解锁钓鱼等级", "低于此等级不能买。"),
@@ -411,6 +457,15 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("spot_tags", "pondId", "鱼塘ID", "点位所属塘。"),
     ("spot_tags", "spotId", "钓点ID", "与运行时 spotId 对齐。"),
     ("spot_tags", "tags", "标签列表", "逗号分隔，如 weed,shade。"),
+    ("achievements", "achievementId", "成就ID", "程序主键。"),
+    ("achievements", "name", "名称", "展示名。"),
+    ("achievements", "desc", "描述", "条件说明；隐藏成就未解锁时客户端不剧透。"),
+    ("achievements", "iconKey", "图标键", "资源键。"),
+    ("achievements", "category", "分类", "catch/social/progress/album。"),
+    ("achievements", "conditionType", "条件类型", "catch_count/codex_count/return_count/max_size/album_pins。"),
+    ("achievements", "conditionValue", "条件阈值", "达标阈值。"),
+    ("achievements", "sortOrder", "排序", "展示序，小在前。"),
+    ("achievements", "isHidden", "隐藏成就", "TRUE：未解锁不展示条件。"),
 ]
 
 
@@ -479,7 +534,14 @@ def build() -> Path:
     write_field_docs(wb)
     write_sheet(wb, "_meta", list(META_ROWS[0]), META_ROWS[1:])
 
-    pond_rows = [(*p, 0, 0) for p in PONDS]
+    pond_rows = []
+    dual_categories = {"advanced", "veteran", "forbidden"}
+    for p in PONDS:
+        fee = p[4]
+        category = p[2]
+        dual = fee > 0 and category in dual_categories
+        auto_fee = round(fee * 1.75) if dual else 0
+        pond_rows.append((*p[:5], fee, auto_fee, dual, *p[5:], 0, 0))
     write_sheet(wb, "ponds", PONDS_HEADER, pond_rows)
 
     write_sheet(
@@ -502,6 +564,8 @@ def build() -> Path:
             "sizeGainMinM",
             "sizeGainMaxM",
             "sizeGainMode",
+            "autoMinQuality",
+            "autoMinSizeRatio",
         ],
         RETURN_RULES,
     )
@@ -635,6 +699,26 @@ def build() -> Path:
 
     write_sheet(
         wb,
+        "groundbaits",
+        [
+            "groundbaitId",
+            "name",
+            "unlockPlayerLevel",
+            "costGoldPerUse",
+            "castDurationMs",
+            "durationMin",
+            "maxBites",
+            "perStackBiteBonus",
+            "maxBonus",
+            "stackK",
+            "sizeBonusPerStack",
+            "maxSizeBonus",
+        ],
+        GROUNDBAITS,
+    )
+
+    write_sheet(
+        wb,
         "vessels",
         [
             "vesselId",
@@ -669,6 +753,23 @@ def build() -> Path:
         "spot_tags",
         ["pondId", "spotId", "tags"],
         SPOT_TAGS,
+    )
+
+    write_sheet(
+        wb,
+        "achievements",
+        [
+            "achievementId",
+            "name",
+            "desc",
+            "iconKey",
+            "category",
+            "conditionType",
+            "conditionValue",
+            "sortOrder",
+            "isHidden",
+        ],
+        ACHIEVEMENTS,
     )
 
     wb.save(OUT)

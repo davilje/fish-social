@@ -26,6 +26,13 @@ import {
 import { getInventory, sellFish, getFishById, addFishToInventory } from './inventory.js';
 import { returnFishToPond } from './returnFish.js';
 import { recordFishingMetric } from './fishingMetrics.js';
+import { getProfileHub } from './profileHub.js';
+import {
+  pinAlbumCandidate,
+  setAlbumPins,
+  unpinAlbumPin,
+} from './album.js';
+import { getAchievementCatalog, tryUnlockAchievements } from './achievements.js';
 import {
   completeOnboarding,
   ensurePlayerProgress,
@@ -405,11 +412,74 @@ export function registerSocialRoutes(
     res.json({ view });
   });
 
+  // FEAT-ALBUM-01：个人中心聚合
+  app.get('/api/players/:playerId/profile-hub', (req, res) => {
+    const viewer = String(req.query.viewer ?? '') || resolveAuthedPlayerId(req) || '';
+    if (!viewer) return res.status(400).json({ error: '缺少 viewer 参数' });
+    const hub = getProfileHub(String(req.params.playerId), viewer);
+    if (!hub) return res.status(404).json({ error: '玩家不存在' });
+    if (viewer === String(req.params.playerId)) {
+      recordFishingMetric('profile_hub_opened', {
+        playerId: viewer,
+        payload: { tab: String(req.query.tab ?? 'profile') },
+      });
+    }
+    res.json({ hub });
+  });
+
+  app.put('/api/players/:playerId/album/pins', requireAuth, (req, res) => {
+    const playerId = resolveAuthedPlayerId(req, String(req.params.playerId));
+    if (!playerId) return res.status(401).json({ error: 'unauthorized' });
+    const body = req.body as {
+      candidateIds?: string[];
+      pinIds?: string[];
+      action?: 'pin' | 'unpin' | 'set';
+      candidateId?: string;
+      pinId?: string;
+    };
+
+    let result:
+      | { ok: true; pins: import('@fish-social/shared').AlbumCard[]; pinCount: number; action?: string }
+      | { ok: false; error: string; code?: string };
+
+    if (body.action === 'pin' && body.candidateId) {
+      result = pinAlbumCandidate(playerId, body.candidateId);
+    } else if (body.action === 'unpin' && (body.pinId || body.candidateId)) {
+      result = unpinAlbumPin(playerId, String(body.pinId || body.candidateId));
+    } else {
+      const ids = body.candidateIds ?? body.pinIds ?? [];
+      result = setAlbumPins(playerId, ids);
+      if (result.ok) result = { ...result, action: 'set' };
+    }
+
+    if (!result.ok) {
+      const status = result.code === 'PIN_CAP' ? 400 : 400;
+      return res.status(status).json({ error: result.error, code: result.code });
+    }
+
+    recordFishingMetric('album_pin_changed', {
+      playerId,
+      payload: {
+        pinCount: result.pinCount,
+        action: result.action ?? 'set',
+      },
+    });
+    const newly = tryUnlockAchievements(playerId);
+    res.json({ pins: result.pins, pinCount: result.pinCount, unlockedAchievements: newly });
+  });
+
+  app.get('/api/achievements', (_req, res) => {
+    res.json({ achievements: getAchievementCatalog() });
+  });
+
   app.put('/api/players/:playerId/settings', requireAuth, (req, res) => {
     const playerId = resolveAuthedPlayerId(req, String(req.params.playerId));
     if (!playerId) return res.status(401).json({ error: 'unauthorized' });
-    const { shareVisibility } = req.body as { shareVisibility?: 'public' | 'friends' };
+    const { shareVisibility } = req.body as { shareVisibility?: 'public' | 'friends' | 'private' };
     if (!shareVisibility) return res.status(400).json({ error: '缺少设置' });
+    if (shareVisibility !== 'public' && shareVisibility !== 'friends' && shareVisibility !== 'private') {
+      return res.status(400).json({ error: '无效的可见性' });
+    }
     const profile = setShareVisibility(playerId, shareVisibility);
     if (!profile) return res.status(404).json({ error: '玩家不存在' });
     res.json({ profile });

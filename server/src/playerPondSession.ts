@@ -16,6 +16,7 @@ export interface SessionRow {
   phase_ends_at: number | null;
   hook_ends_at: number | null;
   disconnected_at: number | null;
+  return_fee_mode: string | null;
   updated_at: number;
 }
 
@@ -36,10 +37,10 @@ interface PendingLockRow {
 const upsertSessionStmt = db.prepare(`
   INSERT INTO player_pond_session (
     player_id, pond_id, user_id, spot_id, fishing_phase,
-    phase_ends_at, hook_ends_at, disconnected_at, updated_at
+    phase_ends_at, hook_ends_at, disconnected_at, return_fee_mode, updated_at
   ) VALUES (
     @playerId, @pondId, @userId, @spotId, @fishingPhase,
-    @phaseEndsAt, @hookEndsAt, @disconnectedAt, @updatedAt
+    @phaseEndsAt, @hookEndsAt, @disconnectedAt, @returnFeeMode, @updatedAt
   )
   ON CONFLICT(player_id, pond_id) DO UPDATE SET
     user_id = excluded.user_id,
@@ -48,6 +49,7 @@ const upsertSessionStmt = db.prepare(`
     phase_ends_at = excluded.phase_ends_at,
     hook_ends_at = excluded.hook_ends_at,
     disconnected_at = excluded.disconnected_at,
+    return_fee_mode = excluded.return_fee_mode,
     updated_at = excluded.updated_at
 `);
 
@@ -94,6 +96,7 @@ export function upsertPlayerPondSession(user: PondUser, pondId: string, hookEnds
     phaseEndsAt: user.phaseEndsAt,
     hookEndsAt: hookEndsAt ?? null,
     disconnectedAt: user.disconnectedAt ?? null,
+    returnFeeMode: user.returnFeeMode ?? 'sell_only',
     updatedAt: Date.now(),
   });
 }
@@ -157,6 +160,10 @@ export function applyCheckpointToUser(user: PondUser, row: SessionRow): PondUser
   user.fishingPhase = (row.fishing_phase as FishingPhase | null) ?? 'idle';
   user.phaseEndsAt = row.phase_ends_at;
   user.disconnectedAt = row.disconnected_at;
+  user.returnFeeMode =
+    row.return_fee_mode === 'auto_return' || row.return_fee_mode === 'sell_only'
+      ? row.return_fee_mode
+      : 'sell_only';
   user.status = user.fishingPhase && user.fishingPhase !== 'idle' && user.fishingPhase !== 'seated'
     ? 'fishing'
     : user.spotId ? 'idle' : 'idle';

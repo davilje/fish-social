@@ -1,12 +1,15 @@
 import { randomUUID } from 'crypto';
 import {
-  MAX_DAILY_FISHING_MS,
+  getGamePondDef,
   getPondById,
   isFishingActive,
+  validateJoinReturnFeeMode,
   type ChatMessage,
   type PondUser,
+  type ReturnFeeMode,
 } from '@fish-social/shared';
 import { clearPendingCatch } from './inventory.js';
+import { clearGroundbait } from './groundbait.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { recordPhaseTransition } from './fishingObservability.js';
 import {
@@ -26,7 +29,6 @@ import {
   removeBotUser,
   removeUserIndexes,
   restoreCheckpointUser,
-  safeFishingElapsedMs,
   settleFishingSession,
   todayKey,
 } from './pondUserManager.js';
@@ -75,9 +77,22 @@ export function joinPond(
   pondId: string,
   nickname: string,
   playerId: string,
-): { ok: true; user: PondUser; evictedUserIds: string[] } | { ok: false; error: string } {
+  returnFeeMode?: ReturnFeeMode,
+): { ok: true; user: PondUser; evictedUserIds: string[]; returnFeeMode: ReturnFeeMode } | { ok: false; error: string } {
   const pond = getPondById(pondId);
   if (!pond) return { ok: false, error: '鱼塘不存在' };
+
+  const pondDef = getGamePondDef(pondId);
+  const modeResult = validateJoinReturnFeeMode(pondDef, returnFeeMode);
+  if (!modeResult.ok) {
+    recordFishingMetric('join_pond_fail', {
+      playerId,
+      pondId,
+      payload: { socketId, reason: 'return_fee_mode', ackError: modeResult.error },
+    });
+    return { ok: false, error: modeResult.error };
+  }
+  const resolvedMode = modeResult.mode;
 
   const access = checkJoinPondAccess(playerId, pondId);
   if (!access.ok) {
@@ -119,11 +134,11 @@ export function joinPond(
     leavePond(socketId);
   }
 
-  const user = createHumanPondUser(pondId, playerId, nickname);
+  const user = createHumanPondUser(pondId, playerId, nickname, resolvedMode);
   sessions.set(socketId, { userId: user.id, playerId, pondId, nickname: user.nickname });
   upsertPlayerPondSession(user, pondId);
 
-  return { ok: true, user, evictedUserIds };
+  return { ok: true, user, evictedUserIds, returnFeeMode: resolvedMode };
 }
 
 export function leavePond(socketId: string): PondUser | null {
@@ -139,6 +154,7 @@ export function leavePond(socketId: string): PondUser | null {
       mode: 'finalize',
       pondId: session.pondId,
     });
+    clearGroundbait(user);
   }
   if (user?.spotId) {
     recordFishingMetric('spot_release', {
@@ -202,6 +218,7 @@ export function leaveSpot(
   user.sessionStartedAt = null;
   user.phaseEndsAt = null;
   user.phaseContext = { isRebait: false };
+  clearGroundbait(user);
   upsertPlayerPondSession(user, pondId);
   recordFishingMetric('spot_release', {
     playerId: session.playerId,
@@ -266,20 +283,14 @@ export function startFishing(
 
   ensureFishingDayRollover(user);
   const now = Date.now();
-  const currentStatus = user.status as string;
-  const todayMs =
-    getTodayFishingMs(session.playerId) +
-    (currentStatus === 'fishing' && user.fishingStartedAt
-      ? safeFishingElapsedMs(user.fishingStartedAt, now)
-      : 0);
-  if (todayMs >= MAX_DAILY_FISHING_MS) {
-    return { ok: false, error: '今日钓鱼时长已达 8 小时上限' };
-  }
+  // 今日时长已满仍可落座（seated）；仅开始钓鱼时由 beginFishingSequence 拦截
+  // （对齐 Web：可坐席、不可开钓）
 
   // 换钓点前先结算上一局未入账段
   settleFishingSession(user, now, 'take_spot', { mode: 'finalize' });
 
   const fromPhase = user.fishingPhase ?? 'idle';
+  const prevSpot = user.spotId;
   user.spotId = spotId;
   user.status = 'idle';
   user.fishingStartedAt = null;
@@ -290,6 +301,7 @@ export function startFishing(
   user.fishingPhase = 'seated';
   user.phaseEndsAt = null;
   user.phaseContext = { isRebait: false };
+  if (prevSpot !== spotId) clearGroundbait(user);
 
   recordPhaseTransition({
     playerId: user.playerId,

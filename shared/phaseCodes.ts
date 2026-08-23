@@ -17,6 +17,7 @@ export const PHASE_CODES: Record<FishingPhase, number> = {
   resolving: 6,
   stopping: 7,
   disconnected: 8,
+  groundbaiting: 9,
 };
 
 export const PHASE_FROM_CODE: Readonly<Record<number, FishingPhase>> = {
@@ -29,6 +30,7 @@ export const PHASE_FROM_CODE: Readonly<Record<number, FishingPhase>> = {
   6: 'resolving',
   7: 'stopping',
   8: 'disconnected',
+  9: 'groundbaiting',
 };
 
 export function phaseToCode(phase: FishingPhase | null | undefined): number {

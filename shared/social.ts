@@ -121,6 +121,7 @@ export interface DmConversation {
 export const SHARE_VISIBILITY_LABELS: Record<ShareVisibility, string> = {
   public: '所有人可见',
   friends: '仅好友可见',
+  private: '仅自己可见',
 };
 
 /** 他人主页对外展示（不含金币等敏感字段） */
