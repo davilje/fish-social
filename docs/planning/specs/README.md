@@ -80,7 +80,7 @@
 | [Steam桌面端-09DOverlay布局与角色表现优化.md](./Steam桌面端-09DOverlay布局与角色表现优化.md) | v1.0-steam-desktop | P0 | **已实现** | 09D；960×560、64px、默认状态/圆环、左上收纳菜单 |
 | [Steam桌面端公网联调与服务器地址配置.md](./Steam桌面端公网联调与服务器地址配置.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-10；可配置 serverBaseUrl；本机/局域网基线 |
 | [Steam桌面端本机公网映射联调.md](./Steam桌面端本机公网映射联调.md) | v1.0-steam-desktop | P1 | **已废弃** | STEAM-DESKTOP-10A；CGNAT 导致本机公网不可行 |
-| [Steam桌面端云服务器联调保留.md](./Steam桌面端云服务器联调保留.md) | v1.0-steam-desktop | P2 | **已确认（保留）** | STEAM-DESKTOP-10B；上云暂缓，随时可切 |
+| [Steam桌面端云服务器联调保留.md](./Steam桌面端云服务器联调保留.md) | v1.0-steam-desktop | P2 | **已确认（方案就绪/实施可暂缓）** | STEAM-DESKTOP-10B；Windows 手册 [`windows-cloud-deploy.md`](../../ops/windows-cloud-deploy.md) |
 | [Unity Windows桌面端基础壳.md](./Unity Windows桌面端基础壳.md) | v1.0-steam-desktop | P0/P1 | **已实现** | STEAM-DESKTOP-04；04A～04F 工程、窗口、托盘、占位、通知、构建验收 |
 | [Steam身份账号绑定与安全会话.md](./Steam身份账号绑定与安全会话.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-02；Steam Ticket、SteamID64↔playerId、JWT 与安全审计 |
 | [空鱼塘休眠与生态离线补算.md](./空鱼塘休眠与生态离线补算.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-05；活跃 Tick、空塘休眠、成长/迁移/补充补算、事务幂等 |

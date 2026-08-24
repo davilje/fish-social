@@ -1,5 +1,12 @@
 # 策划文档变更记录
 
+### [steam-desktop-10b-windows-deploy] - 2026-08-24
+
+- 补充 **STEAM-DESKTOP-10B** Windows 云主机部署手册：[`docs/ops/windows-cloud-deploy.md`](../ops/windows-cloud-deploy.md)
+- 阿里云对照清单 + Steam 独立游戏后端选型说明：[`docs/ops/windows-cloud-aliyun-checklist.md`](../ops/windows-cloud-aliyun-checklist.md)
+- 启动脚本：`scripts/ops/windows-cloud-start.bat`
+- 实施仍可暂缓；客户端继续仅改 `server.json` 切换。
+
 ### [v0.7-r2-accepted] - 2026-08-24
 
 - **R2 全部验收结案**：`FEAT-RETURN-01` / `FEAT-RETURN-02` / `FEAT-GROUND-01` / `FEAT-ALBUM-01` / `BUG-23` → **已实现**。

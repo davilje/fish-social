@@ -582,7 +582,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "—",
         "v1.0-steam-desktop",
         "P2",
-        "暂缓；当前本机/局域网联机；上云仅改server.json切换；实施时再部署",
+        "方案已就绪(Windows手册)；实施可暂缓；上云仅改server.json；见docs/ops/windows-cloud-deploy.md",
         "docs/planning/specs/Steam桌面端云服务器联调保留.md",
         "2026-08-20",
         "",
