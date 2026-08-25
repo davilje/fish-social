@@ -20,7 +20,7 @@ export interface PondCatalogEntry {
 export const POND_CATALOG: PondCatalogEntry[] = [
   {
     id: 'pond-calm',
-    name: '静心湖',
+    name: '千岛湖',
     regionId: 'region-calm',
     prefix: 'calm',
     palette: {
@@ -34,7 +34,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-mist',
-    name: '云雾塘',
+    name: '太湖',
     regionId: 'region-mist',
     prefix: 'mist',
     palette: {
@@ -48,7 +48,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-sunset',
-    name: '夕阳湾',
+    name: '洪泽湖',
     regionId: 'region-sunset',
     prefix: 'sunset',
     palette: {
@@ -62,7 +62,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-bamboo',
-    name: '竹林池',
+    name: '鄱阳湖',
     regionId: 'region-bamboo',
     prefix: 'bamboo',
     palette: {
@@ -76,7 +76,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-reed',
-    name: '芦苇荡',
+    name: '洞庭湖',
     regionId: 'region-reed',
     prefix: 'reed',
     palette: {
@@ -90,7 +90,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-crystal',
-    name: '晶石潭',
+    name: '滇池',
     regionId: 'region-crystal',
     prefix: 'crystal',
     palette: {
@@ -104,7 +104,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-lotus',
-    name: '荷香池',
+    name: '洱海',
     regionId: 'region-lotus',
     prefix: 'lotus',
     palette: {
@@ -118,7 +118,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-mirror',
-    name: '镜面湖',
+    name: '镜泊湖',
     regionId: 'region-mirror',
     prefix: 'mirror',
     palette: {
@@ -132,7 +132,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-willow',
-    name: '柳荫湾',
+    name: '查干湖',
     regionId: 'region-willow',
     prefix: 'willow',
     palette: {
@@ -146,7 +146,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-stone',
-    name: '叠石矶',
+    name: '万绿湖',
     regionId: 'region-stone',
     prefix: 'stone',
     palette: {
@@ -160,7 +160,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-spring',
-    name: '清泉眼',
+    name: '北江',
     regionId: 'region-spring',
     prefix: 'spring',
     palette: {
@@ -174,7 +174,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-dusk',
-    name: '暮色泊',
+    name: '丹江口水库',
     regionId: 'region-dusk',
     prefix: 'dusk',
     palette: {
@@ -188,7 +188,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-pine',
-    name: '松风潭',
+    name: '清江',
     regionId: 'region-pine',
     prefix: 'pine',
     palette: {
@@ -202,7 +202,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-coral',
-    name: '珊瑚浅',
+    name: '舟山近海',
     regionId: 'region-coral',
     prefix: 'coral',
     palette: {
@@ -216,7 +216,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-moon',
-    name: '月影池',
+    name: '厦门湾',
     regionId: 'region-moon',
     prefix: 'moon',
     palette: {
@@ -230,7 +230,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-fern',
-    name: '蕨影泽',
+    name: '南澳近海',
     regionId: 'region-fern',
     prefix: 'fern',
     palette: {
@@ -244,7 +244,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-ridge',
-    name: '岭下塘',
+    name: '长江故道野塘',
     regionId: 'region-ridge',
     prefix: 'ridge',
     palette: {
@@ -258,7 +258,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-harbor',
-    name: '渔港湾',
+    name: '青岛近海',
     regionId: 'region-harbor',
     prefix: 'harbor',
     palette: {
@@ -272,7 +272,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-orchid',
-    name: '兰汀',
+    name: '涠洲近海',
     regionId: 'region-orchid',
     prefix: 'orchid',
     palette: {
@@ -286,7 +286,7 @@ export const POND_CATALOG: PondCatalogEntry[] = [
   },
   {
     id: 'pond-frost',
-    name: '霜华淀',
+    name: '兴凯湖',
     regionId: 'region-frost',
     prefix: 'frost',
     palette: {

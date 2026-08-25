@@ -1,121 +1,98 @@
 /**
- * FEAT-SPOT-01 (revised): spot_clue_texts library + filter/random rules.
+ * FEAT-SPOT-02: tag-matched spot_clue_texts + pond_spot_tags + wording guards.
  * Run: npm run verify:feat-spot-01
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-type SpotClueText = {
-  clueId: string;
-  clueType: string;
-  clueText: string;
-  weight?: number;
-  minPlayerLevel?: number;
-  minPondLevel?: number;
-  pondCategory?: string;
-  spotTag?: string;
-  enabled?: boolean;
-};
-
-type SpotTagRow = {
-  pondId: string;
-  spotId: string;
-  tags: string;
-};
+import {
+  filterSpotCluePool,
+  parseSpotTags,
+  pickSpotClueFromPool,
+  validateSpotClueWording,
+  type SpotClueTextDef,
+} from '@fish-social/shared';
 
 function section(name: string) {
   console.log(`\n== ${name} ==`);
 }
 
-function tagMatches(clueTag: string | undefined, spotTags: Set<string>): boolean {
-  if (!clueTag || !clueTag.trim()) return true;
-  if (spotTags.size === 0) return true;
-  return spotTags.has(clueTag.trim());
-}
-
-function filterPool(
-  rows: SpotClueText[],
-  opts: {
-    playerLevel: number;
-    pondLevel: number;
-    pondCategory: string;
-    spotTags: Set<string>;
-  },
-): SpotClueText[] {
-  return rows.filter((row) => {
-    if (row.enabled === false) return false;
-    if (!row.clueText?.trim()) return false;
-    if (opts.playerLevel < Math.max(0, row.minPlayerLevel ?? 0)) return false;
-    if (opts.pondLevel < Math.max(0, row.minPondLevel ?? 0)) return false;
-    if (row.pondCategory && row.pondCategory !== opts.pondCategory) return false;
-    if (!tagMatches(row.spotTag, opts.spotTags)) return false;
-    return true;
-  });
-}
-
-function weightedPick(pool: SpotClueText[], roll: number): SpotClueText {
-  let total = 0;
-  for (const row of pool) total += Math.max(1, row.weight ?? 1);
-  let r = ((roll % total) + total) % total;
-  for (const row of pool) {
-    r -= Math.max(1, row.weight ?? 1);
-    if (r < 0) return row;
-  }
-  return pool[pool.length - 1]!;
-}
-
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const textsPath = join(
-  root,
-  'fish-social-unity/Assets/Resources/GameData/spot_clue_texts.json',
-);
-const tagsPath = join(
-  root,
-  'fish-social-unity/Assets/Resources/GameData/spot_tags.json',
-);
-const rows = JSON.parse(readFileSync(textsPath, 'utf8')) as SpotClueText[];
-const tags = JSON.parse(readFileSync(tagsPath, 'utf8')) as SpotTagRow[];
+const textsPath = join(root, 'shared/generated/game-data/spot_clue_texts.json');
+const tagsPath = join(root, 'shared/generated/game-data/pond_spot_tags.json');
+const tagDefsPath = join(root, 'shared/generated/game-data/spot_tag_defs.json');
 
-section('table');
-assert.ok(Array.isArray(rows) && rows.length >= 20, 'spot_clue_texts seed size');
-const habitats = rows.filter((r) => r.clueType === 'habitat' && r.enabled !== false);
-const activities = rows.filter((r) => r.clueType === 'activity' && r.enabled !== false);
-assert.ok(habitats.length >= 10, 'habitat clues');
-assert.ok(activities.length >= 10, 'activity clues');
+const rows = JSON.parse(readFileSync(textsPath, 'utf8')) as SpotClueTextDef[];
+const spotRows = JSON.parse(readFileSync(tagsPath, 'utf8')) as Array<{
+  pondId: string;
+  spotId: string;
+  tags: string;
+}>;
+const tagDefs = JSON.parse(readFileSync(tagDefsPath, 'utf8')) as Array<{ tagId: string }>;
+const tagIds = new Set(tagDefs.map((t) => t.tagId));
+
+section('tables');
+assert.ok(Array.isArray(rows) && rows.length >= 100, 'spot_clue_texts size');
+assert.ok(spotRows.length === 420, `pond_spot_tags rows=${spotRows.length}`);
+assert.equal(tagIds.size, 22, 'spot_tag_defs count');
+
+section('wording');
+const issues: string[] = [];
 for (const row of rows) {
-  assert.ok(row.clueId, 'clueId');
-  assert.ok(row.clueType === 'habitat' || row.clueType === 'activity', row.clueId);
-  assert.ok(typeof row.clueText === 'string' && row.clueText.trim().length > 0, row.clueId);
-  assert.ok(!/bite|escape|0\.\d+|rate/i.test(row.clueText), `leak ${row.clueId}`);
+  issues.push(...validateSpotClueWording(row));
+}
+assert.equal(issues.length, 0, issues.slice(0, 5).join('; '));
+
+section('per-tag coverage');
+const byTag = new Map<string, SpotClueTextDef[]>();
+for (const row of rows) {
+  const tag = row.spotTag?.trim();
+  if (!tag) continue;
+  const list = byTag.get(tag) ?? [];
+  list.push(row);
+  byTag.set(tag, list);
+}
+for (const tid of tagIds) {
+  const list = byTag.get(tid) ?? [];
+  assert.ok(list.some((r) => r.clueType === 'habitat'), `${tid} habitat`);
+  assert.ok(
+    list.some((r) => r.clueType === 'activity' && r.activitySignal?.startsWith('active')),
+    `${tid} active activity`,
+  );
+  assert.ok(
+    list.some((r) => r.clueType === 'activity' && r.activitySignal === 'inactive'),
+    `${tid} inactive activity`,
+  );
 }
 
-section('tags');
-assert.ok(Array.isArray(tags) && tags.length >= 1, 'spot_tags seed');
+section('spot tags valid');
+for (const spot of spotRows) {
+  const tags = parseSpotTags(spot.tags);
+  assert.ok(tags.length >= 4 && tags.length <= 6, `${spot.spotId} tag count`);
+  for (const t of tags) assert.ok(tagIds.has(t), `${spot.spotId} unknown ${t}`);
+}
 
-section('filter + types in pool');
-const calmTags = new Set(
-  (tags.find((t) => t.pondId === 'pond-calm' && t.spotId === 'calm-spot-1')?.tags ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean),
-);
-const pool = filterPool(rows, {
+section('tag-filtered pool');
+const sample = spotRows.find((s) => s.pondId === 'pond-calm' && s.spotId === 'calm-spot-1')!;
+const sampleTags = parseSpotTags(sample.tags);
+const pool = filterSpotCluePool(rows, {
   playerLevel: 1,
   pondLevel: 1,
   pondCategory: 'advanced',
-  spotTags: calmTags,
+  spotTags: sampleTags,
 });
-assert.ok(pool.length >= 5, 'unlocked pool');
-assert.ok(pool.some((r) => r.clueType === 'habitat'), 'pool has habitat');
-assert.ok(pool.some((r) => r.clueType === 'activity'), 'pool has activity');
+assert.ok(pool.length >= 5, 'calm-spot-1 pool');
+assert.ok(pool.every((r) => r.spotTag && sampleTags.includes(r.spotTag)));
+assert.ok(pool.some((r) => r.clueType === 'habitat'));
+assert.ok(pool.some((r) => r.clueType === 'activity'));
 
-section('weighted random varies');
+section('pick varies');
 const seen = new Set<string>();
-for (let i = 0; i < 40; i++) {
-  seen.add(weightedPick(pool, i * 7 + 3).clueId);
+for (let i = 0; i < 30; i++) {
+  const picked = pickSpotClueFromPool(pool, i * 11 + 3);
+  if (picked) seen.add(picked.clueId);
 }
-assert.ok(seen.size >= 3, 'random can vary across rolls');
+assert.ok(seen.size >= 3, 'random varies');
 
-console.log('\nFEAT-SPOT-01 revised table + filter ok');
+console.log('\nFEAT-SPOT-02 tag-matched clues ok');

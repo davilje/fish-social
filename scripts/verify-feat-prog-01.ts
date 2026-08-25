@@ -7,6 +7,7 @@ import {
   ADMISSION_FEE_SLICE_MS,
   applyPlayerXp,
   applyPondXp,
+  calcCatchXpGrant,
   calcDurationPondXp,
   calcFishSellPrice,
   evaluatePondAccess,
@@ -27,7 +28,7 @@ function section(name: string) {
 
 section('game-data');
 const meta = getGameDataMeta();
-assert.equal(meta.version, '1.0.0');
+assert.ok(String(meta.version).startsWith('1.1.'), `meta.version=${meta.version}`);
 assert.equal(Number(meta.SIZE_EXP), 1.15);
 const ponds = listGamePonds();
 assert.equal(ponds.length, 21);
@@ -76,6 +77,10 @@ console.log('sell gray@0.2=', gray, 'gold marlin@5=', goldish);
 section('xp rules');
 const grant = getFishXpGrant('crucian', 'gray');
 assert.ok(grant.playerXp > 0);
+const sized = calcCatchXpGrant('crucian', 'gray', 0.2);
+assert.ok(sized.playerXp >= grant.playerXp, 'larger size >= base xp');
+const small = calcCatchXpGrant('crucian', 'gray', 0.05);
+assert.ok(small.playerXp >= 1 && small.playerXp <= grant.playerXp, 'small size scales down');
 const capped = applyPondXp({ level: 1, xp: 0 }, 9999, 1);
 assert.ok(capped.capped || capped.state.level <= 1);
 const leveled = applyPlayerXp({ level: 1, xp: 0 }, 100);

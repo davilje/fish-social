@@ -1,5 +1,68 @@
 # 策划文档变更记录
 
+### [v0.7-r3-pool-fish-cn-accepted] - 2026-08-25
+
+- **FEAT-POOL-01** 塘生态数值表驱动 → **已实现**（设计 2026-08-24 / 完成 2026-08-25）。
+- **FEAT-FISH-CN-01** 中国鱼种与区域分布 → **已实现**（设计 2026-08-24 / 完成 2026-08-25）。
+- 交付：50 种本土鱼库；20 塘真实钓场名；`pond_fish_pool` 表驱动出鱼；品质/咬钩/脱钩基数入表；废弃 `STOCK_TEMPLATES`。
+- 自检：`npm run verify:feat-pool-01`、`npm run verify:fish-cn-01`
+- 规格：[塘生态数值表驱动.md](./specs/塘生态数值表驱动.md)、[中国鱼种与区域分布.md](./specs/中国鱼种与区域分布.md)
+
+### [feat-spot-03/04/05 follow-up] - 2026-08-25
+
+- 立项 **FEAT-SPOT-03** 钓位标签地形微调 → **已确认**（P2，xlsx `pond_spot_tags` 420 点人工审校）
+- 立项 **FEAT-SPOT-04** 线索文案策划审校 → **已确认**（P2，`spot_clue_texts` 扩写 + §4.2 禁区）
+- 立项 **FEAT-SPOT-05** 钓位鱼情联动线索 → **已确认**（P1，生态 v2 + `activitySignal` 实时 tier）
+- 规格：[钓位标签地形微调.md](./specs/钓位标签地形微调.md)、[线索文案策划审校.md](./specs/线索文案策划审校.md)、[钓位鱼情联动线索.md](./specs/钓位鱼情联动线索.md)
+
+### [feat-spot-02-tag-clue-library] - 2026-08-25
+
+- 立项 **FEAT-SPOT-02** 钓位标签与线索库 v2 → **已实现**（R3 P1）。
+- 22 类标签、`pond_spot_tags` 420 行、154 条合规线索、`activitySignal` 预留；坐席按标签过滤；体长 XP 指数 0.85。
+- 规格：[钓位标签与线索库-v2.md](./specs/钓位标签与线索库-v2.md)
+- 开发 prompt：[feat-spot-02-tag-clue-library-dev.prompt.md](./prompts/feat-spot-02-tag-clue-library-dev.prompt.md)
+
+### [feat-spot-01 drop spot_tags] - 2026-08-25
+
+- **FEAT-SPOT-01**：剔除 `spot_tags`；坐席线索改为全库加权随机（可保留等级/`pondCategory` 过滤）；`spotTag` 列废弃忽略。
+- 规格：[钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md)
+
+### [feat-fish-cn-01 / feat-pool-01 定稿修订] - 2026-08-25
+
+- **FEAT-FISH-CN-01 / FEAT-POOL-01** 正文与开发 prompt 对齐实现定稿（状态仍为 **已确认**，待验收）：
+  - 废弃 `fish_species_habitat`；出鱼权威仅为 `pond_fish_pool`（每塘×种）。
+  - 种池**不含**品质列；品质 = `pond_category_quality_weights` ∩ 种 `qualityMin`/`qualityMax`（下限恒 1，稀有度抬上限）。
+  - `typical*` 仅图鉴；体重 `W=a×L^b` 展示不落库。
+  - **`pond_ecology` 并入 `ponds`**（`maxPopulation` / `minPopulation` / `initialPopulation`）。
+  - **`fish_sell` 并入 `fish_quality_stats`**；卖价公式去掉钓组 `SPECIES_MULT`（钓组仅竿适配）。
+- 规格：[中国鱼种与区域分布.md](./specs/中国鱼种与区域分布.md)、[塘生态数值表驱动.md](./specs/塘生态数值表驱动.md)
+- prompt：[feat-fish-cn-01-species-regions-dev.prompt.md](./prompts/feat-fish-cn-01-species-regions-dev.prompt.md)、[feat-pool-01-ecology-table-dev.prompt.md](./prompts/feat-pool-01-ecology-table-dev.prompt.md)
+
+### [feat-fish-cn-01-species-regions] - 2026-08-24
+
+- 立项 **FEAT-FISH-CN-01** 中国鱼种与区域分布 → **已确认**（R3 P0）。
+- 用户确认：塘名改为真实钓场（pondId 不变）；鱼种扩充约 50 种并**全面替换**外来主 ID。
+- 附录名录：[中国鱼种名录-v1.md](./specs/appendix/中国鱼种名录-v1.md)
+- 规格：[中国鱼种与区域分布.md](./specs/中国鱼种与区域分布.md)
+- 开发 prompt：[feat-fish-cn-01-species-regions-dev.prompt.md](./prompts/feat-fish-cn-01-species-regions-dev.prompt.md)
+- 与 **FEAT-POOL-01** 同迭代：本票填种/区/塘名；POOL-01 做表接线。
+
+### [feat-pool-01-ecology-table] - 2026-08-24
+
+- 立项 **FEAT-POOL-01** 塘生态数值表驱动 → **已确认**（R3 P0）。
+- 定稿：① `pond_fish_pool` 表驱动出鱼；② `pond_category_quality_weights` 按塘类型品质权重；③ 尺寸上限仍按品质（`fish_quality_stats.sizeCapM`）；④ 咬钩/体长/脱钩基数入表；⑤ **咬钩脱钩公式不变**。
+- 废弃接线：`STOCK_TEMPLATES`、`pond_fish_size_cap` override。
+- 规格：[塘生态数值表驱动.md](./specs/塘生态数值表驱动.md)
+- 开发 prompt：[feat-pool-01-ecology-table-dev.prompt.md](./prompts/feat-pool-01-ecology-table-dev.prompt.md)
+
+### [feat-return-03-rules] - 2026-08-24
+
+- **FEAT-RETURN-03** 回鱼规则调优 → **已实现**（设计/完成 2026-08-24）。
+- 定稿三条规则：**仅达标鱼回塘**（紫+、体长比≥75%；不达标留包可卖）；**回鱼金 = 卖价×1.5**；**仅收费且 `allowsAutoReturn` 的塘**可回（免票塘 `POND_NO_RETURN`）。
+- 同步修订 `FEAT-RETURN-01` / `FEAT-RETURN-02` 正文与验收项。
+- 自检：`npm run verify:feat-return-01`、`verify:feat-return-01-server`、`verify:feat-return-02`
+- 规格：[回鱼规则调优.md](./specs/回鱼规则调优.md)、[回鱼机制.md](./specs/回鱼机制.md)、[双价塘与自动回鱼.md](./specs/双价塘与自动回鱼.md)
+
 ### [steam-desktop-10b-windows-deploy] - 2026-08-24
 
 - 补充 **STEAM-DESKTOP-10B** Windows 云主机部署手册：[`docs/ops/windows-cloud-deploy.md`](../ops/windows-cloud-deploy.md)

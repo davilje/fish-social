@@ -21,12 +21,12 @@ const CATALOG_PONDS: PondConfig[] = POND_CATALOG.map((p) => ({
   spots: buildPondSpotsFromTiles(p.id),
 }));
 
-/** FEAT-PROG-01：新手个人塘（复用静心湖钓位布局，不上世界地图） */
+/** FEAT-PROG-01：新手个人塘（复用千岛湖钓位布局，不上世界地图） */
 function buildNovicePond(): PondConfig {
   const calmSpots = buildPondSpotsFromTiles('pond-calm');
   return {
     id: 'pond-novice',
-    name: '新手练习塘',
+    name: '城郊练杆塘',
     regionId: 'region-novice',
     spots: calmSpots.map((s) => ({
       ...s,

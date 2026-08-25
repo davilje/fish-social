@@ -15,6 +15,14 @@ namespace FishSocial.Desktop
             public string Name;
             public string Diet;
             public string DietLabel;
+            public string CatchGroup;
+            public string CatchGroupLabel;
+            public string RarityTier;
+            public string RarityLabel;
+            public float TypicalMinM;
+            public float TypicalMaxM;
+            public int QualityMin;
+            public int QualityMax;
             public float BiteWeight;
             public float BaseEscapeRate;
         }
@@ -41,38 +49,56 @@ namespace FishSocial.Desktop
             { "gold", 2000 },
         };
 
-        public static readonly SpeciesInfo[] Species =
+        public static readonly SpeciesInfo[] LegacySpeciesFallback =
         {
             S("crucian", "鲫鱼", "herbivore", 0.12f, 0.08f),
-            S("tilapia", "罗非鱼", "herbivore", 0.12f, 0.08f),
-            S("perch", "河鲈", "omnivore", 0.12f, 0.08f),
             S("carp", "鲤鱼", "herbivore", 0.1f, 0.1f),
-            S("herring", "鲱鱼", "omnivore", 0.1f, 0.1f),
-            S("mackerel", "鲭鱼", "omnivore", 0.1f, 0.1f),
-            S("cod", "鳕鱼", "omnivore", 0.1f, 0.1f),
-            S("snapper", "鲷鱼", "omnivore", 0.1f, 0.1f),
-            S("catfish", "鲶鱼", "omnivore", 0.1f, 0.1f),
-            S("koi", "锦鲤", "omnivore", 0.1f, 0.1f),
-            S("bass", "大口黑鲈", "carnivore", 0.08f, 0.14f),
-            S("trout", "鳟鱼", "carnivore", 0.08f, 0.14f),
-            S("mandarin", "桂鱼", "carnivore", 0.08f, 0.14f),
-            S("eel", "鳗鱼", "carnivore", 0.08f, 0.14f),
-            S("topmouth", "翘嘴", "carnivore", 0.08f, 0.14f),
-            S("tuna", "黄鳍金枪鱼", "carnivore", 0.06f, 0.18f),
-            S("salmon", "三文鱼", "carnivore", 0.06f, 0.18f),
-            S("pike", "狗鱼", "carnivore", 0.06f, 0.18f),
-            S("marlin", "蓝旗鱼", "carnivore", 0.04f, 0.25f),
-            S("sturgeon", "鲟鱼", "carnivore", 0.04f, 0.25f),
+            S("loach", "泥鳅", "omnivore", 0.1f, 0.1f),
         };
+
+        static SpeciesInfo[] _speciesFromGameData;
+
+        public static SpeciesInfo[] Species
+        {
+            get
+            {
+                EnsureSpeciesFromGameData();
+                return _speciesFromGameData;
+            }
+        }
+
+        static void EnsureSpeciesFromGameData()
+        {
+            if (_speciesFromGameData != null)
+                return;
+            var defs = DesktopGameData.Species;
+            if (defs != null && defs.Length > 0)
+            {
+                var list = new SpeciesInfo[defs.Length];
+                for (var i = 0; i < defs.Length; i++)
+                    list[i] = FromGameDef(defs[i]);
+                _speciesFromGameData = list;
+                return;
+            }
+            _speciesFromGameData = LegacySpeciesFallback;
+        }
 
         public static SpeciesInfo GetSpecies(string speciesId)
         {
             if (string.IsNullOrEmpty(speciesId))
                 return null;
-            for (var i = 0; i < Species.Length; i++)
+            var resolved = DesktopGameData.ResolveSpeciesId(speciesId);
+            var all = Species;
+            for (var i = 0; i < all.Length; i++)
             {
-                if (Species[i].Id == speciesId)
-                    return Species[i];
+                if (all[i].Id == resolved || all[i].Id == speciesId)
+                    return all[i];
+            }
+            var name = DesktopGameData.SpeciesName(resolved);
+            if (!string.IsNullOrEmpty(name) && name != resolved)
+            {
+                var def = DesktopGameData.GetSpeciesDef(resolved);
+                return def != null ? FromGameDef(def) : S(resolved, name, "omnivore", 0.1f, 0.1f);
             }
             return null;
         }
@@ -169,6 +195,40 @@ namespace FishSocial.Desktop
             else if (!string.IsNullOrEmpty(bait.diet) && bait.diet == diet)
                 score += 0.02f;
             return score;
+        }
+
+        public static string FormatCodexProfile(SpeciesInfo species)
+        {
+            if (species == null)
+                return "未知鱼种。";
+            var size = species.TypicalMinM > 0f || species.TypicalMaxM > 0f
+                ? species.TypicalMinM.ToString("0.00") + "–" + species.TypicalMaxM.ToString("0.00") + "m"
+                : "—";
+            var qMax = DesktopGameData.QualityRankLabel(species.QualityMax > 0 ? species.QualityMax : 7);
+            return species.Name + "（" + species.Id + "）\n" +
+                   "食性：" + species.DietLabel + "\n" +
+                   "钓组：" + (string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel) + "\n" +
+                   "稀有度：" + (string.IsNullOrEmpty(species.RarityLabel) ? "—" : species.RarityLabel) + "\n" +
+                   "品质上限：" + qMax + "\n" +
+                   "体型参考：" + size + "（图鉴）\n" +
+                   "推荐鱼饵：" + TopBaits(species);
+        }
+
+        static SpeciesInfo FromGameDef(DesktopGameData.SpeciesDef d)
+        {
+            if (d == null)
+                return null;
+            var diet = string.IsNullOrEmpty(d.diet) ? "omnivore" : d.diet;
+            var info = S(d.speciesId, string.IsNullOrEmpty(d.name) ? d.speciesId : d.name, diet, 0.1f, 0.1f);
+            info.CatchGroup = d.catchGroup;
+            info.CatchGroupLabel = DesktopGameData.CatchGroupLabel(d.catchGroup);
+            info.RarityTier = d.rarityTier;
+            info.RarityLabel = DesktopGameData.RarityLabel(d.rarityTier);
+            info.TypicalMinM = d.typicalMinM;
+            info.TypicalMaxM = d.typicalMaxM;
+            info.QualityMin = d.qualityMin > 0 ? d.qualityMin : 1;
+            info.QualityMax = d.qualityMax > 0 ? d.qualityMax : 7;
+            return info;
         }
 
         static SpeciesInfo S(string id, string name, string diet, float bite, float escape)

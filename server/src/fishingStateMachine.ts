@@ -70,6 +70,7 @@ import {
 } from './fishingSession.js';
 import { getLockedPondFishIds, getPendingCatch, lockPendingCatch } from './inventory.js';
 import { isCodexNewForPlayer } from './codex.js';
+import { settleAcceptedCatch } from './catchSettlement.js';
 import { applyEscapeGrowthBonus } from './pondEcology.js';
 import {
   biteSessionMetricPayload,
@@ -705,7 +706,25 @@ function advanceFromHooked(
       playerId: user.playerId,
       pondId,
     });
-    if (locked) io.to(socketId).emit('fish_bite', locked);
+    if (!locked) return;
+
+    if (user.returnFeeMode === 'auto_return' && user.playerId) {
+      settleAcceptedCatch(
+        {
+          io,
+          socketId,
+          userId: user.id,
+          playerId: user.playerId,
+          pondId,
+          nickname: user.nickname,
+        },
+        locked.catchId,
+        { auto: true },
+      );
+      return;
+    }
+
+    io.to(socketId).emit('fish_bite', locked);
   }
 
   hookContextByUser.delete(user.id);

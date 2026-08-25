@@ -14,10 +14,19 @@ from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parents[2]
 XLSX = ROOT / "钓鱼玩法固定数值表.xlsx"
+XLSX_NEXT = ROOT / "钓鱼玩法固定数值表.next.xlsx"
 OUT_SHARED = ROOT / "shared" / "generated" / "game-data"
 OUT_UNITY = ROOT / "fish-social-unity" / "Assets" / "Resources" / "GameData"
 BUILD_SCRIPT = Path(__file__).resolve().parent / "build_balance_xlsx.py"
 SKIP_EXPORT_SHEETS = {"字段说明"}
+# 运行时未接线、已从 xlsx 移除的遗留 JSON（导出后清掉）
+REMOVE_LEGACY_JSON = {
+    "pond_quality_cap",
+    "pond_fish_size_cap",
+    "fish_species_habitat",
+    "pond_ecology",
+    "fish_sell",
+}
 
 
 def cell_value(v):
@@ -82,13 +91,22 @@ def meta_to_object(rows: list[dict]) -> dict:
     return obj
 
 
-def ensure_xlsx() -> None:
+def resolve_xlsx() -> Path:
+    if XLSX_NEXT.is_file() and (
+        not XLSX.is_file() or XLSX_NEXT.stat().st_mtime >= XLSX.stat().st_mtime
+    ):
+        return XLSX_NEXT
     if XLSX.is_file():
-        return
+        return XLSX
     print(f"Missing {XLSX.name}; running build…")
     subprocess.check_call([sys.executable, str(BUILD_SCRIPT)], cwd=str(ROOT))
-    if not XLSX.is_file():
-        raise SystemExit(f"Build did not produce {XLSX}")
+    if XLSX_NEXT.is_file() and (
+        not XLSX.is_file() or XLSX_NEXT.stat().st_mtime >= XLSX.stat().st_mtime
+    ):
+        return XLSX_NEXT
+    if XLSX.is_file():
+        return XLSX
+    raise SystemExit(f"Build did not produce {XLSX.name} or {XLSX_NEXT.name}")
 
 
 def write_json(path: Path, data) -> None:
@@ -100,8 +118,9 @@ def write_json(path: Path, data) -> None:
 
 
 def export() -> None:
-    ensure_xlsx()
-    wb = load_workbook(XLSX, data_only=True, read_only=True)
+    xlsx = resolve_xlsx()
+    print(f"Export source: {xlsx.name}")
+    wb = load_workbook(xlsx, data_only=True, read_only=True)
 
     OUT_SHARED.mkdir(parents=True, exist_ok=True)
     OUT_UNITY.mkdir(parents=True, exist_ok=True)
@@ -127,21 +146,26 @@ def export() -> None:
 
     index = {
         "version": version,
-        "source": XLSX.name,
+        "source": xlsx.name,
         "exportedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "sheets": [name for name in sheet_names if name not in SKIP_EXPORT_SHEETS],
     }
     write_json(OUT_SHARED / "_index.json", index)
 
-    # Copy all JSON (including _index) to Unity Resources
     for src in OUT_SHARED.glob("*.json"):
         dst = OUT_UNITY / src.name
         shutil.copy2(src, dst)
 
+    for stem in REMOVE_LEGACY_JSON:
+        for folder in (OUT_SHARED, OUT_UNITY):
+            for path in folder.glob(stem + ".*"):
+                path.unlink(missing_ok=True)
+
     wb.close()
-    print(f"Exported {len(sheet_names)} sheets (+ _index) → {OUT_SHARED}")
+    print(f"Exported {len(exported)} sheets (+ _index) → {OUT_SHARED}")
     print(f"Copied to {OUT_UNITY}")
     print(f"version={version}")
+    print(f"Removed legacy JSON: {', '.join(sorted(REMOVE_LEGACY_JSON))}")
 
 
 def main() -> None:

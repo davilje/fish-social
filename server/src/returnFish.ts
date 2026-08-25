@@ -4,10 +4,12 @@
 import {
   calcFishReturnGold,
   calcFishSellPrice,
+  getGamePondDef,
   getQualityMaxSize,
   getReturnRules,
   getSpecies,
-  isAutoReturnEligible,
+  isReturnEligible,
+  pondAllowsReturnFish,
   qualityIndex,
   type FishQuality,
   type FishSpeciesId,
@@ -23,6 +25,7 @@ import { tryUnlockAchievements } from './achievements.js';
 
 export type ReturnFishErrorCode =
   | 'NOT_IN_POND'
+  | 'POND_NO_RETURN'
   | 'QUALITY_TOO_LOW'
   | 'SIZE_OUT_OF_RANGE'
   | 'AT_MAX_SIZE'
@@ -73,6 +76,15 @@ export function returnFishToPond(
     };
   }
 
+  const pondDef = getGamePondDef(live.pondId);
+  if (!pondAllowsReturnFish(pondDef)) {
+    return {
+      ok: false,
+      error: '本塘不支持回鱼（仅收费塘可回鱼）',
+      code: 'POND_NO_RETURN',
+    };
+  }
+
   if (!opts?.auto) {
     if (live.user.returnFeeMode === 'sell_only') {
       return {
@@ -96,34 +108,34 @@ export function returnFishToPond(
   }
 
   const rules = getReturnRules();
-  const minQ = rules.minQuality as FishQuality;
-  if (qualityIndex(fish.quality) < qualityIndex(minQ)) {
-    return {
-      ok: false,
-      error: `品质不足（需 ${minQ} 及以上）`,
-      code: 'QUALITY_TOO_LOW',
-    };
-  }
+  const minQ = (rules.autoMinQuality ?? rules.minQuality ?? 'purple') as FishQuality;
+  const minSizeRatio = rules.autoMinSizeRatio ?? rules.minSizeRatio ?? 0.75;
 
-  const species = getSpecies(fish.speciesId);
-  const speciesMax = getQualityMaxSize(fish.quality, species);
-  if (fish.sizeM >= speciesMax - 1e-9) {
-    return {
-      ok: false,
-      error: '已达最大尺寸，不可回鱼',
-      code: 'AT_MAX_SIZE',
-    };
-  }
-
-  const ratio = speciesMax > 0 ? fish.sizeM / speciesMax : 0;
-  if (ratio < rules.minSizeRatio) {
-    return {
-      ok: false,
-      error: '体长过小，暂不可回鱼',
-      code: 'SIZE_OUT_OF_RANGE',
-    };
-  }
-  if (ratio >= rules.maxSizeRatio) {
+  if (!isReturnEligible(fish, rules)) {
+    if (qualityIndex(fish.quality) < qualityIndex(minQ)) {
+      return {
+        ok: false,
+        error: `品质不足（需 ${minQ} 及以上）`,
+        code: 'QUALITY_TOO_LOW',
+      };
+    }
+    const species = getSpecies(fish.speciesId);
+    const speciesMax = getQualityMaxSize(fish.quality, species);
+    if (fish.sizeM >= speciesMax - 1e-9) {
+      return {
+        ok: false,
+        error: '已达最大尺寸，不可回鱼',
+        code: 'AT_MAX_SIZE',
+      };
+    }
+    const ratio = speciesMax > 0 ? fish.sizeM / speciesMax : 0;
+    if (ratio < minSizeRatio) {
+      return {
+        ok: false,
+        error: '体长过小，暂不可回鱼',
+        code: 'SIZE_OUT_OF_RANGE',
+      };
+    }
     return {
       ok: false,
       error: '已达最大尺寸，不可回鱼',
@@ -221,8 +233,12 @@ export function tryAutoReturnFish(
   if (!live || live.user.returnFeeMode !== 'auto_return' || !live.user.spotId) {
     return { ok: false, skipped: true };
   }
+  const pondDef = getGamePondDef(live.pondId);
+  if (!pondAllowsReturnFish(pondDef)) {
+    return { ok: false, skipped: true };
+  }
   const fish = getFishById(playerId, inventoryItemId);
-  if (!fish || !isAutoReturnEligible(fish, getReturnRules())) {
+  if (!fish || !isReturnEligible(fish, getReturnRules())) {
     return { ok: false, skipped: true };
   }
   const result = returnFishToPond(playerId, inventoryItemId, { auto: true });

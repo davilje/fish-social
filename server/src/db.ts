@@ -341,6 +341,14 @@ if (albumAchMig.tablesCreated.length > 0) {
   console.log(`Migration FEAT-ALBUM-01: ${albumAchMig.tablesCreated.join(', ')}`);
 }
 
+import { migrateFishCn01Species } from './migrations/fish_cn_01_species.js';
+const fishCn01 = migrateFishCn01Species(db);
+if (fishCn01.pondFishCleared > 0 || fishCn01.compensated > 0) {
+  console.log(
+    `Migration FEAT-FISH-CN-01: pond_fish cleared=${fishCn01.pondFishCleared} inventory compensated=${fishCn01.compensated}`,
+  );
+}
+
 initGameConfig();
 
 console.log(`Database ready: ${dbPath}`);

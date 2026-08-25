@@ -975,23 +975,32 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            var unlocked = 0;
-            for (var i = 0; i < DesktopFishCatalog.Species.Length; i++)
+            var catalog = DesktopGameData.Species;
+            if (catalog == null || catalog.Length == 0)
             {
-                var species = DesktopFishCatalog.Species[i];
-                var entry = FindCodexEntry(species.Id);
+                if (_codexDetail != null)
+                    _codexDetail.text = "未加载 fish_species 数值表。";
+                return;
+            }
+            var unlocked = 0;
+            for (var i = 0; i < catalog.Length; i++)
+            {
+                var def = catalog[i];
+                if (def == null || string.IsNullOrEmpty(def.speciesId))
+                    continue;
+                var entry = FindCodexEntry(def.speciesId);
                 var got = entry != null && entry.totalCaught > 0;
                 if (got) unlocked++;
-                var captured = species;
+                var captured = DesktopFishCatalog.GetSpecies(def.speciesId);
                 var capturedEntry = entry;
-                CreateCard(_codexGrid, species.Id,
-                    got ? "✓ " + species.Name + "\n×" + entry.totalCaught : "？？？",
+                CreateCard(_codexGrid, def.speciesId,
+                    got ? "✓ " + DesktopGameData.SpeciesName(def.speciesId) + "\n×" + entry.totalCaught : "？？？",
                     () => ShowCodexDetail(captured, capturedEntry),
                     got ? new Color(0.18f, 0.35f, 0.28f, 1f) : new Color(0.2f, 0.22f, 0.26f, 1f),
                     15);
             }
             if (_codexDetail != null)
-                _codexDetail.text = "已解锁 " + unlocked + " / " + DesktopFishCatalog.Species.Length +
+                _codexDetail.text = "已解锁 " + unlocked + " / " + catalog.Length +
                                    "\n\n点击左侧格子查看物种资料与捕获记录。";
         }
 
@@ -1013,7 +1022,7 @@ namespace FishSocial.Desktop
             var got = entry != null && entry.totalCaught > 0;
             if (!got)
             {
-                _codexDetail.text = "未解锁\n捕获后显示食性、咬钩、脱钩、推荐鱼饵与捕获记录。";
+                _codexDetail.text = "未解锁\n捕获后显示食性、钓组、体型、推荐鱼饵与捕获记录。";
                 return;
             }
             var first = entry.firstCaughtAt > 0
@@ -1023,11 +1032,7 @@ namespace FishSocial.Desktop
                 ? DateTimeOffset.FromUnixTimeMilliseconds(entry.lastCaughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm")
                 : "—";
             _codexDetail.text =
-                species.Name + "（" + species.Id + "）\n" +
-                "食性：" + species.DietLabel + "\n" +
-                "基础咬钩：" + DesktopFishCatalog.FormatBiteRate(species) + "\n" +
-                "脱钩率：" + (species.BaseEscapeRate * 100f).ToString("0.0") + "%\n" +
-                "推荐鱼饵：" + DesktopFishCatalog.TopBaits(species) + "\n\n" +
+                DesktopFishCatalog.FormatCodexProfile(species) + "\n\n" +
                 "—— 捕获记录 ——\n" +
                 "累计捕获：" + entry.totalCaught + "\n" +
                 "最大体型：" + entry.maxSizeM.ToString("0.00") + "m\n" +
@@ -1079,6 +1084,7 @@ namespace FishSocial.Desktop
                 (species != null ? species.Name : item.speciesId) + "\n" +
                 "品质：" + DesktopFishCatalog.QualityName(item.quality) + "\n" +
                 "体长：" + item.sizeM.ToString("0.00") + "m\n" +
+                "重量：" + DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) + "\n" +
                 "捕获时间：" + caught + "\n" +
                 (string.IsNullOrEmpty(item.pondId) ? "" : "来源塘：" + item.pondId + "\n") +
                 (species != null

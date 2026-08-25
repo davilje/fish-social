@@ -36,6 +36,14 @@ export interface GamePondDef {
   minPlayerLevel: number;
   mapX?: number;
   mapY?: number;
+  /** FEAT-FISH-CN-01 */
+  bioRegion?: string;
+  waterType?: string;
+  realWorldRef?: string;
+  /** 塘内鱼实体上限（原 pond_ecology 已并入） */
+  maxPopulation?: number;
+  minPopulation?: number;
+  initialPopulation?: number;
 }
 
 export interface PlayerLevelDef {
@@ -55,6 +63,17 @@ export interface FishSellQualityDef {
   QUALITY_BASE: number;
   SIZE_REF: number;
   MIN_SELL: number;
+}
+
+/** 品质玩法+卖价同表（原 fish_sell 已并入） */
+export interface FishQualityStatsDef {
+  quality: FishQuality;
+  sizeCapM: number;
+  biteBaseAtMaxSize: number;
+  displayName?: string;
+  QUALITY_BASE?: number;
+  SIZE_REF?: number;
+  MIN_SELL?: number;
 }
 
 /** FEAT-RETURN-01：回鱼全局规则（表通常仅一行） */
@@ -103,6 +122,40 @@ export interface FishSpeciesGameDef {
   name: string;
   diet: string;
   catchGroup: CatchGroup;
+  typicalMinM?: number;
+  typicalMaxM?: number;
+  rarityTier?: string;
+  nationwide?: boolean;
+  /** 品质序 1=gray … 7=gold；播种带下限，默认 1 */
+  qualityMin?: number;
+  /** 品质序上限；稀有度抬高，与塘权重求交 */
+  qualityMax?: number;
+}
+
+export interface PondFishPoolDef {
+  pondId: string;
+  speciesId: string;
+  /** 展示用中文名（与 fish_species 对齐） */
+  speciesName?: string;
+  /** @deprecated 种池不再绑品质；保留兼容旧 JSON */
+  quality?: FishQuality;
+  spawnWeight: number;
+  enabled: boolean;
+}
+
+/** @deprecated 人口字段已并入 GamePondDef；保留类型兼容旧调用 */
+export interface PondEcologyDef {
+  pondId: string;
+  maxPopulation: number;
+  minPopulation: number;
+  initialPopulation: number;
+  notes?: string;
+}
+
+export interface PondCategoryQualityWeightDef {
+  pondCategory: PondCategory;
+  quality: FishQuality;
+  spawnWeight: number;
 }
 
 export interface RodDef {
@@ -192,3 +245,39 @@ export interface GameDataMeta {
 
 /** Admission fee accounting slice (2 hours). */
 export const ADMISSION_FEE_SLICE_MS = 2 * 60 * 60 * 1000;
+
+/** FEAT-SPOT-02：activity 线索对应的钓位实时鱼情档位（v1 随机；v2 按生态匹配） */
+export type SpotActivitySignal =
+  | 'habitat'
+  | 'active_high'
+  | 'active_mid'
+  | 'active_low'
+  | 'inactive'
+  | 'disturbed';
+
+export interface SpotTagDef {
+  tagId: string;
+  tagCategory: string;
+  nameZh: string;
+  descriptionZh: string;
+}
+
+export interface PondSpotTagDef {
+  pondId: string;
+  spotId: string;
+  /** Comma-separated tag ids */
+  tags: string;
+}
+
+export interface SpotClueTextDef {
+  clueId: string;
+  clueType: 'habitat' | 'activity';
+  clueText: string;
+  weight?: number;
+  minPlayerLevel?: number;
+  minPondLevel?: number;
+  pondCategory?: string;
+  spotTag?: string;
+  activitySignal?: SpotActivitySignal;
+  enabled?: boolean;
+}

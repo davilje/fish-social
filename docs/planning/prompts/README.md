@@ -112,9 +112,15 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-08a2-map-zones-fee-dev.prompt.md](./steam-desktop-08a2-map-zones-fee-dev.prompt.md) | STEAM-DESKTOP-08A2：世界地图分区与进塘扣费确认 · **已实现** |
 | [feat-risk-01-forbidden-police-dev.prompt.md](./feat-risk-01-forbidden-police-dev.prompt.md) | FEAT-RISK-01：禁止钓鱼塘巡警事件 · **已实现** |
 | [feat-spot-01-spot-clue-bubbles-dev.prompt.md](./feat-spot-01-spot-clue-bubbles-dev.prompt.md) | FEAT-SPOT-01：坐席后聊天泡 / 表随机 habitat·activity · **已实现** |
+| [feat-spot-02-tag-clue-library-dev.prompt.md](./feat-spot-02-tag-clue-library-dev.prompt.md) | FEAT-SPOT-02：22 类标签 / 420 点位 / 标签过滤线索 / activitySignal · **已实现** |
+| [feat-spot-03-spot-tags-terrain-dev.prompt.md](./feat-spot-03-spot-tags-terrain-dev.prompt.md) | FEAT-SPOT-03：pond_spot_tags 地形微调 · **已确认** |
+| [feat-spot-04-clue-texts-curation-dev.prompt.md](./feat-spot-04-clue-texts-curation-dev.prompt.md) | FEAT-SPOT-04：spot_clue_texts 文案审校 · **已确认** |
+| [feat-spot-05-spot-clue-ecology-tier-dev.prompt.md](./feat-spot-05-spot-clue-ecology-tier-dev.prompt.md) | FEAT-SPOT-05：鱼情 tier + activitySignal 联动 · **已确认** |
 | [steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./steam-desktop-12-gameplay-debug-menu-dev.prompt.md) | STEAM-DESKTOP-12：玩法 Debug 菜单 · **已实现** |
 | [feat-return-01-return-fish-dev.prompt.md](./feat-return-01-return-fish-dev.prompt.md) | FEAT-RETURN-01：回鱼机制 · **已实现** |
 | [feat-return-02-dual-fee-auto-return-dev.prompt.md](./feat-return-02-dual-fee-auto-return-dev.prompt.md) | FEAT-RETURN-02：双价塘与自动回鱼 · **已实现** |
+| [feat-pool-01-ecology-table-dev.prompt.md](./feat-pool-01-ecology-table-dev.prompt.md) | FEAT-POOL-01：塘生态数值表驱动 · **已实现** |
+| [feat-fish-cn-01-species-regions-dev.prompt.md](./feat-fish-cn-01-species-regions-dev.prompt.md) | FEAT-FISH-CN-01：中国鱼种与区域分布 · **已实现** |
 | [feat-ground-01-groundbait-dev.prompt.md](./feat-ground-01-groundbait-dev.prompt.md) | FEAT-GROUND-01：打窝机制 · **已实现** |
 | [feat-album-01-profile-codex-album-dev.prompt.md](./feat-album-01-profile-codex-album-dev.prompt.md) | FEAT-ALBUM-01：个人中心/相册/成就 · **已实现** |
 | [steam-desktop-shell-dev.prompt.md](./steam-desktop-shell-dev.prompt.md) | STEAM-DESKTOP-04：Unity Windows 桌面端基础壳 · **已实现** |

@@ -11,7 +11,9 @@ import {
 import type { FishInventoryItem } from '@fish-social/shared';
 import {
   calcFishSellPrice,
+  calcFishWeightKg,
   formatFishSize,
+  formatFishWeight,
   getQualityInfo,
   getSpecies,
 } from '@fish-social/shared';
@@ -157,6 +159,7 @@ function FishDisplay({
         【{quality.name}】
       </Text>
       <Text style={styles.displaySize}>体长 {formatFishSize(item.sizeM)}</Text>
+      <Text style={styles.displaySize}>重量 {formatFishWeight(calcFishWeightKg(item.sizeM))}</Text>
       <Text style={styles.displayPrice}>出售可得 {price} 金币</Text>
       <View style={styles.displayActions}>
         {onShare && (

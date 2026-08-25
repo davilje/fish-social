@@ -3,6 +3,7 @@
  * Uses static JSON imports so Metro never pulls Node `fs` / `import.meta`.
  */
 import type { FishQuality } from './fish';
+import { FISH_QUALITIES, resolveSpeciesId } from './fish';
 import type {
   CatchGroup,
   FishSellQualityDef,
@@ -20,13 +21,16 @@ import type {
   ReturnRulesDef,
   GroundbaitDef,
   AchievementDef,
+  PondFishPoolDef,
+  PondEcologyDef,
+  PondCategoryQualityWeightDef,
+  FishQualityStatsDef,
 } from './gameDataTypes';
 
 import metaJson from './generated/game-data/_meta.json';
 import pondsJson from './generated/game-data/ponds.json';
 import playerLevelsJson from './generated/game-data/player_levels.json';
 import pondLevelsJson from './generated/game-data/pond_levels.json';
-import fishSellJson from './generated/game-data/fish_sell.json';
 import modifiersJson from './generated/game-data/pond_modifiers.json';
 import fishXpJson from './generated/game-data/fish_xp.json';
 import speciesJson from './generated/game-data/fish_species.json';
@@ -36,6 +40,10 @@ import vesselsJson from './generated/game-data/vessels.json';
 import returnRulesJson from './generated/game-data/return_rules.json';
 import groundbaitsJson from './generated/game-data/groundbaits.json';
 import achievementsJson from './generated/game-data/achievements.json';
+import pondFishPoolJson from './generated/game-data/pond_fish_pool.json';
+import qualityStatsJson from './generated/game-data/fish_quality_stats.json';
+import formulaConstantsJson from './generated/game-data/fishing_formula_constants.json';
+import categoryQualityWeightsJson from './generated/game-data/pond_category_quality_weights.json';
 
 export type {
   CatchGroup,
@@ -54,18 +62,39 @@ export type {
   ReturnRulesDef,
   GroundbaitDef,
   AchievementDef,
+  PondFishPoolDef,
+  PondEcologyDef,
+  PondCategoryQualityWeightDef,
+  FishQualityStatsDef,
 } from './gameDataTypes';
 
 export { ADMISSION_FEE_SLICE_MS } from './gameDataTypes';
 
+function truthy(v: unknown): boolean {
+  return v === true || v === 1 || v === 'TRUE' || v === 'true';
+}
+
 const meta = metaJson as GameDataMeta;
-const pondsList = pondsJson as GamePondDef[];
+const pondsList = (pondsJson as GamePondDef[]).map((p) => ({
+  ...p,
+  maxPopulation: Number(p.maxPopulation) || undefined,
+  minPopulation: Number(p.minPopulation) || undefined,
+  initialPopulation: Number(p.initialPopulation) || undefined,
+}));
 const playerLevelsList = playerLevelsJson as PlayerLevelDef[];
 const pondLevelsList = pondLevelsJson as PondLevelDef[];
-const fishSell = fishSellJson as Array<Record<string, unknown>>;
 const modifiersList = modifiersJson as PondModifierDef[];
 const fishXpList = fishXpJson as FishXpDef[];
-const speciesList = speciesJson as FishSpeciesGameDef[];
+const speciesList = (speciesJson as FishSpeciesGameDef[]).map((s) => {
+  const qualityMin = Math.max(1, Math.min(7, Number(s.qualityMin) || 1));
+  const qualityMax = Math.max(qualityMin, Math.min(7, Number(s.qualityMax) || 7));
+  return {
+    ...s,
+    nationwide: truthy(s.nationwide),
+    qualityMin,
+    qualityMax,
+  };
+});
 const rodsList = rodsJson as RodDef[];
 const baitsList = baitsJson as GameBaitDef[];
 const vesselsList = vesselsJson as VesselDef[];
@@ -81,13 +110,23 @@ const achievementsList = (achievementsJson as AchievementDef[]).map((a) => ({
 const ponds = new Map(pondsList.map((p) => [p.pondId, p]));
 const playerLevels = new Map(playerLevelsList.map((r) => [r.level, r]));
 const pondLevels = new Map(pondLevelsList.map((r) => [r.level, r]));
+const qualityStatsList = (qualityStatsJson as FishQualityStatsDef[]).map((row) => ({
+  ...row,
+  sizeCapM: Number(row.sizeCapM),
+  biteBaseAtMaxSize: Number(row.biteBaseAtMaxSize),
+  QUALITY_BASE: Number(row.QUALITY_BASE) || 0,
+  SIZE_REF: Number(row.SIZE_REF) || 0.2,
+  MIN_SELL: Number(row.MIN_SELL) || 0,
+}));
 const sellByQuality = new Map<FishQuality, FishSellQualityDef>();
-const speciesMult = new Map<string, number>();
-for (const row of fishSell) {
-  if (typeof row.quality === 'string' && row.QUALITY_BASE != null) {
-    sellByQuality.set(row.quality as FishQuality, row as unknown as FishSellQualityDef);
-  } else if (typeof row.catchGroup === 'string' && row.SPECIES_MULT != null) {
-    speciesMult.set(String(row.catchGroup), Number(row.SPECIES_MULT));
+for (const row of qualityStatsList) {
+  if (row.QUALITY_BASE > 0) {
+    sellByQuality.set(row.quality, {
+      quality: row.quality,
+      QUALITY_BASE: row.QUALITY_BASE,
+      SIZE_REF: row.SIZE_REF,
+      MIN_SELL: row.MIN_SELL,
+    });
   }
 }
 const modifiers = new Map(modifiersList.map((m) => [m.category, m]));
@@ -142,11 +181,19 @@ export function getPondModifier(category: PondCategory): PondModifierDef {
 }
 
 export function getCatchGroup(speciesId: string): CatchGroup {
-  return species.get(speciesId)?.catchGroup ?? 'still_bait';
+  return species.get(resolveSpeciesId(speciesId))?.catchGroup ?? 'still_bait';
+}
+
+export function getGameSpecies(speciesId: string): FishSpeciesGameDef | undefined {
+  return species.get(resolveSpeciesId(speciesId));
+}
+
+export function listGameSpecies(): FishSpeciesGameDef[] {
+  return [...speciesList];
 }
 
 export function getGameSpeciesDiet(speciesId: string): string {
-  return species.get(speciesId)?.diet ?? 'omnivore';
+  return species.get(resolveSpeciesId(speciesId))?.diet ?? 'omnivore';
 }
 
 export function getRodDef(rodId: string): RodDef | undefined {
@@ -208,7 +255,7 @@ export function getFishXpGrant(
   speciesId: string,
   quality: FishQuality,
 ): { playerXp: number; pondXp: number } {
-  const row = fishXp.get(`${speciesId}:${quality}`);
+  const row = fishXp.get(`${resolveSpeciesId(speciesId)}:${quality}`);
   if (row) return { playerXp: row.playerXp, pondXp: row.pondXp };
   return { playerXp: 0, pondXp: 0 };
 }
@@ -222,15 +269,16 @@ export function getSellQualityDef(quality: FishQuality): FishSellQualityDef | un
   return sellByQuality.get(quality);
 }
 
-export function getSpeciesSellMult(catchGroup: string): number {
-  return speciesMult.get(catchGroup) ?? 1;
+/** @deprecated 卖价不再使用钓组系数；恒为 1 */
+export function getSpeciesSellMult(_catchGroup: string): number {
+  return 1;
 }
 
 const DEFAULT_RETURN_RULES: ReturnRulesDef = {
-  minQuality: 'gray',
-  minSizeRatio: 0.2,
+  minQuality: 'purple',
+  minSizeRatio: 0.75,
   maxSizeRatio: 1.0,
-  goldMulVsSell: 0.7,
+  goldMulVsSell: 1.5,
   playerXp: 8,
   pondXp: 4,
   sizeGainMinM: 0.02,
@@ -259,4 +307,139 @@ export function getReturnRules(): ReturnRulesDef {
 
 export function reloadGameDataForTests(): void {
   // Static JSON — no-op on client
+}
+
+const pondFishPoolList = (pondFishPoolJson as PondFishPoolDef[]).map((row) => ({
+  ...row,
+  spawnWeight: Number(row.spawnWeight) || 0,
+  enabled: truthy(row.enabled),
+}));
+const formulaConstants = new Map(
+  (formulaConstantsJson as Array<{ key: string; value: number | string }>).map((r) => [
+    r.key,
+    Number(r.value),
+  ]),
+);
+const categoryQualityWeightList = (categoryQualityWeightsJson as PondCategoryQualityWeightDef[]).map(
+  (row) => ({
+    ...row,
+    spawnWeight: Number(row.spawnWeight) || 0,
+  }),
+);
+const categoryQualityByPond = new Map<PondCategory, PondCategoryQualityWeightDef[]>();
+for (const row of categoryQualityWeightList) {
+  const list = categoryQualityByPond.get(row.pondCategory) ?? [];
+  list.push(row);
+  categoryQualityByPond.set(row.pondCategory, list);
+}
+const poolByPond = new Map<string, PondFishPoolDef[]>();
+for (const row of pondFishPoolList) {
+  const list = poolByPond.get(row.pondId) ?? [];
+  list.push(row);
+  poolByPond.set(row.pondId, list);
+}
+
+export function listPondFishPool(pondId: string): PondFishPoolDef[] {
+  return (poolByPond.get(pondId) ?? []).filter((r) => r.enabled && r.spawnWeight > 0);
+}
+
+/** 人口三列已并入 ponds；此函数从 GamePondDef 投影，兼容旧调用 */
+export function getPondEcologyDef(pondId: string): PondEcologyDef | undefined {
+  const pond = getGamePondDef(pondId);
+  if (!pond) return undefined;
+  const maxPopulation = Number(pond.maxPopulation);
+  const minPopulation = Number(pond.minPopulation);
+  const initialPopulation = Number(pond.initialPopulation);
+  if (!(maxPopulation > 0)) return undefined;
+  return {
+    pondId,
+    maxPopulation,
+    minPopulation: minPopulation > 0 ? minPopulation : 10,
+    initialPopulation: initialPopulation > 0 ? initialPopulation : 40,
+  };
+}
+
+export function getFishQualityStats(quality: FishQuality): {
+  sizeCapM: number;
+  biteBaseAtMaxSize: number;
+} | undefined {
+  const row = qualityStatsList.find((r) => r.quality === quality);
+  if (!row) return undefined;
+  return { sizeCapM: Number(row.sizeCapM), biteBaseAtMaxSize: Number(row.biteBaseAtMaxSize) };
+}
+
+export function getFishingFormulaConstant(key: string, fallback: number): number {
+  const v = formulaConstants.get(key);
+  return Number.isFinite(v) ? (v as number) : fallback;
+}
+
+export function getPondCategoryQualityWeights(
+  pondCategory: PondCategory,
+): PondCategoryQualityWeightDef[] {
+  return categoryQualityByPond.get(pondCategory) ?? [];
+}
+
+/** 种池加权抽一种（不含品质） */
+export function pickPondSpecies(pondId: string): string | undefined {
+  const rows = listPondFishPool(pondId);
+  if (rows.length === 0) return undefined;
+  const total = rows.reduce((s, r) => s + r.spawnWeight, 0);
+  if (total <= 0) return rows[rows.length - 1]?.speciesId;
+  let r = Math.random() * total;
+  for (const row of rows) {
+    r -= row.spawnWeight;
+    if (r <= 0) return row.speciesId;
+  }
+  return rows[rows.length - 1]?.speciesId;
+}
+
+/** 按塘分级品质权重表抽品质；可选种品质带（序 1–7）过滤 */
+export function rollPondQuality(
+  pondId: string,
+  qualityMin = 1,
+  qualityMax = 7,
+): FishQuality {
+  const pond = getGamePondDef(pondId);
+  const cat = (pond?.pondCategory ?? 'advanced') as PondCategory;
+  const minR = Math.max(1, Math.min(7, qualityMin));
+  const maxR = Math.max(minR, Math.min(7, qualityMax));
+  const rows = getPondCategoryQualityWeights(cat).filter((r) => {
+    if (r.spawnWeight <= 0) return false;
+    const rank = FISH_QUALITIES.findIndex((q) => q.id === r.quality) + 1;
+    return rank >= minR && rank <= maxR;
+  });
+  if (rows.length === 0) return 'gray';
+  const total = rows.reduce((s, r) => s + r.spawnWeight, 0);
+  let r = Math.random() * total;
+  for (const row of rows) {
+    r -= row.spawnWeight;
+    if (r <= 0) return row.quality;
+  }
+  return rows[rows.length - 1]!.quality;
+}
+
+/**
+ * 播种/补充一条：先抽种，再按塘品质权重 ∩ 种品质带抽品质。
+ * 体长等初始参数由调用方按 quality + species 再 roll。
+ */
+export function pickSpawnFish(pondId: string): { speciesId: string; quality: FishQuality } | undefined {
+  const speciesId = pickPondSpecies(pondId);
+  if (!speciesId) return undefined;
+  const def = getGameSpecies(speciesId);
+  const qMin = Number(def?.qualityMin) || 1;
+  const qMax = Number(def?.qualityMax) || 7;
+  return { speciesId, quality: rollPondQuality(pondId, qMin, qMax) };
+}
+
+/** @deprecated 用 pickPondSpecies / pickSpawnFish；旧名保留兼容 */
+export function pickPondPoolEntry(pondId: string): PondFishPoolDef | undefined {
+  const rows = listPondFishPool(pondId);
+  if (rows.length === 0) return undefined;
+  const total = rows.reduce((s, r) => s + r.spawnWeight, 0);
+  let r = Math.random() * total;
+  for (const row of rows) {
+    r -= row.spawnWeight;
+    if (r <= 0) return row;
+  }
+  return rows[rows.length - 1];
 }

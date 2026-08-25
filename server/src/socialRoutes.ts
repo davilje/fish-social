@@ -390,7 +390,7 @@ export function registerSocialRoutes(
         },
         { pondId: 'pond-novice' },
       );
-      grantCatchProgress(playerId, 'pond-novice', 'crucian', 'gray');
+      grantCatchProgress(playerId, 'pond-novice', 'crucian', 'gray', 0.12);
     }
     res.json({ progress: getProgressPublicView(playerId), completed: progress.onboardingCompleted });
   });

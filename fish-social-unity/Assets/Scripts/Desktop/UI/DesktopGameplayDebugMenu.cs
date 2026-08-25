@@ -6,7 +6,7 @@ using FishSocial.Desktop.Auth;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// STEAM-DESKTOP-12: F8 toggles a floating Debug action list. Overlay has a matching panel.
+    /// STEAM-DESKTOP-12: F8 快捷调试；正式入口在 Overlay 顶层 Debug 弹窗。
     /// </summary>
     public sealed class DesktopGameplayDebugMenu : MonoBehaviour
     {

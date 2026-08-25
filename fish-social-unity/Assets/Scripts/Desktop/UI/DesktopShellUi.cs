@@ -48,6 +48,8 @@ namespace FishSocial.Desktop
         DesktopLeaderboardPanel _leaderboardPanel;
         readonly List<Button> _lockableNavButtons = new List<Button>();
         bool _onboardingLock;
+        bool _suppressInventoryToast;
+        Transform _settlementCanvas;
 
         public IAuthenticatedApiClient AuthenticatedApi => _authenticatedApi;
 
@@ -108,6 +110,8 @@ namespace FishSocial.Desktop
                 _pondSession.UserUpdated += OnPondUserUpdated;
                 _pondSession.UsersChanged += OnPondUsersChanged;
                 _pondSession.FishBiteReceived += OnPondFishBite;
+                _pondSession.FishCatchSettled += OnPondFishCatchSettled;
+                _pondSession.PondSessionSummaryReceived += OnPondSessionSummary;
                 _pondSession.InventoryUpdated += OnInventoryUpdated;
                 _pondSession.FriendRequestReceived += OnFriendRequestNotify;
                 _pondSession.ErrorReceived += OnPondError;
@@ -148,6 +152,7 @@ namespace FishSocial.Desktop
 
             _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
             _productMenu.Bind(canvasGo.transform, _mainRoot.GetComponent<RectTransform>(), this);
+            _settlementCanvas = canvasGo.transform;
             _router.PanelChanged += OnPanelChanged;
 
             if (_steamAuth != null && _steamAuth.IsAuthenticated)
@@ -420,6 +425,8 @@ namespace FishSocial.Desktop
             _pondSession.UserUpdated -= OnPondUserUpdated;
             _pondSession.UsersChanged -= OnPondUsersChanged;
             _pondSession.FishBiteReceived -= OnPondFishBite;
+            _pondSession.FishCatchSettled -= OnPondFishCatchSettled;
+            _pondSession.PondSessionSummaryReceived -= OnPondSessionSummary;
             _pondSession.InventoryUpdated -= OnInventoryUpdated;
             _pondSession.FriendRequestReceived -= OnFriendRequestNotify;
             _pondSession.ErrorReceived -= OnPondError;
@@ -676,10 +683,38 @@ namespace FishSocial.Desktop
             ShowToast("收到服务端咬钩事件，请打开主界面领取鱼获。");
         }
 
+        void OnPondFishCatchSettled(FishCatchSettledDto settled)
+        {
+            _suppressInventoryToast = true;
+            RefreshPetPresentation();
+            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            if (settled != null && !string.IsNullOrEmpty(settled.message))
+                ShowToast(settled.message);
+            else if (settled != null && settled.autoReturned)
+                ShowToast("已自动回塘 +" + settled.gold + " 金币");
+        }
+
+        void OnPondSessionSummary(PondSessionSummaryDto summary)
+        {
+            if (summary == null || _settlementCanvas == null)
+                return;
+            DesktopPondSettlementModalView.Show(_settlementCanvas, summary);
+        }
+
+        public void ShowPondSessionSummary(PondSessionSummaryDto summary)
+        {
+            OnPondSessionSummary(summary);
+        }
+
         void OnInventoryUpdated(FishInventoryItemDto[] items)
         {
             RefreshPetPresentation();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            if (_suppressInventoryToast)
+            {
+                _suppressInventoryToast = false;
+                return;
+            }
             ShowToast("背包已更新：" + (items != null ? items.Length : 0) + " 条鱼获");
         }
 

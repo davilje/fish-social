@@ -3,7 +3,9 @@ import { View, Text, Modal, Pressable, StyleSheet, Animated } from 'react-native
 import type { FishingPrompt } from '@fish-social/shared';
 import {
   FISHING_PROMPT_AUTO_CLOSE_MS,
+  calcFishWeightKg,
   formatFishSize,
+  formatFishWeight,
   getQualityInfo,
   getSpecies,
 } from '@fish-social/shared';
@@ -116,7 +118,8 @@ export function CatchFishModal({ prompt, loading, onConfirm }: Props) {
           <Text style={styles.desc}>
             品类：{species.name}{'\n'}
             品质：{quality.name}{'\n'}
-            体长：{formatFishSize(prompt.data.sizeM)}
+            体长：{formatFishSize(prompt.data.sizeM)}{'\n'}
+            重量：{formatFishWeight(calcFishWeightKg(prompt.data.sizeM))}
           </Text>
           <Text style={styles.countdown}>{countdown} 秒后自动收入背包</Text>
           <Pressable

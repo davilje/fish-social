@@ -121,7 +121,14 @@ namespace FishSocial.Desktop
                 if (_entries[i] != null && _entries[i].totalCaught > 0)
                     unlocked++;
             }
-            _status.text = "已解锁 " + unlocked + " / " + DesktopFishCatalog.Species.Length;
+            var catalog = DesktopGameData.Species;
+            if (catalog == null || catalog.Length == 0)
+            {
+                _status.text = "未加载 fish_species 数值表。";
+                _detail.text = _status.text;
+                yield break;
+            }
+            _status.text = "已解锁 " + unlocked + " / " + catalog.Length;
             RenderGrid();
         }
 
@@ -130,24 +137,29 @@ namespace FishSocial.Desktop
             if (_grid == null)
                 return;
             DesktopModalUi.Clear(_grid);
-            for (var i = 0; i < DesktopFishCatalog.Species.Length; i++)
+            var catalog = DesktopGameData.Species;
+            if (catalog == null)
+                return;
+            for (var i = 0; i < catalog.Length; i++)
             {
-                var species = DesktopFishCatalog.Species[i];
-                var entry = FindEntry(species.Id);
+                var def = catalog[i];
+                if (def == null || string.IsNullOrEmpty(def.speciesId))
+                    continue;
+                var entry = FindEntry(def.speciesId);
                 var unlocked = entry != null && entry.totalCaught > 0;
                 var slot = DesktopUiPrefabFactory.Instantiate("GallerySpeciesSlot", _grid);
                 if (slot == null)
                     continue;
-                slot.name = species.Id;
+                slot.name = def.speciesId;
                 var image = slot.GetComponent<Image>();
                 if (image != null)
-                    image.color = species.Id == _selectedId ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
-                var label = unlocked ? species.Name : "？？？";
+                    image.color = def.speciesId == _selectedId ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
+                var label = unlocked ? DesktopGameData.SpeciesName(def.speciesId) : "？？？";
                 var text = DesktopUiPrefabFactory.Child(slot, "Label");
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
                     labelText.text = label;
-                var captured = species.Id;
+                var captured = def.speciesId;
                 var button = slot.GetComponent<Button>();
                 if (button != null)
                     button.onClick.AddListener(() => Select(captured));
@@ -179,21 +191,17 @@ namespace FishSocial.Desktop
             }
             if (!unlocked)
             {
-                _detail.text = "未解锁\n捕获后显示食性、咬钩、脱钩和推荐鱼饵。";
+                _detail.text = "未解锁\n捕获后显示食性、钓组、体型与推荐鱼饵。";
                 RenderGrid();
                 return;
             }
             var first = entry.firstCaughtAt > 0
                 ? DateTimeOffset.FromUnixTimeMilliseconds(entry.firstCaughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm")
                 : "—";
-            _detail.text = species.Name +
-                           "\n食性：" + species.DietLabel +
-                           "\n基础咬钩：" + DesktopFishCatalog.FormatBiteRate(species) +
-                           "\n脱钩率：" + (species.BaseEscapeRate * 100f).ToString("0.0") + "%" +
+            _detail.text = DesktopFishCatalog.FormatCodexProfile(species) +
                            "\n累计捕获：" + entry.totalCaught +
                            "\n最大体型：" + entry.maxSizeM.ToString("0.00") + "m" +
-                           "\n首次捕获：" + first +
-                           "\n推荐鱼饵：" + DesktopFishCatalog.TopBaits(species);
+                           "\n首次捕获：" + first;
             RenderGrid();
         }
     }

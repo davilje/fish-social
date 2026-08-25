@@ -45,6 +45,10 @@
 | [Steam桌面端-08A2世界地图分区与进塘扣费.md](./specs/Steam桌面端-08A2世界地图分区与进塘扣费.md) | **已实现** | STEAM-DESKTOP-08A2：六区锁态、巨物暂闭、进塘扣费确认 |
 | [禁止钓鱼塘巡警事件.md](./specs/禁止钓鱼塘巡警事件.md) | **已实现** | FEAT-RISK-01：巡警气泡 10s、免罚短禁/超时罚款日禁 |
 | [钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md) | **已实现** | FEAT-SPOT-01：坐席后聊天泡；表驱动随机；habitat/activity |
+| [钓位标签与线索库-v2.md](./specs/钓位标签与线索库-v2.md) | **已实现** | FEAT-SPOT-02：22 类标签；420 点位；标签过滤线索；体长 XP 0.85 |
+| [钓位标签地形微调.md](./specs/钓位标签地形微调.md) | **已确认** | FEAT-SPOT-03：pond_spot_tags 按 Tile 地形人工微调 |
+| [线索文案策划审校.md](./specs/线索文案策划审校.md) | **已确认** | FEAT-SPOT-04：spot_clue_texts 扩写；habitat/activity 禁区 |
+| [钓位鱼情联动线索.md](./specs/钓位鱼情联动线索.md) | **已确认** | FEAT-SPOT-05：钓位鱼情 tier → activitySignal 联动 |
 | [Steam桌面端-玩法Debug菜单.md](./specs/Steam桌面端-玩法Debug菜单.md) | **已实现** | STEAM-DESKTOP-12：开发版玩法 Debug 菜单（升级/出警/+2h 等） |
 | [回鱼机制.md](./specs/回鱼机制.md) | **已实现** | FEAT-RETURN-01：回塘增重、准入、金≈卖价×0.7 |
 | [双价塘与自动回鱼.md](./specs/双价塘与自动回鱼.md) | **已实现** | FEAT-RETURN-02：进塘双价；达标自动回鱼 |

@@ -13,23 +13,23 @@ import {
 } from '@fish-social/shared';
 
 const rules = getReturnRules();
-assert.equal(rules.goldMulVsSell, 0.7);
-assert.equal(rules.minSizeRatio, 0.2);
+assert.equal(rules.goldMulVsSell, 1.5);
+assert.equal(rules.minSizeRatio, 0.75);
 assert.equal(rules.maxSizeRatio, 1.0);
 assert.ok(rules.playerXp >= 0);
 assert.ok(rules.pondXp >= 0);
 assert.ok(rules.sizeGainMinM > 0);
 assert.ok(rules.sizeGainMaxM >= rules.sizeGainMinM);
-assert.equal(qualityIndex(rules.minQuality), qualityIndex('gray'));
+assert.equal(qualityIndex(rules.minQuality), qualityIndex('purple'));
 
-const item = { quality: 'blue' as const, sizeM: 0.6, speciesId: 'carp' };
+const item = { quality: 'purple' as const, sizeM: 3.4, speciesId: 'crucian' };
 const sell = calcFishSellPrice(item);
 const ret = calcFishReturnGold(item, rules.goldMulVsSell);
-assert.equal(ret, Math.floor(sell * 0.7));
-assert.ok(ret < sell || sell === 0, 'return gold should be <= sell at 0.7');
+assert.equal(ret, Math.floor(sell * 1.5));
+assert.ok(ret > sell || sell === 0, 'return gold should be > sell at 1.5×');
 
-const species = getSpecies('carp');
-const max = getQualityMaxSize('blue', species);
+const species = getSpecies('crucian');
+const max = getQualityMaxSize('purple', species);
 assert.ok(item.sizeM < max, 'test fish should be under quality max');
 const ratio = item.sizeM / max;
 assert.ok(ratio >= rules.minSizeRatio);

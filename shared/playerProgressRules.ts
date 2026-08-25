@@ -3,7 +3,11 @@ import {
   getPondLevelDef,
   getPondModifier,
   getGamePondDef,
+  getFishXpGrant,
+  getFishingFormulaConstant,
+  getSellQualityDef,
 } from './gameData.client';
+import type { FishQuality } from './fish';
 
 export interface PlayerProgressState {
   level: number;
@@ -124,6 +128,25 @@ export function applyPondXp(
   }
 
   return { state: { level, xp }, leveled, granted, capped: false };
+}
+
+/** Catch XP scaled by body length: base × (sizeM / SIZE_REF)^XP_SIZE_EXP */
+export function calcCatchXpGrant(
+  speciesId: string,
+  quality: FishQuality,
+  sizeM: number,
+): { playerXp: number; pondXp: number } {
+  const base = getFishXpGrant(speciesId, quality);
+  const ref = getSellQualityDef(quality)?.SIZE_REF ?? 0;
+  const exp = getFishingFormulaConstant('XP_SIZE_EXP', 0.85);
+  if (!(ref > 0) || !(sizeM > 0) || base.playerXp <= 0) {
+    return base;
+  }
+  const mul = Math.pow(sizeM / ref, exp);
+  return {
+    playerXp: Math.max(1, Math.floor(base.playerXp * mul)),
+    pondXp: Math.max(1, Math.floor(base.pondXp * mul)),
+  };
 }
 
 export function grantCatchXp(

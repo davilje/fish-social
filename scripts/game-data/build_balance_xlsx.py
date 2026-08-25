@@ -10,6 +10,22 @@ from openpyxl.comments import Comment
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from fish_cn_data import (
+    FISH_QUALITY_STATS,
+    FISHING_FORMULA_CONSTANTS,
+    FISH_SPECIES_CN,
+    build_category_quality_weight_rows,
+    build_pond_fish_pool_rows,
+    ecology_fields_for_pond,
+    pond_extra_fields,
+    species_rows_for_xlsx,
+)
+from spot_clue_data import (
+    SPOT_CLUE_TEXTS,
+    SPOT_TAG_DEFS,
+    build_pond_spot_tag_rows,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "钓鱼玩法固定数值表.xlsx"
 
@@ -17,18 +33,18 @@ HEADER_FILL = PatternFill("solid", fgColor="1F4E78")
 HEADER_FONT = Font(bold=True, color="FFFFFF")
 
 # ---------------------------------------------------------------------------
-# Authoritative draft data (plan v0 / FEAT-PROG-01)
+# Authoritative draft data (FEAT-PROG-01 + FEAT-FISH-CN-01 + FEAT-POOL-01)
 # ---------------------------------------------------------------------------
 
 META_ROWS = [
     ("key", "value"),
-    ("version", "1.0.0"),
+    ("version", "1.1.2"),
     ("SIZE_EXP", 1.15),
     ("maxFeeChargesPerDayDefault", 4),
     ("maxStackCount", 50),
     ("biteMulGlobalCap", 1.5),
     ("albumPinCap", 12),
-    ("schemaNote", "FEAT-PROG-01+RETURN-01+GROUND-01+ALBUM-01"),
+    ("schemaNote", "FEAT-PROG-01+RETURN-02+FISH-CN-01+POOL-01;pool authority;ecology cols on ponds;quality=category∩speciesBand"),
 ]
 
 PONDS_HEADER = [
@@ -47,38 +63,24 @@ PONDS_HEADER = [
     "minPlayerLevel",
     "mapX",
     "mapY",
+    "bioRegion",
+    "waterType",
+    "realWorldRef",
+    "maxPopulation",
+    "minPopulation",
+    "initialPopulation",
 ]
 
-# (pondId, name, category, zone, fee, maxCharges, unlock, isOpen, showMap, minLv)
-PONDS = [
-    ("pond-calm", "静心湖", "advanced", "zone-advanced", 200, 4, "onboarding", True, True, 0),
-    ("pond-mist", "云雾塘", "advanced", "zone-advanced", 200, 4, "onboarding", True, True, 0),
-    ("pond-sunset", "夕阳湾", "advanced", "zone-advanced", 200, 4, "onboarding", True, True, 0),
-    ("pond-bamboo", "竹林池", "advanced", "zone-advanced", 200, 4, "onboarding", True, True, 0),
-    ("pond-reed", "芦苇荡", "advanced", "zone-advanced", 200, 4, "onboarding", True, True, 0),
-    ("pond-crystal", "晶石潭", "veteran", "zone-veteran", 500, 4, "level:5", True, True, 5),
-    ("pond-lotus", "荷香池", "veteran", "zone-veteran", 500, 4, "level:5", True, True, 5),
-    ("pond-mirror", "镜面湖", "veteran", "zone-veteran", 500, 4, "level:5", True, True, 5),
-    ("pond-willow", "柳荫湾", "veteran", "zone-veteran", 500, 4, "level:5", True, True, 5),
-    ("pond-stone", "叠石矶", "wilderness", "zone-wilderness", 0, 0, "onboarding", True, True, 0),
-    ("pond-spring", "清泉眼", "wilderness", "zone-wilderness", 0, 0, "onboarding", True, True, 0),
-    ("pond-dusk", "暮色泊", "wilderness", "zone-wilderness", 0, 0, "onboarding", True, True, 0),
-    ("pond-pine", "松风潭", "wilderness", "zone-wilderness", 0, 0, "onboarding", True, True, 0),
-    ("pond-coral", "珊瑚浅", "reservoir", "zone-reservoir", 0, 0, "onboarding", True, True, 0),
-    ("pond-moon", "月影池", "reservoir", "zone-reservoir", 0, 0, "onboarding", True, True, 0),
-    ("pond-fern", "蕨影泽", "reservoir", "zone-reservoir", 0, 0, "onboarding", True, True, 0),
-    ("pond-ridge", "岭下塘", "forbidden", "zone-forbidden", 0, 0, "onboarding", True, True, 0),
-    ("pond-harbor", "渔港湾", "forbidden", "zone-forbidden", 0, 0, "onboarding", True, True, 0),
-    ("pond-orchid", "兰汀", "forbidden", "zone-forbidden", 0, 0, "onboarding", True, True, 0),
-    ("pond-frost", "霜华淀", "giant", "zone-giant", 2500, 4, "level:15", False, True, 15),
-    ("pond-novice", "新手练习塘", "novice", "", 0, 0, "guide_only", True, False, 0),
-]
+# Loaded from fish_cn_data (pondId…minLv only for dual-fee loop)
+from fish_cn_data import PONDS_CN as _PONDS_CN  # noqa: E402
+
+PONDS = [p[:10] for p in _PONDS_CN]
 
 # FEAT-RETURN-01：单行全局规则（回鱼准入与奖励）
 RETURN_RULES = [
     # minQuality, minSizeRatio, maxSizeRatio, goldMulVsSell, playerXp, pondXp,
     # sizeGainMinM, sizeGainMaxM, sizeGainMode, autoMinQuality, autoMinSizeRatio
-    ("gray", 0.2, 1.0, 0.70, 8, 4, 0.02, 0.05, "uniform_random", "purple", 0.75),
+    ("purple", 0.75, 1.0, 1.50, 8, 4, 0.02, 0.05, "uniform_random", "purple", 0.75),
 ]
 
 PLAYER_LEVELS = [
@@ -108,28 +110,14 @@ PLAYER_LEVELS = [
 POND_LEVEL_XP = [80, 120, 180, 260, 360, 480, 620, 800, 1000, 0]
 
 FISH_SPECIES = [
-    # speciesId, name, diet, catchGroup, typicalMinM, typicalMaxM
-    ("crucian", "鲫鱼", "herbivore", "still_bait", 0.03, 0.35),
-    ("carp", "鲤鱼", "herbivore", "still_bait", 0.08, 0.9),
-    ("tilapia", "罗非鱼", "herbivore", "still_bait", 0.1, 0.5),
-    ("koi", "锦鲤", "omnivore", "still_bait", 0.15, 0.8),
-    ("perch", "河鲈", "omnivore", "stream_light", 0.08, 0.45),
-    ("herring", "鲱鱼", "omnivore", "stream_light", 0.08, 0.4),
-    ("mackerel", "鲭鱼", "omnivore", "stream_light", 0.12, 0.55),
-    ("bass", "大口黑鲈", "carnivore", "lure_predator", 0.15, 0.75),
-    ("topmouth", "翘嘴", "carnivore", "lure_predator", 0.2, 1.0),
-    ("pike", "狗鱼", "carnivore", "lure_predator", 0.25, 1.0),
-    ("trout", "鳟鱼", "carnivore", "lure_predator", 0.12, 0.65),
-    ("mandarin", "桂鱼", "carnivore", "lure_predator", 0.15, 0.7),
-    ("catfish", "鲶鱼", "omnivore", "cast_heavy", 0.2, 1.2),
-    ("eel", "鳗鱼", "carnivore", "cast_heavy", 0.2, 1.0),
-    ("cod", "鳕鱼", "omnivore", "cast_heavy", 0.2, 1.1),
-    ("snapper", "鲷鱼", "omnivore", "cast_heavy", 0.15, 0.85),
-    ("salmon", "三文鱼", "carnivore", "cast_heavy", 0.4, 1.8),
-    ("tuna", "黄鳍金枪鱼", "carnivore", "cast_heavy", 0.5, 2.3),
-    ("marlin", "蓝旗鱼", "carnivore", "giant_game", 1.0, 5.0),
-    ("sturgeon", "鲟鱼", "carnivore", "giant_game", 0.8, 3.5),
+    # speciesId, name, diet, catchGroup, typicalMinM, typicalMaxM  (compat for fish_xp loop)
+    (sid, name, diet, group, mn, mx)
+    for sid, name, diet, group, mn, mx, _tier, _nw in FISH_SPECIES_CN
 ]
+
+FISH_SPECIES_FULL = species_rows_for_xlsx()
+POND_FISH_POOL = build_pond_fish_pool_rows()
+POND_CATEGORY_QUALITY_WEIGHTS = build_category_quality_weight_rows()
 
 XP_QUALITY_BASE = {
     "gray": 12,
@@ -148,24 +136,6 @@ CATCH_GROUP_COEFF = {
     "giant_game": 1.6,
 }
 QUALITIES = list(XP_QUALITY_BASE.keys())
-
-FISH_SELL_QUALITY = [
-    # quality, QUALITY_BASE, SIZE_REF, MIN_SELL
-    ("gray", 80, 0.20, 40),
-    ("green", 160, 0.35, 80),
-    ("blue", 360, 0.60, 160),
-    ("purple", 900, 1.00, 400),
-    ("red", 2200, 1.80, 900),
-    ("orange", 5500, 3.00, 2200),
-    ("gold", 14000, 5.00, 6000),
-]
-SPECIES_MULT = [
-    ("still_bait", 1.0),
-    ("stream_light", 0.95),
-    ("lure_predator", 1.05),
-    ("cast_heavy", 1.10),
-    ("giant_game", 1.25),
-]
 
 POND_MODIFIERS = [
     # category, biteRateMul, escapeRateMul, infoRevealMul, qualityWeightSkew, sizeCapMul, pondXpMul,
@@ -262,61 +232,7 @@ VESSELS = [
     ("vessel-trawler", "捕捞船", 18, 80000, 20, False),
 ]
 
-# Advanced calm stock template (STOCK_TEMPLATES[0] → pond-calm)
-POND_FISH_POOL = [
-    ("pond-calm", "crucian", "common", 1.0, True),
-    ("pond-calm", "carp", "common", 1.0, True),
-    ("pond-calm", "tilapia", "common", 1.0, True),
-    ("pond-calm", "perch", "common", 1.0, True),
-    ("pond-calm", "mandarin", "rare", 0.1, True),
-    ("pond-calm", "trout", "rare", 0.1, True),
-]
-
-# FEAT-SPOT-01 revised: clue library (not one-text-per-spot).
-# Columns: clueId, clueType, clueText, weight, minPlayerLevel, minPondLevel,
-#          pondCategory, spotTag, speciesHint, enabled
-SPOT_CLUE_TEXTS = [
-    ("h-01", "habitat", "鲫鱼爱往草缝和凹岸钻，亮水中央往往不是它们的主场。", 1, 0, 0, "", "weed", "crucian", True),
-    ("h-02", "habitat", "「鲤鱼钓凸，鲫鱼钓凹」——凹湾浅草边，常是板鲫爱转的地方。", 1, 0, 0, "", "weed", "crucian", True),
-    ("h-03", "habitat", "进水口附近溶氧足、食物多，鲫鲤都爱在缓流一侧停留。", 1, 0, 0, "", "inlet", "crucian,carp", True),
-    ("h-04", "habitat", "树荫弱光处更对鲤鱼胃口，大晴天它们不爱长时间晒在亮水。", 1, 0, 0, "", "shade", "carp", True),
-    ("h-05", "habitat", "深浅交界、沟坎斜坡像「鱼道」，鲤鱼常沿这些结构巡游。", 1, 0, 0, "", "structure", "carp", True),
-    ("h-06", "habitat", "乱石、木桩、桥墩旁藏食又藏身，鲤鱼、鲶类都可能路过。", 1, 0, 0, "", "structure", "carp", True),
-    ("h-07", "habitat", "草鱼爱贴草缘和芦苇空隙活动，岸边有果树、庄稼的一侧更香。", 1, 0, 0, "", "weed", "grass", True),
-    ("h-08", "habitat", "大坝拐角、洄水湾流速缓，草青一类大鱼爱在这里歇脚。", 1, 0, 0, "", "inlet", "grass", True),
-    ("h-09", "habitat", "水色清中带浊才宜钓；清澈见底往往反而难有大货久留。", 1, 0, 0, "", "clear", "", True),
-    ("h-10", "habitat", "水像泥浆看不清饵，鱼也难开口——过浑的点要谨慎。", 1, 0, 0, "", "muddy", "", True),
-    ("h-11", "habitat", "下风口容易聚浮游饵和氧气，夏秋很多鱼喜欢贴着风口转。", 1, 0, 0, "", "inlet", "", True),
-    ("h-12", "habitat", "夏钓荫、夏钓深：大太阳时树荫或略深处，比浅滩更稳妥。", 1, 0, 0, "", "shade", "", True),
-    ("h-13", "habitat", "洄湾里食物沉降、水流缓和，杂食鱼常来这里觅食。", 1, 0, 0, "", "inlet", "carp,crucian", True),
-    ("h-14", "habitat", "水草太密又无啃食痕迹，未必有草鱼；倒可能藏着小鲫在缝里。", 1, 0, 0, "", "weed", "crucian", True),
-    ("h-15", "habitat", "铧尖、凸嘴延伸进大水面，像鲤鱼通勤必经的「路口」。", 1, 0, 0, "", "structure", "carp", True),
-    ("a-01", "activity", "水面死寂如镜、半天不起波，多半开口差，或鱼不在这层活动。", 1, 0, 0, "", "", "", True),
-    ("a-02", "activity", "偶尔有鱼花、涟漪，说明这片水里还有活性，值得守一阵。", 1, 0, 0, "", "", "", True),
-    ("a-03", "activity", "细密成串的小泡像断了的珍珠，老钓友常当鲫鱼星来看。", 1, 0, 0, "", "", "", True),
-    ("a-04", "activity", "一大片杂乱气泡夹着浑浊，像锅底翻开——很像鲤鱼在拱泥。", 1, 0, 0, "", "muddy", "", True),
-    ("a-05", "activity", "突兀冒出的大单泡、啪一下散掉，草边出现时要当心草鱼路过。", 1, 0, 0, "", "weed", "", True),
-    ("a-06", "activity", "位置固定、大小均匀、节奏死板的泡，更像沼气泡，别当鱼星。", 1, 0, 0, "", "", "", True),
-    ("a-07", "activity", "水草残缺、只剩茎秆，说明有鱼在啃，草鳊类可能性上升。", 1, 0, 0, "", "weed", "", True),
-    ("a-08", "activity", "草叶轻轻摇，未必是大风——有时是鱼在草下拱食。", 1, 0, 0, "", "weed", "", True),
-    ("a-09", "activity", "小杂鱼在边子窜，深处未必没货，但闹窝时要有心理准备。", 1, 0, 0, "", "", "", True),
-    ("a-10", "activity", "能闻到淡淡腥气、听见远处啪水，说明这片水域并不空。", 1, 0, 0, "", "", "", True),
-    ("a-11", "activity", "鱼群长时间浮头嚼水，多是缺氧，硬钓往往白费力气。", 1, 0, 0, "", "", "", True),
-    ("a-12", "activity", "人影一晃鱼就炸窝逃窜，说明这里刚受惊，先缓一缓再落饵。", 1, 0, 0, "", "", "", True),
-    ("a-13", "activity", "星泡跟着移动、大小不一，比「定点死泡」更像活鱼在觅食。", 1, 0, 0, "", "", "", True),
-    ("a-14", "activity", "窝边星泡突然变密变快，常是鱼群进窝、活性上来了。", 1, 0, 0, "", "", "", True),
-    ("a-15", "activity", "水色发绿过肥时，鱼饱腹懒开口，鱼情会显得「闷」。", 1, 0, 0, "", "", "", True),
-]
-
-# Optional per-spot tags (pondId, spotId, tags CSV). Empty sheet still exports [].
-SPOT_TAGS = [
-    ("pond-calm", "calm-spot-1", "clear,weed"),
-    ("pond-calm", "calm-spot-2", "weed,shade"),
-    ("pond-calm", "calm-spot-3", "inlet"),
-    ("pond-calm", "calm-spot-4", "structure"),
-    ("pond-calm", "calm-spot-5", "muddy"),
-]
-
+# FEAT-SPOT-02: spot_clue_data.py (tag-matched clues + activitySignal)
 
 # sheet, field, 中文名, 说明 — exported JSON still uses English keys in row 1.
 FIELD_DOCS: list[tuple[str, str, str, str]] = [
@@ -332,6 +248,9 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("ponds", "feePer2hSellOnly", "出售档每2h费", "FEAT-RETURN-02 不可回鱼档扣费。"),
     ("ponds", "feePer2hAutoReturn", "回鱼档每2h费", "FEAT-RETURN-02 自动回鱼档扣费。"),
     ("ponds", "allowsAutoReturn", "允许双价选择", "TRUE 时进塘需选 sell_only/auto_return。"),
+    ("ponds", "bioRegion", "生物区", "策划标注；出鱼以 pond_fish_pool 为准。"),
+    ("ponds", "waterType", "水体类型", "lake/reservoir/river/coastal/estuary/pond。"),
+    ("ponds", "realWorldRef", "现实原型", "策划备注用真实钓场。"),
     ("ponds", "maxFeeChargesPerDay", "每日扣费次数上限", "按 2 小时切片累计。"),
     ("ponds", "unlock", "解锁条件", "onboarding / level:N / guide_only。"),
     ("ponds", "isOpen", "是否开放", "FALSE 的塘不能进（如巨物塘壳）。"),
@@ -339,6 +258,9 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("ponds", "minPlayerLevel", "最低钓鱼等级", "低于此等级不能进塘。"),
     ("ponds", "mapX", "地图X", "世界地图坐标 0~1。"),
     ("ponds", "mapY", "地图Y", "世界地图坐标 0~1。"),
+    ("ponds", "maxPopulation", "人口上限", "塘内鱼实体上限（原 pond_ecology 已并入）。"),
+    ("ponds", "minPopulation", "人口下限", "低于此触发补充。"),
+    ("ponds", "initialPopulation", "初始人口", "开服 seed 数量。"),
     ("player_levels", "level", "钓鱼等级", "1~20。"),
     ("player_levels", "xpToNext", "升到下级所需经验", "20 级为 0。"),
     ("player_levels", "pondXpPerHour", "每小时鱼塘熟练度", "挂机时长折算塘经验的参考。"),
@@ -346,7 +268,7 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("return_rules", "minQuality", "最低品质", "低于此品质不可回鱼；gray=灰及以上。"),
     ("return_rules", "minSizeRatio", "最小体长比", "相对品质最大体长的下限，如 0.2。"),
     ("return_rules", "maxSizeRatio", "最大体长比", "相对品质最大体长的上限；1.0 表示满尺寸不可回。"),
-    ("return_rules", "goldMulVsSell", "回鱼金倍率", "回鱼金 = floor(卖价 × 本倍率)，建议 0.70。"),
+    ("return_rules", "goldMulVsSell", "回鱼金倍率", "回鱼金 = floor(卖价 × 本倍率)，建议 1.50。"),
     ("return_rules", "playerXp", "玩家经验", "每次回鱼发给玩家的熟练度。"),
     ("return_rules", "pondXp", "鱼塘经验", "每次回鱼发给当前塘熟练度。"),
     ("return_rules", "sizeGainMinM", "增重下限m", "塘内实体增重下限。"),
@@ -360,19 +282,35 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("fish_species", "name", "中文名", "商店/图鉴显示。"),
     ("fish_species", "diet", "食性", "herbivore 草食 / omnivore 杂食 / carnivore 肉食。"),
     ("fish_species", "catchGroup", "钓组", "still_bait 静水底钓 / stream_light 溪流轻口 / lure_predator 路亚掠食 / cast_heavy 重抛 / giant_game 巨物。"),
-    ("fish_species", "typicalMinM", "典型最小体长m", "展示参考，不是硬帽。"),
-    ("fish_species", "typicalMaxM", "典型最大体长m", "展示参考，不是硬帽。"),
+    ("fish_species", "typicalMinM", "典型最小体长m", "图鉴展示参考，不参与体长结算。"),
+    ("fish_species", "typicalMaxM", "典型最大体长m", "图鉴展示参考，不参与体长结算。"),
+    ("fish_species", "rarityTier", "稀有度档", "common/uncommon/rare/legendary；决定 qualityMax。"),
+    ("fish_species", "nationwide", "全国广布", "TRUE 则所有 bioRegion 可出。"),
+    ("fish_species", "qualityMin", "品质下限序", "恒为 1（gray）；播种品质带下限。"),
+    ("fish_species", "qualityMax", "品质上限序", "1=gray…7=gold；稀有度抬高上限，与塘权重求交。"),
+    ("pond_fish_pool", "pondId", "鱼塘ID", "该塘可出的鱼（仅种，不含品质）。"),
+    ("pond_fish_pool", "speciesId", "鱼种ID", "种池条目。"),
+    ("pond_fish_pool", "speciesName", "中文名", "只读展示，与 fish_species.name 一致。"),
+    ("pond_fish_pool", "spawnWeight", "种刷新权重", "抽种相对权重；品质另走 pond_category_quality_weights。"),
+    ("pond_fish_pool", "enabled", "是否启用", "FALSE 则该种不参与刷新。"),
+    ("pond_category_quality_weights", "pondCategory", "塘分级", "novice…giant；播种/补充抽品质用。"),
+    ("pond_category_quality_weights", "quality", "品质", "gray…gold。"),
+    ("pond_category_quality_weights", "spawnWeight", "品质权重", "选好种后按此表加权抽品质。"),
+    ("fish_quality_stats", "quality", "品质", "gray…gold；玩法+卖价同表。"),
+    ("fish_quality_stats", "sizeCapM", "尺寸上限m", "品质体长硬帽。"),
+    ("fish_quality_stats", "biteBaseAtMaxSize", "满尺寸咬钩基数", "公式读表。"),
+    ("fish_quality_stats", "displayName", "显示名", "中文品质名。"),
+    ("fish_quality_stats", "QUALITY_BASE", "品质底价", "卖价公式底数；钓组不参与卖价。"),
+    ("fish_quality_stats", "SIZE_REF", "体长参考m", "卖价公式尺寸归一化。"),
+    ("fish_quality_stats", "MIN_SELL", "最低卖价", "向下取整后的保底。"),
+    ("fishing_formula_constants", "key", "常数键", "fishing.ts 公式常数名。"),
+    ("fishing_formula_constants", "value", "值", "数值。"),
+    ("fishing_formula_constants", "notes", "说明", "该常数用途注释。"),
     ("fish_xp", "speciesId", "鱼种ID", "与 fish_species 对齐。"),
     ("fish_xp", "speciesName", "中文名", "便于策划阅读。"),
     ("fish_xp", "quality", "品质", "gray/green/blue/purple/red/orange/gold。"),
     ("fish_xp", "playerXp", "玩家经验", "钓上该品质该种鱼给玩家的经验。"),
     ("fish_xp", "pondXp", "鱼塘经验", "同时给当前塘熟练度的经验。"),
-    ("fish_sell", "quality", "品质", "卖价品质底表；空行表示下面是钓组系数。"),
-    ("fish_sell", "QUALITY_BASE", "品质底价", "卖价公式底数。"),
-    ("fish_sell", "SIZE_REF", "体长参考m", "卖价公式尺寸归一化。"),
-    ("fish_sell", "MIN_SELL", "最低卖价", "向下取整后的保底。"),
-    ("fish_sell", "catchGroup", "钓组", "SPECIES_MULT 所对应的钓组。"),
-    ("fish_sell", "SPECIES_MULT", "钓组卖价系数", "乘在品质底价上。"),
     ("pond_modifiers", "category", "鱼塘分级", "与 ponds.pondCategory 对应。"),
     ("pond_modifiers", "biteRateMul", "咬钩倍率", "塘级对咬钩率的乘区。"),
     ("pond_modifiers", "escapeRateMul", "脱钩倍率", "塘级对脱钩率的乘区。"),
@@ -383,20 +321,6 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("pond_modifiers", "fineChancePerHour", "每小时出警概率", "仅 forbidden 使用，初值 0.15。其它分级填 0。"),
     ("pond_modifiers", "fineGold", "超时罚款金币", "不足则归零。仅 forbidden 使用，初值 800。"),
     ("pond_modifiers", "policeWarningMs", "出警时限毫秒", "时限内离塘免罚。仅 forbidden 使用，初值 10000。"),
-    ("pond_fish_pool", "pondId", "鱼塘ID", "该塘可出的鱼。"),
-    ("pond_fish_pool", "speciesId", "鱼种ID", "库存模板条目。"),
-    ("pond_fish_pool", "role", "角色", "common 常驻 / rare 稀有。"),
-    ("pond_fish_pool", "spawnWeight", "刷新权重", "相对权重。"),
-    ("pond_fish_pool", "enabled", "是否启用", "FALSE 则该条不参与刷新。"),
-    ("pond_quality_cap", "pondId", "鱼塘ID", "品质软帽。"),
-    ("pond_quality_cap", "minQuality", "最低品质", "该塘随机品质下限。"),
-    ("pond_quality_cap", "maxQuality", "最高品质", "该塘随机品质上限。"),
-    ("pond_quality_cap", "notes", "备注", "策划说明，不进规则。"),
-    ("pond_fish_size_cap", "pondId", "鱼塘ID", "体长硬帽。"),
-    ("pond_fish_size_cap", "speciesId", "鱼种ID", "该塘该种鱼。"),
-    ("pond_fish_size_cap", "quality", "品质", "按品质分档的尺寸帽。"),
-    ("pond_fish_size_cap", "minSizeM", "最小体长m", "随机体长下限。"),
-    ("pond_fish_size_cap", "maxSizeM", "最大体长m", "随机体长上限。"),
     ("rods", "rodId", "钓竿ID", "程序主键，商店与装备用。"),
     ("rods", "name", "中文名", "商店显示名。"),
     ("rods", "subType", "竿型", "手竿入门/台钓/溪流/矶钓/路亚/海竿/重路亚/巨物。"),
@@ -451,12 +375,16 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("spot_clue_texts", "minPlayerLevel", "最低钓鱼等级", "未达到不进入抽选池。"),
     ("spot_clue_texts", "minPondLevel", "最低塘熟练度", "未达到不进入抽选池。"),
     ("spot_clue_texts", "pondCategory", "塘分级过滤", "空=全塘；否则仅匹配该分级。"),
-    ("spot_clue_texts", "spotTag", "点位标签过滤", "空=不限；与 spot_tags.tags 命中任一即可。"),
-    ("spot_clue_texts", "speciesHint", "鱼种备注", "策划备注，UI 可不显示。"),
+    ("spot_clue_texts", "spotTag", "点位标签", "匹配 pond_spot_tags；空=不入池。"),
+    ("spot_clue_texts", "activitySignal", "鱼情信号档", "habitat/active_high/active_mid/active_low/inactive/disturbed；供实时鱼群匹配。"),
     ("spot_clue_texts", "enabled", "是否启用", "FALSE 不参与抽选。"),
-    ("spot_tags", "pondId", "鱼塘ID", "点位所属塘。"),
-    ("spot_tags", "spotId", "钓点ID", "与运行时 spotId 对齐。"),
-    ("spot_tags", "tags", "标签列表", "逗号分隔，如 weed,shade。"),
+    ("spot_tag_defs", "tagId", "标签ID", "程序主键。"),
+    ("spot_tag_defs", "tagCategory", "标签大类", "terrain/water/light/wind/depth/shore。"),
+    ("spot_tag_defs", "nameZh", "中文名", "UI/策划显示。"),
+    ("spot_tag_defs", "descriptionZh", "说明", "标签含义参考。"),
+    ("pond_spot_tags", "pondId", "鱼塘ID", "与 ponds 对齐。"),
+    ("pond_spot_tags", "spotId", "钓位ID", "如 calm-spot-3。"),
+    ("pond_spot_tags", "tags", "标签列表", "逗号分隔多标签；每点 4–6 个跨类标签。"),
     ("achievements", "achievementId", "成就ID", "程序主键。"),
     ("achievements", "name", "名称", "展示名。"),
     ("achievements", "desc", "描述", "条件说明；隐藏成就未解锁时客户端不剧透。"),
@@ -541,7 +469,9 @@ def build() -> Path:
         category = p[2]
         dual = fee > 0 and category in dual_categories
         auto_fee = round(fee * 1.75) if dual else 0
-        pond_rows.append((*p[:5], fee, auto_fee, dual, *p[5:], 0, 0))
+        bio, water, ref = pond_extra_fields(p[0])
+        mx, mn, init = ecology_fields_for_pond(p[0])
+        pond_rows.append((*p[:5], fee, auto_fee, dual, *p[5:], 0, 0, bio, water, ref, mx, mn, init))
     write_sheet(wb, "ponds", PONDS_HEADER, pond_rows)
 
     write_sheet(
@@ -580,8 +510,19 @@ def build() -> Path:
     write_sheet(
         wb,
         "fish_species",
-        ["speciesId", "name", "diet", "catchGroup", "typicalMinM", "typicalMaxM"],
-        FISH_SPECIES,
+        [
+            "speciesId",
+            "name",
+            "diet",
+            "catchGroup",
+            "typicalMinM",
+            "typicalMaxM",
+            "rarityTier",
+            "nationwide",
+            "qualityMin",
+            "qualityMax",
+        ],
+        FISH_SPECIES_FULL,
     )
 
     fish_xp_rows = []
@@ -597,19 +538,6 @@ def build() -> Path:
         ["speciesId", "speciesName", "quality", "playerXp", "pondXp"],
         fish_xp_rows,
     )
-
-    # quality rows + SPECIES_MULT rows (same sheet; filter by filled columns)
-    sell_headers = [
-        "quality",
-        "QUALITY_BASE",
-        "SIZE_REF",
-        "MIN_SELL",
-        "catchGroup",
-        "SPECIES_MULT",
-    ]
-    sell_rows = [(q, base, ref, mn, "", "") for q, base, ref, mn in FISH_SELL_QUALITY]
-    sell_rows += [("", "", "", "", g, m) for g, m in SPECIES_MULT]
-    write_sheet(wb, "fish_sell", sell_headers, sell_rows)
 
     write_sheet(
         wb,
@@ -632,28 +560,37 @@ def build() -> Path:
     write_sheet(
         wb,
         "pond_fish_pool",
-        ["pondId", "speciesId", "role", "spawnWeight", "enabled"],
+        ["pondId", "speciesId", "speciesName", "spawnWeight", "enabled"],
         POND_FISH_POOL,
     )
 
     write_sheet(
         wb,
-        "pond_quality_cap",
-        ["pondId", "minQuality", "maxQuality", "notes"],
-        [
-            ("pond-calm", "gray", "gold", "stub: advanced calm full range"),
-            ("pond-novice", "gray", "green", "stub: novice soft cap"),
-        ],
+        "pond_category_quality_weights",
+        ["pondCategory", "quality", "spawnWeight"],
+        POND_CATEGORY_QUALITY_WEIGHTS,
     )
 
     write_sheet(
         wb,
-        "pond_fish_size_cap",
-        ["pondId", "speciesId", "quality", "minSizeM", "maxSizeM"],
+        "fish_quality_stats",
         [
-            ("pond-calm", "crucian", "gray", 0.03, 0.25),
-            ("pond-calm", "carp", "green", 0.08, 0.6),
+            "quality",
+            "sizeCapM",
+            "biteBaseAtMaxSize",
+            "displayName",
+            "QUALITY_BASE",
+            "SIZE_REF",
+            "MIN_SELL",
         ],
+        FISH_QUALITY_STATS,
+    )
+
+    write_sheet(
+        wb,
+        "fishing_formula_constants",
+        ["key", "value", "notes"],
+        FISHING_FORMULA_CONSTANTS,
     )
 
     rod_headers = [
@@ -733,6 +670,20 @@ def build() -> Path:
 
     write_sheet(
         wb,
+        "spot_tag_defs",
+        ["tagId", "tagCategory", "nameZh", "descriptionZh"],
+        SPOT_TAG_DEFS,
+    )
+
+    write_sheet(
+        wb,
+        "pond_spot_tags",
+        ["pondId", "spotId", "tags"],
+        build_pond_spot_tag_rows(),
+    )
+
+    write_sheet(
+        wb,
         "spot_clue_texts",
         [
             "clueId",
@@ -743,16 +694,10 @@ def build() -> Path:
             "minPondLevel",
             "pondCategory",
             "spotTag",
-            "speciesHint",
+            "activitySignal",
             "enabled",
         ],
         SPOT_CLUE_TEXTS,
-    )
-    write_sheet(
-        wb,
-        "spot_tags",
-        ["pondId", "spotId", "tags"],
-        SPOT_TAGS,
     )
 
     write_sheet(
@@ -772,8 +717,16 @@ def build() -> Path:
         ACHIEVEMENTS,
     )
 
-    wb.save(OUT)
-    print(f"Wrote {OUT}")
+    try:
+        wb.save(OUT)
+        print(f"Wrote {OUT}")
+    except PermissionError:
+        alt = OUT.with_name(OUT.stem + ".next.xlsx")
+        wb.save(alt)
+        print(f"WARNING: {OUT.name} is locked; wrote {alt.name} instead.")
+        print("Close Excel and re-run: npm run game-data:build")
+        print(f"Sheets: {', '.join(wb.sheetnames)}")
+        return alt
     print(f"Sheets: {', '.join(wb.sheetnames)}")
     return OUT
 

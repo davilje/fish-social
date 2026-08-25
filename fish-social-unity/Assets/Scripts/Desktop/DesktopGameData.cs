@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FishSocial.Desktop
@@ -27,6 +28,12 @@ namespace FishSocial.Desktop
             public int minPlayerLevel;
             public float mapX;
             public float mapY;
+            public string bioRegion;
+            public string waterType;
+            public string realWorldRef;
+            public int maxPopulation;
+            public int minPopulation;
+            public int initialPopulation;
         }
 
         [Serializable]
@@ -36,7 +43,24 @@ namespace FishSocial.Desktop
             public string name;
             public string diet;
             public string catchGroup;
+            public float typicalMinM;
+            public float typicalMaxM;
+            public string rarityTier;
+            public bool nationwide;
+            public int qualityMin = 1;
+            public int qualityMax = 7;
         }
+
+        [Serializable]
+        sealed class FormulaConstantRow
+        {
+            public string key;
+            public float value;
+            public string notes;
+        }
+
+        [Serializable]
+        sealed class FormulaConstantArray { public FormulaConstantRow[] items; }
 
         [Serializable]
         sealed class MetaFile
@@ -46,14 +70,15 @@ namespace FishSocial.Desktop
         }
 
         [Serializable]
-        sealed class SellRow
+        sealed class QualityStatsRow
         {
             public string quality;
+            public float sizeCapM;
+            public float biteBaseAtMaxSize;
+            public string displayName;
             public int QUALITY_BASE;
             public float SIZE_REF;
             public int MIN_SELL;
-            public string catchGroup;
-            public float SPECIES_MULT;
         }
 
         [Serializable]
@@ -63,7 +88,7 @@ namespace FishSocial.Desktop
         sealed class SpeciesArray { public SpeciesDef[] items; }
 
         [Serializable]
-        sealed class SellArray { public SellRow[] items; }
+        sealed class QualityStatsArray { public QualityStatsRow[] items; }
 
         [Serializable]
         public sealed class RodDef
@@ -126,12 +151,12 @@ namespace FishSocial.Desktop
             public int minPondLevel;
             public string pondCategory;
             public string spotTag;
-            public string speciesHint;
+            public string activitySignal;
             public bool enabled = true;
         }
 
         [Serializable]
-        public sealed class SpotTagDef
+        public sealed class PondSpotTagDef
         {
             public string pondId;
             public string spotId;
@@ -142,18 +167,21 @@ namespace FishSocial.Desktop
         sealed class BaitArray { public BaitDef[] items; }
         sealed class VesselArray { public VesselDef[] items; }
         sealed class SpotClueTextArray { public SpotClueTextDef[] items; }
-        sealed class SpotTagArray { public SpotTagDef[] items; }
+        sealed class PondSpotTagArray { public PondSpotTagDef[] items; }
 
         static bool _loaded;
         static PondDef[] _ponds = new PondDef[0];
         static SpeciesDef[] _species = new SpeciesDef[0];
-        static SellRow[] _sell = new SellRow[0];
+        static QualityStatsRow[] _qualityStats = new QualityStatsRow[0];
         static RodDef[] _rods = new RodDef[0];
         static BaitDef[] _baits = new BaitDef[0];
         static VesselDef[] _vessels = new VesselDef[0];
         static SpotClueTextDef[] _spotClueTexts = new SpotClueTextDef[0];
-        static SpotTagDef[] _spotTags = new SpotTagDef[0];
+        static PondSpotTagDef[] _pondSpotTags = new PondSpotTagDef[0];
+        static FormulaConstantRow[] _formulaConstants = new FormulaConstantRow[0];
         static float _sizeExp = 1.15f;
+        static float _lengthWeightA = 12f;
+        static float _lengthWeightB = 3f;
 
         public static PondDef[] Ponds
         {
@@ -186,13 +214,38 @@ namespace FishSocial.Desktop
             }
         }
 
-        public static SpotTagDef[] SpotTags
+        public static string[] GetSpotTags(string pondId, string spotId)
         {
-            get
+            EnsureLoaded();
+            if (string.IsNullOrEmpty(spotId))
+                return new string[0];
+            for (var i = 0; i < _pondSpotTags.Length; i++)
             {
-                EnsureLoaded();
-                return _spotTags;
+                var row = _pondSpotTags[i];
+                if (row == null) continue;
+                if (!string.Equals(row.spotId, spotId, StringComparison.Ordinal))
+                    continue;
+                if (!string.IsNullOrEmpty(pondId) &&
+                    !string.Equals(row.pondId, pondId, StringComparison.Ordinal))
+                    continue;
+                return ParseTagList(row.tags);
             }
+            return new string[0];
+        }
+
+        static string[] ParseTagList(string tags)
+        {
+            if (string.IsNullOrEmpty(tags))
+                return new string[0];
+            var parts = tags.Split(',');
+            var list = new List<string>();
+            for (var i = 0; i < parts.Length; i++)
+            {
+                var t = parts[i] != null ? parts[i].Trim() : string.Empty;
+                if (!string.IsNullOrEmpty(t))
+                    list.Add(t);
+            }
+            return list.ToArray();
         }
 
         public static string CategoryLabel(string category)
@@ -226,15 +279,44 @@ namespace FishSocial.Desktop
             }
         }
 
+        public static float CalcWeightKg(float sizeM)
+        {
+            EnsureLoaded();
+            var L = Mathf.Max(0f, sizeM);
+            return Mathf.Round(_lengthWeightA * Mathf.Pow(L, _lengthWeightB) * 100f) / 100f;
+        }
+
+        public static string FormatWeightKg(float weightKg)
+        {
+            if (weightKg >= 100f) return weightKg.ToString("0") + "kg";
+            if (weightKg >= 10f) return weightKg.ToString("0.0") + "kg";
+            return weightKg.ToString("0.00") + "kg";
+        }
+
+        public static string QualityRankLabel(int rank)
+        {
+            switch (rank)
+            {
+                case 1: return "普通";
+                case 2: return "优良";
+                case 3: return "稀有";
+                case 4: return "史诗";
+                case 5: return "传说";
+                case 6: return "神话";
+                case 7: return "至尊";
+                default: return "—";
+            }
+        }
+
         public static int EstimateSellPrice(string quality, float sizeM, string speciesId)
         {
             EnsureLoaded();
-            SellRow row = null;
-            for (var i = 0; i < _sell.Length; i++)
+            QualityStatsRow row = null;
+            for (var i = 0; i < _qualityStats.Length; i++)
             {
-                if (_sell[i] != null && _sell[i].quality == quality)
+                if (_qualityStats[i] != null && _qualityStats[i].quality == quality)
                 {
-                    row = _sell[i];
+                    row = _qualityStats[i];
                     break;
                 }
             }
@@ -244,9 +326,7 @@ namespace FishSocial.Desktop
 
             var sizeRef = row.SIZE_REF > 0f ? row.SIZE_REF : 0.2f;
             var ratio = Mathf.Max(0.01f, sizeM / sizeRef);
-            var catchGroup = ResolveCatchGroup(speciesId);
-            var speciesMult = ResolveSpeciesMult(catchGroup);
-            var raw = row.QUALITY_BASE * Mathf.Pow(ratio, _sizeExp) * speciesMult;
+            var raw = row.QUALITY_BASE * Mathf.Pow(ratio, _sizeExp);
             var sold = Mathf.FloorToInt(raw);
             return Mathf.Max(sold, row.MIN_SELL);
         }
@@ -321,6 +401,32 @@ namespace FishSocial.Desktop
             }
         }
 
+        public static string RarityLabel(string tier)
+        {
+            switch (tier)
+            {
+                case "common": return "常见";
+                case "uncommon": return "少见";
+                case "rare": return "稀有";
+                case "legendary": return "传说";
+                default: return string.IsNullOrEmpty(tier) ? "未标注" : tier;
+            }
+        }
+
+        public static SpeciesDef GetSpeciesDef(string speciesId)
+        {
+            EnsureLoaded();
+            if (string.IsNullOrEmpty(speciesId))
+                return null;
+            speciesId = ResolveSpeciesId(speciesId);
+            for (var i = 0; i < _species.Length; i++)
+            {
+                if (_species[i] != null && _species[i].speciesId == speciesId)
+                    return _species[i];
+            }
+            return null;
+        }
+
         public static string FormatMul(float value)
         {
             return "×" + value.ToString("0.00");
@@ -332,10 +438,51 @@ namespace FishSocial.Desktop
             return (pct >= 0f ? "+" : "") + pct.ToString("0.#") + "%";
         }
 
+        static readonly Dictionary<string, string> LegacySpeciesIds = new Dictionary<string, string>
+        {
+            { "bass", "black_bass" },
+            { "trout", "rainbow_trout" },
+            { "perch", "black_bass" },
+            { "sturgeon", "chinese_sturgeon" },
+        };
+
+        public static string ResolveSpeciesId(string speciesId)
+        {
+            if (string.IsNullOrEmpty(speciesId))
+                return speciesId;
+            string mapped;
+            return LegacySpeciesIds.TryGetValue(speciesId, out mapped) ? mapped : speciesId;
+        }
+
+        public static string SpeciesName(string speciesId)
+        {
+            EnsureLoaded();
+            if (string.IsNullOrEmpty(speciesId))
+                return speciesId;
+            speciesId = ResolveSpeciesId(speciesId);
+            for (var i = 0; i < _species.Length; i++)
+            {
+                if (_species[i] != null && _species[i].speciesId == speciesId &&
+                    !string.IsNullOrEmpty(_species[i].name))
+                    return _species[i].name;
+            }
+            return speciesId;
+        }
+
+        public static SpeciesDef[] Species
+        {
+            get
+            {
+                EnsureLoaded();
+                return _species;
+            }
+        }
+
         static string ResolveCatchGroup(string speciesId)
         {
             if (string.IsNullOrEmpty(speciesId))
                 return "still_bait";
+            speciesId = ResolveSpeciesId(speciesId);
             for (var i = 0; i < _species.Length; i++)
             {
                 if (_species[i] != null && _species[i].speciesId == speciesId &&
@@ -343,17 +490,6 @@ namespace FishSocial.Desktop
                     return _species[i].catchGroup;
             }
             return "still_bait";
-        }
-
-        static float ResolveSpeciesMult(string catchGroup)
-        {
-            for (var i = 0; i < _sell.Length; i++)
-            {
-                if (_sell[i] != null && _sell[i].catchGroup == catchGroup &&
-                    _sell[i].SPECIES_MULT > 0f)
-                    return _sell[i].SPECIES_MULT;
-            }
-            return 1f;
         }
 
         static void EnsureLoaded()
@@ -375,8 +511,12 @@ namespace FishSocial.Desktop
             _species = ParseArray<SpeciesArray, SpeciesDef>(
                 Resources.Load<TextAsset>("GameData/fish_species"),
                 wrap => wrap != null ? wrap.items : null);
-            _sell = ParseArray<SellArray, SellRow>(
-                Resources.Load<TextAsset>("GameData/fish_sell"),
+            if (_species.Length == 0)
+                Debug.LogWarning("[GameData] fish_species.json missing or failed to parse; 图鉴 will be empty.");
+            else
+                Debug.Log("[GameData] fish_species loaded " + _species.Length + " rows.");
+            _qualityStats = ParseArray<QualityStatsArray, QualityStatsRow>(
+                Resources.Load<TextAsset>("GameData/fish_quality_stats"),
                 wrap => wrap != null ? wrap.items : null);
             _rods = ParseArray<RodArray, RodDef>(
                 Resources.Load<TextAsset>("GameData/rods"),
@@ -390,9 +530,19 @@ namespace FishSocial.Desktop
             _spotClueTexts = ParseArray<SpotClueTextArray, SpotClueTextDef>(
                 Resources.Load<TextAsset>("GameData/spot_clue_texts"),
                 wrap => wrap != null ? wrap.items : null);
-            _spotTags = ParseArray<SpotTagArray, SpotTagDef>(
-                Resources.Load<TextAsset>("GameData/spot_tags"),
+            _pondSpotTags = ParseArray<PondSpotTagArray, PondSpotTagDef>(
+                Resources.Load<TextAsset>("GameData/pond_spot_tags"),
                 wrap => wrap != null ? wrap.items : null);
+            _formulaConstants = ParseArray<FormulaConstantArray, FormulaConstantRow>(
+                Resources.Load<TextAsset>("GameData/fishing_formula_constants"),
+                wrap => wrap != null ? wrap.items : null);
+            for (var i = 0; i < _formulaConstants.Length; i++)
+            {
+                var row = _formulaConstants[i];
+                if (row == null || string.IsNullOrEmpty(row.key)) continue;
+                if (row.key == "LENGTH_WEIGHT_A" && row.value > 0f) _lengthWeightA = row.value;
+                if (row.key == "LENGTH_WEIGHT_B" && row.value > 0f) _lengthWeightB = row.value;
+            }
         }
 
         static TItem[] ParseArray<TWrap, TItem>(TextAsset asset, Func<TWrap, TItem[]> pick)

@@ -1,7 +1,7 @@
 import type { FishDiet, FishQuality, FishSpecies, FishSpeciesId, RolledFish } from './fish';
 import { FISH_QUALITIES, MIN_FISH_SIZE_M, MAX_FISH_SIZE_M, getSpecies, rollFishQuality, rollFishSpecies } from './fish';
 import type { PondFishEntity } from './pondEcology';
-import { getRodDef } from './gameData.client';
+import { getRodDef, getFishQualityStats, getFishingFormulaConstant } from './gameData.client';
 import { gameBaitBiteBonus } from './gearRules';
 
 /** @deprecated A0-v2 已废弃指数模型，保留仅供旧脚本兼容 */
@@ -173,13 +173,27 @@ export function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
+/** 展示用体重：W(kg) = a × L(m)^b，常数 LENGTH_WEIGHT_A/B，不落库 */
+export function calcFishWeightKg(sizeM: number): number {
+  const a = formulaConstant('LENGTH_WEIGHT_A', 12);
+  const b = formulaConstant('LENGTH_WEIGHT_B', 3);
+  const L = Math.max(0, sizeM);
+  return round2(a * Math.pow(L, b));
+}
+
 /** 咬钩率展示：百分比 2 位小数（商店 / 图鉴 / Debug 统一） */
 export function formatBiteRatePct(rate: number): string {
   return `${(rate * 100).toFixed(2)}%`;
 }
 
 export function getQualityMaxSize(quality: FishQuality, _species?: FishSpecies): number {
-  return Math.min(QUALITY_SIZE_CAP[quality], MAX_FISH_SIZE_M);
+  const stats = getFishQualityStats(quality);
+  const cap = stats?.sizeCapM ?? QUALITY_SIZE_CAP[quality];
+  return Math.min(cap, MAX_FISH_SIZE_M);
+}
+
+function formulaConstant(key: string, fallback: number): number {
+  return getFishingFormulaConstant(key, fallback);
 }
 
 /** @deprecated v0.3.0 物种 biteWeight 不再参与；使用 calcQualitySizeBiteRate */
@@ -194,23 +208,34 @@ export function getSpeciesBiteRatePerTick(species: FishSpecies): number {
  * - 尺寸越大咬钩率越高，最小尺寸时降至满尺寸值的 35%
  */
 export function calcQualitySizeBiteRate(quality: FishQuality, sizeM: number): number {
-  const n = clamp01(sizeM / QUALITY_SIZE_CAP[quality]);
-  return QUALITY_BITE_BASE[quality] * BITE_BASE_SCALE * (1 - SIZE_BITE_K * (1 - n));
+  const stats = getFishQualityStats(quality);
+  const cap = stats?.sizeCapM ?? QUALITY_SIZE_CAP[quality];
+  const biteBase = stats?.biteBaseAtMaxSize ?? QUALITY_BITE_BASE[quality];
+  const scale = formulaConstant('BITE_BASE_SCALE', BITE_BASE_SCALE);
+  const k = formulaConstant('SIZE_BITE_K', SIZE_BITE_K);
+  const n = clamp01(sizeM / cap);
+  return biteBase * scale * (1 - k * (1 - n));
 }
 
 function calcSizeEscapeRateMainCurve(sizeM: number): number {
-  const n = clamp01(sizeM / REFERENCE_SIZE_M);
-  const curve = 1 - Math.pow(1 - n, SIZE_ESCAPE_CURVE_EXPONENT);
-  return clamp01(ESCAPE_AT_40M * curve);
+  const ref = formulaConstant('REFERENCE_SIZE_M', REFERENCE_SIZE_M);
+  const exp = formulaConstant('SIZE_ESCAPE_CURVE_EXPONENT', SIZE_ESCAPE_CURVE_EXPONENT);
+  const at40 = formulaConstant('ESCAPE_AT_40M', ESCAPE_AT_40M);
+  const n = clamp01(sizeM / ref);
+  const curve = 1 - Math.pow(1 - n, exp);
+  return clamp01(at40 * curve);
 }
 
 /** 体长脱钩率（渔具减免前，与品质/物种无关；≤0.35m 幼鱼抬高曲线） */
 export function calcSizeEscapeRate(sizeM: number): number {
-  if (sizeM <= JUVENILE_ESCAPE_SIZE_M) {
-    const span = JUVENILE_ESCAPE_SIZE_M - JUVENILE_SIZE_M_MIN;
-    const t = span > 0 ? clamp01((sizeM - JUVENILE_SIZE_M_MIN) / span) : 0;
-    const juvenile =
-      ESCAPE_AT_JUVENILE_MIN + (ESCAPE_AT_JUVENILE_MAX - ESCAPE_AT_JUVENILE_MIN) * t;
+  const juvMax = formulaConstant('JUVENILE_ESCAPE_SIZE_M', JUVENILE_ESCAPE_SIZE_M);
+  const juvMin = formulaConstant('JUVENILE_SIZE_M_MIN', JUVENILE_SIZE_M_MIN);
+  const escMin = formulaConstant('ESCAPE_AT_JUVENILE_MIN', ESCAPE_AT_JUVENILE_MIN);
+  const escMax = formulaConstant('ESCAPE_AT_JUVENILE_MAX', ESCAPE_AT_JUVENILE_MAX);
+  if (sizeM <= juvMax) {
+    const span = juvMax - juvMin;
+    const t = span > 0 ? clamp01((sizeM - juvMin) / span) : 0;
+    const juvenile = escMin + (escMax - escMin) * t;
     return clamp01(juvenile);
   }
   return calcSizeEscapeRateMainCurve(sizeM);
@@ -251,10 +276,14 @@ export function calcSingleFishBiteProbability(
 
 /** 体长收杆窗口（与品质/物种无关） */
 export function calcSizeHookDurationMs(sizeM: number): number {
-  const n = clamp01(sizeM / REFERENCE_SIZE_M);
-  const curve = 1 - Math.pow(1 - n, SIZE_HOOK_CURVE_EXPONENT);
-  const span = HOOK_AT_40M_MS - HOOK_MIN_MS;
-  return Math.round(HOOK_MIN_MS + span * curve);
+  const ref = formulaConstant('REFERENCE_SIZE_M', REFERENCE_SIZE_M);
+  const exp = formulaConstant('SIZE_HOOK_CURVE_EXPONENT', SIZE_HOOK_CURVE_EXPONENT);
+  const hookMin = formulaConstant('HOOK_MIN_MS', HOOK_MIN_MS);
+  const hookAt40 = formulaConstant('HOOK_AT_40M_MS', HOOK_AT_40M_MS);
+  const n = clamp01(sizeM / ref);
+  const curve = 1 - Math.pow(1 - n, exp);
+  const span = hookAt40 - hookMin;
+  return Math.round(hookMin + span * curve);
 }
 
 /**
@@ -335,7 +364,7 @@ export function calcFishBiteContribution(
 /** 出生尺寸：全区间均匀 + 0.6% 满尺寸（非鱼塘内鱼，如图鉴展示用） */
 export function rollInitialSize(quality: FishQuality, species: FishSpecies): number {
   const maxSize = getQualityMaxSize(quality, species);
-  const floor = Math.max(MIN_FISH_SIZE_M, species.typicalMinM * 0.5);
+  const floor = MIN_FISH_SIZE_M;
   const threshold = maxSize * NEAR_MAX_SIZE_RATIO;
 
   if (Math.random() < NEAR_MAX_SPAWN_CHANCE) {

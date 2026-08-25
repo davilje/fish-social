@@ -1,0 +1,97 @@
+[
+  {
+    "key": "BITE_BASE_SCALE",
+    "value": 0.05,
+    "notes": "咬钩基数全局缩放（× biteBaseAtMaxSize）"
+  },
+  {
+    "key": "SIZE_BITE_K",
+    "value": 0.65,
+    "notes": "体长对咬钩的影响系数"
+  },
+  {
+    "key": "MAX_FISH_SIZE_M",
+    "value": 50,
+    "notes": "绝对体长硬帽（米）"
+  },
+  {
+    "key": "REFERENCE_SIZE_M",
+    "value": 40,
+    "notes": "脱钩/收杆曲线参考体长"
+  },
+  {
+    "key": "ESCAPE_AT_40M",
+    "value": 0.985,
+    "notes": "40m 脱钩率锚点（减免前）"
+  },
+  {
+    "key": "SIZE_ESCAPE_CURVE_EXPONENT",
+    "value": 1.8,
+    "notes": "脱钩曲线指数"
+  },
+  {
+    "key": "JUVENILE_ESCAPE_SIZE_M",
+    "value": 0.35,
+    "notes": "幼鱼脱钩段上限体长"
+  },
+  {
+    "key": "JUVENILE_SIZE_M_MIN",
+    "value": 0.08,
+    "notes": "幼鱼出生/脱钩插值下限"
+  },
+  {
+    "key": "JUVENILE_SIZE_M_MAX",
+    "value": 0.2,
+    "notes": "幼鱼出生体长上限"
+  },
+  {
+    "key": "ESCAPE_AT_JUVENILE_MIN",
+    "value": 0.22,
+    "notes": "0.08m 幼鱼脱钩锚点"
+  },
+  {
+    "key": "ESCAPE_AT_JUVENILE_MAX",
+    "value": 0.08,
+    "notes": "0.35m 幼鱼脱钩锚点"
+  },
+  {
+    "key": "SIZE_HOOK_CURVE_EXPONENT",
+    "value": 1.8,
+    "notes": "收杆窗口曲线指数"
+  },
+  {
+    "key": "HOOK_MIN_MS",
+    "value": 2000,
+    "notes": "最小收杆窗口（毫秒）"
+  },
+  {
+    "key": "HOOK_AT_40M_MS",
+    "value": 7200000,
+    "notes": "40m 收杆窗口（毫秒）"
+  },
+  {
+    "key": "NEAR_MAX_SIZE_RATIO",
+    "value": 0.975,
+    "notes": "近满尺寸判定比例"
+  },
+  {
+    "key": "NEAR_MAX_SPAWN_CHANCE",
+    "value": 0.006,
+    "notes": "出生强制近满尺寸概率"
+  },
+  {
+    "key": "LENGTH_WEIGHT_A",
+    "value": 12,
+    "notes": "体重 W(kg)=a×L(m)^b 的 a，展示用不落库"
+  },
+  {
+    "key": "LENGTH_WEIGHT_B",
+    "value": 3,
+    "notes": "体重 W(kg)=a×L(m)^b 的 b，展示用不落库"
+  },
+  {
+    "key": "XP_SIZE_EXP",
+    "value": 0.85,
+    "notes": "上鱼经验体长乘子指数：(sizeM/SIZE_REF)^exp"
+  }
+]

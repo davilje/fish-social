@@ -8,7 +8,7 @@ namespace FishSocial.Desktop
     public sealed class DesktopCatchBagModalView : MonoBehaviour
     {
         const int MinSlots = 80;
-        const float ReturnGoldMul = 0.7f;
+        const float ReturnGoldMul = 1.5f;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         Text _status;
@@ -266,8 +266,9 @@ namespace FishSocial.Desktop
             _detail.text = "鱼种：" + species +
                            "\n品质：" + quality +
                            "\n体长：" + item.sizeM.ToString("0.00") + "m" +
+                           "\n重量：" + DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) +
                            "\n参考售价：" + sell + " 金币" +
-                           "\n回鱼约得：" + returnGold + " 金币（卖价×70%）" +
+                           "\n回鱼约得：" + returnGold + " 金币（卖价×150%）" +
                            "\n" + seatHint;
             RenderGrid();
         }

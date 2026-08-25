@@ -1,8 +1,8 @@
 import {
   ADMISSION_FEE_SLICE_MS,
+  calcCatchXpGrant,
   calcDurationPondXp,
   evaluatePondAccess,
-  getFishXpGrant,
   getGamePondDef,
   grantCatchXp,
   pondAllowsDualFee,
@@ -15,6 +15,7 @@ import { deductCoins, getPlayer } from './players.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { grantStarterRod } from './gear.js';
 import { findLivePondUser } from './forbiddenPolice.js';
+import { recordSessionFeePaid } from './pondSessionLedger.js';
 
 function resolveSessionReturnFeeMode(playerId: string, pondId: string): ReturnFeeMode {
   const live = findLivePondUser(playerId);
@@ -368,6 +369,7 @@ export function applyAdmissionFeeProgress(
     state.charges += 1;
     state.needsFeeToContinue = false;
     charged += feePer2h;
+    recordSessionFeePaid(playerId, feePer2h);
     recordFishingMetric('admission_fee_charged', {
       playerId,
       pondId,
@@ -397,6 +399,7 @@ export function grantCatchProgress(
   pondId: string,
   speciesId: string,
   quality: FishQuality,
+  sizeM: number,
 ): {
   progress: PlayerFishingProgress;
   proficiency: PondProficiencyRow;
@@ -404,7 +407,7 @@ export function grantCatchProgress(
 } {
   const progress = ensurePlayerProgress(playerId);
   const proficiency = getPondProficiency(playerId, pondId);
-  const grant = getFishXpGrant(speciesId, quality);
+  const grant = calcCatchXpGrant(speciesId, quality, sizeM);
   const result = grantCatchXp(
     { level: progress.level, xp: progress.xp },
     { level: proficiency.level, xp: proficiency.xp },

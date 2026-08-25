@@ -14,7 +14,9 @@ import {
 } from 'react-native';
 import {
   POST_COMMENT_MAX_LENGTH,
+  calcFishWeightKg,
   formatFishSize,
+  formatFishWeight,
   getQualityInfo,
   getSpecies,
   SHARE_VISIBILITY_LABELS,
@@ -208,7 +210,8 @@ export function PostCard({ post, viewerPlayerId, onPostPatch, onPressUser }: Pro
         <View style={styles.info}>
           <Text style={styles.text}>{post.text}</Text>
           <Text style={[styles.quality, { color: quality.color }]}>
-            {quality.name} · {formatFishSize(post.fish.sizeM)}
+            {quality.name} · {formatFishSize(post.fish.sizeM)} ·{' '}
+            {formatFishWeight(calcFishWeightKg(post.fish.sizeM))}
           </Text>
           <Text style={styles.vis}>{SHARE_VISIBILITY_LABELS[post.visibility]}</Text>
         </View>

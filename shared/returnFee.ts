@@ -8,6 +8,11 @@ export type ReturnFeeMode = 'sell_only' | 'auto_return';
 const DUAL_FEE_CATEGORIES = new Set(['advanced', 'veteran', 'forbidden']);
 
 export function pondAllowsDualFee(pond: GamePondDef | null | undefined): boolean {
+  return pondAllowsReturnFish(pond);
+}
+
+/** 收费且表内开启回鱼的塘才允许回鱼（免票塘 / 仅出售塘不可回） */
+export function pondAllowsReturnFish(pond: GamePondDef | null | undefined): boolean {
   if (!pond?.allowsAutoReturn) return false;
   return resolvePondFeePer2h(pond, 'sell_only') > 0;
 }
@@ -42,20 +47,29 @@ export function validateJoinReturnFeeMode(
   return { ok: true, mode };
 }
 
-export function isAutoReturnEligible(
+/** 回鱼准入（手动 / 自动共用）：高品质 + 高体长 + 未满尺寸 */
+export function isReturnEligible(
   fish: { quality: string; sizeM: number; speciesId: string },
   rules: ReturnRulesDef,
 ): boolean {
-  const autoMinQuality = (rules.autoMinQuality ?? 'purple') as FishQuality;
-  const autoMinSizeRatio = rules.autoMinSizeRatio ?? 0.75;
-  if (qualityIndex(fish.quality as FishQuality) < qualityIndex(autoMinQuality)) {
+  const minQuality = (rules.autoMinQuality ?? rules.minQuality ?? 'purple') as FishQuality;
+  const minSizeRatio = rules.autoMinSizeRatio ?? rules.minSizeRatio ?? 0.75;
+  if (qualityIndex(fish.quality as FishQuality) < qualityIndex(minQuality)) {
     return false;
   }
   const species = getSpecies(fish.speciesId as FishSpeciesId);
   const speciesMax = getQualityMaxSize(fish.quality as FishQuality, species);
   if (fish.sizeM >= speciesMax - 1e-9) return false;
   const ratio = speciesMax > 0 ? fish.sizeM / speciesMax : 0;
-  if (ratio < autoMinSizeRatio) return false;
+  if (ratio < minSizeRatio) return false;
   if (ratio >= rules.maxSizeRatio) return false;
   return true;
+}
+
+/** @deprecated 别名；请用 isReturnEligible */
+export function isAutoReturnEligible(
+  fish: { quality: string; sizeM: number; speciesId: string },
+  rules: ReturnRulesDef,
+): boolean {
+  return isReturnEligible(fish, rules);
 }

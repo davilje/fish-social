@@ -198,31 +198,6 @@
                             Background="#E85A7A9A"
                             Foreground="White"
                             Click="GameplayDebug_OnClick" />
-                    <Border x:Name="GameplayDebugPanel"
-                            Visibility="Collapsed"
-                            Background="#F20F1820"
-                            CornerRadius="8"
-                            Padding="8"
-                            Margin="0,8,0,0"
-                            Width="220"
-                            MaxHeight="420"
-                            HorizontalAlignment="Right">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
-                        <StackPanel>
-                            <Button Content="升级" Height="28" Margin="0,0,0,4" Click="GameplayDebugLevelUp_OnClick" />
-                            <Button Content="升至满级" Height="28" Margin="0,0,0,4" Click="GameplayDebugLevelMax_OnClick" />
-                            <Button Content="塘熟练度 +1" Height="28" Margin="0,0,0,4" Click="GameplayDebugPondUp_OnClick" />
-                            <Button Content="塘熟练度满级" Height="28" Margin="0,0,0,4" Click="GameplayDebugPondMax_OnClick" />
-                            <Button Content="+100万金币" Height="28" Margin="0,0,0,4" Click="GameplayDebugGold_OnClick" />
-                            <Button Content="一键出警" Height="28" Margin="0,0,0,4" Click="PoliceDebug_OnClick" />
-                            <Button Content="获得鱼获" Height="28" Margin="0,0,0,4" Click="GameplayDebugFish_OnClick" />
-                            <Button Content="最大尺寸鱼" Height="28" Margin="0,0,0,4" Click="GameplayDebugFishMax_OnClick" />
-                            <Button Content="史诗及以上鱼" Height="28" Margin="0,0,0,4" Click="GameplayDebugFishEpic_OnClick" />
-                            <Button Content="钓鱼时长 +2h" Height="28" Margin="0,0,0,4" Click="GameplayDebugFee_OnClick" />
-                            <Button Content="重置钓鱼时长" Height="28" Click="GameplayDebugResetDuration_OnClick" />
-                        </StackPanel>
-                        </ScrollViewer>
-                    </Border>
                 </StackPanel>
                 <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
                 <StackPanel Canvas.Left="844"
@@ -361,5 +336,54 @@
                         Click="OverlayPromptConfirm_OnClick" />
             </StackPanel>
         </Border>
+        <!-- Z500: 玩法 Debug 顶层模态弹窗（盖住场景与其它提示） -->
+        <Grid x:Name="GameplayDebugModal"
+              Visibility="Collapsed"
+              Panel.ZIndex="500"
+              Background="#99000000"
+              MouseLeftButtonDown="GameplayDebugModalDim_OnMouseLeftButtonDown">
+            <Border Width="360"
+                    MaxHeight="500"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="#F2141E28"
+                    BorderBrush="#FF3A5568"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="16"
+                    MouseLeftButtonDown="GameplayDebugModalPanel_OnMouseLeftButtonDown">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,12" Height="32">
+                        <TextBlock Text="玩法 Debug"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#FFEAF4F8"
+                                   VerticalAlignment="Center" />
+                        <Button Content="关闭"
+                                Width="64"
+                                Height="28"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Click="GameplayDebugClose_OnClick" />
+                    </Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <Button Content="升级" Height="34" Margin="0,0,0,6" Click="GameplayDebugLevelUp_OnClick" />
+                            <Button Content="升至满级" Height="34" Margin="0,0,0,6" Click="GameplayDebugLevelMax_OnClick" />
+                            <Button Content="塘熟练度 +1" Height="34" Margin="0,0,0,6" Click="GameplayDebugPondUp_OnClick" />
+                            <Button Content="塘熟练度满级" Height="34" Margin="0,0,0,6" Click="GameplayDebugPondMax_OnClick" />
+                            <Button Content="+100万金币" Height="34" Margin="0,0,0,6" Click="GameplayDebugGold_OnClick" />
+                            <Button Content="一键出警" Height="34" Margin="0,0,0,6" Click="PoliceDebug_OnClick" />
+                            <Button Content="获得鱼获" Height="34" Margin="0,0,0,6" Click="GameplayDebugFish_OnClick" />
+                            <Button Content="最大尺寸鱼" Height="34" Margin="0,0,0,6" Click="GameplayDebugFishMax_OnClick" />
+                            <Button Content="史诗及以上鱼" Height="34" Margin="0,0,0,6" Click="GameplayDebugFishEpic_OnClick" />
+                            <Button Content="钓鱼时长 +2h" Height="34" Margin="0,0,0,6" Click="GameplayDebugFee_OnClick" />
+                            <Button Content="重置钓鱼时长" Height="34" Click="GameplayDebugResetDuration_OnClick" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

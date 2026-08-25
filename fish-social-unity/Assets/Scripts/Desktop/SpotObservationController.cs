@@ -6,8 +6,7 @@ using UnityEngine;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// FEAT-SPOT-01: on seat, weighted-random observation from spot_clue_texts.
-    /// Keeps one bubble per seated spot; redraws on leave/change.
+    /// FEAT-SPOT-02: on seat, tag-matched observation from spot_clue_texts + pond_spot_tags.
     /// </summary>
     public static class SpotObservationController
     {
@@ -95,11 +94,21 @@ namespace FishSocial.Desktop
             if (table == null || table.Length == 0)
                 return null;
 
+            var spotTags = DesktopGameData.GetSpotTags(pondId, spotId);
+            if (spotTags == null || spotTags.Length == 0)
+                return null;
+
+            var tagSet = new HashSet<string>(StringComparer.Ordinal);
+            for (var i = 0; i < spotTags.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(spotTags[i]))
+                    tagSet.Add(spotTags[i]);
+            }
+
             var playerLevel = progress != null && progress.level > 0 ? progress.level : 1;
             var pondLevel = ResolvePondLevel(progress, pondId);
             var pond = DesktopGameData.GetPond(pondId);
             var pondCategory = pond != null ? pond.pondCategory ?? string.Empty : string.Empty;
-            var spotTags = ResolveSpotTags(pondId, spotId);
 
             var pool = new List<DesktopGameData.SpotClueTextDef>();
             for (var i = 0; i < table.Length; i++)
@@ -115,7 +124,8 @@ namespace FishSocial.Desktop
                 if (!string.IsNullOrEmpty(row.pondCategory) &&
                     !string.Equals(row.pondCategory, pondCategory, StringComparison.Ordinal))
                     continue;
-                if (!TagMatches(row.spotTag, spotTags))
+                var tag = row.spotTag != null ? row.spotTag.Trim() : string.Empty;
+                if (string.IsNullOrEmpty(tag) || !tagSet.Contains(tag))
                     continue;
                 pool.Add(row);
             }
@@ -135,6 +145,21 @@ namespace FishSocial.Desktop
                     pool = filtered;
             }
 
+            // 50/50 habitat vs activity when both exist
+            var habitat = new List<DesktopGameData.SpotClueTextDef>();
+            var activity = new List<DesktopGameData.SpotClueTextDef>();
+            for (var i = 0; i < pool.Count; i++)
+            {
+                if (string.Equals(pool[i].clueType, "habitat", StringComparison.Ordinal))
+                    habitat.Add(pool[i]);
+                else if (string.Equals(pool[i].clueType, "activity", StringComparison.Ordinal))
+                    activity.Add(pool[i]);
+            }
+            var useHabitat = UnityEngine.Random.value < 0.5f;
+            if (useHabitat && habitat.Count > 0)
+                return WeightedPick(habitat);
+            if (!useHabitat && activity.Count > 0)
+                return WeightedPick(activity);
             return WeightedPick(pool);
         }
 
@@ -169,54 +194,6 @@ namespace FishSocial.Desktop
             }
 
             return 1;
-        }
-
-        static HashSet<string> ResolveSpotTags(string pondId, string spotId)
-        {
-            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var rows = DesktopGameData.SpotTags;
-            if (rows == null)
-                return set;
-            for (var i = 0; i < rows.Length; i++)
-            {
-                var row = rows[i];
-                if (row == null)
-                    continue;
-                if (!string.Equals(row.pondId, pondId, StringComparison.Ordinal))
-                    continue;
-                if (!SpotIdMatches(spotId, row.spotId))
-                    continue;
-                if (string.IsNullOrEmpty(row.tags))
-                    continue;
-                var parts = row.tags.Split(',');
-                for (var p = 0; p < parts.Length; p++)
-                {
-                    var tag = parts[p] != null ? parts[p].Trim() : string.Empty;
-                    if (!string.IsNullOrEmpty(tag))
-                        set.Add(tag);
-                }
-            }
-
-            return set;
-        }
-
-        static bool TagMatches(string clueTag, HashSet<string> spotTags)
-        {
-            if (string.IsNullOrEmpty(clueTag))
-                return true;
-            if (spotTags == null || spotTags.Count == 0)
-                return true;
-            return spotTags.Contains(clueTag.Trim());
-        }
-
-        static bool SpotIdMatches(string liveId, string tableId)
-        {
-            if (string.IsNullOrEmpty(liveId) || string.IsNullOrEmpty(tableId))
-                return false;
-            if (string.Equals(liveId, tableId, StringComparison.Ordinal))
-                return true;
-            return liveId.EndsWith("-" + tableId, StringComparison.Ordinal) ||
-                   tableId.EndsWith("-" + liveId, StringComparison.Ordinal);
         }
     }
 }

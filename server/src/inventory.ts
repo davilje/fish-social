@@ -239,7 +239,7 @@ export function acceptCatch(
   );
 
   if (pondId) {
-    grantCatchProgress(playerId, pondId, pending.speciesId, pending.quality);
+    grantCatchProgress(playerId, pondId, pending.speciesId, pending.quality, pending.sizeM);
     if (pondId === 'pond-novice') {
       completeOnboarding(playerId);
     }

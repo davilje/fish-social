@@ -17,6 +17,7 @@ import {
   formatBiteRatePct,
   getPondStockConfig,
   getSpecies,
+  pickSpawnFish,
   growFishSizeV2,
   isFishingActive,
   getQualityMaxSize,
@@ -25,7 +26,6 @@ import {
   rollFishQuality,
   rollIndividualMultiplier,
   rollJuvenileSize,
-  rollSupplementQuality,
   round2,
   type FishQuality,
   type FishSpeciesId,
@@ -151,10 +151,25 @@ function pickSpotForPond(pondId: string): string {
   return pickSpotForNewFish(spotIds, getHabitatWeights(pondId));
 }
 
-function pickSpecies(config: PondStockConfig): FishSpeciesId {
+function pickPoolOrFallback(pondId: string, config: PondStockConfig): {
+  speciesId: FishSpeciesId;
+  quality: FishQuality;
+} {
+  // 1) 种池加权抽种  2) 塘分级品质权重表抽品质  3) 调用方再 roll 体长等初始参数
+  const picked = pickSpawnFish(pondId);
+  if (picked) {
+    return { speciesId: picked.speciesId, quality: picked.quality };
+  }
   const pool =
     Math.random() < config.rareSpawnRate ? config.rareSpecies : config.commonSpecies;
-  return pool[Math.floor(Math.random() * pool.length)];
+  return {
+    speciesId: pool[Math.floor(Math.random() * pool.length)] ?? 'crucian',
+    quality: rollFishQuality(),
+  };
+}
+
+function pickSpecies(config: PondStockConfig): FishSpeciesId {
+  return pickPoolOrFallback(config.pondId, config).speciesId;
 }
 
 function emptyQualityCounts(): Record<FishQuality, number> {
@@ -246,7 +261,11 @@ function insertPondFish(
 }
 
 function createFish(pondId: string, speciesId: FishSpeciesId): PondFishEntity {
-  return insertPondFish(pondId, speciesId, rollFishQuality(), 'seed');
+  const config = getPondStockConfig(pondId);
+  const picked = config
+    ? pickPoolOrFallback(pondId, config)
+    : { speciesId, quality: rollFishQuality() };
+  return insertPondFish(pondId, picked.speciesId, picked.quality, 'seed');
 }
 
 function createSupplementFish(
@@ -255,8 +274,9 @@ function createSupplementFish(
   actualByQuality: Record<FishQuality, number>,
   bornAt: number = Date.now(),
 ): PondFishEntity {
-  const quality = rollSupplementQuality(actualByQuality, config.maxPopulation);
-  return insertPondFish(pondId, pickSpecies(config), quality, 'supplement', bornAt);
+  const picked = pickPoolOrFallback(pondId, config);
+  void actualByQuality;
+  return insertPondFish(pondId, picked.speciesId, picked.quality, 'supplement', bornAt);
 }
 
 function seedPond(pondId: string, count: number): void {

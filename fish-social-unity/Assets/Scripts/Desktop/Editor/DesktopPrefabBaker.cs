@@ -251,6 +251,99 @@ namespace FishSocial.Desktop.Editor
                 Debug.LogError("[DesktopPrefabBaker] Leaderboard prefab: " + errors);
         }
 
+        [MenuItem("Fish Social/Bake PanelPondSettlement")]
+        public static void BakePanelPondSettlementMenu()
+        {
+            try
+            {
+                GeneratePanelPondSettlementPrefab(forceRebuild: true);
+                if (!Application.isBatchMode)
+                {
+                    EditorUtility.DisplayDialog(
+                        "PanelPondSettlement",
+                        HasPondSettlementStructure()
+                            ? "已生成并写入布局：Assets/Resources/Desktop/Prefabs/PanelPondSettlement.prefab"
+                            : "生成完成，但结构校验未通过，请查看 Console。",
+                        "确定");
+                }
+                else if (!HasPondSettlementStructure())
+                {
+                    throw new System.Exception("PanelPondSettlement structure validation failed");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("[DesktopPrefabBaker] BakePanelPondSettlement failed: " + ex);
+                if (!Application.isBatchMode)
+                    EditorUtility.DisplayDialog("PanelPondSettlement", "Bake 失败：" + ex.Message, "确定");
+                else
+                    throw;
+            }
+        }
+
+        public static void GeneratePanelPondSettlementPrefab()
+        {
+            GeneratePanelPondSettlementPrefab(forceRebuild: false);
+        }
+
+        public static void GeneratePanelPondSettlementPrefab(bool forceRebuild)
+        {
+            var path = Folder + "/PanelPondSettlement.prefab";
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing == null)
+            {
+                var root = new GameObject(
+                    "PanelPondSettlement",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(DesktopPondSettlementModalView));
+                Stretch(root.GetComponent<RectTransform>());
+                root.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+                var errors = string.Empty;
+                SaveGeneratedPrefab(root, "PanelPondSettlement", ref errors);
+                if (!string.IsNullOrEmpty(errors))
+                    throw new System.Exception(errors);
+            }
+            else if (forceRebuild)
+            {
+                // keep asset, rewrite children via Populate
+            }
+
+            PopulatePanelPondSettlementPrefab();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[DesktopPrefabBaker] PanelPondSettlement ready: " + path);
+        }
+
+        public static void PopulatePanelPondSettlementPrefab()
+        {
+            PopulateNamedPanel("PanelPondSettlement", root =>
+            {
+                var panel = root.GetComponent<DesktopPondSettlementModalView>();
+                if (panel == null)
+                    panel = root.AddComponent<DesktopPondSettlementModalView>();
+                panel.BuildEditorLayout();
+                var image = root.GetComponent<Image>();
+                if (image != null)
+                    image.color = new Color(0f, 0f, 0f, 0f);
+            });
+            Debug.Log("[DesktopPrefabBaker] PopulatePanelPondSettlement ok");
+        }
+
+        public static bool HasPondSettlementStructure()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                Folder + "/PanelPondSettlement.prefab");
+            return prefab != null &&
+                   prefab.GetComponent<DesktopPondSettlementModalView>() != null &&
+                   prefab.transform.Find("Dim") != null &&
+                   prefab.transform.Find("Panel") != null &&
+                   prefab.transform.Find("Panel/Title") != null &&
+                   prefab.transform.Find("Panel/Summary") != null &&
+                   prefab.transform.Find("Panel/ListScroll") != null &&
+                   prefab.transform.Find("Panel/Close") != null;
+        }
+
         public static void PopulatePanelLeaderboardPrefab()
         {
             PopulateNamedPanel("PanelLeaderboard", root =>
@@ -626,6 +719,7 @@ namespace FishSocial.Desktop.Editor
                 new PrefabEntry("PanelProfileHub", typeof(DesktopProfileHubPanel)),
                 new PrefabEntry("PanelSocialFeed", typeof(DesktopSocialFeedPanel)),
                 new PrefabEntry("PanelLeaderboard", typeof(DesktopLeaderboardPanel)),
+                new PrefabEntry("PanelPondSettlement", typeof(DesktopPondSettlementModalView)),
             };
 
             var errors = string.Empty;

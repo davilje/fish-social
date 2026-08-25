@@ -345,6 +345,62 @@ namespace FishSocial.Desktop.Auth
     {
         public bool ok;
         public string error;
+        public bool autoReturned;
+        public int gold;
+        public int playerXp;
+        public int pondXp;
+        public float newSizeM;
+        public float sizeGainM;
+        public int totalCoins;
+    }
+
+    [Serializable]
+    public sealed class FishCatchSettledDto
+    {
+        public string speciesId;
+        public string quality;
+        public float sizeM;
+        public bool autoReturned;
+        public int gold;
+        public int playerXp;
+        public int pondXp;
+        public float newSizeM;
+        public float sizeGainM;
+        public int totalCoins;
+        public string message;
+    }
+
+    [Serializable]
+    public sealed class PondSessionCatchEntryDto
+    {
+        public string speciesId;
+        public string quality;
+        public float sizeM;
+        public string outcome;
+        public int returnGold;
+        public int catchPlayerXp;
+        public int catchPondXp;
+        public int returnPlayerXp;
+        public int returnPondXp;
+        public long caughtAt;
+    }
+
+    [Serializable]
+    public sealed class PondSessionSummaryDto
+    {
+        public string pondId;
+        public string pondName;
+        public string returnFeeMode;
+        public PondSessionCatchEntryDto[] catches;
+        public int feesPaid;
+        public int totalReturnGold;
+        public int totalCatchPlayerXp;
+        public int totalCatchPondXp;
+        public int totalReturnPlayerXp;
+        public int totalReturnPondXp;
+        public int netProfit;
+        public long joinedAt;
+        public long leftAt;
     }
 
     [Serializable]

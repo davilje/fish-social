@@ -1,11 +1,6 @@
 import type { FishInventoryItem, FishQuality } from './types';
 import { getQualityInfo, getSpecies } from './fish';
-import {
-  getCatchGroup,
-  getSellQualityDef,
-  getSellSizeExp,
-  getSpeciesSellMult,
-} from './gameData.client';
+import { getSellQualityDef, getSellSizeExp } from './gameData.client';
 
 /** Legacy fallback if game-data missing a quality row */
 const LEGACY_BASE: Record<FishQuality, number> = {
@@ -19,8 +14,8 @@ const LEGACY_BASE: Record<FishQuality, number> = {
 };
 
 /**
- * FEAT-PROG-01 sell formula:
- * floor( QUALITY_BASE[q] × (sizeM / SIZE_REF[q])^SIZE_EXP × SPECIES_MULT[catchGroup] )
+ * 卖价（钓组不参与）：
+ * floor( QUALITY_BASE[q] × (sizeM / SIZE_REF[q])^SIZE_EXP )
  * then max(..., MIN_SELL[q])
  */
 export function calcFishSellPrice(
@@ -33,14 +28,12 @@ export function calcFishSellPrice(
 
   const sizeRef = row.SIZE_REF > 0 ? row.SIZE_REF : 0.2;
   const ratio = Math.max(0.01, item.sizeM / sizeRef);
-  const catchGroup = item.speciesId ? getCatchGroup(item.speciesId) : 'still_bait';
-  const speciesMult = getSpeciesSellMult(catchGroup);
-  const raw = row.QUALITY_BASE * Math.pow(ratio, getSellSizeExp()) * speciesMult;
+  const raw = row.QUALITY_BASE * Math.pow(ratio, getSellSizeExp());
   const sold = Math.floor(raw);
   return Math.max(sold, row.MIN_SELL);
 }
 
-/** FEAT-RETURN-01：回鱼金 = floor(卖价 × goldMulVsSell) */
+/** FEAT-RETURN-01：回鱼金 = floor(卖价 × goldMulVsSell)，默认 1.5× 卖价 */
 export function calcFishReturnGold(
   item: Pick<FishInventoryItem, 'quality' | 'sizeM'> & { speciesId?: string },
   goldMulVsSell?: number,
@@ -49,7 +42,7 @@ export function calcFishReturnGold(
   const mul =
     goldMulVsSell != null && Number.isFinite(goldMulVsSell)
       ? goldMulVsSell
-      : 0.7;
+      : 1.5;
   return Math.max(0, Math.floor(sell * mul));
 }
 

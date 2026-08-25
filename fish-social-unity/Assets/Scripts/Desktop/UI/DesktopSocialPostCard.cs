@@ -71,7 +71,10 @@ namespace FishSocial.Desktop
                 _fishInfoText.text = "鱼获：" + (fish != null ? fish.speciesId : "未知") +
                     "  品质：" + (fish != null ? fish.quality : "未知") +
                     "  体长：" + (fish != null ? fish.sizeM.ToString("0.00") : "-") +
-                    "m  可见范围：" +
+                    "m  重量：" + (fish != null
+                        ? DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(fish.sizeM))
+                        : "-") +
+                    "  可见范围：" +
                     (_post.visibility == "friends" ? "仅好友" : "所有人");
             }
             if (_likeButton != null)

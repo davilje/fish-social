@@ -26,20 +26,20 @@ import {
   settleFishingSession,
   todayKey,
 } from './gameState.js';
-import { acceptCatch, getInventory } from './inventory.js';
-import { tryAutoReturnFish } from './returnFish.js';
+import { getInventory } from './inventory.js';
+import { settleAcceptedCatch } from './catchSettlement.js';
+import {
+  buildPondSessionSummary,
+  clearPondSessionLedger,
+  ensurePondSessionLedger,
+} from './pondSessionLedger.js';
 import { ensurePlayer } from './players.js';
 import { checkJoinPondAccess } from './playerProgress.js';
 import { getGamePondDef, resolvePondFeePer2h } from '@fish-social/shared';
 import { checkForbiddenPondBan } from './forbiddenPolice.js';
-import { autoShareEpicCatch } from './posts.js';
 import { emitEvictedBots } from './bots.js';
 import { beginFishingSequence, beginGroundbaitSequence, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
 import { recordFishingMetric } from './fishingMetrics.js';
-import { recordCodexCatch, isCodexNewForPlayer } from './codex.js';
-import { addAlbumCandidate } from './album.js';
-import { tryUnlockAchievements } from './achievements.js';
-import { getQualityInfo, getSpecies, isAnnounceQuality, type ServerToClientEvents as ServerEvents } from '@fish-social/shared';
 import { logStructuredEvent, recordStructuredMetric } from './fishingObservability.js';
 import { bindPlayer, bindPondUser, resolveBySocket, unbindSocket } from './sessionRegistry.js';
 import { cancelBySocket, cancelByUser } from './timerRegistry.js';
@@ -91,7 +91,7 @@ function buildJoinSuccessAck(
 }
 
 export function registerSocketPondHandlers(
-  socket: Socket<ClientToServerEvents, ServerEvents>,
+  socket: Socket<ClientToServerEvents, ServerToClientEvents>,
   deps: PondHandlerDeps,
 ): void {
   const { io, resolveSocketPlayerId, roomFanoutCount } = deps;
@@ -266,6 +266,11 @@ export function registerSocketPondHandlers(
           disconnectDurationMs:
             disconnected.disconnectedAt != null ? Date.now() - disconnected.disconnectedAt : undefined,
         });
+        ensurePondSessionLedger(
+          authPlayerId,
+          payload.pondId,
+          user.returnFeeMode ?? 'sell_only',
+        );
         ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, user.id));
         return;
       }
@@ -308,6 +313,11 @@ export function registerSocketPondHandlers(
         reason: 'join_pond_success',
         joinKind: 'checkpoint_restore',
       });
+      ensurePondSessionLedger(
+        authPlayerId,
+        payload.pondId,
+        checkpointUser.returnFeeMode ?? 'sell_only',
+      );
       ack?.(buildJoinSuccessAck(authPlayerId, payload.pondId, checkpointUser.id));
       return;
     }
@@ -340,6 +350,8 @@ export function registerSocketPondHandlers(
     }
 
     emitEvictedBots(io, payload.pondId, result.evictedUserIds);
+    clearPondSessionLedger(authPlayerId);
+    ensurePondSessionLedger(authPlayerId, payload.pondId, result.returnFeeMode);
     socket.join(payload.pondId);
     bindPondUser(result.user.id, socket.id, payload.pondId);
     const snapshot = buildSnapshot(payload.pondId, authPlayerId);
@@ -429,7 +441,13 @@ export function registerSocketPondHandlers(
       });
     }
     if (session) cancelByUser(session.userId);
-    ack?.({ ok: true });
+    const playerId = session?.playerId ?? user?.playerId;
+    const summary = playerId ? buildPondSessionSummary(playerId) : null;
+    if (summary) {
+      socket.emit('pond_session_summary', summary);
+      clearPondSessionLedger(playerId!);
+    }
+    ack?.({ ok: true, sessionSummary: summary ?? undefined });
   });
 
   socket.on('leave_spot', (payload, ack) => {
@@ -558,70 +576,34 @@ export function registerSocketPondHandlers(
       ack?.({ ok: false, error: '未加入鱼塘' });
       return;
     }
-    const result = acceptCatch(session.userId, session.playerId, catchId, session.pondId);
-    if (!result.ok) {
-      ack?.({ ok: false, error: result.error });
+    const settled = settleAcceptedCatch(
+      {
+        io,
+        socketId: socket.id,
+        userId: session.userId,
+        playerId: session.playerId,
+        pondId: session.pondId,
+        nickname: session.nickname,
+      },
+      catchId,
+    );
+    if (!settled.ok) {
+      ack?.({ ok: false, error: settled.error });
       return;
     }
-    recordFishingMetric('pending_catch_accept', {
-      playerId: session.playerId,
-      pondId: session.pondId,
-      payload: {
-        speciesId: result.item.speciesId,
-        quality: result.item.quality,
-        sizeM: result.item.sizeM,
-        eventId: catchId,
-      },
-    });
-    const wasNewCodex = isCodexNewForPlayer(session.playerId, result.item.speciesId);
-    const codexUnlock = recordCodexCatch(session.playerId, result.item.speciesId, result.item.sizeM);
-    if (codexUnlock) socket.emit('codex_unlocked', codexUnlock);
-
-    addAlbumCandidate({
-      playerId: session.playerId,
-      speciesId: result.item.speciesId,
-      quality: result.item.quality,
-      sizeM: result.item.sizeM,
-      pondId: session.pondId,
-      source: wasNewCodex ? 'first_codex' : 'catch',
-      inventoryItemId: result.item.id,
-    });
-
-    const newly = tryUnlockAchievements(session.playerId);
-    for (const ach of newly) {
-      socket.emit('achievement_unlocked', {
-        achievementId: ach.achievementId,
-        name: ach.name,
-        desc: ach.desc,
-      });
-    }
-
-    socket.emit('inventory_updated', getInventory(session.playerId));
-
-    const autoResult = tryAutoReturnFish(session.playerId, result.item.id);
-    if (autoResult.ok) {
-      socket.emit('inventory_updated', autoResult.items);
+    if (settled.autoReturned) {
       ack?.({
         ok: true,
         autoReturned: true,
-        gold: autoResult.gold,
-        playerXp: autoResult.playerXp,
-        pondXp: autoResult.pondXp,
-        newSizeM: autoResult.newSizeM,
-        sizeGainM: autoResult.sizeGainM,
-        totalCoins: autoResult.totalCoins,
+        gold: settled.gold,
+        playerXp: settled.playerXp,
+        pondXp: settled.pondXp,
+        newSizeM: settled.newSizeM,
+        sizeGainM: settled.sizeGainM,
+        totalCoins: settled.totalCoins,
       });
     } else {
-      ack?.({ ok: true, item: result.item });
-    }
-
-    if (isAnnounceQuality(result.item.quality)) {
-      const species = getSpecies(result.item.speciesId);
-      const quality = getQualityInfo(result.item.quality);
-      const text = `${session.nickname}钓到了【${quality.name}】的${species.name}！`;
-      const msg = postAnnouncement(session.pondId, text);
-      io.to(session.pondId).emit('chat_message', msg);
-      autoShareEpicCatch(session.playerId, session.nickname, result.item);
+      ack?.({ ok: true, item: settled.item });
     }
   });
 }

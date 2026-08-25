@@ -27,6 +27,7 @@ namespace FishSocial.Desktop.Editor
             new PrefabDefinition("PanelProfileHub", "FEAT-ALBUM-01 个人中心：侧栏资料/展示柜/图鉴/相册/成就。", typeof(DesktopProfileHubPanel)),
             new PrefabDefinition("PanelSocialFeed", "动态墙：公共/好友动态、加载状态和互动操作。", typeof(DesktopSocialFeedPanel)),
             new PrefabDefinition("PanelLeaderboard", "排行榜：日/周/鱼塘/稀有榜、领奖台和纵向列表。", typeof(DesktopLeaderboardPanel)),
+            new PrefabDefinition("PanelPondSettlement", "离塘结算弹窗：鱼获列表、回鱼收入、扣费与盈亏。", typeof(DesktopPondSettlementModalView)),
             new PrefabDefinition("AchievementRow", "个人中心成就列表中的单行。", null),
             new PrefabDefinition("SocialPostCard", "动态墙中的单条鱼获分享卡片。", null),
             new PrefabDefinition("PostCommentRow", "动态卡片中的单条评论和删除操作。", null),
@@ -197,6 +198,7 @@ namespace FishSocial.Desktop.Editor
                 name != "PanelSettings" &&
                 name != "PanelSocialFeed" &&
                 name != "PanelLeaderboard" &&
+                name != "PanelPondSettlement" &&
                 name != "SocialPostCard" &&
                 name != "PostCommentRow" &&
                 name != "LeaderboardRow" &&
@@ -229,6 +231,8 @@ namespace FishSocial.Desktop.Editor
                        prefab.transform.Find("Podium/Slot3") == null ||
                        prefab.transform.Find("Scroll/Viewport/Content") == null ||
                        prefab.transform.Find("MyRank") == null;
+            if (name == "PanelPondSettlement")
+                return !DesktopPrefabValidator.HasPondSettlementStructure();
             if (name == "SocialPostCard")
                 return prefab.GetComponent<DesktopSocialPostCard>() == null ||
                        prefab.transform.Find("Header/AuthorText") == null ||
@@ -273,6 +277,9 @@ namespace FishSocial.Desktop.Editor
                 case "LeaderboardRow":
                     DesktopPrefabValidator.PopulatePanelLeaderboardPrefab();
                     break;
+                case "PanelPondSettlement":
+                    DesktopPrefabValidator.PopulatePanelPondSettlementPrefab();
+                    break;
                 case "SocialPostCard":
                     DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
                     break;
@@ -303,6 +310,9 @@ namespace FishSocial.Desktop.Editor
                 case "PanelLeaderboard":
                 case "LeaderboardRow":
                     DesktopPrefabValidator.GeneratePanelLeaderboardPrefab();
+                    break;
+                case "PanelPondSettlement":
+                    DesktopPrefabValidator.GeneratePanelPondSettlementPrefab(forceRebuild: true);
                     break;
                 case "SocialPostCard":
                     DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();

@@ -23,3 +23,4 @@ export * from './defaultAvatars';
 export * from './fishingPhotos';
 export * from './pondEcology';
 export * from './returnFee';
+export * from './spotClues';

@@ -66,6 +66,8 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> UserUpdated;
         public event Action UsersChanged;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action<FishCatchSettledDto> FishCatchSettled;
+        public event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         public event Action CatchAccepted;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
@@ -79,6 +81,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PoliceRaidDto> PoliceRaidReceived;
         public event Action<string> ErrorReceived;
         public PoliceRaidDto ActivePoliceRaid { get; private set; }
+        public PondSessionSummaryDto LastSessionSummary { get; private set; }
         public string Nickname => string.IsNullOrWhiteSpace(_nickname) ? "Steam玩家" : _nickname;
         public ChatMessageDto[] PondMessages => _messages.ToArray();
         public const int OverlayRecentChatLimit = 20;
@@ -110,6 +113,8 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserUpdated += OnUserUpdated;
             _socket.SessionTimerTick += OnSessionTimerTick;
             _socket.FishBiteReceived += OnFishBite;
+            _socket.FishCatchSettled += OnFishCatchSettled;
+            _socket.PondSessionSummaryReceived += OnPondSessionSummary;
             _socket.InventoryUpdated += OnInventoryUpdated;
             _socket.ChatMessageReceived += OnChatMessage;
             _socket.CodexUnlocked += OnCodexUnlocked;
@@ -634,6 +639,19 @@ namespace FishSocial.Desktop.Auth
             FishBiteReceived?.Invoke(fishCatch);
         }
 
+        void OnFishCatchSettled(FishCatchSettledDto settled)
+        {
+            _latestCatch = null;
+            CatchAccepted?.Invoke();
+            FishCatchSettled?.Invoke(settled);
+        }
+
+        void OnPondSessionSummary(PondSessionSummaryDto summary)
+        {
+            LastSessionSummary = summary;
+            PondSessionSummaryReceived?.Invoke(summary);
+        }
+
         void OnInventoryUpdated(FishInventoryItemDto[] items)
         {
             CurrentInventory = items ?? new FishInventoryItemDto[0];
@@ -734,6 +752,8 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserUpdated -= OnUserUpdated;
             _socket.SessionTimerTick -= OnSessionTimerTick;
             _socket.FishBiteReceived -= OnFishBite;
+            _socket.FishCatchSettled -= OnFishCatchSettled;
+            _socket.PondSessionSummaryReceived -= OnPondSessionSummary;
             _socket.InventoryUpdated -= OnInventoryUpdated;
             _socket.ChatMessageReceived -= OnChatMessage;
             _socket.CodexUnlocked -= OnCodexUnlocked;

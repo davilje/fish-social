@@ -1,6 +1,8 @@
 import type { FishSpeciesId } from './fish';
 import { FISH_QUALITIES, rollFishQuality, type FishQuality } from './fish';
 import { POND_CATALOG } from './pondCatalog';
+import { getPondEcologyDef, listPondFishPool, getPondCategoryQualityWeights } from './gameData.client';
+import type { PondCategory } from './gameDataTypes';
 /** 鱼塘生态常量 */
 /** @deprecated v0.3.1 仅保留兼容；阻断式恢复已废弃 */
 export const POND_DEPLETED_RECOVERY_MS = 15 * 60 * 1000;
@@ -113,11 +115,26 @@ export function calcSupplementCheckMs(activeAnglers: number): number {
   return Math.floor(POND_SUPPLEMENT_CHECK_MS * mult);
 }
 
+function qualityWeightMap(pondCategory?: PondCategory): Record<FishQuality, number> {
+  const map = {} as Record<FishQuality, number>;
+  const rows = pondCategory ? getPondCategoryQualityWeights(pondCategory) : [];
+  for (const q of FISH_QUALITIES) {
+    const row = rows.find((r) => r.quality === q.id);
+    map[q.id] = row ? row.spawnWeight : pondCategory ? 0 : q.weight;
+  }
+  return map;
+}
+
 /** 各品质理想条数（baselineFrac × maxPopulation） */
-export function calcSupplementIdealCounts(maxPopulation: number): Record<FishQuality, number> {
+export function calcSupplementIdealCounts(
+  maxPopulation: number,
+  pondCategory?: PondCategory,
+): Record<FishQuality, number> {
+  const weights = qualityWeightMap(pondCategory);
+  const sum = FISH_QUALITIES.reduce((s, q) => s + (weights[q.id] ?? 0), 0) || 1;
   const ideal = {} as Record<FishQuality, number>;
   for (const q of FISH_QUALITIES) {
-    ideal[q.id] = (q.weight / 100) * maxPopulation;
+    ideal[q.id] = ((weights[q.id] ?? 0) / sum) * maxPopulation;
   }
   return ideal;
 }
@@ -126,14 +143,17 @@ export function calcSupplementIdealCounts(maxPopulation: number): Record<FishQua
 export function calcSupplementQualityWeights(
   actualByQuality: Record<FishQuality, number>,
   maxPopulation: number,
+  pondCategory?: PondCategory,
 ): number[] {
   const total = FISH_QUALITIES.reduce((s, q) => s + (actualByQuality[q.id] ?? 0), 0);
+  const catWeights = qualityWeightMap(pondCategory);
+  const weightSum = FISH_QUALITIES.reduce((s, q) => s + (catWeights[q.id] ?? 0), 0) || 1;
   const weights: number[] = [];
 
   for (let index = 0; index < FISH_QUALITIES.length; index++) {
     const q = FISH_QUALITIES[index];
     const actual = actualByQuality[q.id] ?? 0;
-    const baselineFrac = q.weight / 100;
+    const baselineFrac = (catWeights[q.id] ?? 0) / weightSum;
     const idealCount = baselineFrac * maxPopulation;
     const deficit = Math.max(0, idealCount - actual);
     const share = total > 0 ? actual / total : 0;
@@ -164,8 +184,9 @@ export function calcSupplementQualityWeights(
 export function rollSupplementQuality(
   actualByQuality: Record<FishQuality, number>,
   maxPopulation: number,
+  pondCategory?: PondCategory,
 ): FishQuality {
-  const weights = calcSupplementQualityWeights(actualByQuality, maxPopulation);
+  const weights = calcSupplementQualityWeights(actualByQuality, maxPopulation, pondCategory);
   const sum = weights.reduce((a, b) => a + b, 0);
   if (sum <= 0) return rollFishQuality();
 
@@ -221,54 +242,32 @@ export interface PondEcologySummary {
   lastWeightRefresh: number;
 }
 
-/** 模板轮转：20 塘各有一份库存配置（FEAT-SCENE-TILE-3） */
-const STOCK_TEMPLATES: Array<Omit<PondStockConfig, 'pondId'>> = [
-  {
-    commonSpecies: ['crucian', 'carp', 'tilapia', 'perch'],
-    rareSpecies: ['mandarin', 'trout'],
-    maxPopulation: 80,
-    minPopulation: 12,
-    initialPopulation: 48,
-    rareSpawnRate: 0.1,
-  },
-  {
-    commonSpecies: ['trout', 'herring', 'cod', 'perch'],
-    rareSpecies: ['salmon', 'pike'],
-    maxPopulation: 70,
-    minPopulation: 10,
-    initialPopulation: 42,
-    rareSpawnRate: 0.12,
-  },
-  {
-    commonSpecies: ['tuna', 'mackerel', 'snapper', 'salmon'],
-    rareSpecies: ['marlin', 'sturgeon'],
-    maxPopulation: 60,
-    minPopulation: 8,
-    initialPopulation: 36,
-    rareSpawnRate: 0.14,
-  },
-  {
-    commonSpecies: ['koi', 'carp', 'crucian', 'catfish'],
-    rareSpecies: ['bass', 'eel'],
-    maxPopulation: 75,
-    minPopulation: 10,
-    initialPopulation: 45,
-    rareSpawnRate: 0.11,
-  },
-];
+export const POND_STOCK_CONFIGS: PondStockConfig[] = POND_CATALOG.map((p) =>
+  buildStockConfigFromTables(p.id),
+);
 
-export const POND_STOCK_CONFIGS: PondStockConfig[] = POND_CATALOG.map((p, i) => ({
-  pondId: p.id,
-  ...STOCK_TEMPLATES[i % STOCK_TEMPLATES.length]!,
-}));
+function buildStockConfigFromTables(pondId: string): PondStockConfig {
+  const ecology = getPondEcologyDef(pondId);
+  const pool = listPondFishPool(pondId);
+  const common = new Set<FishSpeciesId>();
+  for (const row of pool) {
+    common.add(row.speciesId);
+  }
+  return {
+    pondId,
+    commonSpecies: [...common],
+    rareSpecies: [],
+    maxPopulation: ecology?.maxPopulation ?? 70,
+    minPopulation: ecology?.minPopulation ?? 10,
+    initialPopulation: ecology?.initialPopulation ?? 40,
+    rareSpawnRate: 0.12,
+  };
+}
 
 export function getPondStockConfig(pondId: string): PondStockConfig | undefined {
   const found = POND_STOCK_CONFIGS.find((c) => c.pondId === pondId);
-  if (found) return found;
-  // FEAT-PROG-01：新手塘复用静心湖生态模板
-  if (pondId === 'pond-novice') {
-    const calm = POND_STOCK_CONFIGS.find((c) => c.pondId === 'pond-calm');
-    if (calm) return { ...calm, pondId: 'pond-novice' };
-  }
+  if (found && (found.commonSpecies.length > 0 || found.rareSpecies.length > 0)) return found;
+  const built = buildStockConfigFromTables(pondId);
+  if (built.commonSpecies.length > 0 || built.rareSpecies.length > 0) return built;
   return undefined;
 }

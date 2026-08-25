@@ -7,8 +7,9 @@ import { db } from '../server/src/db.js';
 import {
   getGamePondDef,
   getReturnRules,
-  isAutoReturnEligible,
+  isReturnEligible,
   pondAllowsDualFee,
+  pondAllowsReturnFish,
   resolvePondFeePer2h,
   validateJoinReturnFeeMode,
 } from '@fish-social/shared';
@@ -42,6 +43,11 @@ initPondEcology();
 const pondDef = getGamePondDef(pondId);
 assert(pondDef != null, 'pond-calm def');
 assert(pondAllowsDualFee(pondDef!), 'advanced fee pond allows dual fee');
+assert(pondAllowsReturnFish(pondDef!), 'fee pond with allowsAutoReturn permits return');
+
+const freePond = getGamePondDef('pond-novice');
+assert(freePond != null, 'pond-novice def');
+assert(!pondAllowsReturnFish(freePond!), 'free pond blocks return');
 assert(resolvePondFeePer2h(pondDef!, 'sell_only') === 200);
 assert(resolvePondFeePer2h(pondDef!, 'auto_return') === 350);
 
@@ -92,7 +98,7 @@ const smallPurple = addFishToInventory(playerId, {
   caughtAt: Date.now(),
   pondId,
 });
-assert(!isAutoReturnEligible(smallPurple, rules), 'small purple not auto eligible');
+assert(!isReturnEligible(smallPurple, rules), 'small purple not return eligible');
 
 const bigPurple = addFishToInventory(playerId, {
   speciesId: 'crucian',
@@ -101,7 +107,7 @@ const bigPurple = addFishToInventory(playerId, {
   caughtAt: Date.now(),
   pondId,
 });
-assert(isAutoReturnEligible(bigPurple, rules), 'large purple auto eligible');
+assert(isReturnEligible(bigPurple, rules), 'large purple return eligible');
 
 const skip = tryAutoReturnFish(playerId, smallPurple.id);
 assert('skipped' in skip && skip.skipped, 'ineligible skips auto return');

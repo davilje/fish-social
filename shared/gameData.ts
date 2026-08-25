@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import type { FishQuality } from './fish';
+import { resolveSpeciesId } from './fish';
 import type {
   CatchGroup,
   FishSellQualityDef,
@@ -76,7 +77,6 @@ let cached: {
   playerLevels: Map<number, PlayerLevelDef>;
   pondLevels: Map<number, PondLevelDef>;
   sellByQuality: Map<FishQuality, FishSellQualityDef>;
-  speciesMult: Map<string, number>;
   modifiers: Map<PondCategory, PondModifierDef>;
   fishXp: Map<string, FishXpDef>;
   species: Map<string, FishSpeciesGameDef>;
@@ -95,7 +95,14 @@ function ensureLoaded() {
   const pondsList = readJson<GamePondDef[]>(dir, 'ponds.json');
   const playerLevelsList = readJson<PlayerLevelDef[]>(dir, 'player_levels.json');
   const pondLevelsList = readJson<PondLevelDef[]>(dir, 'pond_levels.json');
-  const fishSell = readJson<Array<Record<string, unknown>>>(dir, 'fish_sell.json');
+  const qualityStats = readJson<
+    Array<{
+      quality: FishQuality;
+      QUALITY_BASE?: number;
+      SIZE_REF?: number;
+      MIN_SELL?: number;
+    }>
+  >(dir, 'fish_quality_stats.json');
   const modifiersList = readJson<PondModifierDef[]>(dir, 'pond_modifiers.json');
   const fishXpList = readJson<FishXpDef[]>(dir, 'fish_xp.json');
   const speciesList = readJson<FishSpeciesGameDef[]>(dir, 'fish_species.json');
@@ -107,12 +114,15 @@ function ensureLoaded() {
   const playerLevels = new Map(playerLevelsList.map((r) => [r.level, r]));
   const pondLevels = new Map(pondLevelsList.map((r) => [r.level, r]));
   const sellByQuality = new Map<FishQuality, FishSellQualityDef>();
-  const speciesMult = new Map<string, number>();
-  for (const row of fishSell) {
-    if (typeof row.quality === 'string' && row.QUALITY_BASE != null) {
-      sellByQuality.set(row.quality as FishQuality, row as unknown as FishSellQualityDef);
-    } else if (typeof row.catchGroup === 'string' && row.SPECIES_MULT != null) {
-      speciesMult.set(String(row.catchGroup), Number(row.SPECIES_MULT));
+  for (const row of qualityStats) {
+    const base = Number(row.QUALITY_BASE);
+    if (typeof row.quality === 'string' && base > 0) {
+      sellByQuality.set(row.quality, {
+        quality: row.quality,
+        QUALITY_BASE: base,
+        SIZE_REF: Number(row.SIZE_REF) || 0.2,
+        MIN_SELL: Number(row.MIN_SELL) || 0,
+      });
     }
   }
   const modifiers = new Map(modifiersList.map((m) => [m.category, m]));
@@ -128,7 +138,6 @@ function ensureLoaded() {
     playerLevels,
     pondLevels,
     sellByQuality,
-    speciesMult,
     modifiers,
     fishXp,
     species,
@@ -185,11 +194,11 @@ export function getPondModifier(category: PondCategory): PondModifierDef {
 }
 
 export function getCatchGroup(speciesId: string): CatchGroup {
-  return ensureLoaded().species.get(speciesId)?.catchGroup ?? 'still_bait';
+  return ensureLoaded().species.get(resolveSpeciesId(speciesId))?.catchGroup ?? 'still_bait';
 }
 
 export function getGameSpeciesDiet(speciesId: string): string {
-  return ensureLoaded().species.get(speciesId)?.diet ?? 'omnivore';
+  return ensureLoaded().species.get(resolveSpeciesId(speciesId))?.diet ?? 'omnivore';
 }
 
 export function getRodDef(rodId: string): RodDef | undefined {
@@ -220,7 +229,7 @@ export function getFishXpGrant(
   speciesId: string,
   quality: FishQuality,
 ): { playerXp: number; pondXp: number } {
-  const row = ensureLoaded().fishXp.get(`${speciesId}:${quality}`);
+  const row = ensureLoaded().fishXp.get(`${resolveSpeciesId(speciesId)}:${quality}`);
   if (row) return { playerXp: row.playerXp, pondXp: row.pondXp };
   return { playerXp: 0, pondXp: 0 };
 }
@@ -234,8 +243,9 @@ export function getSellQualityDef(quality: FishQuality): FishSellQualityDef | un
   return ensureLoaded().sellByQuality.get(quality);
 }
 
-export function getSpeciesSellMult(catchGroup: string): number {
-  return ensureLoaded().speciesMult.get(catchGroup) ?? 1;
+/** @deprecated 卖价不再使用钓组系数；恒为 1 */
+export function getSpeciesSellMult(_catchGroup: string): number {
+  return 1;
 }
 
 export function reloadGameDataForTests(): void {

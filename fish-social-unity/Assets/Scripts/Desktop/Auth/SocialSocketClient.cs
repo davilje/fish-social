@@ -20,6 +20,8 @@ namespace FishSocial.Desktop.Auth
         event Action<PondUserDto> PondUserUpdated;
         event Action<SessionTimerTickDto> SessionTimerTick;
         event Action<PendingFishCatchDto> FishBiteReceived;
+        event Action<FishCatchSettledDto> FishCatchSettled;
+        event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         event Action<FishInventoryItemDto[]> InventoryUpdated;
         event Action<ChatMessageDto> ChatMessageReceived;
         event Action<CodexUnlockDto> CodexUnlocked;
@@ -78,6 +80,8 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<SessionTimerTickDto> SessionTimerTick;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action<FishCatchSettledDto> FishCatchSettled;
+        public event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
         public event Action<CodexUnlockDto> CodexUnlocked;
@@ -348,6 +352,10 @@ namespace FishSocial.Desktop.Auth
                 SessionTimerTick?.Invoke(JsonUtility.FromJson<SessionTimerTickDto>(payload));
             else if (eventName == "fish_bite")
                 FishBiteReceived?.Invoke(JsonUtility.FromJson<PendingFishCatchDto>(payload));
+            else if (eventName == "fish_catch_settled")
+                FishCatchSettled?.Invoke(JsonUtility.FromJson<FishCatchSettledDto>(payload));
+            else if (eventName == "pond_session_summary")
+                PondSessionSummaryReceived?.Invoke(JsonUtility.FromJson<PondSessionSummaryDto>(payload));
             else if (eventName == "inventory_updated")
                 InventoryUpdated?.Invoke(ParseInventory(payload));
             else if (eventName == "chat_message")
@@ -396,7 +404,21 @@ namespace FishSocial.Desktop.Auth
                 "[Latency][Socket] ack_received id=" + id +
                 " ok=" + result.ok +
                 " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-            ack(result.ok, result.ok ? "操作成功。" : result.error);
+            var message = BuildAckMessage(result);
+            ack(result.ok, message);
+        }
+
+        static string BuildAckMessage(SocketActionAckDto result)
+        {
+            if (!result.ok)
+                return result.error;
+            if (result.autoReturned && result.gold > 0)
+            {
+                return "自动回塘 +" + result.gold + " 金币" +
+                       (result.playerXp > 0 ? "，玩家XP +" + result.playerXp : "") +
+                       (result.pondXp > 0 ? "，塘XP +" + result.pondXp : "");
+            }
+            return "操作成功。";
         }
 
         void SendEventWithAck(string name, string payload, Action<bool, string> onCompleted)
@@ -581,6 +603,8 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<SessionTimerTickDto> SessionTimerTick;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action<FishCatchSettledDto> FishCatchSettled;
+        public event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
         public event Action<ChatMessageDto> ChatMessageReceived;
         public event Action<CodexUnlockDto> CodexUnlocked;

@@ -315,6 +315,49 @@ export interface SessionTimerTickPayload {
   sessionFishingMs: number;
 }
 
+export interface FishCatchSettledPayload {
+  speciesId: string;
+  quality: string;
+  sizeM: number;
+  autoReturned: boolean;
+  gold?: number;
+  playerXp?: number;
+  pondXp?: number;
+  newSizeM?: number;
+  sizeGainM?: number;
+  totalCoins?: number;
+  message: string;
+}
+
+export interface PondSessionCatchEntry {
+  speciesId: string;
+  quality: string;
+  sizeM: number;
+  outcome: 'returned' | 'kept';
+  returnGold?: number;
+  catchPlayerXp?: number;
+  catchPondXp?: number;
+  returnPlayerXp?: number;
+  returnPondXp?: number;
+  caughtAt: number;
+}
+
+export interface PondSessionSummaryPayload {
+  pondId: string;
+  pondName: string;
+  returnFeeMode: 'sell_only' | 'auto_return';
+  catches: PondSessionCatchEntry[];
+  feesPaid: number;
+  totalReturnGold: number;
+  totalCatchPlayerXp: number;
+  totalCatchPondXp: number;
+  totalReturnPlayerXp: number;
+  totalReturnPondXp: number;
+  netProfit: number;
+  joinedAt: number;
+  leftAt: number;
+}
+
 export interface ServerToClientEvents {
   pond_snapshot: (snapshot: PondSnapshot) => void;
   pond_ecology_updated: (summary: PondEcologySummary) => void;
@@ -325,6 +368,10 @@ export interface ServerToClientEvents {
   session_timer_tick: (payload: SessionTimerTickPayload) => void;
   chat_message: (message: ChatMessage) => void;
   fish_bite: (catchData: PendingFishCatch) => void;
+  /** FEAT-RETURN-02：回鱼档钓获即时结算（含自动回塘反馈） */
+  fish_catch_settled: (payload: FishCatchSettledPayload) => void;
+  /** FEAT-RETURN-02：离塘 session 汇总 */
+  pond_session_summary: (payload: PondSessionSummaryPayload) => void;
   fish_miss: (miss: FishingMiss) => void;
   fishing_float_text: (payload: FishingFloatTextPayload) => void;
   bait_depleted: (payload: BaitDepletedPayload) => void;
@@ -401,7 +448,11 @@ export interface ClientToServerEvents {
   ) => void;
   leave_pond: (
     payload: string | LeavePondPayload,
-    ack?: (result: { ok: boolean; error?: string }) => void,
+    ack?: (result: {
+      ok: boolean;
+      error?: string;
+      sessionSummary?: PondSessionSummaryPayload;
+    }) => void,
   ) => void;
   leave_spot: (
     payload: { pondId: string },
@@ -425,6 +476,20 @@ export interface ClientToServerEvents {
     }) => void,
   ) => void;
   send_chat: (payload: SendChatPayload, ack?: (result: { ok: boolean; error?: string }) => void) => void;
-  accept_catch: (catchId: string, ack?: (result: { ok: boolean; error?: string; item?: FishInventoryItem }) => void) => void;
+  accept_catch: (
+    catchId: string,
+    ack?: (result: {
+      ok: boolean;
+      error?: string;
+      item?: FishInventoryItem;
+      autoReturned?: boolean;
+      gold?: number;
+      playerXp?: number;
+      pondXp?: number;
+      newSizeM?: number;
+      sizeGainM?: number;
+      totalCoins?: number;
+    }) => void,
+  ) => void;
   register_player: (playerId: string) => void;
 }

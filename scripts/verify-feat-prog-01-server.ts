@@ -25,7 +25,7 @@ if (!novice.ok) throw new Error(novice.error);
 const joined = joinPond('sock-prog-01', 'pond-novice', 'Tester', id);
 if (!joined.ok) throw new Error(joined.error);
 
-grantCatchProgress(id, 'pond-novice', 'crucian', 'gray');
+grantCatchProgress(id, 'pond-novice', 'crucian', 'gray', 0.12);
 completeOnboarding(id);
 
 const after = ensurePlayerProgress(id);

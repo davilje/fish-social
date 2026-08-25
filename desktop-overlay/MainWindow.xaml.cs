@@ -333,8 +333,42 @@ namespace FishSocialOverlay
 
         void GameplayDebug_OnClick(object sender, RoutedEventArgs e)
         {
-            var open = GameplayDebugPanel.Visibility != Visibility.Visible;
-            GameplayDebugPanel.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+            SetGameplayDebugModalOpen(GameplayDebugModal.Visibility != Visibility.Visible);
+        }
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape &&
+                GameplayDebugModal != null &&
+                GameplayDebugModal.Visibility == Visibility.Visible)
+            {
+                SetGameplayDebugModalOpen(false);
+                e.Handled = true;
+                return;
+            }
+            base.OnPreviewKeyDown(e);
+        }
+
+        void GameplayDebugClose_OnClick(object sender, RoutedEventArgs e)
+        {
+            SetGameplayDebugModalOpen(false);
+        }
+
+        void GameplayDebugModalDim_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            SetGameplayDebugModalOpen(false);
+            e.Handled = true;
+        }
+
+        void GameplayDebugModalPanel_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // 阻止点击弹窗内容冒泡到遮罩关闭。
+            e.Handled = true;
+        }
+
+        void SetGameplayDebugModalOpen(bool open)
+        {
+            GameplayDebugModal.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
         }
 
         void GameplayDebugLevelUp_OnClick(object sender, RoutedEventArgs e) =>
@@ -391,7 +425,7 @@ namespace FishSocialOverlay
                 ? Visibility.Visible
                 : Visibility.Collapsed;
             if (!canGameplayDebug)
-                GameplayDebugPanel.Visibility = Visibility.Collapsed;
+                SetGameplayDebugModalOpen(false);
 
             if (_canStopFishing)
             {
