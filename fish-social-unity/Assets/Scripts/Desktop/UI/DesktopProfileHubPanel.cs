@@ -171,7 +171,7 @@ namespace FishSocial.Desktop
 
             Debug.LogWarning(
                 "[DesktopUI] PanelProfileHub Prefab 缺少 Shell 层级，使用运行时 fallback。" +
-                "请执行 Fish Social → Bake PanelProfileHub。");
+                "请打开 Fish Social → UI Prefab 管理，更新 PanelProfileHub。");
             BuildShellHierarchy();
         }
 

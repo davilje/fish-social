@@ -9,10 +9,10 @@ Unity **2021.3.29f1c1** project for Steam Windows desktop shell (`STEAM-DESKTOP-
 
 ## Build
 
-Menu: **Fish Social → Build Windows Development Player**  
+Menu: **Fish Social → 打包 → Debug 包（Development + Overlay）**  
 Or batchmode (see `Docs/STEAM-DESKTOP-04-smoke.md`).
 
-Output: `Builds/Windows64/FishSocialDesktop.exe`
+Output: `Builds/Windows64-Debug/FishSocialDesktop.exe` (Debug) / `Builds/Windows64/` (Release)
 
 For local Steam login testing, keep the Steam client running and launch the
 generated executable with `Builds/Windows64/steam_appid.txt` beside it.

@@ -86,23 +86,6 @@ namespace FishSocial.Desktop.Editor
             };
         }
 
-        [MenuItem("Fish Social/Bake PanelProfileHub")]
-        public static void BakePanelProfileHubMenu()
-        {
-            try
-            {
-                BakePanelProfileHub();
-                EditorUtility.DisplayDialog(
-                    "PanelProfileHub",
-                    "已 Bake PanelProfileHub.prefab（含 Shell 侧栏五区）与 AchievementRow。",
-                    "确定");
-            }
-            catch (System.Exception ex)
-            {
-                EditorUtility.DisplayDialog("PanelProfileHub", ex.Message, "确定");
-            }
-        }
-
         /// <summary>
         /// Batchmode：Unity.exe -batchmode -quit -projectPath ... -executeMethod FishSocial.Desktop.Editor.DesktopPrefabValidator.BakePanelProfileHub
         /// </summary>
@@ -251,34 +234,14 @@ namespace FishSocial.Desktop.Editor
                 Debug.LogError("[DesktopPrefabBaker] Leaderboard prefab: " + errors);
         }
 
-        [MenuItem("Fish Social/Bake PanelPondSettlement")]
-        public static void BakePanelPondSettlementMenu()
+        /// <summary>
+        /// Batchmode：… -executeMethod FishSocial.Desktop.Editor.DesktopPrefabValidator.BakePanelPondSettlement
+        /// </summary>
+        public static void BakePanelPondSettlement()
         {
-            try
-            {
-                GeneratePanelPondSettlementPrefab(forceRebuild: true);
-                if (!Application.isBatchMode)
-                {
-                    EditorUtility.DisplayDialog(
-                        "PanelPondSettlement",
-                        HasPondSettlementStructure()
-                            ? "已生成并写入布局：Assets/Resources/Desktop/Prefabs/PanelPondSettlement.prefab"
-                            : "生成完成，但结构校验未通过，请查看 Console。",
-                        "确定");
-                }
-                else if (!HasPondSettlementStructure())
-                {
-                    throw new System.Exception("PanelPondSettlement structure validation failed");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError("[DesktopPrefabBaker] BakePanelPondSettlement failed: " + ex);
-                if (!Application.isBatchMode)
-                    EditorUtility.DisplayDialog("PanelPondSettlement", "Bake 失败：" + ex.Message, "确定");
-                else
-                    throw;
-            }
+            GeneratePanelPondSettlementPrefab(forceRebuild: true);
+            if (!HasPondSettlementStructure())
+                throw new System.Exception("PanelPondSettlement structure validation failed");
         }
 
         public static void GeneratePanelPondSettlementPrefab()

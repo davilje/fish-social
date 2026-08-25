@@ -12,7 +12,7 @@ namespace FishSocial.Desktop.Editor
     public sealed class DesktopPrefabManagerWindow : EditorWindow
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs";
-        const string MenuPath = "Fish Social/UI Prefab Manager";
+        const string MenuPath = "Fish Social/UI Prefab 管理";
 
         static readonly PrefabDefinition[] Definitions =
         {
@@ -54,7 +54,7 @@ namespace FishSocial.Desktop.Editor
         int _newTemplate;
         string _notice = "修改 Prefab 后请在 Prefab Mode 中保存；更新操作不会重置手动布局。";
 
-        [MenuItem(MenuPath)]
+        [MenuItem(MenuPath, false, 20)]
         static void Open()
         {
             var window = GetWindow<DesktopPrefabManagerWindow>();

@@ -17,28 +17,21 @@ namespace FishSocial.Desktop.Editor
         const string OverlayProjectPath = "../desktop-overlay/FishSocialOverlay.csproj";
         const string OverlayOutputDir = "FishSocialOverlay";
 
-        [MenuItem("Fish Social/一键打包 Debug 包", false, 1)]
+        // Menu layout:
+        // Fish Social/
+        //   打包/ Debug · Release
+        //   UI Prefab 管理
+
+        [MenuItem("Fish Social/打包/Debug 包（Development + Overlay）", false, 10)]
         public static void BuildWindowsDevelopment()
         {
             BuildWindowsPlayer(true, true);
         }
 
-        [MenuItem("Fish Social/一键打包 Release 包", false, 2)]
+        [MenuItem("Fish Social/打包/Release 包（+ Native Overlay）", false, 11)]
         public static void BuildWindowsWithNativeOverlay()
         {
             BuildWindowsPlayer(true, false);
-        }
-
-        [MenuItem("Fish Social/Build Windows Development Player", false, 21)]
-        public static void BuildWindowsDevelopmentAlias()
-        {
-            BuildWindowsDevelopment();
-        }
-
-        [MenuItem("Fish Social/Build Windows Release + Native Overlay", false, 22)]
-        public static void BuildWindowsReleaseAlias()
-        {
-            BuildWindowsWithNativeOverlay();
         }
 
         static void BuildWindowsPlayer(bool includeNativeOverlay, bool development)
@@ -240,19 +233,6 @@ namespace FishSocial.Desktop.Editor
             {
                 EditorApplication.Exit(1);
             }
-        }
-
-        [MenuItem("Fish Social/Open Desktop Main Scene")]
-        public static void OpenMainScene()
-        {
-            var scenePath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ScenePath));
-            if (!File.Exists(scenePath))
-            {
-                Debug.LogError("Missing " + ScenePath);
-                return;
-            }
-
-            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(ScenePath);
         }
 
         static void EnsureSceneInBuildSettings()

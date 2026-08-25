@@ -119,6 +119,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./steam-desktop-12-gameplay-debug-menu-dev.prompt.md) | STEAM-DESKTOP-12：玩法 Debug 菜单 · **已实现** |
 | [feat-return-01-return-fish-dev.prompt.md](./feat-return-01-return-fish-dev.prompt.md) | FEAT-RETURN-01：回鱼机制 · **已实现** |
 | [feat-return-02-dual-fee-auto-return-dev.prompt.md](./feat-return-02-dual-fee-auto-return-dev.prompt.md) | FEAT-RETURN-02：双价塘与自动回鱼 · **已实现** |
+| [feat-return-04-auto-return-ux-dev.prompt.md](./feat-return-04-auto-return-ux-dev.prompt.md) | FEAT-RETURN-04：自动回鱼体验闭环 · **已实现** |
 | [feat-pool-01-ecology-table-dev.prompt.md](./feat-pool-01-ecology-table-dev.prompt.md) | FEAT-POOL-01：塘生态数值表驱动 · **已实现** |
 | [feat-fish-cn-01-species-regions-dev.prompt.md](./feat-fish-cn-01-species-regions-dev.prompt.md) | FEAT-FISH-CN-01：中国鱼种与区域分布 · **已实现** |
 | [feat-ground-01-groundbait-dev.prompt.md](./feat-ground-01-groundbait-dev.prompt.md) | FEAT-GROUND-01：打窝机制 · **已实现** |

@@ -1,5 +1,13 @@
 # 策划文档变更记录
 
+### [feat-return-04-ux-accepted] - 2026-08-25
+
+- **FEAT-RETURN-04** 自动回鱼体验闭环（RETURN-02 补强）→ **已实现**（设计/完成 2026-08-25）。
+- 交付：回鱼档钓到即结算自动回鱼；`fish_catch_settled` 即时反馈；离塘 `pond_session_summary` + `PanelPondSettlement`；Overlay Debug 顶层弹窗；澄清 Debug 发鱼不自动回塘。
+- 自检：`npm run verify:feat-return-02`
+- 规格：[自动回鱼体验闭环.md](./specs/自动回鱼体验闭环.md)
+- 关联修订：[双价塘与自动回鱼.md](./specs/双价塘与自动回鱼.md)
+
 ### [v0.7-r3-pool-fish-cn-accepted] - 2026-08-25
 
 - **FEAT-POOL-01** 塘生态数值表驱动 → **已实现**（设计 2026-08-24 / 完成 2026-08-25）。
