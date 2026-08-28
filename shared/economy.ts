@@ -1,5 +1,6 @@
 import type { FishInventoryItem, FishQuality } from './types';
 import { getQualityInfo, getSpecies } from './fish';
+import { calcFishWeightJin } from './fishing';
 import { getSellQualityDef, getSellSizeExp } from './gameData.client';
 
 /** Legacy fallback if game-data missing a quality row */
@@ -33,16 +34,39 @@ export function calcFishSellPrice(
   return Math.max(sold, row.MIN_SELL);
 }
 
-/** FEAT-RETURN-01：回鱼金 = floor(卖价 × goldMulVsSell)，默认 1.5× 卖价 */
+export type ReturnGoldOpts = {
+  /** ≥minWeightJin 且 ≤heavyWeightJin 的倍率，默认 1.5 */
+  goldMulVsSell?: number;
+  /** >heavyWeightJin 的倍率，默认 3 */
+  goldMulHeavy?: number;
+  minWeightJin?: number;
+  heavyWeightJin?: number;
+};
+
+/**
+ * 回鱼金 = floor(卖价 × 体重分档倍率)
+ * - 体重 >100 斤 → goldMulHeavy（默认 3）
+ * - 体重 ≥10 斤 → goldMulVsSell（默认 1.5）
+ * - 体重 <10 斤 → 0（应由准入拦截，此处兜底）
+ * 第二个参数也可传 number：强制使用该倍率（忽略体重分档，仅测/兼容）
+ */
 export function calcFishReturnGold(
   item: Pick<FishInventoryItem, 'quality' | 'sizeM'> & { speciesId?: string },
-  goldMulVsSell?: number,
+  goldMulOrOpts?: number | ReturnGoldOpts,
 ): number {
   const sell = calcFishSellPrice(item);
-  const mul =
-    goldMulVsSell != null && Number.isFinite(goldMulVsSell)
-      ? goldMulVsSell
-      : 1.5;
+  let mul: number;
+  if (typeof goldMulOrOpts === 'number' && Number.isFinite(goldMulOrOpts)) {
+    mul = goldMulOrOpts;
+  } else {
+    const opts = (goldMulOrOpts && typeof goldMulOrOpts === 'object' ? goldMulOrOpts : {}) as ReturnGoldOpts;
+    const minJin = opts.minWeightJin ?? 10;
+    const heavyJin = opts.heavyWeightJin ?? 100;
+    const jin = calcFishWeightJin(item.sizeM);
+    if (jin > heavyJin) mul = opts.goldMulHeavy ?? 3;
+    else if (jin >= minJin) mul = opts.goldMulVsSell ?? 1.5;
+    else mul = 0;
+  }
   return Math.max(0, Math.floor(sell * mul));
 }
 

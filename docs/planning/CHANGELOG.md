@@ -1,5 +1,35 @@
 # 策划文档变更记录
 
+### [steam-desktop-art-03-pond-pet-hud] - 2026-08-28
+
+- 立项 **STEAM-DESKTOP-ART-03** 分塘底图、猫咪姿势序列帧、Unity HUD 与 Overlay 一一对应 → **已确认**（P0，设计 2026-08-28）。
+- 与 ART-02 边界：ART-02 只管塘内场景（背景装饰 + 钓位像素）；ART-03 管每塘独立底图、六姿势动画夹、HUD Prefab 导出同步。
+- 规格：[Steam桌面Overlay分塘底图与HUD同步.md](./specs/Steam桌面Overlay分塘底图与HUD同步.md)
+- 开发 prompt：[steam-desktop-art-03-pond-pet-hud-dev.prompt.md](./prompts/steam-desktop-art-03-pond-pet-hud-dev.prompt.md)
+
+### [feat-pool-02-ecology-tuning-accepted] - 2026-08-27
+
+- **FEAT-POOL-02** 塘人口与品质权重调参 → **已实现**（设计/完成 2026-08-27）。
+- 定稿：新手塘 `1/1/1` 钓完不补；公开塘上限/初值 **100**；补鱼/迁徙基准 **60min**；老手 `30/20/20/15/10/3/2`；野外·水库 `45/10/10/10/15/5/5`；禁止 `15/15/20/30/10/7/3`；品质表含中文类型名。
+- 验证：`game-data:build` / `export` + `reset-pond-ecology --apply` 重种分布通过。
+- 规格：[塘人口与品质权重调参.md](./specs/塘人口与品质权重调参.md)
+- prompt（结案归档）：[feat-pool-02-ecology-tuning-dev.prompt.md](./prompts/feat-pool-02-ecology-tuning-dev.prompt.md)
+
+### [feat-return-05-weight-tiers-accepted] - 2026-08-27
+
+- **FEAT-RETURN-05** 回鱼体重分档 → **已实现**（设计/完成 2026-08-27）。
+- 定稿：准入改为市斤体重 **>10 斤**（废弃紫品 / 体长比 / 满尺寸拦截）；回鱼金分档 **>100 斤 ×3**、**>10 斤 ×1.5**。
+- 自检：`npm run verify:feat-return-01`、`npm run verify:feat-return-02`
+- 规格：[回鱼体重分档.md](./specs/回鱼体重分档.md)
+- supersede 说明：RETURN-03 准入与统一 1.5× 倍率；见 RETURN-01/03 变更记录
+
+### [steam-desktop-12b-debug-fish-inspect] - 2026-08-26
+
+- **STEAM-DESKTOP-12B** Overlay Debug 鱼塘/钓位查看与强制上钩 → **已实现**。
+- Overlay Debug 改为 3 列、宽度 ×1.3（468）；塘内/钓位鱼列表与属性；钓位数据；waiting 强制上钩。
+- 规格：[Steam桌面端-Debug鱼塘钓位查看.md](./specs/Steam桌面端-Debug鱼塘钓位查看.md)
+- 开发 prompt：[steam-desktop-12b-debug-fish-inspect-dev.prompt.md](./prompts/steam-desktop-12b-debug-fish-inspect-dev.prompt.md)
+
 ### [feat-return-04-ux-accepted] - 2026-08-25
 
 - **FEAT-RETURN-04** 自动回鱼体验闭环（RETURN-02 补强）→ **已实现**（设计/完成 2026-08-25）。

@@ -1,0 +1,918 @@
+{
+  "meta": {
+    "dateKey": "2026-08-25",
+    "generatedAt": "2026-08-25T16:31:37.295Z",
+    "rulesVersion": "v0.4.1",
+    "timezone": "Asia/Shanghai",
+    "completeness": {
+      "metricCount": 242,
+      "firstEventAt": 1787587442744,
+      "lastEventAt": 1787673247608
+    }
+  },
+  "kpis": {
+    "kpi_daily_catch": {
+      "value": 32,
+      "prev": 50,
+      "avg7d": 114,
+      "deltaPct": -36,
+      "status": "bad",
+      "note": "背包入库 · 真人 4 · 机器人 28"
+    },
+    "kpi_daily_catch_human": {
+      "value": 4,
+      "prev": 20,
+      "avg7d": 5,
+      "deltaPct": -80,
+      "status": null
+    },
+    "kpi_daily_catch_bot": {
+      "value": 28,
+      "prev": 30,
+      "avg7d": 109,
+      "deltaPct": -6.7,
+      "status": null
+    },
+    "kpi_dau": {
+      "value": 1,
+      "prev": 1,
+      "avg7d": 1,
+      "deltaPct": 0,
+      "status": null
+    },
+    "kpi_fishing_dau": {
+      "value": 1,
+      "prev": 1,
+      "avg7d": 1,
+      "deltaPct": 0,
+      "status": null
+    },
+    "kpi_catch_per_fisher": {
+      "value": 4,
+      "prev": 20,
+      "avg7d": 5,
+      "deltaPct": -80,
+      "status": null
+    },
+    "kpi_disconnect_rate": {
+      "value": 20,
+      "prev": 42.9,
+      "avg7d": 39,
+      "deltaPct": -53.4,
+      "status": "warn"
+    },
+    "kpi_abandon_rate": {
+      "value": 0,
+      "prev": 33.3,
+      "avg7d": 37,
+      "deltaPct": -100,
+      "status": null
+    },
+    "kpi_avg_pop_ratio": {
+      "value": 61.3,
+      "prev": 62.7,
+      "avg7d": 48.05,
+      "deltaPct": -2.2,
+      "status": "bad"
+    }
+  },
+  "sections": {
+    "players": {
+      "dau": 1,
+      "fishingDau": 1,
+      "sessionsPerFisher": 1,
+      "avgFishingMs": null,
+      "p50FishingMs": null,
+      "p90FishingMs": null
+    },
+    "retention": {
+      "cohortSize": 1,
+      "d1Rate": 0,
+      "d7Rate": null,
+      "d7Note": "D7 尚未到期"
+    },
+    "catch": {
+      "source": "inventory",
+      "total": 32,
+      "human": 4,
+      "bot": 28,
+      "metricsAcceptHuman": 0,
+      "byPond": [
+        {
+          "pondId": "pond-calm",
+          "catches": 7,
+          "catchesHuman": 2,
+          "catchesBot": 5,
+          "catchSource": "inventory",
+          "hookCount": 6,
+          "escapeCount": 1,
+          "biteTickHit": 6,
+          "biteTickMiss": 160,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 67.5
+        },
+        {
+          "pondId": "pond-mist",
+          "catches": 4,
+          "catchesHuman": 0,
+          "catchesBot": 4,
+          "catchSource": "inventory",
+          "hookCount": 4,
+          "escapeCount": 0,
+          "biteTickHit": 4,
+          "biteTickMiss": 87,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 57.1
+        },
+        {
+          "pondId": "pond-sunset",
+          "catches": 2,
+          "catchesHuman": 0,
+          "catchesBot": 2,
+          "catchSource": "inventory",
+          "hookCount": 5,
+          "escapeCount": 3,
+          "biteTickHit": 5,
+          "biteTickMiss": 105,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 73.3
+        },
+        {
+          "pondId": "pond-bamboo",
+          "catches": 3,
+          "catchesHuman": 0,
+          "catchesBot": 3,
+          "catchSource": "inventory",
+          "hookCount": 4,
+          "escapeCount": 1,
+          "biteTickHit": 4,
+          "biteTickMiss": 114,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 56
+        },
+        {
+          "pondId": "pond-reed",
+          "catches": 2,
+          "catchesHuman": 0,
+          "catchesBot": 2,
+          "catchSource": "inventory",
+          "hookCount": 2,
+          "escapeCount": 0,
+          "biteTickHit": 2,
+          "biteTickMiss": 17,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 51.3
+        },
+        {
+          "pondId": "pond-crystal",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 36,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 55.7
+        },
+        {
+          "pondId": "pond-lotus",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 52,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 65
+        },
+        {
+          "pondId": "pond-mirror",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 6,
+          "disconnects": 1,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 81.3
+        },
+        {
+          "pondId": "pond-willow",
+          "catches": 2,
+          "catchesHuman": 0,
+          "catchesBot": 2,
+          "catchSource": "inventory",
+          "hookCount": 2,
+          "escapeCount": 0,
+          "biteTickHit": 2,
+          "biteTickMiss": 56,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 48.8
+        },
+        {
+          "pondId": "pond-stone",
+          "catches": 0,
+          "catchesHuman": 0,
+          "catchesBot": 0,
+          "catchSource": "inventory",
+          "hookCount": 0,
+          "escapeCount": 0,
+          "biteTickHit": 0,
+          "biteTickMiss": 0,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 50
+        },
+        {
+          "pondId": "pond-spring",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 20,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 58.3
+        },
+        {
+          "pondId": "pond-dusk",
+          "catches": 0,
+          "catchesHuman": 0,
+          "catchesBot": 0,
+          "catchSource": "inventory",
+          "hookCount": 0,
+          "escapeCount": 0,
+          "biteTickHit": 0,
+          "biteTickMiss": 0,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 46.7
+        },
+        {
+          "pondId": "pond-pine",
+          "catches": 3,
+          "catchesHuman": 2,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 14,
+          "escapeCount": 1,
+          "biteTickHit": 14,
+          "biteTickMiss": 89,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 75
+        },
+        {
+          "pondId": "pond-coral",
+          "catches": 0,
+          "catchesHuman": 0,
+          "catchesBot": 0,
+          "catchSource": "inventory",
+          "hookCount": 0,
+          "escapeCount": 0,
+          "biteTickHit": 0,
+          "biteTickMiss": 0,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 54.3
+        },
+        {
+          "pondId": "pond-moon",
+          "catches": 0,
+          "catchesHuman": 0,
+          "catchesBot": 0,
+          "catchSource": "inventory",
+          "hookCount": 0,
+          "escapeCount": 0,
+          "biteTickHit": 0,
+          "biteTickMiss": 0,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 63.3
+        },
+        {
+          "pondId": "pond-fern",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 0,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 65.3
+        },
+        {
+          "pondId": "pond-ridge",
+          "catches": 2,
+          "catchesHuman": 0,
+          "catchesBot": 2,
+          "catchSource": "inventory",
+          "hookCount": 2,
+          "escapeCount": 0,
+          "biteTickHit": 2,
+          "biteTickMiss": 30,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 80,
+          "popRatio": 68.8
+        },
+        {
+          "pondId": "pond-harbor",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 28,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 70,
+          "popRatio": 80
+        },
+        {
+          "pondId": "pond-orchid",
+          "catches": 1,
+          "catchesHuman": 0,
+          "catchesBot": 1,
+          "catchSource": "inventory",
+          "hookCount": 1,
+          "escapeCount": 0,
+          "biteTickHit": 1,
+          "biteTickMiss": 10,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 60,
+          "popRatio": 73.3
+        },
+        {
+          "pondId": "pond-frost",
+          "catches": 0,
+          "catchesHuman": 0,
+          "catchesBot": 0,
+          "catchSource": "inventory",
+          "hookCount": 0,
+          "escapeCount": 0,
+          "biteTickHit": 0,
+          "biteTickMiss": 0,
+          "disconnects": 0,
+          "avgPopulation": null,
+          "maxPopulation": 75,
+          "popRatio": 36
+        }
+      ],
+      "byQuality": [
+        {
+          "quality": "gray",
+          "label": "普通",
+          "count": 21,
+          "human": 1,
+          "bot": 20
+        },
+        {
+          "quality": "green",
+          "label": "优良",
+          "count": 6,
+          "human": 0,
+          "bot": 6
+        },
+        {
+          "quality": "gold",
+          "label": "至尊",
+          "count": 2,
+          "human": 2,
+          "bot": 0
+        },
+        {
+          "quality": "blue",
+          "label": "稀有",
+          "count": 2,
+          "human": 0,
+          "bot": 2
+        },
+        {
+          "quality": "purple",
+          "label": "史诗",
+          "count": 1,
+          "human": 1,
+          "bot": 0
+        }
+      ],
+      "biteHitRate": null,
+      "hookCount": 46,
+      "hookFrequencyPerHour": null,
+      "catchRate": 0.6957,
+      "escapeRate": 0.0217,
+      "pendingExpiredRate": 1,
+      "totalCatches": 32,
+      "totalDisconnects": 1,
+      "metricNote": "产量口径 OPS-CATCH-1：日钓获/品质/分塘均基于 inventory 入库（含 bot）。无 pond_id 历史行按 caught_at 对齐当日 metrics 塘时间线。上钩=bite_hook。"
+    },
+    "stability": {
+      "disconnectCount": 1,
+      "reconnectCount": 0,
+      "disconnectTimeoutCount": 1,
+      "joinAttempts": 5,
+      "joinSuccessCount": 5,
+      "joinFails": 0,
+      "joinFailRate": 0,
+      "leaveByReason": [
+        {
+          "reason": "user_explicit",
+          "count": 5
+        }
+      ],
+      "phaseInvalidCount": 13
+    },
+    "economy": {
+      "faucetTotal": 0,
+      "sinkTotal": 0,
+      "net": 0,
+      "faucetAvailable": true,
+      "breakdown": {
+        "faucetBySource": [],
+        "sinkByType": []
+      },
+      "imbalance": {
+        "triggered": false,
+        "days": [
+          {
+            "dateKey": "2026-08-23",
+            "faucet": 98,
+            "sink": 0,
+            "net": 98
+          },
+          {
+            "dateKey": "2026-08-24",
+            "faucet": 0,
+            "sink": 0,
+            "net": 0
+          },
+          {
+            "dateKey": "2026-08-25",
+            "faucet": 0,
+            "sink": 0,
+            "net": 0
+          }
+        ]
+      },
+      "note": null
+    },
+    "ecology": {
+      "ponds": [
+        {
+          "pondId": "pond-bamboo",
+          "population": 42,
+          "maxPopulation": 75,
+          "popRatio": 56,
+          "avgSizeM": 0.139,
+          "byQuality": {
+            "blue": 10,
+            "gray": 18,
+            "green": 11,
+            "purple": 2,
+            "red": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-calm",
+          "population": 54,
+          "maxPopulation": 80,
+          "popRatio": 67.5,
+          "avgSizeM": 0.548,
+          "byQuality": {
+            "blue": 4,
+            "gray": 26,
+            "green": 23,
+            "purple": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-coral",
+          "population": 38,
+          "maxPopulation": 70,
+          "popRatio": 54.3,
+          "avgSizeM": 0.134,
+          "byQuality": {
+            "blue": 8,
+            "gray": 15,
+            "green": 14,
+            "purple": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-crystal",
+          "population": 39,
+          "maxPopulation": 70,
+          "popRatio": 55.7,
+          "avgSizeM": 0.136,
+          "byQuality": {
+            "blue": 7,
+            "gray": 18,
+            "green": 12,
+            "purple": 2
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-dusk",
+          "population": 35,
+          "maxPopulation": 75,
+          "popRatio": 46.7,
+          "avgSizeM": 0.131,
+          "byQuality": {
+            "blue": 5,
+            "gray": 14,
+            "green": 13,
+            "purple": 2,
+            "red": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-fern",
+          "population": 49,
+          "maxPopulation": 75,
+          "popRatio": 65.3,
+          "avgSizeM": 0.67,
+          "byQuality": {
+            "blue": 7,
+            "gray": 21,
+            "green": 20,
+            "purple": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-frost",
+          "population": 27,
+          "maxPopulation": 75,
+          "popRatio": 36,
+          "avgSizeM": 0.138,
+          "byQuality": {
+            "blue": 6,
+            "gray": 14,
+            "green": 7
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-harbor",
+          "population": 56,
+          "maxPopulation": 70,
+          "popRatio": 80,
+          "avgSizeM": 0.843,
+          "byQuality": {
+            "blue": 13,
+            "gray": 18,
+            "green": 20,
+            "purple": 5
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-lotus",
+          "population": 39,
+          "maxPopulation": 60,
+          "popRatio": 65,
+          "avgSizeM": 0.146,
+          "byQuality": {
+            "blue": 3,
+            "gray": 23,
+            "green": 12,
+            "purple": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-mirror",
+          "population": 61,
+          "maxPopulation": 75,
+          "popRatio": 81.3,
+          "avgSizeM": 0.757,
+          "byQuality": {
+            "blue": 8,
+            "gray": 26,
+            "green": 24,
+            "purple": 2,
+            "red": 1
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-mist",
+          "population": 40,
+          "maxPopulation": 70,
+          "popRatio": 57.1,
+          "avgSizeM": 0.133,
+          "byQuality": {
+            "blue": 6,
+            "gray": 17,
+            "green": 17
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-moon",
+          "population": 38,
+          "maxPopulation": 60,
+          "popRatio": 63.3,
+          "avgSizeM": 0.138,
+          "byQuality": {
+            "blue": 2,
+            "gray": 23,
+            "green": 12,
+            "purple": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-orchid",
+          "population": 44,
+          "maxPopulation": 60,
+          "popRatio": 73.3,
+          "avgSizeM": 0.149,
+          "byQuality": {
+            "blue": 10,
+            "gray": 22,
+            "green": 12
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-pine",
+          "population": 60,
+          "maxPopulation": 80,
+          "popRatio": 75,
+          "avgSizeM": 0.81,
+          "byQuality": {
+            "blue": 6,
+            "gray": 28,
+            "green": 24,
+            "purple": 2
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-reed",
+          "population": 41,
+          "maxPopulation": 80,
+          "popRatio": 51.3,
+          "avgSizeM": 0.14,
+          "byQuality": {
+            "blue": 10,
+            "gray": 16,
+            "green": 14,
+            "red": 1
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-ridge",
+          "population": 55,
+          "maxPopulation": 80,
+          "popRatio": 68.8,
+          "avgSizeM": 0.789,
+          "byQuality": {
+            "blue": 10,
+            "gray": 18,
+            "green": 24,
+            "purple": 3
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-spring",
+          "population": 35,
+          "maxPopulation": 60,
+          "popRatio": 58.3,
+          "avgSizeM": 0.135,
+          "byQuality": {
+            "blue": 5,
+            "gray": 19,
+            "green": 11
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-stone",
+          "population": 35,
+          "maxPopulation": 70,
+          "popRatio": 50,
+          "avgSizeM": 0.14,
+          "byQuality": {
+            "blue": 3,
+            "gray": 16,
+            "green": 13,
+            "purple": 3
+          },
+          "status": "bad"
+        },
+        {
+          "pondId": "pond-sunset",
+          "population": 44,
+          "maxPopulation": 60,
+          "popRatio": 73.3,
+          "avgSizeM": 0.133,
+          "byQuality": {
+            "blue": 6,
+            "gray": 22,
+            "green": 13,
+            "purple": 3
+          },
+          "status": "warn"
+        },
+        {
+          "pondId": "pond-willow",
+          "population": 39,
+          "maxPopulation": 80,
+          "popRatio": 48.8,
+          "avgSizeM": 0.141,
+          "byQuality": {
+            "blue": 5,
+            "gray": 17,
+            "green": 17
+          },
+          "status": "bad"
+        }
+      ],
+      "snapshotNote": "基于日批时 pond_fish 快照"
+    },
+    "targetCompare": {
+      "target": 100,
+      "simRef": 117.9,
+      "simScenario": "5 人/塘",
+      "actual": 32,
+      "actualHuman": 4,
+      "actualTotal": 32,
+      "deviationPct": -72.9,
+      "targetDeviationPct": -68,
+      "humanTargetDeviationPct": -96,
+      "note": "昨日实测=背包总量；真人旁注。设计目标 100 原按真人场景，对照总量会系统性偏大。"
+    },
+    "rulesHistory": [
+      {
+        "dateKey": "2026-08-20",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 222
+      },
+      {
+        "dateKey": "2026-08-21",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 431
+      },
+      {
+        "dateKey": "2026-08-22",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 8
+      },
+      {
+        "dateKey": "2026-08-23",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 63
+      },
+      {
+        "dateKey": "2026-08-24",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 52
+      },
+      {
+        "dateKey": "2026-08-25",
+        "rulesVersion": "v0.4.1",
+        "dailyCatch": 32
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-bamboo 人口率 56% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-calm 人口率 67.5% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-coral 人口率 54.3% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-crystal 人口率 55.7% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-dusk 人口率 46.7% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-fern 人口率 65.3% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-frost 人口率 36% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-lotus 人口率 65% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-mist 人口率 57.1% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-moon 人口率 63.3% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-reed 人口率 51.3% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-ridge 人口率 68.8% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-spring 人口率 58.3% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-stone 人口率 50% < 70%"
+    },
+    {
+      "id": "alert_pop_low",
+      "level": "bad",
+      "message": "pond-willow 人口率 48.8% < 70%"
+    },
+    {
+      "id": "alert_pending_expired",
+      "level": "warn",
+      "message": "pending 超时率 100% 超过 10%"
+    }
+  ],
+  "kpiIds": [
+    "kpi_daily_catch",
+    "kpi_dau",
+    "kpi_fishing_dau",
+    "kpi_catch_per_fisher",
+    "kpi_disconnect_rate",
+    "kpi_abandon_rate",
+    "kpi_avg_pop_ratio"
+  ]
+}

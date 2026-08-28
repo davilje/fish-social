@@ -220,6 +220,7 @@ namespace FishSocial.Desktop
                     break;
                 case 1:
                     SetStatus("好友与私聊");
+                    _lobby?.RefreshFriends();
                     StartCoroutine(LoadFriends());
                     break;
                 default:
@@ -366,15 +367,21 @@ namespace FishSocial.Desktop
             if (outgoing != null && outgoing.Length > 0)
                 AddTextRow(_friendsContent, "TextStatusRow", "已发出请求：" + outgoing.Length);
             AddTextRow(_friendsContent, "TextStatusRow", "Steam 好友邀请进塘");
-            if (_lobby == null || _lobby.Friends == null || _lobby.Friends.Count == 0)
+            if (_lobby == null || !_lobby.SteamFriendsLoaded)
             {
-                AddTextRow(_friendsContent, "TextStatusRow", "尚未加载 Steam 好友。");
-                SetStatus("尚未加载 Steam 好友，可点击顶部重试。");
+                AddTextRow(_friendsContent, "TextStatusRow", "正在从 Steam 加载好友…");
+                SetStatus("正在从 Steam 加载好友，请稍候或点击顶部重试。");
+            }
+            else if (_lobby.Friends == null || _lobby.Friends.Count == 0)
+            {
+                AddTextRow(_friendsContent, "TextStatusRow", "Steam 好友列表为空。");
+                SetStatus("Steam 好友列表为空。");
             }
             else
             {
                 for (var i = 0; i < _lobby.Friends.Count; i++)
                     AddSteamInviteRow(_lobby.Friends[i]);
+                SetStatus("好友数据已更新。");
             }
         }
 

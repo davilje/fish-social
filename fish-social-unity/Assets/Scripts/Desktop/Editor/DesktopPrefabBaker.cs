@@ -608,6 +608,11 @@ namespace FishSocial.Desktop.Editor
 
         static void Generate()
         {
+            Generate(showDialog: true);
+        }
+
+        static void Generate(bool showDialog)
+        {
             var generated = 0;
             var errors = string.Empty;
 
@@ -659,6 +664,9 @@ namespace FishSocial.Desktop.Editor
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
+            if (!showDialog)
+                return;
 
             var message = generated + " 个独立 UI Prefab 已生成。";
             if (!string.IsNullOrEmpty(errors))
@@ -1554,6 +1562,301 @@ namespace FishSocial.Desktop.Editor
             }
             Debug.Log("[DesktopPrefabBaker] Generated " + outputPath);
             return 1;
+        }
+
+        public static void EnsureNamedPanelExists(string outputName, System.Type componentType)
+        {
+            var path = Folder + "/" + outputName + ".prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+                return;
+            GenerateNamedPanel(outputName, componentType, "已创建 " + outputName + ".prefab");
+        }
+
+        public static void EnsurePanelSocial()
+        {
+            EnsureNamedPanelExists("PanelSocial", typeof(DesktopSocialModalView));
+            EnsureSocialRows();
+        }
+
+        public static void EnsurePanelWorldMap()
+        {
+            var path = Folder + "/PanelWorldMap.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+                return;
+            var errors = string.Empty;
+            GenerateWorldMapPrefab(ref errors);
+            if (!string.IsNullOrEmpty(errors))
+                Debug.LogError("[DesktopPrefabBaker] WorldMap: " + errors);
+        }
+
+        public static void EnsureSocialRows()
+        {
+            Generate(showDialog: false);
+        }
+
+        public static void EnsureShopItemCard()
+        {
+            var path = Folder + "/ShopItemCard.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+                return;
+            var root = new GameObject(
+                "ShopItemCard",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button),
+                typeof(LayoutElement));
+            var layout = root.GetComponent<LayoutElement>();
+            layout.minHeight = 64f;
+            layout.preferredHeight = 64f;
+            root.GetComponent<Image>().color = new Color(0.15f, 0.21f, 0.27f, 1f);
+            var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+            labelGo.transform.SetParent(root.transform, false);
+            Stretch(labelGo.GetComponent<RectTransform>());
+            var text = labelGo.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.fontSize = 15;
+            text.color = Color.white;
+            text.alignment = TextAnchor.MiddleLeft;
+            text.text = "商品";
+            var errors = string.Empty;
+            SaveGeneratedPrefab(root, "ShopItemCard", ref errors);
+            AssetDatabase.SaveAssets();
+        }
+
+        public static void EnsureProductContextMenu()
+        {
+            var path = Folder + "/ProductContextMenu.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+                return;
+
+            var root = new GameObject(
+                "ProductContextMenu",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button));
+            Stretch(root.GetComponent<RectTransform>());
+            root.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.01f);
+            root.GetComponent<Button>().transition = Selectable.Transition.None;
+
+            var panel = new GameObject(
+                "MenuPanel",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(VerticalLayoutGroup),
+                typeof(ContentSizeFitter));
+            panel.transform.SetParent(root.transform, false);
+            var panelRt = panel.GetComponent<RectTransform>();
+            panelRt.anchorMin = new Vector2(0f, 1f);
+            panelRt.anchorMax = new Vector2(0f, 1f);
+            panelRt.pivot = new Vector2(0f, 1f);
+            panelRt.sizeDelta = new Vector2(208f, 0f);
+            panel.GetComponent<Image>().color = new Color(0.12f, 0.16f, 0.22f, 0.98f);
+            var vlg = panel.GetComponent<VerticalLayoutGroup>();
+            vlg.padding = new RectOffset(6, 6, 6, 6);
+            vlg.spacing = 2f;
+            vlg.childControlWidth = true;
+            vlg.childControlHeight = true;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            panel.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            var itemTemplate = new GameObject(
+                "MenuItemTemplate",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button),
+                typeof(LayoutElement));
+            itemTemplate.transform.SetParent(panel.transform, false);
+            itemTemplate.GetComponent<LayoutElement>().preferredHeight = 36f;
+            itemTemplate.GetComponent<Image>().color = new Color(0.16f, 0.22f, 0.3f, 1f);
+            var itemLabel = new GameObject("Label", typeof(RectTransform), typeof(Text));
+            itemLabel.transform.SetParent(itemTemplate.transform, false);
+            Stretch(itemLabel.GetComponent<RectTransform>());
+            var it = itemLabel.GetComponent<Text>();
+            it.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            it.fontSize = 15;
+            it.color = Color.white;
+            it.alignment = TextAnchor.MiddleLeft;
+            it.text = "菜单项";
+            itemTemplate.SetActive(false);
+
+            var sepTemplate = new GameObject(
+                "SeparatorTemplate",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(LayoutElement));
+            sepTemplate.transform.SetParent(panel.transform, false);
+            sepTemplate.GetComponent<LayoutElement>().preferredHeight = 8f;
+            sepTemplate.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.08f);
+            sepTemplate.SetActive(false);
+
+            var errors = string.Empty;
+            SaveGeneratedPrefab(root, "ProductContextMenu", ref errors);
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>
+        /// Chrome only: LoginRoot + MainRoot(Header/Nav/Content) + Toast. Panel bodies still Mount at runtime.
+        /// </summary>
+        public static void BakeDesktopShell()
+        {
+            var path = Folder + "/DesktopShell.prefab";
+            var root = new GameObject(
+                "DesktopShell",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(GraphicRaycaster));
+            Stretch(root.GetComponent<RectTransform>());
+            var canvas = root.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var scaler = root.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(480f, 320f);
+            scaler.matchWidthOrHeight = 0.5f;
+
+            BuildShellLogin(root.transform);
+            BuildShellMain(root.transform);
+            BuildShellToast(root.transform);
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+                AssetDatabase.DeleteAsset(path);
+            var errors = string.Empty;
+            SaveGeneratedPrefab(root, "DesktopShell", ref errors);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            if (!string.IsNullOrEmpty(errors))
+                throw new System.InvalidOperationException(errors);
+            Debug.Log("[DesktopPrefabBaker] DesktopShell.prefab ready.");
+        }
+
+        static void BuildShellLogin(Transform canvas)
+        {
+            var login = new GameObject("LoginRoot", typeof(RectTransform), typeof(Image));
+            login.transform.SetParent(canvas, false);
+            Stretch(login.GetComponent<RectTransform>());
+            login.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+            ShellText(login.transform, "Brand", "Fish Social", 26, TextAnchor.MiddleCenter, new Vector2(0, 70), new Vector2(400, 36));
+            ShellText(login.transform, "LoginHint", "请使用 Steam 登录", 16, TextAnchor.MiddleCenter, new Vector2(0, 24), new Vector2(400, 48));
+            ShellButton(login.transform, "SteamLogin", "Steam 登录", new Vector2(0, -36), new Vector2(200, 44));
+        }
+
+        static void BuildShellMain(Transform canvas)
+        {
+            var main = new GameObject("MainRoot", typeof(RectTransform), typeof(Image));
+            main.transform.SetParent(canvas, false);
+            Stretch(main.GetComponent<RectTransform>());
+            main.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+            main.SetActive(false);
+
+            var header = ShellBar(main.transform, "Header", new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -80),
+                new Color(0.12f, 0.18f, 0.24f, 1f));
+            ShellText(header.transform, "Title", "Fish Social", 22, TextAnchor.MiddleLeft, new Vector2(76, -22), new Vector2(240, 28));
+            ShellText(header.transform, "PetStatus", "宠物：离线", 14, TextAnchor.MiddleLeft, new Vector2(76, -50), new Vector2(280, 22));
+            ShellText(header.transform, "LoginStatus", "登录：未登录", 14, TextAnchor.MiddleRight, new Vector2(-16, -14), new Vector2(320, 20));
+            ShellText(header.transform, "ConnStatus", "连接：离线", 14, TextAnchor.MiddleRight, new Vector2(-16, -34), new Vector2(320, 20));
+            ShellText(header.transform, "PondStatus", "鱼塘：未进入", 14, TextAnchor.MiddleRight, new Vector2(-16, -54), new Vector2(320, 20));
+
+            var nav = ShellBar(main.transform, "Nav", new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 64),
+                new Color(0.11f, 0.15f, 0.2f, 1f));
+            var navLayout = nav.AddComponent<HorizontalLayoutGroup>();
+            navLayout.padding = new RectOffset(12, 12, 8, 8);
+            navLayout.spacing = 8;
+            navLayout.childAlignment = TextAnchor.MiddleCenter;
+            navLayout.childControlHeight = true;
+            navLayout.childControlWidth = true;
+            navLayout.childForceExpandHeight = true;
+            navLayout.childForceExpandWidth = true;
+            string[] navNames =
+            {
+                "主页", "鱼塘", "世界地图", "商店", "好友聊天", "鱼获背包", "个人中心", "动态", "排行榜", "设置"
+            };
+            string[] navLabels =
+            {
+                "主页", "鱼塘", "世界地图", "商店", "好友/聊天", "鱼获/背包", "个人中心", "动态", "排行榜", "设置"
+            };
+            for (var i = 0; i < navNames.Length; i++)
+                ShellNavButton(nav.transform, navNames[i], navLabels[i]);
+
+            var content = ShellBar(main.transform, "Content", new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
+                new Color(0.09f, 0.12f, 0.16f, 1f));
+            var contentRt = content.GetComponent<RectTransform>();
+            contentRt.offsetMin = new Vector2(0, 64);
+            contentRt.offsetMax = new Vector2(0, -80);
+        }
+
+        static void BuildShellToast(Transform canvas)
+        {
+            var toast = ShellText(canvas, "Toast", string.Empty, 18, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(0, 44));
+            var rt = toast.rectTransform;
+            rt.anchorMin = new Vector2(0.08f, 0f);
+            rt.anchorMax = new Vector2(0.92f, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(0f, 78f);
+            toast.gameObject.SetActive(false);
+        }
+
+        static GameObject ShellBar(Transform parent, string name, Vector2 aMin, Vector2 aMax, Vector2 size, Color color)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = aMin;
+            rt.anchorMax = aMax;
+            rt.pivot = aMin.y > 0.5f ? new Vector2(0.5f, 1f) : new Vector2(0.5f, 0f);
+            if (aMin == Vector2.zero && aMax == Vector2.one)
+            {
+                Stretch(rt);
+            }
+            else
+            {
+                rt.sizeDelta = size;
+                rt.anchoredPosition = Vector2.zero;
+            }
+            go.GetComponent<Image>().color = color;
+            return go;
+        }
+
+        static Text ShellText(Transform parent, string name, string value, int size, TextAnchor align, Vector2 pos, Vector2 dim)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = dim;
+            var text = go.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.fontSize = size;
+            text.alignment = align;
+            text.color = Color.white;
+            text.text = value;
+            return text;
+        }
+
+        static void ShellButton(Transform parent, string name, string label, Vector2 pos, Vector2 dim)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = dim;
+            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.7f, 1f);
+            var t = ShellText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, dim);
+            Stretch(t.rectTransform);
+        }
+
+        static void ShellNavButton(Transform parent, string name, string label)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            go.transform.SetParent(parent, false);
+            go.GetComponent<LayoutElement>().flexibleWidth = 1f;
+            go.GetComponent<Image>().color = new Color(0.16f, 0.22f, 0.3f, 1f);
+            var t = ShellText(go.transform, "Label", label, 13, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(80, 40));
+            Stretch(t.rectTransform);
         }
 
         sealed class PrefabEntry

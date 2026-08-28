@@ -78,11 +78,23 @@ for (const pond of listGamePonds()) {
   assert(qualityRank(q) >= qMin && qualityRank(q) <= qMax, `roll out of band ${pond.pondId}`);
 }
 
-// common 种品质带 1–4：不得高于 purple
+// common 种品质带 1–5（红）：不得高于 red
 for (let i = 0; i < 80; i++) {
-  const q = rollPondQuality('pond-calm', 1, 4);
-  assert(qualityRank(q) <= 4, `common band leak ${q}`);
+  const q = rollPondQuality('pond-calm', 1, 5);
+  assert(qualityRank(q) <= 5, `common band leak ${q}`);
 }
+
+assert((getGameSpecies('crucian')?.qualityMax ?? 0) === 5, 'common qualityMax=red');
+assert((getGameSpecies('black_carp')?.qualityMax ?? 0) === 6, 'uncommon qualityMax=orange');
+assert((getGameSpecies('grouper')?.qualityMax ?? 0) === 7, 'rare qualityMax=gold');
+assert((getGameSpecies('chinese_sturgeon')?.qualityMax ?? 0) === 7, 'legendary qualityMax=gold');
+
+assert(Math.abs(getFishingFormulaConstant('JUVENILE_SIZE_M_MIN', -1) - 0.02) < 1e-9, 'JUVENILE_SIZE_M_MIN');
+assert(Math.abs(getFishingFormulaConstant('JUVENILE_SIZE_M_MAX', -1) - 0.1) < 1e-9, 'JUVENILE_SIZE_M_MAX');
+assert(Math.abs(QUALITY_SIZE_CAP.gray - 0.2) < 1e-9, 'gray cap 0.2');
+assert(Math.abs(QUALITY_SIZE_CAP.purple - 0.8) < 1e-9, 'purple cap 0.8');
+assert(Math.abs(QUALITY_SIZE_CAP.red - 3) < 1e-9, 'red cap 3');
+assert(Math.abs(QUALITY_SIZE_CAP.orange - 15) < 1e-9, 'orange cap 15');
 
 const categories = ['novice', 'advanced', 'veteran', 'wilderness', 'reservoir', 'forbidden', 'giant'] as const;
 for (const cat of categories) {

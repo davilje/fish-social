@@ -4,13 +4,11 @@
 import {
   calcFishReturnGold,
   calcFishSellPrice,
+  FISH_QUALITIES,
   getGamePondDef,
-  getQualityMaxSize,
   getReturnRules,
-  getSpecies,
   isReturnEligible,
   pondAllowsReturnFish,
-  qualityIndex,
   type FishQuality,
   type FishSpeciesId,
 } from '@fish-social/shared';
@@ -28,6 +26,7 @@ export type ReturnFishErrorCode =
   | 'POND_NO_RETURN'
   | 'QUALITY_TOO_LOW'
   | 'SIZE_OUT_OF_RANGE'
+  | 'WEIGHT_TOO_LOW'
   | 'AT_MAX_SIZE'
   | 'ITEM_NOT_FOUND'
   | 'SELL_ONLY_MODE'
@@ -108,38 +107,24 @@ export function returnFishToPond(
   }
 
   const rules = getReturnRules();
-  const minQ = (rules.autoMinQuality ?? rules.minQuality ?? 'purple') as FishQuality;
-  const minSizeRatio = rules.autoMinSizeRatio ?? rules.minSizeRatio ?? 0.75;
+  const minJin = rules.minWeightJin ?? 10;
+  const minQ = (rules.minQuality ?? rules.autoMinQuality ?? 'purple') as FishQuality;
+  const minQName = FISH_QUALITIES.find((q) => q.id === minQ)?.name ?? '史诗';
+  const fishRank = FISH_QUALITIES.findIndex((q) => q.id === fish.quality);
+  const minRank = FISH_QUALITIES.findIndex((q) => q.id === minQ);
 
   if (!isReturnEligible(fish, rules)) {
-    if (qualityIndex(fish.quality) < qualityIndex(minQ)) {
+    if (fishRank < 0 || minRank < 0 || fishRank < minRank) {
       return {
         ok: false,
-        error: `品质不足（需 ${minQ} 及以上）`,
+        error: `品质不足（需${minQName}及以上）`,
         code: 'QUALITY_TOO_LOW',
-      };
-    }
-    const species = getSpecies(fish.speciesId);
-    const speciesMax = getQualityMaxSize(fish.quality, species);
-    if (fish.sizeM >= speciesMax - 1e-9) {
-      return {
-        ok: false,
-        error: '已达最大尺寸，不可回鱼',
-        code: 'AT_MAX_SIZE',
-      };
-    }
-    const ratio = speciesMax > 0 ? fish.sizeM / speciesMax : 0;
-    if (ratio < minSizeRatio) {
-      return {
-        ok: false,
-        error: '体长过小，暂不可回鱼',
-        code: 'SIZE_OUT_OF_RANGE',
       };
     }
     return {
       ok: false,
-      error: '已达最大尺寸，不可回鱼',
-      code: 'AT_MAX_SIZE',
+      error: `体重过轻（需达到 ${minJin} 斤）`,
+      code: 'WEIGHT_TOO_LOW',
     };
   }
 
@@ -158,7 +143,12 @@ export function returnFishToPond(
     sizeGainM: sizeGain,
   });
 
-  const gold = calcFishReturnGold(removed, rules.goldMulVsSell);
+  const gold = calcFishReturnGold(removed, {
+    goldMulVsSell: rules.goldMulVsSell,
+    goldMulHeavy: rules.goldMulHeavy,
+    minWeightJin: rules.minWeightJin,
+    heavyWeightJin: rules.heavyWeightJin,
+  });
   const totalCoins = addCoins(playerId, gold);
   const xp = grantReturnProgress(
     playerId,

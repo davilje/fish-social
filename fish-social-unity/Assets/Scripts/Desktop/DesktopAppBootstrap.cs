@@ -31,6 +31,11 @@ namespace FishSocial.Desktop
         DesktopShellUi _shellUi;
         DesktopOnboardingController _onboarding;
         string _nativeOverlayError = string.Empty;
+        string _overlayDebugFishListMode = string.Empty;
+        NativeOverlayDebugFishDto[] _overlayDebugFish = Array.Empty<NativeOverlayDebugFishDto>();
+        string _overlayDebugSpotReport = string.Empty;
+        string _overlayDebugSpotStatsJson = string.Empty;
+        Coroutine _overlayDebugInspectRoutine;
         Coroutine _policeRaidRoutine;
         OverlayPlayerSocialBridge _playerSocialBridge;
         DesktopGameplayDebugMenu _gameplayDebug;
@@ -230,6 +235,10 @@ namespace FishSocial.Desktop
                 errorMessage = _nativeOverlayError ?? string.Empty,
             };
             OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
+            dto.debugFishListMode = _overlayDebugFishListMode ?? string.Empty;
+            dto.debugFish = _overlayDebugFish ?? Array.Empty<NativeOverlayDebugFishDto>();
+            dto.debugSpotReport = _overlayDebugSpotReport ?? string.Empty;
+            dto.debugSpotStatsJson = _overlayDebugSpotStatsJson ?? string.Empty;
             if (!string.IsNullOrEmpty(_pendingGroundbaitBubble))
             {
                 dto.observation = new NativeOverlayChatDto
@@ -474,7 +483,207 @@ namespace FishSocial.Desktop
                 return;
             }
 
+            if (string.Equals(action, "list_pond_fish", StringComparison.OrdinalIgnoreCase))
+            {
+                StartOverlayDebugInspect("pond");
+                return;
+            }
+
+            if (string.Equals(action, "list_spot_fish", StringComparison.OrdinalIgnoreCase))
+            {
+                StartOverlayDebugInspect("spot");
+                return;
+            }
+
+            if (string.Equals(action, "spot_stats", StringComparison.OrdinalIgnoreCase))
+            {
+                StartOverlayDebugSpotStats();
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(action) &&
+                (action.StartsWith("catch_fish:", StringComparison.OrdinalIgnoreCase) ||
+                 action.StartsWith("force_bite_instant:", StringComparison.OrdinalIgnoreCase)))
+            {
+                var fishId = action.Contains(":")
+                    ? action.Substring(action.IndexOf(':') + 1).Trim()
+                    : string.Empty;
+                StartOverlayDebugCatch(fishId, "catch_fish");
+                return;
+            }
+
+            if (string.Equals(action, "instant_catch", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(action, "complete_catch", StringComparison.OrdinalIgnoreCase))
+            {
+                StartOverlayDebugCatch(null, "complete_catch");
+                return;
+            }
+
+            if (string.Equals(action, "catch_quality_red", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(action, "catch_quality_orange", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(action, "catch_quality_gold", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(action, "catch_quality_purple", StringComparison.OrdinalIgnoreCase))
+            {
+                StartOverlayDebugCatch(null, action);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(action) &&
+                action.StartsWith("force_bite:", StringComparison.OrdinalIgnoreCase))
+            {
+                var fishId = action.Substring("force_bite:".Length).Trim();
+                StartOverlayDebugForceBite(fishId);
+                return;
+            }
+
             _gameplayDebug?.RunAction(action);
+        }
+
+        void StartOverlayDebugInspect(string scope)
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+            {
+                _nativeOverlayError = "需先登录后再查看塘鱼。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (_overlayDebugInspectRoutine != null)
+                StopCoroutine(_overlayDebugInspectRoutine);
+            _overlayDebugInspectRoutine = StartCoroutine(OverlayDebugInspectRoutine(api, scope));
+        }
+
+        IEnumerator OverlayDebugInspectRoutine(IAuthenticatedApiClient api, string scope)
+        {
+            _nativeOverlayError = scope == "spot" ? "正在拉取当前钓位鱼…" : "正在拉取当前鱼塘鱼…";
+            PublishNativeOverlayState();
+            yield return api.GetGameplayDebugPondFish(scope, (ok, fish, pondId, spotId, message) =>
+            {
+                if (!ok)
+                {
+                    _nativeOverlayError = message ?? "拉取失败。";
+                    return;
+                }
+
+                _overlayDebugFishListMode = scope == "spot" ? "spot" : "pond";
+                _overlayDebugFish = fish ?? Array.Empty<NativeOverlayDebugFishDto>();
+                _overlayDebugSpotReport = string.Empty;
+                _overlayDebugSpotStatsJson = string.Empty;
+                _nativeOverlayError =
+                    "已加载 " + _overlayDebugFish.Length + " 条鱼" +
+                    (string.IsNullOrEmpty(pondId) ? "" : " · 塘 " + pondId) +
+                    (scope == "spot" && !string.IsNullOrEmpty(spotId) ? " · 位 " + spotId : "");
+            });
+            _overlayDebugInspectRoutine = null;
+            PublishNativeOverlayState();
+        }
+
+        void StartOverlayDebugSpotStats()
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+            {
+                _nativeOverlayError = "需先登录后再查看钓位数据。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (_overlayDebugInspectRoutine != null)
+                StopCoroutine(_overlayDebugInspectRoutine);
+            _overlayDebugInspectRoutine = StartCoroutine(OverlayDebugSpotStatsRoutine(api));
+        }
+
+        IEnumerator OverlayDebugSpotStatsRoutine(IAuthenticatedApiClient api)
+        {
+            _nativeOverlayError = "正在拉取钓位数据…";
+            PublishNativeOverlayState();
+            yield return api.GetGameplayDebugSpotStats((ok, report, rawJson, message) =>
+            {
+                if (!ok)
+                {
+                    _nativeOverlayError = message ?? "拉取钓位数据失败。";
+                    return;
+                }
+
+                _overlayDebugFishListMode = "spot_stats";
+                _overlayDebugSpotReport = report ?? string.Empty;
+                _overlayDebugSpotStatsJson = rawJson ?? string.Empty;
+                _nativeOverlayError = "已加载当前钓位数据";
+            });
+            _overlayDebugInspectRoutine = null;
+            PublishNativeOverlayState();
+        }
+
+        void StartOverlayDebugCatch(string fishId, string apiAction)
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+            {
+                _nativeOverlayError = "需先登录后再钓获测试鱼。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (_overlayDebugInspectRoutine != null)
+                StopCoroutine(_overlayDebugInspectRoutine);
+            _overlayDebugInspectRoutine = StartCoroutine(OverlayDebugCatchRoutine(api, fishId, apiAction));
+        }
+
+        IEnumerator OverlayDebugCatchRoutine(IAuthenticatedApiClient api, string fishId, string apiAction)
+        {
+            _nativeOverlayError = "正在结算钓获…";
+            PublishNativeOverlayState();
+            var autoReturned = false;
+            var ok = false;
+            yield return api.PostGameplayDebug(apiAction, fishId, (success, message, returned) =>
+            {
+                ok = success;
+                autoReturned = returned;
+                _nativeOverlayError = success
+                    ? (string.IsNullOrEmpty(message) ? "钓获结算完成" : message)
+                    : (string.IsNullOrEmpty(message) ? "钓获结算失败" : message);
+            });
+            _overlayDebugInspectRoutine = null;
+            PublishNativeOverlayState();
+            if (ok && !autoReturned)
+                yield return RefreshInventoryAfterDebug();
+        }
+
+        void StartOverlayDebugForceBite(string fishId)
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+            {
+                _nativeOverlayError = "需先登录后再强制上钩。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(fishId))
+            {
+                _nativeOverlayError = "未指定鱼 ID。";
+                PublishNativeOverlayState();
+                return;
+            }
+
+            if (_overlayDebugInspectRoutine != null)
+                StopCoroutine(_overlayDebugInspectRoutine);
+            _overlayDebugInspectRoutine = StartCoroutine(OverlayDebugForceBiteRoutine(api, fishId));
+        }
+
+        IEnumerator OverlayDebugForceBiteRoutine(IAuthenticatedApiClient api, string fishId)
+        {
+            _nativeOverlayError = "正在强制上钩…";
+            PublishNativeOverlayState();
+            yield return api.PostGameplayDebug("force_bite", fishId, (ok, message) =>
+            {
+                _nativeOverlayError = ok
+                    ? (string.IsNullOrEmpty(message) ? "强制上钩成功" : message)
+                    : (string.IsNullOrEmpty(message) ? "强制上钩失败" : message);
+            });
+            _overlayDebugInspectRoutine = null;
+            PublishNativeOverlayState();
         }
 
         IEnumerator RefreshInventoryAfterDebug()

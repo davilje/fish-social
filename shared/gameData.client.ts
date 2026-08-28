@@ -275,10 +275,13 @@ export function getSpeciesSellMult(_catchGroup: string): number {
 }
 
 const DEFAULT_RETURN_RULES: ReturnRulesDef = {
-  minQuality: 'purple',
-  minSizeRatio: 0.75,
   maxSizeRatio: 1.0,
   goldMulVsSell: 1.5,
+  goldMulHeavy: 3,
+  minWeightJin: 10,
+  heavyWeightJin: 100,
+  minQuality: 'purple',
+  autoMinQuality: 'purple',
   playerXp: 8,
   pondXp: 4,
   sizeGainMinM: 0.02,
@@ -286,22 +289,26 @@ const DEFAULT_RETURN_RULES: ReturnRulesDef = {
   sizeGainMode: 'uniform_random',
 };
 
-/** FEAT-RETURN-01：回鱼规则（表首行；缺表时用默认） */
+/** FEAT-RETURN-01/05：回鱼规则（表首行；缺表时用默认） */
 export function getReturnRules(): ReturnRulesDef {
   const row = returnRulesList[0];
   if (!row) return { ...DEFAULT_RETURN_RULES };
   return {
-    minQuality: row.minQuality || DEFAULT_RETURN_RULES.minQuality,
-    minSizeRatio: Number(row.minSizeRatio) || DEFAULT_RETURN_RULES.minSizeRatio,
     maxSizeRatio: Number(row.maxSizeRatio) || DEFAULT_RETURN_RULES.maxSizeRatio,
     goldMulVsSell: Number(row.goldMulVsSell) || DEFAULT_RETURN_RULES.goldMulVsSell,
+    goldMulHeavy: Number(row.goldMulHeavy) || DEFAULT_RETURN_RULES.goldMulHeavy,
+    minWeightJin: Number(row.minWeightJin) || DEFAULT_RETURN_RULES.minWeightJin,
+    heavyWeightJin: Number(row.heavyWeightJin) || DEFAULT_RETURN_RULES.heavyWeightJin,
     playerXp: Math.max(0, Math.floor(Number(row.playerXp) || 0)),
     pondXp: Math.max(0, Math.floor(Number(row.pondXp) || 0)),
     sizeGainMinM: Number(row.sizeGainMinM) || DEFAULT_RETURN_RULES.sizeGainMinM,
     sizeGainMaxM: Number(row.sizeGainMaxM) || DEFAULT_RETURN_RULES.sizeGainMaxM,
     sizeGainMode: row.sizeGainMode || DEFAULT_RETURN_RULES.sizeGainMode,
-    autoMinQuality: (row.autoMinQuality as ReturnRulesDef['autoMinQuality']) || 'purple',
-    autoMinSizeRatio: Number(row.autoMinSizeRatio) || 0.75,
+    minQuality: (row.minQuality as ReturnRulesDef['minQuality']) || DEFAULT_RETURN_RULES.minQuality,
+    minSizeRatio: row.minSizeRatio != null ? Number(row.minSizeRatio) : undefined,
+    autoMinQuality:
+      (row.autoMinQuality as ReturnRulesDef['autoMinQuality']) || DEFAULT_RETURN_RULES.autoMinQuality,
+    autoMinSizeRatio: row.autoMinSizeRatio != null ? Number(row.autoMinSizeRatio) : undefined,
   };
 }
 
@@ -393,6 +400,58 @@ export function pickPondSpecies(pondId: string): string | undefined {
   return rows[rows.length - 1]?.speciesId;
 }
 
+const RARITY_PREF_RANK: Record<string, number> = {
+  legendary: 4,
+  rare: 3,
+  uncommon: 2,
+  common: 1,
+};
+
+function weightedPickPoolRow(
+  rows: PondFishPoolDef[],
+): PondFishPoolDef | undefined {
+  if (rows.length === 0) return undefined;
+  const total = rows.reduce((s, r) => s + Math.max(0, r.spawnWeight ?? 0), 0);
+  if (total <= 0) return rows[rows.length - 1];
+  let r = Math.random() * total;
+  for (const row of rows) {
+    r -= Math.max(0, row.spawnWeight ?? 0);
+    if (r <= 0) return row;
+  }
+  return rows[rows.length - 1];
+}
+
+/**
+ * 给定目标品质：从塘种池中选种。
+ * 仅保留 qualityMin…qualityMax 覆盖该品质的种；在可出种中优先最高稀有度档，同档内按 spawnWeight。
+ */
+export function pickPondSpeciesForQuality(
+  pondId: string,
+  quality: FishQuality,
+): string | undefined {
+  const rank = FISH_QUALITIES.findIndex((q) => q.id === quality) + 1;
+  if (rank < 1) return undefined;
+  const rows = listPondFishPool(pondId).filter((row) => {
+    if ((row.spawnWeight ?? 0) <= 0) return false;
+    const def = getGameSpecies(row.speciesId);
+    const qMin = Number(def?.qualityMin) || 1;
+    const qMax = Number(def?.qualityMax) || 7;
+    return rank >= qMin && rank <= qMax;
+  });
+  if (rows.length === 0) return undefined;
+
+  let bestPref = 0;
+  for (const row of rows) {
+    const tier = getGameSpecies(row.speciesId)?.rarityTier ?? 'common';
+    bestPref = Math.max(bestPref, RARITY_PREF_RANK[tier] ?? 0);
+  }
+  const preferred = rows.filter((row) => {
+    const tier = getGameSpecies(row.speciesId)?.rarityTier ?? 'common';
+    return (RARITY_PREF_RANK[tier] ?? 0) === bestPref;
+  });
+  return weightedPickPoolRow(preferred)?.speciesId;
+}
+
 /** 按塘分级品质权重表抽品质；可选种品质带（序 1–7）过滤 */
 export function rollPondQuality(
   pondId: string,
@@ -419,16 +478,23 @@ export function rollPondQuality(
 }
 
 /**
- * 播种/补充一条：先抽种，再按塘品质权重 ∩ 种品质带抽品质。
- * 体长等初始参数由调用方按 quality + species 再 roll。
+ * 播种一条：先按塘品质权重表抽品质（保证塘级品质分布），
+ * 再在可出该品质的种中优先高稀有度选种。
  */
 export function pickSpawnFish(pondId: string): { speciesId: string; quality: FishQuality } | undefined {
-  const speciesId = pickPondSpecies(pondId);
-  if (!speciesId) return undefined;
-  const def = getGameSpecies(speciesId);
-  const qMin = Number(def?.qualityMin) || 1;
-  const qMax = Number(def?.qualityMax) || 7;
-  return { speciesId, quality: rollPondQuality(pondId, qMin, qMax) };
+  const quality = rollPondQuality(pondId, 1, 7);
+  let speciesId = pickPondSpeciesForQuality(pondId, quality);
+  if (!speciesId) {
+    // 种池无覆盖该品质的种时：退回按种池抽种，并将品质截到该种 qualityMax
+    speciesId = pickPondSpecies(pondId);
+    if (!speciesId) return undefined;
+    const def = getGameSpecies(speciesId);
+    const qMax = Number(def?.qualityMax) || 7;
+    const qMin = Number(def?.qualityMin) || 1;
+    const clamped = rollPondQuality(pondId, qMin, qMax);
+    return { speciesId, quality: clamped };
+  }
+  return { speciesId, quality };
 }
 
 /** @deprecated 用 pickPondSpecies / pickSpawnFish；旧名保留兼容 */

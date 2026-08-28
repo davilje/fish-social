@@ -118,7 +118,7 @@ export function resolveSpeciesId(speciesId: string): FishSpeciesId {
   return LEGACY_SPECIES_ID_MAP[speciesId] ?? speciesId;
 }
 
-export const MIN_FISH_SIZE_M = 0.03;
+export const MIN_FISH_SIZE_M = 0.02;
 export const MAX_FISH_SIZE_M = 50.0;
 export const ANNOUNCE_MIN_QUALITY: FishQuality = 'purple';
 

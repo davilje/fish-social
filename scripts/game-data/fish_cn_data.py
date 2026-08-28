@@ -161,9 +161,9 @@ DELETED_FOREIGN_IDS = {
 
 # rarityTier → qualityMax rank (1=gray … 7=gold); qualityMin always 1
 QUALITY_MAX_BY_TIER = {
-    "common": 4,      # blue
-    "uncommon": 5,    # purple
-    "rare": 6,        # orange
+    "common": 5,      # red（放宽：原 blue=4）
+    "uncommon": 6,    # orange（放宽：原 purple=5）
+    "rare": 7,        # gold（放宽：原 orange=6）
     "legendary": 7,   # gold
 }
 
@@ -174,14 +174,16 @@ SPECIES_BASE_WEIGHT = {
     "legendary": 1,
 }
 
+# maxPopulation, minPopulation, initialPopulation
+# novice：仅 1 条教学鱼，钓完不补；其余塘统一上限 100
 ECOLOGY_BY_CATEGORY = {
-    "novice": (40, 8, 24),
-    "advanced": (80, 12, 48),
-    "veteran": (70, 10, 42),
-    "wilderness": (60, 8, 36),
-    "reservoir": (65, 8, 38),
-    "forbidden": (75, 10, 45),
-    "giant": (50, 6, 28),
+    "novice": (1, 1, 1),
+    "advanced": (100, 15, 100),
+    "veteran": (100, 15, 100),
+    "wilderness": (100, 15, 100),
+    "reservoir": (100, 15, 100),
+    "forbidden": (100, 15, 100),
+    "giant": (100, 15, 100),
 }
 
 # Global quality weights (1:1 from FISH_QUALITIES) for POOL-01 category sheet
@@ -194,14 +196,58 @@ CATEGORIES = [
     "novice", "advanced", "veteran", "wilderness", "reservoir", "forbidden", "giant",
 ]
 
+# pondCategory → 中文类型名（品质权重大表标注用）
+CATEGORY_DISPLAY_NAME = {
+    "novice": "新手",
+    "advanced": "高级",
+    "veteran": "老手",
+    "wilderness": "野外",
+    "reservoir": "水库",
+    "forbidden": "禁止",
+    "giant": "巨物",
+}
+
+# 各塘类型品质 spawnWeight（相对权重；下列已定档合计均为 100 = 百分比）
+CATEGORY_QUALITY_WEIGHTS = {
+    "novice": {"gray": 38, "green": 28},
+    "advanced": {
+        "gray": 38, "green": 28, "blue": 18, "purple": 9,
+        "red": 4, "orange": 2, "gold": 1,
+    },
+    # 老手
+    "veteran": {
+        "gray": 30, "green": 20, "blue": 20, "purple": 15,
+        "red": 10, "orange": 3, "gold": 2,
+    },
+    # 野外 / 水库
+    "wilderness": {
+        "gray": 45, "green": 10, "blue": 10, "purple": 10,
+        "red": 15, "orange": 5, "gold": 5,
+    },
+    "reservoir": {
+        "gray": 45, "green": 10, "blue": 10, "purple": 10,
+        "red": 15, "orange": 5, "gold": 5,
+    },
+    # 禁止
+    "forbidden": {
+        "gray": 15, "green": 15, "blue": 20, "purple": 30,
+        "red": 10, "orange": 7, "gold": 3,
+    },
+    # 巨物：沿用原 skew 结果（未改）
+    "giant": {
+        "gray": 44, "green": 32, "blue": 21, "purple": 12,
+        "red": 6, "orange": 3, "gold": 1,
+    },
+}
+
 FISH_QUALITY_STATS = [
     # quality, sizeCapM, biteBaseAtMaxSize, displayName, QUALITY_BASE, SIZE_REF, MIN_SELL
-    ("gray", 0.3, 0.05, "普通", 80, 0.20, 40),
-    ("green", 0.8, 0.032, "优良", 160, 0.35, 80),
-    ("blue", 2.0, 0.018, "稀有", 360, 0.60, 160),
-    ("purple", 4.5, 0.008, "史诗", 900, 1.00, 400),
-    ("red", 9.0, 0.0035, "传说", 2200, 1.80, 900),
-    ("orange", 18.0, 0.0015, "神话", 5500, 3.00, 2200),
+    ("gray", 0.2, 0.05, "普通", 80, 0.20, 40),
+    ("green", 0.35, 0.032, "优良", 160, 0.35, 80),
+    ("blue", 0.5, 0.018, "稀有", 360, 0.60, 160),
+    ("purple", 0.8, 0.008, "史诗", 900, 1.00, 400),
+    ("red", 3.0, 0.0035, "传说", 2200, 1.80, 900),
+    ("orange", 15.0, 0.0015, "神话", 5500, 3.00, 2200),
     ("gold", 40.0, 0.0006, "至尊", 14000, 5.00, 6000),
 ]
 
@@ -214,9 +260,9 @@ FISHING_FORMULA_CONSTANTS = [
     ("ESCAPE_AT_40M", 0.985, "40m 脱钩率锚点（减免前）"),
     ("SIZE_ESCAPE_CURVE_EXPONENT", 1.8, "脱钩曲线指数"),
     ("JUVENILE_ESCAPE_SIZE_M", 0.35, "幼鱼脱钩段上限体长"),
-    ("JUVENILE_SIZE_M_MIN", 0.08, "幼鱼出生/脱钩插值下限"),
-    ("JUVENILE_SIZE_M_MAX", 0.20, "幼鱼出生体长上限"),
-    ("ESCAPE_AT_JUVENILE_MIN", 0.22, "0.08m 幼鱼脱钩锚点"),
+    ("JUVENILE_SIZE_M_MIN", 0.02, "幼鱼出生体长下限"),
+    ("JUVENILE_SIZE_M_MAX", 0.10, "幼鱼出生体长上限"),
+    ("ESCAPE_AT_JUVENILE_MIN", 0.22, "0.02m 幼鱼脱钩锚点"),
     ("ESCAPE_AT_JUVENILE_MAX", 0.08, "0.35m 幼鱼脱钩锚点"),
     ("SIZE_HOOK_CURVE_EXPONENT", 1.8, "收杆窗口曲线指数"),
     ("HOOK_MIN_MS", 2000, "最小收杆窗口（毫秒）"),
@@ -344,24 +390,14 @@ def build_pond_ecology_rows() -> list[tuple]:
 
 
 def build_category_quality_weight_rows() -> list[tuple]:
+    """pondCategory, pondCategoryName, quality, spawnWeight"""
+    quality_order = ["gray", "green", "blue", "purple", "red", "orange", "gold"]
     rows = []
     for cat in CATEGORIES:
-        skew = 1.0
-        if cat in ("wilderness", "reservoir"):
-            skew = 0.85
-        if cat == "forbidden":
-            skew = 1.05
-        if cat == "giant":
-            skew = 1.15
-        for q, w in DEFAULT_QUALITY_WEIGHTS:
-            # higher categories boost high quality slightly
-            adj = w
-            if cat in ("veteran", "forbidden", "giant") and q in ("purple", "red", "orange", "gold"):
-                adj = int(round(w * 1.2 * skew))
-            elif cat == "novice" and q not in ("gray", "green"):
-                adj = 0
-            else:
-                adj = int(round(w * skew))
-            if adj > 0:
-                rows.append((cat, q, adj))
+        name = CATEGORY_DISPLAY_NAME[cat]
+        weights = CATEGORY_QUALITY_WEIGHTS.get(cat) or dict(DEFAULT_QUALITY_WEIGHTS)
+        for q in quality_order:
+            w = int(weights.get(q, 0) or 0)
+            if w > 0:
+                rows.append((cat, name, q, w))
     return rows

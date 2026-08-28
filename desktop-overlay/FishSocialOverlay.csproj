@@ -8,4 +8,7 @@
     <StartupObject>FishSocialOverlay.App</StartupObject>
     <Nullable>disable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="OverlayResources\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

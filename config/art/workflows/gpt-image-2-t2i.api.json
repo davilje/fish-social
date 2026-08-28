@@ -1,0 +1,34 @@
+{
+  "1": {
+    "class_type": "APIImage_OpenAIGenerate",
+    "inputs": {
+      "prompt": "Fish Social, cozy 2D game art, soft pastel colors, clean linework, cute desktop pet cat character, orange tabby cat fishing beside a calm pond, simple silhouette readable at 64px, side view, plain background, no watermark, no UI chrome, no photorealism",
+      "api_key": "",
+      "base_url": "https://api.openai.com",
+      "model_name": "gpt-image-2",
+      "size": "1024x1024",
+      "num_images": 1,
+      "quality": "auto",
+      "custom_model": "",
+      "custom_size": "",
+      "output_format": "png",
+      "output_compression": 100,
+      "background": "auto",
+      "moderation": "auto",
+      "seed": 0
+    },
+    "_meta": {
+      "title": "OpenAI GPT-Image-2 (Fish Social)"
+    }
+  },
+  "2": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "fish-social-art",
+      "images": ["1", 0]
+    },
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}

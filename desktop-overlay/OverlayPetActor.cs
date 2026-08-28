@@ -42,6 +42,7 @@ namespace FishSocialOverlay
         ImageSource[] _frames = Array.Empty<ImageSource>();
         int _frameIndex;
         string _visualState = string.Empty;
+        string _petId = string.Empty;
         string _fishingPhase = string.Empty;
         long _sessionAnchorMs;
         long _hookDeadlineMs;
@@ -182,7 +183,8 @@ namespace FishSocialOverlay
             string fishingPhase,
             long sessionFishingMs,
             long hookDeadlineMs,
-            long fishingStartedAt = 0)
+            long fishingStartedAt = 0,
+            string petId = null)
         {
             _nickname.Text = string.IsNullOrWhiteSpace(nickname) ? "玩家" : nickname;
             _hookDeadlineMs = hookDeadlineMs;
@@ -204,7 +206,7 @@ namespace FishSocialOverlay
             _fishingPhase = phase ?? string.Empty;
             SyncSessionAnchor(Math.Max(0, sessionFishingMs), fishingStartedAt);
             UpdateStatusVisuals();
-            ApplyVisualState(visualState);
+            ApplyVisualState(visualState, petId);
             RefreshOpenHover();
         }
 
@@ -218,15 +220,20 @@ namespace FishSocialOverlay
                 TryShowHover();
         }
 
-        void ApplyVisualState(string visualState)
+        void ApplyVisualState(string visualState, string petId)
         {
-            if (string.Equals(_visualState, visualState, StringComparison.Ordinal))
+            var nextState = visualState ?? "idle";
+            var nextPet = petId ?? string.Empty;
+            if (string.Equals(_visualState, nextState, StringComparison.Ordinal) &&
+                string.Equals(_petId, nextPet, StringComparison.Ordinal))
                 return;
 
-            _visualState = visualState ?? "idle";
-            _frames = OverlayFrameCache.Get(_visualState);
+            _visualState = nextState;
+            _petId = nextPet;
+            _frames = OverlayFrameCache.Get(_petId, _visualState);
             _frameIndex = 0;
-            ApplyTint(_visualState);
+            if (_frames.Length == 0)
+                ApplyTint(_visualState);
             ShowFrame();
         }
 
@@ -544,38 +551,76 @@ namespace FishSocialOverlay
         static readonly Dictionary<string, ImageSource[]> Cache =
             new Dictionary<string, ImageSource[]>(StringComparer.OrdinalIgnoreCase);
 
-        public static ImageSource[] Get(string visualState)
+        public static ImageSource[] Get(string petId, string visualState)
         {
-            var key = string.IsNullOrWhiteSpace(visualState) ? "idle" : visualState;
+            var state = string.IsNullOrWhiteSpace(visualState) ? "idle" : visualState;
+            var id = petId ?? string.Empty;
+            var key = id + "|" + state;
             if (Cache.TryGetValue(key, out var frames))
                 return frames;
 
-            var loaded = Load(key);
+            var loaded = Load(id, state);
             Cache[key] = loaded;
             return loaded;
         }
 
-        static ImageSource[] Load(string visualState)
+        static ImageSource[] Load(string petId, string visualState)
         {
-            var root = AppDomain.CurrentDomain.BaseDirectory;
+            var root = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
             var list = new List<ImageSource>();
-            for (var i = 0; i < 16; i++)
+            if (!string.IsNullOrWhiteSpace(petId) && IsSafePetId(petId))
             {
-                var path = System.IO.Path.Combine(root, "OverlayResources",
-                    "cat-" + visualState + "-" + i + ".png");
-                if (!File.Exists(path))
-                    break;
-                list.Add(LoadBitmap(path));
+                var petDir = System.IO.Path.Combine(root, "pets", petId);
+                AppendSequence(list, petDir, visualState);
+                if (list.Count == 0 && !string.Equals(visualState, "idle", StringComparison.Ordinal))
+                    AppendSequence(list, petDir, "idle");
+                if (list.Count == 0)
+                    AppendSequence(list, petDir, "fishing");
+                if (list.Count == 0)
+                    TryAdd(list, System.IO.Path.Combine(petDir, "cat.png"));
             }
 
             if (list.Count == 0)
             {
-                var fallback = System.IO.Path.Combine(root, "OverlayResources", "cat.png");
-                if (File.Exists(fallback))
-                    list.Add(LoadBitmap(fallback));
+                AppendSequence(list, root, "cat-" + visualState);
+                if (list.Count == 0)
+                    TryAdd(list, System.IO.Path.Combine(root, "cat.png"));
             }
 
             return list.ToArray();
+        }
+
+        static bool IsSafePetId(string petId)
+        {
+            for (var i = 0; i < petId.Length; i++)
+            {
+                var c = petId[i];
+                if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_'))
+                    return false;
+            }
+            return petId.Length > 0;
+        }
+
+        static void AppendSequence(List<ImageSource> list, string dir, string stem)
+        {
+            for (var i = 0; i < 16; i++)
+            {
+                var path = System.IO.Path.Combine(dir, stem + "-" + i + ".png");
+                if (!File.Exists(path))
+                {
+                    if (i == 0)
+                        TryAdd(list, System.IO.Path.Combine(dir, stem + ".png"));
+                    break;
+                }
+                TryAdd(list, path);
+            }
+        }
+
+        static void TryAdd(List<ImageSource> list, string path)
+        {
+            if (!File.Exists(path))
+                return;
+            list.Add(LoadBitmap(path));
         }
 
         static ImageSource LoadBitmap(string path)

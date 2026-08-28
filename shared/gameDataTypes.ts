@@ -76,20 +76,30 @@ export interface FishQualityStatsDef {
   MIN_SELL?: number;
 }
 
-/** FEAT-RETURN-01：回鱼全局规则（表通常仅一行） */
+/** FEAT-RETURN-01/05：回鱼全局规则（表通常仅一行） */
 export interface ReturnRulesDef {
-  minQuality: FishQuality;
-  minSizeRatio: number;
+  /** 最低可回品质（默认 purple） */
+  minQuality?: FishQuality;
+  /** @deprecated FEAT-RETURN-05 起改用 minWeightJin；保留兼容 */
+  minSizeRatio?: number;
+  /** 相对品质最大体长上限；满尺寸不可回，默认 1 */
   maxSizeRatio: number;
+  /** 体重 ≥minWeightJin 且 ≤heavyWeightJin 时倍率（默认 1.5） */
   goldMulVsSell: number;
+  /** 体重 >heavyWeightJin 时倍率（默认 3） */
+  goldMulHeavy?: number;
+  /** 最低可回市斤（含等号，默认 10） */
+  minWeightJin?: number;
+  /** 超重档市斤门槛（不含等号，默认 100） */
+  heavyWeightJin?: number;
   playerXp: number;
   pondXp: number;
   sizeGainMinM: number;
   sizeGainMaxM: number;
   sizeGainMode: 'uniform_random' | string;
-  /** FEAT-RETURN-02：自动回鱼最低品质（默认 purple） */
+  /** @deprecated FEAT-RETURN-05 起不再用于准入 */
   autoMinQuality?: FishQuality;
-  /** FEAT-RETURN-02：自动回鱼最低体长比（相对种 max，默认 0.75） */
+  /** @deprecated FEAT-RETURN-05 起改用 minWeightJin */
   autoMinSizeRatio?: number;
 }
 
@@ -154,6 +164,8 @@ export interface PondEcologyDef {
 
 export interface PondCategoryQualityWeightDef {
   pondCategory: PondCategory;
+  /** 塘类型中文名：新手/高级/老手/野外/水库/禁止/巨物 */
+  pondCategoryName?: string;
   quality: FishQuality;
   spawnWeight: number;
 }

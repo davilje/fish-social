@@ -64,7 +64,8 @@
 | [Steam桌面端Web功能对齐设计.md](./Steam桌面端Web功能对齐设计.md) | v1.0-steam-desktop | P0 | **已实现** | STEAM-DESKTOP-07E；主窗口页签；Overlay 菜单切页且主窗口高于 Overlay |
 | [Steam原生桌面宠物Overlay.md](./Steam原生桌面宠物Overlay.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-07G；独立原生透明 Overlay 与 Named Pipe 状态协议 |
 | [Steam桌面宠物UI需求拆分.md](./Steam桌面宠物UI需求拆分.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-UI；程序 UI 并入 07A～07F，美术含 ART-01 换图与 ART-02 布局管线 |
-| [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应 |
+| [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应（塘内场景，不含 HUD） |
+| [Steam桌面Overlay分塘底图与HUD同步.md](./Steam桌面Overlay分塘底图与HUD同步.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-ART-03；分塘底图、六姿势序列帧、Unity HUD Prefab 导出同步 Overlay |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
 | [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已实现** | 08C；公共动态墙、好友动态、分页、动态卡片 Prefab、点赞与评论 |
@@ -102,11 +103,14 @@
 | [线索文案策划审校.md](./线索文案策划审校.md) | SPOT | P2 | **已确认** | FEAT-SPOT-04；spot_clue_texts 增删；§4.2 禁区 |
 | [钓位鱼情联动线索.md](./钓位鱼情联动线索.md) | SPOT | P1 | **已确认** | FEAT-SPOT-05；鱼量/迁移→activitySignal 联动抽线索 |
 | [Steam桌面端-玩法Debug菜单.md](./Steam桌面端-玩法Debug菜单.md) | DEBUG | P1 | **已实现** | STEAM-DESKTOP-12；开发版玩法 Debug 菜单 |
+| [Steam桌面端-Debug鱼塘钓位查看.md](./Steam桌面端-Debug鱼塘钓位查看.md) | DEBUG | P1 | **已实现** | STEAM-DESKTOP-12B；Overlay 塘/钓位鱼查看、属性、强制上钩、三列×1.3 |
 | [回鱼机制.md](./回鱼机制.md) | R2 | P0 | **已实现** | FEAT-RETURN-01；回塘增重、紫品准入、金=卖价×1.5 |
 | [双价塘与自动回鱼.md](./双价塘与自动回鱼.md) | R2 | P1 | **已实现** | FEAT-RETURN-02；进塘双价；达标自动回鱼、不达标留包 |
 | [回鱼规则调优.md](./回鱼规则调优.md) | R2+ | P1 | **已实现** | FEAT-RETURN-03；准入统一、金×1.5、仅收费塘 |
 | [自动回鱼体验闭环.md](./自动回鱼体验闭环.md) | R2+ | P1 | **已实现** | FEAT-RETURN-04；钓到即回、结算页、Debug 顶层弹窗 |
+| [回鱼体重分档.md](./回鱼体重分档.md) | R2+ | P1 | **已实现** | FEAT-RETURN-05；体重>10斤准入；>100斤×3、>10斤×1.5 |
 | [塘生态数值表驱动.md](./塘生态数值表驱动.md) | R3 | P0 | **已实现** | FEAT-POOL-01；种池仅种；人口列在 ponds；品质=category∩种带 |
+| [塘人口与品质权重调参.md](./塘人口与品质权重调参.md) | R3+ | P1 | **已实现** | FEAT-POOL-02；新手1/公开100；补鱼60min；老手·野外水库·禁止占比 |
 | [中国鱼种与区域分布.md](./中国鱼种与区域分布.md) | R3 | P0 | **已实现** | FEAT-FISH-CN-01；50 种 + 真实钓场；出鱼权威=`pond_fish_pool` |
 | [BUG修复-日额度满后仍可开钓.md](./BUG修复-日额度满后仍可开钓.md) | hotfix | P0 | **已实现** | BUG-23；满8h/扣满4次不可开钓，可落座 |
 | [打窝机制.md](./打窝机制.md) | R2 | P1 | **已实现** | FEAT-GROUND-01；Overlay 并列循环、50 层非线性、增鱼尺寸 |

@@ -650,20 +650,35 @@ namespace FishSocial.Desktop
 
         void CreateCard(int index, string name, string icon, string meta)
         {
-            var card = new GameObject("Item_" + index,
-                typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-            card.transform.SetParent(_content, false);
-            var layout = card.GetComponent<LayoutElement>();
-            layout.minHeight = 64f;
-            layout.preferredHeight = 64f;
+            var card = DesktopUiPrefabFactory.Instantiate("ShopItemCard", _content);
+            if (card == null)
+            {
+                card = new GameObject("Item_" + index,
+                    typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+                card.transform.SetParent(_content, false);
+                var layout = card.GetComponent<LayoutElement>();
+                layout.minHeight = 64f;
+                layout.preferredHeight = 64f;
+                var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+                labelGo.transform.SetParent(card.transform, false);
+                Stretch(labelGo.GetComponent<RectTransform>());
+                Debug.LogWarning("[DesktopShop] ShopItemCard.prefab missing; using runtime fallback card.");
+            }
+            card.name = "Item_" + index;
             card.GetComponent<Image>().color = index == _selectedIndex
                 ? new Color(0.2f, 0.45f, 0.55f, 1f)
                 : new Color(0.15f, 0.21f, 0.27f, 1f);
-            var label = CreateText(card.transform, "Label",
-                icon + "  " + name + "\n" + meta, 15);
+            var label = card.transform.Find("Label")?.GetComponent<Text>();
+            if (label == null)
+                label = CreateText(card.transform, "Label", string.Empty, 15);
+            label.text = icon + "  " + name + "\n" + meta;
             Stretch(label.rectTransform);
+            var button = card.GetComponent<Button>();
+            if (button == null)
+                button = card.AddComponent<Button>();
+            button.onClick.RemoveAllListeners();
             var captured = index;
-            card.GetComponent<Button>().onClick.AddListener(() =>
+            button.onClick.AddListener(() =>
             {
                 _selectedIndex = captured;
                 Render();

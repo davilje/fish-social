@@ -201,7 +201,8 @@ namespace FishSocialOverlay
                 message.FishingPhase,
                 message.SessionFishingMs,
                 message.HookDeadlineMs,
-                message.OwnFishingStartedAt);
+                message.OwnFishingStartedAt,
+                message.OwnPetId);
         }
 
         void SyncOthers(IpcMessage message)
@@ -253,7 +254,8 @@ namespace FishSocialOverlay
                     user.FishingPhase,
                     user.SessionFishingMs,
                     user.HookDeadlineMs,
-                    user.FishingStartedAt);
+                    user.FishingStartedAt,
+                    user.PetId);
             }
 
             var remove = new List<string>();

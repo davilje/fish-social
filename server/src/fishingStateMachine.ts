@@ -654,6 +654,7 @@ function advanceFromHooked(
   pondId: string,
   user: PondUser,
   socketId: string | null,
+  opts?: { deferAutoSettle?: boolean },
 ): void {
   const ctx = hookContextByUser.get(user.id);
   if (!ctx) {
@@ -708,7 +709,7 @@ function advanceFromHooked(
     });
     if (!locked) return;
 
-    if (user.returnFeeMode === 'auto_return' && user.playerId) {
+    if (user.returnFeeMode === 'auto_return' && user.playerId && !opts?.deferAutoSettle) {
       settleAcceptedCatch(
         {
           io,
@@ -724,7 +725,9 @@ function advanceFromHooked(
       return;
     }
 
-    io.to(socketId).emit('fish_bite', locked);
+    if (!opts?.deferAutoSettle) {
+      io.to(socketId).emit('fish_bite', locked);
+    }
   }
 
   hookContextByUser.delete(user.id);
@@ -959,6 +962,34 @@ export function isUserWaitingForBite(user: PondUser): boolean {
 
 export function getHookContext(userId: string): HookContext | undefined {
   return hookContextByUser.get(userId);
+}
+
+/** Debug：跳过上钩计时，立即进入 resolving 并生成待领取鱼获 */
+export function flushHookedPhaseToPendingCatch(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  pondId: string,
+  userId: string,
+  socketId: string | null,
+  opts?: { deferAutoSettle?: boolean },
+): boolean {
+  const user = getUserById(pondId, userId);
+  if (!user || user.fishingPhase !== 'hooked') return false;
+  if (!hookContextByUser.get(userId)) return false;
+  advanceFromHooked(io, pondId, user, socketId, opts);
+  return true;
+}
+
+/** Debug：跳过 resolving 计时，回到下一钓鱼阶段 */
+export function flushResolvingPhase(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  pondId: string,
+  userId: string,
+  socketId: string | null,
+): boolean {
+  const user = getUserById(pondId, userId);
+  if (!user || user.fishingPhase !== 'resolving') return false;
+  advanceFromResolving(io, pondId, user, socketId);
+  return true;
 }
 
 export function getPhaseEndsAt(pondId: string, userId: string): number | undefined {

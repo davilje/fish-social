@@ -32,6 +32,7 @@ alwaysApply: false
 ## 实现要求
 
 - 新功能页面优先使用独立 Prefab；运行时代码只负责绑定数据和事件。
+- **新建 UGUI 必须同步登记 `DesktopPrefabCatalog` 并生成 Prefab**（见 `docs/planning/reports/Unity桌面UI新建须同步Prefab.md`）。禁止再加单面板 Bake 菜单。
 - Unity 是 Steam JWT、Socket.IO、鱼塘会话和业务命令的唯一客户端入口。
 - 原生 Overlay 只显示状态、处理窗口交互并通过 Named Pipe 发命令。
 - 所有 REST/Socket 操作处理 loading、empty、error、401/403、超时和重试。

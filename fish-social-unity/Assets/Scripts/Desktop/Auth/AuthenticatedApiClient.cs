@@ -70,6 +70,11 @@ namespace FishSocial.Desktop.Auth
         IEnumerator ResetOnboarding(Action<bool, FishingProgressDto, string> onCompleted);
         IEnumerator TriggerDebugPoliceRaid(Action<bool, string> onCompleted);
         IEnumerator PostGameplayDebug(string action, Action<bool, string> onCompleted);
+        IEnumerator PostGameplayDebug(string action, string fishId, Action<bool, string> onCompleted);
+        IEnumerator PostGameplayDebug(string action, string fishId, Action<bool, string, bool> onCompleted);
+        IEnumerator GetGameplayDebugPondFish(
+            string scope, Action<bool, NativeOverlayDebugFishDto[], string, string, string> onCompleted);
+        IEnumerator GetGameplayDebugSpotStats(Action<bool, string, string, string> onCompleted);
     }
 
     /// <summary>
@@ -634,9 +639,17 @@ namespace FishSocial.Desktop.Auth
 
         public IEnumerator PostGameplayDebug(string action, Action<bool, string> onCompleted)
         {
+            yield return PostGameplayDebug(action, null, onCompleted);
+        }
+
+        public IEnumerator PostGameplayDebug(string action, string fishId, Action<bool, string, bool> onCompleted)
+        {
             string error = null;
             var ok = false;
-            var body = "{\"action\":" + Quote(action ?? "") + "}";
+            var autoReturned = false;
+            var body = string.IsNullOrEmpty(fishId)
+                ? "{\"action\":" + Quote(action ?? "") + "}"
+                : "{\"action\":" + Quote(action ?? "") + ",\"fishId\":" + Quote(fishId) + "}";
             yield return PostJson("/api/debug/gameplay", body,
                 (success, json, message) =>
                 {
@@ -652,10 +665,149 @@ namespace FishSocial.Desktop.Auth
                     catch
                     {
                     }
-                    if (parsed != null && !string.IsNullOrEmpty(parsed.message))
-                        error = parsed.message;
+                    if (parsed != null)
+                    {
+                        if (!string.IsNullOrEmpty(parsed.message))
+                            error = parsed.message;
+                        autoReturned = parsed.autoReturned;
+                    }
                 });
-            onCompleted?.Invoke(ok, error);
+            onCompleted?.Invoke(ok, error, autoReturned);
+        }
+
+        public IEnumerator PostGameplayDebug(string action, string fishId, Action<bool, string> onCompleted)
+        {
+            yield return PostGameplayDebug(action, fishId, (ok, message, _) =>
+                onCompleted?.Invoke(ok, message));
+        }
+
+        public IEnumerator GetGameplayDebugPondFish(
+            string scope, Action<bool, NativeOverlayDebugFishDto[], string, string, string> onCompleted)
+        {
+            NativeOverlayDebugFishDto[] fish = null;
+            var pondId = string.Empty;
+            var spotId = string.Empty;
+            string error = null;
+            var ok = false;
+            var q = string.IsNullOrEmpty(scope) ? "pond" : scope;
+            yield return GetJson(
+                "/api/debug/gameplay/pond-fish?scope=" + Uri.EscapeDataString(q),
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (!success)
+                        return;
+                    GameplayDebugFishListResponse parsed = null;
+                    try
+                    {
+                        parsed = JsonUtility.FromJson<GameplayDebugFishListResponse>(json);
+                    }
+                    catch (Exception ex)
+                    {
+                        ok = false;
+                        error = "解析塘鱼列表失败：" + ex.Message;
+                        return;
+                    }
+                    if (parsed == null || !parsed.ok)
+                    {
+                        ok = false;
+                        error = parsed != null && !string.IsNullOrEmpty(parsed.error)
+                            ? parsed.error
+                            : "塘鱼列表为空";
+                        return;
+                    }
+                    fish = parsed.fish ?? new NativeOverlayDebugFishDto[0];
+                    pondId = parsed.pondId ?? string.Empty;
+                    spotId = parsed.spotId ?? string.Empty;
+                });
+            onCompleted?.Invoke(ok, fish ?? new NativeOverlayDebugFishDto[0], pondId, spotId, error);
+        }
+
+        public IEnumerator GetGameplayDebugSpotStats(Action<bool, string, string, string> onCompleted)
+        {
+            var report = string.Empty;
+            var rawJson = string.Empty;
+            string error = null;
+            var ok = false;
+            yield return GetJson(
+                "/api/debug/gameplay/spot-stats",
+                (success, json, message) =>
+                {
+                    ok = success;
+                    error = message;
+                    if (!success)
+                        return;
+                    rawJson = json ?? string.Empty;
+                    try
+                    {
+                        report = FormatSpotStatsReport(json);
+                        if (string.IsNullOrEmpty(report))
+                        {
+                            ok = false;
+                            error = "钓位数据为空";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ok = false;
+                        error = "解析钓位数据失败：" + ex.Message;
+                    }
+                });
+            onCompleted?.Invoke(ok, report, rawJson, error);
+        }
+
+        static string FormatSpotStatsReport(string json)
+        {
+            if (string.IsNullOrEmpty(json))
+                return string.Empty;
+            var parsed = JsonUtility.FromJson<GameplayDebugSpotStatsResponse>(json);
+            if (parsed == null || !parsed.ok)
+                return string.Empty;
+            var sb = new StringBuilder();
+            sb.AppendLine("塘: " + (parsed.pondId ?? ""));
+            sb.AppendLine("钓位: " + (parsed.spotId ?? ""));
+            if (parsed.constants != null)
+            {
+                sb.AppendLine("checkMs: " + parsed.constants.checkMs);
+                sb.AppendLine("activeAnglers: " + parsed.constants.activeAnglers);
+                sb.AppendLine("supplementCheckMs: " + parsed.constants.effectiveSupplementCheckMs);
+                if (parsed.constants.lastMigrationAt > 0)
+                    sb.AppendLine("lastMigrationAt: " + parsed.constants.lastMigrationAt);
+            }
+            if (parsed.summary != null)
+            {
+                sb.AppendLine("totalFish: " + parsed.summary.totalFish);
+                sb.AppendLine("avgTickBiteChance: " + parsed.summary.avgTickBiteChance.ToString("0.####"));
+            }
+            if (parsed.spot != null)
+            {
+                sb.AppendLine("--- 当前钓位 ---");
+                sb.AppendLine("spotMultiplier: " + parsed.spot.spotMultiplier.ToString("0.####"));
+                sb.AppendLine("pBite / tickBiteChance: " + parsed.spot.pBite.ToString("0.####"));
+                sb.AppendLine("fishAtSpotCount: " + parsed.spot.fishAtSpotCount);
+                sb.AppendLine("pickedFishId: " + (parsed.spot.pickedFishId ?? "-"));
+                var contrib = parsed.spot.fishContributions;
+                if (contrib != null && contrib.Length > 0)
+                {
+                    sb.AppendLine("贡献(最多12):");
+                    var n = Math.Min(12, contrib.Length);
+                    for (var i = 0; i < n; i++)
+                    {
+                        var c = contrib[i];
+                        if (c == null) continue;
+                        sb.AppendLine(
+                            "- " + c.speciesId + "/" + c.quality +
+                            " size=" + c.sizeM.ToString("0.##") +
+                            " pick=" + c.pickShare.ToString("0.###") +
+                            " bite=" + c.spotBiteRate.ToString("0.####") +
+                            " esc=" + c.escapeRate.ToString("0.####"));
+                    }
+                }
+            }
+            else
+                sb.AppendLine("(无当前钓位报表)");
+            return sb.ToString().TrimEnd();
         }
 
         public IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted)
@@ -1398,7 +1550,65 @@ namespace FishSocial.Desktop.Auth
             public string periodKey;
         }
         [Serializable] sealed class ProgressEnvelope { public FishingProgressDto progress; }
-        [Serializable] sealed class GameplayDebugResponse { public bool ok; public string message; public string error; public string action; }
+        [Serializable] sealed class GameplayDebugResponse
+        {
+            public bool ok;
+            public string message;
+            public string error;
+            public string action;
+            public bool autoReturned;
+        }
+        [Serializable] sealed class GameplayDebugFishListResponse
+        {
+            public bool ok;
+            public string error;
+            public string scope;
+            public string pondId;
+            public string spotId;
+            public NativeOverlayDebugFishDto[] fish;
+        }
+        [Serializable] sealed class GameplayDebugSpotStatsResponse
+        {
+            public bool ok;
+            public string error;
+            public string pondId;
+            public string spotId;
+            public GameplayDebugSpotConstantsDto constants;
+            public GameplayDebugSpotSummaryDto summary;
+            public GameplayDebugSpotDto spot;
+        }
+        [Serializable] sealed class GameplayDebugSpotConstantsDto
+        {
+            public int checkMs;
+            public int activeAnglers;
+            public int effectiveSupplementCheckMs;
+            public long lastMigrationAt;
+        }
+        [Serializable] sealed class GameplayDebugSpotSummaryDto
+        {
+            public int totalFish;
+            public float avgTickBiteChance;
+        }
+        [Serializable] sealed class GameplayDebugSpotDto
+        {
+            public string spotId;
+            public float spotMultiplier;
+            public float tickBiteChance;
+            public float pBite;
+            public string pickedFishId;
+            public int fishAtSpotCount;
+            public GameplayDebugFishContributionDto[] fishContributions;
+        }
+        [Serializable] sealed class GameplayDebugFishContributionDto
+        {
+            public string fishId;
+            public string speciesId;
+            public string quality;
+            public float sizeM;
+            public float pickShare;
+            public float spotBiteRate;
+            public float escapeRate;
+        }
         #pragma warning restore 0649
     }
 }

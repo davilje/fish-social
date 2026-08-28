@@ -187,6 +187,7 @@ namespace FishSocial.Desktop.Editor
                 }
 
                 Debug.Log("[Build] Native Overlay OK → " + overlayExecutable);
+                CopyOverlayResources(projectRoot, overlayOutput);
                 return true;
             }
             catch (Exception error)
@@ -194,6 +195,37 @@ namespace FishSocial.Desktop.Editor
                 Debug.LogException(error);
                 FailBuild("Native Overlay 发布异常：\n" + error.Message);
                 return false;
+            }
+        }
+
+        static void CopyOverlayResources(string unityProjectRoot, string overlayOutput)
+        {
+            var repoRoot = Path.GetFullPath(Path.Combine(unityProjectRoot, ".."));
+            var source = Path.Combine(repoRoot, "desktop-overlay", "OverlayResources");
+            if (!Directory.Exists(source))
+                return;
+
+            CopyDirectory(source, Path.Combine(overlayOutput, "OverlayResources"));
+            var pets = Path.Combine(source, "pets");
+            if (Directory.Exists(pets))
+            {
+                CopyDirectory(pets, Path.Combine(unityProjectRoot, "Assets", "StreamingAssets", "Pet"));
+            }
+        }
+
+        static void CopyDirectory(string source, string dest)
+        {
+            foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+            {
+                if (file.EndsWith(".meta"))
+                    continue;
+                var rel = file.Substring(source.Length).TrimStart(
+                    Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                var target = Path.Combine(dest, rel);
+                var dir = Path.GetDirectoryName(target);
+                if (!string.IsNullOrEmpty(dir))
+                    Directory.CreateDirectory(dir);
+                File.Copy(file, target, true);
             }
         }
 

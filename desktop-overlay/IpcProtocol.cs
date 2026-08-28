@@ -33,6 +33,62 @@ namespace FishSocialOverlay
     }
 
     [DataContract]
+    public sealed class OverlayDebugFishDto
+    {
+        [DataMember(Name = "id")]
+        public string Id { get; set; }
+
+        [DataMember(Name = "pondId")]
+        public string PondId { get; set; }
+
+        [DataMember(Name = "spotId")]
+        public string SpotId { get; set; }
+
+        [DataMember(Name = "speciesId")]
+        public string SpeciesId { get; set; }
+
+        [DataMember(Name = "speciesName")]
+        public string SpeciesName { get; set; }
+
+        [DataMember(Name = "speciesIcon")]
+        public string SpeciesIcon { get; set; }
+
+        [DataMember(Name = "quality")]
+        public string Quality { get; set; }
+
+        [DataMember(Name = "sizeM")]
+        public float SizeM { get; set; }
+
+        [DataMember(Name = "bornAt")]
+        public long BornAt { get; set; }
+
+        [DataMember(Name = "generation")]
+        public int Generation { get; set; }
+
+        [DataMember(Name = "biteMultiplier")]
+        public float BiteMultiplier { get; set; }
+
+        [DataMember(Name = "escapeMultiplier")]
+        public float EscapeMultiplier { get; set; }
+
+        [DataMember(Name = "birthSizeM")]
+        public float BirthSizeM { get; set; }
+
+        [DataMember(Name = "nearMaxSize")]
+        public bool NearMaxSize { get; set; }
+
+        public string ListLabel
+        {
+            get
+            {
+                var name = string.IsNullOrWhiteSpace(SpeciesName) ? SpeciesId : SpeciesName;
+                var shortId = string.IsNullOrEmpty(Id) || Id.Length <= 8 ? Id : Id.Substring(0, 8);
+                return string.Format("{0} {1} {2:0.##}m · {3}", name, Quality, SizeM, shortId);
+            }
+        }
+    }
+
+    [DataContract]
     public sealed class OverlaySpotDto
     {
         [DataMember(Name = "id")]
@@ -86,6 +142,9 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "isBot")]
         public bool IsBot { get; set; }
+
+        [DataMember(Name = "petId")]
+        public string PetId { get; set; }
     }
 
     [DataContract]
@@ -145,6 +204,9 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "ownUserId")]
         public string OwnUserId { get; set; }
+
+        [DataMember(Name = "ownPetId")]
+        public string OwnPetId { get; set; }
 
         [DataMember(Name = "sessionFishingMs")]
         public long SessionFishingMs { get; set; }
@@ -233,6 +295,18 @@ namespace FishSocialOverlay
         [DataMember(Name = "observation")]
         public OverlayChatDto Observation { get; set; }
 
+        [DataMember(Name = "debugFishListMode")]
+        public string DebugFishListMode { get; set; }
+
+        [DataMember(Name = "debugFish")]
+        public OverlayDebugFishDto[] DebugFish { get; set; }
+
+        [DataMember(Name = "debugSpotReport")]
+        public string DebugSpotReport { get; set; }
+
+        [DataMember(Name = "debugSpotStatsJson")]
+        public string DebugSpotStatsJson { get; set; }
+
         [DataMember(Name = "command")]
         public string Command { get; set; }
 
@@ -267,5 +341,97 @@ namespace FishSocialOverlay
                 return Encoding.UTF8.GetString(stream.ToArray());
             }
         }
+    }
+
+    [DataContract]
+    public sealed class OverlaySpotStatsPayload
+    {
+        [DataMember(Name = "ok")]
+        public bool ok { get; set; }
+
+        [DataMember(Name = "pondId")]
+        public string pondId { get; set; }
+
+        [DataMember(Name = "spotId")]
+        public string spotId { get; set; }
+
+        [DataMember(Name = "constants")]
+        public OverlaySpotStatsConstants constants { get; set; }
+
+        [DataMember(Name = "summary")]
+        public OverlaySpotStatsSummary summary { get; set; }
+
+        [DataMember(Name = "spot")]
+        public OverlaySpotStatsSpot spot { get; set; }
+    }
+
+    [DataContract]
+    public sealed class OverlaySpotStatsConstants
+    {
+        [DataMember(Name = "checkMs")]
+        public int checkMs { get; set; }
+
+        [DataMember(Name = "activeAnglers")]
+        public int activeAnglers { get; set; }
+
+        [DataMember(Name = "effectiveSupplementCheckMs")]
+        public int effectiveSupplementCheckMs { get; set; }
+
+        [DataMember(Name = "lastMigrationAt")]
+        public long lastMigrationAt { get; set; }
+    }
+
+    [DataContract]
+    public sealed class OverlaySpotStatsSummary
+    {
+        [DataMember(Name = "totalFish")]
+        public int totalFish { get; set; }
+
+        [DataMember(Name = "avgTickBiteChance")]
+        public float avgTickBiteChance { get; set; }
+    }
+
+    [DataContract]
+    public sealed class OverlaySpotStatsSpot
+    {
+        [DataMember(Name = "spotMultiplier")]
+        public float spotMultiplier { get; set; }
+
+        [DataMember(Name = "pBite")]
+        public float pBite { get; set; }
+
+        [DataMember(Name = "pickedFishId")]
+        public string pickedFishId { get; set; }
+
+        [DataMember(Name = "fishAtSpotCount")]
+        public int fishAtSpotCount { get; set; }
+
+        [DataMember(Name = "fishContributions")]
+        public OverlaySpotStatsContribution[] fishContributions { get; set; }
+    }
+
+    [DataContract]
+    public sealed class OverlaySpotStatsContribution
+    {
+        [DataMember(Name = "fishId")]
+        public string fishId { get; set; }
+
+        [DataMember(Name = "speciesId")]
+        public string speciesId { get; set; }
+
+        [DataMember(Name = "quality")]
+        public string quality { get; set; }
+
+        [DataMember(Name = "sizeM")]
+        public float sizeM { get; set; }
+
+        [DataMember(Name = "pickShare")]
+        public float pickShare { get; set; }
+
+        [DataMember(Name = "spotBiteRate")]
+        public float spotBiteRate { get; set; }
+
+        [DataMember(Name = "escapeRate")]
+        public float escapeRate { get; set; }
     }
 }

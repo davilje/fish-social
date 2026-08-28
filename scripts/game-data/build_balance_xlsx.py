@@ -76,11 +76,11 @@ from fish_cn_data import PONDS_CN as _PONDS_CN  # noqa: E402
 
 PONDS = [p[:10] for p in _PONDS_CN]
 
-# FEAT-RETURN-01：单行全局规则（回鱼准入与奖励）
+# FEAT-RETURN-05：单行全局规则（紫品+体重准入 + 分档回鱼金）
 RETURN_RULES = [
-    # minQuality, minSizeRatio, maxSizeRatio, goldMulVsSell, playerXp, pondXp,
-    # sizeGainMinM, sizeGainMaxM, sizeGainMode, autoMinQuality, autoMinSizeRatio
-    ("purple", 0.75, 1.0, 1.50, 8, 4, 0.02, 0.05, "uniform_random", "purple", 0.75),
+    # minQuality, autoMinQuality, minWeightJin, heavyWeightJin, maxSizeRatio,
+    # goldMulVsSell, goldMulHeavy, playerXp, pondXp, sizeGainMinM, sizeGainMaxM, sizeGainMode
+    ("purple", "purple", 10, 100, 1.0, 1.50, 3.0, 8, 4, 0.02, 0.05, "uniform_random"),
 ]
 
 PLAYER_LEVELS = [
@@ -265,17 +265,18 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("player_levels", "xpToNext", "升到下级所需经验", "20 级为 0。"),
     ("player_levels", "pondXpPerHour", "每小时鱼塘熟练度", "挂机时长折算塘经验的参考。"),
     ("player_levels", "maxPondLevel", "可达到的最高塘等级", "玩家等级对塘升级的软上限。"),
-    ("return_rules", "minQuality", "最低品质", "低于此品质不可回鱼；gray=灰及以上。"),
-    ("return_rules", "minSizeRatio", "最小体长比", "相对品质最大体长的下限，如 0.2。"),
-    ("return_rules", "maxSizeRatio", "最大体长比", "相对品质最大体长的上限；1.0 表示满尺寸不可回。"),
-    ("return_rules", "goldMulVsSell", "回鱼金倍率", "回鱼金 = floor(卖价 × 本倍率)，建议 1.50。"),
+    ("return_rules", "minQuality", "最低品质", "回鱼最低品质（默认 purple）。"),
+    ("return_rules", "autoMinQuality", "自动最低品质", "与 minQuality 对齐；自动回鱼门槛。"),
+    ("return_rules", "minWeightJin", "最低体重斤", "市斤体重 ≥ 本值才可回鱼（默认 10）。"),
+    ("return_rules", "heavyWeightJin", "超重档斤", "市斤体重 > 本值时按 goldMulHeavy（默认 100）。"),
+    ("return_rules", "maxSizeRatio", "最大体长比", "兼容字段；准入已改体重/品质。"),
+    ("return_rules", "goldMulVsSell", "回鱼金倍率", "体重 ≥minWeightJin 且 ≤heavyWeightJin：floor(卖价×本倍率)，默认 1.50。"),
+    ("return_rules", "goldMulHeavy", "超重回鱼倍率", "体重 >heavyWeightJin：floor(卖价×本倍率)，默认 3.00。"),
     ("return_rules", "playerXp", "玩家经验", "每次回鱼发给玩家的熟练度。"),
     ("return_rules", "pondXp", "鱼塘经验", "每次回鱼发给当前塘熟练度。"),
     ("return_rules", "sizeGainMinM", "增重下限m", "塘内实体增重下限。"),
     ("return_rules", "sizeGainMaxM", "增重上限m", "塘内实体增重上限。"),
     ("return_rules", "sizeGainMode", "增重模式", "uniform_random=区间均匀随机。"),
-    ("return_rules", "autoMinQuality", "自动回鱼最低品质", "FEAT-RETURN-02 如 purple。"),
-    ("return_rules", "autoMinSizeRatio", "自动回鱼最低体长比", "相对品质 max，如 0.75。"),
     ("pond_levels", "level", "鱼塘等级", "1~10。"),
     ("pond_levels", "xpToNext", "升到下级所需塘经验", "10 级为 0。"),
     ("fish_species", "speciesId", "鱼种ID", "程序主键。"),
@@ -294,6 +295,7 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("pond_fish_pool", "spawnWeight", "种刷新权重", "抽种相对权重；品质另走 pond_category_quality_weights。"),
     ("pond_fish_pool", "enabled", "是否启用", "FALSE 则该种不参与刷新。"),
     ("pond_category_quality_weights", "pondCategory", "塘分级", "novice…giant；播种/补充抽品质用。"),
+    ("pond_category_quality_weights", "pondCategoryName", "塘类型中文名", "新手/高级/老手/野外/水库/禁止/巨物。"),
     ("pond_category_quality_weights", "quality", "品质", "gray…gold。"),
     ("pond_category_quality_weights", "spawnWeight", "品质权重", "选好种后按此表加权抽品质。"),
     ("fish_quality_stats", "quality", "品质", "gray…gold；玩法+卖价同表。"),
@@ -486,16 +488,17 @@ def build() -> Path:
         "return_rules",
         [
             "minQuality",
-            "minSizeRatio",
+            "autoMinQuality",
+            "minWeightJin",
+            "heavyWeightJin",
             "maxSizeRatio",
             "goldMulVsSell",
+            "goldMulHeavy",
             "playerXp",
             "pondXp",
             "sizeGainMinM",
             "sizeGainMaxM",
             "sizeGainMode",
-            "autoMinQuality",
-            "autoMinSizeRatio",
         ],
         RETURN_RULES,
     )
@@ -567,7 +570,7 @@ def build() -> Path:
     write_sheet(
         wb,
         "pond_category_quality_weights",
-        ["pondCategory", "quality", "spawnWeight"],
+        ["pondCategory", "pondCategoryName", "quality", "spawnWeight"],
         POND_CATEGORY_QUALITY_WEIGHTS,
     )
 

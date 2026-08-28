@@ -170,6 +170,9 @@ namespace FishSocial.Desktop.Onboarding
             dto.ownNickname = string.IsNullOrEmpty(nickname) ? "新钓手" : nickname;
             dto.ownPlayerId = playerId ?? string.Empty;
             dto.ownUserId = "local-onboarding";
+            dto.ownPetId = DesktopDefaultAvatars.ResolvePetId(
+                DesktopProfileCache.Latest != null ? DesktopProfileCache.Latest.avatarUrl : null,
+                playerId);
             dto.ownSpotId = SpotId;
             dto.hasPendingCatch = false;
             dto.hookDeadlineMs = HookDeadlineMs;

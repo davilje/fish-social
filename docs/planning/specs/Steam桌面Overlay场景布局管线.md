@@ -49,6 +49,7 @@ Overlay 是独立 WPF 进程，**不能**加载 Unity Prefab、Canvas 或 uGUI�
 - 不重写 `STEAM-DESKTOP-07A`～`07E` 登录、导航、弹窗、会话。
 - 不在本期引入 Spine、换装或一塘一 Overlay 进程。
 - 不要求 ART-01 的 PNG 必须先全部交付才能开工导出工具（可用占位图验收管线）。
+- **不管 Overlay HUD**（菜单、钓鱼按钮、聊天条的位置与贴图）。HUD 由 `STEAM-DESKTOP-ART-03` 用独立 Prefab / `hud/overlay-hud.json` 导出，禁止与本需求的塘内布局 JSON 混文件。
 
 ---
 
@@ -212,5 +213,6 @@ Unity 运行时（唯一业务进程）
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-28 | 策划 | 明确不含 Overlay HUD；HUD / 分塘底图 / 序列帧夹见 `STEAM-DESKTOP-ART-03` |
 | 2026-08-20 | 策划 | **STEAM-DESKTOP-09D**：Overlay 正式画布增至 **960×560**；后续导出 JSON 的 `canvas.height` 与 09D 对齐（宽仍 960） |
 | 2026-08-16 | 策划 | 初稿：Unity Canvas Prefab → 布局 JSON → Overlay 像素真相处；类型归入美术 `STEAM-DESKTOP-ART-02` |

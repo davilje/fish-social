@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -47,6 +50,8 @@ namespace FishSocialOverlay
         string _lastPondId = string.Empty;
         DispatcherTimer _promptTimer;
         long _promptDeadlineMs;
+        OverlayDebugFishDto _selectedDebugFish;
+        string _debugInspectFishListMode = string.Empty;
 
         public MainWindow()
         {
@@ -87,7 +92,8 @@ namespace FishSocialOverlay
             _chat = new OverlayChatPresenter(ChatLatestPreview);
             _chatBubbles = new OverlayChatBubblePresenter(
                 ChatBubbleLayer,
-                playerId => _scene?.TryResolveActor(playerId));
+                playerId => _scene?.TryResolveActor(playerId),
+                () => _scene?.TryResolveOwnActor());
             _chatAckTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
             _chatAckTimer.Tick += ChatAckTimer_OnTick;
             _promptTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
@@ -262,6 +268,7 @@ namespace FishSocialOverlay
                 ApplyFeatureNavLock(message);
                 ApplyOverlayPrompt(message);
                 ApplyMainWindowRaised(message.MainWindowRaised);
+                ApplyGameplayDebugInspect(message);
             }
             else if (message.Type == "command")
             {
@@ -333,7 +340,10 @@ namespace FishSocialOverlay
 
         void GameplayDebug_OnClick(object sender, RoutedEventArgs e)
         {
-            SetGameplayDebugModalOpen(GameplayDebugModal.Visibility != Visibility.Visible);
+            var open = GameplayDebugModal.Visibility != Visibility.Visible;
+            if (open)
+                ShowGameplayDebugMainPage();
+            SetGameplayDebugModalOpen(open);
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -342,6 +352,22 @@ namespace FishSocialOverlay
                 GameplayDebugModal != null &&
                 GameplayDebugModal.Visibility == Visibility.Visible)
             {
+                if (GameplayDebugDetailFlyout != null &&
+                    GameplayDebugDetailFlyout.Visibility == Visibility.Visible)
+                {
+                    HideGameplayDebugDetailFlyout();
+                    e.Handled = true;
+                    return;
+                }
+
+                if (GameplayDebugInspectPage != null &&
+                    GameplayDebugInspectPage.Visibility == Visibility.Visible)
+                {
+                    ShowGameplayDebugMainPage();
+                    e.Handled = true;
+                    return;
+                }
+
                 SetGameplayDebugModalOpen(false);
                 e.Handled = true;
                 return;
@@ -352,6 +378,16 @@ namespace FishSocialOverlay
         void GameplayDebugClose_OnClick(object sender, RoutedEventArgs e)
         {
             SetGameplayDebugModalOpen(false);
+        }
+
+        void GameplayDebugInspectBack_OnClick(object sender, RoutedEventArgs e)
+        {
+            ShowGameplayDebugMainPage();
+        }
+
+        void GameplayDebugDetailFlyoutClose_OnClick(object sender, RoutedEventArgs e)
+        {
+            HideGameplayDebugDetailFlyout();
         }
 
         void GameplayDebugModalDim_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -369,6 +405,143 @@ namespace FishSocialOverlay
         void SetGameplayDebugModalOpen(bool open)
         {
             GameplayDebugModal.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+            if (!open)
+                ShowGameplayDebugMainPage();
+        }
+
+        void ShowGameplayDebugMainPage()
+        {
+            HideGameplayDebugDetailFlyout();
+            _selectedDebugFish = null;
+            _debugInspectFishListMode = string.Empty;
+            if (GameplayDebugInspectPage != null)
+                GameplayDebugInspectPage.Visibility = Visibility.Collapsed;
+            if (GameplayDebugMainPage != null)
+                GameplayDebugMainPage.Visibility = Visibility.Visible;
+            ClearGameplayDebugInspectButtons();
+        }
+
+        void ShowGameplayDebugInspectPage(string title, IEnumerable<DebugInspectButtonItem> items)
+        {
+            if (GameplayDebugMainPage != null)
+                GameplayDebugMainPage.Visibility = Visibility.Collapsed;
+            if (GameplayDebugInspectPage != null)
+                GameplayDebugInspectPage.Visibility = Visibility.Visible;
+            HideGameplayDebugDetailFlyout();
+            if (GameplayDebugInspectTitle != null)
+                GameplayDebugInspectTitle.Text = title ?? "查看";
+            PopulateGameplayDebugInspectButtons(items);
+        }
+
+        void ClearGameplayDebugInspectButtons()
+        {
+            if (GameplayDebugInspectButtonGrid == null)
+                return;
+            GameplayDebugInspectButtonGrid.Children.Clear();
+        }
+
+        void PopulateGameplayDebugInspectButtons(IEnumerable<DebugInspectButtonItem> items)
+        {
+            ClearGameplayDebugInspectButtons();
+            if (GameplayDebugInspectButtonGrid == null)
+                return;
+
+            if (items == null)
+            {
+                GameplayDebugInspectButtonGrid.Children.Add(CreateInspectPlaceholder("加载中…"));
+                return;
+            }
+
+            var list = new List<DebugInspectButtonItem>(items);
+            if (list.Count == 0)
+            {
+                GameplayDebugInspectButtonGrid.Children.Add(CreateInspectPlaceholder("暂无数据"));
+                return;
+            }
+
+            foreach (var item in list)
+            {
+                var button = new Button
+                {
+                    Content = item.Label,
+                    Height = 52,
+                    Margin = new Thickness(2),
+                    Tag = item,
+                    ToolTip = item.Label,
+                };
+                button.Click += GameplayDebugInspectItem_OnClick;
+                GameplayDebugInspectButtonGrid.Children.Add(button);
+            }
+        }
+
+        static TextBlock CreateInspectPlaceholder(string text)
+        {
+            return new TextBlock
+            {
+                Text = text,
+                Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0xB4, 0xC4)),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 24, 8, 24),
+            };
+        }
+
+        void GameplayDebugInspectItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button != null ? button.Tag as DebugInspectButtonItem : null;
+            if (item == null)
+                return;
+            ShowGameplayDebugDetailFlyout(item);
+        }
+
+        void ShowGameplayDebugDetailFlyout(DebugInspectButtonItem item)
+        {
+            if (item == null || GameplayDebugDetailFlyout == null)
+                return;
+
+            _selectedDebugFish = item.Fish;
+            if (GameplayDebugDetailFlyoutTitle != null)
+                GameplayDebugDetailFlyoutTitle.Text = item.FlyoutTitle ?? "详情";
+            if (GameplayDebugDetailFlyoutText != null)
+                GameplayDebugDetailFlyoutText.Text = item.Detail ?? string.Empty;
+
+            var canForceBite = item.Fish != null &&
+                               !string.IsNullOrEmpty(item.Fish.Id) &&
+                               (_debugInspectFishListMode == "pond" || _debugInspectFishListMode == "spot");
+            if (GameplayDebugForceBiteButton != null)
+            {
+                GameplayDebugForceBiteButton.Visibility = canForceBite
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                GameplayDebugForceBiteButton.IsEnabled = canForceBite;
+            }
+            if (GameplayDebugInstantCatchFishButton != null)
+            {
+                GameplayDebugInstantCatchFishButton.Visibility = canForceBite
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+                GameplayDebugInstantCatchFishButton.IsEnabled = canForceBite;
+            }
+
+            GameplayDebugDetailFlyout.Visibility = Visibility.Visible;
+        }
+
+        void HideGameplayDebugDetailFlyout()
+        {
+            _selectedDebugFish = null;
+            if (GameplayDebugDetailFlyout != null)
+                GameplayDebugDetailFlyout.Visibility = Visibility.Collapsed;
+            if (GameplayDebugForceBiteButton != null)
+            {
+                GameplayDebugForceBiteButton.Visibility = Visibility.Collapsed;
+                GameplayDebugForceBiteButton.IsEnabled = false;
+            }
+            if (GameplayDebugInstantCatchFishButton != null)
+            {
+                GameplayDebugInstantCatchFishButton.Visibility = Visibility.Collapsed;
+                GameplayDebugInstantCatchFishButton.IsEnabled = false;
+            }
         }
 
         void GameplayDebugLevelUp_OnClick(object sender, RoutedEventArgs e) =>
@@ -385,12 +558,329 @@ namespace FishSocialOverlay
             SendGameplayDebug("grant_fish");
         void GameplayDebugFishMax_OnClick(object sender, RoutedEventArgs e) =>
             SendGameplayDebug("grant_fish_max_size");
-        void GameplayDebugFishEpic_OnClick(object sender, RoutedEventArgs e) =>
-            SendGameplayDebug("grant_fish_epic_plus");
         void GameplayDebugFee_OnClick(object sender, RoutedEventArgs e) =>
             SendGameplayDebug("advance_fee_2h");
         void GameplayDebugResetDuration_OnClick(object sender, RoutedEventArgs e) =>
             SendGameplayDebug("reset_fishing_duration");
+
+        void GameplayDebugCompleteCatch_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("complete_catch");
+
+        void GameplayDebugCatchRed_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("catch_quality_red");
+
+        void GameplayDebugCatchOrange_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("catch_quality_orange");
+
+        void GameplayDebugCatchGold_OnClick(object sender, RoutedEventArgs e) =>
+            SendGameplayDebug("catch_quality_gold");
+
+        void GameplayDebugListPondFish_OnClick(object sender, RoutedEventArgs e)
+        {
+            _debugInspectFishListMode = "pond";
+            ShowGameplayDebugInspectPage("当前鱼塘的鱼", null);
+            SendGameplayDebug("list_pond_fish");
+        }
+
+        void GameplayDebugListSpotFish_OnClick(object sender, RoutedEventArgs e)
+        {
+            _debugInspectFishListMode = "spot";
+            ShowGameplayDebugInspectPage("当前钓位的鱼", null);
+            SendGameplayDebug("list_spot_fish");
+        }
+
+        void GameplayDebugSpotStats_OnClick(object sender, RoutedEventArgs e)
+        {
+            _debugInspectFishListMode = "spot_stats";
+            ShowGameplayDebugInspectPage("钓位数据", null);
+            SendGameplayDebug("spot_stats");
+        }
+
+        void GameplayDebugForceBite_OnClick(object sender, RoutedEventArgs e)
+        {
+            var fish = _selectedDebugFish;
+            if (fish == null || string.IsNullOrEmpty(fish.Id))
+            {
+                ErrorText.Text = "请先选择一条鱼。";
+                return;
+            }
+
+            SendGameplayDebug("force_bite:" + fish.Id);
+        }
+
+        void GameplayDebugCatchFish_OnClick(object sender, RoutedEventArgs e)
+        {
+            var fish = _selectedDebugFish;
+            if (fish == null || string.IsNullOrEmpty(fish.Id))
+            {
+                ErrorText.Text = "请先选择一条鱼。";
+                return;
+            }
+
+            SendGameplayDebug("catch_fish:" + fish.Id);
+        }
+
+        void ApplyGameplayDebugInspect(IpcMessage message)
+        {
+            if (GameplayDebugModal == null || GameplayDebugModal.Visibility != Visibility.Visible)
+                return;
+            if (GameplayDebugInspectPage == null ||
+                GameplayDebugInspectPage.Visibility != Visibility.Visible)
+                return;
+
+            var mode = message.DebugFishListMode ?? string.Empty;
+            if (string.IsNullOrEmpty(mode))
+                return;
+
+            _debugInspectFishListMode = mode;
+            IEnumerable<DebugInspectButtonItem> items;
+            string title;
+
+            if (string.Equals(mode, "spot_stats", StringComparison.OrdinalIgnoreCase))
+            {
+                title = "钓位数据";
+                items = BuildSpotStatsInspectItems(message.DebugSpotStatsJson, message.DebugSpotReport);
+            }
+            else if (string.Equals(mode, "pond", StringComparison.OrdinalIgnoreCase))
+            {
+                title = "当前鱼塘的鱼";
+                items = BuildFishInspectItems(message.DebugFish);
+            }
+            else if (string.Equals(mode, "spot", StringComparison.OrdinalIgnoreCase))
+            {
+                title = "当前钓位的鱼";
+                items = BuildFishInspectItems(message.DebugFish);
+            }
+            else
+                return;
+
+            if (GameplayDebugInspectTitle != null)
+                GameplayDebugInspectTitle.Text = title;
+            PopulateGameplayDebugInspectButtons(items);
+        }
+
+        static IEnumerable<DebugInspectButtonItem> BuildFishInspectItems(OverlayDebugFishDto[] fish)
+        {
+            if (fish == null || fish.Length == 0)
+                yield break;
+
+            foreach (var entry in fish)
+            {
+                if (entry == null || string.IsNullOrEmpty(entry.Id))
+                    continue;
+                var name = string.IsNullOrWhiteSpace(entry.SpeciesName) ? entry.SpeciesId : entry.SpeciesName;
+                var quality = FormatQualityLabel(entry.Quality);
+                var shortId = entry.Id.Length <= 6 ? entry.Id : entry.Id.Substring(0, 6);
+                yield return new DebugInspectButtonItem
+                {
+                    Label = string.Format("{0}\n{1} {2:0.##}m", name, quality, entry.SizeM),
+                    FlyoutTitle = name + " · " + quality,
+                    Detail = FormatDebugFishDetail(entry),
+                    Fish = entry,
+                };
+            }
+        }
+
+        static IEnumerable<DebugInspectButtonItem> BuildSpotStatsInspectItems(string json, string fallbackReport)
+        {
+            OverlaySpotStatsPayload payload = null;
+            if (!string.IsNullOrWhiteSpace(json))
+                payload = TryParseSpotStatsJson(json);
+
+            if (payload != null && payload.ok)
+            {
+                yield return new DebugInspectButtonItem
+                {
+                    Label = "概览",
+                    FlyoutTitle = "塘内概览",
+                    Detail = FormatSpotOverviewDetail(payload),
+                };
+
+                if (payload.constants != null)
+                {
+                    yield return new DebugInspectButtonItem
+                    {
+                        Label = "环境\n参数",
+                        FlyoutTitle = "环境参数",
+                        Detail = FormatSpotConstantsDetail(payload.constants),
+                    };
+                }
+
+                if (payload.spot != null)
+                {
+                    yield return new DebugInspectButtonItem
+                    {
+                        Label = "钓位\n咬钩",
+                        FlyoutTitle = "当前钓位咬钩",
+                        Detail = FormatSpotBiteDetail(payload.spot),
+                    };
+
+                    var contrib = payload.spot.fishContributions;
+                    if (contrib != null)
+                    {
+                        var index = 1;
+                        foreach (var row in contrib)
+                        {
+                            if (row == null)
+                                continue;
+                            var name = string.IsNullOrWhiteSpace(row.speciesId) ? "未知鱼种" : row.speciesId;
+                            yield return new DebugInspectButtonItem
+                            {
+                                Label = string.Format("贡献 #{0}\n{1}", index, name),
+                                FlyoutTitle = "贡献鱼 #" + index,
+                                Detail = FormatSpotContributionDetail(row),
+                            };
+                            index++;
+                            if (index > 12)
+                                break;
+                        }
+                    }
+                }
+
+                yield break;
+            }
+
+            if (!string.IsNullOrWhiteSpace(fallbackReport))
+            {
+                yield return new DebugInspectButtonItem
+                {
+                    Label = "钓位\n报告",
+                    FlyoutTitle = "钓位数据",
+                    Detail = fallbackReport,
+                };
+            }
+        }
+
+        static OverlaySpotStatsPayload TryParseSpotStatsJson(string json)
+        {
+            try
+            {
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+                {
+                    var serializer = new DataContractJsonSerializer(typeof(OverlaySpotStatsPayload));
+                    return serializer.ReadObject(stream) as OverlaySpotStatsPayload;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        static string FormatSpotOverviewDetail(OverlaySpotStatsPayload payload)
+        {
+            var lines = new List<string>
+            {
+                "鱼塘：" + (payload.pondId ?? "-"),
+                "钓位：" + (payload.spotId ?? "-"),
+            };
+            if (payload.summary != null)
+            {
+                lines.Add("塘内鱼总数：" + payload.summary.totalFish);
+                lines.Add("平均咬钩概率：" + payload.summary.avgTickBiteChance.ToString("0.####"));
+            }
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        static string FormatSpotConstantsDetail(OverlaySpotStatsConstants constants)
+        {
+            if (constants == null)
+                return string.Empty;
+            var lines = new List<string>
+            {
+                "咬钩检测间隔：" + constants.checkMs + " 毫秒",
+                "活跃钓客数：" + constants.activeAnglers,
+                "补鱼检测间隔：" + constants.effectiveSupplementCheckMs + " 毫秒",
+            };
+            if (constants.lastMigrationAt > 0)
+            {
+                var migrated = DateTimeOffset.FromUnixTimeMilliseconds(constants.lastMigrationAt)
+                    .LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                lines.Add("上次迁徙：" + migrated);
+            }
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        static string FormatSpotBiteDetail(OverlaySpotStatsSpot spot)
+        {
+            if (spot == null)
+                return "无当前钓位数据。";
+            return string.Join(Environment.NewLine, new[]
+            {
+                "钓位倍率：" + spot.spotMultiplier.ToString("0.####"),
+                "本 tick 咬钩概率：" + spot.pBite.ToString("0.####"),
+                "钓位鱼数量：" + spot.fishAtSpotCount,
+                "当前选中鱼：" + (string.IsNullOrEmpty(spot.pickedFishId) ? "无" : spot.pickedFishId),
+            });
+        }
+
+        static string FormatSpotContributionDetail(OverlaySpotStatsContribution row)
+        {
+            if (row == null)
+                return string.Empty;
+            return string.Join(Environment.NewLine, new[]
+            {
+                "鱼 ID：" + (row.fishId ?? "-"),
+                "鱼种：" + (row.speciesId ?? "-"),
+                "品质：" + FormatQualityLabel(row.quality),
+                "体长：" + row.sizeM.ToString("0.##") + " 米",
+                "选中占比：" + row.pickShare.ToString("0.###"),
+                "钓位咬钩率：" + row.spotBiteRate.ToString("0.####"),
+                "脱钩率：" + row.escapeRate.ToString("0.####"),
+            });
+        }
+
+        static string FormatQualityLabel(string quality)
+        {
+            if (string.IsNullOrWhiteSpace(quality))
+                return "未知";
+            switch (quality.Trim().ToLowerInvariant())
+            {
+                case "gray": return "灰";
+                case "green": return "绿";
+                case "blue": return "蓝";
+                case "purple": return "紫";
+                case "gold": return "金";
+                case "epic": return "史诗";
+                case "legendary": return "传说";
+                default:
+                    return quality;
+            }
+        }
+
+        static string FormatDebugFishDetail(OverlayDebugFishDto fish)
+        {
+            if (fish == null)
+                return string.Empty;
+            var born = fish.BornAt > 0
+                ? DateTimeOffset.FromUnixTimeMilliseconds(fish.BornAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss")
+                : "-";
+            return string.Join(Environment.NewLine, new[]
+            {
+                "鱼 ID：" + fish.Id,
+                "所属鱼塘：" + fish.PondId,
+                "所在钓位：" + fish.SpotId,
+                "鱼种 ID：" + fish.SpeciesId,
+                "鱼种名称：" + fish.SpeciesName,
+                "图标：" + fish.SpeciesIcon,
+                "品质：" + FormatQualityLabel(fish.Quality),
+                "体长：" + fish.SizeM.ToString("0.####") + " 米",
+                "出生时体长：" + fish.BirthSizeM.ToString("0.####") + " 米",
+                "出生时间：" + born,
+                "世代：" + fish.Generation,
+                "咬钩倍率：" + fish.BiteMultiplier.ToString("0.####"),
+                "脱钩倍率：" + fish.EscapeMultiplier.ToString("0.####"),
+                "近体型上限：" + (fish.NearMaxSize ? "是" : "否"),
+            });
+        }
+
+        sealed class DebugInspectButtonItem
+        {
+            public string Label { get; set; }
+            public string FlyoutTitle { get; set; }
+            public string Detail { get; set; }
+            public OverlayDebugFishDto Fish { get; set; }
+        }
 
         void SendGameplayDebug(string action)
         {
@@ -757,12 +1247,10 @@ namespace FishSocialOverlay
             }
 
             var replayHistory = !_chatHistoryPrimed;
-            if (replayHistory &&
-                message.RecentChats != null &&
-                message.RecentChats.Length > 0)
-                _chatHistoryPrimed = true;
-
+            _chatBubbles?.SetOwnContext(message.OwnUserId, message.OwnPlayerId);
             _chatBubbles?.ProcessMessages(message.RecentChats, replayHistory);
+            if (!_chatHistoryPrimed)
+                _chatHistoryPrimed = true;
             _chat?.UpdateLatest(message.RecentChats);
             if (_awaitingChatAck)
             {

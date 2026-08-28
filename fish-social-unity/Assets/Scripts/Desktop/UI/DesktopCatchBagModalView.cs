@@ -8,7 +8,6 @@ namespace FishSocial.Desktop
     public sealed class DesktopCatchBagModalView : MonoBehaviour
     {
         const int MinSlots = 80;
-        const float ReturnGoldMul = 1.5f;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         Text _status;
@@ -259,16 +258,33 @@ namespace FishSocial.Desktop
             var species = DesktopFishCatalog.SpeciesName(item.speciesId);
             var quality = DesktopFishCatalog.QualityName(item.quality);
             var sell = DesktopFishCatalog.EstimateSellPrice(item.quality, item.sizeM, item.speciesId);
-            var returnGold = Mathf.FloorToInt(sell * ReturnGoldMul);
+            var jin = DesktopGameData.CalcWeightJin(item.sizeM);
+            var eligible = DesktopGameData.IsReturnEligible(item.quality, item.sizeM);
+            var returnMul = eligible ? DesktopGameData.ResolveReturnGoldMul(item.sizeM) : 0f;
+            var returnGold = Mathf.FloorToInt(sell * returnMul);
             var seatHint = CanReturnHere()
-                ? "可回当前塘（约增重 0.02~0.05m）"
-                : "回鱼需在当前鱼塘钓位";
+                ? "可回当前塘（约增重 0.02~0.05m；需回鱼档）"
+                : "回鱼需在当前鱼塘钓位且选择回鱼档";
+            string returnHint;
+            if (!eligible)
+            {
+                if (DesktopGameData.ResolveReturnGoldMul(item.sizeM) <= 0f)
+                    returnHint = "回鱼约得：不可回（需达到 " + DesktopGameData.MinReturnWeightJin().ToString("0") + " 斤，且紫品及以上）";
+                else
+                    returnHint = "回鱼约得：不可回（需紫品及以上）";
+            }
+            else
+            {
+                returnHint = "回鱼约得：" + returnGold + " 金币（卖价×" + (returnMul * 100f).ToString("0") + "%，" +
+                             (jin > DesktopGameData.HeavyReturnWeightJin() ? ">100斤档" : "≥10斤档") + "）";
+            }
             _detail.text = "鱼种：" + species +
                            "\n品质：" + quality +
                            "\n体长：" + item.sizeM.ToString("0.00") + "m" +
                            "\n重量：" + DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) +
+                           "（约 " + jin.ToString("0.##") + " 斤）" +
                            "\n参考售价：" + sell + " 金币" +
-                           "\n回鱼约得：" + returnGold + " 金币（卖价×150%）" +
+                           "\n" + returnHint +
                            "\n" + seatHint;
             RenderGrid();
         }

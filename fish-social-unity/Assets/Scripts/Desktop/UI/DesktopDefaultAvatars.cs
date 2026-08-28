@@ -62,6 +62,67 @@ namespace FishSocial.Desktop
             return url.StartsWith("data:image/") ? "自定义头像" : "头像";
         }
 
+        /// <summary>
+        /// Stable pet art id shared by Unity and Overlay (orange, calico, …).
+        /// Custom avatars still map onto one of the six body sets.
+        /// </summary>
+        public static string ResolvePetId(string avatarUrl, string playerId)
+        {
+            var fromUrl = TryPetIdFromUrl(avatarUrl);
+            if (!string.IsNullOrEmpty(fromUrl))
+                return fromUrl;
+
+            var index = 0;
+            if (!string.IsNullOrEmpty(playerId))
+            {
+                var hash = 0;
+                for (var i = 0; i < playerId.Length; i++)
+                {
+                    hash = ((hash << 5) - hash) + playerId[i];
+                    hash |= 0;
+                }
+                index = Math.Abs(hash) % All.Length;
+            }
+            return All[index].Id;
+        }
+
+        static string TryPetIdFromUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return null;
+
+            const string photoPrefix = "/image/fishing_photos/cat_fishing_";
+            if (url.StartsWith(photoPrefix) && url.EndsWith(".png"))
+            {
+                var id = url.Substring(photoPrefix.Length, url.Length - photoPrefix.Length - 4);
+                return KnownPetId(id);
+            }
+
+            if (url.StartsWith(Directory + "/"))
+            {
+                var filename = url.Substring(Directory.Length + 1);
+                for (var i = 0; i < All.Length; i++)
+                {
+                    if (All[i].Filename == filename)
+                        return All[i].Id;
+                }
+            }
+
+            return null;
+        }
+
+        static string KnownPetId(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return null;
+            for (var i = 0; i < All.Length; i++)
+            {
+                if (All[i].Id == id)
+                    return All[i].Id;
+            }
+            return null;
+        }
+
         public static string InitialFor(PlayerProfileDto profile)
         {
             var nickname = profile != null ? profile.nickname : null;

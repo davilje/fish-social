@@ -72,8 +72,15 @@ assert(sold.ok, 'sell should work');
 assert(getInventory(playerId).length === bagBeforeSell - 1, 'sell removes bag item');
 const sellGold = calcFishSellPrice(sold.fish);
 const rules = getReturnRules();
-const expectedReturn = calcFishReturnGold(sold.fish, rules.goldMulVsSell);
-assert(expectedReturn === Math.floor(sellGold * rules.goldMulVsSell));
+const heavyItem = { quality: 'purple' as const, sizeM: 1.7, speciesId: 'crucian' };
+const heavySell = calcFishSellPrice(heavyItem);
+const expectedReturn = calcFishReturnGold(heavyItem, {
+  goldMulVsSell: rules.goldMulVsSell,
+  goldMulHeavy: rules.goldMulHeavy,
+  minWeightJin: rules.minWeightJin,
+  heavyWeightJin: rules.heavyWeightJin,
+});
+assert(expectedReturn === Math.floor(heavySell * 3));
 
 console.log('FEAT-RETURN-01 server smoke ok');
 console.log('  grown size=', grown.entity.sizeM, 'gain=', grown.sizeGainApplied, 'spawned=', grown.spawned);

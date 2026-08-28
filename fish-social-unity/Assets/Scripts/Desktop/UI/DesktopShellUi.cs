@@ -121,34 +121,51 @@ namespace FishSocial.Desktop
             if (_petState != null)
                 _petState.StateChanged += OnPetVisualStateChanged;
 
-            var canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvasGo.transform.SetParent(transform, false);
-            var canvas = canvasGo.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _scaler = canvasGo.GetComponent<CanvasScaler>();
-            _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            _scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
-            _scaler.matchWidthOrHeight = 0.5f;
+            var canvasGo = TryLoadShellCanvas();
+            var usedPrefabShell = false;
+            if (canvasGo != null)
+            {
+                EnsureEventSystem();
+                if (WireShellFromPrefab(canvasGo))
+                    usedPrefabShell = true;
+                else
+                {
+                    Destroy(canvasGo);
+                    canvasGo = null;
+                }
+            }
 
-            EnsureEventSystem();
+            if (!usedPrefabShell)
+            {
+                canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+                canvasGo.transform.SetParent(transform, false);
+                var canvas = canvasGo.GetComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                _scaler = canvasGo.GetComponent<CanvasScaler>();
+                _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                _scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
+                _scaler.matchWidthOrHeight = 0.5f;
 
-            _loginRoot = CreateStretchPanel("LoginRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
-            BuildLogin(_loginRoot);
+                EnsureEventSystem();
 
-            _mainRoot = CreateStretchPanel("MainRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
-            BuildMain(_mainRoot);
-            _mainRoot.SetActive(false);
+                _loginRoot = CreateStretchPanel("LoginRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
+                BuildLogin(_loginRoot);
 
-            _toast = CreateText(canvasGo.transform, "Toast", string.Empty, 18, TextAnchor.LowerCenter,
-                new Vector2(0, 24), new Vector2(400, 48));
-            var toastRt = _toast.rectTransform;
-            toastRt.anchorMin = new Vector2(0.08f, 0f);
-            toastRt.anchorMax = new Vector2(0.92f, 0f);
-            toastRt.pivot = new Vector2(0.5f, 0f);
-            toastRt.anchoredPosition = new Vector2(0f, 78f);
-            toastRt.sizeDelta = new Vector2(0f, 44f);
-            _toast.alignment = TextAnchor.MiddleCenter;
-            _toast.gameObject.SetActive(false);
+                _mainRoot = CreateStretchPanel("MainRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
+                BuildMain(_mainRoot);
+                _mainRoot.SetActive(false);
+
+                _toast = CreateText(canvasGo.transform, "Toast", string.Empty, 18, TextAnchor.LowerCenter,
+                    new Vector2(0, 24), new Vector2(400, 48));
+                var toastRt = _toast.rectTransform;
+                toastRt.anchorMin = new Vector2(0.08f, 0f);
+                toastRt.anchorMax = new Vector2(0.92f, 0f);
+                toastRt.pivot = new Vector2(0.5f, 0f);
+                toastRt.anchoredPosition = new Vector2(0f, 78f);
+                toastRt.sizeDelta = new Vector2(0f, 44f);
+                _toast.alignment = TextAnchor.MiddleCenter;
+                _toast.gameObject.SetActive(false);
+            }
 
             _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
             _productMenu.Bind(canvasGo.transform, _mainRoot.GetComponent<RectTransform>(), this);
@@ -166,6 +183,136 @@ namespace FishSocial.Desktop
                 OnPondStateChanged(_pondSession.State, null);
             RefreshPetPresentation();
             _router.Show(ShellPanelId.Home);
+        }
+
+        GameObject TryLoadShellCanvas()
+        {
+            var prefab = Resources.Load<GameObject>("Desktop/Prefabs/DesktopShell");
+            if (prefab == null)
+            {
+                Debug.LogWarning("[DesktopShell] DesktopShell.prefab missing; building chrome at runtime. " +
+                                 "Open Fish Social → UI Prefab 管理 → 补齐全部.");
+                return null;
+            }
+
+            var instance = Instantiate(prefab, transform, false);
+            instance.name = "ShellCanvas";
+            _scaler = instance.GetComponent<CanvasScaler>();
+            if (_scaler != null)
+            {
+                _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                _scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
+                _scaler.matchWidthOrHeight = 0.5f;
+            }
+            return instance;
+        }
+
+        bool WireShellFromPrefab(GameObject canvasGo)
+        {
+            _loginRoot = canvasGo.transform.Find("LoginRoot")?.gameObject;
+            _mainRoot = canvasGo.transform.Find("MainRoot")?.gameObject;
+            if (_loginRoot == null || _mainRoot == null)
+            {
+                Debug.LogError("[DesktopShell] DesktopShell.prefab missing LoginRoot/MainRoot.");
+                return false;
+            }
+
+            _loginStatus = _loginRoot.transform.Find("LoginHint")?.GetComponent<Text>();
+            var steamBtn = _loginRoot.transform.Find("SteamLogin")?.GetComponent<Button>();
+            if (steamBtn != null)
+            {
+                steamBtn.onClick.RemoveAllListeners();
+                steamBtn.onClick.AddListener(BeginSteamLogin);
+            }
+
+            var header = _mainRoot.transform.Find("Header");
+            if (header != null)
+            {
+                BindSquarePet(header, "HeaderPet", new Vector2(16, -16), 48, false);
+                _statusPet = header.Find("PetStatus")?.GetComponent<Text>();
+                _statusLogin = header.Find("LoginStatus")?.GetComponent<Text>();
+                _statusConnection = header.Find("ConnStatus")?.GetComponent<Text>();
+                _statusPond = header.Find("PondStatus")?.GetComponent<Text>();
+            }
+
+            var nav = _mainRoot.transform.Find("Nav");
+            if (nav != null)
+            {
+                BindNav(nav, "主页", ReturnToPetHome, true);
+                BindNav(nav, "鱼塘", ShowPondPanel, true);
+                BindNav(nav, "世界地图", () => ShowMainPanel(ShellPanelId.WorldMap), true);
+                BindNav(nav, "商店", () => ShowMainPanel(ShellPanelId.Shop), true);
+                // Prefab may use safe names (no '/') or legacy "好友/聊天" / "鱼获/背包".
+                BindNav(nav, FindNavChildName(nav, "好友聊天", "好友/聊天"),
+                    () => ShowMainPanel(ShellPanelId.Friends), true);
+                BindNav(nav, FindNavChildName(nav, "鱼获背包", "鱼获/背包"),
+                    () => ShowMainPanel(ShellPanelId.CatchBag), true);
+                BindNav(nav, "个人中心", () => OpenProfileHub(), true);
+                BindNav(nav, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed), true);
+                BindNav(nav, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard), true);
+                BindNav(nav, "设置", () => ShowMainPanel(ShellPanelId.Settings), false);
+            }
+
+            var content = _mainRoot.transform.Find("Content");
+            if (content != null)
+            {
+                RegisterPanel(content, ShellPanelId.Home, BuildHome);
+                RegisterPanel(content, ShellPanelId.Pond, BuildPond);
+                RegisterPanel(content, ShellPanelId.WorldMap, BuildWorldMap);
+                RegisterPanel(content, ShellPanelId.Shop, BuildShop);
+                RegisterPanel(content, ShellPanelId.Friends, BuildSocialPanel);
+                RegisterPanel(content, ShellPanelId.CatchBag, BuildCatchPanel);
+                RegisterPanel(content, ShellPanelId.Gallery, BuildGalleryPanel);
+                RegisterPanel(content, ShellPanelId.Profile, BuildProfilePanel);
+                RegisterPanel(content, ShellPanelId.ProfileEdit, BuildProfileEditPanel);
+                RegisterPanel(content, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
+                RegisterPanel(content, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
+                RegisterPanel(content, ShellPanelId.Settings, BuildSettingsPanel);
+            }
+
+            _toast = canvasGo.transform.Find("Toast")?.GetComponent<Text>();
+            if (_toast != null)
+                _toast.gameObject.SetActive(false);
+
+            _mainRoot.SetActive(false);
+            _loginRoot.SetActive(true);
+            return true;
+        }
+
+        static string FindNavChildName(Transform nav, string preferred, string legacy)
+        {
+            for (var i = 0; i < nav.childCount; i++)
+            {
+                var n = nav.GetChild(i).name;
+                if (n == preferred || n == legacy)
+                    return n;
+            }
+            return preferred;
+        }
+
+        void BindNav(Transform nav, string name, Action onClick, bool lockable)
+        {
+            // Transform.Find treats '/' as a path separator — never use Find for labels like "好友/聊天".
+            Transform child = null;
+            for (var i = 0; i < nav.childCount; i++)
+            {
+                var c = nav.GetChild(i);
+                if (c != null && c.name == name)
+                {
+                    child = c;
+                    break;
+                }
+            }
+            var button = child != null ? child.GetComponent<Button>() : null;
+            if (button == null)
+            {
+                Debug.LogWarning("[DesktopShell] Nav button missing: " + name);
+                return;
+            }
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => onClick());
+            if (lockable)
+                _lockableNavButtons.Add(button);
         }
 
         void BuildLogin(GameObject go)

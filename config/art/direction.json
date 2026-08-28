@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "defaultWorkflow": "gpt-image-2-t2i.api.json",
+  "defaultNodes": {
+    "prompt": "1",
+    "api_key": "1",
+    "base_url": "1",
+    "model_name": "1",
+    "size": "1",
+    "num_images": "1",
+    "filename_prefix": "2"
+  },
+  "presets": {
+    "desktop-cat": {
+      "workflow": "gpt-image-2-t2i.api.json",
+      "size": "1024x1024",
+      "stylePrefix": "Fish Social, cozy 2D game art, soft pastel colors, clean linework, cute desktop pet cat character,",
+      "styleSuffix": "simple silhouette readable at 64px, side or three-quarter view, plain background, no watermark, no UI chrome, no photorealism",
+      "outputSubdir": "desktop-cat",
+      "filenamePrefix": "fs-desktop-cat"
+    },
+    "pond-scene": {
+      "workflow": "gpt-image-2-t2i.api.json",
+      "size": "1536x1024",
+      "stylePrefix": "Fish Social, cozy 2D game art, soft pastel landscape, fishing pond scene for desktop overlay,",
+      "styleSuffix": "wide composition suitable for 960x480 crop, calm water, shore and fishing spots readable, no watermark, no photorealism",
+      "outputSubdir": "pond-scene",
+      "filenamePrefix": "fs-pond-scene"
+    },
+    "ui-icon": {
+      "workflow": "gpt-image-2-t2i.api.json",
+      "size": "1024x1024",
+      "stylePrefix": "Fish Social, flat 2D game UI icon, soft pastel accent, centered subject,",
+      "styleSuffix": "simple shape, high contrast silhouette, plain background, no text, no watermark",
+      "outputSubdir": "ui-icon",
+      "filenamePrefix": "fs-ui-icon"
+    },
+    "social-card": {
+      "workflow": "gpt-image-2-t2i.api.json",
+      "size": "1024x1024",
+      "stylePrefix": "Fish Social, cozy 2D decorative background for social feed card,",
+      "styleSuffix": "soft pattern or scenic vignette, leave quiet space for UI text overlay, no watermark, no photorealism",
+      "outputSubdir": "social-card",
+      "filenamePrefix": "fs-social-card"
+    }
+  }
+}

@@ -91,6 +91,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-07g-native-overlay-dev.prompt.md](./steam-desktop-07g-native-overlay-dev.prompt.md) | STEAM-DESKTOP-07G：独立原生桌面宠物 Overlay（WPF/Win32 + Named Pipe）· **已实现** |
 | [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已确认** |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已确认** |
+| [steam-desktop-art-03-pond-pet-hud-dev.prompt.md](./steam-desktop-art-03-pond-pet-hud-dev.prompt.md) | STEAM-DESKTOP-ART-03：分塘底图、猫咪序列帧、HUD Prefab 同步 Overlay · **已确认** |
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |
 | [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已实现** |
@@ -117,10 +118,12 @@ npm run planning:confirm -- v0.4.0
 | [feat-spot-04-clue-texts-curation-dev.prompt.md](./feat-spot-04-clue-texts-curation-dev.prompt.md) | FEAT-SPOT-04：spot_clue_texts 文案审校 · **已确认** |
 | [feat-spot-05-spot-clue-ecology-tier-dev.prompt.md](./feat-spot-05-spot-clue-ecology-tier-dev.prompt.md) | FEAT-SPOT-05：鱼情 tier + activitySignal 联动 · **已确认** |
 | [steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./steam-desktop-12-gameplay-debug-menu-dev.prompt.md) | STEAM-DESKTOP-12：玩法 Debug 菜单 · **已实现** |
+| [steam-desktop-12b-debug-fish-inspect-dev.prompt.md](./steam-desktop-12b-debug-fish-inspect-dev.prompt.md) | STEAM-DESKTOP-12B：Overlay Debug 鱼塘/钓位查看与强制上钩 |
 | [feat-return-01-return-fish-dev.prompt.md](./feat-return-01-return-fish-dev.prompt.md) | FEAT-RETURN-01：回鱼机制 · **已实现** |
 | [feat-return-02-dual-fee-auto-return-dev.prompt.md](./feat-return-02-dual-fee-auto-return-dev.prompt.md) | FEAT-RETURN-02：双价塘与自动回鱼 · **已实现** |
 | [feat-return-04-auto-return-ux-dev.prompt.md](./feat-return-04-auto-return-ux-dev.prompt.md) | FEAT-RETURN-04：自动回鱼体验闭环 · **已实现** |
 | [feat-pool-01-ecology-table-dev.prompt.md](./feat-pool-01-ecology-table-dev.prompt.md) | FEAT-POOL-01：塘生态数值表驱动 · **已实现** |
+| [feat-pool-02-ecology-tuning-dev.prompt.md](./feat-pool-02-ecology-tuning-dev.prompt.md) | FEAT-POOL-02：塘人口与品质权重调参 · **已实现** |
 | [feat-fish-cn-01-species-regions-dev.prompt.md](./feat-fish-cn-01-species-regions-dev.prompt.md) | FEAT-FISH-CN-01：中国鱼种与区域分布 · **已实现** |
 | [feat-ground-01-groundbait-dev.prompt.md](./feat-ground-01-groundbait-dev.prompt.md) | FEAT-GROUND-01：打窝机制 · **已实现** |
 | [feat-album-01-profile-codex-album-dev.prompt.md](./feat-album-01-profile-codex-album-dev.prompt.md) | FEAT-ALBUM-01：个人中心/相册/成就 · **已实现** |

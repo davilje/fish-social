@@ -33,6 +33,7 @@ namespace FishSocial.Desktop.Social
         string _pendingLobbyId;
 
         public SocialLobbyState State { get; private set; } = SocialLobbyState.SignedOut;
+        public bool SteamFriendsLoaded { get; private set; }
         public IReadOnlyList<SteamFriendInfo> Friends { get; private set; } =
             new List<SteamFriendInfo>();
         public IReadOnlyList<string> LobbyMembers { get; private set; } =
@@ -59,6 +60,8 @@ namespace FishSocial.Desktop.Social
             _adapter.LobbyEntered += OnLobbyEntered;
             _adapter.LobbyInviteReceived += OnLobbyInviteReceived;
             _adapter.Error += OnAdapterError;
+            if (_auth != null)
+                _auth.StateChanged += OnAuthStateChanged;
             if (_pondSession != null)
             {
                 _pondSession.SnapshotChanged += OnPondSnapshot;
@@ -67,6 +70,16 @@ namespace FishSocial.Desktop.Social
             SetState(auth != null && auth.IsAuthenticated
                 ? SocialLobbyState.Ready
                 : SocialLobbyState.SignedOut, null);
+            if (auth != null && auth.IsAuthenticated)
+                RefreshFriends();
+        }
+
+        void OnAuthStateChanged(SteamLoginState state)
+        {
+            if (state == SteamLoginState.Authenticated)
+                RefreshFriends();
+            else if (state == SteamLoginState.SignedOut)
+                SteamFriendsLoaded = false;
         }
 
         public void RefreshFriends()
@@ -167,6 +180,7 @@ namespace FishSocial.Desktop.Social
         void OnFriendsChanged(IReadOnlyList<SteamFriendInfo> friends)
         {
             Friends = friends ?? new List<SteamFriendInfo>();
+            SteamFriendsLoaded = true;
             FriendsChanged?.Invoke(Friends);
             SetState(SocialLobbyState.Ready, "好友列表已更新。");
         }
@@ -335,6 +349,8 @@ namespace FishSocial.Desktop.Social
 
         void OnDestroy()
         {
+            if (_auth != null)
+                _auth.StateChanged -= OnAuthStateChanged;
             if (_adapter == null)
                 return;
             _adapter.FriendsChanged -= OnFriendsChanged;

@@ -1,7 +1,7 @@
 import type { FishSpeciesId } from './fish';
 import { FISH_QUALITIES, rollFishQuality, type FishQuality } from './fish';
 import { POND_CATALOG } from './pondCatalog';
-import { getPondEcologyDef, listPondFishPool, getPondCategoryQualityWeights } from './gameData.client';
+import { getPondEcologyDef, listPondFishPool, getPondCategoryQualityWeights, getGamePondDef, pickPondSpeciesForQuality, pickSpawnFish } from './gameData.client';
 import type { PondCategory } from './gameDataTypes';
 /** 鱼塘生态常量 */
 /** @deprecated v0.3.1 仅保留兼容；阻断式恢复已废弃 */
@@ -10,8 +10,8 @@ export const POND_DEPLETED_RECOVERY_MS = 15 * 60 * 1000;
 export const POND_BREED_CHANCE_PER_TICK = 0.08;
 export const POND_GROWTH_RATE_PER_HOUR = 0.012;
 
-/** 鱼群补充检查间隔（15 分钟） */
-export const POND_SUPPLEMENT_CHECK_MS = 15 * 60 * 1000;
+/** 鱼群补充检查间隔（60 分钟） */
+export const POND_SUPPLEMENT_CHECK_MS = 60 * 60 * 1000;
 
 /** 补充目标：补满至 maxPopulation */
 export const POND_SUPPLEMENT_TARGET_RATIO = 1.0;
@@ -22,7 +22,7 @@ export const POND_SUPPLEMENT_BATCH_RATIO = 0.50;
 /** 单次补充条数上限 */
 export const POND_SUPPLEMENT_BATCH_MAX = 12;
 
-/** 活跃人数达到此值及以上 → 间隔倍率 = 1（正常 15min） */
+/** 活跃人数达到此值及以上 → 间隔倍率 = 1（正常 60min） */
 export const POND_SUPPLEMENT_FULL_ACTIVITY_ANGLERS = 3;
 
 /** 每少 1 名活跃钓鱼者，间隔增加的倍率步长（线性） */
@@ -49,7 +49,7 @@ export const SUPPLEMENT_HIGH_TIER_MIN_INDEX = 3;
 export const SUPPLEMENT_MID_TIER_INDEX = 2;
 
 /** 鱼群迁徙检查间隔 — 与 POND_SUPPLEMENT_CHECK_MS 相同，同 tick 触发 */
-export const FISH_MIGRATION_CHECK_MS = 15 * 60 * 1000;
+export const FISH_MIGRATION_CHECK_MS = 60 * 60 * 1000;
 
 /** 每次迁徙事件中，参与换点的鱼占全塘比例 */
 export const FISH_MIGRATION_FRACTION = 0.4;
@@ -198,6 +198,23 @@ export function rollSupplementQuality(
   return FISH_QUALITIES[FISH_QUALITIES.length - 1]!.id;
 }
 
+/**
+ * 补充一条：D8 按缺口抽品质，再在可出种中优先高稀有度选种。
+ * 若种池无法覆盖该品质，退回 pickSpawnFish（塘品质分布）。
+ */
+export function pickSupplementFish(
+  pondId: string,
+  actualByQuality: Record<FishQuality, number>,
+  maxPopulation: number,
+): { speciesId: string; quality: FishQuality } | undefined {
+  const pond = getGamePondDef(pondId);
+  const category = (pond?.pondCategory ?? 'advanced') as PondCategory;
+  const quality = rollSupplementQuality(actualByQuality, maxPopulation, category);
+  const speciesId = pickPondSpeciesForQuality(pondId, quality);
+  if (speciesId) return { speciesId, quality };
+  return pickSpawnFish(pondId);
+}
+
 export interface PondStockConfig {
   pondId: string;
   /** 常见鱼种 */
@@ -270,4 +287,10 @@ export function getPondStockConfig(pondId: string): PondStockConfig | undefined 
   const built = buildStockConfigFromTables(pondId);
   if (built.commonSpecies.length > 0 || built.rareSpecies.length > 0) return built;
   return undefined;
+}
+
+/** 新手塘钓完不补、不重种；正式塘走 60min 补充节奏 */
+export function pondAllowsEcologySupplement(pondId: string): boolean {
+  const pond = getGamePondDef(pondId);
+  return (pond?.pondCategory ?? 'advanced') !== 'novice';
 }

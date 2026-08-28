@@ -1,7 +1,11 @@
-import type { FishQuality, FishSpeciesId } from './fish';
-import { getSpecies } from './fish';
-import { getQualityMaxSize, qualityIndex } from './fishing';
+import type { FishQuality } from './fish';
+import { FISH_QUALITIES } from './fish';
+import { calcFishWeightJin } from './fishing';
 import type { GamePondDef, ReturnRulesDef } from './gameDataTypes';
+
+function qualityRank(quality: string): number {
+  return FISH_QUALITIES.findIndex((q) => q.id === quality);
+}
 
 export type ReturnFeeMode = 'sell_only' | 'auto_return';
 
@@ -47,23 +51,35 @@ export function validateJoinReturnFeeMode(
   return { ok: true, mode };
 }
 
-/** 回鱼准入（手动 / 自动共用）：高品质 + 高体长 + 未满尺寸 */
+/** 回鱼金体重分档倍率（与 calcFishReturnGold 一致） */
+export function resolveReturnGoldMul(
+  sizeM: number,
+  rules: Pick<ReturnRulesDef, 'goldMulVsSell' | 'goldMulHeavy' | 'minWeightJin' | 'heavyWeightJin'>,
+): number {
+  const minJin = rules.minWeightJin ?? 10;
+  const heavyJin = rules.heavyWeightJin ?? 100;
+  const jin = calcFishWeightJin(sizeM);
+  if (jin > heavyJin) return rules.goldMulHeavy ?? 3;
+  if (jin >= minJin) return rules.goldMulVsSell ?? 1.5;
+  return 0;
+}
+
+/**
+ * 回鱼准入（手动 / 自动共用；流程上须在回鱼档 auto_return）
+ * - 品质 ≥ minQuality（默认 purple）
+ * - 市斤体重 ≥ minWeightJin（默认 10）
+ */
 export function isReturnEligible(
   fish: { quality: string; sizeM: number; speciesId: string },
   rules: ReturnRulesDef,
 ): boolean {
-  const minQuality = (rules.autoMinQuality ?? rules.minQuality ?? 'purple') as FishQuality;
-  const minSizeRatio = rules.autoMinSizeRatio ?? rules.minSizeRatio ?? 0.75;
-  if (qualityIndex(fish.quality as FishQuality) < qualityIndex(minQuality)) {
-    return false;
-  }
-  const species = getSpecies(fish.speciesId as FishSpeciesId);
-  const speciesMax = getQualityMaxSize(fish.quality as FishQuality, species);
-  if (fish.sizeM >= speciesMax - 1e-9) return false;
-  const ratio = speciesMax > 0 ? fish.sizeM / speciesMax : 0;
-  if (ratio < minSizeRatio) return false;
-  if (ratio >= rules.maxSizeRatio) return false;
-  return true;
+  const minQ = (rules.minQuality ?? rules.autoMinQuality ?? 'purple') as FishQuality;
+  const fishRank = qualityRank(fish.quality);
+  const minRank = qualityRank(minQ);
+  if (fishRank < 0 || minRank < 0 || fishRank < minRank) return false;
+
+  const minJin = rules.minWeightJin ?? 10;
+  return calcFishWeightJin(fish.sizeM) >= minJin;
 }
 
 /** @deprecated 别名；请用 isReturnEligible */

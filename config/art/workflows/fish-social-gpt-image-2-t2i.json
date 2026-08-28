@@ -1,0 +1,110 @@
+{
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "APIImage_OpenAIGenerate",
+      "pos": [80, 80],
+      "size": [460, 620],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        { "name": "ref_images", "type": "IMAGE", "link": null },
+        { "name": "image1", "type": "IMAGE", "link": null },
+        { "name": "image2", "type": "IMAGE", "link": null },
+        { "name": "image3", "type": "IMAGE", "link": null },
+        { "name": "mask", "type": "MASK", "link": null }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [1, 2],
+          "slot_index": 0
+        }
+      ],
+      "title": "OpenAI GPT-Image-2 (Fish Social)",
+      "properties": {
+        "Node name for S&R": "APIImage_OpenAIGenerate"
+      },
+      "widgets_values": [
+        "Fish Social, cozy 2D game art, soft pastel colors, clean linework, cute desktop pet cat character, orange tabby cat fishing beside a calm pond, simple silhouette readable at 64px, side view, plain background, no watermark, no UI chrome, no photorealism",
+        "",
+        "https://api.openai.com",
+        "gpt-image-2",
+        "1024x1024",
+        1,
+        "auto",
+        "",
+        "",
+        "png",
+        100,
+        "auto",
+        "auto",
+        0
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 2,
+      "type": "SaveImage",
+      "pos": [620, 80],
+      "size": [320, 280],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 1 }
+      ],
+      "outputs": [],
+      "title": "Save Image",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": ["fish-social-art"]
+    },
+    {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": [620, 400],
+      "size": [320, 280],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 2 }
+      ],
+      "outputs": [],
+      "title": "Preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "IMAGE"],
+    [2, 1, 0, 3, 0, "IMAGE"]
+  ],
+  "groups": [
+    {
+      "title": "Fish Social · gpt-image-2 T2I",
+      "bounding": [40, 20, 940, 700],
+      "color": "#3f789e",
+      "font_size": 24
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": { "scale": 0.9, "offset": [40, 20] },
+    "info": {
+      "name": "Fish Social gpt-image-2 text-to-image",
+      "author": "fish-social",
+      "description": "OpenAI GPT-Image-2 via ComfyUI-APIimage. Fill api_key, edit prompt, Queue Prompt."
+    }
+  },
+  "version": 0.4
+}

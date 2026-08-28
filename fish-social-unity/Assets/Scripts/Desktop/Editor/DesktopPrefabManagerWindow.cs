@@ -14,45 +14,15 @@ namespace FishSocial.Desktop.Editor
         const string Folder = "Assets/Resources/Desktop/Prefabs";
         const string MenuPath = "Fish Social/UI Prefab 管理";
 
-        static readonly PrefabDefinition[] Definitions =
-        {
-            new PrefabDefinition("PanelSocial", "好友、在线钓友、鱼塘聊天和私聊的双页面主结构。", typeof(DesktopSocialModalView)),
-            new PrefabDefinition("PanelCatch", "背包/鱼获网格页面骨架。", typeof(DesktopCatchBagModalView)),
-            new PrefabDefinition("PanelGallery", "图鉴物种网格页面骨架。", typeof(DesktopGalleryModalView)),
-            new PrefabDefinition("PanelSettings", "桌面端设置页面。", typeof(DesktopSettingsModalView)),
-            new PrefabDefinition("PanelWorldMap", "世界地图大图、标记层和鱼塘详情区域。", typeof(DesktopWorldMapPanel)),
-            new PrefabDefinition("PanelShop", "鱼饵/钓竿/船具页签、商品卡片、金币和购买/装备操作。", typeof(DesktopShopPanel)),
-            new PrefabDefinition("PanelProfile", "（旧）个人资料弹窗骨架，主路径已迁至 PanelProfileHub。", typeof(DesktopProfilePanel)),
-            new PrefabDefinition("PanelProfileEdit", "资料编辑：昵称、简介、默认头像和展示格保存。", typeof(DesktopProfileEditPanel)),
-            new PrefabDefinition("PanelProfileHub", "FEAT-ALBUM-01 个人中心：侧栏资料/展示柜/图鉴/相册/成就。", typeof(DesktopProfileHubPanel)),
-            new PrefabDefinition("PanelSocialFeed", "动态墙：公共/好友动态、加载状态和互动操作。", typeof(DesktopSocialFeedPanel)),
-            new PrefabDefinition("PanelLeaderboard", "排行榜：日/周/鱼塘/稀有榜、领奖台和纵向列表。", typeof(DesktopLeaderboardPanel)),
-            new PrefabDefinition("PanelPondSettlement", "离塘结算弹窗：鱼获列表、回鱼收入、扣费与盈亏。", typeof(DesktopPondSettlementModalView)),
-            new PrefabDefinition("AchievementRow", "个人中心成就列表中的单行。", null),
-            new PrefabDefinition("SocialPostCard", "动态墙中的单条鱼获分享卡片。", null),
-            new PrefabDefinition("PostCommentRow", "动态卡片中的单条评论和删除操作。", null),
-            new PrefabDefinition("LeaderboardRow", "排行榜第 4 名及以后的单行。", null),
-            new PrefabDefinition("FriendRow", "好友列表中的单个好友行，包含私聊和移除按钮。", null),
-            new PrefabDefinition("FriendRequestRow", "好友申请行，包含接受和拒绝按钮。", null),
-            new PrefabDefinition("SteamInviteRow", "Steam 好友邀请行，包含邀请进塘按钮。", null),
-            new PrefabDefinition("OnlinePlayerRow", "在线钓友列表中的单个玩家行。", null),
-            new PrefabDefinition("PondChatMessageRow", "鱼塘聊天中的单条消息。", null),
-            new PrefabDefinition("DirectMessageConversationRow", "私聊联系人列表中的单个会话。", null),
-            new PrefabDefinition("DirectMessageRow", "私聊窗口中的单条消息。", null),
-            new PrefabDefinition("TextStatusRow", "列表加载中、空状态和错误状态的文本行。", null),
-            new PrefabDefinition("CatchSlot", "背包中的单个鱼获格子。", null),
-            new PrefabDefinition("ShowcaseSlot", "个人中心展示鱼获格子。", null),
-            new PrefabDefinition("AvatarChoice", "默认头像选择格子。", null),
-            new PrefabDefinition("GallerySpeciesSlot", "图鉴中的单个物种格子。", null),
-        };
-
         static readonly HashSet<string> KnownNames = BuildKnownNames();
         Vector2 _scroll;
         bool _showCreate;
         string _newName = string.Empty;
         string _newDescription = string.Empty;
         int _newTemplate;
-        string _notice = "修改 Prefab 后请在 Prefab Mode 中保存；更新操作不会重置手动布局。";
+        string _notice =
+            "创建缺失项会走 DesktopPrefabCatalog（生成+灌布局一步）。" +
+            "新 UI 必须先登记 Catalog 再开发；禁止再加单面板 Bake 菜单。";
 
         [MenuItem(MenuPath, false, 20)]
         static void Open()
@@ -67,13 +37,16 @@ namespace FishSocial.Desktop.Editor
         {
             DrawToolbar();
             EditorGUILayout.HelpBox(
-                "这里是桌面端 UI Prefab 的唯一管理入口。每个条目显示用途、当前状态和更新操作；" +
-                "不会在运行时重排或覆盖 Prefab 布局。",
+                "桌面端 UI Prefab 唯一管理入口（DesktopPrefabCatalog）。" +
+                "创建 = 生成完整结构；运行时只绑定数据。",
                 MessageType.Info);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
-            for (var i = 0; i < Definitions.Length; i++)
-                DrawDefinition(Definitions[i]);
+            for (var i = 0; i < DesktopPrefabCatalog.All.Length; i++)
+            {
+                var entry = DesktopPrefabCatalog.All[i];
+                DrawDefinition(new PrefabDefinition(entry.Name, entry.Description, entry.ComponentType));
+            }
             DrawUnknownPrefabs();
             EditorGUILayout.EndScrollView();
 
@@ -94,6 +67,12 @@ namespace FishSocial.Desktop.Editor
                 }
                 if (GUILayout.Button("新增 Prefab", EditorStyles.toolbarButton, GUILayout.Width(86f)))
                     _showCreate = !_showCreate;
+                if (GUILayout.Button("补齐全部", EditorStyles.toolbarButton, GUILayout.Width(80f)))
+                {
+                    DesktopPrefabCatalog.EnsureAll();
+                    _notice = "已按 Catalog 补齐全部 Prefab（缺失项已生成）。";
+                    Repaint();
+                }
                 if (GUILayout.Button("一键更新", EditorStyles.toolbarButton, GUILayout.Width(80f)))
                     UpdateAll();
             }
@@ -252,78 +231,30 @@ namespace FishSocial.Desktop.Editor
             return prefab.transform.Find("Header") == null;
         }
 
-        static void PopulateDefinition(string name)
+        static void CreateDefinition(string name)
         {
-            switch (name)
+            var entry = DesktopPrefabCatalog.Find(name);
+            if (entry == null)
             {
-                case "PanelProfile":
-                case "PanelProfileEdit":
-                    DesktopPrefabValidator.PopulatePanelProfilePrefabs();
-                    break;
-                case "PanelProfileHub":
-                case "AchievementRow":
-                    DesktopPrefabValidator.PopulatePanelProfileHubPrefab();
-                    break;
-                case "PanelShop":
-                    DesktopPrefabValidator.PopulatePanelShopPrefab();
-                    break;
-                case "PanelSettings":
-                    DesktopPrefabValidator.PopulatePanelSettingsPrefab();
-                    break;
-                case "PanelSocialFeed":
-                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
-                    break;
-                case "PanelLeaderboard":
-                case "LeaderboardRow":
-                    DesktopPrefabValidator.PopulatePanelLeaderboardPrefab();
-                    break;
-                case "PanelPondSettlement":
-                    DesktopPrefabValidator.PopulatePanelPondSettlementPrefab();
-                    break;
-                case "SocialPostCard":
-                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
-                    break;
-                case "PostCommentRow":
-                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
-                    break;
+                Debug.LogWarning("[DesktopUI] Catalog 未登记：" + name + "。请先加入 DesktopPrefabCatalog。");
+                return;
+            }
+            try
+            {
+                entry.Ensure?.Invoke();
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[DesktopUI] Ensure " + name + " failed: " + ex);
+                EditorUtility.DisplayDialog("创建失败", name + "\n" + ex.Message, "确定");
             }
         }
 
-        static void CreateDefinition(string name)
+        static void PopulateDefinition(string name)
         {
-            switch (name)
-            {
-                case "PanelProfile":
-                case "PanelProfileEdit":
-                    DesktopPrefabValidator.GeneratePanelProfilePrefabs();
-                    break;
-                case "PanelProfileHub":
-                case "AchievementRow":
-                    DesktopPrefabValidator.GeneratePanelProfileHubPrefab();
-                    break;
-                case "PanelShop":
-                    DesktopPrefabValidator.GeneratePanelShopPrefab();
-                    break;
-                case "PanelSocialFeed":
-                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
-                    break;
-                case "PanelLeaderboard":
-                case "LeaderboardRow":
-                    DesktopPrefabValidator.GeneratePanelLeaderboardPrefab();
-                    break;
-                case "PanelPondSettlement":
-                    DesktopPrefabValidator.GeneratePanelPondSettlementPrefab(forceRebuild: true);
-                    break;
-                case "SocialPostCard":
-                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
-                    break;
-                case "PostCommentRow":
-                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
-                    break;
-                default:
-                    Debug.LogWarning("[DesktopUI] 请使用“新增 Prefab”创建：" + name);
-                    break;
-            }
+            CreateDefinition(name);
         }
 
         void DrawUnknownPrefabs()
@@ -355,11 +286,11 @@ namespace FishSocial.Desktop.Editor
         {
             var updated = 0;
             var skipped = 0;
-            for (var i = 0; i < Definitions.Length; i++)
+            for (var i = 0; i < DesktopPrefabCatalog.All.Length; i++)
             {
-                var path = Folder + "/" + Definitions[i].Name + ".prefab";
+                var path = Folder + "/" + DesktopPrefabCatalog.All[i].Name + ".prefab";
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                if (GetStatus(prefab, Definitions[i]) != PrefabStatus.Valid)
+                if (prefab == null)
                 {
                     skipped++;
                     continue;
@@ -371,7 +302,7 @@ namespace FishSocial.Desktop.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             _notice = "一键更新完成：已更新 " + updated + " 个，跳过 " + skipped +
-                      " 个缺失或无效 Prefab。";
+                      " 个缺失 Prefab。";
             Repaint();
         }
 
@@ -547,8 +478,8 @@ namespace FishSocial.Desktop.Editor
         static HashSet<string> BuildKnownNames()
         {
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (var i = 0; i < Definitions.Length; i++)
-                names.Add(Definitions[i].Name);
+            for (var i = 0; i < DesktopPrefabCatalog.All.Length; i++)
+                names.Add(DesktopPrefabCatalog.All[i].Name);
             return names;
         }
 

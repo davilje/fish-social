@@ -336,53 +336,148 @@
                         Click="OverlayPromptConfirm_OnClick" />
             </StackPanel>
         </Border>
-        <!-- Z500: 玩法 Debug 顶层模态弹窗（盖住场景与其它提示） -->
+        <!-- Z500: 玩法 Debug 顶层模态弹窗（盖住场景与其它提示）STEAM-DESKTOP-12B -->
         <Grid x:Name="GameplayDebugModal"
               Visibility="Collapsed"
               Panel.ZIndex="500"
               Background="#99000000"
               MouseLeftButtonDown="GameplayDebugModalDim_OnMouseLeftButtonDown">
-            <Border Width="360"
-                    MaxHeight="500"
+            <Border Width="468"
+                    MaxHeight="560"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Background="#F2141E28"
                     BorderBrush="#FF3A5568"
                     BorderThickness="1"
                     CornerRadius="14"
-                    Padding="16"
+                    Padding="12"
                     MouseLeftButtonDown="GameplayDebugModalPanel_OnMouseLeftButtonDown">
-                <DockPanel>
-                    <Grid DockPanel.Dock="Top" Margin="0,0,0,12" Height="32">
-                        <TextBlock Text="玩法 Debug"
-                                   FontSize="18"
-                                   FontWeight="Bold"
-                                   Foreground="#FFEAF4F8"
-                                   VerticalAlignment="Center" />
-                        <Button Content="关闭"
-                                Width="64"
-                                Height="28"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Click="GameplayDebugClose_OnClick" />
+                <Grid>
+                    <!-- 默认：动作按钮三列平铺 -->
+                    <DockPanel x:Name="GameplayDebugMainPage">
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,10" Height="32">
+                            <TextBlock Text="玩法 Debug"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Foreground="#FFEAF4F8"
+                                       VerticalAlignment="Center" />
+                            <Button Content="关闭"
+                                    Width="64"
+                                    Height="28"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Click="GameplayDebugClose_OnClick" />
+                        </Grid>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <UniformGrid Columns="3">
+                                <Button Content="升级" Height="34" Margin="2" Click="GameplayDebugLevelUp_OnClick" />
+                                <Button Content="升至满级" Height="34" Margin="2" Click="GameplayDebugLevelMax_OnClick" />
+                                <Button Content="塘熟练度 +1" Height="34" Margin="2" Click="GameplayDebugPondUp_OnClick" />
+                                <Button Content="塘熟练度满级" Height="34" Margin="2" Click="GameplayDebugPondMax_OnClick" />
+                                <Button Content="+100万金币" Height="34" Margin="2" Click="GameplayDebugGold_OnClick" />
+                                <Button Content="一键出警" Height="34" Margin="2" Click="PoliceDebug_OnClick" />
+                                <Button Content="立即收杆" Height="34" Margin="2" Click="GameplayDebugCompleteCatch_OnClick" />
+                                <Button Content="钓获传说" Height="34" Margin="2" Click="GameplayDebugCatchRed_OnClick" />
+                                <Button Content="钓获神话" Height="34" Margin="2" Click="GameplayDebugCatchOrange_OnClick" />
+                                <Button Content="钓获至尊" Height="34" Margin="2" Click="GameplayDebugCatchGold_OnClick" />
+                                <Button Content="获得鱼获(入包)" Height="34" Margin="2" Click="GameplayDebugFish_OnClick" ToolTip="跳过钓鱼，仅测背包" />
+                                <Button Content="最大尺寸(入包)" Height="34" Margin="2" Click="GameplayDebugFishMax_OnClick" ToolTip="跳过钓鱼，仅测背包" />
+                                <Button Content="钓鱼时长 +2h" Height="34" Margin="2" Click="GameplayDebugFee_OnClick" />
+                                <Button Content="重置钓鱼时长" Height="34" Margin="2" Click="GameplayDebugResetDuration_OnClick" />
+                                <Button Content="查看鱼塘的鱼" Height="34" Margin="2" Click="GameplayDebugListPondFish_OnClick" />
+                                <Button Content="查看钓位的鱼" Height="34" Margin="2" Click="GameplayDebugListSpotFish_OnClick" />
+                                <Button Content="查看钓位数据" Height="34" Margin="2" Click="GameplayDebugSpotStats_OnClick" />
+                            </UniformGrid>
+                        </ScrollViewer>
+                    </DockPanel>
+
+                    <!-- 查看页：覆盖默认页，条目三列按钮 -->
+                    <Grid x:Name="GameplayDebugInspectPage" Visibility="Collapsed">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,10" Height="32">
+                                <Button x:Name="GameplayDebugInspectBackButton"
+                                        Content="← 返回"
+                                        Width="72"
+                                        Height="28"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Click="GameplayDebugInspectBack_OnClick" />
+                                <TextBlock x:Name="GameplayDebugInspectTitle"
+                                           Text="查看"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="#FFEAF4F8"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                                <Button Content="关闭"
+                                        Width="64"
+                                        Height="28"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Click="GameplayDebugClose_OnClick" />
+                            </Grid>
+                            <Grid>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              Margin="0,0,0,0">
+                                    <UniformGrid x:Name="GameplayDebugInspectButtonGrid" Columns="3" />
+                                </ScrollViewer>
+                                <!-- 右侧详情小弹窗 -->
+                                <Border x:Name="GameplayDebugDetailFlyout"
+                                        Visibility="Collapsed"
+                                        Width="196"
+                                        MaxHeight="420"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Stretch"
+                                        Margin="4,0,0,0"
+                                        Background="#FF0F1720"
+                                        BorderBrush="#FF5A8FA8"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="10">
+                                    <DockPanel>
+                                        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                            <TextBlock x:Name="GameplayDebugDetailFlyoutTitle"
+                                                       Text="详情"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Foreground="#FFEAF4F8"
+                                                       VerticalAlignment="Center" />
+                                            <Button Content="×"
+                                                    Width="24"
+                                                    Height="24"
+                                                    HorizontalAlignment="Right"
+                                                    Padding="0"
+                                                    Click="GameplayDebugDetailFlyoutClose_OnClick" />
+                                        </Grid>
+                                        <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                                            <Button x:Name="GameplayDebugForceBiteButton"
+                                                    Content="强制上钩"
+                                                    Height="30"
+                                                    Margin="0,0,0,4"
+                                                    Visibility="Collapsed"
+                                                    Click="GameplayDebugForceBite_OnClick" />
+                                            <Button x:Name="GameplayDebugInstantCatchFishButton"
+                                                    Content="钓获该鱼"
+                                                    Height="30"
+                                                    Visibility="Collapsed"
+                                                    Click="GameplayDebugCatchFish_OnClick" />
+                                        </StackPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled">
+                                            <TextBlock x:Name="GameplayDebugDetailFlyoutText"
+                                                       Foreground="#FFEAF4F8"
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       LineHeight="18" />
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </Border>
+                            </Grid>
+                        </DockPanel>
                     </Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel>
-                            <Button Content="升级" Height="34" Margin="0,0,0,6" Click="GameplayDebugLevelUp_OnClick" />
-                            <Button Content="升至满级" Height="34" Margin="0,0,0,6" Click="GameplayDebugLevelMax_OnClick" />
-                            <Button Content="塘熟练度 +1" Height="34" Margin="0,0,0,6" Click="GameplayDebugPondUp_OnClick" />
-                            <Button Content="塘熟练度满级" Height="34" Margin="0,0,0,6" Click="GameplayDebugPondMax_OnClick" />
-                            <Button Content="+100万金币" Height="34" Margin="0,0,0,6" Click="GameplayDebugGold_OnClick" />
-                            <Button Content="一键出警" Height="34" Margin="0,0,0,6" Click="PoliceDebug_OnClick" />
-                            <Button Content="获得鱼获" Height="34" Margin="0,0,0,6" Click="GameplayDebugFish_OnClick" />
-                            <Button Content="最大尺寸鱼" Height="34" Margin="0,0,0,6" Click="GameplayDebugFishMax_OnClick" />
-                            <Button Content="史诗及以上鱼" Height="34" Margin="0,0,0,6" Click="GameplayDebugFishEpic_OnClick" />
-                            <Button Content="钓鱼时长 +2h" Height="34" Margin="0,0,0,6" Click="GameplayDebugFee_OnClick" />
-                            <Button Content="重置钓鱼时长" Height="34" Click="GameplayDebugResetDuration_OnClick" />
-                        </StackPanel>
-                    </ScrollViewer>
-                </DockPanel>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

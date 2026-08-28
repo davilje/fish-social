@@ -129,6 +129,87 @@ namespace FishSocial.Desktop
 
         void Build(Transform canvas)
         {
+            var prefab = Resources.Load<GameObject>("Desktop/Prefabs/ProductContextMenu");
+            if (prefab != null)
+            {
+                _root = UnityEngine.Object.Instantiate(prefab, canvas, false);
+                _root.name = "ProductContextMenu";
+                _rootRt = _root.GetComponent<RectTransform>();
+                _panel = _root.transform.Find("MenuPanel") as RectTransform;
+                var dismiss = _root.GetComponent<Button>();
+                if (dismiss != null)
+                {
+                    dismiss.onClick.RemoveAllListeners();
+                    dismiss.onClick.AddListener(OnDismiss);
+                }
+                var itemTemplate = _panel != null
+                    ? _panel.Find("MenuItemTemplate")?.gameObject
+                    : null;
+                var sepTemplate = _panel != null
+                    ? _panel.Find("SeparatorTemplate")?.gameObject
+                    : null;
+                if (_panel != null)
+                {
+                    foreach (var entry in Entries)
+                    {
+                        if (entry.SeparatorBefore)
+                            SpawnFromTemplate(sepTemplate, _panel, "Separator");
+                        SpawnMenuItem(itemTemplate, _panel, entry.Label, entry.Action);
+                    }
+                }
+                return;
+            }
+
+            Debug.LogWarning("[ProductMenu] ProductContextMenu.prefab missing; building at runtime.");
+            BuildRuntimeFallback(canvas);
+        }
+
+        void SpawnFromTemplate(GameObject template, Transform parent, string name)
+        {
+            GameObject go;
+            if (template != null)
+            {
+                go = UnityEngine.Object.Instantiate(template, parent, false);
+                go.SetActive(true);
+            }
+            else
+            {
+                go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+                go.transform.SetParent(parent, false);
+                go.GetComponent<LayoutElement>().preferredHeight = SeparatorHeight;
+                go.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
+            }
+            go.name = name;
+        }
+
+        void SpawnMenuItem(GameObject template, Transform parent, string label, DesktopProductMenuAction action)
+        {
+            GameObject go;
+            if (template != null)
+            {
+                go = UnityEngine.Object.Instantiate(template, parent, false);
+                go.SetActive(true);
+            }
+            else
+            {
+                CreateItem(parent, label, action);
+                return;
+            }
+            go.name = label;
+            var text = go.transform.Find("Label")?.GetComponent<Text>();
+            if (text != null)
+                text.text = label;
+            var button = go.GetComponent<Button>();
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                var captured = action;
+                button.onClick.AddListener(() => OnItemClicked(captured));
+            }
+        }
+
+        void BuildRuntimeFallback(Transform canvas)
+        {
             _root = new GameObject("ProductContextMenu", typeof(RectTransform), typeof(Image));
             _root.transform.SetParent(canvas, false);
             _rootRt = _root.GetComponent<RectTransform>();

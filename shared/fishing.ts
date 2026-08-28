@@ -9,12 +9,12 @@ export const BITE_LAMBDA = 0.02;
 
 /** 品质—尺寸上限（终生不变，成长不超过此值） */
 export const QUALITY_SIZE_CAP: Record<FishQuality, number> = {
-  gray: 0.3,
-  green: 0.8,
-  blue: 2.0,
-  purple: 4.5,
-  red: 9.0,
-  orange: 18,
+  gray: 0.2,
+  green: 0.35,
+  blue: 0.5,
+  purple: 0.8,
+  red: 3.0,
+  orange: 15,
   gold: 40,
 };
 
@@ -151,9 +151,9 @@ export const GROWTH_CURVE_CEILING_M = 40;
 export const GROWTH_CURVE_EXPONENT = 1.8;
 
 /** 幼年鱼绝对体长区间（米），全品质通用 */
-export const JUVENILE_SIZE_M_MIN = 0.08;
+export const JUVENILE_SIZE_M_MIN = 0.02;
 
-export const JUVENILE_SIZE_M_MAX = 0.20;
+export const JUVENILE_SIZE_M_MAX = 0.1;
 
 /** 脱钩后尺寸乘数：newSize = sizeM × (1 + 本值) */
 export const ESCAPE_GROWTH_BONUS_RATIO = 0.02;
@@ -179,6 +179,11 @@ export function calcFishWeightKg(sizeM: number): number {
   const b = formulaConstant('LENGTH_WEIGHT_B', 3);
   const L = Math.max(0, sizeM);
   return round2(a * Math.pow(L, b));
+}
+
+/** 市斤：1 斤 = 0.5 kg（回鱼门槛用） */
+export function calcFishWeightJin(sizeM: number): number {
+  return round2(calcFishWeightKg(sizeM) * 2);
 }
 
 /** 咬钩率展示：百分比 2 位小数（商店 / 图鉴 / Debug 统一） */
@@ -390,7 +395,9 @@ export function rollInitialSize(quality: FishQuality, species: FishSpecies): num
  */
 export function rollJuvenileSize(quality: FishQuality, species: FishSpecies): number {
   const maxSize = getQualityMaxSize(quality, species);
-  const raw = JUVENILE_SIZE_M_MIN + Math.random() * (JUVENILE_SIZE_M_MAX - JUVENILE_SIZE_M_MIN);
+  const juvMin = formulaConstant('JUVENILE_SIZE_M_MIN', JUVENILE_SIZE_M_MIN);
+  const juvMax = formulaConstant('JUVENILE_SIZE_M_MAX', JUVENILE_SIZE_M_MAX);
+  const raw = juvMin + Math.random() * (juvMax - juvMin);
   const capped = Math.min(raw, maxSize * 0.95);
   return round2(Math.max(MIN_FISH_SIZE_M, capped));
 }

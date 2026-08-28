@@ -20,14 +20,28 @@ namespace FishSocialOverlay
 
         readonly Canvas _layer;
         readonly Func<string, FrameworkElement> _resolveActor;
+        readonly Func<FrameworkElement> _resolveOwnActor;
         readonly HashSet<string> _seenMessageIds = new HashSet<string>(StringComparer.Ordinal);
         readonly Dictionary<string, Border> _activeByPlayer =
             new Dictionary<string, Border>(StringComparer.Ordinal);
 
-        public OverlayChatBubblePresenter(Canvas layer, Func<string, FrameworkElement> resolveActor)
+        string _ownUserId = string.Empty;
+        string _ownPlayerId = string.Empty;
+
+        public OverlayChatBubblePresenter(
+            Canvas layer,
+            Func<string, FrameworkElement> resolveActor,
+            Func<FrameworkElement> resolveOwnActor = null)
         {
             _layer = layer;
             _resolveActor = resolveActor;
+            _resolveOwnActor = resolveOwnActor;
+        }
+
+        public void SetOwnContext(string ownUserId, string ownPlayerId)
+        {
+            _ownUserId = ownUserId ?? string.Empty;
+            _ownPlayerId = ownPlayerId ?? string.Empty;
         }
 
         public void ResetPond()
@@ -38,20 +52,23 @@ namespace FishSocialOverlay
 
         public void ProcessMessages(OverlayChatDto[] chats, bool replayHistory)
         {
-            if (chats == null || chats.Length == 0)
-                return;
-
             if (replayHistory)
             {
-                for (var i = 0; i < chats.Length; i++)
+                if (chats != null)
                 {
-                    var chat = chats[i];
-                    if (chat != null && !string.IsNullOrEmpty(chat.MessageId))
-                        _seenMessageIds.Add(chat.MessageId);
+                    for (var i = 0; i < chats.Length; i++)
+                    {
+                        var chat = chats[i];
+                        if (chat != null && !string.IsNullOrEmpty(chat.MessageId))
+                            _seenMessageIds.Add(chat.MessageId);
+                    }
                 }
 
                 return;
             }
+
+            if (chats == null || chats.Length == 0)
+                return;
 
             for (var i = 0; i < chats.Length; i++)
             {
@@ -318,10 +335,28 @@ namespace FishSocialOverlay
                 return;
 
             var actor = _resolveActor(actorKey);
+            if (actor == null && !string.IsNullOrEmpty(chat.PlayerId) &&
+                !string.Equals(chat.PlayerId, actorKey, StringComparison.Ordinal))
+                actor = _resolveActor(chat.PlayerId);
+            if (actor == null && IsOwnChat(chat) && _resolveOwnActor != null)
+                actor = _resolveOwnActor();
             if (actor == null)
                 return;
 
             ShowBubbleForActor(chat, actor, actorKey);
+        }
+
+        bool IsOwnChat(OverlayChatDto chat)
+        {
+            if (chat == null)
+                return false;
+            if (!string.IsNullOrEmpty(_ownUserId) &&
+                string.Equals(chat.UserId, _ownUserId, StringComparison.Ordinal))
+                return true;
+            if (!string.IsNullOrEmpty(_ownPlayerId) &&
+                string.Equals(chat.PlayerId, _ownPlayerId, StringComparison.Ordinal))
+                return true;
+            return false;
         }
 
         void ShowBubbleForActor(OverlayChatDto chat, FrameworkElement actor, string bubbleKey)

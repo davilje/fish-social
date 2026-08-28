@@ -154,7 +154,7 @@ Overlay 或主窗口右键点到功能项后：显示并聚焦 Unity 主窗口�
 | 6 | `STEAM-DESKTOP-07F` | 托盘、通知、断线恢复和完整主流程验收 | Windows Development Build 全流程通过 |
 | 7 | `STEAM-DESKTOP-07G` | 独立原生桌面宠物 Overlay；仅通过 Named Pipe 接收状态和发送命令 | Overlay 不影响 Unity 主窗口，支持透明、置顶、拖动和关闭 |
 
-`STEAM-DESKTOP-03` 的核心功能已实现；双 Steam 账号联调因缺少第二测试账号跳过，不阻塞 07A 开发。`STEAM-DESKTOP-ART-01` 可在 07B 接口稳定后并行替换正式资源。`STEAM-DESKTOP-ART-02` 为后续：用 Unity Canvas Prefab 导出 Overlay 像素布局，有表后停用自动缩放。
+`STEAM-DESKTOP-03` 的核心功能已实现；双 Steam 账号联调因缺少第二测试账号跳过，不阻塞 07A 开发。`STEAM-DESKTOP-ART-01` 可在 07B 接口稳定后并行替换正式资源。`STEAM-DESKTOP-ART-02` 为后续：用 Unity Canvas Prefab 导出 Overlay **塘内**像素布局，有表后停用自动缩放。`STEAM-DESKTOP-ART-03` 补齐分塘底图、猫咪六姿势序列帧、HUD Prefab 与 Overlay 同步。
 
 ### 7.3 动画实现决策
 
@@ -185,6 +185,7 @@ Overlay 或主窗口右键点到功能项后：显示并聚焦 Unity 主窗口�
 | 2026-08-17 | 策划 | `STEAM-DESKTOP-07E` 用户确认完全正确：Prefab 承载功能页，设置/背包/好友/聊天可用。父需求 07 仍为已确认（07F 未完成） |
 | 2026-08-16 | 策划 | `STEAM-DESKTOP-07E` 用户验收通过：主窗口页签承载好友/背包/图鉴/设置；Overlay 菜单切页且主窗口高于 Overlay。父需求 07 仍为已确认 |
 | 2026-08-16 | 策划 | 07E 改口径：功能弹窗改为主窗口页签；Overlay 菜单切页；主窗口必须高于 Overlay |
+| 2026-08-28 | 策划 | 后续美术 `STEAM-DESKTOP-ART-03`：分塘底图、序列帧夹、HUD 同步；不纳入 07A～07G |
 | 2026-08-16 | 策划 | 后续美术 `STEAM-DESKTOP-ART-02`：Overlay 布局管线；不纳入 07A～07G 本期出口 |
 | 2026-08-16 | 主 Agent | `STEAM-DESKTOP-07D` 用户验收通过：主窗口与 Overlay 产品区域右键菜单可打开并路由到现有入口；隐藏到托盘/退出走现有生命周期；不拦截桌面系统菜单、不 `leave_pond`。父需求 07 仍为已确认 |
 | 2026-08-15 | 主 Agent | `STEAM-DESKTOP-07C` 用户验收通过：Overlay 同塘玩家/机器人、昵称、进出场与 petVisualState 本地序列帧已落地；计划状态改为已实现。父需求 07 仍为已确认 |

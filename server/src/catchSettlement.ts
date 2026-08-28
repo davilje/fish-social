@@ -107,16 +107,6 @@ export function settleAcceptedCatch(
     ctx.io.to(ctx.socketId).emit('codex_unlocked', codexUnlock);
   }
 
-  addAlbumCandidate({
-    playerId: ctx.playerId,
-    speciesId: result.item.speciesId,
-    quality: result.item.quality,
-    sizeM: result.item.sizeM,
-    pondId: ctx.pondId,
-    source: wasNewCodex ? 'first_codex' : 'catch',
-    inventoryItemId: result.item.id,
-  });
-
   const newly = tryUnlockAchievements(ctx.playerId);
   if (ctx.socketId) {
     for (const ach of newly) {
@@ -129,6 +119,19 @@ export function settleAcceptedCatch(
   }
 
   const autoResult = tryAutoReturnFish(ctx.playerId, result.item.id);
+  // 自动回鱼时 returnFishToPond 已写入 source=return 相册卡，勿再记「捕获」造成一张鱼两张照
+  if (!autoResult.ok) {
+    addAlbumCandidate({
+      playerId: ctx.playerId,
+      speciesId: result.item.speciesId,
+      quality: result.item.quality,
+      sizeM: result.item.sizeM,
+      pondId: ctx.pondId,
+      source: wasNewCodex ? 'first_codex' : 'catch',
+      inventoryItemId: result.item.id,
+    });
+  }
+
   const settled: CatchSettleOk = autoResult.ok
     ? {
         ok: true,

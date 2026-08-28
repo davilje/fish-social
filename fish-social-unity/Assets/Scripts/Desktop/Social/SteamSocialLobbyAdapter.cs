@@ -121,7 +121,7 @@ namespace FishSocial.Desktop.Social
                 return;
             }
             var friends = new List<SteamFriendInfo>();
-            var flags = EFriendFlags.k_EFriendFlagImmediate;
+            var flags = EFriendFlags.k_EFriendFlagAll;
             var count = SteamFriends.GetFriendCount(flags);
             for (var i = 0; i < count; i++)
             {
@@ -133,6 +133,7 @@ namespace FishSocial.Desktop.Social
                     online = SteamFriends.GetFriendPersonaState(id) != EPersonaState.k_EPersonaStateOffline,
                 });
             }
+            Debug.Log("[SteamSocial] RefreshFriends count=" + friends.Count);
             FriendsChanged?.Invoke(friends);
 #else
             Error?.Invoke("Steam 好友功能仅支持 Windows Standalone。");

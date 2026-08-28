@@ -139,7 +139,7 @@ Overlay 默认 `Topmost`。仅 `ShowFromTray` / `Focus` **不够**：主窗口�
 当前壳层由 `DesktopShellUi` 运行时拼 uGUI。07E 应将主窗口壳与各功能页做成 Editor 预制体（如 `DesktopShell.prefab` + `PanelSocial` / `PanelCatch` / `PanelGallery` / `PanelSettings`），脚本只绑定数据与切页。
 
 - Overlay（WPF）不实例化这些 Prefab。
-- 与 `STEAM-DESKTOP-ART-02` 的 960×480 Overlay 布局 Prefab 分开，不要混用。
+- 与 `STEAM-DESKTOP-ART-02` 的 Overlay 塘内布局 Prefab、以及 `STEAM-DESKTOP-ART-03` 的 Overlay HUD Prefab 分开，不要混用。
 
 ## 5. 数据与事件对齐
 

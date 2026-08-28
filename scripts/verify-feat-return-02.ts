@@ -91,29 +91,55 @@ const manualBlocked = returnFishToPond(playerId, grayFish.id);
 assert(!manualBlocked.ok && manualBlocked.code === 'AUTO_RETURN_MODE', 'auto_return blocks manual');
 
 const rules = getReturnRules();
-const smallPurple = addFishToInventory(playerId, {
+const smallFish = addFishToInventory(playerId, {
   speciesId: 'crucian',
   quality: 'purple',
   sizeM: 0.12,
   caughtAt: Date.now(),
   pondId,
 });
-assert(!isReturnEligible(smallPurple, rules), 'small purple not return eligible');
+assert(!isReturnEligible(smallFish, rules), 'light fish not return eligible');
 
-const bigPurple = addFishToInventory(playerId, {
+const midFish = addFishToInventory(playerId, {
   speciesId: 'crucian',
   quality: 'purple',
-  sizeM: 3.4,
+  sizeM: 0.78,
   caughtAt: Date.now(),
   pondId,
 });
-assert(isReturnEligible(bigPurple, rules), 'large purple return eligible');
+assert(isReturnEligible(midFish, rules), 'purple ≥10 jin return eligible');
 
-const skip = tryAutoReturnFish(playerId, smallPurple.id);
+const grayHeavy = addFishToInventory(playerId, {
+  speciesId: 'crucian',
+  quality: 'gray',
+  sizeM: 0.2,
+  caughtAt: Date.now(),
+  pondId,
+});
+assert(!isReturnEligible(grayHeavy, rules), 'gray not return eligible');
+
+const heavyFish = addFishToInventory(playerId, {
+  speciesId: 'chinese_sturgeon',
+  quality: 'red',
+  sizeM: 1.7,
+  caughtAt: Date.now(),
+  pondId,
+});
+assert(isReturnEligible(heavyFish, rules), 'heavy red fish return eligible');
+
+const skip = tryAutoReturnFish(playerId, smallFish.id);
 assert('skipped' in skip && skip.skipped, 'ineligible skips auto return');
 
-const autoOk = tryAutoReturnFish(playerId, bigPurple.id);
+const skipGray = tryAutoReturnFish(playerId, grayHeavy.id);
+assert('skipped' in skipGray && skipGray.skipped, 'gray skips auto return');
+
+const autoOk = tryAutoReturnFish(playerId, midFish.id);
 assert(autoOk.ok, 'eligible auto return');
+assert(autoOk.ok && autoOk.gold === Math.floor((autoOk as { gold: number }).gold), 'gold finite');
+// mid tier should be 1.5× sell — re-check with second eligible heavy
+const autoHeavy = tryAutoReturnFish(playerId, heavyFish.id);
+assert(autoHeavy.ok, 'heavy auto return');
+
 
 leavePond(socketId + '-auto');
 

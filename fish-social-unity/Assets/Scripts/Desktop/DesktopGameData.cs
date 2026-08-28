@@ -163,6 +163,18 @@ namespace FishSocial.Desktop
             public string tags;
         }
 
+        [Serializable]
+        sealed class ReturnRulesRow
+        {
+            public string minQuality = "purple";
+            public float minWeightJin = 10f;
+            public float heavyWeightJin = 100f;
+            public float goldMulVsSell = 1.5f;
+            public float goldMulHeavy = 3f;
+        }
+
+        sealed class ReturnRulesArray { public ReturnRulesRow[] items; }
+
         sealed class RodArray { public RodDef[] items; }
         sealed class BaitArray { public BaitDef[] items; }
         sealed class VesselArray { public VesselDef[] items; }
@@ -182,6 +194,7 @@ namespace FishSocial.Desktop
         static float _sizeExp = 1.15f;
         static float _lengthWeightA = 12f;
         static float _lengthWeightB = 3f;
+        static ReturnRulesRow _returnRules;
 
         public static PondDef[] Ponds
         {
@@ -286,11 +299,66 @@ namespace FishSocial.Desktop
             return Mathf.Round(_lengthWeightA * Mathf.Pow(L, _lengthWeightB) * 100f) / 100f;
         }
 
+        /** 市斤：1 斤 = 0.5 kg */
+        public static float CalcWeightJin(float sizeM)
+        {
+            return Mathf.Round(CalcWeightKg(sizeM) * 2f * 100f) / 100f;
+        }
+
         public static string FormatWeightKg(float weightKg)
         {
             if (weightKg >= 100f) return weightKg.ToString("0") + "kg";
             if (weightKg >= 10f) return weightKg.ToString("0.0") + "kg";
             return weightKg.ToString("0.00") + "kg";
+        }
+
+        /// <summary>回鱼金倍率（&gt;100 斤×3；≥10 斤×1.5；否则 0）</summary>
+        public static float ResolveReturnGoldMul(float sizeM)
+        {
+            EnsureLoaded();
+            var jin = CalcWeightJin(sizeM);
+            var minJin = _returnRules != null ? _returnRules.minWeightJin : 10f;
+            var heavyJin = _returnRules != null ? _returnRules.heavyWeightJin : 100f;
+            if (jin > heavyJin) return _returnRules != null ? _returnRules.goldMulHeavy : 3f;
+            if (jin >= minJin) return _returnRules != null ? _returnRules.goldMulVsSell : 1.5f;
+            return 0f;
+        }
+
+        public static float MinReturnWeightJin()
+        {
+            EnsureLoaded();
+            return _returnRules != null ? _returnRules.minWeightJin : 10f;
+        }
+
+        public static float HeavyReturnWeightJin()
+        {
+            EnsureLoaded();
+            return _returnRules != null ? _returnRules.heavyWeightJin : 100f;
+        }
+
+        static int QualityRank(string quality)
+        {
+            switch (quality)
+            {
+                case "gray": return 1;
+                case "green": return 2;
+                case "blue": return 3;
+                case "purple": return 4;
+                case "red": return 5;
+                case "orange": return 6;
+                case "gold": return 7;
+                default: return 0;
+            }
+        }
+
+        public static bool IsReturnEligible(string quality, float sizeM)
+        {
+            EnsureLoaded();
+            var minQ = _returnRules != null && !string.IsNullOrEmpty(_returnRules.minQuality)
+                ? _returnRules.minQuality
+                : "purple";
+            if (QualityRank(quality) < QualityRank(minQ)) return false;
+            return CalcWeightJin(sizeM) >= MinReturnWeightJin();
         }
 
         public static string QualityRankLabel(int rank)
@@ -543,6 +611,10 @@ namespace FishSocial.Desktop
                 if (row.key == "LENGTH_WEIGHT_A" && row.value > 0f) _lengthWeightA = row.value;
                 if (row.key == "LENGTH_WEIGHT_B" && row.value > 0f) _lengthWeightB = row.value;
             }
+            var returnRows = ParseArray<ReturnRulesArray, ReturnRulesRow>(
+                Resources.Load<TextAsset>("GameData/return_rules"),
+                wrap => wrap != null ? wrap.items : null);
+            _returnRules = returnRows.Length > 0 ? returnRows[0] : new ReturnRulesRow();
         }
 
         static TItem[] ParseArray<TWrap, TItem>(TextAsset asset, Func<TWrap, TItem[]> pick)

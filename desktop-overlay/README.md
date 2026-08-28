@@ -10,12 +10,36 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] 
 
 默认窗口为 `960×560`、无边框、透明、置顶，不显示在任务栏。鱼塘场景、钓位和塘内宠物（`64×64`）由 Unity 推送的 `pond_snapshot` 字段驱动。
 
-可替换资源（可选，放在 exe 旁 `OverlayResources/`）：
+可替换资源（放在 **exe 同目录** 的 `OverlayResources/`）：
 
-- `pond.png`：鱼塘背景
-- `cat.png`：猫咪占位图，Overlay 显示为 `64×64`（序列帧仍可从 128 资源缩放）
+- `pond.png`：鱼塘背景（建议 `960×560`）
+- `pets/<petId>/<state>-0.png`：**按猫种分套**（推荐，与 Unity 主窗口同名）
+- `cat.png`：旧的全局回退（全塘同一只，不要再当正式资源）
 
-未提供时使用占位水面/岸线和矢量猫。
+`petId` 与头像一致：`orange` / `calico` / `gray` / `siamese` / `tuxedo` / `white`。  
+`state`：`idle` / `fishing` / `hooked` / `catching` / `dragging` / `offline`。
+
+未提供对应文件时用占位水面/岸线和矢量猫。完整说明见 [OverlayResources/pets/README.md](OverlayResources/pets/README.md)。
+
+### 自己换猫咪（按猫种，和主窗口同一形象）
+
+每种猫一套姿势，塘里每个玩家用自己头像对应的那套。**不要**再只放一张根目录 `cat.png`。
+
+1. 把钓鱼橘猫存成：
+
+```text
+desktop-overlay/OverlayResources/pets/orange/fishing-0.png
+```
+
+其它猫种同样放到 `pets/calico/`、`pets/gray/` 等。
+
+2. Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay**，或重新打 Debug 包。这会拷到：
+   - `FishSocialOverlay.exe` 旁的 `OverlayResources/pets/`
+   - Unity `StreamingAssets/Pet/`（主窗口）
+
+3. 完全退出游戏再开。头像是橘猫的玩家，钓鱼时显示 `fishing-0.png`。
+
+正方形透明 PNG，`128×128` 或 `256×256` 即可。图缓存在内存里，换文件必须重启 Overlay。
 
 ## IPC
 

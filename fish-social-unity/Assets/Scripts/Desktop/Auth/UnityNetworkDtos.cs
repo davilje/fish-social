@@ -92,6 +92,7 @@ namespace FishSocial.Desktop.Auth
         public string id;
         public string playerId;
         public string nickname;
+        public string avatarUrl;
         public string spotId;
         public string status;
         public string fishingPhase;

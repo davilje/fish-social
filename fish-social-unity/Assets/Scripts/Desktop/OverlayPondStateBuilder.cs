@@ -35,6 +35,9 @@ namespace FishSocial.Desktop
             dto.ownNickname = pond?.CurrentUser?.nickname ?? pond?.Nickname ?? string.Empty;
             dto.ownPlayerId = pond?.CurrentUser?.playerId ?? string.Empty;
             dto.ownUserId = pond?.CurrentUser?.id ?? string.Empty;
+            dto.ownPetId = ResolvePetId(
+                pond != null ? pond.CurrentUser : null,
+                DesktopProfileCache.Latest);
             dto.sessionFishingMs = ResolveSessionFishingMs(pond != null ? pond.CurrentUser : null);
             dto.hookDeadlineMs = pond?.CurrentUser?.phaseEndsAt ?? 0L;
             dto.ownFishingStartedAt = SessionAnchor(pond != null ? pond.CurrentUser : null);
@@ -250,6 +253,7 @@ namespace FishSocial.Desktop
                     hookDeadlineMs = user != null ? user.phaseEndsAt : 0L,
                     fishingStartedAt = SessionAnchor(user),
                     isBot = user != null && user.isBot,
+                    petId = ResolvePetId(user, null),
                 };
                 if (TryFindSpot(spots, actor.spotId, out var x, out var y))
                 {
@@ -262,6 +266,17 @@ namespace FishSocial.Desktop
             }
 
             return users;
+        }
+
+        static string ResolvePetId(PondUserDto user, PlayerProfileDto profile)
+        {
+            var avatarUrl = user != null && !string.IsNullOrEmpty(user.avatarUrl)
+                ? user.avatarUrl
+                : profile != null ? profile.avatarUrl : null;
+            var playerId = user != null && !string.IsNullOrEmpty(user.playerId)
+                ? user.playerId
+                : profile != null ? profile.playerId : null;
+            return DesktopDefaultAvatars.ResolvePetId(avatarUrl, playerId);
         }
 
         static long ResolveSessionFishingMs(PondUserDto user)

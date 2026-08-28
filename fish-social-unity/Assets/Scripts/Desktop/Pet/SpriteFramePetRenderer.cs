@@ -15,13 +15,14 @@ namespace FishSocial.Desktop.Pet
 
         Image _image;
         PetVisualState _state = PetVisualState.Offline;
+        string _petId;
         float _elapsed;
+        bool _usingArt;
 
         public void Bind(Image target)
         {
             _image = target;
-            if (_frames == null || _frames.Length == 0)
-                _frames = PlaceholderPetFrames.GetFrames();
+            ReloadFrames();
             Apply(_state);
         }
 
@@ -31,13 +32,29 @@ namespace FishSocial.Desktop.Pet
             if (_image == null)
                 return;
 
-            if (_frames == null || _frames.Length == 0)
-                _frames = PlaceholderPetFrames.GetFrames();
-
+            ReloadFrames();
             _image.preserveAspect = true;
-            _image.color = TintFor(state);
+            _image.color = _usingArt ? Color.white : TintFor(state);
             if (_frames != null && _frames.Length > 0)
                 _image.sprite = _frames[0];
+        }
+
+        void ReloadFrames()
+        {
+            var petId = PetArtLoader.CurrentOwnPetId();
+            var art = PetArtLoader.GetFrames(petId, _state);
+            if (art != null && art.Length > 0)
+            {
+                _frames = art;
+                _petId = petId;
+                _usingArt = true;
+                return;
+            }
+
+            _usingArt = false;
+            if (_frames == null || _frames.Length == 0 || _petId != null)
+                _frames = PlaceholderPetFrames.GetFrames();
+            _petId = petId;
         }
 
         void Update()

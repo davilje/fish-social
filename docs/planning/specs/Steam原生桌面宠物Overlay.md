@@ -92,6 +92,7 @@ Overlay → Unity：
 - 不在 07G 中引入正式猫咪美术、Spine 或复杂换装。
 - 不修改 Node、mobile 或 shared 的业务协议。
 - **像素级场景对齐**（Unity Canvas Prefab → 布局 JSON → 停用 `MapToScene`）不在 07G，见后续美术 `STEAM-DESKTOP-ART-02`。
+- **分塘底图、猫咪姿势序列帧目录、HUD Prefab 同步**不在 07G，见 `STEAM-DESKTOP-ART-03`。
 
 ## 6. 验收标准
 
@@ -109,6 +110,7 @@ Overlay → Unity：
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-28 | 策划 | 分塘底图、序列帧夹、HUD Prefab 同步后置为 `STEAM-DESKTOP-ART-03` |
 | 2026-08-17 | 策划 | 用户验收通过，状态改为已实现；窗口尺寸按落地值为 `960×480` |
 | 2026-08-16 | 策划 | 07E：主窗口可见时 Overlay 让出置顶，避免挡住页签 |
 | 2026-08-16 | 策划 | 像素对齐管线后置为 `STEAM-DESKTOP-ART-02`，07G 仍为占位缩放 |

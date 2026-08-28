@@ -12,7 +12,7 @@
 | 设计时间 | **2026-08-20** |
 | 完成时间 | **2026-08-20** |
 | 依赖 | 07B/07C/07G、08G（底部操作栏，本需求重构为左上收纳菜单）、09B（IPC 时长字段） |
-| 关联修订 | **STEAM-DESKTOP-09B** 悬停语义收窄为「仅时长」；**STEAM-DESKTOP-ART-02** 画布高度随新版 Overlay 同步 |
+| 关联修订 | **STEAM-DESKTOP-09B** 悬停语义收窄为「仅时长」；**STEAM-DESKTOP-ART-02** 画布高度随新版 Overlay 同步；**STEAM-DESKTOP-ART-03** 承接分塘底图、序列帧夹与 HUD Prefab 同步 |
 
 ---
 

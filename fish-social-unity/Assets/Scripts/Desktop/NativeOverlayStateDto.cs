@@ -16,6 +16,7 @@ namespace FishSocial.Desktop
         public string ownNickname = string.Empty;
         public string ownPlayerId = string.Empty;
         public string ownUserId = string.Empty;
+        public string ownPetId = string.Empty;
         public long sessionFishingMs;
         public long hookDeadlineMs;
         public long ownFishingStartedAt;
@@ -45,6 +46,29 @@ namespace FishSocial.Desktop
         public NativeOverlayActorDto[] users = new NativeOverlayActorDto[0];
         public NativeOverlayChatDto[] recentChats = new NativeOverlayChatDto[0];
         public NativeOverlayChatDto observation;
+        public string debugFishListMode = string.Empty;
+        public NativeOverlayDebugFishDto[] debugFish = new NativeOverlayDebugFishDto[0];
+        public string debugSpotReport = string.Empty;
+        public string debugSpotStatsJson = string.Empty;
+    }
+
+    [Serializable]
+    public sealed class NativeOverlayDebugFishDto
+    {
+        public string id;
+        public string pondId;
+        public string spotId;
+        public string speciesId;
+        public string speciesName;
+        public string speciesIcon;
+        public string quality;
+        public float sizeM;
+        public long bornAt;
+        public int generation;
+        public float biteMultiplier;
+        public float escapeMultiplier;
+        public float birthSizeM;
+        public bool nearMaxSize;
     }
 
     [Serializable]
@@ -71,6 +95,7 @@ namespace FishSocial.Desktop
         public long hookDeadlineMs;
         public long fishingStartedAt;
         public bool isBot;
+        public string petId;
     }
 
     [Serializable]

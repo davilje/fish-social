@@ -13,3 +13,9 @@ fish-social-unity/UserSettings/
 fish-social-unity/Builds/
 desktop-overlay/bin/
 desktop-overlay/obj/
+
+# Art staging: keep manifest, ignore large generated assets
+docs/art/generated/**
+!docs/art/generated/.gitkeep
+!docs/art/generated/manifest.json
+

@@ -18,7 +18,8 @@
 
 - `STEAM-DESKTOP-07A～07F` 是程序功能需求，程序 UI、Prefab、状态绑定和交互直接包含在对应功能项中。
 - `STEAM-DESKTOP-ART-01` 是单独的美术资源替换需求，不与每个程序功能一一对应。
-- `STEAM-DESKTOP-ART-02` 是后续美术管线：Unity Canvas Prefab 导出 Overlay 像素布局，不把 Prefab 扔进 WPF。
+- `STEAM-DESKTOP-ART-02` 是后续美术管线：Unity Canvas Prefab 导出 Overlay **塘内场景**像素布局（背景装饰 + 钓位），不把 Prefab 扔进 WPF。
+- `STEAM-DESKTOP-ART-03` 是 Overlay 表现补齐：每塘独立底图、猫咪六姿势序列帧目录/加载、HUD Prefab 导出后与 Overlay 像素一一对应。
 - 程序先使用通用 UGUI、占位图标和基础样式完成可运行功能。
 - 美术优先交付猫咪宠物和鱼塘环境；菜单、弹窗等资源后续可替换，不要求重写业务逻辑。
 - 复用已完成的 Steam 认证、鱼塘会话、Socket、桌面壳和服务端权威逻辑。
@@ -29,7 +30,8 @@
 |------|------|------|
 | 功能 | `STEAM-DESKTOP-07A～07F` | Unity 程序实现桌面宠物、鱼塘、多人表现、菜单、主窗口页签、通知和主流程 |
 | 美术 | `STEAM-DESKTOP-ART-01` | 猫咪、鱼塘环境和后续可替换的基础视觉资源 |
-| 美术 | `STEAM-DESKTOP-ART-02` | Overlay：Unity `960×480` Prefab → 布局 JSON → WPF 像素一一对应 |
+| 美术 | `STEAM-DESKTOP-ART-02` | Overlay 塘内场景：Unity `960×560` Prefab → 布局 JSON → WPF 像素一一对应（不含 HUD） |
+| 美术 | `STEAM-DESKTOP-ART-03` | 分塘底图、猫咪六姿势序列帧、HUD Prefab 导出同步 Overlay |
 
 ## 3. 共同边界
 
@@ -44,7 +46,8 @@
 
 - [x] `STEAM-DESKTOP-07A～07F` 各自完成程序验收。
 - [ ] `STEAM-DESKTOP-ART-01` 完成猫咪和鱼塘资源交付。
-- [ ] `STEAM-DESKTOP-ART-02` 完成 Overlay 布局导出与像素对齐（后续，不阻塞 07E/07F）。
+- [ ] `STEAM-DESKTOP-ART-02` 完成 Overlay 塘内布局导出与像素对齐（后续，不阻塞 07E/07F）。
+- [ ] `STEAM-DESKTOP-ART-03` 完成分塘底图、序列帧加载与 HUD Prefab 同步 Overlay。
 - [x] 桌面宠物主视图、鱼塘场景和同塘玩家宠物方向统一。
 - [x] 右键菜单切主窗口页签不破坏鱼塘会话；唤起时主窗口高于 Overlay。
 - [x] 通知、托盘和重连状态可理解。
@@ -54,6 +57,7 @@
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-28 | 策划 | 增补 `STEAM-DESKTOP-ART-03`：分塘底图、六姿势序列帧、HUD Prefab 同步；ART-02 明确不含 HUD |
 | 2026-08-17 | 策划 | 07A～07F 程序验收完成；ART-01 / ART-02 仍待交付 |
 | 2026-08-16 | 策划 | 07E 改为页签；右键唤起主窗口须高于 Overlay |
 | 2026-08-16 | 策划 | 增补后续美术项 `STEAM-DESKTOP-ART-02`：Overlay 场景布局管线 |
