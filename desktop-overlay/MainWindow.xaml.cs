@@ -52,21 +52,108 @@ namespace FishSocialOverlay
         long _promptDeadlineMs;
         OverlayDebugFishDto _selectedDebugFish;
         string _debugInspectFishListMode = string.Empty;
+        readonly OverlayHudLayout _hudLayout = new OverlayHudLayout();
+        OverlayEdgeVignette _edgeVignette;
+        bool _hudMenuMode;
+        bool _hudLayoutActive;
+        bool _hudChatDockMetricsValid;
+        OverlayHudLayout.HudChatDockMetrics _hudChatDockMetrics;
+        const double HudChatDockExpandedHeight = 69;
+        const double HudChatDockCollapsedHeight = 36;
+
+        public void ConfigureHudChatDockMetrics(OverlayHudLayout.HudChatDockMetrics metrics)
+        {
+            _hudChatDockMetrics = metrics;
+            _hudChatDockMetricsValid = metrics.W > 0 && metrics.CollapsedH > 0 && metrics.ExpandedH > 0;
+            if (!_hudChatDockMetricsValid || ChatDockChrome == null)
+                return;
+
+            Canvas.SetLeft(ChatDockChrome, metrics.X);
+            Canvas.SetTop(ChatDockChrome, metrics.Y);
+            ChatDockChrome.Width = metrics.W;
+            ApplyHudChatDockLayout(_chatDockExpanded);
+        }
+
+        public void ConfigureHudLayoutMode(bool hudLayoutActive)
+        {
+            _hudLayoutActive = hudLayoutActive;
+            _hudMenuMode = hudLayoutActive;
+            if (LegacyLeftHudStack != null)
+                LegacyLeftHudStack.Visibility = hudLayoutActive ? Visibility.Collapsed : Visibility.Visible;
+            if (LegacyRightTopHudStack != null)
+                LegacyRightTopHudStack.Visibility = hudLayoutActive ? Visibility.Collapsed : Visibility.Visible;
+            if (LegacyRightBottomHudStack != null)
+                LegacyRightBottomHudStack.Visibility = hudLayoutActive ? Visibility.Collapsed : Visibility.Visible;
+            if (!hudLayoutActive)
+                return;
+            MenuPanel.Visibility = Visibility.Collapsed;
+            SetHudMenuExpanded(false);
+            if (ChatDockExpanded != null)
+                ChatDockExpanded.Visibility = Visibility.Collapsed;
+            if (ChatDockChrome != null)
+                ChatDockChrome.IsHitTestVisible = true;
+            ApplyHudChatDockLayout(false);
+        }
+
+        void ApplyHudChatDockLayout(bool expanded)
+        {
+            if (!_hudLayoutActive || ChatDockChrome == null)
+                return;
+
+            _chatDockExpanded = expanded;
+            var height = _hudChatDockMetricsValid
+                ? (expanded ? _hudChatDockMetrics.ExpandedH : _hudChatDockMetrics.CollapsedH)
+                : (expanded ? HudChatDockExpandedHeight : HudChatDockCollapsedHeight);
+            if (_hudChatDockMetricsValid)
+            {
+                // Keep the prefab's bottom edge fixed: expansion grows upward.
+                var bottom = _hudChatDockMetrics.Y + _hudChatDockMetrics.CollapsedH;
+                Canvas.SetTop(ChatDockChrome, bottom - height);
+                ChatDockChrome.Height = height;
+            }
+            else
+            {
+                var bottom = Canvas.GetTop(ChatDockChrome) + ChatDockChrome.Height;
+                ChatDockChrome.Height = height;
+                Canvas.SetTop(ChatDockChrome, bottom - height);
+            }
+
+            var expandedVis = expanded ? Visibility.Visible : Visibility.Collapsed;
+            if (ChatInputBox != null)
+                ChatInputBox.Visibility = expandedVis;
+            if (ChatSendButton != null)
+                ChatSendButton.Visibility = expandedVis;
+            if (ChatPlaceholder != null)
+            {
+                ChatPlaceholder.Visibility = expanded &&
+                                               string.IsNullOrEmpty(ChatInputBox?.Text)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+
+            if (ChatDockToggle != null)
+                ChatDockToggle.Content = expanded ? "▼" : "▲";
+        }
+
+        public void ConfigureHudMenuMode(bool hudMenuMode)
+        {
+            ConfigureHudLayoutMode(hudMenuMode);
+        }
+
+        void SetHudMenuExpanded(bool expanded)
+        {
+            var vis = expanded ? Visibility.Visible : Visibility.Collapsed;
+            MenuMapButton.Visibility = vis;
+            MenuShopButton.Visibility = vis;
+            MenuFriendsButton.Visibility = vis;
+            MenuCatchButton.Visibility = vis;
+            MenuLeaderboardButton.Visibility = vis;
+            MenuSettingsButton.Visibility = vis;
+        }
 
         public MainWindow()
         {
             InitializeComponent();
-            ApplyWindowSizeFromArgs();
-            _safeWindow = string.Equals(
-                Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_SAFE_WINDOW"),
-                "1",
-                StringComparison.OrdinalIgnoreCase);
-            if (_safeWindow)
-            {
-                AllowsTransparency = false;
-                Background = new SolidColorBrush(Color.FromArgb(245, 27, 38, 51));
-                Topmost = false;
-            }
             _pipeName = ReadArgument("--pipe=");
             SourceInitialized += OnSourceInitialized;
             Loaded += OnLoaded;
@@ -75,6 +162,7 @@ namespace FishSocialOverlay
                 SpotLayer,
                 ActorLayer,
                 HoverLayer,
+                DecorLayer,
                 PondBackgroundImage,
                 GrassLayer,
                 ShoreLayer,
@@ -98,6 +186,23 @@ namespace FishSocialOverlay
             _chatAckTimer.Tick += ChatAckTimer_OnTick;
             _promptTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
             _promptTimer.Tick += PromptTimer_OnTick;
+            _hudLayout.TryApply(this, SceneCanvas);
+            if (!_hudLayout.IsActive && !string.IsNullOrEmpty(_hudLayout.LastLoadError))
+                ErrorText.Text = "HUD 未加载：" + _hudLayout.LastLoadError + "（已用 XAML 布局）";
+            // Vertical mask on the sized Border (top/bottom); horizontal on the scene canvas
+            // (left/right). HUD stays a sibling of SceneFadeHost and is not faded.
+            _edgeVignette = new OverlayEdgeVignette(SceneFadeHost, SceneContentCanvas);
+            ApplyWindowSizeFromArgs();
+            _safeWindow = string.Equals(
+                Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_SAFE_WINDOW"),
+                "1",
+                StringComparison.OrdinalIgnoreCase);
+            if (_safeWindow)
+            {
+                AllowsTransparency = false;
+                Background = new SolidColorBrush(Color.FromArgb(245, 27, 38, 51));
+                Topmost = false;
+            }
         }
 
         void ApplyWindowSizeFromArgs()
@@ -112,12 +217,18 @@ namespace FishSocialOverlay
             Height = height;
             PondScene.Width = width;
             PondScene.Height = height;
+            SceneFadeHost.Width = width;
+            SceneFadeHost.Height = height;
+            SceneContentCanvas.Width = width;
+            SceneContentCanvas.Height = height;
             SceneCanvas.Width = width;
             SceneCanvas.Height = height;
             PondBackgroundImage.Width = width;
             PondBackgroundImage.Height = height;
             GrassLayer.Width = width;
             GrassLayer.Height = height;
+            DecorLayer.Width = width;
+            DecorLayer.Height = height;
             SpotLayer.Width = width;
             SpotLayer.Height = height;
             ActorLayer.Width = width;
@@ -126,6 +237,9 @@ namespace FishSocialOverlay
             HoverLayer.Height = height;
             ChatBubbleLayer.Width = width;
             ChatBubbleLayer.Height = height;
+            _edgeVignette?.ApplySize(width, height);
+            if (_hudLayoutActive)
+                return;
             ChatDockChrome.Width = Math.Max(280, width - 240);
             Canvas.SetTop(ChatDockChrome, height - (_chatDockExpanded ? 68 : 36));
         }
@@ -133,7 +247,10 @@ namespace FishSocialOverlay
         void MenuToggle_OnClick(object sender, RoutedEventArgs e)
         {
             _menuExpanded = !_menuExpanded;
-            MenuPanel.Visibility = _menuExpanded ? Visibility.Visible : Visibility.Collapsed;
+            if (_hudMenuMode)
+                SetHudMenuExpanded(_menuExpanded);
+            else
+                MenuPanel.Visibility = _menuExpanded ? Visibility.Visible : Visibility.Collapsed;
         }
 
         void OnLoaded(object sender, RoutedEventArgs e)
@@ -935,24 +1052,6 @@ namespace FishSocialOverlay
                 FishingToggleButton.Visibility = Visibility.Collapsed;
             }
 
-            if (_canGroundbait)
-            {
-                GroundbaitButton.Visibility = Visibility.Visible;
-                GroundbaitButton.IsEnabled = true;
-                GroundbaitButton.Content = "打窝";
-            }
-            else if (string.Equals(message.FishingPhase, "groundbaiting", StringComparison.Ordinal))
-            {
-                GroundbaitButton.Visibility = Visibility.Visible;
-                GroundbaitButton.IsEnabled = false;
-                GroundbaitButton.Content = "打窝中…";
-            }
-            else
-            {
-                GroundbaitButton.Visibility = Visibility.Collapsed;
-                GroundbaitButton.IsEnabled = false;
-            }
-
             ApplyGroundbaitStatus(message);
 
             if (_canAcceptCatch)
@@ -978,25 +1077,28 @@ namespace FishSocialOverlay
 
         void ApplyGroundbaitStatus(IpcMessage message)
         {
+            if (GroundbaitStatusText != null)
+                GroundbaitStatusText.Visibility = Visibility.Collapsed;
+
             var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
             var stack = Math.Max(0, message.GroundbaitStack);
-            if (stack <= 0 &&
-                !string.Equals(message.FishingPhase, "groundbaiting", StringComparison.Ordinal) &&
-                !_canGroundbait)
-            {
-                GroundbaitStatusText.Visibility = Visibility.Collapsed;
-                return;
-            }
+            var label = "打窝" + stack + "/" + max;
+            var groundbaiting = string.Equals(
+                message.FishingPhase, "groundbaiting", StringComparison.Ordinal);
 
-            var bitePct = message.GroundbaitBiteBonus * 100f;
-            var sizeMm = message.GroundbaitSizeBonus;
-            GroundbaitStatusText.Text =
-                "窝 " + stack + "/" + max +
-                "\n咬+" + bitePct.ToString("0.0") + "%" +
-                "\n尺+" + sizeMm.ToString("0.000") + "m";
-            if (message.GroundbaitBitesLeft > 0)
-                GroundbaitStatusText.Text += "\n剩" + message.GroundbaitBitesLeft + "口";
-            GroundbaitStatusText.Visibility = Visibility.Visible;
+            if (_canGroundbait || groundbaiting || stack > 0)
+            {
+                GroundbaitButton.Visibility = Visibility.Visible;
+                GroundbaitButton.IsEnabled = _canGroundbait;
+                GroundbaitButton.FontSize = 11;
+                GroundbaitButton.Padding = new Thickness(0);
+                GroundbaitButton.Content = label;
+            }
+            else
+            {
+                GroundbaitButton.Visibility = Visibility.Collapsed;
+                GroundbaitButton.IsEnabled = false;
+            }
         }
 
         static bool HasAction(IpcMessage message, string action)
@@ -1094,11 +1196,34 @@ namespace FishSocialOverlay
             Environment.Exit(0);
         }
 
+        void PondScene_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (IsUnderOverlayPetWithPlayerMenu(e.OriginalSource as DependencyObject))
+                e.Handled = true;
+        }
+
+        static bool IsUnderOverlayPetWithPlayerMenu(DependencyObject source)
+        {
+            while (source != null)
+            {
+                if (source is OverlayPetActor actor && actor.HasPlayerContextMenu)
+                    return true;
+                if (source is Visual || source is Visual3D)
+                    source = VisualTreeHelper.GetParent(source);
+                else
+                    source = LogicalTreeHelper.GetParent(source);
+            }
+
+            return false;
+        }
+
         void PondScene_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
             if (IsUnderElement(e.OriginalSource as DependencyObject, ChatDockChrome))
+                return;
+            if (_hudLayoutActive && IsInteractiveHudTarget(e.OriginalSource as DependencyObject))
                 return;
 
             OverlayInteractionState.SceneDragging = true;
@@ -1145,7 +1270,14 @@ namespace FishSocialOverlay
 
         void ChatDockToggle_OnClick(object sender, RoutedEventArgs e)
         {
+            if (_hudLayoutActive)
+            {
+                ApplyHudChatDockLayout(!_chatDockExpanded);
+                return;
+            }
+
             _chatDockExpanded = !_chatDockExpanded;
+
             ChatDockExpanded.Visibility = _chatDockExpanded
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -1162,9 +1294,17 @@ namespace FishSocialOverlay
 
         void ChatInputBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            ChatPlaceholder.Visibility = string.IsNullOrEmpty(ChatInputBox.Text)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            if (!_hudLayoutActive || _chatDockExpanded)
+            {
+                ChatPlaceholder.Visibility = string.IsNullOrEmpty(ChatInputBox.Text)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+            else
+            {
+                ChatPlaceholder.Visibility = Visibility.Collapsed;
+            }
+
             UpdateChatSendEnabled();
         }
 
@@ -1379,6 +1519,21 @@ namespace FishSocialOverlay
                 text.Length <= 200;
         }
 
+        static bool IsInteractiveHudTarget(DependencyObject source)
+        {
+            while (source != null)
+            {
+                if (source is Button || source is TextBox)
+                    return true;
+                if (source is Visual || source is Visual3D)
+                    source = VisualTreeHelper.GetParent(source);
+                else
+                    source = LogicalTreeHelper.GetParent(source);
+            }
+
+            return false;
+        }
+
         static bool IsUnderElement(DependencyObject source, DependencyObject root)
         {
             while (source != null)
@@ -1493,9 +1648,12 @@ namespace FishSocialOverlay
                 switch (message.PetVisualState)
                 {
                     case "idle": return "待机";
+                    case "sit": return "坐下";
+                    case "cast": return "抛竿";
                     case "fishing": return "钓鱼";
                     case "hooked": return "上钩";
-                    case "catching": return "收鱼";
+                    case "reel":
+                    case "catching": return "收杆";
                     case "dragging": return "拖动";
                     case "offline": return "离线";
                 }
@@ -1512,7 +1670,7 @@ namespace FishSocialOverlay
                 case "seated": return "坐下";
                 case "baiting": return "装饵";
                 case "casting": return "抛竿";
-                case "waiting": return "等待";
+                case "waiting": return "钓鱼中";
                 case "hooked": return "上钩";
                 case "resolving": return "收鱼";
                 case "stopping": return "收杆";

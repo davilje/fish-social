@@ -31,7 +31,7 @@
 | 功能 | `STEAM-DESKTOP-07A～07F` | Unity 程序实现桌面宠物、鱼塘、多人表现、菜单、主窗口页签、通知和主流程 |
 | 美术 | `STEAM-DESKTOP-ART-01` | 猫咪、鱼塘环境和后续可替换的基础视觉资源 |
 | 美术 | `STEAM-DESKTOP-ART-02` | Overlay 塘内场景：Unity `960×560` Prefab → 布局 JSON → WPF 像素一一对应（不含 HUD） |
-| 美术 | `STEAM-DESKTOP-ART-03` | 分塘底图、猫咪六姿势序列帧、HUD Prefab 导出同步 Overlay |
+| 美术 | `STEAM-DESKTOP-ART-03` | 分塘底图、猫咪六姿势序列帧（源图 256×256 / Overlay 显示 64×64）、HUD Prefab 导出同步 Overlay |
 
 ## 3. 共同边界
 
@@ -46,8 +46,8 @@
 
 - [x] `STEAM-DESKTOP-07A～07F` 各自完成程序验收。
 - [ ] `STEAM-DESKTOP-ART-01` 完成猫咪和鱼塘资源交付。
-- [ ] `STEAM-DESKTOP-ART-02` 完成 Overlay 塘内布局导出与像素对齐（后续，不阻塞 07E/07F）。
-- [ ] `STEAM-DESKTOP-ART-03` 完成分塘底图、序列帧加载与 HUD Prefab 同步 Overlay。
+- [x] `STEAM-DESKTOP-ART-02` 完成 Overlay 塘内布局导出与像素对齐（后续，不阻塞 07E/07F）。
+- [x] `STEAM-DESKTOP-ART-03` 完成分塘底图、序列帧加载与 HUD Prefab 同步 Overlay。
 - [x] 桌面宠物主视图、鱼塘场景和同塘玩家宠物方向统一。
 - [x] 右键菜单切主窗口页签不破坏鱼塘会话；唤起时主窗口高于 Overlay。
 - [x] 通知、托盘和重连状态可理解。
@@ -57,6 +57,8 @@
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-29 | 策划 | Overlay 猫口径：源图 256×256、显示 64×64；悬停热区为猫身 |
+| 2026-08-29 | 策划 | ART-02 / ART-03 用户验收通过，改为已实现 |
 | 2026-08-28 | 策划 | 增补 `STEAM-DESKTOP-ART-03`：分塘底图、六姿势序列帧、HUD Prefab 同步；ART-02 明确不含 HUD |
 | 2026-08-17 | 策划 | 07A～07F 程序验收完成；ART-01 / ART-02 仍待交付 |
 | 2026-08-16 | 策划 | 07E 改为页签；右键唤起主窗口须高于 Overlay |

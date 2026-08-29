@@ -76,10 +76,15 @@ namespace FishSocial.Desktop.Pet
         {
             switch (state)
             {
+                case PetVisualState.Sit:
+                    return new Color(0.82f, 0.92f, 0.78f, 1f);
+                case PetVisualState.Cast:
+                    return new Color(0.78f, 0.86f, 1f, 1f);
                 case PetVisualState.Fishing:
                     return new Color(0.72f, 0.88f, 1f, 1f);
                 case PetVisualState.Hooked:
                     return new Color(1f, 0.78f, 0.38f, 1f);
+                case PetVisualState.Reel:
                 case PetVisualState.Catching:
                     return new Color(0.5f, 0.82f, 1f, 1f);
                 case PetVisualState.Dragging:

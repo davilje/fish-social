@@ -75,8 +75,12 @@
 | [BUG修复-进塘首帧状态与演示降级.md](./specs/BUG修复-进塘首帧状态与演示降级.md) | **已实现** | BUG-18：进塘旧态 / 静默 DEMO / 收杆额度 ack |
 | [BUG修复-每日额度单一口径重构.md](./specs/BUG修复-每日额度单一口径重构.md) | **已实现** | BUG-19：base/session 拆分；checkpoint 不前移锚点 |
 | [BUG修复-进塘与钓鱼剩余展示回归.md](./specs/BUG修复-进塘与钓鱼剩余展示回归.md) | **已实现** | BUG-20：钓鱼中剩余走动；未选钓点防满额 8h |
-| [Steam桌面Overlay场景布局管线.md](./specs/Steam桌面Overlay场景布局管线.md) | **已确认** | STEAM-DESKTOP-ART-02：Unity Canvas Prefab → Overlay 像素布局（塘内场景，不含 HUD） |
-| [Steam桌面Overlay分塘底图与HUD同步.md](./specs/Steam桌面Overlay分塘底图与HUD同步.md) | **已确认** | STEAM-DESKTOP-ART-03：分塘底图、猫咪六姿势序列帧、Unity HUD Prefab 同步 Overlay |
+| [Steam桌面Overlay场景布局管线.md](./specs/Steam桌面Overlay场景布局管线.md) | **已实现** | STEAM-DESKTOP-ART-02：Unity Canvas Prefab → Overlay 像素布局（塘内场景，不含 HUD） |
+| [Steam桌面Overlay分塘底图与HUD同步.md](./specs/Steam桌面Overlay分塘底图与HUD同步.md) | **已实现** | STEAM-DESKTOP-ART-03：分塘底图、猫咪六姿势序列帧、Unity HUD Prefab 同步 Overlay |
+| [Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md](./specs/Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md) | **已实现** | STEAM-DESKTOP-13：聊天栏收口、Prefab 对齐 |
+| [Steam桌面端-13AOverlay场景边缘半透明渐隐.md](./specs/Steam桌面端-13AOverlay场景边缘半透明渐隐.md) | **已实现** | STEAM-DESKTOP-13A：场景四边 40px 渐隐 |
+| [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./specs/Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | **已实现** | STEAM-DESKTOP-13B：徽章/右键/登录窗 |
+| [Steam桌面端-13COverlay打窝HUD收口.md](./specs/Steam桌面端-13COverlay打窝HUD收口.md) | **已实现** | STEAM-DESKTOP-13C：打窝次数与成功文案 |
 | [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
 | [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已实现** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |
 | [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./specs/Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | **已实现** | STEAM-DESKTOP-09B：悬停仅时长 Tooltip + IPC 字段 |

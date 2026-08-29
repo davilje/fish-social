@@ -28,7 +28,7 @@ Steam 桌面版**不平移**移动端页面，也不迁移旧档。鱼塘、钓�
 | 项 | web / RN | Steam 桌面（本需求） |
 |----|----------|----------------------|
 | 权威 | `pond_snapshot`、`pond_user_joined/left/updated`、`fish_bite` | 相同，不改协议 |
-| 鱼塘画面 | RN 正交 Tilemap + 头像二头身 | `960×480` 原生 Overlay 占位场景，猫咪基准 `128×128` |
+| 鱼塘画面 | RN 正交 Tilemap + 头像二头身 | `960×560` 原生 Overlay；猫显示 `64×64`（源图 `256×256`） |
 | 钓鱼动画 | 头像 + phase 文案/气泡/咬钩环，无序列帧状态机 | `PetStateController` + 序列帧渲染器；Overlay **本地播帧** |
 | 入口 | 打开鱼塘页 | `480×320` 登录 → `1280×720` 主窗口 → Overlay 挂机 |
 | 账号 | 移动端档 | Steam 新档 |
@@ -71,7 +71,7 @@ Steam 启动
 - 07A～07F 第一阶段只使用 Unity 主程序的普通 Windows 窗口，不启动第二个 Unity Player。
 - 透明、置顶、桌面穿透和自由拖拽不属于 07A～07F 的实现范围，后续由独立的原生 Overlay 需求（`STEAM-DESKTOP-07G`）承接。
 - 宠物主视图必须能显示当前钓鱼状态和最近通知。
-- 第一阶段先使用空白正方形 2D 猫咪占位 UI，建议基准尺寸 `256×256`，保持等比例显示。
+- 第一阶段先使用空白正方形 2D 猫咪占位 UI：主窗口建议 `256×256` 等比例；**Overlay 显示槽固定 `64×64`**（源图同样 `256×256`）。
 - 占位资源通过独立 Sprite/Texture2D 或 Prefab 引用接入，后续替换正式猫咪资源不得修改布局、状态控制和网络业务代码。
 - 首版动画方案采用“序列帧 + 宠物状态机”，不把 Spine 作为 07A 的前置依赖。
 - 状态机至少覆盖 `idle`、`fishing`、`hooked`、`catching`、`dragging`、`offline`；没有正式美术时可复用同一张占位图，通过状态文字/颜色区分。
@@ -82,7 +82,7 @@ Steam 启动
 ### 4.2 多人鱼塘
 
 - 使用服务端快照渲染鱼塘环境和在线玩家。07B/07C 的鱼塘场景和玩家宠物**优先画在 Overlay**；主窗口保留状态栏和恢复入口。
-- 自己和其他玩家使用统一的 2D 宠物表现接口（同一状态枚举、同一 `128×128` 基准、同一序列帧渲染器）。
+- 自己和其他玩家使用统一的 2D 宠物表现接口（同一状态枚举、同一 Overlay **64×64** 显示槽、同一序列帧渲染器）。
 - 至少显示昵称、宠物形象和基础钓鱼状态。
 - Unity 订阅 `pond_snapshot`、`pond_user_joined`、`pond_user_left`、`pond_user_updated`，把 `fishingPhase` 映射为 `petVisualState` 后推给 Overlay。Overlay **不连接** REST/Socket，不维护第二套状态机。
 - 断线重连以服务端 `pond_snapshot` 全量覆盖 Overlay 角色列表，按 `playerId` 复用对象，离开则删除；不得残留、不得本地伪造多人状态。
@@ -154,7 +154,7 @@ Overlay 或主窗口右键点到功能项后：显示并聚焦 Unity 主窗口�
 | 6 | `STEAM-DESKTOP-07F` | 托盘、通知、断线恢复和完整主流程验收 | Windows Development Build 全流程通过 |
 | 7 | `STEAM-DESKTOP-07G` | 独立原生桌面宠物 Overlay；仅通过 Named Pipe 接收状态和发送命令 | Overlay 不影响 Unity 主窗口，支持透明、置顶、拖动和关闭 |
 
-`STEAM-DESKTOP-03` 的核心功能已实现；双 Steam 账号联调因缺少第二测试账号跳过，不阻塞 07A 开发。`STEAM-DESKTOP-ART-01` 可在 07B 接口稳定后并行替换正式资源。`STEAM-DESKTOP-ART-02` 为后续：用 Unity Canvas Prefab 导出 Overlay **塘内**像素布局，有表后停用自动缩放。`STEAM-DESKTOP-ART-03` 补齐分塘底图、猫咪六姿势序列帧、HUD Prefab 与 Overlay 同步。
+`STEAM-DESKTOP-03` 的核心功能已实现；双 Steam 账号联调因缺少第二测试账号跳过，不阻塞 07A 开发。`STEAM-DESKTOP-ART-01` 仍待替换正式猫咪/鱼塘资源。`STEAM-DESKTOP-ART-02` 已实现：Unity Canvas Prefab 导出 Overlay **塘内**像素布局，有表后停用自动缩放。`STEAM-DESKTOP-ART-03` 已实现：分塘底图、猫咪六姿势序列帧、HUD Prefab 与 Overlay 同步。
 
 ### 7.3 动画实现决策
 
@@ -180,6 +180,8 @@ Overlay 或主窗口右键点到功能项后：显示并聚焦 Unity 主窗口�
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-29 | 策划 | Overlay 猫口径：显示 64×64、源图 256×256；悬停热区为猫身；画布 960×560 |
+| 2026-08-29 | 策划 | ART-02 / ART-03 用户验收通过，改为已实现；ART-01 仍待正式换图 |
 | 2026-08-17 | 策划 | `STEAM-DESKTOP-07F` 用户验收通过：托盘挂机、咬钩通知、收鱼、断线快照恢复与 Development Build 全流程通过。父需求 07 改为已实现（07A～07G 均完成） |
 | 2026-08-17 | 策划 | `STEAM-DESKTOP-07G` 用户验收通过：独立 WPF Overlay + Named Pipe，不启动第二 Unity Player。父需求 07 仍为已确认（07F 未完成） |
 | 2026-08-17 | 策划 | `STEAM-DESKTOP-07E` 用户确认完全正确：Prefab 承载功能页，设置/背包/好友/聊天可用。父需求 07 仍为已确认（07F 未完成） |

@@ -45,9 +45,9 @@ Steam 登录
 
 ### 2. 执行 07C：同塘玩家表现
 
-**已实现**（2026-08-15 用户验收）。对应 `UNITY-P3` 的多人表现出口。主要画在 `960×480` Overlay。
+**已实现**（2026-08-15 用户验收）。对应 `UNITY-P3` 的多人表现出口。主要画在 `960×560` Overlay。
 
-- 显示同塘玩家昵称、`128×128` 宠物和基础钓鱼状态。
+- 显示同塘玩家昵称、**64×64** 宠物（源图 256×256）和基础钓鱼状态。
 - Unity 处理 `pond_snapshot`、`pond_user_joined`、`pond_user_left`、`pond_user_updated`，映射为 `petVisualState` 后推 Overlay。
 - Overlay 用与自己的猫同一套本地序列帧渲染器；不连 Socket，IPC 不传贴图。
 - 按 `playerId` 复用对象；断线用快照全量覆盖，不残留、不伪造。

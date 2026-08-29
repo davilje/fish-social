@@ -8,11 +8,11 @@
 | 编号 | **STEAM-DESKTOP-ART-02** |
 | 类型 | **美术**（含 Overlay 像素对齐接入；资源替换仍属 `STEAM-DESKTOP-ART-01`） |
 | 负责人 | Unity 桌面 / Overlay 工程师 + 美术 |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | v1.0-steam-desktop |
 | 优先级 | P1（后续；不阻塞 07E/07F） |
 | 设计时间 | **2026-08-16** |
-| 完成时间 | |
+| 完成时间 | **2026-08-29** |
 | 上位需求 | `STEAM-DESKTOP-07G`、`STEAM-DESKTOP-ART-01`、`STEAM-DESKTOP-07B` |
 | 关联 | `STEAM-DESKTOP-07`、`STEAM-DESKTOP-UI` |
 
@@ -108,7 +108,7 @@ Unity 运行时（唯一业务进程）
 ### 3.4 规则与数值
 
 - Overlay 窗口仍为 **960×560**（07B/07G/09D）。
-- 猫咪显示基准仍为 **128×128**；猫的落点以钓位锚点为准（锚点建议为猫脚底中心；JSON 须写清 `anchor`：`bottom-center` 或等价 pivot）。
+- 猫咪 **显示 64×64**（源图 **256×256**，`Stretch.Uniform`）；猫的落点以钓位锚点为准（锚点建议为猫脚底中心；JSON 须写清 `anchor`：`bottom-center` 或等价 pivot）。悬停热区同为 64×64 猫身。
 - 不改 `shared/` 钓位列表；布局表 `spotId` 必须是该塘快照里会出现的 id。
 - 多塘：一塘一份 JSON，文件名或字段内 `pondId` 与进塘 id 一致（如 `pond-calm`）。
 
@@ -146,8 +146,8 @@ Unity 运行时（唯一业务进程）
     {
       "id": "cat-size",
       "kind": "pet-size",
-      "w": 128,
-      "h": 128
+      "w": 64,
+      "h": 64
     }
   ]
 }
@@ -158,7 +158,7 @@ Unity 运行时（唯一业务进程）
 | `sprite` | 静态图（背景、岸、装饰） | 按矩形加载 `sprite` 文件 |
 | `spot` | 钓位锚点 | 建立 `spotId` → 像素点；可画调试圆，正式包可隐藏 |
 | `waiting` | 无钓位排列区 | 替代硬编码 `WaitingLane` |
-| `pet-size` | 猫显示尺寸 | 覆盖默认 128×128（可选） |
+| `pet-size` | 猫显示尺寸 | 覆盖默认 64×64（可选；当前 Overlay 显示槽固定 64） |
 
 运行时占用 **不** 写入 JSON。Pipe 仍只传 `ownSpotId` / `users[].spotId` / `petVisualState`。
 
@@ -182,14 +182,14 @@ Unity 运行时（唯一业务进程）
 
 ## 5. 验收标准
 
-- [ ] 存在可打开的 `960×560` Overlay 布局 Prefab；钓位物体带合法 `spotId`。
-- [ ] 编辑器能从 Prefab 导出 JSON；坐标为 Overlay 左上原点；画布尺寸为 960×560。
-- [ ] Overlay 启动后按 JSON 摆放对应 PNG；同一 `spotId` 在 Unity 预览与 Overlay 上像素位置一致（允许 1px 级圆整误差）。
-- [ ] 玩家占用某 `spotId` 时，猫出现在该锚点，**不再**按服务端世界坐标自动缩放整塘。
-- [ ] Named Pipe 不传输图片或 Prefab；Overlay 仍不连 Socket。
-- [ ] 无 JSON 的塘回退现有 `MapToScene`，进程不崩溃。
-- [ ] 不修改 `mobile/`、`server/`、`shared/` 业务逻辑；不启动第二 Unity Player。
-- [ ] Windows 构建（`Fish Social → Build Windows + Native Overlay` 或现行等价菜单）把 JSON 与资源带到 Overlay 旁，Development/Release 包都能读到。
+- [x] 存在可打开的 `960×560` Overlay 布局 Prefab；钓位物体带合法 `spotId`。
+- [x] 编辑器能从 Prefab 导出 JSON；坐标为 Overlay 左上原点；画布尺寸为 960×560。
+- [x] Overlay 启动后按 JSON 摆放对应 PNG；同一 `spotId` 在 Unity 预览与 Overlay 上像素位置一致（允许 1px 级圆整误差）。
+- [x] 玩家占用某 `spotId` 时，猫出现在该锚点，**不再**按服务端世界坐标自动缩放整塘。
+- [x] Named Pipe 不传输图片或 Prefab；Overlay 仍不连 Socket。
+- [x] 无 JSON 的塘回退现有 `MapToScene`，进程不崩溃。
+- [x] 不修改 `mobile/`、`server/`、`shared/` 业务逻辑；不启动第二 Unity Player。
+- [x] Windows 构建（`Fish Social → Build Windows + Native Overlay` 或现行等价菜单）把 JSON 与资源带到 Overlay 旁，Development/Release 包都能读到。
 
 ---
 
@@ -213,6 +213,7 @@ Unity 运行时（唯一业务进程）
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
-| 2026-08-28 | 策划 | 明确不含 Overlay HUD；HUD / 分塘底图 / 序列帧夹见 `STEAM-DESKTOP-ART-03` |
+| 2026-08-29 | 策划 | 用户验收通过，状态改为 **已实现** |
+| 2026-08-29 | 策划 | 猫咪口径对齐：显示 **64×64**、源图 **256×256**；`pet-size` 默认 64；悬停热区为猫身 |
 | 2026-08-20 | 策划 | **STEAM-DESKTOP-09D**：Overlay 正式画布增至 **960×560**；后续导出 JSON 的 `canvas.height` 与 09D 对齐（宽仍 960） |
 | 2026-08-16 | 策划 | 初稿：Unity Canvas Prefab → 布局 JSON → Overlay 像素真相处；类型归入美术 `STEAM-DESKTOP-ART-02` |

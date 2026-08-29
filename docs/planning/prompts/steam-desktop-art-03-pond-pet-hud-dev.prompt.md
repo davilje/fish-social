@@ -13,7 +13,7 @@
 ## 顺序
 
 1. **分塘底图**：`OverlayResources/ponds/<pondId>.png`，按 IPC `pondId` 加载；回退 `_default.png` → `pond.png`。
-2. **序列帧**：建齐 `pets/<petId>/<clip>/`；`fishingPhase` → clip（`idle/sit/cast/fishing/hooked/reel`）由 Unity 映射后写入 `petVisualState`；Overlay 按夹播帧。
+2. **序列帧**：建齐 `pets/<petId>/<clip>/`；源图 **256×256**，Overlay 显示 **64×64**；`fishingPhase` → clip（`idle/sit/cast/fishing/hooked/reel`）由 Unity 映射后写入 `petVisualState`；Overlay 按夹播帧。悬停热区为猫身 64×64。
 3. **HUD**：Catalog 登记 `OverlayHud` Prefab（960×560）；编辑器导出 `OverlayResources/hud/overlay-hud.json` + PNG；Overlay 有表则按像素摆控件，无表回退 XAML。
 4. 构建拷贝 `ponds/`、`pets/`、`hud/` 到 Overlay exe 旁。
 5. 自检 spec §5。

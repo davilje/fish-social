@@ -90,8 +90,12 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-07f-main-flow-qa-dev.prompt.md](./steam-desktop-07f-main-flow-qa-dev.prompt.md) | STEAM-DESKTOP-07F：桌面宠物主流程与恢复验收 · **已实现** |
 | [steam-desktop-07g-native-overlay-dev.prompt.md](./steam-desktop-07g-native-overlay-dev.prompt.md) | STEAM-DESKTOP-07G：独立原生桌面宠物 Overlay（WPF/Win32 + Named Pipe）· **已实现** |
 | [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已确认** |
-| [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已确认** |
-| [steam-desktop-art-03-pond-pet-hud-dev.prompt.md](./steam-desktop-art-03-pond-pet-hud-dev.prompt.md) | STEAM-DESKTOP-ART-03：分塘底图、猫咪序列帧、HUD Prefab 同步 Overlay · **已确认** |
+| [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已实现** |
+| [steam-desktop-art-03-pond-pet-hud-dev.prompt.md](./steam-desktop-art-03-pond-pet-hud-dev.prompt.md) | STEAM-DESKTOP-ART-03：分塘底图、猫咪序列帧、HUD Prefab 同步 Overlay · **已实现** |
+| [steam-desktop-13-hud-chat-prefab-dev.prompt.md](./steam-desktop-13-hud-chat-prefab-dev.prompt.md) | STEAM-DESKTOP-13：HUD 聊天栏与预制体对齐 · **已实现** |
+| [steam-desktop-13a-edge-vignette-dev.prompt.md](./steam-desktop-13a-edge-vignette-dev.prompt.md) | STEAM-DESKTOP-13A：场景四边半透明渐隐 · **已实现** |
+| [steam-desktop-13b-pet-menu-login-dev.prompt.md](./steam-desktop-13b-pet-menu-login-dev.prompt.md) | STEAM-DESKTOP-13B：宠物标签/右键/登录窗 · **已实现** |
+| [steam-desktop-13c-groundbait-hud-dev.prompt.md](./steam-desktop-13c-groundbait-hud-dev.prompt.md) | STEAM-DESKTOP-13C：打窝 HUD 收口 · **已实现** |
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |
 | [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已实现** |

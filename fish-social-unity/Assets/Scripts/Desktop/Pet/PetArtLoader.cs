@@ -8,8 +8,8 @@ using UnityEditor;
 namespace FishSocial.Desktop.Pet
 {
     /// <summary>
-    /// Loads per-cat pose frames. Same names as Overlay:
-    /// OverlayResources/pets/&lt;petId&gt;/&lt;state&gt;-0.png
+    /// Loads per-cat pose frames. Same paths as Overlay:
+    /// pets/&lt;petId&gt;/&lt;clip&gt;/N.png with legacy flat fallbacks.
     /// </summary>
     public static class PetArtLoader
     {
@@ -61,23 +61,50 @@ namespace FishSocial.Desktop.Pet
             return petId;
         }
 
-        static Sprite[] LoadSequence(string petId, string state)
+        static Sprite[] LoadSequence(string petId, string clip)
         {
             var list = new List<Sprite>();
+            AppendClipDirectory(list, petId, clip);
+            if (list.Count == 0)
+            {
+                for (var i = 0; i < 16; i++)
+                {
+                    var sprite = LoadPng(petId, clip + "-" + i);
+                    if (sprite == null)
+                        break;
+                    list.Add(sprite);
+                }
+            }
+            if (list.Count == 0)
+            {
+                var single = LoadPng(petId, clip);
+                if (single != null)
+                    list.Add(single);
+            }
+            if (list.Count == 0 && clip != "fishing")
+            {
+                AppendClipDirectory(list, petId, "fishing");
+                if (list.Count == 0)
+                {
+                    var legacy = LoadPng(petId, "fishing-0");
+                    if (legacy != null)
+                        list.Add(legacy);
+                }
+            }
+            if (list.Count == 0 && clip != "idle")
+                AppendClipDirectory(list, petId, "idle");
+            return list.ToArray();
+        }
+
+        static void AppendClipDirectory(List<Sprite> list, string petId, string clip)
+        {
             for (var i = 0; i < 16; i++)
             {
-                var sprite = LoadPng(petId, state + "-" + i);
+                var sprite = LoadPng(petId, Path.Combine(clip, i.ToString()));
                 if (sprite == null)
                     break;
                 list.Add(sprite);
             }
-            if (list.Count == 0)
-            {
-                var single = LoadPng(petId, state);
-                if (single != null)
-                    list.Add(single);
-            }
-            return list.ToArray();
         }
 
         static Sprite[] LoadSingle(string petId, string stem)

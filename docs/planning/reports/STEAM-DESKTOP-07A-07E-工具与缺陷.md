@@ -116,8 +116,8 @@ Unity 只推状态字符串，不传贴图。没有正式图时用占位水面/�
 | 项 | 说明 |
 |----|------|
 | `OverlayPondStateBuilder` | 把服务端 `pond_snapshot` 的塘、钓位、自己的位置拷进 Overlay DTO |
-| Overlay `MapToScene` | 把服务端世界坐标自动缩放到 Overlay `960×480`（后续 ART-02 有布局 JSON 后可停用自动缩放） |
-| Overlay 自己的猫 | `128×128`，按 `petVisualState` 本地切帧 |
+| Overlay `MapToScene` | 把服务端世界坐标自动缩放到 Overlay `960×560`（有 ART-02 布局 JSON 后停用自动缩放） |
+| Overlay 自己的猫 | 显示 `64×64`（源图 `256×256`），按 `petVisualState` 本地切帧 |
 
 #### 修复的缺陷
 

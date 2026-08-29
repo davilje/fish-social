@@ -13,7 +13,7 @@
 
 ## 顺序
 
-1. 约定 **960×560** Canvas Prefab：钓位挂现有 `spotId`；锚点写进导出规则（建议猫脚底中心）。
+1. 约定 **960×560** Canvas Prefab：钓位挂现有 `spotId`；锚点写进导出规则（建议猫脚底中心）。猫咪 Overlay **显示 64×64**（源图 256×256）；`pet-size` 默认 64。
 2. 编辑器菜单从 Prefab 导出 Overlay 坐标系 JSON（左上原点、Y 向下）到 `OverlayResources/layouts/<pondId>.json`；失败要报错，禁止半份文件。
 3. Overlay 按 `pondId` 读布局 JSON + 同名 PNG；静态层（背景装饰、岸）按矩形摆放。
 4. 有布局表的塘：猫和钓位只用表内像素，**停用该塘 `MapToScene`**。Pipe 仍只传占用与 `petVisualState`，不传图、不传 Prefab。

@@ -1,11 +1,13 @@
-# Overlay 宠物资源（按猫种分套）
+# Overlay 宠物资源（按猫种 × 姿势分套）
 
-Unity 主窗口和 Overlay **共用同一套名字**。`petId` 来自玩家头像（与 `shared/defaultAvatars.ts` 一致），姿势来自 `petVisualState`。
+Unity 主窗口和 Overlay **共用同一套路径**。`petId` 来自玩家头像（与 `shared/defaultAvatars.ts` 一致），姿势 clip 来自 `petVisualState`（STEAM-DESKTOP-ART-03）。
 
 ## 目录（权威源）
 
 ```text
-desktop-overlay/OverlayResources/pets/<petId>/<state>-0.png
+desktop-overlay/OverlayResources/pets/<petId>/<clip>/0.png
+desktop-overlay/OverlayResources/pets/<petId>/<clip>/1.png
+…
 ```
 
 | petId | 头像 | 中文 |
@@ -17,28 +19,40 @@ desktop-overlay/OverlayResources/pets/<petId>/<state>-0.png
 | tuxedo | cat_avatar_tuxedo.png | 燕尾猫 |
 | white | cat_avatar_white.png | 白猫 |
 
-`<state>`：`idle` / `fishing` / `hooked` / `catching` / `dragging` / `offline`
+| clip | 中文 | fishingPhase |
+|------|------|--------------|
+| idle | 待机 | idle / disconnected |
+| sit | 坐下 | seated / groundbaiting |
+| cast | 抛竿 | baiting / casting |
+| fishing | 等鱼 | waiting |
+| hooked | 咬钩 | hooked |
+| reel | 收杆 | resolving / stopping |
 
-## 你现在有一张钓鱼橘猫时
+`dragging` / `offline` 无独立目录，回退 `idle`。
 
-1. 保存为：
+## 尺寸
 
-```text
-desktop-overlay/OverlayResources/pets/orange/fishing-0.png
-```
+| 项 | 约定 |
+|----|------|
+| 源图 | 正方形透明 PNG **256×256**（等比例；加载器不校验像素，但请按此出图） |
+| Overlay 显示 | 固定 **64×64**（`OverlayPetActor.BodySize`），`Stretch.Uniform` |
+| 悬停热区 | 仅猫身 **64×64**，不含昵称/状态条 |
+| 悬停浮窗 | 约 **80×28**，水平居中对齐猫身，出现在角色簇上方 |
 
-2. Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay**（或重新 Debug 打包）。
-3. 重启游戏 / Overlay。
+Unity 主窗口宠物用同一套源图目录，主视图占位仍可按 256 显示。
 
-塘内头像是橘猫、且状态为钓鱼的玩家会显示这张图。其它猫种仍走占位矢量猫，直到你补上对应文件夹。
+## 兼容旧文件
 
-只有一张图时：同一文件也可复制为 `idle-0.png`，否则待机会回退用 `fishing-0.png`。
+仍支持 `pets/<petId>/<clip>-0.png` 与 `fishing-0.png`（加载顺序靠后）。
 
-## 查找顺序（每种猫）
+## 同步
 
-1. `pets/<petId>/<state>-0.png`（可 `-1` `-2` … 序列帧）
-2. `pets/<petId>/<state>.png`
-3. 缺姿势时：`idle` → `fishing` → `cat.png`
-4. 最后才用旧的全局 `OverlayResources/cat.png`（全塘同一只，不推荐）
+Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay**（或重新 Debug 打包），会把整个 `OverlayResources` 拷到 exe 旁。
 
-不要再把一张图命名为根目录 `cat.png` 指望区分玩家——那会让所有人长一样。
+## 查找顺序（每种猫、每个 clip）
+
+1. `pets/<petId>/<clip>/N.png`
+2. `pets/<petId>/<clip>-0.png`
+3. 同猫 `fishing/` 或 `fishing-0.png`
+4. 同猫 `idle/`
+5. `cat.png` / 矢量占位

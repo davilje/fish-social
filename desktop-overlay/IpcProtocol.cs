@@ -126,7 +126,7 @@ namespace FishSocialOverlay
         public bool HasPosition { get; set; }
 
         [DataMember(Name = "petVisualState")]
-        public string PetVisualState { get; set; }
+        public string PetVisualState { get; set; } // idle|sit|cast|fishing|hooked|reel|dragging|offline
 
         [DataMember(Name = "fishingPhase")]
         public string FishingPhase { get; set; }
@@ -194,7 +194,7 @@ namespace FishSocialOverlay
         public string FishingPhase { get; set; }
 
         [DataMember(Name = "petVisualState")]
-        public string PetVisualState { get; set; }
+        public string PetVisualState { get; set; } // idle|sit|cast|fishing|hooked|reel|dragging|offline
 
         [DataMember(Name = "ownNickname")]
         public string OwnNickname { get; set; }

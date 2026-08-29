@@ -26,7 +26,7 @@
 
 1. **IPC DTO**：`NativeOverlayActorDto`（及 own）增加 `fishingPhase` · `sessionFishingMs` · `hookDeadlineMs`；Unity 从 snapshot + `session_timer_tick` 填充。
 
-2. **悬停**：`MouseEnter` 300ms → Tooltip **仅**本局时长或收杆剩余；`MouseLeave` 关闭。
+2. **悬停**：在 **64×64 猫身**上 `MouseEnter` 300ms → Tooltip **仅**本局时长或收杆剩余；`MouseLeave` 关闭。浮窗约 80×28，水平居中对齐猫身（不要用含昵称的整块 Actor 当热区）。
 
 3. **不重复 09D**：Tooltip 不含状态 icon/圆环文案（默认表现由 09D 负责）。
 

@@ -197,6 +197,7 @@ namespace FishSocial.Desktop
 
             var instance = Instantiate(prefab, transform, false);
             instance.name = "ShellCanvas";
+            NormalizeShellCanvasScale(instance);
             _scaler = instance.GetComponent<CanvasScaler>();
             if (_scaler != null)
             {
@@ -277,6 +278,17 @@ namespace FishSocial.Desktop
             _mainRoot.SetActive(false);
             _loginRoot.SetActive(true);
             return true;
+        }
+
+        static void NormalizeShellCanvasScale(GameObject canvasGo)
+        {
+            if (canvasGo == null)
+                return;
+            var rt = canvasGo.GetComponent<RectTransform>();
+            if (rt == null || rt.localScale.sqrMagnitude > 0.001f)
+                return;
+            rt.localScale = Vector3.one;
+            Debug.LogWarning("[DesktopShell] Shell canvas scale was zero; reset to 1.");
         }
 
         static string FindNavChildName(Transform nav, string preferred, string legacy)

@@ -8,11 +8,11 @@
 | 编号 | **STEAM-DESKTOP-ART-03** |
 | 类型 | **美术**（含 Unity 桌面 / Overlay 接入） |
 | 负责人 | Unity 桌面 / Overlay 工程师 + 美术 |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | v1.0-steam-desktop |
 | 优先级 | P0 |
 | 设计时间 | **2026-08-28** |
-| 完成时间 | |
+| 完成时间 | **2026-08-29** |
 | 上位需求 | `STEAM-DESKTOP-ART-01`、`STEAM-DESKTOP-ART-02`、`STEAM-DESKTOP-09D` |
 | 关联 | `STEAM-DESKTOP-07G`、`STEAM-DESKTOP-07C`、`STEAM-DESKTOP-08G` |
 | 关联全景 | Steam 桌面 Overlay 表现层 |
@@ -128,7 +128,7 @@ Overlay 窗口拖动仍可用现有 `dragging`（无目录则回退 `idle`）。
 
 缺图不得抛未处理异常。循环播放；`hooked` 可与现圆环并存。
 
-Unity 主窗口宠物用同一套路径（`StreamingAssets/Pet/<petId>/<clip>/` 由构建从 OverlayResources 同步），与 Overlay **同名文件**。
+Unity 主窗口宠物用同一套路径（`StreamingAssets/Pet/<petId>/<clip>/` 由构建从 OverlayResources 同步），与 Overlay **同名文件**。源图正方形 **256×256**；Overlay 显示槽 **64×64**。
 
 ### 3.4 Overlay HUD：Unity 调、导出、Overlay 播
 
@@ -187,7 +187,8 @@ JSON 坐标系：**左上原点、Y 向下**，单位 CSS 像素，画布 960×5
 
 ### 3.6 规则与数值
 
-- Overlay 窗口仍 **960×560**；猫显示约 **64×64**。
+- Overlay 窗口仍 **960×560**；猫 **显示 64×64**，序列帧源图 **256×256**（`Stretch.Uniform`）。
+- 悬停热区仅为猫身 64×64；时长浮窗约 80×28，水平居中对齐猫身。
 - 序列帧建议 8–12 fps（实现可配置常量）；不写入服务端。
 - 不改 `shared/` 相位字符串。
 
@@ -228,15 +229,15 @@ JSON 坐标系：**左上原点、Y 向下**，单位 CSS 像素，画布 960×5
 
 ## 5. 验收标准
 
-- [ ] 至少两个不同 `pondId` 进塘，Overlay 底图不是同一张；缺 `ponds/<id>.png` 时落到 `_default.png` 或旧 `pond.png`，不崩溃。
-- [ ] 仓库存在六 `petId` × 六 `clip` 目录（可仅 `.gitkeep` + 可选 1 帧）；加载器按 §3.3 查找。
-- [ ] 坐下 / 抛竿 / 等鱼 / 上钩 / 收杆 时 Overlay 与 Unity 主窗宠物使用同一 `petId`+`clip` 路径规则。
-- [ ] 同塘另一玩家头像不同时，播的是对方 `petId` 的对应 clip，不是全塘一张图。
-- [ ] Unity 可打开 Overlay HUD Prefab，移动「开始钓鱼」后导出 JSON，Overlay 重启后该按钮像素位置与 Prefab 一致（误差 ≤1px）。
-- [ ] 导出菜单在画布尺寸错误或缺强制 `widgetId` 时失败且不写半份 JSON。
-- [ ] 无 HUD JSON 时 Overlay 仍可用现有 XAML 操作钓鱼/菜单/聊天。
-- [ ] Debug/Release 构建把 `ponds/`、`pets/`、`hud/` 拷到 Overlay exe 旁。
-- [ ] Named Pipe 仍不传贴图；不改服务端钓鱼权威。
+- [x] 至少两个不同 `pondId` 进塘，Overlay 底图不是同一张；缺 `ponds/<id>.png` 时落到 `_default.png` 或旧 `pond.png`，不崩溃。
+- [x] 仓库存在六 `petId` × 六 `clip` 目录（可仅 `.gitkeep` + 可选 1 帧）；加载器按 §3.3 查找。
+- [x] 坐下 / 抛竿 / 等鱼 / 上钩 / 收杆 时 Overlay 与 Unity 主窗宠物使用同一 `petId`+`clip` 路径规则。
+- [x] 同塘另一玩家头像不同时，播的是对方 `petId` 的对应 clip，不是全塘一张图。
+- [x] Unity 可打开 Overlay HUD Prefab，移动「开始钓鱼」后导出 JSON，Overlay 重启后该按钮像素位置与 Prefab 一致（误差 ≤1px）。
+- [x] 导出菜单在画布尺寸错误或缺强制 `widgetId` 时失败且不写半份 JSON。
+- [x] 无 HUD JSON 时 Overlay 仍可用现有 XAML 操作钓鱼/菜单/聊天。
+- [x] Debug/Release 构建把 `ponds/`、`pets/`、`hud/` 拷到 Overlay exe 旁。
+- [x] Named Pipe 仍不传贴图；不改服务端钓鱼权威。
 
 ---
 
@@ -257,4 +258,5 @@ JSON 坐标系：**左上原点、Y 向下**，单位 CSS 像素，画布 960×5
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
-| 2026-08-28 | 策划 | 初稿已确认：分塘底图、六姿势序列帧目录/加载、Unity HUD Prefab 导出同步 Overlay |
+| 2026-08-29 | 策划 | 用户验收通过，状态改为 **已实现** |
+| 2026-08-29 | 策划 | 明确源图 256×256、显示 64×64；悬停热区/浮窗与猫身对齐 |

@@ -206,6 +206,7 @@ namespace FishSocial.Desktop.Editor
                 return;
 
             CopyDirectory(source, Path.Combine(overlayOutput, "OverlayResources"));
+            Debug.Log("[Build] Copied OverlayResources (ponds/ pets/ layouts/ hud/) next to Overlay.");
             var pets = Path.Combine(source, "pets");
             if (Directory.Exists(pets))
             {

@@ -1,5 +1,27 @@
 # 策划文档变更记录
 
+### [steam-desktop-13-overlay-hud-accepted] - 2026-08-29
+
+- 登记并验收 **STEAM-DESKTOP-13 / 13A / 13B / 13C**（设计/完成均为 2026-08-29）。
+- 13：聊天栏一行向上展开、Prefab 像素对齐、嵌套 HUD 导出修复。
+- 13A：场景层四边 40px 半透明渐隐（Absolute mapping，底部有效）。
+- 13B：宠物名/状态徽章、右键他人菜单、登录窗 scale=0。
+- 13C：打窝按钮仅次数；成功文案 `txt_error`；`txt_error` 在钓鱼条上方。
+- 规格：`Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md` 等四份；看板：根目录 `策划进度看板.html`。
+
+### [overlay-pet-size-hover-docs] - 2026-08-29
+
+- Overlay 猫咪口径对齐：**显示 64×64**、序列帧源图 **256×256**（不再写 128 显示槽）。
+- 悬停热区改为仅猫身 64×64；时长浮窗约 80×28，水平居中对齐猫身。
+- 同步 spec / Overlay README / pets README / 09B·09D。
+
+### [steam-desktop-art-02-03-accepted] - 2026-08-29
+
+- **STEAM-DESKTOP-ART-02** Overlay 场景布局管线 → **已实现**（设计 2026-08-16 / 完成 2026-08-29）。
+- **STEAM-DESKTOP-ART-03** 分塘底图、猫咪序列帧与 HUD 同步 → **已实现**（设计 2026-08-28 / 完成 2026-08-29）。
+- 用户验证通过：每塘 Prefab 导出钓位像素表；分塘底图、六姿势序列帧、HUD Prefab 与 Overlay 一一对应。
+- 规格：[Steam桌面Overlay场景布局管线.md](./specs/Steam桌面Overlay场景布局管线.md)、[Steam桌面Overlay分塘底图与HUD同步.md](./specs/Steam桌面Overlay分塘底图与HUD同步.md)
+
 ### [steam-desktop-art-03-pond-pet-hud] - 2026-08-28
 
 - 立项 **STEAM-DESKTOP-ART-03** 分塘底图、猫咪姿势序列帧、Unity HUD 与 Overlay 一一对应 → **已确认**（P0，设计 2026-08-28）。

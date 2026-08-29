@@ -63,6 +63,7 @@ Steam Overlay（07C）当前对同塘玩家在昵称下**常驻** `_stateLabel` 
   - **上钩**：剩余收杆倒计时（`hookDeadlineMs`）
   - **钓鱼中**：本局 `sessionFishingMs` 格式化
   - **idle / 未钓**：不显示 Tooltip 或「未在钓」
+- **热区**：仅宠物贴图 **64×64**（不含昵称条、状态条周围空白）。浮窗约 **80×28**，水平居中对齐猫身，出现在角色簇上方。
 - 移出：Tooltip 消失
 
 ### 3.2 IPC 状态扩展（Unity → Overlay）
@@ -79,8 +80,8 @@ Overlay **只渲染**，本地不算时长；收到新 `sequence` 全量覆盖�
 
 ### 3.3 Overlay 实现要点
 
-- `OverlayPetActor`：`MouseEnter`/`MouseLeave` + 300ms `DispatcherTimer`
-- Tooltip：WPF `ToolTip` 或自绘 Popup，Z-order 高于角色层
+- `OverlayPetActor`：在 **64×64 猫身** 上 `MouseEnter`/`MouseLeave` + 300ms `DispatcherTimer`（不要用整块含昵称的 Actor 当热区）
+- Tooltip：HoverLayer 自绘卡片（约 80×28），Z-order 高于角色层；水平对齐猫身中心
 - 自己与他人分支渲染；拖动场景时不误触 Tooltip
 
 ---
@@ -134,6 +135,7 @@ Overlay **只渲染**，本地不算时长；收到新 `sequence` 全量覆盖�
 
 | 日期 | 说明 |
 |------|------|
+| 2026-08-29 | 口径对齐：悬停热区 = 猫身 64×64；浮窗约 80×28，居中对齐猫身 |
 | 2026-08-19 | 初稿：Overlay 他人悬停 Tooltip；IPC 扩展 session/phase；对齐 FEAT-UI-1 |
 | 2026-08-20 | 修订：默认状态/圆环移交 09D；09B 收窄为 IPC + 悬停仅时长 |
 | 2026-08-20 | 用户验收通过 → **已实现**；修复悬停双卡片残留与 Bot 钓鱼时长计时异常 |

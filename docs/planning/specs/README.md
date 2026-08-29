@@ -64,8 +64,12 @@
 | [Steam桌面端Web功能对齐设计.md](./Steam桌面端Web功能对齐设计.md) | v1.0-steam-desktop | P0 | **已实现** | STEAM-DESKTOP-07E；主窗口页签；Overlay 菜单切页且主窗口高于 Overlay |
 | [Steam原生桌面宠物Overlay.md](./Steam原生桌面宠物Overlay.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-07G；独立原生透明 Overlay 与 Named Pipe 状态协议 |
 | [Steam桌面宠物UI需求拆分.md](./Steam桌面宠物UI需求拆分.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-UI；程序 UI 并入 07A～07F，美术含 ART-01 换图与 ART-02 布局管线 |
-| [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应（塘内场景，不含 HUD） |
-| [Steam桌面Overlay分塘底图与HUD同步.md](./Steam桌面Overlay分塘底图与HUD同步.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-ART-03；分塘底图、六姿势序列帧、Unity HUD Prefab 导出同步 Overlay |
+| [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应（塘内场景，不含 HUD） |
+| [Steam桌面Overlay分塘底图与HUD同步.md](./Steam桌面Overlay分塘底图与HUD同步.md) | v1.0-steam-desktop | P0 | **已实现** | STEAM-DESKTOP-ART-03；分塘底图、六姿势序列帧、Unity HUD Prefab 导出同步 Overlay |
+| [Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md](./Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13；聊天栏一行向上展开、Prefab 对齐 |
+| [Steam桌面端-13AOverlay场景边缘半透明渐隐.md](./Steam桌面端-13AOverlay场景边缘半透明渐隐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13A；场景层四边 40px |
+| [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13B；徽章、右键、登录窗 |
+| [Steam桌面端-13COverlay打窝HUD收口.md](./Steam桌面端-13COverlay打窝HUD收口.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13C；按钮次数、txt_error 成功句 |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
 | [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已实现** | 08C；公共动态墙、好友动态、分页、动态卡片 Prefab、点赞与评论 |

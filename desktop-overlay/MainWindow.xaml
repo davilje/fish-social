@@ -21,7 +21,8 @@
                 ClipToBounds="False"
                 MouseLeftButtonDown="PondScene_OnMouseLeftButtonDown"
                 MouseMove="PondScene_OnMouseMove"
-                MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp">
+                MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp"
+                ContextMenuOpening="PondScene_ContextMenuOpening">
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem x:Name="CtxMenuPond" Header="当前鱼塘" Click="MenuPond_OnClick" />
@@ -40,53 +41,65 @@
                 </ContextMenu>
             </Border.ContextMenu>
             <Canvas x:Name="SceneCanvas" Width="960" Height="560">
-                <!-- Z0: 场景底图 -->
-                <Image x:Name="PondBackgroundImage"
-                       Width="960"
-                       Height="560"
-                       Stretch="UniformToFill"
-                       Visibility="Collapsed"
-                       Panel.ZIndex="0" />
-                <Rectangle x:Name="GrassLayer"
-                           Width="960"
-                           Height="560"
-                           Fill="#E62F4A3A"
-                           Panel.ZIndex="0" />
-                <Ellipse x:Name="ShoreLayer"
-                         Width="760"
-                         Height="400"
-                         Canvas.Left="100"
-                         Canvas.Top="80"
-                         Fill="#CC8B6A45"
-                         Panel.ZIndex="0" />
-                <Ellipse x:Name="WaterLayer"
-                         Width="700"
-                         Height="360"
-                         Canvas.Left="130"
-                         Canvas.Top="100"
-                         Fill="#CC2A6F8F"
-                         Panel.ZIndex="0" />
-                <!-- Z5: 钓位 -->
-                <Canvas x:Name="SpotLayer" Width="960" Height="560" Panel.ZIndex="5" />
-                <Viewbox x:Name="OwnCat"
-                         Width="64"
-                         Height="64"
-                         Canvas.Left="448"
-                         Canvas.Top="320"
-                         Stretch="Uniform"
-                         Visibility="Collapsed"
-                         Panel.ZIndex="10" />
-                <Image x:Name="OwnCatImage"
-                       Width="64"
-                       Height="64"
-                       Stretch="Uniform"
-                       Visibility="Collapsed"
-                       Panel.ZIndex="10" />
-                <!-- Z10: 角色 -->
-                <Canvas x:Name="ActorLayer" Width="960" Height="560" Panel.ZIndex="10" />
-                <!-- Z50: 悬停卡片（高于所有角色，低于菜单/操作栏） -->
+                <!-- Z0–10: 场景层（边缘渐隐 OpacityMask 仅作用于此） -->
+                <Border x:Name="SceneFadeHost"
+                        Canvas.Left="0"
+                        Canvas.Top="0"
+                        Width="960"
+                        Height="560"
+                        Panel.ZIndex="0"
+                        Background="#01000000"
+                        ClipToBounds="True">
+                    <Canvas x:Name="SceneContentCanvas"
+                            Width="960"
+                            Height="560"
+                            Background="#01000000">
+                        <Image x:Name="PondBackgroundImage"
+                               Width="960"
+                               Height="560"
+                               Stretch="UniformToFill"
+                               Visibility="Collapsed"
+                               Panel.ZIndex="0" />
+                        <Rectangle x:Name="GrassLayer"
+                                   Width="960"
+                                   Height="560"
+                                   Fill="#E62F4A3A"
+                                   Panel.ZIndex="0" />
+                        <Ellipse x:Name="ShoreLayer"
+                                 Width="760"
+                                 Height="400"
+                                 Canvas.Left="100"
+                                 Canvas.Top="80"
+                                 Fill="#CC8B6A45"
+                                 Panel.ZIndex="0" />
+                        <Ellipse x:Name="WaterLayer"
+                                 Width="700"
+                                 Height="360"
+                                 Canvas.Left="130"
+                                 Canvas.Top="100"
+                                 Fill="#CC2A6F8F"
+                                 Panel.ZIndex="0" />
+                        <Canvas x:Name="DecorLayer" Width="960" Height="560" Panel.ZIndex="2" IsHitTestVisible="False" />
+                        <Canvas x:Name="SpotLayer" Width="960" Height="560" Panel.ZIndex="5" />
+                        <Viewbox x:Name="OwnCat"
+                                 Width="64"
+                                 Height="64"
+                                 Canvas.Left="448"
+                                 Canvas.Top="320"
+                                 Stretch="Uniform"
+                                 Visibility="Collapsed"
+                                 Panel.ZIndex="10" />
+                        <Image x:Name="OwnCatImage"
+                               Width="64"
+                               Height="64"
+                               Stretch="Uniform"
+                               Visibility="Collapsed"
+                               Panel.ZIndex="10" />
+                        <Canvas x:Name="ActorLayer" Width="960" Height="560" Panel.ZIndex="10" />
+                    </Canvas>
+                </Border>
+                <!-- Z50+: HUD / 交互层（不参与边缘渐隐） -->
                 <Canvas x:Name="HoverLayer" Width="960" Height="560" Panel.ZIndex="50" IsHitTestVisible="False" />
-                <!-- Z55: 角色头顶聊天气泡 -->
                 <Canvas x:Name="ChatBubbleLayer" Width="960" Height="560" Panel.ZIndex="55" IsHitTestVisible="False" />
                 <!-- Z110: unused (guide lives on ChatBubbleLayer above the pet) -->
                 <Border x:Name="GuideTipChrome"
@@ -107,8 +120,9 @@
                                TextWrapping="Wrap"
                                TextAlignment="Center" />
                 </Border>
-                <!-- Z100: 左上菜单 + 状态 -->
-                <StackPanel Canvas.Left="8"
+                <!-- Z100: 左上菜单 + 状态（HUD JSON 激活后整组隐藏） -->
+                <StackPanel x:Name="LegacyLeftHudStack"
+                            Canvas.Left="8"
                             Canvas.Top="8"
                             Panel.ZIndex="100"
                             Width="220">
@@ -154,15 +168,17 @@
                                        FontSize="13"
                                        Margin="0,2,0,0" />
                             <TextBlock x:Name="ErrorText"
-                                       Foreground="#FFFFA6A6"
+                                       Foreground="#FFE8DCC8"
                                        TextWrapping="Wrap"
                                        FontSize="12"
+                                       TextAlignment="Center"
                                        Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
                 <!-- Z100: 右上 — 打开主界面 + 退出鱼塘；禁止塘 Debug 出警 -->
-                <StackPanel Canvas.Left="736"
+                <StackPanel x:Name="LegacyRightTopHudStack"
+                            Canvas.Left="736"
                             Canvas.Top="8"
                             Panel.ZIndex="100">
                     <StackPanel Orientation="Horizontal">
@@ -200,7 +216,8 @@
                             Click="GameplayDebug_OnClick" />
                 </StackPanel>
                 <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
-                <StackPanel Canvas.Left="844"
+                <StackPanel x:Name="LegacyRightBottomHudStack"
+                            Canvas.Left="844"
                             Canvas.Top="420"
                             Panel.ZIndex="100">
                     <Button x:Name="FishingToggleButton"

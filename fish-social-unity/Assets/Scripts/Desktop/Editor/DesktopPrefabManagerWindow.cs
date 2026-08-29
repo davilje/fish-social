@@ -106,7 +106,7 @@ namespace FishSocial.Desktop.Editor
 
         void DrawDefinition(PrefabDefinition definition)
         {
-            var path = Path.Combine(Folder, definition.Name + ".prefab").Replace("\\", "/");
+            var path = ResolvePrefabPath(definition.Name);
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             var status = GetStatus(prefab, definition);
             var statusText = status == PrefabStatus.Valid ? "有效" :
@@ -458,6 +458,13 @@ namespace FishSocial.Desktop.Editor
             {
                 DestroyImmediate(root);
             }
+        }
+
+        static string ResolvePrefabPath(string name)
+        {
+            if (string.Equals(name, "OverlayPondLayout", StringComparison.Ordinal))
+                return OverlayPondLayoutBaker.PrefabPath("pond-calm");
+            return Path.Combine(Folder, name + ".prefab").Replace("\\", "/");
         }
 
         static PrefabStatus GetStatus(GameObject prefab, PrefabDefinition definition)

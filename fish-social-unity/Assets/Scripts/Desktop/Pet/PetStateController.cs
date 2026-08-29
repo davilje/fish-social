@@ -86,11 +86,15 @@ namespace FishSocial.Desktop.Pet
                 case "hooked":
                     return PetVisualState.Hooked;
                 case "resolving":
-                    return PetVisualState.Catching;
+                case "stopping":
+                    return PetVisualState.Reel;
+                case "seated":
+                case "groundbaiting":
+                    return PetVisualState.Sit;
                 case "baiting":
                 case "casting":
+                    return PetVisualState.Cast;
                 case "waiting":
-                case "groundbaiting":
                     return PetVisualState.Fishing;
                 default:
                     return PetVisualState.Idle;
@@ -101,9 +105,12 @@ namespace FishSocial.Desktop.Pet
         {
             switch (state)
             {
+                case PetVisualState.Sit: return "sit";
+                case PetVisualState.Cast: return "cast";
                 case PetVisualState.Fishing: return "fishing";
                 case PetVisualState.Hooked: return "hooked";
-                case PetVisualState.Catching: return "catching";
+                case PetVisualState.Reel:
+                case PetVisualState.Catching: return "reel";
                 case PetVisualState.Dragging: return "dragging";
                 case PetVisualState.Offline: return "offline";
                 default: return "idle";
@@ -114,9 +121,12 @@ namespace FishSocial.Desktop.Pet
         {
             switch (state)
             {
+                case PetVisualState.Sit: return "坐下";
+                case PetVisualState.Cast: return "抛竿";
                 case PetVisualState.Fishing: return "钓鱼";
                 case PetVisualState.Hooked: return "咬钩";
-                case PetVisualState.Catching: return "收鱼";
+                case PetVisualState.Reel:
+                case PetVisualState.Catching: return "收杆";
                 case PetVisualState.Dragging: return "拖动";
                 case PetVisualState.Offline: return "离线";
                 default: return "待机";

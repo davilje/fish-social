@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -12,7 +13,8 @@ using System.Windows.Threading;
 namespace FishSocialOverlay
 {
     /// <summary>
-    /// 64×64 pond pet: default status as text; hover card renders on HoverLayer (above all actors).
+    /// 64×64 pond pet (source frames 256×256, Uniform). Hover hot-zone is the
+    /// pet body only; the duration card renders on HoverLayer.
     /// </summary>
     public sealed class OverlayPetActor : Grid
     {
@@ -28,10 +30,13 @@ namespace FishSocialOverlay
         readonly Canvas _placeholder;
         readonly Shape[] _tintShapes;
         readonly TextBlock _nickname;
+        readonly Border _nameBadge;
+        readonly Border _statusBadge;
         readonly Grid _statusRow;
         readonly Ellipse _hookRing;
         readonly TextBlock _statusLabel;
         readonly StackPanel _content;
+        readonly Grid _body;
         readonly DispatcherTimer _frameTimer;
         readonly DispatcherTimer _refreshTimer;
         readonly DispatcherTimer _tooltipTimer;
@@ -50,13 +55,18 @@ namespace FishSocialOverlay
 
         public string ActorKey { get; }
 
+        public bool HasPlayerContextMenu =>
+            !string.IsNullOrEmpty(_playerId) && _menuHost != null;
+
         public OverlayPetActor(string actorKey, IOverlayHoverHost hoverHost)
         {
             ActorKey = actorKey;
             _hoverHost = hoverHost;
             Width = BodySize + 16;
             Height = BodySize + 52;
-            Background = Brushes.Transparent;
+            HorizontalAlignment = HorizontalAlignment.Left;
+            VerticalAlignment = VerticalAlignment.Top;
+            Background = null;
             ClipToBounds = false;
             IsHitTestVisible = true;
             ToolTipService.SetIsEnabled(this, false);
@@ -77,8 +87,8 @@ namespace FishSocialOverlay
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-                Margin = new Thickness(0, 0, 0, 2),
             };
+            _nameBadge = CreateTextBadge(_nickname, new Thickness(0, 2, 0, 0));
             _hookRing = new Ellipse
             {
                 Width = RingSize,
@@ -96,8 +106,9 @@ namespace FishSocialOverlay
                 FontSize = 10,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Visibility = Visibility.Collapsed,
             };
+            _statusBadge = CreateTextBadge(_statusLabel, new Thickness(0, 0, 0, 2));
+            _statusBadge.Visibility = Visibility.Collapsed;
 
             _statusRow = new Grid
             {
@@ -108,21 +119,27 @@ namespace FishSocialOverlay
             };
             _statusRow.Children.Add(_hookRing);
 
-            var body = new Grid { Width = BodySize, Height = BodySize };
-            body.Children.Add(_placeholder);
-            body.Children.Add(_image);
+            _body = new Grid
+            {
+                Width = BodySize,
+                Height = BodySize,
+                Background = Brushes.Transparent,
+                IsHitTestVisible = true,
+            };
+            _body.Children.Add(_placeholder);
+            _body.Children.Add(_image);
 
             _content = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
-            _content.Children.Add(_nickname);
+            _content.Children.Add(_statusBadge);
             _content.Children.Add(_statusRow);
-            _content.Children.Add(body);
-            _content.Children.Add(_statusLabel);
+            _content.Children.Add(_body);
+            _content.Children.Add(_nameBadge);
             Children.Add(_content);
 
             _tooltipTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _tooltipTimer.Tick += OnTooltipTimerTick;
-            MouseEnter += OnMouseEnter;
-            MouseLeave += OnMouseLeave;
+            _body.MouseEnter += OnMouseEnter;
+            _body.MouseLeave += OnMouseLeave;
 
             _frameTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(125) };
             _frameTimer.Tick += OnFrameTick;
@@ -138,16 +155,14 @@ namespace FishSocialOverlay
             _playerId = playerId ?? string.Empty;
             _isBot = isBot;
             _menuHost = menuHost;
-            MouseRightButtonUp -= OnMouseRightButtonUp;
-            if (!string.IsNullOrEmpty(_playerId) && _menuHost != null)
-                MouseRightButtonUp += OnMouseRightButtonUp;
+            PreviewMouseRightButtonDown -= OnPreviewMouseRightButtonDown;
+            if (HasPlayerContextMenu)
+                PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
         }
 
-        void OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (OverlayInteractionState.SceneDragging ||
-                string.IsNullOrEmpty(_playerId) ||
-                _menuHost == null)
+            if (OverlayInteractionState.SceneDragging || !HasPlayerContextMenu)
                 return;
 
             e.Handled = true;
@@ -157,7 +172,11 @@ namespace FishSocialOverlay
 
         void ShowPlayerContextMenu()
         {
-            var menu = new ContextMenu { PlacementTarget = this };
+            var menu = new ContextMenu
+            {
+                PlacementTarget = this,
+                Placement = PlacementMode.MousePoint,
+            };
             menu.Items.Add(CreateMenuItem("查看资料", true, () =>
                 _menuHost.SendPlayerCommand("player_open_profile", _playerId)));
             menu.Items.Add(CreateMenuItem("添加好友", !_isBot, () =>
@@ -214,8 +233,23 @@ namespace FishSocialOverlay
         {
             _centerX = centerX;
             _centerY = centerY;
-            Canvas.SetLeft(this, centerX - Width * 0.5);
-            Canvas.SetTop(this, centerY - BodySize * 0.5 - 22);
+            UpdateLayout();
+            var originX = BodySize * 0.5;
+            var originY = BodySize * 0.5;
+            if (_body != null && _body.IsVisible)
+            {
+                var origin = _body.TranslatePoint(
+                    new Point(_body.Width * 0.5, _body.Height * 0.5),
+                    this);
+                if (!double.IsNaN(origin.X) && !double.IsNaN(origin.Y))
+                {
+                    originX = origin.X;
+                    originY = origin.Y;
+                }
+            }
+
+            Canvas.SetLeft(this, centerX - originX);
+            Canvas.SetTop(this, centerY - originY);
             if (_hoverShown)
                 TryShowHover();
         }
@@ -242,14 +276,14 @@ namespace FishSocialOverlay
             var statusText = FormatStatusText();
             if (string.IsNullOrEmpty(statusText))
             {
-                _statusLabel.Visibility = Visibility.Collapsed;
+                _statusBadge.Visibility = Visibility.Collapsed;
                 _statusRow.Visibility = Visibility.Collapsed;
                 _hookRing.Visibility = Visibility.Collapsed;
                 return;
             }
 
             _statusLabel.Text = statusText;
-            _statusLabel.Visibility = Visibility.Visible;
+            _statusBadge.Visibility = Visibility.Visible;
 
             if (IsHookedPhase(_fishingPhase))
             {
@@ -340,7 +374,7 @@ namespace FishSocialOverlay
             if (string.IsNullOrEmpty(text))
                 return false;
 
-            _hoverHost?.ShowHoverCard(ActorKey, text, this);
+            _hoverHost?.ShowHoverCard(ActorKey, text, this, _body);
             _hoverShown = true;
             return true;
         }
@@ -467,8 +501,11 @@ namespace FishSocialOverlay
         {
             switch (visualState)
             {
+                case "sit": return "seated";
+                case "cast": return "casting";
                 case "fishing": return "waiting";
                 case "hooked": return "hooked";
+                case "reel":
                 case "catching": return "resolving";
                 default: return "idle";
             }
@@ -491,13 +528,31 @@ namespace FishSocialOverlay
         {
             switch (visualState)
             {
+                case "sit": return Color.FromRgb(120, 168, 120);
+                case "cast": return Color.FromRgb(110, 150, 210);
                 case "fishing": return Color.FromRgb(90, 168, 214);
                 case "hooked": return Color.FromRgb(232, 156, 64);
+                case "reel":
                 case "catching": return Color.FromRgb(86, 176, 230);
                 case "dragging": return Color.FromRgb(232, 210, 86);
                 case "offline": return Color.FromRgb(120, 128, 136);
                 default: return Color.FromRgb(77, 137, 168);
             }
+        }
+
+        static Border CreateTextBadge(TextBlock textBlock, Thickness margin)
+        {
+            return new Border
+            {
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(5, 2, 5, 2),
+                Margin = margin,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidColorBrush(Color.FromArgb(0xD9, 0x0F, 0x18, 0x20)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(0x66, 0xB8, 0xE1, 0xEF)),
+                BorderThickness = new Thickness(1),
+                Child = textBlock,
+            };
         }
 
         static Canvas BuildPlaceholder(out Shape[] tintShapes)
@@ -553,7 +608,7 @@ namespace FishSocialOverlay
 
         public static ImageSource[] Get(string petId, string visualState)
         {
-            var state = string.IsNullOrWhiteSpace(visualState) ? "idle" : visualState;
+            var state = NormalizeClip(visualState);
             var id = petId ?? string.Empty;
             var key = id + "|" + state;
             if (Cache.TryGetValue(key, out var frames))
@@ -568,26 +623,60 @@ namespace FishSocialOverlay
         {
             var root = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
             var list = new List<ImageSource>();
+            var clip = NormalizeClip(visualState);
             if (!string.IsNullOrWhiteSpace(petId) && IsSafePetId(petId))
             {
                 var petDir = System.IO.Path.Combine(root, "pets", petId);
-                AppendSequence(list, petDir, visualState);
-                if (list.Count == 0 && !string.Equals(visualState, "idle", StringComparison.Ordinal))
+                AppendClipDirectory(list, petDir, clip);
+                if (list.Count == 0)
+                    AppendSequence(list, petDir, clip);
+                if (list.Count == 0 && !string.Equals(clip, "idle", StringComparison.Ordinal))
+                    AppendClipDirectory(list, petDir, "idle");
+                if (list.Count == 0 && !string.Equals(clip, "idle", StringComparison.Ordinal))
                     AppendSequence(list, petDir, "idle");
                 if (list.Count == 0)
-                    AppendSequence(list, petDir, "fishing");
+                {
+                    AppendClipDirectory(list, petDir, "fishing");
+                    if (list.Count == 0)
+                        AppendSequence(list, petDir, "fishing");
+                }
                 if (list.Count == 0)
                     TryAdd(list, System.IO.Path.Combine(petDir, "cat.png"));
             }
 
             if (list.Count == 0)
             {
-                AppendSequence(list, root, "cat-" + visualState);
+                AppendSequence(list, root, "cat-" + clip);
                 if (list.Count == 0)
                     TryAdd(list, System.IO.Path.Combine(root, "cat.png"));
             }
 
             return list.ToArray();
+        }
+
+        static string NormalizeClip(string visualState)
+        {
+            if (string.IsNullOrWhiteSpace(visualState))
+                return "idle";
+            if (string.Equals(visualState, "catching", StringComparison.OrdinalIgnoreCase))
+                return "reel";
+            if (string.Equals(visualState, "offline", StringComparison.OrdinalIgnoreCase))
+                return "idle";
+            if (string.Equals(visualState, "dragging", StringComparison.OrdinalIgnoreCase))
+                return "idle";
+            return visualState;
+        }
+
+        static void AppendClipDirectory(List<ImageSource> list, string petDir, string clip)
+        {
+            var clipDir = System.IO.Path.Combine(petDir, clip);
+            for (var i = 0; i < 16; i++)
+            {
+                var path = System.IO.Path.Combine(clipDir, i + ".png");
+                if (!File.Exists(path))
+                    break;
+                TryAdd(list, path);
+            }
         }
 
         static bool IsSafePetId(string petId)

@@ -2,7 +2,7 @@
 
 > 状态：**已实现**（用户验收 2026-08-15）
 
-请在 `fish-social-unity/` 内实现同一鱼塘内其他玩家宠物的表现和状态同步，主要表现于已有的 `960×480` 原生 Overlay。
+请在 `fish-social-unity/` 内实现同一鱼塘内其他玩家宠物的表现和状态同步，主要表现于已有的 `960×560` 原生 Overlay。
 本任务只运行一个 Unity 主程序；严禁启动第二个 Unity Player。
 Overlay 不连接 Socket；网络仍由 Unity 现有会话承担。
 
@@ -17,13 +17,13 @@ Overlay 不连接 Socket；网络仍由 Unity 现有会话承担。
 
 - 权威事件不变：`pond_snapshot`、`pond_user_joined`、`pond_user_left`、`pond_user_updated`。
 - 不新开网络协议，不把 Steam Lobby 当鱼塘权威。
-- 表现不同：Overlay `128×128` 序列帧宠物 + 昵称，而不是 RN 头像二头身。
+- 表现不同：Overlay **64×64** 显示槽（源图 256×256）序列帧宠物 + 昵称，而不是 RN 头像二头身。
 
 ## 范围
 
 - Unity 处理 `pond_user_joined`、`pond_user_left`、`pond_user_updated`，并把同塘用户列表推进 Overlay 状态 DTO。
 - Overlay 显示同塘玩家宠物形象、昵称和基础钓鱼状态。
-- 自己和其他玩家使用统一的宠物表现接口：同一 `petVisualState` 枚举、同一 `128×128` 基准、同一套 **Overlay 本地序列帧** 渲染器。
+- 自己和其他玩家使用统一的宠物表现接口：同一 `petVisualState` 枚举、同一 Overlay **64×64** 显示槽、同一套 **Overlay 本地序列帧** 渲染器。
 - Unity 将服务端 `fishingPhase` 映射为 `petVisualState` 后下发；Overlay 按状态切本地帧，**IPC 不传图片或逐帧数据**。
 - 主窗口隐藏时 Overlay 继续播帧、继续收 Unity 推送的状态；不得因切主窗口而停止同步或重建会话。
 - 玩家离开时清理表现对象；按 `playerId` 复用，重复事件不得产生重复对象。

@@ -747,7 +747,9 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
             _pondSession.StartGroundbait(id, (ok, message) =>
             {
-                _nativeOverlayError = ok ? string.Empty : (message ?? "打窝失败。");
+                _nativeOverlayError = ok
+                    ? "打窝成功，希望鱼儿能快快长大"
+                    : (message ?? "打窝失败。");
                 // Gold / cap errors surface as Overlay bubble via observation-style tip
                 if (!ok && !string.IsNullOrEmpty(message) &&
                     (message.Contains("金币") || message.Contains("上限")))

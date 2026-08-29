@@ -1708,6 +1708,7 @@ namespace FishSocial.Desktop.Editor
                 typeof(CanvasScaler),
                 typeof(GraphicRaycaster));
             Stretch(root.GetComponent<RectTransform>());
+            root.transform.localScale = Vector3.one;
             var canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = root.GetComponent<CanvasScaler>();
@@ -1857,6 +1858,181 @@ namespace FishSocial.Desktop.Editor
             go.GetComponent<Image>().color = new Color(0.16f, 0.22f, 0.3f, 1f);
             var t = ShellText(go.transform, "Label", label, 13, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(80, 40));
             Stretch(t.rectTransform);
+        }
+
+        public static void EnsureOverlayHud()
+        {
+            var path = Folder + "/OverlayHud.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+            {
+                var root = CreateOverlayHudRoot();
+                var errors = string.Empty;
+                if (SaveGeneratedPrefab(root, "OverlayHud", ref errors) != 1)
+                    throw new System.InvalidOperationException("创建 OverlayHud 失败：" + errors);
+            }
+
+            PopulateNamedPanel("OverlayHud", existing =>
+            {
+                if (existing.GetComponent<DesktopOverlayHudView>() == null)
+                    existing.AddComponent<DesktopOverlayHudView>();
+                var rootRt = existing.GetComponent<RectTransform>();
+                if (rootRt != null)
+                    ApplyOverlayHudRootRect(rootRt);
+                EnsureOverlayHudStructure(existing.transform);
+            });
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
+        static GameObject CreateOverlayHudRoot()
+        {
+            var root = new GameObject(
+                "OverlayHud",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(GraphicRaycaster),
+                typeof(DesktopOverlayHudView));
+            var rt = root.GetComponent<RectTransform>();
+            ApplyOverlayHudRootRect(rt);
+
+            var canvas = root.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            var scaler = root.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            scaler.scaleFactor = 1f;
+            return root;
+        }
+
+        static void EnsureOverlayHudStructure(Transform root)
+        {
+            foreach (var spec in OverlayHudWidgetCatalog.All)
+            {
+                var child = OverlayHudExporter.FindHudTransform(root, spec.Id);
+                if (child == null)
+                {
+                    CreateOverlayHudWidget(
+                        root,
+                        spec.Id,
+                        spec.Kind,
+                        spec.X,
+                        spec.Y,
+                        spec.W,
+                        spec.H,
+                        spec.VisibleDefault);
+                    child = OverlayHudExporter.FindHudTransform(root, spec.Id);
+                }
+
+                if (child == null)
+                    continue;
+
+                var widget = child.GetComponent<DesktopOverlayHudWidget>();
+                if (widget == null)
+                    widget = child.gameObject.AddComponent<DesktopOverlayHudWidget>();
+                widget.widgetId = spec.Id;
+                widget.kind = spec.Kind;
+                widget.zIndex = 100;
+                widget.visibleDefault = spec.VisibleDefault;
+            }
+
+            foreach (var spec in OverlayHudWidgetCatalog.All)
+            {
+                if (string.IsNullOrEmpty(spec.ParentId))
+                {
+                    var child = OverlayHudExporter.FindHudTransform(root, spec.Id);
+                    if (child != null && child.parent != root)
+                        child.SetParent(root, false);
+                    continue;
+                }
+                var childNode = OverlayHudExporter.FindHudTransform(root, spec.Id);
+                var parent = OverlayHudExporter.FindHudTransform(root, spec.ParentId);
+                if (childNode == null || parent == null)
+                    continue;
+                childNode.SetParent(parent, false);
+            }
+
+            foreach (var spec in OverlayHudWidgetCatalog.All)
+            {
+                var child = OverlayHudExporter.FindHudTransform(root, spec.Id);
+                if (child == null)
+                    continue;
+                PlaceOverlayHudRect(
+                    child.GetComponent<RectTransform>(),
+                    spec.X,
+                    spec.Y,
+                    spec.W,
+                    spec.H);
+            }
+        }
+
+        static GameObject CreateOverlayHudWidget(
+            Transform root,
+            string id,
+            string kind,
+            float x,
+            float y,
+            float w,
+            float h,
+            bool visibleDefault)
+        {
+            var go = new GameObject(id, typeof(RectTransform));
+            go.transform.SetParent(root, false);
+            PlaceOverlayHudRect(go.GetComponent<RectTransform>(), x, y, w, h);
+
+            if (kind == "text")
+            {
+                var image = go.AddComponent<Image>();
+                image.color = new Color(0.08f, 0.12f, 0.16f, 0.35f);
+                var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+                labelGo.transform.SetParent(go.transform, false);
+                Stretch(labelGo.GetComponent<RectTransform>());
+                var text = labelGo.GetComponent<Text>();
+                text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                text.fontSize = 12;
+                text.color = Color.white;
+                text.alignment = TextAnchor.MiddleLeft;
+                text.text = id;
+            }
+            else if (kind == "group")
+            {
+                var image = go.AddComponent<Image>();
+                image.color = new Color(0.25f, 0.55f, 0.85f, 0.12f);
+                image.raycastTarget = false;
+            }
+            else
+            {
+                var image = go.AddComponent<Image>();
+                image.color = kind == "panel"
+                    ? new Color(0.06f, 0.09f, 0.12f, 0.85f)
+                    : new Color(0.12f, 0.18f, 0.24f, 0.92f);
+                if (kind == "button")
+                    go.AddComponent<Button>();
+            }
+
+            go.AddComponent<DesktopOverlayHudWidget>();
+            return go;
+        }
+
+        static void ApplyOverlayHudRootRect(RectTransform rt)
+        {
+            if (rt == null)
+                return;
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(960f, 560f);
+        }
+
+        static void PlaceOverlayHudRect(RectTransform rt, float x, float y, float w, float h)
+        {
+            if (rt == null)
+                return;
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(x, -y);
+            rt.sizeDelta = new Vector2(w, h);
         }
 
         sealed class PrefabEntry

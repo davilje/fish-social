@@ -227,6 +227,25 @@ namespace FishSocial.Desktop
             }
         }
 
+        public static string[] GetSpotIds(string pondId)
+        {
+            EnsureLoaded();
+            var list = new List<string>();
+            for (var i = 0; i < _pondSpotTags.Length; i++)
+            {
+                var row = _pondSpotTags[i];
+                if (row == null || string.IsNullOrEmpty(row.spotId))
+                    continue;
+                if (!string.IsNullOrEmpty(pondId) &&
+                    !string.Equals(row.pondId, pondId, StringComparison.Ordinal))
+                    continue;
+                if (!list.Contains(row.spotId))
+                    list.Add(row.spotId);
+            }
+
+            return list.ToArray();
+        }
+
         public static string[] GetSpotTags(string pondId, string spotId)
         {
             EnsureLoaded();
