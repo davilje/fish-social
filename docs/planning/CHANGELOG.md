@@ -1,5 +1,18 @@
 # 策划文档变更记录
 
+### [steam-desktop-14-click-through-accepted] - 2026-08-29
+
+- **STEAM-DESKTOP-14** Overlay 透明点击穿透回归 → **已实现**（设计/完成 2026-08-29）。
+- 去掉 `SceneFadeHost` `#01000000` 整层填充；`WM_NCHITTEST` 按猫/HUD/可见塘图像素命中，透明处 `HTTRANSPARENT`。
+- 13A 四边 40px Absolute 渐隐保留。规格：`Steam桌面端-14Overlay透明点击穿透回归.md`。
+
+### [steam-desktop-14-overlay-ux] - 2026-08-29
+
+- 立项 **STEAM-DESKTOP-14～14D** → **已确认**（设计 2026-08-29）。
+- **14** 透明点击穿透回归（保留 13A 渐隐）；**14A** 座位预制体统一与空位显隐（修订：OverlayPondActor 为真相）；**14B** 横轴平移（P1）；**14C** HUD 正式图与文字样式；**14D** 状态小图标与套猫圆环。
+- 建议开发顺序：14 → 14D → 14A → 14C；14B 等加宽底图。
+- 规格：`docs/planning/specs/Steam桌面端-14*.md`
+
 ### [steam-desktop-13-overlay-hud-accepted] - 2026-08-29
 
 - 登记并验收 **STEAM-DESKTOP-13 / 13A / 13B / 13C**（设计/完成均为 2026-08-29）。

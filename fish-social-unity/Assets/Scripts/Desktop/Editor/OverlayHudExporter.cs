@@ -88,7 +88,10 @@ namespace FishSocial.Desktop.Editor
             }
 
             Directory.CreateDirectory(outputDir);
+            var fontsDir = Path.Combine(outputDir, "fonts");
+            Directory.CreateDirectory(fontsDir);
             var copiedSprites = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var copiedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var entries = new List<string>();
 
             foreach (var widget in widgets)
@@ -124,6 +127,10 @@ namespace FishSocial.Desktop.Editor
                 if (!string.IsNullOrEmpty(spriteError))
                     return spriteError;
 
+                var textStyle = ExtractTextStyle(widget, fontsDir, copiedFonts, out var textStyleError);
+                if (!string.IsNullOrEmpty(textStyleError))
+                    return textStyleError;
+
                 entries.Add(BuildWidgetJson(
                     widget,
                     parentId,
@@ -131,7 +138,8 @@ namespace FishSocial.Desktop.Editor
                     y,
                     w,
                     h,
-                    spriteName));
+                    spriteName,
+                    textStyle));
             }
 
             var jsonPath = Path.Combine(outputDir, "overlay-hud.json");
@@ -364,6 +372,158 @@ namespace FishSocial.Desktop.Editor
                 AssetDatabase.LoadAssetAtPath<Sprite>("Assets/StreamingAssets/OverlayHud/" + fileName));
         }
 
+        struct HudTextStyleExport
+        {
+            public string FontFile;
+            public int FontSize;
+            public string FontColor;
+            public string FontWeight;
+            public string TextAlign;
+            public string ContentAlign;
+            public bool HasStyle;
+        }
+
+        static HudTextStyleExport ExtractTextStyle(
+            DesktopOverlayHudWidget widget,
+            string fontsDir,
+            HashSet<string> copiedFonts,
+            out string error)
+        {
+            error = null;
+            var kind = string.IsNullOrEmpty(widget.kind) ? "button" : widget.kind;
+            if (!string.Equals(kind, "text", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase))
+                return default;
+
+            var text = FindWidgetText(widget);
+            if (text == null)
+            {
+                if (!string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase))
+                    return default;
+
+                return new HudTextStyleExport
+                {
+                    FontFile = CopyFontFile(Resources.GetBuiltinResource<Font>("Arial.ttf"), fontsDir, copiedFonts, out error),
+                    FontSize = 12,
+                    FontColor = "#FFFFFFFF",
+                    FontWeight = "normal",
+                    ContentAlign = "center",
+                    HasStyle = string.IsNullOrEmpty(error),
+                };
+            }
+
+            var fontFile = CopyFontFile(text.font, fontsDir, copiedFonts, out error);
+            if (!string.IsNullOrEmpty(error))
+                return default;
+
+            var align = MapTextAlign(text.alignment);
+            return new HudTextStyleExport
+            {
+                FontFile = fontFile,
+                FontSize = text.fontSize,
+                FontColor = FormatColor(text.color),
+                FontWeight = text.fontStyle == FontStyle.Bold ? "bold" : "normal",
+                TextAlign = string.Equals(kind, "text", StringComparison.OrdinalIgnoreCase) ? align : null,
+                ContentAlign = string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase) ? align : null,
+                HasStyle = true,
+            };
+        }
+
+        static Text FindWidgetText(DesktopOverlayHudWidget widget)
+        {
+            if (widget == null)
+                return null;
+            return widget.GetComponentInChildren<Text>(true);
+        }
+
+        static string CopyFontFile(Font font, string fontsDir, HashSet<string> copiedFonts, out string error)
+        {
+            error = null;
+            if (font == null)
+            {
+                error = "控件缺少字体";
+                return null;
+            }
+
+            var sourcePath = ResolveFontSourcePath(font);
+            if (string.IsNullOrEmpty(sourcePath) || !File.Exists(sourcePath))
+            {
+                error = "找不到字体文件：" + font.name;
+                return null;
+            }
+
+            var fileName = Path.GetFileName(sourcePath);
+            var dest = Path.Combine(fontsDir, fileName);
+            if (!copiedFonts.Contains(fileName))
+            {
+                File.Copy(sourcePath, dest, true);
+                copiedFonts.Add(fileName);
+            }
+
+            return fileName;
+        }
+
+        static string ResolveFontSourcePath(Font font)
+        {
+            var assetPath = AssetDatabase.GetAssetPath(font);
+            if (!string.IsNullOrEmpty(assetPath) &&
+                !assetPath.Contains("unity_builtin", StringComparison.OrdinalIgnoreCase) &&
+                File.Exists(assetPath))
+                return assetPath;
+
+            if (font.name.IndexOf("Arial", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var windowsFont = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Fonts),
+                    "arial.ttf");
+                if (File.Exists(windowsFont))
+                    return windowsFont;
+            }
+
+            return null;
+        }
+
+        static string FormatColor(Color color)
+        {
+            var c = (Color32)color;
+            return "#" + c.a.ToString("X2") + c.r.ToString("X2") + c.g.ToString("X2") + c.b.ToString("X2");
+        }
+
+        static string MapTextAlign(TextAnchor anchor)
+        {
+            switch (anchor)
+            {
+                case TextAnchor.UpperCenter:
+                case TextAnchor.MiddleCenter:
+                case TextAnchor.LowerCenter:
+                    return "center";
+                case TextAnchor.UpperRight:
+                case TextAnchor.MiddleRight:
+                case TextAnchor.LowerRight:
+                    return "right";
+                default:
+                    return "left";
+            }
+        }
+
+        static void AppendTextStyleJson(StringBuilder sb, HudTextStyleExport style)
+        {
+            if (!style.HasStyle)
+                return;
+            if (!string.IsNullOrEmpty(style.FontFile))
+                sb.Append(",\"fontFile\":\"").Append(Escape(style.FontFile)).Append("\"");
+            if (style.FontSize > 0)
+                sb.Append(",\"fontSize\":").Append(style.FontSize);
+            if (!string.IsNullOrEmpty(style.FontColor))
+                sb.Append(",\"fontColor\":\"").Append(Escape(style.FontColor)).Append("\"");
+            if (!string.IsNullOrEmpty(style.FontWeight))
+                sb.Append(",\"fontWeight\":\"").Append(Escape(style.FontWeight)).Append("\"");
+            if (!string.IsNullOrEmpty(style.TextAlign))
+                sb.Append(",\"textAlign\":\"").Append(Escape(style.TextAlign)).Append("\"");
+            if (!string.IsNullOrEmpty(style.ContentAlign))
+                sb.Append(",\"contentAlign\":\"").Append(Escape(style.ContentAlign)).Append("\"");
+        }
+
         static string BuildWidgetJson(
             DesktopOverlayHudWidget widget,
             string parentId,
@@ -371,7 +531,8 @@ namespace FishSocial.Desktop.Editor
             float y,
             float w,
             float h,
-            string sprite)
+            string sprite,
+            HudTextStyleExport textStyle)
         {
             var sb = new StringBuilder();
             sb.Append("    {");
@@ -387,6 +548,7 @@ namespace FishSocial.Desktop.Editor
             sb.Append("\"visibleDefault\":").Append(widget.visibleDefault ? "true" : "false");
             if (!string.IsNullOrEmpty(sprite))
                 sb.Append(",\"sprite\":\"").Append(Escape(sprite)).Append("\"");
+            AppendTextStyleJson(sb, textStyle);
             sb.Append("}");
             return sb.ToString();
         }

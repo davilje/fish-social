@@ -44,6 +44,36 @@ namespace FishSocial.Desktop.Editor
                 "确定");
         }
 
+        /// <summary>
+        /// Batch entry: ensure OverlayPondActor + all pond layout prefabs (seat nests), then export JSON.
+        /// </summary>
+        public static void BatchEnsureAndExport()
+        {
+            try
+            {
+                OverlayPondActorBaker.Ensure();
+                var error = ExportAll(out var count);
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Debug.LogError("[OverlayLayoutExporter] " + error);
+                    if (Application.isBatchMode)
+                        EditorApplication.Exit(1);
+                    return;
+                }
+
+                Debug.Log("[OverlayLayoutExporter] Batch ensured and exported " + count + " pond layouts.");
+                if (Application.isBatchMode)
+                    EditorApplication.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                if (Application.isBatchMode)
+                    EditorApplication.Exit(1);
+                throw;
+            }
+        }
+
         public static string ExportAll(out int count)
         {
             count = 0;
@@ -150,6 +180,7 @@ namespace FishSocial.Desktop.Editor
                 byId[objectId] = item;
 
                 var kind = NormalizeKind(item.kind);
+                var inheritedSpotId = InheritSpotId(item.transform);
                 if (kind == "spot")
                 {
                     var spotId = string.IsNullOrWhiteSpace(item.spotId) ? objectId : item.spotId;
@@ -157,6 +188,18 @@ namespace FishSocial.Desktop.Editor
                         return "非法 spotId（不在 " + view.pondId + " 的钓位表）：" + spotId;
                     if (!spotIds.Add(spotId))
                         return "重复的 spotId：" + spotId;
+                }
+                else if (kind.StartsWith("actor-", System.StringComparison.Ordinal))
+                {
+                    var actorSpot = string.IsNullOrWhiteSpace(item.spotId)
+                        ? inheritedSpotId
+                        : item.spotId;
+                    if (string.IsNullOrWhiteSpace(actorSpot))
+                        return "actor 部件缺少 spotId：" + objectId;
+                    if (!knownSpots.Contains(actorSpot))
+                        return "非法 actor spotId：" + actorSpot;
+                    if (string.IsNullOrWhiteSpace(item.spotId))
+                        item.spotId = actorSpot;
                 }
                 else if (kind == "hud" || kind == "button" || kind == "menu")
                 {
@@ -171,18 +214,36 @@ namespace FishSocial.Desktop.Editor
                     return "尺寸无效：" + objectId;
 
                 string spriteName = null;
-                if (kind == "sprite")
+                if (kind == "sprite" ||
+                    kind == "spot" ||
+                    kind.StartsWith("actor-", System.StringComparison.Ordinal))
                 {
-                    var spriteError = ResolveSpriteName(item, out spriteName);
+                    var spriteError = ResolveSpriteName(item, out var fileName);
                     if (!string.IsNullOrEmpty(spriteError))
                         return spriteError;
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        spriteName = kind == "spot" || kind == "actor-seat"
+                            ? "seats/" + Path.GetFileName(fileName)
+                            : fileName;
+                    }
+                }
+
+                // Spot host inherits seat art when it has no sprite but child actor-seat does.
+                if (kind == "spot" && string.IsNullOrEmpty(spriteName))
+                {
+                    var seatSprite = FindChildActorSeatSprite(item.transform);
+                    if (!string.IsNullOrEmpty(seatSprite))
+                        spriteName = seatSprite.StartsWith("seats/", System.StringComparison.OrdinalIgnoreCase)
+                            ? seatSprite
+                            : "seats/" + Path.GetFileName(seatSprite);
                 }
 
                 entries.Add(new LayoutEntry
                 {
                     Id = objectId,
                     Kind = kind,
-                    SpotId = kind == "spot"
+                    SpotId = kind == "spot" || kind.StartsWith("actor-", System.StringComparison.Ordinal)
                         ? (string.IsNullOrWhiteSpace(item.spotId) ? objectId : item.spotId)
                         : null,
                     X = bounds.x,
@@ -191,14 +252,20 @@ namespace FishSocial.Desktop.Editor
                     H = bounds.height,
                     Z = item.zIndex,
                     Sprite = spriteName,
-                    Anchor = string.IsNullOrEmpty(item.anchor)
-                        ? (kind == "spot" ? "bottom-center" : "top-left")
-                        : item.anchor,
+                    // actor-* bounds from GetTopLeftBounds are always top-left pixels.
+                    Anchor = kind.StartsWith("actor-", System.StringComparison.Ordinal)
+                        ? "top-left"
+                        : (string.IsNullOrEmpty(item.anchor)
+                            ? (kind == "spot" ? "bottom-center" : "top-left")
+                            : item.anchor),
                 });
             }
 
             if (spotIds.Count == 0)
                 return "至少需要一个 kind=spot 钓位。";
+
+            // Prefer actor-seat as the clickable seat footprint when present.
+            SyncSpotSpriteFromSeat(entries);
 
             var copyError = CopyReferencedSprites(objects, OverlayResourcesDir());
             if (!string.IsNullOrEmpty(copyError))
@@ -227,6 +294,83 @@ namespace FishSocial.Desktop.Editor
             return null;
         }
 
+        static string FindChildActorSeatSprite(Transform spot)
+        {
+            if (spot == null)
+                return null;
+            var markers = spot.GetComponentsInChildren<DesktopOverlayLayoutObject>(true);
+            for (var i = 0; i < markers.Length; i++)
+            {
+                var marker = markers[i];
+                if (marker == null || marker.transform == spot)
+                    continue;
+                if (!string.Equals(NormalizeKind(marker.kind), "actor-seat", StringComparison.Ordinal))
+                    continue;
+                if (!string.IsNullOrWhiteSpace(marker.spriteFile))
+                    return Path.GetFileName(marker.spriteFile);
+                var image = marker.GetComponent<Image>();
+                if (image != null && image.sprite != null)
+                {
+                    var assetPath = AssetDatabase.GetAssetPath(image.sprite);
+                    if (!string.IsNullOrEmpty(assetPath))
+                        return Path.GetFileName(assetPath);
+                }
+            }
+
+            return null;
+        }
+
+        static void SyncSpotSpriteFromSeat(List<LayoutEntry> entries)
+        {
+            if (entries == null)
+                return;
+            var seatBySpot = new Dictionary<string, LayoutEntry>(StringComparer.Ordinal);
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (entry == null ||
+                    !string.Equals(entry.Kind, "actor-seat", StringComparison.Ordinal) ||
+                    string.IsNullOrEmpty(entry.SpotId) ||
+                    string.IsNullOrEmpty(entry.Sprite))
+                    continue;
+                seatBySpot[entry.SpotId] = entry;
+            }
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (entry == null ||
+                    !string.Equals(entry.Kind, "spot", StringComparison.Ordinal) ||
+                    string.IsNullOrEmpty(entry.SpotId))
+                    continue;
+                if (!string.IsNullOrEmpty(entry.Sprite))
+                    continue;
+                if (seatBySpot.TryGetValue(entry.SpotId, out var seat))
+                    entry.Sprite = seat.Sprite;
+            }
+        }
+
+        static string InheritSpotId(Transform node)
+        {
+            var current = node != null ? node.parent : null;
+            while (current != null)
+            {
+                var marker = current.GetComponent<DesktopOverlayLayoutObject>();
+                if (marker != null &&
+                    string.Equals(NormalizeKind(marker.kind), "spot", StringComparison.Ordinal))
+                {
+                    if (!string.IsNullOrWhiteSpace(marker.spotId))
+                        return marker.spotId;
+                    if (!string.IsNullOrWhiteSpace(marker.objectId))
+                        return marker.objectId;
+                }
+
+                current = current.parent;
+            }
+
+            return null;
+        }
+
         static string NormalizeKind(string kind)
         {
             if (string.IsNullOrWhiteSpace(kind))
@@ -234,34 +378,15 @@ namespace FishSocial.Desktop.Editor
             return kind.Trim().ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Always resolve against the canvas so nested actor-* parts export absolute pixels.
+        /// </summary>
         static Rect GetTopLeftBounds(RectTransform canvas, RectTransform target)
         {
-            if (UsesTopLeftLayout(target))
-            {
-                return new Rect(
-                    target.anchoredPosition.x,
-                    -target.anchoredPosition.y,
-                    target.rect.width,
-                    target.rect.height);
-            }
-
             var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvas, target);
             var x = bounds.min.x;
-            var y = canvas.rect.height + bounds.max.y;
-            return new Rect(x, y, bounds.size.x, bounds.size.y);
-        }
-
-        static bool UsesTopLeftLayout(RectTransform rt)
-        {
-            if (rt == null)
-                return false;
-            const float eps = 0.001f;
-            return Mathf.Abs(rt.anchorMin.x) < eps &&
-                   Mathf.Abs(rt.anchorMin.y - 1f) < eps &&
-                   Mathf.Abs(rt.anchorMax.x) < eps &&
-                   Mathf.Abs(rt.anchorMax.y - 1f) < eps &&
-                   Mathf.Abs(rt.pivot.x) < eps &&
-                   Mathf.Abs(rt.pivot.y - 1f) < eps;
+            var y = canvas.rect.height - bounds.max.y;
+            return new Rect(x, y, Mathf.Max(1f, bounds.size.x), Mathf.Max(1f, bounds.size.y));
         }
 
         static string ResolveSpriteName(DesktopOverlayLayoutObject item, out string spriteName)
@@ -292,7 +417,12 @@ namespace FishSocial.Desktop.Editor
             for (var i = 0; i < objects.Length; i++)
             {
                 var item = objects[i];
-                if (item == null || !string.Equals(NormalizeKind(item.kind), "sprite", StringComparison.Ordinal))
+                if (item == null)
+                    continue;
+                var kind = NormalizeKind(item.kind);
+                if (kind != "sprite" &&
+                    kind != "spot" &&
+                    !kind.StartsWith("actor-", StringComparison.Ordinal))
                     continue;
                 var image = item.GetComponent<Image>();
                 if (image == null || image.sprite == null)
@@ -306,7 +436,11 @@ namespace FishSocial.Desktop.Editor
                 var fileName = Path.GetFileName(fullAsset);
                 if (string.IsNullOrEmpty(fileName))
                     continue;
-                var dest = Path.Combine(resourcesDir, fileName);
+                var destDir = kind == "spot" || kind == "actor-seat"
+                    ? Path.Combine(resourcesDir, "seats")
+                    : resourcesDir;
+                Directory.CreateDirectory(destDir);
+                var dest = Path.Combine(destDir, fileName);
                 if (string.Equals(fullAsset, dest, StringComparison.OrdinalIgnoreCase))
                     continue;
                 try
@@ -316,6 +450,21 @@ namespace FishSocial.Desktop.Editor
                 catch (Exception ex)
                 {
                     return "拷贝贴图失败：" + fileName + " — " + ex.Message;
+                }
+
+                // Keep seats/_default.png in sync when source is seat-default.png.
+                if ((kind == "spot" || kind == "actor-seat") &&
+                    fileName.IndexOf("seat", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    var defaultDest = Path.Combine(destDir, "_default.png");
+                    try
+                    {
+                        if (!File.Exists(defaultDest))
+                            File.Copy(fullAsset, defaultDest, true);
+                    }
+                    catch
+                    {
+                    }
                 }
             }
 
@@ -364,8 +513,7 @@ namespace FishSocial.Desktop.Editor
 
         static float AnchorX(LayoutEntry entry)
         {
-            if (string.Equals(entry.Kind, "spot", StringComparison.Ordinal) &&
-                string.Equals(entry.Anchor, "bottom-center", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(entry.Anchor, "bottom-center", StringComparison.OrdinalIgnoreCase))
                 return entry.X + entry.W * 0.5f;
             if (string.Equals(entry.Anchor, "center", StringComparison.OrdinalIgnoreCase))
                 return entry.X + entry.W * 0.5f;
@@ -374,8 +522,7 @@ namespace FishSocial.Desktop.Editor
 
         static float AnchorY(LayoutEntry entry)
         {
-            if (string.Equals(entry.Kind, "spot", StringComparison.Ordinal) &&
-                string.Equals(entry.Anchor, "bottom-center", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(entry.Anchor, "bottom-center", StringComparison.OrdinalIgnoreCase))
                 return entry.Y + entry.H;
             if (string.Equals(entry.Anchor, "center", StringComparison.OrdinalIgnoreCase))
                 return entry.Y + entry.H * 0.5f;

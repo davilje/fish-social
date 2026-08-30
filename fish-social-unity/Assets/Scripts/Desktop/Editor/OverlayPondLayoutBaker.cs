@@ -19,6 +19,8 @@ namespace FishSocial.Desktop.Editor
         public const float CanvasWidth = 960f;
         public const float CanvasHeight = 560f;
         public const float SpotSize = 24f;
+        public const float SeatHostW = OverlayPondActorBaker.SeatHostW;
+        public const float SeatHostH = OverlayPondActorBaker.SeatHostH;
 
         public static string PrefabPath(string pondId)
         {
@@ -33,7 +35,7 @@ namespace FishSocial.Desktop.Editor
             {
                 EditorUtility.DisplayDialog(
                     "Overlay 布局 Prefab",
-                    "已补齐 Assets/Desktop/OverlayLayouts/<pondId>.prefab。\n打开某一塘后拖钓位，再执行 Export Overlay Layout。",
+                    "已补齐 Assets/Desktop/OverlayLayouts/<pondId>.prefab。\n每个 spot 下嵌套 OverlayPondActor 预制体实例。\n先改 OverlayPondActor，再拖塘内 spot，最后 Export Overlay Layout。",
                     "确定");
             }
         }
@@ -327,13 +329,24 @@ namespace FishSocial.Desktop.Editor
                     root,
                     spotId,
                     "spot",
-                    x - SpotSize * 0.5f,
-                    y - SpotSize,
-                    SpotSize,
-                    SpotSize,
+                    x - SeatHostW * 0.5f,
+                    y - SeatHostH,
+                    SeatHostW,
+                    SeatHostH,
                     10,
                     spotId,
-                    null);
+                    "seats/_default.png");
+            }
+
+            OverlayPondActorBaker.Ensure();
+            var spots = root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true);
+            for (var i = 0; i < spots.Length; i++)
+            {
+                var item = spots[i];
+                if (item == null || !string.Equals(item.kind, "spot", System.StringComparison.Ordinal))
+                    continue;
+                var id = string.IsNullOrWhiteSpace(item.spotId) ? item.objectId : item.spotId;
+                OverlayPondActorBaker.EnsureOnSpot(item.transform, id);
             }
         }
 

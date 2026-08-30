@@ -21,6 +21,8 @@ namespace FishSocialOverlay
 
         readonly Dictionary<string, OverlayLayoutObjectDto> _spots =
             new Dictionary<string, OverlayLayoutObjectDto>(StringComparer.Ordinal);
+        readonly Dictionary<string, OverlayActorChrome> _actors =
+            new Dictionary<string, OverlayActorChrome>(StringComparer.Ordinal);
         readonly List<OverlayLayoutObjectDto> _sprites = new List<OverlayLayoutObjectDto>();
         OverlayLayoutObjectDto _waiting;
         double _petWidth = PondScenePresenter.CatSize;
@@ -120,6 +122,10 @@ namespace FishSocialOverlay
                 {
                     _sprites.Add(item);
                 }
+                else if (kind.StartsWith("actor-", StringComparison.Ordinal))
+                {
+                    AddActorPart(item, kind);
+                }
             }
 
             if (_spots.Count == 0)
@@ -136,6 +142,99 @@ namespace FishSocialOverlay
             return true;
         }
 
+        public bool TryGetActorChrome(string spotId, out OverlayActorChrome chrome)
+        {
+            chrome = null;
+            if (string.IsNullOrEmpty(spotId))
+                return false;
+            return _actors.TryGetValue(spotId, out chrome) && chrome != null && chrome.HasAny;
+        }
+
+        /// <summary>
+        /// Cat body center from actor-pet when present; otherwise false.
+        /// actor-* JSON x/y are always canvas top-left (see LayoutAnchor).
+        /// </summary>
+        public bool TryGetPetPoint(string spotId, out Point point)
+        {
+            point = new Point();
+            if (!IsActive || string.IsNullOrEmpty(spotId))
+                return false;
+            if (!_actors.TryGetValue(spotId, out var chrome) || chrome == null || chrome.Pet == null)
+                return false;
+            var pet = chrome.Pet;
+            var width = pet.w > 0 ? pet.w : OverlayPetActor.BodySize;
+            var height = pet.h > 0 ? pet.h : OverlayPetActor.BodySize;
+            ResolveRect(pet.x, pet.y, width, height, LayoutAnchor(pet), out var left, out var top);
+            point = new Point(left + width * 0.5, top + height * 0.5);
+            return true;
+        }
+
+        /// <summary>
+        /// Prefer actor-seat footprint for marker placement; fall back to kind=spot.
+        /// </summary>
+        public bool TryGetSeatVisual(string spotId, out OverlayLayoutObjectDto visual)
+        {
+            visual = null;
+            if (string.IsNullOrEmpty(spotId))
+                return false;
+            if (_actors.TryGetValue(spotId, out var chrome) &&
+                chrome != null &&
+                chrome.Seat != null &&
+                chrome.Seat.w > 0 &&
+                chrome.Seat.h > 0)
+            {
+                visual = chrome.Seat;
+                return true;
+            }
+
+            if (_spots.TryGetValue(spotId, out var spot) && spot != null)
+            {
+                visual = spot;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// actor-* parts are authored with PlaceTopLeft and exported as absolute top-left
+        /// pixels. Some older JSON mislabeled them as bottom-center — ignore that.
+        /// </summary>
+        public static string LayoutAnchor(OverlayLayoutObjectDto item)
+        {
+            if (item == null)
+                return "top-left";
+            var kind = (item.kind ?? string.Empty).Trim().ToLowerInvariant();
+            if (kind.StartsWith("actor-", StringComparison.Ordinal))
+                return "top-left";
+            if (string.IsNullOrWhiteSpace(item.anchor))
+                return kind == "spot" ? "bottom-center" : "top-left";
+            return item.anchor;
+        }
+
+        void AddActorPart(OverlayLayoutObjectDto item, string kind)
+        {
+            var spotId = string.IsNullOrWhiteSpace(item.spotId) ? item.id : item.spotId;
+            if (string.IsNullOrWhiteSpace(spotId))
+                return;
+            if (!_actors.TryGetValue(spotId, out var chrome) || chrome == null)
+            {
+                chrome = new OverlayActorChrome();
+                _actors[spotId] = chrome;
+            }
+
+            if (kind == "actor-pet")
+                chrome.Pet = item;
+            else if (kind == "actor-name")
+                chrome.Name = item;
+            else if (kind == "actor-status")
+                chrome.Status = item;
+            else if (kind == "actor-ring")
+                chrome.Ring = item;
+            else if (kind == "actor-seat")
+                chrome.Seat = item;
+        }
+
         public bool TryGetSpotPoint(string spotId, out Point point)
         {
             point = new Point();
@@ -143,8 +242,8 @@ namespace FishSocialOverlay
                 return false;
             if (!_spots.TryGetValue(spotId, out var item) || item == null)
                 return false;
-            var width = item.w > 0 ? item.w : 24;
-            var height = item.h > 0 ? item.h : 24;
+            var width = item.w > 0 ? item.w : 48;
+            var height = item.h > 0 ? item.h : 32;
             ResolveRect(item.x, item.y, width, height, item.anchor, out var left, out var top);
             point = new Point(left + width * 0.5, top + height * 0.5);
             return true;
@@ -260,6 +359,9 @@ namespace FishSocialOverlay
             var ponds = System.IO.Path.Combine(resourcesRoot, "ponds", fileName);
             if (File.Exists(ponds))
                 return ponds;
+            var seats = System.IO.Path.Combine(resourcesRoot, "seats", fileName);
+            if (File.Exists(seats))
+                return seats;
             var root = System.IO.Path.Combine(resourcesRoot, fileName);
             if (File.Exists(root))
                 return root;
@@ -270,6 +372,7 @@ namespace FishSocialOverlay
         {
             IsActive = false;
             _spots.Clear();
+            _actors.Clear();
             _sprites.Clear();
             _waiting = null;
             _petWidth = PondScenePresenter.CatSize;
@@ -291,6 +394,23 @@ namespace FishSocialOverlay
             [DataMember(Name = "width")] public double width = CanvasWidth;
             [DataMember(Name = "height")] public double height = CanvasHeight;
             [DataMember(Name = "origin")] public string origin = null;
+        }
+    }
+
+    public sealed class OverlayActorChrome
+    {
+        public OverlayLayoutObjectDto Pet;
+        public OverlayLayoutObjectDto Name;
+        public OverlayLayoutObjectDto Status;
+        public OverlayLayoutObjectDto Ring;
+        public OverlayLayoutObjectDto Seat;
+
+        public bool HasAny
+        {
+            get
+            {
+                return Pet != null || Name != null || Status != null || Ring != null || Seat != null;
+            }
         }
     }
 

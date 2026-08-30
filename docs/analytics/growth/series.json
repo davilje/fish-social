@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-28T16:30:03.001Z",
+  "generatedAt": "2026-08-29T16:30:03.088Z",
   "timezone": "Asia/Shanghai",
   "rulesVersion": "v0.4.1",
-  "asOf": "2026-08-28",
+  "asOf": "2026-08-29",
   "dayCount": 90,
   "humansOnly": true,
   "kpiCards": {
     "nu": {
       "value": 0,
-      "prev": 1,
-      "deltaPct": -100
+      "prev": 0,
+      "deltaPct": null
     },
     "dau": {
       "value": 1,
@@ -18,8 +18,8 @@
     },
     "fishing_dau": {
       "value": 1,
-      "prev": 0,
-      "deltaPct": null
+      "prev": 1,
+      "deltaPct": 0
     },
     "wau": {
       "value": 1,
@@ -38,38 +38,11 @@
     },
     "nu_share": {
       "value": 0,
-      "prev": 1,
-      "deltaPct": -100
+      "prev": 0,
+      "deltaPct": null
     }
   },
   "days": [
-    {
-      "date": "2026-05-31",
-      "nu": 0,
-      "dau": 0,
-      "fishing_dau": 0,
-      "wau": 0,
-      "mau": 0,
-      "nu_share": null,
-      "stickiness": null,
-      "daily_catch": 0,
-      "daily_catch_human": 0,
-      "daily_catch_bot": 0,
-      "catch_per_fisher": null,
-      "avg_session_ms": null,
-      "disconnect_rate": null,
-      "abandon_rate": null,
-      "escape_rate": null,
-      "join_fail_rate": null,
-      "avg_pop_ratio": null,
-      "funnel": {
-        "nu": 0,
-        "join": 0,
-        "fishing_start": 0,
-        "bite_hook": 0,
-        "catch": 0
-      }
-    },
     {
       "date": "2026-06-01",
       "nu": 0,
@@ -2465,6 +2438,33 @@
       "escape_rate": 0.24,
       "join_fail_rate": 0,
       "avg_pop_ratio": 139.5,
+      "funnel": {
+        "nu": 0,
+        "join": 0,
+        "fishing_start": 0,
+        "bite_hook": 0,
+        "catch": 0
+      }
+    },
+    {
+      "date": "2026-08-29",
+      "nu": 0,
+      "dau": 1,
+      "fishing_dau": 1,
+      "wau": 1,
+      "mau": 1,
+      "nu_share": 0,
+      "stickiness": 1,
+      "daily_catch": 101,
+      "daily_catch_human": 0,
+      "daily_catch_bot": 101,
+      "catch_per_fisher": 0,
+      "avg_session_ms": null,
+      "disconnect_rate": 0.6744,
+      "abandon_rate": 0.8,
+      "escape_rate": 0.1374,
+      "join_fail_rate": 0,
+      "avg_pop_ratio": 135,
       "funnel": {
         "nu": 0,
         "join": 0,

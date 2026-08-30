@@ -32,6 +32,32 @@ namespace FishSocialOverlay
             _horizontalHost.OpacityMask = CreateHorizontalMask(w);
         }
 
+        /// <summary>
+        /// Composed mask alpha at layout pixel (0 = fully faded). Matches the two Absolute
+        /// OpacityMasks (vertical then horizontal). Used by click-through; do not delete the masks.
+        /// </summary>
+        public static double SampleMask(double x, double y, double width, double height)
+        {
+            var w = Math.Max(1.0, width);
+            var h = Math.Max(1.0, height);
+            var top = Math.Min(Math.Max(1.0, EdgeTop), h * 0.45);
+            var bottom = Math.Min(Math.Max(1.0, EdgeBottom), h * 0.45);
+            var left = Math.Min(Math.Max(1.0, EdgeLeft), w * 0.45);
+            var right = Math.Min(Math.Max(1.0, EdgeRight), w * 0.45);
+            return EdgeAlpha(y, h, top, bottom) * EdgeAlpha(x, w, left, right);
+        }
+
+        static double EdgeAlpha(double coord, double size, double startFade, double endFade)
+        {
+            if (coord <= 0 || coord >= size)
+                return 0;
+            if (coord < startFade)
+                return coord / startFade;
+            if (coord > size - endFade)
+                return (size - coord) / endFade;
+            return 1;
+        }
+
         static Brush CreateVerticalMask(double height)
         {
             var top = Math.Min(Math.Max(1.0, EdgeTop), height * 0.45);

@@ -1,0 +1,47 @@
+﻿# Cursor 索引/上下文排除 — 减轻打开仓库时的 CPU 与磁盘扫描
+# 与 .gitignore 互补；改完后请完全重启 Cursor
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+**/node_modules/
+
+# Unity 生成物（本地可重建）
+fish-social-unity/Library/
+fish-social-unity/Temp/
+fish-social-unity/Obj/
+fish-social-unity/Logs/
+fish-social-unity/Builds/
+fish-social-unity/UserSettings/
+
+# .NET Overlay 构建产物
+desktop-overlay/bin/
+desktop-overlay/obj/
+
+# 运行时数据（勿当源码索引）
+data/
+
+# 分析报表（可由 npm run analytics:* 再生）
+docs/analytics/daily/
+docs/analytics/warehouse/
+docs/analytics/ecology-distribution-report.json
+
+# 美术 staging 大图
+docs/art/generated/**
+!docs/art/generated/.gitkeep
+!docs/art/generated/manifest.json
+
+# Python 缓存
+**/__pycache__/
+*.pyc
+
+# 日志
+*.log
+server/logs/
+
+# 大型二进制表
+*.xlsx
+
+# Git 元数据
+.git/

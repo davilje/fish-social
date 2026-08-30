@@ -86,6 +86,8 @@ namespace FishSocial.Desktop.Editor
                 () => DesktopPrefabValidator.EnsureOverlayHud()),
             new Entry("OverlayPondLayout", "每塘一份 Overlay 960×560 场景布局（导出 layouts/<pondId>.json）。", typeof(DesktopOverlayPondLayoutView),
                 OverlayPondLayoutBaker.EnsureAll),
+            new Entry("OverlayPondActor", "钓位角色位：座位/形象/昵称/状态icon/上钩进度环（可调位置尺寸）。", typeof(OverlayPondActorView),
+                OverlayPondActorBaker.Ensure),
             new Entry("ProductContextMenu", "主窗口右键产品菜单。", null,
                 () => DesktopPrefabValidator.EnsureProductContextMenu()),
             new Entry("ShopItemCard", "商店列表商品卡。", null,

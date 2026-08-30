@@ -81,6 +81,11 @@
 | [Steam桌面端-13AOverlay场景边缘半透明渐隐.md](./specs/Steam桌面端-13AOverlay场景边缘半透明渐隐.md) | **已实现** | STEAM-DESKTOP-13A：场景四边 40px 渐隐 |
 | [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./specs/Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | **已实现** | STEAM-DESKTOP-13B：徽章/右键/登录窗 |
 | [Steam桌面端-13COverlay打窝HUD收口.md](./specs/Steam桌面端-13COverlay打窝HUD收口.md) | **已实现** | STEAM-DESKTOP-13C：打窝次数与成功文案 |
+| [Steam桌面端-14Overlay透明点击穿透回归.md](./specs/Steam桌面端-14Overlay透明点击穿透回归.md) | **已实现** | STEAM-DESKTOP-14：透明点穿桌面，保留 13A 渐隐 |
+| [Steam桌面端-14AOverlay钓位座位图.md](./specs/Steam桌面端-14AOverlay钓位座位图.md) | **已确认** | STEAM-DESKTOP-14A：座位预制体、空位半透明、猫跟 actor-pet |
+| [Steam桌面端-14BOverlay横轴场景平移.md](./specs/Steam桌面端-14BOverlay横轴场景平移.md) | **已确认** | STEAM-DESKTOP-14B：横轴场景左右长按平移 |
+| [Steam桌面端-14COverlayHUD正式素材与文字对齐.md](./specs/Steam桌面端-14COverlayHUD正式素材与文字对齐.md) | **已确认** | STEAM-DESKTOP-14C：HUD 正式图与字体/对齐导出 |
+| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](./specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | **已确认** | STEAM-DESKTOP-14D：状态小图标 + 套猫圆环 |
 | [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
 | [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已实现** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |
 | [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./specs/Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | **已实现** | STEAM-DESKTOP-09B：悬停仅时长 Tooltip + IPC 字段 |

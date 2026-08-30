@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -64,6 +65,9 @@ namespace FishSocialOverlay
 
         readonly Dictionary<string, ImageBrush> _spriteCache =
             new Dictionary<string, ImageBrush>(StringComparer.OrdinalIgnoreCase);
+
+        readonly Dictionary<string, FontFamily> _fontCache =
+            new Dictionary<string, FontFamily>(StringComparer.OrdinalIgnoreCase);
 
         public bool IsActive { get; private set; }
 
@@ -217,6 +221,7 @@ namespace FishSocialOverlay
                         element.IsHitTestVisible = false;
                     ApplyVisibility(element, widget);
                     ApplySprite(element, widget, hudRoot);
+                    ApplyTextStyle(element, widget, hudRoot);
                     applied++;
                     continue;
                 }
@@ -242,9 +247,9 @@ namespace FishSocialOverlay
                     element.IsHitTestVisible = false;
                 ApplyVisibility(element, widget);
                 ApplySprite(element, widget, hudRoot);
+                ApplyTextStyle(element, widget, hudRoot);
                 if (widget.id == "txt_error" && element is TextBlock errorText)
                 {
-                    errorText.TextAlignment = TextAlignment.Center;
                     errorText.TextWrapping = TextWrapping.Wrap;
                     errorText.TextTrimming = TextTrimming.CharacterEllipsis;
                 }
@@ -425,9 +430,156 @@ namespace FishSocialOverlay
                 border.ClipToBounds = false;
             }
             if (element is TextBlock textBlock)
-            {
-                textBlock.TextAlignment = TextAlignment.Left;
                 textBlock.TextTrimming = TextTrimming.CharacterEllipsis;
+        }
+
+        void ApplyTextStyle(FrameworkElement element, OverlayHudWidgetDto widget, string hudRoot)
+        {
+            if (element == null || widget == null)
+                return;
+
+            var isText = string.Equals(widget.kind, "text", StringComparison.OrdinalIgnoreCase);
+            var isButton = string.Equals(widget.kind, "button", StringComparison.OrdinalIgnoreCase);
+            if (!isText && !isButton)
+                return;
+
+            var fontFamily = ResolveFontFamily(hudRoot, widget.fontFile, widget.id);
+            if (fontFamily != null)
+                SetFontFamily(element, fontFamily);
+
+            if (widget.fontSize > 0)
+                SetFontSize(element, widget.fontSize);
+
+            if (TryParseColor(widget.fontColor, out var color))
+                SetForeground(element, color);
+
+            if (string.Equals(widget.fontWeight, "bold", StringComparison.OrdinalIgnoreCase))
+                SetFontWeight(element, FontWeights.Bold);
+
+            if (isText && element is TextBlock textBlock)
+            {
+                textBlock.TextAlignment = ParseTextAlignment(widget.textAlign);
+                textBlock.VerticalAlignment = VerticalAlignment.Center;
+            }
+            else if (isButton && element is Button button)
+            {
+                var align = string.IsNullOrWhiteSpace(widget.contentAlign)
+                    ? widget.textAlign
+                    : widget.contentAlign;
+                button.HorizontalContentAlignment = ParseHorizontalAlignment(align);
+                button.VerticalContentAlignment = VerticalAlignment.Center;
+            }
+        }
+
+        FontFamily ResolveFontFamily(string hudRoot, string fontFile, string widgetId)
+        {
+            if (string.IsNullOrWhiteSpace(fontFile))
+                return null;
+
+            var fontPath = Path.Combine(hudRoot, "fonts", fontFile);
+            if (_fontCache.TryGetValue(fontPath, out var cached))
+                return cached;
+
+            if (!File.Exists(fontPath))
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[OverlayHud] Missing font for " + widgetId + ": " + fontPath + " (using system font)");
+                return null;
+            }
+
+            try
+            {
+                var uri = new Uri(Path.GetFullPath(fontPath), UriKind.Absolute);
+                var familyName = Path.GetFileNameWithoutExtension(fontFile);
+                var family = new FontFamily(uri, "./#" + familyName);
+                _fontCache[fontPath] = family;
+                return family;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[OverlayHud] Font load failed for " + widgetId + ": " + ex.Message);
+                return null;
+            }
+        }
+
+        static void SetFontFamily(FrameworkElement element, FontFamily fontFamily)
+        {
+            if (element is Control control)
+                control.FontFamily = fontFamily;
+            else if (element is TextBlock textBlock)
+                textBlock.FontFamily = fontFamily;
+        }
+
+        static void SetFontSize(FrameworkElement element, double fontSize)
+        {
+            if (element is Control control)
+                control.FontSize = fontSize;
+            else if (element is TextBlock textBlock)
+                textBlock.FontSize = fontSize;
+        }
+
+        static void SetForeground(FrameworkElement element, Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            if (element is Control control)
+                control.Foreground = brush;
+            else if (element is TextBlock textBlock)
+                textBlock.Foreground = brush;
+        }
+
+        static void SetFontWeight(FrameworkElement element, FontWeight weight)
+        {
+            if (element is Control control)
+                control.FontWeight = weight;
+            else if (element is TextBlock textBlock)
+                textBlock.FontWeight = weight;
+        }
+
+        static bool TryParseColor(string value, out Color color)
+        {
+            color = Colors.White;
+            if (string.IsNullOrWhiteSpace(value) || value[0] != '#')
+                return false;
+
+            var hex = value.Substring(1);
+            if (hex.Length != 8)
+                return false;
+
+            if (!byte.TryParse(hex.Substring(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var a) ||
+                !byte.TryParse(hex.Substring(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var r) ||
+                !byte.TryParse(hex.Substring(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var g) ||
+                !byte.TryParse(hex.Substring(6, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var b))
+                return false;
+
+            color = Color.FromArgb(a, r, g, b);
+            return true;
+        }
+
+        static TextAlignment ParseTextAlignment(string value)
+        {
+            switch ((value ?? string.Empty).Trim().ToLowerInvariant())
+            {
+                case "center":
+                    return TextAlignment.Center;
+                case "right":
+                    return TextAlignment.Right;
+                default:
+                    return TextAlignment.Left;
+            }
+        }
+
+        static HorizontalAlignment ParseHorizontalAlignment(string value)
+        {
+            switch ((value ?? string.Empty).Trim().ToLowerInvariant())
+            {
+                case "left":
+                    return HorizontalAlignment.Left;
+                case "right":
+                    return HorizontalAlignment.Right;
+                default:
+                    return HorizontalAlignment.Center;
             }
         }
 
@@ -478,6 +630,12 @@ namespace FishSocialOverlay
             [DataMember(Name = "w")] public double w;
             [DataMember(Name = "h")] public double h;
             [DataMember(Name = "sprite")] public string sprite = null;
+            [DataMember(Name = "fontFile")] public string fontFile = null;
+            [DataMember(Name = "fontSize")] public double fontSize;
+            [DataMember(Name = "fontColor")] public string fontColor = null;
+            [DataMember(Name = "fontWeight")] public string fontWeight = null;
+            [DataMember(Name = "textAlign")] public string textAlign = null;
+            [DataMember(Name = "contentAlign")] public string contentAlign = null;
             [DataMember(Name = "z")] public int z;
             [DataMember(Name = "visibleDefault")] public bool? visibleDefault = null;
         }

@@ -8,15 +8,18 @@
 FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] [--height=560]
 ```
 
-默认窗口为 `960×560`、无边框、透明、置顶，不显示在任务栏。鱼塘场景、钓位和塘内宠物由 Unity 推送的 `pond_snapshot` 字段驱动。宠物**显示** `64×64`（`BodySize` / `CatSize`）；序列帧**源图**正方形 `256×256`，`Stretch.Uniform` 缩进显示槽。鼠标悬停热区仅为这 `64×64` 猫身（不含昵称条），时长浮窗约 `80×28`，水平居中对齐猫身。
+默认窗口为 `960×560`、无边框、透明、置顶，不显示在任务栏。合成透明处点击穿透到桌面；猫、座位、HUD 与可见塘图仍命中 Overlay。鱼塘场景、钓位和塘内宠物由 Unity 推送的 `pond_snapshot` 字段驱动。宠物**显示** `64×64`（`BodySize` / `CatSize`）；序列帧**源图**正方形 `256×256`，`Stretch.Uniform` 缩进显示槽。鼠标悬停热区仅为这 `64×64` 猫身（不含昵称条），时长浮窗约 `80×28`，水平居中对齐猫身。
 
 可替换资源（放在 **exe 同目录** 的 `OverlayResources/`）：
 
 - `pond.png`：旧的全塘共用底图（建议 `960×560`）
 - `ponds/<pondId>.png`：分塘底图（ART-03）
 - `layouts/<pondId>.json`：**ART-02 场景布局**（钓位/装饰像素表）。有表则停用 `MapToScene`
+- `seats/_default.png`：座位椅图回退（14A；优先用布局里 `actor-seat` / spot 的 `sprite`）
 - `pets/<petId>/<state>-0.png`：**按猫种分套**（推荐，与 Unity 主窗口同名）
 - `hud/overlay-hud.json`：HUD 控件位置（ART-03）
+- `status/fishing.png`、`status/hooked.png`：宠物相位小图标（14D，缺图用矢量占位）
+- `status/hook-ring.png`：上钩进度环占位（Unity Radial 360）
 - `cat.png`：旧的全局回退（全塘同一只，不要再当正式资源）
 
 `petId` 与头像一致：`orange` / `calico` / `gray` / `siamese` / `tuxedo` / `white`。  

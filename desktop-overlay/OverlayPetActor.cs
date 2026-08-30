@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
@@ -19,24 +20,25 @@ namespace FishSocialOverlay
     public sealed class OverlayPetActor : Grid
     {
         public const double BodySize = 64;
-        const double RingSize = 56;
-        const double RingCircumference = Math.PI * RingSize;
+        const double RingSize = 76;
+        const double RingStroke = 2.5;
+        const double IconSize = OverlayStatusIcons.Size;
 
         readonly IOverlayHoverHost _hoverHost;
         IOverlayPlayerMenuHost _menuHost;
         string _playerId = string.Empty;
         bool _isBot;
         readonly Image _image;
+        readonly Image _statusIcon;
         readonly Canvas _placeholder;
         readonly Shape[] _tintShapes;
         readonly TextBlock _nickname;
         readonly Border _nameBadge;
-        readonly Border _statusBadge;
-        readonly Grid _statusRow;
-        readonly Ellipse _hookRing;
-        readonly TextBlock _statusLabel;
-        readonly StackPanel _content;
+        readonly System.Windows.Shapes.Path _hookRing;
+        readonly Canvas _content;
+        readonly Grid _stage;
         readonly Grid _body;
+        OverlayActorChrome _chrome;
         readonly DispatcherTimer _frameTimer;
         readonly DispatcherTimer _refreshTimer;
         readonly DispatcherTimer _tooltipTimer;
@@ -62,22 +64,25 @@ namespace FishSocialOverlay
         {
             ActorKey = actorKey;
             _hoverHost = hoverHost;
-            Width = BodySize + 16;
-            Height = BodySize + 52;
+            Width = RingSize + 8;
+            Height = RingSize + IconSize + 28;
             HorizontalAlignment = HorizontalAlignment.Left;
             VerticalAlignment = VerticalAlignment.Top;
             Background = null;
             ClipToBounds = false;
+            // Root/chrome pass through; only pet body art receives pointer hits.
             IsHitTestVisible = true;
             ToolTipService.SetIsEnabled(this, false);
 
             _placeholder = BuildPlaceholder(out _tintShapes);
+            _placeholder.IsHitTestVisible = true;
             _image = new Image
             {
                 Width = BodySize,
                 Height = BodySize,
-                Stretch = Stretch.Uniform,
+                Stretch = Stretch.Fill,
                 Visibility = Visibility.Collapsed,
+                IsHitTestVisible = true,
             };
             _nickname = new TextBlock
             {
@@ -89,57 +94,69 @@ namespace FishSocialOverlay
                 TextTrimming = TextTrimming.CharacterEllipsis,
             };
             _nameBadge = CreateTextBadge(_nickname, new Thickness(0, 2, 0, 0));
-            _hookRing = new Ellipse
+            _nameBadge.IsHitTestVisible = false;
+            _statusIcon = new Image
+            {
+                Width = IconSize,
+                Height = IconSize,
+                Stretch = Stretch.Uniform,
+                Margin = new Thickness(0, 0, 0, 2),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed,
+            };
+            _hookRing = new System.Windows.Shapes.Path
             {
                 Width = RingSize,
                 Height = RingSize,
                 Stroke = new SolidColorBrush(Color.FromRgb(232, 156, 64)),
-                StrokeThickness = 2.5,
+                StrokeThickness = RingStroke,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
                 Fill = Brushes.Transparent,
+                Stretch = Stretch.None,
+                IsHitTestVisible = false,
                 Visibility = Visibility.Collapsed,
-                RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = new RotateTransform(-90),
-            };
-            _statusLabel = new TextBlock
-            {
-                Foreground = new SolidColorBrush(Color.FromRgb(0xD4, 0xE3, 0xEA)),
-                FontSize = 10,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                TextAlignment = TextAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
             };
-            _statusBadge = CreateTextBadge(_statusLabel, new Thickness(0, 0, 0, 2));
-            _statusBadge.Visibility = Visibility.Collapsed;
-
-            _statusRow = new Grid
-            {
-                Width = BodySize,
-                Height = 18,
-                Margin = new Thickness(0, 0, 0, 2),
-                Visibility = Visibility.Collapsed,
-            };
-            _statusRow.Children.Add(_hookRing);
 
             _body = new Grid
             {
                 Width = BodySize,
                 Height = BodySize,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                // Transparent fill = full actor-pet image rect is hittable (not only opaque pixels).
                 Background = Brushes.Transparent,
                 IsHitTestVisible = true,
             };
             _body.Children.Add(_placeholder);
             _body.Children.Add(_image);
 
-            _content = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
-            _content.Children.Add(_statusBadge);
-            _content.Children.Add(_statusRow);
-            _content.Children.Add(_body);
+            _stage = new Grid
+            {
+                Width = RingSize,
+                Height = RingSize,
+                Background = null,
+                IsHitTestVisible = true,
+            };
+            _stage.Children.Add(_hookRing);
+            _stage.Children.Add(_body);
+
+            _content = new Canvas { ClipToBounds = false, IsHitTestVisible = true };
+            _content.Children.Add(_statusIcon);
+            _content.Children.Add(_stage);
             _content.Children.Add(_nameBadge);
             Children.Add(_content);
+            RelayoutCluster();
 
             _tooltipTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _tooltipTimer.Tick += OnTooltipTimerTick;
             _body.MouseEnter += OnMouseEnter;
             _body.MouseLeave += OnMouseLeave;
+            _image.MouseEnter += OnMouseEnter;
+            _image.MouseLeave += OnMouseLeave;
 
             _frameTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(125) };
             _frameTimer.Tick += OnFrameTick;
@@ -155,37 +172,119 @@ namespace FishSocialOverlay
             _playerId = playerId ?? string.Empty;
             _isBot = isBot;
             _menuHost = menuHost;
-            PreviewMouseRightButtonDown -= OnPreviewMouseRightButtonDown;
-            if (HasPlayerContextMenu)
-                PreviewMouseRightButtonDown += OnPreviewMouseRightButtonDown;
         }
 
-        void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        /// <summary>
+        /// True when the pointer hit the pet sprite rect (actor-pet image range),
+        /// not nickname, status icon, or hook ring.
+        /// </summary>
+        public bool IsPetArtSource(DependencyObject source)
         {
-            if (OverlayInteractionState.SceneDragging || !HasPlayerContextMenu)
-                return;
+            while (source != null)
+            {
+                if (ReferenceEquals(source, _body) ||
+                    ReferenceEquals(source, _image) ||
+                    ReferenceEquals(source, _placeholder))
+                    return true;
+                if (ReferenceEquals(source, this))
+                    return false;
+                if (source is Visual || source is Visual3D)
+                    source = VisualTreeHelper.GetParent(source);
+                else
+                    source = LogicalTreeHelper.GetParent(source);
+            }
 
-            e.Handled = true;
+            return false;
+        }
+
+        /// <summary>
+        /// Geometry hit for social right-click even when OriginalSource fell through
+        /// to the seat / pond under a transparent ring/status area.
+        /// </summary>
+        public bool HitTestsPetArt(Point pointInAncestor, UIElement ancestor)
+        {
+            if (ancestor == null || _body == null ||
+                Visibility != Visibility.Visible || !IsHitTestVisible)
+                return false;
+            try
+            {
+                var topLeft = _body.TransformToAncestor(ancestor).Transform(new Point(0, 0));
+                var w = _body.ActualWidth > 1 ? _body.ActualWidth : _body.Width;
+                var h = _body.ActualHeight > 1 ? _body.ActualHeight : _body.Height;
+                if (w < 1 || h < 1)
+                    return false;
+                return new Rect(topLeft.X, topLeft.Y, w, h).Contains(pointInAncestor);
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+        }
+
+        ContextMenu _socialMenu;
+
+        /// <summary>
+        /// Open the other-player social menu. Called from PondScene Preview so it
+        /// wins over the pond product ContextMenu.
+        /// </summary>
+        public bool TryOpenPlayerContextMenu()
+        {
+            if (!HasPlayerContextMenu)
+                return false;
             CancelTooltip();
             ShowPlayerContextMenu();
+            return true;
+        }
+
+        public void ClosePlayerContextMenu()
+        {
+            if (_socialMenu != null && _socialMenu.IsOpen)
+                _socialMenu.IsOpen = false;
         }
 
         void ShowPlayerContextMenu()
         {
-            var menu = new ContextMenu
+            EnsureSocialMenu();
+            if (_socialMenu.IsOpen)
+                _socialMenu.IsOpen = false;
+
+            // Keep menu unattached from FrameworkElement.ContextMenu so WPF
+            // ContextMenuService cannot sticky-steal later gestures.
+            ContextMenu = null;
+            _socialMenu.PlacementTarget = this;
+            _socialMenu.Placement = PlacementMode.MousePoint;
+            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
             {
-                PlacementTarget = this,
-                Placement = PlacementMode.MousePoint,
-            };
-            menu.Items.Add(CreateMenuItem("查看资料", true, () =>
+                if (_socialMenu != null && HasPlayerContextMenu)
+                    _socialMenu.IsOpen = true;
+            }));
+        }
+
+        void EnsureSocialMenu()
+        {
+            if (_socialMenu != null)
+            {
+                RefreshSocialMenuItems();
+                return;
+            }
+
+            _socialMenu = new ContextMenu();
+            RefreshSocialMenuItems();
+        }
+
+        void RefreshSocialMenuItems()
+        {
+            if (_socialMenu == null)
+                return;
+            _socialMenu.Items.Clear();
+            _socialMenu.Items.Add(CreateMenuItem("查看资料", true, () =>
                 _menuHost.SendPlayerCommand("player_open_profile", _playerId)));
-            menu.Items.Add(CreateMenuItem("添加好友", !_isBot, () =>
+            _socialMenu.Items.Add(CreateMenuItem("添加好友", !_isBot, () =>
                 _menuHost.SendPlayerCommand("player_add_friend", _playerId)));
-            menu.Items.Add(CreateMenuItem("私聊", !_isBot, () =>
+            _socialMenu.Items.Add(CreateMenuItem("私聊", !_isBot, () =>
                 _menuHost.SendPlayerCommand("player_open_dm", _playerId)));
-            menu.Items.Add(CreateMenuItem("点赞互动", true, () =>
+            _socialMenu.Items.Add(CreateMenuItem("点赞互动", true, () =>
                 _menuHost.SendPlayerCommand("player_like_recent", _playerId)));
-            menu.IsOpen = true;
         }
 
         static MenuItem CreateMenuItem(string header, bool enabled, Action action)
@@ -226,7 +325,14 @@ namespace FishSocialOverlay
             SyncSessionAnchor(Math.Max(0, sessionFishingMs), fishingStartedAt);
             UpdateStatusVisuals();
             ApplyVisualState(visualState, petId);
+            RelayoutCluster();
             RefreshOpenHover();
+        }
+
+        public void ApplyChrome(OverlayActorChrome chrome)
+        {
+            _chrome = chrome;
+            RelayoutCluster();
         }
 
         public void Place(double centerX, double centerY)
@@ -271,31 +377,134 @@ namespace FishSocialOverlay
             ShowFrame();
         }
 
+        void RelayoutCluster()
+        {
+            var petW = _chrome != null && _chrome.Pet != null && _chrome.Pet.w > 0
+                ? _chrome.Pet.w
+                : BodySize;
+            var petH = _chrome != null && _chrome.Pet != null && _chrome.Pet.h > 0
+                ? _chrome.Pet.h
+                : BodySize;
+            _body.Width = petW;
+            _body.Height = petH;
+            _image.Width = petW;
+            _image.Height = petH;
+
+            var ringW = _chrome != null && _chrome.Ring != null && _chrome.Ring.w > 0
+                ? _chrome.Ring.w
+                : RingSize;
+            var ringH = _chrome != null && _chrome.Ring != null && _chrome.Ring.h > 0
+                ? _chrome.Ring.h
+                : RingSize;
+            var stage = Math.Max(ringW, Math.Max(ringH, Math.Max(petW, petH)));
+            _stage.Width = stage;
+            _stage.Height = stage;
+            _hookRing.Width = ringW;
+            _hookRing.Height = ringH;
+
+            var statusW = _chrome != null && _chrome.Status != null && _chrome.Status.w > 0
+                ? _chrome.Status.w
+                : IconSize;
+            var statusH = _chrome != null && _chrome.Status != null && _chrome.Status.h > 0
+                ? _chrome.Status.h
+                : IconSize;
+            _statusIcon.Width = statusW;
+            _statusIcon.Height = statusH;
+
+            var nameW = _chrome != null && _chrome.Name != null && _chrome.Name.w > 0
+                ? _chrome.Name.w
+                : BodySize + 24;
+            var nameH = _chrome != null && _chrome.Name != null && _chrome.Name.h > 0
+                ? _chrome.Name.h
+                : 18;
+            _nickname.MaxWidth = nameW;
+            _nameBadge.Width = nameW;
+            _nameBadge.Height = nameH;
+
+            var showStatus = _statusIcon.Visibility == Visibility.Visible;
+            double petX = 0;
+            double petY = 0;
+            double ringX = (petW - ringW) * 0.5;
+            double ringY = (petH - ringH) * 0.5;
+            double statusX = (petW - statusW) * 0.5;
+            double statusY = showStatus ? -statusH - 2 : 0;
+            double nameX = (petW - nameW) * 0.5;
+            double nameY = petH + 2;
+
+            if (_chrome != null && _chrome.Pet != null)
+            {
+                if (_chrome.Ring != null)
+                {
+                    ringX = _chrome.Ring.x - _chrome.Pet.x;
+                    ringY = _chrome.Ring.y - _chrome.Pet.y;
+                }
+
+                if (_chrome.Status != null)
+                {
+                    statusX = _chrome.Status.x - _chrome.Pet.x;
+                    statusY = _chrome.Status.y - _chrome.Pet.y;
+                }
+
+                if (_chrome.Name != null)
+                {
+                    nameX = _chrome.Name.x - _chrome.Pet.x;
+                    nameY = _chrome.Name.y - _chrome.Pet.y;
+                }
+            }
+
+            var minX = Math.Min(petX, Math.Min(ringX, nameX));
+            var minY = Math.Min(petY, Math.Min(ringY, nameY));
+            if (showStatus)
+            {
+                minX = Math.Min(minX, statusX);
+                minY = Math.Min(minY, statusY);
+            }
+            petX -= minX;
+            petY -= minY;
+            ringX -= minX;
+            ringY -= minY;
+            statusX -= minX;
+            statusY -= minY;
+            nameX -= minX;
+            nameY -= minY;
+
+            var width = Math.Max(petX + petW, Math.Max(ringX + ringW, Math.Max(statusX + statusW, nameX + nameW)));
+            var height = Math.Max(petY + petH, Math.Max(ringY + ringH, Math.Max(statusY + statusH, nameY + nameH)));
+            _content.Width = width;
+            _content.Height = height;
+            Width = width;
+            Height = height;
+
+            Canvas.SetLeft(_statusIcon, statusX);
+            Canvas.SetTop(_statusIcon, statusY);
+            Canvas.SetLeft(_nameBadge, nameX);
+            Canvas.SetTop(_nameBadge, nameY);
+            var bodyInStageX = (stage - petW) * 0.5;
+            var bodyInStageY = (stage - petH) * 0.5;
+            Canvas.SetLeft(_stage, petX - bodyInStageX);
+            Canvas.SetTop(_stage, petY - bodyInStageY);
+            if (_hookRing.Visibility == Visibility.Visible)
+                UpdateHookRing();
+        }
+
         void UpdateStatusVisuals()
         {
-            var statusText = FormatStatusText();
-            if (string.IsNullOrEmpty(statusText))
+            var iconKind = ResolveStatusIconKind(_fishingPhase);
+            if (string.IsNullOrEmpty(iconKind))
             {
-                _statusBadge.Visibility = Visibility.Collapsed;
-                _statusRow.Visibility = Visibility.Collapsed;
-                _hookRing.Visibility = Visibility.Collapsed;
-                return;
+                _statusIcon.Source = null;
+                _statusIcon.Visibility = Visibility.Collapsed;
             }
-
-            _statusLabel.Text = statusText;
-            _statusBadge.Visibility = Visibility.Visible;
+            else
+            {
+                _statusIcon.Source = OverlayStatusIcons.Get(iconKind);
+                _statusIcon.Visibility = Visibility.Visible;
+            }
 
             if (IsHookedPhase(_fishingPhase))
-            {
                 UpdateHookRing();
-                _statusRow.Visibility = _hookRing.Visibility == Visibility.Visible
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                return;
-            }
-
-            _hookRing.Visibility = Visibility.Collapsed;
-            _statusRow.Visibility = Visibility.Collapsed;
+            else
+                _hookRing.Visibility = Visibility.Collapsed;
         }
 
         void UpdateHookRing()
@@ -316,11 +525,55 @@ namespace FishSocialOverlay
             if (_hookTotalMs <= 0)
                 _hookTotalMs = remaining;
 
-            var progress = Math.Max(0, Math.Min(1, (double)remaining / _hookTotalMs));
-            var visible = RingCircumference * progress;
-            var gap = Math.Max(0.01, RingCircumference - visible);
-            _hookRing.StrokeDashArray = new DoubleCollection { visible, gap };
+            var fillAmount = Math.Max(0, Math.Min(1, (double)remaining / _hookTotalMs));
+            var ringSize = _hookRing.Width > 1 ? _hookRing.Width : RingSize;
+            _hookRing.Data = CreateRadial360(ringSize, fillAmount);
             _hookRing.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Unity Image Type=Filled, Method=Radial 360, Origin=Top, Clockwise.
+        /// fillAmount 1 = full ring, 0 = empty.
+        /// </summary>
+        static Geometry CreateRadial360(double size, double fillAmount)
+        {
+            var radius = Math.Max(1.0, (size - RingStroke) * 0.5);
+            var center = new Point(size * 0.5, size * 0.5);
+            if (fillAmount >= 0.999)
+                return new EllipseGeometry(center, radius, radius);
+
+            if (fillAmount <= 0)
+                return Geometry.Empty;
+
+            var sweep = 360.0 * fillAmount;
+            var start = Radial360Point(center, radius, 0);
+            var end = Radial360Point(center, radius, sweep);
+            var figure = new PathFigure
+            {
+                StartPoint = start,
+                IsClosed = false,
+                IsFilled = false,
+            };
+            figure.Segments.Add(new ArcSegment
+            {
+                Point = end,
+                Size = new Size(radius, radius),
+                SweepDirection = SweepDirection.Clockwise,
+                IsLargeArc = sweep > 180,
+                IsStroked = true,
+            });
+            var geometry = new PathGeometry();
+            geometry.Figures.Add(figure);
+            geometry.Freeze();
+            return geometry;
+        }
+
+        static Point Radial360Point(Point center, double radius, double degreesClockwiseFromTop)
+        {
+            var radians = degreesClockwiseFromTop * Math.PI / 180.0;
+            return new Point(
+                center.X + radius * Math.Sin(radians),
+                center.Y - radius * Math.Cos(radians));
         }
 
         void OnRefreshTick(object sender, EventArgs e)
@@ -404,32 +657,28 @@ namespace FishSocialOverlay
             CloseHover();
         }
 
-        string FormatStatusText()
-        {
-            var label = MainWindow.FormatPhaseLabel(_fishingPhase);
-            if (string.Equals(label, "待机", StringComparison.Ordinal) ||
-                string.Equals(label, "坐下", StringComparison.Ordinal))
-                return string.Empty;
-            return label ?? string.Empty;
-        }
-
         string BuildHoverText()
         {
-            var status = FormatStatusText();
-            if (string.IsNullOrEmpty(status))
-                return string.Empty;
-
             if (IsHookedPhase(_fishingPhase) && _hookDeadlineMs > 0)
             {
                 var remaining = Math.Max(0, _hookDeadlineMs - NowMs());
                 if (remaining > 0)
-                    return status + Environment.NewLine + "收杆 " + FormatDuration(remaining);
+                    return "收杆 " + FormatDuration(remaining);
             }
 
             if (IsFishingPhase(_fishingPhase) || IsHookedPhase(_fishingPhase))
-                return status + Environment.NewLine + "本局 " + FormatDuration(CurrentSessionFishingMs());
+                return "本局 " + FormatDuration(CurrentSessionFishingMs());
 
-            return status;
+            return string.Empty;
+        }
+
+        static string ResolveStatusIconKind(string phase)
+        {
+            if (IsHookedPhase(phase))
+                return "hooked";
+            if (IsFishingPhase(phase))
+                return "fishing";
+            return null;
         }
 
         void SyncSessionAnchor(long sessionFishingMs, long fishingStartedAt)

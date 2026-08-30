@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Input;
 
 namespace FishSocialOverlay
 {
@@ -30,7 +29,8 @@ namespace FishSocialOverlay
         readonly Shape _shore;
         readonly Shape _water;
         readonly OverlayPondLayout _layout = new OverlayPondLayout();
-        readonly Dictionary<string, Ellipse> _spotVisuals = new Dictionary<string, Ellipse>();
+        readonly Dictionary<string, OverlaySpotMarker> _spotVisuals =
+            new Dictionary<string, OverlaySpotMarker>(StringComparer.Ordinal);
         readonly Dictionary<string, OverlayPetActor> _others =
             new Dictionary<string, OverlayPetActor>();
         OverlayPetActor _ownActor;
@@ -100,7 +100,7 @@ namespace FishSocialOverlay
         {
             if (string.IsNullOrEmpty(spotId))
                 return null;
-            Ellipse marker;
+            OverlaySpotMarker marker;
             if (_spotVisuals.TryGetValue(spotId, out marker))
                 return marker;
             return null;
@@ -126,51 +126,70 @@ namespace FishSocialOverlay
             _ownPlayerId = message.OwnPlayerId ?? string.Empty;
             _ownUserId = message.OwnUserId ?? string.Empty;
 
-            SyncSpots(message.Spots);
+            SyncSpots(message);
             ApplyOwnActor(message);
             if (message.Users != null)
                 SyncOthers(message);
         }
 
-        void SyncSpots(OverlaySpotDto[] spots)
+        void SyncSpots(IpcMessage message)
         {
+            var keep = new HashSet<string>(StringComparer.Ordinal);
+            var pondId = message.PondId ?? string.Empty;
             if (_layout.IsActive)
             {
-                SyncSpotsFromLayout();
-                return;
-            }
-
-            var keep = new HashSet<string>(StringComparer.Ordinal);
-            if (spots != null)
-            {
-                foreach (var spot in spots)
+                foreach (var pair in _layout.Spots)
                 {
-                    if (spot == null || string.IsNullOrEmpty(spot.Id))
+                    if (string.IsNullOrEmpty(pair.Key) || pair.Value == null)
                         continue;
-                    keep.Add(spot.Id);
-                    var point = MapToScene(spot.X, spot.Y, spots);
-                    PlaceSpotMarker(spot.Id, point.X, point.Y, 18, 18);
+                    keep.Add(pair.Key);
+                    var item = pair.Value;
+                    OverlayLayoutObjectDto seatVisual;
+                    if (!_layout.TryGetSeatVisual(pair.Key, out seatVisual) || seatVisual == null)
+                        seatVisual = item;
+
+                    var width = seatVisual.w > 0 ? seatVisual.w : (item.w > 0 ? item.w : 48);
+                    var height = seatVisual.h > 0 ? seatVisual.h : (item.h > 0 ? item.h : 32);
+                    var anchor = OverlayPondLayout.LayoutAnchor(seatVisual);
+                    PlaceSpotMarker(
+                        pair.Key,
+                        seatVisual.x,
+                        seatVisual.y,
+                        width,
+                        height,
+                        anchor,
+                        item,
+                        seatVisual,
+                        pondId);
+                }
+            }
+            else
+            {
+                var spots = message.Spots;
+                if (spots != null)
+                {
+                    foreach (var spot in spots)
+                    {
+                        if (spot == null || string.IsNullOrEmpty(spot.Id))
+                            continue;
+                        keep.Add(spot.Id);
+                        var point = MapToScene(spot.X, spot.Y, spots);
+                        PlaceSpotMarker(
+                            spot.Id,
+                            point.X,
+                            point.Y,
+                            48,
+                            32,
+                            "center",
+                            null,
+                            null,
+                            pondId);
+                    }
                 }
             }
 
             RemoveMissingSpots(keep);
-        }
-
-        void SyncSpotsFromLayout()
-        {
-            var keep = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var pair in _layout.Spots)
-            {
-                if (string.IsNullOrEmpty(pair.Key) || pair.Value == null)
-                    continue;
-                keep.Add(pair.Key);
-                var item = pair.Value;
-                var width = item.w > 0 ? item.w : 18;
-                var height = item.h > 0 ? item.h : 18;
-                PlaceSpotMarker(pair.Key, item.x, item.y, width, height, item.anchor);
-            }
-
-            RemoveMissingSpots(keep);
+            UpdateSpotStates(message);
         }
 
         void PlaceSpotMarker(
@@ -179,18 +198,15 @@ namespace FishSocialOverlay
             double y,
             double width,
             double height,
-            string anchor = "center")
+            string anchor,
+            OverlayLayoutObjectDto layoutSpot,
+            OverlayLayoutObjectDto layoutSeat,
+            string pondId)
         {
             if (!_spotVisuals.TryGetValue(spotId, out var marker))
             {
-                marker = new Ellipse
-                {
-                    Fill = new SolidColorBrush(Color.FromArgb(220, 243, 201, 105)),
-                    Stroke = new SolidColorBrush(Color.FromArgb(255, 255, 255, 230)),
-                    StrokeThickness = 2,
-                    Tag = spotId,
-                };
-                marker.MouseLeftButtonDown += Spot_OnMouseLeftButtonDown;
+                marker = new OverlaySpotMarker(spotId);
+                marker.SpotSelected += (sender, id) => SpotSelected?.Invoke(id);
                 _spotLayer.Children.Add(marker);
                 _spotVisuals[spotId] = marker;
             }
@@ -200,6 +216,38 @@ namespace FishSocialOverlay
             OverlayPondLayout.ResolveRect(x, y, width, height, anchor, out var left, out var top);
             Canvas.SetLeft(marker, left);
             Canvas.SetTop(marker, top);
+
+            var seatArt = OverlaySeatArt.TryLoad(pondId, layoutSpot, layoutSeat, out var usedFallback);
+            marker.SetSeatArt(seatArt, usedFallback);
+        }
+
+        static HashSet<string> CollectOccupiedSpots(IpcMessage message)
+        {
+            var occupied = new HashSet<string>(StringComparer.Ordinal);
+            if (message == null)
+                return occupied;
+
+            if (!string.IsNullOrWhiteSpace(message.OwnSpotId))
+                occupied.Add(message.OwnSpotId);
+
+            if (message.Users != null)
+            {
+                foreach (var user in message.Users)
+                {
+                    if (user != null && !string.IsNullOrWhiteSpace(user.SpotId))
+                        occupied.Add(user.SpotId);
+                }
+            }
+
+            return occupied;
+        }
+
+        void UpdateSpotStates(IpcMessage message)
+        {
+            var ownHasSpot = !string.IsNullOrWhiteSpace(message?.OwnSpotId);
+            var occupied = CollectOccupiedSpots(message);
+            foreach (var pair in _spotVisuals)
+                pair.Value.ApplyState(ownHasSpot, occupied.Contains(pair.Key));
         }
 
         void RemoveMissingSpots(HashSet<string> keep)
@@ -221,14 +269,6 @@ namespace FishSocialOverlay
             }
         }
 
-        void Spot_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var marker = sender as Ellipse;
-            if (marker?.Tag is string spotId)
-                SpotSelected?.Invoke(spotId);
-            e.Handled = true;
-        }
-
         void ApplyOwnActor(IpcMessage message)
         {
             if (_ownActor == null)
@@ -248,6 +288,9 @@ namespace FishSocialOverlay
                 message.HookDeadlineMs,
                 message.OwnFishingStartedAt,
                 message.OwnPetId);
+            OverlayActorChrome ownChrome;
+            if (_layout.TryGetActorChrome(message.OwnSpotId, out ownChrome))
+                _ownActor.ApplyChrome(ownChrome);
             _ownActor.Place(point.X, point.Y);
         }
 
@@ -300,6 +343,9 @@ namespace FishSocialOverlay
                     user.HookDeadlineMs,
                     user.FishingStartedAt,
                     user.PetId);
+                OverlayActorChrome chrome;
+                if (_layout.TryGetActorChrome(user.SpotId, out chrome))
+                    actor.ApplyChrome(chrome);
                 actor.Place(point.X, point.Y);
             }
 
@@ -393,6 +439,12 @@ namespace FishSocialOverlay
         {
             if (_layout.IsActive)
             {
+                if (_layout.TryGetPetPoint(spotId, out var petPoint))
+                {
+                    point = petPoint;
+                    return true;
+                }
+
                 if (_layout.TryGetSpotPoint(spotId, out var layoutPoint))
                 {
                     point = layoutPoint;

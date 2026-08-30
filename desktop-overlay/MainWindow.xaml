@@ -19,27 +19,13 @@
                 VerticalAlignment="Center"
                 CornerRadius="18"
                 ClipToBounds="False"
+                Background="Transparent"
                 MouseLeftButtonDown="PondScene_OnMouseLeftButtonDown"
                 MouseMove="PondScene_OnMouseMove"
                 MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp"
-                ContextMenuOpening="PondScene_ContextMenuOpening">
-            <Border.ContextMenu>
-                <ContextMenu>
-                    <MenuItem x:Name="CtxMenuPond" Header="当前鱼塘" Click="MenuPond_OnClick" />
-                    <MenuItem x:Name="CtxMenuMap" Header="世界地图" Click="MenuMap_OnClick" />
-                    <MenuItem x:Name="CtxMenuShop" Header="商店与装备" Click="MenuShop_OnClick" />
-                    <MenuItem x:Name="CtxMenuFriends" Header="好友与聊天" Click="MenuFriends_OnClick" />
-                    <MenuItem x:Name="CtxMenuCatch" Header="鱼获/背包" Click="MenuCatch_OnClick" />
-                    <MenuItem x:Name="CtxMenuGallery" Header="图鉴" Click="MenuGallery_OnClick" />
-                    <MenuItem x:Name="CtxMenuProfile" Header="个人中心" Click="MenuProfile_OnClick" />
-                    <MenuItem x:Name="CtxMenuFeed" Header="动态墙" Click="MenuFeed_OnClick" />
-                    <MenuItem x:Name="CtxMenuLeaderboard" Header="排行榜" Click="MenuLeaderboard_OnClick" />
-                    <MenuItem x:Name="CtxMenuSettings" Header="设置" Click="MenuSettings_OnClick" />
-                    <Separator />
-                    <MenuItem Header="隐藏到托盘" Click="HideToTray_OnClick" />
-                    <MenuItem Header="退出" Click="QuitApp_OnClick" />
-                </ContextMenu>
-            </Border.ContextMenu>
+                PreviewMouseRightButtonDown="PondScene_PreviewMouseRightButtonDown">
+            <!-- Product menu is NOT attached to Border.ContextMenu — attaching it makes
+                 WPF sticky after the first open and steals later pet social menus. -->
             <Canvas x:Name="SceneCanvas" Width="960" Height="560">
                 <!-- Z0–10: 场景层（边缘渐隐 OpacityMask 仅作用于此） -->
                 <Border x:Name="SceneFadeHost"
@@ -48,17 +34,18 @@
                         Width="960"
                         Height="560"
                         Panel.ZIndex="0"
-                        Background="#01000000"
+                        Background="{x:Null}"
                         ClipToBounds="True">
                     <Canvas x:Name="SceneContentCanvas"
                             Width="960"
                             Height="560"
-                            Background="#01000000">
+                            Background="{x:Null}">
                         <Image x:Name="PondBackgroundImage"
                                Width="960"
                                Height="560"
                                Stretch="UniformToFill"
                                Visibility="Collapsed"
+                               IsHitTestVisible="False"
                                Panel.ZIndex="0" />
                         <Rectangle x:Name="GrassLayer"
                                    Width="960"

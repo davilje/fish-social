@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -60,6 +61,7 @@ namespace FishSocialOverlay
         OverlayHudLayout.HudChatDockMetrics _hudChatDockMetrics;
         const double HudChatDockExpandedHeight = 69;
         const double HudChatDockCollapsedHeight = 36;
+        ContextMenu _productMenu;
 
         public void ConfigureHudChatDockMetrics(OverlayHudLayout.HudChatDockMetrics metrics)
         {
@@ -154,6 +156,7 @@ namespace FishSocialOverlay
         public MainWindow()
         {
             InitializeComponent();
+            _productMenu = BuildProductContextMenu();
             _pipeName = ReadArgument("--pipe=");
             SourceInitialized += OnSourceInitialized;
             Loaded += OnLoaded;
@@ -292,10 +295,8 @@ namespace FishSocialOverlay
             var screenX = (short)(lParam.ToInt64() & 0xffff);
             var screenY = (short)((lParam.ToInt64() >> 16) & 0xffff);
             var local = PointFromScreen(new Point(screenX, screenY));
-            var sceneRect = PondScene.TransformToAncestor(this)
-                .TransformBounds(new Rect(PondScene.RenderSize));
             handled = true;
-            return sceneRect.Contains(local)
+            return OverlayClickThrough.IsClientHit(this, local)
                 ? new IntPtr(HTCLIENT)
                 : new IntPtr(HTTRANSPARENT);
         }
@@ -1196,46 +1197,188 @@ namespace FishSocialOverlay
             Environment.Exit(0);
         }
 
-        void PondScene_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (IsUnderOverlayPetWithPlayerMenu(e.OriginalSource as DependencyObject))
-                e.Handled = true;
+            if (e.ChangedButton != MouseButton.Left)
+                return;
+            if (ShouldSkipSceneDrag(e.OriginalSource as DependencyObject))
+                return;
+            if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)))
+                return;
+            if (IsUnderElement(e.OriginalSource as DependencyObject, PondScene))
+                return;
+            BeginSceneDrag();
         }
 
-        static bool IsUnderOverlayPetWithPlayerMenu(DependencyObject source)
+        void PondScene_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            CloseAllContextMenus();
+
+            var pondPos = e.GetPosition(PondScene);
+            if (TryOpenPetPlayerMenu(e.OriginalSource as DependencyObject, pondPos))
+            {
+                e.Handled = true;
+                return;
+            }
+            if (ShouldSkipSceneDrag(e.OriginalSource as DependencyObject))
+            {
+                e.Handled = true;
+                return;
+            }
+            if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)))
+                return;
+
+            OpenProductContextMenu();
+            e.Handled = true;
+        }
+
+        ContextMenu BuildProductContextMenu()
+        {
+            var menu = new ContextMenu();
+            menu.Items.Add(CreateProductMenuItem("当前鱼塘", MenuPond_OnClick));
+            menu.Items.Add(CreateProductMenuItem("世界地图", MenuMap_OnClick));
+            menu.Items.Add(CreateProductMenuItem("商店与装备", MenuShop_OnClick));
+            menu.Items.Add(CreateProductMenuItem("好友与聊天", MenuFriends_OnClick));
+            menu.Items.Add(CreateProductMenuItem("鱼获/背包", MenuCatch_OnClick));
+            menu.Items.Add(CreateProductMenuItem("图鉴", MenuGallery_OnClick));
+            menu.Items.Add(CreateProductMenuItem("个人中心", MenuProfile_OnClick));
+            menu.Items.Add(CreateProductMenuItem("动态墙", MenuFeed_OnClick));
+            menu.Items.Add(CreateProductMenuItem("排行榜", MenuLeaderboard_OnClick));
+            menu.Items.Add(CreateProductMenuItem("设置", MenuSettings_OnClick));
+            menu.Items.Add(new Separator());
+            menu.Items.Add(CreateProductMenuItem("隐藏到托盘", HideToTray_OnClick));
+            menu.Items.Add(CreateProductMenuItem("退出", QuitApp_OnClick));
+            return menu;
+        }
+
+        static MenuItem CreateProductMenuItem(string header, RoutedEventHandler click)
+        {
+            var item = new MenuItem { Header = header };
+            item.Click += click;
+            return item;
+        }
+
+        void OpenProductContextMenu()
+        {
+            if (_productMenu == null)
+                _productMenu = BuildProductContextMenu();
+            _productMenu.PlacementTarget = PondScene;
+            _productMenu.Placement = PlacementMode.MousePoint;
+            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+            {
+                if (_productMenu != null)
+                    _productMenu.IsOpen = true;
+            }));
+        }
+
+        void CloseAllContextMenus()
+        {
+            if (_productMenu != null && _productMenu.IsOpen)
+                _productMenu.IsOpen = false;
+            if (ActorLayer == null)
+                return;
+            for (var i = 0; i < ActorLayer.Children.Count; i++)
+            {
+                if (ActorLayer.Children[i] is OverlayPetActor actor)
+                    actor.ClosePlayerContextMenu();
+            }
+        }
+
+        bool TryOpenPetPlayerMenu(DependencyObject source, Point pondLocal)
+        {
+            var actor = FindSocialPetFromSource(source) ?? FindSocialPetAt(pondLocal);
+            return actor != null && actor.TryOpenPlayerContextMenu();
+        }
+
+        static OverlayPetActor FindSocialPetFromSource(DependencyObject source)
         {
             while (source != null)
             {
                 if (source is OverlayPetActor actor && actor.HasPlayerContextMenu)
-                    return true;
+                    return actor;
                 if (source is Visual || source is Visual3D)
                     source = VisualTreeHelper.GetParent(source);
                 else
                     source = LogicalTreeHelper.GetParent(source);
             }
 
-            return false;
+            return null;
+        }
+
+        OverlayPetActor FindSocialPetAt(Point pondLocal)
+        {
+            if (ActorLayer == null)
+                return null;
+            for (var i = ActorLayer.Children.Count - 1; i >= 0; i--)
+            {
+                if (!(ActorLayer.Children[i] is OverlayPetActor actor) ||
+                    !actor.HasPlayerContextMenu)
+                    continue;
+                if (actor.HitTestsPetArt(pondLocal, PondScene))
+                    return actor;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Used by WM_NCHITTEST so right-clicks on other players' pet art reach WPF.
+        /// </summary>
+        public bool HitsSocialPetArt(Point windowLocal)
+        {
+            try
+            {
+                if (PondScene == null || !PondScene.IsVisible)
+                    return false;
+                var pondLocal = PondScene.TransformToAncestor(this).Inverse.Transform(windowLocal);
+                return FindSocialPetAt(pondLocal) != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         void PondScene_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
-            if (IsUnderElement(e.OriginalSource as DependencyObject, ChatDockChrome))
+            if (ShouldSkipSceneDrag(e.OriginalSource as DependencyObject))
                 return;
-            if (_hudLayoutActive && IsInteractiveHudTarget(e.OriginalSource as DependencyObject))
+            if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)) &&
+                !IsSceneChromeSource(e.OriginalSource as DependencyObject))
                 return;
+            BeginSceneDrag();
+        }
 
+        bool ShouldSkipSceneDrag(DependencyObject source)
+        {
+            if (IsUnderElement(source, ChatDockChrome))
+                return true;
+            if (_hudLayoutActive && IsInteractiveHudTarget(source))
+                return true;
+            if (source is Button || source is TextBox)
+                return true;
+            return false;
+        }
+
+        bool IsSceneChromeSource(DependencyObject source)
+        {
+            return ReferenceEquals(source, PondScene) ||
+                   IsUnderElement(source, SceneCanvas) ||
+                   IsUnderElement(source, SceneFadeHost);
+        }
+
+        void BeginSceneDrag()
+        {
             OverlayInteractionState.SceneDragging = true;
             _scene?.CancelAllHovers();
-
             try
             {
                 DragMove();
             }
             catch (InvalidOperationException)
             {
-                // The window can be closed while a drag is ending.
             }
         }
 
@@ -1427,15 +1570,20 @@ namespace FishSocialOverlay
             MenuFriendsButton.IsEnabled = enabled;
             MenuCatchButton.IsEnabled = enabled;
             MenuLeaderboardButton.IsEnabled = enabled;
-            CtxMenuPond.IsEnabled = enabled;
-            CtxMenuMap.IsEnabled = enabled;
-            CtxMenuShop.IsEnabled = enabled;
-            CtxMenuFriends.IsEnabled = enabled;
-            CtxMenuCatch.IsEnabled = enabled;
-            CtxMenuGallery.IsEnabled = enabled;
-            CtxMenuProfile.IsEnabled = enabled;
-            CtxMenuFeed.IsEnabled = enabled;
-            CtxMenuLeaderboard.IsEnabled = enabled;
+            SetProductMenuNavEnabled(enabled);
+        }
+
+        void SetProductMenuNavEnabled(bool enabled)
+        {
+            if (_productMenu == null)
+                return;
+            // First 9 items are feature nav entries (before the separator).
+            var limit = Math.Min(9, _productMenu.Items.Count);
+            for (var i = 0; i < limit; i++)
+            {
+                if (_productMenu.Items[i] is MenuItem item)
+                    item.IsEnabled = enabled;
+            }
         }
 
         void ApplyOverlayPrompt(IpcMessage message)
