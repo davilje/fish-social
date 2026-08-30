@@ -8,11 +8,11 @@
 | 编号 | **STEAM-DESKTOP-14A** |
 | 类型 | **功能**（含美术资源路径） |
 | 负责人 | Unity 桌面 / Overlay 工程师 + 美术 |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | v1.0-steam-desktop / hotfix |
 | 优先级 | P0 |
 | 设计时间 | **2026-08-29** |
-| 完成时间 | |
+| 完成时间 | **2026-08-30** |
 | 上位需求 | `STEAM-DESKTOP-ART-02`、`STEAM-DESKTOP-ART-01`、`STEAM-DESKTOP-07B` |
 
 ---
@@ -156,13 +156,13 @@ Assets/Desktop/OverlayLayouts/<pondId>.prefab
 
 ## 5. 验收标准
 
-- [ ] 在 `OverlayPondActor` 换椅图并对齐猫后，嵌到塘 Prefab 导出，Overlay 椅与猫相对位置与 Unity 一致（≤2px）
-- [ ] 进塘未落座：空座位半透明（约 40%），可点选 `spotId`
-- [ ] 自己落座：空座位消失；自己座位不透明；猫站在 `actor-pet` 而非 spot 几何中心（有 chrome 时）
-- [ ] 离席后空座位恢复半透明
-- [ ] 无 `actor-*` 的旧布局：回退 spot 中心 + `_default`/圆点，不崩
-- [ ] Debug/Release 构建带上 `seats/`
-- [ ] 不改 `mobile/`、`server/`、`shared/`
+- [x] 在 `OverlayPondActor` 换椅图并对齐猫后，嵌到塘 Prefab 导出，Overlay 椅与猫相对位置与 Unity 一致（≤2px）
+- [x] 进塘未落座：空座位半透明（约 40%），可点选 `spotId`
+- [x] 自己落座：空座位消失；自己座位不透明；猫站在 `actor-pet` 而非 spot 几何中心（有 chrome 时）
+- [x] 离席后空座位恢复半透明
+- [x] 无 `actor-*` 的旧布局：回退 spot 中心 + `_default`/圆点，不崩
+- [x] Debug/Release 构建带上 `seats/`
+- [x] 不改 `mobile/`、`server/`、`shared/`
 
 ---
 
@@ -183,4 +183,5 @@ Assets/Desktop/OverlayLayouts/<pondId>.prefab
 | 日期 | 作者 | 变更 |
 |------|------|------|
 | 2026-08-29 | 策划 | 初稿已确认（spot 圆点改椅图） |
+| 2026-08-30 | 策划 | 用户验收通过，状态改为 **已实现** |
 | 2026-08-30 | 策划 | **修订**：座位预制体为唯一真相；废弃双轨；猫跟 actor-pet |

@@ -14,10 +14,10 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] 
 
 - `pond.png`：旧的全塘共用底图（建议 `960×560`）
 - `ponds/<pondId>.png`：分塘底图（ART-03）
-- `layouts/<pondId>.json`：**ART-02 场景布局**（钓位/装饰像素表）。有表则停用 `MapToScene`
+- `layouts/<pondId>.json`：**ART-02 场景布局**。平移与底图宽度用 **`pond.width`**（通常来自 `ponds/<pondId>.png` 像素宽）；`canvas` 仍是 Prefab 根画布。宽于 960 时显示左右箭头。
 - `seats/_default.png`：座位椅图回退（14A；优先用布局里 `actor-seat` / spot 的 `sprite`）
 - `pets/<petId>/<state>-0.png`：**按猫种分套**（推荐，与 Unity 主窗口同名）
-- `hud/overlay-hud.json`：HUD 控件位置（ART-03）
+- `hud/overlay-hud.json`：HUD 控件位置（含 `btn_pan_left` / `btn_pan_right`）
 - `status/fishing.png`、`status/hooked.png`：宠物相位小图标（14D，缺图用矢量占位）
 - `status/hook-ring.png`：上钩进度环占位（Unity Radial 360）
 - `cat.png`：旧的全局回退（全塘同一只，不要再当正式资源）

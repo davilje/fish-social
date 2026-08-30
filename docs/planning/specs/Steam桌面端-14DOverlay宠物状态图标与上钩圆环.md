@@ -8,11 +8,11 @@
 | 编号 | **STEAM-DESKTOP-14D** |
 | 类型 | **功能** |
 | 负责人 | Unity 桌面 / Overlay 工程师 + 美术 |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | v1.0-steam-desktop / hotfix |
 | 优先级 | P0 |
 | 设计时间 | **2026-08-29** |
-| 完成时间 | |
+| 完成时间 | **2026-08-30** |
 | 上位需求 | `STEAM-DESKTOP-09D`、`STEAM-DESKTOP-09B`、`FEAT-UI-1` |
 
 ---
@@ -91,12 +91,12 @@ desktop-overlay/OverlayResources/status/hooked.png
 
 ## 5. 验收标准
 
-- [ ] 等鱼/上钩时头顶无「钓鱼中」「上钩」等相位字
-- [ ] 对应相位显示 16～20px 小图标
-- [ ] 上钩圆环套在猫身外、进度随 `hookDeadlineMs` 变化；idle/坐下无环
-- [ ] 悬停仍仅时长；热区仍为 64×64 猫身
-- [ ] 缺 icon 不崩
-- [ ] 不改 `mobile/`、`server/`、`shared/`
+- [x] 等鱼/上钩时头顶无「钓鱼中」「上钩」等相位字
+- [x] 对应相位显示 16～20px 小图标
+- [x] 上钩圆环套在猫身外、进度随 `hookDeadlineMs` 变化；idle/坐下无环
+- [x] 悬停仍仅时长；热区仍为 64×64 猫身
+- [x] 缺 icon 不崩
+- [x] 不改 `mobile/`、`server/`、`shared/`
 
 ---
 
@@ -115,4 +115,5 @@ desktop-overlay/OverlayResources/status/hooked.png
 
 | 日期 | 作者 | 变更 |
 |------|------|------|
+| 2026-08-30 | 策划 | 用户验收通过，状态改为 **已实现** |
 | 2026-08-29 | 策划 | 初稿已确认：icon + 套猫圆环，取消头顶相位字 |

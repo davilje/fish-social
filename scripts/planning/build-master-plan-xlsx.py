@@ -835,7 +835,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-29",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-14A",
         "功能",
         "Overlay 座位预制体与空位显隐",
@@ -845,10 +845,10 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "OverlayPondActor为座位真相；塘内摆实例；猫跟actor-pet；空位半透明/落座隐藏",
         "docs/planning/specs/Steam桌面端-14AOverlay钓位座位图.md",
         "2026-08-29",
-        "",
+        "2026-08-30",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-14B",
         "功能",
         "Overlay 横轴场景平移",
@@ -858,10 +858,10 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "场景宽默认1920视口960；左右箭头长按平滑平移；HUD与渐隐不跟移",
         "docs/planning/specs/Steam桌面端-14BOverlay横轴场景平移.md",
         "2026-08-29",
-        "",
+        "2026-08-30",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-14C",
         "美术",
         "Overlay HUD 正式素材与文字对齐",
@@ -871,10 +871,10 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "Prefab换正式图；导出字体/字号/对齐；停止强制左对齐；动态文案不烤进PNG",
         "docs/planning/specs/Steam桌面端-14COverlayHUD正式素材与文字对齐.md",
         "2026-08-29",
-        "",
+        "2026-08-30",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-14D",
         "功能",
         "Overlay 宠物状态图标与上钩圆环",
@@ -884,7 +884,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "取消头顶相位字；小图标；圆环套在64猫身外圈；时长仍仅悬停",
         "docs/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md",
         "2026-08-29",
-        "",
+        "2026-08-30",
     ],
     # —— 2026-08-10 收尾验收：ARC / DP-C / OPS ——
     [

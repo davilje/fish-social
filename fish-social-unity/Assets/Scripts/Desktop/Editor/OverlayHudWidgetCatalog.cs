@@ -46,6 +46,10 @@ namespace FishSocial.Desktop.Editor
 
             "btn_catch_leave",
 
+            "btn_pan_left",
+
+            "btn_pan_right",
+
             "dock_chat",
 
         };
@@ -125,6 +129,14 @@ namespace FishSocial.Desktop.Editor
             // ── 打窝说明（独立控件，非 dock_fishing 子节点）──
 
             new HudWidgetSpec("txt_groundbait", "text", 611, 491, 104, 58, false, null),
+
+
+
+            // ── 场景横移箭头（视口左右，默认隐藏；宽场景由 Overlay 显示）──
+
+            new HudWidgetSpec("btn_pan_left", "button", 8, 248, 36, 64, false, null),
+
+            new HudWidgetSpec("btn_pan_right", "button", 916, 248, 36, 64, false, null),
 
 
 

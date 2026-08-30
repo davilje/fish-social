@@ -2006,10 +2006,28 @@ namespace FishSocial.Desktop.Editor
                     ? new Color(0.06f, 0.09f, 0.12f, 0.85f)
                     : new Color(0.12f, 0.18f, 0.24f, 0.92f);
                 if (kind == "button")
+                {
                     go.AddComponent<Button>();
+                    if (id == "btn_pan_left" || id == "btn_pan_right")
+                    {
+                        var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+                        labelGo.transform.SetParent(go.transform, false);
+                        Stretch(labelGo.GetComponent<RectTransform>());
+                        var text = labelGo.GetComponent<Text>();
+                        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                        text.fontSize = 18;
+                        text.color = Color.white;
+                        text.alignment = TextAnchor.MiddleCenter;
+                        text.text = id == "btn_pan_left" ? "◀" : "▶";
+                    }
+                }
             }
 
-            go.AddComponent<DesktopOverlayHudWidget>();
+            var widget = go.AddComponent<DesktopOverlayHudWidget>();
+            widget.widgetId = id;
+            widget.kind = kind;
+            widget.zIndex = 100;
+            widget.visibleDefault = visibleDefault;
             return go;
         }
 

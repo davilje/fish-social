@@ -18,6 +18,24 @@ namespace FishSocial.Desktop.Editor
 
         static readonly string[] RequiredWidgetIds = OverlayHudWidgetCatalog.Required;
 
+        [MenuItem("Fish Social/补齐 OverlayHud", false, 44)]
+        public static void EnsureMenu()
+        {
+            try
+            {
+                DesktopPrefabValidator.EnsureOverlayHud();
+                EditorUtility.DisplayDialog(
+                    "补齐 OverlayHud",
+                    "已补齐 OverlayHud.prefab（含 btn_pan_left / btn_pan_right）。\n" +
+                    "接下来请执行：Fish Social → Export Overlay HUD。",
+                    "确定");
+            }
+            catch (Exception ex)
+            {
+                EditorUtility.DisplayDialog("补齐 OverlayHud", "失败：" + ex.Message, "确定");
+            }
+        }
+
         [MenuItem("Fish Social/Export Overlay HUD", false, 45)]
         public static void ExportMenu()
         {
@@ -39,7 +57,7 @@ namespace FishSocial.Desktop.Editor
             outputDir = ResolveHudOutputDir();
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
             if (prefab == null)
-                return "找不到 OverlayHud.prefab，请先执行 DesktopPrefabCatalog → OverlayHud。";
+                return "找不到 OverlayHud.prefab，请先执行 Fish Social → 补齐 OverlayHud。";
 
             var rootGo = PrefabUtility.LoadPrefabContents(PrefabPath);
             if (rootGo == null)
@@ -75,7 +93,11 @@ namespace FishSocial.Desktop.Editor
             foreach (var widget in widgets)
             {
                 if (widget == null || string.IsNullOrWhiteSpace(widget.widgetId))
-                    return "存在未设置 widgetId 的 HUD 控件。";
+                {
+                    var name = widget != null ? widget.gameObject.name : "(null)";
+                    return "存在未设置 widgetId 的 HUD 控件：" + name +
+                           "。请执行 Fish Social → 补齐 OverlayHud 后重试。";
+                }
                 if (byId.ContainsKey(widget.widgetId))
                     return "重复的 widgetId：" + widget.widgetId;
                 byId[widget.widgetId] = widget;
@@ -121,7 +143,7 @@ namespace FishSocial.Desktop.Editor
 
                 if (w <= 0.5f || h <= 0.5f)
                     return "控件尺寸无效（w/h 为 0）：" + widget.widgetId +
-                           "。请在 Prefab 中检查 RectTransform，或执行 DesktopPrefabCatalog → OverlayHud。";
+                           "。请在 Prefab 中检查 RectTransform，或执行 Fish Social → 补齐 OverlayHud。";
 
                 var spriteName = CopySprite(widget, outputDir, copiedSprites, out var spriteError);
                 if (!string.IsNullOrEmpty(spriteError))
@@ -185,7 +207,18 @@ namespace FishSocial.Desktop.Editor
                 return null;
             if (IndexHudWidgets(root).TryGetValue(widgetId, out var widget))
                 return widget.transform;
-            return null;
+
+            // Fallback: GameObject name (covers widgets created with empty widgetId).
+            foreach (var candidate in root.GetComponentsInChildren<DesktopOverlayHudWidget>(true))
+            {
+                if (candidate == null)
+                    continue;
+                if (string.Equals(candidate.gameObject.name, widgetId, StringComparison.Ordinal))
+                    return candidate.transform;
+            }
+
+            var byName = root.Find(widgetId);
+            return byName;
         }
 
         static Dictionary<string, DesktopOverlayHudWidget> IndexHudWidgets(Transform root)

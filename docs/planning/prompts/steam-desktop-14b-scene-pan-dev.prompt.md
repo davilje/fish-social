@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/Steam桌面端-14BOverlay横轴场景平移.md`（**已确认** / **STEAM-DESKTOP-14B**）
+1. `docs/planning/specs/Steam桌面端-14BOverlay横轴场景平移.md`（**已实现** / **STEAM-DESKTOP-14B**）
 2. `docs/planning/specs/Steam桌面端-14Overlay透明点击穿透回归.md`、`Steam桌面端-13AOverlay场景边缘半透明渐隐.md`
 3. `OverlayLayoutExporter.cs`、`PondScenePresenter.cs`、`MainWindow.xaml`
 

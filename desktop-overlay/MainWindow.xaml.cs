@@ -55,6 +55,7 @@ namespace FishSocialOverlay
         string _debugInspectFishListMode = string.Empty;
         readonly OverlayHudLayout _hudLayout = new OverlayHudLayout();
         OverlayEdgeVignette _edgeVignette;
+        OverlayScenePan _scenePan;
         bool _hudMenuMode;
         bool _hudLayoutActive;
         bool _hudChatDockMetricsValid;
@@ -180,6 +181,7 @@ namespace FishSocialOverlay
                     SendCommand("take_spot", _selectedSpotId);
                 }
             };
+            _scene.SceneContentChanged += OnSceneContentChanged;
             _chat = new OverlayChatPresenter(ChatLatestPreview);
             _chatBubbles = new OverlayChatBubblePresenter(
                 ChatBubbleLayer,
@@ -192,10 +194,13 @@ namespace FishSocialOverlay
             _hudLayout.TryApply(this, SceneCanvas);
             if (!_hudLayout.IsActive && !string.IsNullOrEmpty(_hudLayout.LastLoadError))
                 ErrorText.Text = "HUD 未加载：" + _hudLayout.LastLoadError + "（已用 XAML 布局）";
-            // Vertical mask on the sized Border (top/bottom); horizontal on the scene canvas
-            // (left/right). HUD stays a sibling of SceneFadeHost and is not faded.
-            _edgeVignette = new OverlayEdgeVignette(SceneFadeHost, SceneContentCanvas);
+            // Vertical mask → SceneFadeHost; horizontal → ScenePanViewport (viewport-sized).
+            // Never put both OpacityMasks on one element — the second overwrites the first.
+            _edgeVignette = new OverlayEdgeVignette(SceneFadeHost, ScenePanViewport);
+            _scenePan = new OverlayScenePan(SceneContentCanvas);
+            _scenePan.AttachButtons(BtnPanLeft, BtnPanRight);
             ApplyWindowSizeFromArgs();
+            ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
             _safeWindow = string.Equals(
                 Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_SAFE_WINDOW"),
                 "1",
@@ -222,29 +227,55 @@ namespace FishSocialOverlay
             PondScene.Height = height;
             SceneFadeHost.Width = width;
             SceneFadeHost.Height = height;
-            SceneContentCanvas.Width = width;
-            SceneContentCanvas.Height = height;
+            ScenePanViewport.Width = width;
+            ScenePanViewport.Height = height;
             SceneCanvas.Width = width;
             SceneCanvas.Height = height;
-            PondBackgroundImage.Width = width;
-            PondBackgroundImage.Height = height;
-            GrassLayer.Width = width;
-            GrassLayer.Height = height;
-            DecorLayer.Width = width;
-            DecorLayer.Height = height;
-            SpotLayer.Width = width;
-            SpotLayer.Height = height;
-            ActorLayer.Width = width;
-            ActorLayer.Height = height;
             HoverLayer.Width = width;
             HoverLayer.Height = height;
             ChatBubbleLayer.Width = width;
             ChatBubbleLayer.Height = height;
+            // 13A masks stay on the viewport, not the (possibly wider) scene content.
             _edgeVignette?.ApplySize(width, height);
             if (_hudLayoutActive)
                 return;
             ChatDockChrome.Width = Math.Max(280, width - 240);
             Canvas.SetTop(ChatDockChrome, height - (_chatDockExpanded ? 68 : 36));
+        }
+
+        void OnSceneContentChanged()
+        {
+            ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
+        }
+
+        void ApplySceneContentSize(double sceneWidth, double sceneHeight, bool resetPan)
+        {
+            var w = Math.Max(OverlayScenePan.ViewportWidth, sceneWidth);
+            var h = Math.Max(1, sceneHeight);
+            SceneContentCanvas.Width = w;
+            SceneContentCanvas.Height = h;
+            PondBackgroundImage.Width = w;
+            PondBackgroundImage.Height = h;
+            GrassLayer.Width = w;
+            GrassLayer.Height = h;
+            DecorLayer.Width = w;
+            DecorLayer.Height = h;
+            SpotLayer.Width = w;
+            SpotLayer.Height = h;
+            ActorLayer.Width = w;
+            ActorLayer.Height = h;
+            _scenePan?.SetSceneWidth(w, resetPan);
+        }
+
+        void SyncScenePanFocus(IpcMessage message)
+        {
+            if (_scenePan == null || message == null)
+                return;
+            if (!_scenePan.CanPan)
+                return;
+            if (_scene != null &&
+                _scene.TryGetFocusWorldX(message.OwnSpotId, out var worldX))
+                _scenePan.TryCenterOnWorldX(worldX);
         }
 
         void MenuToggle_OnClick(object sender, RoutedEventArgs e)
@@ -379,6 +410,7 @@ namespace FishSocialOverlay
                 if (!string.IsNullOrWhiteSpace(message.OwnSpotId))
                     _selectedSpotId = message.OwnSpotId;
                 _scene?.Apply(message);
+                SyncScenePanFocus(message);
                 ApplyFishingControls(message);
                 ApplyPondChat(message);
                 ApplyObservation(message);
@@ -1353,6 +1385,8 @@ namespace FishSocialOverlay
 
         bool ShouldSkipSceneDrag(DependencyObject source)
         {
+            if (_scenePan != null && _scenePan.IsPanButton(source))
+                return true;
             if (IsUnderElement(source, ChatDockChrome))
                 return true;
             if (_hudLayoutActive && IsInteractiveHudTarget(source))

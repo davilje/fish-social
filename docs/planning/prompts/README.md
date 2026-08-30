@@ -97,10 +97,10 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-13b-pet-menu-login-dev.prompt.md](./steam-desktop-13b-pet-menu-login-dev.prompt.md) | STEAM-DESKTOP-13B：宠物标签/右键/登录窗 · **已实现** |
 | [steam-desktop-13c-groundbait-hud-dev.prompt.md](./steam-desktop-13c-groundbait-hud-dev.prompt.md) | STEAM-DESKTOP-13C：打窝 HUD 收口 · **已实现** |
 | [steam-desktop-14-click-through-dev.prompt.md](./steam-desktop-14-click-through-dev.prompt.md) | STEAM-DESKTOP-14：透明点击穿透回归 · **已实现** |
-| [steam-desktop-14a-seat-markers-dev.prompt.md](./steam-desktop-14a-seat-markers-dev.prompt.md) | STEAM-DESKTOP-14A：座位预制体统一与空位显隐 · **已确认** |
-| [steam-desktop-14b-scene-pan-dev.prompt.md](./steam-desktop-14b-scene-pan-dev.prompt.md) | STEAM-DESKTOP-14B：横轴场景平移 · **已确认** |
-| [steam-desktop-14c-hud-art-text-dev.prompt.md](./steam-desktop-14c-hud-art-text-dev.prompt.md) | STEAM-DESKTOP-14C：HUD 正式素材与文字对齐 · **已确认** |
-| [steam-desktop-14d-pet-status-icon-dev.prompt.md](./steam-desktop-14d-pet-status-icon-dev.prompt.md) | STEAM-DESKTOP-14D：状态小图标与上钩圆环 · **已确认** |
+| [steam-desktop-14a-seat-markers-dev.prompt.md](./steam-desktop-14a-seat-markers-dev.prompt.md) | STEAM-DESKTOP-14A：座位预制体统一与空位显隐 · **已实现** |
+| [steam-desktop-14b-scene-pan-dev.prompt.md](./steam-desktop-14b-scene-pan-dev.prompt.md) | STEAM-DESKTOP-14B：横轴场景平移 · **已实现** |
+| [steam-desktop-14c-hud-art-text-dev.prompt.md](./steam-desktop-14c-hud-art-text-dev.prompt.md) | STEAM-DESKTOP-14C：HUD 正式素材与文字对齐 · **已实现** |
+| [steam-desktop-14d-pet-status-icon-dev.prompt.md](./steam-desktop-14d-pet-status-icon-dev.prompt.md) | STEAM-DESKTOP-14D：状态小图标与上钩圆环 · **已实现** |
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |
 | [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已实现** |

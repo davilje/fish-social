@@ -40,6 +40,12 @@ namespace FishSocialOverlay
         readonly Dictionary<string, OverlayPetActor> _actorsByUserId =
             new Dictionary<string, OverlayPetActor>(StringComparer.Ordinal);
         public event Action<string> SpotSelected;
+        /// <summary>Fired when pond layout / content size changes (STEAM-DESKTOP-14B).</summary>
+        public event Action SceneContentChanged;
+
+        public double ContentWidth { get; private set; } = SceneWidth;
+
+        public double ContentHeight { get; private set; } = SceneHeight;
 
         public PondScenePresenter(
             Canvas spotLayer,
@@ -112,7 +118,8 @@ namespace FishSocialOverlay
                 return;
 
             var pondId = message.PondId ?? string.Empty;
-            if (!string.Equals(pondId, _pondId, StringComparison.Ordinal))
+            var pondChanged = !string.Equals(pondId, _pondId, StringComparison.Ordinal);
+            if (pondChanged)
             {
                 ClearSpots();
                 ClearOthers();
@@ -121,6 +128,8 @@ namespace FishSocialOverlay
                 TryLoadPondBackground(pondId);
                 _layout.TryLoad(pondId);
                 ApplyLayoutSprites();
+                ApplyBackgroundArtSizeToLayout();
+                RefreshContentSize(notify: true);
             }
 
             _ownPlayerId = message.OwnPlayerId ?? string.Empty;
@@ -130,6 +139,66 @@ namespace FishSocialOverlay
             ApplyOwnActor(message);
             if (message.Users != null)
                 SyncOthers(message);
+        }
+
+        void ApplyBackgroundArtSizeToLayout()
+        {
+            if (!_layout.IsActive || _layout.HasExplicitPondSize)
+                return;
+            var source = _backgroundImage?.Source as BitmapSource;
+            if (source == null || source.PixelWidth < 1)
+                return;
+            _layout.ApplyArtPixelSize(source.PixelWidth, source.PixelHeight);
+        }
+
+        void RefreshContentSize(bool notify)
+        {
+            var width = _layout.IsActive ? _layout.SceneWidth : SceneWidth;
+            var height = _layout.IsActive ? _layout.SceneHeight : SceneHeight;
+            var changed = Math.Abs(width - ContentWidth) > 0.5 ||
+                          Math.Abs(height - ContentHeight) > 0.5;
+            ContentWidth = width;
+            ContentHeight = height;
+            ApplyBackgroundElementSize();
+            if (notify || changed)
+                SceneContentChanged?.Invoke();
+        }
+
+        void ApplyBackgroundElementSize()
+        {
+            if (_backgroundImage == null)
+                return;
+            _backgroundImage.Width = ContentWidth;
+            _backgroundImage.Height = ContentHeight;
+            _backgroundImage.Stretch = Stretch.Fill;
+            if (_grass != null)
+            {
+                _grass.Width = ContentWidth;
+                _grass.Height = ContentHeight;
+            }
+        }
+
+        /// <summary>
+        /// World X of the seat/pet to center in the viewport when entering a wide pond.
+        /// </summary>
+        public bool TryGetFocusWorldX(string ownSpotId, out double worldX)
+        {
+            worldX = 0;
+            if (string.IsNullOrWhiteSpace(ownSpotId))
+                return false;
+            if (_layout.TryGetPetPoint(ownSpotId, out var pet))
+            {
+                worldX = pet.X;
+                return true;
+            }
+
+            if (_layout.TryGetSpotPoint(ownSpotId, out var spot))
+            {
+                worldX = spot.X;
+                return true;
+            }
+
+            return false;
         }
 
         void SyncSpots(IpcMessage message)
@@ -506,7 +575,9 @@ namespace FishSocialOverlay
             }
 
             _backgroundImage.Source = LoadBitmap(path);
-            _backgroundImage.Stretch = Stretch.UniformToFill;
+            _backgroundImage.Stretch = Stretch.Fill;
+            _backgroundImage.Width = ContentWidth;
+            _backgroundImage.Height = ContentHeight;
             _backgroundImage.Visibility = Visibility.Visible;
             _grass.Visibility = Visibility.Collapsed;
             _shore.Visibility = Visibility.Collapsed;

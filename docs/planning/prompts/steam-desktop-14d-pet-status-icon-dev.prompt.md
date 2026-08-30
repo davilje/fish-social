@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md`（**已确认** / **STEAM-DESKTOP-14D**）
+1. `docs/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md`（**已实现** / **STEAM-DESKTOP-14D**）
 2. `docs/planning/specs/Steam桌面端-09DOverlay布局与角色表现优化.md`、`Steam桌面端-09BOverlay悬停状态与钓鱼时长.md`
 3. `desktop-overlay/OverlayPetActor.cs`
 

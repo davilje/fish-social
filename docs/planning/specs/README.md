@@ -71,10 +71,10 @@
 | [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13B；徽章、右键、登录窗 |
 | [Steam桌面端-13COverlay打窝HUD收口.md](./Steam桌面端-13COverlay打窝HUD收口.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13C；按钮次数、txt_error 成功句 |
 | [Steam桌面端-14Overlay透明点击穿透回归.md](./Steam桌面端-14Overlay透明点击穿透回归.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14；透明点穿桌面，保留 13A 渐隐 |
-| [Steam桌面端-14AOverlay钓位座位图.md](./Steam桌面端-14AOverlay钓位座位图.md) | hotfix | P0 | **已确认** | STEAM-DESKTOP-14A；座位预制体为真相、空位半透明、猫跟 actor-pet |
-| [Steam桌面端-14BOverlay横轴场景平移.md](./Steam桌面端-14BOverlay横轴场景平移.md) | hotfix | P1 | **已确认** | STEAM-DESKTOP-14B；左右箭头长按平移宽场景 |
-| [Steam桌面端-14COverlayHUD正式素材与文字对齐.md](./Steam桌面端-14COverlayHUD正式素材与文字对齐.md) | hotfix | P0 | **已确认** | STEAM-DESKTOP-14C；正式图 + 字体/对齐导出 |
-| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](./Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | hotfix | P0 | **已确认** | STEAM-DESKTOP-14D；小图标，圆环套猫，无头顶相位字 |
+| [Steam桌面端-14AOverlay钓位座位图.md](./Steam桌面端-14AOverlay钓位座位图.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14A；座位预制体为真相、空位半透明、猫跟 actor-pet |
+| [Steam桌面端-14BOverlay横轴场景平移.md](./Steam桌面端-14BOverlay横轴场景平移.md) | hotfix | P1 | **已实现** | STEAM-DESKTOP-14B；左右箭头长按平移宽场景 |
+| [Steam桌面端-14COverlayHUD正式素材与文字对齐.md](./Steam桌面端-14COverlayHUD正式素材与文字对齐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14C；正式图 + 字体/对齐导出 |
+| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](./Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14D；小图标，圆环套猫，无头顶相位字 |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
 | [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已实现** | 08C；公共动态墙、好友动态、分页、动态卡片 Prefab、点赞与评论 |

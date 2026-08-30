@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/Steam桌面端-14COverlayHUD正式素材与文字对齐.md`（**已确认** / **STEAM-DESKTOP-14C**）
+1. `docs/planning/specs/Steam桌面端-14COverlayHUD正式素材与文字对齐.md`（**已实现** / **STEAM-DESKTOP-14C**）
 2. `docs/planning/specs/Steam桌面Overlay分塘底图与HUD同步.md`、`Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md`
 3. `OverlayHudExporter.cs`、`OverlayHudLayout.cs`
 

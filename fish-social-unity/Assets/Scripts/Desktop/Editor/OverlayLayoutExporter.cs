@@ -12,8 +12,11 @@ namespace FishSocial.Desktop.Editor
 {
     public static class OverlayLayoutExporter
     {
-        public const float CanvasWidth = 960f;
+        public const float MinCanvasWidth = 960f;
+        public const float MaxCanvasWidth = 4096f;
         public const float CanvasHeight = 560f;
+        /// <summary>Legacy alias for viewport / narrow pond width.</summary>
+        public const float CanvasWidth = MinCanvasWidth;
 
         [MenuItem("Fish Social/Export Overlay Layout", false, 44)]
         public static void ExportCurrentMenu()
@@ -153,8 +156,15 @@ namespace FishSocial.Desktop.Editor
             if (root == null)
                 return "缺少 RectTransform。";
             var size = root.rect.size;
-            if (Mathf.Abs(size.x - CanvasWidth) > 0.5f || Mathf.Abs(size.y - CanvasHeight) > 0.5f)
-                return "画布必须是 960×560，当前为 " + size.x + "×" + size.y + "。";
+            if (size.x < MinCanvasWidth - 0.5f || size.x > MaxCanvasWidth + 0.5f ||
+                Mathf.Abs(size.y - CanvasHeight) > 0.5f)
+            {
+                return "画布宽度须在 " + MinCanvasWidth + "～" + MaxCanvasWidth +
+                       "、高度须为 " + CanvasHeight + "，当前为 " + size.x + "×" + size.y + "。";
+            }
+
+            var canvasWidth = Mathf.Round(size.x);
+            var canvasHeight = Mathf.Round(size.y);
 
             var objects = rootGo.GetComponentsInChildren<DesktopOverlayLayoutObject>(true);
             if (objects == null || objects.Length == 0)
@@ -276,7 +286,10 @@ namespace FishSocial.Desktop.Editor
             var jsonPath = Path.Combine(outputDir, view.pondId + ".json");
             try
             {
-                File.WriteAllText(tempPath, BuildDocumentJson(view.pondId, entries), new UTF8Encoding(false));
+                File.WriteAllText(
+                    tempPath,
+                    BuildDocumentJson(view.pondId, canvasWidth, canvasHeight, entries, rootGo),
+                    new UTF8Encoding(false));
                 if (File.Exists(jsonPath))
                     File.Delete(jsonPath);
                 File.Move(tempPath, jsonPath);
@@ -471,11 +484,23 @@ namespace FishSocial.Desktop.Editor
             return null;
         }
 
-        static string BuildDocumentJson(string pondId, List<LayoutEntry> entries)
+        static string BuildDocumentJson(
+            string pondId,
+            float canvasWidth,
+            float canvasHeight,
+            List<LayoutEntry> entries,
+            GameObject rootGo)
         {
+            ResolvePondSize(pondId, canvasWidth, canvasHeight, entries, rootGo,
+                out var pondWidth, out var pondHeight);
+
             var sb = new StringBuilder();
             sb.Append("{\"version\":1,\"pondId\":\"").Append(Escape(pondId)).Append("\",");
-            sb.Append("\"canvas\":{\"width\":960,\"height\":560,\"origin\":\"top-left\"},");
+            sb.Append("\"canvas\":{\"width\":").Append(canvasWidth.ToString("0"))
+                .Append(",\"height\":").Append(canvasHeight.ToString("0"))
+                .Append(",\"origin\":\"top-left\"},");
+            sb.Append("\"pond\":{\"width\":").Append(pondWidth.ToString("0"))
+                .Append(",\"height\":").Append(pondHeight.ToString("0")).Append("},");
             sb.Append("\"objects\":[");
             for (var i = 0; i < entries.Count; i++)
             {
@@ -489,6 +514,100 @@ namespace FishSocial.Desktop.Editor
             sb.AppendLine();
             sb.Append("]}");
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Scene pan / background size. Prefer ponds/&lt;id&gt;.png pixels, then pond-bg rect, then canvas.
+        /// </summary>
+        static void ResolvePondSize(
+            string pondId,
+            float canvasWidth,
+            float canvasHeight,
+            List<LayoutEntry> entries,
+            GameObject rootGo,
+            out float pondWidth,
+            out float pondHeight)
+        {
+            pondWidth = canvasWidth;
+            pondHeight = canvasHeight;
+
+            if (TryReadPondPngSize(pondId, out var pngW, out var pngH))
+            {
+                pondWidth = pngW;
+                pondHeight = pngH;
+                return;
+            }
+
+            if (TryReadPondBgSpriteSize(rootGo, out var spriteW, out var spriteH))
+            {
+                pondWidth = spriteW;
+                pondHeight = spriteH;
+                return;
+            }
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (entry == null)
+                    continue;
+                if (!string.Equals(entry.Id, "pond-bg", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(entry.Id, "pond", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(entry.Kind, "background", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (entry.W < MinCanvasWidth - 0.5f || entry.W > MaxCanvasWidth + 0.5f)
+                    continue;
+                pondWidth = Mathf.Round(entry.W);
+                pondHeight = entry.H > 0.5f ? Mathf.Round(entry.H) : canvasHeight;
+                return;
+            }
+        }
+
+        static bool TryReadPondPngSize(string pondId, out float width, out float height)
+        {
+            width = 0;
+            height = 0;
+            if (string.IsNullOrWhiteSpace(pondId))
+                return false;
+            var path = Path.Combine(OverlayResourcesDir(), "ponds", pondId + ".png");
+            if (!File.Exists(path))
+                return false;
+            try
+            {
+                var bytes = File.ReadAllBytes(path);
+                var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (!tex.LoadImage(bytes, true))
+                    return false;
+                if (tex.width < MinCanvasWidth - 0.5f || tex.width > MaxCanvasWidth + 0.5f)
+                    return false;
+                width = tex.width;
+                height = tex.height > 0 ? tex.height : CanvasHeight;
+                UnityEngine.Object.DestroyImmediate(tex);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        static bool TryReadPondBgSpriteSize(GameObject rootGo, out float width, out float height)
+        {
+            width = 0;
+            height = 0;
+            if (rootGo == null)
+                return false;
+            var bg = rootGo.transform.Find("pond-bg");
+            if (bg == null)
+                return false;
+            var image = bg.GetComponent<Image>();
+            if (image == null || image.sprite == null)
+                return false;
+            var rect = image.sprite.rect;
+            if (rect.width < MinCanvasWidth - 0.5f || rect.width > MaxCanvasWidth + 0.5f)
+                return false;
+            width = Mathf.Round(rect.width);
+            height = Mathf.Round(rect.height);
+            return height > 0.5f;
         }
 
         static string BuildObjectJson(LayoutEntry entry)

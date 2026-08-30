@@ -4,7 +4,7 @@
 
 ## 必读
 
-1. `docs/planning/specs/Steam桌面端-14AOverlay钓位座位图.md`（**已确认** / **STEAM-DESKTOP-14A** 修订）
+1. `docs/planning/specs/Steam桌面端-14AOverlay钓位座位图.md`（**已实现** / **STEAM-DESKTOP-14A** 修订）
 2. `docs/planning/specs/Steam桌面Overlay场景布局管线.md`（ART-02）
 3. `OverlayPondActorBaker.cs`、`OverlayLayoutExporter.cs`、`PondScenePresenter.cs`、`OverlayPondLayout.cs`
 

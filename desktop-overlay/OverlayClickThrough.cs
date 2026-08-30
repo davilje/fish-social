@@ -150,12 +150,37 @@ namespace FishSocialOverlay
                 image.Visibility == Visibility.Visible &&
                 image.Source != null)
             {
-                if (!TrySampleImageAlpha(image, sceneLocal, out var pixelAlpha))
+                Point imageLocal;
+                try
+                {
+                    var toImage = host.TransformToDescendant(image);
+                    imageLocal = toImage.Transform(sceneLocal);
+                }
+                catch (InvalidOperationException)
+                {
+                    return false;
+                }
+
+                if (!TrySampleImageAlpha(image, imageLocal, out var pixelAlpha))
                     return false;
                 return pixelAlpha * mask >= AlphaThreshold;
             }
 
-            return HitsFallbackShape(window, sceneLocal) && mask * 255 >= AlphaThreshold;
+            Point contentLocal = sceneLocal;
+            var content = window.SceneContentCanvas;
+            if (content != null)
+            {
+                try
+                {
+                    contentLocal = host.TransformToDescendant(content).Transform(sceneLocal);
+                }
+                catch (InvalidOperationException)
+                {
+                    contentLocal = sceneLocal;
+                }
+            }
+
+            return HitsFallbackShape(window, contentLocal) && mask * 255 >= AlphaThreshold;
         }
 
         static bool HitsFallbackShape(MainWindow window, Point sceneLocal)
@@ -216,7 +241,7 @@ namespace FishSocialOverlay
             if (_cachedBgra == null || _cachedWidth < 1 || _cachedHeight < 1)
                 return false;
 
-            MapUniformToFill(
+            MapFill(
                 imageLocal.X, imageLocal.Y, viewW, viewH,
                 _cachedWidth, _cachedHeight,
                 out var px, out var py);
@@ -227,18 +252,13 @@ namespace FishSocialOverlay
             return true;
         }
 
-        static void MapUniformToFill(
+        static void MapFill(
             double x, double y, double viewW, double viewH,
             int srcW, int srcH,
             out int px, out int py)
         {
-            var scale = Math.Max(viewW / srcW, viewH / srcH);
-            var scaledW = srcW * scale;
-            var scaledH = srcH * scale;
-            var ox = (viewW - scaledW) / 2.0;
-            var oy = (viewH - scaledH) / 2.0;
-            px = (int)Math.Floor((x - ox) / scale);
-            py = (int)Math.Floor((y - oy) / scale);
+            px = (int)Math.Floor(x / viewW * srcW);
+            py = (int)Math.Floor(y / viewH * srcH);
         }
 
         static void EnsureAlphaCache(BitmapSource source)

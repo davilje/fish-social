@@ -16,8 +16,13 @@ namespace FishSocialOverlay
     /// </summary>
     public sealed class OverlayPondLayout
     {
-        public const double CanvasWidth = 960;
-        public const double CanvasHeight = 560;
+        public const double ViewportWidth = 960;
+        public const double ViewportHeight = 560;
+        public const double MinSceneWidth = 960;
+        public const double MaxSceneWidth = 4096;
+        /// <summary>Viewport / fallback scene width (narrow pond).</summary>
+        public const double CanvasWidth = ViewportWidth;
+        public const double CanvasHeight = ViewportHeight;
 
         readonly Dictionary<string, OverlayLayoutObjectDto> _spots =
             new Dictionary<string, OverlayLayoutObjectDto>(StringComparer.Ordinal);
@@ -27,10 +32,21 @@ namespace FishSocialOverlay
         OverlayLayoutObjectDto _waiting;
         double _petWidth = PondScenePresenter.CatSize;
         double _petHeight = PondScenePresenter.CatSize;
+        double _sceneWidth = ViewportWidth;
+        double _sceneHeight = ViewportHeight;
         readonly Dictionary<string, BitmapImage> _bitmapCache =
             new Dictionary<string, BitmapImage>(StringComparer.OrdinalIgnoreCase);
 
         public bool IsActive { get; private set; }
+
+        public double SceneWidth => _sceneWidth;
+
+        public double SceneHeight => _sceneHeight;
+
+        /// <summary>True when layout JSON includes an explicit pond.width (14B pan source).</summary>
+        public bool HasExplicitPondSize { get; private set; }
+
+        public bool CanPan => _sceneWidth > ViewportWidth + 0.5;
 
         public double PetWidth => _petWidth;
 
@@ -77,16 +93,26 @@ namespace FishSocialOverlay
 
             if (document.canvas != null)
             {
-                if (Math.Abs(document.canvas.width - CanvasWidth) > 0.5 ||
-                    Math.Abs(document.canvas.height - CanvasHeight) > 0.5)
+                var width = document.canvas.width;
+                var height = document.canvas.height;
+                if (height > 0 && Math.Abs(height - ViewportHeight) > 0.5)
                 {
                     System.Diagnostics.Debug.WriteLine(
-                        "[OverlayLayout] Canvas must be 960x560, got " +
-                        document.canvas.width + "x" + document.canvas.height);
+                        "[OverlayLayout] Canvas height must be " + ViewportHeight + ", got " +
+                        height);
+                    return false;
+                }
+
+                if (width > 0 && (width < MinSceneWidth - 0.5 || width > MaxSceneWidth + 0.5))
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "[OverlayLayout] Canvas width must be " + MinSceneWidth + "-" +
+                        MaxSceneWidth + ", got " + width);
                     return false;
                 }
             }
 
+            OverlayLayoutObjectDto pondBg = null;
             foreach (var item in document.objects)
             {
                 if (item == null)
@@ -121,6 +147,8 @@ namespace FishSocialOverlay
                 else if (kind == "sprite" || kind == "background")
                 {
                     _sprites.Add(item);
+                    if (IsPondBackgroundObject(item))
+                        pondBg = item;
                 }
                 else if (kind.StartsWith("actor-", StringComparison.Ordinal))
                 {
@@ -135,11 +163,85 @@ namespace FishSocialOverlay
                 return false;
             }
 
+            ResolveSceneSize(document, pondBg);
+
             IsActive = true;
             System.Diagnostics.Debug.WriteLine(
                 "[OverlayLayout] Loaded " + pondId + " spots=" + _spots.Count +
-                " sprites=" + _sprites.Count);
+                " sprites=" + _sprites.Count +
+                " pond=" + _sceneWidth + "x" + _sceneHeight +
+                (HasExplicitPondSize ? " (explicit)" : string.Empty));
             return true;
+        }
+
+        void ResolveSceneSize(OverlayLayoutDocument document, OverlayLayoutObjectDto pondBg)
+        {
+            _sceneWidth = ViewportWidth;
+            _sceneHeight = ViewportHeight;
+            HasExplicitPondSize = false;
+
+            if (document?.pond != null &&
+                TryAcceptSceneSize(document.pond.width, document.pond.height, out var pondW, out var pondH))
+            {
+                _sceneWidth = pondW;
+                _sceneHeight = pondH;
+                HasExplicitPondSize = true;
+                return;
+            }
+
+            if (pondBg != null &&
+                TryAcceptSceneSize(pondBg.w, pondBg.h, out pondW, out pondH))
+            {
+                _sceneWidth = pondW;
+                _sceneHeight = pondH;
+                return;
+            }
+
+            if (document?.canvas != null &&
+                TryAcceptSceneSize(document.canvas.width, document.canvas.height, out pondW, out pondH))
+            {
+                _sceneWidth = pondW;
+                _sceneHeight = pondH;
+            }
+        }
+
+        static bool TryAcceptSceneSize(double width, double height, out double w, out double h)
+        {
+            w = ViewportWidth;
+            h = ViewportHeight;
+            if (width < MinSceneWidth - 0.5 || width > MaxSceneWidth + 0.5)
+                return false;
+            w = width;
+            if (height > 0 && Math.Abs(height - ViewportHeight) <= 0.5)
+                h = ViewportHeight;
+            else if (height >= MinSceneWidth * 0.1)
+                h = height;
+            return true;
+        }
+
+        static bool IsPondBackgroundObject(OverlayLayoutObjectDto item)
+        {
+            if (item == null)
+                return false;
+            var id = (item.id ?? string.Empty).Trim();
+            if (string.Equals(id, "pond-bg", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(id, "pond", StringComparison.OrdinalIgnoreCase))
+                return true;
+            var kind = (item.kind ?? string.Empty).Trim().ToLowerInvariant();
+            return kind == "background";
+        }
+
+        /// <summary>
+        /// Prefer ponds/&lt;id&gt;.png pixel width when layout has no explicit pond block.
+        /// </summary>
+        public void ApplyArtPixelSize(int pixelWidth, int pixelHeight)
+        {
+            if (HasExplicitPondSize)
+                return;
+            if (!TryAcceptSceneSize(pixelWidth, pixelHeight, out var w, out var h))
+                return;
+            _sceneWidth = w;
+            _sceneHeight = h;
         }
 
         public bool TryGetActorChrome(string spotId, out OverlayActorChrome chrome)
@@ -377,6 +479,9 @@ namespace FishSocialOverlay
             _waiting = null;
             _petWidth = PondScenePresenter.CatSize;
             _petHeight = PondScenePresenter.CatSize;
+            _sceneWidth = ViewportWidth;
+            _sceneHeight = ViewportHeight;
+            HasExplicitPondSize = false;
         }
 
         [DataContract]
@@ -385,6 +490,7 @@ namespace FishSocialOverlay
             [DataMember(Name = "version")] public int version;
             [DataMember(Name = "pondId")] public string pondId = null;
             [DataMember(Name = "canvas")] public OverlayLayoutCanvasDto canvas = null;
+            [DataMember(Name = "pond")] public OverlayLayoutPondDto pond = null;
             [DataMember(Name = "objects")] public OverlayLayoutObjectDto[] objects = null;
         }
 
@@ -394,6 +500,13 @@ namespace FishSocialOverlay
             [DataMember(Name = "width")] public double width = CanvasWidth;
             [DataMember(Name = "height")] public double height = CanvasHeight;
             [DataMember(Name = "origin")] public string origin = null;
+        }
+
+        [DataContract]
+        sealed class OverlayLayoutPondDto
+        {
+            [DataMember(Name = "width")] public double width;
+            [DataMember(Name = "height")] public double height;
         }
     }
 
