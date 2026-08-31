@@ -187,6 +187,9 @@ namespace FishSocial.Desktop.Editor
                 }
 
                 Debug.Log("[Build] Native Overlay OK → " + overlayExecutable);
+                // Prefab 改动不会自动进 Overlay：必须先导出 hud JSON/PNG，再拷贝 OverlayResources。
+                if (!ExportOverlayHudForBuild())
+                    return false;
                 CopyOverlayResources(projectRoot, overlayOutput);
                 return true;
             }
@@ -194,6 +197,30 @@ namespace FishSocial.Desktop.Editor
             {
                 Debug.LogException(error);
                 FailBuild("Native Overlay 发布异常：\n" + error.Message);
+                return false;
+            }
+        }
+
+        static bool ExportOverlayHudForBuild()
+        {
+            try
+            {
+                var error = OverlayHudExporter.Export(out var outputDir);
+                if (!string.IsNullOrEmpty(error))
+                {
+                    FailBuild(
+                        "打包前 Export Overlay HUD 失败：\n" + error +
+                        "\n\n请先修好 OverlayHud Prefab / 关闭占用 hud PNG 的进程，" +
+                        "或手动执行 Fish Social → Export Overlay HUD 后再打包。");
+                    return false;
+                }
+
+                Debug.Log("[Build] Exported Overlay HUD → " + outputDir);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                FailBuild("打包前 Export Overlay HUD 异常：\n" + ex.Message);
                 return false;
             }
         }

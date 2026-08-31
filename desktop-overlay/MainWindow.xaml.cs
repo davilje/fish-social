@@ -48,6 +48,7 @@ namespace FishSocialOverlay
         bool _socketConnected;
         bool _chatDockExpanded;
         bool _chatHistoryPrimed;
+        OverlayChatDto[] _lastRecentChats;
         string _lastPondId = string.Empty;
         DispatcherTimer _promptTimer;
         long _promptDeadlineMs;
@@ -63,6 +64,8 @@ namespace FishSocialOverlay
         const double HudChatDockExpandedHeight = 69;
         const double HudChatDockCollapsedHeight = 36;
         ContextMenu _productMenu;
+        OverlayViewportPreset _viewportPreset = OverlayViewportPreset.Standard;
+        MenuItem[] _viewportMenuItems;
 
         public void ConfigureHudChatDockMetrics(OverlayHudLayout.HudChatDockMetrics metrics)
         {
@@ -75,6 +78,11 @@ namespace FishSocialOverlay
             Canvas.SetTop(ChatDockChrome, metrics.Y);
             ChatDockChrome.Width = metrics.W;
             ApplyHudChatDockLayout(_chatDockExpanded);
+        }
+
+        public void ConfigureChatLogStyle(FontFamily fontFamily, double fontSize, Brush foreground)
+        {
+            _chat?.ConfigureLogStyle(fontFamily, fontSize, foreground);
         }
 
         public void ConfigureHudLayoutMode(bool hudLayoutActive)
@@ -122,8 +130,16 @@ namespace FishSocialOverlay
             }
 
             var expandedVis = expanded ? Visibility.Visible : Visibility.Collapsed;
+            if (ChatLogScroll != null)
+                ChatLogScroll.Visibility = expandedVis;
+            if (ChatLogScrollBar != null)
+                ChatLogScrollBar.Visibility = expandedVis;
+            if (ChatLatestPreview != null)
+                ChatLatestPreview.Visibility = expanded ? Visibility.Collapsed : Visibility.Visible;
             if (ChatInputBox != null)
                 ChatInputBox.Visibility = expandedVis;
+            if (ChatInputPanel != null)
+                ChatInputPanel.Visibility = expandedVis;
             if (ChatSendButton != null)
                 ChatSendButton.Visibility = expandedVis;
             if (ChatPlaceholder != null)
@@ -135,7 +151,20 @@ namespace FishSocialOverlay
             }
 
             if (ChatDockToggle != null)
-                ChatDockToggle.Content = expanded ? "▼" : "▲";
+            {
+                if (ChatDockToggle.Background is ImageBrush)
+                {
+                    ChatDockToggle.Content = string.Empty;
+                    OverlayHudLayout.SetChatToggleRotation(ChatDockToggle, expanded);
+                }
+                else
+                {
+                    ChatDockToggle.Content = expanded ? "▼" : "▲";
+                }
+            }
+
+            if (_hudLayoutActive)
+                _hudLayout.RefreshChatDockChrome(ChatDockChrome);
         }
 
         public void ConfigureHudMenuMode(bool hudMenuMode)
@@ -182,7 +211,7 @@ namespace FishSocialOverlay
                 }
             };
             _scene.SceneContentChanged += OnSceneContentChanged;
-            _chat = new OverlayChatPresenter(ChatLatestPreview);
+            _chat = new OverlayChatPresenter(ChatLatestPreview, ChatLogScroll, ChatLogList);
             _chatBubbles = new OverlayChatBubblePresenter(
                 ChatBubbleLayer,
                 playerId => _scene?.TryResolveActor(playerId),
@@ -199,7 +228,7 @@ namespace FishSocialOverlay
             _edgeVignette = new OverlayEdgeVignette(SceneFadeHost, ScenePanViewport);
             _scenePan = new OverlayScenePan(SceneContentCanvas);
             _scenePan.AttachButtons(BtnPanLeft, BtnPanRight);
-            ApplyWindowSizeFromArgs();
+            ApplyInitialViewport();
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
             _safeWindow = string.Equals(
                 Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_SAFE_WINDOW"),
@@ -213,16 +242,34 @@ namespace FishSocialOverlay
             }
         }
 
-        void ApplyWindowSizeFromArgs()
+        void ApplyInitialViewport()
         {
-            var width = ReadIntArgument("--width=", 960);
-            var height = ReadIntArgument("--height=", 560);
-            if (width <= 0)
-                width = 960;
-            if (height <= 0)
-                height = 560;
-            Width = width;
-            Height = height;
+            var stored = OverlayViewportStore.LoadOrDefault();
+            var argWidth = ReadIntArgument("--width=", 0);
+            var argHeight = ReadIntArgument("--height=", 0);
+            OverlayViewportPreset preset;
+            if (!string.Equals(stored.Id, OverlayViewportPreset.Standard.Id, StringComparison.Ordinal))
+                preset = stored;
+            else if (argWidth > 0 && argHeight > 0)
+                preset = OverlayViewportPreset.FromSize(argWidth, argHeight);
+            else
+                preset = OverlayViewportPreset.Standard;
+            ApplyViewportSize(preset, persist: false, anchorOnScreen: false);
+        }
+
+        void ApplyViewportSize(OverlayViewportPreset preset, bool persist, bool anchorOnScreen)
+        {
+            _viewportPreset = preset;
+            var width = preset.Width;
+            var height = preset.Height;
+            if (anchorOnScreen)
+                OverlayViewportStore.AnchorResize(this, width, height);
+            else
+            {
+                Width = width;
+                Height = height;
+            }
+
             PondScene.Width = width;
             PondScene.Height = height;
             SceneFadeHost.Width = width;
@@ -235,12 +282,41 @@ namespace FishSocialOverlay
             HoverLayer.Height = height;
             ChatBubbleLayer.Width = width;
             ChatBubbleLayer.Height = height;
-            // 13A masks stay on the viewport, not the (possibly wider) scene content.
             _edgeVignette?.ApplySize(width, height);
+            _scenePan?.SetViewportSize(width, height);
+            _scene?.SetRuntimeViewport(width, height);
+            ApplySceneContentSize(
+                _scene != null ? _scene.ContentWidth : width,
+                _scene != null ? _scene.ContentHeight : OverlayScenePan.DesignViewportHeight,
+                resetPan: false);
+
+            if (preset.CollapseMenuRail)
+            {
+                _menuExpanded = false;
+                if (_hudMenuMode)
+                    SetHudMenuExpanded(false);
+            }
+
             if (_hudLayoutActive)
+                _hudLayout.Relayout(this, width, height);
+            else if (ChatDockChrome != null)
+            {
+                ChatDockChrome.Width = Math.Max(280, width - 240);
+                Canvas.SetTop(ChatDockChrome, height - (_chatDockExpanded ? 68 : 36));
+            }
+
+            if (persist)
+                OverlayViewportStore.Save(preset);
+            if (anchorOnScreen)
+                RecenterOwnSeat();
+        }
+
+        void RecenterOwnSeat()
+        {
+            if (_scenePan == null || _scene == null)
                 return;
-            ChatDockChrome.Width = Math.Max(280, width - 240);
-            Canvas.SetTop(ChatDockChrome, height - (_chatDockExpanded ? 68 : 36));
+            if (_scene.TryGetFocusWorldX(_selectedSpotId, out var worldX))
+                _scenePan.TryCenterOnWorldX(worldX, force: true);
         }
 
         void OnSceneContentChanged()
@@ -250,7 +326,10 @@ namespace FishSocialOverlay
 
         void ApplySceneContentSize(double sceneWidth, double sceneHeight, bool resetPan)
         {
-            var w = Math.Max(OverlayScenePan.ViewportWidth, sceneWidth);
+            var viewW = _scenePan != null
+                ? _scenePan.ViewportWidth
+                : OverlayViewportPreset.Standard.Width;
+            var w = Math.Max(viewW, sceneWidth);
             var h = Math.Max(1, sceneHeight);
             SceneContentCanvas.Width = w;
             SceneContentCanvas.Height = h;
@@ -264,7 +343,7 @@ namespace FishSocialOverlay
             SpotLayer.Height = h;
             ActorLayer.Width = w;
             ActorLayer.Height = h;
-            _scenePan?.SetSceneWidth(w, resetPan);
+            _scenePan?.SetSceneSize(w, h, resetPan);
         }
 
         void SyncScenePanFocus(IpcMessage message)
@@ -293,6 +372,8 @@ namespace FishSocialOverlay
                 SystemParameters.WorkArea.Right - Width - 32);
             Top = Math.Max(SystemParameters.WorkArea.Top,
                 SystemParameters.WorkArea.Bottom - Height - 48);
+            if (_hudLayoutActive)
+                _hudLayout.Relayout(this, _viewportPreset.Width, _viewportPreset.Height);
 
             if (string.IsNullOrWhiteSpace(_pipeName))
             {
@@ -453,24 +534,39 @@ namespace FishSocialOverlay
         void FishingToggle_OnClick(object sender, RoutedEventArgs e)
         {
             if (_canStopFishing)
+            {
+                FishingToggleButton.IsEnabled = false;
                 SendCommand("stop_fishing");
-            else if (_canStartFishing)
+                return;
+            }
+
+            if (_canStartFishing)
+            {
+                FishingToggleButton.IsEnabled = false;
                 SendCommand("start_fishing", _selectedSpotId);
+            }
         }
 
         void Groundbait_OnClick(object sender, RoutedEventArgs e)
         {
             if (!_canGroundbait)
                 return;
+            GroundbaitButton.IsEnabled = false;
             SendCommand("groundbait_start", _selectedSpotId);
         }
 
         void CatchLeave_OnClick(object sender, RoutedEventArgs e)
         {
             if (_canAcceptCatch)
-                SendCommand("accept_catch");
-            else if (_canLeaveSpot)
             {
+                CatchLeaveButton.IsEnabled = false;
+                SendCommand("accept_catch");
+                return;
+            }
+
+            if (_canLeaveSpot)
+            {
+                CatchLeaveButton.IsEnabled = false;
                 StateText.Text = "状态：正在离席…";
                 SendCommand("leave_spot");
             }
@@ -1067,17 +1163,25 @@ namespace FishSocialOverlay
             if (!canGameplayDebug)
                 SetGameplayDebugModalOpen(false);
 
-            if (_canStopFishing)
+            var phase = message.FishingPhase ?? string.Empty;
+            var hasSpot = !string.IsNullOrWhiteSpace(message.OwnSpotId);
+            var showDock = hasSpot && !string.Equals(phase, "idle", StringComparison.Ordinal);
+            var reelPhase = IsReelPhase(phase);
+            var idleSeatPhase = IsIdleSeatPhase(phase);
+
+            if (showDock)
             {
-                FishingToggleButton.Content = "收杆";
-                FishingToggleButton.IsEnabled = true;
                 FishingToggleButton.Visibility = Visibility.Visible;
-            }
-            else if (_canStartFishing)
-            {
-                FishingToggleButton.Content = "开始钓鱼";
-                FishingToggleButton.IsEnabled = true;
-                FishingToggleButton.Visibility = Visibility.Visible;
+                if (reelPhase)
+                {
+                    FishingToggleButton.Content = "收杆";
+                    FishingToggleButton.IsEnabled = _canStopFishing;
+                }
+                else
+                {
+                    FishingToggleButton.Content = "开始钓鱼";
+                    FishingToggleButton.IsEnabled = _canStartFishing;
+                }
             }
             else
             {
@@ -1085,19 +1189,28 @@ namespace FishSocialOverlay
                 FishingToggleButton.Visibility = Visibility.Collapsed;
             }
 
-            ApplyGroundbaitStatus(message);
+            ApplyGroundbaitStatus(message, showDock && idleSeatPhase);
 
-            if (_canAcceptCatch)
+            if (showDock && idleSeatPhase)
             {
-                CatchLeaveButton.Content = "领取鱼获";
-                CatchLeaveButton.IsEnabled = true;
-                CatchLeaveButton.Visibility = Visibility.Visible;
-            }
-            else if (_canLeaveSpot)
-            {
-                CatchLeaveButton.Content = "离席";
-                CatchLeaveButton.IsEnabled = true;
-                CatchLeaveButton.Visibility = Visibility.Visible;
+                if (_canAcceptCatch)
+                {
+                    CatchLeaveButton.Content = "领取鱼获";
+                    CatchLeaveButton.IsEnabled = true;
+                    CatchLeaveButton.Visibility = Visibility.Visible;
+                }
+                else if (_canLeaveSpot)
+                {
+                    CatchLeaveButton.Content = "离席";
+                    CatchLeaveButton.IsEnabled = true;
+                    CatchLeaveButton.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CatchLeaveButton.Content = "离席";
+                    CatchLeaveButton.IsEnabled = false;
+                    CatchLeaveButton.Visibility = Visibility.Visible;
+                }
             }
             else
             {
@@ -1108,7 +1221,7 @@ namespace FishSocialOverlay
             ExitPondButton.IsEnabled = _canExitPond;
         }
 
-        void ApplyGroundbaitStatus(IpcMessage message)
+        void ApplyGroundbaitStatus(IpcMessage message, bool showSideButtons)
         {
             if (GroundbaitStatusText != null)
                 GroundbaitStatusText.Visibility = Visibility.Collapsed;
@@ -1116,22 +1229,36 @@ namespace FishSocialOverlay
             var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
             var stack = Math.Max(0, message.GroundbaitStack);
             var label = "打窝" + stack + "/" + max;
-            var groundbaiting = string.Equals(
-                message.FishingPhase, "groundbaiting", StringComparison.Ordinal);
+            GroundbaitButton.Content = label;
+            GroundbaitButton.FontSize = 11;
+            GroundbaitButton.Padding = new Thickness(0);
 
-            if (_canGroundbait || groundbaiting || stack > 0)
+            if (showSideButtons)
             {
                 GroundbaitButton.Visibility = Visibility.Visible;
                 GroundbaitButton.IsEnabled = _canGroundbait;
-                GroundbaitButton.FontSize = 11;
-                GroundbaitButton.Padding = new Thickness(0);
-                GroundbaitButton.Content = label;
             }
             else
             {
                 GroundbaitButton.Visibility = Visibility.Collapsed;
                 GroundbaitButton.IsEnabled = false;
             }
+        }
+
+        static bool IsReelPhase(string phase)
+        {
+            return string.Equals(phase, "baiting", StringComparison.Ordinal) ||
+                   string.Equals(phase, "casting", StringComparison.Ordinal) ||
+                   string.Equals(phase, "waiting", StringComparison.Ordinal) ||
+                   string.Equals(phase, "hooked", StringComparison.Ordinal) ||
+                   string.Equals(phase, "resolving", StringComparison.Ordinal) ||
+                   string.Equals(phase, "stopping", StringComparison.Ordinal);
+        }
+
+        static bool IsIdleSeatPhase(string phase)
+        {
+            return string.Equals(phase, "seated", StringComparison.Ordinal) ||
+                   string.Equals(phase, "groundbaiting", StringComparison.Ordinal);
         }
 
         static bool HasAction(IpcMessage message, string action)
@@ -1278,9 +1405,54 @@ namespace FishSocialOverlay
             menu.Items.Add(CreateProductMenuItem("排行榜", MenuLeaderboard_OnClick));
             menu.Items.Add(CreateProductMenuItem("设置", MenuSettings_OnClick));
             menu.Items.Add(new Separator());
+            menu.Items.Add(BuildViewportSizeMenu());
+            menu.Items.Add(new Separator());
             menu.Items.Add(CreateProductMenuItem("隐藏到托盘", HideToTray_OnClick));
             menu.Items.Add(CreateProductMenuItem("退出", QuitApp_OnClick));
             return menu;
+        }
+
+        MenuItem BuildViewportSizeMenu()
+        {
+            var root = new MenuItem { Header = "窗口大小" };
+            var presets = OverlayViewportPreset.All;
+            _viewportMenuItems = new MenuItem[presets.Length];
+            for (var i = 0; i < presets.Length; i++)
+            {
+                var preset = presets[i];
+                var item = new MenuItem
+                {
+                    Header = preset.Label,
+                    IsCheckable = true,
+                    IsChecked = string.Equals(preset.Id, _viewportPreset.Id, StringComparison.Ordinal),
+                    StaysOpenOnClick = false,
+                    Tag = preset.Id,
+                };
+                item.Click += ViewportSizeMenu_OnClick;
+                _viewportMenuItems[i] = item;
+                root.Items.Add(item);
+            }
+
+            return root;
+        }
+
+        void ViewportSizeMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            var id = (sender as MenuItem)?.Tag as string;
+            ApplyViewportSize(OverlayViewportPreset.FromId(id), persist: true, anchorOnScreen: true);
+        }
+
+        void SyncViewportMenuChecks()
+        {
+            if (_viewportMenuItems == null)
+                return;
+            foreach (var item in _viewportMenuItems)
+            {
+                item.IsChecked = string.Equals(
+                    item.Tag as string,
+                    _viewportPreset.Id,
+                    StringComparison.Ordinal);
+            }
         }
 
         static MenuItem CreateProductMenuItem(string header, RoutedEventHandler click)
@@ -1294,6 +1466,7 @@ namespace FishSocialOverlay
         {
             if (_productMenu == null)
                 _productMenu = BuildProductContextMenu();
+            SyncViewportMenuChecks();
             _productMenu.PlacementTarget = PondScene;
             _productMenu.Placement = PlacementMode.MousePoint;
             Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -1449,7 +1622,10 @@ namespace FishSocialOverlay
         {
             if (_hudLayoutActive)
             {
-                ApplyHudChatDockLayout(!_chatDockExpanded);
+                var next = !_chatDockExpanded;
+                ApplyHudChatDockLayout(next);
+                if (next)
+                    _chat?.UpdateMessages(_lastRecentChats, scrollToEnd: true);
                 return;
             }
 
@@ -1467,6 +1643,12 @@ namespace FishSocialOverlay
         void ChatInput_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             OverlayInteractionState.SceneDragging = false;
+            if (!_hudLayoutActive || !_chatDockExpanded || ChatInputBox == null)
+                return;
+            if (e.OriginalSource is TextBox)
+                return;
+            ChatInputBox.Focus();
+            Keyboard.Focus(ChatInputBox);
         }
 
         void ChatInputBox_OnTextChanged(object sender, TextChangedEventArgs e)
@@ -1561,6 +1743,7 @@ namespace FishSocialOverlay
                 _lastPondId = pondId;
                 _chatHistoryPrimed = false;
                 _chatBubbles?.ResetPond();
+                _scene?.ClearAllActorBubbles();
             }
 
             var replayHistory = !_chatHistoryPrimed;
@@ -1568,7 +1751,8 @@ namespace FishSocialOverlay
             _chatBubbles?.ProcessMessages(message.RecentChats, replayHistory);
             if (!_chatHistoryPrimed)
                 _chatHistoryPrimed = true;
-            _chat?.UpdateLatest(message.RecentChats);
+            _lastRecentChats = message.RecentChats;
+            _chat?.UpdateMessages(message.RecentChats, scrollToEnd: _chatDockExpanded);
             if (_awaitingChatAck)
             {
                 if (OverlayChatPresenter.ContainsText(message.RecentChats, _pendingChatText))

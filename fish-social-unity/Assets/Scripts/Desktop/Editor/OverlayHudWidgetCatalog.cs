@@ -140,19 +140,23 @@ namespace FishSocial.Desktop.Editor
 
 
 
-            // ── 聊天底栏 ──
+            // ── 聊天底栏：dock_chat.h = 折叠高度（九宫底板）；展开高 = 子控件 y+h 最大；底边固定向上长 ──
 
-            new HudWidgetSpec("dock_chat", "panel", 0, 491, 291, 69, true, null),
+            new HudWidgetSpec("dock_chat", "panel", 23, 506, 272, 45, true, null),
 
-            new HudWidgetSpec("chat_preview", "text", 4, 4, 240, 28, true, "dock_chat"),
+            new HudWidgetSpec("chat_preview", "text", 22, 12, 212, 24, true, "dock_chat"),
 
-            new HudWidgetSpec("chat_toggle", "button", 247, 4, 38, 28, true, "dock_chat"),
+            new HudWidgetSpec("chat_toggle", "button", 239, 12, 23, 24, true, "dock_chat"),
 
-            new HudWidgetSpec("chat_input", "panel", 4, 36, 240, 28, false, "dock_chat"),
+            new HudWidgetSpec("chat_log", "panel", 22, 17, 212, 115, false, "dock_chat"),
 
-            new HudWidgetSpec("chat_send", "button", 247, 36, 38, 28, false, "dock_chat"),
+            new HudWidgetSpec("chat_scroll", "panel", 234, 17, 6, 115, false, "dock_chat"),
 
-            new HudWidgetSpec("chat_placeholder", "text", 8, 42, 231, 16, false, "dock_chat"),
+            new HudWidgetSpec("chat_input", "panel", 8, 125, 231, 37, false, "dock_chat"),
+
+            new HudWidgetSpec("chat_send", "button", 239, 135, 23, 24, false, "dock_chat"),
+
+            new HudWidgetSpec("chat_placeholder", "text", 34, 139, 184, 16, false, "dock_chat"),
 
         };
 

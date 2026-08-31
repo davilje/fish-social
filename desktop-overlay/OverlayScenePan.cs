@@ -8,12 +8,14 @@ using System.Windows.Threading;
 namespace FishSocialOverlay
 {
     /// <summary>
-    /// Horizontal pan of SceneContentCanvas inside the 960×560 viewport (STEAM-DESKTOP-14B).
+    /// Pans SceneContentCanvas inside the current viewport (STEAM-DESKTOP-14B / 16).
+    /// X = 14B offset. Y = top-crop so the pond bottom stays aligned.
     /// Left/right buttons live in OverlayHud (btn_pan_left / btn_pan_right).
     /// </summary>
     public sealed class OverlayScenePan
     {
-        public const double ViewportWidth = 960;
+        public const double DesignViewportWidth = 960;
+        public const double DesignViewportHeight = 560;
         public const double PanSpeedPxPerSec = 300;
 
         readonly FrameworkElement _content;
@@ -21,7 +23,10 @@ namespace FishSocialOverlay
         readonly DispatcherTimer _timer;
         Button _leftButton;
         Button _rightButton;
-        double _sceneWidth = ViewportWidth;
+        double _viewportWidth = DesignViewportWidth;
+        double _viewportHeight = DesignViewportHeight;
+        double _sceneWidth = DesignViewportWidth;
+        double _sceneHeight = DesignViewportHeight;
         double _offsetX;
         int _dir;
         DateTime _lastTickUtc = DateTime.UtcNow;
@@ -36,11 +41,15 @@ namespace FishSocialOverlay
             _timer.Tick += OnTick;
         }
 
+        public double ViewportWidth => _viewportWidth;
+
+        public double ViewportHeight => _viewportHeight;
+
         public double OffsetX => _offsetX;
 
         public double SceneWidth => _sceneWidth;
 
-        public bool CanPan => _sceneWidth > ViewportWidth + 0.5;
+        public bool CanPan => _sceneWidth > _viewportWidth + 0.5;
 
         public void AttachButtons(Button leftButton, Button rightButton)
         {
@@ -104,9 +113,24 @@ namespace FishSocialOverlay
             EndPan();
         }
 
+        public void SetViewportSize(double width, double height)
+        {
+            _viewportWidth = Math.Max(1, width);
+            _viewportHeight = Math.Max(1, height);
+            ApplyOffset(_offsetX);
+            ApplyCropY();
+            UpdateButtons();
+        }
+
         public void SetSceneWidth(double sceneWidth, bool resetOffset)
         {
-            _sceneWidth = Math.Max(ViewportWidth, sceneWidth);
+            SetSceneSize(sceneWidth, _sceneHeight, resetOffset);
+        }
+
+        public void SetSceneSize(double sceneWidth, double sceneHeight, bool resetOffset)
+        {
+            _sceneWidth = Math.Max(_viewportWidth, sceneWidth);
+            _sceneHeight = Math.Max(1, sceneHeight);
             if (resetOffset)
             {
                 _offsetX = 0;
@@ -114,6 +138,7 @@ namespace FishSocialOverlay
             }
 
             ApplyOffset(_offsetX);
+            ApplyCropY();
             UpdateButtons();
         }
 
@@ -123,6 +148,7 @@ namespace FishSocialOverlay
             _offsetX = 0;
             _centeredOnce = false;
             ApplyOffset(0);
+            ApplyCropY();
             UpdateButtons();
         }
 
@@ -133,7 +159,7 @@ namespace FishSocialOverlay
             if (_centeredOnce && !force)
                 return;
 
-            ApplyOffset(ViewportWidth * 0.5 - worldCenterX);
+            ApplyOffset(_viewportWidth * 0.5 - worldCenterX);
             _centeredOnce = true;
             UpdateButtons();
         }
@@ -190,9 +216,14 @@ namespace FishSocialOverlay
 
         void ApplyOffset(double offsetX)
         {
-            var min = Math.Min(0, ViewportWidth - _sceneWidth);
+            var min = Math.Min(0, _viewportWidth - _sceneWidth);
             _offsetX = Math.Max(min, Math.Min(0, offsetX));
             _translate.X = _offsetX;
+        }
+
+        void ApplyCropY()
+        {
+            _translate.Y = -Math.Max(0, _sceneHeight - _viewportHeight);
         }
 
         void UpdateButtons()
@@ -207,7 +238,7 @@ namespace FishSocialOverlay
             if (_rightButton != null)
             {
                 _rightButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-                var min = ViewportWidth - _sceneWidth;
+                var min = _viewportWidth - _sceneWidth;
                 _rightButton.IsEnabled = show && _offsetX > min + 0.5;
             }
         }

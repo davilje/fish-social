@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>运营日报 2026-08-30</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --text:#1a1d23; --muted:#5c6570; --border:#e2e6eb; --accent:#2b6cb0; --accent-soft:#ebf4ff; --ok:#276749; --warn:#c05621; --bad:#c53030; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding:2rem 1.5rem 4rem; }
+    .wrap { max-width:1100px; margin:0 auto; }
+    h1 { font-size:1.75rem; font-weight:700; margin-bottom:.25rem; }
+    .meta { color:var(--muted); font-size:.9rem; margin-bottom:1rem; }
+    .nav { margin-bottom:1.5rem; font-size:.9rem; }
+    .nav a { color:var(--accent); margin-right:1rem; }
+    h2 { font-size:1.2rem; margin:2rem 0 1rem; padding-bottom:.4rem; border-bottom:2px solid var(--accent); }
+    h3 { font-size:1rem; margin:1rem 0 .5rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1rem; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.75rem; margin-bottom:1.5rem; }
+    .stat { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem; }
+    .stat .val { font-size:1.35rem; font-weight:700; color:var(--accent); }
+    .stat .lbl { font-size:.8rem; color:var(--muted); margin-top:.25rem; }
+    .stat .sub { font-size:.75rem; color:var(--muted); margin-top:.2rem; }
+    .stat .note, .note-warn { font-size:.8rem; color:var(--warn); margin-top:.25rem; }
+    table { width:100%; border-collapse:collapse; font-size:.9rem; margin-bottom:1rem; }
+    th,td { border:1px solid var(--border); padding:.5rem .75rem; text-align:left; }
+    th { background:var(--accent-soft); font-weight:600; }
+    td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .badge { display:inline-block; padding:.15rem .5rem; border-radius:4px; font-size:.7rem; font-weight:600; margin-left:.25rem; }
+    .badge.ok { background:#c6f6d5; color:var(--ok); }
+    .badge.warn { background:#feebc8; color:var(--warn); }
+    .badge.bad { background:#fed7d7; color:var(--bad); }
+    .delta-pos { color:var(--ok); } .delta-neg { color:var(--bad); }
+    .alerts { background:#fff5f5; border-left:4px solid var(--bad); padding:1rem 1.25rem; border-radius:0 8px 8px 0; }
+    .alerts li { margin-bottom:.35rem; }
+    .alert-bad { color:var(--bad); } .alert-warn { color:var(--warn); }
+    .target-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; }
+    .target-item { text-align:center; }
+    .target-item .num { font-size:1.5rem; font-weight:700; }
+    .target-item .lbl { font-size:.8rem; color:var(--muted); }
+    footer { margin-top:3rem; font-size:.8rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 分析归档索引</a>
+      <a href="../../live-vs-sim.html">线上 vs 模拟</a>
+      <a href="../../pond-day-simulation/report.html">模拟报告</a>
+    </nav>
+    <h1>运营日报 · 2026-08-30</h1>
+    <p class="meta">
+      统计日 2026-08-30（Asia/Shanghai）· 规则 <strong>v0.4.1</strong> · 生成 2026-08-30T16:30:02.145Z<br>
+      数据完整度：339 条事件 · 首事件 2026/8/30 00:01:45 · 末事件 2026/8/30 23:59:56
+    </p>
+
+    <h2>§1 健康度总览</h2>
+    <div class="stats"><div class="stat">
+    <div class="val">31 <span class="badge bad">异常</span></div>
+    <div class="lbl">日钓总量（背包）</div>
+    <div class="sub">前日 101 · 7日均 33</div>
+    <div class="sub"><span class="delta-neg">-69.3%</span> vs 前日</div><div class="note">背包入库 · 真人 0 · 机器人 31</div>
+  </div>
+<div class="stat">
+    <div class="val">0 </div>
+    <div class="lbl">日钓·真人</div>
+    <div class="sub">前日 0 · 7日均 1</div>
+    <div class="sub"></div>
+  </div>
+<div class="stat">
+    <div class="val">31 </div>
+    <div class="lbl">日钓·机器人</div>
+    <div class="sub">前日 101 · 7日均 32</div>
+    <div class="sub"><span class="delta-neg">-69.3%</span> vs 前日</div>
+  </div>
+<div class="stat">
+    <div class="val">1 </div>
+    <div class="lbl">DAU</div>
+    <div class="sub">前日 1 · 7日均 1</div>
+    <div class="sub"><span class="delta-pos">+0%</span> vs 前日</div>
+  </div>
+<div class="stat">
+    <div class="val">1 </div>
+    <div class="lbl">钓鱼 DAU</div>
+    <div class="sub">前日 1 · 7日均 0</div>
+    <div class="sub"><span class="delta-pos">+0%</span> vs 前日</div>
+  </div>
+<div class="stat">
+    <div class="val">0 </div>
+    <div class="lbl">人均上岸（真人）</div>
+    <div class="sub">前日 0 · 7日均 0</div>
+    <div class="sub"></div>
+  </div>
+<div class="stat">
+    <div class="val">100% <span class="badge bad">异常</span></div>
+    <div class="lbl">断线率</div>
+    <div class="sub">前日 67.4% · 7日均 73.57%</div>
+    <div class="sub"><span class="delta-pos">+48.4%</span> vs 前日</div>
+  </div>
+<div class="stat">
+    <div class="val">14.3% </div>
+    <div class="lbl">弃钓率</div>
+    <div class="sub">前日 80% · 7日均 31%</div>
+    <div class="sub"><span class="delta-neg">-82.1%</span> vs 前日</div>
+  </div>
+<div class="stat">
+    <div class="val">133.2% <span class="badge ok">正常</span></div>
+    <div class="lbl">四塘平均人口率</div>
+    <div class="sub">前日 135% · 7日均 104.51%</div>
+    <div class="sub"><span class="delta-neg">-1.3%</span> vs 前日</div>
+  </div></div>
+
+    <h2>§2 玩家与活跃</h2>
+    <div class="card">
+      <p>DAU 1 · 钓鱼 DAU 1 · 人均 session 7</p>
+      <p>人均钓鱼时长 — · P50 — · P90 —</p>
+      <p>留存 cohort 0 人 · D1 — · D7 —（当日无新增玩家）</p>
+    </div>
+
+    <h2>§3 钓鱼产出</h2>
+    <div class="card">
+      <p>上钩 47
+        · 上钩频率 —
+        · 脱钩率 2.1%
+        · 获鱼率 66.0%
+        · pending 超时率 87.5%</p>
+      <p class="note">产量口径 OPS-CATCH-1：日钓获/品质/分塘均基于 inventory 入库（含 bot）。无 pond_id 历史行按 caught_at 对齐当日 metrics 塘时间线。上钩=bite_hook。</p>
+    </div>
+    <h3>分塘明细</h3>
+    <p class="meta">钓获口径：背包入库（含真人/机器人分列；无 pond_id 历史行按入库时间对齐 metrics 塘）</p>
+    <table><tr><th>鱼塘</th><th>钓获</th><th>真人</th><th>机器人</th><th>上钩</th><th>脱钩</th><th>断线</th><th>均人口</th><th>人口率</th></tr>
+      <tr><td>pond-calm</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">15</td><td class="num">1</td><td class="num">19</td><td class="num">—</td><td class="num">121.3%</td></tr>
+<tr><td>pond-mist</td><td class="num">5</td><td class="num">0</td><td class="num">5</td><td class="num">6</td><td class="num">1</td><td class="num">0</td><td class="num">—</td><td class="num">115.7%</td></tr>
+<tr><td>pond-sunset</td><td class="num">7</td><td class="num">0</td><td class="num">7</td><td class="num">8</td><td class="num">1</td><td class="num">0</td><td class="num">—</td><td class="num">125%</td></tr>
+<tr><td>pond-bamboo</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">3</td><td class="num">2</td><td class="num">0</td><td class="num">—</td><td class="num">114.7%</td></tr>
+<tr><td>pond-reed</td><td class="num">2</td><td class="num">0</td><td class="num">2</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">106.3%</td></tr>
+<tr><td>pond-crystal</td><td class="num">2</td><td class="num">0</td><td class="num">2</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">131.4%</td></tr>
+<tr><td>pond-lotus</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">158.3%</td></tr>
+<tr><td>pond-mirror</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">129.3%</td></tr>
+<tr><td>pond-willow</td><td class="num">4</td><td class="num">0</td><td class="num">4</td><td class="num">5</td><td class="num">1</td><td class="num">0</td><td class="num">—</td><td class="num">116.3%</td></tr>
+<tr><td>pond-stone</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">138.6%</td></tr>
+<tr><td>pond-spring</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">163.3%</td></tr>
+<tr><td>pond-dusk</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">126.7%</td></tr>
+<tr><td>pond-pine</td><td class="num">2</td><td class="num">0</td><td class="num">2</td><td class="num">3</td><td class="num">1</td><td class="num">0</td><td class="num">—</td><td class="num">122.5%</td></tr>
+<tr><td>pond-coral</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">140%</td></tr>
+<tr><td>pond-moon</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">163.3%</td></tr>
+<tr><td>pond-fern</td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">130.7%</td></tr>
+<tr><td>pond-ridge</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">123.8%</td></tr>
+<tr><td>pond-harbor</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">141.4%</td></tr>
+<tr><td>pond-orchid</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">165%</td></tr>
+<tr><td>pond-frost</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">130.7%</td></tr>
+    </table>
+    <h3>品质分布</h3>
+    <p class="meta">品质口径：背包入库（含真人/机器人分列）</p>
+    <table><tr><th>品质</th><th>数量</th><th>真人</th><th>机器人</th></tr><tr><td>普通</td><td class="num">22</td><td class="num">0</td><td class="num">22</td></tr>
+<tr><td>优良</td><td class="num">8</td><td class="num">0</td><td class="num">8</td></tr>
+<tr><td>稀有</td><td class="num">1</td><td class="num">0</td><td class="num">1</td></tr></table>
+
+    <h2>§4 体验与稳定</h2>
+    <div class="card">
+      <p>断线 19 · 重连 6 · 超时清场 13</p>
+      <p>join 尝试 19 · 成功 19 · 失败 0
+        · 失败率 0.0%</p>
+      <p>phase 异常 9</p>
+    </div>
+    <h3>leave 按 reason</h3>
+    <table><tr><th>reason</th><th>次数</th></tr><tr><td>user_explicit</td><td class="num">1</td></tr></table>
+
+    <h2>§5 经济 faucet / sink</h2>
+    <p class="note-warn">faucet 埋点缺失（gold_earn），净变化不可算</p>
+    <div class="card target-grid">
+      <div class="target-item"><div class="num">—</div><div class="lbl">faucet（金币获得）</div></div>
+      <div class="target-item"><div class="num">0</div><div class="lbl">sink（金币消耗）</div></div>
+      <div class="target-item"><div class="num">—</div><div class="lbl">净变化</div></div>
+    </div>
+    <h3>faucet 分项</h3>
+    <table><tr><th>来源</th><th>金额</th></tr><tr><td colspan="2">暂无</td></tr></table>
+    <h3>sink 分项</h3>
+    <table><tr><th>类型</th><th>金额</th></tr><tr><td colspan="2">暂无</td></tr></table>
+
+    <h2>§6 鱼塘生态健康</h2>
+    <p class="meta">基于日批时 pond_fish 快照</p>
+    <table>
+      <tr><th>鱼塘</th><th>人口</th><th>上限</th><th>人口率</th><th>均体长(m)</th><th>品质分布</th></tr>
+      <tr>
+    <td>pond-bamboo</td><td class="num">86</td><td class="num">75</td>
+    <td class="num">114.7% <span class="badge ok">正常</span></td>
+    <td class="num">0.055</td><td>稀有:25 · 至尊:2 · 普通:26 · 优良:20 · 神话:2 · 史诗:9 · 传说:2</td>
+  </tr>
+<tr>
+    <td>pond-calm</td><td class="num">97</td><td class="num">80</td>
+    <td class="num">121.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.86</td><td>稀有:18 · 普通:34 · 优良:27 · 神话:2 · 史诗:9 · 传说:7</td>
+  </tr>
+<tr>
+    <td>pond-coral</td><td class="num">98</td><td class="num">70</td>
+    <td class="num">140% <span class="badge ok">正常</span></td>
+    <td class="num">1.696</td><td>稀有:6 · 至尊:5 · 普通:44 · 优良:12 · 神话:4 · 史诗:10 · 传说:17</td>
+  </tr>
+<tr>
+    <td>pond-crystal</td><td class="num">92</td><td class="num">70</td>
+    <td class="num">131.4% <span class="badge ok">正常</span></td>
+    <td class="num">0.06</td><td>稀有:27 · 至尊:2 · 普通:24 · 优良:18 · 神话:2 · 史诗:13 · 传说:6</td>
+  </tr>
+<tr>
+    <td>pond-dusk</td><td class="num">95</td><td class="num">75</td>
+    <td class="num">126.7% <span class="badge ok">正常</span></td>
+    <td class="num">1.316</td><td>稀有:12 · 至尊:7 · 普通:48 · 优良:7 · 神话:1 · 史诗:8 · 传说:12</td>
+  </tr>
+<tr>
+    <td>pond-fern</td><td class="num">98</td><td class="num">75</td>
+    <td class="num">130.7% <span class="badge ok">正常</span></td>
+    <td class="num">0.064</td><td>稀有:12 · 至尊:7 · 普通:36 · 优良:7 · 神话:8 · 史诗:9 · 传说:19</td>
+  </tr>
+<tr>
+    <td>pond-frost</td><td class="num">98</td><td class="num">75</td>
+    <td class="num">130.7% <span class="badge ok">正常</span></td>
+    <td class="num">0.057</td><td>稀有:20 · 普通:41 · 优良:21 · 神话:2 · 史诗:10 · 传说:4</td>
+  </tr>
+<tr>
+    <td>pond-harbor</td><td class="num">99</td><td class="num">70</td>
+    <td class="num">141.4% <span class="badge ok">正常</span></td>
+    <td class="num">0.057</td><td>稀有:19 · 至尊:3 · 普通:16 · 优良:17 · 神话:11 · 史诗:22 · 传说:11</td>
+  </tr>
+<tr>
+    <td>pond-lotus</td><td class="num">95</td><td class="num">60</td>
+    <td class="num">158.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.059</td><td>稀有:20 · 至尊:2 · 普通:28 · 优良:15 · 神话:5 · 史诗:12 · 传说:13</td>
+  </tr>
+<tr>
+    <td>pond-mirror</td><td class="num">97</td><td class="num">75</td>
+    <td class="num">129.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.058</td><td>稀有:25 · 至尊:3 · 普通:25 · 优良:19 · 神话:2 · 史诗:14 · 传说:9</td>
+  </tr>
+<tr>
+    <td>pond-mist</td><td class="num">81</td><td class="num">70</td>
+    <td class="num">115.7% <span class="badge ok">正常</span></td>
+    <td class="num">0.823</td><td>稀有:16 · 普通:23 · 优良:27 · 神话:2 · 史诗:9 · 传说:4</td>
+  </tr>
+<tr>
+    <td>pond-moon</td><td class="num">98</td><td class="num">60</td>
+    <td class="num">163.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.062</td><td>稀有:10 · 至尊:3 · 普通:43 · 优良:12 · 神话:1 · 史诗:12 · 传说:17</td>
+  </tr>
+<tr>
+    <td>pond-orchid</td><td class="num">99</td><td class="num">60</td>
+    <td class="num">165% <span class="badge ok">正常</span></td>
+    <td class="num">0.058</td><td>稀有:26 · 至尊:2 · 普通:11 · 优良:10 · 神话:6 · 史诗:29 · 传说:15</td>
+  </tr>
+<tr>
+    <td>pond-pine</td><td class="num">98</td><td class="num">80</td>
+    <td class="num">122.5% <span class="badge ok">正常</span></td>
+    <td class="num">1.367</td><td>稀有:14 · 至尊:2 · 普通:43 · 优良:12 · 神话:4 · 史诗:12 · 传说:11</td>
+  </tr>
+<tr>
+    <td>pond-reed</td><td class="num">85</td><td class="num">80</td>
+    <td class="num">106.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.063</td><td>稀有:15 · 至尊:1 · 普通:34 · 优良:22 · 神话:3 · 史诗:8 · 传说:2</td>
+  </tr>
+<tr>
+    <td>pond-ridge</td><td class="num">99</td><td class="num">80</td>
+    <td class="num">123.8% <span class="badge ok">正常</span></td>
+    <td class="num">0.064</td><td>稀有:23 · 至尊:3 · 普通:19 · 优良:11 · 神话:3 · 史诗:31 · 传说:9</td>
+  </tr>
+<tr>
+    <td>pond-spring</td><td class="num">98</td><td class="num">60</td>
+    <td class="num">163.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.06</td><td>稀有:16 · 普通:45 · 优良:6 · 神话:7 · 史诗:10 · 传说:14</td>
+  </tr>
+<tr>
+    <td>pond-stone</td><td class="num">97</td><td class="num">70</td>
+    <td class="num">138.6% <span class="badge ok">正常</span></td>
+    <td class="num">0.061</td><td>稀有:8 · 普通:50 · 优良:10 · 神话:3 · 史诗:9 · 传说:17</td>
+  </tr>
+<tr>
+    <td>pond-sunset</td><td class="num">75</td><td class="num">60</td>
+    <td class="num">125% <span class="badge ok">正常</span></td>
+    <td class="num">1.195</td><td>稀有:11 · 普通:27 · 优良:19 · 神话:4 · 史诗:8 · 传说:6</td>
+  </tr>
+<tr>
+    <td>pond-willow</td><td class="num">93</td><td class="num">80</td>
+    <td class="num">116.3% <span class="badge ok">正常</span></td>
+    <td class="num">0.061</td><td>稀有:22 · 至尊:1 · 普通:26 · 优良:13 · 神话:6 · 史诗:14 · 传说:11</td>
+  </tr>
+    </table>
+
+    <h2>§7 目标对照</h2>
+    <p class="meta">昨日实测=背包总量；真人旁注。设计目标 100 原按真人场景，对照总量会系统性偏大。</p>
+    <div class="card target-grid">
+      <div class="target-item"><div class="num">100</div><div class="lbl">设计目标</div></div>
+      <div class="target-item"><div class="num">117.9</div><div class="lbl">模拟参考</div></div>
+      <div class="target-item"><div class="num">31</div><div class="lbl">昨日实测（总量）</div></div>
+      <div class="target-item"><div class="num">0</div><div class="lbl">其中真人</div></div>
+      <div class="target-item"><div class="num">-69%</div><div class="lbl">总量 vs 目标</div></div>
+      <div class="target-item"><div class="num">-73.7%</div><div class="lbl">总量 vs 模拟</div></div>
+    </div>
+    <h3>近 7 日规则版本与日钓</h3>
+    <table><tr><th>日期</th><th>rulesVersion</th><th>日钓</th></tr><tr><td>2026-08-24</td><td>v0.4.1</td><td class="num">52</td></tr>
+<tr><td>2026-08-25</td><td>v0.4.1</td><td class="num">32</td></tr>
+<tr><td>2026-08-26</td><td>v0.4.1</td><td class="num">0</td></tr>
+<tr><td>2026-08-27</td><td>v0.4.1</td><td class="num">60</td></tr>
+<tr><td>2026-08-28</td><td>v0.4.1</td><td class="num">38</td></tr>
+<tr><td>2026-08-29</td><td>v0.4.1</td><td class="num">101</td></tr>
+<tr><td>2026-08-30</td><td>v0.4.1</td><td class="num">31</td></tr></table>
+
+    <h2 id="alerts">§8 异常清单</h2>
+    <div class="alerts"><ul><li class="alert-bad"><strong>alert_disconnect</strong>：断线率 100% 超过 30%</li>
+<li class="alert-warn"><strong>alert_pending_expired</strong>：pending 超时率 87.5% 超过 10%</li></ul></div>
+
+    <footer>数据来源 inventory + fishing_metrics · <code>npm run analytics:daily</code></footer>
+  </div>
+</body>
+</html>

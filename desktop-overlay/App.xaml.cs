@@ -1,5 +1,7 @@
+using System;
 using System.Windows;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace FishSocialOverlay
 {
@@ -9,6 +11,8 @@ namespace FishSocialOverlay
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            DispatcherUnhandledException += OnDispatcherUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             bool created;
             _instanceMutex = new Mutex(true, "Local\\FishSocialOverlay-2713340", out created);
             if (!created)
@@ -19,6 +23,17 @@ namespace FishSocialOverlay
                 return;
             }
             base.OnStartup(e);
+        }
+
+        static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[Overlay] Unhandled UI exception: " + e.Exception);
+            e.Handled = true;
+        }
+
+        static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[Overlay] Unhandled exception: " + e.ExceptionObject);
         }
 
         protected override void OnExit(ExitEventArgs e)

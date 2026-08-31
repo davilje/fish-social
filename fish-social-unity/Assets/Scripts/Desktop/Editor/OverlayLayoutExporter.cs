@@ -166,6 +166,8 @@ namespace FishSocial.Desktop.Editor
             var canvasWidth = Mathf.Round(size.x);
             var canvasHeight = Mathf.Round(size.y);
 
+            BindNestedActorIds(rootGo);
+
             var objects = rootGo.GetComponentsInChildren<DesktopOverlayLayoutObject>(true);
             if (objects == null || objects.Length == 0)
                 return "没有 DesktopOverlayLayoutObject。";
@@ -182,15 +184,14 @@ namespace FishSocial.Desktop.Editor
             {
                 if (item == null)
                     continue;
-                var objectId = string.IsNullOrWhiteSpace(item.objectId) ? item.gameObject.name : item.objectId;
+                var kind = NormalizeKind(item.kind);
+                var inheritedSpotId = InheritSpotId(item.transform);
+                var objectId = ResolveExportObjectId(item, kind, inheritedSpotId);
                 if (string.IsNullOrWhiteSpace(objectId))
                     return "存在未设置 objectId 的布局物体。";
                 if (byId.ContainsKey(objectId))
                     return "重复的 id：" + objectId;
                 byId[objectId] = item;
-
-                var kind = NormalizeKind(item.kind);
-                var inheritedSpotId = InheritSpotId(item.transform);
                 if (kind == "spot")
                 {
                     var spotId = string.IsNullOrWhiteSpace(item.spotId) ? objectId : item.spotId;
@@ -262,6 +263,7 @@ namespace FishSocial.Desktop.Editor
                     H = bounds.height,
                     Z = item.zIndex,
                     Sprite = spriteName,
+                    SpriteSlice = ExtractSpriteSlice(item),
                     // actor-* bounds from GetTopLeftBounds are always top-left pixels.
                     Anchor = kind.StartsWith("actor-", System.StringComparison.Ordinal)
                         ? "top-left"
@@ -363,6 +365,58 @@ namespace FishSocial.Desktop.Editor
             }
         }
 
+        static void BindNestedActorIds(GameObject pondRoot)
+        {
+            if (pondRoot == null)
+                return;
+
+            var views = pondRoot.GetComponentsInChildren<OverlayPondActorView>(true);
+            for (var i = 0; i < views.Length; i++)
+            {
+                var view = views[i];
+                if (view == null)
+                    continue;
+                var spotId = view.spotId;
+                if (string.IsNullOrWhiteSpace(spotId))
+                    spotId = InheritSpotId(view.transform);
+                if (string.IsNullOrWhiteSpace(spotId))
+                    continue;
+                OverlayPondActorBaker.BindSpotId(view.gameObject, spotId);
+            }
+        }
+
+        static string ResolveExportObjectId(
+            DesktopOverlayLayoutObject item,
+            string kind,
+            string inheritedSpotId)
+        {
+            var objectId = item == null
+                ? null
+                : (string.IsNullOrWhiteSpace(item.objectId) ? item.gameObject.name : item.objectId);
+            if (item == null || !kind.StartsWith("actor-", StringComparison.Ordinal))
+                return objectId;
+
+            var actorSpot = string.IsNullOrWhiteSpace(item.spotId) ? inheritedSpotId : item.spotId;
+            if (string.IsNullOrWhiteSpace(actorSpot))
+                return objectId;
+
+            var suffix = kind.Substring("actor-".Length);
+            var expected = actorSpot + "-" + suffix;
+            var generic = "actor-" + suffix;
+            if (string.IsNullOrWhiteSpace(objectId) ||
+                string.Equals(objectId, kind, StringComparison.Ordinal) ||
+                string.Equals(objectId, generic, StringComparison.Ordinal) ||
+                string.Equals(objectId, suffix, StringComparison.Ordinal))
+            {
+                objectId = expected;
+                item.objectId = expected;
+                item.spotId = actorSpot;
+                item.gameObject.name = expected;
+            }
+
+            return objectId;
+        }
+
         static string InheritSpotId(Transform node)
         {
             var current = node != null ? node.parent : null;
@@ -400,6 +454,24 @@ namespace FishSocial.Desktop.Editor
             var x = bounds.min.x;
             var y = canvas.rect.height - bounds.max.y;
             return new Rect(x, y, Mathf.Max(1f, bounds.size.x), Mathf.Max(1f, bounds.size.y));
+        }
+
+        static int[] ExtractSpriteSlice(DesktopOverlayLayoutObject item)
+        {
+            var image = item != null ? item.GetComponent<Image>() : null;
+            if (image == null || image.sprite == null || image.type != Image.Type.Sliced)
+                return null;
+            var border = image.sprite.border;
+            var slice = new[]
+            {
+                Mathf.RoundToInt(border.x),
+                Mathf.RoundToInt(border.y),
+                Mathf.RoundToInt(border.z),
+                Mathf.RoundToInt(border.w),
+            };
+            if (slice[0] <= 0 && slice[1] <= 0 && slice[2] <= 0 && slice[3] <= 0)
+                return null;
+            return slice;
         }
 
         static string ResolveSpriteName(DesktopOverlayLayoutObject item, out string spriteName)
@@ -626,6 +698,16 @@ namespace FishSocial.Desktop.Editor
             sb.Append(",\"anchor\":\"").Append(Escape(entry.Anchor)).Append("\"");
             if (!string.IsNullOrEmpty(entry.Sprite))
                 sb.Append(",\"sprite\":\"").Append(Escape(entry.Sprite)).Append("\"");
+            if (entry.SpriteSlice != null && entry.SpriteSlice.Length == 4 &&
+                (entry.SpriteSlice[0] > 0 || entry.SpriteSlice[1] > 0 ||
+                 entry.SpriteSlice[2] > 0 || entry.SpriteSlice[3] > 0))
+            {
+                sb.Append(",\"spriteSlice\":[")
+                    .Append(entry.SpriteSlice[0]).Append(",")
+                    .Append(entry.SpriteSlice[1]).Append(",")
+                    .Append(entry.SpriteSlice[2]).Append(",")
+                    .Append(entry.SpriteSlice[3]).Append("]");
+            }
             sb.Append("}");
             return sb.ToString();
         }
@@ -675,6 +757,7 @@ namespace FishSocial.Desktop.Editor
             public float H;
             public int Z;
             public string Sprite;
+            public int[] SpriteSlice;
             public string Anchor;
         }
     }

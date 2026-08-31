@@ -37,6 +37,14 @@ namespace FishSocial.Desktop.Editor
         public const float StatusY = 0f;
         public const float NameX = 2f;
         public const float NameY = 102f;
+        public const float BubbleX = 4f;
+        public const float BubbleY = 0f;
+        public const float BubbleW = 80f;
+        public const float BubbleH = 20f;
+        public const float HintX = 2f;
+        public const float HintY = 0f;
+        public const float HintW = 84f;
+        public const float HintH = 20f;
 
         public static void Ensure()
         {
@@ -95,6 +103,7 @@ namespace FishSocial.Desktop.Editor
                 return;
 
             FitActorToHost(spot, actor.transform);
+            BuildParts(actor.transform, spotId);
             BindSpotId(actor, spotId);
         }
 
@@ -171,7 +180,7 @@ namespace FishSocial.Desktop.Editor
             OverlayPondLayoutBaker.PlaceTopLeft(actorRt, 0f, 0f, w, h);
         }
 
-        static void BindSpotId(GameObject actorRoot, string spotId)
+        public static void BindSpotId(GameObject actorRoot, string spotId)
         {
             if (actorRoot == null || string.IsNullOrEmpty(spotId))
                 return;
@@ -349,12 +358,64 @@ namespace FishSocial.Desktop.Editor
                 spotId,
                 NameX,
                 NameY,
-                80f,
-                18f,
+                88f,
+                20f,
                 16,
                 new Color(0.06f, 0.09f, 0.12f, 0.75f),
                 false,
                 null);
+            EnsurePart(
+                parent,
+                prefix + "-bubble",
+                "actor-bubble",
+                spotId,
+                BubbleX,
+                BubbleY,
+                BubbleW,
+                BubbleH,
+                18,
+                new Color(0.06f, 0.09f, 0.12f, 0.35f),
+                false,
+                null);
+            EnsurePart(
+                parent,
+                prefix + "-hint",
+                "actor-hint",
+                spotId,
+                HintX,
+                HintY,
+                HintW,
+                HintH,
+                19,
+                new Color(0.10f, 0.23f, 0.29f, 0.35f),
+                false,
+                null);
+        }
+
+        static Transform FindPart(Transform parent, string objectId, string kind)
+        {
+            if (parent == null)
+                return null;
+
+            var named = parent.Find(objectId);
+            if (named != null)
+                return named;
+
+            for (var i = 0; i < parent.childCount; i++)
+            {
+                var child = parent.GetChild(i);
+                if (child == null)
+                    continue;
+                if (child.name == objectId)
+                    return child;
+
+                var marker = child.GetComponent<DesktopOverlayLayoutObject>();
+                if (marker != null &&
+                    string.Equals(marker.kind, kind, System.StringComparison.OrdinalIgnoreCase))
+                    return child;
+            }
+
+            return null;
         }
 
         static void EnsurePart(
@@ -371,7 +432,7 @@ namespace FishSocial.Desktop.Editor
             bool radialFill,
             string spriteFile)
         {
-            var child = parent.Find(objectId);
+            var child = FindPart(parent, objectId, kind);
             var created = false;
             if (child == null)
             {
@@ -416,7 +477,8 @@ namespace FishSocial.Desktop.Editor
                 }
             }
 
-            if (kind == "actor-name" && child.Find("Label") == null)
+            if ((kind == "actor-name" || kind == "actor-bubble" || kind == "actor-hint") &&
+                child.Find("Label") == null)
             {
                 var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
                 labelGo.transform.SetParent(child, false);
@@ -427,10 +489,14 @@ namespace FishSocial.Desktop.Editor
                 lrt.offsetMax = Vector2.zero;
                 var text = labelGo.GetComponent<Text>();
                 text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-                text.fontSize = 11;
+                text.fontSize = kind == "actor-hint" ? 12 : 11;
                 text.alignment = TextAnchor.MiddleCenter;
                 text.color = Color.white;
-                text.text = "昵称";
+                text.text = kind == "actor-bubble"
+                    ? "聊天"
+                    : kind == "actor-hint"
+                        ? "提示"
+                        : "昵称";
             }
 
             var rt = child.GetComponent<RectTransform>();

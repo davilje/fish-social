@@ -1950,19 +1950,6 @@ namespace FishSocial.Desktop.Editor
                     continue;
                 childNode.SetParent(parent, false);
             }
-
-            foreach (var spec in OverlayHudWidgetCatalog.All)
-            {
-                var child = OverlayHudExporter.FindHudTransform(root, spec.Id);
-                if (child == null)
-                    continue;
-                PlaceOverlayHudRect(
-                    child.GetComponent<RectTransform>(),
-                    spec.X,
-                    spec.Y,
-                    spec.W,
-                    spec.H);
-            }
         }
 
         static GameObject CreateOverlayHudWidget(
@@ -2020,6 +2007,25 @@ namespace FishSocial.Desktop.Editor
                         text.alignment = TextAnchor.MiddleCenter;
                         text.text = id == "btn_pan_left" ? "◀" : "▶";
                     }
+                }
+                else if (id == "chat_log")
+                {
+                    image.color = new Color(1f, 1f, 1f, 0f);
+                    image.raycastTarget = false;
+                    var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+                    labelGo.transform.SetParent(go.transform, false);
+                    Stretch(labelGo.GetComponent<RectTransform>());
+                    var logText = labelGo.GetComponent<Text>();
+                    logText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                    logText.fontSize = 12;
+                    logText.color = Color.white;
+                    logText.alignment = TextAnchor.UpperLeft;
+                    logText.text = "（公屏记录区）";
+                }
+                else if (id == "chat_scroll")
+                {
+                    image.color = new Color(1f, 1f, 1f, 0.28f);
+                    image.raycastTarget = true;
                 }
             }
 

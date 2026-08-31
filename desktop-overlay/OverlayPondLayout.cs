@@ -16,11 +16,12 @@ namespace FishSocialOverlay
     /// </summary>
     public sealed class OverlayPondLayout
     {
+        /// <summary>Design / pond-JSON canvas. Runtime window crop is OverlayViewportPreset.</summary>
         public const double ViewportWidth = 960;
         public const double ViewportHeight = 560;
         public const double MinSceneWidth = 960;
         public const double MaxSceneWidth = 4096;
-        /// <summary>Viewport / fallback scene width (narrow pond).</summary>
+        /// <summary>Fallback scene size (narrow pond). Not the live Overlay window.</summary>
         public const double CanvasWidth = ViewportWidth;
         public const double CanvasHeight = ViewportHeight;
 
@@ -30,10 +31,13 @@ namespace FishSocialOverlay
             new Dictionary<string, OverlayActorChrome>(StringComparer.Ordinal);
         readonly List<OverlayLayoutObjectDto> _sprites = new List<OverlayLayoutObjectDto>();
         OverlayLayoutObjectDto _waiting;
+        OverlayActorChrome _actorTemplate;
         double _petWidth = PondScenePresenter.CatSize;
         double _petHeight = PondScenePresenter.CatSize;
         double _sceneWidth = ViewportWidth;
         double _sceneHeight = ViewportHeight;
+        double _runtimeViewportWidth = ViewportWidth;
+        double _runtimeViewportHeight = ViewportHeight;
         readonly Dictionary<string, BitmapImage> _bitmapCache =
             new Dictionary<string, BitmapImage>(StringComparer.OrdinalIgnoreCase);
 
@@ -46,7 +50,15 @@ namespace FishSocialOverlay
         /// <summary>True when layout JSON includes an explicit pond.width (14B pan source).</summary>
         public bool HasExplicitPondSize { get; private set; }
 
-        public bool CanPan => _sceneWidth > ViewportWidth + 0.5;
+        public bool CanPan => _sceneWidth > _runtimeViewportWidth + 0.5;
+
+        public double RuntimeViewportHeight => _runtimeViewportHeight;
+
+        public void SetRuntimeViewport(double width, double height)
+        {
+            _runtimeViewportWidth = width > 0 ? width : ViewportWidth;
+            _runtimeViewportHeight = height > 0 ? height : ViewportHeight;
+        }
 
         public double PetWidth => _petWidth;
 
@@ -164,6 +176,7 @@ namespace FishSocialOverlay
             }
 
             ResolveSceneSize(document, pondBg);
+            BuildActorTemplate();
 
             IsActive = true;
             System.Diagnostics.Debug.WriteLine(
@@ -244,12 +257,102 @@ namespace FishSocialOverlay
             _sceneHeight = h;
         }
 
+        public OverlayActorChrome ActorTemplate => _actorTemplate;
+
         public bool TryGetActorChrome(string spotId, out OverlayActorChrome chrome)
         {
-            chrome = null;
-            if (string.IsNullOrEmpty(spotId))
-                return false;
-            return _actors.TryGetValue(spotId, out chrome) && chrome != null && chrome.HasAny;
+            chrome = ResolveActorChrome(spotId);
+            return chrome != null && chrome.HasAny;
+        }
+
+        /// <summary>
+        /// OverlayPondActor is the shared template. Spot chrome is only a source
+        /// for relative name/bubble/hint offsets; every pet uses the same cluster.
+        /// </summary>
+        public OverlayActorChrome ResolveActorChrome(string spotId)
+        {
+            if (!string.IsNullOrEmpty(spotId) &&
+                _actors.TryGetValue(spotId, out var chrome) &&
+                chrome != null &&
+                chrome.Name != null &&
+                chrome.Pet != null)
+                return Relativize(chrome);
+            return _actorTemplate;
+        }
+
+        void BuildActorTemplate()
+        {
+            OverlayActorChrome source = null;
+            foreach (var pair in _actors)
+            {
+                var chrome = pair.Value;
+                if (chrome == null || chrome.Pet == null || chrome.Name == null)
+                    continue;
+                source = chrome;
+                break;
+            }
+
+            _actorTemplate = source != null ? Relativize(source) : BakeDefaultTemplate();
+        }
+
+        static OverlayActorChrome Relativize(OverlayActorChrome source)
+        {
+            if (source == null || source.Pet == null)
+                return BakeDefaultTemplate();
+
+            var pet = source.Pet;
+            return new OverlayActorChrome
+            {
+                Pet = CopyLocal(pet, 0, 0),
+                Name = ShiftLocal(source.Name, pet),
+                Status = ShiftLocal(source.Status, pet),
+                Ring = ShiftLocal(source.Ring, pet),
+                Seat = ShiftLocal(source.Seat, pet),
+                Bubble = ShiftLocal(source.Bubble, pet),
+                Hint = ShiftLocal(source.Hint, pet),
+            };
+        }
+
+        static OverlayLayoutObjectDto ShiftLocal(
+            OverlayLayoutObjectDto part,
+            OverlayLayoutObjectDto pet)
+        {
+            if (part == null || pet == null)
+                return null;
+            return CopyLocal(part, part.x - pet.x, part.y - pet.y);
+        }
+
+        static OverlayLayoutObjectDto CopyLocal(OverlayLayoutObjectDto part, double x, double y)
+        {
+            if (part == null)
+                return null;
+            return new OverlayLayoutObjectDto
+            {
+                id = part.id,
+                kind = part.kind,
+                spotId = part.spotId,
+                x = x,
+                y = y,
+                w = part.w,
+                h = part.h,
+                z = part.z,
+                sprite = part.sprite,
+                spriteSlice = part.spriteSlice,
+                anchor = "top-left",
+            };
+        }
+
+        static OverlayActorChrome BakeDefaultTemplate()
+        {
+            return new OverlayActorChrome
+            {
+                Pet = new OverlayLayoutObjectDto { kind = "actor-pet", x = 0, y = 0, w = 64, h = 64 },
+                Name = new OverlayLayoutObjectDto { kind = "actor-name", x = -19, y = 76, w = 88, h = 20 },
+                Status = new OverlayLayoutObjectDto { kind = "actor-status", x = 17, y = -22, w = 18, h = 18 },
+                Ring = new OverlayLayoutObjectDto { kind = "actor-ring", x = 10, y = -28, w = 31, h = 31 },
+                Bubble = new OverlayLayoutObjectDto { kind = "actor-bubble", x = -6, y = -18, w = 80, h = 20 },
+                Hint = new OverlayLayoutObjectDto { kind = "actor-hint", x = -8, y = -18, w = 84, h = 20 },
+            };
         }
 
         /// <summary>
@@ -335,6 +438,10 @@ namespace FishSocialOverlay
                 chrome.Ring = item;
             else if (kind == "actor-seat")
                 chrome.Seat = item;
+            else if (kind == "actor-bubble")
+                chrome.Bubble = item;
+            else if (kind == "actor-hint")
+                chrome.Hint = item;
         }
 
         public bool TryGetSpotPoint(string spotId, out Point point)
@@ -475,6 +582,7 @@ namespace FishSocialOverlay
             IsActive = false;
             _spots.Clear();
             _actors.Clear();
+            _actorTemplate = null;
             _sprites.Clear();
             _waiting = null;
             _petWidth = PondScenePresenter.CatSize;
@@ -517,12 +625,15 @@ namespace FishSocialOverlay
         public OverlayLayoutObjectDto Status;
         public OverlayLayoutObjectDto Ring;
         public OverlayLayoutObjectDto Seat;
+        public OverlayLayoutObjectDto Bubble;
+        public OverlayLayoutObjectDto Hint;
 
         public bool HasAny
         {
             get
             {
-                return Pet != null || Name != null || Status != null || Ring != null || Seat != null;
+                return Pet != null || Name != null || Status != null || Ring != null ||
+                       Seat != null || Bubble != null || Hint != null;
             }
         }
     }
@@ -539,6 +650,7 @@ namespace FishSocialOverlay
         [DataMember(Name = "h")] public double h;
         [DataMember(Name = "z")] public int z;
         [DataMember(Name = "sprite")] public string sprite;
+        [DataMember(Name = "spriteSlice")] public int[] spriteSlice;
         [DataMember(Name = "anchor")] public string anchor;
     }
 }

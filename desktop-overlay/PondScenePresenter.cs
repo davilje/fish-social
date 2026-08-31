@@ -102,6 +102,13 @@ namespace FishSocialOverlay
             return _ownActor;
         }
 
+        public void ClearAllActorBubbles()
+        {
+            _ownActor?.ClearBubbles();
+            foreach (var actor in _others.Values)
+                actor.ClearBubbles();
+        }
+
         public FrameworkElement TryResolveSpot(string spotId)
         {
             if (string.IsNullOrEmpty(spotId))
@@ -176,6 +183,11 @@ namespace FishSocialOverlay
                 _grass.Width = ContentWidth;
                 _grass.Height = ContentHeight;
             }
+        }
+
+        public void SetRuntimeViewport(double width, double height)
+        {
+            _layout.SetRuntimeViewport(width, height);
         }
 
         /// <summary>
@@ -357,9 +369,7 @@ namespace FishSocialOverlay
                 message.HookDeadlineMs,
                 message.OwnFishingStartedAt,
                 message.OwnPetId);
-            OverlayActorChrome ownChrome;
-            if (_layout.TryGetActorChrome(message.OwnSpotId, out ownChrome))
-                _ownActor.ApplyChrome(ownChrome);
+            _ownActor.ApplyChrome(_layout.ResolveActorChrome(message.OwnSpotId));
             _ownActor.Place(point.X, point.Y);
         }
 
@@ -412,9 +422,7 @@ namespace FishSocialOverlay
                     user.HookDeadlineMs,
                     user.FishingStartedAt,
                     user.PetId);
-                OverlayActorChrome chrome;
-                if (_layout.TryGetActorChrome(user.SpotId, out chrome))
-                    actor.ApplyChrome(chrome);
+                actor.ApplyChrome(_layout.ResolveActorChrome(user.SpotId));
                 actor.Place(point.X, point.Y);
             }
 

@@ -1,5 +1,25 @@
 # 策划文档变更记录
 
+### [steam-desktop-15-16-accepted] - 2026-08-31
+
+- **STEAM-DESKTOP-15** 钓鱼栏按钮时序、**STEAM-DESKTOP-16** 窗口视口缩放 → 用户验收通过（设计/完成均 2026-08-31）。
+- 计划表与看板已回写 **已实现**。
+
+### [steam-desktop-16-overlay-viewport] - 2026-08-31
+
+- **STEAM-DESKTOP-16** Overlay 窗口视口缩放 → **已实现**（设计/完成 2026-08-31）。
+- 产品右键「窗口大小」三档：960×560 / 800×400 / 600×300。改显示范围，禁止整窗比例缩放。
+- Overlay：底边钉死切顶、左右内收、HUD Relayout、14B 按当前 viewW 钳制、13A `ApplySize`、P1 `%LocalAppData%/FishSocial/overlay-viewport.json`。
+- 规格：`docs/planning/specs/Steam桌面端-16Overlay窗口视口缩放.md`
+
+### [steam-desktop-15-fishing-dock-timing] - 2026-08-31
+
+- **STEAM-DESKTOP-15** Overlay 中央钓鱼栏按钮时序 → **已实现**（设计/完成 2026-08-31）。
+- Overlay：有座时主按钮不 `Collapsed`；打窝/离席只在 `seated`/`groundbaiting` 出现；去掉 `stack>0` 保活打窝钮；点击只禁用不提前改显隐。
+- Unity：`availableActions` 按相位表；`stopping`/`resolving` 不发离席/打窝/开钓。
+- 服务端：`leave_spot` 放行 `groundbaiting`，取消未完成 cast、不叠层、离席清窝。
+- 规格：`docs/planning/specs/Steam桌面端-15Overlay钓鱼栏按钮时序.md`
+
 ### [steam-desktop-14abcd-accepted] - 2026-08-30
 
 - **STEAM-DESKTOP-14A** 座位预制体与空位显隐 → **已实现**（设计 2026-08-29 / 完成 2026-08-30）。

@@ -11,6 +11,39 @@
         Topmost="True"
         ResizeMode="NoResize"
         ShowActivated="False">
+    <Window.Resources>
+        <Style x:Key="HudChatScrollBarStyle" TargetType="ScrollBar">
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Background" Value="#33000000"/>
+            <Setter Property="Foreground" Value="#88FFFFFF"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" CornerRadius="3"/>
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#AAFFFFFF" CornerRadius="3" Margin="0,1"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid Background="Transparent">
         <Border x:Name="PondScene"
                 Width="960"
@@ -27,8 +60,9 @@
             <!-- Product menu is NOT attached to Border.ContextMenu — attaching it makes
                  WPF sticky after the first open and steals later pet social menus. -->
             <Canvas x:Name="SceneCanvas" Width="960" Height="560">
-                <!-- Z0–10: 场景层。上下渐隐在 SceneFadeHost；左右渐隐在 ScenePanViewport（二者不可叠同一元素）。
-                     SceneContentCanvas 可宽于视口并由 TranslateTransform 横移；HUD 为兄弟不参与渐隐。 -->
+                <!-- Z0–10: 场景层。视口宿主跟窗口走（STEAM-DESKTOP-16）；SceneContentCanvas 保持塘像素尺寸。
+                     上下渐隐在 SceneFadeHost；左右渐隐在 ScenePanViewport（二者不可叠同一元素）。
+                     横移 + 切顶由 TranslateTransform 完成，禁止整窗 Scale/Viewbox。HUD 为兄弟不参与渐隐。 -->
                 <Border x:Name="SceneFadeHost"
                         Canvas.Left="0"
                         Canvas.Top="0"
@@ -286,7 +320,7 @@
                                        Foreground="#FFD4E3EA"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Margin="8,0,4,0"
+                                       Margin="0"
                                        TextTrimming="CharacterEllipsis" />
                             <Button x:Name="ChatDockToggle"
                                     Grid.Column="1"
@@ -296,6 +330,23 @@
                                     Padding="0"
                                     Click="ChatDockToggle_OnClick" />
                         </Grid>
+                        <ScrollViewer x:Name="ChatLogScroll"
+                                      Height="96"
+                                      Visibility="Collapsed"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      PanningMode="VerticalOnly">
+                            <StackPanel x:Name="ChatLogList" />
+                        </ScrollViewer>
+                        <ScrollBar x:Name="ChatLogScrollBar"
+                                   Style="{StaticResource HudChatScrollBarStyle}"
+                                   Orientation="Vertical"
+                                   Visibility="Collapsed"
+                                   Width="6" />
+                        <Border x:Name="ChatInputPanel"
+                                Visibility="Collapsed"
+                                Width="231"
+                                Height="37" />
                         <Grid x:Name="ChatDockExpanded" Visibility="Collapsed" Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -307,11 +358,11 @@
                                          MaxLines="1"
                                          Height="28"
                                          VerticalContentAlignment="Center"
-                                         Background="#FF1B2633"
+                                         Background="Transparent"
                                          Foreground="White"
                                          CaretBrush="White"
                                          BorderThickness="0"
-                                         Padding="8,0"
+                                         Padding="0"
                                          TextChanged="ChatInputBox_OnTextChanged"
                                          KeyDown="ChatInputBox_OnKeyDown" />
                                 <TextBlock x:Name="ChatPlaceholder"
@@ -319,7 +370,7 @@
                                            Foreground="#88FFFFFF"
                                            IsHitTestVisible="False"
                                            VerticalAlignment="Center"
-                                           Margin="12,0,0,0" />
+                                           Margin="0" />
                             </Grid>
                             <Button x:Name="ChatSendButton"
                                     Grid.Column="1"

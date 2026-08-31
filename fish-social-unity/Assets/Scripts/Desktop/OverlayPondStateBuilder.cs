@@ -76,18 +76,34 @@ namespace FishSocial.Desktop
                 return actions.ToArray();
 
             var hasSpot = !string.IsNullOrEmpty(pond.CurrentUser?.spotId);
+            var phase = pond.CurrentPhase ?? "idle";
             if (!hasSpot)
                 actions.Add("take_spot");
-            if (hasSpot && pond.CanStartFishing && !pond.IsGroundbaiting)
-                actions.Add("start_fishing");
-            if (hasSpot && pond.CanGroundbait)
-                actions.Add("groundbait_start");
-            if (pond.CanStopFishing)
-                actions.Add("stop_fishing");
-            if (pond.HasPendingCatch)
+            if (hasSpot)
+            {
+                if (phase == "seated")
+                {
+                    if (pond.CanStartFishing)
+                        actions.Add("start_fishing");
+                    if (pond.CanGroundbait)
+                        actions.Add("groundbait_start");
+                    if (pond.HasPendingCatch)
+                        actions.Add("accept_catch");
+                    else
+                        actions.Add("leave_spot");
+                }
+                else if (phase == "groundbaiting")
+                {
+                    actions.Add("leave_spot");
+                }
+                else if (phase == "baiting" || phase == "casting" ||
+                         phase == "waiting" || phase == "hooked")
+                {
+                    actions.Add("stop_fishing");
+                }
+            }
+            if (pond.HasPendingCatch && !actions.Contains("accept_catch"))
                 actions.Add("accept_catch");
-            if (hasSpot && !pond.CanStopFishing)
-                actions.Add("leave_spot");
             if (!pond.IsTransitioning)
                 actions.Add("exit_pond");
             if (ShowPoliceDebug(pond.CurrentPondId))

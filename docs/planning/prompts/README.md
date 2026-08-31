@@ -101,6 +101,8 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-14b-scene-pan-dev.prompt.md](./steam-desktop-14b-scene-pan-dev.prompt.md) | STEAM-DESKTOP-14B：横轴场景平移 · **已实现** |
 | [steam-desktop-14c-hud-art-text-dev.prompt.md](./steam-desktop-14c-hud-art-text-dev.prompt.md) | STEAM-DESKTOP-14C：HUD 正式素材与文字对齐 · **已实现** |
 | [steam-desktop-14d-pet-status-icon-dev.prompt.md](./steam-desktop-14d-pet-status-icon-dev.prompt.md) | STEAM-DESKTOP-14D：状态小图标与上钩圆环 · **已实现** |
+| [steam-desktop-15-fishing-dock-timing-dev.prompt.md](./steam-desktop-15-fishing-dock-timing-dev.prompt.md) | STEAM-DESKTOP-15：中央钓鱼栏按钮时序 · **已实现** |
+| [steam-desktop-16-overlay-viewport-dev.prompt.md](./steam-desktop-16-overlay-viewport-dev.prompt.md) | STEAM-DESKTOP-16：Overlay 窗口视口缩放 · **已实现** |
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |
 | [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已实现** |

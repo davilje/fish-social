@@ -392,13 +392,15 @@ namespace FishSocial.Desktop.Onboarding
                 return actions.ToArray();
             if (!HasSpot)
                 actions.Add("take_spot");
-            if (HasSpot && !IsFishing)
+            var holdPhase =
+                string.Equals(Phase, "stopping", System.StringComparison.Ordinal) ||
+                string.Equals(Phase, "resolving", System.StringComparison.Ordinal);
+            if (HasSpot && !IsFishing && !holdPhase)
             {
                 actions.Add("start_fishing");
                 actions.Add("leave_spot");
             }
-            if (IsFishing &&
-                !string.Equals(Phase, "resolving", System.StringComparison.Ordinal))
+            if (IsFishing && !holdPhase)
                 actions.Add("stop_fishing");
             return actions.ToArray();
         }

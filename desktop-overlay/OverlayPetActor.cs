@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
@@ -23,6 +24,13 @@ namespace FishSocialOverlay
         const double RingSize = 76;
         const double RingStroke = 2.5;
         const double IconSize = OverlayStatusIcons.Size;
+        const double PanelMinHeight = 20;
+        const double NameMinWidth = 88;
+        const double NameMaxWidth = 180;
+        const double BubbleMinWidth = 80;
+        const double BubbleMaxWidth = 160;
+        const double HintMinWidth = 84;
+        const double HintMaxWidth = 200;
 
         readonly IOverlayHoverHost _hoverHost;
         IOverlayPlayerMenuHost _menuHost;
@@ -34,6 +42,11 @@ namespace FishSocialOverlay
         readonly Shape[] _tintShapes;
         readonly TextBlock _nickname;
         readonly Border _nameBadge;
+        readonly TextBlock _speechLabel;
+        readonly Border _speechBadge;
+        readonly TextBlock _hintLabel;
+        readonly Border _hintBadge;
+        DispatcherTimer _speechFadeTimer;
         readonly System.Windows.Shapes.Path _hookRing;
         readonly Canvas _content;
         readonly Grid _stage;
@@ -90,11 +103,17 @@ namespace FishSocialOverlay
                 FontSize = 11,
                 MaxWidth = BodySize + 24,
                 HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 TextTrimming = TextTrimming.CharacterEllipsis,
             };
             _nameBadge = CreateTextBadge(_nickname, new Thickness(0, 2, 0, 0));
             _nameBadge.IsHitTestVisible = false;
+            _speechLabel = CreateBubbleLabel(11);
+            _speechBadge = CreateSpeechBadge(_speechLabel);
+            _hintLabel = CreateBubbleLabel(12);
+            _hintLabel.FontWeight = FontWeights.SemiBold;
+            _hintBadge = CreateHintBadge(_hintLabel);
             _statusIcon = new Image
             {
                 Width = IconSize,
@@ -148,6 +167,10 @@ namespace FishSocialOverlay
             _content.Children.Add(_statusIcon);
             _content.Children.Add(_stage);
             _content.Children.Add(_nameBadge);
+            _content.Children.Add(_speechBadge);
+            _content.Children.Add(_hintBadge);
+            Panel.SetZIndex(_speechBadge, 18);
+            Panel.SetZIndex(_hintBadge, 19);
             Children.Add(_content);
             RelayoutCluster();
 
@@ -411,15 +434,29 @@ namespace FishSocialOverlay
             _statusIcon.Width = statusW;
             _statusIcon.Height = statusH;
 
-            var nameW = _chrome != null && _chrome.Name != null && _chrome.Name.w > 0
-                ? _chrome.Name.w
-                : BodySize + 24;
-            var nameH = _chrome != null && _chrome.Name != null && _chrome.Name.h > 0
-                ? _chrome.Name.h
-                : 18;
-            _nickname.MaxWidth = nameW;
-            _nameBadge.Width = nameW;
-            _nameBadge.Height = nameH;
+            var nameSlotW = SlotWidth(_chrome != null ? _chrome.Name : null, NameMinWidth);
+            var nameSlotH = SlotHeight(_chrome != null ? _chrome.Name : null);
+            var nameFit = FitPanel(_nickname, _nameBadge, nameSlotW, nameSlotH, NameMaxWidth);
+            var nameW = nameFit.Width;
+            var nameH = nameFit.Height;
+
+            var bubbleSlotW = SlotWidth(_chrome != null ? _chrome.Bubble : null, BubbleMinWidth);
+            var bubbleSlotH = SlotHeight(_chrome != null ? _chrome.Bubble : null);
+            var bubbleVisible = _speechBadge.Visibility == Visibility.Visible;
+            var bubbleFit = bubbleVisible
+                ? FitPanel(_speechLabel, _speechBadge, bubbleSlotW, bubbleSlotH, BubbleMaxWidth)
+                : new Size(bubbleSlotW, bubbleSlotH);
+            var bubbleW = bubbleFit.Width;
+            var bubbleH = bubbleFit.Height;
+
+            var hintSlotW = SlotWidth(_chrome != null ? _chrome.Hint : null, HintMinWidth);
+            var hintSlotH = SlotHeight(_chrome != null ? _chrome.Hint : null);
+            var hintVisible = _hintBadge.Visibility == Visibility.Visible;
+            var hintFit = hintVisible
+                ? FitPanel(_hintLabel, _hintBadge, hintSlotW, hintSlotH, HintMaxWidth)
+                : new Size(hintSlotW, hintSlotH);
+            var hintW = hintFit.Width;
+            var hintH = hintFit.Height;
 
             var showStatus = _statusIcon.Visibility == Visibility.Visible;
             double petX = 0;
@@ -428,8 +465,12 @@ namespace FishSocialOverlay
             double ringY = (petH - ringH) * 0.5;
             double statusX = (petW - statusW) * 0.5;
             double statusY = showStatus ? -statusH - 2 : 0;
-            double nameX = (petW - nameW) * 0.5;
-            double nameY = petH + 2;
+            double nameSlotX = -19;
+            double nameSlotY = 76;
+            double bubbleSlotX = (petW - bubbleSlotW) * 0.5;
+            double bubbleSlotY = -bubbleSlotH - 2;
+            double hintSlotX = (petW - hintSlotW) * 0.5;
+            double hintSlotY = -hintSlotH - 2;
 
             if (_chrome != null && _chrome.Pet != null)
             {
@@ -447,13 +488,33 @@ namespace FishSocialOverlay
 
                 if (_chrome.Name != null)
                 {
-                    nameX = _chrome.Name.x - _chrome.Pet.x;
-                    nameY = _chrome.Name.y - _chrome.Pet.y;
+                    nameSlotX = _chrome.Name.x - _chrome.Pet.x;
+                    nameSlotY = _chrome.Name.y - _chrome.Pet.y;
+                }
+
+                if (_chrome.Bubble != null)
+                {
+                    bubbleSlotX = _chrome.Bubble.x - _chrome.Pet.x;
+                    bubbleSlotY = _chrome.Bubble.y - _chrome.Pet.y;
+                }
+
+                if (_chrome.Hint != null)
+                {
+                    hintSlotX = _chrome.Hint.x - _chrome.Pet.x;
+                    hintSlotY = _chrome.Hint.y - _chrome.Pet.y;
                 }
             }
 
-            var minX = Math.Min(petX, Math.Min(ringX, nameX));
-            var minY = Math.Min(petY, Math.Min(ringY, nameY));
+            // Grow from the prefab slot: name expands down, bubbles expand up, both stay centered.
+            var nameX = nameSlotX + (nameSlotW - nameW) * 0.5;
+            var nameY = nameSlotY;
+            var bubbleX = bubbleSlotX + (bubbleSlotW - bubbleW) * 0.5;
+            var bubbleY = bubbleSlotY + bubbleSlotH - bubbleH;
+            var hintX = hintSlotX + (hintSlotW - hintW) * 0.5;
+            var hintY = hintSlotY + hintSlotH - hintH;
+
+            var minX = Math.Min(petX, Math.Min(ringX, Math.Min(nameX, Math.Min(bubbleX, hintX))));
+            var minY = Math.Min(petY, Math.Min(ringY, Math.Min(nameY, Math.Min(bubbleY, hintY))));
             if (showStatus)
             {
                 minX = Math.Min(minX, statusX);
@@ -467,9 +528,15 @@ namespace FishSocialOverlay
             statusY -= minY;
             nameX -= minX;
             nameY -= minY;
+            bubbleX -= minX;
+            bubbleY -= minY;
+            hintX -= minX;
+            hintY -= minY;
 
-            var width = Math.Max(petX + petW, Math.Max(ringX + ringW, Math.Max(statusX + statusW, nameX + nameW)));
-            var height = Math.Max(petY + petH, Math.Max(ringY + ringH, Math.Max(statusY + statusH, nameY + nameH)));
+            var width = Math.Max(petX + petW, Math.Max(ringX + ringW, Math.Max(statusX + statusW,
+                Math.Max(nameX + nameW, Math.Max(bubbleX + bubbleW, hintX + hintW)))));
+            var height = Math.Max(petY + petH, Math.Max(ringY + ringH, Math.Max(statusY + statusH,
+                Math.Max(nameY + nameH, Math.Max(bubbleY + bubbleH, hintY + hintH)))));
             _content.Width = width;
             _content.Height = height;
             Width = width;
@@ -479,6 +546,10 @@ namespace FishSocialOverlay
             Canvas.SetTop(_statusIcon, statusY);
             Canvas.SetLeft(_nameBadge, nameX);
             Canvas.SetTop(_nameBadge, nameY);
+            Canvas.SetLeft(_speechBadge, bubbleX);
+            Canvas.SetTop(_speechBadge, bubbleY);
+            Canvas.SetLeft(_hintBadge, hintX);
+            Canvas.SetTop(_hintBadge, hintY);
             var bodyInStageX = (stage - petW) * 0.5;
             var bodyInStageY = (stage - petH) * 0.5;
             Canvas.SetLeft(_stage, petX - bodyInStageX);
@@ -789,21 +860,6 @@ namespace FishSocialOverlay
             }
         }
 
-        static Border CreateTextBadge(TextBlock textBlock, Thickness margin)
-        {
-            return new Border
-            {
-                CornerRadius = new CornerRadius(4),
-                Padding = new Thickness(5, 2, 5, 2),
-                Margin = margin,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Background = new SolidColorBrush(Color.FromArgb(0xD9, 0x0F, 0x18, 0x20)),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(0x66, 0xB8, 0xE1, 0xEF)),
-                BorderThickness = new Thickness(1),
-                Child = textBlock,
-            };
-        }
-
         static Canvas BuildPlaceholder(out Shape[] tintShapes)
         {
             var earL = new Polygon
@@ -847,6 +903,246 @@ namespace FishSocialOverlay
             canvas.Children.Add(nose);
             tintShapes = new Shape[] { earL, earR, body };
             return canvas;
+        }
+
+        public Border SpeechHost => _speechBadge;
+
+        public Border HintHost => _hintBadge;
+
+        public void ShowSpeech(string text, bool autoHide)
+        {
+            ApplyBubbleText(_speechLabel, text, 80);
+            _speechBadge.Visibility = Visibility.Visible;
+            RelayoutAndPlace();
+            RunPopIn(_speechBadge);
+            StopSpeechFade();
+            if (!autoHide)
+                return;
+            _speechFadeTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(5),
+            };
+            _speechFadeTimer.Tick += OnSpeechFadeTick;
+            _speechFadeTimer.Start();
+        }
+
+        public void ShowHint(string text)
+        {
+            ApplyBubbleText(_hintLabel, text, 120);
+            _hintBadge.Visibility = Visibility.Visible;
+            RelayoutAndPlace();
+            RunPopIn(_hintBadge);
+        }
+
+        public void ClearSpeech()
+        {
+            StopSpeechFade();
+            _speechBadge.BeginAnimation(UIElement.OpacityProperty, null);
+            _speechBadge.Opacity = 1;
+            _speechBadge.Visibility = Visibility.Collapsed;
+            _speechLabel.Text = string.Empty;
+            RelayoutAndPlace();
+        }
+
+        public void ClearHint()
+        {
+            _hintBadge.BeginAnimation(UIElement.OpacityProperty, null);
+            _hintBadge.Opacity = 1;
+            _hintBadge.Visibility = Visibility.Collapsed;
+            _hintLabel.Text = string.Empty;
+            RelayoutAndPlace();
+        }
+
+        public void ClearBubbles()
+        {
+            ClearSpeech();
+            ClearHint();
+        }
+
+        void OnSpeechFadeTick(object sender, EventArgs e)
+        {
+            StopSpeechFade();
+            var fade = new DoubleAnimation(_speechBadge.Opacity, 0, TimeSpan.FromSeconds(0.3));
+            fade.Completed += (_, __) => ClearSpeech();
+            _speechBadge.BeginAnimation(UIElement.OpacityProperty, fade);
+        }
+
+        void StopSpeechFade()
+        {
+            if (_speechFadeTimer == null)
+                return;
+            _speechFadeTimer.Stop();
+            _speechFadeTimer.Tick -= OnSpeechFadeTick;
+            _speechFadeTimer = null;
+        }
+
+        void RelayoutAndPlace()
+        {
+            RelayoutCluster();
+            Place(_centerX, _centerY);
+        }
+
+        static double SlotWidth(OverlayLayoutObjectDto part, double fallback)
+        {
+            return part != null && part.w > 0 ? part.w : fallback;
+        }
+
+        static double SlotHeight(OverlayLayoutObjectDto part)
+        {
+            if (part != null && part.h > 0 && part.h <= 24)
+                return part.h;
+            return PanelMinHeight;
+        }
+
+        static Size FitPanel(
+            TextBlock label,
+            Border badge,
+            double minWidth,
+            double minHeight,
+            double maxWidth)
+        {
+            if (label == null || badge == null)
+                return new Size(minWidth, minHeight);
+
+            var padX = badge.Padding.Left + badge.Padding.Right +
+                       badge.BorderThickness.Left + badge.BorderThickness.Right;
+            var padY = badge.Padding.Top + badge.Padding.Bottom +
+                       badge.BorderThickness.Top + badge.BorderThickness.Bottom;
+            var innerMax = Math.Max(24, maxWidth - padX);
+            label.TextWrapping = TextWrapping.Wrap;
+            label.MaxWidth = innerMax;
+            label.Measure(new Size(innerMax, double.PositiveInfinity));
+            var text = label.DesiredSize;
+            if (string.IsNullOrWhiteSpace(label.Text))
+                text = new Size(0, 0);
+
+            var width = Math.Min(maxWidth, Math.Max(minWidth, Math.Ceiling(text.Width + padX)));
+            var height = Math.Max(minHeight, Math.Ceiling(text.Height + padY));
+            badge.Width = width;
+            badge.Height = height;
+            return new Size(width, height);
+        }
+
+        static void ApplyBubbleText(TextBlock label, string text, int maxChars)
+        {
+            var value = string.IsNullOrWhiteSpace(text) ? "…" : text.Trim();
+            if (value.Length > maxChars)
+                value = value.Substring(0, maxChars - 3) + "…";
+            label.Text = value;
+        }
+
+        static TextBlock CreateBubbleLabel(double fontSize)
+        {
+            return new TextBlock
+            {
+                Foreground = Brushes.White,
+                FontSize = fontSize,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+            };
+        }
+
+        static Border CreateSpeechBadge(TextBlock label)
+        {
+            return new Border
+            {
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(8, 0, 8, 0),
+                Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
+                Child = label,
+                Visibility = Visibility.Collapsed,
+                IsHitTestVisible = false,
+                RenderTransformOrigin = new Point(0.5, 1.0),
+                RenderTransform = new ScaleTransform(1, 1),
+            };
+        }
+
+        static Border CreateHintBadge(TextBlock label)
+        {
+            return new Border
+            {
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(10, 0, 10, 0),
+                Background = new SolidColorBrush(Color.FromArgb(235, 27, 58, 74)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(255, 120, 190, 210)),
+                BorderThickness = new Thickness(1),
+                Child = label,
+                Visibility = Visibility.Collapsed,
+                IsHitTestVisible = false,
+                RenderTransformOrigin = new Point(0.5, 1.0),
+                RenderTransform = new ScaleTransform(1, 1),
+            };
+        }
+
+        static void RunPopIn(Border bubble)
+        {
+            if (bubble == null)
+                return;
+            bubble.BeginAnimation(UIElement.OpacityProperty, null);
+            if (!(bubble.RenderTransform is ScaleTransform))
+                bubble.RenderTransform = new ScaleTransform(0.5, 0.5);
+
+            var transform = (ScaleTransform)bubble.RenderTransform;
+            transform.ScaleX = 0.5;
+            transform.ScaleY = 0.5;
+            bubble.Opacity = 0;
+
+            var storyboard = new Storyboard { FillBehavior = FillBehavior.Stop };
+            storyboard.Children.Add(CreateScaleAnimation(bubble, true));
+            storyboard.Children.Add(CreateScaleAnimation(bubble, false));
+            var fade = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.3))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
+            };
+            Storyboard.SetTarget(fade, bubble);
+            Storyboard.SetTargetProperty(fade, new PropertyPath(UIElement.OpacityProperty));
+            storyboard.Children.Add(fade);
+            storyboard.Completed += (_, __) =>
+            {
+                bubble.Opacity = 1;
+                transform.ScaleX = 1;
+                transform.ScaleY = 1;
+            };
+            storyboard.Begin();
+        }
+
+        static DoubleAnimationUsingKeyFrames CreateScaleAnimation(Border bubble, bool scaleX)
+        {
+            var animation = new DoubleAnimationUsingKeyFrames();
+            animation.KeyFrames.Add(new EasingDoubleKeyFrame(0.5, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            animation.KeyFrames.Add(new EasingDoubleKeyFrame(
+                1.1,
+                KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.15))));
+            animation.KeyFrames.Add(new EasingDoubleKeyFrame(
+                1.0,
+                KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.3))));
+            var property = scaleX
+                ? "(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                : "(UIElement.RenderTransform).(ScaleTransform.ScaleY)";
+            Storyboard.SetTarget(animation, bubble);
+            Storyboard.SetTargetProperty(animation, new PropertyPath(property));
+            return animation;
+        }
+
+        static Border CreateTextBadge(TextBlock textBlock, Thickness margin)
+        {
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            return new Border
+            {
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(6, 0, 6, 0),
+                Margin = margin,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Background = new SolidColorBrush(Color.FromArgb(0xD9, 0x0F, 0x18, 0x20)),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(0x66, 0xB8, 0xE1, 0xEF)),
+                BorderThickness = new Thickness(1),
+                Child = textBlock,
+            };
         }
     }
 

@@ -120,6 +120,8 @@ namespace FishSocialOverlay
 
         public void ClearObservation()
         {
+            if (_observationActor is OverlayPetActor pet)
+                pet.ClearSpeech();
             DetachObservationActor();
             if (_activeByPlayer.TryGetValue(ObservationKey, out var bubble))
             {
@@ -130,8 +132,9 @@ namespace FishSocialOverlay
 
         public void HideAll()
         {
-            DetachGuideActor();
-            DetachObservationActor();
+            ClearGuide();
+            ClearObservation();
+            ClearHosted(TryOwnPet());
             _guideText = string.Empty;
             _activeByPlayer.Clear();
             _layer.Children.Clear();
@@ -155,6 +158,8 @@ namespace FishSocialOverlay
                 ReferenceEquals(_guideActor, actor) &&
                 _activeByPlayer.ContainsKey(GuideKey))
             {
+                if (actor is OverlayPetActor)
+                    return;
                 FollowGuide();
                 return;
             }
@@ -164,6 +169,15 @@ namespace FishSocialOverlay
             {
                 _layer.Children.Remove(previous);
                 _activeByPlayer.Remove(GuideKey);
+            }
+
+            if (actor is OverlayPetActor pet)
+            {
+                pet.ShowHint(trimmed);
+                _guideText = trimmed;
+                _guideActor = actor;
+                _activeByPlayer[GuideKey] = pet.HintHost;
+                return;
             }
 
             var label = new TextBlock
@@ -199,6 +213,8 @@ namespace FishSocialOverlay
 
         public void ClearGuide()
         {
+            if (_guideActor is OverlayPetActor pet)
+                pet.ClearHint();
             DetachGuideActor();
             _guideText = string.Empty;
             if (_activeByPlayer.TryGetValue(GuideKey, out var bubble))
@@ -239,7 +255,7 @@ namespace FishSocialOverlay
 
         void FollowGuideImmediate()
         {
-            if (_guideActor == null)
+            if (_guideActor == null || _guideActor is OverlayPetActor)
                 return;
             if (!_activeByPlayer.TryGetValue(GuideKey, out var bubble))
                 return;
@@ -279,7 +295,7 @@ namespace FishSocialOverlay
 
         void FollowObservationImmediate()
         {
-            if (_observationActor == null)
+            if (_observationActor == null || _observationActor is OverlayPetActor)
                 return;
             if (!_activeByPlayer.TryGetValue(ObservationKey, out var bubble))
                 return;
@@ -293,6 +309,14 @@ namespace FishSocialOverlay
             var text = string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim();
             if (text.Length > 80)
                 text = text.Substring(0, 77) + "…";
+
+            if (actor is OverlayPetActor pet)
+            {
+                pet.ShowSpeech(text, true);
+                _activeByPlayer[ObservationKey] = pet.SpeechHost;
+                _observationActor = actor;
+                return;
+            }
 
             var label = new TextBlock
             {
@@ -370,6 +394,13 @@ namespace FishSocialOverlay
             var text = string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim();
             if (text.Length > 80)
                 text = text.Substring(0, 77) + "…";
+
+            if (actor is OverlayPetActor pet)
+            {
+                pet.ShowSpeech(text, true);
+                _activeByPlayer[bubbleKey] = pet.SpeechHost;
+                return;
+            }
 
             var label = new TextBlock
             {
@@ -518,6 +549,16 @@ namespace FishSocialOverlay
             if (value > max)
                 return max;
             return value;
+        }
+
+        OverlayPetActor TryOwnPet()
+        {
+            return _resolveOwnActor?.Invoke() as OverlayPetActor;
+        }
+
+        static void ClearHosted(OverlayPetActor pet)
+        {
+            pet?.ClearBubbles();
         }
     }
 }

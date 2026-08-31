@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
@@ -64,7 +65,7 @@ namespace FishSocialOverlay
                     spotMarker.Visibility == Visibility.Visible &&
                     spotMarker.IsSeatArtSource(hitLeaf))
                     return true;
-                if (source is Button || source is TextBox || source is ScrollViewer)
+                if (source is Button || source is TextBox || source is ScrollViewer || source is ScrollBar)
                     return true;
                 if (ReferenceEquals(source, window.ChatDockChrome) &&
                     window.ChatDockChrome.Visibility == Visibility.Visible)

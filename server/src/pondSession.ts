@@ -200,7 +200,10 @@ export function leaveSpot(
       user.status === 'fishing') {
     return { ok: false, error: '请先收杆再离席' };
   }
-  if (phase !== 'seated' && phase !== 'stopping' && phase !== 'resolving') {
+  if (phase !== 'seated' &&
+      phase !== 'stopping' &&
+      phase !== 'resolving' &&
+      phase !== 'groundbaiting') {
     return { ok: false, error: '当前不在可离席状态' };
   }
 

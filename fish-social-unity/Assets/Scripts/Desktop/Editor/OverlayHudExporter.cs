@@ -83,7 +83,9 @@ namespace FishSocial.Desktop.Editor
             if (Mathf.Abs(size.x - CanvasWidth) > 0.5f || Mathf.Abs(size.y - CanvasHeight) > 0.5f)
                 return "OverlayHud 画布必须是 960×560，当前为 " + size.x + "×" + size.y + "。";
 
-            RepairInvalidWidgetRects(rootGo.transform);
+            // Layout Group / stretch children need a canvas pass before measuring.
+            // Do not rewrite artist rects to catalog defaults.
+            Canvas.ForceUpdateCanvases();
 
             var widgets = rootGo.GetComponentsInChildren<DesktopOverlayHudWidget>(true);
             if (widgets == null || widgets.Length == 0)
@@ -161,44 +163,16 @@ namespace FishSocial.Desktop.Editor
                     w,
                     h,
                     spriteName,
+                    ExtractSpriteSlice(widget),
                     textStyle));
             }
 
             var jsonPath = Path.Combine(outputDir, "overlay-hud.json");
             var json = BuildDocumentJson(entries);
             File.WriteAllText(jsonPath, json, new UTF8Encoding(false));
-            PrefabUtility.SaveAsPrefabAsset(rootGo, PrefabPath);
             AssetDatabase.Refresh();
             Debug.Log("[OverlayHudExporter] Wrote " + jsonPath);
             return null;
-        }
-
-        static void RepairInvalidWidgetRects(Transform root)
-        {
-            var byId = IndexHudWidgets(root);
-            var repaired = 0;
-            foreach (var spec in OverlayHudWidgetCatalog.All)
-            {
-                if (!byId.TryGetValue(spec.Id, out var widget))
-                    continue;
-                var rt = widget.GetComponent<RectTransform>();
-                if (rt == null)
-                    continue;
-
-                var w = ResolveHudSize(rt.rect.width, rt.sizeDelta.x);
-                var h = ResolveHudSize(rt.rect.height, rt.sizeDelta.y);
-                if (!NeedsHudRectRepair(rt, w, h))
-                    continue;
-
-                PlaceOverlayHudRect(rt, spec.X, spec.Y, spec.W, spec.H);
-                repaired++;
-                Debug.LogWarning(
-                    "[OverlayHudExporter] 已修复无效尺寸/锚点：" + spec.Id +
-                    " → " + spec.W + "×" + spec.H);
-            }
-
-            if (repaired > 0)
-                Canvas.ForceUpdateCanvases();
         }
 
         internal static Transform FindHudTransform(Transform root, string widgetId)
@@ -231,24 +205,6 @@ namespace FishSocial.Desktop.Editor
                 byId[widget.widgetId] = widget;
             }
             return byId;
-        }
-
-        static bool NeedsHudRectRepair(RectTransform rt, float w, float h)
-        {
-            if (w <= 0.5f || h <= 0.5f)
-                return true;
-            return !UsesTopLeftLayout(rt);
-        }
-
-        static void PlaceOverlayHudRect(RectTransform rt, float x, float y, float w, float h)
-        {
-            if (rt == null)
-                return;
-            rt.anchorMin = new Vector2(0f, 1f);
-            rt.anchorMax = new Vector2(0f, 1f);
-            rt.pivot = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(x, -y);
-            rt.sizeDelta = new Vector2(w, h);
         }
 
         static bool TryGetParentWidget(
@@ -347,59 +303,116 @@ namespace FishSocial.Desktop.Editor
             out string error)
         {
             error = null;
-            if (string.IsNullOrWhiteSpace(widget.spriteFile))
+            var image = widget.GetComponent<Image>();
+            string sourcePath = null;
+            string exportName = null;
+
+            // Prefab Image 绑定的 Sprite 优先于 DesktopOverlayHudWidget.spriteFile。
+            if (image != null && image.sprite != null)
             {
-                var image = widget.GetComponent<Image>();
-                if (image == null || image.sprite == null)
-                    return null;
-
                 var assetPath = AssetDatabase.GetAssetPath(image.sprite);
-                if (string.IsNullOrEmpty(assetPath))
-                    return null;
-
-                var fileName = Path.GetFileName(assetPath);
-                if (string.IsNullOrEmpty(fileName))
-                    return null;
-
-                var dest = Path.Combine(outputDir, fileName);
-                if (!copiedSprites.Contains(fileName))
+                if (!string.IsNullOrEmpty(assetPath) && File.Exists(assetPath))
                 {
-                    File.Copy(assetPath, dest, true);
-                    copiedSprites.Add(fileName);
+                    sourcePath = assetPath;
+                    exportName = Path.GetFileName(assetPath);
                 }
-
-                widget.spriteFile = fileName;
-                return fileName;
             }
 
-            var sourcePath = ResolveSpriteSourcePath(widget.spriteFile);
+            if (string.IsNullOrEmpty(sourcePath) && !string.IsNullOrWhiteSpace(widget.spriteFile))
+            {
+                exportName = Path.GetFileName(widget.spriteFile);
+                sourcePath = ResolveSpriteSourcePath(widget.spriteFile);
+            }
+
             if (string.IsNullOrEmpty(sourcePath) || !File.Exists(sourcePath))
             {
-                error = "找不到 sprite 文件：" + widget.spriteFile;
+                if (string.IsNullOrEmpty(exportName))
+                    return null;
+                error = "找不到 sprite 文件：" + exportName +
+                        "。请把 PNG 放在 Assets/Desktop/OverlayArt/ 或 Assets/StreamingAssets/OverlayHud/，" +
+                        "或在 Prefab Image 上绑定 Sprite 后重试。";
                 return null;
             }
 
-            var target = Path.Combine(outputDir, Path.GetFileName(widget.spriteFile));
-            if (!copiedSprites.Contains(widget.spriteFile))
+            if (!string.Equals(widget.spriteFile, exportName, StringComparison.OrdinalIgnoreCase))
             {
-                File.Copy(sourcePath, target, true);
-                copiedSprites.Add(widget.spriteFile);
+                widget.spriteFile = exportName;
+                Debug.Log(
+                    "[OverlayHudExporter] 已从 Image 同步 spriteFile：" +
+                    widget.widgetId + " → " + exportName);
             }
 
-            return Path.GetFileName(widget.spriteFile);
+            var target = Path.Combine(outputDir, exportName);
+            if (!copiedSprites.Contains(exportName))
+            {
+                if (!TryCopySpriteFile(sourcePath, target, out error))
+                    return null;
+                copiedSprites.Add(exportName);
+            }
+
+            return exportName;
+        }
+
+        /// <summary>
+        /// Safe overwrite. Skips when source==dest (common if PNG already lives under OverlayResources/hud).
+        /// </summary>
+        static bool TryCopySpriteFile(string sourcePath, string destPath, out string error)
+        {
+            error = null;
+            try
+            {
+                var srcFull = Path.GetFullPath(sourcePath);
+                var dstFull = Path.GetFullPath(destPath);
+                if (string.Equals(srcFull, dstFull, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                Directory.CreateDirectory(Path.GetDirectoryName(dstFull) ?? ".");
+                var tempPath = dstFull + ".export-tmp";
+                if (File.Exists(tempPath))
+                    File.Delete(tempPath);
+                File.Copy(srcFull, tempPath, true);
+                if (File.Exists(dstFull))
+                    File.Delete(dstFull);
+                File.Move(tempPath, dstFull);
+                return true;
+            }
+            catch (IOException ex)
+            {
+                error = "无法写入 sprite（文件可能被 Overlay/看图软件占用）：" +
+                        Path.GetFileName(destPath) + " — " + ex.Message +
+                        "。请关闭 FishSocialOverlay / 图片预览后重试；源图请放在 Assets/StreamingAssets/OverlayHud/。";
+                return false;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                error = "无法写入 sprite（权限或占用）：" + Path.GetFileName(destPath) + " — " + ex.Message;
+                return false;
+            }
         }
 
         static string ResolveSpriteSourcePath(string spriteFile)
         {
+            if (string.IsNullOrWhiteSpace(spriteFile))
+                return null;
+
             var fileName = Path.GetFileName(spriteFile);
             var streaming = Path.Combine(Application.dataPath, "StreamingAssets", "OverlayHud", fileName);
             if (File.Exists(streaming))
                 return streaming;
 
+            var overlayArt = Path.Combine(Application.dataPath, "Desktop", "OverlayArt", fileName);
+            if (File.Exists(overlayArt))
+                return overlayArt;
+
             var repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
             var overlayHud = Path.Combine(repoRoot, "desktop-overlay", "OverlayResources", "hud", fileName);
             if (File.Exists(overlayHud))
                 return overlayHud;
+
+            var assetPath = AssetDatabase.GetAssetPath(
+                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Desktop/OverlayArt/" + fileName));
+            if (!string.IsNullOrEmpty(assetPath) && File.Exists(assetPath))
+                return assetPath;
 
             return AssetDatabase.GetAssetPath(
                 AssetDatabase.LoadAssetAtPath<Sprite>("Assets/StreamingAssets/OverlayHud/" + fileName));
@@ -413,6 +426,9 @@ namespace FishSocial.Desktop.Editor
             public string FontWeight;
             public string TextAlign;
             public string ContentAlign;
+            public string VerticalAlign;
+            public string Label;
+            public bool ExportLabel;
             public bool HasStyle;
         }
 
@@ -424,25 +440,24 @@ namespace FishSocial.Desktop.Editor
         {
             error = null;
             var kind = string.IsNullOrEmpty(widget.kind) ? "button" : widget.kind;
-            if (!string.Equals(kind, "text", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase))
+            var isButton = string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase);
+            var isText = string.Equals(kind, "text", StringComparison.OrdinalIgnoreCase);
+            var isLogPanel = string.Equals(widget.widgetId, "chat_log", StringComparison.Ordinal);
+            if (!isButton && !isText && !isLogPanel)
                 return default;
-
             var text = FindWidgetText(widget);
             if (text == null)
             {
-                if (!string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase))
-                    return default;
-
-                return new HudTextStyleExport
+                if (isButton)
                 {
-                    FontFile = CopyFontFile(Resources.GetBuiltinResource<Font>("Arial.ttf"), fontsDir, copiedFonts, out error),
-                    FontSize = 12,
-                    FontColor = "#FFFFFFFF",
-                    FontWeight = "normal",
-                    ContentAlign = "center",
-                    HasStyle = string.IsNullOrEmpty(error),
-                };
+                    return new HudTextStyleExport
+                    {
+                        Label = string.Empty,
+                        ExportLabel = true,
+                    };
+                }
+
+                return default;
             }
 
             var fontFile = CopyFontFile(text.font, fontsDir, copiedFonts, out error);
@@ -450,16 +465,39 @@ namespace FishSocial.Desktop.Editor
                 return default;
 
             var align = MapTextAlign(text.alignment);
+            var verticalAlign = MapVerticalAlign(text.alignment);
             return new HudTextStyleExport
             {
                 FontFile = fontFile,
                 FontSize = text.fontSize,
                 FontColor = FormatColor(text.color),
                 FontWeight = text.fontStyle == FontStyle.Bold ? "bold" : "normal",
-                TextAlign = string.Equals(kind, "text", StringComparison.OrdinalIgnoreCase) ? align : null,
-                ContentAlign = string.Equals(kind, "button", StringComparison.OrdinalIgnoreCase) ? align : null,
+                TextAlign = (isText || isLogPanel) ? align : null,
+                ContentAlign = isButton ? align : null,
+                VerticalAlign = verticalAlign,
+                Label = (isButton || isText) ? (text.text ?? string.Empty) : null,
+                ExportLabel = isButton || isText,
                 HasStyle = true,
             };
+        }
+
+        static int[] ExtractSpriteSlice(DesktopOverlayHudWidget widget)
+        {
+            var image = widget.GetComponent<Image>();
+            if (image == null || image.sprite == null || image.type != Image.Type.Sliced)
+                return null;
+
+            var border = image.sprite.border;
+            var slice = new[]
+            {
+                Mathf.RoundToInt(border.x),
+                Mathf.RoundToInt(border.y),
+                Mathf.RoundToInt(border.z),
+                Mathf.RoundToInt(border.w),
+            };
+            if (slice[0] <= 0 && slice[1] <= 0 && slice[2] <= 0 && slice[3] <= 0)
+                return null;
+            return slice;
         }
 
         static Text FindWidgetText(DesktopOverlayHudWidget widget)
@@ -539,8 +577,28 @@ namespace FishSocial.Desktop.Editor
             }
         }
 
+        static string MapVerticalAlign(TextAnchor anchor)
+        {
+            switch (anchor)
+            {
+                case TextAnchor.UpperLeft:
+                case TextAnchor.UpperCenter:
+                case TextAnchor.UpperRight:
+                    return "top";
+                case TextAnchor.LowerLeft:
+                case TextAnchor.LowerCenter:
+                case TextAnchor.LowerRight:
+                    return "bottom";
+                default:
+                    return "center";
+            }
+        }
+
         static void AppendTextStyleJson(StringBuilder sb, HudTextStyleExport style)
         {
+            if (style.ExportLabel)
+                sb.Append(",\"label\":\"").Append(Escape(style.Label ?? string.Empty)).Append("\"");
+
             if (!style.HasStyle)
                 return;
             if (!string.IsNullOrEmpty(style.FontFile))
@@ -555,6 +613,25 @@ namespace FishSocial.Desktop.Editor
                 sb.Append(",\"textAlign\":\"").Append(Escape(style.TextAlign)).Append("\"");
             if (!string.IsNullOrEmpty(style.ContentAlign))
                 sb.Append(",\"contentAlign\":\"").Append(Escape(style.ContentAlign)).Append("\"");
+            if (!string.IsNullOrEmpty(style.VerticalAlign))
+            {
+                sb.Append(",\"verticalAlign\":\"").Append(Escape(style.VerticalAlign)).Append("\"");
+                if (!string.IsNullOrEmpty(style.ContentAlign))
+                    sb.Append(",\"contentVAlign\":\"").Append(Escape(style.VerticalAlign)).Append("\"");
+            }
+        }
+
+        static void AppendSpriteSliceJson(StringBuilder sb, int[] spriteSlice)
+        {
+            if (spriteSlice == null || spriteSlice.Length != 4)
+                return;
+            if (spriteSlice[0] <= 0 && spriteSlice[1] <= 0 && spriteSlice[2] <= 0 && spriteSlice[3] <= 0)
+                return;
+            sb.Append(",\"spriteSlice\":[")
+                .Append(spriteSlice[0]).Append(",")
+                .Append(spriteSlice[1]).Append(",")
+                .Append(spriteSlice[2]).Append(",")
+                .Append(spriteSlice[3]).Append("]");
         }
 
         static string BuildWidgetJson(
@@ -565,6 +642,7 @@ namespace FishSocial.Desktop.Editor
             float w,
             float h,
             string sprite,
+            int[] spriteSlice,
             HudTextStyleExport textStyle)
         {
             var sb = new StringBuilder();
@@ -581,6 +659,7 @@ namespace FishSocial.Desktop.Editor
             sb.Append("\"visibleDefault\":").Append(widget.visibleDefault ? "true" : "false");
             if (!string.IsNullOrEmpty(sprite))
                 sb.Append(",\"sprite\":\"").Append(Escape(sprite)).Append("\"");
+            AppendSpriteSliceJson(sb, spriteSlice);
             AppendTextStyleJson(sb, textStyle);
             sb.Append("}");
             return sb.ToString();
