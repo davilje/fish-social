@@ -77,9 +77,12 @@
 | [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](./Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14D；小图标，圆环套猫，无头顶相位字 |
 | [Steam桌面端-15Overlay钓鱼栏按钮时序.md](./Steam桌面端-15Overlay钓鱼栏按钮时序.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-15；主按钮常驻改文案；收杆结束后同时出打窝+离席 |
 | [Steam桌面端-16Overlay窗口视口缩放.md](./Steam桌面端-16Overlay窗口视口缩放.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-16；视口 960/800/600，高度切顶，HUD 随宽内收 |
-| [Steam桌面端-17占用座位不可顶机器人.md](./Steam桌面端-17占用座位不可顶机器人.md) | hotfix | P0 | **已确认** | STEAM-DESKTOP-17；占用座（含 bot）不可点占 |
-| [BUG修复-Overlay形象进游戏不恢复.md](./BUG修复-Overlay形象进游戏不恢复.md) | hotfix | P0 | **已确认** | BUG-24；冷启动恢复已保存猫咪形象 |
-| [BUG修复-Overlay打窝按钮剩余口数.md](./BUG修复-Overlay打窝按钮剩余口数.md) | hotfix | P0 | **已确认** | BUG-25；13C 回归，去掉 bitesLeft 后缀 |
+| [Steam桌面端-17占用座位不可顶机器人.md](./Steam桌面端-17占用座位不可顶机器人.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-17；占用座（含 bot）不可点占 |
+| [BUG修复-Overlay形象进游戏不恢复.md](./BUG修复-Overlay形象进游戏不恢复.md) | hotfix | P0 | **已实现** | BUG-24；冷启动恢复已保存猫咪形象 |
+| [BUG修复-Overlay打窝按钮剩余口数.md](./BUG修复-Overlay打窝按钮剩余口数.md) | hotfix | P0 | **已实现** | BUG-25；13C 回归，去掉 bitesLeft 后缀 |
+| [BUG修复-Overlay悬停与右键菜单指针命中.md](./BUG修复-Overlay悬停与右键菜单指针命中.md) | hotfix | P0 | **已实现** | BUG-26；命中链 + 菜单后悬停用自有开关恢复 |
+| [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-18；条数 + actor-hint |
+| [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./Steam桌面端-14EOverlay头顶状态图标与进度环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14E；修订 14D 套猫/等鱼图标 |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
 | [Steam桌面端-08C动态墙与好友动态.md](./Steam桌面端-08C动态墙与好友动态.md) | v1.0-steam-desktop | P1 | **已实现** | 08C；公共动态墙、好友动态、分页、动态卡片 Prefab、点赞与评论 |

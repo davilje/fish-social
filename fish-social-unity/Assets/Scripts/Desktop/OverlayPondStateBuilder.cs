@@ -288,9 +288,10 @@ namespace FishSocial.Desktop
 
         static string ResolvePetId(PondUserDto user, PlayerProfileDto profile)
         {
-            var avatarUrl = user != null && !string.IsNullOrEmpty(user.avatarUrl)
-                ? user.avatarUrl
-                : profile != null ? profile.avatarUrl : null;
+            var fromUser = user != null ? user.avatarUrl : null;
+            var fromProfile = profile != null ? profile.avatarUrl : null;
+            // Empty pond url must not hide a cached profile (BUG-24).
+            var avatarUrl = !string.IsNullOrEmpty(fromUser) ? fromUser : fromProfile;
             var playerId = user != null && !string.IsNullOrEmpty(user.playerId)
                 ? user.playerId
                 : profile != null ? profile.playerId : null;

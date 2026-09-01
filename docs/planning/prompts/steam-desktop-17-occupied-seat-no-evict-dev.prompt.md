@@ -20,8 +20,8 @@
 对照 spec §验收；完成后按 Skill `planning-progress-sync`：
 spec→**已实现** + `build-master-plan-xlsx.py` 完成时间 + `npm run planning:master-xlsx`。
 
-- [ ] 点 bot 座不踢；点空座仍坐
-- [ ] spec → **已实现** + `npm run planning:master-xlsx`
+- [x] 点 bot 座不踢；点空座仍坐
+- [x] spec → **已实现** + `npm run planning:master-xlsx`
 
 ## 派发
 

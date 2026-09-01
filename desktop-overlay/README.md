@@ -20,7 +20,7 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] 
 - `hud/overlay-hud.json`：HUD 控件位置（含 `btn_pan_left` / `btn_pan_right`）
 - `status/hooked.png`、`status/groundbait.png`：咬钩 / 打窝头顶图标（钓鱼中不显示）
 - `status/hook-ring.png`、`status/ring-bg.png`：咬钩与打窝进度环及底图（`actor-ring` / `actor-ring-bg`）
-- 悬停热区仅为猫身 64×64（含自己）；≥300ms 显示本局时长或收杆剩余，第二行「钓到X条!」或「空军」
+- 悬停热区仅为猫身 64×64（含自己）；≥300ms 显示本局时长或收杆剩余，第二行「钓到X条!」或「空军」。右键菜单在抬起时打开、点 Overlay 左键或菜单项关闭；关菜单后悬停按屏幕坐标重算（BUG-26）
 - `cat.png`：旧的全局回退（全塘同一只，不要再当正式资源）
 
 `petId` 与头像一致：`orange` / `calico` / `gray` / `siamese` / `tuxedo` / `white`。  

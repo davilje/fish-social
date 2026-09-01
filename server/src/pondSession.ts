@@ -26,7 +26,6 @@ import {
   evictBotsForHuman,
   detachPondUser,
   getTodayFishingMs,
-  removeBotUser,
   removeUserIndexes,
   restoreCheckpointUser,
   settleFishingSession,
@@ -264,24 +263,18 @@ export function startFishing(
 
   const occupant = [...users.values()].find((u) => u.id !== user.id && u.spotId === spotId);
   if (occupant) {
-    if (occupant.isBot) {
-      const removed = removeBotUser(pondId, occupant.id);
-      if (removed) evictedUserIds.push(removed.id);
-      if (removed) {
-        recordFishingMetric('bot_evicted_for_human', {
-          playerId: removed.playerId,
-          pondId,
-          payload: { userId: removed.id, spotId, reason: 'spot_take_bot_eviction', eventId: `bot_evict:${removed.id}:spot` },
-        });
-      }
-    } else {
-      recordFishingMetric('spot_take_fail', {
-        playerId: session.playerId,
-        pondId,
-        payload: { userId: user.id, spotId, reason: 'occupied_by_human', occupantUserId: occupant.id, eventId: `spot_fail:${user.id}:${spotId}` },
-      });
-      return { ok: false, error: '该钓点已被占用' };
-    }
+    recordFishingMetric('spot_take_fail', {
+      playerId: session.playerId,
+      pondId,
+      payload: {
+        userId: user.id,
+        spotId,
+        reason: occupant.isBot ? 'occupied_by_bot' : 'occupied_by_human',
+        occupantUserId: occupant.id,
+        eventId: `spot_fail:${user.id}:${spotId}`,
+      },
+    });
+    return { ok: false, error: '该钓点已被占用' };
   }
 
   ensureFishingDayRollover(user);

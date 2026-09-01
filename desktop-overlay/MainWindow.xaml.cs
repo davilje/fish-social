@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,16 @@ namespace FishSocialOverlay
         const int WM_NCHITTEST = 0x0084;
         const int HTCLIENT = 1;
         const int HTTRANSPARENT = -1;
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct Win32Point
+        {
+            public int X;
+            public int Y;
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetCursorPos(out Win32Point lpPoint);
 
         readonly object _writeLock = new object();
         readonly string _pipeName;
@@ -67,6 +78,10 @@ namespace FishSocialOverlay
         OverlayViewportPreset _viewportPreset = OverlayViewportPreset.Standard;
         MenuItem[] _viewportMenuItems;
         bool _openedContextMenuThisGesture;
+        OverlayPetActor _pendingPetMenu;
+        bool _pendingProductMenu;
+        bool _ignoreNextSceneDrag;
+        readonly DispatcherTimer _hoverPollTimer;
 
         public void ConfigureHudChatDockMetrics(OverlayHudLayout.HudChatDockMetrics metrics)
         {
@@ -189,7 +204,10 @@ namespace FishSocialOverlay
             InitializeComponent();
             ContextMenuService.SetIsEnabled(this, false);
             ContextMenuService.SetIsEnabled(PondScene, false);
-            OverlayInteractionState.ContextMenuClosed += OnOverlayContextMenuClosed;
+            OverlayInteractionState.MenuHoverSuppressEnded += OnMenuHoverSuppressEnded;
+            _hoverPollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+            _hoverPollTimer.Tick += OnHoverPollTick;
+            _hoverPollTimer.Start();
             _productMenu = BuildProductContextMenu();
             _pipeName = ReadArgument("--pipe=");
             SourceInitialized += OnSourceInitialized;
@@ -1233,8 +1251,6 @@ namespace FishSocialOverlay
             var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
             var stack = Math.Max(0, message.GroundbaitStack);
             var label = "打窝" + stack + "/" + max;
-            if (message.GroundbaitBitesLeft > 0)
-                label += " ·" + message.GroundbaitBitesLeft;
             GroundbaitButton.Content = label;
             GroundbaitButton.FontSize = 11;
             GroundbaitButton.Padding = new Thickness(0);
@@ -1366,6 +1382,11 @@ namespace FishSocialOverlay
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
+            if (TryDismissMenusFromLeftClick())
+            {
+                _ignoreNextSceneDrag = IsUnderElement(e.OriginalSource as DependencyObject, PondScene);
+                return;
+            }
             if (ShouldSkipSceneDrag(e.OriginalSource as DependencyObject))
                 return;
             if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)))
@@ -1378,13 +1399,18 @@ namespace FishSocialOverlay
         void PondScene_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             CloseAllContextMenus();
+            OverlayInteractionState.EndMenuHoverSuppress();
+            _scene?.CancelAllHovers();
+            _pendingPetMenu = null;
+            _pendingProductMenu = false;
 
             var pondPos = e.GetPosition(PondScene);
-            if (TryOpenPetPlayerMenu(e.OriginalSource as DependencyObject, pondPos))
+            var actor = FindSocialPetFromSource(e.OriginalSource as DependencyObject) ??
+                        FindSocialPetAt(pondPos);
+            if (actor != null && actor.HasPlayerContextMenu)
             {
+                _pendingPetMenu = actor;
                 _openedContextMenuThisGesture = true;
-                OverlayInteractionState.NotifyContextMenuOpened();
-                _scene?.CancelAllHovers();
                 e.Handled = true;
                 return;
             }
@@ -1396,10 +1422,8 @@ namespace FishSocialOverlay
             if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)))
                 return;
 
+            _pendingProductMenu = true;
             _openedContextMenuThisGesture = true;
-            OverlayInteractionState.NotifyContextMenuOpened();
-            _scene?.CancelAllHovers();
-            OpenProductContextMenu();
             e.Handled = true;
         }
 
@@ -1409,12 +1433,23 @@ namespace FishSocialOverlay
                 return;
             _openedContextMenuThisGesture = false;
             e.Handled = true;
+
+            var pet = _pendingPetMenu;
+            var product = _pendingProductMenu;
+            _pendingPetMenu = null;
+            _pendingProductMenu = false;
+
+            if (pet != null)
+                pet.TryOpenPlayerContextMenu();
+            else if (product)
+                OpenProductContextMenu();
         }
 
         ContextMenu BuildProductContextMenu()
         {
-            var menu = new ContextMenu();
-            menu.Closed += (_, __) => OverlayInteractionState.NotifyContextMenuClosed();
+            var menu = new ContextMenu { StaysOpen = true };
+            menu.Opened += OnProductMenuOpened;
+            menu.Closed += OnProductMenuClosed;
             menu.Items.Add(CreateProductMenuItem("当前鱼塘", MenuPond_OnClick));
             menu.Items.Add(CreateProductMenuItem("世界地图", MenuMap_OnClick));
             menu.Items.Add(CreateProductMenuItem("商店与装备", MenuShop_OnClick));
@@ -1431,6 +1466,17 @@ namespace FishSocialOverlay
             menu.Items.Add(CreateProductMenuItem("隐藏到托盘", HideToTray_OnClick));
             menu.Items.Add(CreateProductMenuItem("退出", QuitApp_OnClick));
             return menu;
+        }
+
+        void OnProductMenuOpened(object sender, RoutedEventArgs e)
+        {
+            OverlayInteractionState.BeginMenuHoverSuppress();
+            _scene?.CancelAllHovers();
+        }
+
+        void OnProductMenuClosed(object sender, RoutedEventArgs e)
+        {
+            OverlayInteractionState.EndMenuHoverSuppress();
         }
 
         MenuItem BuildViewportSizeMenu()
@@ -1459,6 +1505,7 @@ namespace FishSocialOverlay
 
         void ViewportSizeMenu_OnClick(object sender, RoutedEventArgs e)
         {
+            ForceDismissAllContextMenus();
             var id = (sender as MenuItem)?.Tag as string;
             ApplyViewportSize(OverlayViewportPreset.FromId(id), persist: true, anchorOnScreen: true);
         }
@@ -1476,18 +1523,21 @@ namespace FishSocialOverlay
             }
         }
 
-        static MenuItem CreateProductMenuItem(string header, RoutedEventHandler click)
+        MenuItem CreateProductMenuItem(string header, RoutedEventHandler click)
         {
             var item = new MenuItem { Header = header };
+            item.Click += (_, __) => ForceDismissAllContextMenus();
             item.Click += click;
             return item;
         }
 
         void OpenProductContextMenu()
         {
-            if (_productMenu == null)
-                _productMenu = BuildProductContextMenu();
+            DiscardProductMenu();
+            _productMenu = BuildProductContextMenu();
             SyncViewportMenuChecks();
+            OverlayInteractionState.BeginMenuHoverSuppress();
+            _scene?.CancelAllHovers();
             _productMenu.PlacementTarget = PondScene;
             _productMenu.Placement = PlacementMode.MousePoint;
             Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -1495,13 +1545,23 @@ namespace FishSocialOverlay
                 if (_productMenu != null)
                     _productMenu.IsOpen = true;
                 else
-                    OverlayInteractionState.NotifyContextMenuClosed();
+                    OverlayInteractionState.EndMenuHoverSuppress();
             }));
+        }
+
+        void DiscardProductMenu()
+        {
+            if (_productMenu == null)
+                return;
+            _productMenu.Opened -= OnProductMenuOpened;
+            _productMenu.Closed -= OnProductMenuClosed;
+            _productMenu.IsOpen = false;
+            _productMenu = null;
         }
 
         void CloseAllContextMenus()
         {
-            if (_productMenu != null && _productMenu.IsOpen)
+            if (_productMenu != null)
                 _productMenu.IsOpen = false;
             if (ActorLayer == null)
                 return;
@@ -1512,10 +1572,30 @@ namespace FishSocialOverlay
             }
         }
 
-        bool TryOpenPetPlayerMenu(DependencyObject source, Point pondLocal)
+        bool AnyContextMenuIsOpen()
         {
-            var actor = FindSocialPetFromSource(source) ?? FindSocialPetAt(pondLocal);
-            return actor != null && actor.TryOpenPlayerContextMenu();
+            if (_productMenu != null && _productMenu.IsOpen)
+                return true;
+            return _scene != null && _scene.AnyPlayerContextMenuOpen();
+        }
+
+        bool TryDismissMenusFromLeftClick()
+        {
+            if (!OverlayInteractionState.MenuSuppressesHover && !AnyContextMenuIsOpen())
+                return false;
+            ForceDismissAllContextMenus();
+            return true;
+        }
+
+        void ForceDismissAllContextMenus()
+        {
+            CloseAllContextMenus();
+            DiscardProductMenu();
+            OverlayInteractionState.EndMenuHoverSuppress();
+        }
+
+        void Window_OnMouseLeave(object sender, MouseEventArgs e)
+        {
         }
 
         static OverlayPetActor FindSocialPetFromSource(DependencyObject source)
@@ -1576,6 +1656,11 @@ namespace FishSocialOverlay
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
+            if (_ignoreNextSceneDrag)
+            {
+                _ignoreNextSceneDrag = false;
+                return;
+            }
             if (ShouldSkipSceneDrag(e.OriginalSource as DependencyObject))
                 return;
             if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)) &&
@@ -1615,19 +1700,21 @@ namespace FishSocialOverlay
             catch (InvalidOperationException)
             {
             }
+            OverlayInteractionState.SceneDragging = false;
+            ResyncPointerHover();
         }
 
         void PondScene_OnMouseMove(object sender, MouseEventArgs e)
         {
             if (OverlayInteractionState.SceneDragging ||
-                OverlayInteractionState.ContextMenuOpen)
+                OverlayInteractionState.MenuSuppressesHover)
                 return;
             ResyncPointerHover();
         }
 
         void PondScene_OnMouseLeave(object sender, MouseEventArgs e)
         {
-            if (OverlayInteractionState.ContextMenuOpen)
+            if (OverlayInteractionState.MenuSuppressesHover)
                 return;
             _scene?.CancelAllHovers();
         }
@@ -1635,21 +1722,67 @@ namespace FishSocialOverlay
         void Window_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             if (OverlayInteractionState.SceneDragging ||
-                OverlayInteractionState.ContextMenuOpen)
+                OverlayInteractionState.MenuSuppressesHover)
                 return;
             ResyncPointerHover();
         }
 
-        void OnOverlayContextMenuClosed()
+        void OnMenuHoverSuppressEnded()
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(ResyncPointerHover));
+            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(RecoverPointerHoverAfterMenu));
+        }
+
+        void RecoverPointerHoverAfterMenu()
+        {
+            if (OverlayInteractionState.MenuSuppressesHover)
+                return;
+            ForceResyncPointerHover();
+        }
+
+        void OnHoverPollTick(object sender, EventArgs e)
+        {
+            if (OverlayInteractionState.SceneDragging ||
+                OverlayInteractionState.MenuSuppressesHover)
+                return;
+            ResyncPointerHover();
+        }
+
+        Point GetPondMousePosition()
+        {
+            if (PondScene == null)
+                return new Point();
+
+            try
+            {
+                if (GetCursorPos(out var pt))
+                {
+                    var screen = new Point(pt.X, pt.Y);
+                    return PondScene.PointFromScreen(screen);
+                }
+            }
+            catch
+            {
+            }
+
+            return Mouse.GetPosition(PondScene);
         }
 
         void ResyncPointerHover()
         {
             if (PondScene == null || _scene == null)
                 return;
-            _scene.UpdatePointerHover(Mouse.GetPosition(PondScene), PondScene);
+            if (OverlayInteractionState.MenuSuppressesHover)
+                return;
+            _scene.UpdatePointerHover(GetPondMousePosition(), PondScene);
+        }
+
+        void ForceResyncPointerHover()
+        {
+            if (PondScene == null || _scene == null)
+                return;
+            if (OverlayInteractionState.MenuSuppressesHover)
+                return;
+            _scene.ForceResyncPointerHover(GetPondMousePosition(), PondScene);
         }
 
         void PondScene_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -2123,7 +2256,9 @@ namespace FishSocialOverlay
 
         void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            OverlayInteractionState.ContextMenuClosed -= OnOverlayContextMenuClosed;
+            OverlayInteractionState.MenuHoverSuppressEnded -= OnMenuHoverSuppressEnded;
+            OverlayInteractionState.EndMenuHoverSuppress();
+            _hoverPollTimer.Stop();
             _stopping = true;
             _promptTimer?.Stop();
             NamedPipeClientStream pipe;

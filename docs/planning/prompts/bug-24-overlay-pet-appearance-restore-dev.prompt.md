@@ -20,8 +20,8 @@
 对照 spec §验收；完成后按 Skill `planning-progress-sync`：
 spec→**已实现** + `build-master-plan-xlsx.py` 完成时间 + `npm run planning:master-xlsx`。
 
-- [ ] 再进游戏 Overlay 即是已保存的猫
-- [ ] spec → **已实现** + `npm run planning:master-xlsx`
+- [x] 再进游戏 Overlay 即是已保存的猫
+- [x] spec → **已实现** + `npm run planning:master-xlsx`
 
 ## 派发
 

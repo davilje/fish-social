@@ -79,6 +79,32 @@ namespace FishSocialOverlay
                 actor.CancelTooltip();
         }
 
+        public bool AnyPlayerContextMenuOpen()
+        {
+            if (_ownActor != null && _ownActor.IsPlayerContextMenuOpen)
+                return true;
+            foreach (var actor in _others.Values)
+            {
+                if (actor.IsPlayerContextMenuOpen)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool AnyPlayerContextMenuUnderMouse()
+        {
+            if (_ownActor != null && _ownActor.IsPlayerContextMenuUnderMouse)
+                return true;
+            foreach (var actor in _others.Values)
+            {
+                if (actor.IsPlayerContextMenuUnderMouse)
+                    return true;
+            }
+
+            return false;
+        }
+
         public void UpdatePointerHover(Point pondLocal, UIElement ancestor)
         {
             OverlayPetActor hit = null;
@@ -96,6 +122,28 @@ namespace FishSocialOverlay
                 _ownActor.SetPointerOverPet(ReferenceEquals(hit, _ownActor));
             foreach (var actor in _others.Values)
                 actor.SetPointerOverPet(ReferenceEquals(hit, actor));
+        }
+
+        public bool NeedsHoverResync()
+        {
+            if (_ownActor != null && _ownActor.PointerHoverStalled)
+                return true;
+            foreach (var actor in _others.Values)
+            {
+                if (actor.PointerHoverStalled)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void ForceResyncPointerHover(Point pondLocal, UIElement ancestor)
+        {
+            if (_ownActor != null)
+                _ownActor.CancelTooltip();
+            foreach (var actor in _others.Values)
+                actor.CancelTooltip();
+            UpdatePointerHover(pondLocal, ancestor);
         }
 
         public FrameworkElement TryResolveActor(string actorKey)

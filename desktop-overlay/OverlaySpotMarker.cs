@@ -79,7 +79,7 @@ namespace FishSocialOverlay
             }
 
             Visibility = Visibility.Visible;
-            IsHitTestVisible = true;
+            IsHitTestVisible = !spotOccupied;
             Opacity = spotOccupied ? 1.0 : EmptyOpacity;
         }
 
@@ -105,7 +105,7 @@ namespace FishSocialOverlay
 
         void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (string.IsNullOrEmpty(SpotId))
+            if (string.IsNullOrEmpty(SpotId) || !IsHitTestVisible)
                 return;
             SpotSelected?.Invoke(this, SpotId);
             e.Handled = true;

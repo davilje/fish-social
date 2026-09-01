@@ -103,9 +103,12 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-14d-pet-status-icon-dev.prompt.md](./steam-desktop-14d-pet-status-icon-dev.prompt.md) | STEAM-DESKTOP-14D：状态小图标与上钩圆环 · **已实现** |
 | [steam-desktop-15-fishing-dock-timing-dev.prompt.md](./steam-desktop-15-fishing-dock-timing-dev.prompt.md) | STEAM-DESKTOP-15：中央钓鱼栏按钮时序 · **已实现** |
 | [steam-desktop-16-overlay-viewport-dev.prompt.md](./steam-desktop-16-overlay-viewport-dev.prompt.md) | STEAM-DESKTOP-16：Overlay 窗口视口缩放 · **已实现** |
-| [steam-desktop-17-occupied-seat-no-evict-dev.prompt.md](./steam-desktop-17-occupied-seat-no-evict-dev.prompt.md) | STEAM-DESKTOP-17：占用座位不可顶机器人 · **已确认** |
-| [bug-24-overlay-pet-appearance-restore-dev.prompt.md](./bug-24-overlay-pet-appearance-restore-dev.prompt.md) | BUG-24：Overlay 形象冷启动恢复 · **已确认** |
-| [bug-25-overlay-groundbait-bites-label-dev.prompt.md](./bug-25-overlay-groundbait-bites-label-dev.prompt.md) | BUG-25：打窝按钮去掉剩余口数 · **已确认** |
+| [steam-desktop-17-occupied-seat-no-evict-dev.prompt.md](./steam-desktop-17-occupied-seat-no-evict-dev.prompt.md) | STEAM-DESKTOP-17：占用座位不可顶机器人 · **已实现** |
+| [bug-24-overlay-pet-appearance-restore-dev.prompt.md](./bug-24-overlay-pet-appearance-restore-dev.prompt.md) | BUG-24：Overlay 形象冷启动恢复 · **已实现** |
+| [bug-25-overlay-groundbait-bites-label-dev.prompt.md](./bug-25-overlay-groundbait-bites-label-dev.prompt.md) | BUG-25：打窝按钮去掉剩余口数 · **已实现** |
+| [bug-26-overlay-hover-context-menu-hit-dev.prompt.md](./bug-26-overlay-hover-context-menu-hit-dev.prompt.md) | BUG-26：悬停浮窗与右键菜单指针命中 · **已实现**（含菜单后悬停回归） |
+| [steam-desktop-18-hover-catch-hint-dev.prompt.md](./steam-desktop-18-hover-catch-hint-dev.prompt.md) | STEAM-DESKTOP-18：悬停条数与 actor-hint · **已实现** |
+| [steam-desktop-14e-overhead-status-ring-dev.prompt.md](./steam-desktop-14e-overhead-status-ring-dev.prompt.md) | STEAM-DESKTOP-14E：头顶状态图标与进度环 · **已实现** |
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |
 | [steam-desktop-08c-social-feed-dev.prompt.md](./steam-desktop-08c-social-feed-dev.prompt.md) | STEAM-DESKTOP-08C：动态墙与好友动态 · **已实现** |

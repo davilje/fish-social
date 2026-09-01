@@ -65,6 +65,7 @@ import {
   setShowcaseFish,
   updatePlayerProfile,
 } from './players.js';
+import { emitPondUserUpdated, syncPlayerAvatarToPonds } from './pondUserManager.js';
 import {
   isAuthDisabled,
   requireAuth,
@@ -495,6 +496,11 @@ export function registerSocialRoutes(
     };
     const result = updatePlayerProfile(playerId, { nickname, bio, avatarUrl });
     if (!result.ok) return res.status(400).json({ error: result.error });
+    if (avatarUrl !== undefined) {
+      const synced = syncPlayerAvatarToPonds(playerId, result.profile.avatarUrl);
+      for (const item of synced)
+        emitPondUserUpdated(io, item.pondId, item.user);
+    }
     res.json({ profile: result.profile });
   });
 

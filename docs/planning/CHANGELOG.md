@@ -1,15 +1,39 @@
 # 策划文档变更记录
 
+### [bug-26-hover-after-menu-accepted] - 2026-09-01
+
+- **BUG-26** Overlay 右键后悬停失效 → 用户验收通过（回归修复）。
+- 根因：透明 Overlay 上 `ContextMenu.IsOpen`/`Closed` 会卡住；用「指针不在菜单上」自动关菜单会闪关。
+- 落地：`MenuSuppressesHover` 自有开关；菜单 `StaysOpen`；右键抬起打开；左键 Overlay 关闭；`GetCursorPos` 恢复悬停。
+- 规格补了 §2.2 / §7 修复过程。计划表仍为 **已实现**（设计/完成 2026-09-01）。
+
+### [steam-desktop-17-bug-24-25-accepted] - 2026-09-01
+
+- **STEAM-DESKTOP-17** 占用座位不可顶机器人、**BUG-24** Overlay 形象冷启动恢复、**BUG-25** 打窝按钮剩余口数 → 用户验收通过（设计/完成均 2026-09-01）。
+- 计划表与看板已回写 **已实现**。
+
 ### [steam-desktop-15-16-accepted] - 2026-08-31
 
 - **STEAM-DESKTOP-15** 钓鱼栏按钮时序、**STEAM-DESKTOP-16** 窗口视口缩放 → 用户验收通过（设计/完成均 2026-08-31）。
 - 计划表与看板已回写 **已实现**。
 
+### [bug-26-18-14e-accepted] - 2026-09-01
+
+- **BUG-26** Overlay 悬停与右键菜单指针命中、**STEAM-DESKTOP-18** 悬停条数与 actor-hint、**STEAM-DESKTOP-14E** 头顶状态图标与进度环 → 用户验收通过（设计/完成均 2026-09-01）。
+- 计划表与看板已回写 **已实现**。
+
+### [overlay-unregistered-hotfix] - 2026-09-01
+
+- **BUG-26** Overlay 悬停浮窗与右键菜单 → **已确认**。同一条猫身命中/捕获链：自己可悬停、他人 09A、关菜单后悬停恢复。
+- **STEAM-DESKTOP-18** 悬停浮窗条数与 actor-hint 定位 → **已确认**。两行：时长 + `钓到N条!`/`空军`。
+- **STEAM-DESKTOP-14E** 头顶状态图标与进度环 → **已确认**。等鱼无图标；环改 actor-ring + ring-bg（修订 14D 套猫）。
+- 橘猫序列帧 / status 换图不单独立号。
+
 ### [steam-desktop-17-bug-24-25] - 2026-09-01
 
-- **STEAM-DESKTOP-17** 占用座位不可顶机器人 → **已确认**（设计 2026-09-01）。废止 FISH-SPOT-1 点座踢 bot。
-- **BUG-24** Overlay 形象进游戏不恢复 → **已确认**。冷启动用已保存 avatar，不必再保存。
-- **BUG-25** 打窝按钮 `-12` → **已确认**。该数字是窝料 `bitesLeft`（精品 12 口）；HUD 按 13C 只留 `打窝n/50`。
+- **STEAM-DESKTOP-17** 占用座位不可顶机器人 → **已实现**（设计/完成 2026-09-01）。`take_spot` 占用即失败；Overlay 占用座不点占。
+- **BUG-24** Overlay 形象进游戏不恢复 → **已实现**。登录预拉 profile；改资料回写塘内 avatar。
+- **BUG-25** 打窝按钮剩余口数 → **已实现**。按钮只 `打窝n/50`。
 
 ### [steam-desktop-16-overlay-viewport] - 2026-08-31
 

@@ -292,6 +292,9 @@ namespace FishSocialOverlay
         public bool IsPlayerContextMenuOpen =>
             _socialMenu != null && _socialMenu.IsOpen;
 
+        public bool IsPlayerContextMenuUnderMouse =>
+            IsPlayerContextMenuOpen && _socialMenu.IsMouseOver;
+
         /// <summary>
         /// Open the other-player social menu. Called from PondScene Preview so it
         /// wins over the pond product ContextMenu.
@@ -307,20 +310,21 @@ namespace FishSocialOverlay
 
         public void ClosePlayerContextMenu()
         {
-            if (_socialMenu != null && _socialMenu.IsOpen)
-                _socialMenu.IsOpen = false;
+            if (_socialMenu == null)
+                return;
+            _socialMenu.IsOpen = false;
         }
 
         void ShowPlayerContextMenu()
         {
+            DiscardSocialMenu();
             EnsureSocialMenu();
-            if (_socialMenu.IsOpen)
-                _socialMenu.IsOpen = false;
 
             // Keep menu unattached from FrameworkElement.ContextMenu so WPF
             // ContextMenuService cannot sticky-steal later gestures.
             ContextMenu = null;
-            OverlayInteractionState.NotifyContextMenuOpened();
+            OverlayInteractionState.BeginMenuHoverSuppress();
+            CancelTooltip();
             _socialMenu.PlacementTarget = this;
             _socialMenu.Placement = PlacementMode.MousePoint;
             Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
@@ -328,8 +332,18 @@ namespace FishSocialOverlay
                 if (_socialMenu != null && HasPlayerContextMenu)
                     _socialMenu.IsOpen = true;
                 else
-                    OverlayInteractionState.NotifyContextMenuClosed();
+                    OverlayInteractionState.EndMenuHoverSuppress();
             }));
+        }
+
+        void DiscardSocialMenu()
+        {
+            if (_socialMenu == null)
+                return;
+            _socialMenu.Opened -= OnSocialMenuOpened;
+            _socialMenu.Closed -= OnSocialMenuClosed;
+            _socialMenu.IsOpen = false;
+            _socialMenu = null;
         }
 
         void EnsureSocialMenu()
@@ -340,10 +354,25 @@ namespace FishSocialOverlay
                 return;
             }
 
-            _socialMenu = new ContextMenu();
+            _socialMenu = new ContextMenu
+            {
+                StaysOpen = true,
+            };
             ContextMenuService.SetIsEnabled(_socialMenu, true);
-            _socialMenu.Closed += (_, __) => OverlayInteractionState.NotifyContextMenuClosed();
+            _socialMenu.Opened += OnSocialMenuOpened;
+            _socialMenu.Closed += OnSocialMenuClosed;
             RefreshSocialMenuItems();
+        }
+
+        void OnSocialMenuOpened(object sender, RoutedEventArgs e)
+        {
+            OverlayInteractionState.BeginMenuHoverSuppress();
+            CancelTooltip();
+        }
+
+        void OnSocialMenuClosed(object sender, RoutedEventArgs e)
+        {
+            OverlayInteractionState.EndMenuHoverSuppress();
         }
 
         void RefreshSocialMenuItems()
@@ -361,11 +390,17 @@ namespace FishSocialOverlay
                 _menuHost.SendPlayerCommand("player_like_recent", _playerId)));
         }
 
-        static MenuItem CreateMenuItem(string header, bool enabled, Action action)
+        MenuItem CreateMenuItem(string header, bool enabled, Action action)
         {
             var item = new MenuItem { Header = header, IsEnabled = enabled };
             if (enabled)
-                item.Click += (_, __) => action();
+            {
+                item.Click += (_, __) =>
+                {
+                    ClosePlayerContextMenu();
+                    action();
+                };
+            }
             return item;
         }
 
@@ -892,14 +927,19 @@ namespace FishSocialOverlay
         {
             if (inside)
             {
-                if (OverlayInteractionState.SceneDragging ||
-                    OverlayInteractionState.ContextMenuOpen)
+                if (OverlayInteractionState.SceneDragging)
                     return;
-                if (_pointerInside)
-                    return;
+
                 _pointerInside = true;
-                _tooltipTimer.Stop();
-                _tooltipTimer.Start();
+                if (OverlayInteractionState.MenuBlocksHover())
+                    return;
+
+                if (!_hoverShown && !_tooltipTimer.IsEnabled)
+                {
+                    _tooltipTimer.Stop();
+                    _tooltipTimer.Start();
+                }
+
                 return;
             }
 
@@ -910,12 +950,22 @@ namespace FishSocialOverlay
             CloseHover();
         }
 
+        /// <summary>
+        /// Pointer is over the pet but the hover card never appeared (common after ContextMenu).
+        /// </summary>
+        public bool PointerHoverStalled =>
+            _pointerInside &&
+            !_hoverShown &&
+            !_tooltipTimer.IsEnabled &&
+            !OverlayInteractionState.SceneDragging &&
+            !OverlayInteractionState.MenuBlocksHover();
+
         void OnTooltipTimerTick(object sender, EventArgs e)
         {
             _tooltipTimer.Stop();
             if (!_pointerInside ||
                 OverlayInteractionState.SceneDragging ||
-                OverlayInteractionState.ContextMenuOpen)
+                OverlayInteractionState.MenuBlocksHover())
             {
                 CloseHover();
                 return;

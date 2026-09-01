@@ -10,21 +10,33 @@ namespace FishSocialOverlay
     static class OverlayInteractionState
     {
         public static bool SceneDragging { get; set; }
-        public static bool ContextMenuOpen { get; set; }
 
-        public static event Action ContextMenuClosed;
+        /// <summary>
+        /// Overlay-owned menu session flag. Never derived from ContextMenu.IsOpen,
+        /// which can stay true after the popup is already gone.
+        /// </summary>
+        public static bool MenuSuppressesHover { get; private set; }
 
-        public static void NotifyContextMenuOpened()
+        public static event Action MenuHoverSuppressEnded;
+
+        public static bool MenuBlocksHover()
         {
-            ContextMenuOpen = true;
+            return MenuSuppressesHover;
         }
 
-        public static void NotifyContextMenuClosed()
+        public static void BeginMenuHoverSuppress()
         {
-            ContextMenuOpen = false;
+            MenuSuppressesHover = true;
+        }
+
+        public static void EndMenuHoverSuppress()
+        {
+            var wasSuppressed = MenuSuppressesHover;
+            MenuSuppressesHover = false;
             if (Mouse.Captured != null)
                 Mouse.Capture(null);
-            ContextMenuClosed?.Invoke();
+            if (wasSuppressed)
+                MenuHoverSuppressEnded?.Invoke();
         }
     }
 }

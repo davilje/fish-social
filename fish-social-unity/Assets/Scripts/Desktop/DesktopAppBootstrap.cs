@@ -99,6 +99,7 @@ namespace FishSocial.Desktop
                 SteamAppId,
                 SteamAuthIdentity,
                 _serverBaseUrl);
+            _steamAuth.StateChanged += OnSteamAuthStateChanged;
             _pondSession = gameObject.AddComponent<SocialPondSessionController>();
             _pondSession.Configure(_steamAuth);
             _pondSession.StateChanged += OnPondStateChanged;
@@ -180,6 +181,34 @@ namespace FishSocial.Desktop
             _petState.RefreshFromApp();
             Debug.Log("[DesktopShell] STEAM-DESKTOP-07A bootstrap ready");
             PublishNativeOverlayState();
+        }
+
+        void OnSteamAuthStateChanged(SteamLoginState state)
+        {
+            if (state == SteamLoginState.Authenticated)
+                StartCoroutine(PrefetchOwnProfileRoutine());
+            else if (state == SteamLoginState.SignedOut || state == SteamLoginState.Failed)
+                DesktopProfileCache.Latest = null;
+        }
+
+        IEnumerator PrefetchOwnProfileRoutine()
+        {
+            var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
+            if (api == null || !api.CanUse)
+                yield break;
+            yield return api.GetPlayerProfile((ok, profile, message) =>
+            {
+                if (!ok || profile == null)
+                    return;
+                DesktopProfileCache.Latest = profile;
+                if (_pondSession != null)
+                {
+                    if (!string.IsNullOrEmpty(profile.nickname))
+                        _pondSession.ApplyGameNickname(profile.nickname);
+                    _pondSession.ApplyGameAvatarUrl(profile.avatarUrl);
+                }
+                PublishNativeOverlayState();
+            });
         }
 
         public SteamAuthController SteamAuth => _steamAuth;
@@ -806,6 +835,8 @@ namespace FishSocial.Desktop
         void OnDestroy()
         {
             Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy begin.");
+            if (_steamAuth != null)
+                _steamAuth.StateChanged -= OnSteamAuthStateChanged;
             if (_petState != null)
                 _petState.StateChanged -= OnPetVisualStateChanged;
             if (_pondSession != null)

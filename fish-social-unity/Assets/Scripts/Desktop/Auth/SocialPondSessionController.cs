@@ -139,6 +139,13 @@ namespace FishSocial.Desktop.Auth
                 _nickname = nickname.Trim();
         }
 
+        public void ApplyGameAvatarUrl(string avatarUrl)
+        {
+            if (CurrentUser == null)
+                return;
+            CurrentUser.avatarUrl = avatarUrl ?? string.Empty;
+        }
+
         public void SetPendingReturnFeeMode(string mode)
         {
             _pendingReturnFeeMode = string.Equals(mode, "auto_return", StringComparison.Ordinal)

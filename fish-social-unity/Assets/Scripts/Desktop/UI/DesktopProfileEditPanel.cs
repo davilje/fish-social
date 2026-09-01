@@ -434,8 +434,13 @@ namespace FishSocial.Desktop
             }
 
             DesktopProfileCache.Latest = profile;
-            if (_pond != null && !string.IsNullOrEmpty(profile.nickname))
-                _pond.ApplyGameNickname(profile.nickname);
+            if (_pond != null)
+            {
+                if (!string.IsNullOrEmpty(profile.nickname))
+                    _pond.ApplyGameNickname(profile.nickname);
+                _pond.ApplyGameAvatarUrl(profile.avatarUrl);
+            }
+            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
 
             SetStatus("资料已保存，正在同步展示鱼获…");
             var showcaseDone = false;

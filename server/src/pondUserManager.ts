@@ -900,6 +900,26 @@ export function listUsersInPond(pondId: string): PondUser[] {
   return [...ensurePondUsers(pondId).values()];
 }
 
+/** Copy saved profile avatar onto every in-pond human with this playerId (BUG-24). */
+export function syncPlayerAvatarToPonds(
+  playerId: string,
+  avatarUrl?: string,
+): { pondId: string; user: PondUser }[] {
+  const changed: { pondId: string; user: PondUser }[] = [];
+  if (!playerId) return changed;
+  const next = avatarUrl && avatarUrl.length > 0 ? avatarUrl : undefined;
+  for (const pond of PONDS) {
+    for (const user of listUsersInPond(pond.id)) {
+      if (user.isBot || user.playerId !== playerId) continue;
+      if (user.avatarUrl === next) continue;
+      user.avatarUrl = next;
+      markUserDirty(pond.id, user.id);
+      changed.push({ pondId: pond.id, user });
+    }
+  }
+  return changed;
+}
+
 export function getEnrichedUsersByIds(pondId: string, userIds: readonly string[]): PondUser[] {
   const users = ensurePondUsers(pondId);
   const out: PondUser[] = [];
