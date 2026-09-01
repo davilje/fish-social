@@ -88,6 +88,9 @@
 | [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](./specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | **已实现** | STEAM-DESKTOP-14D：状态小图标 + 套猫圆环 |
 | [Steam桌面端-15Overlay钓鱼栏按钮时序.md](./specs/Steam桌面端-15Overlay钓鱼栏按钮时序.md) | **已实现** | STEAM-DESKTOP-15：中央钓鱼栏开始/收杆/打窝/离席时序 |
 | [Steam桌面端-16Overlay窗口视口缩放.md](./specs/Steam桌面端-16Overlay窗口视口缩放.md) | **已实现** | STEAM-DESKTOP-16：右键切换视口裁切，禁止比例缩放 |
+| [Steam桌面端-17占用座位不可顶机器人.md](./specs/Steam桌面端-17占用座位不可顶机器人.md) | **已确认** | STEAM-DESKTOP-17：占用座（含 bot）不可点占 |
+| [BUG修复-Overlay形象进游戏不恢复.md](./specs/BUG修复-Overlay形象进游戏不恢复.md) | **已确认** | BUG-24：冷启动 Overlay 恢复已保存形象 |
+| [BUG修复-Overlay打窝按钮剩余口数.md](./specs/BUG修复-Overlay打窝按钮剩余口数.md) | **已确认** | BUG-25：打窝按钮去掉剩余口数后缀 |
 | [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
 | [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已实现** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |
 | [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./specs/Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | **已实现** | STEAM-DESKTOP-09B：悬停仅时长 Tooltip + IPC 字段 |
