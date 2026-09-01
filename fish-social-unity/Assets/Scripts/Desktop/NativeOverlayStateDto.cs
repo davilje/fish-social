@@ -18,6 +18,7 @@ namespace FishSocial.Desktop
         public string ownUserId = string.Empty;
         public string ownPetId = string.Empty;
         public long sessionFishingMs;
+        public int sessionCatchCount;
         public long hookDeadlineMs;
         public long ownFishingStartedAt;
         public string pondId = string.Empty;
@@ -92,6 +93,7 @@ namespace FishSocial.Desktop
         public string petVisualState;
         public string fishingPhase;
         public long sessionFishingMs;
+        public int sessionCatchCount;
         public long hookDeadlineMs;
         public long fishingStartedAt;
         public bool isBot;

@@ -76,10 +76,15 @@ namespace FishSocial.Desktop.Pet
                 return PetVisualState.Idle;
 
             var phase = pond.CurrentPhase ?? string.Empty;
-            return FromFishingPhase(phase);
+            return FromFishingPhase(phase, pond.HasPendingCatch);
         }
 
         public static PetVisualState FromFishingPhase(string phase)
+        {
+            return FromFishingPhase(phase, false);
+        }
+
+        public static PetVisualState FromFishingPhase(string phase, bool hasPendingCatch)
         {
             switch (phase)
             {
@@ -89,6 +94,9 @@ namespace FishSocial.Desktop.Pet
                 case "stopping":
                     return PetVisualState.Reel;
                 case "seated":
+                    if (hasPendingCatch)
+                        return PetVisualState.Catching;
+                    return PetVisualState.Sit;
                 case "groundbaiting":
                     return PetVisualState.Sit;
                 case "baiting":
@@ -109,8 +117,8 @@ namespace FishSocial.Desktop.Pet
                 case PetVisualState.Cast: return "cast";
                 case PetVisualState.Fishing: return "fishing";
                 case PetVisualState.Hooked: return "hooked";
-                case PetVisualState.Reel:
-                case PetVisualState.Catching: return "reel";
+                case PetVisualState.Reel: return "reel";
+                case PetVisualState.Catching: return "catch";
                 case PetVisualState.Dragging: return "dragging";
                 case PetVisualState.Offline: return "offline";
                 default: return "idle";
@@ -125,8 +133,8 @@ namespace FishSocial.Desktop.Pet
                 case PetVisualState.Cast: return "抛竿";
                 case PetVisualState.Fishing: return "钓鱼";
                 case PetVisualState.Hooked: return "咬钩";
-                case PetVisualState.Reel:
-                case PetVisualState.Catching: return "收杆";
+                case PetVisualState.Reel: return "收杆";
+                case PetVisualState.Catching: return "钓到鱼";
                 case PetVisualState.Dragging: return "拖动";
                 case PetVisualState.Offline: return "离线";
                 default: return "待机";

@@ -33,6 +33,7 @@ namespace FishSocial.Desktop.Pet
                 return;
 
             ReloadFrames();
+            _elapsed = 0f;
             _image.preserveAspect = true;
             _image.color = _usingArt ? Color.white : TintFor(state);
             if (_frames != null && _frames.Length > 0)
@@ -61,15 +62,30 @@ namespace FishSocial.Desktop.Pet
         {
             if (_image == null || _frames == null || _frames.Length < 2)
                 return;
-            if (_state == PetVisualState.Offline || _state == PetVisualState.Hooked)
+            if (_state == PetVisualState.Offline)
                 return;
 
-            var fps = _state == PetVisualState.Dragging ? _activeFps : _idleFps;
+            var fps = IsOneShot(_state) ||
+                      _state == PetVisualState.Hooked ||
+                      _state == PetVisualState.Dragging
+                ? _activeFps
+                : _idleFps;
             _elapsed += Time.unscaledDeltaTime * fps;
-            var index = Mathf.FloorToInt(_elapsed) % _frames.Length;
+            int index;
+            if (IsOneShot(_state))
+                index = Mathf.Min(Mathf.FloorToInt(_elapsed), _frames.Length - 1);
+            else
+                index = Mathf.FloorToInt(_elapsed) % _frames.Length;
             if (index < 0)
                 index = 0;
             _image.sprite = _frames[index];
+        }
+
+        static bool IsOneShot(PetVisualState state)
+        {
+            return state == PetVisualState.Cast ||
+                   state == PetVisualState.Reel ||
+                   state == PetVisualState.Catching;
         }
 
         static Color TintFor(PetVisualState state)

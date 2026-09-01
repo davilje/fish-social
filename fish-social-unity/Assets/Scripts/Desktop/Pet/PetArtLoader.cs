@@ -28,6 +28,10 @@ namespace FishSocial.Desktop.Pet
                 return frames;
 
             frames = LoadSequence(id, wire);
+            if (frames.Length == 0 && wire == "sit")
+                frames = LoadSequence(id, "fishing");
+            if (frames.Length == 0 && wire == "catch")
+                frames = LoadSequence(id, "reel");
             if (frames.Length == 0 && wire != "idle")
                 frames = LoadSequence(id, "idle");
             if (frames.Length == 0 && wire != "fishing")
@@ -81,18 +85,7 @@ namespace FishSocial.Desktop.Pet
                 if (single != null)
                     list.Add(single);
             }
-            if (list.Count == 0 && clip != "fishing")
-            {
-                AppendClipDirectory(list, petId, "fishing");
-                if (list.Count == 0)
-                {
-                    var legacy = LoadPng(petId, "fishing-0");
-                    if (legacy != null)
-                        list.Add(legacy);
-                }
-            }
-            if (list.Count == 0 && clip != "idle")
-                AppendClipDirectory(list, petId, "idle");
+
             return list.ToArray();
         }
 

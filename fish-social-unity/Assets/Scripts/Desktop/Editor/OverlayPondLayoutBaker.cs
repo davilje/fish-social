@@ -188,8 +188,8 @@ namespace FishSocial.Desktop.Editor
                 "pet-size",
                 8f,
                 520f,
-                64f,
-                64f,
+                128f,
+                128f,
                 20,
                 null,
                 null);

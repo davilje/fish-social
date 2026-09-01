@@ -10,6 +10,7 @@
         ShowInTaskbar="False"
         Topmost="True"
         ResizeMode="NoResize"
+        PreviewMouseMove="Window_PreviewMouseMove"
         ShowActivated="False">
     <Window.Resources>
         <Style x:Key="HudChatScrollBarStyle" TargetType="ScrollBar">
@@ -55,8 +56,10 @@
                 Background="Transparent"
                 MouseLeftButtonDown="PondScene_OnMouseLeftButtonDown"
                 MouseMove="PondScene_OnMouseMove"
+                MouseLeave="PondScene_OnMouseLeave"
                 MouseLeftButtonUp="PondScene_OnMouseLeftButtonUp"
-                PreviewMouseRightButtonDown="PondScene_PreviewMouseRightButtonDown">
+                PreviewMouseRightButtonDown="PondScene_PreviewMouseRightButtonDown"
+                PreviewMouseRightButtonUp="PondScene_PreviewMouseRightButtonUp">
             <!-- Product menu is NOT attached to Border.ContextMenu — attaching it makes
                  WPF sticky after the first open and steals later pet social menus. -->
             <Canvas x:Name="SceneCanvas" Width="960" Height="560">

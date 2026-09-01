@@ -7,7 +7,7 @@ namespace FishSocialOverlay
 {
     public interface IOverlayHoverHost
     {
-        void ShowHoverCard(string actorKey, string text, FrameworkElement cluster, FrameworkElement petBody);
+        void ShowHoverCard(string actorKey, string text, FrameworkElement cluster, FrameworkElement hintSlot);
         void UpdateHoverCard(string actorKey, string text);
         void HideHoverCard(string actorKey);
         void HideAllHoverCards();
@@ -15,18 +15,19 @@ namespace FishSocialOverlay
     }
 
     /// <summary>
-    /// One hover card for the whole pond. Re-measuring per actor caused a second
-    /// card to appear to the right of the pet (DesiredSize=0 → left=centerX).
-    /// The card is centered on the 64×64 pet body, not the nameplate cluster.
+    /// One hover card for the whole pond. Anchors to OverlayPondActor actor-hint:
+    /// centered in the slot, expanding up from the slot bottom (same as guide hints).
     /// </summary>
     public sealed class OverlayHoverPresenter : IOverlayHoverHost
     {
-        const double CardWidth = 80;
-        const double CardHeight = 28;
+        const double CardMinWidth = 88;
+        const double CardMinHeight = 28;
         readonly Canvas _layer;
         readonly Border _card;
         readonly TextBlock _text;
         string _visibleActorKey;
+        FrameworkElement _cluster;
+        FrameworkElement _hintSlot;
 
         public OverlayHoverPresenter(Canvas layer)
         {
@@ -37,15 +38,15 @@ namespace FishSocialOverlay
                 Foreground = Brushes.White,
                 FontSize = 10,
                 TextAlignment = TextAlignment.Center,
-                TextWrapping = TextWrapping.NoWrap,
+                TextWrapping = TextWrapping.Wrap,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             };
             _card = new Border
             {
-                Width = CardWidth,
-                Height = CardHeight,
-                Padding = new Thickness(4, 2, 4, 2),
+                MinWidth = CardMinWidth,
+                MinHeight = CardMinHeight,
+                Padding = new Thickness(6, 3, 6, 3),
                 Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
                 CornerRadius = new CornerRadius(4),
                 IsHitTestVisible = false,
@@ -56,15 +57,17 @@ namespace FishSocialOverlay
             _layer.Children.Add(_card);
         }
 
-        public void ShowHoverCard(string actorKey, string text, FrameworkElement cluster, FrameworkElement petBody)
+        public void ShowHoverCard(string actorKey, string text, FrameworkElement cluster, FrameworkElement hintSlot)
         {
             if (string.IsNullOrEmpty(actorKey) || string.IsNullOrEmpty(text) || cluster == null)
                 return;
 
             _visibleActorKey = actorKey;
+            _cluster = cluster;
+            _hintSlot = hintSlot;
             _text.Text = text;
-            PositionAbove(cluster, petBody);
             _card.Visibility = Visibility.Visible;
+            PositionAtHint();
         }
 
         public void UpdateHoverCard(string actorKey, string text)
@@ -78,6 +81,7 @@ namespace FishSocialOverlay
             }
 
             _text.Text = text;
+            PositionAtHint();
         }
 
         public void HideHoverCard(string actorKey)
@@ -90,6 +94,8 @@ namespace FishSocialOverlay
         public void HideAllHoverCards()
         {
             _visibleActorKey = null;
+            _cluster = null;
+            _hintSlot = null;
             _card.Visibility = Visibility.Collapsed;
         }
 
@@ -98,27 +104,36 @@ namespace FishSocialOverlay
             HideHoverCard(actorKey);
         }
 
-        void PositionAbove(FrameworkElement cluster, FrameworkElement petBody)
+        void PositionAtHint()
         {
-            var pet = petBody ?? cluster;
-            Point petTopCenter;
-            Point clusterTop;
+            if (_cluster == null)
+                return;
+
+            var slot = _hintSlot ?? _cluster;
+            Point slotOrigin;
             try
             {
-                petTopCenter = pet.TranslatePoint(
-                    new Point(pet.ActualWidth * 0.5, 0),
-                    _layer);
-                clusterTop = cluster.TranslatePoint(new Point(0, 0), _layer);
+                slotOrigin = slot.TranslatePoint(new Point(0, 0), _layer);
             }
             catch (InvalidOperationException)
             {
                 return;
             }
 
-            var left = petTopCenter.X - CardWidth * 0.5;
-            var top = clusterTop.Y - CardHeight - 4;
-            var maxLeft = Math.Max(4, _layer.ActualWidth - CardWidth - 4);
-            var maxTop = Math.Max(4, _layer.ActualHeight - CardHeight - 4);
+            var slotW = slot.ActualWidth > 1 ? slot.ActualWidth : slot.Width;
+            var slotH = slot.ActualHeight > 1 ? slot.ActualHeight : slot.Height;
+            if (slotW < 1)
+                slotW = CardMinWidth;
+            if (slotH < 1)
+                slotH = CardMinHeight;
+
+            _card.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var cardWidth = Math.Max(CardMinWidth, _card.DesiredSize.Width);
+            var cardHeight = Math.Max(CardMinHeight, _card.DesiredSize.Height);
+            var left = slotOrigin.X + (slotW - cardWidth) * 0.5;
+            var top = slotOrigin.Y + slotH - cardHeight;
+            var maxLeft = Math.Max(4, _layer.ActualWidth - cardWidth - 4);
+            var maxTop = Math.Max(4, _layer.ActualHeight - cardHeight - 4);
             Canvas.SetLeft(_card, Clamp(left, 4, maxLeft));
             Canvas.SetTop(_card, Clamp(top, 4, maxTop));
         }

@@ -304,9 +304,11 @@ namespace FishSocialOverlay
             return new OverlayActorChrome
             {
                 Pet = CopyLocal(pet, 0, 0),
+                Hit = ShiftLocal(source.Hit, pet),
                 Name = ShiftLocal(source.Name, pet),
                 Status = ShiftLocal(source.Status, pet),
                 Ring = ShiftLocal(source.Ring, pet),
+                RingBg = ShiftLocal(source.RingBg, pet),
                 Seat = ShiftLocal(source.Seat, pet),
                 Bubble = ShiftLocal(source.Bubble, pet),
                 Hint = ShiftLocal(source.Hint, pet),
@@ -346,10 +348,12 @@ namespace FishSocialOverlay
         {
             return new OverlayActorChrome
             {
-                Pet = new OverlayLayoutObjectDto { kind = "actor-pet", x = 0, y = 0, w = 64, h = 64 },
+                Pet = new OverlayLayoutObjectDto { kind = "actor-pet", x = 0, y = 0, w = 128, h = 128 },
+                Hit = new OverlayLayoutObjectDto { kind = "actor-hit", x = 6, y = 23, w = 57, h = 85 },
                 Name = new OverlayLayoutObjectDto { kind = "actor-name", x = -19, y = 76, w = 88, h = 20 },
                 Status = new OverlayLayoutObjectDto { kind = "actor-status", x = 17, y = -22, w = 18, h = 18 },
                 Ring = new OverlayLayoutObjectDto { kind = "actor-ring", x = 10, y = -28, w = 31, h = 31 },
+                RingBg = new OverlayLayoutObjectDto { kind = "actor-ring-bg", x = 10, y = -28, w = 31, h = 31 },
                 Bubble = new OverlayLayoutObjectDto { kind = "actor-bubble", x = -6, y = -18, w = 80, h = 20 },
                 Hint = new OverlayLayoutObjectDto { kind = "actor-hint", x = -8, y = -18, w = 84, h = 20 },
             };
@@ -430,12 +434,16 @@ namespace FishSocialOverlay
 
             if (kind == "actor-pet")
                 chrome.Pet = item;
+            else if (kind == "actor-hit")
+                chrome.Hit = item;
             else if (kind == "actor-name")
                 chrome.Name = item;
             else if (kind == "actor-status")
                 chrome.Status = item;
             else if (kind == "actor-ring")
                 chrome.Ring = item;
+            else if (kind == "actor-ring-bg")
+                chrome.RingBg = item;
             else if (kind == "actor-seat")
                 chrome.Seat = item;
             else if (kind == "actor-bubble")
@@ -621,9 +629,11 @@ namespace FishSocialOverlay
     public sealed class OverlayActorChrome
     {
         public OverlayLayoutObjectDto Pet;
+        public OverlayLayoutObjectDto Hit;
         public OverlayLayoutObjectDto Name;
         public OverlayLayoutObjectDto Status;
         public OverlayLayoutObjectDto Ring;
+        public OverlayLayoutObjectDto RingBg;
         public OverlayLayoutObjectDto Seat;
         public OverlayLayoutObjectDto Bubble;
         public OverlayLayoutObjectDto Hint;
@@ -632,8 +642,8 @@ namespace FishSocialOverlay
         {
             get
             {
-                return Pet != null || Name != null || Status != null || Ring != null ||
-                       Seat != null || Bubble != null || Hint != null;
+                return Pet != null || Hit != null || Name != null || Status != null || Ring != null ||
+                       RingBg != null || Seat != null || Bubble != null || Hint != null;
             }
         }
     }

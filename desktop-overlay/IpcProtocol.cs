@@ -134,6 +134,9 @@ namespace FishSocialOverlay
         [DataMember(Name = "sessionFishingMs")]
         public long SessionFishingMs { get; set; }
 
+        [DataMember(Name = "sessionCatchCount")]
+        public int SessionCatchCount { get; set; }
+
         [DataMember(Name = "hookDeadlineMs")]
         public long HookDeadlineMs { get; set; }
 
@@ -210,6 +213,9 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "sessionFishingMs")]
         public long SessionFishingMs { get; set; }
+
+        [DataMember(Name = "sessionCatchCount")]
+        public int SessionCatchCount { get; set; }
 
         [DataMember(Name = "hookDeadlineMs")]
         public long HookDeadlineMs { get; set; }

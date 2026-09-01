@@ -16,14 +16,15 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] 
 - `ponds/<pondId>.png`：分塘底图（ART-03）
 - `layouts/<pondId>.json`：**ART-02 场景布局**。平移与底图宽度用 **`pond.width`**（通常来自 `ponds/<pondId>.png` 像素宽）；`canvas` 仍是 Prefab 根画布。宽于 960 时显示左右箭头。
 - `seats/_default.png`：座位椅图回退（14A；优先用布局里 `actor-seat` / spot 的 `sprite`）
-- `pets/<petId>/<state>-0.png`：**按猫种分套**（推荐，与 Unity 主窗口同名）
+- `pets/<petId>/<clip>/0.png`：**按猫种 × 姿势分套**（推荐，与 Unity 主窗口同名）
 - `hud/overlay-hud.json`：HUD 控件位置（含 `btn_pan_left` / `btn_pan_right`）
-- `status/fishing.png`、`status/hooked.png`：宠物相位小图标（14D，缺图用矢量占位）
-- `status/hook-ring.png`：上钩进度环占位（Unity Radial 360）
+- `status/hooked.png`、`status/groundbait.png`：咬钩 / 打窝头顶图标（钓鱼中不显示）
+- `status/hook-ring.png`、`status/ring-bg.png`：咬钩与打窝进度环及底图（`actor-ring` / `actor-ring-bg`）
+- 悬停热区仅为猫身 64×64（含自己）；≥300ms 显示本局时长或收杆剩余，第二行「钓到X条!」或「空军」
 - `cat.png`：旧的全局回退（全塘同一只，不要再当正式资源）
 
 `petId` 与头像一致：`orange` / `calico` / `gray` / `siamese` / `tuxedo` / `white`。  
-`state`：`idle` / `fishing` / `hooked` / `catching` / `dragging` / `offline`。
+`clip`（`petVisualState`）：`idle` / `sit` / `cast` / `fishing` / `hooked` / `reel` / `catch`。`dragging` / `offline` 无独立目录，回退 `idle`。旧名 `catching` 仍映射到 `catch/`。
 
 未提供对应文件时用占位水面/岸线和矢量猫。完整说明见 [OverlayResources/pets/README.md](OverlayResources/pets/README.md)。
 
@@ -31,19 +32,25 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] 
 
 每种猫一套姿势，塘里每个玩家用自己头像对应的那套。**不要**再只放一张根目录 `cat.png`。
 
-1. 把钓鱼橘猫存成：
+1. 把橘猫各姿势放进对应 clip 目录（文件名保持英文，加载器按文件夹匹配）：
 
 ```text
-desktop-overlay/OverlayResources/pets/orange/fishing-0.png
+desktop-overlay/OverlayResources/pets/orange/idle/0.png
+desktop-overlay/OverlayResources/pets/orange/sit/0.png
+desktop-overlay/OverlayResources/pets/orange/cast/0.png
+desktop-overlay/OverlayResources/pets/orange/fishing/0.png
+desktop-overlay/OverlayResources/pets/orange/hooked/0.png
+desktop-overlay/OverlayResources/pets/orange/reel/0.png
+desktop-overlay/OverlayResources/pets/orange/catch/0.png
 ```
 
-其它猫种同样放到 `pets/calico/`、`pets/gray/` 等。
+其它猫种同样放到 `pets/calico/`、`pets/gray/` 等。序列帧继续加 `1.png`、`2.png`…
 
 2. Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay**，或重新打 Debug 包。这会拷到：
    - `FishSocialOverlay.exe` 旁的 `OverlayResources/pets/`
    - Unity `StreamingAssets/Pet/`（主窗口）
 
-3. 完全退出游戏再开。头像是橘猫的玩家，钓鱼时显示 `fishing-0.png`。
+3. 完全退出游戏再开。头像是橘猫的玩家，开钓后按 `fishingPhase` 切 `idle`→`sit`→`cast`→`fishing`→`hooked`→`reel`→`catch`。
 
 正方形透明 PNG，**源图 `256×256`**（等比例亦可）。Overlay 显示槽固定 `64×64`。图缓存在内存里，换文件必须重启 Overlay。
 

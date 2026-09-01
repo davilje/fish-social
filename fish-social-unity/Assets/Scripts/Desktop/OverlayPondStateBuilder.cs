@@ -39,6 +39,7 @@ namespace FishSocial.Desktop
                 pond != null ? pond.CurrentUser : null,
                 DesktopProfileCache.Latest);
             dto.sessionFishingMs = ResolveSessionFishingMs(pond != null ? pond.CurrentUser : null);
+            dto.sessionCatchCount = pond?.CurrentUser != null ? pond.CurrentUser.sessionCatchCount : 0;
             dto.hookDeadlineMs = pond?.CurrentUser?.phaseEndsAt ?? 0L;
             dto.ownFishingStartedAt = SessionAnchor(pond != null ? pond.CurrentUser : null);
             dto.hasOwnPosition = false;
@@ -266,6 +267,7 @@ namespace FishSocial.Desktop
                         PetStateController.FromFishingPhase(user != null ? user.fishingPhase : null)),
                     fishingPhase = user != null ? user.fishingPhase ?? string.Empty : string.Empty,
                     sessionFishingMs = ResolveSessionFishingMs(user),
+                    sessionCatchCount = user != null ? user.sessionCatchCount : 0,
                     hookDeadlineMs = user != null ? user.phaseEndsAt : 0L,
                     fishingStartedAt = SessionAnchor(user),
                     isBot = user != null && user.isBot,

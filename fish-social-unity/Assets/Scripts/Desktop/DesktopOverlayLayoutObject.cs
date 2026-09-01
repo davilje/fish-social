@@ -5,7 +5,7 @@ namespace FishSocial.Desktop
     /// <summary>
     /// Layout object exported to OverlayResources/layouts/&lt;pondId&gt;.json.
         /// kind: sprite | spot | waiting | pet-size |
-        /// actor-seat | actor-pet | actor-name | actor-status | actor-ring
+        /// actor-seat | actor-pet | actor-hit | actor-name | actor-status | actor-ring | actor-ring-bg
         /// Spot hosts nest OverlayPondActor.prefab instances (STEAM-DESKTOP-14A).
     /// </summary>
     public sealed class DesktopOverlayLayoutObject : MonoBehaviour

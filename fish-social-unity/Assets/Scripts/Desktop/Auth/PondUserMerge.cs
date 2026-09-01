@@ -16,6 +16,7 @@ namespace FishSocial.Desktop.Auth
                 return incoming;
 
             var merged = Copy(incoming);
+            merged.sessionCatchCount = Math.Max(prev.sessionCatchCount, incoming.sessionCatchCount);
             var nextPhase = string.IsNullOrEmpty(incoming.fishingPhase)
                 ? prev.fishingPhase
                 : incoming.fishingPhase;
@@ -104,6 +105,7 @@ namespace FishSocial.Desktop.Auth
                 todayFishingBaseMs = source.todayFishingBaseMs,
                 todayRemainingMs = source.todayRemainingMs,
                 sessionFishingMs = source.sessionFishingMs,
+                sessionCatchCount = source.sessionCatchCount,
                 phaseEndsAt = source.phaseEndsAt,
                 isBot = source.isBot,
                 groundbait = source.groundbait,

@@ -159,6 +159,8 @@ export interface PondUser {
   fishingDayKey?: string;
   /** 本局墙钟时长 now - sessionStartedAt（头顶秒表） */
   sessionFishingMs?: number;
+  /** 本塘 session 已结算鱼获条数（台账；Overlay 悬停「钓到X条!」） */
+  sessionCatchCount?: number;
   /** 服务端机器人用户 */
   isBot?: boolean;
   /** C6 钓鱼阶段（比 status 更细） */

@@ -555,7 +555,12 @@ namespace FishSocial.Desktop.Auth
                 return;
             UpsertUser(user);
             if (IsSelf(user))
-                CurrentUser = user;
+            {
+                var key = UserKey(user);
+                CurrentUser = !string.IsNullOrEmpty(key) && _users.TryGetValue(key, out var merged)
+                    ? merged
+                    : user;
+            }
             UsersChanged?.Invoke();
         }
 
@@ -576,8 +581,11 @@ namespace FishSocial.Desktop.Auth
             UpsertUser(user);
             if (IsSelf(user))
             {
-                CurrentUser = user;
-                UserUpdated?.Invoke(user);
+                var key = UserKey(user);
+                CurrentUser = !string.IsNullOrEmpty(key) && _users.TryGetValue(key, out var merged)
+                    ? merged
+                    : user;
+                UserUpdated?.Invoke(CurrentUser);
             }
             UsersChanged?.Invoke();
         }
@@ -642,6 +650,8 @@ namespace FishSocial.Desktop.Auth
         void OnFishCatchSettled(FishCatchSettledDto settled)
         {
             _latestCatch = null;
+            if (CurrentUser != null)
+                CurrentUser.sessionCatchCount = Math.Max(0, CurrentUser.sessionCatchCount) + 1;
             CatchAccepted?.Invoke();
             FishCatchSettled?.Invoke(settled);
         }

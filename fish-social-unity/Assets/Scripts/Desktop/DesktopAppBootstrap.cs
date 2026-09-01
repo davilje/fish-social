@@ -225,6 +225,7 @@ namespace FishSocial.Desktop
             if (_nativeOverlay == null)
                 return;
 
+            _petState?.RefreshFromApp();
             var dto = new NativeOverlayStateDto
             {
                 loginState = _steamAuth?.State.ToString() ?? "SignedOut",

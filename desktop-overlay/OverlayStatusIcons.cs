@@ -8,12 +8,15 @@ using System.Windows.Media.Imaging;
 namespace FishSocialOverlay
 {
     /// <summary>
-    /// 16–20px phase icons: OverlayResources/status/fishing.png and hooked.png.
-    /// Missing files fall back to a frozen vector DrawingImage (no crash).
+    /// Phase icons from OverlayResources/status/{kind}.png
+    /// (hooked / groundbait) plus hook-ring.png and ring-bg.png for bite/groundbait
+    /// progress. Missing files fall back to a frozen vector DrawingImage (no crash).
     /// </summary>
     static class OverlayStatusIcons
     {
         public const double Size = 18;
+        public const string RingKind = "hook-ring";
+        public const string RingBgKind = "ring-bg";
 
         static readonly Dictionary<string, ImageSource> Cache =
             new Dictionary<string, ImageSource>(StringComparer.OrdinalIgnoreCase);
@@ -26,6 +29,33 @@ namespace FishSocialOverlay
 
             var loaded = TryLoadPng(key) ?? CreatePlaceholder(key);
             Cache[key] = loaded;
+            return loaded;
+        }
+
+        /// <summary>
+        /// Bite progress ring art. Null when the PNG is missing (caller uses vector Path).
+        /// </summary>
+        public static ImageSource TryGetRing()
+        {
+            return TryGetOptional(RingKind);
+        }
+
+        /// <summary>
+        /// Static disc behind the progress ring. Null when ring-bg.png is missing.
+        /// </summary>
+        public static ImageSource TryGetRingBg()
+        {
+            return TryGetOptional(RingBgKind);
+        }
+
+        static ImageSource TryGetOptional(string kind)
+        {
+            if (Cache.TryGetValue(kind, out var cached))
+                return cached;
+
+            var loaded = TryLoadPng(kind);
+            if (loaded != null)
+                Cache[kind] = loaded;
             return loaded;
         }
 
@@ -71,15 +101,29 @@ namespace FishSocialOverlay
         static ImageSource CreatePlaceholder(string kind)
         {
             var hooked = string.Equals(kind, "hooked", StringComparison.OrdinalIgnoreCase);
+            var groundbait = string.Equals(kind, "groundbait", StringComparison.OrdinalIgnoreCase);
             var fill = hooked
                 ? Color.FromRgb(232, 156, 64)
-                : Color.FromRgb(90, 168, 214);
+                : groundbait
+                    ? Color.FromRgb(120, 176, 88)
+                    : Color.FromRgb(90, 168, 214);
             var group = new DrawingGroup();
             group.Children.Add(new GeometryDrawing(
                 new SolidColorBrush(Color.FromArgb(0xE6, fill.R, fill.G, fill.B)),
                 new Pen(new SolidColorBrush(Color.FromRgb(255, 255, 230)), 0.8),
                 new EllipseGeometry(new Point(9, 9), 8, 8)));
-            if (hooked)
+            if (groundbait)
+            {
+                group.Children.Add(new GeometryDrawing(
+                    Brushes.White,
+                    null,
+                    new EllipseGeometry(new Point(9, 7), 2.2, 2.2)));
+                group.Children.Add(new GeometryDrawing(
+                    null,
+                    new Pen(Brushes.White, 1.3) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round },
+                    new LineGeometry(new Point(9, 10), new Point(9, 14))));
+            }
+            else if (hooked)
             {
                 var hook = new PathGeometry();
                 hook.Figures.Add(new PathFigure(

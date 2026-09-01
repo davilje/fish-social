@@ -18,21 +18,29 @@ namespace FishSocial.Desktop.Editor
         public const string NestedInstanceName = "OverlayPondActor";
         public const string ArtFolder = "Assets/Desktop/OverlayArt";
         public const string HookRingAsset = ArtFolder + "/hook-ring.png";
+        public const string RingBgAsset = ArtFolder + "/ring-bg.png";
 
         public const float SeatHostW = 84f;
         public const float SeatHostH = 122f;
         public const float SeatW = 64f;
         public const float SeatH = 32f;
-        public const float PetW = 64f;
-        public const float PetH = 64f;
+        // 512 padded cat art: 128 slot keeps the on-screen cat near the old 64px body.
+        public const float PetW = 128f;
+        public const float PetH = 128f;
+        public const float HitW = 57f;
+        public const float HitH = 85f;
 
         // Relative top-left inside the seat host (cat sitting on chair).
-        public const float PetX = 10f;
-        public const float PetY = 18f;
+        public const float PetX = -20f;
+        public const float PetY = -9f;
+        public const float HitX = -14f;
+        public const float HitY = 14f;
         public const float SeatX = 10f;
         public const float SeatY = 82f;
-        public const float RingX = 4f;
-        public const float RingY = 12f;
+        public const float RingX = 28.3f;
+        public const float RingY = -17.7f;
+        public const float RingW = 31.4f;
+        public const float RingH = 31.4f;
         public const float StatusX = 33f;
         public const float StatusY = 0f;
         public const float NameX = 2f;
@@ -51,6 +59,7 @@ namespace FishSocial.Desktop.Editor
             Directory.CreateDirectory(Path.GetFullPath(Path.Combine(Application.dataPath, "Resources", "Desktop", "Prefabs")));
             Directory.CreateDirectory(Path.GetFullPath(Path.Combine(Application.dataPath, "Desktop", "OverlayArt")));
             CopyHookRingPng();
+            CopyRingBgPng();
 
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
             if (existing == null)
@@ -327,13 +336,39 @@ namespace FishSocial.Desktop.Editor
                 null);
             EnsurePart(
                 parent,
+                prefix + "-hit",
+                "actor-hit",
+                spotId,
+                HitX,
+                HitY,
+                HitW,
+                HitH,
+                9,
+                new Color(0.2f, 0.85f, 0.35f, 0.22f),
+                false,
+                null);
+            EnsurePart(
+                parent,
+                prefix + "-ring-bg",
+                "actor-ring-bg",
+                spotId,
+                RingX,
+                RingY,
+                RingW,
+                RingH,
+                11,
+                new Color(1f, 1f, 1f, 0.95f),
+                false,
+                "status/ring-bg.png");
+            EnsurePart(
+                parent,
                 prefix + "-ring",
                 "actor-ring",
                 spotId,
                 RingX,
                 RingY,
-                76f,
-                76f,
+                RingW,
+                RingH,
                 12,
                 new Color(0.91f, 0.61f, 0.25f, 0.95f),
                 true,
@@ -464,6 +499,16 @@ namespace FishSocial.Desktop.Editor
             {
                 if (created)
                     image.color = color;
+                if (kind == "actor-pet")
+                {
+                    image.raycastTarget = false;
+                    image.preserveAspect = true;
+                }
+                else if (kind == "actor-hit")
+                {
+                    image.raycastTarget = true;
+                    image.sprite = null;
+                }
                 if (radialFill)
                 {
                     image.type = Image.Type.Filled;
@@ -474,6 +519,13 @@ namespace FishSocial.Desktop.Editor
                     var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(HookRingAsset);
                     if (sprite != null)
                         image.sprite = sprite;
+                }
+                else if (kind == "actor-ring-bg")
+                {
+                    image.type = Image.Type.Simple;
+                    var bg = AssetDatabase.LoadAssetAtPath<Sprite>(RingBgAsset);
+                    if (bg != null)
+                        image.sprite = bg;
                 }
             }
 
@@ -548,6 +600,23 @@ namespace FishSocial.Desktop.Editor
                     if (marker != null && string.IsNullOrEmpty(marker.spriteFile))
                         marker.spriteFile = "seats/_default.png";
                 }
+            }
+            catch
+            {
+            }
+        }
+
+        static void CopyRingBgPng()
+        {
+            var repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+            var source = Path.Combine(repoRoot, "desktop-overlay", "OverlayResources", "status", "ring-bg.png");
+            if (!File.Exists(source))
+                return;
+            var dest = Path.GetFullPath(Path.Combine(Application.dataPath, "Desktop", "OverlayArt", "ring-bg.png"));
+            try
+            {
+                File.Copy(source, dest, true);
+                AssetDatabase.ImportAsset(RingBgAsset);
             }
             catch
             {

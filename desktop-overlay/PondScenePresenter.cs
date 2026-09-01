@@ -79,6 +79,25 @@ namespace FishSocialOverlay
                 actor.CancelTooltip();
         }
 
+        public void UpdatePointerHover(Point pondLocal, UIElement ancestor)
+        {
+            OverlayPetActor hit = null;
+            for (var i = _actorLayer.Children.Count - 1; i >= 0; i--)
+            {
+                if (!(_actorLayer.Children[i] is OverlayPetActor actor))
+                    continue;
+                if (!actor.HitTestsPetArt(pondLocal, ancestor))
+                    continue;
+                hit = actor;
+                break;
+            }
+
+            if (_ownActor != null)
+                _ownActor.SetPointerOverPet(ReferenceEquals(hit, _ownActor));
+            foreach (var actor in _others.Values)
+                actor.SetPointerOverPet(ReferenceEquals(hit, actor));
+        }
+
         public FrameworkElement TryResolveActor(string actorKey)
         {
             if (string.IsNullOrEmpty(actorKey))
@@ -302,6 +321,18 @@ namespace FishSocialOverlay
             marker.SetSeatArt(seatArt, usedFallback);
         }
 
+        static bool IsGroundbaitActive(IpcMessage message)
+        {
+            if (message == null)
+                return false;
+            if (string.Equals(message.FishingPhase, "groundbaiting", StringComparison.Ordinal))
+                return true;
+            if (message.GroundbaitStack > 0)
+                return true;
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            return message.GroundbaitExpiresAt > now;
+        }
+
         static HashSet<string> CollectOccupiedSpots(IpcMessage message)
         {
             var occupied = new HashSet<string>(StringComparer.Ordinal);
@@ -368,7 +399,9 @@ namespace FishSocialOverlay
                 message.SessionFishingMs,
                 message.HookDeadlineMs,
                 message.OwnFishingStartedAt,
-                message.OwnPetId);
+                message.OwnPetId,
+                message.SessionCatchCount,
+                IsGroundbaitActive(message));
             _ownActor.ApplyChrome(_layout.ResolveActorChrome(message.OwnSpotId));
             _ownActor.Place(point.X, point.Y);
         }
@@ -421,7 +454,9 @@ namespace FishSocialOverlay
                     user.SessionFishingMs,
                     user.HookDeadlineMs,
                     user.FishingStartedAt,
-                    user.PetId);
+                    user.PetId,
+                    user.SessionCatchCount,
+                    string.Equals(user.FishingPhase, "groundbaiting", StringComparison.Ordinal));
                 actor.ApplyChrome(_layout.ResolveActorChrome(user.SpotId));
                 actor.Place(point.X, point.Y);
             }

@@ -234,9 +234,12 @@ namespace FishSocial.Desktop.Editor
                         return spriteError;
                     if (!string.IsNullOrEmpty(fileName))
                     {
-                        spriteName = kind == "spot" || kind == "actor-seat"
-                            ? "seats/" + Path.GetFileName(fileName)
-                            : fileName;
+                        if (kind == "actor-pet" || kind == "actor-hit")
+                            spriteName = null;
+                        else
+                            spriteName = kind == "spot" || kind == "actor-seat"
+                                ? "seats/" + Path.GetFileName(fileName)
+                                : fileName;
                     }
                 }
 
@@ -509,6 +512,8 @@ namespace FishSocial.Desktop.Editor
                     kind != "spot" &&
                     !kind.StartsWith("actor-", StringComparison.Ordinal))
                     continue;
+                if (kind == "actor-pet" || kind == "actor-hit")
+                    continue;
                 var image = item.GetComponent<Image>();
                 if (image == null || image.sprite == null)
                     continue;
@@ -523,7 +528,9 @@ namespace FishSocial.Desktop.Editor
                     continue;
                 var destDir = kind == "spot" || kind == "actor-seat"
                     ? Path.Combine(resourcesDir, "seats")
-                    : resourcesDir;
+                    : kind == "actor-ring" || kind == "actor-ring-bg" || kind == "actor-status"
+                        ? Path.Combine(resourcesDir, "status")
+                        : resourcesDir;
                 Directory.CreateDirectory(destDir);
                 var dest = Path.Combine(destDir, fileName);
                 if (string.Equals(fullAsset, dest, StringComparison.OrdinalIgnoreCase))

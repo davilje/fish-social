@@ -41,6 +41,7 @@ import { cancelByUser } from './timerRegistry.js';
 import { getConfigString } from './gameConfig.js';
 import { getPondMessages, ensurePondChat } from './pondChat.js';
 import { ensureFishingStartedAt } from './fishingStartedAt.js';
+import { getSessionCatchCount } from './pondSessionLedger.js';
 
 let lastSnapshotBuildPerfLogAt = 0;
 
@@ -666,6 +667,7 @@ export function enrichPondUser(user: PondUser, atMs: number = nowMs()): PondUser
     todayFishingMs,
     todayRemainingMs,
     sessionFishingMs: computeSessionFishingMs(user, atMs),
+    sessionCatchCount: getSessionCatchCount(user.playerId),
   };
 }
 

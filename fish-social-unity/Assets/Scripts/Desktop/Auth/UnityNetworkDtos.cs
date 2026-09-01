@@ -102,6 +102,7 @@ namespace FishSocial.Desktop.Auth
         public long todayFishingBaseMs;
         public long todayRemainingMs;
         public long sessionFishingMs;
+        public int sessionCatchCount;
         public long phaseEndsAt;
         public bool isBot;
         public PondUserGroundbaitDto groundbait;

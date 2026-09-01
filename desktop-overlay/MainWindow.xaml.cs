@@ -66,6 +66,7 @@ namespace FishSocialOverlay
         ContextMenu _productMenu;
         OverlayViewportPreset _viewportPreset = OverlayViewportPreset.Standard;
         MenuItem[] _viewportMenuItems;
+        bool _openedContextMenuThisGesture;
 
         public void ConfigureHudChatDockMetrics(OverlayHudLayout.HudChatDockMetrics metrics)
         {
@@ -186,6 +187,9 @@ namespace FishSocialOverlay
         public MainWindow()
         {
             InitializeComponent();
+            ContextMenuService.SetIsEnabled(this, false);
+            ContextMenuService.SetIsEnabled(PondScene, false);
+            OverlayInteractionState.ContextMenuClosed += OnOverlayContextMenuClosed;
             _productMenu = BuildProductContextMenu();
             _pipeName = ReadArgument("--pipe=");
             SourceInitialized += OnSourceInitialized;
@@ -1229,6 +1233,8 @@ namespace FishSocialOverlay
             var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
             var stack = Math.Max(0, message.GroundbaitStack);
             var label = "打窝" + stack + "/" + max;
+            if (message.GroundbaitBitesLeft > 0)
+                label += " ·" + message.GroundbaitBitesLeft;
             GroundbaitButton.Content = label;
             GroundbaitButton.FontSize = 11;
             GroundbaitButton.Padding = new Thickness(0);
@@ -1376,6 +1382,9 @@ namespace FishSocialOverlay
             var pondPos = e.GetPosition(PondScene);
             if (TryOpenPetPlayerMenu(e.OriginalSource as DependencyObject, pondPos))
             {
+                _openedContextMenuThisGesture = true;
+                OverlayInteractionState.NotifyContextMenuOpened();
+                _scene?.CancelAllHovers();
                 e.Handled = true;
                 return;
             }
@@ -1387,13 +1396,25 @@ namespace FishSocialOverlay
             if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)))
                 return;
 
+            _openedContextMenuThisGesture = true;
+            OverlayInteractionState.NotifyContextMenuOpened();
+            _scene?.CancelAllHovers();
             OpenProductContextMenu();
+            e.Handled = true;
+        }
+
+        void PondScene_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!_openedContextMenuThisGesture)
+                return;
+            _openedContextMenuThisGesture = false;
             e.Handled = true;
         }
 
         ContextMenu BuildProductContextMenu()
         {
             var menu = new ContextMenu();
+            menu.Closed += (_, __) => OverlayInteractionState.NotifyContextMenuClosed();
             menu.Items.Add(CreateProductMenuItem("当前鱼塘", MenuPond_OnClick));
             menu.Items.Add(CreateProductMenuItem("世界地图", MenuMap_OnClick));
             menu.Items.Add(CreateProductMenuItem("商店与装备", MenuShop_OnClick));
@@ -1473,6 +1494,8 @@ namespace FishSocialOverlay
             {
                 if (_productMenu != null)
                     _productMenu.IsOpen = true;
+                else
+                    OverlayInteractionState.NotifyContextMenuClosed();
             }));
         }
 
@@ -1512,12 +1535,17 @@ namespace FishSocialOverlay
 
         OverlayPetActor FindSocialPetAt(Point pondLocal)
         {
+            var actor = FindPetArtAt(pondLocal);
+            return actor != null && actor.HasPlayerContextMenu ? actor : null;
+        }
+
+        OverlayPetActor FindPetArtAt(Point pondLocal)
+        {
             if (ActorLayer == null)
                 return null;
             for (var i = ActorLayer.Children.Count - 1; i >= 0; i--)
             {
-                if (!(ActorLayer.Children[i] is OverlayPetActor actor) ||
-                    !actor.HasPlayerContextMenu)
+                if (!(ActorLayer.Children[i] is OverlayPetActor actor))
                     continue;
                 if (actor.HitTestsPetArt(pondLocal, PondScene))
                     return actor;
@@ -1527,7 +1555,7 @@ namespace FishSocialOverlay
         }
 
         /// <summary>
-        /// Used by WM_NCHITTEST so right-clicks on other players' pet art reach WPF.
+        /// Used by WM_NCHITTEST so hover and right-clicks on any pet art reach WPF.
         /// </summary>
         public bool HitsSocialPetArt(Point windowLocal)
         {
@@ -1536,7 +1564,7 @@ namespace FishSocialOverlay
                 if (PondScene == null || !PondScene.IsVisible)
                     return false;
                 var pondLocal = PondScene.TransformToAncestor(this).Inverse.Transform(windowLocal);
-                return FindSocialPetAt(pondLocal) != null;
+                return FindPetArtAt(pondLocal) != null;
             }
             catch
             {
@@ -1591,6 +1619,37 @@ namespace FishSocialOverlay
 
         void PondScene_OnMouseMove(object sender, MouseEventArgs e)
         {
+            if (OverlayInteractionState.SceneDragging ||
+                OverlayInteractionState.ContextMenuOpen)
+                return;
+            ResyncPointerHover();
+        }
+
+        void PondScene_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            if (OverlayInteractionState.ContextMenuOpen)
+                return;
+            _scene?.CancelAllHovers();
+        }
+
+        void Window_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (OverlayInteractionState.SceneDragging ||
+                OverlayInteractionState.ContextMenuOpen)
+                return;
+            ResyncPointerHover();
+        }
+
+        void OnOverlayContextMenuClosed()
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(ResyncPointerHover));
+        }
+
+        void ResyncPointerHover()
+        {
+            if (PondScene == null || _scene == null)
+                return;
+            _scene.UpdatePointerHover(Mouse.GetPosition(PondScene), PondScene);
         }
 
         void PondScene_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -2018,8 +2077,9 @@ namespace FishSocialOverlay
                     case "cast": return "抛竿";
                     case "fishing": return "钓鱼";
                     case "hooked": return "上钩";
-                    case "reel":
-                    case "catching": return "收杆";
+                    case "reel": return "收杆";
+                    case "catch":
+                    case "catching": return "钓到鱼";
                     case "dragging": return "拖动";
                     case "offline": return "离线";
                 }
@@ -2063,6 +2123,7 @@ namespace FishSocialOverlay
 
         void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            OverlayInteractionState.ContextMenuClosed -= OnOverlayContextMenuClosed;
             _stopping = true;
             _promptTimer?.Stop();
             NamedPipeClientStream pipe;

@@ -79,6 +79,12 @@ export function recordSessionFeePaid(playerId: string, amount: number): void {
   ledger.feesPaid += amount;
 }
 
+export function getSessionCatchCount(playerId: string | null | undefined): number {
+  if (!playerId) return 0;
+  const ledger = ledgers.get(playerId);
+  return ledger ? ledger.catches.length : 0;
+}
+
 export function recordSessionCatch(
   playerId: string,
   entry: SessionCatchEntry,
