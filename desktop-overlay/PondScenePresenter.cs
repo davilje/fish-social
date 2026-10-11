@@ -519,6 +519,7 @@ namespace FishSocialOverlay
             foreach (var key in remove)
             {
                 _others[key].CancelTooltip();
+                _others[key].ReleaseFishingLayers();
                 _hoverPresenter.RemoveActor(key);
                 _actorLayer.Children.Remove(_others[key]);
                 _others.Remove(key);
@@ -531,12 +532,14 @@ namespace FishSocialOverlay
             _actorsByUserId.Clear();
             if (_ownActor != null)
             {
+                _ownActor.ReleaseFishingLayers();
                 _hoverPresenter.RemoveActor(OwnActorKey);
                 _actorLayer.Children.Remove(_ownActor);
                 _ownActor = null;
             }
             foreach (var key in new List<string>(_others.Keys))
             {
+                _others[key].ReleaseFishingLayers();
                 _hoverPresenter.RemoveActor(key);
                 _actorLayer.Children.Remove(_others[key]);
                 _others.Remove(key);

@@ -37,6 +37,8 @@ namespace FishSocialOverlay
         string _playerId = string.Empty;
         bool _isBot;
         readonly Image _image;
+        readonly Grid _layerHost;
+        readonly Image[] _layerImages;
         readonly Rectangle _hitCatcher;
         readonly Image _statusIcon;
         readonly Canvas _placeholder;
@@ -65,6 +67,12 @@ namespace FishSocialOverlay
         double _centerY;
         ImageSource[] _frames = Array.Empty<ImageSource>();
         int _frameIndex;
+        FishingClipPlayback _layered;
+        string _layeredClip = string.Empty;
+        int _layerDrawW = 1;
+        int _layerDrawH = 1;
+        string _deferredState = string.Empty;
+        string _deferredPet = string.Empty;
         string _visualState = string.Empty;
         string _petId = string.Empty;
         string _fishingPhase = string.Empty;
@@ -185,8 +193,31 @@ namespace FishSocialOverlay
                 Background = null,
                 IsHitTestVisible = false,
             };
+            _layerHost = new Grid
+            {
+                IsHitTestVisible = false,
+                ClipToBounds = false,
+                Visibility = Visibility.Collapsed,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+            };
+            _layerImages = new Image[OverlayFishingLayers.LayerNames.Length];
+            for (var i = 0; i < _layerImages.Length; i++)
+            {
+                var layer = new Image
+                {
+                    Stretch = Stretch.Fill,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    IsHitTestVisible = false,
+                };
+                _layerImages[i] = layer;
+                _layerHost.Children.Add(layer);
+            }
+
             _body.Children.Add(_placeholder);
             _body.Children.Add(_image);
+            _body.Children.Add(_layerHost);
 
             _stage = new Grid
             {
@@ -472,6 +503,19 @@ namespace FishSocialOverlay
                 TryShowHover();
         }
 
+        public void ReleaseFishingLayers()
+        {
+            _deferredState = string.Empty;
+            _deferredPet = string.Empty;
+            if (_layered == null)
+                return;
+            OverlayFishingLayers.Release(_petId, _layeredClip);
+            _layered = null;
+            _layeredClip = string.Empty;
+            ClearLayerSources();
+            _layerHost.Visibility = Visibility.Collapsed;
+        }
+
         void ApplyVisualState(string visualState, string petId)
         {
             var nextState = OverlayFrameCache.NormalizeClip(visualState);
@@ -480,16 +524,54 @@ namespace FishSocialOverlay
                 string.Equals(_petId, nextPet, StringComparison.Ordinal))
                 return;
 
+            if (ShouldFinishReel(nextState))
+            {
+                _deferredState = nextState;
+                _deferredPet = nextPet;
+                return;
+            }
+
+            _deferredState = string.Empty;
+            _deferredPet = string.Empty;
+
+            if (_layered != null)
+                OverlayFishingLayers.Release(_petId, _layeredClip);
+            _layered = null;
+            _layeredClip = string.Empty;
+
             _visualState = nextState;
             _petId = nextPet;
-            _frames = OverlayFrameCache.Get(_petId, _visualState);
             _frameIndex = 0;
+            var layered = OverlayFishingLayers.TryOpen(_petId, _visualState);
+            if (layered != null)
+            {
+                _layered = layered;
+                _layeredClip = _visualState;
+                OverlayFishingLayers.Acquire(_petId, _layeredClip);
+                _frames = Array.Empty<ImageSource>();
+                ShowLayered();
+                _frameTimer.Stop();
+                if (LayerTimerRuns(layered))
+                    _frameTimer.Start();
+                return;
+            }
+
+            ClearLayerSources();
+            _layerHost.Visibility = Visibility.Collapsed;
+            _frames = OverlayFrameCache.Get(_petId, _visualState);
             if (_frames.Length == 0)
                 ApplyTint(_visualState);
             ShowFrame();
             _frameTimer.Stop();
             if (_frames.Length > 1)
                 _frameTimer.Start();
+        }
+
+        static bool LayerTimerRuns(FishingClipPlayback clip)
+        {
+            if (clip == null || clip.FrameCount <= 1)
+                return false;
+            return clip.Playback != "hold";
         }
 
         void RelayoutCluster()
@@ -506,6 +588,7 @@ namespace FishSocialOverlay
             _image.Height = petH;
             _stage.Width = petW;
             _stage.Height = petH;
+            LayoutFishingLayers(petW, petH);
 
             var ringSlot = _chrome != null && _chrome.Ring != null ? _chrome.Ring : null;
             var ringBgSlot = _chrome != null && _chrome.RingBg != null ? _chrome.RingBg : ringSlot;
@@ -904,6 +987,12 @@ namespace FishSocialOverlay
 
         void OnFrameTick(object sender, EventArgs e)
         {
+            if (_layered != null)
+            {
+                AdvanceLayered();
+                return;
+            }
+
             if (_frames.Length <= 1)
                 return;
             if (OverlayFrameCache.IsOneShotClip(_visualState))
@@ -1085,6 +1174,12 @@ namespace FishSocialOverlay
 
         void ShowFrame()
         {
+            if (_layered != null)
+            {
+                ShowLayered();
+                return;
+            }
+
             if (_frames.Length == 0)
             {
                 _image.Visibility = Visibility.Collapsed;
@@ -1095,6 +1190,130 @@ namespace FishSocialOverlay
             _placeholder.Visibility = Visibility.Collapsed;
             _image.Visibility = Visibility.Visible;
             _image.Source = _frames[_frameIndex % _frames.Length];
+        }
+
+        void LayoutFishingLayers(double petW, double petH)
+        {
+            OverlayFishingLayers.Place(
+                _petId, petW, petH, out var drawW, out var drawH, out var originX, out var originY);
+            var sizeChanged = drawW != _layerDrawW || drawH != _layerDrawH;
+            _layerDrawW = drawW;
+            _layerDrawH = drawH;
+            var margin = new Thickness(originX, originY, 0, 0);
+            for (var i = 0; i < _layerImages.Length; i++)
+            {
+                _layerImages[i].Width = drawW;
+                _layerImages[i].Height = drawH;
+                _layerImages[i].Margin = margin;
+            }
+
+            if (!sizeChanged)
+                return;
+            OverlayFishingLayers.SetDecodeSize(drawW, drawH);
+            if (_layered != null)
+                ShowLayered();
+        }
+
+        void ShowLayered()
+        {
+            var count = _layered.FrameCount;
+            if (count <= 0)
+                return;
+            var index = _frameIndex;
+            if (index < 0 || index >= count)
+                index = 0;
+            var order = _layered.Orders[index];
+            for (var i = 0; i < OverlayFishingLayers.LayerNames.Length; i++)
+            {
+                var name = OverlayFishingLayers.LayerNames[i];
+                var z = 0;
+                for (var n = 0; n < order.Length; n++)
+                {
+                    if (string.Equals(order[n], name, StringComparison.Ordinal))
+                    {
+                        z = n;
+                        break;
+                    }
+                }
+
+                Panel.SetZIndex(_layerImages[i], z);
+                var path = OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, name);
+                _layerImages[i].Source = OverlayFishingLayers.BitmapFor(path, _layerDrawW, _layerDrawH);
+            }
+
+            _placeholder.Visibility = Visibility.Collapsed;
+            _image.Visibility = Visibility.Collapsed;
+            _layerHost.Visibility = Visibility.Visible;
+        }
+
+        void AdvanceLayered()
+        {
+            var count = _layered.FrameCount;
+            if (count <= 1)
+            {
+                _frameTimer.Stop();
+                return;
+            }
+
+            var playback = _layered.Playback;
+            if (playback == "hold")
+            {
+                _frameTimer.Stop();
+                return;
+            }
+
+            if (playback == "once")
+            {
+                if (_frameIndex >= count - 1)
+                {
+                    _frameTimer.Stop();
+                    FlushDeferredVisual();
+                    return;
+                }
+
+                _frameIndex++;
+                ShowLayered();
+                return;
+            }
+
+            if (playback == "intro-loop" && count >= 10 &&
+                _layered.LoopStart > 0 && _layered.LoopStart < count)
+            {
+                _frameIndex++;
+                if (_frameIndex >= count)
+                    _frameIndex = _layered.LoopStart;
+                ShowLayered();
+                return;
+            }
+
+            _frameIndex = (_frameIndex + 1) % count;
+            ShowLayered();
+        }
+
+        bool ShouldFinishReel(string nextState)
+        {
+            if (_layered == null || _layered.Playback != "once" || _layeredClip != "reel")
+                return false;
+            if (_frameIndex >= _layered.FrameCount - 1)
+                return false;
+            return nextState == "sit" || nextState == "idle";
+        }
+
+        void FlushDeferredVisual()
+        {
+            if (string.IsNullOrEmpty(_deferredState))
+                return;
+            var state = _deferredState;
+            var pet = _deferredPet;
+            _deferredState = string.Empty;
+            _deferredPet = string.Empty;
+            ApplyVisualState(state, pet);
+        }
+
+        void ClearLayerSources()
+        {
+            for (var i = 0; i < _layerImages.Length; i++)
+                _layerImages[i].Source = null;
         }
 
         void ApplyTint(string visualState)
@@ -1133,6 +1352,7 @@ namespace FishSocialOverlay
             switch (visualState)
             {
                 case "sit": return "seated";
+                case "bait": return "baiting";
                 case "cast": return "casting";
                 case "fishing": return "waiting";
                 case "hooked": return "hooked";
@@ -1161,6 +1381,7 @@ namespace FishSocialOverlay
             switch (visualState)
             {
                 case "sit": return Color.FromRgb(120, 168, 120);
+                case "bait":
                 case "cast": return Color.FromRgb(110, 150, 210);
                 case "fishing": return Color.FromRgb(90, 168, 214);
                 case "hooked": return Color.FromRgb(232, 156, 64);
@@ -1480,7 +1701,7 @@ namespace FishSocialOverlay
         public static bool IsOneShotClip(string visualState)
         {
             var clip = NormalizeClip(visualState);
-            return clip == "cast" || clip == "reel" || clip == "catch";
+            return clip == "bait" || clip == "cast" || clip == "reel" || clip == "catch";
         }
 
         static ImageSource[] Load(string petId, string visualState)
@@ -1496,6 +1717,8 @@ namespace FishSocialOverlay
                     TryLoadClip(list, petDir, "fishing");
                 if (list.Count == 0 && clip == "catch")
                     TryLoadClip(list, petDir, "reel");
+                if (list.Count == 0 && clip == "bait")
+                    TryLoadClip(list, petDir, "cast");
                 if (list.Count == 0 && clip != "idle")
                     TryLoadClip(list, petDir, "idle");
                 if (list.Count == 0 && clip != "fishing")
@@ -1507,6 +1730,8 @@ namespace FishSocialOverlay
             if (list.Count == 0)
             {
                 AppendSequence(list, root, "cat-" + clip);
+                if (list.Count == 0 && clip == "bait")
+                    AppendSequence(list, root, "cat-cast");
                 if (list.Count == 0)
                     TryAdd(list, System.IO.Path.Combine(root, "cat.png"));
             }

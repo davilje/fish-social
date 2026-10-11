@@ -61,7 +61,7 @@
 - 不做打窝、拖动、离线的分层动作。`groundbaiting` 仍用 `sit`，`dragging` / `offline` 仍回退 `idle`。`ready` 不接入。
 - 不补鱼摆尾、脱钩物理、鱼竿实时曲线。
 - 不改 `FishingPhase`、Socket 协议。Named Pipe 仍只传 `petVisualState` 字符串，不传帧序号和 PNG。
-- 主窗口宠物本需求不重做成 7 个 `SpriteRenderer`。Overlay 是玩家看见的画面。
+- 不改移动端页面。Unity 主窗口里的宠物和 Overlay 使用同一套分层清单。
 
 ---
 
@@ -88,7 +88,7 @@
 | 4 | `hooked` 入场一次 + 发力循环 | P0 | 前 4 帧播完后只循环后 6 帧，7 层使用同一个帧号 |
 | 5 | 单次动作停在末帧 | P0 | `bait`、`cast`、`reel`、`catch` |
 | 6 | 无分层资源时回退单张图 | P0 | 现有 `pets/<petId>/<clip>/N.png` 保持可用 |
-| 7 | 主窗口七层 | 不做 | 见非目标 |
+| 7 | Unity 场景内宠物七层 | P0 | 主窗口 HomePet / HeaderPet 与 Overlay 同一清单、同一播放规则 |
 
 ### 3.2 交互与 UI
 
@@ -320,3 +320,4 @@ desktop-overlay/OverlayResources/fishing/shared/<clip>/<index>/bait.png
 | 2026-10-11 | 策划 | 草案：工作台合成帧接入现有单张序列帧 |
 | 2026-10-11 | 策划 | 改为 Overlay 七层同帧叠加；合成帧不再作为运行时画面 |
 | 2026-10-11 | 策划 | 用户确认方案，状态改为已确认 |
+| 2026-10-11 | 桌面端 | 按用户要求把同一套七层播放同步到 Unity 主窗口宠物 |

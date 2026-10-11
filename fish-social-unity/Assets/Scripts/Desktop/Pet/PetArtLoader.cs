@@ -28,6 +28,8 @@ namespace FishSocial.Desktop.Pet
                 return frames;
 
             frames = LoadSequence(id, wire);
+            if (frames.Length == 0 && wire == "bait")
+                frames = LoadSequence(id, "cast");
             if (frames.Length == 0 && wire == "sit")
                 frames = LoadSequence(id, "fishing");
             if (frames.Length == 0 && wire == "catch")
@@ -156,6 +158,7 @@ namespace FishSocial.Desktop.Pet
 
             var streaming = Path.Combine(Application.dataPath, "StreamingAssets");
             CopyDirectory(Path.Combine(source, "pets"), Path.Combine(streaming, "Pet"));
+            CopyDirectory(Path.Combine(source, "fishing"), Path.Combine(streaming, "Fishing"));
 
             var overlayDirs = new[]
             {
@@ -175,7 +178,7 @@ namespace FishSocial.Desktop.Pet
             Cache.Clear();
             EditorUtility.DisplayDialog(
                 "宠物美术",
-                "已从 desktop-overlay/OverlayResources 同步到 StreamingAssets/Pet 以及已存在的 Overlay 输出目录。",
+                "已从 desktop-overlay/OverlayResources 同步到 StreamingAssets/Pet、StreamingAssets/Fishing 以及已存在的 Overlay 输出目录。",
                 "确定");
         }
 

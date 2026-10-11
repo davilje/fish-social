@@ -100,6 +100,7 @@ namespace FishSocial.Desktop.Pet
                 case "groundbaiting":
                     return PetVisualState.Sit;
                 case "baiting":
+                    return PetVisualState.Bait;
                 case "casting":
                     return PetVisualState.Cast;
                 case "waiting":
@@ -114,6 +115,7 @@ namespace FishSocial.Desktop.Pet
             switch (state)
             {
                 case PetVisualState.Sit: return "sit";
+                case PetVisualState.Bait: return "bait";
                 case PetVisualState.Cast: return "cast";
                 case PetVisualState.Fishing: return "fishing";
                 case PetVisualState.Hooked: return "hooked";
@@ -130,6 +132,7 @@ namespace FishSocial.Desktop.Pet
             switch (state)
             {
                 case PetVisualState.Sit: return "坐下";
+                case PetVisualState.Bait: return "挂饵";
                 case PetVisualState.Cast: return "抛竿";
                 case PetVisualState.Fishing: return "钓鱼";
                 case PetVisualState.Hooked: return "咬钩";
