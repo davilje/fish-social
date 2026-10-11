@@ -357,6 +357,13 @@ namespace FishSocial.Desktop.Auth
     }
 
     [Serializable]
+    public sealed class FishingMissDto
+    {
+        public string resultId;
+        public string reason;
+    }
+
+    [Serializable]
     public sealed class FishCatchSettledDto
     {
         public string speciesId;

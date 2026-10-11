@@ -690,10 +690,8 @@ function advanceFromHooked(
     else io.to(pondId).emit('fish_miss', miss);
   } else if (user.isBot) {
     notifyBotHookCatch(io, pondId, user, ctx.fish);
-  } else if (socketId) {
-    const isCodexNew =
-      user.playerId !== undefined &&
-      isCodexNewForPlayer(user.playerId, ctx.fish.speciesId);
+  } else if (user.playerId) {
+    const isCodexNew = isCodexNewForPlayer(user.playerId, ctx.fish.speciesId);
     const catchData: PendingFishCatch = {
       catchId: randomUUID(),
       pondFishId: ctx.fish.id,
@@ -707,9 +705,12 @@ function advanceFromHooked(
       playerId: user.playerId,
       pondId,
     });
-    if (!locked) return;
+    if (!locked) {
+      hookContextByUser.delete(user.id);
+      return;
+    }
 
-    if (user.returnFeeMode === 'auto_return' && user.playerId && !opts?.deferAutoSettle) {
+    if (!opts?.deferAutoSettle) {
       settleAcceptedCatch(
         {
           io,
@@ -722,11 +723,6 @@ function advanceFromHooked(
         locked.catchId,
         { auto: true },
       );
-      return;
-    }
-
-    if (!opts?.deferAutoSettle) {
-      io.to(socketId).emit('fish_bite', locked);
     }
   }
 

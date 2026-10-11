@@ -68,7 +68,7 @@ function buildSettledMessage(
   if (autoReturned && gold != null) {
     return `【${q.name}】${species.name} ${item.sizeM.toFixed(2)}m 已自动回塘，+${gold} 金币`;
   }
-  return `已入包：【${q.name}】${species.name} ${item.sizeM.toFixed(2)}m（未达回鱼标准）`;
+  return `已入包：【${q.name}】${species.name} ${item.sizeM.toFixed(2)}m`;
 }
 
 export function settleAcceptedCatch(

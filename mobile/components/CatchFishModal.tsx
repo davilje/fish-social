@@ -1,15 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, Modal, Pressable, StyleSheet, Animated } from 'react-native';
+import { View, Text, Modal, Pressable, StyleSheet } from 'react-native';
 import type { FishingPrompt } from '@fish-social/shared';
 import {
   FISHING_PROMPT_AUTO_CLOSE_MS,
   calcFishWeightKg,
   formatFishSize,
   formatFishWeight,
-  getQualityInfo,
-  getSpecies,
 } from '@fish-social/shared';
-import { formatDuration } from '../lib/config';
 
 interface Props {
   prompt: FishingPrompt | null;
@@ -22,26 +19,8 @@ const AUTO_CLOSE_SEC = Math.ceil(FISHING_PROMPT_AUTO_CLOSE_MS / 1000);
 const MISS_COPY = {
   empty: { title: '空军！', text: '什么也没钓到，下次加油' },
   escaped: { title: '脱钩了！', text: '鱼儿挣脱了鱼钩，溜走了' },
+  nobite: { title: '空军！', text: '什么也没钓到，下次加油' },
 } as const;
-
-function CodexNewBadge() {
-  const badgeScale = useRef(new Animated.Value(0.6)).current;
-
-  useEffect(() => {
-    badgeScale.setValue(0.6);
-    Animated.timing(badgeScale, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }, [badgeScale]);
-
-  return (
-    <Animated.View style={[styles.codexBadge, { transform: [{ scale: badgeScale }] }]}>
-      <Text style={styles.codexBadgeText}>新</Text>
-    </Animated.View>
-  );
-}
 
 export function CatchFishModal({ prompt, loading, onConfirm }: Props) {
   const [countdown, setCountdown] = useState(AUTO_CLOSE_SEC);
@@ -72,7 +51,7 @@ export function CatchFishModal({ prompt, loading, onConfirm }: Props) {
   if (!prompt) return null;
 
   if (prompt.kind === 'miss') {
-    const copy = MISS_COPY[prompt.data.reason];
+    const copy = MISS_COPY[prompt.data.reason] ?? MISS_COPY.escaped;
     return (
       <Modal visible transparent animationType="slide" onRequestClose={onConfirm}>
         <View style={styles.overlay}>
@@ -90,44 +69,28 @@ export function CatchFishModal({ prompt, loading, onConfirm }: Props) {
     );
   }
 
-  const species = getSpecies(prompt.data.speciesId);
-  const quality = getQualityInfo(prompt.data.quality);
-  const isCodexNew = prompt.data.isCodexNew === true;
-  const hookMs = prompt.data.hookDurationMs;
-  const hookHint =
-    hookMs && hookMs >= 3600_000 ? `收杆等待：${formatDuration(hookMs)}` : null;
+  const sizeLine = `尺寸：${formatFishSize(prompt.data.sizeM)}`;
+  const weightLine = `体重：${formatFishWeight(calcFishWeightKg(prompt.data.sizeM))}`;
+  const returned = prompt.data.autoReturned === true && (prompt.data.gold ?? 0) > 0;
+  const hint = returned
+    ? `回鱼价格：${prompt.data.gold} 金币`
+    : '已放入背包';
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onConfirm}>
       <View style={styles.overlay}>
-        <View style={[styles.card, { borderColor: quality.color }]}>
-          <Text style={styles.hookTitle}>🎣 鱼上钩了！</Text>
-          <View style={styles.iconWrapOuter}>
-            <View style={[styles.iconWrap, { backgroundColor: quality.color + '22' }]}>
-              <Text style={styles.icon}>{species.icon}</Text>
-            </View>
-            {isCodexNew ? <CodexNewBadge /> : null}
-          </View>
-          <Text style={styles.species}>{species.name}</Text>
-          <Text style={[styles.quality, { color: quality.color }]}>
-            【{quality.name}】
-          </Text>
-          {isCodexNew ? <Text style={styles.codexHint}>首次收录图鉴</Text> : null}
-          <Text style={styles.size}>尺寸：{formatFishSize(prompt.data.sizeM)}</Text>
-          {hookHint ? <Text style={styles.hookHint}>{hookHint}</Text> : null}
+        <View style={styles.card}>
+          <Text style={styles.hookTitle}>钓到了！</Text>
           <Text style={styles.desc}>
-            品类：{species.name}{'\n'}
-            品质：{quality.name}{'\n'}
-            体长：{formatFishSize(prompt.data.sizeM)}{'\n'}
-            重量：{formatFishWeight(calcFishWeightKg(prompt.data.sizeM))}
+            {sizeLine}
+            {'\n'}
+            {weightLine}
+            {'\n'}
+            {hint}
           </Text>
-          <Text style={styles.countdown}>{countdown} 秒后自动收入背包</Text>
-          <Pressable
-            style={[styles.btn, { backgroundColor: quality.color }]}
-            onPress={onConfirm}
-            disabled={loading}
-          >
-            <Text style={styles.btnText}>{loading ? '...' : '获得'}</Text>
+          <Text style={styles.countdown}>{countdown} 秒后自动关闭</Text>
+          <Pressable style={styles.btn} onPress={onConfirm} disabled={loading}>
+            <Text style={styles.btnText}>{loading ? '...' : '知道了'}</Text>
           </Pressable>
         </View>
       </View>
@@ -151,6 +114,7 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     borderWidth: 3,
+    borderColor: '#2C5F6F',
   },
   missCard: {
     borderColor: '#9E9E9E',
@@ -178,69 +142,11 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 12,
   },
-  iconWrapOuter: {
-    position: 'relative',
-    marginBottom: 12,
-  },
-  iconWrap: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  codexBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#F44336',
-    borderRadius: 8,
-    minWidth: 22,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  codexBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '800',
-  },
-  codexHint: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 4,
-  },
-  hookHint: {
-    fontSize: 13,
-    color: '#2C5F6F',
-    fontWeight: '600',
-    marginTop: 6,
-  },
-  icon: {
-    fontSize: 44,
-  },
-  species: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
-  },
-  quality: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  size: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 8,
-  },
   desc: {
-    fontSize: 13,
-    color: '#888',
+    fontSize: 15,
+    color: '#333',
     textAlign: 'center',
-    lineHeight: 22,
-    marginTop: 12,
+    lineHeight: 24,
     marginBottom: 12,
   },
   countdown: {
@@ -252,6 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingHorizontal: 48,
     paddingVertical: 12,
+    backgroundColor: '#2C5F6F',
     cursor: 'pointer',
   },
   missBtn: {

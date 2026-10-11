@@ -1,5 +1,20 @@
 # 策划文档变更记录
 
+### [steam-desktop-art-04-confirmed] - 2026-10-11
+
+- **STEAM-DESKTOP-ART-04** 橘猫钓鱼动画接入 Overlay → **已确认**。
+- Overlay 按工作台 7 层同帧叠加，逐帧使用归档 `layerOrder`；猫爪与钓具分目录。
+- 不改服务端钓鱼阶段；Named Pipe 仍只传 `petVisualState`（新增 `bait`）。主窗口不重做七层精灵。
+
+### [steam-desktop-19-accepted] - 2026-09-02
+
+- **STEAM-DESKTOP-19** Overlay 咬钩结算弹窗 → 用户验收通过（设计 2026-09-01，完成 2026-09-02）。
+- 计划表与看板已回写 **已实现**。
+
+### [steam-desktop-19-hook-settle-prompt] - 2026-09-01
+
+- **STEAM-DESKTOP-19** Overlay 咬钩结算弹窗 → **已确认**。对齐 Web 钓到/脱钩弹窗；取消「领取鱼获」；出售档与不可回鱼只显示尺寸体重并入包；回鱼档达标显示尺寸、体重、回鱼价格。
+
 ### [bug-26-hover-after-menu-accepted] - 2026-09-01
 
 - **BUG-26** Overlay 右键后悬停失效 → 用户验收通过（回归修复）。

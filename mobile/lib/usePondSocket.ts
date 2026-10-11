@@ -18,7 +18,6 @@ import {
   type FishingPrompt,
   type FishingFloatTextPayload,
   type LeavePondReason,
-  type PendingFishCatch,
   type PlayerGearState,
   type BaitId,
   type FishSpeciesId,
@@ -560,15 +559,20 @@ export function usePondSocket(
       setMessages((prev) => [...prev, msg]);
     });
 
-    socket.on('fish_bite', (catchData: PendingFishCatch) => {
+    socket.on('fish_catch_settled', (payload) => {
       if (!isCurrent()) return;
-      if (promptRef.current) return;
-      setFishingPrompt({ kind: 'catch', data: catchData });
+      setFishingPrompt({
+        kind: 'catch',
+        data: {
+          sizeM: payload.sizeM,
+          autoReturned: payload.autoReturned === true,
+          gold: payload.gold,
+        },
+      });
     });
 
     socket.on('fish_miss', (miss: FishingMiss) => {
       if (!isCurrent()) return;
-      if (promptRef.current) return;
       setFishingPrompt({ kind: 'miss', data: miss });
     });
 
@@ -686,14 +690,14 @@ export function usePondSocket(
       if (Math.random() > FISH_BITE_CHANCE) return;
       if (Math.random() < FISH_CATCH_SUCCESS_RATE) {
         const rolled = rollFishCatch();
-        const isCodexNew = !demoCaughtSpeciesRef.current.has(rolled.speciesId);
         setFishingPrompt({
           kind: 'catch',
           data: {
+            sizeM: rolled.sizeM,
+            autoReturned: false,
             catchId: `demo-${Date.now()}`,
-            pondFishId: `demo-fish-${Date.now()}`,
-            ...rolled,
-            ...(isCodexNew ? { isCodexNew: true } : {}),
+            speciesId: rolled.speciesId,
+            quality: rolled.quality,
           },
         });
       } else {
@@ -876,13 +880,15 @@ export function usePondSocket(
       if (demoMode) {
         const item: FishInventoryItem = {
           id: `fish-${Date.now()}`,
-          speciesId: pendingCatch.speciesId,
-          quality: pendingCatch.quality,
+          speciesId: pendingCatch.speciesId ?? 'carp',
+          quality: pendingCatch.quality ?? 'gray',
           sizeM: pendingCatch.sizeM,
           caughtAt: Date.now(),
         };
         demoInventoryRef.current = [...demoInventoryRef.current, item];
-        demoCaughtSpeciesRef.current.add(pendingCatch.speciesId);
+        if (pendingCatch.speciesId) {
+          demoCaughtSpeciesRef.current.add(pendingCatch.speciesId);
+        }
         onInventoryRef.current?.(demoInventoryRef.current);
         if (isAnnounceQuality(item.quality)) {
           const species = getSpecies(item.speciesId);
@@ -901,12 +907,8 @@ export function usePondSocket(
         setFishingPrompt(null);
         return { ok: true as const, item };
       }
-      return await new Promise<{ ok: boolean; error?: string; item?: FishInventoryItem }>((resolve) => {
-        socketRef.current?.emit('accept_catch', pendingCatch.catchId, (res) => {
-          if (res?.ok) setFishingPrompt(null);
-          resolve(res ?? { ok: false, error: '失败' });
-        });
-      });
+      setFishingPrompt(null);
+      return { ok: true as const };
     } finally {
       setAccepting(false);
     }
@@ -918,8 +920,10 @@ export function usePondSocket(
       setFishingPrompt(null);
       return { ok: true as const };
     }
-    return acceptCatch();
-  }, [fishingPrompt, accepting, acceptCatch]);
+    if (demoMode) return acceptCatch();
+    setFishingPrompt(null);
+    return { ok: true as const };
+  }, [fishingPrompt, accepting, acceptCatch, demoMode]);
 
   const me = users.find((u) => u.id === myUserId);
   const connectionProbe: PondConnectionProbe = {

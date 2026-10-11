@@ -17,6 +17,7 @@ namespace FishSocial.Desktop.Auth
         readonly Dictionary<string, PondUserDto> _users = new Dictionary<string, PondUserDto>();
         readonly List<ChatMessageDto> _messages = new List<ChatMessageDto>();
         PendingFishCatchDto _latestCatch;
+        OverlayHookPromptState _hookPrompt;
         string _nickname;
         bool _joinRequested;
         bool _transitionBusy;
@@ -66,6 +67,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> UserUpdated;
         public event Action UsersChanged;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action<FishingMissDto> FishMissReceived;
         public event Action<FishCatchSettledDto> FishCatchSettled;
         public event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         public event Action CatchAccepted;
@@ -113,6 +115,7 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserUpdated += OnUserUpdated;
             _socket.SessionTimerTick += OnSessionTimerTick;
             _socket.FishBiteReceived += OnFishBite;
+            _socket.FishMissReceived += OnFishMiss;
             _socket.FishCatchSettled += OnFishCatchSettled;
             _socket.PondSessionSummaryReceived += OnPondSessionSummary;
             _socket.InventoryUpdated += OnInventoryUpdated;
@@ -284,6 +287,24 @@ namespace FishSocial.Desktop.Auth
             });
         }
 
+        public void DismissOverlayHookPrompt()
+        {
+            _hookPrompt = null;
+        }
+
+        public OverlayHookPromptState ConsumeExpiredOverlayHookPrompt()
+        {
+            if (_hookPrompt == null)
+                return null;
+            var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if (!_hookPrompt.IsVisible(nowMs))
+            {
+                _hookPrompt = null;
+                return null;
+            }
+            return _hookPrompt;
+        }
+
         public void LeaveSpot(Action<bool, string> onCompleted = null)
         {
             if (!HasSpot)
@@ -333,7 +354,7 @@ namespace FishSocial.Desktop.Auth
             }
             AcceptLatestCatch((ok, message) =>
             {
-                // 领取可能已由 Overlay「领取鱼获」完成；离塘时视为已收下即可。
+                // 正式路径已自动结算；若仍有 pending（Debug），领取失败且已入包则继续离塘。
                 if (!ok && !IsCatchAlreadyClaimed(message))
                 {
                     FinishTransition(false, message, onCompleted);
@@ -475,6 +496,7 @@ namespace FishSocial.Desktop.Auth
             CurrentUser = null;
             CurrentInventory = new FishInventoryItemDto[0];
             _latestCatch = null;
+            _hookPrompt = null;
             _users.Clear();
             _messages.Clear();
             ActivePoliceRaid = null;
@@ -654,11 +676,23 @@ namespace FishSocial.Desktop.Auth
             FishBiteReceived?.Invoke(fishCatch);
         }
 
+        void OnFishMiss(FishingMissDto miss)
+        {
+            var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _hookPrompt = OverlayHookPrompt.Escape(nowMs);
+            FishMissReceived?.Invoke(miss);
+        }
+
         void OnFishCatchSettled(FishCatchSettledDto settled)
         {
             _latestCatch = null;
             if (CurrentUser != null)
                 CurrentUser.sessionCatchCount = Math.Max(0, CurrentUser.sessionCatchCount) + 1;
+            var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if (settled != null && settled.autoReturned && settled.gold > 0)
+                _hookPrompt = OverlayHookPrompt.Return(settled.sizeM, settled.gold, nowMs);
+            else if (settled != null)
+                _hookPrompt = OverlayHookPrompt.Keep(settled.sizeM, nowMs);
             CatchAccepted?.Invoke();
             FishCatchSettled?.Invoke(settled);
         }
@@ -769,6 +803,7 @@ namespace FishSocial.Desktop.Auth
             _socket.PondUserUpdated -= OnUserUpdated;
             _socket.SessionTimerTick -= OnSessionTimerTick;
             _socket.FishBiteReceived -= OnFishBite;
+            _socket.FishMissReceived -= OnFishMiss;
             _socket.FishCatchSettled -= OnFishCatchSettled;
             _socket.PondSessionSummaryReceived -= OnPondSessionSummary;
             _socket.InventoryUpdated -= OnInventoryUpdated;

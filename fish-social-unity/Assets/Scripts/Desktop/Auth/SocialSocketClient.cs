@@ -20,6 +20,7 @@ namespace FishSocial.Desktop.Auth
         event Action<PondUserDto> PondUserUpdated;
         event Action<SessionTimerTickDto> SessionTimerTick;
         event Action<PendingFishCatchDto> FishBiteReceived;
+        event Action<FishingMissDto> FishMissReceived;
         event Action<FishCatchSettledDto> FishCatchSettled;
         event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         event Action<FishInventoryItemDto[]> InventoryUpdated;
@@ -80,6 +81,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<SessionTimerTickDto> SessionTimerTick;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action<FishingMissDto> FishMissReceived;
         public event Action<FishCatchSettledDto> FishCatchSettled;
         public event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;
@@ -352,6 +354,8 @@ namespace FishSocial.Desktop.Auth
                 SessionTimerTick?.Invoke(JsonUtility.FromJson<SessionTimerTickDto>(payload));
             else if (eventName == "fish_bite")
                 FishBiteReceived?.Invoke(JsonUtility.FromJson<PendingFishCatchDto>(payload));
+            else if (eventName == "fish_miss")
+                FishMissReceived?.Invoke(JsonUtility.FromJson<FishingMissDto>(payload));
             else if (eventName == "fish_catch_settled")
                 FishCatchSettled?.Invoke(JsonUtility.FromJson<FishCatchSettledDto>(payload));
             else if (eventName == "pond_session_summary")
@@ -603,6 +607,7 @@ namespace FishSocial.Desktop.Auth
         public event Action<PondUserDto> PondUserUpdated;
         public event Action<SessionTimerTickDto> SessionTimerTick;
         public event Action<PendingFishCatchDto> FishBiteReceived;
+        public event Action<FishingMissDto> FishMissReceived;
         public event Action<FishCatchSettledDto> FishCatchSettled;
         public event Action<PondSessionSummaryDto> PondSessionSummaryReceived;
         public event Action<FishInventoryItemDto[]> InventoryUpdated;

@@ -107,6 +107,8 @@ namespace FishSocial.Desktop
             _pondSession.UserUpdated += OnPondUserUpdated;
             _pondSession.UsersChanged += OnPondUsersChanged;
             _pondSession.FishBiteReceived += OnPondFishBite;
+            _pondSession.FishMissReceived += OnPondFishMiss;
+            _pondSession.FishCatchSettled += OnPondFishCatchSettled;
             _pondSession.CatchAccepted += OnPondCatchAccepted;
             _pondSession.ChatMessageReceived += OnPondChatMessage;
             _pondSession.PoliceRaidReceived += OnPondPoliceRaid;
@@ -365,6 +367,16 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
+        void OnPondFishMiss(FishingMissDto _)
+        {
+            PublishNativeOverlayState();
+        }
+
+        void OnPondFishCatchSettled(FishCatchSettledDto _)
+        {
+            PublishNativeOverlayState();
+        }
+
         void OnPondCatchAccepted()
         {
             QueueFishingProgressRefresh();
@@ -443,8 +455,9 @@ namespace FishSocial.Desktop
                 case "stop_fishing":
                     ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback));
                     return;
-                case "accept_catch":
-                    ExecuteOverlayCommand(callback => _pondSession?.AcceptLatestCatch(callback));
+                case "confirm_overlay_prompt":
+                    _pondSession?.DismissOverlayHookPrompt();
+                    PublishNativeOverlayState();
                     return;
                 case "exit_pond":
                     ExitPondFromOverlay();
@@ -846,6 +859,9 @@ namespace FishSocial.Desktop
                 _pondSession.UserUpdated -= OnPondUserUpdated;
                 _pondSession.UsersChanged -= OnPondUsersChanged;
                 _pondSession.FishBiteReceived -= OnPondFishBite;
+                _pondSession.FishMissReceived -= OnPondFishMiss;
+                _pondSession.FishCatchSettled -= OnPondFishCatchSettled;
+                _pondSession.CatchAccepted -= OnPondCatchAccepted;
                 _pondSession.ChatMessageReceived -= OnPondChatMessage;
                 _pondSession.PoliceRaidReceived -= OnPondPoliceRaid;
                 _pondSession.ErrorReceived -= OnPondError;

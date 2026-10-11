@@ -838,8 +838,8 @@ namespace FishSocial.Desktop
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
             var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : "鱼";
             DesktopNotificationService.Instance?.Publish(new DesktopNotification(
-                NotificationKind.FishBite, "鱼咬钩", "有" + species + "上钩，请打开主界面领取。"));
-            ShowToast("收到服务端咬钩事件，请打开主界面领取鱼获。");
+                NotificationKind.FishBite, "鱼咬钩", "有" + species + "上钩。"));
+            ShowToast("收到服务端咬钩事件。");
         }
 
         void OnPondFishCatchSettled(FishCatchSettledDto settled)
@@ -920,8 +920,6 @@ namespace FishSocial.Desktop
                 () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult));
             CreateButton(go.transform, "StopFishing", "收杆", new Vector2(600, -240), new Vector2(150, 46),
                 () => _pondSession?.StopFishing(ShowSocketResult));
-            CreateButton(go.transform, "AcceptCatch", "领取鱼获", new Vector2(766, -240), new Vector2(150, 46),
-                () => _pondSession?.AcceptLatestCatch(ShowSocketResult));
             CreateButton(go.transform, "ReturnHome", "返回主视图", new Vector2(32, -304), new Vector2(180, 46),
                 ReturnToPetHome);
             CreateButton(go.transform, "EnterOverlay", "进入 / 恢复鱼塘", new Vector2(228, -304), new Vector2(220, 46),

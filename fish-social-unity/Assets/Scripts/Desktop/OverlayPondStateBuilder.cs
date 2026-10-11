@@ -53,6 +53,7 @@ namespace FishSocial.Desktop
             dto.availableActions = MapAvailableActions(pond);
             FillGroundbaitHud(dto, pond);
             dto.guideTip = ResolvePoliceGuideTip(pond);
+            FillOverlayHookPrompt(dto, pond);
             if (pond == null || pond.State != SocialSocketState.Connected)
             {
                 SpotObservationController.Clear();
@@ -61,11 +62,25 @@ namespace FishSocial.Desktop
             else
                 dto.observation = ResolveObservation(dto.pondId, dto.ownSpotId, progress);
             dto.lockFeatureNav = false;
+        }
+
+        static void FillOverlayHookPrompt(NativeOverlayStateDto dto, SocialPondSessionController pond)
+        {
             dto.overlayPromptKind = string.Empty;
             dto.overlayPromptTitle = string.Empty;
             dto.overlayPromptBody = string.Empty;
             dto.overlayPromptButton = string.Empty;
             dto.overlayPromptDeadlineMs = 0;
+            if (pond == null)
+                return;
+            var prompt = pond.ConsumeExpiredOverlayHookPrompt();
+            if (prompt == null)
+                return;
+            dto.overlayPromptKind = prompt.Kind ?? string.Empty;
+            dto.overlayPromptTitle = prompt.Title ?? string.Empty;
+            dto.overlayPromptBody = prompt.Body ?? string.Empty;
+            dto.overlayPromptButton = string.IsNullOrEmpty(prompt.Button) ? "知道了" : prompt.Button;
+            dto.overlayPromptDeadlineMs = prompt.DeadlineMs;
         }
 
         static string[] MapAvailableActions(SocialPondSessionController pond)
@@ -88,10 +103,7 @@ namespace FishSocial.Desktop
                         actions.Add("start_fishing");
                     if (pond.CanGroundbait)
                         actions.Add("groundbait_start");
-                    if (pond.HasPendingCatch)
-                        actions.Add("accept_catch");
-                    else
-                        actions.Add("leave_spot");
+                    actions.Add("leave_spot");
                 }
                 else if (phase == "groundbaiting")
                 {
@@ -103,8 +115,6 @@ namespace FishSocial.Desktop
                     actions.Add("stop_fishing");
                 }
             }
-            if (pond.HasPendingCatch && !actions.Contains("accept_catch"))
-                actions.Add("accept_catch");
             if (!pond.IsTransitioning)
                 actions.Add("exit_pond");
             if (ShowPoliceDebug(pond.CurrentPondId))

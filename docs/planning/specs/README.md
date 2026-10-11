@@ -66,6 +66,7 @@
 | [Steam桌面宠物UI需求拆分.md](./Steam桌面宠物UI需求拆分.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-UI；程序 UI 并入 07A～07F，美术含 ART-01 换图与 ART-02 布局管线 |
 | [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应（塘内场景，不含 HUD） |
 | [Steam桌面Overlay分塘底图与HUD同步.md](./Steam桌面Overlay分塘底图与HUD同步.md) | v1.0-steam-desktop | P0 | **已实现** | STEAM-DESKTOP-ART-03；分塘底图、六姿势序列帧、Unity HUD Prefab 导出同步 Overlay |
+| [橘猫钓鱼动画接入Overlay.md](./橘猫钓鱼动画接入Overlay.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-04；Overlay 七层同帧叠加，阶段映射不变 |
 | [Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md](./Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13；聊天栏一行向上展开、Prefab 对齐 |
 | [Steam桌面端-13AOverlay场景边缘半透明渐隐.md](./Steam桌面端-13AOverlay场景边缘半透明渐隐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13A；场景层四边 40px |
 | [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13B；徽章、右键、登录窗 |
@@ -82,6 +83,7 @@
 | [BUG修复-Overlay打窝按钮剩余口数.md](./BUG修复-Overlay打窝按钮剩余口数.md) | hotfix | P0 | **已实现** | BUG-25；13C 回归，去掉 bitesLeft 后缀 |
 | [BUG修复-Overlay悬停与右键菜单指针命中.md](./BUG修复-Overlay悬停与右键菜单指针命中.md) | hotfix | P0 | **已实现** | BUG-26；命中链 + 菜单后悬停用自有开关恢复 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-18；条数 + actor-hint |
+| [Steam桌面端-19咬钩结算弹窗.md](./Steam桌面端-19咬钩结算弹窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-19；咬钩弹窗；取消领取；分档入包/回鱼 |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./Steam桌面端-14EOverlay头顶状态图标与进度环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14E；修订 14D 套猫/等鱼图标 |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](./Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](./Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |

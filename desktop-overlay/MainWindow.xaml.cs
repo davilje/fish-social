@@ -47,7 +47,6 @@ namespace FishSocialOverlay
         bool _canStartFishing;
         bool _canStopFishing;
         bool _canGroundbait;
-        bool _canAcceptCatch;
         bool _canLeaveSpot;
         bool _canExitPond;
         PondScenePresenter _scene;
@@ -63,6 +62,8 @@ namespace FishSocialOverlay
         string _lastPondId = string.Empty;
         DispatcherTimer _promptTimer;
         long _promptDeadlineMs;
+        bool _promptAutoClosed;
+        string _promptKind;
         OverlayDebugFishDto _selectedDebugFish;
         string _debugInspectFishListMode = string.Empty;
         readonly OverlayHudLayout _hudLayout = new OverlayHudLayout();
@@ -579,13 +580,6 @@ namespace FishSocialOverlay
 
         void CatchLeave_OnClick(object sender, RoutedEventArgs e)
         {
-            if (_canAcceptCatch)
-            {
-                CatchLeaveButton.IsEnabled = false;
-                SendCommand("accept_catch");
-                return;
-            }
-
             if (_canLeaveSpot)
             {
                 CatchLeaveButton.IsEnabled = false;
@@ -1171,7 +1165,6 @@ namespace FishSocialOverlay
             _canStartFishing = HasAction(message, "start_fishing");
             _canStopFishing = HasAction(message, "stop_fishing");
             _canGroundbait = HasAction(message, "groundbait_start");
-            _canAcceptCatch = HasAction(message, "accept_catch");
             _canLeaveSpot = HasAction(message, "leave_spot");
             _canExitPond = HasAction(message, "exit_pond");
             var canPoliceDebug = HasAction(message, "debug_police_raid");
@@ -1215,24 +1208,9 @@ namespace FishSocialOverlay
 
             if (showDock && idleSeatPhase)
             {
-                if (_canAcceptCatch)
-                {
-                    CatchLeaveButton.Content = "领取鱼获";
-                    CatchLeaveButton.IsEnabled = true;
-                    CatchLeaveButton.Visibility = Visibility.Visible;
-                }
-                else if (_canLeaveSpot)
-                {
-                    CatchLeaveButton.Content = "离席";
-                    CatchLeaveButton.IsEnabled = true;
-                    CatchLeaveButton.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    CatchLeaveButton.Content = "离席";
-                    CatchLeaveButton.IsEnabled = false;
-                    CatchLeaveButton.Visibility = Visibility.Visible;
-                }
+                CatchLeaveButton.Content = "离席";
+                CatchLeaveButton.IsEnabled = _canLeaveSpot;
+                CatchLeaveButton.Visibility = Visibility.Visible;
             }
             else
             {
@@ -2003,6 +1981,8 @@ namespace FishSocialOverlay
             {
                 OverlayPromptChrome.Visibility = Visibility.Collapsed;
                 _promptDeadlineMs = 0;
+                _promptKind = string.Empty;
+                _promptAutoClosed = false;
                 _promptTimer.Stop();
                 OverlayPromptCountdown.Text = string.Empty;
                 return;
@@ -2011,9 +1991,13 @@ namespace FishSocialOverlay
             OverlayPromptTitle.Text = message.OverlayPromptTitle ?? string.Empty;
             OverlayPromptBody.Text = message.OverlayPromptBody ?? string.Empty;
             OverlayPromptButton.Content = string.IsNullOrWhiteSpace(message.OverlayPromptButton)
-                ? "确认"
+                ? "知道了"
                 : message.OverlayPromptButton;
             _promptDeadlineMs = message.OverlayPromptDeadlineMs;
+            if (!string.Equals(_promptKind, kind, StringComparison.Ordinal) ||
+                OverlayPromptChrome.Visibility != Visibility.Visible)
+                _promptAutoClosed = false;
+            _promptKind = kind;
             OverlayPromptChrome.Visibility = Visibility.Visible;
             RefreshPromptCountdown();
             if (_promptDeadlineMs > 0)
@@ -2038,6 +2022,20 @@ namespace FishSocialOverlay
             var leftMs = _promptDeadlineMs - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var leftSec = Math.Max(0, (int)Math.Ceiling(leftMs / 1000.0));
             OverlayPromptCountdown.Text = leftSec + " 秒后自动关闭";
+            if (leftSec <= 0 &&
+                !_promptAutoClosed &&
+                IsHookSettlePrompt(_promptKind))
+            {
+                _promptAutoClosed = true;
+                SendCommand("confirm_overlay_prompt");
+            }
+        }
+
+        static bool IsHookSettlePrompt(string kind)
+        {
+            return string.Equals(kind, "hook_keep", StringComparison.Ordinal) ||
+                   string.Equals(kind, "hook_return", StringComparison.Ordinal) ||
+                   string.Equals(kind, "hook_escape", StringComparison.Ordinal);
         }
 
         void OverlayPromptConfirm_OnClick(object sender, RoutedEventArgs e)

@@ -92,6 +92,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已确认** |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已实现** |
 | [steam-desktop-art-03-pond-pet-hud-dev.prompt.md](./steam-desktop-art-03-pond-pet-hud-dev.prompt.md) | STEAM-DESKTOP-ART-03：分塘底图、猫咪序列帧、HUD Prefab 同步 Overlay · **已实现** |
+| [steam-desktop-art-04-layered-fishing-dev.prompt.md](./steam-desktop-art-04-layered-fishing-dev.prompt.md) | STEAM-DESKTOP-ART-04：橘猫钓鱼动画 Overlay 七层同帧叠加 · **已确认** |
 | [steam-desktop-13-hud-chat-prefab-dev.prompt.md](./steam-desktop-13-hud-chat-prefab-dev.prompt.md) | STEAM-DESKTOP-13：HUD 聊天栏与预制体对齐 · **已实现** |
 | [steam-desktop-13a-edge-vignette-dev.prompt.md](./steam-desktop-13a-edge-vignette-dev.prompt.md) | STEAM-DESKTOP-13A：场景四边半透明渐隐 · **已实现** |
 | [steam-desktop-13b-pet-menu-login-dev.prompt.md](./steam-desktop-13b-pet-menu-login-dev.prompt.md) | STEAM-DESKTOP-13B：宠物标签/右键/登录窗 · **已实现** |
@@ -108,6 +109,7 @@ npm run planning:confirm -- v0.4.0
 | [bug-25-overlay-groundbait-bites-label-dev.prompt.md](./bug-25-overlay-groundbait-bites-label-dev.prompt.md) | BUG-25：打窝按钮去掉剩余口数 · **已实现** |
 | [bug-26-overlay-hover-context-menu-hit-dev.prompt.md](./bug-26-overlay-hover-context-menu-hit-dev.prompt.md) | BUG-26：悬停浮窗与右键菜单指针命中 · **已实现**（含菜单后悬停回归） |
 | [steam-desktop-18-hover-catch-hint-dev.prompt.md](./steam-desktop-18-hover-catch-hint-dev.prompt.md) | STEAM-DESKTOP-18：悬停条数与 actor-hint · **已实现** |
+| [steam-desktop-19-hook-settle-prompt-dev.prompt.md](./steam-desktop-19-hook-settle-prompt-dev.prompt.md) | STEAM-DESKTOP-19：咬钩结算弹窗与自动入包 · **已实现** |
 | [steam-desktop-14e-overhead-status-ring-dev.prompt.md](./steam-desktop-14e-overhead-status-ring-dev.prompt.md) | STEAM-DESKTOP-14E：头顶状态图标与进度环 · **已实现** |
 | [steam-desktop-08a-world-map-dev.prompt.md](./steam-desktop-08a-world-map-dev.prompt.md) | STEAM-DESKTOP-08A：世界地图与鱼塘选择 · **已实现** |
 | [steam-desktop-08b-shop-dev.prompt.md](./steam-desktop-08b-shop-dev.prompt.md) | STEAM-DESKTOP-08B：商店与装备 · **已实现** |

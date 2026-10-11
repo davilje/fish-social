@@ -101,8 +101,18 @@ export interface FishingMiss {
   reason: 'empty' | 'escaped' | 'nobite';
 }
 
+export interface HookSettleView {
+  sizeM: number;
+  autoReturned: boolean;
+  gold?: number;
+  /** Demo / 旧 pending 兼容，正式结算弹窗不展示 */
+  catchId?: string;
+  speciesId?: FishSpeciesId;
+  quality?: FishQuality;
+}
+
 export type FishingPrompt =
-  | { kind: 'catch'; data: PendingFishCatch }
+  | { kind: 'catch'; data: HookSettleView }
   | { kind: 'miss'; data: FishingMiss };
 
 export interface WorldPondRegion {
@@ -370,7 +380,7 @@ export interface ServerToClientEvents {
   session_timer_tick: (payload: SessionTimerTickPayload) => void;
   chat_message: (message: ChatMessage) => void;
   fish_bite: (catchData: PendingFishCatch) => void;
-  /** FEAT-RETURN-02：回鱼档钓获即时结算（含自动回塘反馈） */
+  /** STEAM-DESKTOP-19：咬钩成功即时结算（入包或回鱼档自动回塘） */
   fish_catch_settled: (payload: FishCatchSettledPayload) => void;
   /** FEAT-RETURN-02：离塘 session 汇总 */
   pond_session_summary: (payload: PondSessionSummaryPayload) => void;
