@@ -36,6 +36,13 @@ namespace FishSocial.Desktop
             _post = post;
             _api = api;
             ResolveBindings();
+            if (_authorText == null || _photo == null || _bodyText == null || _fishInfoText == null ||
+                _likeButton == null || _commentsButton == null || _commentsPanel == null ||
+                _commentsContent == null || _commentInput == null || _sendCommentButton == null)
+            {
+                Debug.LogError("[DesktopUI] SocialPostCard requires Header/AuthorText, Photo, BodyText, FishInfoText, Actions/{LikeButton,CommentsButton} and CommentsPanel/{CommentsContent,CommentInput,SendButton} with serialized components.", this);
+                return;
+            }
             RenderPost();
             RestyleUi();
             BindActions();
@@ -117,192 +124,20 @@ namespace FishSocial.Desktop
 
         void RestyleUi()
         {
-            CatTheme.ApplyPaper(GetComponent<Image>());
-            var layout = transform.GetComponent<VerticalLayoutGroup>();
-            if (layout == null && GetComponent<LayoutGroup>() == null)
-                layout = gameObject.AddComponent<VerticalLayoutGroup>();
-            if (layout != null)
-            {
-                layout.padding = new RectOffset(18, 18, 14, 14);
-                layout.spacing = 8f;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
-            }
-            var element = GetComponent<LayoutElement>() ?? gameObject.AddComponent<LayoutElement>();
-            element.minHeight = 188f;
-            element.preferredHeight = -1f;
-            element.flexibleHeight = 0f;
-            element.ignoreLayout = false;
-            StyleText(_authorText, 18, 28f);
-            if (_authorText != null)
-                _authorText.fontStyle = FontStyle.Bold;
-            StyleText(_bodyText, 18, 48f);
-            StyleText(_fishInfoText, 16, 40f);
-            var header = transform.Find("Header");
-            if (header != null)
-            {
-                CatTheme.ApplyPaper(header.GetComponent<Image>());
-                var headerLayout = header.GetComponent<HorizontalLayoutGroup>();
-                if (headerLayout != null)
-                {
-                    headerLayout.spacing = 10f;
-                    headerLayout.childControlWidth = true;
-                    headerLayout.childControlHeight = true;
-                    headerLayout.childForceExpandWidth = false;
-                    headerLayout.childForceExpandHeight = false;
-                }
-            }
-            if (_photo != null)
-            {
-                var photoLayout = _photo.GetComponent<LayoutElement>() ?? _photo.gameObject.AddComponent<LayoutElement>();
-                photoLayout.minHeight = 148f;
-                photoLayout.preferredHeight = 148f;
-                photoLayout.flexibleHeight = 0f;
-                _photo.preserveAspect = true;
-                _photo.color = _photo.sprite != null ? Color.white : CatTheme.Cream;
-            }
-            var actions = transform.Find("Actions");
-            if (actions != null)
-            {
-                CatTheme.ApplyPaper(actions.GetComponent<Image>());
-                var actionLayout = actions.GetComponent<HorizontalLayoutGroup>();
-                if (actionLayout != null)
-                {
-                    actionLayout.spacing = 12f;
-                    actionLayout.childControlWidth = true;
-                    actionLayout.childControlHeight = true;
-                    actionLayout.childForceExpandWidth = false;
-                    actionLayout.childForceExpandHeight = false;
-                }
-            }
-            StyleAction(_likeButton, "heart");
-            StyleAction(_commentsButton, "social");
+            DesktopModalUi.StyleTree(transform);
+            DesktopModalUi.StyleButton(_likeButton, "heart");
+            DesktopModalUi.StyleButton(_commentsButton, "social");
+            DesktopModalUi.StyleButton(_sendCommentButton, "check", true);
             SetButtonText(_sendCommentButton, "发送评论");
-            StyleAction(_sendCommentButton, "check", true);
-            if (_commentsPanel != null)
-            {
-                CatTheme.ApplyPaper(_commentsPanel.GetComponent<Image>());
-                var commentsLayout = _commentsPanel.GetComponent<VerticalLayoutGroup>();
-                if (commentsLayout != null)
-                {
-                    commentsLayout.padding = new RectOffset(12, 12, 10, 10);
-                    commentsLayout.spacing = 8f;
-                    commentsLayout.childControlWidth = true;
-                    commentsLayout.childControlHeight = true;
-                    commentsLayout.childForceExpandWidth = true;
-                    commentsLayout.childForceExpandHeight = false;
-                }
-            }
-            if (_commentsContent != null)
-            {
-                var commentsLayout = _commentsContent.GetComponent<VerticalLayoutGroup>();
-                if (commentsLayout != null)
-                {
-                    commentsLayout.spacing = 8f;
-                    commentsLayout.childControlWidth = true;
-                    commentsLayout.childControlHeight = true;
-                    commentsLayout.childForceExpandWidth = true;
-                    commentsLayout.childForceExpandHeight = false;
-                }
-            }
-            StyleInput(_commentInput);
         }
 
-        static void StyleText(Text label, int size, float minHeight)
-        {
-            if (label == null)
-                return;
-            if (CatTheme.Font != null)
-                label.font = CatTheme.Font;
-            label.color = CatTheme.Ink;
-            label.fontSize = size;
-            label.resizeTextForBestFit = false;
-            label.horizontalOverflow = HorizontalWrapMode.Wrap;
-            label.verticalOverflow = VerticalWrapMode.Truncate;
-            label.alignment = TextAnchor.UpperLeft;
-            label.raycastTarget = false;
-            var element = label.GetComponent<LayoutElement>() ?? label.gameObject.AddComponent<LayoutElement>();
-            element.minWidth = 0f;
-            element.preferredWidth = -1f;
-            element.flexibleWidth = 1f;
-            element.minHeight = minHeight;
-            element.preferredHeight = -1f;
-            element.flexibleHeight = 0f;
-        }
 
-        static void StyleAction(Button button, string icon, bool primary = false)
-        {
-            if (button == null)
-                return;
-            var element = button.GetComponent<LayoutElement>() ?? button.gameObject.AddComponent<LayoutElement>();
-            element.minWidth = 120f;
-            element.preferredWidth = 156f;
-            element.minHeight = 40f;
-            element.preferredHeight = 40f;
-            element.flexibleWidth = 0f;
-            element.flexibleHeight = 0f;
-            var label = button.GetComponentInChildren<Text>(true);
-            StyleText(label, 16, 0f);
-            if (label != null)
-            {
-                label.alignment = TextAnchor.MiddleCenter;
-                label.GetComponent<LayoutElement>().ignoreLayout = true;
-                Inset(label.rectTransform, icon == null ? 12f : 36f, 4f);
-            }
-            CatTheme.StyleButton(button, icon, primary);
-        }
 
-        static void StyleInput(InputField input)
-        {
-            if (input == null)
-                return;
-            var image = input.GetComponent<Image>();
-            if (image != null)
-            {
-                image.overrideSprite = null;
-                image.sprite = null;
-                image.color = new Color(1f, 0.99f, 0.96f, 1f);
-            }
-            var element = input.GetComponent<LayoutElement>() ?? input.gameObject.AddComponent<LayoutElement>();
-            element.minHeight = 44f;
-            element.preferredHeight = 44f;
-            element.flexibleHeight = 0f;
-            StyleText(input.textComponent, 16, 0f);
-            if (input.textComponent != null)
-            {
-                input.textComponent.alignment = TextAnchor.MiddleLeft;
-                input.textComponent.horizontalOverflow = input.lineType == InputField.LineType.SingleLine
-                    ? HorizontalWrapMode.Overflow : HorizontalWrapMode.Wrap;
-                Inset(input.textComponent.rectTransform, 12f, 6f);
-            }
-            if (input.placeholder is Text placeholder)
-            {
-                StyleText(placeholder, 16, 0f);
-                placeholder.alignment = TextAnchor.MiddleLeft;
-                var color = CatTheme.Ink;
-                color.a = 0.6f;
-                placeholder.color = color;
-                Inset(placeholder.rectTransform, 12f, 6f);
-            }
-            var colors = input.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = Color.white;
-            colors.selectedColor = Color.white;
-            colors.pressedColor = CatTheme.Cream;
-            colors.disabledColor = CatTheme.Cream;
-            input.colors = colors;
-            input.caretColor = CatTheme.Ink;
-        }
 
-        static void Inset(RectTransform rect, float left, float vertical)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(left, vertical);
-            rect.offsetMax = new Vector2(-12f, -vertical);
-        }
+
+
+
+
 
         void ToggleLike()
         {
@@ -360,6 +195,13 @@ namespace FishSocial.Desktop
             if (label != null)
                 label.text = (comment.nickname ?? "钓友") + "：" + comment.text;
             var delete = FindIn<Button>(row, "Delete");
+            if (label == null || delete == null)
+            {
+                Debug.LogError("[DesktopUI] PostCommentRow requires Text (or CommentText) and Delete Button; runtime layout generation is disabled.", row);
+                row.SetActive(false);
+                Destroy(row);
+                return;
+            }
             RestyleCommentRow(row, label, delete);
             if (delete != null &&
                 _api.PlayerId != comment.playerId && _api.PlayerId != _post.playerId)
@@ -373,30 +215,8 @@ namespace FishSocial.Desktop
 
         static void RestyleCommentRow(GameObject row, Text label, Button delete)
         {
-            CatTheme.ApplyPaper(row.GetComponent<Image>());
-            StyleText(label, 16, 40f);
-            var element = row.GetComponent<LayoutElement>() ?? row.AddComponent<LayoutElement>();
-            element.minHeight = 40f;
-            element.preferredHeight = -1f;
-            element.flexibleHeight = 0f;
-            var layout = row.GetComponent<HorizontalLayoutGroup>();
-            if (layout != null)
-            {
-                layout.padding = new RectOffset(8, 8, 6, 6);
-                layout.spacing = 12f;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = false;
-                layout.childForceExpandHeight = false;
-            }
+            DesktopModalUi.StyleTree(row.transform);
             SetButtonText(delete, "删除");
-            StyleAction(delete, null);
-            if (delete != null)
-            {
-                var deleteLayout = delete.GetComponent<LayoutElement>();
-                deleteLayout.minWidth = 76f;
-                deleteLayout.preferredWidth = 84f;
-            }
         }
 
         void DeleteComment(PostCommentDto comment, GameObject row, Button delete)

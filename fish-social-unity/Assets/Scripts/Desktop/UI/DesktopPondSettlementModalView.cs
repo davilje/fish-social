@@ -23,43 +23,47 @@ namespace FishSocial.Desktop
         {
             if (canvas == null || data == null)
                 return null;
-
-            var existing = canvas.GetComponentInChildren<DesktopPondSettlementModalView>(true);
-            if (existing != null)
-                Object.Destroy(existing.gameObject);
-
             var prefab = Resources.Load<GameObject>(PrefabPath);
-            GameObject go;
-            if (prefab != null)
+            if (prefab == null)
             {
-                go = Object.Instantiate(prefab, canvas, false);
-                go.name = "PondSettlementModal";
-                DesktopModalUi.Stretch(go);
+                Debug.LogError("[DesktopUI] Required prefab is missing: " + PrefabPath, canvas);
+                return null;
             }
-            else
-            {
-                go = new GameObject(
-                    "PondSettlementModal",
-                    typeof(RectTransform),
-                    typeof(DesktopPondSettlementModalView));
-                go.transform.SetParent(canvas, false);
-                DesktopModalUi.Stretch(go);
-                BuildLayout(go.transform);
-            }
-
+            var go = Object.Instantiate(prefab, canvas, false);
+            go.name = "PondSettlementModal";
             var view = go.GetComponent<DesktopPondSettlementModalView>();
             if (view == null)
-                view = go.AddComponent<DesktopPondSettlementModalView>();
+            {
+                Debug.LogError("[DesktopUI] PanelPondSettlement requires DesktopPondSettlementModalView.", go);
+                go.SetActive(false);
+                Object.Destroy(go);
+                return null;
+            }
             view.BindRefs(go.transform);
+            if (view._title == null || view._summary == null || view._list == null || view._closeButton == null)
+            {
+                Debug.LogError("[DesktopUI] PanelPondSettlement requires Panel/{Title,Summary,Close,ListScroll/Viewport/List/ListText}.", go);
+                go.SetActive(false);
+                Object.Destroy(go);
+                return null;
+            }
+            foreach (var existing in canvas.GetComponentsInChildren<DesktopPondSettlementModalView>(true))
+                if (existing != view)
+                    Object.Destroy(existing.gameObject);
+            DesktopModalUi.StyleTree(go.transform);
             view.Render(data);
+            go.SetActive(true);
             go.transform.SetAsLastSibling();
             return view;
         }
 
-        /// <summary>Editor Bake / 运行时 fallback 共用布局。</summary>
+        /// <summary>Editor-only prefab layout generation.</summary>
         public static void BuildLayout(Transform root)
         {
-            if (root == null)
+#if !UNITY_EDITOR
+            return;
+#else
+            if (Application.isPlaying || root == null)
                 return;
 
             ClearChildren(root);
@@ -99,10 +103,13 @@ namespace FishSocial.Desktop
             scrollRt.anchorMax = new Vector2(1f, 1f);
             scrollRt.offsetMin = new Vector2(12f, 12f);
             scrollRt.offsetMax = new Vector2(-12f, -180f);
-            scrollGo.GetComponent<Image>().color = new Color(0.08f, 0.11f, 0.14f, 1f);
+            scrollGo.GetComponent<Image>().color = DesktopModalUi.Slot;
 
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
+            viewport.transform.SetParent(scrollGo.transform, false);
+            DesktopModalUi.Stretch(viewport);
             var content = new GameObject("List", typeof(RectTransform), typeof(ContentSizeFitter));
-            content.transform.SetParent(scrollGo.transform, false);
+            content.transform.SetParent(viewport.transform, false);
             var contentRt = content.GetComponent<RectTransform>();
             contentRt.anchorMin = new Vector2(0f, 1f);
             contentRt.anchorMax = new Vector2(1f, 1f);
@@ -124,6 +131,7 @@ namespace FishSocial.Desktop
 
             var scroll = scrollGo.GetComponent<ScrollRect>();
             scroll.content = contentRt;
+            scroll.viewport = viewport.GetComponent<RectTransform>();
             scroll.horizontal = false;
             scroll.vertical = true;
 
@@ -137,6 +145,7 @@ namespace FishSocial.Desktop
                 closeRt.offsetMin = new Vector2(0f, 12f);
                 closeRt.offsetMax = new Vector2(0f, 48f);
             }
+#endif
         }
 
         public void BuildEditorLayout()
@@ -153,11 +162,10 @@ namespace FishSocial.Desktop
         void BindRefs(Transform root)
         {
             _root = root.gameObject;
-            _title = DesktopModalUi.FindDescendantComponent<Text>(root, "Title");
-            _summary = DesktopModalUi.FindDescendantComponent<Text>(root, "Summary");
-            _list = DesktopModalUi.FindDescendantComponent<Text>(root, "ListText")
-                    ?? DesktopModalUi.FindDescendantComponent<Text>(root, "List");
-            _closeButton = DesktopModalUi.FindDescendantComponent<Button>(root, "Close");
+            _title = DesktopModalUi.FindComponent<Text>(root, "Panel/Title");
+            _summary = DesktopModalUi.FindComponent<Text>(root, "Panel/Summary");
+            _list = DesktopModalUi.FindComponent<Text>(root, "Panel/ListScroll/Viewport/List/ListText");
+            _closeButton = DesktopModalUi.FindComponent<Button>(root, "Panel/Close");
             if (_closeButton != null)
             {
                 _closeButton.onClick.RemoveAllListeners();

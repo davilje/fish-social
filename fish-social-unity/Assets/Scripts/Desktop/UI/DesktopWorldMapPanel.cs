@@ -41,12 +41,15 @@ namespace FishSocial.Desktop
         Vector2 _dragStart;
         Vector2 _contentStart;
         float _zoom = 1f;
+        bool _uiReady;
 
         public void Bind(SocialPondSessionController pond, IAuthenticatedApiClient api)
         {
             _pond = pond;
             _api = api;
             EnsureUi();
+            if (!_uiReady)
+                return;
             _ponds = WorldMapPondCatalog.LoadVisible();
             _byId.Clear();
             for (var pondIndex = 0; pondIndex < _ponds.Length; pondIndex++)
@@ -67,6 +70,8 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             if (_api == null || !_api.CanUse)
                 return;
             StartCoroutine(LoadProgress());
@@ -74,6 +79,8 @@ namespace FishSocial.Desktop
 
         public void FocusPond(string pondId)
         {
+            if (!_uiReady)
+                return;
             WorldMapPondView selectedPond;
             if (string.IsNullOrEmpty(pondId) || !_byId.TryGetValue(pondId, out selectedPond))
             {
@@ -108,8 +115,15 @@ namespace FishSocial.Desktop
             _enter = Find<Button>("Details/EnterPond");
             _reset = Find<Button>("Details/ResetView");
             if (_viewport == null || _content == null || _markerLayer == null ||
-                _details == null || _status == null || _enter == null || _reset == null)
-                BuildFallbackUi();
+                _details == null || _status == null || _enter == null || _reset == null ||
+                Find<Image>("Viewport/MapContent/MapImage") == null ||
+                Find<Button>("Details/ModeSell") == null || Find<Button>("Details/ModeAuto") == null)
+            {
+                _uiReady = false;
+                Debug.LogError("[DesktopUI] PanelWorldMap requires Viewport/MapContent/{MapImage,MarkerLayer} and Details/{DetailsText,StatusText,EnterPond,ResetView,ModeSell,ModeAuto}.", this);
+                return;
+            }
+            _uiReady = true;
             _enter.onClick.RemoveAllListeners();
             _enter.onClick.AddListener(EnterSelectedPond);
             _reset.onClick.RemoveAllListeners();
@@ -120,28 +134,12 @@ namespace FishSocial.Desktop
 
         void EnsureFeeModeButtons(Transform parent)
         {
-            if (parent == null || _modeSell != null)
+            if (parent == null)
                 return;
-            _modeSell = EnsureButton(parent, "ModeSell", "出售档（仅卖）");
-            _modeAuto = EnsureButton(parent, "ModeAuto", "回鱼档（自动）");
-            var sellRect = _modeSell.GetComponent<RectTransform>();
-            var autoRect = _modeAuto.GetComponent<RectTransform>();
-            if (sellRect != null)
-            {
-                sellRect.anchorMin = new Vector2(0.02f, 0.21f);
-                sellRect.anchorMax = new Vector2(0.49f, 0.28f);
-                sellRect.offsetMin = Vector2.zero;
-                sellRect.offsetMax = Vector2.zero;
-            }
-            if (autoRect != null)
-            {
-                autoRect.anchorMin = new Vector2(0.51f, 0.21f);
-                autoRect.anchorMax = new Vector2(0.98f, 0.28f);
-                autoRect.offsetMin = Vector2.zero;
-                autoRect.offsetMax = Vector2.zero;
-            }
-            _modeSell.onClick.AddListener(() => SelectReturnFeeMode("sell_only"));
-            _modeAuto.onClick.AddListener(() => SelectReturnFeeMode("auto_return"));
+            _modeSell = DesktopModalUi.FindComponent<Button>(parent, "ModeSell");
+            _modeAuto = DesktopModalUi.FindComponent<Button>(parent, "ModeAuto");
+            DesktopModalUi.BindButton(parent, "ModeSell", () => SelectReturnFeeMode("sell_only"));
+            DesktopModalUi.BindButton(parent, "ModeAuto", () => SelectReturnFeeMode("auto_return"));
             RefreshFeeModeButtons();
         }
 
@@ -176,7 +174,7 @@ namespace FishSocial.Desktop
         {
             if (button == null)
                 return;
-            CatTheme.StyleButton(button);
+            DesktopModalUi.StyleButton(button);
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(selected);
@@ -193,149 +191,25 @@ namespace FishSocial.Desktop
             return node == null ? null : node.GetComponent<T>();
         }
 
-        void BuildFallbackUi()
-        {
-            _viewport = EnsureRect(transform, "Viewport");
-            Layout(_viewport, Vector2.zero, new Vector2(0.68f, 1f));
-            var viewportImage = _viewport.GetComponent<Image>() ?? _viewport.gameObject.AddComponent<Image>();
-            viewportImage.color = CatTheme.Cream;
-            if (_viewport.GetComponent<RectMask2D>() == null && _viewport.GetComponent<Mask>() == null)
-                _viewport.gameObject.AddComponent<RectMask2D>();
-
-            _content = EnsureRect(_viewport, "MapContent");
-            _content.anchorMin = new Vector2(0.5f, 0.5f);
-            _content.anchorMax = _content.anchorMin;
-            _content.pivot = new Vector2(0.5f, 0.5f);
-            _content.sizeDelta = new Vector2(MapWidth, MapHeight);
-            var mapImage = EnsureRect(_content, "MapImage");
-            Layout(mapImage, Vector2.zero, Vector2.one);
-            if (mapImage.GetComponent<Image>() == null)
-                mapImage.gameObject.AddComponent<Image>();
-            _markerLayer = EnsureRect(_content, "MarkerLayer");
-            Layout(_markerLayer, Vector2.zero, Vector2.one);
-
-            var detailsPanel = EnsureRect(transform, "Details");
-            Layout(detailsPanel, new Vector2(0.68f, 0f), Vector2.one);
-            if (detailsPanel.GetComponent<Image>() == null)
-                detailsPanel.gameObject.AddComponent<Image>();
-            _details = EnsureText(detailsPanel, "DetailsText", "请选择地图上的鱼塘。");
-            _status = EnsureText(detailsPanel, "StatusText", string.Empty);
-            _enter = EnsureButton(detailsPanel, "EnterPond", "进入鱼塘");
-            _reset = EnsureButton(detailsPanel, "ResetView", "重置地图");
-        }
-
         void ApplyCozyStyle()
         {
-            var background = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-            CatTheme.ApplyPaper(background);
-            var viewportImage = _viewport.GetComponent<Image>();
-            if (viewportImage != null)
-                viewportImage.color = CatTheme.Cream;
-            var backdropNode = _content.Find("MapImage");
-            var backdrop = backdropNode != null ? backdropNode.GetComponent<Image>() : _content.GetComponent<Image>();
-            if (backdrop == null)
+            DesktopModalUi.StyleTree(transform);
+            var backdrop = Find<Image>("Viewport/MapContent/MapImage");
+            var sprite = CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero);
+            if (backdrop != null && sprite != null)
             {
-                var backdropRect = EnsureRect(_content, "MapImage");
-                Layout(backdropRect, Vector2.zero, Vector2.one);
-                backdrop = backdropRect.gameObject.AddComponent<Image>();
+                backdrop.overrideSprite = null;
+                backdrop.sprite = sprite;
             }
-            backdrop.transform.SetAsFirstSibling();
-            backdrop.overrideSprite = null;
-            backdrop.sprite = CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero);
-            backdrop.type = Image.Type.Simple;
-            backdrop.preserveAspect = false;
-            backdrop.color = backdrop.sprite != null ? Color.white : CatTheme.Cream;
-            backdrop.raycastTarget = true;
-            _markerLayer.SetAsLastSibling();
-
-            var detailsPanel = _details.transform.parent;
-            var detailsImage = detailsPanel.GetComponent<Image>() ?? detailsPanel.gameObject.AddComponent<Image>();
-            detailsImage.color = CatTheme.Cream;
-            CatTheme.ApplyPaper(detailsImage);
-            foreach (var label in detailsPanel.GetComponentsInChildren<Text>(true))
-            {
-                label.color = CatTheme.Ink;
-                if (CatTheme.Font != null)
-                    label.font = CatTheme.Font;
-                label.raycastTarget = false;
-            }
-            Layout(_details.rectTransform, new Vector2(0.06f, 0.41f), new Vector2(0.94f, 0.96f));
-            _details.alignment = TextAnchor.UpperLeft;
-            _details.horizontalOverflow = HorizontalWrapMode.Wrap;
-            _details.verticalOverflow = VerticalWrapMode.Truncate;
-            _details.resizeTextForBestFit = true;
-            _details.resizeTextMinSize = 14;
-            _details.resizeTextMaxSize = 18;
-            Layout(_status.rectTransform, new Vector2(0.06f, 0.29f), new Vector2(0.94f, 0.4f));
-            _status.fontSize = 16;
-            _status.resizeTextForBestFit = true;
-            _status.resizeTextMinSize = 14;
-            _status.resizeTextMaxSize = 16;
-            _status.alignment = TextAnchor.UpperLeft;
-            _status.horizontalOverflow = HorizontalWrapMode.Wrap;
-            Layout(_enter.GetComponent<RectTransform>(), new Vector2(0.06f, 0.12f), new Vector2(0.94f, 0.2f));
-            Layout(_reset.GetComponent<RectTransform>(), new Vector2(0.06f, 0.03f), new Vector2(0.94f, 0.1f));
-            CatTheme.StyleButton(_enter, "pond.png", true);
-            CatTheme.StyleButton(_reset, "map.png");
-            CatTheme.StyleButton(_modeSell);
-            CatTheme.StyleButton(_modeAuto);
+            DesktopModalUi.StyleButton(_enter, "pond.png", true);
+            DesktopModalUi.StyleButton(_reset, "map.png");
             RefreshFeeModeButtons();
-        }
-
-        static RectTransform EnsureRect(Transform parent, string name)
-        {
-            return parent.Find(name) as RectTransform ?? NewRect(name, parent);
-        }
-
-        static void Layout(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax)
-        {
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        static RectTransform NewRect(string name, Transform parent)
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            return go.GetComponent<RectTransform>();
-        }
-
-        static Text EnsureText(Transform parent, string name, string value)
-        {
-            var node = parent.Find(name) ?? NewRect(name, parent);
-            var text = node.GetComponent<Text>() ?? node.gameObject.AddComponent<Text>();
-            text.text = value;
-            text.color = CatTheme.Ink;
-            text.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.fontSize = 18;
-            text.alignment = TextAnchor.UpperLeft;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
-            text.raycastTarget = false;
-            return text;
-        }
-
-        static Button EnsureButton(Transform parent, string name, string label)
-        {
-            var node = parent.Find(name) ?? NewRect(name, parent);
-            var image = node.GetComponent<Image>() ?? node.gameObject.AddComponent<Image>();
-            image.color = CatTheme.Cream;
-            var button = node.GetComponent<Button>() ?? node.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            var text = EnsureText(node, "Text", label);
-            text.text = label;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = 12;
-            text.resizeTextMaxSize = 18;
-            Layout(text.rectTransform, new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.92f));
-            return button;
         }
 
         void BuildMarkers()
         {
+            if (!_uiReady)
+                return;
             _markersById.Clear();
             for (var markerIndex = _markerLayer.childCount - 1; markerIndex >= 0; markerIndex--)
             {
@@ -348,29 +222,33 @@ namespace FishSocial.Desktop
                 if (item == null || string.IsNullOrEmpty(item.pondId))
                     continue;
                 var locked = IsLocked(item);
-                var marker = NewRect("Pond_" + item.pondId, _markerLayer);
+                var instance = DesktopUiPrefabFactory.Instantiate("WorldMapPondMarker", _markerLayer);
+                if (instance == null)
+                    continue;
+                instance.name = "Pond_" + item.pondId;
+                var marker = instance.GetComponent<RectTransform>();
+                var button = instance.GetComponent<Button>();
+                var label = DesktopModalUi.FindComponent<Text>(instance.transform, "Label");
+                var icon = DesktopModalUi.FindComponent<Image>(instance.transform, "Icon");
+                if (marker == null || button == null || label == null || icon == null)
+                {
+                    Debug.LogError("[DesktopUI] WorldMapPondMarker requires root RectTransform/Button, Label Text and Icon Image.", instance);
+                    instance.SetActive(false);
+                    Destroy(instance);
+                    continue;
+                }
                 marker.anchorMin = new Vector2(item.x, 1f - item.y);
                 marker.anchorMax = marker.anchorMin;
-                marker.sizeDelta = new Vector2(172f, 96f);
-                var markerImage = marker.gameObject.AddComponent<Image>();
-                markerImage.color = CatTheme.Cream;
-                var button = marker.gameObject.AddComponent<Button>();
-                button.targetGraphic = markerImage;
+                marker.anchoredPosition = Vector2.zero;
                 var captured = item;
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => Select(captured));
-                var caption = item.displayName + "\n" +
-                              DesktopGameData.CategoryLabel(item.pondCategory);
+                var caption = item.displayName + "\n" + DesktopGameData.CategoryLabel(item.pondCategory);
                 if (locked)
                     caption += " · 未开放/需解锁";
-                var label = EnsureText(marker, "Label", caption);
-                label.alignment = TextAnchor.MiddleCenter;
-                label.fontSize = 16;
-                label.resizeTextForBestFit = true;
-                label.resizeTextMinSize = 14;
-                label.resizeTextMaxSize = 16;
-                label.color = locked ? new Color(0.38f, 0.34f, 0.3f, 1f) : CatTheme.Ink;
-                Layout(label.rectTransform, new Vector2(0.23f, 0.1f), new Vector2(0.94f, 0.9f));
-                CatTheme.StyleButton(button, locked ? "lock.png" : "pond.png");
+                label.text = caption;
+                DesktopModalUi.StyleTree(instance.transform);
+                DesktopModalUi.StyleButton(button, locked ? "lock.png" : "pond.png");
                 _markersById[item.pondId] = button;
             }
             RefreshMarkerSelection();
@@ -600,6 +478,8 @@ namespace FishSocial.Desktop
 
         public void ResetView()
         {
+            if (!_uiReady)
+                return;
             _zoom = 1f;
             _content.localScale = Vector3.one;
             _content.anchoredPosition = Vector2.zero;
@@ -608,12 +488,16 @@ namespace FishSocial.Desktop
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (!_uiReady)
+                return;
             _dragStart = eventData.position;
             _contentStart = _content.anchoredPosition;
         }
 
         public void OnDrag(PointerEventData eventData)
         {
+            if (!_uiReady)
+                return;
             _content.anchoredPosition = _contentStart + eventData.position - _dragStart;
             ClampContent();
         }
@@ -622,6 +506,8 @@ namespace FishSocial.Desktop
 
         public void OnScroll(PointerEventData eventData)
         {
+            if (!_uiReady)
+                return;
             _zoom = Mathf.Clamp(_zoom + (eventData.scrollDelta.y > 0f ? 0.1f : -0.1f),
                 MinZoom, MaxZoom);
             _content.localScale = new Vector3(_zoom, _zoom, 1f);

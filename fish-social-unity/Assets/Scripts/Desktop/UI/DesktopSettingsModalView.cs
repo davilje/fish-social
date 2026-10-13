@@ -77,6 +77,7 @@ namespace FishSocial.Desktop
             EnsureServerUrlControls();
             EnsureResetOnboardingButton();
             ValidatePrefabBindings();
+            DesktopModalUi.StyleTree(transform);
         }
 
         public void OnOpened()
@@ -198,8 +199,8 @@ namespace FishSocial.Desktop
                 return;
             _serverStatusText.text = message ?? string.Empty;
             _serverStatusText.color = ok
-                ? new Color(0.55f, 0.9f, 0.7f, 1f)
-                : new Color(1f, 0.55f, 0.5f, 1f);
+                ? CatTheme.Ink
+                : new Color(0.65f, 0.29f, 0.18f, 1f);
         }
 
         void ApplyWindowed()
@@ -238,6 +239,10 @@ namespace FishSocial.Desktop
 
         void ValidatePrefabBindings()
         {
+            foreach (var name in new[] { "普通窗口 1280×720", "无边框", "全屏", "立即隐藏到托盘",
+                "保存窗口设置", "模拟连接错误", "退出游戏", "保存服务器地址", "测试服务器连接", "重置新手引导" })
+                if (DesktopModalUi.FindDescendantComponent<Button>(transform, name) == null)
+                    Debug.LogError("[DesktopUI] PanelSettings requires Button: " + name, this);
             if (_hideToTrayToggle == null ||
                 _enableNotificationsToggle == null ||
                 _doNotDisturbToggle == null ||

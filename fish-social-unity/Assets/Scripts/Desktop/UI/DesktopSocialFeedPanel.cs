@@ -13,6 +13,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopSocialFeedPanel : MonoBehaviour
     {
+        bool _uiReady;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         RectTransform _content;
@@ -46,6 +47,8 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             if (_isOpen)
                 return;
             _isOpen = true;
@@ -68,6 +71,9 @@ namespace FishSocial.Desktop
 
         public void BuildEditorLayout()
         {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
             if (Find<Button>("Header/Public") == null ||
                 Find<Button>("Header/Friends") == null ||
                 Find<RectTransform>("Scroll/Viewport/Content") == null)
@@ -76,6 +82,7 @@ namespace FishSocial.Desktop
                 BuildFallbackUi();
             }
             EnsureUi();
+#endif
         }
 
         void OnDestroy()
@@ -90,15 +97,14 @@ namespace FishSocial.Desktop
 
         void EnsureUi()
         {
-            var panelImage = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-            CatTheme.ApplyPaper(panelImage);
+            _uiReady = false;
             _publicTab = Find<Button>("Header/Public");
             _friendsTab = Find<Button>("Header/Friends");
             _status = Find<Text>("Status");
             _content = Find<RectTransform>("Scroll/Viewport/Content");
             _scroll = Find<ScrollRect>("Scroll");
             if (_publicTab == null || _friendsTab == null || _status == null ||
-                _content == null || _scroll == null)
+                _content == null || _scroll == null || Find<Button>("Retry") == null)
             {
                 Debug.LogError(
                     "[DesktopUI] PanelSocialFeed Prefab 缺少必需控件。" +
@@ -107,7 +113,9 @@ namespace FishSocial.Desktop
                 return;
             }
 
+            _uiReady = true;
             RestyleUi();
+            DesktopModalUi.BindButton(transform, "Retry", Refresh);
 
             if (_publicTab != null)
             {
@@ -137,50 +145,7 @@ namespace FishSocial.Desktop
 
         void RestyleUi()
         {
-            Paper(Find<Image>("Header"));
-            Paper(Find<Image>("Scroll"));
-            Paper(Find<Image>("Scroll/Viewport"));
-            Paper(Find<Image>("Scroll/Viewport/Content"));
-            foreach (var label in GetComponentsInChildren<Text>(true))
-                StyleText(label, 16);
-            foreach (var input in GetComponentsInChildren<InputField>(true))
-                StyleInput(input);
-            Place(Find<RectTransform>("Header"), new Vector2(0f, 1f), Vector2.one,
-                new Vector2(12f, -50f), new Vector2(-12f, -10f));
-            Place(_publicTab.transform as RectTransform, Vector2.zero, new Vector2(0.5f, 1f),
-                Vector2.zero, new Vector2(-6f, 0f));
-            Place(_friendsTab.transform as RectTransform, new Vector2(0.5f, 0f), Vector2.one,
-                new Vector2(6f, 0f), Vector2.zero);
-            Place(_status.rectTransform, new Vector2(0f, 1f), Vector2.one,
-                new Vector2(16f, -86f), new Vector2(-132f, -54f));
-            Place(_scroll.transform as RectTransform, Vector2.zero, Vector2.one,
-                new Vector2(12f, 12f), new Vector2(-12f, -96f));
-            var viewport = Find<RectTransform>("Scroll/Viewport");
-            Place(viewport, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            _scroll.content = _content;
-            _scroll.viewport = viewport;
-            _scroll.horizontal = false;
-            _scroll.vertical = true;
-            _content.anchorMin = new Vector2(0f, 1f);
-            _content.anchorMax = Vector2.one;
-            _content.pivot = new Vector2(0.5f, 1f);
-            _content.offsetMin = new Vector2(0f, _content.offsetMin.y);
-            _content.offsetMax = Vector2.zero;
-            var layout = _content.GetComponent<VerticalLayoutGroup>();
-            if (layout == null && _content.GetComponent<LayoutGroup>() == null)
-                layout = _content.gameObject.AddComponent<VerticalLayoutGroup>();
-            if (layout != null)
-            {
-                layout.padding = new RectOffset(6, 6, 6, 6);
-                layout.spacing = 14f;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
-            }
-            var fitter = _content.GetComponent<ContentSizeFitter>() ?? _content.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            DesktopModalUi.StyleTree(transform);
             RestyleTabs();
         }
 
@@ -198,12 +163,8 @@ namespace FishSocial.Desktop
                 if (label != null)
                 {
                     label.text = names[index];
-                    StyleText(label, 18);
-                    label.alignment = TextAnchor.MiddleCenter;
-                    Place(label.rectTransform, Vector2.zero, Vector2.one,
-                        new Vector2(36f, 4f), new Vector2(-12f, -4f));
                 }
-                CatTheme.StyleButton(button, icons[index]);
+                DesktopModalUi.StyleButton(button, icons[index]);
                 var visual = button.GetComponent<CozyButtonVisual>();
                 if (visual != null)
                     visual.SetSelected(_friendsOnly == (index == 1));
@@ -212,6 +173,8 @@ namespace FishSocial.Desktop
 
         void Refresh()
         {
+            if (!_uiReady)
+                return;
             if (_loadRoutine != null)
                 return;
             _loadingMore = false;
@@ -316,6 +279,7 @@ namespace FishSocial.Desktop
                 Destroy(card);
                 return;
             }
+            DesktopModalUi.StyleTree(card.transform);
             binder.Bind(post, _api);
         }
 
@@ -359,10 +323,8 @@ namespace FishSocial.Desktop
 
         void CreateRetry()
         {
-            var retry = AddButton(transform, "重试", 100);
-            Place(retry.transform as RectTransform, Vector2.one, Vector2.one,
-                new Vector2(-120f, -88f), new Vector2(-12f, -54f));
-            retry.onClick.AddListener(Refresh);
+            if (!DesktopModalUi.BindButton(transform, "Retry", Refresh))
+                Debug.LogError("[DesktopUI] PanelSocialFeed requires an existing Retry Button.", this);
         }
 
         void SetStatus(string value)
@@ -417,7 +379,7 @@ namespace FishSocial.Desktop
             rt.anchorMax = Vector2.one;
             rt.offsetMin = new Vector2(12f, 4f);
             rt.offsetMax = new Vector2(-12f, -4f);
-            CatTheme.StyleButton(button);
+            DesktopModalUi.StyleButton(button);
             return button;
         }
 

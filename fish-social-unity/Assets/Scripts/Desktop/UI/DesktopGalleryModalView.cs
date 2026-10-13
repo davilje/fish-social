@@ -8,6 +8,7 @@ namespace FishSocial.Desktop
 {
     public sealed class DesktopGalleryModalView : MonoBehaviour
     {
+        bool _uiReady;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         Text _status;
@@ -20,54 +21,21 @@ namespace FishSocial.Desktop
         {
             _api = api;
             _pond = pond;
+            DesktopModalUi.StyleTree(transform);
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
             _grid = DesktopModalUi.FindChild(transform, "Grid/Species");
             DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
-            if (_status == null || _detail == null || _grid == null)
-                Debug.LogError("[DesktopUI] PanelGallery prefab is missing required controls.");
-        }
-
-        void ApplyResponsiveLayout()
-        {
-            var root = transform as RectTransform;
-            if (root == null)
-                return;
-            root.anchorMin = Vector2.zero;
-            root.anchorMax = Vector2.one;
-            root.offsetMin = Vector2.zero;
-            root.offsetMax = Vector2.zero;
-
-            var grid = DesktopModalUi.FindChild(transform, "Grid") as RectTransform;
-            if (grid != null)
-            {
-                grid.anchorMin = Vector2.zero;
-                grid.anchorMax = new Vector2(0.56f, 1f);
-                grid.offsetMin = Vector2.zero;
-                grid.offsetMax = new Vector2(-8f, -36f);
-            }
-
-            var content = _grid != null ? _grid.GetComponent<GridLayoutGroup>() : null;
-            if (content != null)
-            {
-                content.cellSize = new Vector2(92f, 56f);
-                content.spacing = new Vector2(6f, 6f);
-                content.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                content.constraintCount = 4;
-            }
-
-            if (_detail != null)
-            {
-                var detail = _detail.rectTransform;
-                detail.anchorMin = new Vector2(0.56f, 0f);
-                detail.anchorMax = Vector2.one;
-                detail.offsetMin = new Vector2(10f, 8f);
-                detail.offsetMax = new Vector2(-8f, -36f);
-            }
+            _uiReady = _status != null && _detail != null && _grid != null &&
+                DesktopModalUi.FindComponent<Button>(transform, "Retry") != null;
+            if (!_uiReady)
+                Debug.LogError("[DesktopUI] PanelGallery prefab is missing required controls.", this);
         }
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             if (_pond != null)
                 _pond.CodexUnlocked += OnUnlocked;
             StartCoroutine(Load());
@@ -151,18 +119,22 @@ namespace FishSocial.Desktop
                 if (slot == null)
                     continue;
                 slot.name = def.speciesId;
-                var image = slot.GetComponent<Image>();
-                if (image != null)
-                    image.color = def.speciesId == _selectedId ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
                 var label = unlocked ? DesktopGameData.SpeciesName(def.speciesId) : "？？？";
                 var text = DesktopUiPrefabFactory.Child(slot, "Label");
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
                     labelText.text = label;
+                DesktopModalUi.StyleTree(slot.transform);
                 var captured = def.speciesId;
                 var button = slot.GetComponent<Button>();
                 if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
                     button.onClick.AddListener(() => Select(captured));
+                    var visual = button.GetComponent<CozyButtonVisual>();
+                    if (visual != null)
+                        visual.SetSelected(def.speciesId == _selectedId);
+                }
             }
         }
 

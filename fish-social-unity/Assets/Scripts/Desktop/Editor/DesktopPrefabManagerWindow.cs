@@ -21,8 +21,8 @@ namespace FishSocial.Desktop.Editor
         string _newDescription = string.Empty;
         int _newTemplate;
         string _notice =
-            "创建缺失项会走 DesktopPrefabCatalog（生成+灌布局一步）。" +
-            "新 UI 必须先登记 Catalog 再开发；禁止再加单面板 Bake 菜单。";
+            "Cozy 修复只保存已提供的完整 Prefab；缺失页面不会生成空壳。" +
+            "保留用户节点和布局，只修复持久化 Sprite、Sliced 和按钮状态。";
 
         [MenuItem(MenuPath, false, 20)]
         static void Open()
@@ -38,7 +38,7 @@ namespace FishSocial.Desktop.Editor
             DrawToolbar();
             EditorGUILayout.HelpBox(
                 "桌面端 UI Prefab 唯一管理入口（DesktopPrefabCatalog）。" +
-                "创建 = 生成完整结构；运行时只绑定数据。",
+                "普通页面只修复持久化与校验，不重建布局；缺失时请导入完整序列化 Prefab。Overlay 保留原流程。",
                 MessageType.Info);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
@@ -67,14 +67,37 @@ namespace FishSocial.Desktop.Editor
                 }
                 if (GUILayout.Button("新增 Prefab", EditorStyles.toolbarButton, GUILayout.Width(86f)))
                     _showCreate = !_showCreate;
-                if (GUILayout.Button("补齐全部", EditorStyles.toolbarButton, GUILayout.Width(80f)))
+                if (GUILayout.Button("检查/修复全部", EditorStyles.toolbarButton, GUILayout.Width(100f)))
                 {
                     DesktopPrefabCatalog.EnsureAll();
-                    _notice = "已按 Catalog 补齐全部 Prefab（缺失项已生成）。";
+                    _notice = "已按 Catalog 检查/修复完整 Prefab；缺失或不完整项请查看 Console。";
                     Repaint();
                 }
                 if (GUILayout.Button("一键更新", EditorStyles.toolbarButton, GUILayout.Width(80f)))
                     UpdateAll();
+            }
+
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+            {
+                if (GUILayout.Button("修复/烘焙 Cozy Sprite（保留布局）", EditorStyles.toolbarButton))
+                {
+                    try
+                    {
+                        CozyPrefabRepair.RepairAll();
+                        _notice = "修复完成；拒绝保存的 Prefab 详见 Console。请继续执行持久化校验。";
+                    }
+                    catch (Exception exception)
+                    {
+                        _notice = "修复失败：" + exception.Message;
+                        Debug.LogException(exception);
+                    }
+                }
+                if (GUILayout.Button("校验 Cozy 持久化", EditorStyles.toolbarButton))
+                {
+                    CozyThemeValidationMenu.ValidateAssets();
+                    var errors = CozyPrefabRepair.ValidateAll();
+                    _notice = "Prefab 校验问题数：" + errors + "；素材问题请查看 Console。";
+                }
             }
 
             if (_showCreate)
@@ -127,8 +150,7 @@ namespace FishSocial.Desktop.Editor
 
                     if (status == PrefabStatus.Valid)
                     {
-                        if (NeedsLayoutBootstrap(definition.Name) &&
-                            GUILayout.Button("初始化", GUILayout.Width(56f)))
+                        if (GUILayout.Button("修复", GUILayout.Width(56f)))
                         {
                             PopulateDefinition(definition.Name);
                             AssetDatabase.Refresh();
@@ -158,7 +180,9 @@ namespace FishSocial.Desktop.Editor
                 if (prefab == null)
                 {
                     EditorGUILayout.LabelField("路径", path, EditorStyles.miniLabel);
-                    if (GUILayout.Button("创建", GUILayout.Width(56f)))
+                    EditorGUILayout.LabelField("请提供完整 Prefab；不会回退到旧 builder 或生成空壳。", EditorStyles.miniLabel);
+                    if (definition.Name.StartsWith("Overlay", StringComparison.Ordinal) &&
+                        GUILayout.Button("创建 Overlay", GUILayout.Width(110f)))
                     {
                         CreateDefinition(definition.Name);
                         AssetDatabase.Refresh();
@@ -166,69 +190,6 @@ namespace FishSocial.Desktop.Editor
                     }
                 }
             }
-        }
-
-        static bool NeedsLayoutBootstrap(string name)
-        {
-            if (name != "PanelProfile" &&
-                name != "PanelProfileEdit" &&
-                name != "PanelProfileHub" &&
-                name != "PanelShop" &&
-                name != "PanelSettings" &&
-                name != "PanelSocialFeed" &&
-                name != "PanelLeaderboard" &&
-                name != "PanelPondSettlement" &&
-                name != "SocialPostCard" &&
-                name != "PostCommentRow" &&
-                name != "LeaderboardRow" &&
-                name != "AchievementRow")
-                return false;
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                Folder + "/" + name + ".prefab");
-            if (prefab == null)
-                return false;
-            if (name == "PanelProfileHub")
-                return !DesktopPrefabValidator.HasProfileHubStructure();
-            if (name == "AchievementRow")
-                return prefab.transform.Find("Label") == null;
-            if (name == "PanelSettings")
-                return DesktopModalUi.FindDescendant(prefab.transform, "服务器地址输入") == null ||
-                       DesktopModalUi.FindDescendant(prefab.transform, "保存服务器地址") == null ||
-                       DesktopModalUi.FindDescendant(prefab.transform, "测试服务器连接") == null ||
-                       DesktopModalUi.FindDescendant(prefab.transform, "重置新手引导") == null;
-            if (name == "PanelSocialFeed")
-                return prefab.transform.Find("Header/Public") == null ||
-                       prefab.transform.Find("Header/Friends") == null ||
-                       prefab.transform.Find("Scroll/Viewport/Content") == null;
-            if (name == "PanelLeaderboard")
-                return prefab.transform.Find("Tabs/Daily") == null ||
-                       prefab.transform.Find("Tabs/Weekly") == null ||
-                       prefab.transform.Find("Tabs/Pond") == null ||
-                       prefab.transform.Find("Tabs/Rare") == null ||
-                       prefab.transform.Find("Podium/Slot1") == null ||
-                       prefab.transform.Find("Podium/Slot2") == null ||
-                       prefab.transform.Find("Podium/Slot3") == null ||
-                       prefab.transform.Find("Scroll/Viewport/Content") == null ||
-                       prefab.transform.Find("MyRank") == null;
-            if (name == "PanelPondSettlement")
-                return !DesktopPrefabValidator.HasPondSettlementStructure();
-            if (name == "SocialPostCard")
-                return prefab.GetComponent<DesktopSocialPostCard>() == null ||
-                       prefab.transform.Find("Header/AuthorText") == null ||
-                       prefab.transform.Find("Photo") == null ||
-                       prefab.transform.Find("Actions/LikeButton") == null ||
-                       prefab.transform.Find("Actions/CommentsButton") == null ||
-                       prefab.transform.Find("CommentsPanel/CommentsContent") == null ||
-                       prefab.transform.Find("CommentsPanel/CommentInput") == null ||
-                       prefab.transform.Find("CommentsPanel/SendButton") == null;
-            if (name == "PostCommentRow")
-                return prefab.transform.Find("Text") == null ||
-                       prefab.transform.Find("Delete") == null;
-            if (name == "LeaderboardRow")
-                return prefab.transform.Find("Rank") == null ||
-                       prefab.transform.Find("Nickname") == null ||
-                       prefab.transform.Find("Value") == null;
-            return prefab.transform.Find("Header") == null;
         }
 
         static void CreateDefinition(string name)
@@ -248,7 +209,7 @@ namespace FishSocial.Desktop.Editor
             catch (Exception ex)
             {
                 Debug.LogError("[DesktopUI] Ensure " + name + " failed: " + ex);
-                EditorUtility.DisplayDialog("创建失败", name + "\n" + ex.Message, "确定");
+                EditorUtility.DisplayDialog("检查/修复失败", name + "\n" + ex.Message, "确定");
             }
         }
 
@@ -313,6 +274,7 @@ namespace FishSocial.Desktop.Editor
                 string.Equals(stage.assetPath.Replace("\\", "/"), path,
                     StringComparison.OrdinalIgnoreCase))
             {
+                PrepareForSave(stage.prefabContentsRoot, path);
                 bool success;
                 PrefabUtility.SaveAsPrefabAsset(stage.prefabContentsRoot, path, out success);
                 if (success)
@@ -328,6 +290,7 @@ namespace FishSocial.Desktop.Editor
                 string.Equals(GetPrefabAssetPath(instanceRoot), path,
                     StringComparison.OrdinalIgnoreCase))
             {
+                PrepareForSave(instanceRoot, path);
                 PrefabUtility.ApplyPrefabInstance(instanceRoot, InteractionMode.UserAction);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
@@ -340,6 +303,13 @@ namespace FishSocial.Desktop.Editor
 
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             return true;
+        }
+
+        static void PrepareForSave(GameObject root, string path)
+        {
+            var entry = DesktopPrefabCatalog.Find(Path.GetFileNameWithoutExtension(path));
+            CozyPrefabRepair.PrepareForSave(root, Path.GetFileNameWithoutExtension(path),
+                entry != null ? entry.ComponentType : null);
         }
 
         static void ViewPrefab(string path)

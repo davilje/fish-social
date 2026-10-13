@@ -9,10 +9,6 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopProductMenuView : MonoBehaviour
     {
-        const float ItemHeight = 36f;
-        const float MenuWidth = 208f;
-        const float SeparatorHeight = 8f;
-
         static readonly MenuEntry[] Entries =
         {
             new MenuEntry(DesktopProductMenuAction.CurrentPond, "当前鱼塘", false),
@@ -129,175 +125,55 @@ namespace FishSocial.Desktop
 
         void Build(Transform canvas)
         {
-            var prefab = Resources.Load<GameObject>("Desktop/Prefabs/ProductContextMenu");
-            if (prefab != null)
-            {
-                _root = UnityEngine.Object.Instantiate(prefab, canvas, false);
-                _root.name = "ProductContextMenu";
-                _rootRt = _root.GetComponent<RectTransform>();
-                _panel = _root.transform.Find("MenuPanel") as RectTransform;
-                var dismiss = _root.GetComponent<Button>();
-                if (dismiss != null)
-                {
-                    dismiss.onClick.RemoveAllListeners();
-                    dismiss.onClick.AddListener(OnDismiss);
-                }
-                var itemTemplate = _panel != null
-                    ? _panel.Find("MenuItemTemplate")?.gameObject
-                    : null;
-                var sepTemplate = _panel != null
-                    ? _panel.Find("SeparatorTemplate")?.gameObject
-                    : null;
-                if (_panel != null)
-                {
-                    foreach (var entry in Entries)
-                    {
-                        if (entry.SeparatorBefore)
-                            SpawnFromTemplate(sepTemplate, _panel, "Separator");
-                        SpawnMenuItem(itemTemplate, _panel, entry.Label, entry.Action);
-                    }
-                }
+            if (_root != null || canvas == null)
                 return;
-            }
-
-            Debug.LogWarning("[ProductMenu] ProductContextMenu.prefab missing; building at runtime.");
-            BuildRuntimeFallback(canvas);
-        }
-
-        void SpawnFromTemplate(GameObject template, Transform parent, string name)
-        {
-            GameObject go;
-            if (template != null)
+            var existing = canvas.Find("PopupProductMenu") ?? canvas.Find("ProductContextMenu");
+            var instance = existing != null ? existing.gameObject : null;
+            var created = instance == null;
+            if (created)
             {
-                go = UnityEngine.Object.Instantiate(template, parent, false);
-                go.SetActive(true);
+                var prefab = Resources.Load<GameObject>("Desktop/Prefabs/ProductContextMenu");
+                if (prefab == null)
+                {
+                    Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/ProductContextMenu", this);
+                    return;
+                }
+                instance = Object.Instantiate(prefab, canvas, false);
+                instance.name = "ProductContextMenu";
             }
-            else
-            {
-                go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
-                go.transform.SetParent(parent, false);
-                go.GetComponent<LayoutElement>().preferredHeight = SeparatorHeight;
-                go.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
-            }
-            go.name = name;
-        }
-
-        void SpawnMenuItem(GameObject template, Transform parent, string label, DesktopProductMenuAction action)
-        {
-            GameObject go;
-            if (template != null)
-            {
-                go = UnityEngine.Object.Instantiate(template, parent, false);
-                go.SetActive(true);
-            }
-            else
-            {
-                CreateItem(parent, label, action);
-                return;
-            }
-            go.name = label;
-            var text = go.transform.Find("Label")?.GetComponent<Text>();
-            if (text != null)
-                text.text = label;
-            var button = go.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.RemoveAllListeners();
-                var captured = action;
-                button.onClick.AddListener(() => OnItemClicked(captured));
-            }
-        }
-
-        void BuildRuntimeFallback(Transform canvas)
-        {
-            _root = new GameObject("ProductContextMenu", typeof(RectTransform), typeof(Image));
-            _root.transform.SetParent(canvas, false);
-            _rootRt = _root.GetComponent<RectTransform>();
-            _rootRt.anchorMin = Vector2.zero;
-            _rootRt.anchorMax = Vector2.one;
-            _rootRt.offsetMin = Vector2.zero;
-            _rootRt.offsetMax = Vector2.zero;
-            var rootImage = _root.GetComponent<Image>();
-            rootImage.color = new Color(0f, 0f, 0f, 0f);
-            rootImage.raycastTarget = true;
-
-            var dismiss = _root.AddComponent<Button>();
-            dismiss.transition = Selectable.Transition.None;
-            dismiss.onClick.AddListener(OnDismiss);
-
-            var panelGo = new GameObject("MenuPanel", typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-            panelGo.transform.SetParent(_root.transform, false);
-            _panel = panelGo.GetComponent<RectTransform>();
-            _panel.anchorMin = new Vector2(0.5f, 0.5f);
-            _panel.anchorMax = new Vector2(0.5f, 0.5f);
-            _panel.pivot = new Vector2(0f, 1f);
-            _panel.sizeDelta = new Vector2(MenuWidth, 8f);
-            panelGo.GetComponent<Image>().color = new Color(0.12f, 0.17f, 0.22f, 0.98f);
-            panelGo.GetComponent<Image>().raycastTarget = true;
-
-            var layout = panelGo.GetComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(6, 6, 6, 6);
-            layout.spacing = 2;
-            layout.childAlignment = TextAnchor.UpperCenter;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
-            var fitter = panelGo.GetComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
+            var rootRect = instance.GetComponent<RectTransform>();
+            var panel = instance.transform.Find("MenuPanel") as RectTransform;
+            var dismiss = instance.GetComponent<Button>();
+            var valid = rootRect != null && panel != null && dismiss != null;
             foreach (var entry in Entries)
             {
-                if (entry.SeparatorBefore)
-                    CreateSeparator(panelGo.transform);
-                CreateItem(panelGo.transform, entry.Label, entry.Action);
+                var button = DesktopModalUi.FindComponent<Button>(panel, entry.Action.ToString());
+                var label = button != null ? DesktopModalUi.FindComponent<Text>(button.transform, "Label") : null;
+                if (button == null || label == null)
+                {
+                    Debug.LogError("[DesktopUI] ProductContextMenu requires MenuPanel/" + entry.Action + " Button/Label Text.", instance);
+                    valid = false;
+                    continue;
+                }
+                label.text = entry.Label;
+                button.onClick.RemoveAllListeners();
+                var action = entry.Action;
+                button.onClick.AddListener(() => OnItemClicked(action));
             }
-        }
-
-        void CreateSeparator(Transform parent)
-        {
-            var go = new GameObject("Separator", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
-            go.transform.SetParent(parent, false);
-            go.GetComponent<LayoutElement>().preferredHeight = SeparatorHeight;
-            go.GetComponent<LayoutElement>().minHeight = SeparatorHeight;
-            var image = go.GetComponent<Image>();
-            image.color = new Color(1f, 1f, 1f, 0.12f);
-            image.raycastTarget = false;
-        }
-
-        void CreateItem(Transform parent, string label, DesktopProductMenuAction action)
-        {
-            var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-            go.transform.SetParent(parent, false);
-            go.GetComponent<LayoutElement>().preferredHeight = ItemHeight;
-            go.GetComponent<LayoutElement>().minHeight = ItemHeight;
-            var image = go.GetComponent<Image>();
-            image.color = new Color(0.18f, 0.26f, 0.32f, 1f);
-
-            var textGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
-            textGo.transform.SetParent(go.transform, false);
-            var textRt = textGo.GetComponent<RectTransform>();
-            textRt.anchorMin = Vector2.zero;
-            textRt.anchorMax = Vector2.one;
-            textRt.offsetMin = new Vector2(12f, 0f);
-            textRt.offsetMax = new Vector2(-8f, 0f);
-            var text = textGo.GetComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.text = label;
-            text.fontSize = 16;
-            text.color = Color.white;
-            text.alignment = TextAnchor.MiddleLeft;
-            text.raycastTarget = false;
-
-            var button = go.GetComponent<Button>();
-            var colors = button.colors;
-            colors.highlightedColor = new Color(0.28f, 0.42f, 0.5f, 1f);
-            colors.pressedColor = new Color(0.16f, 0.32f, 0.4f, 1f);
-            button.colors = colors;
-            var captured = action;
-            button.onClick.AddListener(() => OnItemClicked(captured));
+            if (!valid)
+            {
+                Debug.LogError("[DesktopUI] ProductContextMenu requires a root RectTransform/Button and complete MenuPanel.", instance);
+                instance.SetActive(false);
+                if (created)
+                    Object.Destroy(instance);
+                return;
+            }
+            _root = instance;
+            _rootRt = rootRect;
+            _panel = panel;
+            dismiss.onClick.RemoveAllListeners();
+            dismiss.onClick.AddListener(OnDismiss);
+            DesktopModalUi.StyleTree(_root.transform);
         }
     }
 }

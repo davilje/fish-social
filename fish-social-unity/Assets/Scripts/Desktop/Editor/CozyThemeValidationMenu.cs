@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,30 +6,35 @@ namespace FishSocial.Desktop.Editor
 {
     public static class CozyThemeValidationMenu
     {
-        [MenuItem("Fish Social/Cozy UI/检查最终版素材")]
         public static void ValidateAssets()
         {
-            var directory = Path.Combine(Application.streamingAssetsPath, "DesktopTheme", "Cozy");
             var errors = 0;
             foreach (var icon in new[] { "home", "map", "pond", "hook", "bag", "rod", "shop", "medal", "trophy", "user", "social" })
-                CheckFile(directory, "icons/" + icon + ".png", ref errors);
+                CheckSprite("icons/" + icon + ".png", ref errors);
             foreach (var state in new[] { "default", "hover", "pressed" })
-                CheckFile(directory, "buttons/plate-" + state + ".png", ref errors);
-            CheckFile(directory, "scenes/world-map.png", ref errors);
-            CheckFile(directory, "scenes/pond-afternoon.png", ref errors);
-            CheckFile(directory, "characters/cat-ready.png", ref errors);
-            CheckFile(directory, "characters/cat-avatar.png", ref errors);
-            CheckFile(directory, "manifest.json", ref errors);
+                CheckSprite("buttons/plate-" + state + ".png", ref errors);
+            CheckSprite("panels/paper.png", ref errors);
+            CheckSprite("scenes/world-map.png", ref errors);
+            CheckSprite("scenes/home-sakura.png", ref errors);
+            CheckSprite("brand/meow-fish.png", ref errors);
+            CheckSprite("characters/cat-portrait.png", ref errors);
             if (errors == 0)
-                Debug.Log("[Cozy UI] 最终版素材完整。请运行 DesktopMain 场景并完成 Steam 登录进行页面验收。");
+                Debug.Log("[Cozy UI] Resources Sprite 和导入 border 完整；仍需执行 Prefab 持久化校验与运行验收。");
         }
 
-        static void CheckFile(string directory, string relativePath, ref int errors)
+        static void CheckSprite(string relativePath, ref int errors)
         {
-            if (File.Exists(Path.Combine(directory, relativePath)))
+            var path = CozyPrefabRepair.ThemeFolder + "/" + relativePath;
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (sprite != null && texture != null && importer != null
+                && importer.textureType == TextureImporterType.Sprite && importer.spriteImportMode == SpriteImportMode.Single
+                && EditorUtility.IsPersistent(sprite) && CatTheme.LoadCozy(relativePath, Vector4.zero) == sprite
+                && sprite.border == CozyPrefabRepair.ExpectedBorder(path, texture.width, texture.height))
                 return;
             errors++;
-            Debug.LogError("[Cozy UI] 缺少素材：" + relativePath);
+            Debug.LogError("[Cozy UI] 缺少真正导入的 Resources Sprite 或 border 不正确：" + path);
         }
     }
 }

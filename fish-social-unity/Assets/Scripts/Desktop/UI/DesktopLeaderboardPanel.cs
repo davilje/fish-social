@@ -12,6 +12,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopLeaderboardPanel : MonoBehaviour
     {
+        bool _uiReady;
         const int PageLimit = 50;
         const int RowsPerFrame = 12;
         const float ClientCacheSeconds = 300f;
@@ -68,6 +69,8 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             _boardType = BoardDaily;
             EnsureUi();
             RefreshNow();
@@ -83,6 +86,9 @@ namespace FishSocial.Desktop
 
         public void BuildEditorLayout()
         {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
             if (Find<Button>("Tabs/Daily") == null ||
                 Find<RectTransform>("Scroll/Viewport/Content") == null ||
                 Find<Transform>("Podium/Slot1") == null)
@@ -91,12 +97,12 @@ namespace FishSocial.Desktop
                 BuildFallbackUi();
             }
             EnsureUi();
+#endif
         }
 
         void EnsureUi()
         {
-            var panelImage = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-            CatTheme.ApplyPaper(panelImage);
+            _uiReady = false;
 
             _dailyTab = Find<Button>("Tabs/Daily");
             _weeklyTab = Find<Button>("Tabs/Weekly");
@@ -113,21 +119,21 @@ namespace FishSocial.Desktop
 
             if (_dailyTab == null || _weeklyTab == null || _pondTab == null ||
                 _rareTab == null || _status == null || _myRank == null ||
-                _scroll == null || _content == null ||
-                _podium1.root == null || _podium2.root == null || _podium3.root == null)
+                _scroll == null || _content == null || _retry == null ||
+                _podium1.root == null || _podium2.root == null || _podium3.root == null ||
+                _podium1.nickname == null || _podium2.nickname == null || _podium3.nickname == null ||
+                _podium1.value == null || _podium2.value == null || _podium3.value == null ||
+                _podium1.avatar == null || _podium2.avatar == null || _podium3.avatar == null)
             {
-                Debug.LogWarning(
-                    "[DesktopUI] PanelLeaderboard Prefab 缺少必需控件，使用运行时回退布局。" +
-                    "请在 Unity Prefab Manager 中执行“初始化”。");
-                BuildFallbackUi();
+                Debug.LogError("[DesktopUI] PanelLeaderboard requires Tabs/{Daily,Weekly,Pond,Rare}, Status, MyRank, Retry, Scroll/Viewport/Content and complete Podium/Slot1..3.", this);
+                return;
             }
 
             if (_dailyTab == null || _weeklyTab == null || _pondTab == null ||
                 _rareTab == null || _scroll == null || _content == null)
                 return;
 
-            _scroll.horizontal = false;
-            _scroll.vertical = true;
+            _uiReady = true;
             RestyleUi();
 
             BindTab(_dailyTab, BoardDaily);
@@ -149,62 +155,10 @@ namespace FishSocial.Desktop
 
         void RestyleUi()
         {
-            foreach (var path in new[] { "Tabs", "Podium", "Scroll", "Scroll/Viewport", "Scroll/Viewport/Content" })
-                Paper(Find<Image>(path));
-            foreach (var label in GetComponentsInChildren<Text>(true))
-                StyleText(label, 16);
-            Place(Find<RectTransform>("Tabs"), new Vector2(0f, 1f), Vector2.one,
-                new Vector2(12f, -54f), new Vector2(-132f, -10f));
-            var tabs = new[] { _dailyTab, _weeklyTab, _pondTab, _rareTab };
-            for (var index = 0; index < tabs.Length; index++)
-                Place(tabs[index].transform as RectTransform, new Vector2(index / 4f, 0f),
-                    new Vector2((index + 1) / 4f, 1f), new Vector2(3f, 0f), new Vector2(-3f, 0f));
-            if (_retry != null)
-            {
-                StyleAction(_retry, null, "刷新");
-                Place(_retry.transform as RectTransform, Vector2.one, Vector2.one,
-                    new Vector2(-120f, -54f), new Vector2(-12f, -10f));
-            }
-            Place(Find<RectTransform>("Podium"), new Vector2(0f, 1f), Vector2.one,
-                new Vector2(12f, -198f), new Vector2(-12f, -66f));
+            DesktopModalUi.StyleTree(transform);
             RestylePodium(_podium1, 1);
             RestylePodium(_podium2, 2);
             RestylePodium(_podium3, 3);
-            Place(_status != null ? _status.rectTransform : null, new Vector2(0f, 1f), Vector2.one,
-                new Vector2(16f, -234f), new Vector2(-16f, -204f));
-            Place(_scroll.transform as RectTransform, Vector2.zero, Vector2.one,
-                new Vector2(12f, 48f), new Vector2(-12f, -242f));
-            Place(_myRank != null ? _myRank.rectTransform : null, Vector2.zero, new Vector2(1f, 0f),
-                new Vector2(16f, 8f), new Vector2(-16f, 40f));
-            if (_myRank != null)
-                _myRank.fontStyle = FontStyle.Bold;
-            var viewport = Find<RectTransform>("Scroll/Viewport");
-            Place(viewport, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            _scroll.content = _content;
-            _scroll.viewport = viewport;
-            _content.anchorMin = new Vector2(0f, 1f);
-            _content.anchorMax = Vector2.one;
-            _content.pivot = new Vector2(0.5f, 1f);
-            _content.offsetMin = new Vector2(0f, _content.offsetMin.y);
-            _content.offsetMax = Vector2.zero;
-            var layout = _content.GetComponent<VerticalLayoutGroup>();
-            if (layout == null && _content.GetComponent<LayoutGroup>() == null)
-                layout = _content.gameObject.AddComponent<VerticalLayoutGroup>();
-            if (layout != null)
-            {
-                layout.padding = new RectOffset(4, 4, 4, 4);
-                layout.spacing = 8f;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
-            }
-            var fitter = _content.GetComponent<ContentSizeFitter>() ?? _content.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            foreach (var row in _rowPool)
-                if (row != null)
-                    RestyleRow(row);
             RestyleTabs();
         }
 
@@ -228,60 +182,16 @@ namespace FishSocial.Desktop
         {
             if (slot.root == null)
                 return;
-            Paper(slot.root.GetComponent<Image>());
-            var layout = slot.root.GetComponent<LayoutGroup>();
-            if (layout != null)
-                layout.enabled = false;
-            Place(slot.root.transform as RectTransform, new Vector2((rank - 1) / 3f, 0f),
-                new Vector2(rank / 3f, 1f), new Vector2(4f, 0f), new Vector2(-4f, 0f));
             var position = FindIn<Text>(slot.root.transform, "Rank") ?? FindIn<Text>(slot.root.transform, "Position");
-            if (position == null)
-                position = CreateText(slot.root.transform, "Position", string.Empty, -1f);
-            position.text = "第 " + rank + " 名";
-            StyleText(position, 16);
-            position.fontStyle = FontStyle.Bold;
-            Place(position.rectTransform, new Vector2(0f, 0.68f), Vector2.one,
-                new Vector2(82f, 0f), new Vector2(-12f, -6f));
-            StyleText(slot.nickname, 18);
-            Place(slot.nickname != null ? slot.nickname.rectTransform : null,
-                new Vector2(0f, 0.38f), new Vector2(1f, 0.68f), new Vector2(82f, 0f), new Vector2(-12f, 0f));
-            StyleText(slot.value, 16);
-            Place(slot.value != null ? slot.value.rectTransform : null, Vector2.zero, new Vector2(1f, 0.38f),
-                new Vector2(12f, 8f), new Vector2(-12f, 0f));
-            if (slot.avatar != null)
-            {
-                if (slot.avatar.sprite == null)
-                    slot.avatar.sprite = CatTheme.LoadCozy("icons/user.png", Vector4.zero);
-                slot.avatar.color = slot.avatar.sprite != null ? Color.white : CatTheme.Cream;
-                slot.avatar.preserveAspect = true;
-                Place(slot.avatar.rectTransform, new Vector2(0f, 0.66f), new Vector2(0f, 0.66f),
-                    new Vector2(14f, -28f), new Vector2(70f, 28f));
-            }
+            if (position != null)
+                position.text = "第 " + rank + " 名";
+            DesktopModalUi.StyleTree(slot.root.transform);
         }
 
         static void RestyleRow(GameObject row)
         {
-            Paper(row.GetComponent<Image>());
-            var layout = row.GetComponent<LayoutGroup>();
-            if (layout != null)
-                layout.enabled = false;
-            var element = row.GetComponent<LayoutElement>() ?? row.AddComponent<LayoutElement>();
-            element.minHeight = 56f;
-            element.preferredHeight = 56f;
-            element.flexibleHeight = 0f;
-            var names = new[] { "Rank", "Nickname", "Value" };
-            var starts = new[] { 0f, 0.12f, 0.51f };
-            var ends = new[] { 0.12f, 0.51f, 1f };
-            for (var index = 0; index < names.Length; index++)
-            {
-                var label = FindIn<Text>(row.transform, names[index]);
-                StyleText(label, index == 0 ? 18 : 16);
-                if (label == null)
-                    continue;
-                label.alignment = index == 2 ? TextAnchor.MiddleRight : TextAnchor.MiddleLeft;
-                Place(label.rectTransform, new Vector2(starts[index], 0f), new Vector2(ends[index], 1f),
-                    new Vector2(12f, 4f), new Vector2(-12f, -4f));
-            }
+            if (row != null)
+                DesktopModalUi.StyleTree(row.transform);
         }
 
         static void StyleAction(Button button, string icon, string title)
@@ -292,13 +202,8 @@ namespace FishSocial.Desktop
             if (label != null)
             {
                 label.text = title;
-                StyleText(label, 16);
-                label.alignment = TextAnchor.MiddleCenter;
-                Stretch(label.rectTransform);
-                label.rectTransform.offsetMin = new Vector2(icon == null ? 10f : 36f, 4f);
-                label.rectTransform.offsetMax = new Vector2(-10f, -4f);
             }
-            CatTheme.StyleButton(button, icon);
+            DesktopModalUi.StyleButton(button, icon);
         }
 
         static void StyleText(Text label, int size)
@@ -363,6 +268,8 @@ namespace FishSocial.Desktop
 
         void RefreshNow()
         {
+            if (!_uiReady)
+                return;
             CancelLoads();
             var generation = ++_loadGeneration;
             _loadRoutine = StartCoroutine(LoadRoutine(generation));
@@ -807,6 +714,8 @@ namespace FishSocial.Desktop
 
                     EnsureRowSlot(bound);
                     var row = _rowPool[bound];
+                    if (row == null)
+                        yield break;
                     row.SetActive(true);
                     BindRow(row, entries[sourceIndex], boardType);
                     bound++;
@@ -846,23 +755,7 @@ namespace FishSocial.Desktop
                 return row;
             }
 
-            row = new GameObject("LeaderboardRow", typeof(RectTransform),
-                typeof(Image), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            row.transform.SetParent(_content, false);
-            CatTheme.ApplyPaper(row.GetComponent<Image>());
-            var layout = row.GetComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(10, 10, 6, 6);
-            layout.spacing = 10f;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = false;
-            var element = row.GetComponent<LayoutElement>();
-            element.minHeight = 40f;
-            element.preferredHeight = 40f;
-            CreateText(row.transform, "Rank", "#4", 80f);
-            CreateText(row.transform, "Nickname", "钓友", 180f);
-            CreateText(row.transform, "Value", "成绩", 220f);
-            RestyleRow(row);
+            Debug.LogError("[DesktopUI] Required data prefab is missing: Desktop/Prefabs/LeaderboardRow", this);
             return row;
         }
 
@@ -1096,7 +989,7 @@ namespace FishSocial.Desktop
             text.alignment = TextAnchor.MiddleCenter;
             Stretch(text.rectTransform);
             var button = go.GetComponent<Button>();
-            CatTheme.StyleButton(button);
+            DesktopModalUi.StyleButton(button);
             return button;
         }
 

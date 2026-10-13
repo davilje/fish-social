@@ -4,110 +4,36 @@ namespace FishSocial.Desktop
 {
     static class DesktopFeaturePanelFactory
     {
-        public static T Mount<T>(Transform parent, System.Action<T> bind) where T : MonoBehaviour
-        {
-            var prefab = Resources.Load<GameObject>("Desktop/Prefabs/" + PrefabName<T>());
-            if (prefab == null)
-            {
-                if (typeof(T) == typeof(DesktopWorldMapPanel))
-                {
-                    var fallback = new GameObject(
-                        "PanelWorldMap",
-                        typeof(RectTransform),
-                        typeof(UnityEngine.UI.Image),
-                        typeof(DesktopWorldMapPanel));
-                    fallback.transform.SetParent(parent, false);
-                    var fallbackRect = fallback.GetComponent<RectTransform>();
-                    fallbackRect.anchorMin = Vector2.zero;
-                    fallbackRect.anchorMax = Vector2.one;
-                    fallbackRect.offsetMin = Vector2.zero;
-                    fallbackRect.offsetMax = Vector2.zero;
-                    var fallbackView = fallback.GetComponent<T>();
-                    bind(fallbackView);
-                    CatTheme.SkinTree(fallbackView.transform);
-                    Debug.LogWarning("[DesktopUI] PanelWorldMap prefab is missing; using editor-generated fallback.");
-                    return fallbackView;
-                }
-                if (typeof(T) == typeof(DesktopShopPanel))
-                {
-                    var fallback = new GameObject(
-                        "PanelShop",
-                        typeof(RectTransform),
-                        typeof(UnityEngine.UI.Image),
-                        typeof(DesktopShopPanel));
-                    fallback.transform.SetParent(parent, false);
-                    var fallbackRect = fallback.GetComponent<RectTransform>();
-                    fallbackRect.anchorMin = Vector2.zero;
-                    fallbackRect.anchorMax = Vector2.one;
-                    fallbackRect.offsetMin = Vector2.zero;
-                    fallbackRect.offsetMax = Vector2.zero;
-                    var fallbackView = fallback.GetComponent<T>();
-                    bind(fallbackView);
-                    CatTheme.SkinTree(fallbackView.transform);
-                    Debug.LogWarning("[DesktopUI] PanelShop prefab is missing; using editor-generated fallback.");
-                    return fallbackView;
-                }
-                if (typeof(T) == typeof(DesktopProfilePanel))
-                    return MountFallback<T>(parent, "PanelProfile", bind);
-                if (typeof(T) == typeof(DesktopProfileHubPanel))
-                    return MountFallback<T>(parent, "PanelProfileHub", bind);
-                if (typeof(T) == typeof(DesktopProfileEditPanel))
-                    return MountFallback<T>(parent, "PanelProfileEdit", bind);
-                if (typeof(T) == typeof(DesktopSocialFeedPanel))
-                    return MountFallback<T>(parent, "PanelSocialFeed", bind);
-                if (typeof(T) == typeof(DesktopLeaderboardPanel))
-                    return MountFallback<T>(parent, "PanelLeaderboard", bind);
-                Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/" +
-                               PrefabName<T>());
-                return null;
-            }
-
-            var instance = Object.Instantiate(prefab, parent, false);
-            instance.name = typeof(T).Name;
-            var view = instance.GetComponent<T>();
-            if (view == null)
-            {
-                if (typeof(T) == typeof(DesktopSocialFeedPanel))
-                {
-                    Object.Destroy(instance);
-                    return MountFallback<T>(parent, "PanelSocialFeed", bind);
-                }
-                if (typeof(T) == typeof(DesktopLeaderboardPanel))
-                {
-                    Object.Destroy(instance);
-                    return MountFallback<T>(parent, "PanelLeaderboard", bind);
-                }
-                Debug.LogError("[DesktopUI] Required component is missing from prefab: " +
-                               PrefabName<T>());
-                Object.Destroy(instance);
-                return null;
-            }
-
-            bind(view);
-            CatTheme.SkinTree(view.transform);
-            return view;
-        }
-
-        static T MountFallback<T>(Transform parent, string name, System.Action<T> bind)
+        public static T Mount<T>(Transform parent, System.Action<T> bind, string prefabName = null)
             where T : MonoBehaviour
         {
-            var fallback = new GameObject(
-                name,
-                typeof(RectTransform),
-                typeof(UnityEngine.UI.Image),
-                typeof(T));
-            fallback.transform.SetParent(parent, false);
-            var fallbackRect = fallback.GetComponent<RectTransform>();
-            fallbackRect.anchorMin = Vector2.zero;
-            fallbackRect.anchorMax = Vector2.one;
-            fallbackRect.offsetMin = Vector2.zero;
-            fallbackRect.offsetMax = Vector2.zero;
-            var fallbackView = fallback.GetComponent<T>();
-            bind(fallbackView);
-            CatTheme.SkinTree(fallbackView.transform);
-            Debug.LogWarning("[DesktopUI] " + name +
-                             " prefab is missing; using editor-generated fallback.");
-            return fallbackView;
+            var name = string.IsNullOrEmpty(prefabName) ? PrefabName<T>() : prefabName;
+            var prefab = Resources.Load<GameObject>("Desktop/Prefabs/" + name);
+            if (prefab == null)
+            {
+                Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/" + name);
+                return null;
+            }
+            if (prefab.GetComponent<T>() == null)
+            {
+                Debug.LogError("[DesktopUI] Required component " + typeof(T).Name + " is missing from prefab: " + name);
+                return null;
+            }
+            var instance = Object.Instantiate(prefab, parent, false);
+            instance.name = name;
+            return BindExisting(instance, bind);
+        }
+
+        public static T BindExisting<T>(GameObject root, System.Action<T> bind) where T : MonoBehaviour
+        {
+            var view = root != null ? root.GetComponent<T>() : null;
+            if (view == null)
+            {
+                Debug.LogError("[DesktopUI] Required serialized panel/component is missing: " + typeof(T).Name);
+                return null;
+            }
+            bind?.Invoke(view);
+            return view;
         }
 
         static string PrefabName<T>()
@@ -134,6 +60,10 @@ namespace FishSocial.Desktop
                 return "PanelSocialFeed";
             if (typeof(T) == typeof(DesktopLeaderboardPanel))
                 return "PanelLeaderboard";
+            if (typeof(T) == typeof(CozyPondSelectionPanel))
+                return "PanelPondSelection";
+            if (typeof(T) == typeof(DesktopPondSettlementModalView))
+                return "PanelPondSettlement";
             return typeof(T).Name;
         }
     }

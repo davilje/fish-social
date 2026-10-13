@@ -11,6 +11,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopProfileEditPanel : MonoBehaviour
     {
+        bool _uiReady;
         const int NicknameLimit = 12;
         const int BioLimit = 120;
 
@@ -53,6 +54,8 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             Refresh();
         }
 
@@ -64,11 +67,18 @@ namespace FishSocial.Desktop
 
         public void BuildEditorLayout()
         {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
+            BuildFallbackUi();
+            RefineLayout();
             EnsureUi();
+#endif
         }
 
         void EnsureUi()
         {
+            _uiReady = false;
             _nickname = Find<InputField>("Form/Nickname");
             _bio = Find<InputField>("Form/Bio");
             _status = Find<Text>("Status");
@@ -85,8 +95,12 @@ namespace FishSocial.Desktop
                 _save == null || _retry == null || _back == null ||
                 _avatars == null || _showcase == null || _picker == null ||
                 _pickerContent == null || _clearSlot == null || _closePicker == null)
-                BuildFallbackUi();
+            {
+                Debug.LogError("[DesktopUI] PanelProfileEdit requires Form/{Nickname,Bio}, Header/Back, Actions/{Save,Retry}, Status, Avatars/Viewport/Content, Showcase/Viewport/Content and Picker/{Viewport/Content,Clear,Close}.", this);
+                return;
+            }
 
+            _uiReady = true;
             if (_nickname != null)
                 _nickname.characterLimit = NicknameLimit;
             if (_bio != null)
@@ -217,8 +231,7 @@ namespace FishSocial.Desktop
             for (var i = 0; i < DesktopDefaultAvatars.All.Length; i++)
             {
                 var entry = DesktopDefaultAvatars.All[i];
-                var go = DesktopUiPrefabFactory.Instantiate("AvatarChoice", _avatars) ??
-                         DesktopUiPrefabFactory.Instantiate("CatchSlot", _avatars);
+                var go = DesktopUiPrefabFactory.Instantiate("AvatarChoice", _avatars);
                 if (go == null)
                     continue;
                 go.name = "Avatar_" + entry.Id;
@@ -254,8 +267,7 @@ namespace FishSocial.Desktop
             for (var i = 0; i < _slots.Length; i++)
             {
                 var fish = FindFish(_slots[i]);
-                var slot = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _showcase) ??
-                           DesktopUiPrefabFactory.Instantiate("CatchSlot", _showcase);
+                var slot = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _showcase);
                 if (slot == null)
                     continue;
                 slot.name = "Slot" + i;
@@ -308,8 +320,7 @@ namespace FishSocial.Desktop
 
             if (_inventory == null || _inventory.Length == 0)
             {
-                var empty = DesktopUiPrefabFactory.Instantiate("TextStatusRow", _pickerContent) ??
-                            DesktopUiPrefabFactory.Instantiate("CatchSlot", _pickerContent);
+                var empty = DesktopUiPrefabFactory.Instantiate("TextStatusRow", _pickerContent);
                 if (empty != null)
                 {
                     var node = DesktopUiPrefabFactory.Child(empty, "Message") ??
@@ -327,8 +338,7 @@ namespace FishSocial.Desktop
                 var item = _inventory[i];
                 if (item == null)
                     continue;
-                var row = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _pickerContent) ??
-                          DesktopUiPrefabFactory.Instantiate("CatchSlot", _pickerContent);
+                var row = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _pickerContent);
                 if (row == null)
                     continue;
                 var labelNode = DesktopUiPrefabFactory.Child(row, "Label");
@@ -525,37 +535,7 @@ namespace FishSocial.Desktop
 
         void ApplyCozyStyle()
         {
-            var background = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-            background.color = CatTheme.Cream;
-            CatTheme.ApplyPaper(background);
-            foreach (var path in new[] { "Header", "Form", "Actions", "Picker" })
-            {
-                var node = transform.Find(path);
-                if (node == null)
-                    continue;
-                var image = node.GetComponent<Image>() ?? node.gameObject.AddComponent<Image>();
-                image.color = CatTheme.Cream;
-                CatTheme.ApplyPaper(image);
-            }
-            foreach (var label in GetComponentsInChildren<Text>(true))
-            {
-                label.color = CatTheme.Ink;
-                label.raycastTarget = false;
-                if (CatTheme.Font != null)
-                    label.font = CatTheme.Font;
-            }
-            foreach (var scroll in GetComponentsInChildren<ScrollRect>(true))
-            {
-                var image = scroll.GetComponent<Image>();
-                if (image != null)
-                    image.color = CatTheme.Cream;
-                scroll.movementType = ScrollRect.MovementType.Clamped;
-            }
-            CatTheme.SkinTree(transform);
-            StyleInput(_nickname);
-            StyleInput(_bio);
-            CatTheme.StyleButton(_save, null, true);
-            RefineLayout();
+            DesktopModalUi.StyleTree(transform);
         }
 
         void RefineLayout()
@@ -588,8 +568,7 @@ namespace FishSocial.Desktop
 
         void OnRectTransformDimensionsChange()
         {
-            if (_nickname != null)
-                RefineLayout();
+
         }
 
         void PlacePath(string path, float minX, float minY, float maxX, float maxY)
@@ -601,64 +580,13 @@ namespace FishSocial.Desktop
 
         static void StyleInput(InputField input)
         {
-            if (input == null)
-                return;
-            var image = input.GetComponent<Image>();
-            if (image != null)
-            {
-                image.overrideSprite = null;
-                image.sprite = null;
-                image.type = Image.Type.Simple;
-                image.color = new Color(1f, 0.98f, 0.94f, 1f);
-            }
-            var colors = input.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = Color.white;
-            colors.pressedColor = Color.white;
-            colors.selectedColor = Color.white;
-            colors.disabledColor = new Color(1f, 0.96f, 0.9f, 0.65f);
-            input.colors = colors;
-            input.customCaretColor = true;
-            input.caretColor = CatTheme.Ink;
-            input.selectionColor = new Color(CatTheme.Ink.r, CatTheme.Ink.g, CatTheme.Ink.b, 0.2f);
-            if (input.textComponent != null)
-            {
-                input.textComponent.color = CatTheme.Ink;
-                input.textComponent.fontSize = 17;
-                input.textComponent.alignment = input.lineType == InputField.LineType.SingleLine
-                    ? TextAnchor.MiddleLeft : TextAnchor.UpperLeft;
-                Stretch(input.textComponent.rectTransform);
-                input.textComponent.rectTransform.offsetMin = new Vector2(12f, 8f);
-                input.textComponent.rectTransform.offsetMax = new Vector2(-12f, -8f);
-            }
-            if (input.placeholder != null)
-            {
-                input.placeholder.color = new Color(CatTheme.Ink.r, CatTheme.Ink.g, CatTheme.Ink.b, 0.65f);
-                var placeholder = input.placeholder as Text;
-                if (placeholder != null)
-                {
-                    placeholder.fontSize = 17;
-                    placeholder.alignment = input.lineType == InputField.LineType.SingleLine
-                        ? TextAnchor.MiddleLeft : TextAnchor.UpperLeft;
-                }
-                Stretch(input.placeholder.rectTransform);
-                input.placeholder.rectTransform.offsetMin = new Vector2(12f, 8f);
-                input.placeholder.rectTransform.offsetMax = new Vector2(-12f, -8f);
-            }
+            if (input != null)
+                DesktopModalUi.StyleTree(input.transform);
         }
 
         static void StyleChoice(GameObject choice, bool selected = false)
         {
-            CatTheme.SkinTree(choice.transform);
-            foreach (var label in choice.GetComponentsInChildren<Text>(true))
-            {
-                label.color = CatTheme.Ink;
-                label.raycastTarget = false;
-                label.verticalOverflow = VerticalWrapMode.Truncate;
-                label.resizeTextForBestFit = true;
-                label.resizeTextMinSize = 14;
-                label.resizeTextMaxSize = 17;
-            }
+            DesktopModalUi.StyleTree(choice.transform);
             var visual = choice.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(selected);

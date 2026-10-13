@@ -7,6 +7,7 @@ namespace FishSocial.Desktop
 {
     public sealed class DesktopCatchBagModalView : MonoBehaviour
     {
+        bool _uiReady;
         const int MinSlots = 80;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
@@ -29,97 +30,31 @@ namespace FishSocial.Desktop
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
             _grid = DesktopModalUi.FindChild(transform, "Grid/Slots");
 
-            DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
-            DesktopModalUi.BindButton(transform, "Sell", SellSelected);
-            DesktopModalUi.BindButton(transform, "Share", ShareSelected);
+            var retryBound = DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
+            var sellBound = DesktopModalUi.BindButton(transform, "Sell", SellSelected);
+            var shareBound = DesktopModalUi.BindButton(transform, "Share", ShareSelected);
             EnsureReturnButton();
-            ApplyResponsiveLayout();
-            CatTheme.SkinTree(transform);
-            if (_coins == null || _status == null || _detail == null || _grid == null)
-                Debug.LogError("[DesktopUI] PanelCatch prefab is missing required controls.");
+            DesktopModalUi.StyleTree(transform);
+            _uiReady = _coins != null && _status != null && _detail != null && _grid != null &&
+                _returnButton != null && retryBound && sellBound && shareBound;
+            if (!_uiReady)
+                Debug.LogError("[DesktopUI] PanelCatch prefab is missing required controls.", this);
         }
 
         void EnsureReturnButton()
         {
+            _returnButton = DesktopModalUi.FindComponent<Button>(transform, "Return");
             if (!DesktopModalUi.BindButton(transform, "Return", ReturnSelected))
-            {
-                var sell = DesktopModalUi.FindChild(transform, "Sell");
-                var parent = sell != null ? sell.parent : transform;
-                _returnButton = DesktopModalUi.MakeButton(parent, "Return", "回鱼", ReturnSelected);
-            }
-            else
-            {
-                _returnButton = DesktopModalUi.FindComponent<Button>(transform, "Return");
-            }
+                Debug.LogError("[DesktopUI] PanelCatch requires Return Button.", this);
             RefreshReturnButton();
-        }
-
-        void ApplyResponsiveLayout()
-        {
-            var root = transform as RectTransform;
-            if (root == null)
-                return;
-            root.anchorMin = Vector2.zero;
-            root.anchorMax = Vector2.one;
-            root.offsetMin = Vector2.zero;
-            root.offsetMax = Vector2.zero;
-
-            var grid = DesktopModalUi.FindChild(transform, "Grid") as RectTransform;
-            if (grid != null)
-            {
-                grid.anchorMin = Vector2.zero;
-                grid.anchorMax = new Vector2(0.58f, 1f);
-                grid.offsetMin = new Vector2(0f, 0f);
-                grid.offsetMax = new Vector2(-8f, -36f);
-            }
-
-            var content = _grid != null ? _grid.GetComponent<GridLayoutGroup>() : null;
-            if (content != null)
-            {
-                content.cellSize = new Vector2(96f, 82f);
-                content.spacing = new Vector2(10f, 10f);
-                content.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                var gridWidth = root.rect.width > 0f ? root.rect.width * 0.58f - 8f : 640f;
-                content.constraintCount = Mathf.Max(1, Mathf.FloorToInt((gridWidth - 24f + 10f) / 106f));
-                content.padding = new RectOffset(12, 12, 12, 12);
-            }
-
-            if (_detail != null)
-            {
-                var detail = _detail.rectTransform;
-                detail.anchorMin = new Vector2(0.58f, 0f);
-                detail.anchorMax = Vector2.one;
-                detail.offsetMin = new Vector2(10f, 48f);
-                detail.offsetMax = new Vector2(-8f, -36f);
-            }
-
-            SetBottomButton("Sell", 0.58f, 0.72f);
-            SetBottomButton("Return", 0.72f, 0.86f);
-            SetBottomButton("Share", 0.86f, 1f);
-        }
-
-        void SetBottomButton(string name, float minX, float maxX)
-        {
-            var button = DesktopModalUi.FindChild(transform, name) as RectTransform;
-            if (button == null)
-                return;
-            button.anchorMin = new Vector2(minX, 0f);
-            button.anchorMax = new Vector2(maxX, 0f);
-            button.offsetMin = new Vector2(8f, 8f);
-            button.offsetMax = new Vector2(-8f, 44f);
-        }
-
-        void OnRectTransformDimensionsChange()
-        {
-            if (_grid != null)
-                ApplyResponsiveLayout();
         }
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             if (_pond != null)
                 _pond.InventoryUpdated += OnInventory;
-            ApplyResponsiveLayout();
             RefreshReturnButton();
             StartCoroutine(Load());
         }
@@ -242,14 +177,13 @@ namespace FishSocial.Desktop
                     continue;
                 slot.name = "Slot" + i;
                 var selected = item != null && item.id == _selectedId;
-                var image = slot.GetComponent<Image>();
-                if (image != null)
-                    image.color = selected ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
                 var slotButton = slot.GetComponent<Button>();
                 if (slotButton != null)
                 {
-                    CatTheme.StyleButton(slotButton);
-                    slotButton.GetComponent<CozyButtonVisual>().SetSelected(selected);
+                    DesktopModalUi.StyleButton(slotButton);
+                    var visual = slotButton.GetComponent<CozyButtonVisual>();
+                    if (visual != null)
+                        visual.SetSelected(selected);
                     slotButton.interactable = item != null;
                 }
                 var label = item == null
@@ -260,10 +194,10 @@ namespace FishSocial.Desktop
                 if (labelText != null)
                 {
                     labelText.text = label;
-                    labelText.color = CatTheme.Ink;
-                    labelText.font = DesktopModalUi.Font;
-                    labelText.fontSize = 14;
                 }
+                DesktopModalUi.StyleTree(slot.transform);
+                if (slotButton != null)
+                    slotButton.onClick.RemoveAllListeners();
                 if (item != null)
                 {
                     var captured = item;

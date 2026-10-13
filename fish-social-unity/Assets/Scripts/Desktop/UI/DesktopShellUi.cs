@@ -11,13 +11,10 @@ namespace FishSocial.Desktop
 {
     /// <summary>
     /// Login retains the original Steam flow; the desktop shell uses a cream-paper
-    /// header, a scenic home and an eleven-destination engraved-icon dock.
+    /// header, a scenic home and a seven-destination engraved-icon dock.
     /// </summary>
     public sealed class DesktopShellUi : MonoBehaviour, IDesktopProductMenuHandler
     {
-        const float HeaderHeight = 88f;
-        const float TabHeight = 104f;
-
         PanelRouter _router;
         CanvasScaler _scaler;
         GameObject _loginRoot;
@@ -28,6 +25,7 @@ namespace FishSocial.Desktop
         Text _statusPond;
         Text _statusPet;
         Text _toast;
+        GameObject _toastRoot;
         float _toastUntil;
         SteamAuthController _steamAuth;
         IAuthenticatedApiClient _authenticatedApi;
@@ -59,7 +57,14 @@ namespace FishSocial.Desktop
         DesktopProfileHubPanel _achievementPanel;
         CozyPondSelectionPanel _pondSelectionPanel;
         Text _headerCoins;
-        bool _cozyChromeBuilt;
+        Text _headerName;
+        Text _headerLevel;
+        Text _headerXp;
+        Text _headerCatchCount;
+        Image _headerXpFill;
+        Image _headerAvatar;
+        string _headerAvatarSkin;
+        SpriteFramePetRenderer _homeRenderer;
         bool _balanceLoading;
         float _nextBalanceRefresh;
 
@@ -134,50 +139,13 @@ namespace FishSocial.Desktop
                 _petState.StateChanged += OnPetVisualStateChanged;
 
             var canvasGo = TryLoadShellCanvas();
-            var usedPrefabShell = false;
-            if (canvasGo != null)
+            if (canvasGo == null)
+                return;
+            EnsureEventSystem();
+            if (!WireShellFromPrefab(canvasGo))
             {
-                EnsureEventSystem();
-                if (WireShellFromPrefab(canvasGo))
-                    usedPrefabShell = true;
-                else
-                {
-                    Destroy(canvasGo);
-                    canvasGo = null;
-                }
-            }
-
-            if (!usedPrefabShell)
-            {
-                canvasGo = new GameObject("ShellCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-                canvasGo.transform.SetParent(transform, false);
-                var canvas = canvasGo.GetComponent<Canvas>();
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                _scaler = canvasGo.GetComponent<CanvasScaler>();
-                _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                _scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
-                _scaler.matchWidthOrHeight = 0.5f;
-
-                EnsureEventSystem();
-
-                _loginRoot = CreateStretchPanel("LoginRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
-                BuildLogin(_loginRoot);
-
-                _mainRoot = CreateStretchPanel("MainRoot", canvasGo.transform, new Color(0.09f, 0.12f, 0.16f, 1f));
-                BuildMain(_mainRoot);
-                _mainRoot.SetActive(false);
-
-                _toast = CreateText(canvasGo.transform, "Toast", string.Empty, 18, TextAnchor.LowerCenter,
-                    new Vector2(0, 24), new Vector2(400, 48));
-                var toastRt = _toast.rectTransform;
-                toastRt.anchorMin = new Vector2(0.08f, 0f);
-                toastRt.anchorMax = new Vector2(0.92f, 0f);
-                toastRt.pivot = new Vector2(0.5f, 0f);
-                toastRt.anchoredPosition = new Vector2(0f, 78f);
-                toastRt.sizeDelta = new Vector2(0f, 44f);
-                _toast.alignment = TextAnchor.MiddleCenter;
-                _toast.gameObject.SetActive(false);
-                ApplyShellFrame();
+                Destroy(canvasGo);
+                return;
             }
 
             _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
@@ -203,7 +171,7 @@ namespace FishSocial.Desktop
             var prefab = Resources.Load<GameObject>("Desktop/Prefabs/DesktopShell");
             if (prefab == null)
             {
-                Debug.LogWarning("[DesktopShell] DesktopShell.prefab missing; building chrome at runtime. " +
+                Debug.LogWarning("[DesktopShell] Required DesktopShell.prefab missing; runtime layout generation is disabled. " +
                                  "Open Fish Social → UI Prefab 管理 → 补齐全部.");
                 return null;
             }
@@ -225,77 +193,75 @@ namespace FishSocial.Desktop
         {
             _loginRoot = canvasGo.transform.Find("LoginRoot")?.gameObject;
             _mainRoot = canvasGo.transform.Find("MainRoot")?.gameObject;
-            if (_loginRoot == null || _mainRoot == null)
-            {
-                Debug.LogError("[DesktopShell] DesktopShell.prefab missing LoginRoot/MainRoot.");
+            if (_loginRoot == null || _mainRoot == null ||
+                !DesktopModalUi.RequireNodes(_mainRoot.transform, "DesktopShell",
+                    "Header/ProfileCard/Avatar", "Header/ProfileCard/Name", "Header/FishCoins/Amount", "Nav", "Content"))
                 return false;
-            }
 
-            _loginStatus = _loginRoot.transform.Find("LoginHint")?.GetComponent<Text>();
-            var steamBtn = _loginRoot.transform.Find("SteamLogin")?.GetComponent<Button>();
-            if (steamBtn != null)
-            {
-                steamBtn.onClick.RemoveAllListeners();
-                steamBtn.onClick.AddListener(BeginSteamLogin);
-            }
-
+            _loginStatus = DesktopModalUi.FindComponent<Text>(_loginRoot.transform, "LoginHint");
+            DesktopModalUi.BindButton(_loginRoot.transform, "SteamLogin", BeginSteamLogin);
             var header = _mainRoot.transform.Find("Header");
-            if (header != null)
-            {
-                BindSquarePet(header, "HeaderPet", new Vector2(8, -8), 40, false);
-                _statusPet = header.Find("PetStatus")?.GetComponent<Text>();
-                _statusLogin = header.Find("LoginStatus")?.GetComponent<Text>();
-                _statusConnection = header.Find("ConnStatus")?.GetComponent<Text>();
-                _statusPond = header.Find("PondStatus")?.GetComponent<Text>();
-            }
-
+            _headerName = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/Name");
+            _headerLevel = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/Level");
+            _headerXp = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/XpLabel");
+            _headerXpFill = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpFill");
+            _headerAvatar = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/Avatar");
+            _headerCoins = DesktopModalUi.FindComponent<Text>(header, "FishCoins/Amount");
+            _headerCatchCount = DesktopModalUi.FindComponent<Text>(header, "CatchCount/Amount");
+            _statusPet = DesktopModalUi.FindComponent<Text>(header, "Status/PetStatus");
+            _statusLogin = DesktopModalUi.FindComponent<Text>(header, "Status/LoginStatus");
+            _statusConnection = DesktopModalUi.FindComponent<Text>(header, "Status/ConnStatus");
+            _statusPond = DesktopModalUi.FindComponent<Text>(header, "Status/PondStatus");
+            DesktopModalUi.BindButton(header, "ProfileCard", () => OpenProfileHub());
+            DesktopModalUi.BindButton(header, "FishCoins/Plus", () => ShowMainPanel(ShellPanelId.Shop));
+            DesktopModalUi.BindButton(header, "CatchCount", () => ShowMainPanel(ShellPanelId.CatchBag));
+            DesktopModalUi.BindButton(header, "Mail", () => ShowMainPanel(ShellPanelId.Friends));
+            DesktopModalUi.BindButton(header, "Settings", () => ShowMainPanel(ShellPanelId.Settings));
+            DesktopModalUi.BindButton(header, "Leaderboard", () => ShowMainPanel(ShellPanelId.Leaderboard));
+            DesktopModalUi.BindButton(header, "Home", ReturnToPetHome);
             var nav = _mainRoot.transform.Find("Nav");
-            if (nav != null)
-            {
-                BindNav(nav, "主页", ReturnToPetHome, true);
-                BindNav(nav, "鱼塘", ShowPondPanel, true);
-                BindNav(nav, "世界地图", () => ShowMainPanel(ShellPanelId.WorldMap), true);
-                BindNav(nav, "商店", () => ShowMainPanel(ShellPanelId.Shop), true);
-                // Prefab may use safe names (no '/') or legacy "好友/聊天" / "鱼获/背包".
-                BindNav(nav, FindNavChildName(nav, "好友聊天", "好友/聊天"),
-                    () => ShowMainPanel(ShellPanelId.Friends), true);
-                BindNav(nav, FindNavChildName(nav, "鱼获背包", "鱼获/背包"),
-                    () => ShowMainPanel(ShellPanelId.CatchBag), true);
-                BindNav(nav, "个人中心", () => OpenProfileHub(), true);
-                BindNav(nav, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed), true);
-                BindNav(nav, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard), true);
-                BindNav(nav, "设置", () => ShowMainPanel(ShellPanelId.Settings), false);
-            }
+            BindCozyNav(nav, ShellPanelId.CatchBag, () => ShowMainPanel(ShellPanelId.CatchBag));
+            BindCozyNav(nav, ShellPanelId.Equipment, () => ShowMainPanel(ShellPanelId.Equipment));
+            BindCozyNav(nav, ShellPanelId.Shop, () => ShowMainPanel(ShellPanelId.Shop));
+            BindCozyNav(nav, ShellPanelId.Achievements, () => ShowMainPanel(ShellPanelId.Achievements));
+            BindCozyNav(nav, ShellPanelId.Leaderboard, () => ShowMainPanel(ShellPanelId.Leaderboard));
+            BindCozyNav(nav, ShellPanelId.Profile, () => OpenProfileHub());
+            BindCozyNav(nav, ShellPanelId.SocialFeed, () => ShowMainPanel(ShellPanelId.SocialFeed));
 
             var content = _mainRoot.transform.Find("Content");
-            if (content != null)
-            {
-                RegisterPanel(content, ShellPanelId.Home, BuildHome);
-                RegisterPanel(content, ShellPanelId.Pond, BuildPond);
-                RegisterPanel(content, ShellPanelId.WorldMap, BuildWorldMap);
-                RegisterPanel(content, ShellPanelId.Shop, BuildShop);
-                RegisterPanel(content, ShellPanelId.Friends, BuildSocialPanel);
-                RegisterPanel(content, ShellPanelId.CatchBag, BuildCatchPanel);
-                RegisterPanel(content, ShellPanelId.Gallery, BuildGalleryPanel);
-                RegisterPanel(content, ShellPanelId.Profile, BuildProfilePanel);
-                RegisterPanel(content, ShellPanelId.ProfileEdit, BuildProfileEditPanel);
-                RegisterPanel(content, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
-                RegisterPanel(content, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
-                RegisterPanel(content, ShellPanelId.Settings, BuildSettingsPanel);
-                RegisterPanel(content, ShellPanelId.Equipment, BuildEquipment);
-                RegisterPanel(content, ShellPanelId.PondSelection, BuildPondSelection);
-                RegisterPanel(content, ShellPanelId.Achievements, BuildAchievements);
-            }
-
-            _toast = canvasGo.transform.Find("Toast")?.GetComponent<Text>();
-            if (_toast != null)
-                _toast.gameObject.SetActive(false);
-
+            RegisterPanel(content, ShellPanelId.Home, BuildHome);
+            RegisterPanel(content, ShellPanelId.Pond, BuildPond);
+            RegisterPanel(content, ShellPanelId.WorldMap, BuildWorldMap);
+            RegisterPanel(content, ShellPanelId.Shop, BuildShop);
+            RegisterPanel(content, ShellPanelId.Friends, BuildSocialPanel);
+            RegisterPanel(content, ShellPanelId.CatchBag, BuildCatchPanel);
+            RegisterPanel(content, ShellPanelId.Gallery, BuildGalleryPanel);
+            RegisterPanel(content, ShellPanelId.Profile, BuildProfilePanel);
+            RegisterPanel(content, ShellPanelId.ProfileEdit, BuildProfileEditPanel);
+            RegisterPanel(content, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
+            RegisterPanel(content, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
+            RegisterPanel(content, ShellPanelId.Settings, BuildSettingsPanel);
+            RegisterPanel(content, ShellPanelId.Equipment, BuildEquipment);
+            RegisterPanel(content, ShellPanelId.PondSelection, BuildPondSelection);
+            RegisterPanel(content, ShellPanelId.Achievements, BuildAchievements);
+            _toastRoot = canvasGo.transform.Find("Toast")?.gameObject;
+            _toast = DesktopModalUi.FindComponent<Text>(canvasGo.transform, "Toast/Label");
+            if (_toastRoot != null)
+                _toastRoot.SetActive(false);
             _mainRoot.SetActive(false);
-            _loginRoot.SetActive(true);
-            ApplyLoginFrame();
-            ApplyShellFrame();
+            CatTheme.SkinTree(canvasGo.transform);
             return true;
+        }
+
+        void BindCozyNav(Transform nav, ShellPanelId id, UnityEngine.Events.UnityAction action)
+        {
+            var button = DesktopModalUi.FindComponent<Button>(nav, id.ToString());
+            if (button == null)
+                return;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(action);
+            _tabs[id] = button;
+            _lockableNavButtons.Add(button);
         }
 
         static void NormalizeShellCanvasScale(GameObject canvasGo)
@@ -307,272 +273,6 @@ namespace FishSocial.Desktop
                 return;
             rt.localScale = Vector3.one;
             Debug.LogWarning("[DesktopShell] Shell canvas scale was zero; reset to 1.");
-        }
-
-        static string FindNavChildName(Transform nav, string preferred, string legacy)
-        {
-            for (var i = 0; i < nav.childCount; i++)
-            {
-                var n = nav.GetChild(i).name;
-                if (n == preferred || n == legacy)
-                    return n;
-            }
-            return preferred;
-        }
-
-        void BindNav(Transform nav, string name, Action onClick, bool lockable)
-        {
-            // Transform.Find treats '/' as a path separator — never use Find for labels like "好友/聊天".
-            Transform child = null;
-            for (var i = 0; i < nav.childCount; i++)
-            {
-                var c = nav.GetChild(i);
-                if (c != null && c.name == name)
-                {
-                    child = c;
-                    break;
-                }
-            }
-            var button = child != null ? child.GetComponent<Button>() : null;
-            if (button == null)
-            {
-                Debug.LogWarning("[DesktopShell] Nav button missing: " + name);
-                return;
-            }
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => onClick());
-            if (lockable)
-                _lockableNavButtons.Add(button);
-        }
-
-        void BuildLogin(GameObject go)
-        {
-            CreateText(go.transform, "Brand", "Fish Social", 26, TextAnchor.MiddleCenter,
-                new Vector2(0, 70), new Vector2(400, 36));
-            _loginStatus = CreateText(go.transform, "LoginHint", "请使用 Steam 登录", 16, TextAnchor.MiddleCenter,
-                new Vector2(0, 24), new Vector2(400, 48));
-            CreateCenteredButton(go.transform, "SteamLogin", "Steam 登录",
-                new Vector2(0, -36), new Vector2(200, 44), BeginSteamLogin);
-        }
-
-        void BuildMain(GameObject go)
-        {
-            var header = CreateBar("Header", go.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -80),
-                new Color(0.12f, 0.18f, 0.24f, 1f));
-            BindSquarePet(header.transform, "HeaderPet", new Vector2(16, -16), 48, false);
-            CreateText(header.transform, "Title", "Fish Social", 22, TextAnchor.MiddleLeft,
-                new Vector2(76, -22), new Vector2(240, 28));
-            _statusPet = CreateText(header.transform, "PetStatus", "宠物：离线", 14, TextAnchor.MiddleLeft,
-                new Vector2(76, -50), new Vector2(280, 22));
-            _statusLogin = CreateText(header.transform, "LoginStatus", "登录：未登录", 14, TextAnchor.MiddleRight,
-                new Vector2(-16, -14), new Vector2(320, 20));
-            _statusConnection = CreateText(header.transform, "ConnStatus", "连接：离线", 14, TextAnchor.MiddleRight,
-                new Vector2(-16, -34), new Vector2(320, 20));
-            _statusPond = CreateText(header.transform, "PondStatus", "鱼塘：未进入", 14, TextAnchor.MiddleRight,
-                new Vector2(-16, -54), new Vector2(320, 20));
-
-            var nav = CreateBar("Nav", go.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 64),
-                new Color(0.11f, 0.15f, 0.2f, 1f));
-            var navLayout = nav.AddComponent<HorizontalLayoutGroup>();
-            navLayout.padding = new RectOffset(12, 12, 8, 8);
-            navLayout.spacing = 8;
-            navLayout.childAlignment = TextAnchor.MiddleCenter;
-            navLayout.childControlHeight = true;
-            navLayout.childControlWidth = true;
-            navLayout.childForceExpandHeight = true;
-            navLayout.childForceExpandWidth = true;
-
-            CreateNavButton(nav.transform, "主页", ReturnToPetHome, true);
-            CreateNavButton(nav.transform, "鱼塘", ShowPondPanel, true);
-            CreateNavButton(nav.transform, "世界地图",
-                () => ShowMainPanel(ShellPanelId.WorldMap), true);
-            CreateNavButton(nav.transform, "商店", () => ShowMainPanel(ShellPanelId.Shop), true);
-            CreateNavButton(nav.transform, "好友/聊天", () => ShowMainPanel(ShellPanelId.Friends), true);
-            CreateNavButton(nav.transform, "鱼获/背包", () => ShowMainPanel(ShellPanelId.CatchBag), true);
-            CreateNavButton(nav.transform, "个人中心", () => OpenProfileHub(), true);
-            CreateNavButton(nav.transform, "动态", () => ShowMainPanel(ShellPanelId.SocialFeed), true);
-            CreateNavButton(nav.transform, "排行榜", () => ShowMainPanel(ShellPanelId.Leaderboard), true);
-            CreateNavButton(nav.transform, "设置", () => ShowMainPanel(ShellPanelId.Settings), false);
-
-            var content = CreateBar("Content", go.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
-                new Color(0.09f, 0.12f, 0.16f, 1f));
-            var contentRt = content.GetComponent<RectTransform>();
-            contentRt.offsetMin = new Vector2(0, 64);
-            contentRt.offsetMax = new Vector2(0, -80);
-
-            RegisterPanel(content.transform, ShellPanelId.Home, BuildHome);
-            RegisterPanel(content.transform, ShellPanelId.Pond, BuildPond);
-            RegisterPanel(content.transform, ShellPanelId.WorldMap, BuildWorldMap);
-            RegisterPanel(content.transform, ShellPanelId.Shop, BuildShop);
-            RegisterPanel(content.transform, ShellPanelId.Friends, BuildSocialPanel);
-            RegisterPanel(content.transform, ShellPanelId.CatchBag, BuildCatchPanel);
-            RegisterPanel(content.transform, ShellPanelId.Gallery, BuildGalleryPanel);
-            RegisterPanel(content.transform, ShellPanelId.Profile, BuildProfilePanel);
-            RegisterPanel(content.transform, ShellPanelId.ProfileEdit, BuildProfileEditPanel);
-            RegisterPanel(content.transform, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
-            RegisterPanel(content.transform, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
-            RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettingsPanel);
-            RegisterPanel(content.transform, ShellPanelId.Equipment, BuildEquipment);
-            RegisterPanel(content.transform, ShellPanelId.PondSelection, BuildPondSelection);
-            RegisterPanel(content.transform, ShellPanelId.Achievements, BuildAchievements);
-            ApplyLoginFrame();
-            ApplyShellFrame();
-        }
-
-        void ApplyLoginFrame()
-        {
-            if (_loginRoot == null)
-                return;
-            var paper = _loginRoot.GetComponent<Image>();
-            if (paper != null)
-                paper.color = CatTheme.Cream;
-            var layout = _loginRoot.GetComponent<VerticalLayoutGroup>();
-            if (layout == null)
-                layout = _loginRoot.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(24, 24, 24, 24);
-            layout.spacing = 16f;
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = false;
-            layout.childForceExpandHeight = false;
-            SetPreferred(_loginRoot.transform, "Brand", 360f, 36f);
-            SetPreferred(_loginRoot.transform, "LoginHint", 360f, 48f);
-            SetPreferred(_loginRoot.transform, "SteamLogin", 200f, 44f);
-            Paint(_loginRoot.transform, "Brand", CatTheme.Ink);
-            Paint(_loginRoot.transform, "LoginHint", CatTheme.Ink);
-            var steam = _loginRoot.transform.Find("SteamLogin");
-            if (steam != null)
-            {
-                CatTheme.ApplyPlate(steam.GetComponent<Image>(), "btn-coral");
-                Paint(steam, "Label", CatTheme.Ink);
-            }
-        }
-
-        void ApplyShellFrame()
-        {
-            if (_mainRoot == null)
-                return;
-            CatTheme.ApplyPaper(_mainRoot.GetComponent<Image>());
-            var header = _mainRoot.transform.Find("Header") as RectTransform;
-            var nav = _mainRoot.transform.Find("Nav") as RectTransform;
-            var content = _mainRoot.transform.Find("Content") as RectTransform;
-            if (header != null)
-            {
-                header.anchorMin = new Vector2(0f, 1f);
-                header.anchorMax = Vector2.one;
-                header.offsetMin = new Vector2(0f, -HeaderHeight);
-                header.offsetMax = Vector2.zero;
-                CatTheme.ApplyPaper(header.GetComponent<Image>());
-            }
-            if (nav != null)
-            {
-                nav.anchorMin = Vector2.zero;
-                nav.anchorMax = new Vector2(1f, 0f);
-                nav.offsetMin = Vector2.zero;
-                nav.offsetMax = new Vector2(0f, TabHeight);
-                CatTheme.ApplyPaper(nav.GetComponent<Image>());
-            }
-            if (content != null)
-            {
-                content.anchorMin = Vector2.zero;
-                content.anchorMax = Vector2.one;
-                content.offsetMin = new Vector2(0f, TabHeight);
-                content.offsetMax = new Vector2(0f, -HeaderHeight);
-                CatTheme.ApplyPaper(content.GetComponent<Image>());
-            }
-            if (!_cozyChromeBuilt && header != null && nav != null)
-            {
-                _cozyChromeBuilt = true;
-                ClearChrome(header);
-                ClearChrome(nav);
-                _lockableNavButtons.RemoveAll(button => button == null || button.transform.IsChildOf(nav));
-                _tabs.Clear();
-                BuildCozyHeader(header);
-                BuildCozyDock(nav);
-                CatTheme.SkinTree(_mainRoot.transform);
-            }
-            if (_toast != null)
-            {
-                var rect = _toast.rectTransform;
-                rect.anchorMin = new Vector2(0f, 0f);
-                rect.anchorMax = new Vector2(1f, 0f);
-                rect.offsetMin = new Vector2(28f, TabHeight + 8f);
-                rect.offsetMax = new Vector2(-28f, TabHeight + 48f);
-                _toast.color = CatTheme.Ink;
-                _toast.font = DesktopModalUi.Font;
-                _toast.raycastTarget = false;
-                _toast.transform.SetAsLastSibling();
-            }
-            HighlightTab(_router != null ? _router.Current : ShellPanelId.Home);
-        }
-
-        static void ClearChrome(Transform root)
-        {
-            foreach (var layout in root.GetComponents<LayoutGroup>())
-                DestroyImmediate(layout);
-            for (var childIndex = root.childCount - 1; childIndex >= 0; childIndex--)
-                DestroyImmediate(root.GetChild(childIndex).gameObject);
-        }
-
-        void BuildCozyHeader(Transform header)
-        {
-            CozyUi.Picture(header, "Avatar", "characters/cat-avatar", Vector2.zero,
-                new Vector2(0f, 1f), new Vector2(24f, 12f), new Vector2(88f, -12f));
-            CozyUi.Action(header, "ProfileShortcut", "猫咪钓鱼 · " + (_pondSession != null ? _pondSession.Nickname : "钓友"),
-                "user", () => OpenProfileHub(), new Vector2(0f, 0.5f), new Vector2(0f, 1f),
-                new Vector2(94f, 0f), new Vector2(416f, -8f));
-            _statusPet = CozyUi.Label(header, "PetStatus", "宠物：离线", 13,
-                Vector2.zero, new Vector2(0f, 0.5f), new Vector2(110f, 8f), new Vector2(285f, -4f));
-            _statusPond = CozyUi.Label(header, "PondStatus", "鱼塘：未进入", 13,
-                Vector2.zero, new Vector2(0f, 0.5f), new Vector2(294f, 8f), new Vector2(530f, -4f));
-            _statusConnection = CozyUi.Label(header, "ConnStatus", "连接：离线", 13,
-                new Vector2(0.5f, 0f), new Vector2(1f, 0.5f), new Vector2(8f, 8f), new Vector2(-24f, -4f), TextAnchor.MiddleRight);
-            _statusLogin = CozyUi.Label(header, "LoginStatus", "", 12,
-                Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-            _statusLogin.gameObject.SetActive(false);
-            CozyUi.Picture(header, "Coin", "icons/coin", new Vector2(1f, 0.5f), Vector2.one,
-                new Vector2(-366f, 4f), new Vector2(-334f, -8f));
-            _headerCoins = CozyUi.Label(header, "Coins", "—", 20,
-                new Vector2(1f, 0.5f), Vector2.one, new Vector2(-330f, 0f), new Vector2(-230f, -6f));
-            CozyUi.Action(header, "Friends", "好友", "social", () => ShowMainPanel(ShellPanelId.Friends),
-                new Vector2(1f, 0.5f), Vector2.one, new Vector2(-218f, 0f), new Vector2(-122f, -4f));
-            CozyUi.Action(header, "Settings", "设置", "settings", () => ShowMainPanel(ShellPanelId.Settings),
-                new Vector2(1f, 0.5f), Vector2.one, new Vector2(-118f, 0f), new Vector2(-22f, -4f));
-        }
-
-        void BuildCozyDock(Transform nav)
-        {
-            var layout = nav.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(20, 20, 6, 6);
-            layout.spacing = 5f;
-            layout.childControlHeight = true;
-            layout.childControlWidth = true;
-            layout.childForceExpandHeight = true;
-            layout.childForceExpandWidth = true;
-            AddDock(nav, ShellPanelId.Home, "主页", "home", ReturnToPetHome);
-            AddDock(nav, ShellPanelId.WorldMap, "世界地图", "map", () => ShowMainPanel(ShellPanelId.WorldMap));
-            AddDock(nav, ShellPanelId.PondSelection, "选择鱼塘", "pond", () => ShowMainPanel(ShellPanelId.PondSelection));
-            AddDock(nav, ShellPanelId.Pond, "开始钓鱼", "hook", ShowPondPanel);
-            AddDock(nav, ShellPanelId.CatchBag, "背包", "bag", () => ShowMainPanel(ShellPanelId.CatchBag));
-            AddDock(nav, ShellPanelId.Equipment, "装备", "rod", () => ShowMainPanel(ShellPanelId.Equipment));
-            AddDock(nav, ShellPanelId.Shop, "商店", "shop", () => ShowMainPanel(ShellPanelId.Shop));
-            AddDock(nav, ShellPanelId.Achievements, "成就", "medal", () => ShowMainPanel(ShellPanelId.Achievements));
-            AddDock(nav, ShellPanelId.Leaderboard, "排行榜", "trophy", () => ShowMainPanel(ShellPanelId.Leaderboard));
-            AddDock(nav, ShellPanelId.Profile, "个人信息", "user", () => OpenProfileHub());
-            AddDock(nav, ShellPanelId.SocialFeed, "动态", "social", () => ShowMainPanel(ShellPanelId.SocialFeed));
-        }
-
-        void AddDock(Transform nav, ShellPanelId id, string label, string icon, UnityEngine.Events.UnityAction action)
-        {
-            var button = DesktopModalUi.MakeButton(nav, id.ToString(), label, action);
-            button.GetComponent<LayoutElement>().minWidth = 72f;
-            CatTheme.StyleButton(button, icon);
-            button.GetComponent<CozyButtonVisual>().SetStackedIcon(true);
-            var text = button.GetComponentInChildren<Text>();
-            text.fontSize = 15;
-            _tabs[id] = button;
-            _lockableNavButtons.Add(button);
         }
 
         void RefreshHeaderBalance()
@@ -588,130 +288,49 @@ namespace FishSocial.Desktop
                 if (ok && _headerCoins != null)
                     _headerCoins.text = coins.ToString("N0");
             }));
-        }
-
-        void StyleTabRow(Transform nav)
-        {
-            _tabs.Clear();
-            var ordered = new List<Transform>();
-            for (var i = 0; i < nav.childCount; i++)
+            StartCoroutine(_authenticatedApi.GetProfileHub(_authenticatedApi.PlayerId, "profile", (ok, hub, message) =>
             {
-                var child = nav.GetChild(i);
-                if (IsSecondaryNav(child.name))
-                {
-                    child.gameObject.SetActive(false);
-                    continue;
-                }
-
-                child.gameObject.SetActive(true);
-                ordered.Add(child);
-            }
-
-            ordered.Sort((a, b) => TabOrder(a.name).CompareTo(TabOrder(b.name)));
-            for (var i = 0; i < ordered.Count; i++)
-            {
-                var child = ordered[i];
-                child.SetSiblingIndex(i);
-                var element = child.GetComponent<LayoutElement>();
-                if (element == null)
-                    element = child.gameObject.AddComponent<LayoutElement>();
-                element.preferredWidth = 112f;
-                element.preferredHeight = TabHeight;
-                element.flexibleWidth = 0f;
-                element.flexibleHeight = 0f;
-                CatTheme.ApplyPlate(child.GetComponent<Image>(), "tab");
-                var label = child.Find("Label")?.GetComponent<Text>();
-                if (label != null)
-                {
-                    label.text = TabLabel(child.name);
-                    label.fontSize = 16;
-                    label.color = CatTheme.Ink;
-                }
-
-                if (TabPanel(child.name, out var panel))
-                {
-                    var button = child.GetComponent<Button>();
-                    if (button != null)
-                        _tabs[panel] = button;
-                }
-            }
+                if (!ok || hub == null)
+                    return;
+                if (_headerName != null && hub.profile != null)
+                    _headerName.text = hub.profile.nickname;
+                if (hub.progress == null)
+                    return;
+                if (_headerLevel != null)
+                    _headerLevel.text = "Lv." + hub.progress.level;
+                var required = RequiredLevelXp(hub.progress.level);
+                if (_headerXp != null)
+                    _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : "满级";
+                if (_headerXpFill != null)
+                    _headerXpFill.fillAmount = required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f;
+            }));
         }
 
-        static void PlaceSettingsButton(Transform settings)
+        [Serializable]
+        sealed class HudLevelRow
         {
-            var rt = settings as RectTransform;
-            if (rt == null)
-                return;
-            var element = settings.GetComponent<LayoutElement>();
-            if (element != null)
-                DestroyImmediate(element);
-            rt.anchorMin = new Vector2(1f, 1f);
-            rt.anchorMax = new Vector2(1f, 1f);
-            rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-12f, -12f);
-            rt.sizeDelta = new Vector2(40f, 40f);
-            CatTheme.ApplyIcon(settings.GetComponent<Image>(), "icon-settings");
-            var label = settings.Find("Label");
-            if (label != null)
-                label.gameObject.SetActive(false);
+            public int level;
+            public int xpToNext;
         }
 
-        static bool IsSecondaryNav(string name)
+        [Serializable]
+        sealed class HudLevelTable
         {
-            return name == "世界地图" || name == "鱼获背包" || name == "鱼获/背包"
-                || name == "动态" || name == "排行榜";
+            public HudLevelRow[] rows;
         }
 
-        static int TabOrder(string name)
+        static int RequiredLevelXp(int level)
         {
-            if (name == "主页")
+            var asset = Resources.Load<TextAsset>("Desktop/Theme/Cozy/data/player-levels");
+            if (asset == null)
                 return 0;
-            if (name == "鱼塘")
-                return 1;
-            if (name == "好友聊天" || name == "好友/聊天")
-                return 2;
-            if (name == "商店")
-                return 3;
-            if (name == "个人中心")
-                return 4;
-            return 8;
-        }
-
-        static string TabLabel(string name)
-        {
-            if (name == "主页")
-                return "首页";
-            if (name == "好友聊天" || name == "好友/聊天")
-                return "好友";
-            if (name == "个人中心")
-                return "我的";
-            return name;
-        }
-
-        static bool TabPanel(string name, out ShellPanelId panel)
-        {
-            switch (name)
-            {
-                case "主页":
-                    panel = ShellPanelId.Home;
-                    return true;
-                case "鱼塘":
-                    panel = ShellPanelId.Pond;
-                    return true;
-                case "好友聊天":
-                case "好友/聊天":
-                    panel = ShellPanelId.Friends;
-                    return true;
-                case "商店":
-                    panel = ShellPanelId.Shop;
-                    return true;
-                case "个人中心":
-                    panel = ShellPanelId.Profile;
-                    return true;
-                default:
-                    panel = ShellPanelId.Home;
-                    return false;
-            }
+            var table = JsonUtility.FromJson<HudLevelTable>("{\"rows\":" + asset.text + "}");
+            if (table == null || table.rows == null)
+                return 0;
+            foreach (var row in table.rows)
+                if (row.level == level)
+                    return row.xpToNext;
+            return 0;
         }
 
         void HighlightTab(ShellPanelId id)
@@ -725,67 +344,6 @@ namespace FishSocial.Desktop
             }
         }
 
-        static Transform FindDirect(Transform parent, string name)
-        {
-            if (parent == null)
-                return null;
-            for (var i = 0; i < parent.childCount; i++)
-            {
-                var child = parent.GetChild(i);
-                if (child != null && child.name == name)
-                    return child;
-            }
-
-            return null;
-        }
-
-        static void SetShown(Transform parent, string name, bool shown)
-        {
-            var node = parent != null ? parent.Find(name) : null;
-            if (node != null)
-                node.gameObject.SetActive(shown);
-        }
-
-        static void Paint(Transform parent, string name, Color color)
-        {
-            var text = parent != null ? parent.Find(name)?.GetComponent<Text>() : null;
-            if (text != null)
-                text.color = color;
-        }
-
-        static void PlaceHeaderLine(
-            Transform header, string name, float x, float y, float width, float height, TextAnchor align)
-        {
-            var node = header.Find(name) as RectTransform;
-            if (node == null)
-                return;
-            var right = align == TextAnchor.MiddleRight;
-            node.anchorMin = new Vector2(right ? 1f : 0f, 1f);
-            node.anchorMax = node.anchorMin;
-            node.pivot = new Vector2(right ? 1f : 0f, 1f);
-            node.anchoredPosition = new Vector2(x, -y);
-            node.sizeDelta = new Vector2(width, height);
-            var text = node.GetComponent<Text>();
-            if (text == null)
-                return;
-            text.alignment = align;
-            text.fontSize = 14;
-            text.color = CatTheme.Cream;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-        }
-
-        static void SetPreferred(Transform parent, string name, float width, float height)
-        {
-            var node = parent.Find(name);
-            if (node == null)
-                return;
-            var element = node.GetComponent<LayoutElement>();
-            if (element == null)
-                element = node.gameObject.AddComponent<LayoutElement>();
-            element.preferredWidth = width;
-            element.preferredHeight = height;
-        }
-
         void EnterMainShell()
         {
             if (_mainShellEntered)
@@ -797,7 +355,9 @@ namespace FishSocial.Desktop
                 _mainRoot.SetActive(true);
             if (_scaler != null)
                 _scaler.referenceResolution = new Vector2(
-                    WindowManager.MainDefaultWidth, WindowManager.MainDefaultHeight);
+                    1672f, 941f);
+            if (_scaler != null)
+                _scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             WindowManager.Instance?.ApplyMainShell();
             RefreshPetPresentation();
             RefreshHeaderBalance();
@@ -806,11 +366,6 @@ namespace FishSocial.Desktop
         void ReturnToPetHome()
         {
             ShowMainPanel(ShellPanelId.Home);
-        }
-
-        void ShowPondPanel()
-        {
-            ShowMainPanel(ShellPanelId.Pond);
         }
 
         public void SetOnboardingLock(bool locked)
@@ -897,6 +452,9 @@ namespace FishSocial.Desktop
         void OnPanelChanged(ShellPanelId id)
         {
             HighlightTab(id);
+            var home = _mainRoot != null ? _mainRoot.transform.Find("Header/Home") : null;
+            if (home != null)
+                home.gameObject.SetActive(id != ShellPanelId.Home);
             _productMenu?.Hide();
             _socialPanel?.OnClosed();
             _catchPanel?.OnClosed();
@@ -1000,61 +558,102 @@ namespace FishSocial.Desktop
         void Update()
         {
             if (_mainShellEntered && _mainRoot != null && _mainRoot.activeInHierarchy)
+            {
                 RefreshHeaderBalance();
+                RefreshHeaderAvatar();
+            }
             if (_toast != null && _toast.gameObject.activeSelf && Time.unscaledTime > _toastUntil)
-                _toast.gameObject.SetActive(false);
+                (_toastRoot != null ? _toastRoot : _toast.gameObject).SetActive(false);
+        }
+
+        void RefreshHeaderAvatar()
+        {
+            var skin = PetArtLoader.CurrentOwnPetId();
+            if (_headerAvatar == null || skin == _headerAvatarSkin)
+                return;
+            var sprite = CatTheme.LoadCozy("characters/portraits/" + skin + ".png", Vector4.zero)
+                ?? CatTheme.LoadCozy("characters/cat-portrait.png", Vector4.zero);
+            if (sprite == null)
+                return;
+            _headerAvatar.sprite = sprite;
+            _headerAvatarSkin = skin;
+            if (_homeRenderer != null && _homeRenderer.ActiveSkinId != skin)
+                _homeRenderer.PlayClip(skin, "fishing");
         }
 
         void ShowToast(string msg)
         {
+            if (_toast == null)
+                return;
             _toast.text = msg;
-            _toast.gameObject.SetActive(true);
+            (_toastRoot != null ? _toastRoot : _toast.gameObject).SetActive(true);
             _toastUntil = Time.unscaledTime + 4f;
         }
 
-        void RegisterPanel(Transform parent, ShellPanelId id, System.Action<GameObject> builder)
+        void RegisterPanel(Transform parent, ShellPanelId id, System.Action<GameObject> bind)
         {
-            var root = CreateStretchPanel(id.ToString(), parent, new Color(0f, 0f, 0f, 0f));
-            var body = root;
-            if (id != ShellPanelId.Home)
+            var slot = parent != null ? parent.Find(id.ToString()) : null;
+            if (slot == null)
             {
-                CozyUi.Label(root.transform, "PageTitle", CozyUi.PageTitle(id), 26,
-                    new Vector2(0f, 1f), Vector2.one, new Vector2(28f, -54f), new Vector2(-28f, -6f));
-                body = CozyUi.Rect(root.transform, "PageBody", Vector2.zero, Vector2.one,
-                    new Vector2(24f, 12f), new Vector2(-24f, -60f)).gameObject;
+                Debug.LogError("[DesktopUI] Serialized page slot is missing: " + id);
+                return;
             }
-            builder(body);
-            CatTheme.SkinTree(root.transform);
-            _router.Register(id, root);
+            var prefabName = PagePrefabName(id);
+            var instance = DesktopUiPrefabFactory.Instantiate(prefabName, slot);
+            if (instance == null)
+                return;
+            bind(instance);
+            CatTheme.SkinTree(instance.transform);
+            _router.Register(id, slot.gameObject);
+        }
+
+        static string PagePrefabName(ShellPanelId id)
+        {
+            switch (id)
+            {
+                case ShellPanelId.Home: return "PanelHome";
+                case ShellPanelId.Pond: return "PanelPond";
+                case ShellPanelId.WorldMap: return "PanelWorldMap";
+                case ShellPanelId.Shop: return "PanelShop";
+                case ShellPanelId.Friends: return "PanelSocial";
+                case ShellPanelId.CatchBag: return "PanelCatch";
+                case ShellPanelId.Gallery: return "PanelGallery";
+                case ShellPanelId.Profile: return "PanelProfileHub";
+                case ShellPanelId.ProfileEdit: return "PanelProfileEdit";
+                case ShellPanelId.SocialFeed: return "PanelSocialFeed";
+                case ShellPanelId.Leaderboard: return "PanelLeaderboard";
+                case ShellPanelId.Settings: return "PanelSettings";
+                case ShellPanelId.Equipment: return "PanelEquipment";
+                case ShellPanelId.PondSelection: return "PanelPondSelection";
+                case ShellPanelId.Achievements: return "PanelAchievements";
+                default: return null;
+            }
         }
 
         void BuildHome(GameObject go)
         {
-            CozyUi.Picture(go.transform, "LakeIllustration", "scenes/pond-afternoon", Vector2.zero,
-                new Vector2(0.69f, 1f), Vector2.zero, Vector2.zero, false);
-            var pet = CozyUi.Picture(go.transform, "AnimatedCat", "characters/cat-ready", new Vector2(0.04f, 0.04f),
-                new Vector2(0.48f, 0.70f), Vector2.zero, Vector2.zero);
-            BindAnimatedPet(pet);
-            var card = CozyUi.Rect(go.transform, "WelcomeCard", new Vector2(0.69f, 0f), Vector2.one,
-                new Vector2(18f, 22f), new Vector2(-24f, -22f));
-            CatTheme.ApplyPaper(card.gameObject.AddComponent<Image>());
-            CozyUi.Label(card, "Eyebrow", "FISH SOCIAL · 猫咪的钓鱼时光", 13,
-                new Vector2(0f, 0.84f), Vector2.one, new Vector2(22f, 0f), new Vector2(-22f, -16f));
-            CozyUi.Label(card, "Headline", "今天，也去钓鱼吧", 27,
-                new Vector2(0f, 0.67f), new Vector2(1f, 0.84f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
-            _petStateLabel = CozyUi.Label(card, "SessionState", "宠物状态：离线", 16,
-                new Vector2(0f, 0.56f), new Vector2(1f, 0.67f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
-            _petPond = CozyUi.Label(card, "CurrentPond", "当前鱼塘：未进入", 16,
-                new Vector2(0f, 0.46f), new Vector2(1f, 0.56f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
-            var start = CozyUi.Action(card, "OpenPond", "开始钓鱼", "hook", OpenPond,
-                new Vector2(0f, 0.29f), new Vector2(1f, 0.44f), new Vector2(12f, 0f), new Vector2(-12f, 0f), true);
-            var selection = CozyUi.Action(card, "ChoosePond", "挑选鱼塘", "pond",
-                () => ShowMainPanel(ShellPanelId.PondSelection), new Vector2(0f, 0.12f), new Vector2(1f, 0.27f),
-                new Vector2(12f, 0f), new Vector2(-12f, 0f));
-            _lockableNavButtons.Add(start);
-            _lockableNavButtons.Add(selection);
-            CozyUi.Label(card, "Footnote", "背包、装备和钓友动态，都在下方。", 13,
-                Vector2.zero, new Vector2(1f, 0.12f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
+            _petStateLabel = DesktopModalUi.FindComponent<Text>(go.transform, "MenuCard/SessionState");
+            _petPond = DesktopModalUi.FindComponent<Text>(go.transform, "MenuCard/CurrentPond");
+            DesktopModalUi.BindButton(go.transform, "MenuCard/StartFishing", OpenPond);
+            DesktopModalUi.BindButton(go.transform, "MenuCard/ExploreWorld", () => ShowMainPanel(ShellPanelId.WorldMap));
+            DesktopModalUi.BindButton(go.transform, "MenuCard/DailyGift", () =>
+            {
+                ShowMainPanel(ShellPanelId.Shop);
+                SetStatusMessage("每日登录礼物尚未开放；可在商店查看钓鱼补给。");
+            });
+            DesktopModalUi.BindButton(go.transform, "MenuCard/SelectPond", () => ShowMainPanel(ShellPanelId.PondSelection));
+            var hero = DesktopModalUi.FindComponent<Image>(go.transform, "HeroCat");
+            if (hero != null)
+            {
+                var renderer = hero.GetComponent<SpriteFramePetRenderer>();
+                if (renderer != null)
+                {
+                    _homeRenderer = renderer;
+                    renderer.Bind(hero);
+                    renderer.Apply(PetVisualState.Fishing);
+                    renderer.PlayClip(PetArtLoader.CurrentOwnPetId(), "fishing");
+                }
+            }
         }
 
         void OpenPond()
@@ -1089,6 +688,9 @@ namespace FishSocial.Desktop
 
         void RefreshPetPresentation()
         {
+            if (_headerCatchCount != null)
+                _headerCatchCount.text = (_pondSession != null && _pondSession.CurrentInventory != null
+                    ? _pondSession.CurrentInventory.Length : 0).ToString();
             if (_petState != null)
                 _petState.RefreshFromApp();
             ApplyPetLabels(_petState != null ? _petState.Current : PetVisualState.Offline);
@@ -1335,80 +937,35 @@ namespace FishSocial.Desktop
 
         void BuildPond(GameObject go)
         {
-            CozyUi.Picture(go.transform, "LakeIllustration", "scenes/pond-afternoon", Vector2.zero,
-                new Vector2(0.62f, 1f), Vector2.zero, Vector2.zero, false);
-            var pet = CozyUi.Picture(go.transform, "AnimatedCat", "characters/cat-ready", new Vector2(0f, 0.02f),
-                new Vector2(0.42f, 0.68f), Vector2.zero, Vector2.zero);
-            BindAnimatedPet(pet);
-            var controls = CozyUi.Rect(go.transform, "FishingControls", new Vector2(0.63f, 0f), Vector2.one,
-                new Vector2(14f, 10f), new Vector2(-10f, -10f));
-            _pondStatus = CozyUi.Label(controls, "PondSession", "连接：未连接 · 当前 phase：—", 15,
-                new Vector2(0f, 0.55f), Vector2.one, new Vector2(10f, 0f), new Vector2(-10f, -10f));
-            _pondStatus.verticalOverflow = VerticalWrapMode.Truncate;
-            CozyUi.Action(controls, "EnterOverlay", "进入钓鱼桌宠", "hook", OpenPond,
-                new Vector2(0f, 0.40f), new Vector2(1f, 0.55f), Vector2.zero, Vector2.zero, true);
-            CozyUi.Action(controls, "SelectPond", "选择鱼塘", "pond", () => ShowMainPanel(ShellPanelId.PondSelection),
-                new Vector2(0f, 0.27f), new Vector2(0.5f, 0.39f), Vector2.zero, new Vector2(-4f, 0f));
-            CozyUi.Action(controls, "ConnectPond", "连接", "check", () => _pondSession?.ConnectAndJoin(),
-                new Vector2(0.5f, 0.27f), new Vector2(1f, 0.39f), new Vector2(4f, 0f), Vector2.zero);
-            CozyUi.Action(controls, "TakeSpot", "选择钓位", "pond", () => _pondSession?.TakeFirstSpot(ShowSocketResult),
-                new Vector2(0f, 0.14f), new Vector2(0.5f, 0.26f), Vector2.zero, new Vector2(-4f, 0f));
-            CozyUi.Action(controls, "StartFishing", "开始钓鱼", "hook", () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult),
-                new Vector2(0.5f, 0.14f), new Vector2(1f, 0.26f), new Vector2(4f, 0f), Vector2.zero);
-            CozyUi.Action(controls, "StopFishing", "收杆", "rod", () => _pondSession?.StopFishing(ShowSocketResult),
-                Vector2.zero, new Vector2(0.5f, 0.13f), Vector2.zero, new Vector2(-4f, 0f));
-            CozyUi.Action(controls, "CatchBag", "查看鱼获", "bag", () => ShowMainPanel(ShellPanelId.CatchBag),
-                new Vector2(0.5f, 0f), new Vector2(1f, 0.13f), new Vector2(4f, 0f), Vector2.zero);
+            _pondStatus = DesktopModalUi.FindComponent<Text>(go.transform, "FishingControls/PondSession");
+            DesktopModalUi.BindButton(go.transform, "FishingControls/EnterOverlay", OpenPond);
+            DesktopModalUi.BindButton(go.transform, "FishingControls/SelectPond", () => ShowMainPanel(ShellPanelId.PondSelection));
+            DesktopModalUi.BindButton(go.transform, "FishingControls/ConnectPond", () => _pondSession?.ConnectAndJoin());
+            DesktopModalUi.BindButton(go.transform, "FishingControls/TakeSpot", () => _pondSession?.TakeFirstSpot(ShowSocketResult));
+            DesktopModalUi.BindButton(go.transform, "FishingControls/StartFishing", () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult));
+            DesktopModalUi.BindButton(go.transform, "FishingControls/StopFishing", () => _pondSession?.StopFishing(ShowSocketResult));
+            DesktopModalUi.BindButton(go.transform, "FishingControls/CatchBag", () => ShowMainPanel(ShellPanelId.CatchBag));
+            var image = DesktopModalUi.FindComponent<Image>(go.transform, "HeroCat");
+            var renderer = image != null ? image.GetComponent<SpriteFramePetRenderer>() : null;
+            if (renderer != null)
+            {
+                renderer.Bind(image);
+                _petState?.AddRenderer(renderer);
+            }
         }
 
-        static GameObject CreateActionRow(Transform parent, string name)
-        {
-            var row = new GameObject(name, typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-            row.transform.SetParent(parent, false);
-            var layout = row.GetComponent<HorizontalLayoutGroup>();
-            layout.spacing = 8f;
-            layout.childAlignment = TextAnchor.MiddleLeft;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = false;
-            layout.childForceExpandHeight = true;
-            var element = row.GetComponent<LayoutElement>();
-            element.preferredHeight = 44f;
-            element.minHeight = 44f;
-            return row;
-        }
 
-        static void CreateRowButton(
-            Transform parent, string name, string label, Vector2 size, UnityEngine.Events.UnityAction onClick, bool coral = false)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-            go.transform.SetParent(parent, false);
-            var element = go.GetComponent<LayoutElement>();
-            element.preferredWidth = size.x;
-            element.preferredHeight = size.y;
-            CatTheme.ApplyPlate(go.GetComponent<Image>(), coral ? "btn-coral" : "btn-cream");
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
-            var tr = text.GetComponent<RectTransform>();
-            tr.anchorMin = Vector2.zero;
-            tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
-            text.color = CatTheme.Ink;
-            go.GetComponent<Button>().onClick.AddListener(onClick);
-        }
 
         void BuildWorldMap(GameObject go)
         {
-            _worldMapPanel = DesktopFeaturePanelFactory.Mount<DesktopWorldMapPanel>(
-                go.transform,
+            _worldMapPanel = DesktopFeaturePanelFactory.BindExisting<DesktopWorldMapPanel>(
+                go,
                 view => view.Bind(_pondSession, _authenticatedApi));
         }
 
         void BuildEquipment(GameObject go)
         {
-            _equipmentPanel = DesktopFeaturePanelFactory.Mount<DesktopShopPanel>(go.transform, view =>
+            _equipmentPanel = DesktopFeaturePanelFactory.BindExisting<DesktopShopPanel>(go, view =>
             {
                 view.SetEquipmentMode(true);
                 view.Bind(_authenticatedApi);
@@ -1417,7 +974,9 @@ namespace FishSocial.Desktop
 
         void BuildPondSelection(GameObject go)
         {
-            _pondSelectionPanel = go.AddComponent<CozyPondSelectionPanel>();
+            _pondSelectionPanel = go.GetComponent<CozyPondSelectionPanel>();
+            if (_pondSelectionPanel == null)
+                return;
             _pondSelectionPanel.Bind(pondId =>
             {
                 if (_onboardingLock)
@@ -1432,22 +991,22 @@ namespace FishSocial.Desktop
 
         void BuildAchievements(GameObject go)
         {
-            _achievementPanel = DesktopFeaturePanelFactory.Mount<DesktopProfileHubPanel>(go.transform,
+            _achievementPanel = DesktopFeaturePanelFactory.BindExisting<DesktopProfileHubPanel>(go,
                 view => view.Bind(_authenticatedApi, _pondSession,
                     () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage));
         }
 
         void BuildShop(GameObject go)
         {
-            _shopPanel = DesktopFeaturePanelFactory.Mount<DesktopShopPanel>(
-                go.transform,
+            _shopPanel = DesktopFeaturePanelFactory.BindExisting<DesktopShopPanel>(
+                go,
                 view => view.Bind(_authenticatedApi));
         }
 
         void BuildProfilePanel(GameObject go)
         {
-            _profileHubPanel = DesktopFeaturePanelFactory.Mount<DesktopProfileHubPanel>(
-                go.transform,
+            _profileHubPanel = DesktopFeaturePanelFactory.BindExisting<DesktopProfileHubPanel>(
+                go,
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
@@ -1459,8 +1018,8 @@ namespace FishSocial.Desktop
 
         void BuildProfileEditPanel(GameObject go)
         {
-            _profileEditPanel = DesktopFeaturePanelFactory.Mount<DesktopProfileEditPanel>(
-                go.transform,
+            _profileEditPanel = DesktopFeaturePanelFactory.BindExisting<DesktopProfileEditPanel>(
+                go,
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
@@ -1469,39 +1028,39 @@ namespace FishSocial.Desktop
 
         void BuildSocialFeedPanel(GameObject go)
         {
-            _socialFeedPanel = DesktopFeaturePanelFactory.Mount<DesktopSocialFeedPanel>(
-                go.transform,
+            _socialFeedPanel = DesktopFeaturePanelFactory.BindExisting<DesktopSocialFeedPanel>(
+                go,
                 view => view.Bind(_authenticatedApi, _pondSession));
         }
 
         void BuildLeaderboardPanel(GameObject go)
         {
-            _leaderboardPanel = DesktopFeaturePanelFactory.Mount<DesktopLeaderboardPanel>(
-                go.transform,
+            _leaderboardPanel = DesktopFeaturePanelFactory.BindExisting<DesktopLeaderboardPanel>(
+                go,
                 view => view.Bind(_authenticatedApi, _pondSession));
         }
 
         void BuildSocialPanel(GameObject go)
         {
-            _socialPanel = DesktopFeaturePanelFactory.Mount<DesktopSocialModalView>(go.transform,
+            _socialPanel = DesktopFeaturePanelFactory.BindExisting<DesktopSocialModalView>(go,
                 view => view.Bind(_authenticatedApi, _pondSession, _socialLobby));
         }
 
         void BuildCatchPanel(GameObject go)
         {
-            _catchPanel = DesktopFeaturePanelFactory.Mount<DesktopCatchBagModalView>(go.transform,
+            _catchPanel = DesktopFeaturePanelFactory.BindExisting<DesktopCatchBagModalView>(go,
                 view => view.Bind(_authenticatedApi, _pondSession));
         }
 
         void BuildGalleryPanel(GameObject go)
         {
-            _galleryPanel = DesktopFeaturePanelFactory.Mount<DesktopGalleryModalView>(go.transform,
+            _galleryPanel = DesktopFeaturePanelFactory.BindExisting<DesktopGalleryModalView>(go,
                 view => view.Bind(_authenticatedApi, _pondSession));
         }
 
         void BuildSettingsPanel(GameObject go)
         {
-            _settingsPanel = DesktopFeaturePanelFactory.Mount<DesktopSettingsModalView>(go.transform,
+            _settingsPanel = DesktopFeaturePanelFactory.BindExisting<DesktopSettingsModalView>(go,
                 view => view.Bind());
         }
 
@@ -1515,311 +1074,5 @@ namespace FishSocial.Desktop
             DontDestroyOnLoad(es);
         }
 
-        void BindAnimatedPet(Image image)
-        {
-            Canvas.ForceUpdateCanvases();
-            var renderer = image.gameObject.AddComponent<SpriteFramePetRenderer>();
-            renderer.Bind(image);
-            if (_petState != null)
-                _petState.AddRenderer(renderer);
-        }
-
-        void BindSquarePet(Transform parent, string name, Vector2 anchoredPos, float size, bool enableDrag)
-        {
-            var slot = new GameObject(name + "Slot", typeof(RectTransform));
-            slot.transform.SetParent(parent, false);
-            var slotRt = slot.GetComponent<RectTransform>();
-            if (enableDrag)
-            {
-                slotRt.anchorMin = new Vector2(0.5f, 0.5f);
-                slotRt.anchorMax = new Vector2(0.5f, 0.5f);
-                slotRt.pivot = new Vector2(0.5f, 0.5f);
-                slotRt.anchoredPosition = anchoredPos;
-            }
-            else
-            {
-                slotRt.anchorMin = new Vector2(0f, 1f);
-                slotRt.anchorMax = new Vector2(0f, 1f);
-                slotRt.pivot = new Vector2(0f, 1f);
-                slotRt.anchoredPosition = anchoredPos;
-            }
-            slotRt.sizeDelta = new Vector2(size, size);
-
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter));
-            go.transform.SetParent(slot.transform, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(size, size);
-            var fitter = go.GetComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
-            fitter.aspectRatio = 1f;
-            var image = go.GetComponent<Image>();
-            image.preserveAspect = true;
-            image.raycastTarget = enableDrag;
-            image.color = Color.white;
-
-            var renderer = go.AddComponent<SpriteFramePetRenderer>();
-            renderer.Bind(image);
-            if (_petState != null)
-                _petState.AddRenderer(renderer);
-
-            if (!enableDrag || _petState == null)
-                return;
-
-            var trigger = go.AddComponent<EventTrigger>();
-            var down = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
-            down.callback.AddListener(evt =>
-            {
-                var pointer = evt as PointerEventData;
-                if (pointer != null && pointer.button != PointerEventData.InputButton.Left)
-                    return;
-                _petState.SetDragging(true);
-            });
-            trigger.triggers.Add(down);
-            var up = new EventTrigger.Entry { eventID = EventTriggerType.PointerUp };
-            up.callback.AddListener(evt =>
-            {
-                var pointer = evt as PointerEventData;
-                if (pointer != null && pointer.button != PointerEventData.InputButton.Left)
-                    return;
-                _petState.SetDragging(false);
-            });
-            trigger.triggers.Add(up);
-            var exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
-            exit.callback.AddListener(_ => _petState.SetDragging(false));
-            trigger.triggers.Add(exit);
-        }
-
-        static GameObject CreateStretchPanel(string name, Transform parent, Color color)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            go.GetComponent<Image>().color = color;
-            go.GetComponent<Image>().raycastTarget = false;
-            return go;
-        }
-
-        static GameObject CreateBar(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 sizeDelta, Color color)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = anchorMin;
-            rt.anchorMax = anchorMax;
-            if (Mathf.Approximately(anchorMin.y, 1f) && Mathf.Approximately(anchorMax.y, 1f))
-            {
-                rt.pivot = new Vector2(0.5f, 1f);
-                rt.anchoredPosition = Vector2.zero;
-                rt.offsetMin = new Vector2(0, rt.offsetMin.y);
-                rt.offsetMax = new Vector2(0, 0);
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Abs(sizeDelta.y));
-            }
-            else if (Mathf.Approximately(anchorMin.y, 0f) && Mathf.Approximately(anchorMax.y, 0f) &&
-                     anchorMax.x > anchorMin.x)
-            {
-                rt.pivot = new Vector2(0.5f, 0f);
-                rt.anchoredPosition = Vector2.zero;
-                rt.offsetMin = new Vector2(0, 0);
-                rt.offsetMax = new Vector2(0, 0);
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Abs(sizeDelta.y));
-            }
-            else if (Mathf.Approximately(anchorMin.x, 0f) && Mathf.Approximately(anchorMax.x, 0f))
-            {
-                rt.pivot = new Vector2(0f, 0.5f);
-                rt.offsetMin = new Vector2(0, 0);
-                rt.offsetMax = new Vector2(sizeDelta.x, 0);
-            }
-            else
-            {
-                rt.offsetMin = Vector2.zero;
-                rt.offsetMax = Vector2.zero;
-            }
-
-            go.GetComponent<Image>().color = color;
-            return go;
-        }
-
-        static Text CreateText(Transform parent, string name, string content, int size, TextAnchor anchor, Vector2 anchoredPos, Vector2 sizeDelta)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 1);
-            rt.anchorMax = new Vector2(0, 1);
-            rt.pivot = new Vector2(0, 1);
-            rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta = sizeDelta;
-            var text = go.GetComponent<Text>();
-            text.font = DesktopModalUi.Font;
-            text.text = content;
-            text.fontSize = size;
-            text.color = CatTheme.Ink;
-            text.alignment = TextAnchor.UpperLeft;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
-            text.raycastTarget = false;
-            if (anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.MiddleRight || anchor == TextAnchor.MiddleCenter)
-            {
-                if (anchor == TextAnchor.MiddleCenter)
-                {
-                    rt.anchorMin = new Vector2(0.5f, 0.5f);
-                    rt.anchorMax = new Vector2(0.5f, 0.5f);
-                    rt.pivot = new Vector2(0.5f, 0.5f);
-                }
-                else
-                {
-                    rt.anchorMin = new Vector2(anchor == TextAnchor.MiddleRight ? 1 : 0, 1);
-                    rt.anchorMax = rt.anchorMin;
-                    rt.pivot = new Vector2(anchor == TextAnchor.MiddleRight ? 1 : 0, 0.5f);
-                }
-                text.alignment = anchor;
-            }
-
-            if (anchor == TextAnchor.LowerCenter)
-            {
-                rt.anchorMin = new Vector2(0.5f, 0);
-                rt.anchorMax = new Vector2(0.5f, 0);
-                rt.pivot = new Vector2(0.5f, 0);
-                text.alignment = TextAnchor.MiddleCenter;
-            }
-
-            return text;
-        }
-
-        void CreateNavButton(
-            Transform parent, string label, UnityEngine.Events.UnityAction onClick, bool lockDuringOnboarding)
-        {
-            var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-            go.transform.SetParent(parent, false);
-            go.GetComponent<LayoutElement>().preferredHeight = 48;
-            go.GetComponent<LayoutElement>().flexibleWidth = 1f;
-            go.GetComponent<Image>().color = new Color(0.18f, 0.28f, 0.36f, 1f);
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(120, 28));
-            var tr = text.GetComponent<RectTransform>();
-            tr.anchorMin = Vector2.zero;
-            tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
-            var button = go.GetComponent<Button>();
-            button.onClick.AddListener(onClick);
-            if (lockDuringOnboarding)
-                _lockableNavButtons.Add(button);
-        }
-
-        static void CreateCenteredButton(Transform parent, string name, string label, Vector2 anchoredPos, Vector2 size, UnityEngine.Events.UnityAction onClick)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta = size;
-            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
-            var tr = text.GetComponent<RectTransform>();
-            tr.anchorMin = Vector2.zero;
-            tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
-            go.GetComponent<Button>().onClick.AddListener(onClick);
-        }
-
-        static void CreateBottomCenteredButton(Transform parent, string name, string label, float bottom,
-            Vector2 size, UnityEngine.Events.UnityAction onClick)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0f);
-            rt.anchorMax = new Vector2(0.5f, 0f);
-            rt.pivot = new Vector2(0.5f, 0f);
-            rt.anchoredPosition = new Vector2(0f, bottom);
-            rt.sizeDelta = size;
-            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
-            var tr = text.GetComponent<RectTransform>();
-            tr.anchorMin = Vector2.zero;
-            tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
-            go.GetComponent<Button>().onClick.AddListener(onClick);
-        }
-
-        static void CreateButton(Transform parent, string name, string label, Vector2 anchoredPos, Vector2 size, UnityEngine.Events.UnityAction onClick)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 1);
-            rt.anchorMax = new Vector2(0, 1);
-            rt.pivot = new Vector2(0, 1);
-            rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta = size;
-            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
-            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
-            var tr = text.GetComponent<RectTransform>();
-            tr.anchorMin = Vector2.zero;
-            tr.anchorMax = Vector2.one;
-            tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero;
-            tr.pivot = new Vector2(0.5f, 0.5f);
-            text.alignment = TextAnchor.MiddleCenter;
-            go.GetComponent<Button>().onClick.AddListener(onClick);
-        }
-
-        static void CreateToggle(Transform parent, string name, string label, Vector2 anchoredPos, bool value, System.Action<bool> onChanged)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Toggle));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 1);
-            rt.anchorMax = new Vector2(0, 1);
-            rt.pivot = new Vector2(0, 1);
-            rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta = new Vector2(360, 32);
-
-            var bg = new GameObject("Background", typeof(RectTransform), typeof(Image));
-            bg.transform.SetParent(go.transform, false);
-            var bgRt = bg.GetComponent<RectTransform>();
-            bgRt.anchorMin = new Vector2(0, 0.5f);
-            bgRt.anchorMax = new Vector2(0, 0.5f);
-            bgRt.pivot = new Vector2(0, 0.5f);
-            bgRt.anchoredPosition = Vector2.zero;
-            bgRt.sizeDelta = new Vector2(28, 28);
-            bg.GetComponent<Image>().color = new Color(0.25f, 0.3f, 0.35f, 1f);
-
-            var check = new GameObject("Checkmark", typeof(RectTransform), typeof(Image));
-            check.transform.SetParent(bg.transform, false);
-            var cRt = check.GetComponent<RectTransform>();
-            cRt.anchorMin = Vector2.zero;
-            cRt.anchorMax = Vector2.one;
-            cRt.offsetMin = new Vector2(4, 4);
-            cRt.offsetMax = new Vector2(-4, -4);
-            check.GetComponent<Image>().color = new Color(0.4f, 0.85f, 0.55f, 1f);
-
-            var labelText = CreateText(go.transform, "Label", label, 18, TextAnchor.MiddleLeft, new Vector2(40, -2), new Vector2(300, 28));
-            labelText.alignment = TextAnchor.MiddleLeft;
-
-            var toggle = go.GetComponent<Toggle>();
-            toggle.targetGraphic = bg.GetComponent<Image>();
-            toggle.graphic = check.GetComponent<Image>();
-            toggle.isOn = value;
-            toggle.onValueChanged.AddListener(v => onChanged?.Invoke(v));
-        }
     }
 }

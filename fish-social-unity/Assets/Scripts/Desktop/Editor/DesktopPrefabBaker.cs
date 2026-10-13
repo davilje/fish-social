@@ -157,7 +157,8 @@ namespace FishSocial.Desktop.Editor
             try
             {
                 const string name = "AchievementRow";
-                AssetDatabase.DeleteAsset(Folder + "/" + name + ".prefab");
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/" + name + ".prefab") != null)
+                    return 1;
                 var root = new GameObject(
                     name,
                     typeof(RectTransform),
@@ -411,11 +412,18 @@ namespace FishSocial.Desktop.Editor
                 return;
             }
 
-            var panel = root.GetComponent<DesktopShopPanel>();
-            if (panel != null)
-                panel.BuildEditorLayout();
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            PrefabUtility.UnloadPrefabContents(root);
+            try
+            {
+                var panel = root.GetComponent<DesktopShopPanel>();
+                if (panel != null)
+                    panel.BuildEditorLayout();
+                CozyPrefabRepair.PrepareForSave(root, "PanelShop", typeof(DesktopShopPanel));
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
@@ -463,7 +471,7 @@ namespace FishSocial.Desktop.Editor
             EnsureSettingsButton(content, "测试服务器连接", 241f, -128f, 200f, DesktopModalUi.Button);
             var police = DesktopModalUi.FindDescendant(content, "一键出警（Debug）");
             if (police != null)
-                UnityEngine.Object.DestroyImmediate(police.gameObject);
+                police.gameObject.SetActive(false);
             EnsureSettingsLabel(
                 content, "服务器连接状态",
                 "保存后请重启客户端；可用「测试服务器连接」检查 /health。",
@@ -598,10 +606,17 @@ namespace FishSocial.Desktop.Editor
                 return;
             }
 
-            if (populate != null)
-                populate(root);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-            PrefabUtility.UnloadPrefabContents(root);
+            try
+            {
+                if (populate != null)
+                    populate(root);
+                CozyPrefabRepair.PrepareForSave(root, outputName);
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
@@ -922,6 +937,7 @@ namespace FishSocial.Desktop.Editor
                 NormalizeChatControls(friendChat);
 
                 EditorUtility.SetDirty(root);
+                CozyPrefabRepair.PrepareForSave(root, "PanelSocial", typeof(DesktopSocialModalView));
                 bool success;
                 PrefabUtility.SaveAsPrefabAsset(root, path, out success);
                 if (!success)
@@ -1067,13 +1083,14 @@ namespace FishSocial.Desktop.Editor
                 MoveChildPreserveLayout(dm, friends, "DmInput");
                 MoveChildPreserveLayout(dm, friends, "SendDm");
 
-                Object.DestroyImmediate(dm.gameObject);
+                dm.gameObject.SetActive(false);
                 SetTabLabel(root.transform, "T0", "在线钓友/鱼塘聊天");
                 SetTabLabel(root.transform, "T1", "好友/私聊");
-                Object.DestroyImmediate(root.transform.Find("Tabs/T2")?.gameObject);
-                Object.DestroyImmediate(root.transform.Find("Tabs/T3")?.gameObject);
+                root.transform.Find("Tabs/T2")?.gameObject.SetActive(false);
+                root.transform.Find("Tabs/T3")?.gameObject.SetActive(false);
 
                 EditorUtility.SetDirty(root);
+                CozyPrefabRepair.PrepareForSave(root, "PanelSocial", typeof(DesktopSocialModalView));
                 bool success;
                 PrefabUtility.SaveAsPrefabAsset(root, path, out success);
                 if (!success)
@@ -1165,8 +1182,15 @@ namespace FishSocial.Desktop.Editor
                 }
 
                 bool success;
-                PrefabUtility.SaveAsPrefabAsset(root, outputPath, out success);
-                Object.DestroyImmediate(root);
+                try
+                {
+                    CozyPrefabRepair.PrepareForSave(root, outputName);
+                    PrefabUtility.SaveAsPrefabAsset(root, outputPath, out success);
+                }
+                finally
+                {
+                    Object.DestroyImmediate(root);
+                }
                 if (!success)
                 {
                     errors += "\n保存失败：" + outputPath;
@@ -1287,7 +1311,8 @@ namespace FishSocial.Desktop.Editor
             const string path = Folder + "/SocialPostCard.prefab";
             try
             {
-                AssetDatabase.DeleteAsset(path);
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+                    return 1;
                 var root = new GameObject(
                     "SocialPostCard",
                     typeof(RectTransform),
@@ -1385,7 +1410,8 @@ namespace FishSocial.Desktop.Editor
             try
             {
                 const string name = "PostCommentRow";
-                AssetDatabase.DeleteAsset(Folder + "/" + name + ".prefab");
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/" + name + ".prefab") != null)
+                    return 1;
                 var root = NewContainer(null, name, typeof(HorizontalLayoutGroup),
                     typeof(LayoutElement));
                 var layout = root.GetComponent<HorizontalLayoutGroup>();
@@ -1413,7 +1439,8 @@ namespace FishSocial.Desktop.Editor
             try
             {
                 const string name = "LeaderboardRow";
-                AssetDatabase.DeleteAsset(Folder + "/" + name + ".prefab");
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/" + name + ".prefab") != null)
+                    return 1;
                 var root = NewContainer(null, name, typeof(Image),
                     typeof(HorizontalLayoutGroup), typeof(LayoutElement));
                 root.GetComponent<Image>().color = new Color(0.13f, 0.18f, 0.23f, 1f);
@@ -1553,8 +1580,15 @@ namespace FishSocial.Desktop.Editor
         {
             var outputPath = Folder + "/" + outputName + ".prefab";
             bool success;
-            PrefabUtility.SaveAsPrefabAsset(root, outputPath, out success);
-            Object.DestroyImmediate(root);
+            try
+            {
+                CozyPrefabRepair.PrepareForSave(root, outputName);
+                PrefabUtility.SaveAsPrefabAsset(root, outputPath, out success);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
             if (!success)
             {
                 errors += "\n保存失败：" + outputPath;
@@ -1701,6 +1735,11 @@ namespace FishSocial.Desktop.Editor
         public static void BakeDesktopShell()
         {
             var path = Folder + "/DesktopShell.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+            {
+                CozyPrefabRepair.Ensure("DesktopShell", null);
+                return;
+            }
             var root = new GameObject(
                 "DesktopShell",
                 typeof(RectTransform),
@@ -1720,8 +1759,6 @@ namespace FishSocial.Desktop.Editor
             BuildShellMain(root.transform);
             BuildShellToast(root.transform);
 
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
-                AssetDatabase.DeleteAsset(path);
             var errors = string.Empty;
             SaveGeneratedPrefab(root, "DesktopShell", ref errors);
             AssetDatabase.SaveAssets();

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace FishSocial.Desktop.Editor
 {
     /// <summary>
-    /// Single registry for desktop UI prefabs. Create = generate shell + populate layout.
+    /// Single registry for complete serialized desktop UI prefabs; repair never creates page shells.
     /// Do not add per-panel Bake MenuItems; extend this catalog instead.
     /// </summary>
     public static class DesktopPrefabCatalog
@@ -18,112 +18,62 @@ namespace FishSocial.Desktop.Editor
             public readonly string Name;
             public readonly string Description;
             public readonly Type ComponentType;
-            public readonly Action Ensure; // create if missing + populate structure
+            public readonly Action Ensure;
 
-            public Entry(string name, string description, Type componentType, Action ensure)
+            public Entry(string name, string description, Type componentType, Action ensure = null)
             {
                 Name = name;
                 Description = description;
                 ComponentType = componentType;
-                Ensure = ensure;
+                Ensure = name.StartsWith("Overlay", StringComparison.Ordinal) ? ensure
+                    : () => CozyPrefabRepair.Ensure(name, componentType);
             }
         }
 
         public static readonly Entry[] All =
         {
-            new Entry("PanelSocial", "好友、在线钓友、鱼塘聊天和私聊。", typeof(DesktopSocialModalView),
-                () => DesktopPrefabValidator.EnsurePanelSocial()),
-            new Entry("PanelCatch", "背包/鱼获网格。", typeof(DesktopCatchBagModalView),
-                () => DesktopPrefabValidator.EnsureNamedPanelExists("PanelCatch", typeof(DesktopCatchBagModalView))),
-            new Entry("PanelGallery", "图鉴物种网格。", typeof(DesktopGalleryModalView),
-                () => DesktopPrefabValidator.EnsureNamedPanelExists("PanelGallery", typeof(DesktopGalleryModalView))),
-            new Entry("PanelSettings", "桌面端设置。", typeof(DesktopSettingsModalView),
-                () =>
-                {
-                    DesktopPrefabValidator.EnsureNamedPanelExists("PanelSettings", typeof(DesktopSettingsModalView));
-                    DesktopPrefabValidator.PopulatePanelSettingsPrefab();
-                }),
-            new Entry("PanelWorldMap", "世界地图。", typeof(DesktopWorldMapPanel),
-                () => DesktopPrefabValidator.EnsurePanelWorldMap()),
-            new Entry("PanelShop", "商店。", typeof(DesktopShopPanel),
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelShopPrefab();
-                    DesktopPrefabValidator.PopulatePanelShopPrefab();
-                    DesktopPrefabValidator.EnsureShopItemCard();
-                }),
-            new Entry("PanelProfile", "（旧）个人资料。", typeof(DesktopProfilePanel),
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelProfilePrefabs();
-                    DesktopPrefabValidator.PopulatePanelProfilePrefabs();
-                }),
-            new Entry("PanelProfileEdit", "资料编辑。", typeof(DesktopProfileEditPanel),
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelProfilePrefabs();
-                    DesktopPrefabValidator.PopulatePanelProfilePrefabs();
-                }),
-            new Entry("PanelProfileHub", "个人中心 Hub。", typeof(DesktopProfileHubPanel),
-                () => DesktopPrefabValidator.BakePanelProfileHub()),
-            new Entry("PanelSocialFeed", "动态墙。", typeof(DesktopSocialFeedPanel),
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
-                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
-                }),
-            new Entry("PanelLeaderboard", "排行榜。", typeof(DesktopLeaderboardPanel),
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelLeaderboardPrefab();
-                    DesktopPrefabValidator.PopulatePanelLeaderboardPrefab();
-                }),
-            new Entry("PanelPondSettlement", "离塘结算。", typeof(DesktopPondSettlementModalView),
-                () => DesktopPrefabValidator.BakePanelPondSettlement()),
-            new Entry("DesktopShell", "登录+主壳（顶栏/底栏/内容槽/Toast）。", null,
-                () => DesktopPrefabValidator.BakeDesktopShell()),
-            new Entry("OverlayHud", "Overlay 960×560 HUD（导出 overlay-hud.json）。", typeof(DesktopOverlayHudView),
-                () => DesktopPrefabValidator.EnsureOverlayHud()),
-            new Entry("OverlayPondLayout", "每塘一份 Overlay 960×560 场景布局（导出 layouts/<pondId>.json）。", typeof(DesktopOverlayPondLayoutView),
-                OverlayPondLayoutBaker.EnsureAll),
-            new Entry("OverlayPondActor", "钓位角色位：座位/形象/昵称/状态icon/上钩进度环（可调位置尺寸）。", typeof(OverlayPondActorView),
-                OverlayPondActorBaker.Ensure),
-            new Entry("ProductContextMenu", "主窗口右键产品菜单。", null,
-                () => DesktopPrefabValidator.EnsureProductContextMenu()),
-            new Entry("ShopItemCard", "商店列表商品卡。", null,
-                () => DesktopPrefabValidator.EnsureShopItemCard()),
-            new Entry("AchievementRow", "成就行。", null,
-                () => DesktopPrefabValidator.BakePanelProfileHub()),
-            new Entry("SocialPostCard", "动态卡片。", null,
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
-                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
-                }),
-            new Entry("PostCommentRow", "评论行。", null,
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelSocialFeedPrefab();
-                    DesktopPrefabValidator.PopulatePanelSocialFeedPrefab();
-                }),
-            new Entry("LeaderboardRow", "排行榜行。", null,
-                () =>
-                {
-                    DesktopPrefabValidator.GeneratePanelLeaderboardPrefab();
-                    DesktopPrefabValidator.PopulatePanelLeaderboardPrefab();
-                }),
-            new Entry("FriendRow", "好友行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("FriendRequestRow", "好友申请行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("SteamInviteRow", "Steam 邀请行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("OnlinePlayerRow", "在线钓友行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("PondChatMessageRow", "鱼塘聊天行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("DirectMessageConversationRow", "私聊会话行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("DirectMessageRow", "私聊消息行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("TextStatusRow", "状态文本行。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("CatchSlot", "背包格。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("ShowcaseSlot", "展示格。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("AvatarChoice", "头像格。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
-            new Entry("GallerySpeciesSlot", "图鉴格。", null, () => DesktopPrefabValidator.EnsureSocialRows()),
+            new Entry("PanelHome", "首页：猫咪、品牌菜单卡、会话状态和导航动作。", null),
+            new Entry("PanelPond", "钓鱼页：猫咪、会话状态和钓鱼动作；背景由主壳承载。", null),
+            new Entry("PanelPondSelection", "鱼塘选择：标题和可滚动鱼塘卡片。", typeof(CozyPondSelectionPanel)),
+            new Entry("PanelEquipment", "装备搭配（序列化商店视图，绑定装备模式）。", typeof(DesktopShopPanel)),
+            new Entry("PanelAchievements", "成就页（序列化个人中心成就视图）。", typeof(DesktopProfileHubPanel)),
+            new Entry("PanelSocial", "好友、在线钓友、鱼塘聊天和私聊。", typeof(DesktopSocialModalView)),
+            new Entry("PanelCatch", "背包/鱼获网格。", typeof(DesktopCatchBagModalView)),
+            new Entry("PanelGallery", "图鉴物种网格。", typeof(DesktopGalleryModalView)),
+            new Entry("PanelSettings", "桌面端设置。", typeof(DesktopSettingsModalView)),
+            new Entry("PanelWorldMap", "世界地图。", typeof(DesktopWorldMapPanel)),
+            new Entry("PanelShop", "商店。", typeof(DesktopShopPanel)),
+            new Entry("PanelProfile", "（旧）个人资料。", typeof(DesktopProfilePanel)),
+            new Entry("PanelProfileEdit", "资料编辑。", typeof(DesktopProfileEditPanel)),
+            new Entry("PanelProfileHub", "个人中心 Hub。", typeof(DesktopProfileHubPanel)),
+            new Entry("PanelSocialFeed", "动态墙。", typeof(DesktopSocialFeedPanel)),
+            new Entry("PanelLeaderboard", "排行榜。", typeof(DesktopLeaderboardPanel)),
+            new Entry("PanelPondSettlement", "离塘结算。", typeof(DesktopPondSettlementModalView)),
+            new Entry("DesktopShell", "登录+主壳（顶栏/底栏/内容槽/Toast）。", null),
+            new Entry("OverlayHud", "Overlay 960×560 HUD（导出 overlay-hud.json）。", typeof(DesktopOverlayHudView), () => DesktopPrefabValidator.EnsureOverlayHud()),
+            new Entry("OverlayPondLayout", "每塘一份 Overlay 960×560 场景布局（导出 layouts/<pondId>.json）。", typeof(DesktopOverlayPondLayoutView), OverlayPondLayoutBaker.EnsureAll),
+            new Entry("OverlayPondActor", "钓位角色位：座位/形象/昵称/状态icon/上钩进度环（可调位置尺寸）。", typeof(OverlayPondActorView), OverlayPondActorBaker.Ensure),
+            new Entry("ProductContextMenu", "主窗口右键产品菜单。", null),
+            new Entry("FeatureModalRoot", "已序列化的功能弹窗容器与完整内嵌页面。", null),
+            new Entry("PondSelectionCard", "鱼塘选择卡：说明、费用、等级和地图动作。", null),
+            new Entry("WorldMapPondMarker", "世界地图鱼塘标记：按钮、图标与标题。", null),
+            new Entry("ShopItemCard", "商店列表商品卡。", null),
+            new Entry("AchievementRow", "成就行。", null),
+            new Entry("SocialPostCard", "动态卡片。", null),
+            new Entry("PostCommentRow", "评论行。", null),
+            new Entry("LeaderboardRow", "排行榜行。", null),
+            new Entry("FriendRow", "好友行。", null),
+            new Entry("FriendRequestRow", "好友申请行。", null),
+            new Entry("SteamInviteRow", "Steam 邀请行。", null),
+            new Entry("OnlinePlayerRow", "在线钓友行。", null),
+            new Entry("PondChatMessageRow", "鱼塘聊天行。", null),
+            new Entry("DirectMessageConversationRow", "私聊会话行。", null),
+            new Entry("DirectMessageRow", "私聊消息行。", null),
+            new Entry("TextStatusRow", "状态文本行。", null),
+            new Entry("CatchSlot", "背包格。", null),
+            new Entry("ShowcaseSlot", "展示格。", null),
+            new Entry("AvatarChoice", "头像格。", null),
+            new Entry("GallerySpeciesSlot", "图鉴格。", null),
         };
 
         public static Entry Find(string name)

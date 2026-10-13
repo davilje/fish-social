@@ -76,7 +76,7 @@ namespace FishSocial.Desktop
                 return false;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(onClick);
-            CatTheme.StyleButton(button);
+            StyleButton(button);
             return true;
         }
 
@@ -100,7 +100,7 @@ namespace FishSocial.Desktop
                 return false;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(onClick);
-            CatTheme.StyleButton(button);
+            StyleButton(button);
             return true;
         }
 
@@ -122,6 +122,58 @@ namespace FishSocial.Desktop
             go.transform.SetParent(parent, false);
             go.GetComponent<Image>().color = color;
             return go;
+        }
+
+        public static void StyleButton(Button button, string iconName = null, bool primary = false)
+        {
+            if (button == null)
+                return;
+            var visual = button.GetComponent<CozyButtonVisual>();
+            if (visual == null)
+                return;
+            if (FindComponent<Image>(button.transform, "CozyVisual") == null)
+            {
+                Debug.LogError("[DesktopUI] Button requires its serialized CozyVisual Image: " + button.name, button);
+                return;
+            }
+            visual.Configure(button, null, primary);
+            if (!string.IsNullOrEmpty(iconName))
+            {
+                var icon = FindComponent<Image>(button.transform, "Icon") ??
+                           FindComponent<Image>(button.transform, "CozyIcon");
+                var sprite = CatTheme.LoadCozy(CatTheme.IconPath(iconName), Vector4.zero);
+                if (icon != null && sprite != null)
+                    icon.sprite = sprite;
+            }
+        }
+
+        public static void StyleTree(Transform root)
+        {
+            if (root == null)
+                return;
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+            {
+                if (button.name == "FeatureModalRoot" || button.name == "ProductContextMenu" ||
+                    button.name == "PopupProductMenu" || button.name == "ModalPanel" ||
+                    button.name == "Panel" || button.name == "Dim" || button.name == "MenuPanel")
+                    continue;
+                StyleButton(button);
+            }
+            CatTheme.SkinTree(root);
+        }
+
+        public static bool RequireNodes(Transform root, string prefab, params string[] paths)
+        {
+            var valid = true;
+            foreach (var path in paths)
+            {
+                if (FindChild(root, path) != null)
+                    continue;
+                Debug.LogError("[DesktopUI] Required prefab node is missing: Desktop/Prefabs/" +
+                               prefab + "/" + path, root);
+                valid = false;
+            }
+            return valid;
         }
 
         public static Text Label(Transform parent, string name, string text, int size, TextAnchor align)
@@ -148,7 +200,8 @@ namespace FishSocial.Desktop
             var label = Label(go.transform, "Label", text, 15, TextAnchor.MiddleCenter);
             Stretch(label.gameObject);
             var button = go.GetComponent<Button>();
-            button.onClick.AddListener(onClick);
+            if (onClick != null)
+                button.onClick.AddListener(onClick);
             CatTheme.StyleButton(button);
             return button;
         }

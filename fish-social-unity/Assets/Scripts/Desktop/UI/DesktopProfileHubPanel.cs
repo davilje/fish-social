@@ -13,6 +13,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopProfileHubPanel : MonoBehaviour
     {
+        bool _uiReady;
         public enum HubTab
         {
             Profile = 0,
@@ -99,6 +100,8 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             if (_pond != null)
             {
                 _pond.CodexUnlocked += OnCodexUnlocked;
@@ -146,110 +149,64 @@ namespace FishSocial.Desktop
         /// </summary>
         public void BuildEditorLayout()
         {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
             for (var i = transform.childCount - 1; i >= 0; i--)
             {
                 var child = transform.GetChild(i).gameObject;
-#if UNITY_EDITOR
-                if (!Application.isPlaying)
-                    DestroyImmediate(child);
-                else
-#endif
-                    Destroy(child);
+                DestroyImmediate(child);
             }
             _tabButtons.Clear();
             _tabContents.Clear();
             BuildShellHierarchy();
+            RefineLayout();
+            FixAlbumPagerLayout();
             ApplyCozyStyle();
             ApplyTabVisibility();
+#endif
         }
 
         void EnsureUi()
         {
-            if (transform.Find("Shell") != null)
+            _uiReady = false;
+            if (!DesktopModalUi.RequireNodes(transform, "PanelProfileHub",
+                "Shell/Header/Title", "Shell/Header/Edit", "Shell/Header/Retry", "Shell/Status",
+                "Shell/Sidebar", "Shell/Content/Tab_资料/Avatar", "Shell/Content/Tab_资料/Body",
+                "Shell/Content/Tab_展示柜/ShowcaseGrid/Viewport/Content", "Shell/Content/Tab_展示柜/Detail",
+                "Shell/Content/Tab_图鉴/CodexGrid/Viewport/Content", "Shell/Content/Tab_图鉴/Detail",
+                "Shell/Content/Tab_相册/AlbumStage/SlotL/Photo", "Shell/Content/Tab_相册/AlbumStage/SlotL/Body",
+                "Shell/Content/Tab_相册/AlbumStage/SlotR/Photo", "Shell/Content/Tab_相册/AlbumStage/SlotR/Body",
+                "Shell/Content/Tab_相册/Prev", "Shell/Content/Tab_相册/Next", "Shell/Content/Tab_相册/Page",
+                "Shell/Content/Tab_成就/Achievements/Viewport/Content"))
+                return;
+            foreach (var label in TabLabels)
+                if (!DesktopModalUi.RequireNodes(transform, "PanelProfileHub", "Shell/Sidebar/Tab_" + label))
+                    return;
+            WireFromPrefab();
+            if (_title == null || _status == null || _editButton == null || _retryButton == null ||
+                _profileAvatar == null || _profileBody == null || _showcaseDetail == null || _codexDetail == null ||
+                _albumStage == null || _albumSlotL == null || _albumSlotR == null ||
+                _albumSlotLPhoto == null || _albumSlotRPhoto == null ||
+                _albumSlotLBody == null || _albumSlotRBody == null || _albumPinsPageLabel == null)
             {
-                UpgradeAlbumTabIfNeeded();
-                EnsureMaskedScrolls();
-                WireFromPrefab();
-                ApplyCozyStyle();
-                ApplyTabVisibility();
+                Debug.LogError("[DesktopUI] PanelProfileHub nodes require their authored Text/Image/Button components.", this);
                 return;
             }
-
-            Debug.LogWarning(
-                "[DesktopUI] PanelProfileHub Prefab 缺少 Shell 层级，使用运行时 fallback。" +
-                "请打开 Fish Social → UI Prefab 管理，更新 PanelProfileHub。");
-            BuildShellHierarchy();
+            foreach (var button in _tabButtons)
+                if (button == null)
+                {
+                    Debug.LogError("[DesktopUI] PanelProfileHub sidebar requires five tab Buttons.", this);
+                    return;
+                }
+            _uiReady = true;
             ApplyCozyStyle();
             ApplyTabVisibility();
         }
 
         void ApplyCozyStyle()
         {
-            var background = GetComponent<Image>();
-            if (background != null)
-            {
-                background.color = CatTheme.Cream;
-                CatTheme.ApplyPaper(background);
-            }
-            var shell = transform.Find("Shell");
-            if (shell == null)
-                return;
-            foreach (var path in new[] { "", "Header", "Sidebar", "Content", "Content/Tab_资料",
-                "Content/Tab_展示柜", "Content/Tab_图鉴", "Content/Tab_相册", "Content/Tab_成就",
-                "Content/Tab_相册/AlbumStage", "Content/Tab_相册/AlbumStage/SlotL",
-                "Content/Tab_相册/AlbumStage/SlotR" })
-            {
-                var node = string.IsNullOrEmpty(path) ? shell : shell.Find(path);
-                var image = node != null ? node.GetComponent<Image>() : null;
-                if (image == null)
-                    continue;
-                image.color = CatTheme.Cream;
-                CatTheme.ApplyPaper(image);
-            }
-            foreach (var label in shell.GetComponentsInChildren<Text>(true))
-            {
-                label.color = CatTheme.Ink;
-                label.raycastTarget = false;
-                if (CatTheme.Font != null)
-                    label.font = CatTheme.Font;
-            }
-            foreach (var scroll in shell.GetComponentsInChildren<ScrollRect>(true))
-            {
-                var image = scroll.GetComponent<Image>();
-                if (image != null)
-                    image.color = CatTheme.Cream;
-                scroll.movementType = ScrollRect.MovementType.Clamped;
-            }
-            foreach (var slot in new[] { _albumSlotL, _albumSlotR })
-            {
-                if (slot == null)
-                    continue;
-                var scrim = slot.transform.Find("Scrim");
-                var image = scrim != null ? scrim.GetComponent<Image>() : null;
-                if (image != null)
-                {
-                    image.color = new Color(CatTheme.Cream.r, CatTheme.Cream.g, CatTheme.Cream.b, 0.96f);
-                    PlaceRect(scrim, Vector2.zero, new Vector2(1f, 0.46f), Vector2.zero, Vector2.zero);
-                }
-                var body = slot.transform.Find("Body");
-                var label = body != null ? body.GetComponent<Text>() : null;
-                if (label != null)
-                {
-                    PlaceRect(body, Vector2.zero, new Vector2(1f, 0.46f),
-                        new Vector2(12f, 8f), new Vector2(-12f, -8f));
-                    label.alignment = TextAnchor.UpperLeft;
-                    label.verticalOverflow = VerticalWrapMode.Truncate;
-                    label.resizeTextForBestFit = true;
-                    label.resizeTextMinSize = 14;
-                    label.resizeTextMaxSize = 16;
-                }
-            }
-            foreach (var photo in new[] { _profileAvatar, _albumSlotLPhoto, _albumSlotRPhoto })
-                if (photo != null)
-                    photo.color = photo.sprite != null ? Color.white : CatTheme.Cream;
-            CatTheme.SkinTree(shell);
-            CatTheme.StyleButton(_editButton, null, true);
-            RefineLayout();
+            DesktopModalUi.StyleTree(transform);
         }
 
         void RefineLayout()
@@ -316,8 +273,7 @@ namespace FishSocial.Desktop
 
         void OnRectTransformDimensionsChange()
         {
-            if (_sidebar != null)
-                RefineLayout();
+
         }
 
         static void FitGrid(Transform content, int columns)
@@ -362,86 +318,6 @@ namespace FishSocial.Desktop
         /// <summary>
         /// 旧 Prefab 仍有候选栏/单卡相册时，就地升级为左右双卡满铺分页。
         /// </summary>
-        void UpgradeAlbumTabIfNeeded()
-        {
-            var root = transform.Find("Shell/Content/Tab_相册");
-            if (root == null)
-                return;
-
-            var stage = root.Find("AlbumStage");
-            var needsRebuild = stage == null ||
-                               stage.Find("SlotL") == null ||
-                               stage.Find("SlotR") == null ||
-                               stage.Find("SlotL/Photo") == null ||
-                               stage.Find("SlotR/Photo") == null;
-            if (needsRebuild)
-            {
-                for (var i = root.childCount - 1; i >= 0; i--)
-                    Destroy(root.GetChild(i).gameObject);
-                BuildAlbumTab(root);
-                return;
-            }
-
-            DestroyNamedChild(root, "Candidates");
-            DestroyNamedChild(root, "CandTitle");
-            DestroyNamedChild(root, "CandPage");
-            DestroyNamedChild(root, "Pins");
-            DestroyNamedChild(root, "PinsTitle");
-            DestroyNamedChild(root, "PinsPage");
-            DestroyNamedChild(root, "Prev_0.5");
-            DestroyNamedChild(root, "Next_0.5");
-        }
-
-        static void DestroyNamedChild(Transform parent, string name)
-        {
-            if (parent == null) return;
-            var child = parent.Find(name);
-            if (child != null)
-                Destroy(child.gameObject);
-        }
-
-        void EnsureMaskedScrolls()
-        {
-            EnsureMaskedScroll(transform.Find("Shell/Content/Tab_展示柜/ShowcaseGrid"));
-            EnsureMaskedScroll(transform.Find("Shell/Content/Tab_图鉴/CodexGrid"));
-            EnsureMaskedScroll(transform.Find("Shell/Content/Tab_成就/Achievements"));
-        }
-
-        static void EnsureMaskedScroll(Transform scrollRoot)
-        {
-            if (scrollRoot == null)
-                return;
-            var scroll = scrollRoot.GetComponent<ScrollRect>();
-            if (scroll == null)
-                return;
-
-            var viewportTf = scrollRoot.Find("Viewport");
-            if (viewportTf == null)
-            {
-                var content = scrollRoot.Find("Content");
-                var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
-                viewportGo.transform.SetParent(scrollRoot, false);
-                Stretch(viewportGo.GetComponent<RectTransform>());
-                if (content != null)
-                    content.SetParent(viewportGo.transform, false);
-                scroll.viewport = viewportGo.GetComponent<RectTransform>();
-                if (content != null)
-                    scroll.content = content as RectTransform;
-            }
-            else
-            {
-                if (viewportTf.GetComponent<RectMask2D>() == null)
-                    viewportTf.gameObject.AddComponent<RectMask2D>();
-                scroll.viewport = viewportTf as RectTransform;
-                var content = viewportTf.Find("Content") ?? scrollRoot.Find("Content");
-                if (content != null)
-                    scroll.content = content as RectTransform;
-            }
-
-            scroll.horizontal = false;
-            scroll.vertical = true;
-        }
-
         void WireFromPrefab()
         {
             _title = FindText("Shell/Header/Title");
@@ -495,7 +371,6 @@ namespace FishSocial.Desktop
             WireAlbumRefs();
             WireAchievementRefs();
             RebindAlbumPagers();
-            FixAlbumPagerLayout();
         }
 
         void WireProfileRefs()
@@ -914,7 +789,7 @@ namespace FishSocial.Desktop
                 if (tabIndex < _tabButtons.Count && _tabButtons[tabIndex] != null)
                 {
                     var button = _tabButtons[tabIndex];
-                    CatTheme.StyleButton(button);
+                    DesktopModalUi.StyleButton(button);
                     var visual = button.GetComponent<CozyButtonVisual>();
                     if (visual != null)
                         visual.SetSelected(tabIndex == (int)_tab);
@@ -924,6 +799,8 @@ namespace FishSocial.Desktop
 
         void Refresh()
         {
+            if (!_uiReady)
+                return;
             if (!isActiveAndEnabled)
                 return;
             StopLoad();
@@ -1285,16 +1162,10 @@ namespace FishSocial.Desktop
                 return;
 
             var pins = _hub.albumPins ?? Array.Empty<AlbumCardDto>();
-            var emptyTint = CatTheme.Cream;
-            var filledTint = new Color(1f, 0.94f, 0.85f, 1f);
 
             if (pins.Length == 0)
             {
                 _albumPinsPage = 0;
-                if (_albumStage != null)
-                    _albumStage.color = CatTheme.Cream;
-                if (_albumSlotL != null) _albumSlotL.color = emptyTint;
-                if (_albumSlotR != null) _albumSlotR.color = emptyTint;
                 ClearAlbumPhoto(_albumSlotLPhoto);
                 ClearAlbumPhoto(_albumSlotRPhoto);
                 _albumSlotLBody.text = "相册为空\n稀有 / 大鱼 / 回鱼 / 新图鉴会自动记入";
@@ -1310,10 +1181,6 @@ namespace FishSocial.Desktop
             var left = start < pins.Length ? pins[start] : null;
             var right = start + 1 < pins.Length ? pins[start + 1] : null;
 
-            if (_albumSlotL != null)
-                _albumSlotL.color = left != null ? filledTint : emptyTint;
-            if (_albumSlotR != null)
-                _albumSlotR.color = right != null ? filledTint : emptyTint;
             _albumSlotLBody.text = left != null ? FormatAlbumPage(left) : string.Empty;
             _albumSlotRBody.text = right != null ? FormatAlbumPage(right) : string.Empty;
 
@@ -1703,117 +1570,43 @@ namespace FishSocial.Desktop
             Transform parent, string name, string label, Action onClick,
             Color? tint = null, int fontSize = 12)
         {
-            GameObject go = null;
-            var slot = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", parent);
-            if (slot != null)
+            var go = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", parent);
+            if (go == null)
+                return;
+            go.name = name;
+            var text = DesktopModalUi.FindComponent<Text>(go.transform, "Label");
+            var button = go.GetComponent<Button>();
+            if (text == null || button == null)
             {
-                go = slot;
-                go.name = name;
-                var layout = go.GetComponent<LayoutElement>();
-                if (layout != null)
-                {
-                    layout.preferredWidth = 200f;
-                    layout.preferredHeight = 110f;
-                    layout.minWidth = 160f;
-                    layout.minHeight = 88f;
-                }
+                Debug.LogError("[DesktopUI] ShowcaseSlot requires root Button and Label Text.", go);
+                go.SetActive(false);
+                UnityEngine.Object.Destroy(go);
+                return;
             }
-            else
-            {
-                go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-                go.transform.SetParent(parent, false);
-            }
-
-            var image = go.GetComponent<Image>();
-            if (image != null)
-                image.color = tint ?? CatTheme.Cream;
-            var btn = go.GetComponent<Button>();
-            if (btn != null)
-            {
-                btn.onClick.RemoveAllListeners();
-                if (onClick != null)
-                {
-                    btn.interactable = true;
-                    btn.onClick.AddListener(() => onClick());
-                }
-                else
-                    btn.interactable = false;
-            }
-
-            var labelTf = go.transform.Find("Label");
-            Text text = labelTf != null ? labelTf.GetComponent<Text>() : null;
-            if (text == null)
-            {
-                text = CreateLabel(go.transform, "Label", label, fontSize, TextAnchor.UpperLeft,
-                    new Vector2(6, -4), new Vector2(148, 64));
-                Stretch(text.rectTransform);
-                text.rectTransform.offsetMin = new Vector2(10, 8);
-                text.rectTransform.offsetMax = new Vector2(-10, -8);
-            }
-            else
-            {
-                text.text = label;
-                text.fontSize = fontSize;
-                text.alignment = TextAnchor.UpperLeft;
-                text.horizontalOverflow = HorizontalWrapMode.Wrap;
-                text.verticalOverflow = VerticalWrapMode.Overflow;
-            }
-            text.color = CatTheme.Ink;
-            text.raycastTarget = false;
-            CatTheme.SkinTree(go.transform);
-            var visual = go.GetComponent<CozyButtonVisual>();
-            if (visual != null)
-                visual.SetTint(tint ?? Color.white);
+            text.text = label;
+            button.onClick.RemoveAllListeners();
+            button.interactable = onClick != null;
+            if (onClick != null)
+                button.onClick.AddListener(() => onClick());
+            DesktopModalUi.StyleTree(go.transform);
         }
 
         static void CreateAchievementRow(Transform parent, string name, string label, Color tint)
         {
-            GameObject go = null;
-            var row = DesktopUiPrefabFactory.Instantiate("AchievementRow", parent);
-            if (row != null)
+            var go = DesktopUiPrefabFactory.Instantiate("AchievementRow", parent);
+            if (go == null)
+                return;
+            go.name = name;
+            var text = DesktopModalUi.FindComponent<Text>(go.transform, "Label");
+            if (text == null)
             {
-                go = row;
-                go.name = name;
+                Debug.LogError("[DesktopUI] AchievementRow requires Label Text.", go);
+                go.SetActive(false);
+                UnityEngine.Object.Destroy(go);
+                return;
             }
-            else
-            {
-                go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
-                go.transform.SetParent(parent, false);
-                var le = go.GetComponent<LayoutElement>();
-                le.preferredHeight = 88;
-                le.minHeight = 88;
-                CreateLabel(go.transform, "Label", label, 18, TextAnchor.MiddleLeft,
-                    Vector2.zero, Vector2.zero);
-            }
-
-            var layout = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
-            layout.preferredHeight = 88f;
-            layout.minHeight = 88f;
-            var image = go.GetComponent<Image>();
-            if (image != null)
-            {
-                CatTheme.ApplyPaper(image);
-                image.color = tint;
-            }
-            var textTf = go.transform.Find("Label");
-            var text = textTf != null ? textTf.GetComponent<Text>() : null;
-            if (text != null)
-            {
-                text.text = label;
-                text.fontSize = 18;
-                text.color = CatTheme.Ink;
-                text.raycastTarget = false;
-                text.verticalOverflow = VerticalWrapMode.Truncate;
-                text.resizeTextForBestFit = true;
-                text.resizeTextMinSize = 14;
-                text.resizeTextMaxSize = 18;
-                if (CatTheme.Font != null)
-                    text.font = CatTheme.Font;
-                text.alignment = TextAnchor.MiddleLeft;
-                Stretch(text.rectTransform);
-                text.rectTransform.offsetMin = new Vector2(16, 8);
-                text.rectTransform.offsetMax = new Vector2(-16, -8);
-            }
+            text.text = label;
+            DesktopModalUi.StyleTree(go.transform);
         }
 
         static void Stretch(RectTransform rt)

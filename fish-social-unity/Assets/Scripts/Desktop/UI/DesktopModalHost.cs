@@ -27,6 +27,8 @@ namespace FishSocial.Desktop
             SocialLobbyController lobby)
         {
             Build(canvas);
+            if (_root == null)
+                return;
             _social.Bind(api, pond, lobby);
             _catchBag.Bind(api, pond);
             _gallery.Bind(api, pond);
@@ -42,6 +44,8 @@ namespace FishSocial.Desktop
                 return;
             }
 
+            if (_root == null)
+                return;
             Current = id;
             _root.SetActive(true);
             _root.transform.SetAsLastSibling();
@@ -90,60 +94,46 @@ namespace FishSocial.Desktop
 
         void Build(Transform canvas)
         {
-            _root = DesktopModalUi.Panel("FeatureModalRoot", canvas, new Color(0f, 0f, 0f, 0.45f));
-            DesktopModalUi.Stretch(_root);
-            var dim = _root.AddComponent<Button>();
-            dim.transition = Selectable.Transition.None;
-            dim.onClick.AddListener(Close);
-
-            var panel = DesktopModalUi.Panel("ModalPanel", _root.transform, DesktopModalUi.PanelColor);
-            var rt = panel.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.03f, 0.05f);
-            rt.anchorMax = new Vector2(0.97f, 0.95f);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            panel.AddComponent<Button>().transition = Selectable.Transition.None;
-
-            var header = DesktopModalUi.Panel("Header", panel.transform, DesktopModalUi.Header);
-            var headerRt = header.GetComponent<RectTransform>();
-            headerRt.anchorMin = new Vector2(0f, 1f);
-            headerRt.anchorMax = Vector2.one;
-            headerRt.pivot = new Vector2(0.5f, 1f);
-            headerRt.sizeDelta = new Vector2(0f, 52f);
-            headerRt.anchoredPosition = Vector2.zero;
-            _title = DesktopModalUi.Label(header.transform, "Title", "弹窗", 22, TextAnchor.MiddleLeft);
-            var titleRt = _title.rectTransform;
-            titleRt.anchorMin = new Vector2(0f, 0f);
-            titleRt.anchorMax = new Vector2(1f, 1f);
-            titleRt.offsetMin = new Vector2(18f, 0f);
-            titleRt.offsetMax = new Vector2(-80f, 0f);
-
-            var close = DesktopModalUi.MakeButton(header.transform, "Close", "关闭", Close);
-            var closeRt = close.GetComponent<RectTransform>();
-            closeRt.anchorMin = new Vector2(1f, 0.5f);
-            closeRt.anchorMax = new Vector2(1f, 0.5f);
-            closeRt.pivot = new Vector2(1f, 0.5f);
-            closeRt.sizeDelta = new Vector2(72f, 32f);
-            closeRt.anchoredPosition = new Vector2(-12f, 0f);
-
-            var body = new GameObject("Body", typeof(RectTransform));
-            body.transform.SetParent(panel.transform, false);
-            var bodyRt = DesktopModalUi.Stretch(body);
-            bodyRt.offsetMin = new Vector2(12f, 12f);
-            bodyRt.offsetMax = new Vector2(-12f, -60f);
-
-            _social = CreateView<DesktopSocialModalView>(body.transform, "SocialModal");
-            _catchBag = CreateView<DesktopCatchBagModalView>(body.transform, "CatchBagModal");
-            _gallery = CreateView<DesktopGalleryModalView>(body.transform, "GalleryModal");
-            _settings = CreateView<DesktopSettingsModalView>(body.transform, "SettingsModal");
+            if (_root != null || canvas == null)
+                return;
+            var existing = canvas.Find("FeatureModalRoot");
+            var instance = existing != null ? existing.gameObject : null;
+            var created = instance == null;
+            if (created)
+            {
+                var prefab = Resources.Load<GameObject>("Desktop/Prefabs/FeatureModalRoot");
+                if (prefab == null)
+                {
+                    Debug.LogError("[DesktopUI] Required prefab is missing: Desktop/Prefabs/FeatureModalRoot", this);
+                    return;
+                }
+                instance = Object.Instantiate(prefab, canvas, false);
+                instance.name = "FeatureModalRoot";
+            }
+            _title = DesktopModalUi.FindComponent<Text>(instance.transform, "ModalPanel/Header/Title");
+            var close = DesktopModalUi.FindComponent<Button>(instance.transform, "ModalPanel/Header/Close");
+            var dismiss = instance.GetComponent<Button>();
+            _social = DesktopModalUi.FindComponent<DesktopSocialModalView>(instance.transform, "ModalPanel/Body/SocialModal");
+            _catchBag = DesktopModalUi.FindComponent<DesktopCatchBagModalView>(instance.transform, "ModalPanel/Body/CatchBagModal");
+            _gallery = DesktopModalUi.FindComponent<DesktopGalleryModalView>(instance.transform, "ModalPanel/Body/GalleryModal");
+            _settings = DesktopModalUi.FindComponent<DesktopSettingsModalView>(instance.transform, "ModalPanel/Body/SettingsModal");
+            if (_title == null || close == null || dismiss == null ||
+                DesktopModalUi.FindComponent<Button>(instance.transform, "ModalPanel") == null || _social == null ||
+                _catchBag == null || _gallery == null || _settings == null)
+            {
+                Debug.LogError("[DesktopUI] FeatureModalRoot requires ModalPanel/Header/{Title,Close} and complete ModalPanel/Body/{SocialModal,CatchBagModal,GalleryModal,SettingsModal} views.", instance);
+                instance.SetActive(false);
+                if (created)
+                    Object.Destroy(instance);
+                return;
+            }
+            _root = instance;
+            close.onClick.RemoveAllListeners();
+            close.onClick.AddListener(Close);
+            dismiss.onClick.RemoveAllListeners();
+            dismiss.onClick.AddListener(Close);
+            DesktopModalUi.StyleTree(_root.transform);
         }
 
-        static T CreateView<T>(Transform parent, string name) where T : MonoBehaviour
-        {
-            var go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            DesktopModalUi.Stretch(go);
-            return go.AddComponent<T>();
-        }
     }
 }

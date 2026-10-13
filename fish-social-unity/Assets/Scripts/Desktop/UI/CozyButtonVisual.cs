@@ -15,20 +15,24 @@ namespace FishSocial.Desktop
         readonly List<CozyGraphicOffset> offsets = new List<CozyGraphicOffset>();
         Button button;
         Image hitImage;
-        Image plate;
-        Image icon;
-        Sprite normalSprite;
-        Sprite hoverSprite;
-        Sprite pressedSprite;
-        Color tint = Color.white;
-        bool explicitTint;
+        [SerializeField] Image plate;
+        [SerializeField] Image icon;
+        [SerializeField] Sprite normalSprite;
+        [SerializeField] Sprite hoverSprite;
+        [SerializeField] Sprite pressedSprite;
+        [SerializeField] Color tint = Color.white;
+        [SerializeField] bool explicitTint;
         bool initialized;
         bool hovered;
         bool focused;
         bool pointerPressed;
         bool submitPressed;
-        bool selected;
-        bool stackedIcon;
+        [SerializeField] bool selected;
+        [SerializeField] bool stackedIcon;
+        [SerializeField] bool flat;
+        bool generatedPlate;
+        bool generatedIcon;
+        Vector2 plateRestPosition;
         bool interactable;
         Coroutine submitRoutine;
 
@@ -37,6 +41,12 @@ namespace FishSocial.Desktop
         public void SetSelected(bool value)
         {
             selected = value;
+            RefreshState();
+        }
+
+        public void SetFlat(bool value)
+        {
+            flat = value;
             RefreshState();
         }
 
@@ -61,28 +71,51 @@ namespace FishSocial.Desktop
         internal void Configure(Button owner, string iconName, bool primary)
         {
             button = owner;
-            if (!explicitTint && (!initialized || primary))
-                tint = primary ? CatTheme.Coral : Color.white;
             if (!initialized)
             {
-                normalSprite = CatTheme.LoadCozy("buttons/plate-default.png", CatTheme.PlateBorder);
-                hoverSprite = CatTheme.LoadCozy("buttons/plate-hover.png", CatTheme.PlateBorder);
-                pressedSprite = CatTheme.LoadCozy("buttons/plate-pressed.png", CatTheme.PlateBorder);
+                plate = plate != null ? plate : transform.Find("CozyVisual")?.GetComponent<Image>();
+                if (plate == null && transform.Find("CozyVisual") != null)
+                {
+                    Debug.LogError("[DesktopUI] CozyVisual must have an Image: " + name);
+                    return;
+                }
+                icon = icon != null ? icon : transform.Find("Icon")?.GetComponent<Image>()
+                    ?? transform.Find("CozyIcon")?.GetComponent<Image>();
+                if (!explicitTint)
+                {
+                    tint = plate != null ? plate.color : primary ? CatTheme.Coral : Color.white;
+                    if (flat && tint.a == 0f)
+                        tint.a = 1f;
+                }
+                normalSprite = normalSprite != null ? normalSprite : plate != null && plate.sprite != null
+                    ? plate.sprite : CatTheme.LoadCozy("buttons/plate-default.png", CatTheme.PlateBorder);
+                hoverSprite = hoverSprite != null ? hoverSprite
+                    : CatTheme.LoadCozy("buttons/plate-hover.png", CatTheme.PlateBorder);
+                pressedSprite = pressedSprite != null ? pressedSprite
+                    : CatTheme.LoadCozy("buttons/plate-pressed.png", CatTheme.PlateBorder);
                 hitImage = button.GetComponent<Image>();
                 if (hitImage == null && button.targetGraphic is Image targetImage
-                    && targetImage.transform.IsChildOf(transform))
+                    && targetImage != plate && targetImage != icon && targetImage.transform.IsChildOf(transform))
                     hitImage = targetImage;
                 var originalIcon = hitImage != null && hitImage.preserveAspect && hitImage.type == Image.Type.Simple
                     ? hitImage.sprite : null;
-                plate = CreateImage("CozyVisual");
-                plate.transform.SetAsFirstSibling();
-                plate.rectTransform.anchorMin = Vector2.zero;
-                plate.rectTransform.anchorMax = Vector2.one;
-                plate.rectTransform.offsetMin = Vector2.zero;
-                plate.rectTransform.offsetMax = Vector2.zero;
-                if (hitImage != null)
-                    plate.maskable = hitImage.maskable;
-                if (originalIcon != null)
+                if (plate == null)
+                {
+                    plate = CreateImage("CozyVisual");
+                    generatedPlate = true;
+                    plate.transform.SetAsFirstSibling();
+                    plate.rectTransform.anchorMin = Vector2.zero;
+                    plate.rectTransform.anchorMax = Vector2.one;
+                    plate.rectTransform.offsetMin = Vector2.zero;
+                    plate.rectTransform.offsetMax = Vector2.zero;
+                    if (hitImage != null)
+                        plate.maskable = hitImage.maskable;
+                }
+                plateRestPosition = plate.rectTransform.anchoredPosition;
+                plate.raycastTarget = false;
+                foreach (var shadow in plate.GetComponents<Shadow>())
+                    shadow.enabled = false;
+                if (originalIcon != null && icon == null)
                     SetIcon(originalIcon);
                 if (hitImage != null)
                 {
@@ -94,10 +127,13 @@ namespace FishSocial.Desktop
                 interactable = CanInteract();
                 focused = EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
             }
-            SetIconName(iconName);
+            else if (!explicitTint && primary && generatedPlate)
+                tint = CatTheme.Coral;
+            if (icon == null || generatedIcon)
+                SetIconName(iconName);
             RefreshContent();
             RefreshState();
-            if (GetComponent<CozyPanelSkin>() == null)
+            if (generatedPlate && GetComponent<CozyPanelSkin>() == null)
                 gameObject.AddComponent<CozyPanelSkin>();
         }
 
@@ -123,27 +159,28 @@ namespace FishSocial.Desktop
             var hasLabel = false;
             foreach (var graphic in GetComponentsInChildren<Graphic>(true))
             {
-                if (graphic == hitImage || graphic == plate || graphic.GetComponentInParent<Selectable>() != button
-                    || graphic.GetComponentInParent<InputField>() != null || graphic.GetComponent<Mask>() != null
+                if (graphic == hitImage || graphic == plate || graphic.GetComponentInParent<Selectable>(true) != button
+                    || graphic.GetComponentInParent<InputField>(true) != null || graphic.GetComponent<Mask>() != null
                     || graphic.GetComponent<RectMask2D>() != null
                     || (graphic is Image contentImage && contentImage.type == Image.Type.Filled))
                     continue;
                 if (graphic is Text label)
                 {
                     hasLabel = true;
-                    if (label.GetComponent<CozyGraphicOffset>() == null)
+                    CatTheme.ApplyTextFont(label);
+                    if (generatedPlate && label.GetComponent<CozyGraphicOffset>() == null)
                         CatTheme.SkinText(label);
                 }
                 var offset = graphic.GetComponent<CozyGraphicOffset>();
                 if (offset == null)
                     offset = graphic.gameObject.AddComponent<CozyGraphicOffset>();
-                if (graphic is Text)
+                if (graphic is Text && generatedPlate)
                     offset.SetStackedLabel(stackedIcon);
                 offsets.Add(offset);
                 foreach (var shadow in graphic.GetComponents<Shadow>())
                     shadow.enabled = false;
             }
-            if (icon != null)
+            if (icon != null && generatedIcon)
             {
                 icon.rectTransform.anchorMin = stackedIcon || !hasLabel
                     ? new Vector2(0.5f, 0.5f) : new Vector2(0f, 0.5f);
@@ -167,12 +204,21 @@ namespace FishSocial.Desktop
 
         void SetIcon(Sprite sprite)
         {
+            if (sprite == null)
+                return;
             if (icon == null)
             {
+                if (transform.Find("Icon") != null || transform.Find("CozyIcon") != null)
+                {
+                    Debug.LogError("[DesktopUI] Icon must have an Image: " + name);
+                    return;
+                }
                 icon = CreateImage("CozyIcon");
+                generatedIcon = true;
                 icon.rectTransform.sizeDelta = new Vector2(24f, 24f);
             }
             icon.sprite = sprite;
+            icon.enabled = true;
             icon.type = Image.Type.Simple;
             icon.preserveAspect = true;
             icon.color = Color.white;
@@ -184,8 +230,9 @@ namespace FishSocial.Desktop
                 return;
             interactable = CanInteract();
             var depressed = interactable && ((pointerPressed && hovered) || submitPressed);
-            var highlighted = interactable && (hovered || focused || selected);
-            var sprite = depressed ? pressedSprite : highlighted ? hoverSprite ?? normalSprite : normalSprite;
+            var highlighted = interactable && (hovered || selected || (!flat && focused));
+            var sprite = depressed ? pressedSprite != null ? pressedSprite : normalSprite
+                : highlighted ? hoverSprite != null ? hoverSprite : normalSprite : normalSprite;
             var baseTint = selected ? Color.white : tint;
             var color = sprite != null ? baseTint
                 : selected ? SelectedColor : baseTint == Color.white ? CatTheme.Cream : baseTint;
@@ -196,8 +243,10 @@ namespace FishSocial.Desktop
                 color = Color.Lerp(color, CatTheme.Cream, 0.6f);
                 color.a = 0.55f;
             }
+            if (flat && !depressed && !highlighted)
+                color.a = 0f;
             CatTheme.SetPlate(plate, sprite, color);
-            plate.rectTransform.anchoredPosition = depressed ? new Vector2(0f, -3f) : Vector2.zero;
+            plate.rectTransform.anchoredPosition = plateRestPosition + (depressed ? new Vector2(0f, -3f) : Vector2.zero);
             foreach (var offset in offsets)
             {
                 if (offset != null)

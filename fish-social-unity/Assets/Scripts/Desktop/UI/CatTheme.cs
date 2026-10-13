@@ -14,7 +14,10 @@ namespace FishSocial.Desktop
         public static readonly Color Coral = new Color(0xF9 / 255f, 0xA3 / 255f, 0x3F / 255f, 1f);
         public static readonly Color Teal = new Color(0x92 / 255f, 0xA3 / 255f, 0xE7 / 255f, 1f);
         public static readonly Color Panel = Cream;
-        public static readonly Vector4 PlateBorder = new Vector4(100f, 100f, 100f, 100f);
+        public static readonly Vector4 PlateBorder = new Vector4(64f, 64f, 64f, 64f);
+        public static readonly Vector4 PaperBorder = new Vector4(64f, 64f, 64f, 64f);
+
+        public static bool AllowLegacyStreamingAssetsFallback { get; set; }
 
         static readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
         static readonly HashSet<string> FailedSprites = new HashSet<string>();
@@ -41,12 +44,39 @@ namespace FishSocial.Desktop
 
         public static Sprite LoadCozy(string relativePath, Vector4 border)
         {
+            var resourcePath = CozyResourcePath(relativePath);
+            if (resourcePath == null)
+                return null;
+            var imported = Resources.Load<Sprite>(resourcePath);
+            if (imported != null)
+                return imported;
+            if (!AllowLegacyStreamingAssetsFallback || !Application.isPlaying)
+                return null;
+            return LoadLegacyCozy(relativePath, border);
+        }
+
+        public static string CozyResourcePath(string relativePath)
+        {
             if (string.IsNullOrWhiteSpace(relativePath))
                 return null;
             var normalized = relativePath.Replace('\\', '/');
             if (Path.IsPathRooted(normalized) || normalized.Contains(":")
-                || Array.Exists(normalized.Split('/'), segment => segment == ".."))
+                || Array.Exists(normalized.Split('/'), segment => segment == ".." || segment == "."
+                    || string.IsNullOrWhiteSpace(segment)))
                 return null;
+            var extension = Path.GetExtension(normalized);
+            if (!string.IsNullOrEmpty(extension))
+            {
+                if (!string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase))
+                    return null;
+                normalized = normalized.Substring(0, normalized.Length - extension.Length);
+            }
+            return "Desktop/Theme/Cozy/" + normalized;
+        }
+
+        static Sprite LoadLegacyCozy(string relativePath, Vector4 border)
+        {
+            var normalized = relativePath.Replace('\\', '/');
             if (string.IsNullOrEmpty(Path.GetExtension(normalized)))
                 normalized += ".png";
             var path = Path.Combine(Application.streamingAssetsPath, "DesktopTheme", "Cozy", normalized);
@@ -145,7 +175,7 @@ namespace FishSocial.Desktop
 
         public static void ApplySurface(Image image, Color color)
         {
-            if (image == null || IsProtectedImage(image) || image.GetComponentInParent<Selectable>() != null)
+            if (image == null || IsProtectedImage(image) || image.GetComponentInParent<Selectable>(true) != null)
                 return;
             image.overrideSprite = null;
             image.sprite = null;
@@ -156,15 +186,16 @@ namespace FishSocial.Desktop
 
         public static void ApplyPaper(Image image)
         {
-            if (image == null || IsProtectedImage(image) || image.GetComponentInParent<Selectable>() != null)
+            if (image == null || IsProtectedImage(image) || image.GetComponentInParent<Selectable>(true) != null)
                 return;
             var color = Cream;
             color.a = image.color.a;
             ApplySurface(image, color);
-            var paper = LoadCozy("textures/paper.png", Vector4.zero);
+            var paper = LoadCozy("panels/paper.png", PaperBorder);
             if (paper == null)
                 return;
             image.sprite = paper;
+            image.type = Image.Type.Sliced;
             image.color = new Color(1f, 1f, 1f, color.a);
         }
 
@@ -172,7 +203,10 @@ namespace FishSocial.Desktop
         {
             if (button == null || button.GetComponent<Mask>() != null || button.GetComponent<RectMask2D>() != null
                 || button.GetComponent<ScrollRect>() != null
-                || button.GetComponentInParent<InputField>() != null)
+                || button.GetComponentInParent<InputField>(true) != null)
+                return;
+            if (button.name == "FeatureModalRoot" || button.name == "ProductContextMenu" || button.name == "PopupProductMenu"
+                || button.name == "ModalPanel" || button.name == "Panel" || button.name == "Dim" || button.name == "MenuPanel")
                 return;
             var background = button.GetComponent<Image>();
             if (background != null && background.type == Image.Type.Filled)
@@ -219,7 +253,9 @@ namespace FishSocial.Desktop
             image.sprite = sprite;
             image.type = sprite != null ? Image.Type.Sliced : Image.Type.Simple;
             image.preserveAspect = false;
-            image.pixelsPerUnitMultiplier = 1f;
+            if (image.pixelsPerUnitMultiplier <= 0f || float.IsNaN(image.pixelsPerUnitMultiplier)
+                || float.IsInfinity(image.pixelsPerUnitMultiplier))
+                image.pixelsPerUnitMultiplier = 1f;
             image.color = sprite != null ? tint : tint == Color.white ? Cream : tint;
         }
 
@@ -231,11 +267,22 @@ namespace FishSocial.Desktop
             return visual != null && visual.Owns(node);
         }
 
-        internal static void SkinText(Text label)
+        internal static void ApplyTextFont(Text label)
         {
+            if (label == null)
+                return;
             var font = Font;
             if (font != null && HasGlyphs(font, label.text))
                 label.font = font;
+        }
+
+        internal static void SkinText(Text label)
+        {
+            if (label == null)
+                return;
+            ApplyTextFont(label);
+            if (label.GetComponent<CozyGraphicOffset>() != null || label.GetComponentInParent<Button>(true) != null)
+                return;
             if (IsNeutral(label.color))
             {
                 var color = Ink;
@@ -246,26 +293,33 @@ namespace FishSocial.Desktop
 
         static void SkinNode(Transform node, CozyPanelSkin skin)
         {
-            var input = node.GetComponentInParent<InputField>();
+            var input = node.GetComponentInParent<InputField>(true);
             if (input != null)
             {
                 SkinInputNode(node, input, skin);
                 return;
             }
-            var text = node.GetComponent<Text>();
-            if (text != null && skin.MarkStyled(text) && text.GetComponent<CozyGraphicOffset>() == null)
-                SkinText(text);
             var button = node.GetComponent<Button>();
             if (button != null)
             {
-                if (skin.MarkStyled(button) && button.GetComponent<CozyButtonVisual>() == null)
+                var firstStyle = skin.MarkStyled(button);
+                var visual = button.GetComponent<CozyButtonVisual>();
+                if (visual != null)
+                    visual.Configure(button, null, false);
+                else if (firstStyle)
                     StyleButton(button);
-                return;
             }
+            var text = node.GetComponent<Text>();
+            if (text != null && skin.MarkStyled(text))
+                SkinText(text);
+            if (button != null)
+                return;
             var image = node.GetComponent<Image>();
             if (image == null || !skin.MarkStyled(image))
                 return;
-            var scroll = node.GetComponentInParent<ScrollRect>();
+            if (ApplyLegacySurface(image))
+                return;
+            var scroll = node.GetComponentInParent<ScrollRect>(true);
             if (scroll != null && (scroll.transform == node || scroll.viewport == node))
             {
                 if (image.type != Image.Type.Filled && image.color.a >= 0.8f && IsNeutral(image.color)
@@ -274,7 +328,7 @@ namespace FishSocial.Desktop
                 return;
             }
             if (IsProtectedImage(image)
-                || node.GetComponentInParent<Selectable>() != null
+                || node.GetComponentInParent<Selectable>(true) != null
                 || image.color.a < 0.8f || !IsNeutral(image.color))
                 return;
             var name = node.name.ToLowerInvariant();
@@ -317,11 +371,45 @@ namespace FishSocial.Desktop
             image.color = color;
         }
 
+        public static bool ApplyLegacySurface(Image image)
+        {
+            if (image == null || image.color.a < 0.8f || IsProtectedImage(image)
+                || !IsChromeSprite(image.overrideSprite != null ? image.overrideSprite : image.sprite) || image.material != null
+                    && image.material != Graphic.defaultGraphicMaterial)
+                return false;
+            var name = image.name.ToLowerInvariant();
+            if (name != "panelworldmap" && name != "shell" && name != "albumstage"
+                && name != "bg" && name != "photo" && !name.StartsWith("tab_", StringComparison.Ordinal))
+                return false;
+            var selectable = image.GetComponentInParent<Selectable>(true);
+            if (selectable != null && !(name == "bg" && selectable is Toggle))
+                return false;
+            var color = image.color;
+            var knownColor = SameLegacyRgb(color, Cream);
+            foreach (var legacy in new[] { new Color(0.07f, 0.1f, 0.14f), new Color(0.09f, 0.12f, 0.16f),
+                new Color(0.1f, 0.13f, 0.17f), new Color(0.06f, 0.08f, 0.1f),
+                new Color(0.25f, 0.3f, 0.35f), new Color(0.08f, 0.11f, 0.14f) })
+                knownColor |= SameLegacyRgb(color, legacy);
+            if (!knownColor)
+                return false;
+            if (name == "photo")
+                ApplyCreamTint(image);
+            else
+                ApplyPaper(image);
+            return true;
+        }
+
+        static bool SameLegacyRgb(Color first, Color second)
+        {
+            return Mathf.Abs(first.r - second.r) < 0.0001f && Mathf.Abs(first.g - second.g) < 0.0001f
+                && Mathf.Abs(first.b - second.b) < 0.0001f;
+        }
+
         static bool IsProtectedImage(Image image)
         {
             return image.type == Image.Type.Filled || image.GetComponent<Mask>() != null
                 || image.GetComponent<RectMask2D>() != null || image.GetComponent<ScrollRect>() != null
-                || image.GetComponentInParent<InputField>() != null;
+                || image.GetComponentInParent<InputField>(true) != null;
         }
 
         static bool IsChromeSprite(Sprite sprite)
@@ -351,7 +439,8 @@ namespace FishSocial.Desktop
 
         static Font LoadFont()
         {
-            foreach (var resourcePath in new[] { "DesktopTheme/Cozy/Fonts", "DesktopTheme/Fonts", "Fonts" })
+            foreach (var resourcePath in new[] { "Desktop/Theme/Cozy/fonts", "Desktop/Theme/Cozy/Fonts",
+                "DesktopTheme/Cozy/Fonts", "DesktopTheme/Fonts", "Fonts" })
             {
                 var resources = Resources.LoadAll<Font>(resourcePath);
                 Array.Sort(resources, (first, second) => string.CompareOrdinal(first.name, second.name));

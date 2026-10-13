@@ -11,6 +11,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopProfilePanel : MonoBehaviour
     {
+        bool _uiReady;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         System.Action _openEdit;
@@ -68,12 +69,17 @@ namespace FishSocial.Desktop
 
         public void BuildEditorLayout()
         {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
             if (transform.Find("Header") == null)
                 BuildFallbackUi();
+#endif
         }
 
         void EnsureUi()
         {
+            _uiReady = false;
             _nickname = Find<Text>("Header/Nickname");
             _playerId = Find<Text>("Header/PlayerId");
             _online = Find<Text>("Header/Online");
@@ -88,8 +94,14 @@ namespace FishSocial.Desktop
             _showcase = showcase;
             if (_nickname == null || _playerId == null || _online == null ||
                 _bio == null || _coins == null || _status == null ||
-                _edit == null || _retry == null || _showcase == null)
-                BuildFallbackUi();
+                _edit == null || _retry == null || _showcase == null || _avatar == null || _avatarLabel == null)
+            {
+                DesktopModalUi.RequireNodes(transform, "PanelProfile", "Header/Nickname", "Header/PlayerId", "Header/Online", "Header/Bio", "Header/Coins", "Status", "Actions/Edit", "Actions/Retry", "Showcase/Viewport/Content");
+                Debug.LogError("[DesktopUI] PanelProfile requires complete prefab controls; runtime layout generation is disabled.", this);
+                return;
+            }
+            _uiReady = true;
+            DesktopModalUi.StyleTree(transform);
 
             _edit.onClick.RemoveAllListeners();
             _edit.onClick.AddListener(OpenEdit);
@@ -105,6 +117,8 @@ namespace FishSocial.Desktop
 
         void Refresh()
         {
+            if (!_uiReady)
+                return;
             if (!isActiveAndEnabled)
                 return;
             StopLoad();
@@ -270,7 +284,7 @@ namespace FishSocial.Desktop
         {
             if (_avatar == null)
                 yield break;
-            _avatar.color = new Color(0.22f, 0.36f, 0.42f, 1f);
+            _avatar.color = _avatar.sprite != null ? Color.white : CatTheme.Cream;
             var url = profile != null ? profile.avatarUrl : null;
             if (string.IsNullOrEmpty(url))
                 yield break;
@@ -343,8 +357,7 @@ namespace FishSocial.Desktop
             for (var i = 0; i < slots.Length; i++)
             {
                 var fish = FindFish(inventory, slots[i]);
-                var slot = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _showcase) ??
-                           DesktopUiPrefabFactory.Instantiate("CatchSlot", _showcase);
+                var slot = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _showcase);
                 if (slot == null)
                     continue;
                 slot.name = "Slot" + i;
@@ -352,6 +365,7 @@ namespace FishSocial.Desktop
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
                     label.text = fish != null ? DesktopProfileCache.FishLabel(fish) : "空";
+                DesktopModalUi.StyleTree(slot.transform);
             }
         }
 
@@ -398,7 +412,7 @@ namespace FishSocial.Desktop
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
+            go.GetComponent<Image>().color = CatTheme.Cream;
             var label = CreateText(go.transform, "Label", text, 16);
             Stretch(label.rectTransform);
             label.alignment = TextAnchor.MiddleCenter;
@@ -413,7 +427,7 @@ namespace FishSocial.Desktop
             label.text = text;
             label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = size;
-            label.color = Color.white;
+            label.color = CatTheme.Ink;
             label.raycastTarget = false;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;

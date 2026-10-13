@@ -1,6 +1,5 @@
 #if UNITY_INCLUDE_TESTS
 using System;
-using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -48,10 +47,13 @@ namespace FishSocial.Tests.Editor
                 Assert.NotNull(CatTheme.LoadCozy("buttons/plate-" + state + ".png", CatTheme.PlateBorder));
             foreach (var icon in new[] { "home", "map", "pond", "hook", "bag", "rod", "shop", "medal", "trophy", "user", "social" })
                 Assert.NotNull(CatTheme.LoadCozy("icons/" + icon + ".png", Vector4.zero), icon);
-            Assert.NotNull(CatTheme.LoadCozy("scenes/pond-afternoon.png", Vector4.zero));
+            Assert.NotNull(CatTheme.LoadCozy("scenes/home-sakura.png", Vector4.zero));
             Assert.NotNull(CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero));
-            Assert.NotNull(CatTheme.LoadCozy("characters/cat-avatar.png", Vector4.zero));
-            Assert.IsTrue(File.Exists(Path.Combine(Application.streamingAssetsPath, "DesktopTheme/Cozy/manifest.json")));
+            Assert.NotNull(CatTheme.LoadCozy("brand/meow-fish.png", Vector4.zero));
+            Assert.NotNull(CatTheme.LoadCozy("characters/cat-portrait.png", Vector4.zero));
+            Assert.AreSame(Resources.Load<Sprite>("Desktop/Theme/Cozy/panels/paper"),
+                CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder));
+            Assert.NotNull(CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder));
         }
 
         [Test]
@@ -69,9 +71,9 @@ namespace FishSocial.Tests.Editor
                 button = PointerEventData.InputButton.Left
             };
             visual.OnPointerEnter(pointer);
-            Assert.AreEqual("buttons/plate-hover.png", plate.sprite.name);
+            Assert.AreSame(CatTheme.LoadCozy("buttons/plate-hover.png", CatTheme.PlateBorder), plate.sprite);
             visual.OnPointerDown(pointer);
-            Assert.AreEqual("buttons/plate-pressed.png", plate.sprite.name);
+            Assert.AreSame(CatTheme.LoadCozy("buttons/plate-pressed.png", CatTheme.PlateBorder), plate.sprite);
             Assert.AreEqual(new Vector2(0f, -3f), plate.rectTransform.anchoredPosition);
             Assert.AreEqual(new Vector2(30f, 70f), rect.anchoredPosition);
             Assert.IsEmpty(plate.GetComponents<Shadow>());

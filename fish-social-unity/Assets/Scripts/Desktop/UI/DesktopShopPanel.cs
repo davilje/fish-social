@@ -14,6 +14,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public sealed class DesktopShopPanel : MonoBehaviour
     {
+        bool _uiReady;
         IAuthenticatedApiClient _api;
         Text _heading;
         Text _coins;
@@ -64,12 +65,15 @@ namespace FishSocial.Desktop
         }
 
         /// <summary>
-        /// Editor baker entry point. It creates the same responsive shell used
-        /// at runtime so the prefab remains the editable source of truth.
+        /// Editor-only entry point. Runtime binds the authored prefab without rebuilding its layout.
         /// </summary>
         public void BuildEditorLayout()
         {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
             EnsureUi();
+#endif
         }
 
         public void OnClosed()
@@ -83,6 +87,7 @@ namespace FishSocial.Desktop
 
         void EnsureUi()
         {
+            _uiReady = false;
             _coins = Find<Text>("Header/Coins");
             _equipped = Find<Text>("Header/Equipped");
             _status = Find<Text>("Status");
@@ -96,12 +101,13 @@ namespace FishSocial.Desktop
             _vesselTab = Find<Button>("Tabs/Vessel");
             if (_coins == null || _equipped == null || _status == null ||
                 _details == null || _buy == null || _equip == null ||
-                _content == null || _baitTab == null || _tackleTab == null || _retry == null)
+                _content == null || _baitTab == null || _tackleTab == null || _vesselTab == null || _retry == null ||
+                Find<Text>("Header/Title") == null)
             {
-                BuildFallbackUi();
+                Debug.LogError("[DesktopUI] PanelShop requires Header/{Title,Coins,Equipped}, Tabs/{Bait,Tackle,Vessel}, Status, Items/Viewport/Content and Details/{Description,Buy,Equip,Retry}.", this);
                 return;
             }
-            EnsureVesselTab();
+            _uiReady = true;
             RestyleUi();
 
             var baitLabel = _baitTab.GetComponentInChildren<Text>();
@@ -136,132 +142,24 @@ namespace FishSocial.Desktop
 
         void RestyleUi()
         {
-            CatTheme.ApplyPaper(GetComponent<Image>());
-            foreach (var path in new[] { "Header", "Tabs", "Details", "Items" })
-                CatTheme.ApplyPaper(Find<Image>(path));
-            var itemsBackground = Find<Image>("Items");
-            if (itemsBackground != null && itemsBackground.GetComponent<ScrollRect>() != null &&
-                itemsBackground.GetComponent<Mask>() == null && itemsBackground.GetComponent<RectMask2D>() == null &&
-                itemsBackground.type != Image.Type.Filled)
-            {
-                itemsBackground.overrideSprite = null;
-                itemsBackground.sprite = CatTheme.LoadCozy("textures/paper.png", Vector4.zero);
-                itemsBackground.type = Image.Type.Simple;
-                itemsBackground.preserveAspect = false;
-                itemsBackground.color = itemsBackground.sprite != null ? Color.white : CatTheme.Cream;
-            }
-            foreach (var label in GetComponentsInChildren<Text>(true))
-                StyleText(label, Math.Max(16, label.fontSize));
-
-            var headerRect = transform.Find("Header") as RectTransform;
-            Place(headerRect, 0f, 1f, 1f, 1f);
-            headerRect.offsetMin = new Vector2(20f, -108f);
-            headerRect.offsetMax = new Vector2(-20f, -16f);
-            var tabsRect = transform.Find("Tabs") as RectTransform;
-            Place(tabsRect, 0f, 1f, 1f, 1f);
-            tabsRect.offsetMin = new Vector2(20f, -170f);
-            tabsRect.offsetMax = new Vector2(-20f, -118f);
-            Place(_status.rectTransform, 0f, 1f, 1f, 1f);
-            _status.rectTransform.offsetMin = new Vector2(20f, -210f);
-            _status.rectTransform.offsetMax = new Vector2(-20f, -176f);
-            var itemsRect = transform.Find("Items") as RectTransform;
-            Place(itemsRect, 0f, 0f, 0.46f, 1f);
-            itemsRect.offsetMin = new Vector2(16f, 16f);
-            itemsRect.offsetMax = new Vector2(-8f, -220f);
-            var detailsRect = transform.Find("Details") as RectTransform;
-            Place(detailsRect, 0.46f, 0f, 1f, 1f);
-            detailsRect.offsetMin = new Vector2(8f, 16f);
-            detailsRect.offsetMax = new Vector2(-16f, -220f);
-
-            var header = transform.Find("Header");
             _heading = Find<Text>("Header/Title");
-            if (_heading == null && header != null)
-                _heading = CreateText(header, "Title", string.Empty, 26);
             if (_heading != null)
-            {
-                StyleText(_heading, 26);
                 _heading.text = _equipmentMode ? "我的装备" : "钓鱼商店";
-                _heading.fontStyle = FontStyle.Bold;
-                _heading.alignment = TextAnchor.MiddleLeft;
-                Place(_heading.rectTransform, 0f, 0.55f, 0.66f, 1f);
-            }
-            StyleText(_coins, 18);
-            _coins.alignment = TextAnchor.MiddleRight;
-            Place(_coins.rectTransform, 0.68f, 0.55f, 1f, 1f);
-            StyleText(_equipped, 16);
-            _equipped.alignment = TextAnchor.MiddleLeft;
-            Place(_equipped.rectTransform, 0f, 0f, 1f, 0.55f);
-            _equipped.verticalOverflow = VerticalWrapMode.Overflow;
-            StyleText(_status, 16);
-            StyleText(_details, 16);
-            _details.alignment = TextAnchor.UpperLeft;
-            _details.verticalOverflow = VerticalWrapMode.Overflow;
-            Place(_details.rectTransform, 0f, 0.26f, 1f, 1f);
-            _details.rectTransform.offsetMin = new Vector2(16f, 12f);
-            _details.rectTransform.offsetMax = new Vector2(-16f, -12f);
-
-            CatTheme.StyleButton(_baitTab, "leaf");
-            CatTheme.StyleButton(_tackleTab, "rod");
-            CatTheme.StyleButton(_vesselTab, "pond");
-            CatTheme.StyleButton(_buy, "coin", true);
-            CatTheme.StyleButton(_equip, "check", true);
-            CatTheme.StyleButton(_retry);
-            if (_vesselTab != null)
-                _vesselTab.gameObject.SetActive(!_equipmentMode);
-            if (_equipmentMode)
-            {
-                Place(_baitTab.transform as RectTransform, 0f, 0f, 0.5f, 1f);
-                Place(_tackleTab.transform as RectTransform, 0.5f, 0f, 1f, 1f);
-                if (_tab == 2)
-                    _tab = 1;
-            }
-            else if (_vesselTab != null)
-            {
-                Place(_baitTab.transform as RectTransform, 0f, 0f, 0.333f, 1f);
-                Place(_tackleTab.transform as RectTransform, 0.333f, 0f, 0.667f, 1f);
-                Place(_vesselTab.transform as RectTransform, 0.667f, 0f, 1f, 1f);
-            }
-            Place(_buy.transform as RectTransform, 0.04f, 0.05f, 0.34f, 0.21f);
-            Place(_equip.transform as RectTransform, _equipmentMode ? 0.04f : 0.36f,
-                0.05f, 0.66f, 0.21f);
-            Place(_retry.transform as RectTransform, 0.68f, 0.05f, 0.96f, 0.21f);
-
-            var layout = _content.GetComponent<VerticalLayoutGroup>();
-            if (_content.GetComponent<LayoutGroup>() == null)
-                layout = _content.gameObject.AddComponent<VerticalLayoutGroup>();
-            if (layout != null)
-            {
-                layout.padding = new RectOffset(12, 12, 12, 12);
-                layout.spacing = 12f;
-                layout.childAlignment = TextAnchor.UpperCenter;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
-            }
-            var grid = _content.GetComponent<GridLayoutGroup>();
-            if (grid != null)
-                grid.cellSize = new Vector2(grid.cellSize.x, Math.Max(112f, grid.cellSize.y));
-            var fitter = _content.GetComponent<ContentSizeFitter>();
-            if (fitter == null)
-                fitter = _content.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            _content.anchorMin = new Vector2(0f, 1f);
-            _content.anchorMax = Vector2.one;
-            _content.pivot = new Vector2(0.5f, 1f);
-            _content.sizeDelta = new Vector2(0f, _content.sizeDelta.y);
-            var scroll = Find<ScrollRect>("Items");
-            if (scroll != null)
-            {
-                scroll.content = _content;
-                scroll.horizontal = false;
-                scroll.vertical = true;
-            }
+            DesktopModalUi.StyleTree(transform);
+            DesktopModalUi.StyleButton(_baitTab, "leaf");
+            DesktopModalUi.StyleButton(_tackleTab, "rod");
+            DesktopModalUi.StyleButton(_vesselTab, "pond");
+            DesktopModalUi.StyleButton(_buy, "coin", true);
+            DesktopModalUi.StyleButton(_equip, "bag");
+            TintTab(_baitTab, _tab == 0);
+            TintTab(_tackleTab, _tab == 1);
+            TintTab(_vesselTab, _tab == 2);
         }
 
         void Refresh()
         {
+            if (!_uiReady)
+                return;
             if (_refreshRoutine != null)
                 StopCoroutine(_refreshRoutine);
             _refreshRoutine = StartCoroutine(RefreshRoutine());
@@ -334,25 +232,6 @@ namespace FishSocial.Desktop
             _tab = tab;
             _selectedIndex = -1;
             Render();
-        }
-
-        void EnsureVesselTab()
-        {
-            if (_vesselTab != null)
-                return;
-            var tabs = _baitTab != null ? _baitTab.transform.parent : transform.Find("Tabs");
-            if (tabs == null)
-                return;
-            var existing = tabs.Find("Vessel");
-            if (existing != null)
-            {
-                _vesselTab = existing.GetComponent<Button>();
-                return;
-            }
-            _vesselTab = CreateButton(tabs, "Vessel", "船具");
-            Place(_baitTab.transform as RectTransform, 0f, 0f, 0.333f, 1f);
-            Place(_tackleTab.transform as RectTransform, 0.333f, 0f, 0.667f, 1f);
-            Place(_vesselTab.transform as RectTransform, 0.667f, 0f, 1f, 1f);
         }
 
         void BuySelected()
@@ -850,81 +729,35 @@ namespace FishSocial.Desktop
         {
             if (tab == null)
                 return;
-            CatTheme.StyleButton(tab);
+            DesktopModalUi.StyleButton(tab);
             var visual = tab.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(active);
-            var label = tab.GetComponentInChildren<Text>();
-            if (label != null)
-                label.color = CatTheme.Ink;
         }
 
         void CreateCard(int index, string name, string iconPath, string meta)
         {
             var card = DesktopUiPrefabFactory.Instantiate("ShopItemCard", _content);
             if (card == null)
-            {
-                card = new GameObject("Item_" + index,
-                    typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-                card.transform.SetParent(_content, false);
-                Debug.LogWarning("[DesktopShop] ShopItemCard.prefab missing; using runtime fallback card.");
-            }
+                return;
             card.name = "Item_" + index;
-            var layout = card.GetComponent<LayoutElement>();
-            if (layout == null)
-                layout = card.AddComponent<LayoutElement>();
-            layout.minHeight = 112f;
-            layout.preferredHeight = 112f;
-            layout.flexibleHeight = 0f;
-            layout.ignoreLayout = false;
-            var background = card.GetComponent<Image>();
-            if (background == null)
-                background = card.AddComponent<Image>();
-            background.color = CatTheme.Cream;
-            var label = card.transform.Find("Label")?.GetComponent<Text>();
-            if (label == null)
-                label = CreateText(card.transform, "Label", string.Empty, 20);
-            label.text = name;
-            StyleText(label, 20);
-            label.fontStyle = FontStyle.Bold;
-            label.alignment = TextAnchor.MiddleLeft;
-            Place(label.rectTransform, 0f, 0.48f, 1f, 1f);
-            label.rectTransform.offsetMin = new Vector2(92f, 0f);
-            label.rectTransform.offsetMax = new Vector2(-18f, -12f);
-            IgnoreLayout(label);
-            var metadata = card.transform.Find("Meta")?.GetComponent<Text>();
-            if (metadata == null)
-                metadata = CreateText(card.transform, "Meta", string.Empty, 16);
-            metadata.text = meta;
-            StyleText(metadata, 16);
-            metadata.alignment = TextAnchor.MiddleLeft;
-            Place(metadata.rectTransform, 0f, 0f, 1f, 0.48f);
-            metadata.rectTransform.offsetMin = new Vector2(92f, 12f);
-            metadata.rectTransform.offsetMax = new Vector2(-18f, 0f);
-            IgnoreLayout(metadata);
-
-            var icon = card.transform.Find("Icon")?.GetComponent<Image>();
-            if (icon == null)
+            var label = DesktopModalUi.FindComponent<Text>(card.transform, "Label");
+            var metadata = DesktopModalUi.FindComponent<Text>(card.transform, "Meta");
+            var icon = DesktopModalUi.FindComponent<Image>(card.transform, "Icon");
+            var button = card.GetComponent<Button>();
+            if (label == null || metadata == null || icon == null || button == null)
             {
-                var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-                iconGo.transform.SetParent(card.transform, false);
-                icon = iconGo.GetComponent<Image>();
+                Debug.LogError("[DesktopUI] ShopItemCard requires root Button, Label/Meta Text and Icon Image.", card);
+                card.SetActive(false);
+                Destroy(card);
+                return;
             }
+            label.text = name;
+            metadata.text = meta;
             icon.overrideSprite = null;
             icon.sprite = CatTheme.LoadCozy(iconPath, Vector4.zero);
-            icon.type = Image.Type.Simple;
-            icon.preserveAspect = true;
-            icon.color = Color.white;
-            icon.raycastTarget = false;
             icon.enabled = icon.sprite != null;
-            Place(icon.rectTransform, 0f, 0.5f, 0f, 0.5f);
-            icon.rectTransform.sizeDelta = new Vector2(64f, 64f);
-            icon.rectTransform.anchoredPosition = new Vector2(48f, 0f);
-            IgnoreLayout(icon);
-            var button = card.GetComponent<Button>();
-            if (button == null)
-                button = card.AddComponent<Button>();
-            CatTheme.StyleButton(button);
+            DesktopModalUi.StyleTree(card.transform);
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(index == _selectedIndex);
@@ -986,7 +819,7 @@ namespace FishSocial.Desktop
             Stretch(label.rectTransform);
             label.alignment = TextAnchor.MiddleCenter;
             var button = go.GetComponent<Button>();
-            CatTheme.StyleButton(button);
+            DesktopModalUi.StyleButton(button);
             return button;
         }
 

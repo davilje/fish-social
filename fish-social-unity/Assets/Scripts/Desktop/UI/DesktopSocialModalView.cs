@@ -9,6 +9,7 @@ namespace FishSocial.Desktop
 {
     public sealed class DesktopSocialModalView : MonoBehaviour
     {
+        bool _uiReady;
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         SocialLobbyController _lobby;
@@ -37,6 +38,8 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (!_uiReady)
+                return;
             Subscribe(true);
             ShowTab(_tab);
         }
@@ -105,8 +108,7 @@ namespace FishSocial.Desktop
 
         void BindPrefab()
         {
-            var panelImage = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-            panelImage.color = new Color(0.07f, 0.10f, 0.14f, 1f);
+            DesktopModalUi.StyleTree(transform);
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
             _pondPage = DesktopModalUi.FindChild(transform, "PondPage")?.gameObject;
             _friendsPage = DesktopModalUi.FindChild(transform, "FriendsPage")?.gameObject;
@@ -146,20 +148,26 @@ namespace FishSocial.Desktop
                 _dmTitle = DesktopModalUi.FindComponent<Text>(transform, "DmPage/DmTitle");
             }
 
-            DesktopModalUi.BindButton(transform, "Tabs/T0", () => ShowTab(0));
-            DesktopModalUi.BindButton(transform, "Tabs/T1", () => ShowTab(1));
-            DesktopModalUi.BindButton(transform, "Retry", RefreshAll);
+            var pondTabBound = DesktopModalUi.BindButton(transform, "Tabs/T0", () => ShowTab(0));
+            var friendsTabBound = DesktopModalUi.BindButton(transform, "Tabs/T1", () => ShowTab(1));
+            var retryBound = DesktopModalUi.BindButton(transform, "Retry", RefreshAll);
             var chatSendPath = _legacyLayout ? "ChatPage/SendChat" : "PondPage/ChatPage/SendChat";
             var dmSendPath = _legacyLayout
                 ? "DmPage/SendDm"
                 : friendsChatPrefix + "SendDm";
-            DesktopModalUi.BindButton(transform, chatSendPath, SendPondChat);
-            DesktopModalUi.BindButton(transform, dmSendPath, SendDm);
+            var chatSendBound = DesktopModalUi.BindButton(transform, chatSendPath, SendPondChat);
+            var dmSendBound = DesktopModalUi.BindButton(transform, dmSendPath, SendDm);
             if (_status == null || _pondPage == null || _friendsPage == null || _onlineContent == null ||
                 _chatContent == null || _friendsContent == null ||
                 _messageContent == null || _chatInput == null || _dmInput == null ||
-                _dmTitle == null)
-                Debug.LogError("[DesktopUI] PanelSocial prefab is missing required controls.");
+                _dmTitle == null || !pondTabBound || !friendsTabBound || !retryBound ||
+                !chatSendBound || !dmSendBound)
+            {
+                _uiReady = false;
+                Debug.LogError("[DesktopUI] PanelSocial prefab is missing required controls.", this);
+                return;
+            }
+            _uiReady = true;
         }
 
         void OnUsersChanged() => RenderOnline();
@@ -304,6 +312,7 @@ namespace FishSocial.Desktop
             var row = DesktopUiPrefabFactory.Instantiate(prefabName, parent);
             if (row == null)
                 return;
+            DesktopModalUi.StyleTree(row.transform);
             var label = DesktopUiPrefabFactory.Child(row, "Name") ??
                         DesktopUiPrefabFactory.Child(row, "Message");
             var textComponent = label != null ? label.GetComponent<Text>() : null;
@@ -390,6 +399,7 @@ namespace FishSocial.Desktop
             var row = DesktopUiPrefabFactory.Instantiate("FriendRequestRow", _friendsContent);
             if (row == null)
                 return;
+            DesktopModalUi.StyleTree(row.transform);
             var label = DesktopUiPrefabFactory.Child(row, "Name");
             var labelText = label != null ? label.GetComponent<Text>() : null;
             if (labelText != null)
@@ -405,6 +415,7 @@ namespace FishSocial.Desktop
             var row = DesktopUiPrefabFactory.Instantiate("FriendRow", _friendsContent);
             if (row == null)
                 return;
+            DesktopModalUi.StyleTree(row.transform);
             var label = DesktopUiPrefabFactory.Child(row, "Name");
             var labelText = label != null ? label.GetComponent<Text>() : null;
             if (labelText != null)
@@ -431,6 +442,7 @@ namespace FishSocial.Desktop
             var row = DesktopUiPrefabFactory.Instantiate("SteamInviteRow", _friendsContent);
             if (row == null)
                 return;
+            DesktopModalUi.StyleTree(row.transform);
             var label = DesktopUiPrefabFactory.Child(row, "Name");
             var labelText = label != null ? label.GetComponent<Text>() : null;
             if (labelText != null)
