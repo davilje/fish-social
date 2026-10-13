@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Unity UI 导入错误修正（2026-10-14）**：修正 `CozyPrefabRepair.cs.meta` 的 33 位无效 GUID，解除修复类被忽略导致的 CS0103；关闭旧 ProfileHub 在脚本导入后的自动 Bake，增加 GUID 唯一性及导入回归测试。递归序列化报错仍需完整 Unity Console 堆栈确认；本机无 Unity，尚未执行 Edit Mode 测试。
+
 - **桌面 UI 全面持久化修复（2026-10-14）**：按确认的樱花鱼塘横版首页恢复七项导航；提供完整首页、钓鱼、选塘、装备、成就与模态窗口 Prefab，主题 PNG 改为真正导入的 Resources Sprite 与 Sliced 九宫格，停止运行时重建布局，保留既有业务与 v18 动画。静态数据/C# 语法检查通过；Unity 编译、运行与联机视觉仍待验收。说明：`docs/design/ui/2026-10-14-cozy-prefab-repair.md`。
 
 - **钓鱼动画 v18 同步（2026-10-13）**：Unity 与 Windows Overlay 接入九层逐帧顺序和时长，新增四帧坐下、六帧空军和两种四帧复位，保留六帧快速收杆、循环发力及待领取保持；加入五种既有配色素材和 Editor 预览。11 项移植像素验证及 23 项源回归通过，C# 构建/联机视觉待验收。说明：`docs/art/animations/2026-10-13-fishing-animation-port.md`。

@@ -63,30 +63,6 @@ namespace FishSocial.Desktop.Editor
         }
 
         /// <summary>
-        /// 脚本编译后若 Prefab 缺失或结构不全，自动 Bake（仅 Editor，非 Play）。
-        /// </summary>
-        [UnityEditor.InitializeOnLoadMethod]
-        static void AutoBakeProfileHubIfNeeded()
-        {
-            EditorApplication.delayCall += () =>
-            {
-                if (EditorApplication.isPlayingOrWillChangePlaymode)
-                    return;
-                try
-                {
-                    if (HasProfileHubStructure())
-                        return;
-                    Debug.Log("[DesktopPrefabBaker] PanelProfileHub 缺失或结构不全，自动 Bake…");
-                    BakePanelProfileHub();
-                }
-                catch (System.Exception ex)
-                {
-                    Debug.LogError("[DesktopPrefabBaker] AutoBakePanelProfileHub failed: " + ex);
-                }
-            };
-        }
-
-        /// <summary>
         /// Batchmode：Unity.exe -batchmode -quit -projectPath ... -executeMethod FishSocial.Desktop.Editor.DesktopPrefabValidator.BakePanelProfileHub
         /// </summary>
         public static void BakePanelProfileHub()

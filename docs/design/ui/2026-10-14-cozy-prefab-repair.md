@@ -9,6 +9,14 @@
 
 ## 根因与处理
 
+### Unity 导入错误修正（2026-10-14）
+
+- `CozyPrefabRepair.cs.meta` 原 GUID 有 33 位，Unity 因此忽略对应脚本，并导致 Catalog 和测试中的 `CozyPrefabRepair` 报 CS0103。已修正为 32 位十六进制 GUID；原无效值未被任何预制体或其他资源引用。
+- 移除旧 `DesktopPrefabValidator` 的 `InitializeOnLoadMethod` 自动 Bake 回调，避免脚本重载/导入期间自动加载、检查和重建预制体；保留明确调用的编辑工具。此项消除一处自动加载入口，不代表已经确认递归序列化报错的完整调用链。
+- 增加 Edit Mode 回归测试：所有 Assets `.meta` 的 GUID 格式/唯一性、修复脚本实际导入的 GUID、旧 Baker 不在域初始化时自动运行。
+- 切回 Unity 等待重新导入；如仍使用修正前的脚本导入结果，对 `CozyPrefabRepair.cs` 手动执行 Reimport。无需删除整个 Library，也无需重新生成 UI 预制体。
+- `Recursive Serialization is not supported` 尚需完整 Console 堆栈定位；目前没有本机 Unity 编译或运行验证，不能仅凭这条通用报错认定具体故障点。
+
 1. 旧 shell 会在加载后删除并重建顶栏/十一项导航，覆盖美术调整。现在只绑定 Header、Nav 与十五个 Content 页面槽，不再重建布局。
 2. 旧切图通过 StreamingAssets 的 Sprite.Create 临时产生，不能可靠存到预制体。新主题位于 Resources/Desktop/Theme/Cozy，优先加载真实导入的 Sprite；兼容回退默认关闭。
 3. 旧页面/弹窗缺少完整预制体时会创建粗糙布局。现在缺失时明确报错，实际页面、模态容器、右键菜单、结算窗口和列表项均随提交提供。

@@ -1,6 +1,9 @@
 #if UNITY_EDITOR && UNITY_INCLUDE_TESTS
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -19,6 +22,40 @@ namespace FishSocial.Tests.Editor
         GameObject events;
         string fixtureFolder;
         bool legacyFallback;
+
+        [Test]
+        public void AssetMetadataHasValidUniqueGuids()
+        {
+            var guids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var path in Directory.GetFiles(Application.dataPath, "*.meta", SearchOption.AllDirectories))
+            {
+                var match = Regex.Match(File.ReadAllText(path), @"^guid: ([0-9a-fA-F]{32})\r?$", RegexOptions.Multiline);
+                Assert.IsTrue(match.Success, "Asset metadata must contain exactly 32 hexadecimal GUID characters: " + path);
+                var guid = match.Groups[1].Value;
+                Assert.AreNotEqual(new string('0', 32), guid, "Asset GUID must not be empty: " + path);
+                Assert.IsTrue(guids.Add(guid), "Duplicate asset GUID: " + path);
+            }
+        }
+
+        [Test]
+        public void RepairScriptIsImportedWithItsMetadataGuid()
+        {
+            const string path = "Assets/Scripts/Desktop/Editor/CozyPrefabRepair.cs";
+            var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
+            Assert.NotNull(script, "CozyPrefabRepair must be imported; check its .meta GUID.");
+            var match = Regex.Match(File.ReadAllText(path + ".meta"), @"^guid: ([0-9a-fA-F]{32})\r?$", RegexOptions.Multiline);
+            Assert.IsTrue(match.Success);
+            Assert.AreEqual(match.Groups[1].Value, AssetDatabase.AssetPathToGUID(path));
+        }
+
+        [Test]
+        public void LegacyBakerDoesNotRebuildPrefabsOnDomainInitialization()
+        {
+            var methods = typeof(DesktopPrefabValidator).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (var method in methods)
+                Assert.IsFalse(Attribute.IsDefined(method, typeof(InitializeOnLoadMethodAttribute)),
+                    "Prefab inspection and rebuilding must be explicitly invoked, not run during import: " + method.Name);
+        }
 
         [SetUp]
         public void SetUp()
