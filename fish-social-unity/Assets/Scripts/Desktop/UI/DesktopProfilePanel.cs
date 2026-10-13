@@ -390,47 +390,8 @@ namespace FishSocial.Desktop
 
         void BuildFallbackUi()
         {
-            var root = GetComponent<RectTransform>();
-            if (root.GetComponent<Image>() == null)
-                root.gameObject.AddComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
-            var header = NewRect("Header", root);
-            Place(header, 0f, 0.58f, 1f, 1f);
-            _avatar = NewRect("Avatar", header).gameObject.AddComponent<Image>();
-            _avatar.color = new Color(0.22f, 0.36f, 0.42f, 1f);
-            Place(_avatar.rectTransform, 0.04f, 0.28f, 0.22f, 0.92f);
-            _avatarLabel = CreateText(_avatar.transform, "Label", "钓", 28);
-            Stretch(_avatarLabel.rectTransform);
-            _avatarLabel.alignment = TextAnchor.MiddleCenter;
-            _nickname = CreateText(header, "Nickname", "昵称", 26);
-            Place(_nickname.rectTransform, 0.26f, 0.68f, 0.96f, 0.92f);
-            _playerId = CreateText(header, "PlayerId", "玩家 ID：", 14);
-            Place(_playerId.rectTransform, 0.26f, 0.5f, 0.96f, 0.68f);
-            _online = CreateText(header, "Online", "在线状态", 14);
-            Place(_online.rectTransform, 0.26f, 0.34f, 0.96f, 0.5f);
-            _coins = CreateText(header, "Coins", "金币：0", 16);
-            Place(_coins.rectTransform, 0.26f, 0.16f, 0.96f, 0.34f);
-            _bio = CreateText(header, "Bio", "简介", 15);
-            Place(_bio.rectTransform, 0.04f, 0.02f, 0.96f, 0.16f);
-            _status = CreateText(root, "Status", string.Empty, 14);
-            Place(_status.rectTransform, 0.04f, 0.5f, 0.96f, 0.58f);
-            var showcase = NewRect("Showcase", root);
-            Place(showcase, 0.04f, 0.16f, 0.96f, 0.5f);
-            var viewport = NewRect("Viewport", showcase);
-            Stretch(viewport);
-            viewport.gameObject.AddComponent<RectMask2D>();
-            _showcase = NewRect("Content", viewport);
-            Stretch(_showcase as RectTransform);
-            var grid = _showcase.gameObject.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(110f, 72f);
-            grid.spacing = new Vector2(8f, 8f);
-            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 4;
-            var actions = NewRect("Actions", root);
-            Place(actions, 0.04f, 0.04f, 0.96f, 0.14f);
-            _edit = CreateButton(actions, "Edit", "编辑资料");
-            Place(_edit.transform as RectTransform, 0f, 0f, 0.48f, 1f);
-            _retry = CreateButton(actions, "Retry", "重试");
-            Place(_retry.transform as RectTransform, 0.52f, 0f, 1f, 1f);
+            Debug.LogError("[DesktopUI] Prefab is missing required controls. Runtime will not build a second layout.");
+            return;
         }
 
         static Button CreateButton(Transform parent, string name, string text)

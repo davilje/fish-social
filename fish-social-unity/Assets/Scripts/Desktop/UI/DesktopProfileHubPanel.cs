@@ -439,7 +439,8 @@ namespace FishSocial.Desktop
 
         void BuildFallbackUi()
         {
-            BuildShellHierarchy();
+            Debug.LogError("[DesktopUI] Prefab is missing required controls. Runtime will not build a second layout.");
+            return;
         }
 
         void BuildShellHierarchy()

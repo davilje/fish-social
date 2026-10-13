@@ -178,54 +178,8 @@ namespace FishSocial.Desktop
 
         void BuildFallbackUi()
         {
-            var root = GetComponent<RectTransform>();
-            if (_viewport == null)
-            {
-                _viewport = NewRect("Viewport", root);
-                _viewport.anchorMin = new Vector2(0f, 0f);
-                _viewport.anchorMax = new Vector2(0.68f, 1f);
-                _viewport.offsetMin = Vector2.zero;
-                _viewport.offsetMax = Vector2.zero;
-                _viewport.gameObject.AddComponent<RectMask2D>();
-            }
-            if (_content == null)
-            {
-                _content = NewRect("MapContent", _viewport);
-                _content.sizeDelta = new Vector2(MapWidth, MapHeight);
-                _content.anchorMin = new Vector2(0.5f, 0.5f);
-                _content.anchorMax = new Vector2(0.5f, 0.5f);
-                _content.pivot = new Vector2(0.5f, 0.5f);
-                var map = NewRect("MapImage", _content);
-                map.anchorMin = Vector2.zero;
-                map.anchorMax = Vector2.one;
-                map.offsetMin = Vector2.zero;
-                map.offsetMax = Vector2.zero;
-                map.gameObject.AddComponent<Image>().color =
-                    new Color(0.16f, 0.3f, 0.24f, 1f);
-            }
-            if (_markerLayer == null)
-            {
-                _markerLayer = NewRect("MarkerLayer", _content);
-                _markerLayer.anchorMin = Vector2.zero;
-                _markerLayer.anchorMax = Vector2.one;
-                _markerLayer.offsetMin = Vector2.zero;
-                _markerLayer.offsetMax = Vector2.zero;
-            }
-            var details = transform.Find("Details") as RectTransform;
-            if (details == null)
-            {
-                details = NewRect("Details", root);
-                details.anchorMin = new Vector2(0.68f, 0f);
-                details.anchorMax = Vector2.one;
-                details.offsetMin = Vector2.zero;
-                details.offsetMax = Vector2.zero;
-                details.gameObject.AddComponent<Image>().color =
-                    new Color(0.08f, 0.12f, 0.16f, 0.96f);
-            }
-            _details = EnsureText(details, "DetailsText", "请选择地图上的鱼塘。");
-            _status = EnsureText(details, "StatusText", string.Empty);
-            _enter = EnsureButton(details, "EnterPond", "进入鱼塘");
-            _reset = EnsureButton(details, "ResetView", "重置地图");
+            Debug.LogError("[DesktopUI] Prefab is missing required controls. Runtime will not build a second layout.");
+            return;
         }
 
         static RectTransform NewRect(string name, Transform parent)

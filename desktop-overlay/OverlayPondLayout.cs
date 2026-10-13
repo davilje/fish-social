@@ -349,13 +349,14 @@ namespace FishSocialOverlay
             return new OverlayActorChrome
             {
                 Pet = new OverlayLayoutObjectDto { kind = "actor-pet", x = 0, y = 0, w = 128, h = 128 },
-                Hit = new OverlayLayoutObjectDto { kind = "actor-hit", x = 6, y = 23, w = 57, h = 85 },
-                Name = new OverlayLayoutObjectDto { kind = "actor-name", x = -19, y = 76, w = 88, h = 20 },
-                Status = new OverlayLayoutObjectDto { kind = "actor-status", x = 17, y = -22, w = 18, h = 18 },
-                Ring = new OverlayLayoutObjectDto { kind = "actor-ring", x = 10, y = -28, w = 31, h = 31 },
-                RingBg = new OverlayLayoutObjectDto { kind = "actor-ring-bg", x = 10, y = -28, w = 31, h = 31 },
-                Bubble = new OverlayLayoutObjectDto { kind = "actor-bubble", x = -6, y = -18, w = 80, h = 20 },
-                Hint = new OverlayLayoutObjectDto { kind = "actor-hint", x = -8, y = -18, w = 84, h = 20 },
+                Hit = new OverlayLayoutObjectDto { kind = "actor-hit", x = 5, y = 26, w = 57, h = 76 },
+                Seat = new OverlayLayoutObjectDto { kind = "actor-seat", x = -9, y = 80, w = 85, h = 50 },
+                Name = new OverlayLayoutObjectDto { kind = "actor-name", x = -11, y = 127, w = 88, h = 20 },
+                Status = new OverlayLayoutObjectDto { kind = "actor-status", x = 13, y = -24, w = 40, h = 40 },
+                Ring = new OverlayLayoutObjectDto { kind = "actor-ring", x = 9, y = -28, w = 48, h = 48 },
+                RingBg = new OverlayLayoutObjectDto { kind = "actor-ring-bg", x = 9, y = -28, w = 48, h = 48 },
+                Bubble = new OverlayLayoutObjectDto { kind = "actor-bubble", x = -7, y = -3, w = 80, h = 20 },
+                Hint = new OverlayLayoutObjectDto { kind = "actor-hint", x = -9, y = -3, w = 84, h = 20 },
             };
         }
 

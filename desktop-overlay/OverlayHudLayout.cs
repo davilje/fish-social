@@ -522,23 +522,17 @@ namespace FishSocialOverlay
                 };
             }
 
-            PlaceAnchoredRoot(frames, byId, "btn_pan_left", viewW, viewH, "left", "vcenter");
-            PlaceAnchoredRoot(frames, byId, "btn_pan_right", viewW, viewH, "right", "vcenter");
-            if (byId.TryGetValue("txt_error", out var error) &&
-                frames.TryGetValue("dock_fishing", out var errorFish) &&
-                fish != null)
+            PlaceAnchoredRoot(frames, byId, "btn_pan_left", viewW, viewH, "left", "scene");
+            PlaceAnchoredRoot(frames, byId, "btn_pan_right", viewW, viewH, "right", "scene");
+            if (byId.TryGetValue("txt_error", out var error))
             {
                 frames["txt_error"] = new HudFrame
                 {
-                    X = errorFish.X + (error.x - fish.x),
-                    Y = errorFish.Y + (error.y - fish.y),
-                    W = error.w,
-                    H = error.h,
+                    X = 16,
+                    Y = 16,
+                    W = Math.Max(120, viewW - 32),
+                    H = error.h > 0.5 ? error.h : 24,
                 };
-            }
-            else
-            {
-                PlaceAnchoredRoot(frames, byId, "txt_error", viewW, viewH, "center", "bottom");
             }
 
             if (byId.TryGetValue("txt_groundbait", out var bait) &&
@@ -624,6 +618,8 @@ namespace FishSocialOverlay
                 y = viewH - bottom - widget.h;
             else if (string.Equals(vertical, "vcenter", StringComparison.Ordinal))
                 y = (viewH - widget.h) / 2.0;
+            else if (string.Equals(vertical, "scene", StringComparison.Ordinal))
+                y = Math.Max(12, (viewH - 80.0 - widget.h) / 2.0);
 
             frames[id] = new HudFrame
             {
@@ -1407,11 +1403,34 @@ namespace FishSocialOverlay
             if (!File.Exists(spritePath))
                 return;
 
+            if (OverlayNineSlice.IsValid(widget.spriteSlice) &&
+                string.Equals(widget.id, "dock_chat", StringComparison.Ordinal) &&
+                element is Border)
+                return;
+
             if (OverlayNineSlice.IsValid(widget.spriteSlice))
             {
-                // Nine-slice panels (e.g. dock_chat) render in EnsureChatDockHost.
-                if (element is Border)
-                    return;
+                var width = element.Width > 1 ? element.Width : widget.w;
+                var height = element.Height > 1 ? element.Height : widget.h;
+                var sliced = OverlayNineSlice.TryGetBrush(
+                    LoadBitmapSource(hudRoot, widget.sprite),
+                    widget.spriteSlice,
+                    width,
+                    height);
+                if (sliced != null)
+                {
+                    if (element is Control slicedControl)
+                    {
+                        slicedControl.Background = sliced;
+                        return;
+                    }
+
+                    if (element is Border slicedBorder)
+                    {
+                        slicedBorder.Background = sliced;
+                        return;
+                    }
+                }
             }
 
             if (!_spriteCache.TryGetValue(spritePath, out var brush))

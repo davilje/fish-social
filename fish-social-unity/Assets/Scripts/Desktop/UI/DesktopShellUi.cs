@@ -10,10 +10,15 @@ using FishSocial.Desktop.Social;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Runtime-built UGUI shell: 480×320 login, 1280×720 main with bottom nav and feature tabs.
+    /// Login stays on a 480×320 canvas. The main shell is a 1280×720 reference
+    /// with a 64px header and a 40px row of five tabs. Map, bag, feed, and rank
+    /// stay on the product menu and on the pages that already own them.
     /// </summary>
     public sealed class DesktopShellUi : MonoBehaviour, IDesktopProductMenuHandler
     {
+        const float HeaderHeight = 64f;
+        const float TabHeight = 40f;
+
         PanelRouter _router;
         CanvasScaler _scaler;
         GameObject _loginRoot;
@@ -47,6 +52,7 @@ namespace FishSocial.Desktop
         DesktopSocialFeedPanel _socialFeedPanel;
         DesktopLeaderboardPanel _leaderboardPanel;
         readonly List<Button> _lockableNavButtons = new List<Button>();
+        readonly Dictionary<ShellPanelId, Button> _tabs = new Dictionary<ShellPanelId, Button>();
         bool _onboardingLock;
         bool _suppressInventoryToast;
         Transform _settlementCanvas;
@@ -165,6 +171,7 @@ namespace FishSocial.Desktop
                 toastRt.sizeDelta = new Vector2(0f, 44f);
                 _toast.alignment = TextAnchor.MiddleCenter;
                 _toast.gameObject.SetActive(false);
+                ApplyShellFrame();
             }
 
             _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
@@ -229,7 +236,7 @@ namespace FishSocial.Desktop
             var header = _mainRoot.transform.Find("Header");
             if (header != null)
             {
-                BindSquarePet(header, "HeaderPet", new Vector2(16, -16), 48, false);
+                BindSquarePet(header, "HeaderPet", new Vector2(8, -8), 40, false);
                 _statusPet = header.Find("PetStatus")?.GetComponent<Text>();
                 _statusLogin = header.Find("LoginStatus")?.GetComponent<Text>();
                 _statusConnection = header.Find("ConnStatus")?.GetComponent<Text>();
@@ -277,6 +284,8 @@ namespace FishSocial.Desktop
 
             _mainRoot.SetActive(false);
             _loginRoot.SetActive(true);
+            ApplyLoginFrame();
+            ApplyShellFrame();
             return true;
         }
 
@@ -333,7 +342,6 @@ namespace FishSocial.Desktop
                 new Vector2(0, 70), new Vector2(400, 36));
             _loginStatus = CreateText(go.transform, "LoginHint", "请使用 Steam 登录", 16, TextAnchor.MiddleCenter,
                 new Vector2(0, 24), new Vector2(400, 48));
-            _loginStatus.color = new Color(0.78f, 0.84f, 0.9f, 1f);
             CreateCenteredButton(go.transform, "SteamLogin", "Steam 登录",
                 new Vector2(0, -36), new Vector2(200, 44), BeginSteamLogin);
         }
@@ -395,6 +403,339 @@ namespace FishSocial.Desktop
             RegisterPanel(content.transform, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
             RegisterPanel(content.transform, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
             RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettingsPanel);
+            ApplyLoginFrame();
+            ApplyShellFrame();
+        }
+
+        void ApplyLoginFrame()
+        {
+            if (_loginRoot == null)
+                return;
+            var paper = _loginRoot.GetComponent<Image>();
+            if (paper != null)
+                paper.color = CatTheme.Cream;
+            var layout = _loginRoot.GetComponent<VerticalLayoutGroup>();
+            if (layout == null)
+                layout = _loginRoot.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(24, 24, 24, 24);
+            layout.spacing = 16f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+            SetPreferred(_loginRoot.transform, "Brand", 360f, 36f);
+            SetPreferred(_loginRoot.transform, "LoginHint", 360f, 48f);
+            SetPreferred(_loginRoot.transform, "SteamLogin", 200f, 44f);
+            Paint(_loginRoot.transform, "Brand", CatTheme.Ink);
+            Paint(_loginRoot.transform, "LoginHint", CatTheme.Ink);
+            var steam = _loginRoot.transform.Find("SteamLogin");
+            if (steam != null)
+            {
+                CatTheme.ApplyPlate(steam.GetComponent<Image>(), "btn-coral");
+                Paint(steam, "Label", CatTheme.Cream);
+            }
+        }
+
+        void ApplyShellFrame()
+        {
+            if (_mainRoot == null)
+                return;
+
+            var paper = _mainRoot.GetComponent<Image>();
+            if (paper != null)
+                paper.color = CatTheme.Cream;
+
+            var header = _mainRoot.transform.Find("Header") as RectTransform;
+            var nav = _mainRoot.transform.Find("Nav") as RectTransform;
+            var content = _mainRoot.transform.Find("Content") as RectTransform;
+            if (header != null)
+            {
+                var headerImage = header.GetComponent<Image>();
+                if (headerImage != null)
+                    headerImage.color = CatTheme.Teal;
+                header.anchorMin = new Vector2(0f, 1f);
+                header.anchorMax = new Vector2(1f, 1f);
+                header.pivot = new Vector2(0.5f, 1f);
+                header.offsetMin = new Vector2(0f, -HeaderHeight);
+                header.offsetMax = Vector2.zero;
+                var pet = header.Find("HeaderPetSlot") as RectTransform;
+                if (pet != null)
+                {
+                    pet.anchoredPosition = new Vector2(12f, -12f);
+                    pet.sizeDelta = new Vector2(40f, 40f);
+                }
+
+                SetShown(header, "Title", false);
+                SetShown(header, "LoginStatus", false);
+                PlaceHeaderLine(header, "PetStatus", 64f, 20f, 420f, 24f, TextAnchor.MiddleLeft);
+                PlaceHeaderLine(header, "ConnStatus", -392f, 20f, 160f, 24f, TextAnchor.MiddleRight);
+                PlaceHeaderLine(header, "PondStatus", -224f, 20f, 160f, 24f, TextAnchor.MiddleRight);
+            }
+
+            if (nav != null)
+            {
+                var settings = FindDirect(nav, "设置") ?? (header != null ? FindDirect(header, "设置") : null);
+                if (settings != null && header != null && settings.parent != header)
+                    settings.SetParent(header, false);
+                if (settings != null)
+                    PlaceSettingsButton(settings);
+
+                nav.anchorMin = new Vector2(0f, 1f);
+                nav.anchorMax = new Vector2(1f, 1f);
+                nav.pivot = new Vector2(0.5f, 1f);
+                nav.offsetMin = new Vector2(0f, -(HeaderHeight + TabHeight));
+                nav.offsetMax = new Vector2(0f, -HeaderHeight);
+                var navImage = nav.GetComponent<Image>();
+                if (navImage != null)
+                    navImage.color = CatTheme.Cream;
+                var existingHorizontal = nav.GetComponent<HorizontalLayoutGroup>();
+                if (existingHorizontal != null)
+                    DestroyImmediate(existingHorizontal);
+                var existingVertical = nav.GetComponent<VerticalLayoutGroup>();
+                if (existingVertical != null)
+                    DestroyImmediate(existingVertical);
+                var tabs = nav.gameObject.AddComponent<HorizontalLayoutGroup>();
+                tabs.padding = new RectOffset(16, 16, 0, 0);
+                tabs.spacing = 8f;
+                tabs.childAlignment = TextAnchor.MiddleLeft;
+                tabs.childControlWidth = true;
+                tabs.childControlHeight = true;
+                tabs.childForceExpandWidth = false;
+                tabs.childForceExpandHeight = true;
+                StyleTabRow(nav);
+            }
+
+            if (content != null)
+            {
+                var contentImage = content.GetComponent<Image>();
+                if (contentImage != null)
+                    contentImage.color = CatTheme.Cream;
+                content.anchorMin = Vector2.zero;
+                content.anchorMax = Vector2.one;
+                content.offsetMin = Vector2.zero;
+                content.offsetMax = new Vector2(0f, -(HeaderHeight + TabHeight));
+            }
+
+            if (_toast != null)
+            {
+                var toastRt = _toast.rectTransform;
+                toastRt.anchorMin = new Vector2(0f, 0f);
+                toastRt.anchorMax = new Vector2(1f, 0f);
+                toastRt.pivot = new Vector2(0.5f, 0f);
+                toastRt.offsetMin = new Vector2(16f, 16f);
+                toastRt.offsetMax = new Vector2(-16f, 60f);
+                _toast.color = CatTheme.Coral;
+            }
+
+            HighlightTab(ShellPanelId.Home);
+        }
+
+        void StyleTabRow(Transform nav)
+        {
+            _tabs.Clear();
+            var ordered = new List<Transform>();
+            for (var i = 0; i < nav.childCount; i++)
+            {
+                var child = nav.GetChild(i);
+                if (IsSecondaryNav(child.name))
+                {
+                    child.gameObject.SetActive(false);
+                    continue;
+                }
+
+                child.gameObject.SetActive(true);
+                ordered.Add(child);
+            }
+
+            ordered.Sort((a, b) => TabOrder(a.name).CompareTo(TabOrder(b.name)));
+            for (var i = 0; i < ordered.Count; i++)
+            {
+                var child = ordered[i];
+                child.SetSiblingIndex(i);
+                var element = child.GetComponent<LayoutElement>();
+                if (element == null)
+                    element = child.gameObject.AddComponent<LayoutElement>();
+                element.preferredWidth = 112f;
+                element.preferredHeight = TabHeight;
+                element.flexibleWidth = 0f;
+                element.flexibleHeight = 0f;
+                CatTheme.ApplyPlate(child.GetComponent<Image>(), "tab");
+                var label = child.Find("Label")?.GetComponent<Text>();
+                if (label != null)
+                {
+                    label.text = TabLabel(child.name);
+                    label.fontSize = 16;
+                    label.color = CatTheme.Ink;
+                }
+
+                if (TabPanel(child.name, out var panel))
+                {
+                    var button = child.GetComponent<Button>();
+                    if (button != null)
+                        _tabs[panel] = button;
+                }
+            }
+        }
+
+        static void PlaceSettingsButton(Transform settings)
+        {
+            var rt = settings as RectTransform;
+            if (rt == null)
+                return;
+            var element = settings.GetComponent<LayoutElement>();
+            if (element != null)
+                DestroyImmediate(element);
+            rt.anchorMin = new Vector2(1f, 1f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-12f, -12f);
+            rt.sizeDelta = new Vector2(40f, 40f);
+            CatTheme.ApplyIcon(settings.GetComponent<Image>(), "icon-settings");
+            var label = settings.Find("Label");
+            if (label != null)
+                label.gameObject.SetActive(false);
+        }
+
+        static bool IsSecondaryNav(string name)
+        {
+            return name == "世界地图" || name == "鱼获背包" || name == "鱼获/背包"
+                || name == "动态" || name == "排行榜";
+        }
+
+        static int TabOrder(string name)
+        {
+            if (name == "主页")
+                return 0;
+            if (name == "鱼塘")
+                return 1;
+            if (name == "好友聊天" || name == "好友/聊天")
+                return 2;
+            if (name == "商店")
+                return 3;
+            if (name == "个人中心")
+                return 4;
+            return 8;
+        }
+
+        static string TabLabel(string name)
+        {
+            if (name == "主页")
+                return "首页";
+            if (name == "好友聊天" || name == "好友/聊天")
+                return "好友";
+            if (name == "个人中心")
+                return "我的";
+            return name;
+        }
+
+        static bool TabPanel(string name, out ShellPanelId panel)
+        {
+            switch (name)
+            {
+                case "主页":
+                    panel = ShellPanelId.Home;
+                    return true;
+                case "鱼塘":
+                    panel = ShellPanelId.Pond;
+                    return true;
+                case "好友聊天":
+                case "好友/聊天":
+                    panel = ShellPanelId.Friends;
+                    return true;
+                case "商店":
+                    panel = ShellPanelId.Shop;
+                    return true;
+                case "个人中心":
+                    panel = ShellPanelId.Profile;
+                    return true;
+                default:
+                    panel = ShellPanelId.Home;
+                    return false;
+            }
+        }
+
+        void HighlightTab(ShellPanelId id)
+        {
+            var shown = id;
+            if (id == ShellPanelId.WorldMap)
+                shown = ShellPanelId.Pond;
+            else if (id == ShellPanelId.Gallery || id == ShellPanelId.ProfileEdit
+                || id == ShellPanelId.CatchBag || id == ShellPanelId.Leaderboard
+                || id == ShellPanelId.SocialFeed)
+                shown = ShellPanelId.Profile;
+            else if (id == ShellPanelId.Settings)
+                shown = (ShellPanelId)(-1);
+
+            foreach (var pair in _tabs)
+            {
+                var on = pair.Key == shown;
+                CatTheme.ApplyPlate(pair.Value.GetComponent<Image>(), on ? "tab-on" : "tab");
+                var label = pair.Value.transform.Find("Label")?.GetComponent<Text>();
+                if (label != null)
+                    label.color = on ? CatTheme.Cream : CatTheme.Ink;
+            }
+        }
+
+        static Transform FindDirect(Transform parent, string name)
+        {
+            if (parent == null)
+                return null;
+            for (var i = 0; i < parent.childCount; i++)
+            {
+                var child = parent.GetChild(i);
+                if (child != null && child.name == name)
+                    return child;
+            }
+
+            return null;
+        }
+
+        static void SetShown(Transform parent, string name, bool shown)
+        {
+            var node = parent != null ? parent.Find(name) : null;
+            if (node != null)
+                node.gameObject.SetActive(shown);
+        }
+
+        static void Paint(Transform parent, string name, Color color)
+        {
+            var text = parent != null ? parent.Find(name)?.GetComponent<Text>() : null;
+            if (text != null)
+                text.color = color;
+        }
+
+        static void PlaceHeaderLine(
+            Transform header, string name, float x, float y, float width, float height, TextAnchor align)
+        {
+            var node = header.Find(name) as RectTransform;
+            if (node == null)
+                return;
+            var right = align == TextAnchor.MiddleRight;
+            node.anchorMin = new Vector2(right ? 1f : 0f, 1f);
+            node.anchorMax = node.anchorMin;
+            node.pivot = new Vector2(right ? 1f : 0f, 1f);
+            node.anchoredPosition = new Vector2(x, -y);
+            node.sizeDelta = new Vector2(width, height);
+            var text = node.GetComponent<Text>();
+            if (text == null)
+                return;
+            text.alignment = align;
+            text.fontSize = 14;
+            text.color = CatTheme.Cream;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+        }
+
+        static void SetPreferred(Transform parent, string name, float width, float height)
+        {
+            var node = parent.Find(name);
+            if (node == null)
+                return;
+            var element = node.GetComponent<LayoutElement>();
+            if (element == null)
+                element = node.gameObject.AddComponent<LayoutElement>();
+            element.preferredWidth = width;
+            element.preferredHeight = height;
         }
 
         void EnterMainShell()
@@ -506,6 +847,7 @@ namespace FishSocial.Desktop
 
         void OnPanelChanged(ShellPanelId id)
         {
+            HighlightTab(id);
             _productMenu?.Hide();
             _socialPanel?.OnClosed();
             _catchPanel?.OnClosed();
@@ -615,17 +957,49 @@ namespace FishSocial.Desktop
 
         void BuildHome(GameObject go)
         {
-            CreateText(go.transform, "H1", "桌面宠物", 28, TextAnchor.UpperLeft,
-                new Vector2(32, -24), new Vector2(400, 40));
-            BindSquarePet(go.transform, "HomePet", new Vector2(0, 36), 256, true);
+            var column = go.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(24, 24, 24, 24);
+            column.spacing = 16f;
+            column.childAlignment = TextAnchor.UpperCenter;
+            column.childControlWidth = true;
+            column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+
+            var title = CreateText(go.transform, "H1", "桌面宠物", 28, TextAnchor.MiddleCenter,
+                Vector2.zero, new Vector2(400, 40));
+            title.alignment = TextAnchor.MiddleCenter;
+            SetPreferred(go.transform, "H1", 400f, 40f);
+
+            var stage = new GameObject("PetStage", typeof(RectTransform), typeof(LayoutElement));
+            stage.transform.SetParent(go.transform, false);
+            var stageElement = stage.GetComponent<LayoutElement>();
+            stageElement.minHeight = 160f;
+            stageElement.preferredHeight = 280f;
+            stageElement.flexibleHeight = 1f;
+            var horizon = new GameObject("Horizon", typeof(RectTransform), typeof(Image));
+            horizon.transform.SetParent(stage.transform, false);
+            var horizonRt = horizon.GetComponent<RectTransform>();
+            horizonRt.anchorMin = new Vector2(0.5f, 0f);
+            horizonRt.anchorMax = new Vector2(0.5f, 0f);
+            horizonRt.pivot = new Vector2(0.5f, 0f);
+            horizonRt.anchoredPosition = new Vector2(0f, 28f);
+            horizonRt.sizeDelta = new Vector2(360f, 8f);
+            horizon.GetComponent<Image>().color = CatTheme.Teal;
+            BindSquarePet(stage.transform, "HomePet", new Vector2(0f, -16f), 220f, true);
+
             _petStateLabel = CreateText(go.transform, "SessionState", "宠物状态：离线", 20,
-                TextAnchor.MiddleCenter, new Vector2(0, -140), new Vector2(480, 32));
+                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(480, 32));
+            _petStateLabel.alignment = TextAnchor.MiddleCenter;
+            SetPreferred(go.transform, "SessionState", 480f, 32f);
             _petPond = CreateText(go.transform, "CurrentPond", "当前鱼塘：未进入", 16,
-                TextAnchor.MiddleCenter, new Vector2(0, -172), new Vector2(480, 28));
-            CreateBottomCenteredButton(go.transform, "OpenPond", "进入 / 恢复鱼塘",
-                20f, new Vector2(220, 44), OpenPond);
-            CreateBottomCenteredButton(go.transform, "SessionCheck", "验证当前会话",
-                72f, new Vector2(180, 36), ValidateCurrentSession);
+                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(480, 28));
+            _petPond.alignment = TextAnchor.MiddleCenter;
+            SetPreferred(go.transform, "CurrentPond", 480f, 28f);
+
+            var actions = CreateActionRow(go.transform, "HomeActions");
+            CreateRowButton(actions.transform, "OpenPond", "进入鱼塘", new Vector2(200, 44), OpenPond, true);
+            CreateRowButton(actions.transform, "SessionCheck", "验证当前会话", new Vector2(160, 40), ValidateCurrentSession);
         }
 
         void OpenPond()
@@ -906,24 +1280,79 @@ namespace FishSocial.Desktop
 
         void BuildPond(GameObject go)
         {
-            CreateText(go.transform, "P1", "鱼塘（会话工具）", 28, TextAnchor.UpperLeft,
-                new Vector2(32, -24), new Vector2(600, 40));
+            var column = go.AddComponent<VerticalLayoutGroup>();
+            column.padding = new RectOffset(24, 24, 24, 24);
+            column.spacing = 16f;
+            column.childAlignment = TextAnchor.UpperLeft;
+            column.childControlWidth = true;
+            column.childControlHeight = true;
+            column.childForceExpandWidth = true;
+            column.childForceExpandHeight = false;
+
+            var title = CreateText(go.transform, "P1", "鱼塘", 28, TextAnchor.MiddleLeft,
+                Vector2.zero, new Vector2(600, 40));
+            title.alignment = TextAnchor.MiddleLeft;
+            SetPreferred(go.transform, "P1", 600f, 40f);
             _pondStatus = CreateText(go.transform, "P2",
                 "鱼塘场景在 960×560 Overlay 中渲染。本页只操作会话，打开主界面不会离塘。\n\n连接：未连接 · 当前 phase：—",
-                18, TextAnchor.UpperLeft, new Vector2(32, -80), new Vector2(900, 140));
+                16, TextAnchor.UpperLeft, Vector2.zero, new Vector2(640, 96));
+            _pondStatus.alignment = TextAnchor.UpperLeft;
             _pondStatus.verticalOverflow = VerticalWrapMode.Truncate;
-            CreateButton(go.transform, "ConnectPond", "连接并进塘", new Vector2(32, -240), new Vector2(180, 46),
+            SetPreferred(go.transform, "P2", 640f, 96f);
+
+            var primary = CreateActionRow(go.transform, "PondActions");
+            CreateRowButton(primary.transform, "SelectPond", "选塘", new Vector2(140, 44),
+                () => ShowMainPanel(ShellPanelId.WorldMap));
+            CreateRowButton(primary.transform, "EnterOverlay", "进入鱼塘", new Vector2(180, 44), OpenPond, true);
+
+            var secondary = CreateActionRow(go.transform, "PondNav");
+            CreateRowButton(secondary.transform, "ConnectPond", "连接并进塘", new Vector2(160, 44),
                 () => _pondSession?.ConnectAndJoin());
-            CreateButton(go.transform, "TakeSpot", "选择 1 号钓位", new Vector2(228, -240), new Vector2(190, 46),
+            CreateRowButton(secondary.transform, "TakeSpot", "选择 1 号钓位", new Vector2(160, 44),
                 () => _pondSession?.TakeFirstSpot(ShowSocketResult));
-            CreateButton(go.transform, "StartFishing", "开始钓鱼", new Vector2(434, -240), new Vector2(150, 46),
+            CreateRowButton(secondary.transform, "StartFishing", "开始钓鱼", new Vector2(120, 44),
                 () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult));
-            CreateButton(go.transform, "StopFishing", "收杆", new Vector2(600, -240), new Vector2(150, 46),
+            CreateRowButton(secondary.transform, "StopFishing", "收杆", new Vector2(120, 44),
                 () => _pondSession?.StopFishing(ShowSocketResult));
-            CreateButton(go.transform, "ReturnHome", "返回主视图", new Vector2(32, -304), new Vector2(180, 46),
-                ReturnToPetHome);
-            CreateButton(go.transform, "EnterOverlay", "进入 / 恢复鱼塘", new Vector2(228, -304), new Vector2(220, 46),
-                OpenPond);
+            CreateRowButton(secondary.transform, "ReturnHome", "返回主页", new Vector2(120, 44), ReturnToPetHome);
+        }
+
+        static GameObject CreateActionRow(Transform parent, string name)
+        {
+            var row = new GameObject(name, typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+            row.transform.SetParent(parent, false);
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8f;
+            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+            var element = row.GetComponent<LayoutElement>();
+            element.preferredHeight = 44f;
+            element.minHeight = 44f;
+            return row;
+        }
+
+        static void CreateRowButton(
+            Transform parent, string name, string label, Vector2 size, UnityEngine.Events.UnityAction onClick, bool coral = false)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            go.transform.SetParent(parent, false);
+            var element = go.GetComponent<LayoutElement>();
+            element.preferredWidth = size.x;
+            element.preferredHeight = size.y;
+            CatTheme.ApplyPlate(go.GetComponent<Image>(), coral ? "btn-coral" : "btn-cream");
+            var text = CreateText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, size);
+            var tr = text.GetComponent<RectTransform>();
+            tr.anchorMin = Vector2.zero;
+            tr.anchorMax = Vector2.one;
+            tr.offsetMin = Vector2.zero;
+            tr.offsetMax = Vector2.zero;
+            tr.pivot = new Vector2(0.5f, 0.5f);
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = coral ? CatTheme.Cream : CatTheme.Ink;
+            go.GetComponent<Button>().onClick.AddListener(onClick);
         }
 
         void BuildWorldMap(GameObject go)
@@ -1016,7 +1445,7 @@ namespace FishSocial.Desktop
             var slot = new GameObject(name + "Slot", typeof(RectTransform));
             slot.transform.SetParent(parent, false);
             var slotRt = slot.GetComponent<RectTransform>();
-            if (Mathf.Approximately(size, 256f))
+            if (enableDrag)
             {
                 slotRt.anchorMin = new Vector2(0.5f, 0.5f);
                 slotRt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -1147,7 +1576,7 @@ namespace FishSocial.Desktop
             text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             text.text = content;
             text.fontSize = size;
-            text.color = Color.white;
+            text.color = CatTheme.Ink;
             text.alignment = TextAnchor.UpperLeft;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;

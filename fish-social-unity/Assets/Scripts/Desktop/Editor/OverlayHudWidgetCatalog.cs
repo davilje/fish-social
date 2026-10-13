@@ -74,7 +74,7 @@ namespace FishSocial.Desktop.Editor
 
             // ── 右侧竖条 ──
 
-            new HudWidgetSpec("menu_rail", "group", 876, 217, 152, 328, true, null),
+            new HudWidgetSpec("menu_rail", "group", 908, 16, 40, 400, true, null),
 
             new HudWidgetSpec("btn_menu_settings", "button", 0, 0, 70, 32, false, "menu_rail"),
 
@@ -88,9 +88,9 @@ namespace FishSocial.Desktop.Editor
 
             new HudWidgetSpec("btn_menu_leaderboard", "button", 0, 185, 70, 32, false, "menu_rail"),
 
-            new HudWidgetSpec("btn_debug_police", "button", -82, 151, 70, 32, false, "menu_rail"),
+            new HudWidgetSpec("btn_debug_police", "button", 761, 420, 38, 40, false, null),
 
-            new HudWidgetSpec("btn_debug_gameplay", "button", -82, 196, 70, 32, false, "menu_rail"),
+            new HudWidgetSpec("btn_debug_gameplay", "button", 815, 420, 38, 40, false, null),
 
             new HudWidgetSpec("btn_menu_toggle", "button", 0, 222, 70, 32, true, "menu_rail"),
 
@@ -102,21 +102,21 @@ namespace FishSocial.Desktop.Editor
 
             // ── 状态胶囊 ──
 
-            new HudWidgetSpec("cap_status", "panel", 733, 458, 134, 88, true, null),
+            new HudWidgetSpec("cap_status", "panel", 752, 488, 148, 60, true, null),
 
-            new HudWidgetSpec("txt_status", "text", 6, 6, 78, 18, true, "cap_status"),
+            new HudWidgetSpec("txt_status", "text", 6, 4, 136, 16, true, "cap_status"),
 
-            new HudWidgetSpec("txt_pond", "text", 6, 26, 78, 16, true, "cap_status"),
+            new HudWidgetSpec("txt_pond", "text", 6, 22, 136, 16, true, "cap_status"),
 
-            new HudWidgetSpec("txt_spot", "text", 6, 44, 78, 16, true, "cap_status"),
+            new HudWidgetSpec("txt_spot", "text", 6, 40, 136, 16, true, "cap_status"),
 
-            new HudWidgetSpec("txt_error", "text", 371, 484, 218, 22, true, null),
+            new HudWidgetSpec("txt_error", "text", 12, 12, 936, 28, true, null),
 
 
 
             // ── 底部钓鱼条 ──
 
-            new HudWidgetSpec("dock_fishing", "group", 371, 506, 218, 40, true, null),
+            new HudWidgetSpec("dock_fishing", "group", 371, 508, 218, 40, true, null),
 
             new HudWidgetSpec("btn_fishing_toggle", "button", 0, 0, 70, 32, true, "dock_fishing"),
 
@@ -128,21 +128,21 @@ namespace FishSocial.Desktop.Editor
 
             // ── 打窝说明（独立控件，非 dock_fishing 子节点）──
 
-            new HudWidgetSpec("txt_groundbait", "text", 611, 491, 104, 58, false, null),
+            new HudWidgetSpec("txt_groundbait", "text", 354, 442, 104, 58, false, null),
 
 
 
             // ── 场景横移箭头（视口左右，默认隐藏；宽场景由 Overlay 显示）──
 
-            new HudWidgetSpec("btn_pan_left", "button", 8, 248, 36, 64, false, null),
+            new HudWidgetSpec("btn_pan_left", "button", 12, 212, 36, 64, false, null),
 
-            new HudWidgetSpec("btn_pan_right", "button", 916, 248, 36, 64, false, null),
+            new HudWidgetSpec("btn_pan_right", "button", 912, 212, 36, 64, false, null),
 
 
 
             // ── 聊天底栏：dock_chat.h = 折叠高度（九宫底板）；展开高 = 子控件 y+h 最大；底边固定向上长 ──
 
-            new HudWidgetSpec("dock_chat", "panel", 23, 506, 272, 45, true, null),
+            new HudWidgetSpec("dock_chat", "panel", 12, 500, 288, 48, true, null),
 
             new HudWidgetSpec("chat_preview", "text", 22, 12, 212, 24, true, "dock_chat"),
 

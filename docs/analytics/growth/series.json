@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-11T16:30:03.386Z",
+  "generatedAt": "2026-10-12T16:30:03.332Z",
   "timezone": "Asia/Shanghai",
   "rulesVersion": "v0.4.1",
-  "asOf": "2026-10-11",
+  "asOf": "2026-10-12",
   "dayCount": 90,
   "humansOnly": true,
   "kpiCards": {
@@ -13,18 +13,18 @@
     },
     "dau": {
       "value": 1,
-      "prev": 0,
-      "deltaPct": null
+      "prev": 1,
+      "deltaPct": 0
     },
     "fishing_dau": {
       "value": 1,
-      "prev": 0,
-      "deltaPct": null
+      "prev": 1,
+      "deltaPct": 0
     },
     "wau": {
       "value": 1,
-      "prev": 0,
-      "deltaPct": null
+      "prev": 1,
+      "deltaPct": 0
     },
     "mau": {
       "value": 1,
@@ -33,43 +33,16 @@
     },
     "stickiness": {
       "value": 1,
-      "prev": 0,
-      "deltaPct": null
+      "prev": 1,
+      "deltaPct": 0
     },
     "nu_share": {
       "value": 0,
-      "prev": null,
+      "prev": 0,
       "deltaPct": null
     }
   },
   "days": [
-    {
-      "date": "2026-07-14",
-      "nu": 0,
-      "dau": 0,
-      "fishing_dau": 0,
-      "wau": 0,
-      "mau": 0,
-      "nu_share": null,
-      "stickiness": null,
-      "daily_catch": 0,
-      "daily_catch_human": 0,
-      "daily_catch_bot": 0,
-      "catch_per_fisher": null,
-      "avg_session_ms": null,
-      "disconnect_rate": null,
-      "abandon_rate": null,
-      "escape_rate": null,
-      "join_fail_rate": null,
-      "avg_pop_ratio": null,
-      "funnel": {
-        "nu": 0,
-        "join": 0,
-        "fishing_start": 0,
-        "bite_hook": 0,
-        "catch": 0
-      }
-    },
     {
       "date": "2026-07-15",
       "nu": 0,
@@ -2465,6 +2438,33 @@
       "escape_rate": 0.1364,
       "join_fail_rate": 0,
       "avg_pop_ratio": 117.4,
+      "funnel": {
+        "nu": 0,
+        "join": 0,
+        "fishing_start": 0,
+        "bite_hook": 0,
+        "catch": 0
+      }
+    },
+    {
+      "date": "2026-10-12",
+      "nu": 0,
+      "dau": 1,
+      "fishing_dau": 1,
+      "wau": 1,
+      "mau": 1,
+      "nu_share": 0,
+      "stickiness": 1,
+      "daily_catch": 62,
+      "daily_catch_human": 0,
+      "daily_catch_bot": 62,
+      "catch_per_fisher": 0,
+      "avg_session_ms": null,
+      "disconnect_rate": 0,
+      "abandon_rate": 1,
+      "escape_rate": 0.1389,
+      "join_fail_rate": 0,
+      "avg_pop_ratio": 113.9,
       "funnel": {
         "nu": 0,
         "join": 0,

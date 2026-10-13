@@ -717,55 +717,8 @@ namespace FishSocial.Desktop
 
         void BuildFallbackUi()
         {
-            var root = GetComponent<RectTransform>();
-            if (root.GetComponent<Image>() == null)
-                root.gameObject.AddComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
-            var header = NewRect("Header", root);
-            header.anchorMin = new Vector2(0f, 0.82f);
-            header.anchorMax = Vector2.one;
-            header.offsetMin = new Vector2(20f, 0f);
-            header.offsetMax = new Vector2(-20f, -12f);
-            _coins = CreateText(header, "Coins", "金币：0", 20);
-            Place(_coins.rectTransform, 0f, 0.5f, 0.45f, 1f);
-            _equipped = CreateText(header, "Equipped", "钓竿：无    钓鱼等级：1", 14);
-            Place(_equipped.rectTransform, 0.45f, 0.5f, 1f, 1f);
-            var tabs = NewRect("Tabs", root);
-            Place(tabs, 0f, 0.72f, 1f, 0.82f);
-            _baitTab = CreateButton(tabs, "Bait", "鱼饵");
-            _tackleTab = CreateButton(tabs, "Tackle", "钓竿");
-            _vesselTab = CreateButton(tabs, "Vessel", "船具");
-            Place(_baitTab.transform as RectTransform, 0f, 0f, 0.33f, 1f);
-            Place(_tackleTab.transform as RectTransform, 0.33f, 0f, 0.66f, 1f);
-            Place(_vesselTab.transform as RectTransform, 0.66f, 0f, 1f, 1f);
-            _status = CreateText(root, "Status", string.Empty, 14);
-            Place(_status.rectTransform, 0f, 0.64f, 1f, 0.72f);
-            var items = NewRect("Items", root);
-            Place(items, 0.04f, 0.08f, 0.48f, 0.62f);
-            var viewport = NewRect("Viewport", items);
-            Stretch(viewport);
-            viewport.gameObject.AddComponent<RectMask2D>();
-            _content = NewRect("Content", viewport);
-            _content.anchorMin = new Vector2(0f, 1f);
-            _content.anchorMax = new Vector2(1f, 1f);
-            _content.pivot = new Vector2(0.5f, 1f);
-            _content.offsetMin = Vector2.zero;
-            _content.offsetMax = Vector2.zero;
-            var layout = _content.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 6f;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            _content.gameObject.AddComponent<ContentSizeFitter>().verticalFit =
-                ContentSizeFitter.FitMode.PreferredSize;
-            var details = NewRect("Details", root);
-            Place(details, 0.54f, 0.08f, 0.96f, 0.62f);
-            _details = CreateText(details, "Description", "请选择商品查看详情。", 18);
-            Place(_details.rectTransform, 0f, 0.35f, 1f, 1f);
-            _buy = CreateButton(details, "Buy", "购买");
-            Place(_buy.transform as RectTransform, 0.04f, 0f, 0.46f, 0.24f);
-            _equip = CreateButton(details, "Equip", "装备");
-            Place(_equip.transform as RectTransform, 0.54f, 0f, 0.96f, 0.24f);
-            _retry = CreateButton(details, "Retry", "重试");
-            Place(_retry.transform as RectTransform, 0.04f, 0.25f, 0.96f, 0.34f);
+            Debug.LogError("[DesktopUI] Prefab is missing required controls. Runtime will not build a second layout.");
+            return;
         }
 
         static Button CreateButton(Transform parent, string name, string text)

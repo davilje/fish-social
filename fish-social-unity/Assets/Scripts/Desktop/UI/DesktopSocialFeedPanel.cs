@@ -357,61 +357,8 @@ namespace FishSocial.Desktop
 
         void BuildFallbackUi()
         {
-            var header = new GameObject("Header", typeof(RectTransform), typeof(HorizontalLayoutGroup));
-            header.transform.SetParent(transform, false);
-            var headerRt = header.GetComponent<RectTransform>();
-            headerRt.anchorMin = new Vector2(0, 1);
-            headerRt.anchorMax = new Vector2(1, 1);
-            headerRt.pivot = new Vector2(.5f, 1);
-            headerRt.sizeDelta = new Vector2(0, 48);
-            _publicTab = AddButton(header.transform, "公共动态", 130);
-            _friendsTab = AddButton(header.transform, "好友动态", 130);
-            _publicTab.gameObject.name = "Public";
-            _friendsTab.gameObject.name = "Friends";
-
-            var statusGo = new GameObject("Status", typeof(RectTransform), typeof(Text));
-            statusGo.transform.SetParent(transform, false);
-            _status = statusGo.GetComponent<Text>();
-            _status.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            _status.fontSize = 16;
-            _status.color = Color.white;
-
-            var scroll = new GameObject("Scroll", typeof(RectTransform), typeof(ScrollRect),
-                typeof(Image));
-            scroll.transform.SetParent(transform, false);
-            scroll.GetComponent<Image>().color = new Color(0.05f, 0.07f, 0.10f, 1f);
-            var scrollRt = scroll.GetComponent<RectTransform>();
-            scrollRt.anchorMin = Vector2.zero;
-            scrollRt.anchorMax = Vector2.one;
-            scrollRt.offsetMin = new Vector2(12, 12);
-            scrollRt.offsetMax = new Vector2(-12, -56);
-            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
-            viewport.transform.SetParent(scroll.transform, false);
-            var viewportRt = viewport.GetComponent<RectTransform>();
-            viewportRt.anchorMin = Vector2.zero;
-            viewportRt.anchorMax = Vector2.one;
-            viewportRt.offsetMin = Vector2.zero;
-            viewportRt.offsetMax = Vector2.zero;
-            var content = new GameObject("Content", typeof(RectTransform),
-                typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-            content.transform.SetParent(viewport.transform, false);
-            _content = content.GetComponent<RectTransform>();
-            _content.anchorMin = new Vector2(0, 1);
-            _content.anchorMax = new Vector2(1, 1);
-            _content.pivot = new Vector2(.5f, 1);
-            _content.sizeDelta = new Vector2(0, 0);
-            var layout = content.GetComponent<VerticalLayoutGroup>();
-            layout.spacing = 10;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            var fitter = content.GetComponent<ContentSizeFitter>();
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var rect = scroll.GetComponent<ScrollRect>();
-            _scroll = rect;
-            rect.horizontal = false;
-            rect.vertical = true;
-            rect.viewport = viewportRt;
-            rect.content = _content;
+            Debug.LogError("[DesktopUI] Prefab is missing required controls. Runtime will not build a second layout.");
+            return;
         }
     }
 }

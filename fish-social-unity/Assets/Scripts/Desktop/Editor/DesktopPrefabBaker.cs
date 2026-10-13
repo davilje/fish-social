@@ -1713,7 +1713,7 @@ namespace FishSocial.Desktop.Editor
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = root.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(480f, 320f);
+            scaler.referenceResolution = new Vector2(1280f, 720f);
             scaler.matchWidthOrHeight = 0.5f;
 
             BuildShellLogin(root.transform);
@@ -1736,7 +1736,7 @@ namespace FishSocial.Desktop.Editor
             var login = new GameObject("LoginRoot", typeof(RectTransform), typeof(Image));
             login.transform.SetParent(canvas, false);
             Stretch(login.GetComponent<RectTransform>());
-            login.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+            login.GetComponent<Image>().color = new Color(0xE8 / 255f, 0xD5 / 255f, 0xA3 / 255f, 1f);
             ShellText(login.transform, "Brand", "Fish Social", 26, TextAnchor.MiddleCenter, new Vector2(0, 70), new Vector2(400, 36));
             ShellText(login.transform, "LoginHint", "请使用 Steam 登录", 16, TextAnchor.MiddleCenter, new Vector2(0, 24), new Vector2(400, 48));
             ShellButton(login.transform, "SteamLogin", "Steam 登录", new Vector2(0, -36), new Vector2(200, 44));
@@ -1747,43 +1747,47 @@ namespace FishSocial.Desktop.Editor
             var main = new GameObject("MainRoot", typeof(RectTransform), typeof(Image));
             main.transform.SetParent(canvas, false);
             Stretch(main.GetComponent<RectTransform>());
-            main.GetComponent<Image>().color = new Color(0.09f, 0.12f, 0.16f, 1f);
+            main.GetComponent<Image>().color = new Color(0xE8 / 255f, 0xD5 / 255f, 0xA3 / 255f, 1f);
             main.SetActive(false);
 
-            var header = ShellBar(main.transform, "Header", new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -80),
-                new Color(0.12f, 0.18f, 0.24f, 1f));
-            ShellText(header.transform, "Title", "Fish Social", 22, TextAnchor.MiddleLeft, new Vector2(76, -22), new Vector2(240, 28));
-            ShellText(header.transform, "PetStatus", "宠物：离线", 14, TextAnchor.MiddleLeft, new Vector2(76, -50), new Vector2(280, 22));
-            ShellText(header.transform, "LoginStatus", "登录：未登录", 14, TextAnchor.MiddleRight, new Vector2(-16, -14), new Vector2(320, 20));
-            ShellText(header.transform, "ConnStatus", "连接：离线", 14, TextAnchor.MiddleRight, new Vector2(-16, -34), new Vector2(320, 20));
-            ShellText(header.transform, "PondStatus", "鱼塘：未进入", 14, TextAnchor.MiddleRight, new Vector2(-16, -54), new Vector2(320, 20));
+            var header = ShellBar(main.transform, "Header", new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -64),
+                new Color(0x2A / 255f, 0x6F / 255f, 0x8F / 255f, 1f));
+            ShellText(header.transform, "Title", "Fish Social", 16, TextAnchor.MiddleLeft, new Vector2(64, -8), new Vector2(220, 22));
+            ShellText(header.transform, "PetStatus", "宠物：离线", 14, TextAnchor.MiddleLeft, new Vector2(64, -20), new Vector2(420, 24));
+            ShellText(header.transform, "LoginStatus", "登录：未登录", 14, TextAnchor.MiddleRight, new Vector2(-16, -8), new Vector2(320, 22));
+            ShellText(header.transform, "ConnStatus", "连接：离线", 14, TextAnchor.MiddleRight, new Vector2(-392, -20), new Vector2(160, 24));
+            ShellText(header.transform, "PondStatus", "鱼塘：未进入", 14, TextAnchor.MiddleRight, new Vector2(-224, -20), new Vector2(160, 24));
 
-            var nav = ShellBar(main.transform, "Nav", new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 64),
-                new Color(0.11f, 0.15f, 0.2f, 1f));
+            var nav = ShellBar(main.transform, "Nav", new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -40),
+                new Color(0xE8 / 255f, 0xD5 / 255f, 0xA3 / 255f, 1f));
             var navLayout = nav.AddComponent<HorizontalLayoutGroup>();
-            navLayout.padding = new RectOffset(12, 12, 8, 8);
+            navLayout.padding = new RectOffset(16, 16, 0, 0);
             navLayout.spacing = 8;
-            navLayout.childAlignment = TextAnchor.MiddleCenter;
+            navLayout.childAlignment = TextAnchor.MiddleLeft;
             navLayout.childControlHeight = true;
             navLayout.childControlWidth = true;
             navLayout.childForceExpandHeight = true;
-            navLayout.childForceExpandWidth = true;
+            navLayout.childForceExpandWidth = false;
+            var navRt = nav.GetComponent<RectTransform>();
+            navRt.pivot = new Vector2(0.5f, 1f);
+            navRt.offsetMin = new Vector2(0f, -104f);
+            navRt.offsetMax = new Vector2(0f, -64f);
             string[] navNames =
             {
-                "主页", "鱼塘", "世界地图", "商店", "好友聊天", "鱼获背包", "个人中心", "动态", "排行榜", "设置"
+                "主页", "鱼塘", "好友聊天", "商店", "个人中心", "世界地图", "鱼获背包", "动态", "排行榜", "设置"
             };
             string[] navLabels =
             {
-                "主页", "鱼塘", "世界地图", "商店", "好友/聊天", "鱼获/背包", "个人中心", "动态", "排行榜", "设置"
+                "首页", "鱼塘", "好友", "商店", "我的", "地图", "背包", "动态", "排行榜", "设置"
             };
             for (var i = 0; i < navNames.Length; i++)
                 ShellNavButton(nav.transform, navNames[i], navLabels[i]);
 
             var content = ShellBar(main.transform, "Content", new Vector2(0, 0), new Vector2(1, 1), Vector2.zero,
-                new Color(0.09f, 0.12f, 0.16f, 1f));
+                new Color(0xE8 / 255f, 0xD5 / 255f, 0xA3 / 255f, 1f));
             var contentRt = content.GetComponent<RectTransform>();
-            contentRt.offsetMin = new Vector2(0, 64);
-            contentRt.offsetMax = new Vector2(0, -80);
+            contentRt.offsetMin = Vector2.zero;
+            contentRt.offsetMax = new Vector2(0f, -104f);
         }
 
         static void BuildShellToast(Transform canvas)
@@ -1854,9 +1858,12 @@ namespace FishSocial.Desktop.Editor
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
-            go.GetComponent<LayoutElement>().flexibleWidth = 1f;
-            go.GetComponent<Image>().color = new Color(0.16f, 0.22f, 0.3f, 1f);
-            var t = ShellText(go.transform, "Label", label, 13, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(80, 40));
+            go.GetComponent<LayoutElement>().preferredHeight = 40f;
+            go.GetComponent<LayoutElement>().preferredWidth = 112f;
+            go.GetComponent<LayoutElement>().flexibleHeight = 0f;
+            go.GetComponent<LayoutElement>().flexibleWidth = 0f;
+            go.GetComponent<Image>().color = new Color(0xE8 / 255f, 0xD5 / 255f, 0xA3 / 255f, 1f);
+            var t = ShellText(go.transform, "Label", label, 16, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(112, 40));
             Stretch(t.rectTransform);
         }
 
