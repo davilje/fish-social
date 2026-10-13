@@ -15,7 +15,6 @@ using UnityEngine.UI;
 
 namespace FishSocial.Tests.Editor
 {
-    [NonParallelizable]
     public sealed class DesktopFishingAnimationTests
     {
         static readonly int[] Counts = { 1, 4, 1, 4, 4, 1, 4, 6, 10, 6, 7, 4, 6, 4 };
