@@ -1,0 +1,5675 @@
+{
+  "version": 18,
+  "frameSize": {
+    "width": 640,
+    "height": 512
+  },
+  "layerOrder": [
+    "cat",
+    "rod",
+    "hands",
+    "line",
+    "bobber",
+    "fish",
+    "bait",
+    "far_hand"
+  ],
+  "renderLayerOrder": [
+    "body",
+    "head",
+    "far_hand",
+    "rod",
+    "line",
+    "fish",
+    "hands",
+    "bobber",
+    "bait"
+  ],
+  "phaseOrder": [
+    "sit",
+    "ready",
+    "bait",
+    "cast",
+    "wait",
+    "bite",
+    "effort",
+    "retrieve",
+    "retrieve_empty",
+    "catch",
+    "reset_catch",
+    "reset_empty"
+  ],
+  "clips": {
+    "sit": {
+      "name": "站立到坐姿",
+      "frameCount": 4,
+      "durationMs": 480,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 0,
+          "stage": "空手站立，双手垂放",
+          "startMs": 0,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/sit/layers/rod/frame-00.png",
+            "line": "clips/sit/layers/line/frame-00.png",
+            "cat": "clips/sit/layers/cat/frame-00.png",
+            "fish": "clips/sit/layers/fish/frame-00.png",
+            "far_hand": "clips/sit/layers/far_hand/frame-00.png",
+            "hands": "clips/sit/layers/hands/frame-00.png",
+            "bobber": "clips/sit/layers/bobber/frame-00.png",
+            "bait": "clips/sit/layers/bait/frame-00.png",
+            "body": "clips/sit/layers/body/frame-00.png",
+            "head": "clips/sit/layers/head/frame-00.png"
+          },
+          "composite": "clips/sit/frames/frame-00.png",
+          "sourceCharacter": "clips/sit/source-character/frame-00.png",
+          "maskPreview": "clips/sit/mask-preview/frame-00.png",
+          "rig": {
+            "rodVisible": false,
+            "handsResting": true,
+            "pawPositions": [
+              [
+                296.28,
+                370.03999999999996
+              ],
+              [
+                387.15999999999997,
+                367.48
+              ]
+            ],
+            "maskProfile": "sit:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              329,
+              295
+            ],
+            "handAnchors": {
+              "far_hand": [
+                393.01,
+                363.8
+              ],
+              "hands": [
+                294.98,
+                371.34
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "unarmed-sit-pose-sheet:0",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 1,
+          "stage": "空手屈膝下蹲",
+          "startMs": 120,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/sit/layers/rod/frame-01.png",
+            "line": "clips/sit/layers/line/frame-01.png",
+            "cat": "clips/sit/layers/cat/frame-01.png",
+            "fish": "clips/sit/layers/fish/frame-01.png",
+            "far_hand": "clips/sit/layers/far_hand/frame-01.png",
+            "hands": "clips/sit/layers/hands/frame-01.png",
+            "bobber": "clips/sit/layers/bobber/frame-01.png",
+            "bait": "clips/sit/layers/bait/frame-01.png",
+            "body": "clips/sit/layers/body/frame-01.png",
+            "head": "clips/sit/layers/head/frame-01.png"
+          },
+          "composite": "clips/sit/frames/frame-01.png",
+          "sourceCharacter": "clips/sit/source-character/frame-01.png",
+          "maskPreview": "clips/sit/mask-preview/frame-01.png",
+          "rig": {
+            "rodVisible": false,
+            "handsResting": true,
+            "pawPositions": [
+              [
+                314.64,
+                391.52
+              ],
+              [
+                378.64,
+                388.96
+              ]
+            ],
+            "maskProfile": "sit:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              331,
+              323
+            ],
+            "handAnchors": {
+              "far_hand": [
+                375.52,
+                387.84
+              ],
+              "hands": [
+                317.5,
+                396.23
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "unarmed-sit-pose-sheet:1",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 2,
+          "stage": "空手坐稳",
+          "startMs": 240,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/sit/layers/rod/frame-02.png",
+            "line": "clips/sit/layers/line/frame-02.png",
+            "cat": "clips/sit/layers/cat/frame-02.png",
+            "fish": "clips/sit/layers/fish/frame-02.png",
+            "far_hand": "clips/sit/layers/far_hand/frame-02.png",
+            "hands": "clips/sit/layers/hands/frame-02.png",
+            "bobber": "clips/sit/layers/bobber/frame-02.png",
+            "bait": "clips/sit/layers/bait/frame-02.png",
+            "body": "clips/sit/layers/body/frame-02.png",
+            "head": "clips/sit/layers/head/frame-02.png"
+          },
+          "composite": "clips/sit/frames/frame-02.png",
+          "sourceCharacter": "clips/sit/source-character/frame-02.png",
+          "maskPreview": "clips/sit/mask-preview/frame-02.png",
+          "rig": {
+            "rodVisible": false,
+            "handsResting": true,
+            "pawPositions": [
+              [
+                308.0,
+                415.48
+              ],
+              [
+                354.72,
+                414.2
+              ]
+            ],
+            "maskProfile": "sit:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              319,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                355.29,
+                414.78
+              ],
+              "hands": [
+                310.23,
+                409.4
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "unarmed-sit-pose-sheet:2",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 3,
+          "stage": "坐稳取竿，衔接准备握竿",
+          "startMs": 360,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/sit/layers/line/frame-03.png",
+            "bobber": "clips/sit/layers/bobber/frame-03.png",
+            "bait": "clips/sit/layers/bait/frame-03.png",
+            "cat": "clips/sit/layers/cat/frame-03.png",
+            "far_hand": "clips/sit/layers/far_hand/frame-03.png",
+            "rod": "clips/sit/layers/rod/frame-03.png",
+            "hands": "clips/sit/layers/hands/frame-03.png",
+            "fish": "clips/sit/layers/fish/frame-03.png",
+            "body": "clips/sit/layers/body/frame-03.png",
+            "head": "clips/sit/layers/head/frame-03.png"
+          },
+          "composite": "clips/sit/frames/frame-03.png",
+          "sourceCharacter": "clips/sit/source-character/frame-03.png",
+          "maskPreview": "clips/sit/mask-preview/frame-03.png",
+          "rig": {
+            "rodVisible": true,
+            "rodTakenOut": true,
+            "seated": true,
+            "maskProfile": "ready:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              305,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                355.33,
+                369.75
+              ],
+              "hands": [
+                325.32,
+                375.56
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:0",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "ready": {
+      "name": "准备",
+      "frameCount": 1,
+      "durationMs": 180,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 4,
+          "stage": "准备",
+          "startMs": 0,
+          "durationMs": 180,
+          "layers": {
+            "line": "clips/ready/layers/line/frame-00.png",
+            "bobber": "clips/ready/layers/bobber/frame-00.png",
+            "bait": "clips/ready/layers/bait/frame-00.png",
+            "cat": "clips/ready/layers/cat/frame-00.png",
+            "far_hand": "clips/ready/layers/far_hand/frame-00.png",
+            "rod": "clips/ready/layers/rod/frame-00.png",
+            "hands": "clips/ready/layers/hands/frame-00.png",
+            "fish": "clips/ready/layers/fish/frame-00.png",
+            "body": "clips/ready/layers/body/frame-00.png",
+            "head": "clips/ready/layers/head/frame-00.png"
+          },
+          "composite": "clips/ready/frames/frame-00.png",
+          "sourceCharacter": "clips/ready/source-character/frame-00.png",
+          "maskPreview": "clips/ready/mask-preview/frame-00.png",
+          "rig": {
+            "maskProfile": "ready:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              305,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                355.33,
+                369.75
+              ],
+              "hands": [
+                325.32,
+                375.56
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:0",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "bait": {
+      "name": "挂饵",
+      "frameCount": 4,
+      "durationMs": 1000,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 5,
+          "stage": "拿取鱼饵",
+          "startMs": 0,
+          "durationMs": 220,
+          "layers": {
+            "rod": "clips/bait/layers/rod/frame-00.png",
+            "line": "clips/bait/layers/line/frame-00.png",
+            "cat": "clips/bait/layers/cat/frame-00.png",
+            "fish": "clips/bait/layers/fish/frame-00.png",
+            "far_hand": "clips/bait/layers/far_hand/frame-00.png",
+            "hands": "clips/bait/layers/hands/frame-00.png",
+            "bobber": "clips/bait/layers/bobber/frame-00.png",
+            "bait": "clips/bait/layers/bait/frame-00.png",
+            "body": "clips/bait/layers/body/frame-00.png",
+            "head": "clips/bait/layers/head/frame-00.png"
+          },
+          "composite": "clips/bait/frames/frame-00.png",
+          "sourceCharacter": "clips/bait/source-character/frame-00.png",
+          "maskPreview": "clips/bait/mask-preview/frame-00.png",
+          "rig": {
+            "baitAnchor": [
+              340,
+              353
+            ],
+            "maskProfile": "bait:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              301,
+              338
+            ],
+            "handAnchors": {
+              "far_hand": [
+                358.25,
+                363.69
+              ],
+              "hands": [
+                320.54,
+                343.83
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "bait-pose-sheet:0",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 6,
+          "stage": "靠近鱼钩",
+          "startMs": 220,
+          "durationMs": 220,
+          "layers": {
+            "rod": "clips/bait/layers/rod/frame-01.png",
+            "line": "clips/bait/layers/line/frame-01.png",
+            "cat": "clips/bait/layers/cat/frame-01.png",
+            "fish": "clips/bait/layers/fish/frame-01.png",
+            "far_hand": "clips/bait/layers/far_hand/frame-01.png",
+            "hands": "clips/bait/layers/hands/frame-01.png",
+            "bobber": "clips/bait/layers/bobber/frame-01.png",
+            "bait": "clips/bait/layers/bait/frame-01.png",
+            "body": "clips/bait/layers/body/frame-01.png",
+            "head": "clips/bait/layers/head/frame-01.png"
+          },
+          "composite": "clips/bait/frames/frame-01.png",
+          "sourceCharacter": "clips/bait/source-character/frame-01.png",
+          "maskPreview": "clips/bait/mask-preview/frame-01.png",
+          "rig": {
+            "baitAnchor": [
+              380,
+              328
+            ],
+            "maskProfile": "bait:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              302,
+              327
+            ],
+            "handAnchors": {
+              "far_hand": [
+                367.76,
+                341.02
+              ],
+              "hands": [
+                334.99,
+                339.47
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "bait-pose-sheet:1",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 7,
+          "stage": "穿饵固定",
+          "startMs": 440,
+          "durationMs": 260,
+          "layers": {
+            "rod": "clips/bait/layers/rod/frame-02.png",
+            "line": "clips/bait/layers/line/frame-02.png",
+            "cat": "clips/bait/layers/cat/frame-02.png",
+            "fish": "clips/bait/layers/fish/frame-02.png",
+            "far_hand": "clips/bait/layers/far_hand/frame-02.png",
+            "hands": "clips/bait/layers/hands/frame-02.png",
+            "bobber": "clips/bait/layers/bobber/frame-02.png",
+            "bait": "clips/bait/layers/bait/frame-02.png",
+            "body": "clips/bait/layers/body/frame-02.png",
+            "head": "clips/bait/layers/head/frame-02.png"
+          },
+          "composite": "clips/bait/frames/frame-02.png",
+          "sourceCharacter": "clips/bait/source-character/frame-02.png",
+          "maskPreview": "clips/bait/mask-preview/frame-02.png",
+          "rig": {
+            "baitAnchor": [
+              346,
+              329
+            ],
+            "maskProfile": "bait:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              300,
+              319
+            ],
+            "handAnchors": {
+              "far_hand": [
+                365.31,
+                332.12
+              ],
+              "hands": [
+                334.31,
+                332.59
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "bait-pose-sheet:2",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 8,
+          "stage": "检查挂饵",
+          "startMs": 700,
+          "durationMs": 300,
+          "layers": {
+            "rod": "clips/bait/layers/rod/frame-03.png",
+            "line": "clips/bait/layers/line/frame-03.png",
+            "cat": "clips/bait/layers/cat/frame-03.png",
+            "fish": "clips/bait/layers/fish/frame-03.png",
+            "far_hand": "clips/bait/layers/far_hand/frame-03.png",
+            "hands": "clips/bait/layers/hands/frame-03.png",
+            "bobber": "clips/bait/layers/bobber/frame-03.png",
+            "bait": "clips/bait/layers/bait/frame-03.png",
+            "body": "clips/bait/layers/body/frame-03.png",
+            "head": "clips/bait/layers/head/frame-03.png"
+          },
+          "composite": "clips/bait/frames/frame-03.png",
+          "sourceCharacter": "clips/bait/source-character/frame-03.png",
+          "maskPreview": "clips/bait/mask-preview/frame-03.png",
+          "rig": {
+            "baitAnchor": [
+              388,
+              313
+            ],
+            "maskProfile": "bait:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              303,
+              318
+            ],
+            "handAnchors": {
+              "far_hand": [
+                396.76,
+                325.32
+              ],
+              "hands": [
+                346.14,
+                335.72
+              ]
+            },
+            "occlusion": "handheld-display"
+          },
+          "source": "bait-pose-sheet:3",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "cast": {
+      "name": "抛钩",
+      "frameCount": 4,
+      "durationMs": 600,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 9,
+          "stage": "抬手后引",
+          "startMs": 0,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/cast/layers/line/frame-00.png",
+            "bobber": "clips/cast/layers/bobber/frame-00.png",
+            "bait": "clips/cast/layers/bait/frame-00.png",
+            "cat": "clips/cast/layers/cat/frame-00.png",
+            "far_hand": "clips/cast/layers/far_hand/frame-00.png",
+            "rod": "clips/cast/layers/rod/frame-00.png",
+            "hands": "clips/cast/layers/hands/frame-00.png",
+            "fish": "clips/cast/layers/fish/frame-00.png",
+            "body": "clips/cast/layers/body/frame-00.png",
+            "head": "clips/cast/layers/head/frame-00.png"
+          },
+          "composite": "clips/cast/frames/frame-00.png",
+          "sourceCharacter": "clips/cast/source-character/frame-00.png",
+          "maskPreview": "clips/cast/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              326.001194289175,
+              333.4415810091648
+            ],
+            "angleDegrees": -25,
+            "bodyLeanDegrees": 5,
+            "rodTip": [
+              202.06717306642062,
+              67.66421481038958
+            ],
+            "lineEnd": [
+              175,
+              180
+            ],
+            "rodBehindCat": false,
+            "maskProfile": "cast:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              254,
+              338
+            ],
+            "handAnchors": {
+              "far_hand": [
+                340.91,
+                324.12
+              ],
+              "hands": [
+                311.74,
+                338.9
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:1",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 10,
+          "stage": "鱼竿甩至头后",
+          "startMs": 140,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/cast/layers/line/frame-01.png",
+            "bobber": "clips/cast/layers/bobber/frame-01.png",
+            "bait": "clips/cast/layers/bait/frame-01.png",
+            "cat": "clips/cast/layers/cat/frame-01.png",
+            "far_hand": "clips/cast/layers/far_hand/frame-01.png",
+            "rod": "clips/cast/layers/rod/frame-01.png",
+            "hands": "clips/cast/layers/hands/frame-01.png",
+            "fish": "clips/cast/layers/fish/frame-01.png",
+            "body": "clips/cast/layers/body/frame-01.png",
+            "head": "clips/cast/layers/head/frame-01.png"
+          },
+          "composite": "clips/cast/frames/frame-01.png",
+          "sourceCharacter": "clips/cast/source-character/frame-01.png",
+          "maskPreview": "clips/cast/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              307.68749003147144,
+              305.32176559969264
+            ],
+            "angleDegrees": -58,
+            "bodyLeanDegrees": 10,
+            "rodTip": [
+              58.994945809487405,
+              149.92141666701974
+            ],
+            "lineEnd": [
+              55,
+              165
+            ],
+            "rodBehindCat": false,
+            "maskProfile": "cast:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              231,
+              349
+            ],
+            "handAnchors": {
+              "far_hand": [
+                319.85,
+                294.39
+              ],
+              "hands": [
+                297.67,
+                314.23
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:2",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 11,
+          "stage": "过顶大幅前甩",
+          "startMs": 280,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/cast/layers/line/frame-02.png",
+            "bobber": "clips/cast/layers/bobber/frame-02.png",
+            "bait": "clips/cast/layers/bait/frame-02.png",
+            "cat": "clips/cast/layers/cat/frame-02.png",
+            "far_hand": "clips/cast/layers/far_hand/frame-02.png",
+            "rod": "clips/cast/layers/rod/frame-02.png",
+            "hands": "clips/cast/layers/hands/frame-02.png",
+            "fish": "clips/cast/layers/fish/frame-02.png",
+            "body": "clips/cast/layers/body/frame-02.png",
+            "head": "clips/cast/layers/head/frame-02.png"
+          },
+          "composite": "clips/cast/frames/frame-02.png",
+          "sourceCharacter": "clips/cast/source-character/frame-02.png",
+          "maskPreview": "clips/cast/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              358.8820828843031,
+              342.966546839574
+            ],
+            "angleDegrees": 62,
+            "bodyLeanDegrees": -3,
+            "rodTip": [
+              617.8090049279558,
+              205.29266027788736
+            ],
+            "lineEnd": [
+              594,
+              373
+            ],
+            "rodBehindCat": false,
+            "maskProfile": "cast:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              270,
+              332
+            ],
+            "handAnchors": {
+              "far_hand": [
+                372.45,
+                335.73
+              ],
+              "hands": [
+                341.82,
+                349.69
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:3",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 12,
+          "stage": "落钩收势",
+          "startMs": 420,
+          "durationMs": 180,
+          "layers": {
+            "line": "clips/cast/layers/line/frame-03.png",
+            "bobber": "clips/cast/layers/bobber/frame-03.png",
+            "bait": "clips/cast/layers/bait/frame-03.png",
+            "cat": "clips/cast/layers/cat/frame-03.png",
+            "far_hand": "clips/cast/layers/far_hand/frame-03.png",
+            "rod": "clips/cast/layers/rod/frame-03.png",
+            "hands": "clips/cast/layers/hands/frame-03.png",
+            "fish": "clips/cast/layers/fish/frame-03.png",
+            "body": "clips/cast/layers/body/frame-03.png",
+            "head": "clips/cast/layers/head/frame-03.png"
+          },
+          "composite": "clips/cast/frames/frame-03.png",
+          "sourceCharacter": "clips/cast/source-character/frame-03.png",
+          "maskPreview": "clips/cast/mask-preview/frame-03.png",
+          "rig": {
+            "grip": [
+              346.0,
+              348.5
+            ],
+            "angleDegrees": 50,
+            "bodyLeanDegrees": 0,
+            "rodTip": [
+              570.6447370258954,
+              160.00068401565406
+            ],
+            "lineEnd": [
+              580,
+              455
+            ],
+            "rodBehindCat": false,
+            "maskProfile": "cast:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              282,
+              331
+            ],
+            "handAnchors": {
+              "far_hand": [
+                363.28,
+                345.61
+              ],
+              "hands": [
+                334.37,
+                350.4
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:4",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "wait": {
+      "name": "等待",
+      "frameCount": 1,
+      "durationMs": 500,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 13,
+          "stage": "等待",
+          "startMs": 0,
+          "durationMs": 500,
+          "layers": {
+            "line": "clips/wait/layers/line/frame-00.png",
+            "bobber": "clips/wait/layers/bobber/frame-00.png",
+            "bait": "clips/wait/layers/bait/frame-00.png",
+            "cat": "clips/wait/layers/cat/frame-00.png",
+            "far_hand": "clips/wait/layers/far_hand/frame-00.png",
+            "rod": "clips/wait/layers/rod/frame-00.png",
+            "hands": "clips/wait/layers/hands/frame-00.png",
+            "fish": "clips/wait/layers/fish/frame-00.png",
+            "body": "clips/wait/layers/body/frame-00.png",
+            "head": "clips/wait/layers/head/frame-00.png"
+          },
+          "composite": "clips/wait/frames/frame-00.png",
+          "sourceCharacter": "clips/wait/source-character/frame-00.png",
+          "maskPreview": "clips/wait/mask-preview/frame-00.png",
+          "rig": {
+            "maskProfile": "wait:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              293,
+              335
+            ],
+            "handAnchors": {
+              "far_hand": [
+                340.77,
+                345.9
+              ],
+              "hands": [
+                310.09,
+                351.92
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:5",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": true
+    },
+    "bite": {
+      "name": "咬钩后仰",
+      "frameCount": 4,
+      "durationMs": 560,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 14,
+          "stage": "大鱼咬钩",
+          "startMs": 0,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/bite/layers/line/frame-00.png",
+            "bobber": "clips/bite/layers/bobber/frame-00.png",
+            "bait": "clips/bite/layers/bait/frame-00.png",
+            "cat": "clips/bite/layers/cat/frame-00.png",
+            "far_hand": "clips/bite/layers/far_hand/frame-00.png",
+            "rod": "clips/bite/layers/rod/frame-00.png",
+            "hands": "clips/bite/layers/hands/frame-00.png",
+            "fish": "clips/bite/layers/fish/frame-00.png",
+            "body": "clips/bite/layers/body/frame-00.png",
+            "head": "clips/bite/layers/head/frame-00.png"
+          },
+          "composite": "clips/bite/frames/frame-00.png",
+          "sourceCharacter": "clips/bite/source-character/frame-00.png",
+          "maskPreview": "clips/bite/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              317.0,
+              352.0
+            ],
+            "angleDegrees": 44,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                317.0,
+                352.0
+              ],
+              [
+                384.9035219415511,
+                281.6838446163807
+              ],
+              [
+                452.8070438831022,
+                211.36768923276148
+              ],
+              [
+                520.7105658246534,
+                141.05153384914223
+              ]
+            ],
+            "lineEnd": [
+              568,
+              461
+            ],
+            "maskProfile": "bite:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              269,
+              345
+            ],
+            "handAnchors": {
+              "far_hand": [
+                333.27,
+                349.19
+              ],
+              "hands": [
+                303.12,
+                355.92
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:bite-enter:0",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 15,
+          "stage": "身体后仰",
+          "startMs": 120,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/bite/layers/line/frame-01.png",
+            "bobber": "clips/bite/layers/bobber/frame-01.png",
+            "bait": "clips/bite/layers/bait/frame-01.png",
+            "cat": "clips/bite/layers/cat/frame-01.png",
+            "far_hand": "clips/bite/layers/far_hand/frame-01.png",
+            "rod": "clips/bite/layers/rod/frame-01.png",
+            "hands": "clips/bite/layers/hands/frame-01.png",
+            "fish": "clips/bite/layers/fish/frame-01.png",
+            "body": "clips/bite/layers/body/frame-01.png",
+            "head": "clips/bite/layers/head/frame-01.png"
+          },
+          "composite": "clips/bite/frames/frame-01.png",
+          "sourceCharacter": "clips/bite/source-character/frame-01.png",
+          "maskPreview": "clips/bite/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              323.0,
+              327.0
+            ],
+            "angleDegrees": 32,
+            "bendPixels": 35,
+            "cubicRodControls": [
+              [
+                323.0,
+                327.0
+              ],
+              [
+                374.800116310891,
+                244.10248525933866
+              ],
+              [
+                431.0524851266032,
+                163.98704665590162
+              ],
+              [
+                508.08203229814785,
+                135.3546300261781
+              ]
+            ],
+            "lineEnd": [
+              568,
+              461
+            ],
+            "maskProfile": "bite:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              291,
+              334
+            ],
+            "handAnchors": {
+              "far_hand": [
+                338.97,
+                317.41
+              ],
+              "hands": [
+                309.73,
+                333.28
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:bite-enter:1",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 16,
+          "stage": "抬竿拉弯",
+          "startMs": 260,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/bite/layers/line/frame-02.png",
+            "bobber": "clips/bite/layers/bobber/frame-02.png",
+            "bait": "clips/bite/layers/bait/frame-02.png",
+            "cat": "clips/bite/layers/cat/frame-02.png",
+            "far_hand": "clips/bite/layers/far_hand/frame-02.png",
+            "rod": "clips/bite/layers/rod/frame-02.png",
+            "hands": "clips/bite/layers/hands/frame-02.png",
+            "fish": "clips/bite/layers/fish/frame-02.png",
+            "body": "clips/bite/layers/body/frame-02.png",
+            "head": "clips/bite/layers/head/frame-02.png"
+          },
+          "composite": "clips/bite/frames/frame-02.png",
+          "sourceCharacter": "clips/bite/source-character/frame-02.png",
+          "maskPreview": "clips/bite/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              344.0,
+              315.0
+            ],
+            "angleDegrees": 24,
+            "bendPixels": 80,
+            "cubicRodControls": [
+              [
+                344.0,
+                315.0
+              ],
+              [
+                383.75889695143417,
+                225.70005535721066
+              ],
+              [
+                434.4803393945795,
+                141.28095043133092
+              ],
+              [
+                536.3603274657106,
+                167.639097517696
+              ]
+            ],
+            "lineEnd": [
+              568,
+              461
+            ],
+            "maskProfile": "bite:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              294,
+              324
+            ],
+            "handAnchors": {
+              "far_hand": [
+                358.53,
+                303.7
+              ],
+              "hands": [
+                328.81,
+                320.43
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:bite-enter:2",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 17,
+          "stage": "进入持续发力",
+          "startMs": 400,
+          "durationMs": 160,
+          "layers": {
+            "line": "clips/bite/layers/line/frame-03.png",
+            "bobber": "clips/bite/layers/bobber/frame-03.png",
+            "bait": "clips/bite/layers/bait/frame-03.png",
+            "cat": "clips/bite/layers/cat/frame-03.png",
+            "far_hand": "clips/bite/layers/far_hand/frame-03.png",
+            "rod": "clips/bite/layers/rod/frame-03.png",
+            "hands": "clips/bite/layers/hands/frame-03.png",
+            "fish": "clips/bite/layers/fish/frame-03.png",
+            "body": "clips/bite/layers/body/frame-03.png",
+            "head": "clips/bite/layers/head/frame-03.png"
+          },
+          "composite": "clips/bite/frames/frame-03.png",
+          "sourceCharacter": "clips/bite/source-character/frame-03.png",
+          "maskPreview": "clips/bite/mask-preview/frame-03.png",
+          "rig": {
+            "grip": [
+              350.7,
+              321.97
+            ],
+            "angleDegrees": 18,
+            "bendPixels": 112,
+            "cubicRodControls": [
+              [
+                350.7,
+                321.97
+              ],
+              [
+                380.90670757049486,
+                229.0033133980209
+              ],
+              [
+                427.0911646147483,
+                141.22811230154088
+              ],
+              [
+                547.8384525365418,
+                200.87984356405673
+              ]
+            ],
+            "lineEnd": [
+              564,
+              461
+            ],
+            "maskProfile": "bite:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              289,
+              327
+            ],
+            "handAnchors": {
+              "far_hand": [
+                364.68,
+                309.52
+              ],
+              "hands": [
+                336.46,
+                328.35
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:bite-enter:3",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "effort": {
+      "name": "持续发力",
+      "frameCount": 6,
+      "durationMs": 880,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 18,
+          "stage": "稳住拉力",
+          "startMs": 0,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/effort/layers/line/frame-00.png",
+            "bobber": "clips/effort/layers/bobber/frame-00.png",
+            "bait": "clips/effort/layers/bait/frame-00.png",
+            "cat": "clips/effort/layers/cat/frame-00.png",
+            "far_hand": "clips/effort/layers/far_hand/frame-00.png",
+            "rod": "clips/effort/layers/rod/frame-00.png",
+            "hands": "clips/effort/layers/hands/frame-00.png",
+            "fish": "clips/effort/layers/fish/frame-00.png",
+            "body": "clips/effort/layers/body/frame-00.png",
+            "head": "clips/effort/layers/head/frame-00.png"
+          },
+          "composite": "clips/effort/frames/frame-00.png",
+          "sourceCharacter": "clips/effort/source-character/frame-00.png",
+          "maskPreview": "clips/effort/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              350.7,
+              321.97
+            ],
+            "angleDegrees": 18,
+            "bendPixels": 112,
+            "cubicRodControls": [
+              [
+                350.7,
+                321.97
+              ],
+              [
+                380.90670757049486,
+                229.0033133980209
+              ],
+              [
+                427.0911646147483,
+                141.22811230154088
+              ],
+              [
+                547.8384525365418,
+                200.87984356405673
+              ]
+            ],
+            "lineEnd": [
+              564,
+              461
+            ],
+            "maskProfile": "bite:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              289,
+              327
+            ],
+            "handAnchors": {
+              "far_hand": [
+                364.68,
+                309.52
+              ],
+              "hands": [
+                336.46,
+                328.35
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:effort-loop:0",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 19,
+          "stage": "再次抬竿",
+          "startMs": 140,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/effort/layers/line/frame-01.png",
+            "bobber": "clips/effort/layers/bobber/frame-01.png",
+            "bait": "clips/effort/layers/bait/frame-01.png",
+            "cat": "clips/effort/layers/cat/frame-01.png",
+            "far_hand": "clips/effort/layers/far_hand/frame-01.png",
+            "rod": "clips/effort/layers/rod/frame-01.png",
+            "hands": "clips/effort/layers/hands/frame-01.png",
+            "fish": "clips/effort/layers/fish/frame-01.png",
+            "body": "clips/effort/layers/body/frame-01.png",
+            "head": "clips/effort/layers/head/frame-01.png"
+          },
+          "composite": "clips/effort/frames/frame-01.png",
+          "sourceCharacter": "clips/effort/source-character/frame-01.png",
+          "maskPreview": "clips/effort/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              327.14,
+              307.8
+            ],
+            "angleDegrees": 16,
+            "bendPixels": 120,
+            "cubicRodControls": [
+              [
+                327.14,
+                307.8
+              ],
+              [
+                354.0838158878926,
+                213.8357473003731
+              ],
+              [
+                398.33034230267504,
+                124.83296700545215
+              ],
+              [
+                523.3228511762761,
+                190.98372459915913
+              ]
+            ],
+            "lineEnd": [
+              573,
+              463
+            ],
+            "maskProfile": "effort:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              288,
+              325
+            ],
+            "handAnchors": {
+              "far_hand": [
+                340.33,
+                299.27
+              ],
+              "hands": [
+                314.01,
+                315.36
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:effort-loop:1",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 20,
+          "stage": "全力后仰",
+          "startMs": 280,
+          "durationMs": 160,
+          "layers": {
+            "line": "clips/effort/layers/line/frame-02.png",
+            "bobber": "clips/effort/layers/bobber/frame-02.png",
+            "bait": "clips/effort/layers/bait/frame-02.png",
+            "cat": "clips/effort/layers/cat/frame-02.png",
+            "far_hand": "clips/effort/layers/far_hand/frame-02.png",
+            "rod": "clips/effort/layers/rod/frame-02.png",
+            "hands": "clips/effort/layers/hands/frame-02.png",
+            "fish": "clips/effort/layers/fish/frame-02.png",
+            "body": "clips/effort/layers/body/frame-02.png",
+            "head": "clips/effort/layers/head/frame-02.png"
+          },
+          "composite": "clips/effort/frames/frame-02.png",
+          "sourceCharacter": "clips/effort/source-character/frame-02.png",
+          "maskPreview": "clips/effort/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              334.12,
+              290.78
+            ],
+            "angleDegrees": 14,
+            "bendPixels": 128,
+            "cubicRodControls": [
+              [
+                334.12,
+                290.78
+              ],
+              [
+                357.7680973160077,
+                195.93266217055623
+              ],
+              [
+                400.04587257651445,
+                105.7302247366261
+              ],
+              [
+                529.2621449113506,
+                178.00398914842623
+              ]
+            ],
+            "lineEnd": [
+              577,
+              459
+            ],
+            "maskProfile": "effort:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              253,
+              334
+            ],
+            "handAnchors": {
+              "far_hand": [
+                345.8,
+                275.88
+              ],
+              "hands": [
+                324.43,
+                301.32
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:effort-loop:2",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 21,
+          "stage": "保持张力",
+          "startMs": 440,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/effort/layers/line/frame-03.png",
+            "bobber": "clips/effort/layers/bobber/frame-03.png",
+            "bait": "clips/effort/layers/bait/frame-03.png",
+            "cat": "clips/effort/layers/cat/frame-03.png",
+            "far_hand": "clips/effort/layers/far_hand/frame-03.png",
+            "rod": "clips/effort/layers/rod/frame-03.png",
+            "hands": "clips/effort/layers/hands/frame-03.png",
+            "fish": "clips/effort/layers/fish/frame-03.png",
+            "body": "clips/effort/layers/body/frame-03.png",
+            "head": "clips/effort/layers/head/frame-03.png"
+          },
+          "composite": "clips/effort/frames/frame-03.png",
+          "sourceCharacter": "clips/effort/source-character/frame-03.png",
+          "maskPreview": "clips/effort/mask-preview/frame-03.png",
+          "rig": {
+            "grip": [
+              331.93,
+              308.41999999999996
+            ],
+            "angleDegrees": 15,
+            "bendPixels": 124,
+            "cubicRodControls": [
+              [
+                331.93,
+                308.41999999999996
+              ],
+              [
+                357.2298098855381,
+                213.99982408533845
+              ],
+              [
+                400.4958401400529,
+                124.39368240958379
+              ],
+              [
+                527.6042321164588,
+                193.65303384872794
+              ]
+            ],
+            "lineEnd": [
+              568,
+              462
+            ],
+            "maskProfile": "effort:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              269,
+              331
+            ],
+            "handAnchors": {
+              "far_hand": [
+                347.03,
+                292.92
+              ],
+              "hands": [
+                321.09,
+                312.94
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:effort-loop:3",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 4,
+          "atlasIndex": 22,
+          "stage": "抵抗回拉",
+          "startMs": 580,
+          "durationMs": 140,
+          "layers": {
+            "line": "clips/effort/layers/line/frame-04.png",
+            "bobber": "clips/effort/layers/bobber/frame-04.png",
+            "bait": "clips/effort/layers/bait/frame-04.png",
+            "cat": "clips/effort/layers/cat/frame-04.png",
+            "far_hand": "clips/effort/layers/far_hand/frame-04.png",
+            "rod": "clips/effort/layers/rod/frame-04.png",
+            "hands": "clips/effort/layers/hands/frame-04.png",
+            "fish": "clips/effort/layers/fish/frame-04.png",
+            "body": "clips/effort/layers/body/frame-04.png",
+            "head": "clips/effort/layers/head/frame-04.png"
+          },
+          "composite": "clips/effort/frames/frame-04.png",
+          "sourceCharacter": "clips/effort/source-character/frame-04.png",
+          "maskPreview": "clips/effort/mask-preview/frame-04.png",
+          "rig": {
+            "grip": [
+              334.84000000000003,
+              322.22
+            ],
+            "angleDegrees": 17,
+            "bendPixels": 116,
+            "cubicRodControls": [
+              [
+                334.84000000000003,
+                322.22
+              ],
+              [
+                363.41961454291715,
+                228.74029293703217
+              ],
+              [
+                408.63893183959107,
+                140.34785353623994
+              ],
+              [
+                531.5101953204635,
+                203.29599655893395
+              ]
+            ],
+            "lineEnd": [
+              561,
+              464
+            ],
+            "maskProfile": "effort:4",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              294,
+              337
+            ],
+            "handAnchors": {
+              "far_hand": [
+                351.1,
+                303.61
+              ],
+              "hands": [
+                324.97,
+                323.42
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:effort-loop:4",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 5,
+          "atlasIndex": 23,
+          "stage": "恢复握力",
+          "startMs": 720,
+          "durationMs": 160,
+          "layers": {
+            "line": "clips/effort/layers/line/frame-05.png",
+            "bobber": "clips/effort/layers/bobber/frame-05.png",
+            "bait": "clips/effort/layers/bait/frame-05.png",
+            "cat": "clips/effort/layers/cat/frame-05.png",
+            "far_hand": "clips/effort/layers/far_hand/frame-05.png",
+            "rod": "clips/effort/layers/rod/frame-05.png",
+            "hands": "clips/effort/layers/hands/frame-05.png",
+            "fish": "clips/effort/layers/fish/frame-05.png",
+            "body": "clips/effort/layers/body/frame-05.png",
+            "head": "clips/effort/layers/head/frame-05.png"
+          },
+          "composite": "clips/effort/frames/frame-05.png",
+          "sourceCharacter": "clips/effort/source-character/frame-05.png",
+          "maskPreview": "clips/effort/mask-preview/frame-05.png",
+          "rig": {
+            "grip": [
+              340.72,
+              323.18
+            ],
+            "angleDegrees": 18,
+            "bendPixels": 112,
+            "cubicRodControls": [
+              [
+                340.72,
+                323.18
+              ],
+              [
+                370.9267075704949,
+                230.2133133980209
+              ],
+              [
+                417.11116461474836,
+                142.43811230154085
+              ],
+              [
+                537.8584525365418,
+                202.0898435640567
+              ]
+            ],
+            "lineEnd": [
+              564,
+              461
+            ],
+            "maskProfile": "effort:5",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              283,
+              331
+            ],
+            "handAnchors": {
+              "far_hand": [
+                356.77,
+                310.43
+              ],
+              "hands": [
+                328.79,
+                328.06
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:effort-loop:5",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": true
+    },
+    "retrieve": {
+      "name": "收杆出水",
+      "frameCount": 6,
+      "durationMs": 600,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 24,
+          "stage": "提竿带鱼出水",
+          "startMs": 0,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve/layers/line/frame-00.png",
+            "fish": "clips/retrieve/layers/fish/frame-00.png",
+            "cat": "clips/retrieve/layers/cat/frame-00.png",
+            "far_hand": "clips/retrieve/layers/far_hand/frame-00.png",
+            "rod": "clips/retrieve/layers/rod/frame-00.png",
+            "hands": "clips/retrieve/layers/hands/frame-00.png",
+            "bobber": "clips/retrieve/layers/bobber/frame-00.png",
+            "bait": "clips/retrieve/layers/bait/frame-00.png",
+            "body": "clips/retrieve/layers/body/frame-00.png",
+            "head": "clips/retrieve/layers/head/frame-00.png"
+          },
+          "composite": "clips/retrieve/frames/frame-00.png",
+          "sourceCharacter": "clips/retrieve/source-character/frame-00.png",
+          "maskPreview": "clips/retrieve/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              350.40999999999997,
+              335.72
+            ],
+            "angleDegrees": 20,
+            "bendPixels": 90,
+            "cubicRodControls": [
+              [
+                350.40999999999997,
+                335.72
+              ],
+              [
+                383.842797032909,
+                243.86414508287288
+              ],
+              [
+                429.9614444464279,
+                156.6255621006423
+              ],
+              [
+                535.2807269694589,
+                189.93424814792883
+              ]
+            ],
+            "rodTip": [
+              535.2807269694589,
+              189.93424814792883
+            ],
+            "lineEnd": [
+              565,
+              332
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                45.0,
+                2.0
+              ],
+              "targetAnchor": [
+                565,
+                332
+              ],
+              "offset": [
+                520,
+                330
+              ]
+            },
+            "pawPositions": [
+              [
+                336.22,
+                342.6
+              ],
+              [
+                364.6,
+                328.84000000000003
+              ]
+            ],
+            "maskProfile": "retrieve:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              295,
+              335
+            ],
+            "handAnchors": {
+              "far_hand": [
+                362.15,
+                326.69
+              ],
+              "hands": [
+                334.66,
+                341.74
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:0",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 25,
+          "stage": "鱼随惯性上甩",
+          "startMs": 100,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve/layers/line/frame-01.png",
+            "fish": "clips/retrieve/layers/fish/frame-01.png",
+            "cat": "clips/retrieve/layers/cat/frame-01.png",
+            "far_hand": "clips/retrieve/layers/far_hand/frame-01.png",
+            "rod": "clips/retrieve/layers/rod/frame-01.png",
+            "hands": "clips/retrieve/layers/hands/frame-01.png",
+            "bobber": "clips/retrieve/layers/bobber/frame-01.png",
+            "bait": "clips/retrieve/layers/bait/frame-01.png",
+            "body": "clips/retrieve/layers/body/frame-01.png",
+            "head": "clips/retrieve/layers/head/frame-01.png"
+          },
+          "composite": "clips/retrieve/frames/frame-01.png",
+          "sourceCharacter": "clips/retrieve/source-character/frame-01.png",
+          "maskPreview": "clips/retrieve/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              343.28,
+              307.90999999999997
+            ],
+            "angleDegrees": 0,
+            "bendPixels": 60,
+            "cubicRodControls": [
+              [
+                343.28,
+                307.90999999999997
+              ],
+              [
+                343.28,
+                210.15904092542104
+              ],
+              [
+                352.28,
+                112.40808185084214
+              ],
+              [
+                403.28,
+                80.65712277626324
+              ]
+            ],
+            "rodTip": [
+              403.28,
+              80.65712277626324
+            ],
+            "lineEnd": [
+              480,
+              142
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 45,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                33.31013716151656,
+                33.31013716151655
+              ],
+              "targetAnchor": [
+                480,
+                142
+              ],
+              "offset": [
+                447,
+                109
+              ]
+            },
+            "pawPositions": [
+              [
+                331.24,
+                316.08
+              ],
+              [
+                355.32,
+                299.74
+              ]
+            ],
+            "maskProfile": "retrieve:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              292,
+              328
+            ],
+            "handAnchors": {
+              "far_hand": [
+                352.17,
+                300.05
+              ],
+              "hands": [
+                327.69,
+                317.49
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:3",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 26,
+          "stage": "鱼越过头顶",
+          "startMs": 200,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve/layers/line/frame-02.png",
+            "fish": "clips/retrieve/layers/fish/frame-02.png",
+            "cat": "clips/retrieve/layers/cat/frame-02.png",
+            "far_hand": "clips/retrieve/layers/far_hand/frame-02.png",
+            "rod": "clips/retrieve/layers/rod/frame-02.png",
+            "hands": "clips/retrieve/layers/hands/frame-02.png",
+            "bobber": "clips/retrieve/layers/bobber/frame-02.png",
+            "bait": "clips/retrieve/layers/bait/frame-02.png",
+            "body": "clips/retrieve/layers/body/frame-02.png",
+            "head": "clips/retrieve/layers/head/frame-02.png"
+          },
+          "composite": "clips/retrieve/frames/frame-02.png",
+          "sourceCharacter": "clips/retrieve/source-character/frame-02.png",
+          "maskPreview": "clips/retrieve/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              324.64,
+              300.11
+            ],
+            "angleDegrees": -25,
+            "bendPixels": 25,
+            "cubicRodControls": [
+              [
+                324.64,
+                300.11
+              ],
+              [
+                283.3286595924152,
+                211.51754460040826
+              ],
+              [
+                245.41597338621784,
+                121.34027071928888
+              ],
+              [
+                223.36367345316185,
+                51.26717725770726
+              ]
+            ],
+            "rodTip": [
+              223.36367345316185,
+              51.26717725770726
+            ],
+            "lineEnd": [
+              310,
+              74
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 90,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                2.0,
+                44.99999999999999
+              ],
+              "targetAnchor": [
+                310,
+                74
+              ],
+              "offset": [
+                308,
+                29
+              ]
+            },
+            "pawPositions": [
+              [
+                315.18,
+                313.44
+              ],
+              [
+                334.1,
+                286.78
+              ]
+            ],
+            "maskProfile": "retrieve:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              256,
+              344
+            ],
+            "handAnchors": {
+              "far_hand": [
+                334.63,
+                291.19
+              ],
+              "hands": [
+                314.43,
+                312.8
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:5",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 27,
+          "stage": "向身后抛鱼",
+          "startMs": 300,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve/layers/line/frame-03.png",
+            "fish": "clips/retrieve/layers/fish/frame-03.png",
+            "cat": "clips/retrieve/layers/cat/frame-03.png",
+            "far_hand": "clips/retrieve/layers/far_hand/frame-03.png",
+            "rod": "clips/retrieve/layers/rod/frame-03.png",
+            "hands": "clips/retrieve/layers/hands/frame-03.png",
+            "bobber": "clips/retrieve/layers/bobber/frame-03.png",
+            "bait": "clips/retrieve/layers/bait/frame-03.png",
+            "body": "clips/retrieve/layers/body/frame-03.png",
+            "head": "clips/retrieve/layers/head/frame-03.png"
+          },
+          "composite": "clips/retrieve/frames/frame-03.png",
+          "sourceCharacter": "clips/retrieve/source-character/frame-03.png",
+          "maskPreview": "clips/retrieve/mask-preview/frame-03.png",
+          "rig": {
+            "grip": [
+              323.84000000000003,
+              301.83
+            ],
+            "angleDegrees": -50,
+            "bendPixels": 8,
+            "cubicRodControls": [
+              [
+                323.84000000000003,
+                301.83
+              ],
+              [
+                248.9584209913682,
+                238.99689467188466
+              ],
+              [
+                174.84818711436026,
+                175.24453601202657
+              ],
+              [
+                104.33756385159691,
+                116.00232847070221
+              ]
+            ],
+            "rodTip": [
+              104.33756385159691,
+              116.00232847070221
+            ],
+            "lineEnd": [
+              130,
+              188
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 135,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                33.31013716151655,
+                150.68986283848344
+              ],
+              "targetAnchor": [
+                130,
+                188
+              ],
+              "offset": [
+                97,
+                37
+              ]
+            },
+            "pawPositions": [
+              [
+                316.96000000000004,
+                313.44
+              ],
+              [
+                330.72,
+                290.22
+              ]
+            ],
+            "maskProfile": "retrieve:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              232,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                327.74,
+                289.15
+              ],
+              "hands": [
+                310.93,
+                314.2
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:7",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 4,
+          "atlasIndex": 28,
+          "stage": "鱼落向身后",
+          "startMs": 400,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve/layers/line/frame-04.png",
+            "fish": "clips/retrieve/layers/fish/frame-04.png",
+            "cat": "clips/retrieve/layers/cat/frame-04.png",
+            "far_hand": "clips/retrieve/layers/far_hand/frame-04.png",
+            "rod": "clips/retrieve/layers/rod/frame-04.png",
+            "hands": "clips/retrieve/layers/hands/frame-04.png",
+            "bobber": "clips/retrieve/layers/bobber/frame-04.png",
+            "bait": "clips/retrieve/layers/bait/frame-04.png",
+            "body": "clips/retrieve/layers/body/frame-04.png",
+            "head": "clips/retrieve/layers/head/frame-04.png"
+          },
+          "composite": "clips/retrieve/frames/frame-04.png",
+          "sourceCharacter": "clips/retrieve/source-character/frame-04.png",
+          "maskPreview": "clips/retrieve/mask-preview/frame-04.png",
+          "rig": {
+            "grip": [
+              343.3,
+              311.75
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                343.3,
+                311.75
+              ],
+              [
+                256.2032577188801,
+                267.3719932397119
+              ],
+              [
+                169.10651543776012,
+                222.99398647942388
+              ],
+              [
+                82.00977315664016,
+                178.6159797191358
+              ]
+            ],
+            "rodTip": [
+              82.00977315664016,
+              178.6159797191358
+            ],
+            "lineEnd": [
+              70,
+              335
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 180,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                44.99999999999999,
+                168.0
+              ],
+              "targetAnchor": [
+                70,
+                335
+              ],
+              "offset": [
+                25,
+                167
+              ]
+            },
+            "pawPositions": [
+              [
+                330.4,
+                320.78
+              ],
+              [
+                356.2,
+                302.72
+              ]
+            ],
+            "maskProfile": "retrieve:4",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              280,
+              334
+            ],
+            "handAnchors": {
+              "far_hand": [
+                354.34,
+                299.99
+              ],
+              "hands": [
+                329.42,
+                320.34
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:8",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 5,
+          "atlasIndex": 29,
+          "stage": "收杆停在身后",
+          "startMs": 500,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve/layers/line/frame-05.png",
+            "fish": "clips/retrieve/layers/fish/frame-05.png",
+            "cat": "clips/retrieve/layers/cat/frame-05.png",
+            "far_hand": "clips/retrieve/layers/far_hand/frame-05.png",
+            "rod": "clips/retrieve/layers/rod/frame-05.png",
+            "hands": "clips/retrieve/layers/hands/frame-05.png",
+            "bobber": "clips/retrieve/layers/bobber/frame-05.png",
+            "bait": "clips/retrieve/layers/bait/frame-05.png",
+            "body": "clips/retrieve/layers/body/frame-05.png",
+            "head": "clips/retrieve/layers/head/frame-05.png"
+          },
+          "composite": "clips/retrieve/frames/frame-05.png",
+          "sourceCharacter": "clips/retrieve/source-character/frame-05.png",
+          "maskPreview": "clips/retrieve/mask-preview/frame-05.png",
+          "rig": {
+            "grip": [
+              346.95,
+              329.81
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                346.95,
+                329.81
+              ],
+              [
+                259.85325771888006,
+                285.4319932397119
+              ],
+              [
+                172.7565154377601,
+                241.05398647942388
+              ],
+              [
+                85.65977315664014,
+                196.6759797191358
+              ]
+            ],
+            "rodTip": [
+              85.65977315664014,
+              196.6759797191358
+            ],
+            "lineEnd": [
+              75,
+              405
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 90,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                2.0,
+                44.99999999999999
+              ],
+              "targetAnchor": [
+                75,
+                405
+              ],
+              "offset": [
+                73,
+                360
+              ]
+            },
+            "pawPositions": [
+              [
+                332.76,
+                332.82
+              ],
+              [
+                361.14,
+                326.8
+              ]
+            ],
+            "maskProfile": "retrieve:5",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              296,
+              329
+            ],
+            "handAnchors": {
+              "far_hand": [
+                359.24,
+                323.13
+              ],
+              "hands": [
+                332.73,
+                333.44
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:9",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "retrieve_empty": {
+      "name": "空军收杆",
+      "frameCount": 6,
+      "durationMs": 600,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 30,
+          "stage": "空钩收线出水",
+          "startMs": 0,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve_empty/layers/line/frame-00.png",
+            "bobber": "clips/retrieve_empty/layers/bobber/frame-00.png",
+            "bait": "clips/retrieve_empty/layers/bait/frame-00.png",
+            "cat": "clips/retrieve_empty/layers/cat/frame-00.png",
+            "far_hand": "clips/retrieve_empty/layers/far_hand/frame-00.png",
+            "rod": "clips/retrieve_empty/layers/rod/frame-00.png",
+            "hands": "clips/retrieve_empty/layers/hands/frame-00.png",
+            "fish": "clips/retrieve_empty/layers/fish/frame-00.png",
+            "body": "clips/retrieve_empty/layers/body/frame-00.png",
+            "head": "clips/retrieve_empty/layers/head/frame-00.png"
+          },
+          "composite": "clips/retrieve_empty/frames/frame-00.png",
+          "sourceCharacter": "clips/retrieve_empty/source-character/frame-00.png",
+          "maskPreview": "clips/retrieve_empty/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              350.40999999999997,
+              335.72
+            ],
+            "angleDegrees": 20,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                350.40999999999997,
+                335.72
+              ],
+              [
+                383.842797032909,
+                243.86414508287288
+              ],
+              [
+                417.2755940658181,
+                152.00829016574576
+              ],
+              [
+                450.70839109872713,
+                60.152435248618644
+              ]
+            ],
+            "rodTip": [
+              450.70839109872713,
+              60.152435248618644
+            ],
+            "pawPositions": [
+              [
+                336.22,
+                342.6
+              ],
+              [
+                364.6,
+                328.84000000000003
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              570,
+              420
+            ],
+            "hookAnchor": [
+              570,
+              455
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              296,
+              329
+            ],
+            "handAnchors": {
+              "far_hand": [
+                362.67,
+                327.09
+              ],
+              "hands": [
+                334.89,
+                341.8
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:0:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 31,
+          "stage": "抬竿提起空钩",
+          "startMs": 100,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve_empty/layers/line/frame-01.png",
+            "bobber": "clips/retrieve_empty/layers/bobber/frame-01.png",
+            "bait": "clips/retrieve_empty/layers/bait/frame-01.png",
+            "cat": "clips/retrieve_empty/layers/cat/frame-01.png",
+            "far_hand": "clips/retrieve_empty/layers/far_hand/frame-01.png",
+            "rod": "clips/retrieve_empty/layers/rod/frame-01.png",
+            "hands": "clips/retrieve_empty/layers/hands/frame-01.png",
+            "fish": "clips/retrieve_empty/layers/fish/frame-01.png",
+            "body": "clips/retrieve_empty/layers/body/frame-01.png",
+            "head": "clips/retrieve_empty/layers/head/frame-01.png"
+          },
+          "composite": "clips/retrieve_empty/frames/frame-01.png",
+          "sourceCharacter": "clips/retrieve_empty/source-character/frame-01.png",
+          "maskPreview": "clips/retrieve_empty/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              343.28,
+              306.90999999999997
+            ],
+            "angleDegrees": 0,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                343.28,
+                306.90999999999997
+              ],
+              [
+                343.28,
+                209.15904092542104
+              ],
+              [
+                343.28,
+                111.40808185084214
+              ],
+              [
+                343.28,
+                13.657122776263236
+              ]
+            ],
+            "rodTip": [
+              343.28,
+              13.657122776263236
+            ],
+            "pawPositions": [
+              [
+                331.24,
+                315.08
+              ],
+              [
+                355.32,
+                298.74
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              500,
+              280
+            ],
+            "hookAnchor": [
+              500,
+              315
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              293,
+              323
+            ],
+            "handAnchors": {
+              "far_hand": [
+                353.01,
+                299.16
+              ],
+              "hands": [
+                328.16,
+                317.04
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:3:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 32,
+          "stage": "空钩越过头顶",
+          "startMs": 200,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve_empty/layers/line/frame-02.png",
+            "bobber": "clips/retrieve_empty/layers/bobber/frame-02.png",
+            "bait": "clips/retrieve_empty/layers/bait/frame-02.png",
+            "cat": "clips/retrieve_empty/layers/cat/frame-02.png",
+            "far_hand": "clips/retrieve_empty/layers/far_hand/frame-02.png",
+            "rod": "clips/retrieve_empty/layers/rod/frame-02.png",
+            "hands": "clips/retrieve_empty/layers/hands/frame-02.png",
+            "fish": "clips/retrieve_empty/layers/fish/frame-02.png",
+            "body": "clips/retrieve_empty/layers/body/frame-02.png",
+            "head": "clips/retrieve_empty/layers/head/frame-02.png"
+          },
+          "composite": "clips/retrieve_empty/frames/frame-02.png",
+          "sourceCharacter": "clips/retrieve_empty/source-character/frame-02.png",
+          "maskPreview": "clips/retrieve_empty/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              324.64,
+              300.11
+            ],
+            "angleDegrees": -25,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                324.64,
+                300.11
+              ],
+              [
+                283.3286595924152,
+                211.51754460040826
+              ],
+              [
+                242.0173191848304,
+                122.9250892008165
+              ],
+              [
+                200.7059787772456,
+                34.332633801224745
+              ]
+            ],
+            "rodTip": [
+              200.7059787772456,
+              34.332633801224745
+            ],
+            "pawPositions": [
+              [
+                315.18,
+                313.44
+              ],
+              [
+                334.1,
+                286.78
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              380,
+              105
+            ],
+            "hookAnchor": [
+              380,
+              140
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              257,
+              337
+            ],
+            "handAnchors": {
+              "far_hand": [
+                335.76,
+                291.71
+              ],
+              "hands": [
+                314.78,
+                313.21
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:5:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 33,
+          "stage": "甩向身后",
+          "startMs": 300,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve_empty/layers/line/frame-03.png",
+            "bobber": "clips/retrieve_empty/layers/bobber/frame-03.png",
+            "bait": "clips/retrieve_empty/layers/bait/frame-03.png",
+            "cat": "clips/retrieve_empty/layers/cat/frame-03.png",
+            "far_hand": "clips/retrieve_empty/layers/far_hand/frame-03.png",
+            "rod": "clips/retrieve_empty/layers/rod/frame-03.png",
+            "hands": "clips/retrieve_empty/layers/hands/frame-03.png",
+            "fish": "clips/retrieve_empty/layers/fish/frame-03.png",
+            "body": "clips/retrieve_empty/layers/body/frame-03.png",
+            "head": "clips/retrieve_empty/layers/head/frame-03.png"
+          },
+          "composite": "clips/retrieve_empty/frames/frame-03.png",
+          "sourceCharacter": "clips/retrieve_empty/source-character/frame-03.png",
+          "maskPreview": "clips/retrieve_empty/mask-preview/frame-03.png",
+          "rig": {
+            "grip": [
+              323.84000000000003,
+              300.83
+            ],
+            "angleDegrees": -50,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                323.84000000000003,
+                300.83
+              ],
+              [
+                248.9584209913682,
+                237.99689467188466
+              ],
+              [
+                174.0768419827364,
+                175.16378934376934
+              ],
+              [
+                99.1952629741046,
+                112.33068401565404
+              ]
+            ],
+            "rodTip": [
+              99.1952629741046,
+              112.33068401565404
+            ],
+            "pawPositions": [
+              [
+                316.96000000000004,
+                312.44
+              ],
+              [
+                330.72,
+                289.22
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              145,
+              145
+            ],
+            "hookAnchor": [
+              145,
+              180
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              233,
+              340
+            ],
+            "handAnchors": {
+              "far_hand": [
+                329.5,
+                289.62
+              ],
+              "hands": [
+                311.55,
+                313.73
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:7:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 4,
+          "atlasIndex": 34,
+          "stage": "查看空钩",
+          "startMs": 400,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve_empty/layers/line/frame-04.png",
+            "bobber": "clips/retrieve_empty/layers/bobber/frame-04.png",
+            "bait": "clips/retrieve_empty/layers/bait/frame-04.png",
+            "cat": "clips/retrieve_empty/layers/cat/frame-04.png",
+            "far_hand": "clips/retrieve_empty/layers/far_hand/frame-04.png",
+            "rod": "clips/retrieve_empty/layers/rod/frame-04.png",
+            "hands": "clips/retrieve_empty/layers/hands/frame-04.png",
+            "fish": "clips/retrieve_empty/layers/fish/frame-04.png",
+            "body": "clips/retrieve_empty/layers/body/frame-04.png",
+            "head": "clips/retrieve_empty/layers/head/frame-04.png"
+          },
+          "composite": "clips/retrieve_empty/frames/frame-04.png",
+          "sourceCharacter": "clips/retrieve_empty/source-character/frame-04.png",
+          "maskPreview": "clips/retrieve_empty/mask-preview/frame-04.png",
+          "rig": {
+            "grip": [
+              343.3,
+              311.75
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                343.3,
+                311.75
+              ],
+              [
+                256.2032577188801,
+                267.3719932397119
+              ],
+              [
+                169.10651543776012,
+                222.99398647942388
+              ],
+              [
+                82.00977315664016,
+                178.6159797191358
+              ]
+            ],
+            "rodTip": [
+              82.00977315664016,
+              178.6159797191358
+            ],
+            "pawPositions": [
+              [
+                330.4,
+                320.78
+              ],
+              [
+                356.2,
+                302.72
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              95,
+              290
+            ],
+            "hookAnchor": [
+              95,
+              325
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:4",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              281,
+              326
+            ],
+            "handAnchors": {
+              "far_hand": [
+                354.86,
+                301.01
+              ],
+              "hands": [
+                329.3,
+                320.69
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:8:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 5,
+          "atlasIndex": 35,
+          "stage": "空钩停竿收势",
+          "startMs": 500,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/retrieve_empty/layers/line/frame-05.png",
+            "bobber": "clips/retrieve_empty/layers/bobber/frame-05.png",
+            "bait": "clips/retrieve_empty/layers/bait/frame-05.png",
+            "cat": "clips/retrieve_empty/layers/cat/frame-05.png",
+            "far_hand": "clips/retrieve_empty/layers/far_hand/frame-05.png",
+            "rod": "clips/retrieve_empty/layers/rod/frame-05.png",
+            "hands": "clips/retrieve_empty/layers/hands/frame-05.png",
+            "fish": "clips/retrieve_empty/layers/fish/frame-05.png",
+            "body": "clips/retrieve_empty/layers/body/frame-05.png",
+            "head": "clips/retrieve_empty/layers/head/frame-05.png"
+          },
+          "composite": "clips/retrieve_empty/frames/frame-05.png",
+          "sourceCharacter": "clips/retrieve_empty/source-character/frame-05.png",
+          "maskPreview": "clips/retrieve_empty/mask-preview/frame-05.png",
+          "rig": {
+            "grip": [
+              344.95,
+              328.81
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                344.95,
+                328.81
+              ],
+              [
+                257.85325771888006,
+                284.4319932397119
+              ],
+              [
+                170.7565154377601,
+                240.05398647942388
+              ],
+              [
+                83.65977315664014,
+                195.6759797191358
+              ]
+            ],
+            "rodTip": [
+              83.65977315664014,
+              195.6759797191358
+            ],
+            "pawPositions": [
+              [
+                330.76,
+                331.82
+              ],
+              [
+                359.14,
+                325.8
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              110,
+              405
+            ],
+            "hookAnchor": [
+              110,
+              440
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:5",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              297,
+              322
+            ],
+            "handAnchors": {
+              "far_hand": [
+                357.68,
+                322.0
+              ],
+              "hands": [
+                330.64,
+                332.43
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:9:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "catch": {
+      "name": "展示收获",
+      "frameCount": 7,
+      "durationMs": 1200,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 36,
+          "stage": "放稳身后的鱼",
+          "startMs": 0,
+          "durationMs": 100,
+          "layers": {
+            "line": "clips/catch/layers/line/frame-00.png",
+            "fish": "clips/catch/layers/fish/frame-00.png",
+            "cat": "clips/catch/layers/cat/frame-00.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-00.png",
+            "rod": "clips/catch/layers/rod/frame-00.png",
+            "hands": "clips/catch/layers/hands/frame-00.png",
+            "bobber": "clips/catch/layers/bobber/frame-00.png",
+            "bait": "clips/catch/layers/bait/frame-00.png",
+            "body": "clips/catch/layers/body/frame-00.png",
+            "head": "clips/catch/layers/head/frame-00.png"
+          },
+          "composite": "clips/catch/frames/frame-00.png",
+          "sourceCharacter": "clips/catch/source-character/frame-00.png",
+          "maskPreview": "clips/catch/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              346.95,
+              329.81
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                346.95,
+                329.81
+              ],
+              [
+                259.85325771888006,
+                285.4319932397119
+              ],
+              [
+                172.7565154377601,
+                241.05398647942388
+              ],
+              [
+                85.65977315664014,
+                196.6759797191358
+              ]
+            ],
+            "rodTip": [
+              85.65977315664014,
+              196.6759797191358
+            ],
+            "lineEnd": [
+              75,
+              405
+            ],
+            "rodBehindCat": false,
+            "occlusion": "rear-toss",
+            "fishPose": {
+              "rotationDegrees": 90,
+              "sourceAnchor": [
+                45.0,
+                2
+              ],
+              "rotatedAnchor": [
+                2.0,
+                44.99999999999999
+              ],
+              "targetAnchor": [
+                75,
+                405
+              ],
+              "offset": [
+                73,
+                360
+              ]
+            },
+            "pawPositions": [
+              [
+                332.76,
+                332.82
+              ],
+              [
+                361.14,
+                326.8
+              ]
+            ],
+            "maskProfile": "retrieve:5",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              296,
+              329
+            ],
+            "handAnchors": {
+              "far_hand": [
+                359.24,
+                323.13
+              ],
+              "hands": [
+                332.73,
+                333.44
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "retrieve-pose-sheet:9",
+          "layerOrder": [
+            "line",
+            "fish",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "fish",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 37,
+          "stage": "回身抓住鱼",
+          "startMs": 100,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/catch/layers/rod/frame-01.png",
+            "line": "clips/catch/layers/line/frame-01.png",
+            "cat": "clips/catch/layers/cat/frame-01.png",
+            "fish": "clips/catch/layers/fish/frame-01.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-01.png",
+            "hands": "clips/catch/layers/hands/frame-01.png",
+            "bobber": "clips/catch/layers/bobber/frame-01.png",
+            "bait": "clips/catch/layers/bait/frame-01.png",
+            "body": "clips/catch/layers/body/frame-01.png",
+            "head": "clips/catch/layers/head/frame-01.png"
+          },
+          "composite": "clips/catch/frames/frame-01.png",
+          "sourceCharacter": "clips/catch/source-character/frame-01.png",
+          "maskPreview": "clips/catch/mask-preview/frame-01.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              340.9,
+              383.76
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                340.9,
+                383.76
+              ],
+              [
+                253.80325771888005,
+                339.3819932397119
+              ],
+              [
+                166.7065154377601,
+                295.0039864794239
+              ],
+              [
+                79.60977315664013,
+                250.62597971913578
+              ]
+            ],
+            "rodTip": [
+              79.60977315664013,
+              250.62597971913578
+            ],
+            "fishPose": {
+              "rotationDegrees": 90,
+              "sourceAnchor": [
+                40.0,
+                75.0
+              ],
+              "rotatedAnchor": [
+                75.0,
+                40.0
+              ],
+              "targetAnchor": [
+                241.74,
+                398.56
+              ],
+              "offset": [
+                167,
+                359
+              ]
+            },
+            "pawPositions": [
+              [
+                241.74,
+                398.56
+              ],
+              [
+                340.9,
+                383.76
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              300,
+              341
+            ],
+            "handAnchors": {
+              "far_hand": [
+                341.0,
+                380.83
+              ],
+              "hands": [
+                237.72,
+                402.22
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:0",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 38,
+          "stage": "拿起转向面前",
+          "startMs": 220,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/catch/layers/rod/frame-02.png",
+            "line": "clips/catch/layers/line/frame-02.png",
+            "cat": "clips/catch/layers/cat/frame-02.png",
+            "fish": "clips/catch/layers/fish/frame-02.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-02.png",
+            "hands": "clips/catch/layers/hands/frame-02.png",
+            "bobber": "clips/catch/layers/bobber/frame-02.png",
+            "bait": "clips/catch/layers/bait/frame-02.png",
+            "body": "clips/catch/layers/body/frame-02.png",
+            "head": "clips/catch/layers/head/frame-02.png"
+          },
+          "composite": "clips/catch/frames/frame-02.png",
+          "sourceCharacter": "clips/catch/source-character/frame-02.png",
+          "maskPreview": "clips/catch/mask-preview/frame-02.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "fishPose": {
+              "rotationDegrees": 35,
+              "sourceAnchor": [
+                40.0,
+                35
+              ],
+              "rotatedAnchor": [
+                53.05694254595816,
+                52.23391822844033
+              ],
+              "targetAnchor": [
+                347.3,
+                390.81
+              ],
+              "offset": [
+                294,
+                339
+              ]
+            },
+            "pawPositions": [
+              [
+                312.36,
+                376.36
+              ],
+              [
+                358.24,
+                365.26
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              304,
+              321
+            ],
+            "handAnchors": {
+              "far_hand": [
+                358.85,
+                366.7
+              ],
+              "hands": [
+                310.63,
+                376.73
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:1",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 39,
+          "stage": "竖着举到胸前",
+          "startMs": 340,
+          "durationMs": 160,
+          "layers": {
+            "rod": "clips/catch/layers/rod/frame-03.png",
+            "line": "clips/catch/layers/line/frame-03.png",
+            "cat": "clips/catch/layers/cat/frame-03.png",
+            "fish": "clips/catch/layers/fish/frame-03.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-03.png",
+            "hands": "clips/catch/layers/hands/frame-03.png",
+            "bobber": "clips/catch/layers/bobber/frame-03.png",
+            "bait": "clips/catch/layers/bait/frame-03.png",
+            "body": "clips/catch/layers/body/frame-03.png",
+            "head": "clips/catch/layers/head/frame-03.png"
+          },
+          "composite": "clips/catch/frames/frame-03.png",
+          "sourceCharacter": "clips/catch/source-character/frame-03.png",
+          "maskPreview": "clips/catch/mask-preview/frame-03.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                40.0,
+                35
+              ],
+              "rotatedAnchor": [
+                40.0,
+                35.0
+              ],
+              "targetAnchor": [
+                364.96,
+                358.62
+              ],
+              "offset": [
+                325,
+                324
+              ]
+            },
+            "pawPositions": [
+              [
+                319.65999999999997,
+                340.1
+              ],
+              [
+                386.26,
+                337.14
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:3",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              315,
+              323
+            ],
+            "handAnchors": {
+              "far_hand": [
+                387.95,
+                336.58
+              ],
+              "hands": [
+                315.67,
+                340.14
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:2",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 4,
+          "atlasIndex": 40,
+          "stage": "开心举鱼炫耀",
+          "startMs": 500,
+          "durationMs": 160,
+          "layers": {
+            "rod": "clips/catch/layers/rod/frame-04.png",
+            "line": "clips/catch/layers/line/frame-04.png",
+            "cat": "clips/catch/layers/cat/frame-04.png",
+            "fish": "clips/catch/layers/fish/frame-04.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-04.png",
+            "hands": "clips/catch/layers/hands/frame-04.png",
+            "bobber": "clips/catch/layers/bobber/frame-04.png",
+            "bait": "clips/catch/layers/bait/frame-04.png",
+            "body": "clips/catch/layers/body/frame-04.png",
+            "head": "clips/catch/layers/head/frame-04.png"
+          },
+          "composite": "clips/catch/frames/frame-04.png",
+          "sourceCharacter": "clips/catch/source-character/frame-04.png",
+          "maskPreview": "clips/catch/mask-preview/frame-04.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                40.0,
+                35
+              ],
+              "rotatedAnchor": [
+                40.0,
+                35.0
+              ],
+              "targetAnchor": [
+                359.78,
+                334.0
+              ],
+              "offset": [
+                320,
+                299
+              ]
+            },
+            "pawPositions": [
+              [
+                310.78,
+                321.4
+              ],
+              [
+                384.78,
+                306.6
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:4",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              301,
+              323
+            ],
+            "handAnchors": {
+              "far_hand": [
+                381.92,
+                305.36
+              ],
+              "hands": [
+                311.44,
+                320.42
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:3",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 5,
+          "atlasIndex": 41,
+          "stage": "轻轻上举展示",
+          "startMs": 660,
+          "durationMs": 180,
+          "layers": {
+            "rod": "clips/catch/layers/rod/frame-05.png",
+            "line": "clips/catch/layers/line/frame-05.png",
+            "cat": "clips/catch/layers/cat/frame-05.png",
+            "fish": "clips/catch/layers/fish/frame-05.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-05.png",
+            "hands": "clips/catch/layers/hands/frame-05.png",
+            "bobber": "clips/catch/layers/bobber/frame-05.png",
+            "bait": "clips/catch/layers/bait/frame-05.png",
+            "body": "clips/catch/layers/body/frame-05.png",
+            "head": "clips/catch/layers/head/frame-05.png"
+          },
+          "composite": "clips/catch/frames/frame-05.png",
+          "sourceCharacter": "clips/catch/source-character/frame-05.png",
+          "maskPreview": "clips/catch/mask-preview/frame-05.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                40.0,
+                35
+              ],
+              "rotatedAnchor": [
+                40.0,
+                35.0
+              ],
+              "targetAnchor": [
+                353.90999999999997,
+                319.57
+              ],
+              "offset": [
+                314,
+                285
+              ]
+            },
+            "pawPositions": [
+              [
+                300.1,
+                308.82
+              ],
+              [
+                383.71999999999997,
+                290.32
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:5",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              297,
+              311
+            ],
+            "handAnchors": {
+              "far_hand": [
+                381.71,
+                292.73
+              ],
+              "hands": [
+                300.3,
+                308.74
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:4",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 6,
+          "atlasIndex": 42,
+          "stage": "眨眼骄傲定格",
+          "startMs": 840,
+          "durationMs": 360,
+          "layers": {
+            "rod": "clips/catch/layers/rod/frame-06.png",
+            "line": "clips/catch/layers/line/frame-06.png",
+            "cat": "clips/catch/layers/cat/frame-06.png",
+            "fish": "clips/catch/layers/fish/frame-06.png",
+            "far_hand": "clips/catch/layers/far_hand/frame-06.png",
+            "hands": "clips/catch/layers/hands/frame-06.png",
+            "bobber": "clips/catch/layers/bobber/frame-06.png",
+            "bait": "clips/catch/layers/bait/frame-06.png",
+            "body": "clips/catch/layers/body/frame-06.png",
+            "head": "clips/catch/layers/head/frame-06.png"
+          },
+          "composite": "clips/catch/frames/frame-06.png",
+          "sourceCharacter": "clips/catch/source-character/frame-06.png",
+          "maskPreview": "clips/catch/mask-preview/frame-06.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                40.0,
+                35
+              ],
+              "rotatedAnchor": [
+                40.0,
+                35.0
+              ],
+              "targetAnchor": [
+                364.07,
+                362.12
+              ],
+              "offset": [
+                324,
+                327
+              ]
+            },
+            "pawPositions": [
+              [
+                316.18,
+                342.12
+              ],
+              [
+                387.96,
+                342.12
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:6",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              314,
+              331
+            ],
+            "handAnchors": {
+              "far_hand": [
+                386.67,
+                337.23
+              ],
+              "hands": [
+                315.01,
+                343.3
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:5",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "reset_catch": {
+      "name": "收获后复位",
+      "frameCount": 4,
+      "durationMs": 480,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 43,
+          "stage": "结束炫耀",
+          "startMs": 0,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/reset_catch/layers/rod/frame-00.png",
+            "line": "clips/reset_catch/layers/line/frame-00.png",
+            "cat": "clips/reset_catch/layers/cat/frame-00.png",
+            "fish": "clips/reset_catch/layers/fish/frame-00.png",
+            "far_hand": "clips/reset_catch/layers/far_hand/frame-00.png",
+            "hands": "clips/reset_catch/layers/hands/frame-00.png",
+            "bobber": "clips/reset_catch/layers/bobber/frame-00.png",
+            "bait": "clips/reset_catch/layers/bait/frame-00.png",
+            "body": "clips/reset_catch/layers/body/frame-00.png",
+            "head": "clips/reset_catch/layers/head/frame-00.png"
+          },
+          "composite": "clips/reset_catch/frames/frame-00.png",
+          "sourceCharacter": "clips/reset_catch/source-character/frame-00.png",
+          "maskPreview": "clips/reset_catch/mask-preview/frame-00.png",
+          "rig": {
+            "occlusion": "handheld-display",
+            "rodBehindCat": true,
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                40.0,
+                35
+              ],
+              "rotatedAnchor": [
+                40.0,
+                35.0
+              ],
+              "targetAnchor": [
+                364.07,
+                362.12
+              ],
+              "offset": [
+                324,
+                327
+              ]
+            },
+            "pawPositions": [
+              [
+                316.18,
+                342.12
+              ],
+              [
+                387.96,
+                342.12
+              ]
+            ],
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "maskProfile": "catch:6",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              314,
+              331
+            ],
+            "handAnchors": {
+              "far_hand": [
+                386.67,
+                337.23
+              ],
+              "hands": [
+                315.01,
+                343.3
+              ]
+            }
+          },
+          "source": "catch-pose-sheet:5",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 44,
+          "stage": "放下收获",
+          "startMs": 120,
+          "durationMs": 120,
+          "layers": {
+            "rod": "clips/reset_catch/layers/rod/frame-01.png",
+            "line": "clips/reset_catch/layers/line/frame-01.png",
+            "cat": "clips/reset_catch/layers/cat/frame-01.png",
+            "fish": "clips/reset_catch/layers/fish/frame-01.png",
+            "far_hand": "clips/reset_catch/layers/far_hand/frame-01.png",
+            "hands": "clips/reset_catch/layers/hands/frame-01.png",
+            "bobber": "clips/reset_catch/layers/bobber/frame-01.png",
+            "bait": "clips/reset_catch/layers/bait/frame-01.png",
+            "body": "clips/reset_catch/layers/body/frame-01.png",
+            "head": "clips/reset_catch/layers/head/frame-01.png"
+          },
+          "composite": "clips/reset_catch/frames/frame-01.png",
+          "sourceCharacter": "clips/reset_catch/source-character/frame-01.png",
+          "maskPreview": "clips/reset_catch/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              126,
+              384
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                126,
+                384
+              ],
+              [
+                105.67643281974671,
+                288.3851339117722
+              ],
+              [
+                85.35286563949342,
+                192.7702678235444
+              ],
+              [
+                65.02929845924011,
+                97.15540173531662
+              ]
+            ],
+            "rodTip": [
+              65.02929845924011,
+              97.15540173531662
+            ],
+            "pawPositions": [
+              [
+                327.0,
+                374.22
+              ],
+              [
+                356.52,
+                381.6
+              ]
+            ],
+            "rodBehindCat": true,
+            "occlusion": "handheld-display",
+            "fishHeld": true,
+            "fishUnhooked": true,
+            "fishPose": {
+              "rotationDegrees": 0,
+              "sourceAnchor": [
+                40,
+                35
+              ],
+              "rotatedAnchor": [
+                40.0,
+                35.0
+              ],
+              "targetAnchor": [
+                353.76,
+                385.91
+              ],
+              "offset": [
+                314,
+                351
+              ]
+            },
+            "maskProfile": "reset_catch:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              315,
+              343
+            ],
+            "handAnchors": {
+              "far_hand": [
+                357.97,
+                373.26
+              ],
+              "hands": [
+                324.2,
+                374.16
+              ]
+            }
+          },
+          "source": "additional-pose-sheet:9",
+          "layerOrder": [
+            "rod",
+            "line",
+            "cat",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ],
+          "renderLayerOrder": [
+            "rod",
+            "line",
+            "body",
+            "head",
+            "fish",
+            "far_hand",
+            "hands",
+            "bobber",
+            "bait"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 45,
+          "stage": "收好鱼并取竿",
+          "startMs": 240,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/reset_catch/layers/line/frame-02.png",
+            "bobber": "clips/reset_catch/layers/bobber/frame-02.png",
+            "bait": "clips/reset_catch/layers/bait/frame-02.png",
+            "cat": "clips/reset_catch/layers/cat/frame-02.png",
+            "far_hand": "clips/reset_catch/layers/far_hand/frame-02.png",
+            "rod": "clips/reset_catch/layers/rod/frame-02.png",
+            "hands": "clips/reset_catch/layers/hands/frame-02.png",
+            "fish": "clips/reset_catch/layers/fish/frame-02.png",
+            "body": "clips/reset_catch/layers/body/frame-02.png",
+            "head": "clips/reset_catch/layers/head/frame-02.png"
+          },
+          "composite": "clips/reset_catch/frames/frame-02.png",
+          "sourceCharacter": "clips/reset_catch/source-character/frame-02.png",
+          "maskPreview": "clips/reset_catch/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              354.08,
+              398.0
+            ],
+            "angleDegrees": -12,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                354.08,
+                398.0
+              ],
+              [
+                333.7564328197467,
+                302.3851339117722
+              ],
+              [
+                313.4328656394934,
+                206.7702678235444
+              ],
+              [
+                293.1092984592401,
+                111.15540173531662
+              ]
+            ],
+            "rodTip": [
+              293.1092984592401,
+              111.15540173531662
+            ],
+            "pawPositions": [
+              [
+                253.22,
+                429.15999999999997
+              ],
+              [
+                354.08,
+                398.0
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "fishStored": true,
+            "maskProfile": "reset_catch:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              314,
+              357
+            ],
+            "handAnchors": {
+              "far_hand": [
+                347.5,
+                390.69
+              ],
+              "hands": [
+                254.51,
+                429.3
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "additional-pose-sheet:10",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 46,
+          "stage": "恢复准备坐姿",
+          "startMs": 360,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/reset_catch/layers/line/frame-03.png",
+            "bobber": "clips/reset_catch/layers/bobber/frame-03.png",
+            "bait": "clips/reset_catch/layers/bait/frame-03.png",
+            "cat": "clips/reset_catch/layers/cat/frame-03.png",
+            "far_hand": "clips/reset_catch/layers/far_hand/frame-03.png",
+            "rod": "clips/reset_catch/layers/rod/frame-03.png",
+            "hands": "clips/reset_catch/layers/hands/frame-03.png",
+            "fish": "clips/reset_catch/layers/fish/frame-03.png",
+            "body": "clips/reset_catch/layers/body/frame-03.png",
+            "head": "clips/reset_catch/layers/head/frame-03.png"
+          },
+          "composite": "clips/reset_catch/frames/frame-03.png",
+          "sourceCharacter": "clips/reset_catch/source-character/frame-03.png",
+          "maskPreview": "clips/reset_catch/mask-preview/frame-03.png",
+          "rig": {
+            "maskProfile": "ready:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              305,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                355.33,
+                369.75
+              ],
+              "hands": [
+                325.32,
+                375.56
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:0",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    },
+    "reset_empty": {
+      "name": "空军后复位",
+      "frameCount": 4,
+      "durationMs": 480,
+      "frames": [
+        {
+          "index": 0,
+          "atlasIndex": 47,
+          "stage": "结束空军收势",
+          "startMs": 0,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/reset_empty/layers/line/frame-00.png",
+            "bobber": "clips/reset_empty/layers/bobber/frame-00.png",
+            "bait": "clips/reset_empty/layers/bait/frame-00.png",
+            "cat": "clips/reset_empty/layers/cat/frame-00.png",
+            "far_hand": "clips/reset_empty/layers/far_hand/frame-00.png",
+            "rod": "clips/reset_empty/layers/rod/frame-00.png",
+            "hands": "clips/reset_empty/layers/hands/frame-00.png",
+            "fish": "clips/reset_empty/layers/fish/frame-00.png",
+            "body": "clips/reset_empty/layers/body/frame-00.png",
+            "head": "clips/reset_empty/layers/head/frame-00.png"
+          },
+          "composite": "clips/reset_empty/frames/frame-00.png",
+          "sourceCharacter": "clips/reset_empty/source-character/frame-00.png",
+          "maskPreview": "clips/reset_empty/mask-preview/frame-00.png",
+          "rig": {
+            "grip": [
+              344.95,
+              328.81
+            ],
+            "angleDegrees": -63,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                344.95,
+                328.81
+              ],
+              [
+                257.85325771888006,
+                284.4319932397119
+              ],
+              [
+                170.7565154377601,
+                240.05398647942388
+              ],
+              [
+                83.65977315664014,
+                195.6759797191358
+              ]
+            ],
+            "rodTip": [
+              83.65977315664014,
+              195.6759797191358
+            ],
+            "pawPositions": [
+              [
+                330.76,
+                331.82
+              ],
+              [
+                359.14,
+                325.8
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              110,
+              405
+            ],
+            "hookAnchor": [
+              110,
+              440
+            ],
+            "emptyHook": true,
+            "expression": "disappointed",
+            "maskProfile": "retrieve_empty:5",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              297,
+              322
+            ],
+            "handAnchors": {
+              "far_hand": [
+                357.68,
+                322.0
+              ],
+              "hands": [
+                330.64,
+                332.43
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "empty-disappointed-pose-sheet:9:empty-hook",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 1,
+          "atlasIndex": 48,
+          "stage": "把鱼竿带回身前",
+          "startMs": 120,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/reset_empty/layers/line/frame-01.png",
+            "bobber": "clips/reset_empty/layers/bobber/frame-01.png",
+            "bait": "clips/reset_empty/layers/bait/frame-01.png",
+            "cat": "clips/reset_empty/layers/cat/frame-01.png",
+            "far_hand": "clips/reset_empty/layers/far_hand/frame-01.png",
+            "rod": "clips/reset_empty/layers/rod/frame-01.png",
+            "hands": "clips/reset_empty/layers/hands/frame-01.png",
+            "fish": "clips/reset_empty/layers/fish/frame-01.png",
+            "body": "clips/reset_empty/layers/body/frame-01.png",
+            "head": "clips/reset_empty/layers/head/frame-01.png"
+          },
+          "composite": "clips/reset_empty/frames/frame-01.png",
+          "sourceCharacter": "clips/reset_empty/source-character/frame-01.png",
+          "maskPreview": "clips/reset_empty/mask-preview/frame-01.png",
+          "rig": {
+            "grip": [
+              357.84000000000003,
+              367.25
+            ],
+            "angleDegrees": 18,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                357.84000000000003,
+                367.25
+              ],
+              [
+                388.0467075704949,
+                274.2833133980209
+              ],
+              [
+                418.2534151409898,
+                181.31662679604173
+              ],
+              [
+                448.46012271148464,
+                88.34994019406258
+              ]
+            ],
+            "rodTip": [
+              448.46012271148464,
+              88.34994019406258
+            ],
+            "pawPositions": [
+              [
+                346.36,
+                375.86
+              ],
+              [
+                369.32,
+                358.64
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              470,
+              400
+            ],
+            "hookAnchor": [
+              470,
+              435
+            ],
+            "emptyHook": true,
+            "maskProfile": "reset_empty:1",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              310,
+              338
+            ],
+            "handAnchors": {
+              "far_hand": [
+                365.16,
+                343.7
+              ],
+              "hands": [
+                337.32,
+                354.79
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "additional-pose-sheet:11",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 2,
+          "atlasIndex": 49,
+          "stage": "落座重新握竿",
+          "startMs": 240,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/reset_empty/layers/line/frame-02.png",
+            "bobber": "clips/reset_empty/layers/bobber/frame-02.png",
+            "bait": "clips/reset_empty/layers/bait/frame-02.png",
+            "cat": "clips/reset_empty/layers/cat/frame-02.png",
+            "far_hand": "clips/reset_empty/layers/far_hand/frame-02.png",
+            "rod": "clips/reset_empty/layers/rod/frame-02.png",
+            "hands": "clips/reset_empty/layers/hands/frame-02.png",
+            "fish": "clips/reset_empty/layers/fish/frame-02.png",
+            "body": "clips/reset_empty/layers/body/frame-02.png",
+            "head": "clips/reset_empty/layers/head/frame-02.png"
+          },
+          "composite": "clips/reset_empty/frames/frame-02.png",
+          "sourceCharacter": "clips/reset_empty/source-character/frame-02.png",
+          "maskPreview": "clips/reset_empty/mask-preview/frame-02.png",
+          "rig": {
+            "grip": [
+              372.0,
+              375.3
+            ],
+            "angleDegrees": 32,
+            "bendPixels": 0,
+            "cubicRodControls": [
+              [
+                372.0,
+                375.3
+              ],
+              [
+                423.800116310891,
+                292.4024852593387
+              ],
+              [
+                475.60023262178197,
+                209.5049705186773
+              ],
+              [
+                527.400348932673,
+                126.60745577801595
+              ]
+            ],
+            "rodTip": [
+              527.400348932673,
+              126.60745577801595
+            ],
+            "pawPositions": [
+              [
+                356.70000000000005,
+                378.9
+              ],
+              [
+                387.3,
+                371.70000000000005
+              ]
+            ],
+            "rodBehindCat": false,
+            "occlusion": "between-paws",
+            "lineEnd": [
+              540,
+              432
+            ],
+            "hookAnchor": [
+              540,
+              467
+            ],
+            "emptyHook": true,
+            "maskProfile": "reset_empty:2",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              329,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                386.21,
+                372.72
+              ],
+              "hands": [
+                356.57,
+                380.2
+              ]
+            },
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "additional-pose-sheet:2",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        },
+        {
+          "index": 3,
+          "atlasIndex": 50,
+          "stage": "恢复准备坐姿",
+          "startMs": 360,
+          "durationMs": 120,
+          "layers": {
+            "line": "clips/reset_empty/layers/line/frame-03.png",
+            "bobber": "clips/reset_empty/layers/bobber/frame-03.png",
+            "bait": "clips/reset_empty/layers/bait/frame-03.png",
+            "cat": "clips/reset_empty/layers/cat/frame-03.png",
+            "far_hand": "clips/reset_empty/layers/far_hand/frame-03.png",
+            "rod": "clips/reset_empty/layers/rod/frame-03.png",
+            "hands": "clips/reset_empty/layers/hands/frame-03.png",
+            "fish": "clips/reset_empty/layers/fish/frame-03.png",
+            "body": "clips/reset_empty/layers/body/frame-03.png",
+            "head": "clips/reset_empty/layers/head/frame-03.png"
+          },
+          "composite": "clips/reset_empty/frames/frame-03.png",
+          "sourceCharacter": "clips/reset_empty/source-character/frame-03.png",
+          "maskPreview": "clips/reset_empty/mask-preview/frame-03.png",
+          "rig": {
+            "maskProfile": "ready:0",
+            "maskModel": "pose-contours-v1",
+            "separateHandMasks": true,
+            "headAnchor": [
+              305,
+              347
+            ],
+            "handAnchors": {
+              "far_hand": [
+                355.33,
+                369.75
+              ],
+              "hands": [
+                325.32,
+                375.56
+              ]
+            },
+            "occlusion": "between-paws",
+            "rodBehindCat": false,
+            "rodHeadOcclusion": true,
+            "gripMode": "far-hand-rod-near-hand"
+          },
+          "source": "big-fish-loop:cast:0",
+          "layerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "cat",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ],
+          "renderLayerOrder": [
+            "line",
+            "bobber",
+            "bait",
+            "body",
+            "head",
+            "far_hand",
+            "rod",
+            "hands",
+            "fish"
+          ]
+        }
+      ],
+      "loopable": false
+    }
+  },
+  "skins": [
+    {
+      "id": "orange",
+      "name": "原版橘猫",
+      "color": "#ffa523",
+      "width": 640,
+      "height": 512,
+      "columns": 6,
+      "rows": 9,
+      "maskModel": "pose-contours-v1",
+      "frameKeys": [
+        "sit:0",
+        "sit:1",
+        "sit:2",
+        "sit:3",
+        "ready:0",
+        "bait:0",
+        "bait:1",
+        "bait:2",
+        "bait:3",
+        "cast:0",
+        "cast:1",
+        "cast:2",
+        "cast:3",
+        "wait:0",
+        "bite:0",
+        "bite:1",
+        "bite:2",
+        "bite:3",
+        "effort:0",
+        "effort:1",
+        "effort:2",
+        "effort:3",
+        "effort:4",
+        "effort:5",
+        "retrieve:0",
+        "retrieve:1",
+        "retrieve:2",
+        "retrieve:3",
+        "retrieve:4",
+        "retrieve:5",
+        "retrieve_empty:0",
+        "retrieve_empty:1",
+        "retrieve_empty:2",
+        "retrieve_empty:3",
+        "retrieve_empty:4",
+        "retrieve_empty:5",
+        "catch:0",
+        "catch:1",
+        "catch:2",
+        "catch:3",
+        "catch:4",
+        "catch:5",
+        "catch:6",
+        "reset_catch:0",
+        "reset_catch:1",
+        "reset_catch:2",
+        "reset_catch:3",
+        "reset_empty:0",
+        "reset_empty:1",
+        "reset_empty:2",
+        "reset_empty:3"
+      ],
+      "cat": "skins/orange/cat-sheet.png",
+      "hands": "skins/orange/hands-sheet.png",
+      "layers": {
+        "body": "skins/orange/body-sheet.png",
+        "head": "skins/orange/head-sheet.png",
+        "far_hand": "skins/orange/far_hand-sheet.png",
+        "hands": "skins/orange/hands-sheet.png"
+      }
+    },
+    {
+      "id": "silver",
+      "name": "银灰虎斑",
+      "color": "#929da9",
+      "width": 640,
+      "height": 512,
+      "columns": 6,
+      "rows": 9,
+      "maskModel": "pose-contours-v1",
+      "frameKeys": [
+        "sit:0",
+        "sit:1",
+        "sit:2",
+        "sit:3",
+        "ready:0",
+        "bait:0",
+        "bait:1",
+        "bait:2",
+        "bait:3",
+        "cast:0",
+        "cast:1",
+        "cast:2",
+        "cast:3",
+        "wait:0",
+        "bite:0",
+        "bite:1",
+        "bite:2",
+        "bite:3",
+        "effort:0",
+        "effort:1",
+        "effort:2",
+        "effort:3",
+        "effort:4",
+        "effort:5",
+        "retrieve:0",
+        "retrieve:1",
+        "retrieve:2",
+        "retrieve:3",
+        "retrieve:4",
+        "retrieve:5",
+        "retrieve_empty:0",
+        "retrieve_empty:1",
+        "retrieve_empty:2",
+        "retrieve_empty:3",
+        "retrieve_empty:4",
+        "retrieve_empty:5",
+        "catch:0",
+        "catch:1",
+        "catch:2",
+        "catch:3",
+        "catch:4",
+        "catch:5",
+        "catch:6",
+        "reset_catch:0",
+        "reset_catch:1",
+        "reset_catch:2",
+        "reset_catch:3",
+        "reset_empty:0",
+        "reset_empty:1",
+        "reset_empty:2",
+        "reset_empty:3"
+      ],
+      "cat": "skins/silver/cat-sheet.png",
+      "hands": "skins/silver/hands-sheet.png",
+      "layers": {
+        "body": "skins/silver/body-sheet.png",
+        "head": "skins/silver/head-sheet.png",
+        "far_hand": "skins/silver/far_hand-sheet.png",
+        "hands": "skins/silver/hands-sheet.png"
+      }
+    },
+    {
+      "id": "brown",
+      "name": "可可虎斑",
+      "color": "#ac7954",
+      "width": 640,
+      "height": 512,
+      "columns": 6,
+      "rows": 9,
+      "maskModel": "pose-contours-v1",
+      "frameKeys": [
+        "sit:0",
+        "sit:1",
+        "sit:2",
+        "sit:3",
+        "ready:0",
+        "bait:0",
+        "bait:1",
+        "bait:2",
+        "bait:3",
+        "cast:0",
+        "cast:1",
+        "cast:2",
+        "cast:3",
+        "wait:0",
+        "bite:0",
+        "bite:1",
+        "bite:2",
+        "bite:3",
+        "effort:0",
+        "effort:1",
+        "effort:2",
+        "effort:3",
+        "effort:4",
+        "effort:5",
+        "retrieve:0",
+        "retrieve:1",
+        "retrieve:2",
+        "retrieve:3",
+        "retrieve:4",
+        "retrieve:5",
+        "retrieve_empty:0",
+        "retrieve_empty:1",
+        "retrieve_empty:2",
+        "retrieve_empty:3",
+        "retrieve_empty:4",
+        "retrieve_empty:5",
+        "catch:0",
+        "catch:1",
+        "catch:2",
+        "catch:3",
+        "catch:4",
+        "catch:5",
+        "catch:6",
+        "reset_catch:0",
+        "reset_catch:1",
+        "reset_catch:2",
+        "reset_catch:3",
+        "reset_empty:0",
+        "reset_empty:1",
+        "reset_empty:2",
+        "reset_empty:3"
+      ],
+      "cat": "skins/brown/cat-sheet.png",
+      "hands": "skins/brown/hands-sheet.png",
+      "layers": {
+        "body": "skins/brown/body-sheet.png",
+        "head": "skins/brown/head-sheet.png",
+        "far_hand": "skins/brown/far_hand-sheet.png",
+        "hands": "skins/brown/hands-sheet.png"
+      }
+    },
+    {
+      "id": "cream",
+      "name": "奶油虎斑",
+      "color": "#e4c182",
+      "width": 640,
+      "height": 512,
+      "columns": 6,
+      "rows": 9,
+      "maskModel": "pose-contours-v1",
+      "frameKeys": [
+        "sit:0",
+        "sit:1",
+        "sit:2",
+        "sit:3",
+        "ready:0",
+        "bait:0",
+        "bait:1",
+        "bait:2",
+        "bait:3",
+        "cast:0",
+        "cast:1",
+        "cast:2",
+        "cast:3",
+        "wait:0",
+        "bite:0",
+        "bite:1",
+        "bite:2",
+        "bite:3",
+        "effort:0",
+        "effort:1",
+        "effort:2",
+        "effort:3",
+        "effort:4",
+        "effort:5",
+        "retrieve:0",
+        "retrieve:1",
+        "retrieve:2",
+        "retrieve:3",
+        "retrieve:4",
+        "retrieve:5",
+        "retrieve_empty:0",
+        "retrieve_empty:1",
+        "retrieve_empty:2",
+        "retrieve_empty:3",
+        "retrieve_empty:4",
+        "retrieve_empty:5",
+        "catch:0",
+        "catch:1",
+        "catch:2",
+        "catch:3",
+        "catch:4",
+        "catch:5",
+        "catch:6",
+        "reset_catch:0",
+        "reset_catch:1",
+        "reset_catch:2",
+        "reset_catch:3",
+        "reset_empty:0",
+        "reset_empty:1",
+        "reset_empty:2",
+        "reset_empty:3"
+      ],
+      "cat": "skins/cream/cat-sheet.png",
+      "hands": "skins/cream/hands-sheet.png",
+      "layers": {
+        "body": "skins/cream/body-sheet.png",
+        "head": "skins/cream/head-sheet.png",
+        "far_hand": "skins/cream/far_hand-sheet.png",
+        "hands": "skins/cream/hands-sheet.png"
+      }
+    },
+    {
+      "id": "blue",
+      "name": "蓝灰虎斑",
+      "color": "#668ba8",
+      "width": 640,
+      "height": 512,
+      "columns": 6,
+      "rows": 9,
+      "maskModel": "pose-contours-v1",
+      "frameKeys": [
+        "sit:0",
+        "sit:1",
+        "sit:2",
+        "sit:3",
+        "ready:0",
+        "bait:0",
+        "bait:1",
+        "bait:2",
+        "bait:3",
+        "cast:0",
+        "cast:1",
+        "cast:2",
+        "cast:3",
+        "wait:0",
+        "bite:0",
+        "bite:1",
+        "bite:2",
+        "bite:3",
+        "effort:0",
+        "effort:1",
+        "effort:2",
+        "effort:3",
+        "effort:4",
+        "effort:5",
+        "retrieve:0",
+        "retrieve:1",
+        "retrieve:2",
+        "retrieve:3",
+        "retrieve:4",
+        "retrieve:5",
+        "retrieve_empty:0",
+        "retrieve_empty:1",
+        "retrieve_empty:2",
+        "retrieve_empty:3",
+        "retrieve_empty:4",
+        "retrieve_empty:5",
+        "catch:0",
+        "catch:1",
+        "catch:2",
+        "catch:3",
+        "catch:4",
+        "catch:5",
+        "catch:6",
+        "reset_catch:0",
+        "reset_catch:1",
+        "reset_catch:2",
+        "reset_catch:3",
+        "reset_empty:0",
+        "reset_empty:1",
+        "reset_empty:2",
+        "reset_empty:3"
+      ],
+      "cat": "skins/blue/cat-sheet.png",
+      "hands": "skins/blue/hands-sheet.png",
+      "layers": {
+        "body": "skins/blue/body-sheet.png",
+        "head": "skins/blue/head-sheet.png",
+        "far_hand": "skins/blue/far_hand-sheet.png",
+        "hands": "skins/blue/hands-sheet.png"
+      }
+    }
+  ],
+  "defaultBiteDurationMs": 5000,
+  "flows": {
+    "success": [
+      "sit",
+      "ready",
+      "bait",
+      "cast",
+      "wait",
+      "bite",
+      "effort",
+      "retrieve",
+      "catch",
+      "reset_catch",
+      "ready"
+    ],
+    "empty": [
+      "sit",
+      "ready",
+      "bait",
+      "cast",
+      "wait",
+      "retrieve_empty",
+      "reset_empty",
+      "ready"
+    ]
+  },
+  "method": "51 baked records across twelve states. Every pose uses authored jaw/wrist contours and source-color paw components with exclusive original-pixel ownership. Head, body and both paws are exported separately. Gripped rods sit between the paws and use the actual head alpha for occlusion. Held fish render below both paws. The sit handoff reuses the ready pose. Five palette skins use the same contour model; decorations are not included.",
+  "characterMaskModel": {
+    "id": "pose-contours-v1",
+    "profiles": "assets/rig-contours.json",
+    "parts": [
+      "body",
+      "head",
+      "far_hand",
+      "hands"
+    ],
+    "method": "Pose-specific jaw/wrist contours, source-color connected paw regions and disjoint original-alpha ownership. No proportional head crop or circular hand masks."
+  },
+  "underwaterFishOrientation": "head-right, dorsal-up: clockwise rotation followed by vertical reflection"
+}
