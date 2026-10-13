@@ -274,7 +274,8 @@ namespace FishSocial.Desktop
                     nickname = user != null ? user.nickname ?? string.Empty : string.Empty,
                     spotId = user != null ? user.spotId ?? string.Empty : string.Empty,
                     petVisualState = PetStateController.ToWire(
-                        PetStateController.FromFishingPhase(user != null ? user.fishingPhase : null)),
+                        PetStateController.FromFishingPhase(user != null ? user.fishingPhase : null,
+                            false, user != null && user.phaseContext != null ? user.phaseContext.outcome : null)),
                     fishingPhase = user != null ? user.fishingPhase ?? string.Empty : string.Empty,
                     sessionFishingMs = ResolveSessionFishingMs(user),
                     sessionCatchCount = user != null ? user.sessionCatchCount : 0,

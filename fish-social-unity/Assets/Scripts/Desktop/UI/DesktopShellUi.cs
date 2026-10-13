@@ -1032,8 +1032,9 @@ namespace FishSocial.Desktop
         {
             CozyUi.Picture(go.transform, "LakeIllustration", "scenes/pond-afternoon", Vector2.zero,
                 new Vector2(0.69f, 1f), Vector2.zero, Vector2.zero, false);
-            CozyUi.Picture(go.transform, "OrangeCat", "characters/cat-ready", new Vector2(0.04f, 0.04f),
+            var pet = CozyUi.Picture(go.transform, "AnimatedCat", "characters/cat-ready", new Vector2(0.04f, 0.04f),
                 new Vector2(0.48f, 0.70f), Vector2.zero, Vector2.zero);
+            BindAnimatedPet(pet);
             var card = CozyUi.Rect(go.transform, "WelcomeCard", new Vector2(0.69f, 0f), Vector2.one,
                 new Vector2(18f, 22f), new Vector2(-24f, -22f));
             CatTheme.ApplyPaper(card.gameObject.AddComponent<Image>());
@@ -1336,8 +1337,9 @@ namespace FishSocial.Desktop
         {
             CozyUi.Picture(go.transform, "LakeIllustration", "scenes/pond-afternoon", Vector2.zero,
                 new Vector2(0.62f, 1f), Vector2.zero, Vector2.zero, false);
-            CozyUi.Picture(go.transform, "Cat", "characters/cat-ready", new Vector2(0f, 0.02f),
+            var pet = CozyUi.Picture(go.transform, "AnimatedCat", "characters/cat-ready", new Vector2(0f, 0.02f),
                 new Vector2(0.42f, 0.68f), Vector2.zero, Vector2.zero);
+            BindAnimatedPet(pet);
             var controls = CozyUi.Rect(go.transform, "FishingControls", new Vector2(0.63f, 0f), Vector2.one,
                 new Vector2(14f, 10f), new Vector2(-10f, -10f));
             _pondStatus = CozyUi.Label(controls, "PondSession", "连接：未连接 · 当前 phase：—", 15,
@@ -1511,6 +1513,15 @@ namespace FishSocial.Desktop
                 typeof(EventSystem),
                 typeof(StandaloneInputModule));
             DontDestroyOnLoad(es);
+        }
+
+        void BindAnimatedPet(Image image)
+        {
+            Canvas.ForceUpdateCanvases();
+            var renderer = image.gameObject.AddComponent<SpriteFramePetRenderer>();
+            renderer.Bind(image);
+            if (_petState != null)
+                _petState.AddRenderer(renderer);
         }
 
         void BindSquarePet(Transform parent, string name, Vector2 anchoredPos, float size, bool enableDrag)

@@ -13,6 +13,7 @@ namespace FishSocial.Desktop.Pet
     {
         readonly List<IPetRenderer> _renderers = new List<IPetRenderer>();
         bool _dragging;
+        string _appliedPetId;
 
         public PetVisualState Current { get; private set; } = PetVisualState.Offline;
         public event Action<PetVisualState> StateChanged;
@@ -44,7 +45,11 @@ namespace FishSocial.Desktop.Pet
         {
             var next = Resolve(steam, pond, _dragging);
             if (next == Current)
+            {
+                if (_appliedPetId != PetArtLoader.CurrentOwnPetId())
+                    ApplyRenderers();
                 return;
+            }
 
             Current = next;
             ApplyRenderers();
@@ -53,6 +58,7 @@ namespace FishSocial.Desktop.Pet
 
         void ApplyRenderers()
         {
+            _appliedPetId = PetArtLoader.CurrentOwnPetId();
             for (var i = 0; i < _renderers.Count; i++)
                 _renderers[i].Apply(Current);
         }
@@ -76,7 +82,13 @@ namespace FishSocial.Desktop.Pet
                 return PetVisualState.Idle;
 
             var phase = pond.CurrentPhase ?? string.Empty;
-            return FromFishingPhase(phase, pond.HasPendingCatch);
+            var outcome = ResolveFishingOutcome(pond.CurrentUser?.phaseContext?.outcome, pond.LastFishingOutcome);
+            return FromFishingPhase(phase, pond.HasPendingCatch, outcome);
+        }
+
+        static string ResolveFishingOutcome(string phaseOutcome, string lastOutcome)
+        {
+            return string.IsNullOrEmpty(phaseOutcome) ? lastOutcome : phaseOutcome;
         }
 
         public static PetVisualState FromFishingPhase(string phase)
@@ -86,13 +98,20 @@ namespace FishSocial.Desktop.Pet
 
         public static PetVisualState FromFishingPhase(string phase, bool hasPendingCatch)
         {
+            return FromFishingPhase(phase, hasPendingCatch, null);
+        }
+
+        public static PetVisualState FromFishingPhase(string phase, bool hasPendingCatch, string outcome)
+        {
             switch (phase)
             {
                 case "hooked":
                     return PetVisualState.Hooked;
                 case "resolving":
+                    return outcome == "escape" || outcome == "escaped"
+                        ? PetVisualState.EmptyReel : PetVisualState.Reel;
                 case "stopping":
-                    return PetVisualState.Reel;
+                    return hasPendingCatch ? PetVisualState.Reel : PetVisualState.EmptyReel;
                 case "seated":
                     if (hasPendingCatch)
                         return PetVisualState.Catching;
@@ -120,6 +139,7 @@ namespace FishSocial.Desktop.Pet
                 case PetVisualState.Fishing: return "fishing";
                 case PetVisualState.Hooked: return "hooked";
                 case PetVisualState.Reel: return "reel";
+                case PetVisualState.EmptyReel: return "reel_empty";
                 case PetVisualState.Catching: return "catch";
                 case PetVisualState.Dragging: return "dragging";
                 case PetVisualState.Offline: return "offline";
@@ -137,6 +157,7 @@ namespace FishSocial.Desktop.Pet
                 case PetVisualState.Fishing: return "钓鱼";
                 case PetVisualState.Hooked: return "咬钩";
                 case PetVisualState.Reel: return "收杆";
+                case PetVisualState.EmptyReel: return "空杆收回";
                 case PetVisualState.Catching: return "钓到鱼";
                 case PetVisualState.Dragging: return "拖动";
                 case PetVisualState.Offline: return "离线";

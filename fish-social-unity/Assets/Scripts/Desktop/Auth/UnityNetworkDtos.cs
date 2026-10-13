@@ -96,6 +96,7 @@ namespace FishSocial.Desktop.Auth
         public string spotId;
         public string status;
         public string fishingPhase;
+        public PondUserPhaseContextDto phaseContext;
         public long fishingStartedAt;
         public long sessionStartedAt;
         public long todayFishingMs;
@@ -108,6 +109,13 @@ namespace FishSocial.Desktop.Auth
         public PondUserGroundbaitDto groundbait;
         // FEAT-RETURN-02
         public string returnFeeMode;
+    }
+
+    [Serializable]
+    public sealed class PondUserPhaseContextDto
+    {
+        public string outcome;
+        public bool isRebait;
     }
 
     [Serializable]

@@ -2,7 +2,7 @@ namespace FishSocial.Desktop.Pet
 {
     /// <summary>
     /// Own-cat presentation states. Network/window code must not depend on renderer type.
-    /// Wire values match ToWire(): idle, sit, bait, cast, fishing, hooked, reel, catch, dragging, offline.
+    /// Wire values are presentation states, not additional backend fishing phases.
     /// </summary>
     public enum PetVisualState
     {
@@ -16,5 +16,6 @@ namespace FishSocial.Desktop.Pet
         Cast = 7,
         Reel = 8,
         Bait = 9,
+        EmptyReel = 10,
     }
 }

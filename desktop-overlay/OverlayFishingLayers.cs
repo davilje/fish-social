@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 namespace FishSocialOverlay
 {
     /// <summary>
-    /// Orange fishing clips: seven full-canvas layers, one frame index, shared decode cache.
+    /// Approved fishing clips: nine full-canvas layers and per-frame timings.
     /// Missing or invalid manifests fall back to the flat ART-03 sequence.
     /// </summary>
     static class OverlayFishingLayers
@@ -18,7 +18,7 @@ namespace FishSocialOverlay
 
         public static readonly string[] LayerNames =
         {
-            "cat", "rod", "hands", "line", "bobber", "fish", "bait",
+            "body", "head", "far_hand", "rod", "line", "fish", "hands", "bobber", "bait",
         };
 
         static readonly Dictionary<string, PetPack> Packs =
@@ -38,13 +38,13 @@ namespace FishSocialOverlay
 
         public static FishingClipPlayback TryOpen(string petId, string clip)
         {
-            if (!IsSafePetId(petId) || string.IsNullOrEmpty(clip))
+            if (!IsSafePetId(petId) || !IsSafePetId(clip))
                 return null;
 
             var pack = LoadPack(petId);
             if (pack == null || !pack.Clips.TryGetValue(clip, out var playback))
                 return null;
-            if (!File.Exists(LayerPath(petId, clip, 0, "cat", pack.BodyLayers)))
+            if (!File.Exists(LayerPath(petId, clip, 0, "body", pack.BodyLayers)))
                 return null;
             return playback;
         }
@@ -55,7 +55,7 @@ namespace FishSocialOverlay
             if (IsSafePetId(petId) && Packs.TryGetValue(petId, out var pack) && pack != null)
                 body = pack.BodyLayers;
             if (body == null)
-                body = new[] { "cat", "hands" };
+                body = new[] { "body", "head", "far_hand", "hands" };
             return LayerPath(petId, clip, index, layer, body);
         }
 
@@ -255,6 +255,14 @@ namespace FishSocialOverlay
             {
                 pack = null;
             }
+            catch (FormatException)
+            {
+                pack = null;
+            }
+            catch (OverflowException)
+            {
+                pack = null;
+            }
 
             Packs[petId] = pack;
             return pack;
@@ -265,17 +273,18 @@ namespace FishSocialOverlay
             using (var doc = JsonDocument.Parse(json))
             {
                 var root = doc.RootElement;
-                if (!root.TryGetProperty("version", out var version) || version.GetInt32() != 1)
+                if (!root.TryGetProperty("version", out var version) || version.GetInt32() != 2)
+                    return null;
+                if (!root.TryGetProperty("sourceVersion", out var sourceVersion) || sourceVersion.GetInt32() != 18)
+                    return null;
+                if (!root.TryGetProperty("canvas", out var canvas) || canvas.ValueKind != JsonValueKind.Array
+                    || canvas.GetArrayLength() != 2 || canvas[0].GetInt32() != 640 || canvas[1].GetInt32() != 512)
                     return null;
                 if (!ReadNames(root, "layers", out var layers) || !SameNames(layers, LayerNames))
                     return null;
-                if (!ReadNames(root, "bodyLayers", out var body) || body.Length == 0)
-                    body = new[] { "cat", "hands" };
-                for (var i = 0; i < body.Length; i++)
-                {
-                    if (IndexOf(LayerNames, body[i]) < 0)
-                        return null;
-                }
+                if (!ReadNames(root, "bodyLayers", out var body)
+                    || !SameNames(body, new[] { "body", "head", "far_hand", "hands" }))
+                    return null;
 
                 if (!root.TryGetProperty("clips", out var clipsElement) ||
                     clipsElement.ValueKind != JsonValueKind.Object)
@@ -285,8 +294,14 @@ namespace FishSocialOverlay
                 foreach (var property in clipsElement.EnumerateObject())
                 {
                     var playback = ParseClip(property.Value);
-                    if (playback != null)
-                        clips[property.Name] = playback;
+                    if (playback == null || !IsSafePetId(property.Name) || clips.ContainsKey(property.Name))
+                        return null;
+                    clips[property.Name] = playback;
+                }
+                foreach (var clip in clips.Values)
+                {
+                    if (!string.IsNullOrEmpty(clip.NextClip) && !clips.ContainsKey(clip.NextClip))
+                        return null;
                 }
 
                 var place = ReadPlace(root);
@@ -339,7 +354,24 @@ namespace FishSocialOverlay
             if (playback == "intro-loop" && (loopStart < 0 || loopStart >= orders.Count))
                 return null;
 
-            return new FishingClipPlayback(playback, loopStart, orders);
+            if (!element.TryGetProperty("durationsMs", out var durationsElement)
+                || durationsElement.ValueKind != JsonValueKind.Array
+                || durationsElement.GetArrayLength() != orders.Count)
+                return null;
+            var durations = new int[orders.Count];
+            var durationIndex = 0;
+            foreach (var duration in durationsElement.EnumerateArray())
+            {
+                if (duration.ValueKind != JsonValueKind.Number || !duration.TryGetInt32(out var milliseconds)
+                    || milliseconds < 1 || milliseconds > 60000)
+                    return null;
+                durations[durationIndex++] = milliseconds;
+            }
+            var nextClip = element.TryGetProperty("nextClip", out var nextElement)
+                && nextElement.ValueKind == JsonValueKind.String ? nextElement.GetString() : string.Empty;
+            if (!string.IsNullOrEmpty(nextClip) && !IsSafePetId(nextClip))
+                return null;
+            return new FishingClipPlayback(playback, loopStart, orders, durations, nextClip);
         }
 
         static LayerPlace ReadPlace(JsonElement root)
@@ -512,16 +544,21 @@ namespace FishSocialOverlay
 
     sealed class FishingClipPlayback
     {
-        public FishingClipPlayback(string playback, int loopStart, List<string[]> orders)
+        public FishingClipPlayback(string playback, int loopStart, List<string[]> orders, int[] durationsMs, string nextClip)
         {
             Playback = playback;
             LoopStart = loopStart;
             Orders = orders;
+            DurationsMs = durationsMs;
+            NextClip = nextClip;
         }
 
         public string Playback { get; }
         public int LoopStart { get; }
         public List<string[]> Orders { get; }
         public int FrameCount => Orders.Count;
+        public int[] DurationsMs { get; }
+        public string NextClip { get; }
+        public int DurationMs(int index) => DurationsMs[Math.Max(0, Math.Min(FrameCount - 1, index))];
     }
 }

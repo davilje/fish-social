@@ -2,6 +2,11 @@
 
 独立的 Windows WPF 桌面宠物 Overlay。它不引用 Unity、Steamworks.NET 或 Fish Social 业务程序集，只通过 Named Pipe 接收状态并发送 UI 命令。
 
+
+## 钓鱼动画九层包 v2（2026-10-13）
+
+优先读取 `OverlayResources/fishing/<petId>/manifest.json`，角色四层和公共道具五层按每帧顺序、时长叠加；源画布 640×512，不是下面旧平面回退的 256×256。新增空军与两种复位，`reel_empty` 为新增展示状态。完整说明见 `../docs/art/animations/2026-10-13-fishing-animation-port.md`。旧 EXE 不兼容九层资源，必须重新构建并分发最新资源；其他原有猫种保持平面回退。
+
 ## 启动
 
 ```text

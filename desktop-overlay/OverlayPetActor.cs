@@ -74,6 +74,9 @@ namespace FishSocialOverlay
         string _deferredState = string.Empty;
         string _deferredPet = string.Empty;
         string _visualState = string.Empty;
+        string _latestState = string.Empty;
+        bool _catchHolding;
+        bool _successCompleted;
         string _petId = string.Empty;
         string _fishingPhase = string.Empty;
         long _sessionAnchorMs;
@@ -503,10 +506,13 @@ namespace FishSocialOverlay
                 TryShowHover();
         }
 
-        public void ReleaseFishingLayers()
+        public void ReleaseFishingLayers(bool clearDeferred = true)
         {
-            _deferredState = string.Empty;
-            _deferredPet = string.Empty;
+            if (clearDeferred)
+            {
+                _deferredState = string.Empty;
+                _deferredPet = string.Empty;
+            }
             if (_layered == null)
                 return;
             OverlayFishingLayers.Release(_petId, _layeredClip);
@@ -519,43 +525,63 @@ namespace FishSocialOverlay
         void ApplyVisualState(string visualState, string petId)
         {
             var nextState = OverlayFrameCache.NormalizeClip(visualState);
+            var interrupt = string.Equals(visualState, "offline", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(visualState, "dragging", StringComparison.OrdinalIgnoreCase);
             var nextPet = petId ?? string.Empty;
-            if (string.Equals(_visualState, nextState, StringComparison.Ordinal) &&
-                string.Equals(_petId, nextPet, StringComparison.Ordinal))
+            if (string.Equals(_latestState, nextState, StringComparison.Ordinal)
+                && string.Equals(_petId, nextPet, StringComparison.Ordinal)
+                && (!interrupt || _layeredClip == "idle"))
                 return;
-
-            if (ShouldFinishReel(nextState))
+            _latestState = nextState;
+            var samePet = string.Equals(_petId, nextPet, StringComparison.Ordinal);
+            if (samePet && nextState == "catch" && _successCompleted && HoldCatch())
+                return;
+            if (samePet && nextState == "catch" && _layered != null
+                && (_layeredClip == "reel" || _layeredClip == "catch" || _layeredClip == "reset_catch"))
+            {
+                _visualState = nextState;
+                _deferredState = string.Empty;
+                _deferredPet = string.Empty;
+                if (_layeredClip == "reset_catch")
+                    HoldCatch();
+                return;
+            }
+            if (!interrupt && samePet && _catchHolding && IsDeferredDestination(nextState))
+            {
+                _deferredState = nextState;
+                _deferredPet = nextPet;
+                if (StartLayerClip("reset_catch"))
+                    return;
+            }
+            if (!interrupt && samePet && ShouldFinishReel(nextState))
             {
                 _deferredState = nextState;
                 _deferredPet = nextPet;
                 return;
             }
-
+            if (samePet && _layered != null && _layered.Playback == "once"
+                && ((nextState == "reel" && (_layeredClip == "reel" || _layeredClip == "catch" || _layeredClip == "reset_catch"))
+                    || (nextState == "reel_empty" && (_layeredClip == "reel_empty" || _layeredClip == "reset_empty"))))
+            {
+                _visualState = nextState;
+                _deferredState = string.Empty;
+                _deferredPet = string.Empty;
+                return;
+            }
+            var previousState = _visualState;
             _deferredState = string.Empty;
             _deferredPet = string.Empty;
-
-            if (_layered != null)
-                OverlayFishingLayers.Release(_petId, _layeredClip);
-            _layered = null;
-            _layeredClip = string.Empty;
-
+            ReleaseFishingLayers();
             _visualState = nextState;
             _petId = nextPet;
             _frameIndex = 0;
-            var layered = OverlayFishingLayers.TryOpen(_petId, _visualState);
-            if (layered != null)
-            {
-                _layered = layered;
-                _layeredClip = _visualState;
-                OverlayFishingLayers.Acquire(_petId, _layeredClip);
-                _frames = Array.Empty<ImageSource>();
-                ShowLayered();
-                _frameTimer.Stop();
-                if (LayerTimerRuns(layered))
-                    _frameTimer.Start();
+            _catchHolding = false;
+            if (!samePet || (nextState != "sit" && nextState != "catch" && nextState != "ready"))
+                _successCompleted = false;
+            var clip = nextState == "sit" && previousState != "idle" && !string.IsNullOrEmpty(previousState)
+                ? "ready" : nextState;
+            if (StartLayerClip(clip))
                 return;
-            }
-
             ClearLayerSources();
             _layerHost.Visibility = Visibility.Collapsed;
             _frames = OverlayFrameCache.Get(_petId, _visualState);
@@ -563,15 +589,53 @@ namespace FishSocialOverlay
                 ApplyTint(_visualState);
             ShowFrame();
             _frameTimer.Stop();
+            _frameTimer.Interval = TimeSpan.FromMilliseconds(125);
             if (_frames.Length > 1)
                 _frameTimer.Start();
         }
 
+        bool StartLayerClip(string clip)
+        {
+            var layered = OverlayFishingLayers.TryOpen(_petId, clip);
+            if (layered == null)
+                return false;
+            _frameTimer.Stop();
+            _catchHolding = false;
+            ReleaseFishingLayers(false);
+            _layered = layered;
+            _layeredClip = clip;
+            _frameIndex = 0;
+            OverlayFishingLayers.Acquire(_petId, clip);
+            _frames = Array.Empty<ImageSource>();
+            ShowLayered();
+            if (LayerTimerRuns(layered))
+                _frameTimer.Start();
+            return true;
+        }
+
         static bool LayerTimerRuns(FishingClipPlayback clip)
         {
-            if (clip == null || clip.FrameCount <= 1)
+            return clip != null && clip.FrameCount > 0 && clip.Playback != "hold";
+        }
+
+        static bool IsDeferredDestination(string state)
+        {
+            return state == "sit" || state == "idle" || state == "bait" || state == "cast"
+                || state == "ready" || state == "fishing";
+        }
+
+        bool HoldCatch()
+        {
+            if (_layeredClip != "catch" && !StartLayerClip("catch"))
                 return false;
-            return clip.Playback != "hold";
+            _visualState = "catch";
+            _deferredState = string.Empty;
+            _deferredPet = string.Empty;
+            _frameIndex = _layered.FrameCount - 1;
+            _catchHolding = true;
+            _frameTimer.Stop();
+            ShowLayered();
+            return true;
         }
 
         void RelayoutCluster()
@@ -1223,6 +1287,9 @@ namespace FishSocialOverlay
             if (index < 0 || index >= count)
                 index = 0;
             var order = _layered.Orders[index];
+            var interval = TimeSpan.FromMilliseconds(_layered.DurationMs(index));
+            if (_frameTimer.Interval != interval)
+                _frameTimer.Interval = interval;
             for (var i = 0; i < OverlayFishingLayers.LayerNames.Length; i++)
             {
                 var name = OverlayFishingLayers.LayerNames[i];
@@ -1248,55 +1315,52 @@ namespace FishSocialOverlay
 
         void AdvanceLayered()
         {
-            var count = _layered.FrameCount;
-            if (count <= 1)
+            if (_layered == null || _layered.FrameCount == 0 || _layered.Playback == "hold")
             {
                 _frameTimer.Stop();
                 return;
             }
-
-            var playback = _layered.Playback;
-            if (playback == "hold")
+            if (_layered.Playback == "once")
             {
-                _frameTimer.Stop();
-                return;
-            }
-
-            if (playback == "once")
-            {
-                if (_frameIndex >= count - 1)
+                if (_frameIndex < _layered.FrameCount - 1)
                 {
-                    _frameTimer.Stop();
-                    FlushDeferredVisual();
+                    _frameIndex++;
+                    ShowLayered();
                     return;
                 }
-
-                _frameIndex++;
-                ShowLayered();
+                if (_layeredClip == "catch" && _visualState == "catch" && string.IsNullOrEmpty(_deferredState))
+                {
+                    _catchHolding = true;
+                    _frameTimer.Stop();
+                    return;
+                }
+                var completedSuccess = _layeredClip == "reset_catch";
+                var nextClip = _layered.NextClip;
+                if (!string.IsNullOrEmpty(nextClip) && StartLayerClip(nextClip))
+                {
+                    if (_layered.Playback == "hold")
+                    {
+                        _successCompleted = completedSuccess;
+                        FlushDeferredVisual();
+                    }
+                    return;
+                }
+                _frameTimer.Stop();
+                FlushDeferredVisual();
                 return;
             }
-
-            if (playback == "intro-loop" && count >= 10 &&
-                _layered.LoopStart > 0 && _layered.LoopStart < count)
-            {
-                _frameIndex++;
-                if (_frameIndex >= count)
-                    _frameIndex = _layered.LoopStart;
-                ShowLayered();
-                return;
-            }
-
-            _frameIndex = (_frameIndex + 1) % count;
+            _frameIndex++;
+            if (_frameIndex >= _layered.FrameCount)
+                _frameIndex = _layered.LoopStart;
             ShowLayered();
         }
 
         bool ShouldFinishReel(string nextState)
         {
-            if (_layered == null || _layered.Playback != "once" || _layeredClip != "reel")
+            if (_layered == null || _layered.Playback != "once" || !IsDeferredDestination(nextState))
                 return false;
-            if (_frameIndex >= _layered.FrameCount - 1)
-                return false;
-            return nextState == "sit" || nextState == "idle";
+            return _layeredClip == "reel" || _layeredClip == "reel_empty" || _layeredClip == "catch"
+                || _layeredClip == "reset_catch" || _layeredClip == "reset_empty";
         }
 
         void FlushDeferredVisual()
@@ -1307,6 +1371,7 @@ namespace FishSocialOverlay
             var pet = _deferredPet;
             _deferredState = string.Empty;
             _deferredPet = string.Empty;
+            _latestState = string.Empty;
             ApplyVisualState(state, pet);
         }
 
@@ -1701,7 +1766,7 @@ namespace FishSocialOverlay
         public static bool IsOneShotClip(string visualState)
         {
             var clip = NormalizeClip(visualState);
-            return clip == "bait" || clip == "cast" || clip == "reel" || clip == "catch";
+            return clip == "bait" || clip == "cast" || clip == "reel" || clip == "reel_empty" || clip == "catch";
         }
 
         static ImageSource[] Load(string petId, string visualState)

@@ -32,6 +32,7 @@ namespace FishSocial.Desktop.Auth
         public string CurrentPondId { get; private set; } = DefaultPondId;
         public string CurrentPhase => CurrentUser?.fishingPhase ?? "idle";
         public bool HasPendingCatch => _latestCatch != null;
+        public string LastFishingOutcome { get; private set; } = string.Empty;
         public bool CanStartFishing =>
             CurrentUser == null ||
             CurrentPhase == "idle" ||
@@ -497,6 +498,7 @@ namespace FishSocial.Desktop.Auth
             CurrentInventory = new FishInventoryItemDto[0];
             _latestCatch = null;
             _hookPrompt = null;
+            LastFishingOutcome = string.Empty;
             _users.Clear();
             _messages.Clear();
             ActivePoliceRaid = null;
@@ -614,6 +616,9 @@ namespace FishSocial.Desktop.Auth
                 CurrentUser = !string.IsNullOrEmpty(key) && _users.TryGetValue(key, out var merged)
                     ? merged
                     : user;
+                if (CurrentUser.fishingPhase == "hooked" || CurrentUser.fishingPhase == "baiting" ||
+                    CurrentUser.fishingPhase == "casting" || CurrentUser.fishingPhase == "waiting")
+                    LastFishingOutcome = string.Empty;
                 UserUpdated?.Invoke(CurrentUser);
             }
             UsersChanged?.Invoke();
@@ -672,12 +677,14 @@ namespace FishSocial.Desktop.Auth
 
         void OnFishBite(PendingFishCatchDto fishCatch)
         {
+            LastFishingOutcome = "catch";
             _latestCatch = fishCatch;
             FishBiteReceived?.Invoke(fishCatch);
         }
 
         void OnFishMiss(FishingMissDto miss)
         {
+            LastFishingOutcome = "escape";
             var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _hookPrompt = OverlayHookPrompt.Escape(nowMs);
             FishMissReceived?.Invoke(miss);
@@ -685,6 +692,7 @@ namespace FishSocial.Desktop.Auth
 
         void OnFishCatchSettled(FishCatchSettledDto settled)
         {
+            LastFishingOutcome = "catch";
             _latestCatch = null;
             if (CurrentUser != null)
                 CurrentUser.sessionCatchCount = Math.Max(0, CurrentUser.sessionCatchCount) + 1;
