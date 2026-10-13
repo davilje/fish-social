@@ -14,13 +14,13 @@ namespace FishSocial.Desktop
 
     public static class DesktopModalUi
     {
-        public static Font Font => Resources.GetBuiltinResource<Font>("Arial.ttf");
-        public static readonly Color PanelColor = new Color(0.11f, 0.16f, 0.21f, 0.98f);
-        public static readonly Color Header = new Color(0.14f, 0.2f, 0.26f, 1f);
-        public static readonly Color Button = new Color(0.2f, 0.45f, 0.55f, 1f);
-        public static readonly Color Tab = new Color(0.18f, 0.28f, 0.36f, 1f);
-        public static readonly Color Slot = new Color(0.16f, 0.22f, 0.28f, 1f);
-        public static readonly Color SlotOn = new Color(0.28f, 0.42f, 0.5f, 1f);
+        public static Font Font => CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+        public static readonly Color PanelColor = CatTheme.Cream;
+        public static readonly Color Header = new Color(1f, 0.93f, 0.82f, 1f);
+        public static readonly Color Button = CatTheme.Cream;
+        public static readonly Color Tab = new Color(1f, 0.94f, 0.85f, 1f);
+        public static readonly Color Slot = new Color(1f, 0.96f, 0.90f, 1f);
+        public static readonly Color SlotOn = new Color(1f, 0.85f, 0.64f, 1f);
 
         public static RectTransform Stretch(GameObject go)
         {
@@ -76,6 +76,7 @@ namespace FishSocial.Desktop
                 return false;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(onClick);
+            CatTheme.StyleButton(button);
             return true;
         }
 
@@ -99,6 +100,7 @@ namespace FishSocial.Desktop
                 return false;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(onClick);
+            CatTheme.StyleButton(button);
             return true;
         }
 
@@ -130,7 +132,7 @@ namespace FishSocial.Desktop
             label.font = Font;
             label.text = text;
             label.fontSize = size;
-            label.color = Color.white;
+            label.color = CatTheme.Ink;
             label.alignment = align;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Overflow;
@@ -147,6 +149,7 @@ namespace FishSocial.Desktop
             Stretch(label.gameObject);
             var button = go.GetComponent<Button>();
             button.onClick.AddListener(onClick);
+            CatTheme.StyleButton(button);
             return button;
         }
 
@@ -154,12 +157,12 @@ namespace FishSocial.Desktop
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(InputField));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = new Color(0.08f, 0.11f, 0.14f, 1f);
+            go.GetComponent<Image>().color = Slot;
             var ph = Label(go.transform, "Placeholder", placeholder, 15, TextAnchor.MiddleLeft);
             var value = Label(go.transform, "Text", string.Empty, 15, TextAnchor.MiddleLeft);
             Stretch(ph.gameObject).offsetMin = new Vector2(10, 0);
             Stretch(value.gameObject).offsetMin = new Vector2(10, 0);
-            ph.color = new Color(1f, 1f, 1f, 0.35f);
+            ph.color = new Color(CatTheme.Ink.r, CatTheme.Ink.g, CatTheme.Ink.b, 0.55f);
             var input = go.GetComponent<InputField>();
             input.textComponent = value;
             input.placeholder = ph;
@@ -172,7 +175,7 @@ namespace FishSocial.Desktop
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = new Color(0.08f, 0.11f, 0.15f, 1f);
+            go.GetComponent<Image>().color = Slot;
             var contentGo = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
             contentGo.transform.SetParent(go.transform, false);
             var contentRt = Stretch(contentGo);

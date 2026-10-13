@@ -15,6 +15,7 @@ namespace FishSocial.Desktop
     public sealed class DesktopShopPanel : MonoBehaviour
     {
         IAuthenticatedApiClient _api;
+        Text _heading;
         Text _coins;
         Text _equipped;
         Text _status;
@@ -33,13 +34,28 @@ namespace FishSocial.Desktop
         int _coinBalance;
         int _tab;
         int _selectedIndex = -1;
+        bool _equipmentMode;
         Coroutine _refreshRoutine;
 
         public void Bind(IAuthenticatedApiClient api)
         {
             _api = api;
             EnsureUi();
-            SetStatus("尚未加载商店。");
+            SetStatus(_equipmentMode ? "尚未加载装备。" : "尚未加载商店。");
+            Render();
+        }
+
+        public void SetEquipmentMode(bool equipmentMode)
+        {
+            if (_equipmentMode != equipmentMode)
+            {
+                _equipmentMode = equipmentMode;
+                _tab = equipmentMode ? 1 : 0;
+                _selectedIndex = -1;
+            }
+            EnsureUi();
+            SetStatus(_equipmentMode ? "选择已拥有的钓竿或已解锁的鱼饵进行装备。" : "选择商品查看详情。");
+            Render();
         }
 
         public void OnOpened()
@@ -53,8 +69,7 @@ namespace FishSocial.Desktop
         /// </summary>
         public void BuildEditorLayout()
         {
-            if (transform.Find("Header") == null)
-                BuildFallbackUi();
+            EnsureUi();
         }
 
         public void OnClosed()
@@ -82,16 +97,12 @@ namespace FishSocial.Desktop
             if (_coins == null || _equipped == null || _status == null ||
                 _details == null || _buy == null || _equip == null ||
                 _content == null || _baitTab == null || _tackleTab == null || _retry == null)
-                BuildFallbackUi();
-            EnsureVesselTab();
-            if (_details != null)
             {
-                _details.verticalOverflow = VerticalWrapMode.Overflow;
-                _details.horizontalOverflow = HorizontalWrapMode.Wrap;
-                _details.fontSize = 14;
-                _details.resizeTextForBestFit = false;
-                Place(_details.rectTransform, 0f, 0.26f, 1f, 1f);
+                BuildFallbackUi();
+                return;
             }
+            EnsureVesselTab();
+            RestyleUi();
 
             var baitLabel = _baitTab.GetComponentInChildren<Text>();
             if (baitLabel != null)
@@ -123,6 +134,132 @@ namespace FishSocial.Desktop
             SetActionButtons(false, false, false);
         }
 
+        void RestyleUi()
+        {
+            CatTheme.ApplyPaper(GetComponent<Image>());
+            foreach (var path in new[] { "Header", "Tabs", "Details", "Items" })
+                CatTheme.ApplyPaper(Find<Image>(path));
+            var itemsBackground = Find<Image>("Items");
+            if (itemsBackground != null && itemsBackground.GetComponent<ScrollRect>() != null &&
+                itemsBackground.GetComponent<Mask>() == null && itemsBackground.GetComponent<RectMask2D>() == null &&
+                itemsBackground.type != Image.Type.Filled)
+            {
+                itemsBackground.overrideSprite = null;
+                itemsBackground.sprite = CatTheme.LoadCozy("textures/paper.png", Vector4.zero);
+                itemsBackground.type = Image.Type.Simple;
+                itemsBackground.preserveAspect = false;
+                itemsBackground.color = itemsBackground.sprite != null ? Color.white : CatTheme.Cream;
+            }
+            foreach (var label in GetComponentsInChildren<Text>(true))
+                StyleText(label, Math.Max(16, label.fontSize));
+
+            var headerRect = transform.Find("Header") as RectTransform;
+            Place(headerRect, 0f, 1f, 1f, 1f);
+            headerRect.offsetMin = new Vector2(20f, -108f);
+            headerRect.offsetMax = new Vector2(-20f, -16f);
+            var tabsRect = transform.Find("Tabs") as RectTransform;
+            Place(tabsRect, 0f, 1f, 1f, 1f);
+            tabsRect.offsetMin = new Vector2(20f, -170f);
+            tabsRect.offsetMax = new Vector2(-20f, -118f);
+            Place(_status.rectTransform, 0f, 1f, 1f, 1f);
+            _status.rectTransform.offsetMin = new Vector2(20f, -210f);
+            _status.rectTransform.offsetMax = new Vector2(-20f, -176f);
+            var itemsRect = transform.Find("Items") as RectTransform;
+            Place(itemsRect, 0f, 0f, 0.46f, 1f);
+            itemsRect.offsetMin = new Vector2(16f, 16f);
+            itemsRect.offsetMax = new Vector2(-8f, -220f);
+            var detailsRect = transform.Find("Details") as RectTransform;
+            Place(detailsRect, 0.46f, 0f, 1f, 1f);
+            detailsRect.offsetMin = new Vector2(8f, 16f);
+            detailsRect.offsetMax = new Vector2(-16f, -220f);
+
+            var header = transform.Find("Header");
+            _heading = Find<Text>("Header/Title");
+            if (_heading == null && header != null)
+                _heading = CreateText(header, "Title", string.Empty, 26);
+            if (_heading != null)
+            {
+                StyleText(_heading, 26);
+                _heading.text = _equipmentMode ? "我的装备" : "钓鱼商店";
+                _heading.fontStyle = FontStyle.Bold;
+                _heading.alignment = TextAnchor.MiddleLeft;
+                Place(_heading.rectTransform, 0f, 0.55f, 0.66f, 1f);
+            }
+            StyleText(_coins, 18);
+            _coins.alignment = TextAnchor.MiddleRight;
+            Place(_coins.rectTransform, 0.68f, 0.55f, 1f, 1f);
+            StyleText(_equipped, 16);
+            _equipped.alignment = TextAnchor.MiddleLeft;
+            Place(_equipped.rectTransform, 0f, 0f, 1f, 0.55f);
+            _equipped.verticalOverflow = VerticalWrapMode.Overflow;
+            StyleText(_status, 16);
+            StyleText(_details, 16);
+            _details.alignment = TextAnchor.UpperLeft;
+            _details.verticalOverflow = VerticalWrapMode.Overflow;
+            Place(_details.rectTransform, 0f, 0.26f, 1f, 1f);
+            _details.rectTransform.offsetMin = new Vector2(16f, 12f);
+            _details.rectTransform.offsetMax = new Vector2(-16f, -12f);
+
+            CatTheme.StyleButton(_baitTab, "leaf");
+            CatTheme.StyleButton(_tackleTab, "rod");
+            CatTheme.StyleButton(_vesselTab, "pond");
+            CatTheme.StyleButton(_buy, "coin", true);
+            CatTheme.StyleButton(_equip, "check", true);
+            CatTheme.StyleButton(_retry);
+            if (_vesselTab != null)
+                _vesselTab.gameObject.SetActive(!_equipmentMode);
+            if (_equipmentMode)
+            {
+                Place(_baitTab.transform as RectTransform, 0f, 0f, 0.5f, 1f);
+                Place(_tackleTab.transform as RectTransform, 0.5f, 0f, 1f, 1f);
+                if (_tab == 2)
+                    _tab = 1;
+            }
+            else if (_vesselTab != null)
+            {
+                Place(_baitTab.transform as RectTransform, 0f, 0f, 0.333f, 1f);
+                Place(_tackleTab.transform as RectTransform, 0.333f, 0f, 0.667f, 1f);
+                Place(_vesselTab.transform as RectTransform, 0.667f, 0f, 1f, 1f);
+            }
+            Place(_buy.transform as RectTransform, 0.04f, 0.05f, 0.34f, 0.21f);
+            Place(_equip.transform as RectTransform, _equipmentMode ? 0.04f : 0.36f,
+                0.05f, 0.66f, 0.21f);
+            Place(_retry.transform as RectTransform, 0.68f, 0.05f, 0.96f, 0.21f);
+
+            var layout = _content.GetComponent<VerticalLayoutGroup>();
+            if (_content.GetComponent<LayoutGroup>() == null)
+                layout = _content.gameObject.AddComponent<VerticalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.padding = new RectOffset(12, 12, 12, 12);
+                layout.spacing = 12f;
+                layout.childAlignment = TextAnchor.UpperCenter;
+                layout.childControlWidth = true;
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = false;
+            }
+            var grid = _content.GetComponent<GridLayoutGroup>();
+            if (grid != null)
+                grid.cellSize = new Vector2(grid.cellSize.x, Math.Max(112f, grid.cellSize.y));
+            var fitter = _content.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+                fitter = _content.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            _content.anchorMin = new Vector2(0f, 1f);
+            _content.anchorMax = Vector2.one;
+            _content.pivot = new Vector2(0.5f, 1f);
+            _content.sizeDelta = new Vector2(0f, _content.sizeDelta.y);
+            var scroll = Find<ScrollRect>("Items");
+            if (scroll != null)
+            {
+                scroll.content = _content;
+                scroll.horizontal = false;
+                scroll.vertical = true;
+            }
+        }
+
         void Refresh()
         {
             if (_refreshRoutine != null)
@@ -138,7 +275,7 @@ namespace FishSocial.Desktop
                 yield break;
             }
 
-            SetStatus("正在加载商店目录和装备状态…");
+            SetStatus(_equipmentMode ? "正在加载可用装备和当前状态…" : "正在加载商店目录和装备状态…");
             var catalogDone = false;
             var catalogOk = false;
             string catalogError = null;
@@ -181,17 +318,19 @@ namespace FishSocial.Desktop
             {
                 SetStatus(!string.IsNullOrEmpty(catalogError)
                     ? catalogError
-                    : (gearError ?? "商店加载失败，请点击重试。"));
+                    : (gearError ?? (_equipmentMode ? "装备加载失败，请点击重试。" : "商店加载失败，请点击重试。")));
                 Render();
                 yield break;
             }
 
-            SetStatus("商店数据已同步。");
+            SetStatus(_equipmentMode ? "装备已同步，可选择钓竿或鱼饵。" : "商店数据已同步。");
             Render();
         }
 
         void SelectTab(int tab)
         {
+            if (_equipmentMode && tab == 2)
+                return;
             _tab = tab;
             _selectedIndex = -1;
             Render();
@@ -218,6 +357,11 @@ namespace FishSocial.Desktop
 
         void BuySelected()
         {
+            if (_equipmentMode)
+            {
+                SetStatus("装备页仅切换已拥有的钓竿和已解锁的鱼饵，不购买商品。");
+                return;
+            }
             if (_api == null || !_api.CanUse)
             {
                 SetStatus("当前会话已失效，请重新登录。");
@@ -310,6 +454,18 @@ namespace FishSocial.Desktop
 
         void EquipSelected()
         {
+            if (_api == null || !_api.CanUse)
+            {
+                SetStatus("当前会话已失效，请重新登录。");
+                return;
+            }
+            if (_equipmentMode && _tab == 0)
+            {
+                var bait = SelectedBait();
+                if (bait != null && BaitUnlocked(bait) && !IsEquippedBait(bait.id))
+                    StartCoroutine(EquipBaitRoutine(bait));
+                return;
+            }
             if (_tab != 1)
             {
                 SetStatus(_tab == 2
@@ -318,7 +474,7 @@ namespace FishSocial.Desktop
                 return;
             }
             var tackle = SelectedTackle();
-            if (tackle != null)
+            if (tackle != null && OwnsRod(tackle.id) && !IsEquippedRod(tackle.id))
                 StartCoroutine(EquipTackleRoutine(tackle));
         }
 
@@ -366,29 +522,39 @@ namespace FishSocial.Desktop
 
         void Render()
         {
-            if (_coins == null || _content == null)
+            if (_coins == null || _equipped == null || _details == null || _content == null)
                 return;
             _coins.text = "金币：" + _coinBalance;
-            _equipped.text = "钓竿：" + EquippedRodName() +
-                             "    钓鱼等级：" + Math.Max(1, _gear.playerLevel);
+            _equipped.text = _equipmentMode
+                ? "当前钓竿：" + EquippedRodName() + "    当前鱼饵：" + EquippedBaitName() +
+                  "\n钓鱼等级：" + Math.Max(1, _gear.playerLevel) + " · 仅显示已拥有 / 已解锁装备"
+                : "钓竿：" + EquippedRodName() + "    钓鱼等级：" + Math.Max(1, _gear.playerLevel);
             TintTab(_baitTab, _tab == 0);
             TintTab(_tackleTab, _tab == 1);
             if (_vesselTab != null)
                 TintTab(_vesselTab, _tab == 2);
 
             for (var i = _content.childCount - 1; i >= 0; i--)
+            {
+                _content.GetChild(i).gameObject.SetActive(false);
                 Destroy(_content.GetChild(i).gameObject);
+            }
 
+            var visibleCount = 0;
             if (_tab == 0)
             {
                 for (var i = 0; i < _baits.Length; i++)
                 {
                     var unlocked = BaitUnlocked(_baits[i]);
+                    if (_equipmentMode && !unlocked)
+                        continue;
                     var cost = BaitCost(_baits[i]);
-                    CreateCard(i, _baits[i].name, _baits[i].icon,
+                    CreateCard(i, _baits[i].name, "icons/leaf.png",
                         unlocked
-                            ? (cost <= 0 ? "已解锁 · 无限 · 不扣金" : "已解锁 · 每次 " + cost + " 金")
+                            ? (_equipmentMode && IsEquippedBait(_baits[i].id) ? "使用中 · " : "已解锁 · ") +
+                              (cost <= 0 ? "无限 · 不扣金" : "每次 " + cost + " 金")
                             : "钓鱼等级 " + BaitUnlockLevel(_baits[i]) + " 解锁");
+                    visibleCount++;
                 }
             }
             else if (_tab == 1)
@@ -396,22 +562,26 @@ namespace FishSocial.Desktop
                 for (var i = 0; i < _tackles.Length; i++)
                 {
                     var owned = OwnsRod(_tackles[i].id);
+                    if (_equipmentMode && !owned)
+                        continue;
                     var subType = RodSubType(_tackles[i]);
                     var price = RodPrice(_tackles[i]);
-                    CreateCard(i, _tackles[i].name, _tackles[i].icon,
+                    CreateCard(i, _tackles[i].name, "icons/rod.png",
                         owned
                             ? (IsEquippedRod(_tackles[i].id) ? "使用中 · " + subType : "已拥有 · " + subType)
                             : (price <= 0 ? "新手赠送" : "未拥有 · " + price + " 金"));
+                    visibleCount++;
                 }
             }
-            else
+            else if (!_equipmentMode)
             {
                 for (var i = 0; i < _vessels.Length; i++)
                 {
                     var owned = Contains(_gear.ownedVessels, _vessels[i].vesselId);
-                    CreateCard(i, _vessels[i].name, "🚤",
+                    CreateCard(i, _vessels[i].name, "icons/pond.png",
                         owned ? "已拥有 · 暂不可用" :
                         "等级 " + _vessels[i].unlockPlayerLevel + " · " + _vessels[i].priceGold + " 金");
+                    visibleCount++;
                 }
             }
 
@@ -421,7 +591,8 @@ namespace FishSocial.Desktop
             if (_tab == 0 && selectedBait != null)
             {
                 _details.text = BuildBaitDetails(selectedBait);
-                SetActionButtons(false, false, false);
+                SetActionButtons(false, false, _equipmentMode && BaitUnlocked(selectedBait) &&
+                    !IsEquippedBait(selectedBait.id));
             }
             else if (_tab == 1 && selectedTackle != null)
             {
@@ -439,7 +610,11 @@ namespace FishSocial.Desktop
             }
             else
             {
-                _details.text = _tab == 0
+                _details.text = _equipmentMode
+                    ? (visibleCount == 0
+                        ? (_tab == 0 ? "暂无已解锁的鱼饵。提升钓鱼等级后可在这里选择。" : "暂无已拥有的钓竿。获得钓竿后可在这里装备。")
+                        : "选择已拥有的钓竿或已解锁的鱼饵查看详情，再点击装备。\n\n装备页不购买商品；鱼饵仍按原有规则在咬钩成功时扣金。")
+                    : _tab == 0
                     ? "选择鱼饵查看食性、解锁等级和每次扣金。鱼饵不进货，没有库存。"
                     : (_tab == 2
                         ? "选择船具查看购入条件。购买后暂不可使用。"
@@ -450,6 +625,7 @@ namespace FishSocial.Desktop
 
         void SetActionButtons(bool showBuy, bool buyEnabled, bool equipEnabled)
         {
+            showBuy = showBuy && !_equipmentMode;
             if (_buy != null)
             {
                 _buy.gameObject.SetActive(showBuy);
@@ -460,11 +636,32 @@ namespace FishSocial.Desktop
             }
             if (_equip != null)
             {
-                _equip.gameObject.SetActive(equipEnabled || (_tab == 1 && showBuy));
-                if (_tab != 1)
-                    _equip.gameObject.SetActive(false);
+                var showEquip = _equipmentMode
+                    ? (_tab == 0 ? SelectedBait() != null : _tab == 1 && SelectedTackle() != null)
+                    : equipEnabled || (_tab == 1 && showBuy);
+                _equip.gameObject.SetActive(showEquip);
                 _equip.interactable = equipEnabled;
+                var equipLabel = _equip.GetComponentInChildren<Text>(true);
+                if (equipLabel != null)
+                    equipLabel.text = _equipmentMode &&
+                        (_tab == 0 ? IsEquippedBait(SelectedBait()?.id) : IsEquippedRod(SelectedTackle()?.id))
+                        ? "使用中" : "装备";
             }
+        }
+
+        string EquippedBaitName()
+        {
+            for (var i = 0; i < _baits.Length; i++)
+                if (_baits[i].id == _gear.equippedBait && !string.IsNullOrEmpty(_baits[i].name))
+                    return _baits[i].name;
+            var local = DesktopGameData.GetBait(_gear.equippedBait);
+            return local != null && !string.IsNullOrEmpty(local.name)
+                ? local.name : (string.IsNullOrEmpty(_gear.equippedBait) ? "无" : _gear.equippedBait);
+        }
+
+        bool IsEquippedBait(string baitId)
+        {
+            return !string.IsNullOrEmpty(baitId) && _gear.equippedBait == baitId;
         }
 
         string EquippedRodName()
@@ -567,8 +764,17 @@ namespace FishSocial.Desktop
             text.Append("  /  杂食 ").Append(DesktopGameData.FormatPct(omni));
             text.Append("  /  肉食 ").Append(DesktopGameData.FormatPct(carn)).Append('\n');
             text.Append('\n');
-            text.Append("用法：不进货、不显示库存。咬钩时按鱼的食性自动选用已解锁对口饵；");
-            text.Append("金币不够或未解锁则回退到基础杂饵。\n");
+            if (_equipmentMode)
+            {
+                text.Append("选择：仅装备已解锁鱼饵，不购买、不增加库存。\n");
+                text.Append("咬钩时仍按原有规则自动选饵和扣金；金币不够则回退到基础杂饵。\n");
+                text.Append(IsEquippedBait(bait.id) ? "当前选择：使用中。\n" : "当前选择：可装备。\n");
+            }
+            else
+            {
+                text.Append("用法：不进货、不显示库存。咬钩时按鱼的食性自动选用已解锁对口饵；");
+                text.Append("金币不够或未解锁则回退到基础杂饵。\n");
+            }
             text.Append(unlocked ? "当前状态：已解锁，可自动选用。" : "当前状态：等级不足，暂不会被选用。");
             return text.ToString();
         }
@@ -590,7 +796,8 @@ namespace FishSocial.Desktop
             var text = new StringBuilder();
             text.Append(rod.name).Append('\n');
             text.Append("类型：").Append(subType).Append('\n');
-            text.Append("价格：").Append(price <= 0 ? "新手赠送（0 金，不可回购）" : price + " 金").Append('\n');
+            if (!_equipmentMode)
+                text.Append("价格：").Append(price <= 0 ? "新手赠送（0 金，不可回购）" : price + " 金").Append('\n');
             text.Append("咬钩加成：").Append(DesktopGameData.FormatPct(bite)).Append('\n');
             text.Append("防脱：").Append(DesktopGameData.FormatPct(escape)).Append('\n');
             text.Append("超规格阈值：").Append(breakM.ToString("0.##")).Append("m\n");
@@ -643,12 +850,16 @@ namespace FishSocial.Desktop
         {
             if (tab == null)
                 return;
+            CatTheme.StyleButton(tab);
+            var visual = tab.GetComponent<CozyButtonVisual>();
+            if (visual != null)
+                visual.SetSelected(active);
             var label = tab.GetComponentInChildren<Text>();
             if (label != null)
-                label.color = active ? Color.white : new Color(0.65f, 0.7f, 0.75f);
+                label.color = CatTheme.Ink;
         }
 
-        void CreateCard(int index, string name, string icon, string meta)
+        void CreateCard(int index, string name, string iconPath, string meta)
         {
             var card = DesktopUiPrefabFactory.Instantiate("ShopItemCard", _content);
             if (card == null)
@@ -656,26 +867,67 @@ namespace FishSocial.Desktop
                 card = new GameObject("Item_" + index,
                     typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
                 card.transform.SetParent(_content, false);
-                var layout = card.GetComponent<LayoutElement>();
-                layout.minHeight = 64f;
-                layout.preferredHeight = 64f;
-                var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
-                labelGo.transform.SetParent(card.transform, false);
-                Stretch(labelGo.GetComponent<RectTransform>());
                 Debug.LogWarning("[DesktopShop] ShopItemCard.prefab missing; using runtime fallback card.");
             }
             card.name = "Item_" + index;
-            card.GetComponent<Image>().color = index == _selectedIndex
-                ? new Color(0.2f, 0.45f, 0.55f, 1f)
-                : new Color(0.15f, 0.21f, 0.27f, 1f);
+            var layout = card.GetComponent<LayoutElement>();
+            if (layout == null)
+                layout = card.AddComponent<LayoutElement>();
+            layout.minHeight = 112f;
+            layout.preferredHeight = 112f;
+            layout.flexibleHeight = 0f;
+            layout.ignoreLayout = false;
+            var background = card.GetComponent<Image>();
+            if (background == null)
+                background = card.AddComponent<Image>();
+            background.color = CatTheme.Cream;
             var label = card.transform.Find("Label")?.GetComponent<Text>();
             if (label == null)
-                label = CreateText(card.transform, "Label", string.Empty, 15);
-            label.text = icon + "  " + name + "\n" + meta;
-            Stretch(label.rectTransform);
+                label = CreateText(card.transform, "Label", string.Empty, 20);
+            label.text = name;
+            StyleText(label, 20);
+            label.fontStyle = FontStyle.Bold;
+            label.alignment = TextAnchor.MiddleLeft;
+            Place(label.rectTransform, 0f, 0.48f, 1f, 1f);
+            label.rectTransform.offsetMin = new Vector2(92f, 0f);
+            label.rectTransform.offsetMax = new Vector2(-18f, -12f);
+            IgnoreLayout(label);
+            var metadata = card.transform.Find("Meta")?.GetComponent<Text>();
+            if (metadata == null)
+                metadata = CreateText(card.transform, "Meta", string.Empty, 16);
+            metadata.text = meta;
+            StyleText(metadata, 16);
+            metadata.alignment = TextAnchor.MiddleLeft;
+            Place(metadata.rectTransform, 0f, 0f, 1f, 0.48f);
+            metadata.rectTransform.offsetMin = new Vector2(92f, 12f);
+            metadata.rectTransform.offsetMax = new Vector2(-18f, 0f);
+            IgnoreLayout(metadata);
+
+            var icon = card.transform.Find("Icon")?.GetComponent<Image>();
+            if (icon == null)
+            {
+                var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconGo.transform.SetParent(card.transform, false);
+                icon = iconGo.GetComponent<Image>();
+            }
+            icon.overrideSprite = null;
+            icon.sprite = CatTheme.LoadCozy(iconPath, Vector4.zero);
+            icon.type = Image.Type.Simple;
+            icon.preserveAspect = true;
+            icon.color = Color.white;
+            icon.raycastTarget = false;
+            icon.enabled = icon.sprite != null;
+            Place(icon.rectTransform, 0f, 0.5f, 0f, 0.5f);
+            icon.rectTransform.sizeDelta = new Vector2(64f, 64f);
+            icon.rectTransform.anchoredPosition = new Vector2(48f, 0f);
+            IgnoreLayout(icon);
             var button = card.GetComponent<Button>();
             if (button == null)
                 button = card.AddComponent<Button>();
+            CatTheme.StyleButton(button);
+            var visual = button.GetComponent<CozyButtonVisual>();
+            if (visual != null)
+                visual.SetSelected(index == _selectedIndex);
             button.onClick.RemoveAllListeners();
             var captured = index;
             button.onClick.AddListener(() =>
@@ -687,19 +939,23 @@ namespace FishSocial.Desktop
 
         ShopBaitDto SelectedBait()
         {
-            return _tab == 0 && _selectedIndex >= 0 &&
-                   _selectedIndex < _baits.Length ? _baits[_selectedIndex] : null;
+            if (_tab != 0 || _selectedIndex < 0 || _selectedIndex >= _baits.Length)
+                return null;
+            var bait = _baits[_selectedIndex];
+            return !_equipmentMode || BaitUnlocked(bait) ? bait : null;
         }
 
         ShopTackleDto SelectedTackle()
         {
-            return _tab == 1 && _selectedIndex >= 0 &&
-                   _selectedIndex < _tackles.Length ? _tackles[_selectedIndex] : null;
+            if (_tab != 1 || _selectedIndex < 0 || _selectedIndex >= _tackles.Length)
+                return null;
+            var tackle = _tackles[_selectedIndex];
+            return !_equipmentMode || OwnsRod(tackle.id) ? tackle : null;
         }
 
         ShopVesselDto SelectedVessel()
         {
-            return _tab == 2 && _selectedIndex >= 0 &&
+            return !_equipmentMode && _tab == 2 && _selectedIndex >= 0 &&
                    _selectedIndex < _vessels.Length ? _vessels[_selectedIndex] : null;
         }
 
@@ -725,11 +981,13 @@ namespace FishSocial.Desktop
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = new Color(0.2f, 0.45f, 0.55f, 1f);
+            go.GetComponent<Image>().color = CatTheme.Cream;
             var label = CreateText(go.transform, "Label", text, 15);
             Stretch(label.rectTransform);
             label.alignment = TextAnchor.MiddleCenter;
-            return go.GetComponent<Button>();
+            var button = go.GetComponent<Button>();
+            CatTheme.StyleButton(button);
+            return button;
         }
 
         static Text CreateText(Transform parent, string name, string text, int size)
@@ -738,13 +996,34 @@ namespace FishSocial.Desktop
             go.transform.SetParent(parent, false);
             var label = go.GetComponent<Text>();
             label.text = text;
-            label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            label.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = size;
-            label.color = Color.white;
+            label.color = CatTheme.Ink;
             label.raycastTarget = false;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
             return label;
+        }
+
+        static void StyleText(Text label, int size)
+        {
+            if (label == null)
+                return;
+            if (CatTheme.Font != null)
+                label.font = CatTheme.Font;
+            label.fontSize = size;
+            label.resizeTextForBestFit = false;
+            label.color = CatTheme.Ink;
+            label.raycastTarget = false;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+        }
+
+        static void IgnoreLayout(Component component)
+        {
+            var layout = component.GetComponent<LayoutElement>();
+            if (layout == null)
+                layout = component.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
         }
 
         static RectTransform NewRect(string name, Transform parent)
@@ -756,6 +1035,8 @@ namespace FishSocial.Desktop
 
         static void Place(RectTransform rt, float minX, float minY, float maxX, float maxY)
         {
+            if (rt == null)
+                return;
             rt.anchorMin = new Vector2(minX, minY);
             rt.anchorMax = new Vector2(maxX, maxY);
             rt.offsetMin = Vector2.zero;

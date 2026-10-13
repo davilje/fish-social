@@ -75,6 +75,7 @@ namespace FishSocial.Desktop
                 ClearUiHierarchy();
                 BuildFallbackUi();
             }
+            EnsureUi();
         }
 
         void OnDestroy()
@@ -90,7 +91,7 @@ namespace FishSocial.Desktop
         void EnsureUi()
         {
             var panelImage = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-            panelImage.color = new Color(0.07f, 0.10f, 0.14f, 1f);
+            CatTheme.ApplyPaper(panelImage);
             _publicTab = Find<Button>("Header/Public");
             _friendsTab = Find<Button>("Header/Friends");
             _status = Find<Text>("Status");
@@ -105,6 +106,8 @@ namespace FishSocial.Desktop
                     "运行时不会再重建或覆盖手动布局。");
                 return;
             }
+
+            RestyleUi();
 
             if (_publicTab != null)
             {
@@ -128,7 +131,83 @@ namespace FishSocial.Desktop
             if (_friendsOnly == friendsOnly && _hasLoaded)
                 return;
             _friendsOnly = friendsOnly;
+            RestyleTabs();
             Refresh();
+        }
+
+        void RestyleUi()
+        {
+            Paper(Find<Image>("Header"));
+            Paper(Find<Image>("Scroll"));
+            Paper(Find<Image>("Scroll/Viewport"));
+            Paper(Find<Image>("Scroll/Viewport/Content"));
+            foreach (var label in GetComponentsInChildren<Text>(true))
+                StyleText(label, 16);
+            foreach (var input in GetComponentsInChildren<InputField>(true))
+                StyleInput(input);
+            Place(Find<RectTransform>("Header"), new Vector2(0f, 1f), Vector2.one,
+                new Vector2(12f, -50f), new Vector2(-12f, -10f));
+            Place(_publicTab.transform as RectTransform, Vector2.zero, new Vector2(0.5f, 1f),
+                Vector2.zero, new Vector2(-6f, 0f));
+            Place(_friendsTab.transform as RectTransform, new Vector2(0.5f, 0f), Vector2.one,
+                new Vector2(6f, 0f), Vector2.zero);
+            Place(_status.rectTransform, new Vector2(0f, 1f), Vector2.one,
+                new Vector2(16f, -86f), new Vector2(-132f, -54f));
+            Place(_scroll.transform as RectTransform, Vector2.zero, Vector2.one,
+                new Vector2(12f, 12f), new Vector2(-12f, -96f));
+            var viewport = Find<RectTransform>("Scroll/Viewport");
+            Place(viewport, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _scroll.content = _content;
+            _scroll.viewport = viewport;
+            _scroll.horizontal = false;
+            _scroll.vertical = true;
+            _content.anchorMin = new Vector2(0f, 1f);
+            _content.anchorMax = Vector2.one;
+            _content.pivot = new Vector2(0.5f, 1f);
+            _content.offsetMin = new Vector2(0f, _content.offsetMin.y);
+            _content.offsetMax = Vector2.zero;
+            var layout = _content.GetComponent<VerticalLayoutGroup>();
+            if (layout == null && _content.GetComponent<LayoutGroup>() == null)
+                layout = _content.gameObject.AddComponent<VerticalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.padding = new RectOffset(6, 6, 6, 6);
+                layout.spacing = 14f;
+                layout.childControlWidth = true;
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = false;
+            }
+            var fitter = _content.GetComponent<ContentSizeFitter>() ?? _content.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            RestyleTabs();
+        }
+
+        void RestyleTabs()
+        {
+            var tabs = new[] { _publicTab, _friendsTab };
+            var names = new[] { "公开动态", "好友动态" };
+            var icons = new[] { "social", "user" };
+            for (var index = 0; index < tabs.Length; index++)
+            {
+                var button = tabs[index];
+                if (button == null)
+                    continue;
+                var label = button.GetComponentInChildren<Text>(true);
+                if (label != null)
+                {
+                    label.text = names[index];
+                    StyleText(label, 18);
+                    label.alignment = TextAnchor.MiddleCenter;
+                    Place(label.rectTransform, Vector2.zero, Vector2.one,
+                        new Vector2(36f, 4f), new Vector2(-12f, -4f));
+                }
+                CatTheme.StyleButton(button, icons[index]);
+                var visual = button.GetComponent<CozyButtonVisual>();
+                if (visual != null)
+                    visual.SetSelected(_friendsOnly == (index == 1));
+            }
         }
 
         void Refresh()
@@ -281,6 +360,8 @@ namespace FishSocial.Desktop
         void CreateRetry()
         {
             var retry = AddButton(transform, "重试", 100);
+            Place(retry.transform as RectTransform, Vector2.one, Vector2.one,
+                new Vector2(-120f, -88f), new Vector2(-12f, -54f));
             retry.onClick.AddListener(Refresh);
         }
 
@@ -308,9 +389,9 @@ namespace FishSocial.Desktop
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
             text.text = value ?? string.Empty;
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             text.fontSize = size;
-            text.color = Color.white;
+            text.color = CatTheme.Ink;
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
@@ -325,16 +406,18 @@ namespace FishSocial.Desktop
             var element = go.GetComponent<LayoutElement>();
             element.minWidth = width;
             element.preferredWidth = width;
-            element.minHeight = 32;
+            element.minHeight = 40;
+            element.preferredHeight = 40;
             var button = go.GetComponent<Button>();
-            go.GetComponent<Image>().color = new Color(0.18f, 0.27f, 0.34f, 1f);
-            var text = AddLabel(go.transform, label, 14);
+            go.GetComponent<Image>().color = CatTheme.Cream;
+            var text = AddLabel(go.transform, label, 16);
             text.alignment = TextAnchor.MiddleCenter;
             var rt = text.rectTransform;
             rt.anchorMin = Vector2.zero;
             rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
+            rt.offsetMin = new Vector2(12f, 4f);
+            rt.offsetMax = new Vector2(-12f, -4f);
+            CatTheme.StyleButton(button);
             return button;
         }
 
@@ -344,15 +427,98 @@ namespace FishSocial.Desktop
                 typeof(InputField), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
             var element = go.GetComponent<LayoutElement>();
-            element.minHeight = 34;
-            element.preferredHeight = 34;
+            element.minHeight = 40;
+            element.preferredHeight = 40;
             var input = go.GetComponent<InputField>();
-            go.GetComponent<Image>().color = new Color(0.16f, 0.21f, 0.26f, 1f);
-            var text = AddLabel(go.transform, string.Empty, 14);
-            text.color = Color.white;
+            var text = AddLabel(go.transform, string.Empty, 16);
             input.textComponent = text;
             input.placeholder = AddLabel(go.transform, placeholder, 14);
+            StyleInput(input);
             return input;
+        }
+
+        static void StyleInput(InputField input)
+        {
+            var image = input.GetComponent<Image>();
+            if (image != null)
+            {
+                image.overrideSprite = null;
+                image.sprite = null;
+                image.color = new Color(1f, 0.99f, 0.96f, 1f);
+            }
+            StyleText(input.textComponent, 16);
+            if (input.textComponent != null)
+            {
+                input.textComponent.horizontalOverflow = input.lineType == InputField.LineType.SingleLine
+                    ? HorizontalWrapMode.Overflow : HorizontalWrapMode.Wrap;
+                Place(input.textComponent.rectTransform, Vector2.zero, Vector2.one,
+                    new Vector2(12f, 6f), new Vector2(-12f, -6f));
+            }
+            if (input.placeholder is Text placeholder)
+            {
+                StyleText(placeholder, 16);
+                var color = CatTheme.Ink;
+                color.a = 0.6f;
+                placeholder.color = color;
+                Place(placeholder.rectTransform, Vector2.zero, Vector2.one,
+                    new Vector2(12f, 6f), new Vector2(-12f, -6f));
+            }
+            var colors = input.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = Color.white;
+            colors.selectedColor = Color.white;
+            colors.pressedColor = CatTheme.Cream;
+            colors.disabledColor = CatTheme.Cream;
+            input.colors = colors;
+            input.caretColor = CatTheme.Ink;
+        }
+
+        static void StyleText(Text label, int size)
+        {
+            if (label == null)
+                return;
+            if (CatTheme.Font != null)
+                label.font = CatTheme.Font;
+            label.fontSize = size;
+            label.color = CatTheme.Ink;
+            label.resizeTextForBestFit = false;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.raycastTarget = false;
+        }
+
+        static void Paper(Image image)
+        {
+            if (image == null || image.type == Image.Type.Filled)
+                return;
+            var color = CatTheme.Cream;
+            color.a = image.color.a;
+            image.color = color;
+            CatTheme.ApplyPaper(image);
+            if (image.GetComponent<ScrollRect>() != null && image.GetComponent<Mask>() == null &&
+                image.GetComponent<RectMask2D>() == null)
+            {
+                var paper = CatTheme.LoadCozy("textures/paper.png", Vector4.zero);
+                if (paper != null)
+                {
+                    image.overrideSprite = null;
+                    image.sprite = paper;
+                    image.type = Image.Type.Simple;
+                    image.preserveAspect = false;
+                    image.color = new Color(1f, 1f, 1f, color.a);
+                }
+            }
+        }
+
+        static void Place(RectTransform rect, Vector2 min, Vector2 max, Vector2 insetMin, Vector2 insetMax)
+        {
+            if (rect == null)
+                return;
+            var element = rect.GetComponent<LayoutElement>() ?? rect.gameObject.AddComponent<LayoutElement>();
+            element.ignoreLayout = true;
+            rect.anchorMin = min;
+            rect.anchorMax = max;
+            rect.offsetMin = insetMin;
+            rect.offsetMax = insetMax;
         }
 
         void BuildFallbackUi()

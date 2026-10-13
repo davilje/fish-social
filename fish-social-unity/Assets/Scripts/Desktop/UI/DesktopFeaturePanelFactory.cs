@@ -24,6 +24,7 @@ namespace FishSocial.Desktop
                     fallbackRect.offsetMax = Vector2.zero;
                     var fallbackView = fallback.GetComponent<T>();
                     bind(fallbackView);
+                    CatTheme.SkinTree(fallbackView.transform);
                     Debug.LogWarning("[DesktopUI] PanelWorldMap prefab is missing; using editor-generated fallback.");
                     return fallbackView;
                 }
@@ -42,6 +43,7 @@ namespace FishSocial.Desktop
                     fallbackRect.offsetMax = Vector2.zero;
                     var fallbackView = fallback.GetComponent<T>();
                     bind(fallbackView);
+                    CatTheme.SkinTree(fallbackView.transform);
                     Debug.LogWarning("[DesktopUI] PanelShop prefab is missing; using editor-generated fallback.");
                     return fallbackView;
                 }
@@ -82,6 +84,7 @@ namespace FishSocial.Desktop
             }
 
             bind(view);
+            CatTheme.SkinTree(view.transform);
             return view;
         }
 
@@ -101,6 +104,7 @@ namespace FishSocial.Desktop
             fallbackRect.offsetMax = Vector2.zero;
             var fallbackView = fallback.GetComponent<T>();
             bind(fallbackView);
+            CatTheme.SkinTree(fallbackView.transform);
             Debug.LogWarning("[DesktopUI] " + name +
                              " prefab is missing; using editor-generated fallback.");
             return fallbackView;

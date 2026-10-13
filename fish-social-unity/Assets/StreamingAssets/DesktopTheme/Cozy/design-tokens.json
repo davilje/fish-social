@@ -1,0 +1,63 @@
+{
+  "version": 2,
+  "name": "喵与鱼 · 最终极简雕刻 UI",
+  "approvedReference": "sources/approved-button-states.png",
+  "colors": {
+    "ink": "#75472e",
+    "muted": "#9a7a61",
+    "paper": "#fff7e9",
+    "line": "#e9cfad",
+    "orange": "#f9a33f",
+    "blue": "#92a3e7",
+    "sage": "#789778",
+    "hover": "#ffecd3",
+    "pressed": "#ffd8ad"
+  },
+  "button": {
+    "default": {
+      "texture": "textures/button-default.png",
+      "outerShadow": true
+    },
+    "hover": {
+      "texture": "textures/button-hover.png",
+      "outerShadow": true
+    },
+    "pressed": {
+      "texture": "textures/button-pressed.png",
+      "translateY": 3,
+      "outerShadow": false,
+      "innerShadow": false
+    },
+    "disabled": {
+      "opacity": 0.45,
+      "saturation": 0.25,
+      "outerShadow": false
+    },
+    "transitionMs": 100,
+    "iconStyle": "monochrome-raster-engraving",
+    "iconCanvas": [
+      256,
+      256
+    ]
+  },
+  "radii": {
+    "button": 16,
+    "card": 24,
+    "scene": 32,
+    "dialog": 28
+  },
+  "layout": {
+    "desktopContentMax": 1320,
+    "homeContentMax": 1536,
+    "mobileBreakpoint": 700,
+    "desktopDock": "11-route bottom navigation",
+    "mobileDock": "5 controls + all-route drawer"
+  },
+  "fonts": [
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "sans-serif"
+  ],
+  "assets": "manifest.json"
+}

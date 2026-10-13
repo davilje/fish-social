@@ -15,6 +15,8 @@ namespace FishSocial.Desktop
 
             var instance = Object.Instantiate(prefab, parent, false);
             instance.name = prefabName;
+            if (instance.GetComponent<CozyPanelSkin>() == null)
+                instance.AddComponent<CozyPanelSkin>();
             return instance;
         }
 

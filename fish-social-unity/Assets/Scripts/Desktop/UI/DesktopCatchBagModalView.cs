@@ -33,6 +33,8 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(transform, "Sell", SellSelected);
             DesktopModalUi.BindButton(transform, "Share", ShareSelected);
             EnsureReturnButton();
+            ApplyResponsiveLayout();
+            CatTheme.SkinTree(transform);
             if (_coins == null || _status == null || _detail == null || _grid == null)
                 Debug.LogError("[DesktopUI] PanelCatch prefab is missing required controls.");
         }
@@ -74,10 +76,12 @@ namespace FishSocial.Desktop
             var content = _grid != null ? _grid.GetComponent<GridLayoutGroup>() : null;
             if (content != null)
             {
-                content.cellSize = new Vector2(78f, 60f);
-                content.spacing = new Vector2(6f, 6f);
+                content.cellSize = new Vector2(96f, 82f);
+                content.spacing = new Vector2(10f, 10f);
                 content.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                content.constraintCount = 6;
+                var gridWidth = root.rect.width > 0f ? root.rect.width * 0.58f - 8f : 640f;
+                content.constraintCount = Mathf.Max(1, Mathf.FloorToInt((gridWidth - 24f + 10f) / 106f));
+                content.padding = new RectOffset(12, 12, 12, 12);
             }
 
             if (_detail != null)
@@ -103,6 +107,12 @@ namespace FishSocial.Desktop
             button.anchorMax = new Vector2(maxX, 0f);
             button.offsetMin = new Vector2(8f, 8f);
             button.offsetMax = new Vector2(-8f, 44f);
+        }
+
+        void OnRectTransformDimensionsChange()
+        {
+            if (_grid != null)
+                ApplyResponsiveLayout();
         }
 
         public void OnOpened()
@@ -235,13 +245,25 @@ namespace FishSocial.Desktop
                 var image = slot.GetComponent<Image>();
                 if (image != null)
                     image.color = selected ? DesktopModalUi.SlotOn : DesktopModalUi.Slot;
+                var slotButton = slot.GetComponent<Button>();
+                if (slotButton != null)
+                {
+                    CatTheme.StyleButton(slotButton);
+                    slotButton.GetComponent<CozyButtonVisual>().SetSelected(selected);
+                    slotButton.interactable = item != null;
+                }
                 var label = item == null
                     ? (i + 1).ToString()
                     : DesktopFishCatalog.SpeciesName(item.speciesId) + "\n" + DesktopFishCatalog.QualityName(item.quality);
                 var text = DesktopUiPrefabFactory.Child(slot, "Label");
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
+                {
                     labelText.text = label;
+                    labelText.color = CatTheme.Ink;
+                    labelText.font = DesktopModalUi.Font;
+                    labelText.fontSize = 14;
+                }
                 if (item != null)
                 {
                     var captured = item;

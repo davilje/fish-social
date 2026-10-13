@@ -14,5 +14,8 @@ namespace FishSocial.Desktop
         ProfileEdit = 9,
         SocialFeed = 10,
         Leaderboard = 11,
+        PondSelection = 12,
+        Equipment = 13,
+        Achievements = 14,
     }
 }

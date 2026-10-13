@@ -28,6 +28,8 @@ namespace FishSocial.Desktop
         WorldMapPondView[] _ponds = new WorldMapPondView[0];
         readonly Dictionary<string, WorldMapPondView> _byId =
             new Dictionary<string, WorldMapPondView>(StringComparer.Ordinal);
+        readonly Dictionary<string, Button> _markersById =
+            new Dictionary<string, Button>(StringComparer.Ordinal);
         WorldMapPondView _selected;
         FishingProgressDto _progress;
         string _feeConfirmPondId;
@@ -47,9 +49,9 @@ namespace FishSocial.Desktop
             EnsureUi();
             _ponds = WorldMapPondCatalog.LoadVisible();
             _byId.Clear();
-            for (var i = 0; i < _ponds.Length; i++)
-                if (_ponds[i] != null && !string.IsNullOrEmpty(_ponds[i].pondId))
-                    _byId[_ponds[i].pondId] = _ponds[i];
+            for (var pondIndex = 0; pondIndex < _ponds.Length; pondIndex++)
+                if (_ponds[pondIndex] != null && !string.IsNullOrEmpty(_ponds[pondIndex].pondId))
+                    _byId[_ponds[pondIndex].pondId] = _ponds[pondIndex];
             if (_pond != null)
             {
                 _pond.ErrorReceived += OnPondError;
@@ -68,6 +70,21 @@ namespace FishSocial.Desktop
             if (_api == null || !_api.CanUse)
                 return;
             StartCoroutine(LoadProgress());
+        }
+
+        public void FocusPond(string pondId)
+        {
+            WorldMapPondView selectedPond;
+            if (string.IsNullOrEmpty(pondId) || !_byId.TryGetValue(pondId, out selectedPond))
+            {
+                SetStatus("未找到对应鱼塘，请重新选择。");
+                return;
+            }
+            Select(selectedPond);
+            _content.anchoredPosition = new Vector2(
+                (0.5f - selectedPond.x) * MapWidth * _zoom,
+                (selectedPond.y - 0.5f) * MapHeight * _zoom);
+            ClampContent();
         }
 
         System.Collections.IEnumerator LoadProgress()
@@ -98,6 +115,7 @@ namespace FishSocial.Desktop
             _reset.onClick.RemoveAllListeners();
             _reset.onClick.AddListener(ResetView);
             EnsureFeeModeButtons(_enter != null ? _enter.transform.parent : transform);
+            ApplyCozyStyle();
         }
 
         void EnsureFeeModeButtons(Transform parent)
@@ -110,15 +128,15 @@ namespace FishSocial.Desktop
             var autoRect = _modeAuto.GetComponent<RectTransform>();
             if (sellRect != null)
             {
-                sellRect.anchorMin = new Vector2(0.02f, 0.18f);
-                sellRect.anchorMax = new Vector2(0.49f, 0.26f);
+                sellRect.anchorMin = new Vector2(0.02f, 0.21f);
+                sellRect.anchorMax = new Vector2(0.49f, 0.28f);
                 sellRect.offsetMin = Vector2.zero;
                 sellRect.offsetMax = Vector2.zero;
             }
             if (autoRect != null)
             {
-                autoRect.anchorMin = new Vector2(0.51f, 0.18f);
-                autoRect.anchorMax = new Vector2(0.98f, 0.26f);
+                autoRect.anchorMin = new Vector2(0.51f, 0.21f);
+                autoRect.anchorMax = new Vector2(0.98f, 0.28f);
                 autoRect.offsetMin = Vector2.zero;
                 autoRect.offsetMax = Vector2.zero;
             }
@@ -158,11 +176,10 @@ namespace FishSocial.Desktop
         {
             if (button == null)
                 return;
-            var image = button.GetComponent<Image>();
-            if (image != null)
-                image.color = selected
-                    ? new Color(0.18f, 0.45f, 0.32f, 1f)
-                    : new Color(0.2f, 0.24f, 0.28f, 1f);
+            CatTheme.StyleButton(button);
+            var visual = button.GetComponent<CozyButtonVisual>();
+            if (visual != null)
+                visual.SetSelected(selected);
         }
 
         static bool PondHasDualFee(WorldMapPondView pond)
@@ -178,8 +195,104 @@ namespace FishSocial.Desktop
 
         void BuildFallbackUi()
         {
-            Debug.LogError("[DesktopUI] Prefab is missing required controls. Runtime will not build a second layout.");
-            return;
+            _viewport = EnsureRect(transform, "Viewport");
+            Layout(_viewport, Vector2.zero, new Vector2(0.68f, 1f));
+            var viewportImage = _viewport.GetComponent<Image>() ?? _viewport.gameObject.AddComponent<Image>();
+            viewportImage.color = CatTheme.Cream;
+            if (_viewport.GetComponent<RectMask2D>() == null && _viewport.GetComponent<Mask>() == null)
+                _viewport.gameObject.AddComponent<RectMask2D>();
+
+            _content = EnsureRect(_viewport, "MapContent");
+            _content.anchorMin = new Vector2(0.5f, 0.5f);
+            _content.anchorMax = _content.anchorMin;
+            _content.pivot = new Vector2(0.5f, 0.5f);
+            _content.sizeDelta = new Vector2(MapWidth, MapHeight);
+            var mapImage = EnsureRect(_content, "MapImage");
+            Layout(mapImage, Vector2.zero, Vector2.one);
+            if (mapImage.GetComponent<Image>() == null)
+                mapImage.gameObject.AddComponent<Image>();
+            _markerLayer = EnsureRect(_content, "MarkerLayer");
+            Layout(_markerLayer, Vector2.zero, Vector2.one);
+
+            var detailsPanel = EnsureRect(transform, "Details");
+            Layout(detailsPanel, new Vector2(0.68f, 0f), Vector2.one);
+            if (detailsPanel.GetComponent<Image>() == null)
+                detailsPanel.gameObject.AddComponent<Image>();
+            _details = EnsureText(detailsPanel, "DetailsText", "请选择地图上的鱼塘。");
+            _status = EnsureText(detailsPanel, "StatusText", string.Empty);
+            _enter = EnsureButton(detailsPanel, "EnterPond", "进入鱼塘");
+            _reset = EnsureButton(detailsPanel, "ResetView", "重置地图");
+        }
+
+        void ApplyCozyStyle()
+        {
+            var background = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
+            CatTheme.ApplyPaper(background);
+            var viewportImage = _viewport.GetComponent<Image>();
+            if (viewportImage != null)
+                viewportImage.color = CatTheme.Cream;
+            var backdropNode = _content.Find("MapImage");
+            var backdrop = backdropNode != null ? backdropNode.GetComponent<Image>() : _content.GetComponent<Image>();
+            if (backdrop == null)
+            {
+                var backdropRect = EnsureRect(_content, "MapImage");
+                Layout(backdropRect, Vector2.zero, Vector2.one);
+                backdrop = backdropRect.gameObject.AddComponent<Image>();
+            }
+            backdrop.transform.SetAsFirstSibling();
+            backdrop.overrideSprite = null;
+            backdrop.sprite = CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero);
+            backdrop.type = Image.Type.Simple;
+            backdrop.preserveAspect = false;
+            backdrop.color = backdrop.sprite != null ? Color.white : CatTheme.Cream;
+            backdrop.raycastTarget = true;
+            _markerLayer.SetAsLastSibling();
+
+            var detailsPanel = _details.transform.parent;
+            var detailsImage = detailsPanel.GetComponent<Image>() ?? detailsPanel.gameObject.AddComponent<Image>();
+            detailsImage.color = CatTheme.Cream;
+            CatTheme.ApplyPaper(detailsImage);
+            foreach (var label in detailsPanel.GetComponentsInChildren<Text>(true))
+            {
+                label.color = CatTheme.Ink;
+                if (CatTheme.Font != null)
+                    label.font = CatTheme.Font;
+                label.raycastTarget = false;
+            }
+            Layout(_details.rectTransform, new Vector2(0.06f, 0.41f), new Vector2(0.94f, 0.96f));
+            _details.alignment = TextAnchor.UpperLeft;
+            _details.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _details.verticalOverflow = VerticalWrapMode.Truncate;
+            _details.resizeTextForBestFit = true;
+            _details.resizeTextMinSize = 14;
+            _details.resizeTextMaxSize = 18;
+            Layout(_status.rectTransform, new Vector2(0.06f, 0.29f), new Vector2(0.94f, 0.4f));
+            _status.fontSize = 16;
+            _status.resizeTextForBestFit = true;
+            _status.resizeTextMinSize = 14;
+            _status.resizeTextMaxSize = 16;
+            _status.alignment = TextAnchor.UpperLeft;
+            _status.horizontalOverflow = HorizontalWrapMode.Wrap;
+            Layout(_enter.GetComponent<RectTransform>(), new Vector2(0.06f, 0.12f), new Vector2(0.94f, 0.2f));
+            Layout(_reset.GetComponent<RectTransform>(), new Vector2(0.06f, 0.03f), new Vector2(0.94f, 0.1f));
+            CatTheme.StyleButton(_enter, "pond.png", true);
+            CatTheme.StyleButton(_reset, "map.png");
+            CatTheme.StyleButton(_modeSell);
+            CatTheme.StyleButton(_modeAuto);
+            RefreshFeeModeButtons();
+        }
+
+        static RectTransform EnsureRect(Transform parent, string name)
+        {
+            return parent.Find(name) as RectTransform ?? NewRect(name, parent);
+        }
+
+        static void Layout(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax)
+        {
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         static RectTransform NewRect(string name, Transform parent)
@@ -194,28 +307,42 @@ namespace FishSocial.Desktop
             var node = parent.Find(name) ?? NewRect(name, parent);
             var text = node.GetComponent<Text>() ?? node.gameObject.AddComponent<Text>();
             text.text = value;
-            text.color = Color.white;
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.color = CatTheme.Ink;
+            text.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             text.fontSize = 18;
             text.alignment = TextAnchor.UpperLeft;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.raycastTarget = false;
             return text;
         }
 
         static Button EnsureButton(Transform parent, string name, string label)
         {
             var node = parent.Find(name) ?? NewRect(name, parent);
+            var image = node.GetComponent<Image>() ?? node.gameObject.AddComponent<Image>();
+            image.color = CatTheme.Cream;
             var button = node.GetComponent<Button>() ?? node.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
             var text = EnsureText(node, "Text", label);
             text.text = label;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 12;
+            text.resizeTextMaxSize = 18;
+            Layout(text.rectTransform, new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.92f));
             return button;
         }
 
         void BuildMarkers()
         {
-            for (var i = _markerLayer.childCount - 1; i >= 0; i--)
-                Destroy(_markerLayer.GetChild(i).gameObject);
+            _markersById.Clear();
+            for (var markerIndex = _markerLayer.childCount - 1; markerIndex >= 0; markerIndex--)
+            {
+                var oldMarker = _markerLayer.GetChild(markerIndex).gameObject;
+                oldMarker.SetActive(false);
+                Destroy(oldMarker);
+            }
             foreach (var item in _ponds)
             {
                 if (item == null || string.IsNullOrEmpty(item.pondId))
@@ -224,23 +351,38 @@ namespace FishSocial.Desktop
                 var marker = NewRect("Pond_" + item.pondId, _markerLayer);
                 marker.anchorMin = new Vector2(item.x, 1f - item.y);
                 marker.anchorMax = marker.anchorMin;
-                marker.sizeDelta = new Vector2(64f, 64f);
-                marker.gameObject.AddComponent<Image>().color =
-                    DesktopGameData.CategoryColor(item.pondCategory, locked);
+                marker.sizeDelta = new Vector2(172f, 96f);
+                var markerImage = marker.gameObject.AddComponent<Image>();
+                markerImage.color = CatTheme.Cream;
                 var button = marker.gameObject.AddComponent<Button>();
+                button.targetGraphic = markerImage;
                 var captured = item;
                 button.onClick.AddListener(() => Select(captured));
                 var caption = item.displayName + "\n" +
                               DesktopGameData.CategoryLabel(item.pondCategory);
                 if (locked)
-                    caption += "\n锁";
+                    caption += " · 未开放/需解锁";
                 var label = EnsureText(marker, "Label", caption);
                 label.alignment = TextAnchor.MiddleCenter;
-                label.fontSize = 10;
-                label.rectTransform.anchorMin = Vector2.zero;
-                label.rectTransform.anchorMax = Vector2.one;
-                label.rectTransform.offsetMin = Vector2.zero;
-                label.rectTransform.offsetMax = Vector2.zero;
+                label.fontSize = 16;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 14;
+                label.resizeTextMaxSize = 16;
+                label.color = locked ? new Color(0.38f, 0.34f, 0.3f, 1f) : CatTheme.Ink;
+                Layout(label.rectTransform, new Vector2(0.23f, 0.1f), new Vector2(0.94f, 0.9f));
+                CatTheme.StyleButton(button, locked ? "lock.png" : "pond.png");
+                _markersById[item.pondId] = button;
+            }
+            RefreshMarkerSelection();
+        }
+
+        void RefreshMarkerSelection()
+        {
+            foreach (var marker in _markersById)
+            {
+                var visual = marker.Value.GetComponent<CozyButtonVisual>();
+                if (visual != null)
+                    visual.SetSelected(_selected != null && marker.Key == _selected.pondId);
             }
         }
 
@@ -256,6 +398,7 @@ namespace FishSocial.Desktop
         void Select(WorldMapPondView item)
         {
             _selected = item;
+            RefreshMarkerSelection();
             _feeConfirmPondId = null;
             if (_selected == null)
             {

@@ -10,14 +10,13 @@ using FishSocial.Desktop.Social;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Login stays on a 480×320 canvas. The main shell is a 1280×720 reference
-    /// with a 64px header and a 40px row of five tabs. Map, bag, feed, and rank
-    /// stay on the product menu and on the pages that already own them.
+    /// Login retains the original Steam flow; the desktop shell uses a cream-paper
+    /// header, a scenic home and an eleven-destination engraved-icon dock.
     /// </summary>
     public sealed class DesktopShellUi : MonoBehaviour, IDesktopProductMenuHandler
     {
-        const float HeaderHeight = 64f;
-        const float TabHeight = 40f;
+        const float HeaderHeight = 88f;
+        const float TabHeight = 104f;
 
         PanelRouter _router;
         CanvasScaler _scaler;
@@ -56,6 +55,13 @@ namespace FishSocial.Desktop
         bool _onboardingLock;
         bool _suppressInventoryToast;
         Transform _settlementCanvas;
+        DesktopShopPanel _equipmentPanel;
+        DesktopProfileHubPanel _achievementPanel;
+        CozyPondSelectionPanel _pondSelectionPanel;
+        Text _headerCoins;
+        bool _cozyChromeBuilt;
+        bool _balanceLoading;
+        float _nextBalanceRefresh;
 
         public IAuthenticatedApiClient AuthenticatedApi => _authenticatedApi;
 
@@ -276,6 +282,9 @@ namespace FishSocial.Desktop
                 RegisterPanel(content, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
                 RegisterPanel(content, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
                 RegisterPanel(content, ShellPanelId.Settings, BuildSettingsPanel);
+                RegisterPanel(content, ShellPanelId.Equipment, BuildEquipment);
+                RegisterPanel(content, ShellPanelId.PondSelection, BuildPondSelection);
+                RegisterPanel(content, ShellPanelId.Achievements, BuildAchievements);
             }
 
             _toast = canvasGo.transform.Find("Toast")?.GetComponent<Text>();
@@ -403,6 +412,9 @@ namespace FishSocial.Desktop
             RegisterPanel(content.transform, ShellPanelId.SocialFeed, BuildSocialFeedPanel);
             RegisterPanel(content.transform, ShellPanelId.Leaderboard, BuildLeaderboardPanel);
             RegisterPanel(content.transform, ShellPanelId.Settings, BuildSettingsPanel);
+            RegisterPanel(content.transform, ShellPanelId.Equipment, BuildEquipment);
+            RegisterPanel(content.transform, ShellPanelId.PondSelection, BuildPondSelection);
+            RegisterPanel(content.transform, ShellPanelId.Achievements, BuildAchievements);
             ApplyLoginFrame();
             ApplyShellFrame();
         }
@@ -433,7 +445,7 @@ namespace FishSocial.Desktop
             if (steam != null)
             {
                 CatTheme.ApplyPlate(steam.GetComponent<Image>(), "btn-coral");
-                Paint(steam, "Label", CatTheme.Cream);
+                Paint(steam, "Label", CatTheme.Ink);
             }
         }
 
@@ -441,94 +453,141 @@ namespace FishSocial.Desktop
         {
             if (_mainRoot == null)
                 return;
-
-            var paper = _mainRoot.GetComponent<Image>();
-            if (paper != null)
-                paper.color = CatTheme.Cream;
-
+            CatTheme.ApplyPaper(_mainRoot.GetComponent<Image>());
             var header = _mainRoot.transform.Find("Header") as RectTransform;
             var nav = _mainRoot.transform.Find("Nav") as RectTransform;
             var content = _mainRoot.transform.Find("Content") as RectTransform;
             if (header != null)
             {
-                var headerImage = header.GetComponent<Image>();
-                if (headerImage != null)
-                    headerImage.color = CatTheme.Teal;
                 header.anchorMin = new Vector2(0f, 1f);
-                header.anchorMax = new Vector2(1f, 1f);
-                header.pivot = new Vector2(0.5f, 1f);
+                header.anchorMax = Vector2.one;
                 header.offsetMin = new Vector2(0f, -HeaderHeight);
                 header.offsetMax = Vector2.zero;
-                var pet = header.Find("HeaderPetSlot") as RectTransform;
-                if (pet != null)
-                {
-                    pet.anchoredPosition = new Vector2(12f, -12f);
-                    pet.sizeDelta = new Vector2(40f, 40f);
-                }
-
-                SetShown(header, "Title", false);
-                SetShown(header, "LoginStatus", false);
-                PlaceHeaderLine(header, "PetStatus", 64f, 20f, 420f, 24f, TextAnchor.MiddleLeft);
-                PlaceHeaderLine(header, "ConnStatus", -392f, 20f, 160f, 24f, TextAnchor.MiddleRight);
-                PlaceHeaderLine(header, "PondStatus", -224f, 20f, 160f, 24f, TextAnchor.MiddleRight);
+                CatTheme.ApplyPaper(header.GetComponent<Image>());
             }
-
             if (nav != null)
             {
-                var settings = FindDirect(nav, "设置") ?? (header != null ? FindDirect(header, "设置") : null);
-                if (settings != null && header != null && settings.parent != header)
-                    settings.SetParent(header, false);
-                if (settings != null)
-                    PlaceSettingsButton(settings);
-
-                nav.anchorMin = new Vector2(0f, 1f);
-                nav.anchorMax = new Vector2(1f, 1f);
-                nav.pivot = new Vector2(0.5f, 1f);
-                nav.offsetMin = new Vector2(0f, -(HeaderHeight + TabHeight));
-                nav.offsetMax = new Vector2(0f, -HeaderHeight);
-                var navImage = nav.GetComponent<Image>();
-                if (navImage != null)
-                    navImage.color = CatTheme.Cream;
-                var existingHorizontal = nav.GetComponent<HorizontalLayoutGroup>();
-                if (existingHorizontal != null)
-                    DestroyImmediate(existingHorizontal);
-                var existingVertical = nav.GetComponent<VerticalLayoutGroup>();
-                if (existingVertical != null)
-                    DestroyImmediate(existingVertical);
-                var tabs = nav.gameObject.AddComponent<HorizontalLayoutGroup>();
-                tabs.padding = new RectOffset(16, 16, 0, 0);
-                tabs.spacing = 8f;
-                tabs.childAlignment = TextAnchor.MiddleLeft;
-                tabs.childControlWidth = true;
-                tabs.childControlHeight = true;
-                tabs.childForceExpandWidth = false;
-                tabs.childForceExpandHeight = true;
-                StyleTabRow(nav);
+                nav.anchorMin = Vector2.zero;
+                nav.anchorMax = new Vector2(1f, 0f);
+                nav.offsetMin = Vector2.zero;
+                nav.offsetMax = new Vector2(0f, TabHeight);
+                CatTheme.ApplyPaper(nav.GetComponent<Image>());
             }
-
             if (content != null)
             {
-                var contentImage = content.GetComponent<Image>();
-                if (contentImage != null)
-                    contentImage.color = CatTheme.Cream;
                 content.anchorMin = Vector2.zero;
                 content.anchorMax = Vector2.one;
-                content.offsetMin = Vector2.zero;
-                content.offsetMax = new Vector2(0f, -(HeaderHeight + TabHeight));
+                content.offsetMin = new Vector2(0f, TabHeight);
+                content.offsetMax = new Vector2(0f, -HeaderHeight);
+                CatTheme.ApplyPaper(content.GetComponent<Image>());
             }
-
+            if (!_cozyChromeBuilt && header != null && nav != null)
+            {
+                _cozyChromeBuilt = true;
+                ClearChrome(header);
+                ClearChrome(nav);
+                _lockableNavButtons.RemoveAll(button => button == null || button.transform.IsChildOf(nav));
+                _tabs.Clear();
+                BuildCozyHeader(header);
+                BuildCozyDock(nav);
+                CatTheme.SkinTree(_mainRoot.transform);
+            }
             if (_toast != null)
             {
-                var toastRt = _toast.rectTransform;
-                toastRt.anchorMin = new Vector2(0f, 0f);
-                toastRt.anchorMax = new Vector2(1f, 0f);
-                toastRt.pivot = new Vector2(0.5f, 0f);
-                toastRt.offsetMin = new Vector2(16f, 16f);
-                toastRt.offsetMax = new Vector2(-16f, 60f);
-                _toast.color = CatTheme.Coral;
+                var rect = _toast.rectTransform;
+                rect.anchorMin = new Vector2(0f, 0f);
+                rect.anchorMax = new Vector2(1f, 0f);
+                rect.offsetMin = new Vector2(28f, TabHeight + 8f);
+                rect.offsetMax = new Vector2(-28f, TabHeight + 48f);
+                _toast.color = CatTheme.Ink;
+                _toast.font = DesktopModalUi.Font;
+                _toast.raycastTarget = false;
+                _toast.transform.SetAsLastSibling();
             }
+            HighlightTab(_router != null ? _router.Current : ShellPanelId.Home);
+        }
 
-            HighlightTab(ShellPanelId.Home);
+        static void ClearChrome(Transform root)
+        {
+            foreach (var layout in root.GetComponents<LayoutGroup>())
+                DestroyImmediate(layout);
+            for (var childIndex = root.childCount - 1; childIndex >= 0; childIndex--)
+                DestroyImmediate(root.GetChild(childIndex).gameObject);
+        }
+
+        void BuildCozyHeader(Transform header)
+        {
+            CozyUi.Picture(header, "Avatar", "characters/cat-avatar", Vector2.zero,
+                new Vector2(0f, 1f), new Vector2(24f, 12f), new Vector2(88f, -12f));
+            CozyUi.Action(header, "ProfileShortcut", "猫咪钓鱼 · " + (_pondSession != null ? _pondSession.Nickname : "钓友"),
+                "user", () => OpenProfileHub(), new Vector2(0f, 0.5f), new Vector2(0f, 1f),
+                new Vector2(94f, 0f), new Vector2(416f, -8f));
+            _statusPet = CozyUi.Label(header, "PetStatus", "宠物：离线", 13,
+                Vector2.zero, new Vector2(0f, 0.5f), new Vector2(110f, 8f), new Vector2(285f, -4f));
+            _statusPond = CozyUi.Label(header, "PondStatus", "鱼塘：未进入", 13,
+                Vector2.zero, new Vector2(0f, 0.5f), new Vector2(294f, 8f), new Vector2(530f, -4f));
+            _statusConnection = CozyUi.Label(header, "ConnStatus", "连接：离线", 13,
+                new Vector2(0.5f, 0f), new Vector2(1f, 0.5f), new Vector2(8f, 8f), new Vector2(-24f, -4f), TextAnchor.MiddleRight);
+            _statusLogin = CozyUi.Label(header, "LoginStatus", "", 12,
+                Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            _statusLogin.gameObject.SetActive(false);
+            CozyUi.Picture(header, "Coin", "icons/coin", new Vector2(1f, 0.5f), Vector2.one,
+                new Vector2(-366f, 4f), new Vector2(-334f, -8f));
+            _headerCoins = CozyUi.Label(header, "Coins", "—", 20,
+                new Vector2(1f, 0.5f), Vector2.one, new Vector2(-330f, 0f), new Vector2(-230f, -6f));
+            CozyUi.Action(header, "Friends", "好友", "social", () => ShowMainPanel(ShellPanelId.Friends),
+                new Vector2(1f, 0.5f), Vector2.one, new Vector2(-218f, 0f), new Vector2(-122f, -4f));
+            CozyUi.Action(header, "Settings", "设置", "settings", () => ShowMainPanel(ShellPanelId.Settings),
+                new Vector2(1f, 0.5f), Vector2.one, new Vector2(-118f, 0f), new Vector2(-22f, -4f));
+        }
+
+        void BuildCozyDock(Transform nav)
+        {
+            var layout = nav.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(20, 20, 6, 6);
+            layout.spacing = 5f;
+            layout.childControlHeight = true;
+            layout.childControlWidth = true;
+            layout.childForceExpandHeight = true;
+            layout.childForceExpandWidth = true;
+            AddDock(nav, ShellPanelId.Home, "主页", "home", ReturnToPetHome);
+            AddDock(nav, ShellPanelId.WorldMap, "世界地图", "map", () => ShowMainPanel(ShellPanelId.WorldMap));
+            AddDock(nav, ShellPanelId.PondSelection, "选择鱼塘", "pond", () => ShowMainPanel(ShellPanelId.PondSelection));
+            AddDock(nav, ShellPanelId.Pond, "开始钓鱼", "hook", ShowPondPanel);
+            AddDock(nav, ShellPanelId.CatchBag, "背包", "bag", () => ShowMainPanel(ShellPanelId.CatchBag));
+            AddDock(nav, ShellPanelId.Equipment, "装备", "rod", () => ShowMainPanel(ShellPanelId.Equipment));
+            AddDock(nav, ShellPanelId.Shop, "商店", "shop", () => ShowMainPanel(ShellPanelId.Shop));
+            AddDock(nav, ShellPanelId.Achievements, "成就", "medal", () => ShowMainPanel(ShellPanelId.Achievements));
+            AddDock(nav, ShellPanelId.Leaderboard, "排行榜", "trophy", () => ShowMainPanel(ShellPanelId.Leaderboard));
+            AddDock(nav, ShellPanelId.Profile, "个人信息", "user", () => OpenProfileHub());
+            AddDock(nav, ShellPanelId.SocialFeed, "动态", "social", () => ShowMainPanel(ShellPanelId.SocialFeed));
+        }
+
+        void AddDock(Transform nav, ShellPanelId id, string label, string icon, UnityEngine.Events.UnityAction action)
+        {
+            var button = DesktopModalUi.MakeButton(nav, id.ToString(), label, action);
+            button.GetComponent<LayoutElement>().minWidth = 72f;
+            CatTheme.StyleButton(button, icon);
+            button.GetComponent<CozyButtonVisual>().SetStackedIcon(true);
+            var text = button.GetComponentInChildren<Text>();
+            text.fontSize = 15;
+            _tabs[id] = button;
+            _lockableNavButtons.Add(button);
+        }
+
+        void RefreshHeaderBalance()
+        {
+            if (_headerCoins == null || _balanceLoading || Time.unscaledTime < _nextBalanceRefresh
+                || _authenticatedApi == null || !_authenticatedApi.CanUse)
+                return;
+            _balanceLoading = true;
+            _nextBalanceRefresh = Time.unscaledTime + 30f;
+            StartCoroutine(_authenticatedApi.GetCoins((ok, coins, message) =>
+            {
+                _balanceLoading = false;
+                if (ok && _headerCoins != null)
+                    _headerCoins.text = coins.ToString("N0");
+            }));
         }
 
         void StyleTabRow(Transform nav)
@@ -657,23 +716,12 @@ namespace FishSocial.Desktop
 
         void HighlightTab(ShellPanelId id)
         {
-            var shown = id;
-            if (id == ShellPanelId.WorldMap)
-                shown = ShellPanelId.Pond;
-            else if (id == ShellPanelId.Gallery || id == ShellPanelId.ProfileEdit
-                || id == ShellPanelId.CatchBag || id == ShellPanelId.Leaderboard
-                || id == ShellPanelId.SocialFeed)
-                shown = ShellPanelId.Profile;
-            else if (id == ShellPanelId.Settings)
-                shown = (ShellPanelId)(-1);
-
+            var shown = id == ShellPanelId.ProfileEdit || id == ShellPanelId.Gallery ? ShellPanelId.Profile : id;
             foreach (var pair in _tabs)
             {
-                var on = pair.Key == shown;
-                CatTheme.ApplyPlate(pair.Value.GetComponent<Image>(), on ? "tab-on" : "tab");
-                var label = pair.Value.transform.Find("Label")?.GetComponent<Text>();
-                if (label != null)
-                    label.color = on ? CatTheme.Cream : CatTheme.Ink;
+                var visual = pair.Value.GetComponent<CozyButtonVisual>();
+                if (visual != null)
+                    visual.SetSelected(pair.Key == shown);
             }
         }
 
@@ -752,6 +800,7 @@ namespace FishSocial.Desktop
                     WindowManager.MainDefaultWidth, WindowManager.MainDefaultHeight);
             WindowManager.Instance?.ApplyMainShell();
             RefreshPetPresentation();
+            RefreshHeaderBalance();
         }
 
         void ReturnToPetHome()
@@ -853,13 +902,26 @@ namespace FishSocial.Desktop
             _catchPanel?.OnClosed();
             _galleryPanel?.OnClosed();
             _shopPanel?.OnClosed();
+            _equipmentPanel?.OnClosed();
+            _achievementPanel?.OnClosed();
             _profilePanel?.OnClosed();
             _profileHubPanel?.OnClosed();
             _profileEditPanel?.OnClosed();
             _socialFeedPanel?.OnClosed();
             _leaderboardPanel?.OnClosed();
+            RefreshHeaderBalance();
             switch (id)
             {
+                case ShellPanelId.Equipment:
+                    _equipmentPanel?.OnOpened();
+                    break;
+                case ShellPanelId.PondSelection:
+                    _pondSelectionPanel?.OnOpened();
+                    break;
+                case ShellPanelId.Achievements:
+                    _achievementPanel?.ShowSelf(DesktopProfileHubPanel.HubTab.Achievements);
+                    _achievementPanel?.OnOpened();
+                    break;
                 case ShellPanelId.Shop:
                     _shopPanel?.OnOpened();
                     break;
@@ -937,6 +999,8 @@ namespace FishSocial.Desktop
 
         void Update()
         {
+            if (_mainShellEntered && _mainRoot != null && _mainRoot.activeInHierarchy)
+                RefreshHeaderBalance();
             if (_toast != null && _toast.gameObject.activeSelf && Time.unscaledTime > _toastUntil)
                 _toast.gameObject.SetActive(false);
         }
@@ -950,56 +1014,46 @@ namespace FishSocial.Desktop
 
         void RegisterPanel(Transform parent, ShellPanelId id, System.Action<GameObject> builder)
         {
-            var go = CreateStretchPanel(id.ToString(), parent, new Color(0, 0, 0, 0));
-            builder(go);
-            _router.Register(id, go);
+            var root = CreateStretchPanel(id.ToString(), parent, new Color(0f, 0f, 0f, 0f));
+            var body = root;
+            if (id != ShellPanelId.Home)
+            {
+                CozyUi.Label(root.transform, "PageTitle", CozyUi.PageTitle(id), 26,
+                    new Vector2(0f, 1f), Vector2.one, new Vector2(28f, -54f), new Vector2(-28f, -6f));
+                body = CozyUi.Rect(root.transform, "PageBody", Vector2.zero, Vector2.one,
+                    new Vector2(24f, 12f), new Vector2(-24f, -60f)).gameObject;
+            }
+            builder(body);
+            CatTheme.SkinTree(root.transform);
+            _router.Register(id, root);
         }
 
         void BuildHome(GameObject go)
         {
-            var column = go.AddComponent<VerticalLayoutGroup>();
-            column.padding = new RectOffset(24, 24, 24, 24);
-            column.spacing = 16f;
-            column.childAlignment = TextAnchor.UpperCenter;
-            column.childControlWidth = true;
-            column.childControlHeight = true;
-            column.childForceExpandWidth = true;
-            column.childForceExpandHeight = false;
-
-            var title = CreateText(go.transform, "H1", "桌面宠物", 28, TextAnchor.MiddleCenter,
-                Vector2.zero, new Vector2(400, 40));
-            title.alignment = TextAnchor.MiddleCenter;
-            SetPreferred(go.transform, "H1", 400f, 40f);
-
-            var stage = new GameObject("PetStage", typeof(RectTransform), typeof(LayoutElement));
-            stage.transform.SetParent(go.transform, false);
-            var stageElement = stage.GetComponent<LayoutElement>();
-            stageElement.minHeight = 160f;
-            stageElement.preferredHeight = 280f;
-            stageElement.flexibleHeight = 1f;
-            var horizon = new GameObject("Horizon", typeof(RectTransform), typeof(Image));
-            horizon.transform.SetParent(stage.transform, false);
-            var horizonRt = horizon.GetComponent<RectTransform>();
-            horizonRt.anchorMin = new Vector2(0.5f, 0f);
-            horizonRt.anchorMax = new Vector2(0.5f, 0f);
-            horizonRt.pivot = new Vector2(0.5f, 0f);
-            horizonRt.anchoredPosition = new Vector2(0f, 28f);
-            horizonRt.sizeDelta = new Vector2(360f, 8f);
-            horizon.GetComponent<Image>().color = CatTheme.Teal;
-            BindSquarePet(stage.transform, "HomePet", new Vector2(0f, -16f), 220f, true);
-
-            _petStateLabel = CreateText(go.transform, "SessionState", "宠物状态：离线", 20,
-                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(480, 32));
-            _petStateLabel.alignment = TextAnchor.MiddleCenter;
-            SetPreferred(go.transform, "SessionState", 480f, 32f);
-            _petPond = CreateText(go.transform, "CurrentPond", "当前鱼塘：未进入", 16,
-                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(480, 28));
-            _petPond.alignment = TextAnchor.MiddleCenter;
-            SetPreferred(go.transform, "CurrentPond", 480f, 28f);
-
-            var actions = CreateActionRow(go.transform, "HomeActions");
-            CreateRowButton(actions.transform, "OpenPond", "进入鱼塘", new Vector2(200, 44), OpenPond, true);
-            CreateRowButton(actions.transform, "SessionCheck", "验证当前会话", new Vector2(160, 40), ValidateCurrentSession);
+            CozyUi.Picture(go.transform, "LakeIllustration", "scenes/pond-afternoon", Vector2.zero,
+                new Vector2(0.69f, 1f), Vector2.zero, Vector2.zero, false);
+            CozyUi.Picture(go.transform, "OrangeCat", "characters/cat-ready", new Vector2(0.04f, 0.04f),
+                new Vector2(0.48f, 0.70f), Vector2.zero, Vector2.zero);
+            var card = CozyUi.Rect(go.transform, "WelcomeCard", new Vector2(0.69f, 0f), Vector2.one,
+                new Vector2(18f, 22f), new Vector2(-24f, -22f));
+            CatTheme.ApplyPaper(card.gameObject.AddComponent<Image>());
+            CozyUi.Label(card, "Eyebrow", "FISH SOCIAL · 猫咪的钓鱼时光", 13,
+                new Vector2(0f, 0.84f), Vector2.one, new Vector2(22f, 0f), new Vector2(-22f, -16f));
+            CozyUi.Label(card, "Headline", "今天，也去钓鱼吧", 27,
+                new Vector2(0f, 0.67f), new Vector2(1f, 0.84f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
+            _petStateLabel = CozyUi.Label(card, "SessionState", "宠物状态：离线", 16,
+                new Vector2(0f, 0.56f), new Vector2(1f, 0.67f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
+            _petPond = CozyUi.Label(card, "CurrentPond", "当前鱼塘：未进入", 16,
+                new Vector2(0f, 0.46f), new Vector2(1f, 0.56f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
+            var start = CozyUi.Action(card, "OpenPond", "开始钓鱼", "hook", OpenPond,
+                new Vector2(0f, 0.29f), new Vector2(1f, 0.44f), new Vector2(12f, 0f), new Vector2(-12f, 0f), true);
+            var selection = CozyUi.Action(card, "ChoosePond", "挑选鱼塘", "pond",
+                () => ShowMainPanel(ShellPanelId.PondSelection), new Vector2(0f, 0.12f), new Vector2(1f, 0.27f),
+                new Vector2(12f, 0f), new Vector2(-12f, 0f));
+            _lockableNavButtons.Add(start);
+            _lockableNavButtons.Add(selection);
+            CozyUi.Label(card, "Footnote", "背包、装备和钓友动态，都在下方。", 13,
+                Vector2.zero, new Vector2(1f, 0.12f), new Vector2(22f, 0f), new Vector2(-22f, 0f));
         }
 
         void OpenPond()
@@ -1280,41 +1334,29 @@ namespace FishSocial.Desktop
 
         void BuildPond(GameObject go)
         {
-            var column = go.AddComponent<VerticalLayoutGroup>();
-            column.padding = new RectOffset(24, 24, 24, 24);
-            column.spacing = 16f;
-            column.childAlignment = TextAnchor.UpperLeft;
-            column.childControlWidth = true;
-            column.childControlHeight = true;
-            column.childForceExpandWidth = true;
-            column.childForceExpandHeight = false;
-
-            var title = CreateText(go.transform, "P1", "鱼塘", 28, TextAnchor.MiddleLeft,
-                Vector2.zero, new Vector2(600, 40));
-            title.alignment = TextAnchor.MiddleLeft;
-            SetPreferred(go.transform, "P1", 600f, 40f);
-            _pondStatus = CreateText(go.transform, "P2",
-                "鱼塘场景在 960×560 Overlay 中渲染。本页只操作会话，打开主界面不会离塘。\n\n连接：未连接 · 当前 phase：—",
-                16, TextAnchor.UpperLeft, Vector2.zero, new Vector2(640, 96));
-            _pondStatus.alignment = TextAnchor.UpperLeft;
+            CozyUi.Picture(go.transform, "LakeIllustration", "scenes/pond-afternoon", Vector2.zero,
+                new Vector2(0.62f, 1f), Vector2.zero, Vector2.zero, false);
+            CozyUi.Picture(go.transform, "Cat", "characters/cat-ready", new Vector2(0f, 0.02f),
+                new Vector2(0.42f, 0.68f), Vector2.zero, Vector2.zero);
+            var controls = CozyUi.Rect(go.transform, "FishingControls", new Vector2(0.63f, 0f), Vector2.one,
+                new Vector2(14f, 10f), new Vector2(-10f, -10f));
+            _pondStatus = CozyUi.Label(controls, "PondSession", "连接：未连接 · 当前 phase：—", 15,
+                new Vector2(0f, 0.55f), Vector2.one, new Vector2(10f, 0f), new Vector2(-10f, -10f));
             _pondStatus.verticalOverflow = VerticalWrapMode.Truncate;
-            SetPreferred(go.transform, "P2", 640f, 96f);
-
-            var primary = CreateActionRow(go.transform, "PondActions");
-            CreateRowButton(primary.transform, "SelectPond", "选塘", new Vector2(140, 44),
-                () => ShowMainPanel(ShellPanelId.WorldMap));
-            CreateRowButton(primary.transform, "EnterOverlay", "进入鱼塘", new Vector2(180, 44), OpenPond, true);
-
-            var secondary = CreateActionRow(go.transform, "PondNav");
-            CreateRowButton(secondary.transform, "ConnectPond", "连接并进塘", new Vector2(160, 44),
-                () => _pondSession?.ConnectAndJoin());
-            CreateRowButton(secondary.transform, "TakeSpot", "选择 1 号钓位", new Vector2(160, 44),
-                () => _pondSession?.TakeFirstSpot(ShowSocketResult));
-            CreateRowButton(secondary.transform, "StartFishing", "开始钓鱼", new Vector2(120, 44),
-                () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult));
-            CreateRowButton(secondary.transform, "StopFishing", "收杆", new Vector2(120, 44),
-                () => _pondSession?.StopFishing(ShowSocketResult));
-            CreateRowButton(secondary.transform, "ReturnHome", "返回主页", new Vector2(120, 44), ReturnToPetHome);
+            CozyUi.Action(controls, "EnterOverlay", "进入钓鱼桌宠", "hook", OpenPond,
+                new Vector2(0f, 0.40f), new Vector2(1f, 0.55f), Vector2.zero, Vector2.zero, true);
+            CozyUi.Action(controls, "SelectPond", "选择鱼塘", "pond", () => ShowMainPanel(ShellPanelId.PondSelection),
+                new Vector2(0f, 0.27f), new Vector2(0.5f, 0.39f), Vector2.zero, new Vector2(-4f, 0f));
+            CozyUi.Action(controls, "ConnectPond", "连接", "check", () => _pondSession?.ConnectAndJoin(),
+                new Vector2(0.5f, 0.27f), new Vector2(1f, 0.39f), new Vector2(4f, 0f), Vector2.zero);
+            CozyUi.Action(controls, "TakeSpot", "选择钓位", "pond", () => _pondSession?.TakeFirstSpot(ShowSocketResult),
+                new Vector2(0f, 0.14f), new Vector2(0.5f, 0.26f), Vector2.zero, new Vector2(-4f, 0f));
+            CozyUi.Action(controls, "StartFishing", "开始钓鱼", "hook", () => _pondSession?.StartFishingAtFirstSpot(ShowSocketResult),
+                new Vector2(0.5f, 0.14f), new Vector2(1f, 0.26f), new Vector2(4f, 0f), Vector2.zero);
+            CozyUi.Action(controls, "StopFishing", "收杆", "rod", () => _pondSession?.StopFishing(ShowSocketResult),
+                Vector2.zero, new Vector2(0.5f, 0.13f), Vector2.zero, new Vector2(-4f, 0f));
+            CozyUi.Action(controls, "CatchBag", "查看鱼获", "bag", () => ShowMainPanel(ShellPanelId.CatchBag),
+                new Vector2(0.5f, 0f), new Vector2(1f, 0.13f), new Vector2(4f, 0f), Vector2.zero);
         }
 
         static GameObject CreateActionRow(Transform parent, string name)
@@ -1351,7 +1393,7 @@ namespace FishSocial.Desktop
             tr.offsetMax = Vector2.zero;
             tr.pivot = new Vector2(0.5f, 0.5f);
             text.alignment = TextAnchor.MiddleCenter;
-            text.color = coral ? CatTheme.Cream : CatTheme.Ink;
+            text.color = CatTheme.Ink;
             go.GetComponent<Button>().onClick.AddListener(onClick);
         }
 
@@ -1360,6 +1402,37 @@ namespace FishSocial.Desktop
             _worldMapPanel = DesktopFeaturePanelFactory.Mount<DesktopWorldMapPanel>(
                 go.transform,
                 view => view.Bind(_pondSession, _authenticatedApi));
+        }
+
+        void BuildEquipment(GameObject go)
+        {
+            _equipmentPanel = DesktopFeaturePanelFactory.Mount<DesktopShopPanel>(go.transform, view =>
+            {
+                view.SetEquipmentMode(true);
+                view.Bind(_authenticatedApi);
+            });
+        }
+
+        void BuildPondSelection(GameObject go)
+        {
+            _pondSelectionPanel = go.AddComponent<CozyPondSelectionPanel>();
+            _pondSelectionPanel.Bind(pondId =>
+            {
+                if (_onboardingLock)
+                {
+                    SetStatusMessage("请先完成新手引导。");
+                    return;
+                }
+                ShowMainPanel(ShellPanelId.WorldMap);
+                _worldMapPanel?.FocusPond(pondId);
+            });
+        }
+
+        void BuildAchievements(GameObject go)
+        {
+            _achievementPanel = DesktopFeaturePanelFactory.Mount<DesktopProfileHubPanel>(go.transform,
+                view => view.Bind(_authenticatedApi, _pondSession,
+                    () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage));
         }
 
         void BuildShop(GameObject go)
@@ -1573,7 +1646,7 @@ namespace FishSocial.Desktop
             rt.anchoredPosition = anchoredPos;
             rt.sizeDelta = sizeDelta;
             var text = go.GetComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = DesktopModalUi.Font;
             text.text = content;
             text.fontSize = size;
             text.color = CatTheme.Ink;

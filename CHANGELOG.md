@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Unity 最终版 UI 移植（2026-10-13）**：接入已确认的奶油纸张/单色雕刻 PNG，重排十一项桌面导航及业务页面，新增真实目录鱼塘选择、复用已有 API 的装备视图，整理切图和 EditMode 测试。保留 Steam、服务端、Socket、Windows Overlay；本机未运行 Unity，视觉/联机验收待执行。接入说明：`docs/design/ui/2026-10-13-cozy-unity-port.md`。
+
 - **BUG-26**：用户验收通过。右键菜单稳住直到左键 Overlay；关菜单后悬停用自有开关 + `GetCursorPos` 恢复，不必点座位（完成时间 2026-09-01）。
 - **STEAM-DESKTOP-17**：用户验收通过，占用座位（含机器人）不可点占、不踢该座 bot（完成时间 2026-09-01）。
 - **BUG-24**：用户验收通过，登录即拉已保存形象写入 Overlay（完成时间 2026-09-01）。
@@ -68,4 +70,3 @@
 - `admin.ts`：日志查询增强（since/context/limit），新增 `/api/admin/metrics/daily`
 - `fishingMetrics.ts`：导�?`getPendingMetricsCount()`，dev 校验钩子
 - `scripts/analytics/build-index.mjs`：增加线上日报区（`type: live-daily`�?- `.env.example`：新�?LOG_LEVEL/LOG_DIR/LOG_PRETTY �?7 个变�?
-
