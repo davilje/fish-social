@@ -119,13 +119,13 @@ namespace FishSocial.Desktop
 
             if (_dailyTab == null || _weeklyTab == null || _pondTab == null ||
                 _rareTab == null || _status == null || _myRank == null ||
-                _scroll == null || _content == null || _retry == null ||
+                _scroll == null || _content == null ||
                 _podium1.root == null || _podium2.root == null || _podium3.root == null ||
                 _podium1.nickname == null || _podium2.nickname == null || _podium3.nickname == null ||
                 _podium1.value == null || _podium2.value == null || _podium3.value == null ||
                 _podium1.avatar == null || _podium2.avatar == null || _podium3.avatar == null)
             {
-                Debug.LogError("[DesktopUI] PanelLeaderboard requires Tabs/{Daily,Weekly,Pond,Rare}, Status, MyRank, Retry, Scroll/Viewport/Content and complete Podium/Slot1..3.", this);
+                Debug.LogError("[DesktopUI] PanelLeaderboard requires Tabs/{Daily,Weekly,Pond,Rare}, Status, MyRank, Scroll/Viewport/Content and complete Podium/Slot1..3.", this);
                 return;
             }
 
@@ -177,9 +177,9 @@ namespace FishSocial.Desktop
                     group.enabled = false;
             }
 
-            PlacePodiumSlot(_podium1, -168f);
+            PlacePodiumSlot(_podium1, -144f);
             PlacePodiumSlot(_podium2, 0f);
-            PlacePodiumSlot(_podium3, 168f);
+            PlacePodiumSlot(_podium3, 144f);
 
             var scrollRect = _scroll != null ? _scroll.GetComponent<RectTransform>() : null;
             AnchorRect(scrollRect, Vector2.zero, new Vector2(0.68f, 1f),
@@ -199,10 +199,22 @@ namespace FishSocial.Desktop
                     layout.padding = new RectOffset(12, 12, 12, 12);
                     layout.spacing = 8f;
                     layout.childControlWidth = true;
-                    layout.childControlHeight = true;
+                    layout.childControlHeight = false;
                     layout.childForceExpandWidth = true;
                     layout.childForceExpandHeight = false;
                 }
+            }
+
+            foreach (var tab in new[] { _dailyTab, _weeklyTab, _pondTab, _rareTab })
+            {
+                if (tab == null)
+                    continue;
+                var element = tab.GetComponent<LayoutElement>();
+                if (element == null)
+                    element = tab.gameObject.AddComponent<LayoutElement>();
+                element.minHeight = 44f;
+                element.preferredHeight = 44f;
+                element.flexibleHeight = 0f;
             }
 
             AnchorRect(_status != null ? _status.rectTransform : null,
@@ -219,13 +231,13 @@ namespace FishSocial.Desktop
                 return;
             var rect = slot.root.GetComponent<RectTransform>();
             AnchorRect(rect, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(x - 75f, -194f), new Vector2(x + 75f, -4f));
+                new Vector2(x - 64f, -220f), new Vector2(x + 64f, -4f));
             var layout = slot.root.GetComponent<LayoutElement>() ?? slot.root.AddComponent<LayoutElement>();
             layout.ignoreLayout = true;
-            layout.minHeight = 190f;
-            layout.preferredHeight = 190f;
-            layout.minWidth = 150f;
-            layout.preferredWidth = 150f;
+            layout.minHeight = 216f;
+            layout.preferredHeight = 216f;
+            layout.minWidth = 128f;
+            layout.preferredWidth = 128f;
         }
 
         static void AnchorRect(RectTransform rect, Vector2 min, Vector2 max,

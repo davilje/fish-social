@@ -282,7 +282,7 @@ namespace FishSocialOverlay
                 {
                     // cap_status 是纯装饰；dock_chat 必须能命中子控件（输入框/按钮）
                     element.IsHitTestVisible = widget.id == "dock_chat";
-                    element.Opacity = widget.id == "cap_status" ? 0.78 : 0.88;
+                    element.Opacity = widget.id == "cap_status" ? 0.68 : 0.82;
                     if (widget.id == "dock_chat" && element is Border chatBorder)
                     {
                         chatDockHost = EnsureChatDockHost(chatBorder, widget, hudRoot);
@@ -1002,6 +1002,8 @@ namespace FishSocialOverlay
             }
 
             textBox.Padding = ComponentPadding(_components.input.padding);
+            var inputPadding = textBox.Padding;
+            textBox.Padding = new Thickness(inputPadding.Left, 0, inputPadding.Right, 0);
             textBox.MinHeight = inputWidget.h;
             textBox.HorizontalContentAlignment = HorizontalAlignment.Left;
             textBox.TextWrapping = TextWrapping.NoWrap;

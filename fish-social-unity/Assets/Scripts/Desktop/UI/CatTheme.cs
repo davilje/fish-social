@@ -228,10 +228,37 @@ namespace FishSocial.Desktop
                 return;
             if (button.targetGraphic is Image targetImage && IsProtectedImage(targetImage))
                 return;
+            iconName = string.IsNullOrEmpty(iconName) ? IconNameForButton(button) : iconName;
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual == null)
                 visual = button.gameObject.AddComponent<CozyButtonVisual>();
             visual.Configure(button, iconName, primary);
+        }
+
+        static string IconNameForButton(Button button)
+        {
+            if (button == null)
+                return null;
+            switch (button.name)
+            {
+                case "Settings": case "MenuSettings": return "settings";
+                case "Mail": case "Notifications": return "bell";
+                case "Back": return "home";
+                case "Public": case "Share": return "social";
+                case "Friends": return "user";
+                case "Bait": return "leaf";
+                case "Tackle": return "rod";
+                case "Vessel": return "pond";
+                case "Buy": return "coin";
+                case "Equip": return "bag";
+                case "Sell": return "fish";
+                case "StartFishing": return "rod";
+                case "ExploreWorld": return "map";
+                case "DailyGift": return "gift";
+                case "SelectPond": return "pond";
+                case "Edit": return "user";
+                default: return null;
+            }
         }
 
         public static void SkinTree(Transform root)

@@ -1740,6 +1740,7 @@ namespace FishSocialOverlay
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 BorderThickness = new Thickness(0),
+                Opacity = 0.82,
                 Child = textBlock,
             };
             CozyTheme.SetIsPaper(badge, true);

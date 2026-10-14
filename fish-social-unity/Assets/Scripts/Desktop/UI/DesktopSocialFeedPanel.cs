@@ -104,7 +104,7 @@ namespace FishSocial.Desktop
             _content = Find<RectTransform>("Scroll/Viewport/Content");
             _scroll = Find<ScrollRect>("Scroll");
             if (_publicTab == null || _friendsTab == null || _status == null ||
-                _content == null || _scroll == null || Find<Button>("Retry") == null)
+                _content == null || _scroll == null)
             {
                 Debug.LogError(
                     "[DesktopUI] PanelSocialFeed Prefab 缺少必需控件。" +

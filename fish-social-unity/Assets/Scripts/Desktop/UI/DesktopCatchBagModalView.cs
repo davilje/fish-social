@@ -30,7 +30,6 @@ namespace FishSocial.Desktop
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
             _grid = DesktopModalUi.FindChild(transform, "Grid/Slots");
 
-            var retryBound = DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
             var retry = DesktopModalUi.FindComponent<Button>(transform, "Retry");
             if (retry != null)
                 retry.gameObject.SetActive(false);
@@ -39,7 +38,7 @@ namespace FishSocial.Desktop
             EnsureReturnButton();
             DesktopModalUi.StyleTree(transform);
             _uiReady = _coins != null && _status != null && _detail != null && _grid != null &&
-                _returnButton != null && retryBound && sellBound && shareBound;
+                _returnButton != null && sellBound && shareBound;
             if (!_uiReady)
                 Debug.LogError("[DesktopUI] PanelCatch prefab is missing required controls.", this);
         }

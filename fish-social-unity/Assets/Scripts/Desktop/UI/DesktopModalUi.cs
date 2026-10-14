@@ -151,16 +151,25 @@ namespace FishSocial.Desktop
             Text target = null;
             foreach (var label in button.GetComponentsInChildren<Text>(true))
             {
-                if (label.name == "Label" || label.name == "Text")
+                if (label.text == "按钮")
+                    label.text = string.Empty;
+                if (target == null && (label.name == "Label" || label.name == "Text"))
                 {
                     target = label;
-                    break;
                 }
-                if (target == null)
+                else if (target == null)
                     target = label;
             }
             if (target != null)
                 target.text = value ?? string.Empty;
+            foreach (var label in button.GetComponentsInChildren<Text>(true))
+            {
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.verticalOverflow = VerticalWrapMode.Truncate;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = Mathf.Min(12, label.fontSize);
+                label.resizeTextMaxSize = label.fontSize;
+            }
         }
 
         public static void SetButtonGlyph(Button button, string glyph)
@@ -210,6 +219,18 @@ namespace FishSocial.Desktop
             image.preserveAspect = true;
         }
 
+        public static void AlignImageLeft(Image image)
+        {
+            if (image == null)
+                return;
+            var rect = image.rectTransform;
+            rect.anchorMin = new Vector2(0f, 0.5f);
+            rect.anchorMax = rect.anchorMin;
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            image.preserveAspect = true;
+        }
+
         public static void ConfigureXpBar(Image background, Image fill)
         {
             if (background != null)
@@ -235,6 +256,20 @@ namespace FishSocial.Desktop
                 var node = root.Find(path);
                 if (node != null)
                     node.gameObject.SetActive(false);
+            }
+        }
+
+        public static void HidePageUtilityButtons(Transform root)
+        {
+            if (root == null)
+                return;
+            foreach (var name in new[] { "Close", "Reload", "Retry" })
+            {
+                foreach (var button in root.GetComponentsInChildren<Button>(true))
+                {
+                    if (button.name == name)
+                        button.gameObject.SetActive(false);
+                }
             }
         }
 

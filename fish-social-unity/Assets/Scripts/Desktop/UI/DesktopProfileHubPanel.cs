@@ -171,7 +171,7 @@ namespace FishSocial.Desktop
         {
             _uiReady = false;
             if (!DesktopModalUi.RequireNodes(transform, "PanelProfileHub",
-                "Shell/Header/Title", "Shell/Header/Edit", "Shell/Header/Retry", "Shell/Status",
+                "Shell/Header/Title", "Shell/Header/Edit", "Shell/Status",
                 "Shell/Sidebar", "Shell/Content/Tab_资料/Avatar", "Shell/Content/Tab_资料/Body",
                 "Shell/Content/Tab_展示柜/ShowcaseGrid/Viewport/Content", "Shell/Content/Tab_展示柜/Detail",
                 "Shell/Content/Tab_图鉴/CodexGrid/Viewport/Content", "Shell/Content/Tab_图鉴/Detail",
@@ -184,7 +184,7 @@ namespace FishSocial.Desktop
                 if (!DesktopModalUi.RequireNodes(transform, "PanelProfileHub", "Shell/Sidebar/Tab_" + label))
                     return;
             WireFromPrefab();
-            if (_title == null || _status == null || _editButton == null || _retryButton == null ||
+            if (_title == null || _status == null || _editButton == null ||
                 _profileAvatar == null || _profileBody == null || _showcaseDetail == null || _codexDetail == null ||
                 _albumStage == null || _albumSlotL == null || _albumSlotR == null ||
                 _albumSlotLPhoto == null || _albumSlotRPhoto == null ||
@@ -224,8 +224,8 @@ namespace FishSocial.Desktop
             if (_title != null)
                 PlaceRect(_title.transform, Vector2.zero, Vector2.one,
                     new Vector2(12f, 0f), new Vector2(-244f, 0f));
-            PlaceHeaderButton(_editButton, -100f, 124f);
-            PlaceHeaderButton(_retryButton, -12f, 76f);
+            PlaceHeaderButton(_editButton, -220f, 100f);
+            PlaceHeaderButton(_retryButton, -150f, 76f);
             if (_retryButton != null)
                 _retryButton.gameObject.SetActive(false);
             if (_status != null)
@@ -233,14 +233,18 @@ namespace FishSocial.Desktop
                     new Vector2(164f, 6f), new Vector2(-16f, 30f));
             if (_sidebar != null)
             {
-                var layout = _sidebar.GetComponent<VerticalLayoutGroup>() ??
-                             _sidebar.gameObject.AddComponent<VerticalLayoutGroup>();
-                layout.padding = new RectOffset(8, 8, 12, 12);
-                layout.spacing = 8f;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
+                var layout = _sidebar.GetComponent<VerticalLayoutGroup>();
+                if (layout == null)
+                    layout = _sidebar.gameObject.AddComponent<VerticalLayoutGroup>();
+                if (layout != null)
+                {
+                    layout.padding = new RectOffset(8, 8, 12, 12);
+                    layout.spacing = 8f;
+                    layout.childControlWidth = true;
+                    layout.childControlHeight = true;
+                    layout.childForceExpandWidth = true;
+                    layout.childForceExpandHeight = false;
+                }
             }
             foreach (var button in _tabButtons)
             {
@@ -520,8 +524,6 @@ namespace FishSocial.Desktop
                 TextAnchor.MiddleLeft, new Vector2(16, 0), new Vector2(280, 36));
             _editButton = CreateHeaderButton(header.transform, "Edit", "编辑资料",
                 new Vector2(-200, 0), new Vector2(100, 32), () => _openEdit?.Invoke());
-            _retryButton = CreateHeaderButton(header.transform, "Retry", "重试",
-                new Vector2(-90, 0), new Vector2(72, 32), Refresh);
 
             _sidebar = CreatePanel("Sidebar", shell.transform,
                 new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 0), new Vector2(128, -52),

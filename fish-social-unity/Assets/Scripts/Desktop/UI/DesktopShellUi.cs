@@ -462,6 +462,7 @@ namespace FishSocial.Desktop
                 ? _mainRoot.transform.Find("Content/" + id)
                 : null;
             DesktopModalUi.HideDirectCloseButtons(page);
+            DesktopModalUi.HidePageUtilityButtons(page);
             var competition = _mainRoot != null ? _mainRoot.transform.Find("Header/Leaderboard") : null;
             if (competition != null)
                 competition.gameObject.SetActive(id == ShellPanelId.Home);
@@ -538,8 +539,8 @@ namespace FishSocial.Desktop
             var mail = header.Find("Mail")?.GetComponent<Button>();
             var home = header.Find("Home")?.GetComponent<Button>();
             DesktopModalUi.PlaceTopRight(settings, 22f, 18f, 54f);
-            DesktopModalUi.PlaceTopRight(mail, 88f, 18f, 54f);
-            DesktopModalUi.PlaceTopRight(home, 154f, 18f, 54f);
+            DesktopModalUi.PlaceTopRight(mail, 86f, 18f, 54f);
+            DesktopModalUi.PlaceTopRight(home, 150f, 18f, 54f);
             if (settings != null)
                 settings.gameObject.SetActive(true);
             if (mail != null)
@@ -564,9 +565,15 @@ namespace FishSocial.Desktop
             {
                 if (label == _headerName || label == _headerLevel || label == _headerXp)
                     continue;
-                if (label.name == "Nickname" || label.name == "PlayerName" || label.name == "NameDuplicate")
+                if (label.name == "Nickname" || label.name == "PlayerName" || label.name == "NameDuplicate" ||
+                    label.name == "LevelDuplicate" || label.name == "XpDuplicate" ||
+                    label.name.IndexOf("Duplicate", StringComparison.OrdinalIgnoreCase) >= 0)
                     label.gameObject.SetActive(false);
             }
+
+            DesktopModalUi.ConfigureXpBar(
+                DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpBackground"),
+                DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpFill"));
         }
 
         void OnDestroy()

@@ -101,28 +101,20 @@ namespace FishSocial.Desktop
             _vesselTab = Find<Button>("Tabs/Vessel");
             if (_coins == null || _equipped == null || _status == null ||
                 _details == null || _buy == null || _equip == null ||
-                _content == null || _baitTab == null || _tackleTab == null || _vesselTab == null || _retry == null ||
+                _content == null || _baitTab == null || _tackleTab == null || _vesselTab == null ||
                 Find<Text>("Header/Title") == null)
             {
-                Debug.LogError("[DesktopUI] PanelShop requires Header/{Title,Coins,Equipped}, Tabs/{Bait,Tackle,Vessel}, Status, Items/Viewport/Content and Details/{Description,Buy,Equip,Retry}.", this);
+                Debug.LogError("[DesktopUI] PanelShop requires Header/{Title,Coins,Equipped}, Tabs/{Bait,Tackle,Vessel}, Status, Items/Viewport/Content and Details/{Description,Buy,Equip}.", this);
                 return;
             }
             _uiReady = true;
             RestyleUi();
-            _retry.gameObject.SetActive(false);
+            if (_retry != null)
+                _retry.gameObject.SetActive(false);
 
-            var baitLabel = _baitTab.GetComponentInChildren<Text>();
-            if (baitLabel != null)
-                baitLabel.text = "鱼饵";
-            var tackleLabel = _tackleTab.GetComponentInChildren<Text>();
-            if (tackleLabel != null)
-                tackleLabel.text = "钓竿";
-            if (_vesselTab != null)
-            {
-                var vesselLabel = _vesselTab.GetComponentInChildren<Text>();
-                if (vesselLabel != null)
-                    vesselLabel.text = "船具";
-            }
+            DesktopModalUi.SetButtonLabel(_baitTab, "鱼饵");
+            DesktopModalUi.SetButtonLabel(_tackleTab, "钓竿");
+            DesktopModalUi.SetButtonLabel(_vesselTab, "船具");
             _baitTab.onClick.RemoveAllListeners();
             _baitTab.onClick.AddListener(() => SelectTab(0));
             _tackleTab.onClick.RemoveAllListeners();
@@ -136,8 +128,11 @@ namespace FishSocial.Desktop
             _buy.onClick.AddListener(BuySelected);
             _equip.onClick.RemoveAllListeners();
             _equip.onClick.AddListener(EquipSelected);
-            _retry.onClick.RemoveAllListeners();
-            _retry.onClick.AddListener(Refresh);
+            if (_retry != null)
+            {
+                _retry.onClick.RemoveAllListeners();
+                _retry.onClick.AddListener(Refresh);
+            }
             SetActionButtons(false, false, false);
         }
 
@@ -510,22 +505,14 @@ namespace FishSocial.Desktop
             {
                 _buy.gameObject.SetActive(showBuy);
                 _buy.interactable = showBuy && buyEnabled;
-                var buyLabel = _buy.GetComponentInChildren<Text>();
-                if (buyLabel != null)
-                    buyLabel.text = "购买";
+                DesktopModalUi.SetButtonLabel(_buy, "购买");
             }
             if (_equip != null)
             {
-                var showEquip = _equipmentMode
-                    ? (_tab == 0 ? SelectedBait() != null : _tab == 1 && SelectedTackle() != null)
-                    : equipEnabled;
+                var showEquip = equipEnabled;
                 _equip.gameObject.SetActive(showEquip);
-                _equip.interactable = equipEnabled;
-                var equipLabel = _equip.GetComponentInChildren<Text>(true);
-                if (equipLabel != null)
-                    equipLabel.text = _equipmentMode &&
-                        (_tab == 0 ? IsEquippedBait(SelectedBait()?.id) : IsEquippedRod(SelectedTackle()?.id))
-                        ? "使用中" : "装备";
+                _equip.interactable = showEquip;
+                DesktopModalUi.SetButtonLabel(_equip, "装备");
             }
         }
 
