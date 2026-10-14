@@ -75,26 +75,44 @@ class CozyUiSourceTests(unittest.TestCase):
                 with self.subTest(filename=filename, method=name):
                     self.assertEqual(expected, hashlib.sha256(method_body(source, name).encode()).hexdigest())
 
-    def test_all_73_png_assets_are_unchanged(self):
-        self.assertEqual(73, len(CONTRACT["png_sha256"]))
+    def test_all_74_png_assets_match_the_updated_size_contract(self):
+        self.assertEqual(74, len(CONTRACT["png_sha256"]))
         for filename, expected in CONTRACT["png_sha256"].items():
             with self.subTest(filename=filename):
                 self.assertEqual(expected, hashlib.sha256((ROOT / filename).read_bytes()).hexdigest())
 
-    def test_three_distinct_407_by_400_plates_and_64_pixel_borders(self):
+    def test_three_distinct_64_by_63_plates_and_10_pixel_borders(self):
         signatures = set()
         for state in ("default", "hover", "pressed"):
             path = ROOT / ("OverlayResources/hud/cozy/buttons/plate-" + state + ".png")
             data = path.read_bytes()
             self.assertEqual(b"\x89PNG\r\n\x1a\n", data[:8])
-            self.assertEqual((407, 400), struct.unpack(">II", data[16:24]))
+            self.assertEqual((64, 63), struct.unpack(">II", data[16:24]))
             signatures.add(hashlib.sha256(data).hexdigest())
             metadata = Path(str(path) + ".meta").read_text()
             border = re.search(r"spriteBorder:\s*x: (\d+)\s*y: (\d+)\s*z: (\d+)\s*w: (\d+)", metadata)
             self.assertIsNotNone(border)
-            self.assertEqual(("64",) * 4, border.groups())
+            self.assertEqual(("10",) * 4, border.groups())
         self.assertEqual(3, len(signatures))
-        self.assertIn("SpriteBorder = { 64, 64, 64, 64 }", read_source("CozyTheme.cs"))
+        self.assertIn("SpriteBorder = { 10, 10, 10, 10 }", read_source("CozyTheme.cs"))
+
+    def test_large_and_compact_paper_have_matching_slice_sizes(self):
+        for filename, dimensions, pixels in [("paper.png", (128, 125), 20), ("paper-compact.png", (64, 63), 10)]:
+            path = ROOT / "OverlayResources/hud/cozy/panels" / filename
+            self.assertEqual(dimensions, struct.unpack(">II", path.read_bytes()[16:24]))
+            border = re.search(r"spriteBorder:\s*x: (\d+)\s*y: (\d+)\s*z: (\d+)\s*w: (\d+)", Path(str(path) + ".meta").read_text())
+            self.assertEqual((str(pixels),) * 4, border.groups())
+        self.assertIn("PaperBorder = { 20, 20, 20, 20 }", read_source("CozyTheme.cs"))
+
+    def test_hud_surface_corners_fit_without_compression(self):
+        document = json.loads(read_source("OverlayResources/hud/overlay-hud.json"))
+        for widget in document["widgets"]:
+            if not widget.get("sprite", "").startswith("cozy/") or not widget.get("spriteSlice"):
+                continue
+            with self.subTest(widget=widget["id"]):
+                left, bottom, right, top = widget["spriteSlice"]
+                self.assertGreater(widget["w"], left + right)
+                self.assertGreater(widget["h"], top + bottom)
 
     def test_real_three_state_template_moves_visual_only_by_three_pixels(self):
         root = ET.parse(ROOT / "CozyTheme.xaml").getroot()
@@ -182,7 +200,7 @@ class CozyUiSourceTests(unittest.TestCase):
         self.assertEqual(CONTRACT["hud_widget_ids"], [widget["id"] for widget in document["widgets"]])
         component = document["components"]["button"]
         self.assertEqual(3, component["pressedOffsetY"])
-        self.assertEqual([64] * 4, component["spriteSlice"])
+        self.assertEqual([10] * 4, component["spriteSlice"])
         for widget in document["widgets"]:
             with self.subTest(widget=widget["id"]):
                 if widget["kind"] == "button":

@@ -15,7 +15,9 @@ namespace FishSocialOverlay
         public const string HoverPlate = "cozy/buttons/plate-hover.png";
         public const string PressedPlate = "cozy/buttons/plate-pressed.png";
         public const string Paper = "cozy/panels/paper.png";
-        public static readonly int[] SpriteBorder = { 64, 64, 64, 64 };
+        public const string CompactPaper = "cozy/panels/paper-compact.png";
+        public static readonly int[] SpriteBorder = { 10, 10, 10, 10 };
+        public static readonly int[] PaperBorder = { 20, 20, 20, 20 };
         public static readonly Brush Ink = FrozenBrush(0x75, 0x47, 0x2E);
         public static readonly Brush Cream = FrozenBrush(0xFF, 0xF7, 0xE9);
         static readonly Dictionary<string, BitmapSource> Images =
@@ -111,9 +113,21 @@ namespace FishSocialOverlay
 
         static void RefreshPaper(Border border)
         {
-            var brush = OverlayNineSlice.TryGetBrush(LoadImage(Paper), SpriteBorder,
+            var resource = SurfacePath(Paper, border.ActualWidth, border.ActualHeight);
+            var brush = OverlayNineSlice.TryGetBrush(LoadImage(resource), SurfaceBorder(resource),
                 border.ActualWidth, border.ActualHeight);
             border.Background = brush ?? Cream;
+        }
+
+        internal static string SurfacePath(string sprite, double width, double height)
+        {
+            return sprite == Paper && Math.Min(width, height) > 0 && Math.Min(width, height) < 48
+                ? CompactPaper : sprite;
+        }
+
+        internal static int[] SurfaceBorder(string sprite)
+        {
+            return sprite == Paper ? PaperBorder : SpriteBorder;
         }
 
         internal static BitmapSource LoadImage(string relativePath)
@@ -207,7 +221,8 @@ namespace FishSocialOverlay
             base.OnRender(drawingContext);
             if (ActualWidth <= 0 || ActualHeight <= 0)
                 return;
-            var brush = OverlayNineSlice.TryGetBrush(CozyTheme.LoadImage(Sprite), CozyTheme.SpriteBorder,
+            var resource = CozyTheme.SurfacePath(Sprite, ActualWidth, ActualHeight);
+            var brush = OverlayNineSlice.TryGetBrush(CozyTheme.LoadImage(resource), CozyTheme.SurfaceBorder(resource),
                 ActualWidth, ActualHeight);
             drawingContext.DrawRectangle(brush ?? CozyTheme.Cream, null, new Rect(RenderSize));
         }

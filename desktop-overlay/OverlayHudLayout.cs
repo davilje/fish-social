@@ -1199,6 +1199,11 @@ namespace FishSocialOverlay
                     var panel = widget.id == "chat_input" ? components.input : components.paper;
                     widget.sprite = panel.sprite;
                     widget.spriteSlice = (int[])panel.spriteSlice.Clone();
+                    if (widget.sprite == CozyTheme.Paper && Math.Min(widget.w, widget.h) < 48)
+                    {
+                        widget.sprite = CozyTheme.CompactPaper;
+                        widget.spriteSlice = (int[])CozyTheme.SpriteBorder.Clone();
+                    }
                 }
                 if (widget.id == "chat_scroll")
                     widget.sprite = null;
@@ -1224,16 +1229,19 @@ namespace FishSocialOverlay
             components.scroll = components.scroll ?? defaults.scroll;
             foreach (var panel in new[] { components.button, components.paper, components.input })
             {
-                if (panel.spriteSlice == null)
-                    panel.spriteSlice = (int[])CozyTheme.SpriteBorder.Clone();
-                if (!panel.spriteSlice.SequenceEqual(CozyTheme.SpriteBorder))
-                    throw new InvalidDataException("Cozy spriteSlice 必须是 [64,64,64,64]");
+                var expected = ReferenceEquals(panel, components.paper) ? CozyTheme.PaperBorder : CozyTheme.SpriteBorder;
+                if (panel.spriteSlice == null || panel.spriteSlice.SequenceEqual(new[] { 64, 64, 64, 64 }))
+                    panel.spriteSlice = (int[])expected.Clone();
+                if (!panel.spriteSlice.SequenceEqual(expected))
+                    throw new InvalidDataException("Cozy spriteSlice 与对应底板的像素边距不匹配");
             }
             components.button.sprite = components.button.sprite ?? defaults.button.sprite;
             components.button.spriteHover = components.button.spriteHover ?? defaults.button.spriteHover;
             components.button.spritePressed = components.button.spritePressed ?? defaults.button.spritePressed;
             components.paper.sprite = components.paper.sprite ?? defaults.paper.sprite;
             components.input.sprite = components.input.sprite ?? defaults.input.sprite;
+            if (components.input.sprite == CozyTheme.Paper)
+                components.input.sprite = CozyTheme.CompactPaper;
             components.button.padding = components.button.padding ?? defaults.button.padding;
             components.paper.padding = components.paper.padding ?? defaults.paper.padding;
             components.input.padding = components.input.padding ?? defaults.input.padding;
@@ -1270,12 +1278,12 @@ namespace FishSocialOverlay
                 },
                 paper = new OverlayHudComponentDto
                 {
-                    sprite = CozyTheme.Paper, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
+                    sprite = CozyTheme.Paper, spriteSlice = (int[])CozyTheme.PaperBorder.Clone(),
                     padding = new double[] { 12, 8, 12, 8 },
                 },
                 input = new OverlayHudComponentDto
                 {
-                    sprite = CozyTheme.Paper, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
+                    sprite = CozyTheme.CompactPaper, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
                     padding = new double[] { 8, 6, 8, 6 },
                 },
                 scroll = new OverlayHudComponentDto { width = 6 },

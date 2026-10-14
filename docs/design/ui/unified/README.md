@@ -50,10 +50,10 @@
 
 ## Overlay 同源方案
 
-- 同源 73 张 PNG 位于 `desktop-overlay/OverlayResources/hud/cozy/`，和 Unity Cozy 目录中对应 PNG 字节一致。
+- 同源 74 张 PNG 位于 `desktop-overlay/OverlayResources/hud/cozy/`，和 Unity Cozy 目录中对应 PNG 字节一致。
 - `CozyTheme.xaml` 定义 WPF 按钮、输入框、滚动、菜单、Tooltip 模板；`CozyTheme.cs` 负责 PNG、纸张九宫格和图标染色。
 - `overlay-hud.json` 保留 960×560 和全部 32 个 widget id。共享 `components` 与按钮 normal/hover/pressed、独立 icon 字段均为实际数据，不是说明示例。
-- 三态按钮 PNG 为 407×400，border 为 64；按下只移动视觉内容 3px，点击区域不漂移；透明窗口、点击穿透和裁切预设保留。
+- 三态按钮 PNG 等比缩小为 64×63，border 为 10；大面板底板为 128×125、border 20，小面板底板为 64×63、border 10。按下只移动视觉内容 3px，点击区域不漂移；透明窗口、点击穿透和裁切预设保留。
 - Unity `OverlayHud.prefab` 的同名 widget 矩形、图层和资源按这份 JSON 对齐；导出器保留 cozy 子目录、三态和 icon，不再导出回旧版单贴图。
 - ARGB：Overlay `#FF75472E` 对应 Unity RGBA `#75472EFF`，不要直接按 RGBA 解析 Overlay 字段。
 - 详见 `desktop-overlay/COZY_UI_HANDOFF.md` 的资源合同与 Windows 风险清单。
@@ -68,3 +68,19 @@
 6. 实测 1280×720、1920×1080、宽屏与三种 Overlay 裁切预设、长文本、长列表、键盘焦点、按下/释放、禁用态、IME 和点击穿透。
 
 每日礼物仍无服务端领取 API，本次不伪造领取成功；独立中文字体授权文件仍未新增，Windows 使用现有系统中文字体。`Recursive Serialization` 如果复现，必须保留新的完整堆栈，不能仅凭旧日志摘要认定已消失。
+
+## 九宫格尺寸适配（2026-10-14）
+
+图片分辨率较大并不使九宫格失效；问题在于固定边角的显示尺寸超过了实际控件，导致边角再次被压缩。本次保留原图绘制、色彩、透明边缘与三态区别，只对底板等比缩小，不重新绘制图案。
+
+| 用途 | PNG 尺寸 | border（左/下/右/上） | 最小边角总占用 |
+| --- | --- | --- | --- |
+| 三态按钮 | 64×63 | 10/10/10/10 | 20 UI 单位 |
+| 普通面板 | 128×125 | 20/20/20/20 | 40 UI 单位 |
+| 小面板、输入框 | 64×63 | 10/10/10/10 | 20 UI 单位 |
+
+导入 Sprite PPU 为 100，Canvas reference PPU 为 100，主题 Sliced Image 的 PPU Multiplier 为 1。显示 border 对应上表 UI 单位；这三项应配套，不再混用旧 64 像素切片或旧 1.4 multiplier。原有 4 张底板保留 GUID，新增小面板使用独立 GUID；所有按钮/图标/文字位置、尺寸与锚点不变。显示较短边小于 48 的纸底改用小面板，例如 25 高的经验条背景、38 高的等级牌、32 高的聊天输入框和 42 高的折叠聊天框。进度填充图保持 Filled，不改业务值。
+
+Unity Resources、旧 StreamingAssets 回退和 WPF Overlay 使用相同 PNG；Overlay 导出模板按按钮/小面板 10、大面板 20 区分边距。WPF 兼容读取旧 64 边距的组件配置并迁移至新规格。当前 HUD 的 32 个 widget id、位置、尺寸、父子关系与点击事件不变。
+
+验收时重新导入变更素材，重新构建 Unity Player 和 Windows Overlay；不要继续使用旧目录中已经编译的 Overlay 二进制。检查 28×28 按钮、352×54 登录按钮、278×25 经验条底与聊天输入框：边角不应被挤压，中央可伸缩区域应大于零。静态检查与源回归报告不等于实际引擎验收；新增 Unity 网格回归测试尚未在本机执行。

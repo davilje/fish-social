@@ -1,5 +1,6 @@
 #if UNITY_EDITOR && UNITY_INCLUDE_TESTS
 using System.Reflection;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -64,6 +65,7 @@ namespace FishSocial.Tests.Editor
             }
         }
 
+        [TestCase(28f, 28f)]
         [TestCase(80f, 44f)]
         [TestCase(352f, 54f)]
         [TestCase(420f, 180f)]
@@ -89,6 +91,57 @@ namespace FishSocial.Tests.Editor
                     populate.Invoke(image, new object[] { vertices });
                     Assert.Greater(vertices.currentVertCount, 4, "A four-vertex quad would stretch the entire texture.");
                 }
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [TestCase("buttons/plate-default.png", 64, 63, 10f, 28f, 28f)]
+        [TestCase("buttons/plate-hover.png", 64, 63, 10f, 80f, 44f)]
+        [TestCase("buttons/plate-pressed.png", 64, 63, 10f, 352f, 54f)]
+        [TestCase("panels/paper-compact.png", 64, 63, 10f, 278f, 25f)]
+        [TestCase("panels/paper.png", 128, 125, 20f, 420f, 180f)]
+        public void ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(string path, int sourceWidth,
+            int sourceHeight, float border, float width, float height)
+        {
+            var root = new GameObject("SurfaceSizeTest", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            try
+            {
+                var image = root.GetComponent<Image>();
+                image.sprite = CatTheme.LoadCozy(path, Vector4.zero);
+                Assert.NotNull(image.sprite);
+                Assert.AreEqual(sourceWidth, image.sprite.rect.width);
+                Assert.AreEqual(sourceHeight, image.sprite.rect.height);
+                Assert.AreEqual(new Vector4(border, border, border, border), image.sprite.border);
+                image.type = Image.Type.Sliced;
+                image.pixelsPerUnitMultiplier = 1f;
+                image.rectTransform.sizeDelta = new Vector2(width, height);
+                var populate = typeof(Image).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic);
+                var horizontal = new SortedSet<float>();
+                var vertical = new SortedSet<float>();
+                using (var vertices = new VertexHelper())
+                {
+                    populate.Invoke(image, new object[] { vertices });
+                    var vertex = default(UIVertex);
+                    for (var vertexIndex = 0; vertexIndex < vertices.currentVertCount; vertexIndex++)
+                    {
+                        vertices.PopulateUIVertex(ref vertex, vertexIndex);
+                        horizontal.Add(vertex.position.x);
+                        vertical.Add(vertex.position.y);
+                    }
+                }
+                Assert.AreEqual(4, horizontal.Count);
+                Assert.AreEqual(4, vertical.Count);
+                var columns = new float[horizontal.Count];
+                var rows = new float[vertical.Count];
+                horizontal.CopyTo(columns);
+                vertical.CopyTo(rows);
+                Assert.AreEqual(border, columns[1] - columns[0], 0.01f);
+                Assert.AreEqual(border, rows[1] - rows[0], 0.01f);
+                Assert.Greater(columns[2] - columns[1], 0f);
+                Assert.Greater(rows[2] - rows[1], 0f);
             }
             finally
             {

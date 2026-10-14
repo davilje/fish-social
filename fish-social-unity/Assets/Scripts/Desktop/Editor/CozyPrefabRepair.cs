@@ -66,7 +66,8 @@ namespace FishSocial.Desktop.Editor
             if (importer != null && importer.spriteBorder != Vector4.zero)
                 return importer.spriteBorder;
             var border = path.StartsWith(ThemeFolder + "/buttons/plate-", StringComparison.Ordinal)
-                ? CatTheme.PlateBorder : path.StartsWith(ThemeFolder + "/panels/", StringComparison.Ordinal)
+                ? CatTheme.PlateBorder : path.EndsWith("/paper-compact.png", StringComparison.Ordinal)
+                    ? CatTheme.CompactPaperBorder : path.StartsWith(ThemeFolder + "/panels/", StringComparison.Ordinal)
                     ? CatTheme.PaperBorder : Vector4.zero;
             var horizontal = Mathf.Min(1f, Mathf.Max(0, width) / Mathf.Max(1f, border.x + border.z));
             var vertical = Mathf.Min(1f, Mathf.Max(0, height) / Mathf.Max(1f, border.y + border.w));

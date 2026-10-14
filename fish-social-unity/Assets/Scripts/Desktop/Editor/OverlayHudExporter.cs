@@ -896,7 +896,11 @@ namespace FishSocial.Desktop.Editor
         {
             public ButtonTemplate button = new ButtonTemplate();
             public PaperTemplate paper = new PaperTemplate();
-            public PaperTemplate input = new PaperTemplate { padding = new float[] { 8, 6, 8, 6 } };
+            public PaperTemplate input = new PaperTemplate
+            {
+                sprite = "cozy/panels/paper-compact.png", spriteSlice = new int[] { 10, 10, 10, 10 },
+                padding = new float[] { 8, 6, 8, 6 }
+            };
             public ScrollTemplate scroll = new ScrollTemplate();
         }
 
@@ -906,7 +910,7 @@ namespace FishSocial.Desktop.Editor
             public string sprite = "cozy/buttons/plate-default.png";
             public string spriteHover = "cozy/buttons/plate-hover.png";
             public string spritePressed = "cozy/buttons/plate-pressed.png";
-            public int[] spriteSlice = { 64, 64, 64, 64 };
+            public int[] spriteSlice = { 10, 10, 10, 10 };
             public float pressedOffsetY = 3;
             public float iconSize = 16;
             public float disabledOpacity = 0.45f;
@@ -917,7 +921,7 @@ namespace FishSocial.Desktop.Editor
         sealed class PaperTemplate
         {
             public string sprite = "cozy/panels/paper.png";
-            public int[] spriteSlice = { 64, 64, 64, 64 };
+            public int[] spriteSlice = { 20, 20, 20, 20 };
             public float[] padding = { 12, 8, 12, 8 };
         }
 
@@ -935,9 +939,9 @@ namespace FishSocial.Desktop.Editor
                 JsonUtility.FromJsonOverwrite(File.ReadAllText(source), components);
             if (components.button == null || components.paper == null || components.input == null || components.scroll == null)
                 throw new InvalidDataException("Cozy components 必须包含 button/paper/input/scroll");
-            ValidateComponentBorder(components.button.spriteSlice);
-            ValidateComponentBorder(components.paper.spriteSlice);
-            ValidateComponentBorder(components.input.spriteSlice);
+            ValidateComponentBorder(components.button.spriteSlice, 10);
+            ValidateComponentBorder(components.paper.spriteSlice, 20);
+            ValidateComponentBorder(components.input.spriteSlice, 10);
             ValidateComponentPadding(components.button.padding);
             ValidateComponentPadding(components.paper.padding);
             ValidateComponentPadding(components.input.padding);
@@ -956,13 +960,13 @@ namespace FishSocial.Desktop.Editor
                 throw new InvalidDataException(name + " 必须是有限正数");
         }
 
-        static void ValidateComponentBorder(int[] border)
+        static void ValidateComponentBorder(int[] border, int expected)
         {
             if (border == null || border.Length != 4)
-                throw new InvalidDataException("Cozy spriteSlice 必须是 [64,64,64,64]");
+                throw new InvalidDataException("Cozy spriteSlice 必须包含四个 " + expected + " 像素边距");
             foreach (var value in border)
-                if (value != 64)
-                    throw new InvalidDataException("Cozy spriteSlice 必须是 [64,64,64,64]");
+                if (value != expected)
+                    throw new InvalidDataException("Cozy spriteSlice 必须包含四个 " + expected + " 像素边距");
         }
 
         static void ValidateComponentPadding(float[] padding)
@@ -1028,7 +1032,8 @@ namespace FishSocial.Desktop.Editor
                 var components = new HudComponents();
                 var document = BuildDocumentJson(new List<string>(), components);
                 if (!document.Contains("\"components\":") || !document.Contains("cozy/buttons/plate-hover.png") ||
-                    !document.Contains("\"spriteSlice\":[64,64,64,64]") ||
+                    !document.Contains("\"spriteSlice\":[10,10,10,10]") ||
+                    !document.Contains("\"spriteSlice\":[20,20,20,20]") ||
                     FormatColor(new Color32(0x75, 0x47, 0x2E, 0xFF)) != "#FF75472E")
                     throw new InvalidDataException("HUD components/ARGB regression");
                 temporary = new GameObject("OverlayHudExportContractCheck");

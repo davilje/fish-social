@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **九宫格素材尺寸适配（2026-10-14）**：三态底板等比缩小为 64×63/border 10，大面板为 128×125/border 20，新增 64×63/border 10 小面板用于经验条底、等级牌与聊天输入区；统一主题 Sliced Image 的 PPU Multiplier 为 1，保持现有布局、Prefab/Variant 继承和素材 GUID。Unity、StreamingAssets 与 WPF 同步切图和导出边距；新增最小控件切片中心/边角检查。静态与源回归结果见 docs/design/ui/unified/nine-slice-sizing-validation.json；本机无 Unity/Windows，引擎编译、网格测试和实际视觉待验收。
+
 - **CozyVisual Image 模式定点修复（2026-10-14）**：在 UI Prefab 管理中增加“仅修复 Image 的 Sliced 模式”，对实际导入的底板组件写入 m_Type、记录 Variant 覆盖并保存重载验证，不调整 border、PPU 或布局；构建校验明确禁止 CozyVisual 使用 Simple/Tiled/Filled，真正的进度条不受影响。补充三种错误模式和 Variant 保存重载测试；本机尚未执行 Unity Edit Mode，需在用户的 Unity 工程内执行模式修复与验收。
 
 - **登录小窗口与九宫格链路修正（2026-10-14）**：LoginRoot 恢复居中 480×320 布局，不改登录后的 1672×941 主界面；带 border 的非 Filled 背景在主题应用时归一为 Sliced，新增 Sprite 导入约束与实际 border/FullRect 构建检查，保留已有非零 border、进度条 Filled 和图标等比显示；补充登录边界与九宫格网格 Edit Mode 回归测试。本机仅执行静态及源回归检查，Unity 编译与实际运行待验收。

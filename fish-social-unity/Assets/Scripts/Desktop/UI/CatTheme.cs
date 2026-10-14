@@ -14,8 +14,9 @@ namespace FishSocial.Desktop
         public static readonly Color Coral = new Color(0xF9 / 255f, 0xA3 / 255f, 0x3F / 255f, 1f);
         public static readonly Color Teal = new Color(0x92 / 255f, 0xA3 / 255f, 0xE7 / 255f, 1f);
         public static readonly Color Panel = Cream;
-        public static readonly Vector4 PlateBorder = new Vector4(64f, 64f, 64f, 64f);
-        public static readonly Vector4 PaperBorder = new Vector4(64f, 64f, 64f, 64f);
+        public static readonly Vector4 PlateBorder = new Vector4(10f, 10f, 10f, 10f);
+        public static readonly Vector4 PaperBorder = new Vector4(20f, 20f, 20f, 20f);
+        public static readonly Vector4 CompactPaperBorder = new Vector4(10f, 10f, 10f, 10f);
 
         public static bool AllowLegacyStreamingAssetsFallback { get; set; }
 
@@ -191,7 +192,10 @@ namespace FishSocial.Desktop
             var color = Cream;
             color.a = image.color.a;
             ApplySurface(image, color);
-            var paper = LoadCozy("panels/paper.png", PaperBorder);
+            var size = image.rectTransform.rect.size;
+            var compact = Mathf.Min(size.x, size.y) > 0f && Mathf.Min(size.x, size.y) < 48f;
+            var paper = LoadCozy(compact ? "panels/paper-compact.png" : "panels/paper.png",
+                compact ? CompactPaperBorder : PaperBorder);
             if (paper == null)
                 return;
             image.sprite = paper;
