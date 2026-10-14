@@ -221,7 +221,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(header, "Leaderboard", () => ShowMainPanel(ShellPanelId.Leaderboard));
             DesktopModalUi.BindButton(header, "Home", ReturnToPetHome);
             DesktopModalUi.ConfigureXpBar(headerXpBackground, _headerXpFill);
-            AlignHeaderActions(header, false);
+            AlignHeaderActions(header, id != ShellPanelId.Home);
             HideDuplicateProfileLabels(header);
             var nav = _mainRoot.transform.Find("Nav");
             BindCozyNav(nav, ShellPanelId.CatchBag, () => ShowMainPanel(ShellPanelId.CatchBag));
@@ -457,7 +457,7 @@ namespace FishSocial.Desktop
         {
             HighlightTab(id);
             var header = _mainRoot != null ? _mainRoot.transform.Find("Header") : null;
-            AlignHeaderActions(header, id != ShellPanelId.Home);
+            AlignHeaderActions(header, false);
             var page = _mainRoot != null && _mainRoot.transform.Find("Content") != null
                 ? _mainRoot.transform.Find("Content/" + id)
                 : null;
@@ -541,11 +541,11 @@ namespace FishSocial.Desktop
             var home = header.Find("Home")?.GetComponent<Button>();
             DesktopModalUi.PlaceTopRight(settings, 22f, 18f, 54f);
             DesktopModalUi.PlaceTopRight(mail, 86f, 18f, 54f);
-            DesktopModalUi.PlaceTopRight(home, 150f, 18f, 54f);
+            DesktopModalUi.PlaceTopRight(home, showClose ? 22f : 150f, 18f, 54f);
             if (settings != null)
-                settings.gameObject.SetActive(true);
+                settings.gameObject.SetActive(!showClose);
             if (mail != null)
-                mail.gameObject.SetActive(true);
+                mail.gameObject.SetActive(!showClose);
             if (home != null)
             {
                 home.gameObject.SetActive(showClose);

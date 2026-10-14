@@ -170,8 +170,7 @@ namespace FishSocial.Desktop
             var podium = transform.Find("Podium") as RectTransform;
             if (podium != null)
             {
-                AnchorRect(podium, new Vector2(0f, 1f), new Vector2(0.68f, 1f),
-                    new Vector2(28f, -310f), new Vector2(-16f, -88f));
+                PlaceStaticLayout("Podium", 24f, 112f, 1270f, 192f);
                 var group = podium.GetComponent<HorizontalLayoutGroup>();
                 if (group != null)
                     group.enabled = false;
@@ -182,7 +181,7 @@ namespace FishSocial.Desktop
             PlaceStaticLayout("Reflow_RailSeal", 1358f, 280f, 72f, 72f);
             PlaceStaticLayout("Reflow_RailHeading", 1358f, 372f, 198f, 36f);
             PlaceStaticLayout("Reflow_RailBody", 1358f, 428f, 198f, 116f);
-            PlaceStaticLayout("Reflow_PodiumPaper", 24f, 112f, 1270f, 128f);
+            PlaceStaticLayout("Reflow_PodiumPaper", 24f, 112f, 1270f, 192f);
             PlaceStaticLayout("Reflow_RankTableHeading", 24f, 324f, 1270f, 44f);
             PlaceStaticLayout("Reflow_RankColumn", 68f, 333f, 124f, 28f);
             PlaceStaticLayout("Reflow_NameColumn", 218f, 333f, 748f, 28f);
@@ -193,13 +192,10 @@ namespace FishSocial.Desktop
             PlacePodiumSlot(_podium2, 0f);
             PlacePodiumSlot(_podium3, 144f);
 
-            var scrollRect = _scroll != null ? _scroll.GetComponent<RectTransform>() : null;
-            AnchorRect(scrollRect, Vector2.zero, new Vector2(0.68f, 1f),
-                new Vector2(28f, 26f), new Vector2(-16f, -332f));
+            PlaceStaticLayout("Scroll", 24f, 380f, 1270f, 166f);
 
             var tabs = transform.Find("Tabs") as RectTransform;
-            AnchorRect(tabs, new Vector2(0.70f, 0.48f), new Vector2(0.98f, 0.92f),
-                Vector2.zero, Vector2.zero);
+            PlaceStaticLayout("Tabs", 1334f, 270f, 246f, 170f);
             if (tabs != null)
             {
                 var layout = tabs.GetComponent<VerticalLayoutGroup>();
@@ -208,8 +204,8 @@ namespace FishSocial.Desktop
 
                 if (layout != null)
                 {
-                    layout.padding = new RectOffset(12, 12, 12, 12);
-                    layout.spacing = 8f;
+                    layout.padding = new RectOffset(8, 8, 8, 8);
+                    layout.spacing = 6f;
                     layout.childControlWidth = true;
                     layout.childControlHeight = false;
                     layout.childForceExpandWidth = true;
@@ -224,17 +220,13 @@ namespace FishSocial.Desktop
                 var element = tab.GetComponent<LayoutElement>();
                 if (element == null)
                     element = tab.gameObject.AddComponent<LayoutElement>();
-                element.minHeight = 44f;
-                element.preferredHeight = 44f;
+                element.minHeight = 34f;
+                element.preferredHeight = 34f;
                 element.flexibleHeight = 0f;
             }
 
-            AnchorRect(_status != null ? _status.rectTransform : null,
-                new Vector2(0.70f, 0.30f), new Vector2(0.98f, 0.45f),
-                Vector2.zero, Vector2.zero);
-            AnchorRect(_myRank != null ? _myRank.rectTransform : null,
-                new Vector2(0.70f, 0.12f), new Vector2(0.98f, 0.27f),
-                Vector2.zero, Vector2.zero);
+            PlaceStaticLayout("MyRank", 24f, 558f, 1270f, 32f);
+            PlaceStaticLayout("Status", 24f, 600f, 1270f, 26f);
         }
 
         static void PlacePodiumSlot(PodiumSlot slot, float x)
@@ -243,11 +235,11 @@ namespace FishSocial.Desktop
                 return;
             var rect = slot.root.GetComponent<RectTransform>();
             AnchorRect(rect, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(x - 64f, -220f), new Vector2(x + 64f, -4f));
+                new Vector2(x - 64f, -196f), new Vector2(x + 64f, -4f));
             var layout = slot.root.GetComponent<LayoutElement>() ?? slot.root.AddComponent<LayoutElement>();
             layout.ignoreLayout = true;
-            layout.minHeight = 216f;
-            layout.preferredHeight = 216f;
+            layout.minHeight = 192f;
+            layout.preferredHeight = 192f;
             layout.minWidth = 128f;
             layout.preferredWidth = 128f;
         }

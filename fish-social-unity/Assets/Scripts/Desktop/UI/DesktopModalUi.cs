@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace FishSocial.Desktop
@@ -212,9 +213,36 @@ namespace FishSocial.Desktop
             if (root == null)
                 return;
             PlaceTopLeft(root.Find("Reflow_BlueSealPaper") as RectTransform,
-                new Vector2(16f, 14f), new Vector2(64f, 64f));
+                new Vector2(16f, 104f), new Vector2(64f, 64f));
             PlaceTopLeft(root.Find("Reflow_PageSeal") as RectTransform,
-                new Vector2(24f, 22f), new Vector2(48f, 48f));
+                new Vector2(24f, 112f), new Vector2(48f, 48f));
+        }
+
+        public static Button EnsurePageCloseButton(Transform root, UnityAction closeAction)
+        {
+            if (root == null)
+                return null;
+            var button = FindComponent<Button>(root, "PageClose");
+            if (button == null)
+            {
+                var prefab = Resources.Load<GameObject>("Desktop/Prefabs/Library/CozyButtonBase");
+                var instance = prefab != null
+                    ? UnityEngine.Object.Instantiate(prefab, root, false)
+                    : new GameObject("PageClose", typeof(RectTransform), typeof(CanvasRenderer),
+                        typeof(Image), typeof(Button));
+                instance.name = "PageClose";
+                if (instance.transform.parent != root)
+                    instance.transform.SetParent(root, false);
+                button = instance.GetComponent<Button>() ?? instance.AddComponent<Button>();
+            }
+            button.onClick.RemoveAllListeners();
+            if (closeAction != null)
+                button.onClick.AddListener(closeAction);
+            PlaceTopRight(button, 22f, 18f, 54f);
+            SetButtonGlyph(button, "×");
+            StyleButton(button);
+            button.transform.SetAsLastSibling();
+            return button;
         }
 
         static void PlaceTopLeft(RectTransform rect, Vector2 position, Vector2 size)
@@ -284,7 +312,7 @@ namespace FishSocial.Desktop
         {
             if (root == null)
                 return;
-            foreach (var name in new[] { "Close", "Reload", "Retry" })
+            foreach (var name in new[] { "Close", "PageClose", "Reload", "Retry" })
             {
                 foreach (var button in root.GetComponentsInChildren<Button>(true))
                 {

@@ -281,6 +281,19 @@ namespace FishSocial.Desktop
             }
             FitGrid(_showcaseGrid, 2);
             FitGrid(_codexGrid, 3);
+
+            var achievementsRoot = transform.Find("Shell/Content/Tab_成就");
+            var achievementsScroll = achievementsRoot != null
+                ? achievementsRoot.Find("Achievements") as RectTransform
+                : null;
+            if (achievementsScroll != null)
+            {
+                PlaceRect(achievementsScroll, Vector2.zero, Vector2.one,
+                    new Vector2(12f, 12f), new Vector2(-12f, -52f));
+                var scrollImage = achievementsScroll.GetComponent<Image>();
+                if (scrollImage != null)
+                    CatTheme.ApplyPaper(scrollImage);
+            }
         }
 
         void OnRectTransformDimensionsChange()
@@ -440,6 +453,8 @@ namespace FishSocial.Desktop
                 var scroll = root.Find("Achievements");
                 _achievementsList = scroll != null ? scroll.Find("Content") : null;
             }
+            if (_achievementsList == null)
+                _achievementsList = CreateScrollList(root, "Achievements", 0f, 1f);
         }
 
         void RebindAlbumPagers()
@@ -1638,6 +1653,13 @@ namespace FishSocial.Desktop
                 return;
             }
             text.text = label;
+            var layout = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
+            layout.minHeight = 72f;
+            layout.preferredHeight = 72f;
+            layout.flexibleHeight = 0f;
+            text.fontSize = 16;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
             DesktopModalUi.StyleTree(go.transform);
         }
 
