@@ -190,13 +190,19 @@ namespace FishSocial.Desktop
                 Vector2.zero, Vector2.zero);
             if (tabs != null)
             {
-                var layout = tabs.GetComponent<VerticalLayoutGroup>() ?? tabs.gameObject.AddComponent<VerticalLayoutGroup>();
-                layout.padding = new RectOffset(12, 12, 12, 12);
-                layout.spacing = 8f;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
+                var layout = tabs.GetComponent<VerticalLayoutGroup>();
+                if (layout == null)
+                    layout = tabs.gameObject.AddComponent<VerticalLayoutGroup>();
+
+                if (layout != null)
+                {
+                    layout.padding = new RectOffset(12, 12, 12, 12);
+                    layout.spacing = 8f;
+                    layout.childControlWidth = true;
+                    layout.childControlHeight = true;
+                    layout.childForceExpandWidth = true;
+                    layout.childForceExpandHeight = false;
+                }
             }
 
             AnchorRect(_status != null ? _status.rectTransform : null,
