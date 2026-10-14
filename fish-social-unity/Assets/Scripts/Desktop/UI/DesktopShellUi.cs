@@ -221,7 +221,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(header, "Leaderboard", () => ShowMainPanel(ShellPanelId.Leaderboard));
             DesktopModalUi.BindButton(header, "Home", ReturnToPetHome);
             DesktopModalUi.ConfigureXpBar(headerXpBackground, _headerXpFill);
-            AlignHeaderActions(header, id != ShellPanelId.Home);
+            AlignHeaderActions(header, false);
             HideDuplicateProfileLabels(header);
             var nav = _mainRoot.transform.Find("Nav");
             BindCozyNav(nav, ShellPanelId.CatchBag, () => ShowMainPanel(ShellPanelId.CatchBag));
@@ -457,7 +457,7 @@ namespace FishSocial.Desktop
         {
             HighlightTab(id);
             var header = _mainRoot != null ? _mainRoot.transform.Find("Header") : null;
-            AlignHeaderActions(header, false);
+            AlignHeaderActions(header, id != ShellPanelId.Home);
             var page = _mainRoot != null && _mainRoot.transform.Find("Content") != null
                 ? _mainRoot.transform.Find("Content/" + id)
                 : null;
