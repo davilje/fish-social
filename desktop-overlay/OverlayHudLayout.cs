@@ -282,6 +282,7 @@ namespace FishSocialOverlay
                 {
                     // cap_status 是纯装饰；dock_chat 必须能命中子控件（输入框/按钮）
                     element.IsHitTestVisible = widget.id == "dock_chat";
+                    element.Opacity = widget.id == "cap_status" ? 0.78 : 0.88;
                     if (widget.id == "dock_chat" && element is Border chatBorder)
                     {
                         chatDockHost = EnsureChatDockHost(chatBorder, widget, hudRoot);

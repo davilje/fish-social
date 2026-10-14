@@ -50,13 +50,13 @@
                                 <local:CozyIcon x:Name="Icon"
                                     Width="{Binding Path=(local:CozyTheme.IconSize), RelativeSource={RelativeSource TemplatedParent}}"
                                     Height="{Binding Path=(local:CozyTheme.IconSize), RelativeSource={RelativeSource TemplatedParent}}"
-                                    RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False"
+                                    Margin="0,0,4,0" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False"
                                     Sprite="{Binding Path=(local:CozyTheme.Icon), RelativeSource={RelativeSource TemplatedParent}}">
                                     <local:CozyIcon.RenderTransform>
                                         <RotateTransform Angle="{Binding Path=(local:CozyTheme.IconAngle), RelativeSource={RelativeSource TemplatedParent}}" />
                                     </local:CozyIcon.RenderTransform>
                                 </local:CozyIcon>
-                                <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" />
+                                <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </StackPanel>
                             <Border x:Name="FocusRing" BorderBrush="{StaticResource CozyPeriwinkle}"
                                     BorderThickness="1" CornerRadius="8" Margin="3" Visibility="Collapsed" IsHitTestVisible="False" />

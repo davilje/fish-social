@@ -205,6 +205,7 @@ namespace FishSocial.Desktop
             _headerLevel = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/Level");
             _headerXp = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/XpLabel");
             _headerXpFill = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpFill");
+            var headerXpBackground = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpBackground");
             _headerAvatar = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/Avatar");
             _headerCoins = DesktopModalUi.FindComponent<Text>(header, "FishCoins/Amount");
             _headerCatchCount = DesktopModalUi.FindComponent<Text>(header, "CatchCount/Amount");
@@ -219,6 +220,9 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(header, "Settings", () => ShowMainPanel(ShellPanelId.Settings));
             DesktopModalUi.BindButton(header, "Leaderboard", () => ShowMainPanel(ShellPanelId.Leaderboard));
             DesktopModalUi.BindButton(header, "Home", ReturnToPetHome);
+            DesktopModalUi.ConfigureXpBar(headerXpBackground, _headerXpFill);
+            AlignHeaderActions(header, false);
+            HideDuplicateProfileLabels(header);
             var nav = _mainRoot.transform.Find("Nav");
             BindCozyNav(nav, ShellPanelId.CatchBag, () => ShowMainPanel(ShellPanelId.CatchBag));
             BindCozyNav(nav, ShellPanelId.Equipment, () => ShowMainPanel(ShellPanelId.Equipment));
@@ -452,9 +456,12 @@ namespace FishSocial.Desktop
         void OnPanelChanged(ShellPanelId id)
         {
             HighlightTab(id);
-            var home = _mainRoot != null ? _mainRoot.transform.Find("Header/Home") : null;
-            if (home != null)
-                home.gameObject.SetActive(id != ShellPanelId.Home);
+            var header = _mainRoot != null ? _mainRoot.transform.Find("Header") : null;
+            AlignHeaderActions(header, id != ShellPanelId.Home);
+            var page = _mainRoot != null && _mainRoot.transform.Find("Content") != null
+                ? _mainRoot.transform.Find("Content/" + id)
+                : null;
+            DesktopModalUi.HideDirectCloseButtons(page);
             var competition = _mainRoot != null ? _mainRoot.transform.Find("Header/Leaderboard") : null;
             if (competition != null)
                 competition.gameObject.SetActive(id == ShellPanelId.Home);
@@ -520,6 +527,45 @@ namespace FishSocial.Desktop
                 case ShellPanelId.Settings:
                     _settingsPanel?.OnOpened();
                     break;
+            }
+        }
+
+        static void AlignHeaderActions(Transform header, bool showClose)
+        {
+            if (header == null)
+                return;
+            var settings = header.Find("Settings")?.GetComponent<Button>();
+            var mail = header.Find("Mail")?.GetComponent<Button>();
+            var home = header.Find("Home")?.GetComponent<Button>();
+            DesktopModalUi.PlaceTopRight(settings, 22f, 18f, 54f);
+            DesktopModalUi.PlaceTopRight(mail, 88f, 18f, 54f);
+            DesktopModalUi.PlaceTopRight(home, 154f, 18f, 54f);
+            if (settings != null)
+                settings.gameObject.SetActive(true);
+            if (mail != null)
+                mail.gameObject.SetActive(true);
+            if (home != null)
+            {
+                home.gameObject.SetActive(showClose);
+                if (showClose)
+                {
+                    DesktopModalUi.SetButtonGlyph(home, "×");
+                    DesktopModalUi.StyleButton(home);
+                }
+            }
+        }
+
+        void HideDuplicateProfileLabels(Transform header)
+        {
+            var profile = header != null ? header.Find("ProfileCard") : null;
+            if (profile == null)
+                return;
+            foreach (var label in profile.GetComponentsInChildren<Text>(true))
+            {
+                if (label == _headerName || label == _headerLevel || label == _headerXp)
+                    continue;
+                if (label.name == "Nickname" || label.name == "PlayerName" || label.name == "NameDuplicate")
+                    label.gameObject.SetActive(false);
             }
         }
 

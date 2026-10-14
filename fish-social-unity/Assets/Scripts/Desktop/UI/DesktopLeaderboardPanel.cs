@@ -160,6 +160,77 @@ namespace FishSocial.Desktop
             RestylePodium(_podium2, 2);
             RestylePodium(_podium3, 3);
             RestyleTabs();
+            ApplyLeaderboardLayout();
+            if (_retry != null)
+                _retry.gameObject.SetActive(false);
+        }
+
+        void ApplyLeaderboardLayout()
+        {
+            var podium = transform.Find("Podium") as RectTransform;
+            if (podium != null)
+            {
+                AnchorRect(podium, new Vector2(0f, 1f), new Vector2(0.68f, 1f),
+                    new Vector2(28f, -310f), new Vector2(-16f, -88f));
+                var group = podium.GetComponent<HorizontalLayoutGroup>();
+                if (group != null)
+                    group.enabled = false;
+            }
+
+            PlacePodiumSlot(_podium1, -168f);
+            PlacePodiumSlot(_podium2, 0f);
+            PlacePodiumSlot(_podium3, 168f);
+
+            var scrollRect = _scroll != null ? _scroll.GetComponent<RectTransform>() : null;
+            AnchorRect(scrollRect, Vector2.zero, new Vector2(0.68f, 1f),
+                new Vector2(28f, 26f), new Vector2(-16f, -332f));
+
+            var tabs = transform.Find("Tabs") as RectTransform;
+            AnchorRect(tabs, new Vector2(0.70f, 0.48f), new Vector2(0.98f, 0.92f),
+                Vector2.zero, Vector2.zero);
+            if (tabs != null)
+            {
+                var layout = tabs.GetComponent<VerticalLayoutGroup>() ?? tabs.gameObject.AddComponent<VerticalLayoutGroup>();
+                layout.padding = new RectOffset(12, 12, 12, 12);
+                layout.spacing = 8f;
+                layout.childControlWidth = true;
+                layout.childControlHeight = true;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = false;
+            }
+
+            AnchorRect(_status != null ? _status.rectTransform : null,
+                new Vector2(0.70f, 0.30f), new Vector2(0.98f, 0.45f),
+                Vector2.zero, Vector2.zero);
+            AnchorRect(_myRank != null ? _myRank.rectTransform : null,
+                new Vector2(0.70f, 0.12f), new Vector2(0.98f, 0.27f),
+                Vector2.zero, Vector2.zero);
+        }
+
+        static void PlacePodiumSlot(PodiumSlot slot, float x)
+        {
+            if (slot.root == null)
+                return;
+            var rect = slot.root.GetComponent<RectTransform>();
+            AnchorRect(rect, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(x - 75f, -194f), new Vector2(x + 75f, -4f));
+            var layout = slot.root.GetComponent<LayoutElement>() ?? slot.root.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            layout.minHeight = 190f;
+            layout.preferredHeight = 190f;
+            layout.minWidth = 150f;
+            layout.preferredWidth = 150f;
+        }
+
+        static void AnchorRect(RectTransform rect, Vector2 min, Vector2 max,
+            Vector2 offsetMin, Vector2 offsetMax)
+        {
+            if (rect == null)
+                return;
+            rect.anchorMin = min;
+            rect.anchorMax = max;
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
         }
 
         void RestyleTabs()
@@ -482,7 +553,7 @@ namespace FishSocial.Desktop
 
             if (!boardOk)
             {
-                SetStatus(boardError ?? "排行榜加载失败，请点击重试。");
+                SetStatus(boardError ?? "排行榜加载失败，请稍后重新打开页面。");
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);

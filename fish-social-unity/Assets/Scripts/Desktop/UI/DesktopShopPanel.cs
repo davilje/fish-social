@@ -109,6 +109,7 @@ namespace FishSocial.Desktop
             }
             _uiReady = true;
             RestyleUi();
+            _retry.gameObject.SetActive(false);
 
             var baitLabel = _baitTab.GetComponentInChildren<Text>();
             if (baitLabel != null)
@@ -216,7 +217,7 @@ namespace FishSocial.Desktop
             {
                 SetStatus(!string.IsNullOrEmpty(catalogError)
                     ? catalogError
-                    : (gearError ?? (_equipmentMode ? "装备加载失败，请点击重试。" : "商店加载失败，请点击重试。")));
+                    : (gearError ?? (_equipmentMode ? "装备加载失败，请稍后重新打开页面。" : "商店加载失败，请稍后重新打开页面。")));
                 Render();
                 yield break;
             }
@@ -517,7 +518,7 @@ namespace FishSocial.Desktop
             {
                 var showEquip = _equipmentMode
                     ? (_tab == 0 ? SelectedBait() != null : _tab == 1 && SelectedTackle() != null)
-                    : equipEnabled || (_tab == 1 && showBuy);
+                    : equipEnabled;
                 _equip.gameObject.SetActive(showEquip);
                 _equip.interactable = equipEnabled;
                 var equipLabel = _equip.GetComponentInChildren<Text>(true);

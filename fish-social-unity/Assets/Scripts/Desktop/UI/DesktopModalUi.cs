@@ -144,6 +144,100 @@ namespace FishSocial.Desktop
             }
         }
 
+        public static void SetButtonLabel(Button button, string value)
+        {
+            if (button == null)
+                return;
+            Text target = null;
+            foreach (var label in button.GetComponentsInChildren<Text>(true))
+            {
+                if (label.name == "Label" || label.name == "Text")
+                {
+                    target = label;
+                    break;
+                }
+                if (target == null)
+                    target = label;
+            }
+            if (target != null)
+                target.text = value ?? string.Empty;
+        }
+
+        public static void SetButtonGlyph(Button button, string glyph)
+        {
+            if (button == null)
+                return;
+            foreach (var image in button.GetComponentsInChildren<Image>(true))
+            {
+                if (image.name == "Icon" || image.name == "CozyIcon")
+                    image.enabled = false;
+            }
+            SetButtonLabel(button, glyph);
+            foreach (var label in button.GetComponentsInChildren<Text>(true))
+            {
+                label.fontSize = 25;
+                label.alignment = TextAnchor.MiddleCenter;
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.verticalOverflow = VerticalWrapMode.Overflow;
+            }
+        }
+
+        public static void PlaceTopRight(Button button, float right, float top, float size)
+        {
+            if (button == null)
+                return;
+            var rect = button.transform as RectTransform;
+            if (rect == null)
+                return;
+            var layout = button.GetComponent<LayoutElement>() ?? button.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            rect.anchorMin = Vector2.one;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = Vector2.one;
+            rect.anchoredPosition = new Vector2(-right, -top);
+            rect.sizeDelta = new Vector2(size, size);
+        }
+
+        public static void AlignImageCenter(Image image)
+        {
+            if (image == null)
+                return;
+            var rect = image.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = rect.anchorMin;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            image.preserveAspect = true;
+        }
+
+        public static void ConfigureXpBar(Image background, Image fill)
+        {
+            if (background != null)
+            {
+                background.type = Image.Type.Sliced;
+                background.preserveAspect = false;
+            }
+            if (fill != null)
+            {
+                fill.type = Image.Type.Filled;
+                fill.fillMethod = Image.FillMethod.Horizontal;
+                fill.fillOrigin = 0;
+                fill.preserveAspect = false;
+            }
+        }
+
+        public static void HideDirectCloseButtons(Transform root)
+        {
+            if (root == null)
+                return;
+            foreach (var path in new[] { "Close", "Header/Close", "Shell/Header/Close", "Panel/Close" })
+            {
+                var node = root.Find(path);
+                if (node != null)
+                    node.gameObject.SetActive(false);
+            }
+        }
+
         public static void StyleTree(Transform root)
         {
             if (root == null)

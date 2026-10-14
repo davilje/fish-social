@@ -125,6 +125,7 @@ namespace FishSocial.Desktop
         void RestyleUi()
         {
             DesktopModalUi.StyleTree(transform);
+            DesktopModalUi.AlignImageCenter(_photo);
             DesktopModalUi.StyleButton(_likeButton, "heart");
             DesktopModalUi.StyleButton(_commentsButton, "social");
             DesktopModalUi.StyleButton(_sendCommentButton, "check", true);

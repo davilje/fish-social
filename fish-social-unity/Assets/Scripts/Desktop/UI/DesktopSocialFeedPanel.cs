@@ -116,6 +116,9 @@ namespace FishSocial.Desktop
             _uiReady = true;
             RestyleUi();
             DesktopModalUi.BindButton(transform, "Retry", Refresh);
+            var retry = Find<Button>("Retry");
+            if (retry != null)
+                retry.gameObject.SetActive(false);
 
             if (_publicTab != null)
             {
@@ -159,11 +162,7 @@ namespace FishSocial.Desktop
                 var button = tabs[index];
                 if (button == null)
                     continue;
-                var label = button.GetComponentInChildren<Text>(true);
-                if (label != null)
-                {
-                    label.text = names[index];
-                }
+                DesktopModalUi.SetButtonLabel(button, names[index]);
                 DesktopModalUi.StyleButton(button, icons[index]);
                 var visual = button.GetComponent<CozyButtonVisual>();
                 if (visual != null)
@@ -229,7 +228,7 @@ namespace FishSocial.Desktop
 
             if (!ok)
             {
-                SetStatus(error ?? "动态加载失败，请点击重试。");
+                SetStatus(error ?? "动态加载失败，请稍后重新打开页面。");
                 CreateRetry();
                 _loadRoutine = null;
                 _loadingMore = false;
@@ -323,8 +322,9 @@ namespace FishSocial.Desktop
 
         void CreateRetry()
         {
-            if (!DesktopModalUi.BindButton(transform, "Retry", Refresh))
-                Debug.LogError("[DesktopUI] PanelSocialFeed requires an existing Retry Button.", this);
+            var retry = Find<Button>("Retry");
+            if (retry != null)
+                retry.gameObject.SetActive(false);
         }
 
         void SetStatus(string value)

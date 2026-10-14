@@ -31,6 +31,9 @@ namespace FishSocial.Desktop
             _grid = DesktopModalUi.FindChild(transform, "Grid/Slots");
 
             var retryBound = DesktopModalUi.BindButton(transform, "Retry", () => StartCoroutine(Load()));
+            var retry = DesktopModalUi.FindComponent<Button>(transform, "Retry");
+            if (retry != null)
+                retry.gameObject.SetActive(false);
             var sellBound = DesktopModalUi.BindButton(transform, "Sell", SellSelected);
             var shareBound = DesktopModalUi.BindButton(transform, "Share", ShareSelected);
             EnsureReturnButton();
@@ -149,7 +152,7 @@ namespace FishSocial.Desktop
             if (!itemsOk)
             {
                 _status.text = error ?? "背包加载失败。";
-                _detail.text = _status.text + "\n点击重试。";
+                _detail.text = _status.text + "\n请稍后重新打开背包页面。";
                 yield break;
             }
             if (coinsOk)

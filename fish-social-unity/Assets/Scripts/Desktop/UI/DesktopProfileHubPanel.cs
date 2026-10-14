@@ -201,6 +201,7 @@ namespace FishSocial.Desktop
                 }
             _uiReady = true;
             ApplyCozyStyle();
+            RefineLayout();
             ApplyTabVisibility();
         }
 
@@ -225,6 +226,8 @@ namespace FishSocial.Desktop
                     new Vector2(12f, 0f), new Vector2(-244f, 0f));
             PlaceHeaderButton(_editButton, -100f, 124f);
             PlaceHeaderButton(_retryButton, -12f, 76f);
+            if (_retryButton != null)
+                _retryButton.gameObject.SetActive(false);
             if (_status != null)
                 PlaceRect(_status.transform, Vector2.zero, Vector2.right,
                     new Vector2(164f, 6f), new Vector2(-16f, 30f));
