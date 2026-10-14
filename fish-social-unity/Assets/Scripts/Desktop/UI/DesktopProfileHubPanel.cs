@@ -84,6 +84,7 @@ namespace FishSocial.Desktop
         {
             _viewingOtherPlayerId = null;
             _tab = tab;
+            UpdateHeaderForTab();
             ApplyTabVisibility();
             if (isActiveAndEnabled)
                 Refresh();
@@ -93,6 +94,7 @@ namespace FishSocial.Desktop
         {
             _viewingOtherPlayerId = playerId ?? string.Empty;
             _tab = tab;
+            UpdateHeaderForTab();
             ApplyTabVisibility();
             if (isActiveAndEnabled)
                 Refresh();
@@ -208,6 +210,7 @@ namespace FishSocial.Desktop
         void ApplyCozyStyle()
         {
             DesktopModalUi.StyleTree(transform);
+            DesktopModalUi.PlacePageSealLeft(transform);
         }
 
         void RefineLayout()
@@ -228,6 +231,8 @@ namespace FishSocial.Desktop
             PlaceHeaderButton(_retryButton, -150f, 76f);
             if (_retryButton != null)
                 _retryButton.gameObject.SetActive(false);
+            if (IsAchievementsPage() && _editButton != null)
+                _editButton.gameObject.SetActive(false);
             if (_status != null)
                 PlaceRect(_status.transform, Vector2.zero, Vector2.right,
                     new Vector2(164f, 6f), new Vector2(-16f, 30f));
@@ -770,6 +775,7 @@ namespace FishSocial.Desktop
         void SelectTab(HubTab tab)
         {
             _tab = tab;
+            UpdateHeaderForTab();
             ApplyTabVisibility();
             if (_hub == null)
                 Refresh();
@@ -800,6 +806,25 @@ namespace FishSocial.Desktop
                         visual.SetSelected(tabIndex == (int)_tab);
                 }
             }
+            if (_editButton != null)
+                _editButton.gameObject.SetActive(_tab == HubTab.Profile &&
+                    (_hub == null || _hub.isSelf) && !IsAchievementsPage());
+        }
+
+        bool IsAchievementsPage()
+        {
+            return string.Equals(gameObject.name, "PanelAchievements", StringComparison.Ordinal)
+                || transform.name.IndexOf("Achievements", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        void UpdateHeaderForTab()
+        {
+            if (_title == null)
+                return;
+            if (IsAchievementsPage() || _tab == HubTab.Achievements)
+                _title.text = "成就中心";
+            else if (_hub == null || _hub.isSelf)
+                _title.text = "个人中心";
         }
 
         void Refresh()
@@ -1295,6 +1320,8 @@ namespace FishSocial.Desktop
         {
             if (_achievementsList == null)
                 return;
+            if (_title != null)
+                _title.text = "成就中心";
             ClearChildren(_achievementsList);
             var list = _hub.achievements ?? Array.Empty<AchievementViewDto>();
             foreach (var achievement in list)

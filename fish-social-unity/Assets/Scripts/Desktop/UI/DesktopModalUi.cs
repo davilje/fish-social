@@ -207,6 +207,27 @@ namespace FishSocial.Desktop
             rect.sizeDelta = new Vector2(size, size);
         }
 
+        public static void PlacePageSealLeft(Transform root)
+        {
+            if (root == null)
+                return;
+            PlaceTopLeft(root.Find("Reflow_BlueSealPaper") as RectTransform,
+                new Vector2(16f, 14f), new Vector2(64f, 64f));
+            PlaceTopLeft(root.Find("Reflow_PageSeal") as RectTransform,
+                new Vector2(24f, 22f), new Vector2(48f, 48f));
+        }
+
+        static void PlaceTopLeft(RectTransform rect, Vector2 position, Vector2 size)
+        {
+            if (rect == null)
+                return;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(position.x, -position.y);
+            rect.sizeDelta = size;
+        }
+
         public static void AlignImageCenter(Image image)
         {
             if (image == null)

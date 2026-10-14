@@ -463,6 +463,7 @@ namespace FishSocial.Desktop
                 : null;
             DesktopModalUi.HideDirectCloseButtons(page);
             DesktopModalUi.HidePageUtilityButtons(page);
+            DesktopModalUi.PlacePageSealLeft(page);
             var competition = _mainRoot != null ? _mainRoot.transform.Find("Header/Leaderboard") : null;
             if (competition != null)
                 competition.gameObject.SetActive(id == ShellPanelId.Home);

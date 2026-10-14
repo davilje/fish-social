@@ -177,6 +177,18 @@ namespace FishSocial.Desktop
                     group.enabled = false;
             }
 
+            DesktopModalUi.PlacePageSealLeft(transform);
+            PlaceStaticLayout("Reflow_InfoRail", 1334f, 256f, 246f, 336f);
+            PlaceStaticLayout("Reflow_RailSeal", 1358f, 280f, 72f, 72f);
+            PlaceStaticLayout("Reflow_RailHeading", 1358f, 372f, 198f, 36f);
+            PlaceStaticLayout("Reflow_RailBody", 1358f, 428f, 198f, 116f);
+            PlaceStaticLayout("Reflow_PodiumPaper", 24f, 112f, 1270f, 128f);
+            PlaceStaticLayout("Reflow_RankTableHeading", 24f, 324f, 1270f, 44f);
+            PlaceStaticLayout("Reflow_RankColumn", 68f, 333f, 124f, 28f);
+            PlaceStaticLayout("Reflow_NameColumn", 218f, 333f, 748f, 28f);
+            PlaceStaticLayout("Reflow_ValueColumn", 990f, 333f, 274f, 28f);
+            PlaceStaticLayout("Reflow_Scroll", 24f, 380f, 1270f, 166f);
+
             PlacePodiumSlot(_podium1, -144f);
             PlacePodiumSlot(_podium2, 0f);
             PlacePodiumSlot(_podium3, 144f);
@@ -238,6 +250,18 @@ namespace FishSocial.Desktop
             layout.preferredHeight = 216f;
             layout.minWidth = 128f;
             layout.preferredWidth = 128f;
+        }
+
+        void PlaceStaticLayout(string name, float x, float y, float width, float height)
+        {
+            var rect = transform.Find(name) as RectTransform;
+            if (rect == null)
+                return;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(x, -y);
+            rect.sizeDelta = new Vector2(width, height);
         }
 
         static void AnchorRect(RectTransform rect, Vector2 min, Vector2 max,
