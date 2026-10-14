@@ -66,10 +66,13 @@
     <Compile Include="Assets\Scripts\Desktop\Notifications\DesktopNotificationService.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopModalHost.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopAppBootstrap.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyButtonVisual.cs" />
     <Compile Include="Assets\Scripts\Desktop\Onboarding\LocalOnboardingSession.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProfileEditPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SocialPondSessionController.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CatTheme.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\SpriteFramePetRenderer.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyPondSelectionPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\FriendsPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\SpotObservationController.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamworksTicketProvider.cs" />
@@ -98,6 +101,7 @@
     <Compile Include="Assets\Scripts\Desktop\Pet\PetStateController.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\ShellPanelId.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopShellUi.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyGraphicOffset.cs" />
     <Compile Include="Assets\Scripts\Desktop\Lifecycle\IFishingSessionLifecycle.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\PetArtLoader.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\NotificationSettings.cs" />
@@ -105,8 +109,10 @@
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamTicketProviders.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopDefaultAvatars.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProductMenuAction.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyPanelSkin.cs" />
     <Compile Include="Assets\Scripts\Desktop\OverlayPlayerSocialBridge.cs" />
     <Compile Include="Assets\Scripts\Desktop\DetachedWin32Process.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyUi.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopOverlayHudView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProfilePanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\OverlayPondStateBuilder.cs" />
@@ -130,12 +136,6 @@
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopShopPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\AuthenticatedApiClient.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CatTheme.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyPanelSkin.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyPondSelectionPanel.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyButtonVisual.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyGraphicOffset.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyUi.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

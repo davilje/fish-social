@@ -57,19 +57,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabManagerWindow.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\FishingAnimationPreviewWindow.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopBuildMenu.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyThemeValidationMenu.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyDesktopThemeTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondLayoutBaker.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyPrefabPersistenceTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudWidgetCatalog.cs" />
     <Compile Include="Assets\Tests\Editor\DesktopProtocolResponseTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabBaker.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondActorBaker.cs" />
+    <Compile Include="Assets\Tests\Editor\DesktopFishingAnimationTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayLayoutExporter.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabCatalog.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudExporter.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyThemeValidationMenu.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyDesktopThemeTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\FishingAnimationPreviewWindow.cs" />
-    <Compile Include="Assets\Tests\Editor\DesktopFishingAnimationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
