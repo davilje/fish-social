@@ -8,7 +8,7 @@
     <sys:Double x:Key="CozyScrollWidth">6</sys:Double>
     <Thickness x:Key="CozyButtonPadding">2,0,2,0</Thickness>
     <Thickness x:Key="CozyPaperPadding">12,8,12,8</Thickness>
-    <Thickness x:Key="CozyInputPadding">8,6,8,6</Thickness>
+    <Thickness x:Key="CozyInputPadding">8,4,8,4</Thickness>
     <SolidColorBrush x:Key="CozyInk" Color="#75472E" />
     <SolidColorBrush x:Key="CozyCream" Color="#FFF7E9" />
     <SolidColorBrush x:Key="CozyCoral" Color="#F9A33F" />
@@ -47,7 +47,9 @@
                             <StackPanel Orientation="Horizontal" Margin="{TemplateBinding Padding}"
                                         HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                         VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                                <local:CozyIcon x:Name="Icon" Width="{DynamicResource CozyIconSize}" Height="{DynamicResource CozyIconSize}"
+                                <local:CozyIcon x:Name="Icon"
+                                    Width="{Binding Path=(local:CozyTheme.IconSize), RelativeSource={RelativeSource TemplatedParent}}"
+                                    Height="{Binding Path=(local:CozyTheme.IconSize), RelativeSource={RelativeSource TemplatedParent}}"
                                     RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False"
                                     Sprite="{Binding Path=(local:CozyTheme.Icon), RelativeSource={RelativeSource TemplatedParent}}">
                                     <local:CozyIcon.RenderTransform>
@@ -86,9 +88,19 @@
         <Setter Property="SelectionBrush" Value="{StaticResource CozyPeriwinkle}" />
         <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI" />
         <Setter Property="Padding" Value="{DynamicResource CozyInputPadding}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template"><Setter.Value>
             <ControlTemplate TargetType="TextBox">
-                <Grid Background="Transparent"><ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" /></Grid>
+                <Grid Background="Transparent">
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  Padding="{TemplateBinding Padding}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  Focusable="False" />
+                </Grid>
             </ControlTemplate>
         </Setter.Value></Setter>
     </Style>

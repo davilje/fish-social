@@ -168,12 +168,12 @@
                             Padding="6"
                             Margin="0,4,0,0">
                         <StackPanel>
-                            <Button x:Name="MenuMapButton" local:CozyTheme.Icon="cozy/icons-light/map.png" Content="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
-                            <Button x:Name="MenuShopButton" local:CozyTheme.Icon="cozy/icons-light/shop.png" Content="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
-                            <Button x:Name="MenuFriendsButton" local:CozyTheme.Icon="cozy/icons-light/social.png" Content="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
-                            <Button x:Name="MenuCatchButton" local:CozyTheme.Icon="cozy/icons-light/bag.png" Content="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
-                            <Button x:Name="MenuLeaderboardButton" local:CozyTheme.Icon="cozy/icons-light/trophy.png" Content="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
-                            <Button x:Name="MenuSettingsButton" local:CozyTheme.Icon="cozy/icons-light/settings.png" Content="设置" Height="32" Click="MenuSettings_OnClick" />
+                            <Button x:Name="MenuMapButton" local:CozyTheme.Icon="cozy/icons-light/map.png" Content="世界地图" ToolTip="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
+                            <Button x:Name="MenuShopButton" local:CozyTheme.Icon="cozy/icons-light/shop.png" Content="商店与装备" ToolTip="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
+                            <Button x:Name="MenuFriendsButton" local:CozyTheme.Icon="cozy/icons-light/social.png" Content="好友与聊天" ToolTip="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
+                            <Button x:Name="MenuCatchButton" local:CozyTheme.Icon="cozy/icons-light/bag.png" Content="鱼获/背包" ToolTip="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
+                            <Button x:Name="MenuLeaderboardButton" local:CozyTheme.Icon="cozy/icons-light/trophy.png" Content="排行榜" ToolTip="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
+                            <Button x:Name="MenuSettingsButton" local:CozyTheme.Icon="cozy/icons-light/settings.png" Content="设置" ToolTip="设置" Height="32" Click="MenuSettings_OnClick" />
                             <Button Content="导出 HUD JSON" Height="32" Margin="0,4,0,0" local:CozyTheme.Icon="cozy/icons-light/settings.png" Click="ExportHudJson_OnClick" />
                         </StackPanel>
                     </Border>
@@ -332,28 +332,32 @@
                             <Grid Grid.Column="0">
                                 <TextBox x:Name="ChatInputBox"
                                          MaxLength="200"
-                                         MaxLines="1"
-                                         Height="28"
+                                         AcceptsReturn="False"
+                                         TextWrapping="NoWrap"
+                                         MinHeight="36"
+                                         Height="36"
+                                         FontSize="12"
                                          VerticalContentAlignment="Center"
                                          Background="Transparent"
                                          Foreground="{StaticResource CozyInk}"
                                          CaretBrush="{StaticResource CozyInk}"
                                          BorderThickness="0"
-                                         Padding="0"
+                                         Padding="8,4"
                                          TextChanged="ChatInputBox_OnTextChanged"
                                          KeyDown="ChatInputBox_OnKeyDown" />
                                 <TextBlock x:Name="ChatPlaceholder"
                                            Text="说点什么…"
                                            Foreground="{StaticResource CozyInk}"
                                            IsHitTestVisible="False"
+                                           FontSize="12"
                                            VerticalAlignment="Center"
-                                           Margin="0" />
+                                           Margin="8,0" />
                             </Grid>
                             <Button x:Name="ChatSendButton" local:CozyTheme.Icon="cozy/icons-light/check.png"
                                     Grid.Column="1"
                                     Content="发送"
                                     Width="64"
-                                    Height="28"
+                                    Height="36"
                                     Margin="6,0,0,0"
                                     IsEnabled="False"
                                     Click="ChatSend_OnClick" />

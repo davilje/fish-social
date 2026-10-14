@@ -131,6 +131,13 @@ namespace FishSocial.Desktop
                 tint = CatTheme.Coral;
             if (icon == null || generatedIcon)
                 SetIconName(iconName);
+            if (icon != null && icon.sprite != null)
+            {
+                icon.color = Color.white;
+                icon.type = Image.Type.Simple;
+                icon.preserveAspect = true;
+                icon.raycastTarget = false;
+            }
             RefreshContent();
             RefreshState();
             if (generatedPlate && GetComponent<CozyPanelSkin>() == null)
@@ -168,6 +175,15 @@ namespace FishSocial.Desktop
                 {
                     hasLabel = true;
                     CatTheme.ApplyTextFont(label);
+                    if (label.transform.parent == transform && (label.name == "Label" || label.name == "Text")
+                        && !label.text.Contains("\n") && GetComponentsInChildren<Text>(true).Length == 1)
+                    {
+                        label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                        label.verticalOverflow = VerticalWrapMode.Truncate;
+                        label.resizeTextForBestFit = true;
+                        label.resizeTextMinSize = Mathf.Min(12, label.fontSize);
+                        label.resizeTextMaxSize = label.fontSize;
+                    }
                     if (generatedPlate && label.GetComponent<CozyGraphicOffset>() == null)
                         CatTheme.SkinText(label);
                 }
@@ -189,6 +205,7 @@ namespace FishSocial.Desktop
                 icon.rectTransform.anchoredPosition = stackedIcon ? new Vector2(0f, 12f)
                     : hasLabel ? new Vector2(24f, 0f) : Vector2.zero;
             }
+            ReserveInlineIconSpace();
             RefreshState();
         }
 
@@ -222,6 +239,23 @@ namespace FishSocial.Desktop
             icon.type = Image.Type.Simple;
             icon.preserveAspect = true;
             icon.color = Color.white;
+        }
+
+        void ReserveInlineIconSpace()
+        {
+            if (icon != null && icon.enabled && icon.sprite != null && !stackedIcon
+                && GetComponentsInChildren<Text>(true).Length == 1)
+            {
+                var label = transform.Find("Label")?.GetComponent<Text>();
+                if (label != null && label.rectTransform.anchorMin.x == 0f && label.rectTransform.anchorMax.x == 1f)
+                {
+                    var inset = icon.rectTransform.anchoredPosition.x
+                        + icon.rectTransform.sizeDelta.x * (1f - icon.rectTransform.pivot.x) + 8f;
+                    var minimum = label.rectTransform.offsetMin;
+                    minimum.x = Mathf.Max(minimum.x, inset);
+                    label.rectTransform.offsetMin = minimum;
+                }
+            }
         }
 
         void RefreshState()

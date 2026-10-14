@@ -84,3 +84,7 @@
 Unity Resources、旧 StreamingAssets 回退和 WPF Overlay 使用相同 PNG；Overlay 导出模板按按钮/小面板 10、大面板 20 区分边距。WPF 兼容读取旧 64 边距的组件配置并迁移至新规格。当前 HUD 的 32 个 widget id、位置、尺寸、父子关系与点击事件不变。
 
 验收时重新导入变更素材，重新构建 Unity Player 和 Windows Overlay；不要继续使用旧目录中已经编译的 Overlay 二进制。检查 28×28 按钮、352×54 登录按钮、278×25 经验条底与聊天输入框：边角不应被挤压，中央可伸缩区域应大于零。静态检查与源回归报告不等于实际引擎验收；新增 Unity 网格回归测试尚未在本机执行。
+
+## 2026-10-14 布局修复
+
+详见 `2026-10-14-layout-refinement.md`：右上关闭/返回、雕刻 PNG 原色、动作单行、上方前三、中右主区/右侧详情、菜单槽位去重与聊天输入裁切。保留现有基础 Prefab + Variant 组件库；静态验证记录 `layout-refinement-validation.json`，实际引擎验收未执行。

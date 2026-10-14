@@ -1,3 +1,9 @@
+## 2026-10-14 桌面 UI 布局修复
+
+- 修复 Unity 右上关闭/返回、雕刻图标二次染色、动作按钮换行及排行榜/背包/图鉴三栏布局；保留基础 Prefab + Variant。
+- 同步 WPF Overlay 菜单独立槽位、原 PNG 雕刻/居中及聊天单行完整显示，运行时与导出配置一致。
+- 28 项 Overlay 源回归和预制体静态物化验证通过；Unity/Windows 引擎验收未执行，需重新构建双方输出。
+
 ?# Changelog
 
 ## Unreleased

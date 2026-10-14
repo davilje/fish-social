@@ -978,25 +978,25 @@
         1672,
         941
       ],
-      "strategy": "左侧鱼获档案与三项业务操作 + 右侧大格子背包",
+      "strategy": "背包主区位于右侧内容区，鱼获详情与原业务操作集中在最右列",
       "regions": [
         {
           "name": "selected-catch",
           "bounds": [
-            24,
+            1242,
             112,
             338,
             480
           ],
-          "purpose": "真实鱼获详情与售出/回鱼/分享",
+          "purpose": "右侧真实鱼获详情与售出/回鱼/分享",
           "functionalPaths": []
         },
         {
           "name": "inventory",
           "bounds": [
-            386,
+            294,
             164,
-            1194,
+            924,
             424
           ],
           "purpose": "动态实例 CatchSlot，保留 Grid/Slots 直接关系",
@@ -1081,9 +1081,45 @@
           ],
           "relativeTo": "PanelCatch"
         },
-        "PanelCatch/Reflow_CatchDetails": {
+        "PanelCatch/Reflow_InfoRail": {
           "bounds": [
             24,
+            112,
+            246,
+            480
+          ],
+          "relativeTo": "PanelCatch"
+        },
+        "PanelCatch/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            136,
+            72,
+            72
+          ],
+          "relativeTo": "PanelCatch"
+        },
+        "PanelCatch/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            228,
+            198,
+            36
+          ],
+          "relativeTo": "PanelCatch"
+        },
+        "PanelCatch/Reflow_RailBody": {
+          "bounds": [
+            48,
+            284,
+            198,
+            260
+          ],
+          "relativeTo": "PanelCatch"
+        },
+        "PanelCatch/Reflow_CatchDetails": {
+          "bounds": [
+            1242,
             112,
             338,
             480
@@ -1092,7 +1128,7 @@
         },
         "PanelCatch/Reflow_CatchSeal": {
           "bounds": [
-            48,
+            1266,
             138,
             66,
             66
@@ -1101,7 +1137,7 @@
         },
         "PanelCatch/Coins": {
           "bounds": [
-            132,
+            1350,
             144,
             206,
             40
@@ -1110,7 +1146,7 @@
         },
         "PanelCatch/Detail": {
           "bounds": [
-            48,
+            1266,
             196,
             290,
             208
@@ -1119,7 +1155,7 @@
         },
         "PanelCatch/Sell": {
           "bounds": [
-            48,
+            1266,
             406,
             290,
             50
@@ -1146,7 +1182,7 @@
         },
         "PanelCatch/Return": {
           "bounds": [
-            48,
+            1266,
             470,
             138,
             48
@@ -1173,7 +1209,7 @@
         },
         "PanelCatch/Share": {
           "bounds": [
-            198,
+            1416,
             470,
             140,
             48
@@ -1200,7 +1236,7 @@
         },
         "PanelCatch/Retry": {
           "bounds": [
-            48,
+            1266,
             532,
             290,
             40
@@ -1227,27 +1263,27 @@
         },
         "PanelCatch/Reflow_BagHeading": {
           "bounds": [
-            398,
+            306,
             118,
-            1004,
+            900,
             32
           ],
           "relativeTo": "PanelCatch"
         },
         "PanelCatch/Grid": {
           "bounds": [
-            386,
+            294,
             164,
-            1194,
+            924,
             424
           ],
           "relativeTo": "PanelCatch"
         },
         "PanelCatch/Status": {
           "bounds": [
-            392,
+            300,
             600,
-            1188,
+            912,
             26
           ],
           "relativeTo": "PanelCatch"
@@ -1256,9 +1292,9 @@
       "representativeLayouts": [
         {
           "contentPath": "PanelCatch/Grid/Slots",
-          "columns": 7,
+          "columns": 5,
           "cellSize": [
-            156,
+            170,
             116
           ],
           "gap": [
@@ -1563,6 +1599,46 @@
             "a": 1
           },
           "staticCopy": true
+        },
+        "PanelCatch/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "PanelCatch/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/bag.png"
+        },
+        "PanelCatch/Reflow_RailHeading": {
+          "text": "鱼获背包",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelCatch/Reflow_RailBody": {
+          "text": "选择一份鱼获\n在右侧查看档案\n\n售出 · 回鱼 · 分享\n操作所选真实鱼获\n\n背包内容与金币\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
         }
       },
       "bindingSource": "/Users/davilje/fish-social/fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
@@ -1580,14 +1656,14 @@
         1672,
         941
       ],
-      "strategy": "左侧当前装备与操作 + 右侧分类工具栏和装备清单",
+      "strategy": "分类工具栏与主清单位于右侧内容区，最右列保留完整详情与原业务操作",
       "regions": [
         {
           "name": "catalog",
           "bounds": [
-            402,
+            294,
             216,
-            1178,
+            908,
             378
           ],
           "purpose": "真实商品/装备列表，纵向两字段卡片",
@@ -1598,7 +1674,7 @@
         {
           "name": "inspection",
           "bounds": [
-            24,
+            1226,
             110,
             354,
             484
@@ -1627,9 +1703,7 @@
         "PanelEquipment/Tabs/Tackle": "button",
         "PanelEquipment/Tabs/Vessel": "button"
       },
-      "requiredNodesAdded": [
-        "PanelEquipment/Header/Title"
-      ],
+      "requiredNodesAdded": [],
       "placements": {
         "PanelEquipment/Reflow_PagePaper": {
           "bounds": [
@@ -1694,6 +1768,42 @@
           ],
           "relativeTo": "PanelEquipment"
         },
+        "PanelEquipment/Reflow_InfoRail": {
+          "bounds": [
+            24,
+            112,
+            246,
+            480
+          ],
+          "relativeTo": "PanelEquipment"
+        },
+        "PanelEquipment/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            136,
+            72,
+            72
+          ],
+          "relativeTo": "PanelEquipment"
+        },
+        "PanelEquipment/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            228,
+            198,
+            36
+          ],
+          "relativeTo": "PanelEquipment"
+        },
+        "PanelEquipment/Reflow_RailBody": {
+          "bounds": [
+            48,
+            284,
+            198,
+            260
+          ],
+          "relativeTo": "PanelEquipment"
+        },
         "PanelEquipment/Header": {
           "bounds": [
             24,
@@ -1732,9 +1842,9 @@
         },
         "PanelEquipment/Tabs": {
           "bounds": [
-            402,
+            294,
             110,
-            1178,
+            908,
             48
           ],
           "relativeTo": "PanelEquipment"
@@ -1743,7 +1853,7 @@
           "bounds": [
             0.0,
             0,
-            384.6666666666667,
+            294.6666666666667,
             48
           ],
           "relativeTo": "PanelEquipment/Tabs"
@@ -1761,16 +1871,16 @@
           "bounds": [
             48,
             0,
-            324.6666666666667,
+            234.66666666666669,
             48
           ],
           "relativeTo": "PanelEquipment/Tabs/Bait"
         },
         "PanelEquipment/Tabs/Tackle": {
           "bounds": [
-            396.6666666666667,
+            306.6666666666667,
             0,
-            384.6666666666667,
+            294.6666666666667,
             48
           ],
           "relativeTo": "PanelEquipment/Tabs"
@@ -1788,16 +1898,16 @@
           "bounds": [
             48,
             0,
-            324.6666666666667,
+            234.66666666666669,
             48
           ],
           "relativeTo": "PanelEquipment/Tabs/Tackle"
         },
         "PanelEquipment/Tabs/Vessel": {
           "bounds": [
-            793.3333333333334,
+            613.3333333333334,
             0,
-            384.6666666666667,
+            294.6666666666667,
             48
           ],
           "relativeTo": "PanelEquipment/Tabs"
@@ -1815,23 +1925,23 @@
           "bounds": [
             48,
             0,
-            324.6666666666667,
+            234.66666666666669,
             48
           ],
           "relativeTo": "PanelEquipment/Tabs/Vessel"
         },
         "PanelEquipment/Reflow_ProductTableHeading": {
           "bounds": [
-            402,
+            294,
             172,
-            1178,
+            908,
             34
           ],
           "relativeTo": "PanelEquipment"
         },
         "PanelEquipment/Reflow_ProductNameColumn": {
           "bounds": [
-            422,
+            314,
             178,
             360,
             22
@@ -1840,25 +1950,25 @@
         },
         "PanelEquipment/Reflow_ProductMetaColumn": {
           "bounds": [
-            1049.9,
+            793.4000000000001,
             178,
-            471.20000000000005,
+            363.20000000000005,
             22
           ],
           "relativeTo": "PanelEquipment"
         },
         "PanelEquipment/Items": {
           "bounds": [
-            402,
+            294,
             216,
-            1178,
+            908,
             378
           ],
           "relativeTo": "PanelEquipment"
         },
         "PanelEquipment/Details": {
           "bounds": [
-            24,
+            1226,
             110,
             354,
             484
@@ -1984,9 +2094,9 @@
         },
         "PanelEquipment/Status": {
           "bounds": [
-            410,
+            302,
             602,
-            1162,
+            892,
             28
           ],
           "relativeTo": "PanelEquipment"
@@ -2439,6 +2549,46 @@
             "a": 1
           },
           "staticCopy": true
+        },
+        "PanelEquipment/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "PanelEquipment/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/rod.png"
+        },
+        "PanelEquipment/Reflow_RailHeading": {
+          "text": "装备分类",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelEquipment/Reflow_RailBody": {
+          "text": "鱼饵 · 钓竿 · 船具\n从页签切换分类\n\n选择清单中的装备\n在右侧查看完整档案\n\n价格、库存与条件\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
         }
       },
       "bindingSource": "/Users/davilje/fish-social/fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShopPanel.cs",
@@ -2456,14 +2606,14 @@
         1672,
         941
       ],
-      "strategy": "左侧商品分类与双字段清单 + 右侧商品详情和购买操作",
+      "strategy": "分类工具栏与主清单位于右侧内容区，最右列保留完整详情与原业务操作",
       "regions": [
         {
           "name": "catalog",
           "bounds": [
-            24,
+            294,
             216,
-            1086,
+            908,
             378
           ],
           "purpose": "真实商品/装备列表，纵向两字段卡片",
@@ -2474,9 +2624,9 @@
         {
           "name": "inspection",
           "bounds": [
-            1134,
+            1226,
             110,
-            446,
+            354,
             484
           ],
           "purpose": "详情、价格/状态、购买装备重试，均保留",
@@ -2503,9 +2653,7 @@
         "PanelShop/Tabs/Tackle": "button",
         "PanelShop/Tabs/Vessel": "button"
       },
-      "requiredNodesAdded": [
-        "PanelShop/Header/Title"
-      ],
+      "requiredNodesAdded": [],
       "placements": {
         "PanelShop/Reflow_PagePaper": {
           "bounds": [
@@ -2570,6 +2718,42 @@
           ],
           "relativeTo": "PanelShop"
         },
+        "PanelShop/Reflow_InfoRail": {
+          "bounds": [
+            24,
+            112,
+            246,
+            480
+          ],
+          "relativeTo": "PanelShop"
+        },
+        "PanelShop/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            136,
+            72,
+            72
+          ],
+          "relativeTo": "PanelShop"
+        },
+        "PanelShop/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            228,
+            198,
+            36
+          ],
+          "relativeTo": "PanelShop"
+        },
+        "PanelShop/Reflow_RailBody": {
+          "bounds": [
+            48,
+            284,
+            198,
+            260
+          ],
+          "relativeTo": "PanelShop"
+        },
         "PanelShop/Header": {
           "bounds": [
             24,
@@ -2608,9 +2792,9 @@
         },
         "PanelShop/Tabs": {
           "bounds": [
-            24,
+            294,
             110,
-            1086,
+            908,
             48
           ],
           "relativeTo": "PanelShop"
@@ -2619,7 +2803,7 @@
           "bounds": [
             0.0,
             0,
-            354.0,
+            294.6666666666667,
             48
           ],
           "relativeTo": "PanelShop/Tabs"
@@ -2637,16 +2821,16 @@
           "bounds": [
             48,
             0,
-            294.0,
+            234.66666666666669,
             48
           ],
           "relativeTo": "PanelShop/Tabs/Bait"
         },
         "PanelShop/Tabs/Tackle": {
           "bounds": [
-            366.0,
+            306.6666666666667,
             0,
-            354.0,
+            294.6666666666667,
             48
           ],
           "relativeTo": "PanelShop/Tabs"
@@ -2664,16 +2848,16 @@
           "bounds": [
             48,
             0,
-            294.0,
+            234.66666666666669,
             48
           ],
           "relativeTo": "PanelShop/Tabs/Tackle"
         },
         "PanelShop/Tabs/Vessel": {
           "bounds": [
-            732.0,
+            613.3333333333334,
             0,
-            354.0,
+            294.6666666666667,
             48
           ],
           "relativeTo": "PanelShop/Tabs"
@@ -2691,23 +2875,23 @@
           "bounds": [
             48,
             0,
-            294.0,
+            234.66666666666669,
             48
           ],
           "relativeTo": "PanelShop/Tabs/Vessel"
         },
         "PanelShop/Reflow_ProductTableHeading": {
           "bounds": [
-            24,
+            294,
             172,
-            1086,
+            908,
             34
           ],
           "relativeTo": "PanelShop"
         },
         "PanelShop/Reflow_ProductNameColumn": {
           "bounds": [
-            44,
+            314,
             178,
             360,
             22
@@ -2716,27 +2900,27 @@
         },
         "PanelShop/Reflow_ProductMetaColumn": {
           "bounds": [
-            621.3000000000001,
+            793.4000000000001,
             178,
-            434.40000000000003,
+            363.20000000000005,
             22
           ],
           "relativeTo": "PanelShop"
         },
         "PanelShop/Items": {
           "bounds": [
-            24,
+            294,
             216,
-            1086,
+            908,
             378
           ],
           "relativeTo": "PanelShop"
         },
         "PanelShop/Details": {
           "bounds": [
-            1134,
+            1226,
             110,
-            446,
+            354,
             484
           ],
           "relativeTo": "PanelShop"
@@ -2754,7 +2938,7 @@
           "bounds": [
             92,
             26,
-            330,
+            238,
             36
           ],
           "relativeTo": "PanelShop/Details"
@@ -2763,7 +2947,7 @@
           "bounds": [
             24,
             418,
-            124.66666666666667,
+            94.0,
             48
           ],
           "relativeTo": "PanelShop/Details"
@@ -2781,16 +2965,16 @@
           "bounds": [
             12,
             0,
-            100.66666666666667,
+            70.0,
             48
           ],
           "relativeTo": "PanelShop/Details/Buy"
         },
         "PanelShop/Details/Equip": {
           "bounds": [
-            160.66666666666669,
+            130.0,
             418,
-            124.66666666666667,
+            94.0,
             48
           ],
           "relativeTo": "PanelShop/Details"
@@ -2808,16 +2992,16 @@
           "bounds": [
             12,
             0,
-            100.66666666666667,
+            70.0,
             48
           ],
           "relativeTo": "PanelShop/Details/Equip"
         },
         "PanelShop/Details/Retry": {
           "bounds": [
-            297.33333333333337,
+            236.0,
             418,
-            124.66666666666667,
+            94.0,
             48
           ],
           "relativeTo": "PanelShop/Details"
@@ -2835,7 +3019,7 @@
           "bounds": [
             12,
             0,
-            100.66666666666667,
+            70.0,
             48
           ],
           "relativeTo": "PanelShop/Details/Retry"
@@ -2844,7 +3028,7 @@
           "bounds": [
             24,
             94,
-            398,
+            306,
             310
           ],
           "relativeTo": "PanelShop/Details"
@@ -2853,16 +3037,16 @@
           "bounds": [
             24,
             94,
-            398,
+            306,
             310
           ],
           "relativeTo": "PanelShop/Details"
         },
         "PanelShop/Status": {
           "bounds": [
-            32,
+            302,
             602,
-            1070,
+            892,
             28
           ],
           "relativeTo": "PanelShop"
@@ -2880,7 +3064,7 @@
           "bounds": [
             24,
             94,
-            398,
+            306,
             310
           ],
           "height": "Text preferred height",
@@ -3315,6 +3499,46 @@
             "a": 1
           },
           "staticCopy": true
+        },
+        "PanelShop/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "PanelShop/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/shop.png"
+        },
+        "PanelShop/Reflow_RailHeading": {
+          "text": "商品分类",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelShop/Reflow_RailBody": {
+          "text": "鱼饵 · 钓竿 · 船具\n从页签切换分类\n\n选择清单中的装备\n在右侧查看完整档案\n\n价格、库存与条件\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
         }
       },
       "bindingSource": "/Users/davilje/fish-social/fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShopPanel.cs",
@@ -3478,7 +3702,7 @@
         },
         "PanelAchievements/Shell/Header/Edit": {
           "bounds": [
-            1266,
+            1178,
             0,
             156,
             48
@@ -3505,7 +3729,7 @@
         },
         "PanelAchievements/Shell/Header/Retry": {
           "bounds": [
-            1436,
+            1348,
             0,
             120,
             48
@@ -4829,26 +5053,26 @@
         1672,
         941
       ],
-      "strategy": "左侧三张领奖档案 + 右侧有列标题的真实排名表",
+      "strategy": "全宽顶部横排前三名，下方左说明栏与右侧三列真实排名表",
       "regions": [
         {
           "name": "podium",
           "bounds": [
             24,
-            180,
-            378,
-            414
+            112,
+            1556,
+            128
           ],
-          "purpose": "服务端绑定的前三名，不添加示例玩家",
+          "purpose": "顶部横排服务端绑定的前三名，不添加示例玩家",
           "functionalPaths": []
         },
         {
           "name": "rank-table",
           "bounds": [
-            426,
-            236,
-            1154,
-            310
+            294,
+            380,
+            1286,
+            166
           ],
           "purpose": "Rank / Nickname / Value 三列",
           "functionalPaths": [
@@ -4942,11 +5166,47 @@
           ],
           "relativeTo": "PanelLeaderboard"
         },
-        "PanelLeaderboard/Tabs": {
+        "PanelLeaderboard/Reflow_InfoRail": {
           "bounds": [
             24,
-            110,
-            1384,
+            256,
+            246,
+            336
+          ],
+          "relativeTo": "PanelLeaderboard"
+        },
+        "PanelLeaderboard/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            280,
+            72,
+            72
+          ],
+          "relativeTo": "PanelLeaderboard"
+        },
+        "PanelLeaderboard/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            372,
+            198,
+            36
+          ],
+          "relativeTo": "PanelLeaderboard"
+        },
+        "PanelLeaderboard/Reflow_RailBody": {
+          "bounds": [
+            48,
+            428,
+            198,
+            116
+          ],
+          "relativeTo": "PanelLeaderboard"
+        },
+        "PanelLeaderboard/Tabs": {
+          "bounds": [
+            294,
+            256,
+            1114,
             48
           ],
           "relativeTo": "PanelLeaderboard"
@@ -5062,7 +5322,7 @@
         "PanelLeaderboard/Retry": {
           "bounds": [
             1440,
-            110,
+            256,
             140,
             48
           ],
@@ -5089,34 +5349,34 @@
         "PanelLeaderboard/Podium": {
           "bounds": [
             24,
-            180,
-            378,
-            414
+            112,
+            1556,
+            128
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Reflow_PodiumPaper": {
           "bounds": [
             24,
-            180,
-            378,
-            414
+            112,
+            1556,
+            128
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Podium/Slot1": {
           "bounds": [
-            14,
-            0.0,
-            350,
-            131.33333333333334
+            12.0,
+            12,
+            500.0,
+            104
           ],
           "relativeTo": "PanelLeaderboard/Podium"
         },
         "PanelLeaderboard/Podium/Slot1/Avatar": {
           "bounds": [
+            16,
             18,
-            24,
             68,
             68
           ],
@@ -5124,35 +5384,35 @@
         },
         "PanelLeaderboard/Podium/Slot1/Nickname": {
           "bounds": [
-            106,
-            18,
-            224,
-            42
+            100,
+            14,
+            384.0,
+            36
           ],
           "relativeTo": "PanelLeaderboard/Podium/Slot1"
         },
         "PanelLeaderboard/Podium/Slot1/Value": {
           "bounds": [
-            106,
-            65,
-            224,
-            32
+            100,
+            58,
+            384.0,
+            30
           ],
           "relativeTo": "PanelLeaderboard/Podium/Slot1"
         },
         "PanelLeaderboard/Podium/Slot2": {
           "bounds": [
-            14,
-            139.33333333333334,
-            350,
-            131.33333333333334
+            528.0,
+            12,
+            500.0,
+            104
           ],
           "relativeTo": "PanelLeaderboard/Podium"
         },
         "PanelLeaderboard/Podium/Slot2/Avatar": {
           "bounds": [
+            16,
             18,
-            24,
             68,
             68
           ],
@@ -5160,35 +5420,35 @@
         },
         "PanelLeaderboard/Podium/Slot2/Nickname": {
           "bounds": [
-            106,
-            18,
-            224,
-            42
+            100,
+            14,
+            384.0,
+            36
           ],
           "relativeTo": "PanelLeaderboard/Podium/Slot2"
         },
         "PanelLeaderboard/Podium/Slot2/Value": {
           "bounds": [
-            106,
-            65,
-            224,
-            32
+            100,
+            58,
+            384.0,
+            30
           ],
           "relativeTo": "PanelLeaderboard/Podium/Slot2"
         },
         "PanelLeaderboard/Podium/Slot3": {
           "bounds": [
-            14,
-            278.6666666666667,
-            350,
-            131.33333333333334
+            1044.0,
+            12,
+            500.0,
+            104
           ],
           "relativeTo": "PanelLeaderboard/Podium"
         },
         "PanelLeaderboard/Podium/Slot3/Avatar": {
           "bounds": [
+            16,
             18,
-            24,
             68,
             68
           ],
@@ -5196,81 +5456,81 @@
         },
         "PanelLeaderboard/Podium/Slot3/Nickname": {
           "bounds": [
-            106,
-            18,
-            224,
-            42
+            100,
+            14,
+            384.0,
+            36
           ],
           "relativeTo": "PanelLeaderboard/Podium/Slot3"
         },
         "PanelLeaderboard/Podium/Slot3/Value": {
           "bounds": [
-            106,
-            65,
-            224,
-            32
+            100,
+            58,
+            384.0,
+            30
           ],
           "relativeTo": "PanelLeaderboard/Podium/Slot3"
         },
         "PanelLeaderboard/Reflow_RankTableHeading": {
           "bounds": [
-            426,
-            180,
-            1154,
+            294,
+            324,
+            1286,
             44
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Reflow_RankColumn": {
           "bounds": [
-            450,
-            189,
-            100,
+            338.92,
+            333,
+            124.60000000000001,
             28
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Reflow_NameColumn": {
           "bounds": [
-            568,
-            189,
-            794,
+            488.44000000000005,
+            333,
+            747.6,
             28
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Reflow_ValueColumn": {
           "bounds": [
-            1354,
-            189,
-            190,
+            1260.96,
+            333,
+            274.12,
             28
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Scroll": {
           "bounds": [
-            426,
-            236,
-            1154,
-            310
+            294,
+            380,
+            1286,
+            166
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/MyRank": {
           "bounds": [
-            442,
+            310,
             558,
-            1114,
+            1246,
             32
           ],
           "relativeTo": "PanelLeaderboard"
         },
         "PanelLeaderboard/Status": {
           "bounds": [
-            442,
+            310,
             600,
-            1114,
+            1246,
             26
           ],
           "relativeTo": "PanelLeaderboard"
@@ -5754,6 +6014,46 @@
         "PanelLeaderboard/Reflow_ValueColumn": {
           "text": "榜单成绩",
           "fontSize": 17,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelLeaderboard/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "PanelLeaderboard/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/trophy.png"
+        },
+        "PanelLeaderboard/Reflow_RailHeading": {
+          "text": "榜单说明",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelLeaderboard/Reflow_RailBody": {
+          "text": "名次 · 昵称 · 数值\n以实际榜单为准\n本人排名保留原绑定",
+          "fontSize": 19,
           "textColor": {
             "r": 0.6588235294117647,
             "g": 0.5176470588235295,
@@ -6478,7 +6778,7 @@
         },
         "PanelProfileHub/Shell/Header/Edit": {
           "bounds": [
-            1266,
+            1178,
             0,
             156,
             48
@@ -6505,7 +6805,7 @@
         },
         "PanelProfileHub/Shell/Header/Retry": {
           "bounds": [
-            1436,
+            1348,
             0,
             120,
             48
@@ -7976,7 +8276,7 @@
         },
         "PanelProfileEdit/Header/Back": {
           "bounds": [
-            1380,
+            1268,
             0,
             176,
             48
@@ -8212,7 +8512,7 @@
           "bounds": [
             24,
             18,
-            936,
+            768,
             36
           ],
           "relativeTo": "PanelProfileEdit/Picker"
@@ -8256,7 +8556,7 @@
         "PanelProfileEdit/Picker/Close": {
           "bounds": [
             816,
-            408,
+            12,
             144,
             48
           ],
@@ -10235,17 +10535,17 @@
         1672,
         941
       ],
-      "strategy": "左侧鱼种观察笔记 + 右侧七列标本图鉴",
+      "strategy": "图鉴主区位于右侧内容区，完整鱼种观察笔记位于最右列",
       "regions": [
         {
           "name": "specimen-notes",
           "bounds": [
-            24,
+            1242,
             112,
             338,
             480
           ],
-          "purpose": "真实解锁状态与鱼种详情",
+          "purpose": "右侧真实解锁状态与鱼种详情",
           "functionalPaths": [
             "PanelGallery/Detail"
           ]
@@ -10253,9 +10553,9 @@
         {
           "name": "species-cabinet",
           "bounds": [
-            386,
+            294,
             164,
-            1194,
+            924,
             424
           ],
           "purpose": "图鉴数据绑定，不预填解锁或鱼种数量",
@@ -10336,9 +10636,45 @@
           ],
           "relativeTo": "PanelGallery"
         },
-        "PanelGallery/Reflow_SpecimenNotes": {
+        "PanelGallery/Reflow_InfoRail": {
           "bounds": [
             24,
+            112,
+            246,
+            480
+          ],
+          "relativeTo": "PanelGallery"
+        },
+        "PanelGallery/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            136,
+            72,
+            72
+          ],
+          "relativeTo": "PanelGallery"
+        },
+        "PanelGallery/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            228,
+            198,
+            36
+          ],
+          "relativeTo": "PanelGallery"
+        },
+        "PanelGallery/Reflow_RailBody": {
+          "bounds": [
+            48,
+            284,
+            198,
+            260
+          ],
+          "relativeTo": "PanelGallery"
+        },
+        "PanelGallery/Reflow_SpecimenNotes": {
+          "bounds": [
+            1242,
             112,
             338,
             480
@@ -10347,7 +10683,7 @@
         },
         "PanelGallery/Reflow_SpecimenSeal": {
           "bounds": [
-            50,
+            1268,
             140,
             54,
             54
@@ -10356,7 +10692,7 @@
         },
         "PanelGallery/Reflow_SpecimenHeading": {
           "bounds": [
-            124,
+            1342,
             146,
             212,
             34
@@ -10365,7 +10701,7 @@
         },
         "PanelGallery/Detail": {
           "bounds": [
-            50,
+            1268,
             218,
             286,
             302
@@ -10374,7 +10710,7 @@
         },
         "PanelGallery/Retry": {
           "bounds": [
-            50,
+            1268,
             524,
             286,
             46
@@ -10401,27 +10737,27 @@
         },
         "PanelGallery/Reflow_SpeciesHeading": {
           "bounds": [
-            398,
+            306,
             116,
-            984,
+            900,
             32
           ],
           "relativeTo": "PanelGallery"
         },
         "PanelGallery/Grid": {
           "bounds": [
-            386,
+            294,
             164,
-            1194,
+            924,
             424
           ],
           "relativeTo": "PanelGallery"
         },
         "PanelGallery/Status": {
           "bounds": [
-            392,
+            300,
             600,
-            1188,
+            912,
             26
           ],
           "relativeTo": "PanelGallery"
@@ -10430,9 +10766,9 @@
       "representativeLayouts": [
         {
           "contentPath": "PanelGallery/Grid/Species",
-          "columns": 7,
+          "columns": 5,
           "cellSize": [
-            156,
+            170,
             116
           ],
           "gap": [
@@ -10620,6 +10956,46 @@
             "r": 0.4588235294117647,
             "g": 0.2784313725490196,
             "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelGallery/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "PanelGallery/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/fish.png"
+        },
+        "PanelGallery/Reflow_RailHeading": {
+          "text": "鱼种图鉴",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "PanelGallery/Reflow_RailBody": {
+          "text": "浏览鱼种档案\n选择标本查看笔记\n\n解锁状态与详情\n集中在右侧展示\n\n收藏与观察记录\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
             "a": 1
           },
           "staticCopy": true
@@ -13092,7 +13468,7 @@
         "PanelPondSettlement/Panel/Close": {
           "bounds": [
             932,
-            608,
+            24,
             216,
             50
           ],
@@ -14223,25 +14599,25 @@
         1672,
         941
       ],
-      "strategy": "左侧鱼获档案与三项业务操作 + 右侧大格子背包",
+      "strategy": "背包主区位于右侧内容区，鱼获详情与原业务操作集中在最右列",
       "regions": [
         {
           "name": "selected-catch",
           "bounds": [
-            24,
+            1094,
             112,
             338,
             464
           ],
-          "purpose": "真实鱼获详情与售出/回鱼/分享",
+          "purpose": "右侧真实鱼获详情与售出/回鱼/分享",
           "functionalPaths": []
         },
         {
           "name": "inventory",
           "bounds": [
-            386,
+            294,
             164,
-            1046,
+            776,
             408
           ],
           "purpose": "动态实例 CatchSlot，保留 Grid/Slots 直接关系",
@@ -14326,9 +14702,45 @@
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
         },
-        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_CatchDetails": {
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_InfoRail": {
           "bounds": [
             24,
+            112,
+            246,
+            464
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            136,
+            72,
+            72
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            228,
+            198,
+            36
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailBody": {
+          "bounds": [
+            48,
+            284,
+            198,
+            244
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_CatchDetails": {
+          "bounds": [
+            1094,
             112,
             338,
             464
@@ -14337,7 +14749,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_CatchSeal": {
           "bounds": [
-            48,
+            1118,
             138,
             66,
             66
@@ -14346,7 +14758,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Coins": {
           "bounds": [
-            132,
+            1202,
             144,
             206,
             40
@@ -14355,7 +14767,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Detail": {
           "bounds": [
-            48,
+            1118,
             196,
             290,
             192
@@ -14364,7 +14776,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Sell": {
           "bounds": [
-            48,
+            1118,
             390,
             290,
             50
@@ -14391,7 +14803,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Return": {
           "bounds": [
-            48,
+            1118,
             454,
             138,
             48
@@ -14418,7 +14830,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Share": {
           "bounds": [
-            198,
+            1268,
             454,
             140,
             48
@@ -14445,7 +14857,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Retry": {
           "bounds": [
-            48,
+            1118,
             516,
             290,
             40
@@ -14472,27 +14884,27 @@
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_BagHeading": {
           "bounds": [
-            398,
+            306,
             118,
-            856,
+            752,
             32
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Grid": {
           "bounds": [
-            386,
+            294,
             164,
-            1046,
+            776,
             408
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
         },
         "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Status": {
           "bounds": [
-            392,
+            300,
             584,
-            1040,
+            764,
             26
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/CatchBagModal"
@@ -14501,9 +14913,9 @@
       "representativeLayouts": [
         {
           "contentPath": "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Grid/Slots",
-          "columns": 7,
+          "columns": 5,
           "cellSize": [
-            135,
+            140,
             116
           ],
           "gap": [
@@ -14808,6 +15220,46 @@
             "a": 1
           },
           "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/bag.png"
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailHeading": {
+          "text": "鱼获背包",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailBody": {
+          "text": "选择一份鱼获\n在右侧查看档案\n\n售出 · 回鱼 · 分享\n操作所选真实鱼获\n\n背包内容与金币\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
         }
       },
       "bindingSource": "/Users/davilje/fish-social/fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
@@ -14825,17 +15277,17 @@
         1672,
         941
       ],
-      "strategy": "左侧鱼种观察笔记 + 右侧七列标本图鉴",
+      "strategy": "图鉴主区位于右侧内容区，完整鱼种观察笔记位于最右列",
       "regions": [
         {
           "name": "specimen-notes",
           "bounds": [
-            24,
+            1094,
             112,
             338,
             464
           ],
-          "purpose": "真实解锁状态与鱼种详情",
+          "purpose": "右侧真实解锁状态与鱼种详情",
           "functionalPaths": [
             "FeatureModalRoot/ModalPanel/Body/GalleryModal/Detail"
           ]
@@ -14843,9 +15295,9 @@
         {
           "name": "species-cabinet",
           "bounds": [
-            386,
+            294,
             164,
-            1046,
+            776,
             408
           ],
           "purpose": "图鉴数据绑定，不预填解锁或鱼种数量",
@@ -14926,9 +15378,45 @@
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
         },
-        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_SpecimenNotes": {
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_InfoRail": {
           "bounds": [
             24,
+            112,
+            246,
+            464
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailSeal": {
+          "bounds": [
+            48,
+            136,
+            72,
+            72
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailHeading": {
+          "bounds": [
+            48,
+            228,
+            198,
+            36
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailBody": {
+          "bounds": [
+            48,
+            284,
+            198,
+            244
+          ],
+          "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_SpecimenNotes": {
+          "bounds": [
+            1094,
             112,
             338,
             464
@@ -14937,7 +15425,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_SpecimenSeal": {
           "bounds": [
-            50,
+            1120,
             140,
             54,
             54
@@ -14946,7 +15434,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_SpecimenHeading": {
           "bounds": [
-            124,
+            1194,
             146,
             212,
             34
@@ -14955,7 +15443,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Detail": {
           "bounds": [
-            50,
+            1120,
             218,
             286,
             286
@@ -14964,7 +15452,7 @@
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Retry": {
           "bounds": [
-            50,
+            1120,
             508,
             286,
             46
@@ -14991,27 +15479,27 @@
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_SpeciesHeading": {
           "bounds": [
-            398,
+            306,
             116,
-            836,
+            752,
             32
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Grid": {
           "bounds": [
-            386,
+            294,
             164,
-            1046,
+            776,
             408
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
         },
         "FeatureModalRoot/ModalPanel/Body/GalleryModal/Status": {
           "bounds": [
-            392,
+            300,
             584,
-            1040,
+            764,
             26
           ],
           "relativeTo": "FeatureModalRoot/ModalPanel/Body/GalleryModal"
@@ -15020,9 +15508,9 @@
       "representativeLayouts": [
         {
           "contentPath": "FeatureModalRoot/ModalPanel/Body/GalleryModal/Grid/Species",
-          "columns": 7,
+          "columns": 5,
           "cellSize": [
-            135,
+            140,
             116
           ],
           "gap": [
@@ -15210,6 +15698,46 @@
             "r": 0.4588235294117647,
             "g": 0.2784313725490196,
             "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/fish.png"
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailHeading": {
+          "text": "鱼种图鉴",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailBody": {
+          "text": "浏览鱼种档案\n选择标本查看笔记\n\n解锁状态与详情\n集中在右侧展示\n\n收藏与观察记录\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
             "a": 1
           },
           "staticCopy": true
@@ -18680,6 +19208,86 @@
         },
         "FeatureModalRoot/ModalPanel/Body/SettingsModal/SettingsViewport/SettingsContent/Reflow_UtilityHeading": {
           "text": "维护与引导 / UTILITIES",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/bag.png"
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailHeading": {
+          "text": "鱼获背包",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/CatchBagModal/Reflow_RailBody": {
+          "text": "选择一份鱼获\n在右侧查看档案\n\n售出 · 回鱼 · 分享\n操作所选真实鱼获\n\n背包内容与金币\n以实际资料为准。",
+          "fontSize": 19,
+          "textColor": {
+            "r": 0.6588235294117647,
+            "g": 0.5176470588235295,
+            "b": 0.4117647058823529,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_InfoRail": {
+          "imageColor": {
+            "r": 0.9490196078431372,
+            "g": 0.9019607843137255,
+            "b": 0.8235294117647058,
+            "a": 1
+          },
+          "sprite": null
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailSeal": {
+          "imageColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "sprite": "icons/fish.png"
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailHeading": {
+          "text": "鱼种图鉴",
+          "fontSize": 25,
+          "textColor": {
+            "r": 0.4588235294117647,
+            "g": 0.2784313725490196,
+            "b": 0.1803921568627451,
+            "a": 1
+          },
+          "staticCopy": true
+        },
+        "FeatureModalRoot/ModalPanel/Body/GalleryModal/Reflow_RailBody": {
+          "text": "浏览鱼种档案\n选择标本查看笔记\n\n解锁状态与详情\n集中在右侧展示\n\n收藏与观察记录\n以实际资料为准。",
           "fontSize": 19,
           "textColor": {
             "r": 0.6588235294117647,

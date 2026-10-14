@@ -18,6 +18,49 @@ namespace FishSocial.Tests.Editor
             Assert.IsEmpty(CozyUiBuildGuard.CollectErrors());
         }
 
+        [TestCase("DesktopShell", "MainRoot/Header/Home")]
+        [TestCase("FeatureModalRoot", "ModalPanel/Header/Close")]
+        [TestCase("PanelProfileEdit", "Header/Back")]
+        [TestCase("PanelProfileEdit", "Picker/Close")]
+        [TestCase("PanelPondSettlement", "Panel/Close")]
+        public void ClosingActionsUseRightTopAnchors(string name, string path)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath(name));
+            var rect = prefab.transform.Find(path).GetComponent<RectTransform>();
+            Assert.AreEqual(Vector2.one, rect.anchorMin);
+            Assert.AreEqual(Vector2.one, rect.anchorMax);
+            Assert.AreEqual(Vector2.one, rect.pivot);
+            Assert.LessOrEqual(rect.anchoredPosition.x, 0f);
+            Assert.LessOrEqual(rect.anchoredPosition.y, 0f);
+        }
+
+        [Test]
+        public void RuntimeButtonStylingDoesNotDoubleTintCarvedIconsOrWrapActions()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath("PanelLeaderboard"));
+            var instance = Object.Instantiate(prefab);
+            try
+            {
+                var button = instance.transform.Find("Tabs/Daily").GetComponent<Button>();
+                var icon = button.transform.Find("Icon").GetComponent<Image>();
+                var label = button.transform.Find("Label").GetComponent<Text>();
+                var anchor = icon.rectTransform.anchoredPosition;
+                icon.color = CatTheme.Ink;
+                label.horizontalOverflow = HorizontalWrapMode.Wrap;
+                DesktopModalUi.StyleButton(button, "fish");
+                Assert.AreEqual(Color.white, icon.color);
+                Assert.AreSame(CatTheme.LoadCozy("icons/fish.png", Vector4.zero), icon.sprite);
+                Assert.AreEqual(anchor, icon.rectTransform.anchoredPosition);
+                Assert.AreEqual(HorizontalWrapMode.Overflow, label.horizontalOverflow);
+                Assert.IsTrue(label.resizeTextForBestFit);
+                Assert.IsFalse(icon.raycastTarget);
+            }
+            finally
+            {
+                Object.DestroyImmediate(instance);
+            }
+        }
+
         [Test]
         public void LoginCardMatchesSmallWindowCanvas()
         {

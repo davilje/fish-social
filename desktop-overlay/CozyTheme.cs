@@ -31,6 +31,8 @@ namespace FishSocialOverlay
             "Icon", typeof(string), typeof(CozyTheme), new PropertyMetadata(null));
         public static readonly DependencyProperty IconAngleProperty = DependencyProperty.RegisterAttached(
             "IconAngle", typeof(double), typeof(CozyTheme), new PropertyMetadata(0d));
+        public static readonly DependencyProperty IconSizeProperty = DependencyProperty.RegisterAttached(
+            "IconSize", typeof(double), typeof(CozyTheme), new PropertyMetadata(16d));
         public static readonly DependencyProperty NormalSpriteProperty = DependencyProperty.RegisterAttached(
             "NormalSprite", typeof(string), typeof(CozyTheme), new PropertyMetadata(DefaultPlate));
         public static readonly DependencyProperty HoverSpriteProperty = DependencyProperty.RegisterAttached(
@@ -48,6 +50,8 @@ namespace FishSocialOverlay
         public static void SetIcon(DependencyObject target, string value) => target.SetValue(IconProperty, value);
         public static double GetIconAngle(DependencyObject target) => (double)target.GetValue(IconAngleProperty);
         public static void SetIconAngle(DependencyObject target, double value) => target.SetValue(IconAngleProperty, value);
+        public static double GetIconSize(DependencyObject target) => (double)target.GetValue(IconSizeProperty);
+        public static void SetIconSize(DependencyObject target, double value) => target.SetValue(IconSizeProperty, value);
         public static string GetNormalSprite(DependencyObject target) => (string)target.GetValue(NormalSpriteProperty);
         public static void SetNormalSprite(DependencyObject target, string value) => target.SetValue(NormalSpriteProperty, value);
         public static string GetHoverSprite(DependencyObject target) => (string)target.GetValue(HoverSpriteProperty);
@@ -180,32 +184,20 @@ namespace FishSocialOverlay
             }
         }
 
-        public static string IconPath(string icon) => "cozy/icons-light/" + icon + ".png";
+        public static string IconPath(string icon) => "cozy/icons/" + icon + ".png";
 
         internal static BitmapSource LoadInkIcon(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
+            path = path.Replace("cozy/icons-light/", "cozy/icons/");
             if (TintedIcons.TryGetValue(path, out var cached))
                 return cached;
             var source = LoadImage(path);
             if (source == null)
                 return null;
-            var converted = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
-            var stride = converted.PixelWidth * 4;
-            var pixels = new byte[stride * converted.PixelHeight];
-            converted.CopyPixels(pixels, stride, 0);
-            for (var offset = 0; offset < pixels.Length; offset += 4)
-            {
-                pixels[offset] = 0x2E;
-                pixels[offset + 1] = 0x47;
-                pixels[offset + 2] = 0x75;
-            }
-            var tinted = BitmapSource.Create(converted.PixelWidth, converted.PixelHeight,
-                96, 96, PixelFormats.Bgra32, null, pixels, stride);
-            tinted.Freeze();
-            TintedIcons[path] = tinted;
-            return tinted;
+            TintedIcons[path] = source;
+            return source;
         }
     }
 

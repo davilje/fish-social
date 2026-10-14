@@ -139,11 +139,8 @@ namespace FishSocial.Desktop
             visual.Configure(button, null, primary);
             if (!string.IsNullOrEmpty(iconName))
             {
-                var icon = FindComponent<Image>(button.transform, "Icon") ??
-                           FindComponent<Image>(button.transform, "CozyIcon");
-                var sprite = CatTheme.LoadCozy(CatTheme.IconPath(iconName), Vector4.zero);
-                if (icon != null && sprite != null)
-                    icon.sprite = sprite;
+                visual.SetIconName(iconName);
+                visual.RefreshContent();
             }
         }
 
