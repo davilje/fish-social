@@ -1,6 +1,7 @@
 <Window x:Class="FishSocialOverlay.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:FishSocialOverlay"
         Title="Fish Social Overlay"
         Width="960"
         Height="560"
@@ -15,37 +16,7 @@
         ShowActivated="False"
         MouseLeave="Window_OnMouseLeave">
     <Window.Resources>
-        <Style x:Key="HudChatScrollBarStyle" TargetType="ScrollBar">
-            <Setter Property="Width" Value="6"/>
-            <Setter Property="Background" Value="#33000000"/>
-            <Setter Property="Foreground" Value="#88FFFFFF"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollBar">
-                        <Grid>
-                            <Border Background="{TemplateBinding Background}" CornerRadius="3"/>
-                            <Track x:Name="PART_Track" IsDirectionReversed="True">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"/>
-                                </Track.IncreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb>
-                                        <Thumb.Template>
-                                            <ControlTemplate TargetType="Thumb">
-                                                <Border Background="#AAFFFFFF" CornerRadius="3" Margin="0,1"/>
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="HudChatScrollBarStyle" TargetType="ScrollBar" BasedOn="{StaticResource CozyScrollBar}" />
     </Window.Resources>
     <Grid Background="Transparent">
         <Border x:Name="PondScene"
@@ -135,29 +106,29 @@
                 <Canvas x:Name="HoverLayer" Width="960" Height="560" Panel.ZIndex="50" IsHitTestVisible="False" />
                 <Canvas x:Name="ChatBubbleLayer" Width="960" Height="560" Panel.ZIndex="55" IsHitTestVisible="False" />
                 <!-- Z120: 场景横移箭头（HUD JSON 可覆盖位置；默认隐藏，宽场景显示） -->
-                <Button x:Name="BtnPanLeft"
+                <Button x:Name="BtnPanLeft" Padding="0"
                         Canvas.Left="8"
                         Canvas.Top="248"
                         Width="36"
                         Height="64"
                         Panel.ZIndex="120"
-                        Content="◀"
-                        FontSize="18"
+                        Content="向左"
+                        FontSize="10"
                         Visibility="Collapsed"
-                        Background="#990F1820"
-                        Foreground="White"
+                        Background="Transparent"
+                        Foreground="{StaticResource CozyInk}"
                         BorderThickness="0" />
-                <Button x:Name="BtnPanRight"
+                <Button x:Name="BtnPanRight" Padding="0"
                         Canvas.Left="916"
                         Canvas.Top="248"
                         Width="36"
                         Height="64"
                         Panel.ZIndex="120"
-                        Content="▶"
-                        FontSize="18"
+                        Content="向右"
+                        FontSize="10"
                         Visibility="Collapsed"
-                        Background="#990F1820"
-                        Foreground="White"
+                        Background="Transparent"
+                        Foreground="{StaticResource CozyInk}"
                         BorderThickness="0" />
                 <!-- Z110: unused (guide lives on ChatBubbleLayer above the pet) -->
                 <Border x:Name="GuideTipChrome"
@@ -165,14 +136,14 @@
                         Canvas.Top="12"
                         Width="720"
                         Panel.ZIndex="110"
-                        Background="#EE1B3A4A"
+                        local:CozyTheme.IsPaper="True"
                         CornerRadius="10"
                         Padding="12,8"
                         Visibility="Collapsed"
                         IsHitTestVisible="False">
                     <TextBlock x:Name="GuideTipText"
                                Text=""
-                               Foreground="White"
+                               Foreground="{StaticResource CozyInk}"
                                FontSize="15"
                                FontWeight="SemiBold"
                                TextWrapping="Wrap"
@@ -183,50 +154,51 @@
                             Canvas.Left="8"
                             Canvas.Top="8"
                             Panel.ZIndex="100"
-                            Width="220">
-                    <Button x:Name="MenuToggleButton"
-                            Content="≡"
+                            Width="196">
+                    <Button x:Name="MenuToggleButton" local:CozyTheme.Icon="cozy/icons-light/settings.png"
+                            Content="" ToolTip="菜单"
                             Width="36"
                             Height="32"
                             HorizontalAlignment="Left"
                             Click="MenuToggle_OnClick" />
                     <Border x:Name="MenuPanel"
                             Visibility="Collapsed"
-                            Background="#DD0F1820"
+                            local:CozyTheme.IsPaper="True"
                             CornerRadius="8"
                             Padding="6"
                             Margin="0,4,0,0">
                         <StackPanel>
-                            <Button x:Name="MenuMapButton" Content="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
-                            <Button x:Name="MenuShopButton" Content="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
-                            <Button x:Name="MenuFriendsButton" Content="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
-                            <Button x:Name="MenuCatchButton" Content="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
-                            <Button x:Name="MenuLeaderboardButton" Content="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
-                            <Button x:Name="MenuSettingsButton" Content="设置" Height="32" Click="MenuSettings_OnClick" />
+                            <Button x:Name="MenuMapButton" local:CozyTheme.Icon="cozy/icons-light/map.png" Content="世界地图" Height="32" Margin="0,0,0,4" Click="MenuMap_OnClick" />
+                            <Button x:Name="MenuShopButton" local:CozyTheme.Icon="cozy/icons-light/shop.png" Content="商店与装备" Height="32" Margin="0,0,0,4" Click="MenuShop_OnClick" />
+                            <Button x:Name="MenuFriendsButton" local:CozyTheme.Icon="cozy/icons-light/social.png" Content="好友与聊天" Height="32" Margin="0,0,0,4" Click="MenuFriends_OnClick" />
+                            <Button x:Name="MenuCatchButton" local:CozyTheme.Icon="cozy/icons-light/bag.png" Content="鱼获/背包" Height="32" Margin="0,0,0,4" Click="MenuCatch_OnClick" />
+                            <Button x:Name="MenuLeaderboardButton" local:CozyTheme.Icon="cozy/icons-light/trophy.png" Content="排行榜" Height="32" Margin="0,0,0,4" Click="MenuLeaderboard_OnClick" />
+                            <Button x:Name="MenuSettingsButton" local:CozyTheme.Icon="cozy/icons-light/settings.png" Content="设置" Height="32" Click="MenuSettings_OnClick" />
+                            <Button Content="导出 HUD JSON" Height="32" Margin="0,4,0,0" local:CozyTheme.Icon="cozy/icons-light/settings.png" Click="ExportHudJson_OnClick" />
                         </StackPanel>
                     </Border>
                     <Border x:Name="StatusCapsule"
-                            Background="#990F1820"
+                            local:CozyTheme.IsPaper="True"
                             CornerRadius="10"
                             Padding="10,6"
                             Margin="0,6,0,0">
                         <StackPanel>
                             <TextBlock x:Name="StateText"
                                        Text="状态：等待主界面"
-                                       Foreground="White"
+                                       Foreground="{StaticResource CozyInk}"
                                        FontSize="16" />
                             <TextBlock x:Name="PondText"
                                        Text="鱼塘：未连接"
-                                       Foreground="#FFD4E3EA"
+                                       Foreground="{StaticResource CozyInk}"
                                        FontSize="13"
                                        Margin="0,2,0,0" />
                             <TextBlock x:Name="SpotText"
                                        Text="钓位：未选择"
-                                       Foreground="#FFD4E3EA"
+                                       Foreground="{StaticResource CozyInk}"
                                        FontSize="13"
                                        Margin="0,2,0,0" />
                             <TextBlock x:Name="ErrorText"
-                                       Foreground="#FFE8DCC8"
+                                       Foreground="{StaticResource CozyInk}"
                                        TextWrapping="Wrap"
                                        FontSize="12"
                                        TextAlignment="Center"
@@ -240,37 +212,37 @@
                             Canvas.Top="8"
                             Panel.ZIndex="100">
                     <StackPanel Orientation="Horizontal">
-                        <Button x:Name="OpenMainButton"
+                        <Button x:Name="OpenMainButton" local:CozyTheme.Icon="cozy/icons-light/home.png"
                                 Content="打开主界面"
                                 Width="100"
                                 Height="40"
                                 Margin="0,0,8,0"
                                 Click="OpenMain_OnClick" />
-                        <Button x:Name="ExitPondButton"
+                        <Button x:Name="ExitPondButton" local:CozyTheme.Icon="cozy/icons-light/lock.png"
                                 Content="退出鱼塘"
                                 Width="100"
                                 Height="40"
                                 Click="ExitPond_OnClick" />
                     </StackPanel>
-                    <Button x:Name="PoliceDebugButton"
+                    <Button x:Name="PoliceDebugButton" local:CozyTheme.Icon="cozy/icons-light/bell.png"
                             Content="一键出警"
                             Width="208"
                             Height="36"
                             Margin="0,8,0,0"
                             HorizontalAlignment="Right"
                             Visibility="Collapsed"
-                            Background="#E8B86138"
-                            Foreground="White"
+                            Background="{StaticResource CozyCoral}"
+                            Foreground="{StaticResource CozyInk}"
                             Click="PoliceDebug_OnClick" />
-                    <Button x:Name="GameplayDebugButton"
+                    <Button x:Name="GameplayDebugButton" local:CozyTheme.Icon="cozy/icons-light/settings.png"
                             Content="Debug"
                             Width="208"
                             Height="36"
                             Margin="0,8,0,0"
                             HorizontalAlignment="Right"
                             Visibility="Collapsed"
-                            Background="#E85A7A9A"
-                            Foreground="White"
+                            Background="{StaticResource CozyPeriwinkle}"
+                            Foreground="{StaticResource CozyInk}"
                             Click="GameplayDebug_OnClick" />
                 </StackPanel>
                 <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
@@ -278,13 +250,13 @@
                             Canvas.Left="844"
                             Canvas.Top="420"
                             Panel.ZIndex="100">
-                    <Button x:Name="FishingToggleButton"
+                    <Button x:Name="FishingToggleButton" local:CozyTheme.Icon="cozy/icons-light/rod.png"
                             Content="开始钓鱼"
                             Width="100"
                             Height="40"
                             Margin="0,0,0,8"
                             Click="FishingToggle_OnClick" />
-                    <Button x:Name="GroundbaitButton"
+                    <Button x:Name="GroundbaitButton" local:CozyTheme.Icon="cozy/icons-light/leaf.png"
                             Content="打窝"
                             Width="100"
                             Height="40"
@@ -294,11 +266,11 @@
                     <TextBlock x:Name="GroundbaitStatusText"
                                Width="100"
                                TextWrapping="Wrap"
-                               Foreground="#FFD4E3EA"
+                               Foreground="{StaticResource CozyInk}"
                                FontSize="11"
                                Margin="0,0,0,8"
                                Visibility="Collapsed" />
-                    <Button x:Name="CatchLeaveButton"
+                <Button x:Name="CatchLeaveButton" local:CozyTheme.Icon="cozy/icons-light/gift.png"
                             Content="离席"
                             Width="100"
                             Height="40"
@@ -307,12 +279,12 @@
                 <!-- Z100: 可收缩公屏聊天窗（合并预览 + 输入） -->
                 <Border x:Name="ChatDockChrome"
                         Canvas.Left="8"
-                        Canvas.Top="516"
-                        Width="720"
+                        Canvas.Top="508"
+                        Width="320"
                         Panel.ZIndex="100"
-                        Background="#DD0F1820"
+                        local:CozyTheme.IsPaper="True"
                         CornerRadius="8"
-                        Padding="4"
+                        Padding="8,6"
                         PreviewMouseLeftButtonDown="ChatInput_OnPreviewMouseLeftButtonDown">
                     <StackPanel>
                         <Grid Height="28">
@@ -322,14 +294,14 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="ChatLatestPreview"
                                        Text="暂无公屏消息"
-                                       Foreground="#FFD4E3EA"
+                                       Foreground="{StaticResource CozyInk}"
                                        FontSize="12"
                                        VerticalAlignment="Center"
                                        Margin="0"
                                        TextTrimming="CharacterEllipsis" />
-                            <Button x:Name="ChatDockToggle"
+                            <Button x:Name="ChatDockToggle" local:CozyTheme.Icon="cozy/icons-light/social.png"
                                     Grid.Column="1"
-                                    Content="▲"
+                                    Content="" ToolTip="展开聊天"
                                     Width="28"
                                     Height="24"
                                     Padding="0"
@@ -364,20 +336,20 @@
                                          Height="28"
                                          VerticalContentAlignment="Center"
                                          Background="Transparent"
-                                         Foreground="White"
-                                         CaretBrush="White"
+                                         Foreground="{StaticResource CozyInk}"
+                                         CaretBrush="{StaticResource CozyInk}"
                                          BorderThickness="0"
                                          Padding="0"
                                          TextChanged="ChatInputBox_OnTextChanged"
                                          KeyDown="ChatInputBox_OnKeyDown" />
                                 <TextBlock x:Name="ChatPlaceholder"
                                            Text="说点什么…"
-                                           Foreground="#88FFFFFF"
+                                           Foreground="{StaticResource CozyInk}"
                                            IsHitTestVisible="False"
                                            VerticalAlignment="Center"
                                            Margin="0" />
                             </Grid>
-                            <Button x:Name="ChatSendButton"
+                            <Button x:Name="ChatSendButton" local:CozyTheme.Icon="cozy/icons-light/check.png"
                                     Grid.Column="1"
                                     Content="发送"
                                     Width="64"
@@ -395,7 +367,7 @@
                 VerticalAlignment="Center"
                 Width="320"
                 Visibility="Collapsed"
-                Background="#F2FFFFFF"
+                local:CozyTheme.IsPaper="True"
                 CornerRadius="16"
                 Padding="22,20"
                 Panel.ZIndex="300">
@@ -404,13 +376,13 @@
                            Text=""
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="#FF2C5F6F"
+                           Foreground="{StaticResource CozyInk}"
                            TextAlignment="Center"
                            TextWrapping="Wrap" />
                 <TextBlock x:Name="OverlayPromptBody"
                            Text=""
                            FontSize="14"
-                           Foreground="#FF555555"
+                           Foreground="{StaticResource CozyInk}"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
                            Margin="0,14,0,0"
@@ -418,7 +390,7 @@
                 <TextBlock x:Name="OverlayPromptCountdown"
                            Text=""
                            FontSize="12"
-                           Foreground="#FF999999"
+                           Foreground="{StaticResource CozyInk}"
                            TextAlignment="Center"
                            Margin="0,12,0,0" />
                 <Button x:Name="OverlayPromptButton"
@@ -432,14 +404,15 @@
         <Grid x:Name="GameplayDebugModal"
               Visibility="Collapsed"
               Panel.ZIndex="500"
-              Background="#99000000"
+              Background="#4075472E"
               MouseLeftButtonDown="GameplayDebugModalDim_OnMouseLeftButtonDown">
-            <Border Width="468"
-                    MaxHeight="560"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Background="#F2141E28"
-                    BorderBrush="#FF3A5568"
+            <Border Width="560"
+                    MaxHeight="360"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    Margin="8"
+                    local:CozyTheme.IsPaper="True"
+                    BorderBrush="{StaticResource CozyInk}"
                     BorderThickness="1"
                     CornerRadius="14"
                     Padding="12"
@@ -451,7 +424,7 @@
                             <TextBlock Text="玩法 Debug"
                                        FontSize="18"
                                        FontWeight="Bold"
-                                       Foreground="#FFEAF4F8"
+                                       Foreground="{StaticResource CozyInk}"
                                        VerticalAlignment="Center" />
                             <Button Content="关闭"
                                     Width="64"
@@ -488,8 +461,8 @@
                     <Grid x:Name="GameplayDebugInspectPage" Visibility="Collapsed">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,10" Height="32">
-                                <Button x:Name="GameplayDebugInspectBackButton"
-                                        Content="← 返回"
+                                <Button x:Name="GameplayDebugInspectBackButton" local:CozyTheme.Icon="cozy/icons-light/home.png"
+                                        Content="返回"
                                         Width="72"
                                         Height="28"
                                         HorizontalAlignment="Left"
@@ -499,7 +472,7 @@
                                            Text="查看"
                                            FontSize="16"
                                            FontWeight="Bold"
-                                           Foreground="#FFEAF4F8"
+                                           Foreground="{StaticResource CozyInk}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                                 <Button Content="关闭"
@@ -510,21 +483,22 @@
                                         Click="GameplayDebugClose_OnClick" />
                             </Grid>
                             <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled"
                                               Margin="0,0,0,0">
                                     <UniformGrid x:Name="GameplayDebugInspectButtonGrid" Columns="3" />
                                 </ScrollViewer>
                                 <!-- 右侧详情小弹窗 -->
-                                <Border x:Name="GameplayDebugDetailFlyout"
+                                <Border x:Name="GameplayDebugDetailFlyout" Grid.Column="1"
                                         Visibility="Collapsed"
                                         Width="196"
-                                        MaxHeight="420"
+                                        MaxHeight="360"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Stretch"
                                         Margin="4,0,0,0"
-                                        Background="#FF0F1720"
-                                        BorderBrush="#FF5A8FA8"
+                                        local:CozyTheme.IsPaper="True"
+                                        BorderBrush="{StaticResource CozyInk}"
                                         BorderThickness="1"
                                         CornerRadius="10"
                                         Padding="10">
@@ -534,10 +508,10 @@
                                                        Text="详情"
                                                        FontSize="13"
                                                        FontWeight="Bold"
-                                                       Foreground="#FFEAF4F8"
+                                                       Foreground="{StaticResource CozyInk}"
                                                        VerticalAlignment="Center" />
-                                            <Button Content="×"
-                                                    Width="24"
+                                            <Button Content="关闭"
+                                                    Width="42"
                                                     Height="24"
                                                     HorizontalAlignment="Right"
                                                     Padding="0"
@@ -559,7 +533,7 @@
                                         <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                       HorizontalScrollBarVisibility="Disabled">
                                             <TextBlock x:Name="GameplayDebugDetailFlyoutText"
-                                                       Foreground="#FFEAF4F8"
+                                                       Foreground="{StaticResource CozyInk}"
                                                        TextWrapping="Wrap"
                                                        FontSize="12"
                                                        LineHeight="18" />

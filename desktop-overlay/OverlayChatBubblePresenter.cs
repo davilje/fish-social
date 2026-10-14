@@ -183,7 +183,7 @@ namespace FishSocialOverlay
             var label = new TextBlock
             {
                 Text = trimmed,
-                Foreground = Brushes.White,
+                Foreground = CozyTheme.Ink,
                 FontSize = 12,
                 FontWeight = FontWeights.SemiBold,
                 TextWrapping = TextWrapping.Wrap,
@@ -193,9 +193,7 @@ namespace FishSocialOverlay
 
             var bubble = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(235, 27, 58, 74)),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(255, 120, 190, 210)),
-                BorderThickness = new Thickness(1),
+                BorderThickness = new Thickness(0),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(10, 6, 10, 6),
                 Child = label,
@@ -203,6 +201,7 @@ namespace FishSocialOverlay
                 IsHitTestVisible = false,
             };
 
+            CozyTheme.SetIsPaper(bubble, true);
             _layer.Children.Add(bubble);
             _activeByPlayer[GuideKey] = bubble;
             _guideText = trimmed;
@@ -321,7 +320,7 @@ namespace FishSocialOverlay
             var label = new TextBlock
             {
                 Text = text,
-                Foreground = Brushes.White,
+                Foreground = CozyTheme.Ink,
                 FontSize = 11,
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
@@ -330,7 +329,6 @@ namespace FishSocialOverlay
 
             var bubble = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(8, 5, 8, 5),
                 Child = label,
@@ -340,6 +338,7 @@ namespace FishSocialOverlay
                 IsHitTestVisible = false,
             };
 
+            CozyTheme.SetIsPaper(bubble, true);
             _layer.Children.Add(bubble);
             _activeByPlayer[ObservationKey] = bubble;
             AttachObservationActor(actor);
@@ -405,7 +404,7 @@ namespace FishSocialOverlay
             var label = new TextBlock
             {
                 Text = text,
-                Foreground = Brushes.White,
+                Foreground = CozyTheme.Ink,
                 FontSize = 11,
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
@@ -414,7 +413,6 @@ namespace FishSocialOverlay
 
             var bubble = new Border
             {
-                Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(8, 5, 8, 5),
                 Child = label,
@@ -424,6 +422,7 @@ namespace FishSocialOverlay
                 IsHitTestVisible = false,
             };
 
+            CozyTheme.SetIsPaper(bubble, true);
             _layer.Children.Add(bubble);
             _activeByPlayer[bubbleKey] = bubble;
             PositionBubble(bubble, actor);

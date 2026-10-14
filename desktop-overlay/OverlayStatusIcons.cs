@@ -8,9 +8,9 @@ using System.Windows.Media.Imaging;
 namespace FishSocialOverlay
 {
     /// <summary>
-    /// Phase icons from OverlayResources/status/{kind}.png
+    /// Monochrome Cozy phase icons from OverlayResources/hud/cozy/icons-light.
     /// (hooked / groundbait) plus hook-ring.png and ring-bg.png for bite/groundbait
-    /// progress. Missing files fall back to a frozen vector DrawingImage (no crash).
+    /// progress. Progress ring assets and animation remain unchanged.
     /// </summary>
     static class OverlayStatusIcons
     {
@@ -27,7 +27,9 @@ namespace FishSocialOverlay
             if (Cache.TryGetValue(key, out var cached))
                 return cached;
 
-            var loaded = TryLoadPng(key) ?? CreatePlaceholder(key);
+            var icon = string.Equals(key, "hooked", StringComparison.OrdinalIgnoreCase) ? "hook" :
+                string.Equals(key, "groundbait", StringComparison.OrdinalIgnoreCase) ? "leaf" : "rod";
+            var loaded = CozyTheme.LoadInkIcon(CozyTheme.IconPath(icon));
             Cache[key] = loaded;
             return loaded;
         }
@@ -98,68 +100,5 @@ namespace FishSocialOverlay
             return kind.Length > 0;
         }
 
-        static ImageSource CreatePlaceholder(string kind)
-        {
-            var hooked = string.Equals(kind, "hooked", StringComparison.OrdinalIgnoreCase);
-            var groundbait = string.Equals(kind, "groundbait", StringComparison.OrdinalIgnoreCase);
-            var fill = hooked
-                ? Color.FromRgb(232, 156, 64)
-                : groundbait
-                    ? Color.FromRgb(120, 176, 88)
-                    : Color.FromRgb(90, 168, 214);
-            var group = new DrawingGroup();
-            group.Children.Add(new GeometryDrawing(
-                new SolidColorBrush(Color.FromArgb(0xE6, fill.R, fill.G, fill.B)),
-                new Pen(new SolidColorBrush(Color.FromRgb(255, 255, 230)), 0.8),
-                new EllipseGeometry(new Point(9, 9), 8, 8)));
-            if (groundbait)
-            {
-                group.Children.Add(new GeometryDrawing(
-                    Brushes.White,
-                    null,
-                    new EllipseGeometry(new Point(9, 7), 2.2, 2.2)));
-                group.Children.Add(new GeometryDrawing(
-                    null,
-                    new Pen(Brushes.White, 1.3) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round },
-                    new LineGeometry(new Point(9, 10), new Point(9, 14))));
-            }
-            else if (hooked)
-            {
-                var hook = new PathGeometry();
-                hook.Figures.Add(new PathFigure(
-                    new Point(9, 4),
-                    new PathSegment[]
-                    {
-                        new LineSegment(new Point(9, 12), true),
-                        new ArcSegment(
-                            new Point(5, 12),
-                            new Size(4, 3.5),
-                            0,
-                            false,
-                            SweepDirection.Clockwise,
-                            true),
-                    },
-                    false));
-                group.Children.Add(new GeometryDrawing(
-                    null,
-                    new Pen(Brushes.White, 1.4) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round },
-                    hook));
-            }
-            else
-            {
-                group.Children.Add(new GeometryDrawing(
-                    null,
-                    new Pen(Brushes.White, 1.3) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round },
-                    new LineGeometry(new Point(6, 12), new Point(13, 5))));
-                group.Children.Add(new GeometryDrawing(
-                    Brushes.White,
-                    null,
-                    new EllipseGeometry(new Point(13, 5), 1.6, 1.6)));
-            }
-
-            var image = new DrawingImage(group);
-            image.Freeze();
-            return image;
-        }
     }
 }

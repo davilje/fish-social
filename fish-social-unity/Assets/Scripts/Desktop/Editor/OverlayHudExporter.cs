@@ -1,7 +1,9 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using FishSocial.Desktop;
 using UnityEditor;
@@ -23,7 +25,7 @@ namespace FishSocial.Desktop.Editor
         {
             try
             {
-                DesktopPrefabValidator.EnsureOverlayHud();
+                CozyPrefabRepair.Ensure("OverlayHud", typeof(DesktopOverlayHudView));
                 EditorUtility.DisplayDialog(
                     "补齐 OverlayHud",
                     "已补齐 OverlayHud.prefab（含 btn_pan_left / btn_pan_right）。\n" +
@@ -66,6 +68,10 @@ namespace FishSocial.Desktop.Editor
             try
             {
                 return ExportLoadedPrefab(rootGo, outputDir);
+            }
+            catch (Exception ex)
+            {
+                return "Overlay HUD 导出失败：" + ex.Message;
             }
             finally
             {
@@ -112,11 +118,15 @@ namespace FishSocial.Desktop.Editor
             }
 
             Directory.CreateDirectory(outputDir);
-            var fontsDir = Path.Combine(outputDir, "fonts");
+            var fontsDir = ResolveContainedPath(outputDir, "fonts");
             Directory.CreateDirectory(fontsDir);
-            var copiedSprites = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var copiedSprites = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var copiedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var entries = new List<string>();
+            var components = LoadComponentTemplates(outputDir);
+            var componentError = CopyComponentSprites(components, outputDir, copiedSprites);
+            if (!string.IsNullOrEmpty(componentError))
+                return componentError;
 
             foreach (var widget in widgets)
             {
@@ -147,7 +157,7 @@ namespace FishSocial.Desktop.Editor
                     return "控件尺寸无效（w/h 为 0）：" + widget.widgetId +
                            "。请在 Prefab 中检查 RectTransform，或执行 Fish Social → 补齐 OverlayHud。";
 
-                var spriteName = CopySprite(widget, outputDir, copiedSprites, out var spriteError);
+                var sprites = CopyWidgetSprites(widget, components, outputDir, copiedSprites, out var spriteError);
                 if (!string.IsNullOrEmpty(spriteError))
                     return spriteError;
 
@@ -162,14 +172,15 @@ namespace FishSocial.Desktop.Editor
                     y,
                     w,
                     h,
-                    spriteName,
+                    sprites,
                     ExtractSpriteSlice(widget),
+                    components,
                     textStyle));
             }
 
-            var jsonPath = Path.Combine(outputDir, "overlay-hud.json");
-            var json = BuildDocumentJson(entries);
-            File.WriteAllText(jsonPath, json, new UTF8Encoding(false));
+            var jsonPath = ResolveContainedPath(outputDir, "overlay-hud.json");
+            var json = BuildDocumentJson(entries, components);
+            WriteDocumentSafely(jsonPath, json);
             AssetDatabase.Refresh();
             Debug.Log("[OverlayHudExporter] Wrote " + jsonPath);
             return null;
@@ -296,126 +307,312 @@ namespace FishSocial.Desktop.Editor
                    Mathf.Abs(rt.pivot.y - 1f) < eps;
         }
 
-        static string CopySprite(
+        struct HudSpriteExport
+        {
+            public string Normal;
+            public string Hover;
+            public string Pressed;
+            public string Icon;
+        }
+
+        static Sprite VisualSprite(DesktopOverlayHudWidget widget, string propertyName)
+        {
+            var visual = widget.GetComponent<CozyButtonVisual>();
+            if (visual == null)
+                return null;
+            var property = new SerializedObject(visual).FindProperty(propertyName);
+            return property != null ? property.objectReferenceValue as Sprite : null;
+        }
+
+        static Image VisualImage(DesktopOverlayHudWidget widget, string propertyName)
+        {
+            var visual = widget.GetComponent<CozyButtonVisual>();
+            if (visual == null)
+                return null;
+            var property = new SerializedObject(visual).FindProperty(propertyName);
+            return property != null ? property.objectReferenceValue as Image : null;
+        }
+
+        static Image FindPlateImage(DesktopOverlayHudWidget widget)
+        {
+            return VisualImage(widget, "plate")
+                ?? widget.transform.Find("CozyVisual")?.GetComponent<Image>()
+                ?? widget.GetComponent<Image>();
+        }
+
+        static HudSpriteExport CopyWidgetSprites(
             DesktopOverlayHudWidget widget,
+            HudComponents components,
             string outputDir,
-            HashSet<string> copiedSprites,
+            Dictionary<string, string> copiedSprites,
             out string error)
         {
-            error = null;
-            var image = widget.GetComponent<Image>();
-            string sourcePath = null;
-            string exportName = null;
-
-            // Prefab Image 绑定的 Sprite 优先于 DesktopOverlayHudWidget.spriteFile。
-            if (image != null && image.sprite != null)
-            {
-                var assetPath = AssetDatabase.GetAssetPath(image.sprite);
-                if (!string.IsNullOrEmpty(assetPath) && File.Exists(assetPath))
-                {
-                    sourcePath = assetPath;
-                    exportName = Path.GetFileName(assetPath);
-                }
-            }
-
-            if (string.IsNullOrEmpty(sourcePath) && !string.IsNullOrWhiteSpace(widget.spriteFile))
-            {
-                exportName = Path.GetFileName(widget.spriteFile);
-                sourcePath = ResolveSpriteSourcePath(widget.spriteFile);
-            }
-
-            if (string.IsNullOrEmpty(sourcePath) || !File.Exists(sourcePath))
-            {
-                if (string.IsNullOrEmpty(exportName))
-                    return null;
-                error = "找不到 sprite 文件：" + exportName +
-                        "。请把 PNG 放在 Assets/Desktop/OverlayArt/ 或 Assets/StreamingAssets/OverlayHud/，" +
-                        "或在 Prefab Image 上绑定 Sprite 后重试。";
-                return null;
-            }
-
-            if (!string.Equals(widget.spriteFile, exportName, StringComparison.OrdinalIgnoreCase))
-            {
-                widget.spriteFile = exportName;
-                Debug.Log(
-                    "[OverlayHudExporter] 已从 Image 同步 spriteFile：" +
-                    widget.widgetId + " → " + exportName);
-            }
-
-            var target = Path.Combine(outputDir, exportName);
-            if (!copiedSprites.Contains(exportName))
-            {
-                if (!TryCopySpriteFile(sourcePath, target, out error))
-                    return null;
-                copiedSprites.Add(exportName);
-            }
-
-            return exportName;
+            var result = new HudSpriteExport();
+            var plate = FindPlateImage(widget);
+            result.Normal = CopySpriteResource(widget.spriteFile,
+                VisualSprite(widget, "normalSprite") ?? (plate != null ? plate.sprite : null),
+                false, outputDir, copiedSprites, out error);
+            if (error != null)
+                return result;
+            var button = widget.GetComponent<Button>();
+            var hoverFile = string.IsNullOrWhiteSpace(widget.spriteHoverFile) && IsCozyPlate(result.Normal)
+                ? components.button.spriteHover : widget.spriteHoverFile;
+            result.Hover = CopySpriteResource(hoverFile,
+                VisualSprite(widget, "hoverSprite") ?? (button != null ? button.spriteState.highlightedSprite : null),
+                true, outputDir, copiedSprites, out error);
+            if (error != null)
+                return result;
+            var pressedFile = string.IsNullOrWhiteSpace(widget.spritePressedFile) && IsCozyPlate(result.Normal)
+                ? components.button.spritePressed : widget.spritePressedFile;
+            result.Pressed = CopySpriteResource(pressedFile,
+                VisualSprite(widget, "pressedSprite") ?? (button != null ? button.spriteState.pressedSprite : null),
+                true, outputDir, copiedSprites, out error);
+            if (error != null)
+                return result;
+            var icon = VisualImage(widget, "icon")
+                ?? widget.transform.Find("Icon")?.GetComponent<Image>()
+                ?? widget.transform.Find("CozyIcon")?.GetComponent<Image>();
+            result.Icon = CopySpriteResource(widget.iconSpriteFile, icon != null ? icon.sprite : null,
+                true, outputDir, copiedSprites, out error);
+            return result;
         }
 
         /// <summary>
-        /// Safe overwrite. Skips when source==dest (common if PNG already lives under OverlayResources/hud).
+        /// Scoped declarations preserve their complete relative path and take precedence over
+        /// transparent hit Images. Legacy filename-only normal sprites retain Image-first export.
+        /// State/icon declarations remain independent of the plate and never mutate prefab fields.
         /// </summary>
+        static string CopySpriteResource(
+            string declaredFile,
+            Sprite fallback,
+            bool preferDeclared,
+            string outputDir,
+            Dictionary<string, string> copiedSprites,
+            out string error)
+        {
+            error = null;
+            var exportName = string.IsNullOrWhiteSpace(declaredFile) ? null : NormalizeHudRelativePath(declaredFile);
+            var assetPath = fallback != null ? AssetDatabase.GetAssetPath(fallback) : null;
+            string sourcePath = null;
+            if (!string.IsNullOrEmpty(assetPath) &&
+                (exportName == null || (!preferDeclared && exportName.IndexOf('/') < 0)))
+            {
+                var projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+                var assetSource = ResolveContainedPath(projectRoot, assetPath);
+                if (File.Exists(assetSource))
+                {
+                    sourcePath = assetSource;
+                    exportName = HudPathForAsset(assetPath);
+                }
+            }
+            if (exportName == null)
+                return null;
+            if (!string.Equals(Path.GetExtension(exportName), ".png", StringComparison.OrdinalIgnoreCase))
+            {
+                error = "HUD sprite 必须是 PNG：" + exportName;
+                return null;
+            }
+            sourcePath = sourcePath ?? ResolveSpriteSourcePath(exportName, outputDir);
+            if (string.IsNullOrEmpty(sourcePath) || !File.Exists(sourcePath))
+            {
+                error = "找不到 HUD PNG：" + exportName + "（Cozy、OverlayHud、OverlayArt 或 OverlayResources/hud）";
+                return null;
+            }
+            var target = ResolveContainedPath(outputDir, exportName);
+            if (copiedSprites.TryGetValue(exportName, out var previousSource))
+            {
+                if (!SameFileContents(previousSource, sourcePath))
+                {
+                    error = "HUD 资源相对路径冲突：" + exportName;
+                    return null;
+                }
+                return exportName;
+            }
+            if (!TryCopySpriteFile(sourcePath, target, out error))
+                return null;
+            copiedSprites[exportName] = sourcePath;
+            return exportName;
+        }
+
+        static string HudPathForAsset(string assetPath)
+        {
+            var normalized = NormalizeHudRelativePath(assetPath);
+            foreach (var prefix in new[]
+            {
+                "Assets/Resources/Desktop/Theme/Cozy/", "Assets/StreamingAssets/DesktopTheme/Cozy/", "Assets/UnityCozy/"
+            })
+            {
+                if (normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    return "cozy/" + normalized.Substring(prefix.Length);
+            }
+            foreach (var prefix in new[] { "Assets/StreamingAssets/OverlayHud/", "Assets/Desktop/OverlayArt/" })
+            {
+                if (normalized.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    return normalized.Substring(prefix.Length);
+            }
+            return Path.GetFileName(normalized);
+        }
+
+        /// <summary>
+        /// Portable relative paths only. Normalizes separators without flattening directories;
+        /// rejects parent/current segments, drive/UNC paths and Windows path aliases on every OS.
+        /// </summary>
+        static string NormalizeHudRelativePath(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("HUD 资源路径不能为空");
+            var normalized = value.Replace('\\', '/');
+            if (Path.IsPathRooted(normalized) || normalized.StartsWith("/", StringComparison.Ordinal))
+                throw new ArgumentException("HUD 资源不能使用绝对路径：" + value);
+            foreach (var segment in normalized.Split('/'))
+            {
+                if (segment.Length == 0 || segment == "." || segment == ".." ||
+                    segment.EndsWith(".", StringComparison.Ordinal) || segment.EndsWith(" ", StringComparison.Ordinal))
+                    throw new ArgumentException("HUD 资源路径包含非法段：" + value);
+                foreach (var character in segment)
+                {
+                    if (character < 32 || "<>:\"|?*".IndexOf(character) >= 0)
+                        throw new ArgumentException("HUD 资源路径包含非法字符：" + value);
+                }
+                var stem = segment.Split('.')[0].ToUpperInvariant();
+                if (stem == "CON" || stem == "PRN" || stem == "AUX" || stem == "NUL" ||
+                    (stem.Length == 4 && (stem.StartsWith("COM", StringComparison.Ordinal) ||
+                     stem.StartsWith("LPT", StringComparison.Ordinal)) && stem[3] >= '1' && stem[3] <= '9'))
+                    throw new ArgumentException("HUD 资源路径包含保留设备名：" + value);
+            }
+            return normalized;
+        }
+
+        static string ResolveContainedPath(string root, string relativePath)
+        {
+            var relative = NormalizeHudRelativePath(relativePath);
+            var rootFull = Path.GetFullPath(root);
+            var prefix = rootFull.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            var full = Path.GetFullPath(Path.Combine(rootFull, relative.Replace('/', Path.DirectorySeparatorChar)));
+            var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            if (!full.StartsWith(prefix, comparison))
+                throw new ArgumentException("HUD 资源路径越界：" + relativePath);
+            var current = rootFull;
+            RejectReparsePoint(current);
+            foreach (var segment in relative.Split('/'))
+            {
+                current = Path.Combine(current, segment);
+                RejectReparsePoint(current);
+            }
+            return full;
+        }
+
+        static void RejectReparsePoint(string path)
+        {
+            if ((File.Exists(path) || Directory.Exists(path)) &&
+                (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+                throw new IOException("HUD 资源路径不能经过符号链接/reparse point：" + path);
+        }
+
+        static string ResolveSpriteSourcePath(string spriteFile, string outputDir)
+        {
+            var relative = NormalizeHudRelativePath(spriteFile);
+            if (relative.StartsWith("cozy/", StringComparison.OrdinalIgnoreCase))
+            {
+                var suffix = relative.Substring("cozy/".Length);
+                foreach (var root in new[]
+                {
+                    Path.Combine(Application.dataPath, "Resources", "Desktop", "Theme", "Cozy"),
+                    Path.Combine(Application.dataPath, "StreamingAssets", "DesktopTheme", "Cozy"),
+                    Path.Combine(Application.dataPath, "UnityCozy")
+                })
+                {
+                    var candidate = ResolveContainedPath(root, suffix);
+                    if (File.Exists(candidate))
+                        return candidate;
+                }
+            }
+            var repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+            foreach (var root in new[]
+            {
+                Path.Combine(Application.dataPath, "StreamingAssets", "OverlayHud"),
+                Path.Combine(Application.dataPath, "Desktop", "OverlayArt"),
+                Path.Combine(repoRoot, "desktop-overlay", "OverlayResources", "hud"),
+                outputDir
+            })
+            {
+                var candidate = ResolveContainedPath(root, relative);
+                if (File.Exists(candidate))
+                    return candidate;
+            }
+            return null;
+        }
+
+        static bool SameFileContents(string first, string second)
+        {
+            var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            if (string.Equals(Path.GetFullPath(first), Path.GetFullPath(second), comparison))
+                return true;
+            if (new FileInfo(first).Length != new FileInfo(second).Length)
+                return false;
+            using (var algorithm = SHA256.Create())
+            using (var firstStream = File.OpenRead(first))
+            using (var secondStream = File.OpenRead(second))
+                return Convert.ToBase64String(algorithm.ComputeHash(firstStream)) ==
+                    Convert.ToBase64String(algorithm.ComputeHash(secondStream));
+        }
+
+        static void CommitTemporaryFile(string temporary, string destination)
+        {
+            RejectReparsePoint(destination);
+            if (File.Exists(destination))
+                File.Replace(temporary, destination, null);
+            else
+                File.Move(temporary, destination);
+        }
+
         static bool TryCopySpriteFile(string sourcePath, string destPath, out string error)
         {
             error = null;
+            string temporary = null;
             try
             {
-                var srcFull = Path.GetFullPath(sourcePath);
-                var dstFull = Path.GetFullPath(destPath);
-                if (string.Equals(srcFull, dstFull, StringComparison.OrdinalIgnoreCase))
+                var source = Path.GetFullPath(sourcePath);
+                var destination = Path.GetFullPath(destPath);
+                var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                if (string.Equals(source, destination, comparison))
                     return true;
-
-                Directory.CreateDirectory(Path.GetDirectoryName(dstFull) ?? ".");
-                var tempPath = dstFull + ".export-tmp";
-                if (File.Exists(tempPath))
-                    File.Delete(tempPath);
-                File.Copy(srcFull, tempPath, true);
-                if (File.Exists(dstFull))
-                    File.Delete(dstFull);
-                File.Move(tempPath, dstFull);
+                Directory.CreateDirectory(Path.GetDirectoryName(destination) ?? ".");
+                temporary = destination + ".export-" + Guid.NewGuid().ToString("N") + ".tmp";
+                File.Copy(source, temporary, false);
+                CommitTemporaryFile(temporary, destination);
                 return true;
             }
             catch (IOException ex)
             {
-                error = "无法写入 sprite（文件可能被 Overlay/看图软件占用）：" +
-                        Path.GetFileName(destPath) + " — " + ex.Message +
-                        "。请关闭 FishSocialOverlay / 图片预览后重试；源图请放在 Assets/StreamingAssets/OverlayHud/。";
+                error = "无法安全写入 HUD 资源（文件可能被占用）：" + destPath + " — " + ex.Message;
                 return false;
             }
             catch (UnauthorizedAccessException ex)
             {
-                error = "无法写入 sprite（权限或占用）：" + Path.GetFileName(destPath) + " — " + ex.Message;
+                error = "无法写入 HUD 资源（权限）：" + destPath + " — " + ex.Message;
                 return false;
+            }
+            finally
+            {
+                if (temporary != null && File.Exists(temporary))
+                    File.Delete(temporary);
             }
         }
 
-        static string ResolveSpriteSourcePath(string spriteFile)
+        static void WriteDocumentSafely(string destination, string json)
         {
-            if (string.IsNullOrWhiteSpace(spriteFile))
-                return null;
-
-            var fileName = Path.GetFileName(spriteFile);
-            var streaming = Path.Combine(Application.dataPath, "StreamingAssets", "OverlayHud", fileName);
-            if (File.Exists(streaming))
-                return streaming;
-
-            var overlayArt = Path.Combine(Application.dataPath, "Desktop", "OverlayArt", fileName);
-            if (File.Exists(overlayArt))
-                return overlayArt;
-
-            var repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
-            var overlayHud = Path.Combine(repoRoot, "desktop-overlay", "OverlayResources", "hud", fileName);
-            if (File.Exists(overlayHud))
-                return overlayHud;
-
-            var assetPath = AssetDatabase.GetAssetPath(
-                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Desktop/OverlayArt/" + fileName));
-            if (!string.IsNullOrEmpty(assetPath) && File.Exists(assetPath))
-                return assetPath;
-
-            return AssetDatabase.GetAssetPath(
-                AssetDatabase.LoadAssetAtPath<Sprite>("Assets/StreamingAssets/OverlayHud/" + fileName));
+            var temporary = destination + ".export-" + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                File.WriteAllText(temporary, json, new UTF8Encoding(false));
+                CommitTemporaryFile(temporary, destination);
+            }
+            finally
+            {
+                if (File.Exists(temporary))
+                    File.Delete(temporary);
+            }
         }
 
         struct HudTextStyleExport
@@ -483,7 +680,7 @@ namespace FishSocial.Desktop.Editor
 
         static int[] ExtractSpriteSlice(DesktopOverlayHudWidget widget)
         {
-            var image = widget.GetComponent<Image>();
+            var image = FindPlateImage(widget);
             if (image == null || image.sprite == null || image.type != Image.Type.Sliced)
                 return null;
 
@@ -524,11 +721,17 @@ namespace FishSocial.Desktop.Editor
             }
 
             var fileName = Path.GetFileName(sourcePath);
-            var dest = Path.Combine(fontsDir, fileName);
+            var dest = ResolveContainedPath(fontsDir, fileName);
             if (!copiedFonts.Contains(fileName))
             {
-                File.Copy(sourcePath, dest, true);
+                if (!TryCopySpriteFile(sourcePath, dest, out error))
+                    return null;
                 copiedFonts.Add(fileName);
+            }
+            else if (!SameFileContents(sourcePath, dest))
+            {
+                error = "HUD 字体文件名冲突：" + fileName;
+                return null;
             }
 
             return fileName;
@@ -641,8 +844,9 @@ namespace FishSocial.Desktop.Editor
             float y,
             float w,
             float h,
-            string sprite,
+            HudSpriteExport sprites,
             int[] spriteSlice,
+            HudComponents components,
             HudTextStyleExport textStyle)
         {
             var sb = new StringBuilder();
@@ -657,18 +861,208 @@ namespace FishSocial.Desktop.Editor
             sb.Append("\"h\":").Append(Mathf.Round(h)).Append(",");
             sb.Append("\"z\":").Append(widget.zIndex).Append(",");
             sb.Append("\"visibleDefault\":").Append(widget.visibleDefault ? "true" : "false");
-            if (!string.IsNullOrEmpty(sprite))
-                sb.Append(",\"sprite\":\"").Append(Escape(sprite)).Append("\"");
+            AppendSpriteFileJson(sb, "sprite", sprites.Normal);
+            AppendSpriteFileJson(sb, "spriteHover", sprites.Hover);
+            AppendSpriteFileJson(sb, "spritePressed", sprites.Pressed);
+            AppendSpriteFileJson(sb, "iconSprite", sprites.Icon);
+            if (string.Equals(widget.kind, "button", StringComparison.OrdinalIgnoreCase))
+            {
+                var offset = widget.pressedOffsetY > 0 ? widget.pressedOffsetY : components.button.pressedOffsetY;
+                var iconSize = widget.iconSize > 0 ? widget.iconSize : components.button.iconSize;
+                RequirePositiveFinite(offset, "pressedOffsetY");
+                RequirePositiveFinite(iconSize, "iconSize");
+                sb.Append(",\"pressedOffsetY\":").Append(offset.ToString("0.###", CultureInfo.InvariantCulture));
+                sb.Append(",\"iconSize\":").Append(iconSize.ToString("0.###", CultureInfo.InvariantCulture));
+            }
+            if (IsCozyPlate(sprites.Normal))
+                spriteSlice = components.button.spriteSlice;
+            else if (string.Equals(sprites.Normal, components.paper.sprite, StringComparison.OrdinalIgnoreCase))
+                spriteSlice = components.paper.spriteSlice;
+            else if (string.Equals(sprites.Normal, components.input.sprite, StringComparison.OrdinalIgnoreCase))
+                spriteSlice = components.input.spriteSlice;
             AppendSpriteSliceJson(sb, spriteSlice);
             AppendTextStyleJson(sb, textStyle);
             sb.Append("}");
             return sb.ToString();
         }
 
-        static string BuildDocumentJson(List<string> widgets)
+        /// <summary>
+        /// Matches WPF components (slice order L/B/R/T, padding order L/T/R/B).
+        /// Optional Cozy/data/overlay-components.json overrides these shared defaults.
+        /// ExportContractChecks is a read-only Editor regression entry point; it writes no assets.
+        /// </summary>
+        [Serializable]
+        sealed class HudComponents
+        {
+            public ButtonTemplate button = new ButtonTemplate();
+            public PaperTemplate paper = new PaperTemplate();
+            public PaperTemplate input = new PaperTemplate { padding = new float[] { 8, 6, 8, 6 } };
+            public ScrollTemplate scroll = new ScrollTemplate();
+        }
+
+        [Serializable]
+        sealed class ButtonTemplate
+        {
+            public string sprite = "cozy/buttons/plate-default.png";
+            public string spriteHover = "cozy/buttons/plate-hover.png";
+            public string spritePressed = "cozy/buttons/plate-pressed.png";
+            public int[] spriteSlice = { 64, 64, 64, 64 };
+            public float pressedOffsetY = 3;
+            public float iconSize = 16;
+            public float disabledOpacity = 0.45f;
+            public float[] padding = { 2, 0, 2, 0 };
+        }
+
+        [Serializable]
+        sealed class PaperTemplate
+        {
+            public string sprite = "cozy/panels/paper.png";
+            public int[] spriteSlice = { 64, 64, 64, 64 };
+            public float[] padding = { 12, 8, 12, 8 };
+        }
+
+        [Serializable]
+        sealed class ScrollTemplate
+        {
+            public float width = 6;
+        }
+
+        static HudComponents LoadComponentTemplates(string outputDir)
+        {
+            var components = new HudComponents();
+            var source = ResolveSpriteSourcePath("cozy/data/overlay-components.json", outputDir);
+            if (source != null)
+                JsonUtility.FromJsonOverwrite(File.ReadAllText(source), components);
+            if (components.button == null || components.paper == null || components.input == null || components.scroll == null)
+                throw new InvalidDataException("Cozy components 必须包含 button/paper/input/scroll");
+            ValidateComponentBorder(components.button.spriteSlice);
+            ValidateComponentBorder(components.paper.spriteSlice);
+            ValidateComponentBorder(components.input.spriteSlice);
+            ValidateComponentPadding(components.button.padding);
+            ValidateComponentPadding(components.paper.padding);
+            ValidateComponentPadding(components.input.padding);
+            RequirePositiveFinite(components.button.pressedOffsetY, "components.button.pressedOffsetY");
+            RequirePositiveFinite(components.button.iconSize, "components.button.iconSize");
+            RequirePositiveFinite(components.scroll.width, "components.scroll.width");
+            RequirePositiveFinite(components.button.disabledOpacity, "components.button.disabledOpacity");
+            if (components.button.disabledOpacity > 1)
+                throw new InvalidDataException("disabledOpacity 必须在 (0,1] 范围");
+            return components;
+        }
+
+        static void RequirePositiveFinite(float value, string name)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value <= 0)
+                throw new InvalidDataException(name + " 必须是有限正数");
+        }
+
+        static void ValidateComponentBorder(int[] border)
+        {
+            if (border == null || border.Length != 4)
+                throw new InvalidDataException("Cozy spriteSlice 必须是 [64,64,64,64]");
+            foreach (var value in border)
+                if (value != 64)
+                    throw new InvalidDataException("Cozy spriteSlice 必须是 [64,64,64,64]");
+        }
+
+        static void ValidateComponentPadding(float[] padding)
+        {
+            if (padding == null || padding.Length != 4)
+                throw new InvalidDataException("Cozy padding 必须有四个值");
+            foreach (var value in padding)
+                if (float.IsNaN(value) || float.IsInfinity(value) || value < 0)
+                    throw new InvalidDataException("Cozy padding 必须是有限非负数");
+        }
+
+        static string CopyComponentSprites(HudComponents components, string outputDir, Dictionary<string, string> copiedSprites)
+        {
+            foreach (var path in new[]
+            {
+                components.button.sprite, components.button.spriteHover, components.button.spritePressed,
+                components.paper.sprite, components.input.sprite
+            })
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    return "Cozy component 缺少 PNG 路径";
+                CopySpriteResource(path, null, true, outputDir, copiedSprites, out var error);
+                if (error != null)
+                    return error;
+            }
+            return null;
+        }
+
+        static bool IsCozyPlate(string path)
+        {
+            return !string.IsNullOrEmpty(path) && path.StartsWith("cozy/buttons/", StringComparison.OrdinalIgnoreCase);
+        }
+
+        static void AppendSpriteFileJson(StringBuilder builder, string key, string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+                builder.Append(",\"").Append(key).Append("\":\"").Append(Escape(value)).Append("\"");
+        }
+
+        [MenuItem("Fish Social/Validate Overlay HUD Export Contract", false, 46)]
+        public static void ExportContractChecks()
+        {
+            GameObject temporary = null;
+            try
+            {
+                if (NormalizeHudRelativePath("cozy\\buttons\\plate-default.png") != "cozy/buttons/plate-default.png" ||
+                    NormalizeHudRelativePath("图层 2.png") != "图层 2.png" ||
+                    HudPathForAsset("Assets/Resources/Desktop/Theme/Cozy/icons-light/map.png") != "cozy/icons-light/map.png" ||
+                    HudPathForAsset("Assets/StreamingAssets/OverlayHud/cozy/panels/paper.png") != "cozy/panels/paper.png")
+                    throw new InvalidDataException("HUD path regression");
+                foreach (var invalid in new[]
+                {
+                    "../escape.png", "cozy/../escape.png", "cozy/./icon.png", "/tmp/escape.png",
+                    "C:\\escape.png", "\\\\server\\share\\escape.png", "cozy//icon.png", "cozy/CON.png", "cozy/alias./icon.png"
+                })
+                {
+                    var rejected = false;
+                    try { NormalizeHudRelativePath(invalid); }
+                    catch (ArgumentException) { rejected = true; }
+                    if (!rejected)
+                        throw new InvalidDataException("HUD traversal not rejected: " + invalid);
+                }
+                var components = new HudComponents();
+                var document = BuildDocumentJson(new List<string>(), components);
+                if (!document.Contains("\"components\":") || !document.Contains("cozy/buttons/plate-hover.png") ||
+                    !document.Contains("\"spriteSlice\":[64,64,64,64]") ||
+                    FormatColor(new Color32(0x75, 0x47, 0x2E, 0xFF)) != "#FF75472E")
+                    throw new InvalidDataException("HUD components/ARGB regression");
+                temporary = new GameObject("OverlayHudExportContractCheck");
+                var widget = temporary.AddComponent<DesktopOverlayHudWidget>();
+                widget.widgetId = "chat_send";
+                var sprites = new HudSpriteExport
+                {
+                    Normal = components.button.sprite, Hover = components.button.spriteHover,
+                    Pressed = components.button.spritePressed, Icon = "cozy/icons-light/check.png"
+                };
+                var entry = BuildWidgetJson(widget, "dock_chat", 282, 120, 28, 28, sprites, null, components, default);
+                foreach (var token in new[]
+                {
+                    "\"id\":\"chat_send\"", "\"parentId\":\"dock_chat\"", "\"x\":282", "\"y\":120",
+                    "\"spriteHover\":\"cozy/buttons/plate-hover.png\"", "\"spritePressed\":\"cozy/buttons/plate-pressed.png\"",
+                    "\"iconSprite\":\"cozy/icons-light/check.png\"", "\"pressedOffsetY\":3", "\"iconSize\":16"
+                })
+                    if (!entry.Contains(token))
+                        throw new InvalidDataException("HUD widget JSON regression: " + token);
+                Debug.Log("[OverlayHudExporter] Cozy export contract checks passed (no files/prefabs written).");
+            }
+            finally
+            {
+                if (temporary != null)
+                    UnityEngine.Object.DestroyImmediate(temporary);
+            }
+        }
+
+        static string BuildDocumentJson(List<string> widgets, HudComponents components)
         {
             var sb = new StringBuilder();
-            sb.Append("{\"width\":960,\"height\":560,\"widgets\":[");
+            sb.Append("{\"width\":960,\"height\":560,\"components\":");
+            sb.Append(JsonUtility.ToJson(components));
+            sb.Append(",\"widgets\":[");
             for (var i = 0; i < widgets.Count; i++)
             {
                 if (i > 0)

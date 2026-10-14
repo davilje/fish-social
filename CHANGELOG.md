@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **全桌面 UI 统一与预制体接线修复（2026-10-14）**：纠正 ScrollRect/布局组件 GUID、重复组件及四个缺失节点；新增 21 个基础控件与 Variant 库，将 41 个界面/卡片/HUD 资源改为真正 Variant 和嵌套组件，按 23 个页面设计精细重排；WPF Overlay 全面同步 73 张同源 PNG、三态按钮、纸底、聊天和菜单，并保护 HUD 的 32 个 id 与 Unity 导出格式。加入 Player 构建前资源检查。静态检查已执行，Unity/Windows 引擎与联机视觉由用户验收；说明见 `docs/design/ui/unified/README.md`。
+
 - **Unity UI 导入错误修正（2026-10-14）**：修正 `CozyPrefabRepair.cs.meta` 的 33 位无效 GUID，解除修复类被忽略导致的 CS0103；关闭旧 ProfileHub 在脚本导入后的自动 Bake，增加 GUID 唯一性及导入回归测试。递归序列化报错仍需完整 Unity Console 堆栈确认；本机无 Unity，尚未执行 Edit Mode 测试。
 
 - **桌面 UI 全面持久化修复（2026-10-14）**：按确认的樱花鱼塘横版首页恢复七项导航；提供完整首页、钓鱼、选塘、装备、成就与模态窗口 Prefab，主题 PNG 改为真正导入的 Resources Sprite 与 Sliced 九宫格，停止运行时重建布局，保留既有业务与 v18 动画。静态数据/C# 语法检查通过；Unity 编译、运行与联机视觉仍待验收。说明：`docs/design/ui/2026-10-14-cozy-prefab-repair.md`。

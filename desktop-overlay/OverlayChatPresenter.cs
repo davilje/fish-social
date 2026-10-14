@@ -21,7 +21,7 @@ namespace FishSocialOverlay
             _preview = preview;
             _logScroll = logScroll;
             _logList = logList;
-            _logForeground = new SolidColorBrush(Color.FromRgb(0xD4, 0xE3, 0xEA));
+            _logForeground = CozyTheme.Ink;
         }
 
         public void ConfigureLogStyle(FontFamily fontFamily, double fontSize, Brush foreground)

@@ -1,0 +1,427 @@
+{
+  "version": 1,
+  "library": [
+    "CozyButtonBase",
+    "CozyButtonPrimary",
+    "CozyButtonSecondary",
+    "CozyButtonQuiet",
+    "CozyButtonTab",
+    "CozyButtonIcon",
+    "CozyButtonNav",
+    "CozyButtonDanger",
+    "CozyPanelBase",
+    "CozyPanelCard",
+    "CozyPanelDialog",
+    "CozyPanelSidebar",
+    "CozyPanelToolbar",
+    "CozyPanelTooltip",
+    "CozyPanelHud",
+    "CozyInputBase",
+    "CozyInputSearch",
+    "CozyInputMultiline",
+    "CozyScrollBase",
+    "CozyScrollList",
+    "CozyScrollGrid"
+  ],
+  "guids": {
+    "CozyButtonBase": "6c1984093e745ac88614ffa728c36f4b",
+    "CozyButtonPrimary": "de7cdec8cb405b868e600e970d2a08db",
+    "CozyButtonSecondary": "2be0ef377d1653cb975d325d96d9205d",
+    "CozyButtonQuiet": "085e1c60966e594f96a6a37e32a01bbb",
+    "CozyButtonTab": "620fae0f44ec5c9fa587530a8469a2aa",
+    "CozyButtonIcon": "2344cee4b0b752ce965a9bf3663de899",
+    "CozyButtonNav": "3dd729e35379540c98be8b785e85a997",
+    "CozyButtonDanger": "abc328d7e0c658ea865fc801ecca815e",
+    "CozyPanelBase": "0520ed16659e5484af4435458f1f8320",
+    "CozyPanelCard": "b51e593f4189557b9d6d89eff5637aa5",
+    "CozyPanelDialog": "b0ac3dd14e1455128cfaf0fd4244e05e",
+    "CozyPanelSidebar": "8256e36263ea51f8bfe84b7c41388c15",
+    "CozyPanelToolbar": "c98638af5a09556eb50d2be76fa734d1",
+    "CozyPanelTooltip": "48b4edf057225746acfb97b25abdf17d",
+    "CozyPanelHud": "66683cbe0df0555dae2fdb4ef3bccb35",
+    "CozyInputBase": "0fd1a28be074558d9740bac282d2d181",
+    "CozyInputSearch": "878b6d7ab8b25dde8b207f992341d38a",
+    "CozyInputMultiline": "a8613c30579d55a09dbea287c1a0ffc5",
+    "CozyScrollBase": "9b626f30109b5d7c9158e064e6b4bb90",
+    "CozyScrollList": "29d69ea024e1521a8d9c7f1228035349",
+    "CozyScrollGrid": "75de1761d9295f4d964790db3cb772a6"
+  },
+  "pages": [
+    {
+      "name": "AchievementRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 15
+    },
+    {
+      "name": "AvatarChoice",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 23
+    },
+    {
+      "name": "CatchSlot",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 23
+    },
+    {
+      "name": "DesktopShell",
+      "base": "CozyPanelBase",
+      "nestedComponents": 15,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonIcon",
+        "CozyButtonNav",
+        "CozyButtonPrimary"
+      ],
+      "documents": 457
+    },
+    {
+      "name": "DirectMessageConversationRow",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 24
+    },
+    {
+      "name": "DirectMessageRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 10
+    },
+    {
+      "name": "FeatureModalRoot",
+      "base": "CozyPanelDialog",
+      "nestedComponents": 31,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyInputBase",
+        "CozyScrollBase"
+      ],
+      "documents": 959
+    },
+    {
+      "name": "FriendRequestRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 2,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary"
+      ],
+      "documents": 56
+    },
+    {
+      "name": "FriendRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 2,
+      "components": [
+        "CozyButtonBase"
+      ],
+      "documents": 56
+    },
+    {
+      "name": "GallerySpeciesSlot",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 23
+    },
+    {
+      "name": "LeaderboardRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 22
+    },
+    {
+      "name": "OnlinePlayerRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 10
+    },
+    {
+      "name": "OverlayHud",
+      "base": "CozyPanelHud",
+      "nestedComponents": 18,
+      "components": [
+        "CozyButtonBase"
+      ],
+      "documents": 480
+    },
+    {
+      "name": "OverlayPondActor",
+      "base": "CozyPanelHud",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 61
+    },
+    {
+      "name": "PanelAchievements",
+      "base": "CozyPanelBase",
+      "nestedComponents": 12,
+      "components": [
+        "CozyButtonBase",
+        "CozyScrollBase"
+      ],
+      "documents": 408
+    },
+    {
+      "name": "PanelCatch",
+      "base": "CozyPanelBase",
+      "nestedComponents": 5,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyScrollBase"
+      ],
+      "documents": 152
+    },
+    {
+      "name": "PanelEquipment",
+      "base": "CozyPanelBase",
+      "nestedComponents": 7,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyScrollBase"
+      ],
+      "documents": 224
+    },
+    {
+      "name": "PanelGallery",
+      "base": "CozyPanelBase",
+      "nestedComponents": 2,
+      "components": [
+        "CozyButtonBase",
+        "CozyScrollBase"
+      ],
+      "documents": 89
+    },
+    {
+      "name": "PanelHome",
+      "base": "CozyPanelBase",
+      "nestedComponents": 4,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyButtonSecondary"
+      ],
+      "documents": 112
+    },
+    {
+      "name": "PanelLeaderboard",
+      "base": "CozyPanelBase",
+      "nestedComponents": 6,
+      "components": [
+        "CozyButtonBase",
+        "CozyScrollBase"
+      ],
+      "documents": 259
+    },
+    {
+      "name": "PanelPond",
+      "base": "CozyPanelBase",
+      "nestedComponents": 7,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary"
+      ],
+      "documents": 189
+    },
+    {
+      "name": "PanelPondSelection",
+      "base": "CozyPanelBase",
+      "nestedComponents": 1,
+      "components": [
+        "CozyScrollBase"
+      ],
+      "documents": 71
+    },
+    {
+      "name": "PanelPondSettlement",
+      "base": "CozyPanelDialog",
+      "nestedComponents": 2,
+      "components": [
+        "CozyButtonPrimary",
+        "CozyScrollBase"
+      ],
+      "documents": 76
+    },
+    {
+      "name": "PanelProfile",
+      "base": "CozyPanelBase",
+      "nestedComponents": 3,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyScrollBase"
+      ],
+      "documents": 128
+    },
+    {
+      "name": "PanelProfileEdit",
+      "base": "CozyPanelBase",
+      "nestedComponents": 9,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyInputBase",
+        "CozyScrollBase"
+      ],
+      "documents": 237
+    },
+    {
+      "name": "PanelProfileHub",
+      "base": "CozyPanelBase",
+      "nestedComponents": 12,
+      "components": [
+        "CozyButtonBase",
+        "CozyScrollBase"
+      ],
+      "documents": 408
+    },
+    {
+      "name": "PanelSettings",
+      "base": "CozyPanelBase",
+      "nestedComponents": 11,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyInputBase"
+      ],
+      "documents": 428
+    },
+    {
+      "name": "PanelShop",
+      "base": "CozyPanelBase",
+      "nestedComponents": 7,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyScrollBase"
+      ],
+      "documents": 224
+    },
+    {
+      "name": "PanelSocial",
+      "base": "CozyPanelBase",
+      "nestedComponents": 11,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyInputBase",
+        "CozyScrollBase"
+      ],
+      "documents": 255
+    },
+    {
+      "name": "PanelSocialFeed",
+      "base": "CozyPanelBase",
+      "nestedComponents": 4,
+      "components": [
+        "CozyButtonBase",
+        "CozyScrollBase"
+      ],
+      "documents": 133
+    },
+    {
+      "name": "PanelWorldMap",
+      "base": "CozyPanelBase",
+      "nestedComponents": 4,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary"
+      ],
+      "documents": 153
+    },
+    {
+      "name": "PondChatMessageRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 10
+    },
+    {
+      "name": "PondSelectionCard",
+      "base": "CozyPanelCard",
+      "nestedComponents": 1,
+      "components": [
+        "CozyButtonPrimary"
+      ],
+      "documents": 49
+    },
+    {
+      "name": "PostCommentRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 1,
+      "components": [
+        "CozyButtonBase"
+      ],
+      "documents": 33
+    },
+    {
+      "name": "ProductContextMenu",
+      "base": "CozyPanelCard",
+      "nestedComponents": 11,
+      "components": [
+        "CozyButtonBase"
+      ],
+      "documents": 236
+    },
+    {
+      "name": "ShopItemCard",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 26
+    },
+    {
+      "name": "ShowcaseSlot",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 23
+    },
+    {
+      "name": "SocialPostCard",
+      "base": "CozyPanelCard",
+      "nestedComponents": 4,
+      "components": [
+        "CozyButtonBase",
+        "CozyButtonPrimary",
+        "CozyInputBase"
+      ],
+      "documents": 131
+    },
+    {
+      "name": "SteamInviteRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 1,
+      "components": [
+        "CozyButtonBase"
+      ],
+      "documents": 33
+    },
+    {
+      "name": "TextStatusRow",
+      "base": "CozyPanelCard",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 10
+    },
+    {
+      "name": "WorldMapPondMarker",
+      "base": "CozyButtonBase",
+      "nestedComponents": 0,
+      "components": [],
+      "documents": 19
+    }
+  ]
+}

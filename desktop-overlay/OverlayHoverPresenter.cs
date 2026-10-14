@@ -35,7 +35,7 @@ namespace FishSocialOverlay
             _layer.Children.Clear();
             _text = new TextBlock
             {
-                Foreground = Brushes.White,
+                Foreground = CozyTheme.Ink,
                 FontSize = 10,
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap,
@@ -47,12 +47,12 @@ namespace FishSocialOverlay
                 MinWidth = CardMinWidth,
                 MinHeight = CardMinHeight,
                 Padding = new Thickness(6, 3, 6, 3),
-                Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
                 CornerRadius = new CornerRadius(4),
                 IsHitTestVisible = false,
                 Visibility = Visibility.Collapsed,
                 Child = _text,
             };
+            CozyTheme.SetIsPaper(_card, true);
             Panel.SetZIndex(_card, 50);
             _layer.Children.Add(_card);
         }

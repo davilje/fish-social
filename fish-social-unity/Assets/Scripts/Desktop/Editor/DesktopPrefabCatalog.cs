@@ -12,6 +12,7 @@ namespace FishSocial.Desktop.Editor
     public static class DesktopPrefabCatalog
     {
         public const string Folder = "Assets/Resources/Desktop/Prefabs";
+        public const string LibraryFolder = Folder + "/Library";
 
         public sealed class Entry
         {
@@ -25,13 +26,35 @@ namespace FishSocial.Desktop.Editor
                 Name = name;
                 Description = description;
                 ComponentType = componentType;
-                Ensure = name.StartsWith("Overlay", StringComparison.Ordinal) ? ensure
+                Ensure = name == "OverlayPondLayout" ? ensure
                     : () => CozyPrefabRepair.Ensure(name, componentType);
             }
         }
 
         public static readonly Entry[] All =
         {
+            new Entry("CozyButtonBase", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonPrimary", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonSecondary", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonQuiet", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonTab", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonIcon", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonNav", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyButtonDanger", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelBase", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelCard", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelDialog", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelSidebar", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelToolbar", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelTooltip", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyPanelHud", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyInputBase", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyInputSearch", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyInputMultiline", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyScrollBase", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyScrollList", "Cozy 可继承基础组件与 Variant。", null),
+            new Entry("CozyScrollGrid", "Cozy 可继承基础组件与 Variant。", null),
+
             new Entry("PanelHome", "首页：猫咪、品牌菜单卡、会话状态和导航动作。", null),
             new Entry("PanelPond", "钓鱼页：猫咪、会话状态和钓鱼动作；背景由主壳承载。", null),
             new Entry("PanelPondSelection", "鱼塘选择：标题和可滚动鱼塘卡片。", typeof(CozyPondSelectionPanel)),
@@ -75,6 +98,11 @@ namespace FishSocial.Desktop.Editor
             new Entry("AvatarChoice", "头像格。", null),
             new Entry("GallerySpeciesSlot", "图鉴格。", null),
         };
+
+        public static string AssetPath(string name)
+        {
+            return (name.StartsWith("Cozy", StringComparison.Ordinal) ? LibraryFolder : Folder) + "/" + name + ".prefab";
+        }
 
         public static Entry Find(string name)
         {

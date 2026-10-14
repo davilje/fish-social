@@ -38,7 +38,7 @@ namespace FishSocial.Desktop.Editor
             DrawToolbar();
             EditorGUILayout.HelpBox(
                 "桌面端 UI Prefab 唯一管理入口（DesktopPrefabCatalog）。" +
-                "普通页面只修复持久化与校验，不重建布局；缺失时请导入完整序列化 Prefab。Overlay 保留原流程。",
+                "普通页面只修复持久化与校验，不重建布局；缺失时请导入完整序列化 Prefab。基础按钮、面板、输入框与各页 Variant 同目录管理；Overlay HUD 同步主题。",
                 MessageType.Info);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
@@ -249,7 +249,7 @@ namespace FishSocial.Desktop.Editor
             var skipped = 0;
             for (var i = 0; i < DesktopPrefabCatalog.All.Length; i++)
             {
-                var path = Folder + "/" + DesktopPrefabCatalog.All[i].Name + ".prefab";
+                var path = DesktopPrefabCatalog.AssetPath(DesktopPrefabCatalog.All[i].Name);
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 if (prefab == null)
                 {
@@ -382,7 +382,7 @@ namespace FishSocial.Desktop.Editor
                 return;
             }
 
-            var path = Folder + "/" + name + ".prefab";
+            var path = DesktopPrefabCatalog.AssetPath(name);
             if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
             {
                 _notice = "Prefab 已存在：" + path;
@@ -434,7 +434,7 @@ namespace FishSocial.Desktop.Editor
         {
             if (string.Equals(name, "OverlayPondLayout", StringComparison.Ordinal))
                 return OverlayPondLayoutBaker.PrefabPath("pond-calm");
-            return Path.Combine(Folder, name + ".prefab").Replace("\\", "/");
+            return DesktopPrefabCatalog.AssetPath(name);
         }
 
         static PrefabStatus GetStatus(GameObject prefab, PrefabDefinition definition)

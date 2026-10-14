@@ -124,7 +124,7 @@ namespace FishSocialOverlay
             };
             _nickname = new TextBlock
             {
-                Foreground = Brushes.White,
+                Foreground = CozyTheme.Ink,
                 FontSize = 11,
                 MaxWidth = BodySize + 24,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -427,6 +427,7 @@ namespace FishSocialOverlay
         MenuItem CreateMenuItem(string header, bool enabled, Action action)
         {
             var item = new MenuItem { Header = header, IsEnabled = enabled };
+            CozyTheme.SetIcon(item, CozyTheme.IconPath(CozyTheme.IconFor(header)));
             if (enabled)
             {
                 item.Click += (_, __) =>
@@ -1634,7 +1635,7 @@ namespace FishSocialOverlay
         {
             return new TextBlock
             {
-                Foreground = Brushes.White,
+                Foreground = CozyTheme.Ink,
                 FontSize = fontSize,
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
@@ -1646,34 +1647,35 @@ namespace FishSocialOverlay
 
         static Border CreateSpeechBadge(TextBlock label)
         {
-            return new Border
+            var badge = new Border
             {
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(8, 0, 8, 0),
-                Background = new SolidColorBrush(Color.FromArgb(230, 15, 24, 32)),
                 Child = label,
                 Visibility = Visibility.Collapsed,
                 IsHitTestVisible = false,
                 RenderTransformOrigin = new Point(0.5, 1.0),
                 RenderTransform = new ScaleTransform(1, 1),
             };
+            CozyTheme.SetIsPaper(badge, true);
+            return badge;
         }
 
         static Border CreateHintBadge(TextBlock label)
         {
-            return new Border
+            var badge = new Border
             {
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(10, 0, 10, 0),
-                Background = new SolidColorBrush(Color.FromArgb(235, 27, 58, 74)),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(255, 120, 190, 210)),
-                BorderThickness = new Thickness(1),
+                BorderThickness = new Thickness(0),
                 Child = label,
                 Visibility = Visibility.Collapsed,
                 IsHitTestVisible = false,
                 RenderTransformOrigin = new Point(0.5, 1.0),
                 RenderTransform = new ScaleTransform(1, 1),
             };
+            CozyTheme.SetIsPaper(badge, true);
+            return badge;
         }
 
         static void RunPopIn(Border bubble)
@@ -1730,18 +1732,18 @@ namespace FishSocialOverlay
         {
             textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            return new Border
+            var badge = new Border
             {
                 CornerRadius = new CornerRadius(4),
                 Padding = new Thickness(6, 0, 6, 0),
                 Margin = margin,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Background = new SolidColorBrush(Color.FromArgb(0xD9, 0x0F, 0x18, 0x20)),
-                BorderBrush = new SolidColorBrush(Color.FromArgb(0x66, 0xB8, 0xE1, 0xEF)),
-                BorderThickness = new Thickness(1),
+                BorderThickness = new Thickness(0),
                 Child = textBlock,
             };
+            CozyTheme.SetIsPaper(badge, true);
+            return badge;
         }
     }
 

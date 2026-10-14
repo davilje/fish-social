@@ -455,6 +455,9 @@ namespace FishSocial.Desktop
             var home = _mainRoot != null ? _mainRoot.transform.Find("Header/Home") : null;
             if (home != null)
                 home.gameObject.SetActive(id != ShellPanelId.Home);
+            var competition = _mainRoot != null ? _mainRoot.transform.Find("Header/Leaderboard") : null;
+            if (competition != null)
+                competition.gameObject.SetActive(id == ShellPanelId.Home);
             _productMenu?.Hide();
             _socialPanel?.OnClosed();
             _catchPanel?.OnClosed();

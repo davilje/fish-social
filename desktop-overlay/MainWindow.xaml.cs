@@ -169,15 +169,8 @@ namespace FishSocialOverlay
 
             if (ChatDockToggle != null)
             {
-                if (ChatDockToggle.Background is ImageBrush)
-                {
-                    ChatDockToggle.Content = string.Empty;
-                    OverlayHudLayout.SetChatToggleRotation(ChatDockToggle, expanded);
-                }
-                else
-                {
-                    ChatDockToggle.Content = expanded ? "▼" : "▲";
-                }
+                ChatDockToggle.Content = string.Empty;
+                OverlayHudLayout.SetChatToggleRotation(ChatDockToggle, expanded);
             }
 
             if (_hudLayoutActive)
@@ -260,7 +253,7 @@ namespace FishSocialOverlay
             if (_safeWindow)
             {
                 AllowsTransparency = false;
-                Background = new SolidColorBrush(Color.FromArgb(245, 27, 38, 51));
+                Background = CozyTheme.Cream;
                 Topmost = false;
             }
         }
@@ -725,6 +718,7 @@ namespace FishSocialOverlay
             {
                 var button = new Button
                 {
+                    Style = (Style)Application.Current.FindResource("CozyButton"),
                     Content = item.Label,
                     Height = 52,
                     Margin = new Thickness(2),
@@ -741,7 +735,7 @@ namespace FishSocialOverlay
             return new TextBlock
             {
                 Text = text,
-                Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0xB4, 0xC4)),
+                Foreground = CozyTheme.Ink,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(8, 24, 8, 24),
@@ -1438,6 +1432,7 @@ namespace FishSocialOverlay
             menu.Items.Add(CreateProductMenuItem("动态墙", MenuFeed_OnClick));
             menu.Items.Add(CreateProductMenuItem("排行榜", MenuLeaderboard_OnClick));
             menu.Items.Add(CreateProductMenuItem("设置", MenuSettings_OnClick));
+            menu.Items.Add(CreateProductMenuItem("导出 HUD JSON", ExportHudJson_OnClick));
             menu.Items.Add(new Separator());
             menu.Items.Add(BuildViewportSizeMenu());
             menu.Items.Add(new Separator());
@@ -1460,6 +1455,7 @@ namespace FishSocialOverlay
         MenuItem BuildViewportSizeMenu()
         {
             var root = new MenuItem { Header = "窗口大小" };
+            CozyTheme.SetIcon(root, CozyTheme.IconPath("settings"));
             var presets = OverlayViewportPreset.All;
             _viewportMenuItems = new MenuItem[presets.Length];
             for (var i = 0; i < presets.Length; i++)
@@ -1504,9 +1500,33 @@ namespace FishSocialOverlay
         MenuItem CreateProductMenuItem(string header, RoutedEventHandler click)
         {
             var item = new MenuItem { Header = header };
+            CozyTheme.SetIcon(item, CozyTheme.IconPath(CozyTheme.IconFor(header)));
             item.Click += (_, __) => ForceDismissAllContextMenus();
             item.Click += click;
             return item;
+        }
+
+        void ExportHudJson_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "导出 Cozy HUD JSON",
+                FileName = "overlay-hud.json",
+                DefaultExt = ".json",
+                Filter = "HUD JSON (*.json)|*.json",
+                AddExtension = true,
+            };
+            if (dialog.ShowDialog(this) != true)
+                return;
+            try
+            {
+                _hudLayout.ExportCozyJson(dialog.FileName);
+                ErrorText.Text = "HUD JSON 已导出";
+            }
+            catch (Exception exception)
+            {
+                ErrorText.Text = "HUD 导出失败：" + exception.Message;
+            }
         }
 
         void OpenProductContextMenu()
@@ -1804,10 +1824,11 @@ namespace FishSocialOverlay
             ChatDockExpanded.Visibility = _chatDockExpanded
                 ? Visibility.Visible
                 : Visibility.Collapsed;
-            ChatDockToggle.Content = _chatDockExpanded ? "▼" : "▲";
+            ChatDockToggle.Content = string.Empty;
+            OverlayHudLayout.SetChatToggleRotation(ChatDockToggle, _chatDockExpanded);
             Canvas.SetTop(
                 ChatDockChrome,
-                SceneCanvas.Height - (_chatDockExpanded ? 68 : 36));
+                SceneCanvas.Height - (_chatDockExpanded ? 84 : 52));
         }
 
         void ChatInput_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

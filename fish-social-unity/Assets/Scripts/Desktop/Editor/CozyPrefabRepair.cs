@@ -17,7 +17,7 @@ namespace FishSocial.Desktop.Editor
         {
             if (string.IsNullOrWhiteSpace(name) || name.IndexOfAny(new[] { '/', '\\', ':' }) >= 0)
                 throw new ArgumentException("Invalid prefab name: " + name);
-            var path = DesktopPrefabCatalog.Folder + "/" + name + ".prefab";
+            var path = DesktopPrefabCatalog.AssetPath(name);
             ImportThemeSprites();
             if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
                 throw new InvalidOperationException("Required complete serialized prefab is missing: " + path
@@ -311,6 +311,12 @@ namespace FishSocial.Desktop.Editor
         public static List<string> ValidateContents(GameObject root, string name, Type componentType = null)
         {
             var errors = new List<string>();
+            if (root != null)
+            {
+                foreach (var node in root.GetComponentsInChildren<Transform>(true))
+                    if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(node.gameObject) > 0)
+                        errors.Add(node.name + " has missing MonoBehaviour scripts; verify imported uGUI GUIDs before saving or building.");
+            }
             try
             {
                 RequireStructure(root, name, componentType);
@@ -491,14 +497,34 @@ namespace FishSocial.Desktop.Editor
             else if (name == "PanelPondSelection")
             {
                 RequireNode<Text>(root, "PondSelectionHeader/Title");
+                RequireNode<Text>(root, "PondSelectionHeader/Description");
                 RequireScroll(root, "PondCardScroll", "Cards");
             }
             else if (name == "PanelEquipment" || name == "PanelShop")
             {
                 RequireNode<RectTransform>(root, "Header");
+                foreach (var label in new[] { "Title", "Coins", "Equipped" })
+                    RequireNode<Text>(root, "Header/" + label);
                 RequireNode<RectTransform>(root, "Tabs");
+                foreach (var action in new[] { "Bait", "Tackle", "Vessel" })
+                    RequireNode<Button>(root, "Tabs/" + action);
                 RequireScroll(root, "Items");
                 RequireNode<RectTransform>(root, "Details");
+                RequireNode<Text>(root, "Details/Description");
+                RequireNode<Text>(root, "Status");
+                foreach (var action in new[] { "Buy", "Equip", "Retry" })
+                    RequireNode<Button>(root, "Details/" + action);
+            }
+            else if (name == "PanelWorldMap")
+            {
+                RequireNode<RectTransform>(root, "Viewport");
+                RequireNode<RectTransform>(root, "Viewport/MapContent");
+                RequireNode<Image>(root, "Viewport/MapContent/MapImage");
+                RequireNode<RectTransform>(root, "Viewport/MapContent/MarkerLayer");
+                RequireNode<Text>(root, "Details/DetailsText");
+                RequireNode<Text>(root, "Details/StatusText");
+                foreach (var action in new[] { "EnterPond", "ResetView", "ModeSell", "ModeAuto" })
+                    RequireNode<Button>(root, "Details/" + action);
             }
             else if (name == "PanelAchievements" || name == "PanelProfileHub")
             {
@@ -614,9 +640,9 @@ namespace FishSocial.Desktop.Editor
             var errors = 0;
             foreach (var entry in DesktopPrefabCatalog.All)
             {
-                if (entry.Name.StartsWith("Overlay", StringComparison.Ordinal))
+                if (entry.Name == "OverlayPondLayout")
                     continue;
-                var path = DesktopPrefabCatalog.Folder + "/" + entry.Name + ".prefab";
+                var path = DesktopPrefabCatalog.AssetPath(entry.Name);
                 var root = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 foreach (var error in ValidateContents(root, entry.Name, entry.ComponentType))
                 {

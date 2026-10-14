@@ -1,0 +1,169 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:FishSocialOverlay"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:Double x:Key="CozyPressedOffset">3</sys:Double>
+    <sys:Double x:Key="CozyIconSize">16</sys:Double>
+    <sys:Double x:Key="CozyDisabledOpacity">0.45</sys:Double>
+    <sys:Double x:Key="CozyScrollWidth">6</sys:Double>
+    <Thickness x:Key="CozyButtonPadding">2,0,2,0</Thickness>
+    <Thickness x:Key="CozyPaperPadding">12,8,12,8</Thickness>
+    <Thickness x:Key="CozyInputPadding">8,6,8,6</Thickness>
+    <SolidColorBrush x:Key="CozyInk" Color="#75472E" />
+    <SolidColorBrush x:Key="CozyCream" Color="#FFF7E9" />
+    <SolidColorBrush x:Key="CozyCoral" Color="#F9A33F" />
+    <SolidColorBrush x:Key="CozyPeriwinkle" Color="#92A3E7" />
+    <Style TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI" />
+    </Style>
+    <Style x:Key="CozyPaper" TargetType="Border">
+        <Setter Property="local:CozyTheme.IsPaper" Value="True" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="{DynamicResource CozyPaperPadding}" />
+    </Style>
+    <Style x:Key="CozyButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="{DynamicResource CozyButtonPadding}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid Background="Transparent">
+                        <Grid x:Name="Plate">
+                            <Grid.RenderTransform><TranslateTransform /></Grid.RenderTransform>
+                            <local:CozySurface x:Name="Normal" IsHitTestVisible="False"
+                                Sprite="{Binding Path=(local:CozyTheme.NormalSprite), RelativeSource={RelativeSource TemplatedParent}}" />
+                            <local:CozySurface x:Name="Hover" Visibility="Collapsed" IsHitTestVisible="False"
+                                Sprite="{Binding Path=(local:CozyTheme.HoverSprite), RelativeSource={RelativeSource TemplatedParent}}" />
+                            <local:CozySurface x:Name="Pressed" Visibility="Collapsed" IsHitTestVisible="False"
+                                Sprite="{Binding Path=(local:CozyTheme.PressedSprite), RelativeSource={RelativeSource TemplatedParent}}" />
+                            <StackPanel Orientation="Horizontal" Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                <local:CozyIcon x:Name="Icon" Width="{DynamicResource CozyIconSize}" Height="{DynamicResource CozyIconSize}"
+                                    RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False"
+                                    Sprite="{Binding Path=(local:CozyTheme.Icon), RelativeSource={RelativeSource TemplatedParent}}">
+                                    <local:CozyIcon.RenderTransform>
+                                        <RotateTransform Angle="{Binding Path=(local:CozyTheme.IconAngle), RelativeSource={RelativeSource TemplatedParent}}" />
+                                    </local:CozyIcon.RenderTransform>
+                                </local:CozyIcon>
+                                <ContentPresenter RecognizesAccessKey="True" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Border x:Name="FocusRing" BorderBrush="{StaticResource CozyPeriwinkle}"
+                                    BorderThickness="1" CornerRadius="8" Margin="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                        </Grid>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="local:CozyTheme.Icon" Value="{x:Null}"><Setter TargetName="Icon" Property="Visibility" Value="Collapsed" /></Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Normal" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Normal" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="Hover" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="Pressed" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Plate" Property="RenderTransform"><Setter.Value><TranslateTransform Y="{DynamicResource CozyPressedOffset}" /></Setter.Value></Setter>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="FocusRing" Property="Visibility" Value="Visible" /></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Plate" Property="Opacity" Value="{DynamicResource CozyDisabledOpacity}" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="Button" BasedOn="{StaticResource CozyButton}" />
+    <Style TargetType="TextBox">
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
+        <Setter Property="CaretBrush" Value="{StaticResource CozyInk}" />
+        <Setter Property="SelectionBrush" Value="{StaticResource CozyPeriwinkle}" />
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI" />
+        <Setter Property="Padding" Value="{DynamicResource CozyInputPadding}" />
+        <Setter Property="Template"><Setter.Value>
+            <ControlTemplate TargetType="TextBox">
+                <Grid Background="Transparent"><ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" /></Grid>
+            </ControlTemplate>
+        </Setter.Value></Setter>
+    </Style>
+    <Style TargetType="ContextMenu">
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI" />
+        <Setter Property="HasDropShadow" Value="False" />
+        <Setter Property="Template"><Setter.Value>
+            <ControlTemplate TargetType="ContextMenu">
+                <Grid><local:CozySurface IsHitTestVisible="False" /><Border Padding="10"><ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500"><ItemsPresenter /></ScrollViewer></Border></Grid>
+            </ControlTemplate>
+        </Setter.Value></Setter>
+    </Style>
+    <Style TargetType="MenuItem">
+        <Setter Property="local:CozyTheme.TrackMenuPress" Value="True" />
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="6,5" />
+        <Setter Property="Template"><Setter.Value>
+            <ControlTemplate TargetType="MenuItem">
+                <Grid Background="Transparent">
+                    <Grid x:Name="Row" Background="Transparent" MinHeight="32">
+                        <local:CozySurface x:Name="MenuNormal" Sprite="cozy/buttons/plate-default.png" IsHitTestVisible="False" />
+                        <local:CozySurface x:Name="Highlight" Sprite="cozy/buttons/plate-hover.png" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <local:CozySurface x:Name="MenuPressed" Sprite="cozy/buttons/plate-pressed.png" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /><ColumnDefinition Width="32" /></Grid.ColumnDefinitions>
+                            <local:CozyIcon x:Name="MenuIcon" Width="18" Height="18" Sprite="{Binding Path=(local:CozyTheme.Icon), RelativeSource={RelativeSource TemplatedParent}}" />
+                            <local:CozyIcon x:Name="Check" Width="18" Height="18" Sprite="cozy/icons-light/check.png" Visibility="Collapsed" />
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="3,0,8,0" />
+                            <TextBlock x:Name="SubmenuHint" Grid.Column="2" Text="更多" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" />
+                        </Grid>
+                    </Grid>
+                    <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" Placement="Right"
+                           IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Grid><local:CozySurface IsHitTestVisible="False" /><Border Padding="10"><ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" /></ScrollViewer></Border></Grid>
+                    </Popup>
+                </Grid>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Highlight" Property="Visibility" Value="Visible" /></Trigger>
+                    <Trigger Property="IsSubmenuOpen" Value="True"><Setter TargetName="Highlight" Property="Visibility" Value="Visible" /></Trigger>
+                    <Trigger Property="local:CozyTheme.IsMenuPressed" Value="True">
+                        <Setter TargetName="Highlight" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MenuPressed" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="Row" Property="RenderTransform"><Setter.Value><TranslateTransform Y="{DynamicResource CozyPressedOffset}" /></Setter.Value></Setter>
+                    </Trigger>
+                    <Trigger Property="IsChecked" Value="True"><Setter TargetName="MenuIcon" Property="Visibility" Value="Collapsed" /><Setter TargetName="Check" Property="Visibility" Value="Visible" /></Trigger>
+                    <Trigger Property="HasItems" Value="True"><Setter TargetName="SubmenuHint" Property="Visibility" Value="Visible" /></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Row" Property="Opacity" Value="0.45" /></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </Setter.Value></Setter>
+    </Style>
+    <Style TargetType="Separator">
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Margin="8,5" Background="{StaticResource CozyInk}" Opacity="0.25" /></ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="CozyScrollBar" TargetType="ScrollBar">
+        <Setter Property="Width" Value="{DynamicResource CozyScrollWidth}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template"><Setter.Value>
+            <ControlTemplate TargetType="ScrollBar">
+                <Grid Background="Transparent">
+                    <Border Background="{StaticResource CozyInk}" Opacity="0.12" CornerRadius="3" />
+                    <Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="{TemplateBinding Orientation}">
+                        <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
+                        <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
+                        <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="{StaticResource CozyInk}" Opacity="0.6" CornerRadius="3" Margin="0,1" /></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+                    </Track>
+                </Grid>
+            </ControlTemplate>
+        </Setter.Value></Setter>
+    </Style>
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource CozyScrollBar}" />
+    <Style TargetType="ToolTip">
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToolTip"><Grid><local:CozySurface IsHitTestVisible="False" /><ContentPresenter Margin="10,6" /></Grid></ControlTemplate></Setter.Value></Setter>
+    </Style>
+</ResourceDictionary>

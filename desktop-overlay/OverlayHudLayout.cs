@@ -85,7 +85,6 @@ namespace FishSocialOverlay
         readonly Dictionary<string, FontFamily> _fontCache =
             new Dictionary<string, FontFamily>(StringComparer.OrdinalIgnoreCase);
 
-        static readonly Style HudFlatButtonStyle = CreateHudFlatButtonStyle();
 
         Dictionary<string, OverlayHudWidgetDto> _appliedWidgets;
 
@@ -94,6 +93,7 @@ namespace FishSocialOverlay
         public string LastLoadError { get; private set; }
 
         public HudChatDockMetrics ChatDockMetrics { get; private set; }
+        OverlayHudComponentsDto _components;
 
         public struct HudChatDockMetrics
         {
@@ -200,6 +200,9 @@ namespace FishSocialOverlay
             HudRootPath = hudRoot;
             try
             {
+            ApplyCozyResourceMapping(document);
+            _components = document.components;
+            ApplyCozyComponentParameters(_components);
             var bindings = BuildBindings(window);
             var absolute = BuildAbsolutePositions(byId);
             var sorted = document.widgets
@@ -246,7 +249,7 @@ namespace FishSocialOverlay
                     ApplySprite(element, widget, hudRoot);
                     ApplyTextStyle(element, widget, hudRoot);
                     ApplyButtonLabel(element, widget);
-                    ApplyHudButtonPressScale(element, widget);
+                    ApplyCozyButtonVisual(element, widget);
                     applied++;
                     continue;
                 }
@@ -279,7 +282,7 @@ namespace FishSocialOverlay
                 ApplyTextStyle(element, widget, hudRoot);
                 ApplyButtonLabel(element, widget);
                 ApplyStaticTextLabel(element, widget);
-                ApplyHudButtonPressScale(element, widget);
+                ApplyCozyButtonVisual(element, widget);
                 if (widget.id == "txt_error" && element is TextBlock errorText)
                 {
                     errorText.TextWrapping = TextWrapping.Wrap;
@@ -650,6 +653,7 @@ namespace FishSocialOverlay
 
         Canvas EnsureChatDockHost(Border chatBorder, OverlayHudWidgetDto widget, string hudRoot)
         {
+            CozyTheme.SetIsPaper(chatBorder, false);
             chatBorder.Padding = new Thickness(0);
             chatBorder.Background = Brushes.Transparent;
             chatBorder.CornerRadius = new CornerRadius(0);
@@ -708,7 +712,10 @@ namespace FishSocialOverlay
             {
                 var slice = OverlayNineSlice.TryCreate(source, widget.spriteSlice, width, height);
                 if (slice != null)
+                {
+                    slice.IsHitTestVisible = false;
                     root.Children.Insert(0, slice);
+                }
             }
 
             host.Margin = new Thickness(0);
@@ -908,7 +915,7 @@ namespace FishSocialOverlay
             }
 
             var textBox = window.ChatInputBox;
-            textBox.Padding = new Thickness(0);
+            textBox.Padding = ComponentPadding(_components.input.padding);
             textBox.BorderThickness = new Thickness(0);
             textBox.Background = Brushes.Transparent;
             textBox.VerticalContentAlignment = VerticalAlignment.Center;
@@ -928,15 +935,6 @@ namespace FishSocialOverlay
                 textBox.VerticalAlignment = VerticalAlignment.Stretch;
                 textBox.Width = double.NaN;
                 textBox.Height = double.NaN;
-                if (placeholderWidget != null)
-                {
-                    textBox.Margin = new Thickness(
-                        Math.Max(0, placeholderWidget.x - inputWidget.x),
-                        Math.Max(0, placeholderWidget.y - inputWidget.y),
-                        Math.Max(0, (inputWidget.x + inputWidget.w) - (placeholderWidget.x + placeholderWidget.w)),
-                        Math.Max(0, (inputWidget.y + inputWidget.h) - (placeholderWidget.y + placeholderWidget.h)));
-                }
-
                 panel.Child = textBox;
                 Panel.SetZIndex(panel, 200);
             }
@@ -1083,25 +1081,25 @@ namespace FishSocialOverlay
 
         public static void SetChatToggleRotation(Button button, bool expanded)
         {
-            if (button == null)
-                return;
-            EnsureHudButtonScale(button);
-            var rotate = EnsureHudButtonRotate(button);
-            rotate.Angle = expanded ? 180 : 0;
+            if (button != null)
+            {
+                CozyTheme.SetIconAngle(button, expanded ? 180 : 0);
+                button.ToolTip = expanded ? "收起聊天" : "展开聊天";
+            }
         }
 
-        static void ApplyHudButtonPressScale(FrameworkElement element, OverlayHudWidgetDto widget)
+        static void ApplyCozyButtonVisual(FrameworkElement element, OverlayHudWidgetDto widget)
         {
-            if (widget == null ||
-                !string.Equals(widget.kind, "button", StringComparison.OrdinalIgnoreCase) ||
-                string.IsNullOrWhiteSpace(widget.sprite))
+            if (!(element is Button button) || widget == null)
                 return;
-            if (!(element is Button button))
-                return;
-
-            button.Style = HudFlatButtonStyle;
+            button.Style = (Style)Application.Current.FindResource("CozyButton");
+            CozyTheme.SetNormalSprite(button, widget.sprite);
+            CozyTheme.SetHoverSprite(button, widget.spriteHover);
+            CozyTheme.SetPressedSprite(button, widget.spritePressed);
+            CozyTheme.SetIcon(button, widget.iconSprite);
+            button.Foreground = CozyTheme.Ink;
+            button.SetResourceReference(Control.PaddingProperty, "CozyButtonPadding");
             EnsureHudButtonScale(button);
-
             button.Click -= HudButtonPressScale_OnClick;
             button.Click += HudButtonPressScale_OnClick;
         }
@@ -1149,27 +1147,6 @@ namespace FishSocialOverlay
             return createdScale;
         }
 
-        static RotateTransform EnsureHudButtonRotate(Button button)
-        {
-            EnsureHudButtonScale(button);
-            if (button.RenderTransform is TransformGroup group)
-            {
-                foreach (var child in group.Children)
-                {
-                    if (child is RotateTransform existing)
-                        return existing;
-                }
-
-                var added = new RotateTransform(0);
-                group.Children.Add(added);
-                return added;
-            }
-
-            var rotate = new RotateTransform(0);
-            button.RenderTransform = rotate;
-            return rotate;
-        }
-
         static void HudButtonPressScale_OnClick(object sender, RoutedEventArgs e)
         {
             if (!(sender is Button button))
@@ -1196,29 +1173,151 @@ namespace FishSocialOverlay
             return animation;
         }
 
-        static Style CreateHudFlatButtonStyle()
+        static void ApplyCozyResourceMapping(OverlayHudDocument document)
         {
-            var style = new Style(typeof(Button));
-            style.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(0)));
-            style.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(0)));
-            style.Setters.Add(new Setter(Control.FocusVisualStyleProperty, null));
+            document.components = CompleteCozyComponents(document.components);
+            var components = document.components;
+            foreach (var widget in document.widgets)
+            {
+                if (widget == null)
+                    continue;
+                if (string.Equals(widget.kind, "button", StringComparison.OrdinalIgnoreCase))
+                {
+                    widget.sprite = components.button.sprite;
+                    widget.spriteHover = components.button.spriteHover;
+                    widget.spritePressed = components.button.spritePressed;
+                    widget.spriteSlice = (int[])components.button.spriteSlice.Clone();
+                    var icon = IconForWidget(widget.id);
+                    widget.iconSprite = icon == null ? null : CozyTheme.IconPath(icon);
+                    if (widget.id == "btn_pan_left")
+                        widget.label = "向左";
+                    else if (widget.id == "btn_pan_right")
+                        widget.label = "向右";
+                }
+                if (widget.id == "dock_chat" || widget.id == "cap_status" || widget.id == "chat_input")
+                {
+                    var panel = widget.id == "chat_input" ? components.input : components.paper;
+                    widget.sprite = panel.sprite;
+                    widget.spriteSlice = (int[])panel.spriteSlice.Clone();
+                }
+                if (widget.id == "chat_scroll")
+                    widget.sprite = null;
+                widget.fontColor = "#FF75472E";
+            }
+        }
 
-            var template = new ControlTemplate(typeof(Button));
-            var borderFactory = new FrameworkElementFactory(typeof(Border));
-            borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
-            borderFactory.SetValue(Border.BorderThicknessProperty, new Thickness(0));
-            var contentFactory = new FrameworkElementFactory(typeof(ContentPresenter));
-            contentFactory.SetValue(
-                FrameworkElement.HorizontalAlignmentProperty,
-                new TemplateBindingExtension(Control.HorizontalContentAlignmentProperty));
-            contentFactory.SetValue(
-                FrameworkElement.VerticalAlignmentProperty,
-                new TemplateBindingExtension(Control.VerticalContentAlignmentProperty));
-            borderFactory.AppendChild(contentFactory);
-            template.VisualTree = borderFactory;
-            style.Setters.Add(new Setter(Control.TemplateProperty, template));
-            style.Seal();
-            return style;
+        static Thickness ComponentPadding(double[] padding)
+        {
+            return padding != null && padding.Length == 4
+                ? new Thickness(padding[0], padding[1], padding[2], padding[3])
+                : new Thickness(0);
+        }
+
+        static OverlayHudComponentsDto CompleteCozyComponents(OverlayHudComponentsDto components)
+        {
+            var defaults = CreateCozyComponents();
+            if (components == null)
+                return defaults;
+            components.button = components.button ?? defaults.button;
+            components.paper = components.paper ?? defaults.paper;
+            components.input = components.input ?? defaults.input;
+            components.scroll = components.scroll ?? defaults.scroll;
+            foreach (var panel in new[] { components.button, components.paper, components.input })
+            {
+                if (panel.spriteSlice == null)
+                    panel.spriteSlice = (int[])CozyTheme.SpriteBorder.Clone();
+                if (!panel.spriteSlice.SequenceEqual(CozyTheme.SpriteBorder))
+                    throw new InvalidDataException("Cozy spriteSlice 必须是 [64,64,64,64]");
+            }
+            components.button.sprite = components.button.sprite ?? defaults.button.sprite;
+            components.button.spriteHover = components.button.spriteHover ?? defaults.button.spriteHover;
+            components.button.spritePressed = components.button.spritePressed ?? defaults.button.spritePressed;
+            components.paper.sprite = components.paper.sprite ?? defaults.paper.sprite;
+            components.input.sprite = components.input.sprite ?? defaults.input.sprite;
+            components.button.padding = components.button.padding ?? defaults.button.padding;
+            components.paper.padding = components.paper.padding ?? defaults.paper.padding;
+            components.input.padding = components.input.padding ?? defaults.input.padding;
+            if (components.button.pressedOffsetY <= 0) components.button.pressedOffsetY = 3;
+            if (components.button.iconSize <= 0) components.button.iconSize = 16;
+            if (components.button.disabledOpacity <= 0 || components.button.disabledOpacity > 1)
+                components.button.disabledOpacity = 0.45;
+            if (components.scroll.width <= 0) components.scroll.width = 6;
+            return components;
+        }
+
+        static void ApplyCozyComponentParameters(OverlayHudComponentsDto components)
+        {
+            var resources = Application.Current.Resources;
+            resources["CozyPressedOffset"] = components.button.pressedOffsetY;
+            resources["CozyIconSize"] = components.button.iconSize;
+            resources["CozyDisabledOpacity"] = components.button.disabledOpacity;
+            resources["CozyButtonPadding"] = ComponentPadding(components.button.padding);
+            resources["CozyPaperPadding"] = ComponentPadding(components.paper.padding);
+            resources["CozyInputPadding"] = ComponentPadding(components.input.padding);
+            resources["CozyScrollWidth"] = components.scroll.width;
+        }
+
+        static OverlayHudComponentsDto CreateCozyComponents()
+        {
+            return new OverlayHudComponentsDto
+            {
+                button = new OverlayHudComponentDto
+                {
+                    sprite = CozyTheme.DefaultPlate, spriteHover = CozyTheme.HoverPlate,
+                    spritePressed = CozyTheme.PressedPlate, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
+                    pressedOffsetY = 3, iconSize = 16, disabledOpacity = 0.45,
+                    padding = new double[] { 2, 0, 2, 0 },
+                },
+                paper = new OverlayHudComponentDto
+                {
+                    sprite = CozyTheme.Paper, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
+                    padding = new double[] { 12, 8, 12, 8 },
+                },
+                input = new OverlayHudComponentDto
+                {
+                    sprite = CozyTheme.Paper, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
+                    padding = new double[] { 8, 6, 8, 6 },
+                },
+                scroll = new OverlayHudComponentDto { width = 6 },
+            };
+        }
+
+        static string IconForWidget(string id)
+        {
+            switch (id)
+            {
+                case "btn_menu_toggle": case "btn_menu_settings": case "btn_debug_gameplay": return "settings";
+                case "btn_menu_map": return "map";
+                case "btn_menu_shop": return "shop";
+                case "btn_menu_friends": case "chat_toggle": return "social";
+                case "btn_menu_catch": return "bag";
+                case "btn_menu_leaderboard": return "trophy";
+                case "btn_open_main": return "home";
+                case "btn_exit_pond": return "lock";
+                case "btn_catch_leave": return "gift";
+                case "btn_debug_police": return "bell";
+                case "btn_fishing_toggle": return "rod";
+                case "btn_groundbait": return "leaf";
+                case "chat_send": return "check";
+                default: return null;
+            }
+        }
+
+        public void ExportCozyJson(string destination)
+        {
+            var source = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "OverlayResources", "hud", "overlay-hud.json");
+            if (string.Equals(Path.GetFullPath(source), Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("请导出到新文件，不覆盖当前 HUD 配置");
+            var serializer = new DataContractJsonSerializer(typeof(OverlayHudDocument));
+            OverlayHudDocument document;
+            using (var stream = File.OpenRead(source))
+                document = serializer.ReadObject(stream) as OverlayHudDocument;
+            if (document?.widgets == null)
+                throw new InvalidDataException("HUD JSON 缺少 widgets");
+            ApplyCozyResourceMapping(document);
+            using (var stream = File.Create(destination))
+                serializer.WriteObject(stream, document);
         }
 
         void ApplyTextStyle(FrameworkElement element, OverlayHudWidgetDto widget, string hudRoot)
@@ -1396,6 +1495,13 @@ namespace FishSocialOverlay
 
         void ApplySprite(FrameworkElement element, OverlayHudWidgetDto widget, string hudRoot)
         {
+            if (element is Button)
+                return;
+            if (element is Border paper && widget.sprite == CozyTheme.Paper && widget.id != "dock_chat")
+            {
+                CozyTheme.SetIsPaper(paper, true);
+                return;
+            }
             if (string.IsNullOrWhiteSpace(widget.sprite))
                 return;
 
@@ -1476,6 +1582,30 @@ namespace FishSocialOverlay
             [DataMember(Name = "width")] public double width = CanvasWidth;
             [DataMember(Name = "height")] public double height = CanvasHeight;
             [DataMember(Name = "widgets")] public OverlayHudWidgetDto[] widgets = null;
+            [DataMember(Name = "components", EmitDefaultValue = false)] public OverlayHudComponentsDto components = null;
+        }
+
+        [DataContract]
+        sealed class OverlayHudComponentsDto
+        {
+            [DataMember(Name = "button")] public OverlayHudComponentDto button;
+            [DataMember(Name = "paper")] public OverlayHudComponentDto paper;
+            [DataMember(Name = "input")] public OverlayHudComponentDto input;
+            [DataMember(Name = "scroll")] public OverlayHudComponentDto scroll;
+        }
+
+        [DataContract]
+        sealed class OverlayHudComponentDto
+        {
+            [DataMember(Name = "sprite", EmitDefaultValue = false)] public string sprite;
+            [DataMember(Name = "spriteHover", EmitDefaultValue = false)] public string spriteHover;
+            [DataMember(Name = "spritePressed", EmitDefaultValue = false)] public string spritePressed;
+            [DataMember(Name = "spriteSlice", EmitDefaultValue = false)] public int[] spriteSlice;
+            [DataMember(Name = "pressedOffsetY", EmitDefaultValue = false)] public double pressedOffsetY;
+            [DataMember(Name = "iconSize", EmitDefaultValue = false)] public double iconSize;
+            [DataMember(Name = "disabledOpacity", EmitDefaultValue = false)] public double disabledOpacity;
+            [DataMember(Name = "padding", EmitDefaultValue = false)] public double[] padding;
+            [DataMember(Name = "width", EmitDefaultValue = false)] public double width;
         }
 
         [DataContract]
@@ -1489,6 +1619,9 @@ namespace FishSocialOverlay
             [DataMember(Name = "w")] public double w;
             [DataMember(Name = "h")] public double h;
             [DataMember(Name = "sprite")] public string sprite = null;
+            [DataMember(Name = "spriteHover", EmitDefaultValue = false)] public string spriteHover = null;
+            [DataMember(Name = "spritePressed", EmitDefaultValue = false)] public string spritePressed = null;
+            [DataMember(Name = "iconSprite", EmitDefaultValue = false)] public string iconSprite = null;
             [DataMember(Name = "spriteSlice")] public int[] spriteSlice = null;
             [DataMember(Name = "fontFile")] public string fontFile = null;
             [DataMember(Name = "fontSize")] public double fontSize;
