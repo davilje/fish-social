@@ -331,7 +331,8 @@ namespace FishSocial.Desktop.Editor
             {
                 ValidateSprite(image.sprite, image.name + ".sprite", errors);
                 ValidateSprite(image.overrideSprite, image.name + ".overrideSprite", errors);
-                if (IsSlicedCozy(image.sprite) && image.type != Image.Type.Sliced && image.type != Image.Type.Filled)
+                var activeSprite = image.overrideSprite != null ? image.overrideSprite : image.sprite;
+                if (IsSlicedCozy(activeSprite) && image.type != Image.Type.Sliced && image.type != Image.Type.Filled)
                     errors.Add(image.name + " must save Image.Type.Sliced.");
             }
             foreach (var selectable in root.GetComponentsInChildren<Selectable>(true))
@@ -408,6 +409,21 @@ namespace FishSocial.Desktop.Editor
         {
             if (sprite != null && (!EditorUtility.IsPersistent(sprite) || string.IsNullOrEmpty(AssetDatabase.GetAssetPath(sprite))))
                 errors.Add(owner + " references a transient Sprite.");
+            if (sprite == null)
+                return;
+            var path = AssetDatabase.GetAssetPath(sprite);
+            if (!CozySpriteImporter.IsSurfacePath(path))
+                return;
+            if (sprite.border == Vector4.zero)
+                errors.Add(owner + " has no imported Sprite border; Sliced would render as a stretched quad. Reimport " + path + ".");
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null)
+                return;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            if (importer.textureType != TextureImporterType.Sprite || importer.spriteImportMode != SpriteImportMode.Single
+                || settings.spriteMeshType != SpriteMeshType.FullRect)
+                errors.Add(owner + " requires a Single Sprite with FullRect mesh for nine-slice rendering: " + path);
         }
 
         static void RequireStructure(GameObject root, string name, Type componentType)
@@ -434,6 +450,14 @@ namespace FishSocial.Desktop.Editor
                     throw new InvalidOperationException(name + " requires its serialized Canvas, CanvasScaler and GraphicRaycaster.");
                 RequireNode<Button>(root, "LoginRoot/SteamLogin");
                 RequireNode<Text>(root, "LoginRoot/LoginHint");
+                RequireNode<RectTransform>(root, "LoginRoot");
+                var login = root.transform.Find("LoginRoot").GetComponent<RectTransform>();
+                var center = new Vector2(0.5f, 0.5f);
+                if (login.anchorMin != center || login.anchorMax != center || login.pivot != center
+                    || login.anchoredPosition != Vector2.zero
+                    || login.sizeDelta != new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight))
+                    throw new InvalidOperationException(name + " LoginRoot must be centered with zero offset and match the "
+                        + WindowManager.LoginWidth + "x" + WindowManager.LoginHeight + " login window.");
                 RequireNode<RectTransform>(root, "MainRoot/Header");
                 RequireNode<RectTransform>(root, "MainRoot/Nav");
                 RequireNode<RectTransform>(root, "MainRoot/Content");

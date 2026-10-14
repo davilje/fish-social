@@ -19577,17 +19577,17 @@
         1672,
         941
       ],
-      "strategy": "左侧品牌与桌面伙伴说明 + 右侧 Steam 登录护照；MainRoot 和 Home 完全不动",
+      "strategy": "480×320 小窗口居中登录卡：品牌、状态与 Steam 操作纵向排布；MainRoot 和 Home 完全不动",
       "regions": [
         {
           "name": "login-card",
           "bounds": [
-            248,
-            205,
-            1176,
-            526
+            0,
+            0,
+            480,
+            320
           ],
-          "purpose": "只修改 LoginRoot 子树",
+          "purpose": "根节点居中零偏移，匹配运行时 LoginWidth/LoginHeight",
           "functionalPaths": [
             "DesktopShell/LoginRoot/LoginHint",
             "DesktopShell/LoginRoot/SteamLogin"
@@ -19604,89 +19604,89 @@
       "placements": {
         "DesktopShell/LoginRoot": {
           "bounds": [
-            248,
-            205,
-            1176,
-            526
+            0,
+            0,
+            480,
+            320
           ],
           "relativeTo": "DesktopShell"
         },
         "DesktopShell/LoginRoot/Reflow_BrandStage": {
           "bounds": [
-            20,
-            20,
-            620,
-            486
+            12,
+            12,
+            456,
+            296
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/Brand": {
           "bounds": [
-            64,
-            64,
-            508,
-            170
+            144,
+            16,
+            192,
+            70
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/Reflow_BrandCaption": {
           "bounds": [
-            70,
-            286,
-            500,
-            44
+            32,
+            92,
+            416,
+            24
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/Reflow_BrandEnglish": {
           "bounds": [
-            64,
-            354,
-            512,
-            30
+            32,
+            92,
+            416,
+            24
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/Reflow_LoginTitle": {
           "bounds": [
-            692,
-            78,
-            420,
-            48
+            32,
+            120,
+            416,
+            30
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/Reflow_LoginEyebrow": {
           "bounds": [
-            692,
-            142,
-            420,
-            26
+            32,
+            120,
+            416,
+            30
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/LoginHint": {
           "bounds": [
-            692,
-            210,
-            420,
-            82
+            32,
+            156,
+            416,
+            38
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/SteamLogin": {
           "bounds": [
-            692,
-            340,
-            420,
-            68
+            64,
+            206,
+            352,
+            54
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         },
         "DesktopShell/LoginRoot/SteamLogin/Icon": {
           "bounds": [
             14,
-            19.0,
+            12.0,
             30,
             30
           ],
@@ -19696,23 +19696,25 @@
           "bounds": [
             48,
             0,
-            360,
-            68
+            292,
+            54
           ],
           "relativeTo": "DesktopShell/LoginRoot/SteamLogin"
         },
         "DesktopShell/LoginRoot/Reflow_AccountNote": {
           "bounds": [
-            692,
-            432,
-            420,
-            28
+            32,
+            272,
+            416,
+            22
           ],
           "relativeTo": "DesktopShell/LoginRoot"
         }
       },
       "representativeLayouts": [],
-      "notes": [],
+      "notes": [
+        "登录使用 480×320 CanvasScaler 参考分辨率；认证后主界面仍切换为 1672×941。"
+      ],
       "visualNodes": {
         "DesktopShell/Backdrop": {
           "imageColor": {
@@ -19743,7 +19745,7 @@
         },
         "DesktopShell/LoginRoot/LoginHint": {
           "text": "使用 Steam 登录，开启钓鱼时光",
-          "fontSize": 22,
+          "fontSize": 14,
           "textColor": {
             "r": 0.4588235294117647,
             "g": 0.2784313725490196,
@@ -20545,7 +20547,7 @@
         },
         "DesktopShell/LoginRoot/Reflow_BrandCaption": {
           "text": "一段轻松的桌面钓鱼时光",
-          "fontSize": 30,
+          "fontSize": 16,
           "textColor": {
             "r": 0.4588235294117647,
             "g": 0.2784313725490196,
@@ -20556,7 +20558,7 @@
         },
         "DesktopShell/LoginRoot/Reflow_BrandEnglish": {
           "text": "A LITTLE FISHING, A LITTLE COMPANY",
-          "fontSize": 17,
+          "fontSize": 12,
           "textColor": {
             "r": 0.6588235294117647,
             "g": 0.5176470588235295,
@@ -20567,7 +20569,7 @@
         },
         "DesktopShell/LoginRoot/Reflow_LoginTitle": {
           "text": "欢迎回来",
-          "fontSize": 34,
+          "fontSize": 22,
           "textColor": {
             "r": 0.4588235294117647,
             "g": 0.2784313725490196,
@@ -20578,7 +20580,7 @@
         },
         "DesktopShell/LoginRoot/Reflow_LoginEyebrow": {
           "text": "YOUR ANGLER PASSPORT",
-          "fontSize": 16,
+          "fontSize": 12,
           "textColor": {
             "r": 0.6588235294117647,
             "g": 0.5176470588235295,
@@ -20589,7 +20591,7 @@
         },
         "DesktopShell/LoginRoot/Reflow_AccountNote": {
           "text": "登录状态由 Steam 会话验证",
-          "fontSize": 17,
+          "fontSize": 12,
           "textColor": {
             "r": 0.6588235294117647,
             "g": 0.5176470588235295,
@@ -20601,7 +20603,11 @@
       },
       "bindingSource": "/Users/davilje/fish-social/fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
       "runtimeDataPolicy": "Do not populate dynamic Content/Slots/Species/Cards. The original runtime binds real data.",
-      "previewPolicy": "Render static chrome plus empty/loading state. Template specimen may be drawn in a separate annotated design preview, never serialized as player data."
+      "previewPolicy": "Render static chrome plus empty/loading state. Template specimen may be drawn in a separate annotated design preview, never serialized as player data.",
+      "loginCanvas": [
+        480,
+        320
+      ]
     }
   },
   "listTemplates": {

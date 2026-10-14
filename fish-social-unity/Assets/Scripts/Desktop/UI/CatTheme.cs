@@ -199,6 +199,17 @@ namespace FishSocial.Desktop
             image.color = new Color(1f, 1f, 1f, color.a);
         }
 
+        public static void ApplySlicedImage(Image image)
+        {
+            if (image == null || image.type == Image.Type.Filled)
+                return;
+            var sprite = image.overrideSprite != null ? image.overrideSprite : image.sprite;
+            if (sprite == null || sprite.border == Vector4.zero)
+                return;
+            image.type = Image.Type.Sliced;
+            image.preserveAspect = false;
+        }
+
         public static void StyleButton(Button button, string iconName = null, bool primary = false)
         {
             if (button == null || button.GetComponent<Mask>() != null || button.GetComponent<RectMask2D>() != null
@@ -293,6 +304,7 @@ namespace FishSocial.Desktop
 
         static void SkinNode(Transform node, CozyPanelSkin skin)
         {
+            ApplySlicedImage(node.GetComponent<Image>());
             var input = node.GetComponentInParent<InputField>(true);
             if (input != null)
             {

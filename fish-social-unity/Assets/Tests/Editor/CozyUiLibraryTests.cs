@@ -1,8 +1,10 @@
 #if UNITY_EDITOR && UNITY_INCLUDE_TESTS
+using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using FishSocial.Desktop;
 using FishSocial.Desktop.Editor;
 
 namespace FishSocial.Tests.Editor
@@ -13,6 +15,147 @@ namespace FishSocial.Tests.Editor
         public void EveryCatalogPrefabHasCompleteImportedComponentsAndLayout()
         {
             Assert.IsEmpty(CozyUiBuildGuard.CollectErrors());
+        }
+
+        [Test]
+        public void LoginCardMatchesSmallWindowCanvas()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath("DesktopShell"));
+            Assert.NotNull(prefab);
+            var login = prefab.transform.Find("LoginRoot").GetComponent<RectTransform>();
+            var center = new Vector2(0.5f, 0.5f);
+            Assert.AreEqual(center, login.anchorMin);
+            Assert.AreEqual(center, login.anchorMax);
+            Assert.AreEqual(center, login.pivot);
+            Assert.AreEqual(Vector2.zero, login.anchoredPosition);
+            Assert.AreEqual(new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight), login.sizeDelta);
+        }
+
+        [Test]
+        public void VisibleLoginGraphicsStayInsideSmallWindow()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath("DesktopShell"));
+            var instance = Object.Instantiate(prefab);
+            try
+            {
+                var scaler = instance.GetComponent<CanvasScaler>();
+                scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
+                var login = instance.transform.Find("LoginRoot").GetComponent<RectTransform>();
+                login.gameObject.SetActive(true);
+                instance.transform.Find("MainRoot").gameObject.SetActive(false);
+                Canvas.ForceUpdateCanvases();
+                var corners = new Vector3[4];
+                foreach (var graphic in login.GetComponentsInChildren<Graphic>(false))
+                {
+                    if (!graphic.enabled)
+                        continue;
+                    graphic.rectTransform.GetWorldCorners(corners);
+                    foreach (var corner in corners)
+                    {
+                        var point = login.InverseTransformPoint(corner);
+                        Assert.That(point.x, Is.InRange(login.rect.xMin - 0.5f, login.rect.xMax + 0.5f), graphic.name);
+                        Assert.That(point.y, Is.InRange(login.rect.yMin - 0.5f, login.rect.yMax + 0.5f), graphic.name);
+                    }
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(instance);
+            }
+        }
+
+        [TestCase(80f, 44f)]
+        [TestCase(352f, 54f)]
+        [TestCase(420f, 180f)]
+        public void BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(float width, float height)
+        {
+            var root = new GameObject("NineSliceTest", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            try
+            {
+                var image = root.GetComponent<Image>();
+                image.sprite = CatTheme.LoadCozy("buttons/plate-default.png", CatTheme.PlateBorder);
+                Assert.NotNull(image.sprite);
+                Assert.AreNotEqual(Vector4.zero, image.sprite.border);
+                image.rectTransform.sizeDelta = new Vector2(width, height);
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                CatTheme.ApplySlicedImage(image);
+                Assert.AreEqual(Image.Type.Sliced, image.type);
+                Assert.IsFalse(image.preserveAspect);
+                var populate = typeof(Image).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.NotNull(populate);
+                using (var vertices = new VertexHelper())
+                {
+                    populate.Invoke(image, new object[] { vertices });
+                    Assert.Greater(vertices.currentVertCount, 4, "A four-vertex quad would stretch the entire texture.");
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void InputAndScrollBackgroundsAreSlicedThroughSkinTree()
+        {
+            var root = new GameObject("NineSliceSkinTest", typeof(RectTransform));
+            try
+            {
+                var input = new GameObject("Input", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(InputField));
+                input.transform.SetParent(root.transform, false);
+                var scroll = new GameObject("Scroll", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(ScrollRect));
+                scroll.transform.SetParent(root.transform, false);
+                var sprite = CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder);
+                Assert.NotNull(sprite);
+                var backgrounds = new[] { input.GetComponent<Image>(), scroll.GetComponent<Image>() };
+                foreach (var image in backgrounds)
+                {
+                    image.sprite = sprite;
+                    image.type = Image.Type.Simple;
+                    image.rectTransform.sizeDelta = new Vector2(300f, 48f);
+                }
+                CatTheme.SkinTree(root.transform);
+                foreach (var image in backgrounds)
+                {
+                    Assert.AreSame(sprite, image.sprite);
+                    Assert.AreEqual(Image.Type.Sliced, image.type);
+                    Assert.AreEqual(new Vector2(300f, 48f), image.rectTransform.sizeDelta);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void NineSliceNormalizationPreservesFilledProgressAndPlainIcons()
+        {
+            var root = new GameObject("NineSliceExceptions", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            try
+            {
+                var image = root.GetComponent<Image>();
+                image.sprite = CatTheme.LoadCozy("buttons/plate-default.png", CatTheme.PlateBorder);
+                image.type = Image.Type.Filled;
+                image.fillMethod = Image.FillMethod.Horizontal;
+                image.fillAmount = 0.35f;
+                CatTheme.ApplySlicedImage(image);
+                Assert.AreEqual(Image.Type.Filled, image.type);
+                Assert.AreEqual(0.35f, image.fillAmount);
+                image.sprite = CatTheme.LoadCozy("icons/bag.png", Vector4.zero);
+                Assert.NotNull(image.sprite);
+                Assert.AreEqual(Vector4.zero, image.sprite.border);
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                CatTheme.ApplySlicedImage(image);
+                Assert.AreEqual(Image.Type.Simple, image.type);
+                Assert.IsTrue(image.preserveAspect);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
         }
 
         [TestCase("PanelShop", "Items")]

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **登录小窗口与九宫格链路修正（2026-10-14）**：LoginRoot 恢复居中 480×320 布局，不改登录后的 1672×941 主界面；带 border 的非 Filled 背景在主题应用时归一为 Sliced，新增 Sprite 导入约束与实际 border/FullRect 构建检查，保留已有非零 border、进度条 Filled 和图标等比显示；补充登录边界与九宫格网格 Edit Mode 回归测试。本机仅执行静态及源回归检查，Unity 编译与实际运行待验收。
+
 - **全桌面 UI 统一与预制体接线修复（2026-10-14）**：纠正 ScrollRect/布局组件 GUID、重复组件及四个缺失节点；新增 21 个基础控件与 Variant 库，将 41 个界面/卡片/HUD 资源改为真正 Variant 和嵌套组件，按 23 个页面设计精细重排；WPF Overlay 全面同步 73 张同源 PNG、三态按钮、纸底、聊天和菜单，并保护 HUD 的 32 个 id 与 Unity 导出格式。加入 Player 构建前资源检查。静态检查已执行，Unity/Windows 引擎与联机视觉由用户验收；说明见 `docs/design/ui/unified/README.md`。
 
 - **Unity UI 导入错误修正（2026-10-14）**：修正 `CozyPrefabRepair.cs.meta` 的 33 位无效 GUID，解除修复类被忽略导致的 CS0103；关闭旧 ProfileHub 在脚本导入后的自动 Bake，增加 GUID 唯一性及导入回归测试。递归序列化报错仍需完整 Unity Console 堆栈确认；本机无 Unity，尚未执行 Edit Mode 测试。
