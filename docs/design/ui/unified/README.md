@@ -30,6 +30,7 @@
 
 - 基础 PNG 状态、纸张九宫格和视觉脚本可沿继承链共享。
 - 九宫格有三层合同：Resizable PNG 导入为 Single/FullRect Sprite 且 border 非零；背景 Image 保存为 Sliced；运行时 SkinTree 会将已有 border 的普通 Image 规范为 Sliced、关闭 preserveAspect。CozySpriteImporter 在导入时补全缺失的 border；保留既有非零自定义 border。经验进度图继续为 Filled，普通雕刻图标继续为 Simple + preserveAspect。构建预检会阻止无 border 的背景图片进入 Player，测试同时检查横长/小尺寸背景的实际网格顶点数，不只检查枚举值。
+- Sprite Editor 的 border 与 Image 组件的 Type 是两项独立配置。若实际 `CozyVisual` 的 Image 未使用 Sliced，先保存并关闭 Prefab Stage，再打开 `Fish Social → UI Prefab 管理 → 仅修复 Image 的 Sliced 模式`。此操作直接修改实际导入的 Image `m_Type` 并记录 Variant/嵌套 Prefab 的属性覆盖，保存后卸载并重新加载检查；Console 显示资源路径、节点路径、原类型及修改数量。操作不重建布局、不导入素材、不改 border/PPU/Sprite/按钮事件。`CozyVisual` 不允许使用 Filled；仅真正的进度图保留 Filled。新增保存重载、错误类型及 Variant 覆盖回归测试，本机无 Unity，尚未执行这些 Edit Mode 测试。
 - 各实例保留功能文字、图标、锚点、尺寸、显隐及序列化数据引用作为覆盖。
 - 修改整个按钮体系：先改 CozyButtonBase；修改主操作类别：改 CozyButtonPrimary；只改一个页面的位置或文案：改该页面中的实例覆盖。
 - 不要执行 Unpack 后再保存来调整颜色。业务列表运行时仍实例化卡片 Prefab，但不重新创建整页布局。

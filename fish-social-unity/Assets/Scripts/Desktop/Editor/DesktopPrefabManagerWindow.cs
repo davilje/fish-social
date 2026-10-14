@@ -79,6 +79,19 @@ namespace FishSocial.Desktop.Editor
 
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
+                if (GUILayout.Button("仅修复 Image 的 Sliced 模式", EditorStyles.toolbarButton))
+                {
+                    try
+                    {
+                        var changed = CozyPrefabRepair.RepairSlicedImageModesAll();
+                        _notice = "已保存并重新读取验证 Image 模式；修改 " + changed + " 个 Image。不改 Sprite border、PPU、布局或按钮接线。";
+                    }
+                    catch (Exception exception)
+                    {
+                        _notice = "Image 模式修复失败：" + exception.Message;
+                        Debug.LogException(exception);
+                    }
+                }
                 if (GUILayout.Button("修复/烘焙 Cozy Sprite（保留布局）", EditorStyles.toolbarButton))
                 {
                     try

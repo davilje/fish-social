@@ -73,6 +73,78 @@ namespace FishSocial.Desktop.Editor
             return new Vector4(border.x * horizontal, border.y * vertical, border.z * horizontal, border.w * vertical);
         }
 
+        public static int RepairSlicedImageModesAll()
+        {
+            var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+            if (stage != null && stage.assetPath.StartsWith(DesktopPrefabCatalog.Folder + "/", StringComparison.Ordinal))
+                throw new InvalidOperationException("Save and close the Desktop Prefab Stage before repairing saved Image modes.");
+            var changed = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { DesktopPrefabCatalog.Folder }))
+                changed += RepairSlicedImageModes(AssetDatabase.GUIDToAssetPath(guid));
+            Debug.Log("[Cozy UI] Sliced 模式修复已保存并重新读取验证；修改 Image 数量：" + changed);
+            return changed;
+        }
+
+        public static int RepairSlicedImageModes(string path)
+        {
+            CheckPrefabPath(path);
+            var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+            if (stage != null && stage.assetPath == path)
+                throw new InvalidOperationException("Close this Prefab Stage before repairing its saved Image modes: " + path);
+            var root = PrefabUtility.LoadPrefabContents(path);
+            var changed = 0;
+            try
+            {
+                foreach (var image in root.GetComponentsInChildren<Image>(true))
+                {
+                    if (!RequiresSlicedImageMode(image) || image.type == Image.Type.Sliced && !image.preserveAspect)
+                        continue;
+                    var previous = image.type;
+                    var serialized = new SerializedObject(image);
+                    serialized.FindProperty("m_Type").intValue = (int)Image.Type.Sliced;
+                    serialized.FindProperty("m_PreserveAspect").boolValue = false;
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                    if (PrefabUtility.IsPartOfPrefabInstance(image))
+                        PrefabUtility.RecordPrefabInstancePropertyModifications(image);
+                    EditorUtility.SetDirty(image);
+                    changed++;
+                    Debug.Log("[Cozy UI] " + path + " / " + AnimationUtility.CalculateTransformPath(image.transform, root.transform)
+                        + " Image Type: " + previous + " -> Sliced", image);
+                }
+                if (changed > 0)
+                {
+                    bool success;
+                    PrefabUtility.SaveAsPrefabAsset(root, path, out success);
+                    if (!success)
+                        throw new InvalidOperationException("Could not save Sliced Image modes: " + path);
+                }
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+            var reloaded = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                foreach (var image in reloaded.GetComponentsInChildren<Image>(true))
+                    if (RequiresSlicedImageMode(image) && (image.type != Image.Type.Sliced || image.preserveAspect))
+                        throw new InvalidOperationException(path + ": " + image.name + " did not persist Image.Type.Sliced.");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(reloaded);
+            }
+            return changed;
+        }
+
+        static bool RequiresSlicedImageMode(Image image)
+        {
+            if (image.name == "CozyVisual")
+                return true;
+            var sprite = image.overrideSprite != null ? image.overrideSprite : image.sprite;
+            return image.type != Image.Type.Filled && IsSlicedCozy(sprite);
+        }
+
         public static void RepairAll()
         {
             ImportThemeSprites();
@@ -331,6 +403,8 @@ namespace FishSocial.Desktop.Editor
             {
                 ValidateSprite(image.sprite, image.name + ".sprite", errors);
                 ValidateSprite(image.overrideSprite, image.name + ".overrideSprite", errors);
+                if (image.name == "CozyVisual" && (image.type != Image.Type.Sliced || image.preserveAspect))
+                    errors.Add(image.name + " Image component must persist Type = Sliced and Preserve Aspect = false; Sprite border alone is insufficient.");
                 var activeSprite = image.overrideSprite != null ? image.overrideSprite : image.sprite;
                 if (IsSlicedCozy(activeSprite) && image.type != Image.Type.Sliced && image.type != Image.Type.Filled)
                     errors.Add(image.name + " must save Image.Type.Sliced.");

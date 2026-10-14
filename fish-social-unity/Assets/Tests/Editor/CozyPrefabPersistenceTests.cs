@@ -333,6 +333,96 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(1, clicks);
         }
 
+        [TestCase(Image.Type.Simple)]
+        [TestCase(Image.Type.Tiled)]
+        [TestCase(Image.Type.Filled)]
+        public void ImageModeOnlyRepairPersistsSlicedWithoutChangingAssetsOrLayout(Image.Type wrongMode)
+        {
+            var button = FixtureButton();
+            CozyPrefabRepair.RepairContents(root);
+            var plate = button.transform.Find("CozyVisual").GetComponent<Image>();
+            plate.type = wrongMode;
+            plate.preserveAspect = true;
+            plate.pixelsPerUnitMultiplier = 1.4f;
+            var sprite = plate.sprite;
+            var position = plate.rectTransform.anchoredPosition;
+            var size = plate.rectTransform.sizeDelta;
+            var minimum = plate.rectTransform.anchorMin;
+            var maximum = plate.rectTransform.anchorMax;
+            var color = plate.color;
+            var progress = FixtureImage(root.transform, "XpFill", "panels/paper.png");
+            progress.type = Image.Type.Filled;
+            progress.fillAmount = 0.35f;
+            var errors = CozyPrefabRepair.ValidateContents(root, root.name);
+            Assert.IsTrue(errors.Exists(message => message.Contains("CozyVisual Image component must persist")));
+            var path = FixturePath();
+            PrefabUtility.SaveAsPrefabAsset(root, path);
+            Assert.AreEqual(1, CozyPrefabRepair.RepairSlicedImageModes(path));
+            var reloaded = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                var image = reloaded.transform.Find("Action/CozyVisual").GetComponent<Image>();
+                Assert.AreEqual(Image.Type.Sliced, image.type);
+                Assert.IsFalse(image.preserveAspect);
+                Assert.AreSame(sprite, image.sprite);
+                Assert.AreEqual(1.4f, image.pixelsPerUnitMultiplier);
+                Assert.AreEqual(position, image.rectTransform.anchoredPosition);
+                Assert.AreEqual(size, image.rectTransform.sizeDelta);
+                Assert.AreEqual(minimum, image.rectTransform.anchorMin);
+                Assert.AreEqual(maximum, image.rectTransform.anchorMax);
+                Assert.AreEqual(color, image.color);
+                var savedProgress = reloaded.transform.Find("XpFill").GetComponent<Image>();
+                Assert.AreEqual(Image.Type.Filled, savedProgress.type);
+                Assert.AreEqual(0.35f, savedProgress.fillAmount);
+                var icon = reloaded.transform.Find("Action/Icon").GetComponent<Image>();
+                Assert.AreEqual(Image.Type.Simple, icon.type);
+                Assert.AreSame(Imported("icons/bag.png"), icon.sprite);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(reloaded);
+            }
+            Assert.AreEqual(0, CozyPrefabRepair.RepairSlicedImageModes(path));
+        }
+
+        [Test]
+        public void ImageModeOnlyRepairFixesVariantOverridesWithoutChangingTheBase()
+        {
+            FixtureButton();
+            CozyPrefabRepair.RepairContents(root);
+            var basePath = FixturePath();
+            PrefabUtility.SaveAsPrefabAsset(root, basePath);
+            var variantPath = fixtureFolder + "/ModeVariant.prefab";
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(basePath));
+            try
+            {
+                var plate = instance.transform.Find("Action/CozyVisual").GetComponent<Image>();
+                plate.type = Image.Type.Simple;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(plate);
+                PrefabUtility.SaveAsPrefabAsset(instance, variantPath);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(instance);
+            }
+            var variant = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+            Assert.AreEqual(PrefabAssetType.Variant, PrefabUtility.GetPrefabAssetType(variant));
+            Assert.AreEqual(Image.Type.Simple, variant.transform.Find("Action/CozyVisual").GetComponent<Image>().type);
+            Assert.AreEqual(1, CozyPrefabRepair.RepairSlicedImageModes(variantPath));
+            var reloaded = PrefabUtility.LoadPrefabContents(variantPath);
+            try
+            {
+                Assert.AreEqual(Image.Type.Sliced, reloaded.transform.Find("Action/CozyVisual").GetComponent<Image>().type);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(reloaded);
+            }
+            var original = AssetDatabase.LoadAssetAtPath<GameObject>(basePath);
+            Assert.AreEqual(Image.Type.Sliced, original.transform.Find("Action/CozyVisual").GetComponent<Image>().type);
+            Assert.AreEqual(PrefabAssetType.Variant, PrefabUtility.GetPrefabAssetType(AssetDatabase.LoadAssetAtPath<GameObject>(variantPath)));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void RepairSaveAndReloadPersistsAllButtonStatesWithoutRebuildingLayout(bool flat)
