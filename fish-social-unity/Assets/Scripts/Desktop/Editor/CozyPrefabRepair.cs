@@ -331,7 +331,7 @@ namespace FishSocial.Desktop.Editor
             {
                 ValidateSprite(image.sprite, image.name + ".sprite", errors);
                 ValidateSprite(image.overrideSprite, image.name + ".overrideSprite", errors);
-                if (IsSlicedCozy(image.sprite) && image.type != Image.Type.Sliced)
+                if (IsSlicedCozy(image.sprite) && image.type != Image.Type.Sliced && image.type != Image.Type.Filled)
                     errors.Add(image.name + " must save Image.Type.Sliced.");
             }
             foreach (var selectable in root.GetComponentsInChildren<Selectable>(true))
