@@ -13,7 +13,7 @@ namespace FishSocial.Desktop.Editor
     public static class CozyRedesignAuthoring
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs/";
-        static readonly string[] Pages = { "DesktopShell", "PanelHome", "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "CatchSlot", "ShopItemCard", "LeaderboardRow", "AchievementRow", "SocialPostCard" };
+        static readonly string[] Pages = { "DesktopShell", "PanelHome", "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "PanelSettings", "PanelPondSelection", "PanelWorldMap", "PanelGallery", "CatchSlot", "ShopItemCard", "LeaderboardRow", "AchievementRow", "SocialPostCard" };
         static double nextCheck;
 
         static CozyRedesignAuthoring()
@@ -118,6 +118,10 @@ namespace FishSocial.Desktop.Editor
             Edit("PanelEquipment", root => Shop(root, true));
             Edit("PanelShop", root => Shop(root, false));
             Edit("PanelSocialFeed", Feed);
+            Edit("PanelSettings", Settings);
+            Edit("PanelPondSelection", PondSelection);
+            Edit("PanelWorldMap", WorldMap);
+            Edit("PanelGallery", Gallery);
             Edit("CatchSlot", root => ItemCard(root, false));
             Edit("ShopItemCard", root => ItemCard(root, true));
             Edit("AchievementRow", AchievementCard);
@@ -260,10 +264,21 @@ namespace FishSocial.Desktop.Editor
 
         static Image Paper(Transform root, string path, float left, float top, float width, float height)
         {
-            var image = Picture(root, path, CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder), left, top, width, height);
+            var asset = width <= 420f || height <= 120f ? "panels/paper-compact.png" : "panels/paper.png";
+            var image = Picture(root, path, CatTheme.LoadCozy(asset, CatTheme.PaperBorder), left, top, width, height);
             image.type = Image.Type.Sliced;
             image.preserveAspect = false;
             return image;
+        }
+
+        static Sprite LoadButtonIcon(string icon, bool primary)
+        {
+            if (string.IsNullOrEmpty(icon))
+                return null;
+            var sprite = primary
+                ? CatTheme.LoadCozy("icons-light/" + icon + ".png", Vector4.zero)
+                : null;
+            return sprite ?? CatTheme.LoadCozy("icons/" + icon + ".png", Vector4.zero);
         }
 
         static Button ButtonAt(Transform root, string path, string title, string icon, float left, float top, float width, float height, bool primary = false)
@@ -295,7 +310,10 @@ namespace FishSocial.Desktop.Editor
             {
                 graphic.gameObject.SetActive(!string.IsNullOrEmpty(icon));
                 if (!string.IsNullOrEmpty(icon))
-                    Picture(rect, "Icon", CatTheme.LoadCozy((primary ? "icons-light/" : "icons/") + icon + ".png", Vector4.zero), 18, (height - 30) / 2, 30, 30);
+                {
+                    var iconImage = Picture(rect, "Icon", LoadButtonIcon(icon, primary), 18, (height - 30) / 2, 30, 30);
+                    iconImage.color = primary ? CatTheme.Cream : Color.white;
+                }
             }
             var visual = rect.Find("CozyVisual")?.GetComponent<Image>();
             if (visual != null)
@@ -568,6 +586,7 @@ namespace FishSocial.Desktop.Editor
             }
             else
                 profile.gameObject.SetActive(true);
+            StyleProfileTabs(node);
         }
 
         static void Chat(GameObject root)
@@ -637,6 +656,184 @@ namespace FishSocial.Desktop.Editor
             ButtonAt(node, "DesignFeedInfo/Share", "前往背包分享", "social", 24, 344, 314, 52, true);
             Label(node, "DesignFeedInfo/Note", "动态内容以实际发布为准", 24, 414, 314, 50, 17);
             Label(node, "Status", "", 254, 612, 1068, 24, 16);
+        }
+
+        static void Settings(GameObject root)
+        {
+            var node = root.transform;
+            Common(root, "设置", "调整窗口、通知与服务器连接", "settings");
+            Hide(node, "Reflow_Title", "Reflow_PageSeal", "Reflow_Eyebrow", "SettingsHeader");
+            Paper(node, "DesignSettingsRail", 24, 112, 210, 496);
+            Label(node, "DesignSettingsRail/Heading", "设置目录", 22, 20, 166, 36, 24, true);
+            Label(node, "DesignSettingsRail/Body", "窗口显示\n通知偏好\n服务器连接\n新手引导", 22, 82, 166, 180, 20);
+            Paper(node, "DesignSettingsCard", 254, 112, 1092, 496).transform.SetAsFirstSibling();
+            var viewport = node.Find("SettingsViewport") as RectTransform;
+            if (viewport != null)
+                Place(node, "SettingsViewport", 278, 132, 1044, 452);
+            var content = node.Find("SettingsViewport/SettingsContent") as RectTransform;
+            if (content != null)
+            {
+                content.anchorMin = Vector2.up;
+                content.anchorMax = Vector2.up;
+                content.pivot = Vector2.up;
+                content.anchoredPosition = Vector2.zero;
+                content.sizeDelta = new Vector2(1044, 1080);
+                var contentImage = content.GetComponent<Image>();
+                if (contentImage != null)
+                    contentImage.color = Color.clear;
+            }
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+                DesktopModalUi.StyleButton(button, null, false);
+            Label(node, "DesignSettingsHint", "修改后按页面内的保存按钮应用设置。", 278, 574, 1044, 24, 15);
+        }
+
+        static void PondSelection(GameObject root)
+        {
+            var node = root.transform;
+            Common(root, "选择鱼塘", "选择一处水域，开始今天的垂钓", "pond");
+            Hide(node, "PondSelectionHeader", "Reflow_RailHeading", "Reflow_RailBody");
+            Paper(node, "DesignPondRail", 24, 112, 210, 496);
+            Label(node, "DesignPondRail/Heading", "水域指南", 22, 22, 166, 36, 24, true);
+            Label(node, "DesignPondRail/Body", "每个鱼塘都有\n不同的鱼种与\n垂钓节奏。", 22, 86, 166, 140, 20);
+            Paper(node, "DesignPondRail/Tip", 18, 330, 174, 126);
+            Label(node, "DesignPondRail/Tip/Body", "准备好鱼竿，\n再出发。", 18, 18, 138, 86, 18, true);
+            var scroll = node.Find("PondCardScroll") as RectTransform;
+            if (scroll != null)
+            {
+                Place(node, "PondCardScroll", 254, 112, 1092, 496);
+                var viewport = node.Find("PondCardScroll/Viewport") as RectTransform;
+                if (viewport != null)
+                    Stretch(viewport, 12);
+                var cards = node.Find("PondCardScroll/Viewport/Cards") as RectTransform;
+                if (cards != null)
+                {
+                    var grid = cards.GetComponent<GridLayoutGroup>();
+                    if (grid == null)
+                        grid = cards.gameObject.AddComponent<GridLayoutGroup>();
+                    if (grid == null)
+                        return;
+                    grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                    grid.constraintCount = 3;
+                    grid.cellSize = new Vector2(328, 196);
+                    grid.spacing = new Vector2(16, 16);
+                    grid.padding = new RectOffset(8, 8, 8, 8);
+                    var fitter = cards.GetComponent<ContentSizeFitter>();
+                    if (fitter == null)
+                        fitter = cards.gameObject.AddComponent<ContentSizeFitter>();
+                    if (fitter != null)
+                        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                }
+            }
+            Label(node, "Status", "", 254, 612, 1092, 24, 16);
+        }
+
+        static void WorldMap(GameObject root)
+        {
+            var node = root.transform;
+            Common(root, "探索世界", "在地图上发现新的鱼塘", "map");
+            Hide(node, "Reflow_RailHeading", "Reflow_RailBody", "Reflow_ModeCaption");
+            Paper(node, "DesignMapFrame", 24, 112, 900, 496);
+            var viewport = node.Find("Viewport") as RectTransform;
+            if (viewport != null)
+            {
+                Place(node, "Viewport", 34, 122, 880, 476);
+                var content = node.Find("Viewport/MapContent") as RectTransform;
+                if (content != null)
+                {
+                    content.anchorMin = Vector2.up;
+                    content.anchorMax = Vector2.up;
+                    content.pivot = Vector2.up;
+                    content.anchoredPosition = Vector2.zero;
+                    content.sizeDelta = new Vector2(2200, 1300);
+                    var mapImage = node.Find("Viewport/MapContent/MapImage") as RectTransform;
+                    if (mapImage != null)
+                    {
+                        mapImage.anchorMin = Vector2.zero;
+                        mapImage.anchorMax = Vector2.one;
+                        mapImage.offsetMin = Vector2.zero;
+                        mapImage.offsetMax = Vector2.zero;
+                    }
+                }
+            }
+            Paper(node, "DesignDetailsPaper", 944, 112, 402, 496).transform.SetAsFirstSibling();
+            Place(node, "Details", 944, 112, 402, 496);
+            Label(node, "Details/DesignHeading", "鱼塘详情", 24, 18, 354, 36, 25, true);
+            Place(node, "Details/DetailsText", 24, 72, 354, 194);
+            Place(node, "Details/StatusText", 24, 274, 354, 48);
+            ButtonAt(node, "Details/ModeSell", "回鱼出售", "coin", 24, 338, 166, 46);
+            ButtonAt(node, "Details/ModeAuto", "自动回鱼", "pond", 202, 338, 166, 46);
+            ButtonAt(node, "Details/ResetView", "重置视图", "map", 24, 398, 166, 46);
+            ButtonAt(node, "Details/EnterPond", "进入鱼塘", "pond", 202, 398, 166, 46, true);
+        }
+
+        static void Gallery(GameObject root)
+        {
+            var node = root.transform;
+            Common(root, "鱼类图鉴", "记录每一次相遇的鱼种", "fish");
+            Hide(node, "Reflow_GalleryHeading", "Reflow_RailHeading", "Reflow_RailBody", "Reflow_SpecimenNotes", "Reflow_SpecimenSeal", "Reflow_SpecimenHeading", "Reflow_SpeciesHeading");
+            Paper(node, "DesignGalleryGrid", 24, 112, 900, 496);
+            Place(node, "Grid", 38, 132, 872, 458);
+            Grid(node, "Grid/Viewport/Species", 4, 204, 170);
+            Paper(node, "DesignDetailPaper", 944, 112, 402, 496).transform.SetAsFirstSibling();
+            Place(node, "Detail", 968, 182, 354, 370);
+            Label(node, "Detail/DesignHeading", "鱼种详情", 24, 18, 354, 36, 25, true);
+            Place(node, "Detail/Species", 24, 70, 354, 78);
+            Place(node, "Detail/Body", 24, 164, 354, 220);
+            Label(node, "Status", "", 24, 612, 1322, 24, 16);
+        }
+
+        static void StyleProfileTabs(Transform node)
+        {
+            foreach (var name in new[] { "展示柜", "图鉴", "相册" })
+            {
+                var tab = node.Find("Shell/Content/Tab_" + name);
+                if (tab == null) continue;
+                Hide(tab, "Reflow_Title", "Reflow_Eyebrow", "Reflow_PageSeal", "Reflow_HeaderRule", "Reflow_TabPaper");
+                var image = tab.GetComponent<Image>();
+                if (image != null) image.enabled = false;
+            }
+
+            var showcase = node.Find("Shell/Content/Tab_展示柜");
+            if (showcase != null)
+            {
+                Paper(showcase, "DesignShowcaseGrid", 0, 0, 680, 496);
+                Place(showcase, "ShowcaseGrid", 18, 58, 644, 418);
+                Grid(showcase, "ShowcaseGrid/Viewport/Content", 3, 198, 172);
+                Paper(showcase, "DesignDetailPaper", 704, 0, 388, 496).transform.SetAsFirstSibling();
+                Place(showcase, "Detail", 704, 0, 388, 496);
+                Label(showcase, "Detail/DesignHeading", "展示详情", 24, 18, 340, 36, 25, true);
+            }
+
+            var codex = node.Find("Shell/Content/Tab_图鉴");
+            if (codex != null)
+            {
+                Paper(codex, "DesignCodexGrid", 0, 0, 680, 496);
+                Place(codex, "CodexGrid", 18, 58, 644, 418);
+                Grid(codex, "CodexGrid/Viewport/Content", 4, 150, 150);
+                Paper(codex, "DesignDetailPaper", 704, 0, 388, 496).transform.SetAsFirstSibling();
+                Place(codex, "Detail", 704, 0, 388, 496);
+                Label(codex, "Detail/DesignHeading", "图鉴详情", 24, 18, 340, 36, 25, true);
+            }
+
+            var album = node.Find("Shell/Content/Tab_相册");
+            if (album != null)
+            {
+                Paper(album, "DesignAlbumStage", 0, 0, 1092, 390);
+                Place(album, "AlbumStage", 18, 18, 1056, 354);
+                var stage = album.Find("AlbumStage") as RectTransform;
+                if (stage != null)
+                {
+                    var left = stage.Find("SlotL") as RectTransform;
+                    var right = stage.Find("SlotR") as RectTransform;
+                    if (left != null) { left.anchorMin = new Vector2(0, 0); left.anchorMax = new Vector2(.5f, 1); left.offsetMin = new Vector2(12, 12); left.offsetMax = new Vector2(-8, -12); }
+                    if (right != null) { right.anchorMin = new Vector2(.5f, 0); right.anchorMax = new Vector2(1, 1); right.offsetMin = new Vector2(8, 12); right.offsetMax = new Vector2(-12, -12); }
+                }
+                Place(album, "Prev", 24, 414, 88, 32);
+                Place(album, "Next", 980, 414, 88, 32);
+                Place(album, "Prev_0", 24, 414, 88, 32);
+                Place(album, "Next_0", 980, 414, 88, 32);
+                Place(album, "Page", 458, 414, 176, 32);
+            }
         }
 
         static void ItemCard(GameObject root, bool shop)
@@ -732,7 +929,7 @@ namespace FishSocial.Desktop.Editor
         public static void Verify()
         {
             var errors = CozyUiBuildGuard.CollectErrors();
-            foreach (var name in new[] { "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed" })
+            foreach (var name in new[] { "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "PanelSettings", "PanelPondSelection", "PanelWorldMap", "PanelGallery" })
             {
                 var root = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + name + ".prefab");
                 var close = root.transform.Find("DesignHeader/Close");
