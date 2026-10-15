@@ -156,11 +156,14 @@ namespace FishSocial.Desktop
         void RestyleUi()
         {
             DesktopModalUi.StyleTree(transform);
-            RestylePodium(_podium1, 1);
-            RestylePodium(_podium2, 2);
-            RestylePodium(_podium3, 3);
+            if (!CozyItemArt.IsAuthored(transform))
+            {
+                RestylePodium(_podium1, 1);
+                RestylePodium(_podium2, 2);
+                RestylePodium(_podium3, 3);
+                ApplyLeaderboardLayout();
+            }
             RestyleTabs();
-            ApplyLeaderboardLayout();
             if (_retry != null)
                 _retry.gameObject.SetActive(false);
         }
@@ -289,8 +292,48 @@ namespace FishSocial.Desktop
                 return;
             var position = FindIn<Text>(slot.root.transform, "Rank") ?? FindIn<Text>(slot.root.transform, "Position");
             if (position != null)
+            {
                 position.text = "第 " + rank + " 名";
+                PlacePodiumText(position.rectTransform, 0f, 8f, 112f, 24f, TextAnchor.MiddleCenter);
+            }
+            PlacePodiumImage(slot.avatar != null ? slot.avatar.rectTransform : null,
+                new Vector2(56f, 56f), 0f, 38f);
+            PlacePodiumText(slot.nickname != null ? slot.nickname.rectTransform : null,
+                0f, 74f, 112f, 24f, TextAnchor.MiddleCenter);
+            PlacePodiumText(slot.value != null ? slot.value.rectTransform : null,
+                0f, 102f, 112f, 24f, TextAnchor.MiddleCenter);
             DesktopModalUi.StyleTree(slot.root.transform);
+        }
+
+        static void PlacePodiumImage(RectTransform rect, Vector2 size, float x, float y)
+        {
+            if (rect == null)
+                return;
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(x, -y);
+            rect.sizeDelta = size;
+        }
+
+        static void PlacePodiumText(RectTransform rect, float x, float y,
+            float width, float height, TextAnchor alignment)
+        {
+            if (rect == null)
+                return;
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(x, -y);
+            rect.sizeDelta = new Vector2(width, height);
+            var label = rect.GetComponent<Text>();
+            if (label != null)
+            {
+                label.alignment = alignment;
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.verticalOverflow = VerticalWrapMode.Truncate;
+                label.resizeTextForBestFit = true;
+            }
         }
 
         static void RestyleRow(GameObject row)

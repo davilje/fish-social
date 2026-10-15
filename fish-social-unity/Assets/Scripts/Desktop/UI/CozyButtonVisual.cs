@@ -133,7 +133,8 @@ namespace FishSocial.Desktop
                 SetIconName(iconName);
             if (icon != null && icon.sprite != null)
             {
-                icon.color = Color.white;
+                if (generatedIcon)
+                    icon.color = Color.white;
                 icon.type = Image.Type.Simple;
                 icon.preserveAspect = true;
                 icon.raycastTarget = false;
@@ -243,7 +244,7 @@ namespace FishSocial.Desktop
 
         void ReserveInlineIconSpace()
         {
-            if (icon != null && icon.enabled && icon.sprite != null && !stackedIcon
+            if (icon != null && icon.gameObject.activeSelf && icon.enabled && icon.sprite != null && !stackedIcon
                 && GetComponentsInChildren<Text>(true).Length == 1)
             {
                 var label = transform.Find("Label")?.GetComponent<Text>();

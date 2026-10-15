@@ -461,6 +461,13 @@ namespace FishSocial.Desktop
             }
 
             var selectedBait = SelectedBait();
+            var selectedArt = _tab == 0 && selectedBait != null
+                ? CozyItemArt.Product(0, selectedBait.id, selectedBait.name)
+                : _tab == 1 && SelectedTackle() != null
+                    ? CozyItemArt.Product(1, SelectedTackle().id, SelectedTackle().name)
+                    : _tab == 2 && SelectedVessel() != null
+                        ? CozyItemArt.Product(2, SelectedVessel().vesselId, SelectedVessel().name) : null;
+            CozyItemArt.Set(transform, "Details/DesignArt", selectedArt);
             var selectedTackle = SelectedTackle();
             var selectedVessel = SelectedVessel();
             if (_tab == 0 && selectedBait != null)
@@ -729,6 +736,7 @@ namespace FishSocial.Desktop
             if (card == null)
                 return;
             card.name = "Item_" + index;
+            CozyItemArt.Set(card.transform, "DesignItemArt", CozyItemArt.Product(_tab, null, name));
             var label = DesktopModalUi.FindComponent<Text>(card.transform, "Label");
             var metadata = DesktopModalUi.FindComponent<Text>(card.transform, "Meta");
             var icon = DesktopModalUi.FindComponent<Image>(card.transform, "Icon");

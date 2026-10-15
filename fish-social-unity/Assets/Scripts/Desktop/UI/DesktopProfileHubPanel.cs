@@ -60,6 +60,7 @@ namespace FishSocial.Desktop
         Text _albumSlotRBody;
         Text _albumPinsPageLabel;
         Transform _achievementsList;
+        int _achievementFilter;
         Button _editButton;
         Button _retryButton;
         FishCodexEntryDto[] _codexEntries = Array.Empty<FishCodexEntryDto>();
@@ -215,6 +216,8 @@ namespace FishSocial.Desktop
 
         void RefineLayout()
         {
+            if (CozyItemArt.IsAuthored(transform))
+                return;
             var shell = transform.Find("Shell");
             if (shell == null)
                 return;
@@ -345,7 +348,7 @@ namespace FishSocial.Desktop
         /// </summary>
         void WireFromPrefab()
         {
-            _title = FindText("Shell/Header/Title");
+            _title = FindText("DesignHeader/Title") ?? FindText("Shell/Header/Title");
             _status = FindText("Shell/Status");
             _sidebar = transform.Find("Shell/Sidebar");
             _editButton = FindButton("Shell/Header/Edit");
@@ -455,6 +458,18 @@ namespace FishSocial.Desktop
             }
             if (_achievementsList == null)
                 _achievementsList = CreateScrollList(root, "Achievements", 0f, 1f);
+            foreach (var filterName in new[] { "All", "Completed", "Pending" })
+            {
+                var filter = filterName == "All" ? 0 : filterName == "Completed" ? 1 : 2;
+                var button = root.Find("DesignFilter" + filterName)?.GetComponent<Button>();
+                if (button == null) continue;
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() =>
+                {
+                    _achievementFilter = filter;
+                    if (_hub != null) RenderAchievements();
+                });
+            }
         }
 
         void RebindAlbumPagers()
@@ -981,6 +996,30 @@ namespace FishSocial.Desktop
                     ? (string.IsNullOrEmpty(p.nickname) ? "钓" : p.nickname.Substring(0, 1))
                     : DesktopDefaultAvatars.LabelFor(p.avatarUrl);
             }
+            var authoredProfile = transform.Find("Shell/Content/Tab_资料");
+            if (authoredProfile != null)
+            {
+                CozyItemArt.Text(authoredProfile, "DesignName", p.nickname);
+                CozyItemArt.Text(authoredProfile, "DesignBio", string.IsNullOrEmpty(p.bio) ? "今天也想钓到一条大鱼" : p.bio);
+                CozyItemArt.Text(authoredProfile, "DesignId", "ID：" + p.playerId);
+                CozyItemArt.Text(authoredProfile, "DesignStats", "钓鱼等级  " + (_hub.progress != null ? _hub.progress.level : 1) +
+                    "    XP  " + (_hub.progress != null ? _hub.progress.xp : 0) + "\n图鉴收集  " +
+                    (_hub.codexSummary != null ? _hub.codexSummary.unlockedCount + " / " + _hub.codexSummary.totalSpecies : "—"));
+                CozyItemArt.Text(authoredProfile, "DesignPrivacy", _hub.isSelf ? "金币  " + p.coins + "\n动态可见范围  " +
+                    (p.shareVisibility == "friends" ? "好友" : "公开") : "");
+                FishInventoryItemDto showcased = null;
+                foreach (var fish in _hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>())
+                    if (fish != null) { showcased = fish; break; }
+                CozyItemArt.Set(authoredProfile, "DesignShowcase/Art", showcased != null ? CozyItemArt.Fish(showcased.speciesId) : null);
+                CozyItemArt.Text(authoredProfile, "DesignShowcase/Species", showcased != null ? DesktopFishCatalog.SpeciesName(showcased.speciesId) : "暂无展示鱼获");
+                CozyItemArt.Text(authoredProfile, "DesignShowcase/Size", showcased != null ? showcased.sizeM.ToString("0.00") + " m" : "");
+                var showcaseButton = authoredProfile.Find("DesignShowcase/Open")?.GetComponent<Button>();
+                if (showcaseButton != null)
+                {
+                    showcaseButton.onClick.RemoveAllListeners();
+                    showcaseButton.onClick.AddListener(() => SelectTab(HubTab.Showcase));
+                }
+            }
             if (_avatarRoutine != null)
                 StopCoroutine(_avatarRoutine);
             _avatarRoutine = StartCoroutine(LoadAvatarRoutine(p.avatarUrl, p.nickname));
@@ -1339,14 +1378,28 @@ namespace FishSocial.Desktop
                 _title.text = "成就中心";
             ClearChildren(_achievementsList);
             var list = _hub.achievements ?? Array.Empty<AchievementViewDto>();
+            var visible = 0;
             foreach (var achievement in list)
             {
-                var title = (achievement.unlocked ? "★ " : "○ ") + achievement.name;
+                if ((_achievementFilter == 1 && !achievement.unlocked) || (_achievementFilter == 2 && achievement.unlocked))
+                    continue;
+                visible++;
+                var title = achievement.name;
                 var desc = achievement.unlocked || !achievement.isHidden ? achievement.desc : "隐藏成就";
                 var color = achievement.unlocked ? new Color(1f, 0.91f, 0.72f, 1f) : CatTheme.Cream;
-                CreateAchievementRow(_achievementsList, achievement.achievementId, title + "\n" + desc, color);
+                CreateAchievementRow(_achievementsList, achievement.achievementId, title + "\n" + desc, color, achievement.unlocked);
             }
-            if (list.Length == 0)
+            var completed = 0;
+            foreach (var achievement in list)
+                if (achievement.unlocked) completed++;
+            CozyItemArt.Text(transform, "DesignAchievementSummary/Value", completed + " / " + list.Length);
+            foreach (var filterName in new[] { "All", "Completed", "Pending" })
+            {
+                var filter = filterName == "All" ? 0 : filterName == "Completed" ? 1 : 2;
+                transform.Find("Shell/Content/Tab_成就/DesignFilter" + filterName)?.GetComponent<CozyButtonVisual>()
+                    ?.SetSelected(filter == _achievementFilter);
+            }
+            if (visible == 0)
                 CreateAchievementRow(_achievementsList, "empty", "暂无成就数据",
                     CatTheme.Cream);
         }
@@ -1638,7 +1691,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.StyleTree(go.transform);
         }
 
-        static void CreateAchievementRow(Transform parent, string name, string label, Color tint)
+        static void CreateAchievementRow(Transform parent, string name, string label, Color tint, bool unlocked = false)
         {
             var go = DesktopUiPrefabFactory.Instantiate("AchievementRow", parent);
             if (go == null)
@@ -1654,10 +1707,11 @@ namespace FishSocial.Desktop
             }
             text.text = label;
             var layout = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
-            layout.minHeight = 72f;
-            layout.preferredHeight = 72f;
+            CozyItemArt.Text(go.transform, "DesignState", name == "empty" ? "" : unlocked ? "已完成" : "未完成");
+            layout.minHeight = 100f;
+            layout.preferredHeight = 100f;
             layout.flexibleHeight = 0f;
-            text.fontSize = 16;
+            text.fontSize = 20;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
             DesktopModalUi.StyleTree(go.transform);

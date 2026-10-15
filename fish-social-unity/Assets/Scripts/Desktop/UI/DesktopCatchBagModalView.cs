@@ -28,7 +28,7 @@ namespace FishSocial.Desktop
             _coins = DesktopModalUi.FindComponent<Text>(transform, "Coins");
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
-            _grid = DesktopModalUi.FindChild(transform, "Grid/Slots");
+            _grid = (transform.Find("Grid/Viewport/Slots") ?? DesktopModalUi.FindChild(transform, "Grid/Slots"));
 
             var retry = DesktopModalUi.FindComponent<Button>(transform, "Retry");
             if (retry != null)
@@ -178,6 +178,7 @@ namespace FishSocial.Desktop
                 if (slot == null)
                     continue;
                 slot.name = "Slot" + i;
+                CozyItemArt.Set(slot.transform, "DesignItemArt", item != null ? CozyItemArt.Fish(item.speciesId) : null);
                 var selected = item != null && item.id == _selectedId;
                 var slotButton = slot.GetComponent<Button>();
                 if (slotButton != null)
@@ -190,7 +191,7 @@ namespace FishSocial.Desktop
                 }
                 var label = item == null
                     ? (i + 1).ToString()
-                    : DesktopFishCatalog.SpeciesName(item.speciesId) + "\n" + DesktopFishCatalog.QualityName(item.quality);
+                    : DesktopFishCatalog.SpeciesName(item.speciesId) + "\n" + item.sizeM.ToString("0.00") + " m";
                 var text = DesktopUiPrefabFactory.Child(slot, "Label");
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
@@ -213,6 +214,7 @@ namespace FishSocial.Desktop
         void Select(FishInventoryItemDto item)
         {
             _selectedId = item.id;
+            CozyItemArt.Set(transform, "DesignArt", CozyItemArt.Fish(item.speciesId));
             var species = DesktopFishCatalog.SpeciesName(item.speciesId);
             var quality = DesktopFishCatalog.QualityName(item.quality);
             var sell = DesktopFishCatalog.EstimateSellPrice(item.quality, item.sizeM, item.speciesId);

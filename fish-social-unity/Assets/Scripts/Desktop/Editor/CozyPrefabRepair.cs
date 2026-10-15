@@ -34,6 +34,9 @@ namespace FishSocial.Desktop.Editor
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                     continue;
+                if (path.StartsWith(ThemeFolder + "/items/", StringComparison.Ordinal)
+                    && path.EndsWith("-atlas.png", StringComparison.Ordinal))
+                    continue;
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                 if (importer == null)
                     throw new InvalidOperationException("TextureImporter is missing: " + path);

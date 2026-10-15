@@ -457,13 +457,18 @@ namespace FishSocial.Desktop
         {
             HighlightTab(id);
             var header = _mainRoot != null ? _mainRoot.transform.Find("Header") : null;
-            AlignHeaderActions(header, id != ShellPanelId.Home);
             var page = _mainRoot != null && _mainRoot.transform.Find("Content") != null
                 ? _mainRoot.transform.Find("Content/" + id)
                 : null;
-            DesktopModalUi.HideDirectCloseButtons(page);
-            DesktopModalUi.HidePageUtilityButtons(page);
-            DesktopModalUi.PlacePageSealLeft(page);
+            var view = page != null && page.childCount > 0 ? page.GetChild(0) : null;
+            var authored = CozyItemArt.IsAuthored(view);
+            AlignHeaderActions(header, id != ShellPanelId.Home && !authored);
+            if (!authored)
+            {
+                DesktopModalUi.HideDirectCloseButtons(view);
+                DesktopModalUi.HidePageUtilityButtons(view);
+                DesktopModalUi.PlacePageSealLeft(view);
+            }
             var competition = _mainRoot != null ? _mainRoot.transform.Find("Header/Leaderboard") : null;
             if (competition != null)
                 competition.gameObject.SetActive(id == ShellPanelId.Home);
@@ -539,8 +544,8 @@ namespace FishSocial.Desktop
             var settings = header.Find("Settings")?.GetComponent<Button>();
             var mail = header.Find("Mail")?.GetComponent<Button>();
             var home = header.Find("Home")?.GetComponent<Button>();
-            DesktopModalUi.PlaceTopRight(settings, 22f, 18f, 54f);
-            DesktopModalUi.PlaceTopRight(mail, 86f, 18f, 54f);
+            DesktopModalUi.PlaceTopRight(settings, 28f, 28f, 70f);
+            DesktopModalUi.PlaceTopRight(mail, 116f, 28f, 70f);
             DesktopModalUi.PlaceTopRight(home, showClose ? 22f : 150f, 18f, 54f);
             if (settings != null)
                 settings.gameObject.SetActive(!showClose);
@@ -660,6 +665,18 @@ namespace FishSocial.Desktop
             if (instance == null)
                 return;
             bind(instance);
+            var close = instance.transform.Find("DesignHeader/Close")?.GetComponent<Button>();
+            if (close != null)
+            {
+                close.onClick.RemoveAllListeners();
+                close.onClick.AddListener(() => _router.Show(ShellPanelId.Home));
+            }
+            var share = instance.transform.Find("DesignFeedInfo/Share")?.GetComponent<Button>();
+            if (share != null)
+            {
+                share.onClick.RemoveAllListeners();
+                share.onClick.AddListener(() => _router.Show(ShellPanelId.CatchBag));
+            }
             CatTheme.SkinTree(instance.transform);
             _router.Register(id, slot.gameObject);
         }

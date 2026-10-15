@@ -44,6 +44,7 @@ namespace FishSocial.Desktop
                 return;
             }
             RenderPost();
+            RefreshCardLayout();
             RestyleUi();
             BindActions();
         }
@@ -140,6 +141,28 @@ namespace FishSocial.Desktop
 
 
 
+        void RefreshCardLayout()
+        {
+            if (transform.Find("DesignCardVersion") == null || _bodyText == null || _photo == null)
+                return;
+            var bodyHeight = Mathf.Clamp(_bodyText.preferredHeight + 8f, 40f, 120f);
+            _bodyText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, bodyHeight);
+            var next = 70f + bodyHeight + 12f;
+            var picture = _photo.rectTransform;
+            picture.anchoredPosition = new Vector2(18f, -next);
+            if (_photo.gameObject.activeSelf) next += picture.sizeDelta.y + 12f;
+            _fishInfoText.rectTransform.anchoredPosition = new Vector2(18f, -next);
+            next += 38f;
+            var actions = transform.Find("Actions") as RectTransform;
+            if (actions != null) actions.anchoredPosition = new Vector2(18f, -next);
+            next += 46f;
+            var comments = _commentsPanel.transform as RectTransform;
+            comments.anchoredPosition = new Vector2(18f, -next);
+            if (_commentsPanel.activeSelf) next += comments.sizeDelta.y + 14f;
+            var element = GetComponent<LayoutElement>();
+            if (element != null) element.minHeight = element.preferredHeight = next;
+        }
+
         void ToggleLike()
         {
             if (_post == null || _api == null || _likeButton == null)
@@ -163,6 +186,7 @@ namespace FishSocial.Desktop
             if (_commentsPanel.activeSelf)
             {
                 _commentsPanel.SetActive(false);
+                RefreshCardLayout();
                 return;
             }
 
@@ -170,6 +194,7 @@ namespace FishSocial.Desktop
             var requestVersion = _commentsRequestVersion;
             ClearComments();
             _commentsPanel.SetActive(true);
+            RefreshCardLayout();
             StartCoroutine(_api.GetPostComments(_post.id,
                 (ok, comments, count, message) =>
                 {

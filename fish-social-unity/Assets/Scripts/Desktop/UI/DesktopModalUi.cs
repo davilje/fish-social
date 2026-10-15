@@ -149,7 +149,7 @@ namespace FishSocial.Desktop
         {
             if (button == null)
                 return;
-            Text target = null;
+            Text target = button.transform.Find("Label")?.GetComponent<Text>();
             foreach (var label in button.GetComponentsInChildren<Text>(true))
             {
                 if (label.text == "按钮")
@@ -162,7 +162,12 @@ namespace FishSocial.Desktop
                     target = label;
             }
             if (target != null)
+            {
                 target.text = value ?? string.Empty;
+                foreach (var duplicate in button.GetComponentsInChildren<Text>(true))
+                    if (duplicate != target && (duplicate.name == "Label" || duplicate.name == "Text"))
+                        duplicate.text = string.Empty;
+            }
             foreach (var label in button.GetComponentsInChildren<Text>(true))
             {
                 label.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -177,12 +182,31 @@ namespace FishSocial.Desktop
         {
             if (button == null)
                 return;
+            Text glyphLabel = null;
+            foreach (var candidate in button.GetComponentsInChildren<Text>(true))
+            {
+                glyphLabel = candidate;
+                break;
+            }
+            if (glyphLabel == null)
+            {
+                var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+                labelGo.transform.SetParent(button.transform, false);
+                glyphLabel = labelGo.GetComponent<Text>();
+                glyphLabel.rectTransform.anchorMin = Vector2.zero;
+                glyphLabel.rectTransform.anchorMax = Vector2.one;
+                glyphLabel.rectTransform.offsetMin = Vector2.zero;
+                glyphLabel.rectTransform.offsetMax = Vector2.zero;
+                glyphLabel.raycastTarget = false;
+            }
             foreach (var image in button.GetComponentsInChildren<Image>(true))
             {
                 if (image.name == "Icon" || image.name == "CozyIcon")
                     image.enabled = false;
             }
             SetButtonLabel(button, glyph);
+            glyphLabel.font = Font;
+            glyphLabel.color = CatTheme.Ink;
             foreach (var label in button.GetComponentsInChildren<Text>(true))
             {
                 label.fontSize = 25;
@@ -211,6 +235,8 @@ namespace FishSocial.Desktop
         public static void PlacePageSealLeft(Transform root)
         {
             if (root == null)
+                return;
+            if (CozyItemArt.IsAuthored(root))
                 return;
             PlaceTopLeft(root.Find("Reflow_BlueSealPaper") as RectTransform,
                 new Vector2(16f, 104f), new Vector2(64f, 64f));
