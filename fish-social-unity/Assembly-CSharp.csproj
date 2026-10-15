@@ -61,6 +61,7 @@
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopGalleryModalView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\WorldMapPondCatalog.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopGameData.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyItemArt.cs" />
     <Compile Include="Assets\Scripts\Desktop\Onboarding\DesktopOnboardingController.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamAuthController.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\DesktopNotificationService.cs" />
@@ -136,6 +137,9 @@
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopShopPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\AuthenticatedApiClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Resources\Desktop\Theme\Cozy\fonts\ResourceHanRounded-LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -810,9 +814,6 @@
     <Reference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection">
       <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="com.rlabrecque.steamworks.net.editor">
-      <HintPath>Library\ScriptAssemblies\com.rlabrecque.steamworks.net.editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.Flow">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
     </Reference>
@@ -831,9 +832,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="com.rlabrecque.steamworks.net">
-      <HintPath>Library\ScriptAssemblies\com.rlabrecque.steamworks.net.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
     </Reference>
@@ -845,6 +843,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="com.rlabrecque.steamworks.net.editor.csproj">
+      <Project>{23AAF596-B012-20F2-68F5-FB765A2C8032}</Project>
+      <Name>com.rlabrecque.steamworks.net.editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="com.rlabrecque.steamworks.net.csproj">
+      <Project>{F2067E66-F9B7-C70A-C89B-ED895F5A4FE5}</Project>
+      <Name>com.rlabrecque.steamworks.net</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

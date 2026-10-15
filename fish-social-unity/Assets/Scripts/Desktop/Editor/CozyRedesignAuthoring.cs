@@ -18,7 +18,7 @@ namespace FishSocial.Desktop.Editor
 
         static CozyRedesignAuthoring()
         {
-            File.WriteAllText("Temp/CozyRedesign.version", "20261015b");
+            File.WriteAllText("Temp/CozyRedesign.version", "20261016c");
             EditorApplication.update += CheckRequest;
         }
 
@@ -139,6 +139,9 @@ namespace FishSocial.Desktop.Editor
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer == null)
                 throw new InvalidOperationException("Missing art atlas: " + path);
+            if (importer.spriteImportMode == SpriteImportMode.Multiple && importer.spritesheet.Length == names.Length
+                && Array.TrueForAll(names, cell => Array.Exists(importer.spritesheet, sprite => sprite.name == cell)))
+                return;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Multiple;
             importer.mipmapEnabled = false;
@@ -237,7 +240,7 @@ namespace FishSocial.Desktop.Editor
         {
             var rect = Place(root, path, left, top, width, height);
             var text = rect.GetComponent<Text>() ?? rect.gameObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = AssetFont();
             text.text = value;
             text.fontSize = size;
             text.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
@@ -248,6 +251,12 @@ namespace FishSocial.Desktop.Editor
             text.raycastTarget = false;
             text.supportRichText = true;
             return text;
+        }
+
+        static Font AssetFont()
+        {
+            var font = CatTheme.Font;
+            return font != null && AssetDatabase.Contains(font) ? font : Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
 
         static Image Picture(Transform root, string path, Sprite sprite, float left, float top, float width, float height)
@@ -264,8 +273,10 @@ namespace FishSocial.Desktop.Editor
 
         static Image Paper(Transform root, string path, float left, float top, float width, float height)
         {
-            var asset = width <= 420f || height <= 120f ? "panels/paper-compact.png" : "panels/paper.png";
-            var image = Picture(root, path, CatTheme.LoadCozy(asset, CatTheme.PaperBorder), left, top, width, height);
+            var compact = Mathf.Min(width, height) < 64f;
+            var image = Picture(root, path, compact
+                ? CatTheme.LoadCozy("panels/paper-compact.png", CatTheme.CompactPaperBorder)
+                : CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder), left, top, width, height);
             image.type = Image.Type.Sliced;
             image.preserveAspect = false;
             return image;
@@ -361,7 +372,7 @@ namespace FishSocial.Desktop.Editor
             foreach (var name in new[] { "Reflow_Title", "Reflow_Eyebrow", "Reflow_PageSeal", "Reflow_BlueSealPaper", "Reflow_HeaderRule", "Reflow_SectionMark", "Reflow_PagePaper", "Reflow_RailSeal", "Reflow_RailHeading", "Reflow_RailBody", "Retry" })
                 Hide(transform, name);
             var background = root.GetComponent<Image>() ?? root.AddComponent<Image>();
-            background.sprite = CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder);
+            background.sprite = CatTheme.LoadCozy("panels/window.png", CatTheme.PaperBorder);
             background.type = Image.Type.Sliced;
             background.color = Color.white;
             background.raycastTarget = true;
@@ -424,6 +435,55 @@ namespace FishSocial.Desktop.Editor
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
 
+        static void ScrollingText(Transform root, string scrollPath, string legacyTextPath, float left, float top, float width, float height)
+        {
+            var scrollRect = Place(root, scrollPath, left, top, width, height);
+            var textName = legacyTextPath.Substring(legacyTextPath.LastIndexOf('/') + 1);
+            var textRect = (root.Find(legacyTextPath) ?? scrollRect.Find(textName)) as RectTransform;
+            if (textRect == null)
+                throw new InvalidOperationException(legacyTextPath + " requires a Text");
+            textRect.SetParent(scrollRect, false);
+            textRect.anchorMin = Vector2.up;
+            textRect.anchorMax = Vector2.one;
+            textRect.pivot = new Vector2(0.5f, 1f);
+            textRect.anchoredPosition = Vector2.zero;
+            textRect.sizeDelta = new Vector2(-8f, 0f);
+            var fitters = textRect.GetComponents<ContentSizeFitter>();
+            for (var index = 1; index < fitters.Length; index++)
+                UnityEngine.Object.DestroyImmediate(fitters[index]);
+            var fitter = fitters.Length > 0 ? fitters[0] : textRect.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.enabled = true;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var text = textRect.GetComponent<Text>();
+            text.fontSize = 17;
+            text.alignment = TextAnchor.UpperLeft;
+            text.resizeTextForBestFit = false;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            var hitArea = scrollRect.GetComponent<Image>();
+            if (hitArea == null)
+                hitArea = scrollRect.gameObject.AddComponent<Image>();
+            hitArea.sprite = null;
+            hitArea.color = Color.clear;
+            hitArea.raycastTarget = true;
+            var mask = scrollRect.GetComponent<RectMask2D>();
+            if (mask == null)
+                mask = scrollRect.gameObject.AddComponent<RectMask2D>();
+            mask.enabled = true;
+            var scroll = scrollRect.GetComponent<ScrollRect>();
+            if (scroll == null)
+                scroll = scrollRect.gameObject.AddComponent<ScrollRect>();
+            scroll.enabled = true;
+            scroll.viewport = scrollRect;
+            scroll.content = textRect;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 24f;
+        }
+
         static void Inventory(GameObject root)
         {
             var node = root.transform;
@@ -434,9 +494,12 @@ namespace FishSocial.Desktop.Editor
             Label(node, "DesignBagNote", "背包内展示真实鱼获\n选中后可出售、回鱼或分享", 44, 238, 170, 120, 18);
             Label(node, "Reflow_BagHeading", "我的鱼获", 254, 116, 690, 34, 25, true);
             Place(node, "Grid", 254, 164, 710, 432);
-            var slots = Node(node, "Grid/Slots");
-            slots.SetParent(Node(node, "Grid/Viewport"), false);
-            slots.name = "Slots";
+            var slots = node.Find("Grid/Viewport/Slots") as RectTransform;
+            if (slots == null)
+            {
+                slots = Node(node, "Grid/Slots");
+                slots.SetParent(Node(node, "Grid/Viewport"), false);
+            }
             Grid(node, "Grid/Viewport/Slots", 3, 214, 196);
             node.Find("Grid").GetComponent<ScrollRect>().content = slots;
             Paper(node, "Reflow_CatchDetails", 984, 112, 362, 496);
@@ -475,15 +538,10 @@ namespace FishSocial.Desktop.Editor
             Paper(node, "Details/DesignPaper", 0, 0, 362, 496).transform.SetAsFirstSibling();
             Label(node, "Details/DesignHeading", equipment ? "装备详情" : "商品详情", 24, 12, 314, 36, 25, true);
             Picture(node, "Details/DesignArt", null, 24, 50, 314, 126);
-            var description = Place(node, "Details/Description", 24, 190, 314, 230).GetComponent<Text>();
-            description.fontSize = 17;
-            description.alignment = TextAnchor.UpperLeft;
-            description.resizeTextForBestFit = true;
-            description.resizeTextMinSize = 14;
-            description.resizeTextMaxSize = 17;
+            ScrollingText(node, "Details/DescriptionScroll", "Details/Description", 24, 186, 314, 234);
             ButtonAt(node, "Details/Buy", "购买", "coin", 24, 432, 314, 48, true);
             ButtonAt(node, "Details/Equip", "装备", "rod", 24, 432, 314, 48, true)
-                .GetComponent<CozyButtonVisual>().SetTint(new Color(0.38f, 0.57f, 0.83f, 1));
+                .GetComponent<CozyButtonVisual>().SetTint(new Color(0.35f, 0.56f, 0.95f, 1));
             Hide(node, "Details/Retry", "Details/Reflow_DetailSeal", "Details/Reflow_Heading", "Details/Reflow_DescriptionViewport");
             Label(node, "Status", "", 254, 612, 1068, 26, 16);
         }
@@ -624,7 +682,7 @@ namespace FishSocial.Desktop.Editor
                 var background = input.GetComponent<Image>();
                 if (background != null)
                 {
-                    background.sprite = CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder);
+                    background.sprite = CatTheme.LoadCozy("panels/paper-compact.png", CatTheme.CompactPaperBorder);
                     background.type = Image.Type.Sliced;
                     background.color = Color.white;
                 }
@@ -661,15 +719,17 @@ namespace FishSocial.Desktop.Editor
         static void Settings(GameObject root)
         {
             var node = root.transform;
-            Common(root, "设置", "调整窗口、通知与服务器连接", "settings");
-            Hide(node, "Reflow_Title", "Reflow_PageSeal", "Reflow_Eyebrow", "SettingsHeader");
-            Paper(node, "DesignSettingsRail", 24, 112, 210, 496);
-            Label(node, "DesignSettingsRail/Heading", "设置目录", 22, 20, 166, 36, 24, true);
-            Label(node, "DesignSettingsRail/Body", "窗口显示\n通知偏好\n服务器连接\n新手引导", 22, 82, 166, 180, 20);
-            Paper(node, "DesignSettingsCard", 254, 112, 1092, 496).transform.SetAsFirstSibling();
             var viewport = node.Find("SettingsViewport") as RectTransform;
+            var pageScroll = root.GetComponent<ScrollRect>();
+            if (pageScroll != null && viewport != null)
+                pageScroll.viewport = viewport;
+            Common(root, "设置", "调整窗口、通知与服务器连接", "settings");
+            Stretch((RectTransform)node);
+            root.GetComponent<Image>().color = Color.white;
+            Hide(node, "Reflow_Title", "Reflow_PageSeal", "Reflow_Eyebrow", "SettingsHeader", "Reflow_InfoRail", "DesignSettingsRail");
+            Paper(node, "DesignSettingsCard", 24, 112, 1322, 496).transform.SetAsFirstSibling();
             if (viewport != null)
-                Place(node, "SettingsViewport", 278, 132, 1044, 452);
+                Place(node, "SettingsViewport", 48, 132, 1274, 452);
             var content = node.Find("SettingsViewport/SettingsContent") as RectTransform;
             if (content != null)
             {
@@ -677,14 +737,14 @@ namespace FishSocial.Desktop.Editor
                 content.anchorMax = Vector2.up;
                 content.pivot = Vector2.up;
                 content.anchoredPosition = Vector2.zero;
-                content.sizeDelta = new Vector2(1044, 1080);
+                content.sizeDelta = new Vector2(1274, 1080);
                 var contentImage = content.GetComponent<Image>();
                 if (contentImage != null)
                     contentImage.color = Color.clear;
             }
             foreach (var button in root.GetComponentsInChildren<Button>(true))
                 DesktopModalUi.StyleButton(button, null, false);
-            Label(node, "DesignSettingsHint", "修改后按页面内的保存按钮应用设置。", 278, 574, 1044, 24, 15);
+            Label(node, "DesignSettingsHint", "修改后按页面内的保存按钮应用设置。", 24, 614, 1322, 24, 15);
         }
 
         static void PondSelection(GameObject root)
@@ -788,7 +848,7 @@ namespace FishSocial.Desktop.Editor
             {
                 var tab = node.Find("Shell/Content/Tab_" + name);
                 if (tab == null) continue;
-                Hide(tab, "Reflow_Title", "Reflow_Eyebrow", "Reflow_PageSeal", "Reflow_HeaderRule", "Reflow_TabPaper");
+                Hide(tab, "Reflow_Title", "Reflow_Eyebrow", "Reflow_PageSeal", "Reflow_HeaderRule", "Reflow_TabPaper", "Reflow_DetailPaper");
                 var image = tab.GetComponent<Image>();
                 if (image != null) image.enabled = false;
             }
@@ -796,29 +856,29 @@ namespace FishSocial.Desktop.Editor
             var showcase = node.Find("Shell/Content/Tab_展示柜");
             if (showcase != null)
             {
-                Paper(showcase, "DesignShowcaseGrid", 0, 0, 680, 496);
+                Paper(showcase, "DesignShowcaseGrid", 0, 0, 680, 496).transform.SetAsFirstSibling();
+                Label(showcase, "DesignGridHeading", "我的展示柜", 24, 14, 400, 36, 25, true);
                 Place(showcase, "ShowcaseGrid", 18, 58, 644, 418);
-                Grid(showcase, "ShowcaseGrid/Viewport/Content", 3, 198, 172);
+                Grid(showcase, "ShowcaseGrid/Viewport/Content", 3, 194, 172);
                 Paper(showcase, "DesignDetailPaper", 704, 0, 388, 496).transform.SetAsFirstSibling();
-                Place(showcase, "Detail", 704, 0, 388, 496);
-                Label(showcase, "Detail/DesignHeading", "展示详情", 24, 18, 340, 36, 25, true);
+                DetailPanel(showcase, "展示详情");
             }
 
             var codex = node.Find("Shell/Content/Tab_图鉴");
             if (codex != null)
             {
-                Paper(codex, "DesignCodexGrid", 0, 0, 680, 496);
+                Paper(codex, "DesignCodexGrid", 0, 0, 680, 496).transform.SetAsFirstSibling();
+                Label(codex, "DesignGridHeading", "鱼类图鉴", 24, 14, 400, 36, 25, true);
                 Place(codex, "CodexGrid", 18, 58, 644, 418);
-                Grid(codex, "CodexGrid/Viewport/Content", 4, 150, 150);
+                Grid(codex, "CodexGrid/Viewport/Content", 4, 140, 140);
                 Paper(codex, "DesignDetailPaper", 704, 0, 388, 496).transform.SetAsFirstSibling();
-                Place(codex, "Detail", 704, 0, 388, 496);
-                Label(codex, "Detail/DesignHeading", "图鉴详情", 24, 18, 340, 36, 25, true);
+                DetailPanel(codex, "图鉴详情");
             }
 
             var album = node.Find("Shell/Content/Tab_相册");
             if (album != null)
             {
-                Paper(album, "DesignAlbumStage", 0, 0, 1092, 390);
+                Paper(album, "DesignAlbumStage", 0, 0, 1092, 390).transform.SetAsFirstSibling();
                 Place(album, "AlbumStage", 18, 18, 1056, 354);
                 var stage = album.Find("AlbumStage") as RectTransform;
                 if (stage != null)
@@ -827,6 +887,8 @@ namespace FishSocial.Desktop.Editor
                     var right = stage.Find("SlotR") as RectTransform;
                     if (left != null) { left.anchorMin = new Vector2(0, 0); left.anchorMax = new Vector2(.5f, 1); left.offsetMin = new Vector2(12, 12); left.offsetMax = new Vector2(-8, -12); }
                     if (right != null) { right.anchorMin = new Vector2(.5f, 0); right.anchorMax = new Vector2(1, 1); right.offsetMin = new Vector2(8, 12); right.offsetMax = new Vector2(-12, -12); }
+                    AlbumSlot(left);
+                    AlbumSlot(right);
                 }
                 Place(album, "Prev", 24, 414, 88, 32);
                 Place(album, "Next", 980, 414, 88, 32);
@@ -834,6 +896,57 @@ namespace FishSocial.Desktop.Editor
                 Place(album, "Next_0", 980, 414, 88, 32);
                 Place(album, "Page", 458, 414, 176, 32);
             }
+        }
+
+        static void DetailPanel(Transform tab, string heading)
+        {
+            Hide(tab, "Detail/DesignHeading");
+            Label(tab, "DesignDetailHeading", heading, 728, 18, 340, 36, 25, true);
+            var detail = Place(tab, "Detail", 728, 66, 340, 410).GetComponent<Text>();
+            detail.alignment = TextAnchor.UpperLeft;
+            detail.horizontalOverflow = HorizontalWrapMode.Wrap;
+            detail.verticalOverflow = VerticalWrapMode.Truncate;
+            detail.resizeTextForBestFit = true;
+            detail.resizeTextMinSize = 13;
+            detail.resizeTextMaxSize = 17;
+        }
+
+        static void AlbumSlot(RectTransform slot)
+        {
+            if (slot == null)
+                return;
+            var photo = slot.Find("Photo") as RectTransform;
+            if (photo != null)
+            {
+                photo.anchorMin = Vector2.up;
+                photo.anchorMax = Vector2.one;
+                photo.pivot = new Vector2(0.5f, 1f);
+                photo.offsetMin = new Vector2(12f, -182f);
+                photo.offsetMax = new Vector2(-12f, -12f);
+            }
+            Inset(slot.Find("Scrim") as RectTransform, 8f, 188f, 8f, 8f);
+            var body = slot.Find("Body") as RectTransform;
+            Inset(body, 20f, 196f, 20f, 12f);
+            var text = body != null ? body.GetComponent<Text>() : null;
+            if (text == null)
+                return;
+            text.alignment = TextAnchor.UpperLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 13;
+            text.resizeTextMaxSize = 18;
+        }
+
+        static void Inset(RectTransform rect, float left, float top, float right, float bottom)
+        {
+            if (rect == null)
+                return;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.offsetMin = new Vector2(left, bottom);
+            rect.offsetMax = new Vector2(-right, -top);
         }
 
         static void ItemCard(GameObject root, bool shop)
@@ -904,7 +1017,7 @@ namespace FishSocial.Desktop.Editor
         static void Shell(GameObject root)
         {
             var node = root.transform;
-            foreach (var page in new[] { "Leaderboard", "Profile", "Achievements", "Friends", "CatchBag", "Equipment", "Shop", "SocialFeed" })
+            foreach (var page in new[] { "Leaderboard", "Profile", "Achievements", "Friends", "CatchBag", "Equipment", "Shop", "SocialFeed", "Settings" })
                 Place(node, "MainRoot/Content/" + page, 160, 150, 1370, 650);
             foreach (var name in new[] { "Mail", "Settings" })
             {

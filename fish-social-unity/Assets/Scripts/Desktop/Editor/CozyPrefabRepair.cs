@@ -612,7 +612,7 @@ namespace FishSocial.Desktop.Editor
                     RequireNode<Button>(root, "Tabs/" + action);
                 RequireScroll(root, "Items");
                 RequireNode<RectTransform>(root, "Details");
-                RequireNode<Text>(root, "Details/Description");
+                RequireNode<Text>(root, "Details/DescriptionScroll/Description");
                 RequireNode<Text>(root, "Status");
                 foreach (var action in new[] { "Buy", "Equip", "Retry" })
                     RequireNode<Button>(root, "Details/" + action);

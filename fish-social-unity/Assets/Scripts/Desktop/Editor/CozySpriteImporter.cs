@@ -30,6 +30,7 @@ namespace FishSocial.Desktop.Editor
             importer.alphaIsTransparency = true;
             importer.mipmapEnabled = false;
             importer.wrapMode = TextureWrapMode.Clamp;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
             var settings = new TextureImporterSettings();
             importer.ReadTextureSettings(settings);
             settings.spriteMeshType = SpriteMeshType.FullRect;
@@ -38,7 +39,7 @@ namespace FishSocial.Desktop.Editor
 
         public override uint GetVersion()
         {
-            return 2;
+            return 3;
         }
     }
 }

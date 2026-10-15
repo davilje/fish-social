@@ -56,25 +56,28 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Tests\Editor\CozyUiLibraryTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabManagerWindow.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\FishingAnimationPreviewWindow.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopBuildMenu.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyThemeValidationMenu.cs" />
     <Compile Include="Assets\Tests\Editor\CozyDesktopThemeTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyUiBuildGuard.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondLayoutBaker.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPrefabPersistenceTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudWidgetCatalog.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyRedesignLayoutTests.cs" />
     <Compile Include="Assets\Tests\Editor\DesktopProtocolResponseTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabBaker.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozySpriteImporter.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondActorBaker.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyPrefabRepair.cs" />
     <Compile Include="Assets\Tests\Editor\DesktopFishingAnimationTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignPreview.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayLayoutExporter.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabCatalog.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudExporter.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyPrefabRepair.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyUiLibraryTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyUiBuildGuard.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozySpriteImporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -803,9 +806,6 @@
     <Reference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection">
       <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="com.rlabrecque.steamworks.net.editor">
-      <HintPath>Library\ScriptAssemblies\com.rlabrecque.steamworks.net.editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.Flow">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Flow.dll</HintPath>
     </Reference>
@@ -824,9 +824,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="com.rlabrecque.steamworks.net">
-      <HintPath>Library\ScriptAssemblies\com.rlabrecque.steamworks.net.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
     </Reference>
@@ -841,6 +838,14 @@
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{CD0FF381-ABE5-334D-383C-B7427477A884}</Project>
       <Name>Assembly-CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="com.rlabrecque.steamworks.net.editor.csproj">
+      <Project>{23AAF596-B012-20F2-68F5-FB765A2C8032}</Project>
+      <Name>com.rlabrecque.steamworks.net.editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="com.rlabrecque.steamworks.net.csproj">
+      <Project>{F2067E66-F9B7-C70A-C89B-ED895F5A4FE5}</Project>
+      <Name>com.rlabrecque.steamworks.net</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

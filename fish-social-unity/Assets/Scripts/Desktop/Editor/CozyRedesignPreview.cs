@@ -20,9 +20,11 @@ namespace FishSocial.Desktop.Editor
             Directory.CreateDirectory("Library/CozyRedesignPreviews");
             foreach (var name in Pages)
                 Render(name);
+            foreach (var tab in new[] { "展示柜", "图鉴", "相册" })
+                Render("PanelProfileHub", tab);
         }
 
-        static void Render(string name)
+        static void Render(string name, string tab = null)
         {
             var scene = EditorSceneManager.NewPreviewScene();
             var target = new RenderTexture(1672, 941, 24);
@@ -65,7 +67,7 @@ namespace FishSocial.Desktop.Editor
                 rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.up;
                 rect.anchoredPosition = new Vector2(160, -150);
                 rect.sizeDelta = new Vector2(1370, 650);
-                Fill(page, name);
+                Fill(page, name, tab);
                 CatTheme.SkinTree(shell.transform);
                 Canvas.ForceUpdateCanvases();
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
@@ -81,7 +83,7 @@ namespace FishSocial.Desktop.Editor
                     if (pixel.r < 240 || pixel.g < 240 || pixel.b < 240) { visible = true; break; }
                 if (!visible)
                     throw new InvalidOperationException("Preview camera rendered no visible UI: " + name);
-                File.WriteAllBytes("Library/CozyRedesignPreviews/" + name + ".png", image.EncodeToPNG());
+                File.WriteAllBytes("Library/CozyRedesignPreviews/" + name + (tab == null ? "" : "-" + tab) + ".png", image.EncodeToPNG());
                 UnityEngine.Object.DestroyImmediate(image);
             }
             finally
@@ -101,7 +103,7 @@ namespace FishSocial.Desktop.Editor
             return item;
         }
 
-        static void Fill(GameObject page, string name)
+        static void Fill(GameObject page, string name, string tab = null)
         {
             var root = page.transform;
             var fishIds = new[] { "black_carp", "koi", "largemouth_bass", "grass_carp", "carp", "snakehead" };
@@ -131,18 +133,42 @@ namespace FishSocial.Desktop.Editor
                     CozyItemArt.Text(item.transform, "Meta", equipment ? "已拥有" : "每次使用扣金");
                 }
                 CozyItemArt.Set(root, "Details/DesignArt", CozyItemArt.Product(equipment ? 1 : 0, null, names[0]));
-                CozyItemArt.Text(root, "Details/Description", names[0] + (equipment ? "\n状态  已拥有\n适合悠闲的日常垂钓。" : "\n基础鱼饵\n咬钩成功时按规则扣金。\n鱼饵不进货，没有库存。"));
+                CozyItemArt.Text(root, "Details/DescriptionScroll/Description", names[0] + (equipment ? "\n状态  已拥有\n适合悠闲的日常垂钓。" : "\n基础鱼饵\n咬钩成功时按规则扣金。\n鱼饵不进货，没有库存。"));
                 root.Find("Details/Buy").gameObject.SetActive(!equipment);
                 root.Find("Details/Equip").gameObject.SetActive(equipment);
             }
             if (name == "PanelProfileHub" || name == "PanelAchievements")
             {
                 var content = root.Find("Shell/Content");
-                foreach (Transform tab in content) tab.gameObject.SetActive(false);
+                foreach (Transform child in content) child.gameObject.SetActive(false);
                 var achievements = name == "PanelAchievements";
-                var selected = content.Find(achievements ? "Tab_成就" : "Tab_资料");
+                var selected = content.Find(tab != null ? "Tab_" + tab : achievements ? "Tab_成就" : "Tab_资料");
                 selected.gameObject.SetActive(true);
-                if (achievements)
+                if (tab == "展示柜")
+                {
+                    for (var index = 0; index < 8; index++)
+                    {
+                        var item = Item("ShowcaseSlot", selected.Find("ShowcaseGrid/Viewport/Content"));
+                        CozyItemArt.Text(item.transform, "Label", index < fishNames.Length ? fishNames[index] + "\n稀有\n0." + (86 - index * 6) + "m" : "空位 " + (index + 1));
+                    }
+                    CozyItemArt.Text(selected, "Detail", "点击左侧格子查看鱼获资料。");
+                }
+                else if (tab == "图鉴")
+                {
+                    for (var index = 0; index < 12; index++)
+                    {
+                        var item = Item("ShowcaseSlot", selected.Find("CodexGrid/Viewport/Content"));
+                        CozyItemArt.Text(item.transform, "Label", index < fishNames.Length ? "✓ " + fishNames[index] + "\n×" + (index + 2) : "？？？");
+                    }
+                    CozyItemArt.Text(selected, "Detail", "已解锁 6 / 50\n\n点击左侧格子查看物种资料与捕获记录。");
+                }
+                else if (tab == "相册")
+                {
+                    CozyItemArt.Text(selected, "AlbumStage/SlotL/Body", "青鱼\n稀有  ·  0.86m\n\n来源塘：花溪鱼塘\n记录：2026-10-15 14:32\n大鱼");
+                    CozyItemArt.Text(selected, "AlbumStage/SlotR/Body", "锦鲤\n史诗  ·  0.72m\n\n来源塘：花溪鱼塘\n记录：2026-10-14 09:10\n首次图鉴");
+                    CozyItemArt.Text(selected, "Page", "1/5");
+                }
+                else if (achievements)
                 {
                     var titles = new[] { "初出茅庐\n首次将鱼收入背包", "图鉴新芽\n图鉴解锁达到 5 种", "博物渔者\n图鉴解锁达到 20 种", "大鱼临门\n单次捕获尺寸达到 0.8 m" };
                     for (var index = 0; index < titles.Length; index++)

@@ -91,7 +91,7 @@ namespace FishSocial.Desktop
             _coins = Find<Text>("Header/Coins");
             _equipped = Find<Text>("Header/Equipped");
             _status = Find<Text>("Status");
-            _details = Find<Text>("Details/Description");
+            _details = Find<Text>("Details/DescriptionScroll/Description") ?? Find<Text>("Details/Description");
             _buy = Find<Button>("Details/Buy");
             _equip = Find<Button>("Details/Equip");
             _retry = Find<Button>("Details/Retry");

@@ -11,7 +11,7 @@ namespace FishSocial.Desktop
     {
         public static readonly Color Ink = new Color(0x75 / 255f, 0x47 / 255f, 0x2E / 255f, 1f);
         public static readonly Color Cream = new Color(0xFF / 255f, 0xF7 / 255f, 0xE9 / 255f, 1f);
-        public static readonly Color Coral = new Color(0xF9 / 255f, 0xA3 / 255f, 0x3F / 255f, 1f);
+        public static readonly Color Coral = new Color(0xFC / 255f, 0x92 / 255f, 0x3C / 255f, 1f);
         public static readonly Color Teal = new Color(0x92 / 255f, 0xA3 / 255f, 0xE7 / 255f, 1f);
         public static readonly Color Panel = Cream;
         public static readonly Vector4 PlateBorder = new Vector4(10f, 10f, 10f, 10f);

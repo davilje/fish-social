@@ -112,7 +112,16 @@ namespace FishSocial.Tests.Editor
             var details = page.transform.Find("Details");
             Assert.IsFalse(details.GetComponents<ScrollRect>().Any(scroll => scroll.enabled));
             Assert.IsFalse(details.GetComponents<RectMask2D>().Any(mask => mask.enabled));
-            Assert.IsFalse(details.Find("Description").GetComponents<ContentSizeFitter>().Any(fitter => fitter.enabled));
+            Assert.IsNull(details.Find("Description"));
+            var descriptionScroll = (RectTransform)details.Find("DescriptionScroll");
+            var scroll = descriptionScroll.GetComponent<ScrollRect>();
+            Assert.IsTrue(scroll.enabled && scroll.vertical && !scroll.horizontal);
+            Assert.AreSame(descriptionScroll, scroll.viewport);
+            Assert.AreSame(descriptionScroll.Find("Description"), scroll.content);
+            Assert.IsTrue(descriptionScroll.GetComponent<RectMask2D>().enabled);
+            var buy = (RectTransform)details.Find("Buy");
+            var scrollBottom = -descriptionScroll.anchoredPosition.y + descriptionScroll.sizeDelta.y;
+            Assert.LessOrEqual(scrollBottom, -buy.anchoredPosition.y);
         }
     }
 }
