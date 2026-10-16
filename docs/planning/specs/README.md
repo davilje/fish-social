@@ -82,6 +82,7 @@
 | [BUG修复-Overlay形象进游戏不恢复.md](./BUG修复-Overlay形象进游戏不恢复.md) | hotfix | P0 | **已实现** | BUG-24；冷启动恢复已保存猫咪形象 |
 | [BUG修复-Overlay打窝按钮剩余口数.md](./BUG修复-Overlay打窝按钮剩余口数.md) | hotfix | P0 | **已实现** | BUG-25；13C 回归，去掉 bitesLeft 后缀 |
 | [BUG修复-Overlay悬停与右键菜单指针命中.md](./BUG修复-Overlay悬停与右键菜单指针命中.md) | hotfix | P0 | **已实现** | BUG-26；命中链 + 菜单后悬停用自有开关恢复 |
+| [BUG修复-Cozy桌面页还原.md](./BUG修复-Cozy桌面页还原.md) | hotfix | P0/P1 | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 已确认未做 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-18；条数 + actor-hint |
 | [Steam桌面端-19咬钩结算弹窗.md](./Steam桌面端-19咬钩结算弹窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-19；咬钩弹窗；取消领取；分档入包/回鱼 |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./Steam桌面端-14EOverlay头顶状态图标与进度环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14E；修订 14D 套猫/等鱼图标 |

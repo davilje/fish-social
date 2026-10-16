@@ -18,7 +18,7 @@ namespace FishSocial.Desktop.Editor
 
         static CozyRedesignAuthoring()
         {
-            File.WriteAllText("Temp/CozyRedesign.version", "20261016c");
+            File.WriteAllText("Temp/CozyRedesign.version", "20261016m");
             EditorApplication.update += CheckRequest;
         }
 
@@ -46,6 +46,10 @@ namespace FishSocial.Desktop.Editor
                     Verify();
                 else if (action == "preview")
                     CozyRedesignPreview.RenderAll();
+#if UNITY_INCLUDE_TESTS
+                else if (action == "test")
+                    RunEditModeTests();
+#endif
                 else
                     throw new InvalidOperationException("Unsupported request: " + action);
                 File.WriteAllText("Temp/CozyRedesign.result", "OK " + action);
@@ -56,6 +60,42 @@ namespace FishSocial.Desktop.Editor
                 Debug.LogException(exception);
             }
         }
+
+#if UNITY_INCLUDE_TESTS
+        const string TestReport = "Temp/CozyRedesign.tests.txt";
+
+        static void RunEditModeTests()
+        {
+            File.Delete(TestReport);
+            var api = ScriptableObject.CreateInstance<UnityEditor.TestTools.TestRunner.Api.TestRunnerApi>();
+            api.RegisterCallbacks(new TestReportWriter());
+            api.Execute(new UnityEditor.TestTools.TestRunner.Api.ExecutionSettings(
+                new UnityEditor.TestTools.TestRunner.Api.Filter { testMode = UnityEditor.TestTools.TestRunner.Api.TestMode.EditMode }));
+        }
+
+        sealed class TestReportWriter : UnityEditor.TestTools.TestRunner.Api.ICallbacks
+        {
+            public void RunStarted(UnityEditor.TestTools.TestRunner.Api.ITestAdaptor testsToRun) { }
+            public void TestStarted(UnityEditor.TestTools.TestRunner.Api.ITestAdaptor test) { }
+            public void TestFinished(UnityEditor.TestTools.TestRunner.Api.ITestResultAdaptor result) { }
+
+            public void RunFinished(UnityEditor.TestTools.TestRunner.Api.ITestResultAdaptor result)
+            {
+                var report = new StringBuilder();
+                report.AppendLine("passed=" + result.PassCount + " failed=" + result.FailCount + " skipped=" + result.SkipCount);
+                Collect(result, report);
+                File.WriteAllText(TestReport, report.ToString());
+            }
+
+            static void Collect(UnityEditor.TestTools.TestRunner.Api.ITestResultAdaptor result, StringBuilder report)
+            {
+                if (!result.HasChildren && result.TestStatus == UnityEditor.TestTools.TestRunner.Api.TestStatus.Failed)
+                    report.AppendLine("== " + result.FullName).AppendLine(result.Message).AppendLine(result.StackTrace);
+                foreach (var child in result.Children)
+                    Collect(child, report);
+            }
+        }
+#endif
 
         public static void BatchApplyAndPreview()
         {
@@ -124,6 +164,7 @@ namespace FishSocial.Desktop.Editor
             Edit("PanelGallery", Gallery);
             Edit("CatchSlot", root => ItemCard(root, false));
             Edit("ShopItemCard", root => ItemCard(root, true));
+            Edit("ShowcaseSlot", ShowcaseCard);
             Edit("AchievementRow", AchievementCard);
             Edit("LeaderboardRow", RankRow);
             Edit("SocialPostCard", PostCard);
@@ -139,8 +180,26 @@ namespace FishSocial.Desktop.Editor
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer == null)
                 throw new InvalidOperationException("Missing art atlas: " + path);
-            if (importer.spriteImportMode == SpriteImportMode.Multiple && importer.spritesheet.Length == names.Length
-                && Array.TrueForAll(names, cell => Array.Exists(importer.spritesheet, sprite => sprite.name == cell)))
+            var pixels = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            Rect[] rects;
+            try
+            {
+                pixels.LoadImage(File.ReadAllBytes(path));
+                rects = new Rect[names.Length];
+                for (var index = 0; index < names.Length; index++)
+                {
+                    var left = Mathf.RoundToInt((index % columns) * pixels.width / (float)columns);
+                    var right = Mathf.RoundToInt((index % columns + 1) * pixels.width / (float)columns);
+                    var top = Mathf.RoundToInt((index / columns) * pixels.height / (float)rows);
+                    var bottom = Mathf.RoundToInt((index / columns + 1) * pixels.height / (float)rows);
+                    rects[index] = TrimToArt(pixels, new RectInt(left, pixels.height - bottom, right - left, bottom - top), 12);
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(pixels); }
+            var sheet = importer.spritesheet;
+            if (importer.spriteImportMode == SpriteImportMode.Multiple && sheet.Length == names.Length
+                && Array.TrueForAll(names, cell => Array.Exists(sheet, sprite => sprite.name == cell
+                    && sprite.rect == rects[Array.IndexOf(names, cell)])))
                 return;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Multiple;
@@ -150,19 +209,31 @@ namespace FishSocial.Desktop.Editor
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.maxTextureSize = 2048;
             importer.spritePixelsPerUnit = 100;
-            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
             var cells = new SpriteMetaData[names.Length];
             for (var index = 0; index < cells.Length; index++)
-            {
-                var left = Mathf.RoundToInt((index % columns) * texture.width / (float)columns);
-                var right = Mathf.RoundToInt((index % columns + 1) * texture.width / (float)columns);
-                var top = Mathf.RoundToInt((index / columns) * texture.height / (float)rows);
-                var bottom = Mathf.RoundToInt((index / columns + 1) * texture.height / (float)rows);
                 cells[index] = new SpriteMetaData { name = names[index], alignment = (int)SpriteAlignment.Center,
-                    pivot = new Vector2(0.5f, 0.5f), rect = new Rect(left, texture.height - bottom, right - left, bottom - top) };
-            }
+                    pivot = new Vector2(0.5f, 0.5f), rect = rects[index] };
             importer.spritesheet = cells;
             importer.SaveAndReimport();
+        }
+
+        static Rect TrimToArt(Texture2D pixels, RectInt cell, int padding)
+        {
+            var data = pixels.GetPixels32();
+            int minX = int.MaxValue, minY = int.MaxValue, maxX = -1, maxY = -1;
+            for (var y = cell.yMin; y < cell.yMax; y++)
+                for (var x = cell.xMin; x < cell.xMax; x++)
+                {
+                    if (data[y * pixels.width + x].a <= 16)
+                        continue;
+                    minX = Mathf.Min(minX, x); maxX = Mathf.Max(maxX, x);
+                    minY = Mathf.Min(minY, y); maxY = Mathf.Max(maxY, y);
+                }
+            if (maxX < 0)
+                return new Rect(cell.x, cell.y, cell.width, cell.height);
+            minX = Mathf.Max(cell.xMin, minX - padding); maxX = Mathf.Min(cell.xMax - 1, maxX + padding);
+            minY = Mathf.Max(cell.yMin, minY - padding); maxY = Mathf.Min(cell.yMax - 1, maxY + padding);
+            return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
         }
 
         static void Edit(string name, Action<GameObject> action)
@@ -307,6 +378,13 @@ namespace FishSocial.Desktop.Editor
             var button = rect.GetComponent<Button>();
             if (button == null)
                 throw new InvalidOperationException(path + " requires a Button");
+            var persisted = rect.GetComponent<CozyButtonVisual>();
+            if (persisted != null)
+            {
+                var state = new SerializedObject(persisted);
+                state.FindProperty("selected").boolValue = false;
+                state.ApplyModifiedPropertiesWithoutUndo();
+            }
             DesktopModalUi.StyleButton(button, icon, primary);
             foreach (var text in rect.GetComponentsInChildren<Text>(true))
                 text.gameObject.SetActive(text.transform.parent != rect || text.name == "Label");
@@ -372,7 +450,7 @@ namespace FishSocial.Desktop.Editor
             foreach (var name in new[] { "Reflow_Title", "Reflow_Eyebrow", "Reflow_PageSeal", "Reflow_BlueSealPaper", "Reflow_HeaderRule", "Reflow_SectionMark", "Reflow_PagePaper", "Reflow_RailSeal", "Reflow_RailHeading", "Reflow_RailBody", "Retry" })
                 Hide(transform, name);
             var background = root.GetComponent<Image>() ?? root.AddComponent<Image>();
-            background.sprite = CatTheme.LoadCozy("panels/window.png", CatTheme.PaperBorder);
+            background.sprite = CatTheme.LoadCozy("panels/window.png", CatTheme.WindowBorder);
             background.type = Image.Type.Sliced;
             background.color = Color.white;
             background.raycastTarget = true;
@@ -490,7 +568,11 @@ namespace FishSocial.Desktop.Editor
             Common(root, "背包", "把每一次收获，好好收藏", "bag");
             Paper(node, "Reflow_InfoRail", 24, 112, 210, 496);
             Hide(node, "Coins", "Reflow_CatchSeal");
-            ButtonAt(node, "DesignCategoryFish", "鱼获", "fish", 34, 124, 190, 76).interactable = false;
+            var category = ButtonAt(node, "DesignCategoryFish", "鱼获", "fish", 34, 124, 190, 76);
+            category.interactable = false;
+            var categoryVisual = new SerializedObject(category.GetComponent<CozyButtonVisual>());
+            categoryVisual.FindProperty("selected").boolValue = true;
+            categoryVisual.ApplyModifiedPropertiesWithoutUndo();
             Label(node, "DesignBagNote", "背包内展示真实鱼获\n选中后可出售、回鱼或分享", 44, 238, 170, 120, 18);
             Label(node, "Reflow_BagHeading", "我的鱼获", 254, 116, 690, 34, 25, true);
             Place(node, "Grid", 254, 164, 710, 432);
@@ -504,8 +586,14 @@ namespace FishSocial.Desktop.Editor
             node.Find("Grid").GetComponent<ScrollRect>().content = slots;
             Paper(node, "Reflow_CatchDetails", 984, 112, 362, 496);
             Label(node, "DesignDetailHeading", "鱼获详情", 1008, 124, 314, 36, 25, true);
-            Picture(node, "DesignArt", null, 1012, 166, 306, 122);
-            Label(node, "Detail", "选中一条鱼获查看详情。", 1008, 294, 314, 190, 17);
+            var backing = Paper(node, "DesignArtBacking", 1004, 166, 322, 146);
+            backing.color = ArtBackingColor;
+            backing.transform.SetSiblingIndex(node.Find("Reflow_CatchDetails").GetSiblingIndex() + 1);
+            Picture(node, "DesignArt", null, 1012, 172, 306, 134);
+            Label(node, "DesignName", "", 1008, 318, 314, 36, 26, true).alignment = TextAnchor.MiddleCenter;
+            DetailRows(node, "DetailRows", 1008, 358, 314, 5, 27);
+            var detail = Label(node, "Detail", "选中一条鱼获查看详情。", 1008, 358, 314, 132, 17);
+            detail.alignment = TextAnchor.UpperLeft;
             ButtonAt(node, "Sell", "出售", "coin", 1008, 498, 314, 46, true);
             ButtonAt(node, "Return", "回鱼", "fish", 1008, 552, 150, 44);
             ButtonAt(node, "Share", "分享", "social", 1172, 552, 150, 44);
@@ -538,7 +626,8 @@ namespace FishSocial.Desktop.Editor
             Paper(node, "Details/DesignPaper", 0, 0, 362, 496).transform.SetAsFirstSibling();
             Label(node, "Details/DesignHeading", equipment ? "装备详情" : "商品详情", 24, 12, 314, 36, 25, true);
             Picture(node, "Details/DesignArt", null, 24, 50, 314, 126);
-            ScrollingText(node, "Details/DescriptionScroll", "Details/Description", 24, 186, 314, 234);
+            Label(node, "Details/DesignName", "", 24, 180, 314, 36, 26, true).alignment = TextAnchor.MiddleCenter;
+            ScrollingText(node, "Details/DescriptionScroll", "Details/Description", 24, 222, 314, 198);
             ButtonAt(node, "Details/Buy", "购买", "coin", 24, 432, 314, 48, true);
             ButtonAt(node, "Details/Equip", "装备", "rod", 24, 432, 314, 48, true)
                 .GetComponent<CozyButtonVisual>().SetTint(new Color(0.35f, 0.56f, 0.95f, 1));
@@ -611,9 +700,27 @@ namespace FishSocial.Desktop.Editor
             Picture(profile, "Avatar", null, 20, 20, 156, 156);
             Label(profile, "DesignName", "—", 198, 26, 430, 42, 30, true);
             Label(profile, "DesignBio", "", 198, 80, 430, 70, 19);
-            Label(profile, "DesignId", "", 20, 190, 630, 32, 16);
+            Label(profile, "DesignId", "", 198, 140, 430, 30, 16);
             Label(profile, "DesignStats", "", 20, 252, 630, 92, 24, true);
             Label(profile, "DesignPrivacy", "", 20, 374, 630, 80, 18);
+            Hide(profile, "DesignStats", "DesignPrivacy");
+            var cards = Place(profile, "DesignStatCards", 20, 196, 650, 96);
+            for (var index = 0; index < 3; index++)
+            {
+                var card = Place(cards, "Card" + index, index * 221, 0, 208, 96);
+                Paper(card, "Backing", 0, 0, 208, 96).transform.SetAsFirstSibling();
+                Picture(card, "Icon", null, 16, 28, 40, 40).enabled = false;
+                Label(card, "Label", "", 68, 16, 130, 26, 16);
+                var value = Label(card, "Value", "—", 68, 44, 134, 38, 26, true);
+                value.resizeTextForBestFit = true;
+                value.resizeTextMinSize = 16;
+                value.resizeTextMaxSize = 26;
+            }
+            var infoPaper = Paper(profile, "DesignInfoPaper", 20, 308, 650, 168).transform;
+            if (infoPaper.GetSiblingIndex() > cards.GetSiblingIndex())
+                infoPaper.SetSiblingIndex(cards.GetSiblingIndex());
+            Label(profile, "DesignInfoHeading", "钓鱼档案", 40, 318, 300, 34, 22, true);
+            DetailRows(profile, "DesignInfoRows", 40, 358, 610, 3, 36);
             Paper(profile, "DesignShowcase", 710, 0, 382, 496);
             Label(profile, "DesignShowcase/Heading", "我的展示柜", 24, 14, 334, 36, 25, true);
             Picture(profile, "DesignShowcase/Art", null, 28, 72, 326, 214);
@@ -751,7 +858,7 @@ namespace FishSocial.Desktop.Editor
         {
             var node = root.transform;
             Common(root, "选择鱼塘", "选择一处水域，开始今天的垂钓", "pond");
-            Hide(node, "PondSelectionHeader", "Reflow_RailHeading", "Reflow_RailBody");
+            Hide(node, "PondSelectionHeader", "Reflow_RailHeading", "Reflow_RailBody", "Reflow_InfoRail");
             Paper(node, "DesignPondRail", 24, 112, 210, 496);
             Label(node, "DesignPondRail/Heading", "水域指南", 22, 22, 166, 36, 24, true);
             Label(node, "DesignPondRail/Body", "每个鱼塘都有\n不同的鱼种与\n垂钓节奏。", 22, 86, 166, 140, 20);
@@ -767,21 +874,21 @@ namespace FishSocial.Desktop.Editor
                 var cards = node.Find("PondCardScroll/Viewport/Cards") as RectTransform;
                 if (cards != null)
                 {
-                    var grid = cards.GetComponent<GridLayoutGroup>();
-                    if (grid == null)
-                        grid = cards.gameObject.AddComponent<GridLayoutGroup>();
-                    if (grid == null)
-                        return;
-                    grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                    grid.constraintCount = 3;
-                    grid.cellSize = new Vector2(328, 196);
-                    grid.spacing = new Vector2(16, 16);
-                    grid.padding = new RectOffset(8, 8, 8, 8);
-                    var fitter = cards.GetComponent<ContentSizeFitter>();
-                    if (fitter == null)
-                        fitter = cards.gameObject.AddComponent<ContentSizeFitter>();
-                    if (fitter != null)
-                        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                    foreach (var stale in cards.GetComponents<GridLayoutGroup>())
+                        UnityEngine.Object.DestroyImmediate(stale);
+                    var list = cards.GetComponent<VerticalLayoutGroup>() ?? cards.gameObject.AddComponent<VerticalLayoutGroup>();
+                    list.enabled = true;
+                    list.padding = new RectOffset(8, 8, 8, 8);
+                    list.spacing = 14;
+                    list.childAlignment = TextAnchor.UpperLeft;
+                    list.childControlWidth = true;
+                    list.childForceExpandWidth = true;
+                    list.childControlHeight = true;
+                    list.childForceExpandHeight = false;
+                    var fitter = cards.GetComponent<ContentSizeFitter>() ?? cards.gameObject.AddComponent<ContentSizeFitter>();
+                    fitter.enabled = true;
+                    fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                 }
             }
             Label(node, "Status", "", 254, 612, 1092, 24, 16);
@@ -862,6 +969,8 @@ namespace FishSocial.Desktop.Editor
                 Grid(showcase, "ShowcaseGrid/Viewport/Content", 3, 194, 172);
                 Paper(showcase, "DesignDetailPaper", 704, 0, 388, 496).transform.SetAsFirstSibling();
                 DetailPanel(showcase, "展示详情");
+                Place(showcase, "Detail", 728, 66, 340, 96);
+                DetailRows(showcase, "ShowcaseDetailRows", 728, 168, 340, 8, 36);
             }
 
             var codex = node.Find("Shell/Content/Tab_图鉴");
@@ -953,12 +1062,19 @@ namespace FishSocial.Desktop.Editor
         {
             var node = root.transform;
             Place(node, "", 0, 0, 214, 196);
-            Picture(node, "DesignItemArt", null, 16, 10, 182, 112);
+            if (!shop)
+            {
+                var backing = Paper(node, "DesignArtBacking", 12, 10, 190, 112);
+                backing.color = ArtBackingColor;
+                backing.transform.SetSiblingIndex(node.Find("CozyVisual") != null ? node.Find("CozyVisual").GetSiblingIndex() + 1 : 0);
+            }
+            Picture(node, "DesignItemArt", null, 16, 12, 182, 108);
             Label(node, "Label", "", 12, 126, 190, shop ? 28 : 58, 21, true).alignment = TextAnchor.MiddleCenter;
             if (shop)
                 Label(node, "Meta", "", 12, 158, 190, 28, 16).alignment = TextAnchor.MiddleCenter;
             Hide(node, "Icon", "CozyIcon");
-            foreach (var name in new[] { "DesignItemArt", "Label", "Meta" })
+            SelectedCard(root);
+            foreach (var name in new[] { "DesignArtBacking", "DesignItemArt", "Label", "Meta" })
             {
                 var rect = node.Find(name) as RectTransform;
                 if (rect == null) continue;
@@ -971,13 +1087,79 @@ namespace FishSocial.Desktop.Editor
             element.flexibleWidth = 0;
         }
 
+        static readonly Color ArtBackingColor = new Color(0.88f, 0.94f, 0.97f, 1f);
+
+        static Color AchievementBadge(bool unlocked)
+        {
+            return unlocked ? CozyItemArt.CompletedBadge : CozyItemArt.PendingBadge;
+        }
+
+        static void SelectedCard(GameObject root)
+        {
+            var visual = root.GetComponent<CozyButtonVisual>();
+            if (visual == null)
+                return;
+            var serialized = new SerializedObject(visual);
+            serialized.FindProperty("selectedSprite").objectReferenceValue =
+                CatTheme.LoadCozy("buttons/plate-selected.png", CatTheme.PlateBorder);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static void ShowcaseCard(GameObject root)
+        {
+            var node = root.transform;
+            var art = Picture(node, "DesignItemArt", null, 0, 0, 10, 10);
+            art.rectTransform.anchorMin = new Vector2(0f, 0.42f);
+            art.rectTransform.anchorMax = Vector2.one;
+            art.rectTransform.offsetMin = new Vector2(10f, 0f);
+            art.rectTransform.offsetMax = new Vector2(-10f, -8f);
+            art.enabled = false;
+            var label = node.Find("Label") as RectTransform;
+            if (label == null)
+                throw new InvalidOperationException("ShowcaseSlot requires Label");
+            label.anchorMin = Vector2.zero;
+            label.anchorMax = new Vector2(1f, 0.42f);
+            label.pivot = new Vector2(0.5f, 0.5f);
+            label.offsetMin = new Vector2(6f, 6f);
+            label.offsetMax = new Vector2(-6f, 0f);
+            var text = label.GetComponent<Text>();
+            text.alignment = TextAnchor.MiddleCenter;
+            text.font = AssetFont();
+            Hide(node, "Icon", "CozyIcon");
+            SelectedCard(root);
+        }
+
+        static void DetailRows(Transform root, string path, float left, float top, float width, int count, float rowHeight)
+        {
+            var rows = Place(root, path, left, top, width, count * rowHeight);
+            for (var index = 0; index < count; index++)
+            {
+                var row = Place(rows, "Row" + index, 0, index * rowHeight, width, rowHeight);
+                Picture(row, "Icon", null, 2, (rowHeight - 20) / 2, 20, 20).enabled = false;
+                Label(row, "Label", "", 30, 0, 96, rowHeight, 16);
+                var value = Label(row, "Value", "", 126, 0, width - 126, rowHeight, 16, true);
+                value.alignment = TextAnchor.MiddleRight;
+                value.resizeTextForBestFit = true;
+                value.resizeTextMinSize = 11;
+                value.resizeTextMaxSize = 16;
+                if (index < count - 1)
+                    Paper(row, "Rule", 0, rowHeight - 1, width, 1).color = new Color(0.84f, 0.72f, 0.55f, 0.35f);
+                row.gameObject.SetActive(false);
+            }
+        }
+
         static void AchievementCard(GameObject root)
         {
             var node = root.transform;
             Place(node, "", 0, 0, 928, 100);
             Picture(node, "Reflow_AchievementSeal", CatTheme.LoadCozy("icons/medal.png", Vector4.zero), 18, 22, 56, 56);
             Label(node, "Label", "", 94, 14, 646, 72, 20);
-            Label(node, "DesignState", "", 758, 26, 148, 48, 20, true).alignment = TextAnchor.MiddleCenter;
+            var badge = Paper(node, "DesignStateBadge", 770, 30, 124, 40);
+            badge.color = AchievementBadge(false);
+            var state = Label(node, "DesignState", "", 770, 30, 124, 40, 18, true);
+            state.alignment = TextAnchor.MiddleCenter;
+            if (badge.transform.GetSiblingIndex() > state.transform.GetSiblingIndex())
+                badge.transform.SetSiblingIndex(state.transform.GetSiblingIndex());
             var element = root.GetComponent<LayoutElement>() ?? root.AddComponent<LayoutElement>();
             element.preferredHeight = element.minHeight = 100;
         }
@@ -1014,6 +1196,34 @@ namespace FishSocial.Desktop.Editor
             element.preferredHeight = element.minHeight = 378;
         }
 
+        static void StyleLevelProgress(Transform header)
+        {
+            if (header == null)
+                return;
+            var badge = header.Find("ProfileCard/LevelBadge")?.GetComponent<Image>();
+            if (badge != null)
+            {
+                badge.sprite = CatTheme.LoadCozy("panels/chip.png", CatTheme.ChipBorder);
+                badge.type = Image.Type.Sliced;
+                badge.preserveAspect = false;
+                badge.color = Color.white;
+            }
+            var level = header.Find("ProfileCard/Level")?.GetComponent<Text>();
+            if (level != null)
+                level.color = Color.white;
+            var caption = header.Find("ProfileCard/XpLabel")?.GetComponent<Text>();
+            if (caption != null)
+            {
+                caption.color = CatTheme.Ink;
+                caption.alignment = TextAnchor.MiddleCenter;
+                caption.fontSize = 15;
+            }
+            var background = header.Find("ProfileCard/XpBackground")?.GetComponent<Image>();
+            var fill = DesktopModalUi.FindXpFill(header);
+            DesktopModalUi.ConfigureXpBar(background, fill);
+            DesktopModalUi.SetXpFill(fill, 0f);
+        }
+
         static void Shell(GameObject root)
         {
             var node = root.transform;
@@ -1026,6 +1236,7 @@ namespace FishSocial.Desktop.Editor
                 Picture(button, "Icon", CatTheme.LoadCozy("icons/" + (name == "Mail" ? "bell" : "settings") + ".png", Vector4.zero), 16, 16, 38, 38);
                 Hide(button, "Label");
             }
+            StyleLevelProgress(node.Find("MainRoot/Header"));
             var amount = node.Find("MainRoot/Header/FishCoins/Amount")?.GetComponent<Text>();
             if (amount != null)
             {

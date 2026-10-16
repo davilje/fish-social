@@ -306,20 +306,50 @@ namespace FishSocial.Desktop
             image.preserveAspect = true;
         }
 
+        public static Image FindXpFill(Transform header)
+        {
+            return FindComponent<Image>(header, "ProfileCard/XpBackground/XpFill")
+                ?? FindComponent<Image>(header, "ProfileCard/XpFill");
+        }
+
         public static void ConfigureXpBar(Image background, Image fill)
         {
             if (background != null)
             {
+                background.sprite = CatTheme.LoadCozy("panels/track.png", CatTheme.TrackBorder);
                 background.type = Image.Type.Sliced;
                 background.preserveAspect = false;
+                background.color = Color.white;
             }
-            if (fill != null)
+            if (fill == null)
+                return;
+            fill.sprite = CatTheme.LoadCozy("panels/track-fill.png", CatTheme.TrackBorder);
+            fill.type = Image.Type.Sliced;
+            fill.preserveAspect = false;
+            fill.color = Color.white;
+            fill.fillAmount = 1f;
+            if (background != null && fill.transform.parent != background.transform)
             {
-                fill.type = Image.Type.Filled;
-                fill.fillMethod = Image.FillMethod.Horizontal;
-                fill.fillOrigin = 0;
-                fill.preserveAspect = false;
+                fill.transform.SetParent(background.transform, false);
+                SetXpFill(fill, 0f);
             }
+        }
+
+        public static void SetXpFill(Image fill, float amount)
+        {
+            if (fill == null)
+                return;
+            amount = Mathf.Clamp01(amount);
+            var rect = fill.rectTransform;
+            var parent = rect.parent as RectTransform;
+            var minimum = 0f;
+            if (parent != null && amount > 0f)
+                minimum = Mathf.Clamp(26f / Mathf.Max(26f, parent.rect.width > 1f ? parent.rect.width : parent.sizeDelta.x), 0f, 1f);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = new Vector2(amount <= 0f ? 0f : Mathf.Max(amount, minimum), 1f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         public static void HideDirectCloseButtons(Transform root)

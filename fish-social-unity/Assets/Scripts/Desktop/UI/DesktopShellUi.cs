@@ -204,7 +204,7 @@ namespace FishSocial.Desktop
             _headerName = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/Name");
             _headerLevel = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/Level");
             _headerXp = DesktopModalUi.FindComponent<Text>(header, "ProfileCard/XpLabel");
-            _headerXpFill = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpFill");
+            _headerXpFill = DesktopModalUi.FindXpFill(header);
             var headerXpBackground = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpBackground");
             _headerAvatar = DesktopModalUi.FindComponent<Image>(header, "ProfileCard/Avatar");
             _headerCoins = DesktopModalUi.FindComponent<Text>(header, "FishCoins/Amount");
@@ -306,7 +306,7 @@ namespace FishSocial.Desktop
                 if (_headerXp != null)
                     _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : "满级";
                 if (_headerXpFill != null)
-                    _headerXpFill.fillAmount = required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f;
+                    DesktopModalUi.SetXpFill(_headerXpFill, required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f);
             }));
         }
 
@@ -579,7 +579,7 @@ namespace FishSocial.Desktop
 
             DesktopModalUi.ConfigureXpBar(
                 DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpBackground"),
-                DesktopModalUi.FindComponent<Image>(header, "ProfileCard/XpFill"));
+                DesktopModalUi.FindXpFill(header));
         }
 
         void OnDestroy()

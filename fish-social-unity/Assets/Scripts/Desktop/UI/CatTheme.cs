@@ -14,9 +14,34 @@ namespace FishSocial.Desktop
         public static readonly Color Coral = new Color(0xFC / 255f, 0x92 / 255f, 0x3C / 255f, 1f);
         public static readonly Color Teal = new Color(0x92 / 255f, 0xA3 / 255f, 0xE7 / 255f, 1f);
         public static readonly Color Panel = Cream;
-        public static readonly Vector4 PlateBorder = new Vector4(10f, 10f, 10f, 10f);
-        public static readonly Vector4 PaperBorder = new Vector4(20f, 20f, 20f, 20f);
+        public static readonly Vector4 PlateBorder = new Vector4(12f, 12f, 12f, 12f);
+        public static readonly Vector4 PlateLargeBorder = new Vector4(18f, 18f, 18f, 18f);
+        public static readonly Vector4 PaperBorder = new Vector4(22f, 22f, 22f, 22f);
         public static readonly Vector4 CompactPaperBorder = new Vector4(10f, 10f, 10f, 10f);
+        public static readonly Vector4 WindowBorder = new Vector4(32f, 32f, 32f, 32f);
+        public static readonly Vector4 TrackBorder = new Vector4(12f, 12f, 12f, 12f);
+        public static readonly Vector4 ChipBorder = new Vector4(18f, 18f, 18f, 18f);
+
+        public static Vector4 SurfaceBorder(string assetPath)
+        {
+            var file = string.IsNullOrEmpty(assetPath) ? string.Empty : Path.GetFileName(assetPath);
+            if (file.StartsWith("plate-large", StringComparison.OrdinalIgnoreCase))
+                return PlateLargeBorder;
+            if (file.StartsWith("plate-", StringComparison.OrdinalIgnoreCase))
+                return PlateBorder;
+            if (file.Equals("paper-compact.png", StringComparison.OrdinalIgnoreCase))
+                return CompactPaperBorder;
+            if (file.Equals("window.png", StringComparison.OrdinalIgnoreCase))
+                return WindowBorder;
+            if (file.Equals("track.png", StringComparison.OrdinalIgnoreCase)
+                || file.Equals("track-fill.png", StringComparison.OrdinalIgnoreCase))
+                return TrackBorder;
+            if (file.Equals("chip.png", StringComparison.OrdinalIgnoreCase))
+                return ChipBorder;
+            if (file.Equals("paper.png", StringComparison.OrdinalIgnoreCase))
+                return PaperBorder;
+            return Vector4.zero;
+        }
 
         public static bool AllowLegacyStreamingAssetsFallback { get; set; }
 
@@ -189,9 +214,18 @@ namespace FishSocial.Desktop
         {
             if (image == null || IsProtectedImage(image) || image.GetComponentInParent<Selectable>(true) != null)
                 return;
+            ApplyPaperSurface(image);
+        }
+
+        static void ApplyPaperSurface(Image image)
+        {
             var color = Cream;
             color.a = image.color.a;
-            ApplySurface(image, color);
+            image.overrideSprite = null;
+            image.sprite = null;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = color;
             var size = image.rectTransform.rect.size;
             var compact = Mathf.Min(size.x, size.y) > 0f && Mathf.Min(size.x, size.y) < 48f;
             var paper = LoadCozy(compact ? "panels/paper-compact.png" : "panels/paper.png",
@@ -438,7 +472,7 @@ namespace FishSocial.Desktop
             if (name == "photo")
                 ApplyCreamTint(image);
             else
-                ApplyPaper(image);
+                ApplyPaperSurface(image);
             return true;
         }
 

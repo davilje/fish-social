@@ -23,10 +23,9 @@ namespace FishSocial.Desktop.Editor
                 return;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
-            if (importer.spriteBorder == Vector4.zero)
-                importer.spriteBorder = assetPath.StartsWith(CozyPrefabRepair.ThemeFolder + "/buttons/", StringComparison.Ordinal)
-                    ? CatTheme.PlateBorder : assetPath.EndsWith("/paper-compact.png", StringComparison.Ordinal)
-                        ? CatTheme.CompactPaperBorder : CatTheme.PaperBorder;
+            var border = CatTheme.SurfaceBorder(assetPath);
+            if (border != Vector4.zero)
+                importer.spriteBorder = border;
             importer.alphaIsTransparency = true;
             importer.mipmapEnabled = false;
             importer.wrapMode = TextureWrapMode.Clamp;
@@ -39,7 +38,7 @@ namespace FishSocial.Desktop.Editor
 
         public override uint GetVersion()
         {
-            return 3;
+            return 4;
         }
     }
 }

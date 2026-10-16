@@ -1,5 +1,18 @@
 # 策划文档变更记录
 
+### [bug-47-showcase-detail-rows] - 2026-10-16
+
+- **BUG-47** 展示柜点选详情 → **已实现**。`ShowFishDetail` 改为图标、标签、数值分行；空格子和未选中仍用原来的提示句。
+- 预览 `PanelProfileHub-展示柜` 已核对分行。未改成就 DTO，**BUG-46** 仍是已确认。
+- BUG-27～35 保持 **已验收**。
+
+### [cozy-desktop-ui-bugs-registered] - 2026-10-16
+
+- **BUG-27～35** Cozy 桌面页布局与字体截字 → 用户已回复「已验收通过」，计划表 **已验收**。
+- **BUG-36～45** 白点、鱼获页签变灰、鱼塘选择警告、旧鱼图标、第二次 Apply、12 个 EditMode 失败、选中态与详情行 → **已实现**。EditMode 219/219。尚未做 Development Build 真实账号验收。
+- **BUG-46** 成就没有当前进度、**BUG-47** 展示柜点选详情仍是整段文字 → **已确认**，未做。成就条不改 `server/`、`shared/`。
+- 规格：`docs/planning/specs/BUG修复-Cozy桌面页还原.md`
+
 ### [steam-desktop-art-04-confirmed] - 2026-10-11
 
 - **STEAM-DESKTOP-ART-04** 橘猫钓鱼动画接入 Overlay → **已确认**。

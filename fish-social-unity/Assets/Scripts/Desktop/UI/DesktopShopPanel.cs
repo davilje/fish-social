@@ -472,14 +472,14 @@ namespace FishSocial.Desktop
             var selectedVessel = SelectedVessel();
             if (_tab == 0 && selectedBait != null)
             {
-                _details.text = BuildBaitDetails(selectedBait);
+                ShowDetails(selectedBait.name, BuildBaitDetails(selectedBait));
                 SetActionButtons(false, false, _equipmentMode && BaitUnlocked(selectedBait) &&
                     !IsEquippedBait(selectedBait.id));
             }
             else if (_tab == 1 && selectedTackle != null)
             {
                 var owned = OwnsRod(selectedTackle.id);
-                _details.text = BuildRodDetails(selectedTackle, owned);
+                ShowDetails(selectedTackle.name, BuildRodDetails(selectedTackle, owned));
                 SetActionButtons(true, !owned && RodPrice(selectedTackle) > 0,
                     owned && !IsEquippedRod(selectedTackle.id));
             }
@@ -487,12 +487,12 @@ namespace FishSocial.Desktop
             {
                 var owned = Contains(_gear.ownedVessels, selectedVessel.vesselId);
                 var levelOk = _gear.playerLevel >= selectedVessel.unlockPlayerLevel;
-                _details.text = BuildVesselDetails(selectedVessel, owned);
+                ShowDetails(selectedVessel.name, BuildVesselDetails(selectedVessel, owned));
                 SetActionButtons(true, !owned && levelOk, false);
             }
             else
             {
-                _details.text = _equipmentMode
+                ShowDetails(null, _equipmentMode
                     ? (visibleCount == 0
                         ? (_tab == 0 ? "暂无已解锁的鱼饵。提升钓鱼等级后可在这里选择。" : "暂无已拥有的钓竿。获得钓竿后可在这里装备。")
                         : "选择已拥有的钓竿或已解锁的鱼饵查看详情，再点击装备。\n\n装备页不购买商品；鱼饵仍按原有规则在咬钩成功时扣金。")
@@ -500,9 +500,21 @@ namespace FishSocial.Desktop
                     ? "选择鱼饵查看食性、解锁等级和每次扣金。鱼饵不进货，没有库存。"
                     : (_tab == 2
                         ? "选择船具查看购入条件。购买后暂不可使用。"
-                        : "请选择商品查看详情。");
+                        : "请选择商品查看详情。"));
                 SetActionButtons(_tab != 0, false, false);
             }
+        }
+
+        void ShowDetails(string name, string text)
+        {
+            var nameLabel = Find<Text>("Details/DesignName");
+            if (nameLabel != null)
+            {
+                nameLabel.text = name ?? string.Empty;
+                if (!string.IsNullOrEmpty(name) && text.StartsWith(name + "\n", StringComparison.Ordinal))
+                    text = text.Substring(name.Length + 1);
+            }
+            _details.text = text;
         }
 
         void SetActionButtons(bool showBuy, bool buyEnabled, bool equipEnabled)

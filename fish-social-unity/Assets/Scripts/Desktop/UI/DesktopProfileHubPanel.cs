@@ -1007,6 +1007,17 @@ namespace FishSocial.Desktop
                     (_hub.codexSummary != null ? _hub.codexSummary.unlockedCount + " / " + _hub.codexSummary.totalSpecies : "—"));
                 CozyItemArt.Text(authoredProfile, "DesignPrivacy", _hub.isSelf ? "金币  " + p.coins + "\n动态可见范围  " +
                     (p.shareVisibility == "friends" ? "好友" : "公开") : "");
+                CozyItemArt.Rows(authoredProfile, "DesignStatCards",
+                    "trophy", "钓鱼等级", "Lv." + (_hub.progress != null ? _hub.progress.level : 1),
+                    "star", "经验", (_hub.progress != null ? _hub.progress.xp : 0) + " XP",
+                    "fish", "图鉴收集", _hub.codexSummary != null
+                        ? _hub.codexSummary.unlockedCount + " / " + _hub.codexSummary.totalSpecies : "—");
+                var visibility = p.shareVisibility == "friends" ? "好友" : "公开";
+                if (_hub.isSelf)
+                    CozyItemArt.Rows(authoredProfile, "DesignInfoRows",
+                        "coin", "金币", p.coins.ToString(), "social", "动态可见范围", visibility);
+                else
+                    CozyItemArt.Rows(authoredProfile, "DesignInfoRows", "social", "动态可见范围", visibility);
                 FishInventoryItemDto showcased = null;
                 foreach (var fish in _hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>())
                     if (fish != null) { showcased = fish; break; }
@@ -1143,7 +1154,7 @@ namespace FishSocial.Desktop
                     got ? "✓ " + DesktopGameData.SpeciesName(def.speciesId) + "\n×" + entry.totalCaught : "？？？",
                     () => ShowCodexDetail(captured, capturedEntry),
                     got ? new Color(1f, 0.92f, 0.78f, 1f) : CatTheme.Cream,
-                    15);
+                    15, CozyItemArt.Fish(def.speciesId), !got);
             }
             if (_codexDetail != null)
                 _codexDetail.text = "已解锁 " + unlocked + " / " + catalog.Length +
@@ -1199,10 +1210,7 @@ namespace FishSocial.Desktop
                 if (item == null)
                 {
                     CreateCard(_showcaseGrid, "Slot" + i, "空位 " + slot, () =>
-                    {
-                        if (_showcaseDetail != null)
-                            _showcaseDetail.text = "格子 " + slot + " 为空。\n可在「编辑资料」中装备背包鱼。";
-                    }, null, 16);
+                        ShowShowcaseNote("格子 " + slot + " 为空。\n可在「编辑资料」中装备背包鱼。"), null, 16);
                     continue;
                 }
                 var captured = item;
@@ -1211,10 +1219,17 @@ namespace FishSocial.Desktop
                     name + "\n" + DesktopFishCatalog.QualityName(item.quality) +
                     "\n" + item.sizeM.ToString("0.00") + "m",
                     () => ShowFishDetail(_showcaseDetail, "展示柜格子 " + slot, captured),
-                    CatTheme.Cream, 15);
+                    CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId));
             }
-            if (_showcaseDetail != null)
-                _showcaseDetail.text = "点击左侧格子查看鱼获资料。";
+            ShowShowcaseNote("点击左侧格子查看鱼获资料。");
+        }
+
+        void ShowShowcaseNote(string message)
+        {
+            if (_showcaseDetail == null)
+                return;
+            CozyItemArt.Rows(_showcaseDetail.transform.parent, "ShowcaseDetailRows");
+            _showcaseDetail.text = message;
         }
 
         void ShowFishDetail(Text target, string title, FishInventoryItemDto item)
@@ -1222,12 +1237,43 @@ namespace FishSocial.Desktop
             if (target == null || item == null)
                 return;
             var species = DesktopFishCatalog.GetSpecies(item.speciesId);
+            var name = species != null ? species.Name : item.speciesId;
             var caught = item.caughtAt > 0
                 ? DateTimeOffset.FromUnixTimeMilliseconds(item.caughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm")
                 : "—";
+            var cells = new List<string>
+            {
+                "star", "品质", DesktopFishCatalog.QualityName(item.quality),
+                "hook", "体长", item.sizeM.ToString("0.00") + " m",
+                "fish", "重量", DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)),
+                "clock", "捕获时间", caught,
+            };
+            if (!string.IsNullOrEmpty(item.pondId))
+            {
+                cells.Add("pond");
+                cells.Add("来源塘");
+                cells.Add(item.pondId);
+            }
+            if (species != null)
+            {
+                cells.Add("leaf");
+                cells.Add("食性");
+                cells.Add(species.DietLabel);
+                cells.Add("medal");
+                cells.Add("脱钩率");
+                cells.Add((species.BaseEscapeRate * 100f).ToString("0.0") + "%");
+                cells.Add("rod");
+                cells.Add("推荐鱼饵");
+                cells.Add(DesktopFishCatalog.TopBaits(species));
+            }
+            if (CozyItemArt.Rows(target.transform.parent, "ShowcaseDetailRows", cells.ToArray()))
+            {
+                target.text = name;
+                return;
+            }
             target.text =
                 title + "\n\n" +
-                (species != null ? species.Name : item.speciesId) + "\n" +
+                name + "\n" +
                 "品质：" + DesktopFishCatalog.QualityName(item.quality) + "\n" +
                 "体长：" + item.sizeM.ToString("0.00") + "m\n" +
                 "重量：" + DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) + "\n" +
@@ -1668,7 +1714,7 @@ namespace FishSocial.Desktop
 
         static void CreateCard(
             Transform parent, string name, string label, Action onClick,
-            Color? tint = null, int fontSize = 12)
+            Color? tint = null, int fontSize = 12, Sprite art = null, bool silhouette = false)
         {
             var go = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", parent);
             if (go == null)
@@ -1684,6 +1730,16 @@ namespace FishSocial.Desktop
                 return;
             }
             text.text = label;
+            var artImage = DesktopModalUi.FindComponent<Image>(go.transform, "DesignItemArt");
+            if (artImage != null)
+            {
+                CozyItemArt.Set(go.transform, "DesignItemArt", art);
+                if (art != null && silhouette)
+                    artImage.color = new Color(CatTheme.Ink.r, CatTheme.Ink.g, CatTheme.Ink.b, 0.22f);
+                var anchorMax = text.rectTransform.anchorMax;
+                anchorMax.y = art != null ? 0.42f : 1f;
+                text.rectTransform.anchorMax = anchorMax;
+            }
             button.onClick.RemoveAllListeners();
             button.interactable = onClick != null;
             if (onClick != null)
@@ -1708,6 +1764,21 @@ namespace FishSocial.Desktop
             text.text = label;
             var layout = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
             CozyItemArt.Text(go.transform, "DesignState", name == "empty" ? "" : unlocked ? "已完成" : "未完成");
+            var state = DesktopModalUi.FindComponent<Text>(go.transform, "DesignState");
+            if (state != null)
+                state.color = unlocked ? CozyItemArt.CompletedText : CatTheme.Ink;
+            var badge = DesktopModalUi.FindComponent<Image>(go.transform, "DesignStateBadge");
+            if (badge != null)
+            {
+                badge.gameObject.SetActive(name != "empty");
+                badge.color = unlocked ? CozyItemArt.CompletedBadge : CozyItemArt.PendingBadge;
+            }
+            var seal = DesktopModalUi.FindComponent<Image>(go.transform, "Reflow_AchievementSeal");
+            if (seal != null)
+                seal.color = new Color(1f, 1f, 1f, unlocked || name == "empty" ? 1f : 0.45f);
+            var split = label.IndexOf('\n');
+            if (split > 0 && badge != null)
+                text.text = "<b><size=23>" + label.Substring(0, split) + "</size></b>" + label.Substring(split);
             layout.minHeight = 100f;
             layout.preferredHeight = 100f;
             layout.flexibleHeight = 0f;

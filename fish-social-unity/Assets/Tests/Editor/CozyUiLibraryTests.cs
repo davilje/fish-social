@@ -127,7 +127,8 @@ namespace FishSocial.Tests.Editor
                 CatTheme.ApplySlicedImage(image);
                 Assert.AreEqual(Image.Type.Sliced, image.type);
                 Assert.IsFalse(image.preserveAspect);
-                var populate = typeof(Image).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic);
+                var populate = typeof(Image).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic,
+                    null, new[] { typeof(VertexHelper) }, null);
                 Assert.NotNull(populate);
                 using (var vertices = new VertexHelper())
                 {
@@ -141,11 +142,15 @@ namespace FishSocial.Tests.Editor
             }
         }
 
-        [TestCase("buttons/plate-default.png", 64, 63, 10f, 28f, 28f)]
-        [TestCase("buttons/plate-hover.png", 64, 63, 10f, 80f, 44f)]
-        [TestCase("buttons/plate-pressed.png", 64, 63, 10f, 352f, 54f)]
-        [TestCase("panels/paper-compact.png", 64, 63, 10f, 278f, 25f)]
-        [TestCase("panels/paper.png", 128, 125, 20f, 420f, 180f)]
+        [TestCase("buttons/plate-default.png", 64, 63, 12f, 40f, 36f)]
+        [TestCase("buttons/plate-hover.png", 64, 63, 12f, 80f, 44f)]
+        [TestCase("buttons/plate-pressed.png", 64, 63, 12f, 352f, 54f)]
+        [TestCase("buttons/plate-large-default.png", 80, 72, 18f, 214f, 76f)]
+        [TestCase("panels/track.png", 40, 26, 12f, 278f, 25f)]
+        [TestCase("panels/chip.png", 48, 40, 18f, 96f, 38f)]
+        [TestCase("panels/paper-compact.png", 64, 63, 10f, 174f, 40f)]
+        [TestCase("panels/paper.png", 128, 125, 22f, 420f, 180f)]
+        [TestCase("panels/window.png", 160, 156, 32f, 900f, 496f)]
         public void ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(string path, int sourceWidth,
             int sourceHeight, float border, float width, float height)
         {
@@ -161,7 +166,8 @@ namespace FishSocial.Tests.Editor
                 image.type = Image.Type.Sliced;
                 image.pixelsPerUnitMultiplier = 1f;
                 image.rectTransform.sizeDelta = new Vector2(width, height);
-                var populate = typeof(Image).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic);
+                var populate = typeof(Image).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic,
+                    null, new[] { typeof(VertexHelper) }, null);
                 var horizontal = new SortedSet<float>();
                 var vertical = new SortedSet<float>();
                 using (var vertices = new VertexHelper())

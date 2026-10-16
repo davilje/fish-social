@@ -20,6 +20,7 @@ namespace FishSocial.Desktop
         [SerializeField] Sprite normalSprite;
         [SerializeField] Sprite hoverSprite;
         [SerializeField] Sprite pressedSprite;
+        [SerializeField] Sprite selectedSprite;
         [SerializeField] Color tint = Color.white;
         [SerializeField] bool explicitTint;
         bool initialized;
@@ -55,6 +56,34 @@ namespace FishSocial.Desktop
             tint = value;
             explicitTint = true;
             RefreshState();
+        }
+
+        void ApplyPlateFamily()
+        {
+            var rect = transform as RectTransform;
+            var height = 0f;
+            if (rect != null)
+            {
+                var stretched = rect.anchorMax.y - rect.anchorMin.y > 0.001f;
+                height = stretched ? rect.rect.height : Mathf.Abs(rect.sizeDelta.y);
+                if (height < 1f)
+                    height = Mathf.Max(rect.rect.height, Mathf.Abs(rect.sizeDelta.y));
+            }
+            var large = height >= 58f;
+            var prefix = large ? "buttons/plate-large-" : "buttons/plate-";
+            var border = large ? CatTheme.PlateLargeBorder : CatTheme.PlateBorder;
+            normalSprite = CatTheme.LoadCozy(prefix + "default.png", border);
+            hoverSprite = CatTheme.LoadCozy(prefix + "hover.png", border);
+            pressedSprite = CatTheme.LoadCozy(prefix + "pressed.png", border);
+            selectedSprite = CatTheme.LoadCozy(prefix + "selected.png", border);
+            if (button == null)
+                return;
+            var states = button.spriteState;
+            states.highlightedSprite = hoverSprite;
+            states.selectedSprite = hoverSprite;
+            states.pressedSprite = pressedSprite;
+            states.disabledSprite = normalSprite;
+            button.spriteState = states;
         }
 
         public void SetStackedIcon(bool value)
@@ -129,6 +158,7 @@ namespace FishSocial.Desktop
             }
             else if (!explicitTint && primary && generatedPlate)
                 tint = CatTheme.Coral;
+            ApplyPlateFamily();
             if (icon == null || generatedIcon)
                 SetIconName(iconName);
             if (icon != null && icon.sprite != null)
@@ -265,15 +295,17 @@ namespace FishSocial.Desktop
                 return;
             interactable = CanInteract();
             var depressed = interactable && ((pointerPressed && hovered) || submitPressed);
-            var highlighted = interactable && (hovered || selected || (!flat && focused));
+            var highlighted = selected || interactable && (hovered || (!flat && focused));
             var sprite = depressed ? pressedSprite != null ? pressedSprite : normalSprite
+                : selected && selectedSprite != null ? selectedSprite
                 : highlighted ? hoverSprite != null ? hoverSprite : normalSprite : normalSprite;
             var baseTint = selected ? Color.white : tint;
             var color = sprite != null ? baseTint
                 : selected ? SelectedColor : baseTint == Color.white ? CatTheme.Cream : baseTint;
             if (depressed && sprite == null)
                 color = new Color(color.r * 0.86f, color.g * 0.86f, color.b * 0.86f, color.a);
-            if (!interactable)
+            var dimmed = !interactable && !selected;
+            if (dimmed)
             {
                 color = Color.Lerp(color, CatTheme.Cream, 0.6f);
                 color.a = 0.55f;
@@ -285,7 +317,7 @@ namespace FishSocial.Desktop
             foreach (var offset in offsets)
             {
                 if (offset != null)
-                    offset.SetVisual(transform, depressed ? -3f : 0f, interactable ? 1f : 0.55f);
+                    offset.SetVisual(transform, depressed ? -3f : 0f, dimmed ? 0.55f : 1f);
             }
             HideHitImage();
         }

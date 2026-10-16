@@ -213,7 +213,7 @@ namespace FishSocial.Tests.Editor
             Assert.Throws<InvalidOperationException>(() => entry.Ensure());
             Assert.IsFalse(rebuilt);
             Assert.IsNull(AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.Folder + "/" + name + ".prefab"));
-            var overlay = new DesktopPrefabCatalog.Entry("OverlayFixture", "Overlay fixture", null, () => rebuilt = true);
+            var overlay = new DesktopPrefabCatalog.Entry("OverlayPondLayout", "Overlay fixture", null, () => rebuilt = true);
             overlay.Ensure();
             Assert.IsTrue(rebuilt);
         }

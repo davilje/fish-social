@@ -286,6 +286,7 @@ namespace FishSocial.Desktop.Social
                     "\"\\s*:"))
                 {
                     Debug.LogWarning("[SocialLobby] Missing response field: " + field);
+                    parsed = null;
                     error = ProtocolError;
                     return false;
                 }

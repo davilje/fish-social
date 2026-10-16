@@ -93,6 +93,7 @@
 | [BUG修复-Overlay形象进游戏不恢复.md](./specs/BUG修复-Overlay形象进游戏不恢复.md) | **已实现** | BUG-24：冷启动 Overlay 恢复已保存形象 |
 | [BUG修复-Overlay打窝按钮剩余口数.md](./specs/BUG修复-Overlay打窝按钮剩余口数.md) | **已实现** | BUG-25：打窝按钮去掉剩余口数后缀 |
 | [BUG修复-Overlay悬停与右键菜单指针命中.md](./specs/BUG修复-Overlay悬停与右键菜单指针命中.md) | **已实现** | BUG-26：命中链 + 菜单后悬停用自有开关恢复 |
+| [BUG修复-Cozy桌面页还原.md](./specs/BUG修复-Cozy桌面页还原.md) | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 未做 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./specs/Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | **已实现** | STEAM-DESKTOP-18：浮窗条数 + actor-hint |
 | [Steam桌面端-19咬钩结算弹窗.md](./specs/Steam桌面端-19咬钩结算弹窗.md) | **已实现** | STEAM-DESKTOP-19：咬钩结束弹窗；取消领取；分档入包/回鱼 |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./specs/Steam桌面端-14EOverlay头顶状态图标与进度环.md) | **已实现** | STEAM-DESKTOP-14E：头顶 icon/环，修订 14D |

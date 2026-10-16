@@ -6,6 +6,9 @@ namespace FishSocial.Desktop
 {
     public static class CozyItemArt
     {
+        public static readonly Color CompletedBadge = new Color(0.86f, 0.94f, 0.84f, 1f);
+        public static readonly Color PendingBadge = new Color(0.95f, 0.91f, 0.84f, 1f);
+        public static readonly Color CompletedText = new Color(0.24f, 0.55f, 0.29f, 1f);
         static readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
         static bool loaded;
 
@@ -63,6 +66,32 @@ namespace FishSocial.Desktop
         {
             var label = root != null ? root.Find(path)?.GetComponent<UnityEngine.UI.Text>() : null;
             if (label != null) label.text = value ?? string.Empty;
+        }
+
+        public static bool Rows(Transform root, string path, params string[] cells)
+        {
+            var rows = root != null ? root.Find(path) : null;
+            if (rows == null)
+                return false;
+            var count = cells != null ? cells.Length / 3 : 0;
+            for (var index = 0; index < rows.childCount; index++)
+            {
+                var row = rows.GetChild(index);
+                row.gameObject.SetActive(index < count);
+                if (index >= count)
+                    continue;
+                var icon = row.Find("Icon")?.GetComponent<Image>();
+                if (icon != null)
+                {
+                    icon.sprite = string.IsNullOrEmpty(cells[index * 3]) ? null
+                        : CatTheme.LoadCozy("icons/" + cells[index * 3] + ".png", Vector4.zero);
+                    icon.enabled = icon.sprite != null;
+                    icon.preserveAspect = true;
+                }
+                Text(row, "Label", cells[index * 3 + 1]);
+                Text(row, "Value", cells[index * 3 + 2]);
+            }
+            return true;
         }
     }
 }

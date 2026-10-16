@@ -60,6 +60,7 @@ namespace FishSocial.Desktop.Editor
                 CozyItemArt.Text(main, "Header/ProfileCard/Name", "小橘");
                 CozyItemArt.Text(main, "Header/ProfileCard/Level", "Lv.7");
                 CozyItemArt.Text(main, "Header/ProfileCard/XpLabel", "320 / 500");
+                DesktopModalUi.SetXpFill(DesktopModalUi.FindXpFill(main.Find("Header")), 320f / 500f);
                 CozyItemArt.Text(main, "Header/FishCoins/Amount", "1,280");
                 CozyItemArt.Text(main, "Header/CatchCount/Amount", "24");
                 var page = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + name + ".prefab"), main.Find("Content"), false);
@@ -103,6 +104,27 @@ namespace FishSocial.Desktop.Editor
             return item;
         }
 
+        static void Select(GameObject item, bool selected)
+        {
+            var button = item.GetComponent<Button>();
+            if (button == null)
+                return;
+            DesktopModalUi.StyleButton(button);
+            button.GetComponent<CozyButtonVisual>()?.SetSelected(selected);
+        }
+
+        static void Art(GameObject item, Sprite sprite, bool silhouette)
+        {
+            var image = item.transform.Find("DesignItemArt")?.GetComponent<Image>();
+            var label = item.transform.Find("Label") as RectTransform;
+            if (image == null || label == null)
+                return;
+            CozyItemArt.Set(item.transform, "DesignItemArt", sprite);
+            if (sprite != null && silhouette)
+                image.color = new Color(CatTheme.Ink.r, CatTheme.Ink.g, CatTheme.Ink.b, 0.22f);
+            label.anchorMax = new Vector2(1f, sprite != null ? 0.42f : 1f);
+        }
+
         static void Fill(GameObject page, string name, string tab = null)
         {
             var root = page.transform;
@@ -116,9 +138,29 @@ namespace FishSocial.Desktop.Editor
                     var item = Item("CatchSlot", grid);
                     CozyItemArt.Set(item.transform, "DesignItemArt", CozyItemArt.Fish(fishIds[index]));
                     CozyItemArt.Text(item.transform, "Label", fishNames[index] + "\n0." + (86 - index * 6) + " m");
+                    Select(item, index == 0);
                 }
                 CozyItemArt.Set(root, "DesignArt", CozyItemArt.Fish("black_carp"));
-                CozyItemArt.Text(root, "Detail", "青鱼\n尺寸  0.86 m\n品质  稀有\n来源  花溪鱼塘\n售价  120 金币");
+                CozyItemArt.Text(root, "DesignName", "青鱼");
+                CozyItemArt.Rows(root, "DetailRows", "star", "品质", "稀有", "hook", "体长", "0.86 m",
+                    "fish", "重量", "7.9 kg（约 15.8 斤）", "coin", "参考售价", "120 金币", "pond", "回鱼", "约 36 金币");
+                CozyItemArt.Text(root, "Detail", "");
+            }
+            if (name == "PanelPondSelection")
+            {
+                var cards = root.Find("PondCardScroll/Viewport/Cards");
+                var ponds = new[] { "樱花池塘", "青石溪流", "远山湖泊" };
+                for (var index = 0; index < ponds.Length; index++)
+                {
+                    var card = Item("PondSelectionCard", cards);
+                    CozyItemArt.Text(card.transform, "Name", ponds[index]);
+                    CozyItemArt.Text(card.transform, "Description", "淡水 · 温带\n适合新手的平静水域");
+                    CozyItemArt.Text(card.transform, "Fee", "入场费：" + (index * 20) + " 金币 / 2 小时");
+                    CozyItemArt.Text(card.transform, "Level", index == 0 ? "等级要求：无" : "需要钓鱼等级 " + index * 5);
+                    CozyItemArt.Text(card.transform, "Access", index == 2 ? "暂未开放\n前往地图查看开放条件" : "前往地图查看开放条件");
+                    CozyItemArt.Set(card.transform, "PondIcon", CatTheme.LoadCozy(index == 2 ? "icons/lock.png" : "icons/pond.png", Vector4.zero));
+                    DesktopModalUi.StyleTree(card.transform);
+                }
             }
             if (name == "PanelShop" || name == "PanelEquipment")
             {
@@ -131,9 +173,12 @@ namespace FishSocial.Desktop.Editor
                     CozyItemArt.Set(item.transform, "DesignItemArt", CozyItemArt.Product(equipment ? 1 : 0, null, names[index]));
                     CozyItemArt.Text(item.transform, "Label", names[index]);
                     CozyItemArt.Text(item.transform, "Meta", equipment ? "已拥有" : "每次使用扣金");
+                    Select(item, index == 0);
                 }
+                Select(root.Find(equipment ? "Tabs/Tackle" : "Tabs/Bait").gameObject, true);
                 CozyItemArt.Set(root, "Details/DesignArt", CozyItemArt.Product(equipment ? 1 : 0, null, names[0]));
-                CozyItemArt.Text(root, "Details/DescriptionScroll/Description", names[0] + (equipment ? "\n状态  已拥有\n适合悠闲的日常垂钓。" : "\n基础鱼饵\n咬钩成功时按规则扣金。\n鱼饵不进货，没有库存。"));
+                CozyItemArt.Text(root, "Details/DesignName", names[0]);
+                CozyItemArt.Text(root, "Details/DescriptionScroll/Description", equipment ? "状态  已拥有\n适合悠闲的日常垂钓。" : "基础鱼饵\n咬钩成功时按规则扣金。\n鱼饵不进货，没有库存。");
                 root.Find("Details/Buy").gameObject.SetActive(!equipment);
                 root.Find("Details/Equip").gameObject.SetActive(equipment);
             }
@@ -144,21 +189,36 @@ namespace FishSocial.Desktop.Editor
                 var achievements = name == "PanelAchievements";
                 var selected = content.Find(tab != null ? "Tab_" + tab : achievements ? "Tab_成就" : "Tab_资料");
                 selected.gameObject.SetActive(true);
+                var sidebarTab = root.Find("Shell/Sidebar/" + selected.name);
+                if (sidebarTab != null)
+                    Select(sidebarTab.gameObject, true);
                 if (tab == "展示柜")
                 {
                     for (var index = 0; index < 8; index++)
                     {
                         var item = Item("ShowcaseSlot", selected.Find("ShowcaseGrid/Viewport/Content"));
-                        CozyItemArt.Text(item.transform, "Label", index < fishNames.Length ? fishNames[index] + "\n稀有\n0." + (86 - index * 6) + "m" : "空位 " + (index + 1));
+                        CozyItemArt.Text(item.transform, "Label", index < fishNames.Length ? fishNames[index] + "\n稀有  0." + (86 - index * 6) + "m" : "空位 " + (index + 1));
+                        Art(item, index < fishIds.Length ? CozyItemArt.Fish(fishIds[index]) : null, false);
+                        Select(item, index == 0);
                     }
-                    CozyItemArt.Text(selected, "Detail", "点击左侧格子查看鱼获资料。");
+                    CozyItemArt.Text(selected, "Detail", "青鱼");
+                    CozyItemArt.Rows(selected, "ShowcaseDetailRows",
+                        "star", "品质", "稀有",
+                        "hook", "体长", "0.86 m",
+                        "fish", "重量", "7.9 kg",
+                        "clock", "捕获时间", "2026-10-15 14:32",
+                        "pond", "来源塘", "花溪鱼塘",
+                        "leaf", "食性", "杂食",
+                        "medal", "脱钩率", "12.0%",
+                        "rod", "推荐鱼饵", "蚯蚓");
                 }
                 else if (tab == "图鉴")
                 {
                     for (var index = 0; index < 12; index++)
                     {
                         var item = Item("ShowcaseSlot", selected.Find("CodexGrid/Viewport/Content"));
-                        CozyItemArt.Text(item.transform, "Label", index < fishNames.Length ? "✓ " + fishNames[index] + "\n×" + (index + 2) : "？？？");
+                        CozyItemArt.Text(item.transform, "Label", index < 4 ? "✓ " + fishNames[index] + "  ×" + (index + 2) : "？？？");
+                        Art(item, CozyItemArt.Fish(fishIds[index % fishIds.Length]), index >= 4);
                     }
                     CozyItemArt.Text(selected, "Detail", "已解锁 6 / 50\n\n点击左侧格子查看物种资料与捕获记录。");
                 }
@@ -174,8 +234,12 @@ namespace FishSocial.Desktop.Editor
                     for (var index = 0; index < titles.Length; index++)
                     {
                         var item = Item("AchievementRow", selected.Find("Achievements/Viewport/Content"));
-                        CozyItemArt.Text(item.transform, "Label", titles[index]);
+                        var split = titles[index].IndexOf('\n');
+                        CozyItemArt.Text(item.transform, "Label", "<b><size=23>" + titles[index].Substring(0, split) + "</size></b>" + titles[index].Substring(split));
                         CozyItemArt.Text(item.transform, "DesignState", index < 2 ? "已完成" : "未完成");
+                        item.transform.Find("DesignState").GetComponent<Text>().color = index < 2 ? CozyItemArt.CompletedText : CatTheme.Ink;
+                        item.transform.Find("DesignStateBadge").GetComponent<Image>().color = index < 2 ? CozyItemArt.CompletedBadge : CozyItemArt.PendingBadge;
+                        item.transform.Find("Reflow_AchievementSeal").GetComponent<Image>().color = new Color(1f, 1f, 1f, index < 2 ? 1f : 0.45f);
                     }
                     CozyItemArt.Text(root, "DesignAchievementSummary/Value", "8 / 24");
                 }
@@ -185,8 +249,8 @@ namespace FishSocial.Desktop.Editor
                     CozyItemArt.Text(selected, "DesignName", "小橘");
                     CozyItemArt.Text(selected, "DesignBio", "今天也想钓到一条大鱼");
                     CozyItemArt.Text(selected, "DesignId", "ID：102408");
-                    CozyItemArt.Text(selected, "DesignStats", "钓鱼等级  7    XP  320\n图鉴收集  18 / 50");
-                    CozyItemArt.Text(selected, "DesignPrivacy", "金币  1280\n动态可见范围  公开");
+                    CozyItemArt.Rows(selected, "DesignStatCards", "trophy", "钓鱼等级", "Lv.7", "star", "经验", "320 XP", "fish", "图鉴收集", "18 / 50");
+                    CozyItemArt.Rows(selected, "DesignInfoRows", "coin", "金币", "1280", "social", "动态可见范围", "公开");
                     CozyItemArt.Set(selected, "DesignShowcase/Art", CozyItemArt.Fish("black_carp"));
                     CozyItemArt.Text(selected, "DesignShowcase/Species", "青鱼");
                     CozyItemArt.Text(selected, "DesignShowcase/Size", "0.86 m");

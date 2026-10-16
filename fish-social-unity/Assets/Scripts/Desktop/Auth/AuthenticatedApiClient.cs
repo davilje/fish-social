@@ -1244,6 +1244,7 @@ namespace FishSocial.Desktop.Auth
                         "\"\\s*:"))
                 {
                     Debug.LogWarning("[AuthenticatedApi] Missing response field: " + field);
+                    parsed = null;
                     error = ProtocolError;
                     return false;
                 }

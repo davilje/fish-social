@@ -170,7 +170,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.Clear(_grid);
             var count = Mathf.Max(MinSlots, _items != null ? _items.Length : 0);
             if (_items == null || _items.Length == 0)
-                _detail.text = "背包是空的。钓到鱼并领取后会显示在这里。";
+                ShowMessage("背包是空的。钓到鱼并领取后会显示在这里。");
             for (var i = 0; i < count; i++)
             {
                 var item = _items != null && i < _items.Length ? _items[i] : null;
@@ -179,6 +179,9 @@ namespace FishSocial.Desktop
                     continue;
                 slot.name = "Slot" + i;
                 CozyItemArt.Set(slot.transform, "DesignItemArt", item != null ? CozyItemArt.Fish(item.speciesId) : null);
+                var backing = slot.transform.Find("DesignArtBacking");
+                if (backing != null)
+                    backing.gameObject.SetActive(item != null);
                 var selected = item != null && item.id == _selectedId;
                 var slotButton = slot.GetComponent<Button>();
                 if (slotButton != null)
@@ -226,27 +229,51 @@ namespace FishSocial.Desktop
                 ? "可回当前塘（约增重 0.02~0.05m；需回鱼档）"
                 : "回鱼需在当前鱼塘钓位且选择回鱼档";
             string returnHint;
+            string returnValue;
             if (!eligible)
             {
-                if (DesktopGameData.ResolveReturnGoldMul(item.sizeM) <= 0f)
-                    returnHint = "回鱼约得：不可回（需达到 " + DesktopGameData.MinReturnWeightJin().ToString("0") + " 斤，且紫品及以上）";
-                else
-                    returnHint = "回鱼约得：不可回（需紫品及以上）";
+                var needsWeight = DesktopGameData.ResolveReturnGoldMul(item.sizeM) <= 0f;
+                returnHint = needsWeight
+                    ? "回鱼约得：不可回（需达到 " + DesktopGameData.MinReturnWeightJin().ToString("0") + " 斤，且紫品及以上）"
+                    : "回鱼约得：不可回（需紫品及以上）";
+                returnValue = needsWeight
+                    ? "不可回（需 " + DesktopGameData.MinReturnWeightJin().ToString("0") + " 斤+紫品）"
+                    : "不可回（需紫品+）";
             }
             else
             {
                 returnHint = "回鱼约得：" + returnGold + " 金币（卖价×" + (returnMul * 100f).ToString("0") + "%，" +
                              (jin > DesktopGameData.HeavyReturnWeightJin() ? ">100斤档" : "≥10斤档") + "）";
+                returnValue = "约 " + returnGold + " 金币" + (CanReturnHere() ? "" : " · 需钓位");
             }
-            _detail.text = "鱼种：" + species +
-                           "\n品质：" + quality +
-                           "\n体长：" + item.sizeM.ToString("0.00") + "m" +
-                           "\n重量：" + DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) +
-                           "（约 " + jin.ToString("0.##") + " 斤）" +
-                           "\n参考售价：" + sell + " 金币" +
-                           "\n" + returnHint +
-                           "\n" + seatHint;
+            var size = item.sizeM.ToString("0.00") + " m";
+            var weight = DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) +
+                         "（约 " + jin.ToString("0.##") + " 斤）";
+            CozyItemArt.Text(transform, "DesignName", species);
+            if (CozyItemArt.Rows(transform, "DetailRows",
+                    "star", "品质", quality,
+                    "hook", "体长", size,
+                    "fish", "重量", weight,
+                    "coin", "参考售价", sell + " 金币",
+                    "pond", "回鱼", returnValue))
+                _detail.text = string.Empty;
+            else
+                _detail.text = "鱼种：" + species +
+                               "\n品质：" + quality +
+                               "\n体长：" + size +
+                               "\n重量：" + weight +
+                               "\n参考售价：" + sell + " 金币" +
+                               "\n" + returnHint +
+                               "\n" + seatHint;
             RenderGrid();
+        }
+
+        void ShowMessage(string message)
+        {
+            CozyItemArt.Set(transform, "DesignArt", null);
+            CozyItemArt.Text(transform, "DesignName", string.Empty);
+            CozyItemArt.Rows(transform, "DetailRows");
+            _detail.text = message;
         }
 
         void SellSelected()
@@ -273,7 +300,7 @@ namespace FishSocial.Desktop
                 _coins.text = "金币：" + _coinsValue;
                 _selectedId = null;
                 _status.text = "出售成功，获得 " + earned + " 金币。";
-                _detail.text = _status.text;
+                ShowMessage(_status.text);
                 RenderGrid();
             }));
         }
@@ -314,7 +341,7 @@ namespace FishSocial.Desktop
                                    "，塘XP +" + pondXp +
                                    "，塘内增重约 " + sizeGainM.ToString("0.00") + "m" +
                                    "（现 " + newSizeM.ToString("0.00") + "m）。";
-                    _detail.text = _status.text;
+                    ShowMessage(_status.text);
                     RenderGrid();
                 }));
         }

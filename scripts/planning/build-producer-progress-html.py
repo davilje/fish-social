@@ -24,13 +24,13 @@ OUT = os.path.join(BASE, "策划进度看板.html")
 OUT_DOCS_COPY = os.path.join(BASE, "docs", "planning", "策划进度看板.html")
 XLSX_DOCS_FALLBACK = os.path.join(BASE, "docs", "planning", "项目开发需求计划表.xlsx")
 
-DONE = frozenset({"已实现", "已实现（MVP）"})
+DONE = frozenset({"已实现", "已实现（MVP）", "已验收"})
 OPEN = frozenset({"评审中", "已确认", "验收中", "未开始", "待开发"})
 SKIP = frozenset({"已废弃", "已定稿", "已文档化"})  # 不计入「待做进度」分母时单独说明
 
 
 def is_done_status(status: str) -> bool:
-    """认准完成态：精确「已实现」、带阶段前缀（Phase 0 / DP-A 已实现）、MVP 标注。"""
+    """认准完成态：已实现、已验收、带阶段前缀（Phase 0 / DP-A 已实现）、MVP 标注。"""
     s = (status or "").strip()
     if not s or s in SKIP:
         return False
