@@ -251,10 +251,68 @@ namespace FishSocial.Desktop
             return _nativeOverlay;
         }
 
+        const float OverlayPublishIntervalSeconds = 1f / 15f;
+        const int MaxOverlayAcks = 8;
+        readonly System.Collections.Generic.List<NativeOverlayCommandAckDto> _overlayAcks =
+            new System.Collections.Generic.List<NativeOverlayCommandAckDto>();
+        bool _overlayStateDirty;
+        float _lastOverlayPublishAt = -1f;
+
         public void PublishNativeOverlayState()
+        {
+            PublishNativeOverlayState(false);
+        }
+
+        void PublishNativeOverlayState(bool urgent)
         {
             if (_nativeOverlay == null)
                 return;
+            _overlayStateDirty = true;
+            if (urgent ||
+                _lastOverlayPublishAt < 0f ||
+                Time.unscaledTime - _lastOverlayPublishAt >= OverlayPublishIntervalSeconds)
+                FlushNativeOverlayState();
+        }
+
+        void LateUpdate()
+        {
+            if (_nativeOverlay != null && Time.unscaledDeltaTime > 0.25f)
+                Debug.Log(
+                    "[Latency][Unity] frame_stall ms=" +
+                    Mathf.RoundToInt(Time.unscaledDeltaTime * 1000f) +
+                    " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            if (_overlayStateDirty &&
+                Time.unscaledTime - _lastOverlayPublishAt >= OverlayPublishIntervalSeconds)
+                FlushNativeOverlayState();
+        }
+
+        void CompleteOverlayAck(long commandId, string command, bool ok, string message)
+        {
+            if (commandId <= 0)
+                return;
+            _overlayAcks.Add(new NativeOverlayCommandAckDto
+            {
+                commandId = commandId,
+                command = command ?? string.Empty,
+                done = true,
+                ok = ok,
+                message = message ?? string.Empty,
+            });
+            if (_overlayAcks.Count > MaxOverlayAcks)
+                _overlayAcks.RemoveRange(0, _overlayAcks.Count - MaxOverlayAcks);
+            if (_nativeOverlay != null)
+            {
+                _overlayStateDirty = true;
+                FlushNativeOverlayState();
+            }
+        }
+
+        void FlushNativeOverlayState()
+        {
+            if (_nativeOverlay == null)
+                return;
+            _overlayStateDirty = false;
+            _lastOverlayPublishAt = Time.unscaledTime;
 
             _petState?.RefreshFromApp();
             var dto = new NativeOverlayStateDto
@@ -283,6 +341,7 @@ namespace FishSocial.Desktop
                 _pendingGroundbaitBubble = null;
             }
             dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
+            dto.commandAcks = _overlayAcks.ToArray();
             _nativeOverlay.PublishState(dto);
         }
 
@@ -332,7 +391,7 @@ namespace FishSocial.Desktop
 
         void OnPetVisualStateChanged(PetVisualState _)
         {
-            PublishNativeOverlayState();
+            PublishNativeOverlayState(true);
         }
 
         void OnPondStateChanged(SocialSocketState state, string message)
@@ -352,9 +411,11 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
-        void OnPondUserUpdated(PondUserDto _)
+        void OnPondUserUpdated(PondUserDto user)
         {
-            PublishNativeOverlayState();
+            var own = _pondSession?.CurrentUser;
+            PublishNativeOverlayState(
+                user != null && own != null && user.id == own.id);
         }
 
         void OnPondUsersChanged()
@@ -364,12 +425,12 @@ namespace FishSocial.Desktop
 
         void OnPondFishBite(PendingFishCatchDto _)
         {
-            PublishNativeOverlayState();
+            PublishNativeOverlayState(true);
         }
 
         void OnPondFishMiss(FishingMissDto _)
         {
-            PublishNativeOverlayState();
+            PublishNativeOverlayState(true);
         }
 
         void OnPondFishCatchSettled(FishCatchSettledDto _)
@@ -435,11 +496,11 @@ namespace FishSocial.Desktop
                     return;
                 case "take_spot":
                     ExecuteOverlayCommand(
-                        callback => _pondSession?.TakeSpot(message.spotId, callback));
+                        callback => _pondSession?.TakeSpot(message.spotId, callback), message);
                     return;
                 case "leave_spot":
                     ExecuteOverlayCommand(
-                        callback => _pondSession?.LeaveSpot(callback));
+                        callback => _pondSession?.LeaveSpot(callback), message);
                     return;
                 case "start_fishing":
                     ExecuteOverlayCommand(
@@ -447,13 +508,13 @@ namespace FishSocial.Desktop
                             string.IsNullOrEmpty(message.spotId)
                                 ? _pondSession?.FirstSpotId
                                 : message.spotId,
-                            callback));
+                            callback), message);
                     return;
                 case "groundbait_start":
-                    ExecuteOverlayGroundbait(message.spotId);
+                    ExecuteOverlayGroundbait(message.spotId, message.commandId);
                     return;
                 case "stop_fishing":
-                    ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback));
+                    ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback), message);
                     return;
                 case "confirm_overlay_prompt":
                     _pondSession?.DismissOverlayHookPrompt();
@@ -470,13 +531,13 @@ namespace FishSocial.Desktop
                     return;
                 case "send_pond_chat":
                     ExecuteOverlayCommand(
-                        callback => _pondSession?.SendChat(message.text, callback));
+                        callback => _pondSession?.SendChat(message.text, callback), message);
                     return;
                 case "debug_police_raid":
-                    ExecuteOverlayPoliceRaid();
+                    ExecuteOverlayPoliceRaid(message.commandId);
                     return;
                 case "gameplay_debug":
-                    ExecuteOverlayGameplayDebug(message.text);
+                    ExecuteOverlayGameplayDebug(message.text, message.commandId);
                     return;
             }
 
@@ -495,27 +556,28 @@ namespace FishSocial.Desktop
             _shellUi?.HandleProductMenu(action);
         }
 
-        void ExecuteOverlayPoliceRaid()
+        void ExecuteOverlayPoliceRaid(long commandId)
         {
             var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
             if (api == null || !api.CanUse)
             {
                 _nativeOverlayError = "需先登录后再一键出警。";
-                PublishNativeOverlayState();
+                CompleteOverlayAck(commandId, "debug_police_raid", false, _nativeOverlayError);
                 return;
             }
 
             if (_policeRaidRoutine != null)
                 StopCoroutine(_policeRaidRoutine);
-            _policeRaidRoutine = StartCoroutine(TriggerPoliceRaidRoutine(api));
+            _policeRaidRoutine = StartCoroutine(TriggerPoliceRaidRoutine(api, commandId));
         }
 
-        void ExecuteOverlayGameplayDebug(string action)
+        void ExecuteOverlayGameplayDebug(string action, long commandId)
         {
+            _overlayDebugCommandId = commandId;
             if (!GameplayDebugGate.IsClientEnabled())
             {
                 _nativeOverlayError = "当前客户端未开启玩法 Debug。";
-                PublishNativeOverlayState();
+                FinishOverlayDebug(false);
                 return;
             }
 
@@ -523,6 +585,7 @@ namespace FishSocial.Desktop
                 string.IsNullOrWhiteSpace(action))
             {
                 _gameplayDebug?.Toggle();
+                FinishOverlayDebug(true, "已切换 Unity Debug 面板");
                 return;
             }
 
@@ -579,7 +642,29 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            _gameplayDebug?.RunAction(action);
+            if (_gameplayDebug == null)
+            {
+                _nativeOverlayError = "玩法 Debug 未初始化。";
+                FinishOverlayDebug(false);
+                return;
+            }
+            var debugCommandId = commandId;
+            _overlayDebugCommandId = 0;
+            _gameplayDebug.RunAction(action, (ok, result) =>
+                CompleteOverlayAck(debugCommandId, "gameplay_debug", ok, result));
+        }
+
+        long _overlayDebugCommandId;
+        bool _overlayDebugLastOk;
+
+        void FinishOverlayDebug(bool ok, string message = null)
+        {
+            var commandId = _overlayDebugCommandId;
+            _overlayDebugCommandId = 0;
+            if (commandId > 0)
+                CompleteOverlayAck(commandId, "gameplay_debug", ok, message ?? _nativeOverlayError);
+            else
+                PublishNativeOverlayState();
         }
 
         void StartOverlayDebugInspect(string scope)
@@ -588,7 +673,7 @@ namespace FishSocial.Desktop
             if (api == null || !api.CanUse)
             {
                 _nativeOverlayError = "需先登录后再查看塘鱼。";
-                PublishNativeOverlayState();
+                FinishOverlayDebug(false);
                 return;
             }
 
@@ -601,8 +686,10 @@ namespace FishSocial.Desktop
         {
             _nativeOverlayError = scope == "spot" ? "正在拉取当前钓位鱼…" : "正在拉取当前鱼塘鱼…";
             PublishNativeOverlayState();
+            _overlayDebugLastOk = false;
             yield return api.GetGameplayDebugPondFish(scope, (ok, fish, pondId, spotId, message) =>
             {
+                _overlayDebugLastOk = ok;
                 if (!ok)
                 {
                     _nativeOverlayError = message ?? "拉取失败。";
@@ -619,7 +706,7 @@ namespace FishSocial.Desktop
                     (scope == "spot" && !string.IsNullOrEmpty(spotId) ? " · 位 " + spotId : "");
             });
             _overlayDebugInspectRoutine = null;
-            PublishNativeOverlayState();
+            FinishOverlayDebug(_overlayDebugLastOk);
         }
 
         void StartOverlayDebugSpotStats()
@@ -628,7 +715,7 @@ namespace FishSocial.Desktop
             if (api == null || !api.CanUse)
             {
                 _nativeOverlayError = "需先登录后再查看钓位数据。";
-                PublishNativeOverlayState();
+                FinishOverlayDebug(false);
                 return;
             }
 
@@ -641,8 +728,10 @@ namespace FishSocial.Desktop
         {
             _nativeOverlayError = "正在拉取钓位数据…";
             PublishNativeOverlayState();
+            _overlayDebugLastOk = false;
             yield return api.GetGameplayDebugSpotStats((ok, report, rawJson, message) =>
             {
+                _overlayDebugLastOk = ok;
                 if (!ok)
                 {
                     _nativeOverlayError = message ?? "拉取钓位数据失败。";
@@ -655,7 +744,7 @@ namespace FishSocial.Desktop
                 _nativeOverlayError = "已加载当前钓位数据";
             });
             _overlayDebugInspectRoutine = null;
-            PublishNativeOverlayState();
+            FinishOverlayDebug(_overlayDebugLastOk);
         }
 
         void StartOverlayDebugCatch(string fishId, string apiAction)
@@ -664,7 +753,7 @@ namespace FishSocial.Desktop
             if (api == null || !api.CanUse)
             {
                 _nativeOverlayError = "需先登录后再钓获测试鱼。";
-                PublishNativeOverlayState();
+                FinishOverlayDebug(false);
                 return;
             }
 
@@ -688,7 +777,7 @@ namespace FishSocial.Desktop
                     : (string.IsNullOrEmpty(message) ? "钓获结算失败" : message);
             });
             _overlayDebugInspectRoutine = null;
-            PublishNativeOverlayState();
+            FinishOverlayDebug(ok);
             if (ok && !autoReturned)
                 yield return RefreshInventoryAfterDebug();
         }
@@ -699,14 +788,14 @@ namespace FishSocial.Desktop
             if (api == null || !api.CanUse)
             {
                 _nativeOverlayError = "需先登录后再强制上钩。";
-                PublishNativeOverlayState();
+                FinishOverlayDebug(false);
                 return;
             }
 
             if (string.IsNullOrEmpty(fishId))
             {
                 _nativeOverlayError = "未指定鱼 ID。";
-                PublishNativeOverlayState();
+                FinishOverlayDebug(false);
                 return;
             }
 
@@ -719,14 +808,16 @@ namespace FishSocial.Desktop
         {
             _nativeOverlayError = "正在强制上钩…";
             PublishNativeOverlayState();
+            _overlayDebugLastOk = false;
             yield return api.PostGameplayDebug("force_bite", fishId, (ok, message) =>
             {
+                _overlayDebugLastOk = ok;
                 _nativeOverlayError = ok
                     ? (string.IsNullOrEmpty(message) ? "强制上钩成功" : message)
                     : (string.IsNullOrEmpty(message) ? "强制上钩失败" : message);
             });
             _overlayDebugInspectRoutine = null;
-            PublishNativeOverlayState();
+            FinishOverlayDebug(_overlayDebugLastOk);
         }
 
         IEnumerator RefreshInventoryAfterDebug()
@@ -741,23 +832,32 @@ namespace FishSocial.Desktop
             });
         }
 
-        IEnumerator TriggerPoliceRaidRoutine(IAuthenticatedApiClient api)
+        IEnumerator TriggerPoliceRaidRoutine(IAuthenticatedApiClient api, long commandId)
         {
             _nativeOverlayError = "正在请求服务端出警…";
             PublishNativeOverlayState();
+            var succeeded = false;
             yield return api.TriggerDebugPoliceRaid((ok, message) =>
             {
+                succeeded = ok;
                 _nativeOverlayError = ok ? string.Empty : (message ?? "出警失败。");
             });
-            PublishNativeOverlayState();
             _policeRaidRoutine = null;
+            CompleteOverlayAck(commandId, "debug_police_raid", succeeded,
+                succeeded ? "已请求服务端出警" : _nativeOverlayError);
+            PublishNativeOverlayState();
         }
 
-        void ExecuteOverlayCommand(System.Action<System.Action<bool, string>> operation)
+        void ExecuteOverlayCommand(
+            System.Action<System.Action<bool, string>> operation,
+            NativeOverlayCommandDto command = null)
         {
+            var commandId = command != null ? command.commandId : 0;
+            var commandName = command != null ? command.command : string.Empty;
             if (_pondSession == null)
             {
                 _nativeOverlayError = "鱼塘会话尚未初始化。";
+                CompleteOverlayAck(commandId, commandName, false, _nativeOverlayError);
                 PublishNativeOverlayState();
                 return;
             }
@@ -767,15 +867,17 @@ namespace FishSocial.Desktop
             operation((ok, message) =>
             {
                 _nativeOverlayError = ok ? string.Empty : (message ?? "操作失败。");
+                CompleteOverlayAck(commandId, commandName, ok, ok ? string.Empty : _nativeOverlayError);
                 PublishNativeOverlayState();
             });
         }
 
-        void ExecuteOverlayGroundbait(string preferredId)
+        void ExecuteOverlayGroundbait(string preferredId, long commandId)
         {
             if (_pondSession == null)
             {
                 _nativeOverlayError = "鱼塘会话尚未初始化。";
+                CompleteOverlayAck(commandId, "groundbait_start", false, _nativeOverlayError);
                 PublishNativeOverlayState();
                 return;
             }
@@ -783,6 +885,7 @@ namespace FishSocial.Desktop
             if (string.IsNullOrEmpty(id))
             {
                 _nativeOverlayError = "尚未解锁任何窝料（需钓鱼等级 3）";
+                CompleteOverlayAck(commandId, "groundbait_start", false, _nativeOverlayError);
                 PublishNativeOverlayState();
                 return;
             }
@@ -797,6 +900,7 @@ namespace FishSocial.Desktop
                 if (!ok && !string.IsNullOrEmpty(message) &&
                     (message.Contains("金币") || message.Contains("上限")))
                     QueueGroundbaitBubble(message);
+                CompleteOverlayAck(commandId, "groundbait_start", ok, _nativeOverlayError);
                 PublishNativeOverlayState();
             });
         }

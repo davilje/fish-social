@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace FishSocialOverlay
 {
@@ -34,6 +35,27 @@ namespace FishSocialOverlay
         readonly Dictionary<string, OverlayPetActor> _others =
             new Dictionary<string, OverlayPetActor>();
         OverlayPetActor _ownActor;
+        const long PredictedSeatTimeoutMs = 3000;
+        const long PredictedActionTimeoutMs = 5000;
+        const long HookExpiryGraceMs = 120;
+        // Match server/src/fishingStateMachine.ts PHASE_MS.
+        const int LocalBaitingMs = 800;
+        const int LocalCastingMs = 600;
+        const int LocalStoppingMs = 250;
+        const int LocalGroundbaitMs = 1500;
+        IpcMessage _lastMessage;
+        string _predictedSpotId;
+        long _predictedUntilMs;
+        string _actionVisual;
+        string _actionPhase;
+        bool _actionGroundbait;
+        bool _actionLeavesSpot;
+        string _actionBaseline;
+        long _actionUntilMs;
+        string _localSequence;
+        int _localSequenceStep;
+        DispatcherTimer _hookExpiryTimer;
+        DispatcherTimer _localPhaseTimer;
         string _pondId = string.Empty;
         string _ownPlayerId = string.Empty;
         string _ownUserId = string.Empty;
@@ -42,6 +64,35 @@ namespace FishSocialOverlay
         public event Action<string> SpotSelected;
         /// <summary>Fired when pond layout / content size changes (STEAM-DESKTOP-14B).</summary>
         public event Action SceneContentChanged;
+        /// <summary>Fired when local seat/action prediction changes HUD-relevant phase.</summary>
+        public event Action LocalPresentationChanged;
+
+        public bool HasPredictedSeat => _predictedSpotId != null;
+
+        public bool HasActionPrediction => _actionBaseline != null;
+
+        public bool EffectiveHasOwnSpot =>
+            !string.IsNullOrWhiteSpace(EffectiveOwnSpotId(_lastMessage));
+
+        public string EffectiveOwnPhase
+        {
+            get
+            {
+                if (_actionBaseline != null && !string.IsNullOrEmpty(_actionPhase))
+                    return _actionPhase;
+                if (_predictedSpotId != null)
+                    return "seated";
+                return _lastMessage?.FishingPhase ?? string.Empty;
+            }
+        }
+
+        public bool IsActionSequenceBusy =>
+            _actionBaseline != null &&
+            (_localSequence == "start_fishing" ||
+             _localSequence == "stop_fishing" ||
+             _localSequence == "groundbait_start" ||
+             _localSequence == "leave_spot" ||
+             _localSequence == "force_bite");
 
         public double ContentWidth { get; private set; } = SceneWidth;
 
@@ -208,11 +259,360 @@ namespace FishSocialOverlay
 
             _ownPlayerId = message.OwnPlayerId ?? string.Empty;
             _ownUserId = message.OwnUserId ?? string.Empty;
+            _lastMessage = message;
+            if (_predictedSpotId != null &&
+                (pondChanged ||
+                 !string.IsNullOrWhiteSpace(message.OwnSpotId) ||
+                 DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > _predictedUntilMs))
+                _predictedSpotId = null;
+            if (pondChanged)
+                ClearActionPrediction();
+            else if (_actionBaseline != null && ShouldClearActionPrediction(message))
+                ClearActionPrediction();
 
             SyncSpots(message);
             ApplyOwnActor(message);
             if (message.Users != null)
                 SyncOthers(message);
+            UpdateHookExpiryTimer(message);
+        }
+
+        /// <summary>
+        /// Shows the expected own-pet animation before the server confirms;
+        /// local phase timeline keeps bait→cast→fishing and stop→seated smooth.
+        /// </summary>
+        public bool PredictOwnAction(string command)
+        {
+            var message = _lastMessage;
+            if (message == null || string.IsNullOrEmpty(command))
+                return false;
+            if (IsDuplicateAction(command))
+                return false;
+            var phase = EffectiveOwnPhase;
+            var hasSpot = !string.IsNullOrWhiteSpace(EffectiveOwnSpotId(message));
+            switch (command)
+            {
+                case "start_fishing":
+                    if (!hasSpot || (phase != "seated" && phase != "idle" && phase.Length > 0))
+                        return false;
+                    SetActionPrediction(message, "bait", "baiting", false, false, "start_fishing");
+                    return true;
+                case "stop_fishing":
+                    if (phase == "hooked")
+                        SetActionPrediction(message, "reel_empty", "resolving", false, false, "stop_fishing");
+                    else if (phase == "baiting" || phase == "casting" || phase == "waiting" ||
+                             phase == "groundbaiting")
+                        SetActionPrediction(message, "reel_empty", "stopping", false, false, "stop_fishing");
+                    else
+                        return false;
+                    return true;
+                case "groundbait_start":
+                    if (!hasSpot || phase == "groundbaiting")
+                        return false;
+                    SetActionPrediction(message, "sit", "groundbaiting", true, false, "groundbait_start");
+                    return true;
+                case "leave_spot":
+                    if (!hasSpot)
+                        return false;
+                    _predictedSpotId = null;
+                    SetActionPrediction(message, "idle", "idle", false, true, "leave_spot");
+                    return true;
+                case "force_bite":
+                    if (phase != "baiting" && phase != "casting" && phase != "waiting")
+                        return false;
+                    SetActionPrediction(message, "hooked", "hooked", false, false, "force_bite");
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        bool IsDuplicateAction(string command)
+        {
+            if (_actionBaseline == null || string.IsNullOrEmpty(_localSequence))
+                return false;
+            if (!string.Equals(_localSequence, command, StringComparison.Ordinal))
+            {
+                // Allow stop to interrupt an in-flight start sequence.
+                if (command == "stop_fishing" && _localSequence == "start_fishing")
+                    return false;
+                return true;
+            }
+            return true;
+        }
+
+        public void CancelOwnActionPrediction()
+        {
+            if (_actionBaseline == null)
+                return;
+            ClearActionPrediction();
+            if (_lastMessage == null)
+                return;
+            UpdateSpotStates(_lastMessage);
+            ApplyOwnActor(_lastMessage);
+            RaiseLocalPresentationChanged();
+        }
+
+        void SetActionPrediction(
+            IpcMessage message,
+            string visual,
+            string phase,
+            bool groundbait,
+            bool leavesSpot,
+            string sequence)
+        {
+            StopLocalPhaseTimer();
+            _actionVisual = visual;
+            _actionPhase = phase;
+            _actionGroundbait = groundbait;
+            _actionLeavesSpot = leavesSpot;
+            _actionBaseline = OwnActionSignature(message);
+            _actionUntilMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + PredictedActionTimeoutMs;
+            _localSequence = sequence ?? string.Empty;
+            _localSequenceStep = 0;
+            EnsureOwnActor();
+            _ownActor.WarmupActionClips(message.OwnPetId);
+            UpdateSpotStates(message);
+            ApplyOwnActor(message);
+            LatencyTrace.Write(
+                "overlay_action_visual commandPhase=" + phase + " visual=" + visual);
+            BeginLocalSequence(sequence);
+            RaiseLocalPresentationChanged();
+        }
+
+        void AdvanceActionPrediction(string visual, string phase, bool groundbait, bool leavesSpot)
+        {
+            if (_actionBaseline == null || _lastMessage == null)
+                return;
+            _actionVisual = visual;
+            _actionPhase = phase;
+            _actionGroundbait = groundbait;
+            _actionLeavesSpot = leavesSpot;
+            UpdateSpotStates(_lastMessage);
+            ApplyOwnActor(_lastMessage);
+            LatencyTrace.Write(
+                "overlay_action_visual_advance commandPhase=" + phase + " visual=" + visual);
+            RaiseLocalPresentationChanged();
+        }
+
+        void BeginLocalSequence(string sequence)
+        {
+            if (sequence == "start_fishing")
+                ScheduleLocalPhase(LocalBaitingMs);
+            else if (sequence == "stop_fishing")
+                ScheduleLocalPhase(LocalStoppingMs);
+            else if (sequence == "groundbait_start")
+                ScheduleLocalPhase(LocalGroundbaitMs);
+        }
+
+        void ScheduleLocalPhase(int delayMs)
+        {
+            if (_localPhaseTimer == null)
+            {
+                _localPhaseTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                _localPhaseTimer.Tick += OnLocalPhaseTick;
+            }
+            _localPhaseTimer.Stop();
+            _localPhaseTimer.Interval = TimeSpan.FromMilliseconds(Math.Max(16, delayMs));
+            _localPhaseTimer.Start();
+        }
+
+        void StopLocalPhaseTimer()
+        {
+            _localPhaseTimer?.Stop();
+            _localSequenceStep = 0;
+        }
+
+        void OnLocalPhaseTick(object sender, EventArgs e)
+        {
+            _localPhaseTimer.Stop();
+            if (_actionBaseline == null || string.IsNullOrEmpty(_localSequence))
+                return;
+            if (_localSequence == "start_fishing")
+            {
+                if (_localSequenceStep == 0)
+                {
+                    _localSequenceStep = 1;
+                    AdvanceActionPrediction("cast", "casting", false, false);
+                    ScheduleLocalPhase(LocalCastingMs);
+                    return;
+                }
+                if (_localSequenceStep == 1)
+                {
+                    _localSequenceStep = 2;
+                    AdvanceActionPrediction("fishing", "waiting", false, false);
+                    // Keep prediction until server reaches waiting; no further ticks.
+                }
+                return;
+            }
+            if (_localSequence == "stop_fishing")
+            {
+                // Move HUD to seated immediately; reel clip defers sit visually.
+                AdvanceActionPrediction("sit", "seated", false, false);
+                _localSequence = string.Empty;
+                return;
+            }
+            if (_localSequence == "groundbait_start")
+            {
+                AdvanceActionPrediction("sit", "seated", true, false);
+                _localSequence = string.Empty;
+            }
+        }
+
+        void EnsureOwnActor()
+        {
+            if (_ownActor != null)
+                return;
+            _ownActor = new OverlayPetActor(OwnActorKey, _hoverPresenter);
+            _actorLayer.Children.Add(_ownActor);
+        }
+
+        void ClearActionPrediction()
+        {
+            StopLocalPhaseTimer();
+            _localSequence = string.Empty;
+            _actionBaseline = null;
+            _actionVisual = null;
+            _actionPhase = null;
+            _actionGroundbait = false;
+            _actionLeavesSpot = false;
+        }
+
+        void RaiseLocalPresentationChanged()
+        {
+            LocalPresentationChanged?.Invoke();
+        }
+
+        bool ShouldClearActionPrediction(IpcMessage message)
+        {
+            if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > _actionUntilMs)
+                return true;
+            var server = message.FishingPhase ?? string.Empty;
+            var predicted = _actionPhase ?? string.Empty;
+            if (_actionLeavesSpot)
+            {
+                return string.IsNullOrWhiteSpace(message.OwnSpotId) ||
+                       string.Equals(server, "idle", StringComparison.Ordinal);
+            }
+            if (string.Equals(server, predicted, StringComparison.Ordinal))
+                return true;
+            // Ack / state flush before the server phase moves — keep prediction.
+            if (string.Equals(OwnActionSignature(message), _actionBaseline, StringComparison.Ordinal))
+                return false;
+
+            var sRank = PhaseRank(server);
+            var pRank = PhaseRank(predicted);
+            // Local start sequence ahead of server (bait→cast→waiting).
+            if (pRank >= 10 && pRank <= 12 && sRank >= 1 && sRank < pRank)
+                return false;
+            // Local stop already seated while server still winding down.
+            if (string.Equals(predicted, "seated", StringComparison.Ordinal) &&
+                (server == "stopping" || server == "resolving" || sRank >= 10))
+                return false;
+            if ((predicted == "stopping" || predicted == "resolving") &&
+                sRank >= 10 && sRank <= 20)
+                return false;
+            if (predicted == "hooked" && server == "waiting")
+                return false;
+            if (predicted == "groundbaiting" && server == "seated")
+                return false;
+            return true;
+        }
+
+        static int PhaseRank(string phase)
+        {
+            switch (phase)
+            {
+                case "idle": return 0;
+                case "seated": return 1;
+                case "groundbaiting": return 2;
+                case "baiting": return 10;
+                case "casting": return 11;
+                case "waiting": return 12;
+                case "stopping": return 15;
+                case "hooked": return 20;
+                case "resolving": return 21;
+                default: return -1;
+            }
+        }
+
+        static string OwnActionSignature(IpcMessage message)
+        {
+            return (message.FishingPhase ?? string.Empty) + "|" +
+                   (message.PetVisualState ?? string.Empty) + "|" +
+                   (message.OwnSpotId ?? string.Empty) + "|" +
+                   (IsGroundbaitActive(message) ? "1" : "0");
+        }
+
+        void UpdateHookExpiryTimer(IpcMessage message)
+        {
+            var armed = _actionBaseline == null &&
+                        string.Equals(message.FishingPhase, "hooked", StringComparison.Ordinal) &&
+                        message.HookDeadlineMs > 0;
+            if (!armed)
+            {
+                _hookExpiryTimer?.Stop();
+                return;
+            }
+            if (_hookExpiryTimer == null)
+            {
+                _hookExpiryTimer = new DispatcherTimer(DispatcherPriority.Normal)
+                {
+                    Interval = TimeSpan.FromMilliseconds(50),
+                };
+                _hookExpiryTimer.Tick += OnHookExpiryTick;
+            }
+            if (!_hookExpiryTimer.IsEnabled)
+                _hookExpiryTimer.Start();
+        }
+
+        void OnHookExpiryTick(object sender, EventArgs e)
+        {
+            var message = _lastMessage;
+            if (message == null || _actionBaseline != null ||
+                !string.Equals(message.FishingPhase, "hooked", StringComparison.Ordinal) ||
+                message.HookDeadlineMs <= 0)
+            {
+                _hookExpiryTimer.Stop();
+                return;
+            }
+            if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() < message.HookDeadlineMs + HookExpiryGraceMs)
+                return;
+            _hookExpiryTimer.Stop();
+            LatencyTrace.Write("overlay_hook_expired_predicted deadline=" + message.HookDeadlineMs);
+            SetActionPrediction(message, "reel", "resolving", false, false, "stop_fishing");
+        }
+
+        public void PredictOwnSeat(string spotId)
+        {
+            var message = _lastMessage;
+            if (message == null || string.IsNullOrWhiteSpace(spotId) ||
+                !string.IsNullOrWhiteSpace(message.OwnSpotId))
+                return;
+            _predictedSpotId = spotId;
+            _predictedUntilMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + PredictedSeatTimeoutMs;
+            UpdateSpotStates(message);
+            ApplyOwnActor(message);
+            RaiseLocalPresentationChanged();
+        }
+
+        public void CancelOwnSeatPrediction()
+        {
+            if (_predictedSpotId == null)
+                return;
+            _predictedSpotId = null;
+            if (_lastMessage == null)
+                return;
+            UpdateSpotStates(_lastMessage);
+            ApplyOwnActor(_lastMessage);
+            RaiseLocalPresentationChanged();
+        }
+
+        string EffectiveOwnSpotId(IpcMessage message)
+        {
+            if (_actionLeavesSpot)
+                return null;
+            return _predictedSpotId ?? message?.OwnSpotId;
         }
 
         void ApplyBackgroundArtSizeToLayout()
@@ -381,14 +781,14 @@ namespace FishSocialOverlay
             return message.GroundbaitExpiresAt > now;
         }
 
-        static HashSet<string> CollectOccupiedSpots(IpcMessage message)
+        static HashSet<string> CollectOccupiedSpots(IpcMessage message, string ownSpotId)
         {
             var occupied = new HashSet<string>(StringComparer.Ordinal);
             if (message == null)
                 return occupied;
 
-            if (!string.IsNullOrWhiteSpace(message.OwnSpotId))
-                occupied.Add(message.OwnSpotId);
+            if (!string.IsNullOrWhiteSpace(ownSpotId))
+                occupied.Add(ownSpotId);
 
             if (message.Users != null)
             {
@@ -404,8 +804,9 @@ namespace FishSocialOverlay
 
         void UpdateSpotStates(IpcMessage message)
         {
-            var ownHasSpot = !string.IsNullOrWhiteSpace(message?.OwnSpotId);
-            var occupied = CollectOccupiedSpots(message);
+            var ownSpotId = EffectiveOwnSpotId(message);
+            var ownHasSpot = !string.IsNullOrWhiteSpace(ownSpotId);
+            var occupied = CollectOccupiedSpots(message, ownSpotId);
             foreach (var pair in _spotVisuals)
                 pair.Value.ApplyState(ownHasSpot, occupied.Contains(pair.Key));
         }
@@ -431,26 +832,38 @@ namespace FishSocialOverlay
 
         void ApplyOwnActor(IpcMessage message)
         {
-            if (_ownActor == null)
-            {
-                _ownActor = new OverlayPetActor(OwnActorKey, _hoverPresenter);
-                _actorLayer.Children.Add(_ownActor);
-            }
+            EnsureOwnActor();
 
+            var predicted = _predictedSpotId != null;
+            var action = _actionBaseline != null;
+            var ownSpotId = predicted ? _predictedSpotId : message.OwnSpotId;
             Point point;
-            if (!TryResolveActorPoint(message.OwnSpotId, message.HasOwnPosition, message.OwnX, message.OwnY, message.Spots, 0, out point))
+            if (!TryResolveActorPoint(ownSpotId, !predicted && message.HasOwnPosition, message.OwnX, message.OwnY, message.Spots, 0, out point))
                 point = FallbackOwnPoint();
+            var visual = action ? _actionVisual : predicted ? "sit" : message.PetVisualState;
+            var phase = action ? _actionPhase : predicted ? "seated" : message.FishingPhase;
+            var hookDeadline = message.HookDeadlineMs;
+            if (action)
+            {
+                if (string.Equals(_actionPhase, "hooked", StringComparison.Ordinal) &&
+                    hookDeadline <= 0)
+                    hookDeadline = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 5000;
+                else if (!string.Equals(_actionPhase, message.FishingPhase, StringComparison.Ordinal) &&
+                         !string.Equals(_actionPhase, "hooked", StringComparison.Ordinal))
+                    hookDeadline = 0;
+            }
+            _ownActor.WarmupActionClips(message.OwnPetId);
             _ownActor.Apply(
                 message.OwnNickname,
-                message.PetVisualState,
-                message.FishingPhase,
+                visual,
+                phase,
                 message.SessionFishingMs,
-                message.HookDeadlineMs,
+                hookDeadline,
                 message.OwnFishingStartedAt,
                 message.OwnPetId,
                 message.SessionCatchCount,
-                IsGroundbaitActive(message));
-            _ownActor.ApplyChrome(_layout.ResolveActorChrome(message.OwnSpotId));
+                (action && _actionGroundbait) || IsGroundbaitActive(message));
+            _ownActor.ApplyChrome(_layout.ResolveActorChrome(_actionLeavesSpot ? null : ownSpotId));
             _ownActor.Place(point.X, point.Y);
         }
 

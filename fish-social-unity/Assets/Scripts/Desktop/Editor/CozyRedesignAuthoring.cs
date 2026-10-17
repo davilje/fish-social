@@ -18,7 +18,7 @@ namespace FishSocial.Desktop.Editor
 
         static CozyRedesignAuthoring()
         {
-            File.WriteAllText("Temp/CozyRedesign.version", "20261016m");
+            File.WriteAllText("Temp/CozyRedesign.version", "20261016n");
             EditorApplication.update += CheckRequest;
         }
 
@@ -46,6 +46,13 @@ namespace FishSocial.Desktop.Editor
                     Verify();
                 else if (action == "preview")
                     CozyRedesignPreview.RenderAll();
+                else if (action == "overlayhud")
+                {
+                    DesktopPrefabValidator.EnsureOverlayHud();
+                    var exportError = OverlayHudExporter.Export(out _);
+                    if (!string.IsNullOrEmpty(exportError))
+                        throw new InvalidOperationException(exportError);
+                }
 #if UNITY_INCLUDE_TESTS
                 else if (action == "test")
                     RunEditModeTests();

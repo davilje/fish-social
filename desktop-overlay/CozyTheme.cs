@@ -16,8 +16,9 @@ namespace FishSocialOverlay
         public const string PressedPlate = "cozy/buttons/plate-pressed.png";
         public const string Paper = "cozy/panels/paper.png";
         public const string CompactPaper = "cozy/panels/paper-compact.png";
-        public static readonly int[] SpriteBorder = { 10, 10, 10, 10 };
-        public static readonly int[] PaperBorder = { 20, 20, 20, 20 };
+        public static readonly int[] SpriteBorder = { 12, 12, 12, 12 };
+        public static readonly int[] CompactBorder = { 10, 10, 10, 10 };
+        public static readonly int[] PaperBorder = { 22, 22, 22, 22 };
         public static readonly Brush Ink = FrozenBrush(0x75, 0x47, 0x2E);
         public static readonly Brush Cream = FrozenBrush(0xFF, 0xF7, 0xE9);
         static readonly Dictionary<string, BitmapSource> Images =
@@ -131,7 +132,11 @@ namespace FishSocialOverlay
 
         internal static int[] SurfaceBorder(string sprite)
         {
-            return sprite == Paper ? PaperBorder : SpriteBorder;
+            if (sprite == Paper)
+                return PaperBorder;
+            if (sprite == CompactPaper)
+                return CompactBorder;
+            return SpriteBorder;
         }
 
         internal static BitmapSource LoadImage(string relativePath)

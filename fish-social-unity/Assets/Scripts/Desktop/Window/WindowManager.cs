@@ -40,6 +40,14 @@ namespace FishSocial.Desktop
             DontDestroyOnLoad(gameObject);
             Settings = WindowSettings.LoadOrDefault();
             Settings.ClampSize();
+            if (Settings.HasPosition && !NativeWindowUtil.IsPositionOnScreen(Settings.PosX, Settings.PosY))
+            {
+                Debug.Log("[DesktopShell] saved window position off-screen (" + Settings.PosX + "," + Settings.PosY + "), reset.");
+                Settings.HasPosition = false;
+                Settings.PosX = 80;
+                Settings.PosY = 80;
+                Settings.Save();
+            }
         }
 
         void Start()

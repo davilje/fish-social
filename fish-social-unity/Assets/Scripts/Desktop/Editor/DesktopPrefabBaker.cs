@@ -1926,6 +1926,22 @@ namespace FishSocial.Desktop.Editor
 
         static void EnsureOverlayHudStructure(Transform root)
         {
+            var migrated = false;
+            foreach (var retiredId in OverlayHudWidgetCatalog.Retired)
+            {
+                var retired = OverlayHudExporter.FindHudTransform(root, retiredId);
+                if (retired == null)
+                    continue;
+                foreach (var spec in OverlayHudWidgetCatalog.All)
+                {
+                    var keep = OverlayHudExporter.FindHudTransform(retired, spec.Id);
+                    if (keep != null)
+                        keep.SetParent(root, false);
+                }
+                UnityEngine.Object.DestroyImmediate(retired.gameObject);
+                migrated = true;
+            }
+
             foreach (var spec in OverlayHudWidgetCatalog.All)
             {
                 var child = OverlayHudExporter.FindHudTransform(root, spec.Id);
@@ -1969,6 +1985,15 @@ namespace FishSocial.Desktop.Editor
                 if (childNode == null || parent == null)
                     continue;
                 childNode.SetParent(parent, false);
+            }
+
+            if (!migrated)
+                return;
+            foreach (var spec in OverlayHudWidgetCatalog.All)
+            {
+                var node = OverlayHudExporter.FindHudTransform(root, spec.Id);
+                if (node != null)
+                    PlaceOverlayHudRect(node as RectTransform, spec.X, spec.Y, spec.W, spec.H);
             }
         }
 

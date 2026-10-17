@@ -40,6 +40,17 @@ namespace FishSocial.Desktop
         static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
         [DllImport("user32.dll")]
+        static extern bool IsIconic(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        static extern int GetSystemMetrics(int nIndex);
+
+        const int SM_XVIRTUALSCREEN = 76;
+        const int SM_YVIRTUALSCREEN = 77;
+        const int SM_CXVIRTUALSCREEN = 78;
+        const int SM_CYVIRTUALSCREEN = 79;
+
+        [DllImport("user32.dll")]
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
         [DllImport("user32.dll")]
@@ -141,11 +152,27 @@ namespace FishSocial.Desktop
             x = 0;
             y = 0;
             var hwnd = Hwnd;
-            if (hwnd == IntPtr.Zero || !GetWindowRect(hwnd, out var rect))
+            if (hwnd == IntPtr.Zero || IsIconic(hwnd) || !GetWindowRect(hwnd, out var rect))
+                return false;
+            if (!IsPositionOnScreen(rect.Left, rect.Top))
                 return false;
             x = rect.Left;
             y = rect.Top;
             return true;
+        }
+
+        /// <summary>Minimized windows report (-32000, -32000); never persist or restore such a point.</summary>
+        public static bool IsPositionOnScreen(int x, int y)
+        {
+            var left = GetSystemMetrics(SM_XVIRTUALSCREEN);
+            var top = GetSystemMetrics(SM_YVIRTUALSCREEN);
+            var width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+            var height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+            if (width <= 0 || height <= 0)
+                return x > -10000 && y > -10000;
+            const int grip = 80;
+            return x > left - grip && x < left + width - grip &&
+                   y >= top - 8 && y < top + height - grip;
         }
 
         public static bool TrySetWindowPosition(int x, int y)
@@ -218,6 +245,7 @@ namespace FishSocial.Desktop
         }
 
         public static bool TrySetWindowPosition(int x, int y) => true;
+        public static bool IsPositionOnScreen(int x, int y) => true;
         public static bool TrySetBorderless(bool enabled, bool fillMonitor = false) => true;
         public static bool TrySetWindowed(int width, int height, bool hasPosition, int x, int y) => true;
 #endif

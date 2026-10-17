@@ -149,10 +149,10 @@
                                TextWrapping="Wrap"
                                TextAlignment="Center" />
                 </Border>
-                <!-- Z100: 左上菜单 + 状态（HUD JSON 激活后整组隐藏） -->
+                <!-- Z100: 右下状态（HUD JSON 激活后整组隐藏；菜单只走右键） -->
                 <StackPanel x:Name="LegacyLeftHudStack"
-                            Canvas.Left="8"
-                            Canvas.Top="8"
+                            Canvas.Right="112"
+                            Canvas.Bottom="12"
                             Panel.ZIndex="100"
                             Width="196">
                     <Button x:Name="MenuToggleButton" local:CozyTheme.Icon="cozy/icons-light/settings.png"
@@ -160,6 +160,7 @@
                             Width="36"
                             Height="32"
                             HorizontalAlignment="Left"
+                            Visibility="Collapsed"
                             Click="MenuToggle_OnClick" />
                     <Border x:Name="MenuPanel"
                             Visibility="Collapsed"
@@ -206,29 +207,16 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <!-- Z100: 右上 — 打开主界面 + 退出鱼塘；禁止塘 Debug 出警 -->
+                <!-- Z100: 右下角 — Debug（只调宽度）+ 退出鱼塘；打开主界面改走右键菜单 -->
                 <StackPanel x:Name="LegacyRightTopHudStack"
-                            Canvas.Left="736"
-                            Canvas.Top="8"
+                            Canvas.Right="16"
+                            Canvas.Bottom="12"
                             Panel.ZIndex="100">
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="OpenMainButton" local:CozyTheme.Icon="cozy/icons-light/home.png"
-                                Content="打开主界面"
-                                Width="100"
-                                Height="40"
-                                Margin="0,0,8,0"
-                                Click="OpenMain_OnClick" />
-                        <Button x:Name="ExitPondButton" local:CozyTheme.Icon="cozy/icons-light/lock.png"
-                                Content="退出鱼塘"
-                                Width="100"
-                                Height="40"
-                                Click="ExitPond_OnClick" />
-                    </StackPanel>
                     <Button x:Name="PoliceDebugButton" local:CozyTheme.Icon="cozy/icons-light/bell.png"
                             Content="一键出警"
-                            Width="208"
+                            Width="88"
                             Height="36"
-                            Margin="0,8,0,0"
+                            Margin="0,0,0,8"
                             HorizontalAlignment="Right"
                             Visibility="Collapsed"
                             Background="{StaticResource CozyCoral}"
@@ -236,31 +224,42 @@
                             Click="PoliceDebug_OnClick" />
                     <Button x:Name="GameplayDebugButton" local:CozyTheme.Icon="cozy/icons-light/settings.png"
                             Content="Debug"
-                            Width="208"
+                            Width="88"
                             Height="36"
-                            Margin="0,8,0,0"
+                            Margin="0,0,0,8"
                             HorizontalAlignment="Right"
                             Visibility="Collapsed"
                             Background="{StaticResource CozyPeriwinkle}"
                             Foreground="{StaticResource CozyInk}"
                             Click="GameplayDebug_OnClick" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="OpenMainButton" local:CozyTheme.Icon="cozy/icons-light/home.png"
+                                Content="打开主界面"
+                                Width="100"
+                                Height="40"
+                                Margin="0,0,8,0"
+                                Visibility="Collapsed"
+                                Click="OpenMain_OnClick" />
+                        <Button x:Name="ExitPondButton" local:CozyTheme.Icon="cozy/icons-light/lock.png"
+                                Content="退出鱼塘"
+                                FontSize="13"
+                                Width="88"
+                                Height="36"
+                                Click="ExitPond_OnClick" />
+                    </StackPanel>
                 </StackPanel>
-                <!-- Z100: 右下 — 钓鱼/收杆 + 领鱼/离席 -->
+                <!-- Z100: 底部居中 — 打窝 / 开始钓鱼 / 离席 -->
                 <StackPanel x:Name="LegacyRightBottomHudStack"
-                            Canvas.Left="844"
-                            Canvas.Top="420"
+                            Orientation="Horizontal"
+                            Canvas.Left="370"
+                            Canvas.Bottom="12"
                             Panel.ZIndex="100">
-                    <Button x:Name="FishingToggleButton" local:CozyTheme.Icon="cozy/icons-light/rod.png"
-                            Content="开始钓鱼"
-                            Width="100"
-                            Height="40"
-                            Margin="0,0,0,8"
-                            Click="FishingToggle_OnClick" />
                     <Button x:Name="GroundbaitButton" local:CozyTheme.Icon="cozy/icons-light/leaf.png"
                             Content="打窝"
-                            Width="100"
-                            Height="40"
-                            Margin="0,0,0,8"
+                            Width="88"
+                            Height="36"
+                            FontSize="13"
+                            Margin="0,0,8,0"
                             Visibility="Collapsed"
                             Click="Groundbait_OnClick" />
                     <TextBlock x:Name="GroundbaitStatusText"
@@ -268,12 +267,20 @@
                                TextWrapping="Wrap"
                                Foreground="{StaticResource CozyInk}"
                                FontSize="11"
-                               Margin="0,0,0,8"
+                               Margin="0,0,8,0"
                                Visibility="Collapsed" />
-                <Button x:Name="CatchLeaveButton" local:CozyTheme.Icon="cozy/icons-light/gift.png"
+                    <Button x:Name="FishingToggleButton" local:CozyTheme.Icon="cozy/icons-light/rod.png"
+                            Content="开始钓鱼"
+                            Width="88"
+                            Height="36"
+                            FontSize="13"
+                            Margin="0,0,8,0"
+                            Click="FishingToggle_OnClick" />
+                    <Button x:Name="CatchLeaveButton" local:CozyTheme.Icon="cozy/icons-light/gift.png"
                             Content="离席"
-                            Width="100"
-                            Height="40"
+                            Width="88"
+                            Height="36"
+                            FontSize="13"
                             Click="CatchLeave_OnClick" />
                 </StackPanel>
                 <!-- Z100: 可收缩公屏聊天窗（合并预览 + 输入） -->
@@ -437,6 +444,13 @@
                                     VerticalAlignment="Center"
                                     Click="GameplayDebugClose_OnClick" />
                         </Grid>
+                        <TextBlock x:Name="GameplayDebugStatusText"
+                                   DockPanel.Dock="Top"
+                                   Margin="2,0,2,8"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Foreground="{StaticResource CozyInk}"
+                                   Text="点击按钮执行，结果显示在这里。" />
                         <ScrollViewer VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
                             <UniformGrid Columns="3">

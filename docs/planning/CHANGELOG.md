@@ -1,5 +1,51 @@
 # 策划文档变更记录
 
+### [bug-54-own-fishing-presenter-confirmed] - 2026-10-18
+
+- **BUG-54** Unity 自己钓鱼表现权威 → **已确认**，P0，hotfix。
+- 终态方案：自己的钓鱼由 Unity 本地推进（phase / visual / availableActions）；服务端只校验与结算；Overlay 只渲染与转发，退役 BUG-53 猜阶段时间线。
+- BUG-53 保留为已实现的过渡 hotfix（socket 线程池等基础设施继续保留）。
+- 规格：`docs/planning/specs/BUG修复-Unity自己钓鱼表现权威.md`
+- 开发提示词：`docs/planning/prompts/bug-54-own-fishing-presenter-dev.prompt.md`
+
+### [bug-53-overlay-action-feedback] - 2026-10-16
+
+- **BUG-53** Overlay 开始钓鱼、收杆、打窝、离席、Debug 强制咬钩、咬钩到期的动画反馈慢 → **已实现**（待打包后运行验收）。
+- 根因：Unity socket 读循环从主线程启动，每次收包都要等下一帧，服务器推送一多回执就排队 1.8～8 秒（聊天约 0.3 秒）。
+- Unity：socket 收发移到线程池，发送走单队列保序；自己的状态、宠物动画、咬钩、脱钩事件绕过 15Hz 限流立即推送；新增 `frame_stall` 卡帧日志。
+- Overlay：点击后立即播放预期动画（抛竿 / 收线 / 打窝 / 起身 / 咬钩），服务端状态一变化即以服务端为准，5 秒未确认或回执失败则回退；咬钩倒计时到点本地切收线。
+
+### [bug-53-overlay-action-feedback-2] - 2026-10-18
+
+- **BUG-53** 补强：上钩 / 自然咬钩路径与点击动画一并压延迟。
+- Unity：`fish_bite` / `fish_miss` / `pond_user_updated` 进优先队列；收到 `fish_bite` 立即本地切 `hooked`（含倒计时），不必等下一条 `pond_user_updated`。
+- Overlay：自身钓鱼阶段 / 视觉 / 钓位变化用 `Input` 优先级刷状态（不再挤在 Background）；落座后预热抛竿/收线/咬钩等首帧；连点开始→收杆也能跟预测相位切换。
+
+### [bug-53-overlay-action-feedback-3] - 2026-10-18
+
+- **BUG-53** 补强：落座后按钮、连点、装饵→钓鱼、收杆后按钮。
+- 落座预测立刻显示开始钓鱼 / 打窝 / 离席（不再等 AvailableActions）。
+- 同一动作进行中禁止连点重播；收杆可打断进行中的开始钓鱼。
+- 本地按服务端节奏推进 装饵 800ms → 抛竿 600ms → 钓鱼中；收杆约 250ms 后本地回到入座并立刻亮按钮（收线动画可继续播完）。
+
+### [overlay-hud-bugs-implemented] - 2026-10-16
+
+- **BUG-48～52** → **已实现**（待打包后运行验收）。
+- BUG-48：Unity 导出按 `CatTheme` 写 12/22/10 九宫格边距，文字色统一墨色；回退原因常驻状态区并写日志。
+- BUG-49：删除菜单栏与「打开主界面」（右键菜单新增此项）；状态卡 + 退出鱼塘右下，Debug 88 宽，钓鱼按钮底部居中，聊天栏左下 320 宽；Unity prefab 已迁移并重导出，XAML 回退布局同步。
+- BUG-50：聊天展开 10 行；折叠按钮展开时与发送按钮同行；发送按 `commandAcks` 回执清空输入框（旧客户端保留文本匹配兜底）。
+- BUG-51：Debug 弹窗内新增结果行；所有 Debug 路径回执成功 / 失败原因；Unity Debug 忙碌 15 秒后自动解锁。
+- BUG-52：Overlay 合并 state 并以 Background 优先级处理；日志后台缓冲、每秒采样、10MB 轮转；Unity state 限频 15Hz，回执即时发布；点钓位立即本地落座（3 秒内未确认或失败则回退）。
+
+### [overlay-hud-bugs-registered] - 2026-10-16
+
+- **BUG-48** HUD 导出写回旧九宫格边距（10/20），Overlay 要求 12/22，加载失败退回旧 XAML 布局 → **已确认**，P0。
+- **BUG-49** HUD 布局重排：去掉菜单栏与打开主界面，只留右键菜单；状态卡、退出鱼塘右下；钓鱼按钮底部居中；聊天栏左下 320 宽；Debug 只改宽度 → **已确认**，依赖 BUG-48。
+- **BUG-50** 聊天栏 10 行、折叠按钮对齐、发送后不清空 → **已确认**。
+- **BUG-51** Debug 菜单点击无反应 → **已确认**，Unity 与服务端环节待验证。
+- **BUG-52** 操作延迟与卡顿：state 34 条/秒、UI 线程同步写 335MB 日志 → **已确认**，P0。
+- 规格：`docs/planning/specs/BUG修复-OverlayHUD布局与交互.md`
+
 ### [bug-47-showcase-detail-rows] - 2026-10-16
 
 - **BUG-47** 展示柜点选详情 → **已实现**。`ShowFishDetail` 改为图标、标签、数值分行；空格子和未选中仍用原来的提示句。

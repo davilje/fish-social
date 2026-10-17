@@ -36,6 +36,26 @@ namespace FishSocialOverlay
 
         const double ChatDockBottomPadding = 10;
         const double ChatInputMinHeight = 36;
+        const int ChatLogRows = 10;
+        const double BottomBaseline = CanvasHeight - 12;
+        const double BottomButtonWidth = 88;
+        const double BottomButtonHeight = 36;
+        const double BottomButtonIconSize = 16;
+        const double BottomButtonFontSize = 13;
+        const double ChatButtonSize = 28;
+
+        static readonly HashSet<string> RetiredWidgets = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "menu_rail",
+            "btn_menu_toggle",
+            "btn_menu_map",
+            "btn_menu_shop",
+            "btn_menu_friends",
+            "btn_menu_catch",
+            "btn_menu_leaderboard",
+            "btn_menu_settings",
+            "btn_open_main",
+        };
 
         static readonly string[] MenuRailOrder =
         {
@@ -116,6 +136,33 @@ namespace FishSocialOverlay
             public double W;
             public double CollapsedH;
             public double ExpandedH;
+            public double ToggleCollapsedY;
+            public double ToggleExpandedY;
+        }
+
+        static HudChatDockMetrics BuildChatDockMetrics(
+            Dictionary<string, OverlayHudWidgetDto> byId,
+            OverlayHudWidgetDto dockChat,
+            double x,
+            double y,
+            double w)
+        {
+            var collapsed = dockChat.h > 0.5 ? dockChat.h : 36;
+            var expanded = Math.Max(collapsed, ComputeChatDockExpandedHeight(byId));
+            var metrics = new HudChatDockMetrics
+            {
+                X = x,
+                Y = y,
+                W = w,
+                CollapsedH = collapsed,
+                ExpandedH = expanded,
+            };
+            if (byId.TryGetValue("chat_toggle", out var toggle))
+            {
+                metrics.ToggleCollapsedY = toggle.y;
+                metrics.ToggleExpandedY = byId.TryGetValue("chat_send", out var send) ? send.y : toggle.y;
+            }
+            return metrics;
         }
 
         public bool TryApply(MainWindow window, Canvas sceneCanvas)
@@ -215,6 +262,8 @@ namespace FishSocialOverlay
             try
             {
             ApplyCozyResourceMapping(document);
+            foreach (var retired in RetiredWidgets)
+                byId.Remove(retired);
             _components = document.components;
             ApplyCozyComponentParameters(_components);
             var bindings = BuildBindings(window);
@@ -311,19 +360,7 @@ namespace FishSocialOverlay
                 ChatDockWidget = dockChat;
                 // Folded chrome is the prefab rect. Expanded chrome is the tallest child
                 // plus 10px so the input row does not sit on the dock bottom edge.
-                var collapsed = dockChat.h > 0.5 ? dockChat.h : 36;
-                var expanded = ComputeChatDockExpandedHeight(byId);
-                if (expanded < collapsed)
-                    expanded = collapsed;
-
-                ChatDockMetrics = new HudChatDockMetrics
-                {
-                    X = dockChat.x,
-                    Y = dockChat.y,
-                    W = dockChat.w,
-                    CollapsedH = collapsed,
-                    ExpandedH = expanded,
-                };
+                ChatDockMetrics = BuildChatDockMetrics(byId, dockChat, dockChat.x, dockChat.y, dockChat.w);
             }
 
             ApplyChatInputChrome(byId, bindings, hudRoot, ChatDockHost, window);
@@ -378,18 +415,8 @@ namespace FishSocialOverlay
             if (frames.TryGetValue("dock_chat", out var chatFrame) &&
                 _appliedWidgets.TryGetValue("dock_chat", out var dockChat))
             {
-                var collapsed = dockChat.h > 0.5 ? dockChat.h : 36;
-                var expanded = ComputeChatDockExpandedHeight(_appliedWidgets);
-                if (expanded < collapsed)
-                    expanded = collapsed;
-                ChatDockMetrics = new HudChatDockMetrics
-                {
-                    X = chatFrame.X,
-                    Y = chatFrame.Y,
-                    W = chatFrame.W,
-                    CollapsedH = collapsed,
-                    ExpandedH = expanded,
-                };
+                ChatDockMetrics = BuildChatDockMetrics(
+                    _appliedWidgets, dockChat, chatFrame.X, chatFrame.Y, chatFrame.W);
                 window.ConfigureHudChatDockMetrics(ChatDockMetrics);
                 window.ChatDockChrome?.UpdateLayout();
                 RefreshChatDockChrome(window.ChatDockChrome);
@@ -575,6 +602,8 @@ namespace FishSocialOverlay
 
             PlaceAnchoredRoot(frames, byId, "btn_pan_left", viewW, viewH, "left", "scene");
             PlaceAnchoredRoot(frames, byId, "btn_pan_right", viewW, viewH, "right", "scene");
+            if (byId.TryGetValue("btn_exit_pond", out var exitPond) && string.IsNullOrWhiteSpace(exitPond.parentId))
+                PlaceAnchoredRoot(frames, byId, "btn_exit_pond", viewW, viewH, "right", "bottom");
             if (byId.TryGetValue("txt_error", out var error))
             {
                 frames["txt_error"] = new HudFrame
@@ -1145,7 +1174,24 @@ namespace FishSocialOverlay
         {
             if (button != null)
             {
-                CozyTheme.SetIconAngle(button, expanded ? 180 : 0);
+                CozyTheme.SetIconAngle(button, 0);
+                CozyTheme.SetIcon(button, expanded ? null : CozyTheme.IconPath("social"));
+                button.Content = expanded
+                    ? new System.Windows.Shapes.Path
+                    {
+                        Data = Geometry.Parse("M0,0 L5,5 L10,0"),
+                        Stroke = CozyTheme.Ink,
+                        StrokeThickness = 2,
+                        StrokeStartLineCap = PenLineCap.Round,
+                        StrokeEndLineCap = PenLineCap.Round,
+                        StrokeLineJoin = PenLineJoin.Round,
+                        Width = 10,
+                        Height = 5,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        IsHitTestVisible = false,
+                    }
+                    : (object)string.Empty;
                 button.ToolTip = expanded ? "收起聊天" : "展开聊天";
             }
         }
@@ -1240,6 +1286,9 @@ namespace FishSocialOverlay
         {
             document.components = CompleteCozyComponents(document.components);
             var components = document.components;
+            document.widgets = document.widgets
+                .Where(widget => widget == null || !RetiredWidgets.Contains(widget.id ?? string.Empty))
+                .ToArray();
             foreach (var widget in document.widgets)
             {
                 if (widget == null)
@@ -1275,7 +1324,7 @@ namespace FishSocialOverlay
                     if (widget.sprite == CozyTheme.Paper && Math.Min(widget.w, widget.h) < 48)
                     {
                         widget.sprite = CozyTheme.CompactPaper;
-                        widget.spriteSlice = (int[])CozyTheme.SpriteBorder.Clone();
+                        widget.spriteSlice = (int[])CozyTheme.CompactBorder.Clone();
                     }
                 }
                 if (widget.id == "chat_scroll")
@@ -1290,29 +1339,130 @@ namespace FishSocialOverlay
             var byId = document.widgets
                 .Where(widget => widget != null && !string.IsNullOrWhiteSpace(widget.id))
                 .ToDictionary(widget => widget.id, StringComparer.Ordinal);
-            if (byId.TryGetValue("menu_rail", out var rail))
+            FitPanButton(byId, "btn_pan_left");
+            FitPanButton(byId, "btn_pan_right");
+            FitBottomRightCluster(byId);
+            FitFishingDock(byId);
+            FitChatDock(byId, document.components);
+        }
+
+        static void StyleBottomButton(OverlayHudWidgetDto button, double width, string label)
+        {
+            button.w = width;
+            button.h = BottomButtonHeight;
+            button.iconSize = BottomButtonIconSize;
+            button.fontSize = BottomButtonFontSize;
+            button.fontFile = null;
+            button.contentAlign = "center";
+            button.contentVAlign = "center";
+            button.verticalAlign = "center";
+            if (label != null)
+                button.label = label;
+        }
+
+        static void FitFishingDock(Dictionary<string, OverlayHudWidgetDto> byId)
+        {
+            const double gap = 8;
+            if (!byId.TryGetValue("dock_fishing", out var dock))
+                return;
+            var order = new[] { "btn_fishing_toggle", "btn_groundbait", "btn_catch_leave" };
+            var x = 0.0;
+            foreach (var id in order)
             {
-                var buttons = MenuRailOrder
-                    .Where(id => byId.ContainsKey(id) && byId[id].parentId == rail.id)
-                    .Select(id => byId[id]).ToArray();
-                var slotHeight = buttons.Length > 0 ? buttons.Max(button => button.h) : 40;
-                var requiredHeight = buttons.Length * slotHeight;
-                var bottom = rail.y + rail.h;
-                rail.h = Math.Max(rail.h, requiredHeight);
-                rail.y = bottom - rail.h;
-                for (var index = 0; index < buttons.Length; index++)
-                {
-                    var button = buttons[index];
-                    button.x = (rail.w - button.w) / 2;
-                    button.y = index * slotHeight + (slotHeight - button.h) / 2;
-                }
+                if (!byId.TryGetValue(id, out var button))
+                    continue;
+                StyleBottomButton(button, BottomButtonWidth, null);
+                button.parentId = "dock_fishing";
+                button.x = x;
+                button.y = 0;
+                x += button.w + gap;
+            }
+            dock.w = Math.Max(0, x - gap);
+            dock.h = BottomButtonHeight;
+            var left = byId.TryGetValue("dock_chat", out var chat) ? chat.x + chat.w + 12 : 0;
+            var right = byId.TryGetValue("cap_status", out var cap) ? cap.x - 12 : CanvasWidth;
+            dock.x = right - left >= dock.w
+                ? Math.Round(left + (right - left - dock.w) / 2)
+                : Math.Round((CanvasWidth - dock.w) / 2);
+            dock.y = BottomBaseline - dock.h;
+        }
+
+        static void FitBottomRightCluster(Dictionary<string, OverlayHudWidgetDto> byId)
+        {
+            const double margin = 16;
+            const double gap = 8;
+            if (!byId.TryGetValue("btn_exit_pond", out var exit))
+                return;
+            exit.parentId = null;
+            StyleBottomButton(exit, 88, "退出鱼塘");
+            exit.x = CanvasWidth - margin - exit.w;
+            exit.y = BottomBaseline - exit.h;
+            var top = exit.y;
+            if (byId.TryGetValue("cap_status", out var cap))
+            {
+                cap.x = exit.x - gap - cap.w;
+                cap.y = BottomBaseline - cap.h;
+            }
+            if (byId.TryGetValue("btn_debug_gameplay", out var debug))
+            {
+                StyleBottomButton(debug, exit.w, "Debug");
+                debug.x = exit.x;
+                debug.y = top - gap - debug.h;
+                top = debug.y;
+            }
+            if (byId.TryGetValue("btn_debug_police", out var police))
+            {
+                police.x = exit.x + exit.w - police.w;
+                police.y = top - gap - police.h;
+            }
+        }
+
+        static void FitChatDock(Dictionary<string, OverlayHudWidgetDto> byId, OverlayHudComponentsDto components)
+        {
+            if (!byId.TryGetValue("dock_chat", out var dock) || !byId.TryGetValue("chat_input", out var input))
+                return;
+            const double inset = 12;
+            const double gap = 6;
+            var toggleX = dock.w - 10 - ChatButtonSize;
+            if (byId.TryGetValue("chat_toggle", out var toggle))
+            {
+                toggle.x = toggleX;
+                toggle.w = ChatButtonSize;
+                toggle.h = ChatButtonSize;
+                toggle.y = Math.Max(0, (dock.h - ChatButtonSize) / 2);
+            }
+            if (byId.TryGetValue("chat_preview", out var preview))
+            {
+                preview.x = inset;
+                preview.w = Math.Max(8, toggleX - 8 - inset);
+                preview.y = Math.Max(0, (dock.h - preview.h) / 2);
             }
 
-            if (!byId.TryGetValue("chat_input", out var input))
-                return;
-            var padding = ComponentPadding(document.components.input.padding);
+            var logFont = byId.TryGetValue("chat_log", out var log) && log.fontSize > 0 ? log.fontSize : 12;
+            var rowHeight = Math.Round(logFont * 1.34) + 4;
+            var scrollX = toggleX + ChatButtonSize - 6;
+            if (log != null)
+            {
+                log.x = inset;
+                log.y = inset;
+                log.w = Math.Max(8, scrollX - 4 - inset);
+                log.h = ChatLogRows * rowHeight + 2;
+            }
+            if (byId.TryGetValue("chat_scroll", out var scroll))
+            {
+                scroll.x = scrollX;
+                scroll.y = inset;
+                scroll.w = 6;
+                scroll.h = log != null ? log.h : scroll.h;
+            }
+
+            var padding = ComponentPadding(components.input.padding);
             var fontSize = byId.TryGetValue("chat_placeholder", out var placeholder) && placeholder.fontSize > 0
                 ? placeholder.fontSize : 12;
+            var sendX = toggleX - gap - ChatButtonSize;
+            input.x = inset;
+            input.y = (log != null ? log.y + log.h : inset) + 8;
+            input.w = Math.Max(8, sendX - gap - inset);
             input.h = Math.Max(input.h, Math.Max(ChatInputMinHeight,
                 Math.Ceiling(fontSize * 1.5) + padding.Top + padding.Bottom));
             if (placeholder != null)
@@ -1326,9 +1476,25 @@ namespace FishSocialOverlay
             }
             if (byId.TryGetValue("chat_send", out var send))
             {
-                send.h = Math.Max(send.h, ChatInputMinHeight);
+                send.x = sendX;
+                send.w = ChatButtonSize;
+                send.h = ChatButtonSize;
                 send.y = input.y + (input.h - send.h) / 2;
             }
+        }
+
+        static void FitPanButton(Dictionary<string, OverlayHudWidgetDto> byId, string id)
+        {
+            if (!byId.TryGetValue(id, out var button))
+                return;
+            var right = CanvasWidth - button.x - button.w;
+            button.w = 64;
+            button.h = 36;
+            button.contentAlign = "center";
+            button.contentVAlign = "center";
+            button.verticalAlign = "center";
+            if (id == "btn_pan_right")
+                button.x = CanvasWidth - right - button.w;
         }
 
         static Thickness ComponentPadding(double[] padding)
@@ -1349,7 +1515,9 @@ namespace FishSocialOverlay
             components.scroll = components.scroll ?? defaults.scroll;
             foreach (var panel in new[] { components.button, components.paper, components.input })
             {
-                var expected = ReferenceEquals(panel, components.paper) ? CozyTheme.PaperBorder : CozyTheme.SpriteBorder;
+                var expected = ReferenceEquals(panel, components.paper) ? CozyTheme.PaperBorder
+                    : ReferenceEquals(panel, components.input) ? CozyTheme.CompactBorder
+                    : CozyTheme.SpriteBorder;
                 if (panel.spriteSlice == null || panel.spriteSlice.SequenceEqual(new[] { 64, 64, 64, 64 }))
                     panel.spriteSlice = (int[])expected.Clone();
                 if (!panel.spriteSlice.SequenceEqual(expected))
@@ -1411,7 +1579,7 @@ namespace FishSocialOverlay
                 },
                 input = new OverlayHudComponentDto
                 {
-                    sprite = CozyTheme.CompactPaper, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
+                    sprite = CozyTheme.CompactPaper, spriteSlice = (int[])CozyTheme.CompactBorder.Clone(),
                     padding = new double[] { 8, 4, 8, 4 },
                 },
                 scroll = new OverlayHudComponentDto { width = 6 },

@@ -46,7 +46,10 @@ namespace FishSocial.Desktop
         Action _onProgressChanged;
         bool _open;
         bool _busy;
+        float _busySince;
+        Action<bool, string> _pendingDone;
         Coroutine _routine;
+        const float BusyTimeoutSeconds = 15f;
         Vector2 _scroll;
 
         public void Configure(
@@ -72,11 +75,33 @@ namespace FishSocial.Desktop
 
         public void RunAction(string action)
         {
-            if (!GameplayDebugGate.IsClientEnabled() || _busy)
+            RunAction(action, null);
+        }
+
+        public void RunAction(string action, Action<bool, string> done)
+        {
+            if (!GameplayDebugGate.IsClientEnabled())
+            {
+                done?.Invoke(false, "当前客户端未开启玩法 Debug。");
                 return;
+            }
+            if (_busy && Time.realtimeSinceStartup - _busySince < BusyTimeoutSeconds)
+            {
+                done?.Invoke(false, "上一个 Debug 指令仍在执行，请稍候。");
+                return;
+            }
             if (_routine != null)
                 StopCoroutine(_routine);
+            _pendingDone?.Invoke(false, "Debug 指令超时，已取消。");
+            _pendingDone = done;
             _routine = StartCoroutine(RunActionRoutine(action));
+        }
+
+        void FinishAction(bool ok, string message)
+        {
+            var done = _pendingDone;
+            _pendingDone = null;
+            done?.Invoke(ok, message);
         }
 
         void Update()
@@ -115,24 +140,31 @@ namespace FishSocial.Desktop
         IEnumerator RunActionRoutine(string action)
         {
             _busy = true;
+            _busySince = Time.realtimeSinceStartup;
             if (_api == null || !_api.CanUse)
             {
                 _toast?.Invoke("请先登录后再使用 Debug。");
                 _busy = false;
                 _routine = null;
+                FinishAction(false, "请先登录后再使用 Debug。");
                 yield break;
             }
 
             _toast?.Invoke("正在执行 Debug…");
+            var succeeded = false;
+            var result = string.Empty;
             yield return _api.PostGameplayDebug(action, (ok, message) =>
             {
-                _toast?.Invoke(ok
+                succeeded = ok;
+                result = ok
                     ? (string.IsNullOrEmpty(message) ? "Debug 完成" : message)
-                    : (string.IsNullOrEmpty(message) ? "Debug 失败" : message));
+                    : (string.IsNullOrEmpty(message) ? "Debug 失败" : message);
+                _toast?.Invoke(result);
             });
             _onProgressChanged?.Invoke();
             _busy = false;
             _routine = null;
+            FinishAction(succeeded, string.IsNullOrEmpty(result) ? "Debug 无响应" : result);
         }
     }
 }

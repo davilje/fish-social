@@ -34,10 +34,27 @@ namespace FishSocialOverlay
                 _logForeground = foreground;
         }
 
-        public void UpdateMessages(OverlayChatDto[] chats, bool scrollToEnd = true)
+        public void UpdateMessages(OverlayChatDto[] chats, bool forceScrollToEnd = false)
         {
+            var signature = Signature(chats);
+            if (!forceScrollToEnd && signature == _lastSignature)
+                return;
+            _lastSignature = signature;
             UpdateLatest(chats);
-            UpdateLog(chats, scrollToEnd);
+            UpdateLog(chats, forceScrollToEnd);
+        }
+
+        string _lastSignature;
+
+        static string Signature(OverlayChatDto[] chats)
+        {
+            if (chats == null || chats.Length == 0)
+                return string.Empty;
+            var last = chats[chats.Length - 1];
+            var first = chats[0];
+            return chats.Length + "|" +
+                   (first?.MessageId ?? first?.Text) + "|" +
+                   (last?.MessageId ?? string.Empty) + "|" + last?.SentAtMs + "|" + last?.Text;
         }
 
         public void UpdateLatest(OverlayChatDto[] chats)
@@ -70,11 +87,15 @@ namespace FishSocialOverlay
             _preview.Text = FormatLine(latest);
         }
 
-        void UpdateLog(OverlayChatDto[] chats, bool scrollToEnd)
+        void UpdateLog(OverlayChatDto[] chats, bool forceScrollToEnd)
         {
             if (_logList == null)
                 return;
 
+            var previousOffset = _logScroll?.VerticalOffset ?? 0;
+            var scrollToEnd = forceScrollToEnd || _logScroll == null ||
+                              _logScroll.ScrollableHeight <= 0 ||
+                              previousOffset >= _logScroll.ScrollableHeight - 4;
             _logList.Children.Clear();
             if (chats == null || chats.Length == 0)
             {
@@ -94,11 +115,13 @@ namespace FishSocialOverlay
             if (appended == 0)
                 _logList.Children.Add(CreateLogLine("暂无公屏消息"));
 
-            if (scrollToEnd && _logScroll != null)
-            {
-                _logScroll.UpdateLayout();
+            if (_logScroll == null)
+                return;
+            _logScroll.UpdateLayout();
+            if (scrollToEnd)
                 _logScroll.ScrollToEnd();
-            }
+            else
+                _logScroll.ScrollToVerticalOffset(previousOffset);
         }
 
         TextBlock CreateLogLine(string text)

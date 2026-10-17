@@ -40,6 +40,8 @@ namespace FishSocial.Desktop
         StreamWriter _writer;
         NativeOverlayStateDto _latestState = new NativeOverlayStateDto();
         long _nextStateSequence;
+        long _lastStateLogMs;
+        int _statesSinceLog;
         Task _startTask;
         Task _shutdownTask;
         bool _stopping;
@@ -322,10 +324,18 @@ namespace FishSocial.Desktop
             }
             _latestState = state;
             _latestState.sequence = ++_nextStateSequence;
-            UnityEngine.Debug.Log(
-                "[Latency][Unity] overlay_state_queued sequence=" +
-                _latestState.sequence +
-                " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            _statesSinceLog++;
+            var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if (nowMs - _lastStateLogMs >= 1000)
+            {
+                UnityEngine.Debug.Log(
+                    "[Latency][Unity] overlay_state_queued sequence=" +
+                    _latestState.sequence +
+                    " count=" + _statesSinceLog +
+                    " atMs=" + nowMs);
+                _lastStateLogMs = nowMs;
+                _statesSinceLog = 0;
+            }
             SendLatestState();
         }
 

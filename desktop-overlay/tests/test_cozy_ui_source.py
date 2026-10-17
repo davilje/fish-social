@@ -92,17 +92,17 @@ class CozyUiSourceTests(unittest.TestCase):
             metadata = Path(str(path) + ".meta").read_text()
             border = re.search(r"spriteBorder:\s*x: (\d+)\s*y: (\d+)\s*z: (\d+)\s*w: (\d+)", metadata)
             self.assertIsNotNone(border)
-            self.assertEqual(("10",) * 4, border.groups())
+            self.assertEqual(("12",) * 4, border.groups())
         self.assertEqual(3, len(signatures))
-        self.assertIn("SpriteBorder = { 10, 10, 10, 10 }", read_source("CozyTheme.cs"))
+        self.assertIn("SpriteBorder = { 12, 12, 12, 12 }", read_source("CozyTheme.cs"))
 
     def test_large_and_compact_paper_have_matching_slice_sizes(self):
-        for filename, dimensions, pixels in [("paper.png", (128, 125), 20), ("paper-compact.png", (64, 63), 10)]:
+        for filename, dimensions, pixels in [("paper.png", (128, 125), 22), ("paper-compact.png", (64, 63), 10)]:
             path = ROOT / "OverlayResources/hud/cozy/panels" / filename
             self.assertEqual(dimensions, struct.unpack(">II", path.read_bytes()[16:24]))
             border = re.search(r"spriteBorder:\s*x: (\d+)\s*y: (\d+)\s*z: (\d+)\s*w: (\d+)", Path(str(path) + ".meta").read_text())
             self.assertEqual((str(pixels),) * 4, border.groups())
-        self.assertIn("PaperBorder = { 20, 20, 20, 20 }", read_source("CozyTheme.cs"))
+        self.assertIn("PaperBorder = { 22, 22, 22, 22 }", read_source("CozyTheme.cs"))
 
     def test_hud_surface_corners_fit_without_compression(self):
         document = json.loads(read_source("OverlayResources/hud/overlay-hud.json"))
@@ -200,7 +200,7 @@ class CozyUiSourceTests(unittest.TestCase):
         self.assertEqual(CONTRACT["hud_widget_ids"], [widget["id"] for widget in document["widgets"]])
         component = document["components"]["button"]
         self.assertEqual(3, component["pressedOffsetY"])
-        self.assertEqual([10] * 4, component["spriteSlice"])
+        self.assertEqual([12] * 4, component["spriteSlice"])
         for widget in document["widgets"]:
             with self.subTest(widget=widget["id"]):
                 if widget["kind"] == "button":
@@ -220,9 +220,10 @@ class CozyUiSourceTests(unittest.TestCase):
         log = widgets["chat_log"]
         input_panel = widgets["chat_input"]
         self.assertLessEqual(log["y"] + log["h"], input_panel["y"])
-        for left, right in (("dock_chat", "dock_fishing"), ("dock_fishing", "cap_status"), ("cap_status", "menu_rail")):
+        for left, right in (("dock_chat", "dock_fishing"), ("dock_fishing", "cap_status"), ("cap_status", "btn_exit_pond")):
             self.assertLessEqual(widgets[left]["x"] + widgets[left]["w"] + 8, widgets[right]["x"])
-        self.assertLessEqual(widgets["btn_pan_right"]["x"] + widgets["btn_pan_right"]["w"], widgets["menu_rail"]["x"])
+        self.assertLessEqual(widgets["btn_pan_right"]["x"] + widgets["btn_pan_right"]["w"], 960)
+        self.assertNotIn("menu_rail", widgets)
 
 
 if __name__ == "__main__":

@@ -679,6 +679,16 @@ namespace FishSocial.Desktop.Auth
         {
             LastFishingOutcome = "catch";
             _latestCatch = fishCatch;
+            // Apply hooked locally as soon as fish_bite arrives so Overlay does
+            // not wait for the companion pond_user_updated packet.
+            if (CurrentUser != null && fishCatch != null)
+            {
+                CurrentUser.fishingPhase = "hooked";
+                var duration = fishCatch.hookDurationMs > 0 ? fishCatch.hookDurationMs : 5000;
+                CurrentUser.phaseEndsAt =
+                    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + duration;
+                UserUpdated?.Invoke(CurrentUser);
+            }
             FishBiteReceived?.Invoke(fishCatch);
         }
 
@@ -687,6 +697,14 @@ namespace FishSocial.Desktop.Auth
             LastFishingOutcome = "escape";
             var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _hookPrompt = OverlayHookPrompt.Escape(nowMs);
+            if (CurrentUser != null)
+            {
+                CurrentUser.fishingPhase = "resolving";
+                if (CurrentUser.phaseContext == null)
+                    CurrentUser.phaseContext = new PondUserPhaseContextDto();
+                CurrentUser.phaseContext.outcome = "escape";
+                UserUpdated?.Invoke(CurrentUser);
+            }
             FishMissReceived?.Invoke(miss);
         }
 

@@ -78,11 +78,16 @@ namespace FishSocialOverlay
         bool _catchHolding;
         bool _successCompleted;
         string _petId = string.Empty;
+        string _warmedPetId = string.Empty;
         string _fishingPhase = string.Empty;
         long _sessionAnchorMs;
         long _hookDeadlineMs;
         long _hookTotalMs;
         int _sessionCatchCount;
+        static readonly string[] ActionWarmupClips =
+        {
+            "bait", "cast", "fishing", "hooked", "reel", "reel_empty", "sit", "idle", "catch",
+        };
 
         public string ActorKey { get; }
 
@@ -482,6 +487,38 @@ namespace FishSocialOverlay
             RelayoutCluster();
         }
 
+        /// <summary>
+        /// Prefetch first frames of fishing clips so click-time prediction
+        /// does not stall on PNG decode.
+        /// </summary>
+        public void WarmupActionClips(string petId)
+        {
+            var id = petId ?? _petId;
+            if (string.IsNullOrEmpty(id) || string.Equals(id, _warmedPetId, StringComparison.Ordinal))
+                return;
+            _warmedPetId = id;
+            OverlayFishingLayers.Place(
+                id, BodySize, BodySize, out var drawW, out var drawH, out _, out _);
+            if (drawW < 1 || drawH < 1)
+            {
+                drawW = (int)BodySize;
+                drawH = (int)BodySize;
+            }
+
+            for (var c = 0; c < ActionWarmupClips.Length; c++)
+            {
+                var clip = ActionWarmupClips[c];
+                if (OverlayFishingLayers.TryOpen(id, clip) == null)
+                    continue;
+                for (var i = 0; i < OverlayFishingLayers.LayerNames.Length; i++)
+                {
+                    var path = OverlayFishingLayers.LayerFile(
+                        id, clip, 0, OverlayFishingLayers.LayerNames[i]);
+                    OverlayFishingLayers.BitmapFor(path, drawW, drawH);
+                }
+            }
+        }
+
         public void Place(double centerX, double centerY)
         {
             _centerX = centerX;
@@ -756,6 +793,10 @@ namespace FishSocialOverlay
                 {
                     nameSlotX = _chrome.Name.x - _chrome.Pet.x;
                     nameSlotY = _chrome.Name.y - _chrome.Pet.y;
+                    // Exported name sits ~26px under the foot, which lands in the grass
+                    // below the pier. Pull it onto the dock lip under the paws.
+                    if (petH > 1 && nameSlotY + nameSlotH > petH + 4)
+                        nameSlotY = Math.Max(0, petH - nameSlotH - 4);
                 }
 
                 if (_chrome.Bubble != null)
@@ -1304,9 +1345,12 @@ namespace FishSocialOverlay
                     }
                 }
 
-                Panel.SetZIndex(_layerImages[i], z);
+                if (Panel.GetZIndex(_layerImages[i]) != z)
+                    Panel.SetZIndex(_layerImages[i], z);
                 var path = OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, name);
-                _layerImages[i].Source = OverlayFishingLayers.BitmapFor(path, _layerDrawW, _layerDrawH);
+                var bitmap = OverlayFishingLayers.BitmapFor(path, _layerDrawW, _layerDrawH);
+                if (!ReferenceEquals(_layerImages[i].Source, bitmap))
+                    _layerImages[i].Source = bitmap;
             }
 
             _placeholder.Visibility = Visibility.Collapsed;

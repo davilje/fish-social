@@ -8,28 +8,80 @@ namespace FishSocialOverlay
 {
     internal static class LatencyTrace
     {
-        static readonly object Sync = new object();
+        const long MaxBytes = 10L * 1024 * 1024;
+        const int MaxQueued = 4096;
         static readonly string Path = System.IO.Path.Combine(
             System.IO.Path.GetTempPath(), "FishSocialOverlay-latency.log");
+        static readonly System.Collections.Concurrent.ConcurrentQueue<string> Pending =
+            new System.Collections.Concurrent.ConcurrentQueue<string>();
+        static readonly System.Threading.AutoResetEvent Signal = new System.Threading.AutoResetEvent(false);
+        static int _started;
 
         public static void Write(string message)
         {
-            try
+            if (Pending.Count >= MaxQueued)
+                return;
+            Pending.Enqueue(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + " " + message);
+            if (System.Threading.Interlocked.Exchange(ref _started, 1) == 0)
             {
-                lock (Sync)
+                new System.Threading.Thread(Drain)
                 {
-                    File.AppendAllText(
-                        Path,
-                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() +
-                        " " + message + Environment.NewLine,
-                        Encoding.UTF8);
+                    IsBackground = true,
+                    Name = "FishSocialOverlayLatencyTrace",
+                    Priority = System.Threading.ThreadPriority.BelowNormal,
+                }.Start();
+            }
+            Signal.Set();
+        }
+
+        static void Drain()
+        {
+            var batch = new StringBuilder();
+            while (true)
+            {
+                Signal.WaitOne(500);
+                batch.Clear();
+                while (Pending.TryDequeue(out var line))
+                    batch.Append(line).Append(Environment.NewLine);
+                if (batch.Length == 0)
+                    continue;
+                try
+                {
+                    var info = new FileInfo(Path);
+                    if (info.Exists && info.Length > MaxBytes)
+                    {
+                        var rotated = Path + ".1";
+                        if (File.Exists(rotated))
+                            File.Delete(rotated);
+                        File.Move(Path, rotated);
+                    }
+                    File.AppendAllText(Path, batch.ToString(), Encoding.UTF8);
+                }
+                catch
+                {
+                    // Diagnostics must never affect Overlay interaction.
                 }
             }
-            catch
-            {
-                // Diagnostics must never affect Overlay interaction.
-            }
         }
+    }
+
+    [DataContract]
+    public sealed class OverlayCommandAckDto
+    {
+        [DataMember(Name = "commandId")]
+        public long CommandId { get; set; }
+
+        [DataMember(Name = "command")]
+        public string Command { get; set; }
+
+        [DataMember(Name = "done")]
+        public bool Done { get; set; }
+
+        [DataMember(Name = "ok")]
+        public bool Ok { get; set; }
+
+        [DataMember(Name = "message")]
+        public string Message { get; set; }
     }
 
     [DataContract]
@@ -313,6 +365,9 @@ namespace FishSocialOverlay
         [DataMember(Name = "debugSpotStatsJson")]
         public string DebugSpotStatsJson { get; set; }
 
+        [DataMember(Name = "commandAcks")]
+        public OverlayCommandAckDto[] CommandAcks { get; set; }
+
         [DataMember(Name = "command")]
         public string Command { get; set; }
 
@@ -331,19 +386,20 @@ namespace FishSocialOverlay
         [DataMember(Name = "sentAtMs")]
         public long SentAtMs { get; set; }
 
+        static readonly DataContractJsonSerializer Serializer =
+            new DataContractJsonSerializer(typeof(IpcMessage));
+
         public static IpcMessage Parse(string json)
         {
-            var serializer = new DataContractJsonSerializer(typeof(IpcMessage));
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-                return serializer.ReadObject(stream) as IpcMessage;
+                return Serializer.ReadObject(stream) as IpcMessage;
         }
 
         public string ToJson()
         {
-            var serializer = new DataContractJsonSerializer(typeof(IpcMessage));
             using (var stream = new MemoryStream())
             {
-                serializer.WriteObject(stream, this);
+                Serializer.WriteObject(stream, this);
                 return Encoding.UTF8.GetString(stream.ToArray());
             }
         }

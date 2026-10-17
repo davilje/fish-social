@@ -62,6 +62,8 @@ namespace FishSocial.Desktop.Auth
         readonly ConcurrentQueue<Action> _mainThread = new ConcurrentQueue<Action>();
         readonly ConcurrentQueue<Action> _priorityMainThread =
             new ConcurrentQueue<Action>();
+        readonly ConcurrentQueue<string> _outgoing = new ConcurrentQueue<string>();
+        int _outgoingDraining;
         readonly Dictionary<int, Action<bool, string>> _pendingAcks =
             new Dictionary<int, Action<bool, string>>();
         readonly object _ackLock = new object();
@@ -121,7 +123,10 @@ namespace FishSocial.Desktop.Auth
             SetState(SocialSocketState.Connecting, "正在连接实时服务。");
             _cancel?.Cancel();
             _cancel = new CancellationTokenSource();
-            _ = ConnectLoop(onCompleted, _cancel.Token);
+            // Off the UnitySynchronizationContext: otherwise every ReceiveAsync
+            // continuation waits for a frame and acks queue behind pond traffic.
+            var token = _cancel.Token;
+            _ = Task.Run(() => ConnectLoop(onCompleted, token));
         }
 
         public void RegisterPlayer(string playerId)
@@ -288,10 +293,31 @@ namespace FishSocial.Desktop.Auth
                 if (packet.StartsWith("40", StringComparison.Ordinal) ||
                     packet.StartsWith("43", StringComparison.Ordinal) ||
                     packet.StartsWith("44", StringComparison.Ordinal))
+                {
                     EnqueuePriority(() => HandlePacket(packet, onCompleted));
-                else
-                    Enqueue(() => HandlePacket(packet, onCompleted));
+                    continue;
+                }
+
+                // Fishing phase changes and bites must not wait behind timer /
+                // bot traffic on the normal main-thread queue.
+                if (packet.StartsWith("42", StringComparison.Ordinal) &&
+                    TryReadArrayPacket(packet.Substring(2), out var eventName, out _) &&
+                    IsInteractiveSocketEvent(eventName))
+                {
+                    EnqueuePriority(() => HandlePacket(packet, onCompleted));
+                    continue;
+                }
+
+                Enqueue(() => HandlePacket(packet, onCompleted));
             }
+        }
+
+        static bool IsInteractiveSocketEvent(string eventName)
+        {
+            return eventName == "fish_bite" ||
+                   eventName == "fish_miss" ||
+                   eventName == "fish_catch_settled" ||
+                   eventName == "pond_user_updated";
         }
 
         void HandlePacket(string packet, Action<bool, string> onCompleted)
@@ -466,7 +492,22 @@ namespace FishSocial.Desktop.Auth
             var packet = "42[" + Quote(name) + ",";
             if (ackId.HasValue) packet = "42" + ackId.Value + "[" + Quote(name) + ",";
             packet += payload + "]";
-            _ = SendRaw(packet, _cancel?.Token ?? CancellationToken.None);
+            _outgoing.Enqueue(packet);
+            if (Interlocked.CompareExchange(ref _outgoingDraining, 1, 0) == 0)
+                _ = Task.Run(DrainOutgoing);
+        }
+
+        async Task DrainOutgoing()
+        {
+            while (true)
+            {
+                while (_outgoing.TryDequeue(out var packet))
+                    await SendRaw(packet, _cancel?.Token ?? CancellationToken.None);
+                Volatile.Write(ref _outgoingDraining, 0);
+                if (_outgoing.IsEmpty ||
+                    Interlocked.CompareExchange(ref _outgoingDraining, 1, 0) != 0)
+                    return;
+            }
         }
 
         async Task SendRaw(string packet, CancellationToken token)

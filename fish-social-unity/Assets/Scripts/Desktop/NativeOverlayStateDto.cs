@@ -51,6 +51,17 @@ namespace FishSocial.Desktop
         public NativeOverlayDebugFishDto[] debugFish = new NativeOverlayDebugFishDto[0];
         public string debugSpotReport = string.Empty;
         public string debugSpotStatsJson = string.Empty;
+        public NativeOverlayCommandAckDto[] commandAcks = new NativeOverlayCommandAckDto[0];
+    }
+
+    [Serializable]
+    public sealed class NativeOverlayCommandAckDto
+    {
+        public long commandId;
+        public string command;
+        public bool done;
+        public bool ok;
+        public string message;
     }
 
     [Serializable]

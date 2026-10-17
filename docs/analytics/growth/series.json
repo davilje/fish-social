@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-14T16:30:03.459Z",
+  "generatedAt": "2026-10-17T16:30:03.615Z",
   "timezone": "Asia/Shanghai",
   "rulesVersion": "v0.4.1",
-  "asOf": "2026-10-14",
+  "asOf": "2026-10-17",
   "dayCount": 90,
   "humansOnly": true,
   "kpiCards": {
@@ -12,14 +12,14 @@
       "deltaPct": null
     },
     "dau": {
-      "value": 1,
+      "value": 0,
       "prev": 1,
-      "deltaPct": 0
+      "deltaPct": -100
     },
     "fishing_dau": {
-      "value": 1,
+      "value": 0,
       "prev": 1,
-      "deltaPct": 0
+      "deltaPct": -100
     },
     "wau": {
       "value": 1,
@@ -32,98 +32,17 @@
       "deltaPct": 0
     },
     "stickiness": {
-      "value": 1,
+      "value": 0,
       "prev": 1,
-      "deltaPct": 0
+      "deltaPct": -100
     },
     "nu_share": {
-      "value": 0,
+      "value": null,
       "prev": 0,
       "deltaPct": null
     }
   },
   "days": [
-    {
-      "date": "2026-07-17",
-      "nu": 0,
-      "dau": 0,
-      "fishing_dau": 0,
-      "wau": 0,
-      "mau": 0,
-      "nu_share": null,
-      "stickiness": null,
-      "daily_catch": 0,
-      "daily_catch_human": 0,
-      "daily_catch_bot": 0,
-      "catch_per_fisher": null,
-      "avg_session_ms": null,
-      "disconnect_rate": null,
-      "abandon_rate": null,
-      "escape_rate": null,
-      "join_fail_rate": null,
-      "avg_pop_ratio": null,
-      "funnel": {
-        "nu": 0,
-        "join": 0,
-        "fishing_start": 0,
-        "bite_hook": 0,
-        "catch": 0
-      }
-    },
-    {
-      "date": "2026-07-18",
-      "nu": 0,
-      "dau": 0,
-      "fishing_dau": 0,
-      "wau": 0,
-      "mau": 0,
-      "nu_share": null,
-      "stickiness": null,
-      "daily_catch": 0,
-      "daily_catch_human": 0,
-      "daily_catch_bot": 0,
-      "catch_per_fisher": null,
-      "avg_session_ms": null,
-      "disconnect_rate": null,
-      "abandon_rate": null,
-      "escape_rate": null,
-      "join_fail_rate": null,
-      "avg_pop_ratio": null,
-      "funnel": {
-        "nu": 0,
-        "join": 0,
-        "fishing_start": 0,
-        "bite_hook": 0,
-        "catch": 0
-      }
-    },
-    {
-      "date": "2026-07-19",
-      "nu": 0,
-      "dau": 0,
-      "fishing_dau": 0,
-      "wau": 0,
-      "mau": 0,
-      "nu_share": null,
-      "stickiness": null,
-      "daily_catch": 0,
-      "daily_catch_human": 0,
-      "daily_catch_bot": 0,
-      "catch_per_fisher": null,
-      "avg_session_ms": null,
-      "disconnect_rate": null,
-      "abandon_rate": null,
-      "escape_rate": null,
-      "join_fail_rate": null,
-      "avg_pop_ratio": null,
-      "funnel": {
-        "nu": 0,
-        "join": 0,
-        "fishing_start": 0,
-        "bite_hook": 0,
-        "catch": 0
-      }
-    },
     {
       "date": "2026-07-20",
       "nu": 0,
@@ -2465,6 +2384,87 @@
       "escape_rate": 0.125,
       "join_fail_rate": 0,
       "avg_pop_ratio": 112.6,
+      "funnel": {
+        "nu": 0,
+        "join": 0,
+        "fishing_start": 0,
+        "bite_hook": 0,
+        "catch": 0
+      }
+    },
+    {
+      "date": "2026-10-15",
+      "nu": 0,
+      "dau": 1,
+      "fishing_dau": 1,
+      "wau": 1,
+      "mau": 1,
+      "nu_share": 0,
+      "stickiness": 1,
+      "daily_catch": 44,
+      "daily_catch_human": 0,
+      "daily_catch_bot": 44,
+      "catch_per_fisher": 0,
+      "avg_session_ms": null,
+      "disconnect_rate": 1,
+      "abandon_rate": 0,
+      "escape_rate": 0.0625,
+      "join_fail_rate": 0,
+      "avg_pop_ratio": 111.3,
+      "funnel": {
+        "nu": 0,
+        "join": 0,
+        "fishing_start": 0,
+        "bite_hook": 0,
+        "catch": 0
+      }
+    },
+    {
+      "date": "2026-10-16",
+      "nu": 0,
+      "dau": 1,
+      "fishing_dau": 1,
+      "wau": 1,
+      "mau": 1,
+      "nu_share": 0,
+      "stickiness": 1,
+      "daily_catch": 49,
+      "daily_catch_human": 2,
+      "daily_catch_bot": 47,
+      "catch_per_fisher": 2,
+      "avg_session_ms": null,
+      "disconnect_rate": 0.875,
+      "abandon_rate": 0.5556,
+      "escape_rate": 0.1803,
+      "join_fail_rate": 0,
+      "avg_pop_ratio": 110.7,
+      "funnel": {
+        "nu": 0,
+        "join": 0,
+        "fishing_start": 0,
+        "bite_hook": 0,
+        "catch": 0
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "nu": 0,
+      "dau": 0,
+      "fishing_dau": 0,
+      "wau": 1,
+      "mau": 1,
+      "nu_share": null,
+      "stickiness": 0,
+      "daily_catch": 9,
+      "daily_catch_human": 0,
+      "daily_catch_bot": 9,
+      "catch_per_fisher": null,
+      "avg_session_ms": null,
+      "disconnect_rate": null,
+      "abandon_rate": null,
+      "escape_rate": 0.1,
+      "join_fail_rate": null,
+      "avg_pop_ratio": 110.1,
       "funnel": {
         "nu": 0,
         "join": 0,
