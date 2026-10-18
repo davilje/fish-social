@@ -254,14 +254,15 @@ namespace FishSocial.Desktop.Editor
                 }
                 else if (tab == "图鉴")
                 {
-                    for (var index = 0; index < 12; index++)
+                    var species = DesktopGameData.Species;
+                    for (var index = 0; index < species.Length; index++)
                     {
                         var item = Item("ShowcaseSlot", selected.Find("CodexGrid/Viewport/Content"));
-                        CozyItemArt.Text(item.transform, "Label", index < 4 ? "✓ " + fishNames[index] + "  ×" + (index + 2) : "？？？");
-                        Art(item, CozyItemArt.Fish(fishIds[index % fishIds.Length]), index >= 4);
+                        CozyItemArt.Text(item.transform, "Label", index < 8 ? "✓ " + species[index].name + "  ×" + (index + 2) : "？？？");
+                        Art(item, CozyItemArt.Fish(species[index].speciesId), index >= 8);
                     }
-                    CozyItemArt.Set(selected, "DesignDetailArt", CozyItemArt.Fish("koi"));
-                    CozyItemArt.Text(selected, "Detail", "锦鲤\n\n淡水 · 杂食\n推荐鱼饵：通用鱼饵\n\n累计捕获：3\n最大体长：0.80 m\n已解锁 6 / 50");
+                    CozyItemArt.Set(selected, "DesignDetailArt", CozyItemArt.Fish("crucian"));
+                    CozyItemArt.Text(selected, "Detail", "鲫鱼\n\n推荐鱼饵：通用鱼饵\n\n累计捕获：2\n最大体长：0.28 m\n已解锁 8 / " + species.Length);
                 }
                 else if (tab == "相册")
                 {

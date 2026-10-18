@@ -17,14 +17,16 @@ namespace FishSocial.Desktop.Editor
         void OnPreprocessTexture()
         {
             var portrait = assetPath.StartsWith(CozyPrefabRepair.ThemeFolder + "/characters/avatars/", StringComparison.Ordinal);
-            if (!IsSurfacePath(assetPath) && !portrait)
+            var fish = assetPath.StartsWith(CozyPrefabRepair.ThemeFolder + "/items/fish/", StringComparison.Ordinal);
+            if (!IsSurfacePath(assetPath) && !portrait && !fish)
                 return;
             var importer = assetImporter as TextureImporter;
             if (importer == null)
                 return;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
-            if (portrait) importer.maxTextureSize = 512;
+            if (portrait || fish) importer.maxTextureSize = 512;
+            if (fish) importer.spriteBorder = Vector4.zero;
             var border = CatTheme.SurfaceBorder(assetPath);
             if (border != Vector4.zero)
                 importer.spriteBorder = border;
@@ -40,7 +42,7 @@ namespace FishSocial.Desktop.Editor
 
         public override uint GetVersion()
         {
-            return 4;
+            return 5;
         }
     }
 }

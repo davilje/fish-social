@@ -11,6 +11,38 @@ namespace FishSocial.Desktop
         public static readonly Color CompletedText = new Color(0.24f, 0.55f, 0.29f, 1f);
         static readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
         static bool loaded;
+        static readonly Dictionary<string, Sprite> FishSprites = new Dictionary<string, Sprite>();
+
+        [System.Serializable]
+        public sealed class FishArtEntry
+        {
+            public string speciesId;
+            public string displayName;
+            public string resourcePath;
+            public string spriteName;
+        }
+
+        [System.Serializable]
+        sealed class FishArtCatalog
+        {
+            public FishArtEntry[] items;
+        }
+
+        static FishArtEntry[] fishCatalog;
+
+        public static IReadOnlyList<FishArtEntry> FishCatalog
+        {
+            get
+            {
+                if (fishCatalog == null)
+                {
+                    var asset = Resources.Load<TextAsset>("Desktop/Theme/Cozy/items/fish/catalog");
+                    var catalog = asset != null ? JsonUtility.FromJson<FishArtCatalog>(asset.text) : null;
+                    fishCatalog = catalog?.items ?? new FishArtEntry[0];
+                }
+                return fishCatalog;
+            }
+        }
 
         public static bool IsAuthored(Transform root)
         {
@@ -32,8 +64,22 @@ namespace FishSocial.Desktop
         public static Sprite Fish(string speciesId)
         {
             var id = DesktopGameData.ResolveSpeciesId(speciesId);
-            if (id == "bass") id = "largemouth_bass";
-            return Get(id);
+            if (id == "largemouth_bass") id = "black_bass";
+            if (string.IsNullOrEmpty(id)) return null;
+            if (FishSprites.TryGetValue(id, out var cached)) return cached;
+            foreach (var entry in FishCatalog)
+            {
+                if (entry.speciesId != id) continue;
+                Sprite result = null;
+                if (string.IsNullOrEmpty(entry.spriteName))
+                    result = Resources.Load<Sprite>(entry.resourcePath);
+                else
+                    foreach (var sprite in Resources.LoadAll<Sprite>(entry.resourcePath))
+                        if (sprite.name == entry.spriteName) { result = sprite; break; }
+                if (result != null) FishSprites[id] = result;
+                return result;
+            }
+            return null;
         }
 
         public static Sprite Product(int category, string id, string displayName)
