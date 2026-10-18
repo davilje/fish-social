@@ -38,6 +38,7 @@ namespace FishSocial.Desktop
         Coroutine _overlayDebugInspectRoutine;
         Coroutine _policeRaidRoutine;
         OverlayPlayerSocialBridge _playerSocialBridge;
+        OwnFishingPresenter _ownFishing;
         DesktopGameplayDebugMenu _gameplayDebug;
         FishingProgressDto _fishingProgress;
         Coroutine _progressRoutine;
@@ -113,6 +114,10 @@ namespace FishSocial.Desktop
             _pondSession.ChatMessageReceived += OnPondChatMessage;
             _pondSession.PoliceRaidReceived += OnPondPoliceRaid;
             _pondSession.ErrorReceived += OnPondError;
+            _ownFishing = new OwnFishingPresenter(
+                this,
+                () => _pondSession,
+                () => PublishNativeOverlayState(true));
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
             _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter, _serverBaseUrl);
@@ -257,6 +262,9 @@ namespace FishSocial.Desktop
             new System.Collections.Generic.List<NativeOverlayCommandAckDto>();
         bool _overlayStateDirty;
         float _lastOverlayPublishAt = -1f;
+        bool _flushingOverlayState;
+        bool _petVisualRefreshPending;
+        Coroutine _fishingArtWarmupRoutine;
 
         public void PublishNativeOverlayState()
         {
@@ -268,28 +276,47 @@ namespace FishSocial.Desktop
             if (_nativeOverlay == null)
                 return;
             _overlayStateDirty = true;
+            if (_flushingOverlayState)
+                return;
             if (urgent ||
                 _lastOverlayPublishAt < 0f ||
                 Time.unscaledTime - _lastOverlayPublishAt >= OverlayPublishIntervalSeconds)
                 FlushNativeOverlayState();
         }
 
+        /// <summary>
+        /// Schedule Unity hero-cat sprite refresh after overlay IPC/state work.
+        /// FishingLayerArt loads PNGs on the main thread; never do that inside Flush.
+        /// </summary>
+        public void RequestPetVisualRefresh()
+        {
+            _petVisualRefreshPending = true;
+        }
+
         void LateUpdate()
         {
+            _ownFishing?.Tick();
             if (_nativeOverlay != null && Time.unscaledDeltaTime > 0.25f)
                 Debug.Log(
                     "[Latency][Unity] frame_stall ms=" +
                     Mathf.RoundToInt(Time.unscaledDeltaTime * 1000f) +
                     " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             if (_overlayStateDirty &&
+                !_flushingOverlayState &&
                 Time.unscaledTime - _lastOverlayPublishAt >= OverlayPublishIntervalSeconds)
                 FlushNativeOverlayState();
+            if (_petVisualRefreshPending)
+            {
+                _petVisualRefreshPending = false;
+                _petState?.RefreshFromApp();
+            }
         }
 
         void CompleteOverlayAck(long commandId, string command, bool ok, string message)
         {
             if (commandId <= 0)
                 return;
+            _ownFishing?.OnCommandFinished(command, ok);
             _overlayAcks.Add(new NativeOverlayCommandAckDto
             {
                 commandId = commandId,
@@ -309,40 +336,56 @@ namespace FishSocial.Desktop
 
         void FlushNativeOverlayState()
         {
-            if (_nativeOverlay == null)
+            if (_nativeOverlay == null || _flushingOverlayState)
                 return;
-            _overlayStateDirty = false;
-            _lastOverlayPublishAt = Time.unscaledTime;
+            _flushingOverlayState = true;
+            try
+            {
+                _overlayStateDirty = false;
+                _lastOverlayPublishAt = Time.unscaledTime;
 
-            _petState?.RefreshFromApp();
-            var dto = new NativeOverlayStateDto
-            {
-                loginState = _steamAuth?.State.ToString() ?? "SignedOut",
-                connectionState = _pondSession?.State.ToString() ?? "Disconnected",
-                fishingPhase = _pondSession?.CurrentPhase ?? "idle",
-                petVisualState = PetStateController.ToWire(
-                    _petState != null ? _petState.Current : PetVisualState.Offline),
-                errorMessage = _nativeOverlayError ?? string.Empty,
-            };
-            OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
-            dto.debugFishListMode = _overlayDebugFishListMode ?? string.Empty;
-            dto.debugFish = _overlayDebugFish ?? Array.Empty<NativeOverlayDebugFishDto>();
-            dto.debugSpotReport = _overlayDebugSpotReport ?? string.Empty;
-            dto.debugSpotStatsJson = _overlayDebugSpotStatsJson ?? string.Empty;
-            if (!string.IsNullOrEmpty(_pendingGroundbaitBubble))
-            {
-                dto.observation = new NativeOverlayChatDto
+                // Do not RefreshFromApp/ApplyRenderers here: FishingLayerArt.Open reads
+                // and scales every layer PNG synchronously and has been measured to
+                // stall the main thread for 2–5s, delaying overlay_command_received.
+                var presentationActive = _ownFishing != null && _ownFishing.IsActive;
+                var dto = new NativeOverlayStateDto
                 {
-                    messageId = "gb-tip-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    nickname = "打窝",
-                    text = _pendingGroundbaitBubble,
-                    sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    loginState = _steamAuth?.State.ToString() ?? "SignedOut",
+                    connectionState = _pondSession?.State.ToString() ?? "Disconnected",
+                    fishingPhase = presentationActive
+                        ? _ownFishing.Phase
+                        : (_pondSession?.CurrentPhase ?? "idle"),
+                    petVisualState = PetStateController.ToWire(
+                        presentationActive
+                            ? _ownFishing.ResolveVisual(_pondSession)
+                            : (_petState != null ? _petState.Current : PetVisualState.Offline)),
+                    errorMessage = _nativeOverlayError ?? string.Empty,
                 };
-                _pendingGroundbaitBubble = null;
+                OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
+                _ownFishing?.ApplyToDto(dto, _pondSession);
+                dto.debugFishListMode = _overlayDebugFishListMode ?? string.Empty;
+                dto.debugFish = _overlayDebugFish ?? Array.Empty<NativeOverlayDebugFishDto>();
+                dto.debugSpotReport = _overlayDebugSpotReport ?? string.Empty;
+                dto.debugSpotStatsJson = _overlayDebugSpotStatsJson ?? string.Empty;
+                if (!string.IsNullOrEmpty(_pendingGroundbaitBubble))
+                {
+                    dto.observation = new NativeOverlayChatDto
+                    {
+                        messageId = "gb-tip-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        nickname = "打窝",
+                        text = _pendingGroundbaitBubble,
+                        sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    };
+                    _pendingGroundbaitBubble = null;
+                }
+                dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
+                dto.commandAcks = _overlayAcks.ToArray();
+                _nativeOverlay.PublishState(dto);
             }
-            dto.mainWindowRaised = _window != null && _window.IsWindowVisible && !_window.IsLoginShell;
-            dto.commandAcks = _overlayAcks.ToArray();
-            _nativeOverlay.PublishState(dto);
+            finally
+            {
+                _flushingOverlayState = false;
+            }
         }
 
         void QueueFishingProgressRefresh()
@@ -400,10 +443,43 @@ namespace FishSocial.Desktop
             {
                 _nativeOverlayError = string.Empty;
                 QueueFishingProgressRefresh();
+                QueueFishingArtWarmup();
             }
-            else if (!string.IsNullOrEmpty(message))
-                _nativeOverlayError = message;
+            else
+            {
+                _ownFishing?.Clear();
+                if (!string.IsNullOrEmpty(message))
+                    _nativeOverlayError = message;
+            }
             PublishNativeOverlayState();
+            RequestPetVisualRefresh();
+        }
+
+        void QueueFishingArtWarmup()
+        {
+            if (_fishingArtWarmupRoutine != null)
+                StopCoroutine(_fishingArtWarmupRoutine);
+            _fishingArtWarmupRoutine = StartCoroutine(FishingArtWarmupRoutine());
+        }
+
+        IEnumerator FishingArtWarmupRoutine()
+        {
+            // Spread cold PNG decode across frames so take_spot/start_fishing
+            // never pay the first-load hitch on the interactive path.
+            var petId = PetArtLoader.CurrentOwnPetId();
+            FishingLayerArt.Place(petId, 256f, 256f, out var drawW, out var drawH, out _, out _);
+            var clips = new[]
+            {
+                "idle", "sit", "ready", "bait", "cast", "fishing", "bite", "hooked",
+                "reel", "catch", "reset_catch", "reel_empty", "reset_empty",
+                "groundbait", "leave",
+            };
+            for (var i = 0; i < clips.Length; i++)
+            {
+                FishingLayerArt.Warmup(petId, clips[i], drawW, drawH);
+                yield return null;
+            }
+            _fishingArtWarmupRoutine = null;
         }
 
         void OnPondSnapshotChanged(PondSnapshotDto _)
@@ -414,8 +490,10 @@ namespace FishSocial.Desktop
         void OnPondUserUpdated(PondUserDto user)
         {
             var own = _pondSession?.CurrentUser;
-            PublishNativeOverlayState(
-                user != null && own != null && user.id == own.id);
+            var isOwn = user != null && own != null && user.id == own.id;
+            if (isOwn)
+                _ownFishing?.ReconcileFromServer();
+            PublishNativeOverlayState(isOwn);
         }
 
         void OnPondUsersChanged()
@@ -423,18 +501,22 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
-        void OnPondFishBite(PendingFishCatchDto _)
+        void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
+            var duration = fishCatch != null ? fishCatch.hookDurationMs : 0;
+            _ownFishing?.BeginHooked(duration);
             PublishNativeOverlayState(true);
         }
 
         void OnPondFishMiss(FishingMissDto _)
         {
+            _ownFishing?.BeginMissEscape();
             PublishNativeOverlayState(true);
         }
 
         void OnPondFishCatchSettled(FishCatchSettledDto _)
         {
+            _ownFishing?.ReconcileFromServer();
             PublishNativeOverlayState();
         }
 
@@ -495,14 +577,17 @@ namespace FishSocial.Desktop
                     PublishNativeOverlayState();
                     return;
                 case "take_spot":
+                    _ownFishing?.BeginTakeSpot(message.spotId, message.commandId);
                     ExecuteOverlayCommand(
                         callback => _pondSession?.TakeSpot(message.spotId, callback), message);
                     return;
                 case "leave_spot":
+                    _ownFishing?.BeginLeaveSpot(message.commandId);
                     ExecuteOverlayCommand(
                         callback => _pondSession?.LeaveSpot(callback), message);
                     return;
                 case "start_fishing":
+                    _ownFishing?.BeginStartFishing(message.commandId);
                     ExecuteOverlayCommand(
                         callback => _pondSession?.StartFishing(
                             string.IsNullOrEmpty(message.spotId)
@@ -511,9 +596,11 @@ namespace FishSocial.Desktop
                             callback), message);
                     return;
                 case "groundbait_start":
+                    _ownFishing?.BeginGroundbait(message.commandId);
                     ExecuteOverlayGroundbait(message.spotId, message.commandId);
                     return;
                 case "stop_fishing":
+                    _ownFishing?.BeginStopFishing(message.commandId);
                     ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback), message);
                     return;
                 case "confirm_overlay_prompt":
@@ -801,6 +888,7 @@ namespace FishSocial.Desktop
 
             if (_overlayDebugInspectRoutine != null)
                 StopCoroutine(_overlayDebugInspectRoutine);
+            _ownFishing?.BeginHooked(5000, _overlayDebugCommandId);
             _overlayDebugInspectRoutine = StartCoroutine(OverlayDebugForceBiteRoutine(api, fishId));
         }
 
@@ -815,6 +903,8 @@ namespace FishSocial.Desktop
                 _nativeOverlayError = ok
                     ? (string.IsNullOrEmpty(message) ? "强制上钩成功" : message)
                     : (string.IsNullOrEmpty(message) ? "强制上钩失败" : message);
+                if (!ok)
+                    _ownFishing?.Clear();
             });
             _overlayDebugInspectRoutine = null;
             FinishOverlayDebug(_overlayDebugLastOk);
@@ -935,6 +1025,7 @@ namespace FishSocial.Desktop
                 PublishNativeOverlayState();
                 return;
             }
+            _ownFishing?.Clear();
             _nativeOverlayError = "正在退出鱼塘…";
             PublishNativeOverlayState();
             _pondSession.ExitPond((ok, message) =>
@@ -942,6 +1033,7 @@ namespace FishSocial.Desktop
                 _nativeOverlayError = ok ? string.Empty : (message ?? "退出鱼塘失败。");
                 if (ok)
                 {
+                    _ownFishing?.Clear();
                     _nativeOverlay?.CloseOverlay();
                     RaiseMainWindow(ShellPanelId.Home);
                 }

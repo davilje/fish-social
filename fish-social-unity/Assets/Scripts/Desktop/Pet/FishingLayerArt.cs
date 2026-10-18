@@ -59,6 +59,20 @@ namespace FishSocial.Desktop.Pet
             return session;
         }
 
+        /// <summary>
+        /// Pin a clip in the cache so the first interactive Apply does not pay
+        /// synchronous PNG decode/scale on the Unity main thread.
+        /// </summary>
+        public static void Warmup(string petId, string clip, int drawW, int drawH)
+        {
+            var session = Open(petId, clip, drawW, drawH);
+            if (session == null)
+                return;
+            // Leave Users elevated so Release from a later Open/Release pair
+            // cannot evict the warmed clip while the pond session is live.
+            session.Users = Math.Max(session.Users, 2);
+        }
+
         public static void Release(Session session)
         {
             if (session == null || session.Users <= 0)

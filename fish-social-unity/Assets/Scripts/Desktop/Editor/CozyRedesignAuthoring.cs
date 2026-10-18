@@ -57,6 +57,13 @@ namespace FishSocial.Desktop.Editor
                 else if (action == "test")
                     RunEditModeTests();
 #endif
+                else if (action == "recompile")
+                {
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                    UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+                }
+                else if (action == "build-debug")
+                    DesktopBuildMenu.BuildWindowsDevelopment();
                 else
                     throw new InvalidOperationException("Unsupported request: " + action);
                 File.WriteAllText("Temp/CozyRedesign.result", "OK " + action);

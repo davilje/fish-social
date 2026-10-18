@@ -1,5 +1,11 @@
 # 策划文档变更记录
 
+### [bug-54-own-fishing-presenter-implemented] - 2026-10-18
+
+- **BUG-54** → **已实现**（待重打包实机验收 P50/P95）。
+- Unity 新增 `OwnFishingPresenter`：take/start/stop/groundbait/leave/bite 立刻推 Overlay；本地 bait 800→cast 600→waiting；stop 250ms 后 seated；ack 失败回滚；`FISH_SOCIAL_OWN_FISHING_PRESENTER=0` 可关。
+- Overlay 去掉猜 phase 时间线，只保留落座一帧预测 + 连点禁用；按钮跟 Unity `availableActions`/phase。
+
 ### [bug-54-own-fishing-presenter-confirmed] - 2026-10-18
 
 - **BUG-54** Unity 自己钓鱼表现权威 → **已确认**，P0，hotfix。

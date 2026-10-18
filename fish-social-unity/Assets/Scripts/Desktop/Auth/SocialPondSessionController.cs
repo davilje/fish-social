@@ -8,6 +8,7 @@ namespace FishSocial.Desktop.Auth
     /// Owns the authenticated pond session so UI code does not send raw Socket.IO
     /// events or decide authoritative player state.
     /// </summary>
+    [DefaultExecutionOrder(100)]
     public sealed class SocialPondSessionController : MonoBehaviour
     {
         const string DefaultPondId = "pond-calm";

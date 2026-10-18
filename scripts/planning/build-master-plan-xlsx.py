@@ -1681,7 +1681,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-10-16",
     ],
     [
-        "已确认",
+        "已实现",
         "BUG-54",
         "Bug修复",
         "Unity 自己钓鱼表现权威",
@@ -1691,7 +1691,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "终态：自己钓鱼由 Unity 本地推进 phase/visual/actions；服务端只校验结算；Overlay 去掉猜阶段时间线（BUG-53 为过渡）",
         "docs/planning/specs/BUG修复-Unity自己钓鱼表现权威.md",
         "2026-10-18",
-        "",
+        "2026-10-18",
     ],
 ]
 

@@ -211,11 +211,15 @@ namespace FishSocial.Desktop.Auth
 
         public void Pump()
         {
-            // ACKs and connection state must not wait behind a burst of pond
-            // snapshots/user updates. Overlay commands are interactive and
-            // should be acknowledged on the next available Unity frame.
-            while (_priorityMainThread.TryDequeue(out var priorityAction))
+            // ACKs / bite / miss first — but bound so a flood cannot stall the
+            // frame before NativeOverlayProcessController dequeues commands.
+            var priorityProcessed = 0;
+            while (priorityProcessed < 8 &&
+                   _priorityMainThread.TryDequeue(out var priorityAction))
+            {
                 priorityAction?.Invoke();
+                priorityProcessed++;
+            }
 
             // Bound normal event work so a busy pond cannot monopolize the
             // Unity main thread and make the overlay controls feel laggy.
@@ -223,7 +227,7 @@ namespace FishSocial.Desktop.Auth
             while (_mainThread.TryDequeue(out var action))
             {
                 action?.Invoke();
-                if (++processed >= 64)
+                if (++processed >= 32)
                     break;
             }
         }
@@ -314,10 +318,12 @@ namespace FishSocial.Desktop.Auth
 
         static bool IsInteractiveSocketEvent(string eventName)
         {
+            // pond_user_updated stays on the normal queue: each update fans out
+            // into UsersChanged + Overlay publish and must not outrank ACKs or
+            // starve overlay IPC on the same Unity frame.
             return eventName == "fish_bite" ||
                    eventName == "fish_miss" ||
-                   eventName == "fish_catch_settled" ||
-                   eventName == "pond_user_updated";
+                   eventName == "fish_catch_settled";
         }
 
         void HandlePacket(string packet, Action<bool, string> onCompleted)

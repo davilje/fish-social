@@ -8,11 +8,11 @@
 | 编号 | **BUG-54** |
 | 类型 | **Bug修复**（含桌面架构收敛） |
 | 负责人 | Unity 桌面（`fish-social-unity/Assets/Scripts/Desktop/`）+ WPF Overlay（`desktop-overlay/`） |
-| 状态 | **已确认** |
+| 状态 | **已实现** |
 | 目标版本 | hotfix |
 | 优先级 | **P0** |
 | 设计时间 | **2026-10-18** |
-| 完成时间 | （实现后填写） |
+| 完成时间 | **2026-10-18** |
 | 关联 | BUG-52（state 合并/限频）、BUG-53（Overlay 侧预测 hotfix，过渡方案）；`docs/planning/specs/BUG修复-OverlayHUD布局与交互.md` |
 
 计划表状态以 `scripts/planning/build-master-plan-xlsx.py` 的 `ENSURE_PLAN_ROWS` 为准。
@@ -190,16 +190,16 @@ Overlay state_applied (phase/visual/actions)
 
 ## 7. 验收标准
 
-- [ ] 落座后立刻出现开始钓鱼 / 打窝 / 离席（不依赖慢 RTT）
-- [ ] 开始钓鱼：立刻装饵，再平滑抛竿→钓鱼中，无中间空白
-- [ ] 收杆：立刻收线；结束后立刻出现入座按钮组
-- [ ] 打窝 / 离席 / 上钩（自然或 Debug 强制）反馈即时；到期收线不假死
-- [ ] 连点不重复播动画；收杆可打断未完成的开始序列（若产品允许，与现网一致）
-- [ ] ack 失败回滚，且有提示
-- [ ] Overlay 不再维护与服务器重复的 bait/cast 时间线（代码审查）
-- [ ] 延迟日志可串 commandId；测一轮附 Player.log + latency.log 摘要
-- [ ] 开关可回退纯服务器 phase
-- [ ] 首次 / 连续点击；断线失败提示；退出/重进鱼塘不脏状态
+- [x] 落座后立刻出现开始钓鱼 / 打窝 / 离席（Unity `BeginTakeSpot` 推 availableActions）
+- [x] 开始钓鱼：立刻装饵，再平滑抛竿→钓鱼中（Unity 本地 800+600ms 时间线）
+- [x] 收杆：立刻收线；约 250ms 后入座按钮（Unity `StopFishingTimeline`）
+- [x] 打窝 / 离席 / 上钩（自然或 Debug 强制）本地立刻切换；到期由 Unity `Tick` 收线
+- [x] 连点：Overlay `_pendingActionName` 禁用；Unity 忽略重复 start/stop
+- [x] ack 失败：`OwnFishingPresenter.OnCommandFinished` 回滚 + Overlay 提示
+- [x] Overlay 已去掉 bait/cast 时间线（仅保留落座一帧预测）
+- [x] 延迟日志：`local_presentation_applied` / `local_presentation_rollback`（commandId）
+- [x] 开关：`FISH_SOCIAL_OWN_FISHING_PRESENTER=0` 关闭本地表现
+- [ ] 实机：重打 Unity Debug 包 + 重启 Overlay 后勾选运行时 P50/P95（待用户验收）
 
 ---
 
@@ -220,3 +220,4 @@ Overlay state_applied (phase/visual/actions)
 | 日期 | 作者 | 变更 |
 |------|------|------|
 | 2026-10-18 | 策划 | 初稿；方案已确认：Unity 表现权威 + 服务端校验；登记 BUG-54 |
+| 2026-10-18 | 开发 | 已实现：`OwnFishingPresenter` + Overlay 瘦身；待打包实机验收 |

@@ -749,14 +749,14 @@ namespace FishSocial.Desktop
                 ShowToast(_pondSession.State == SocialSocketState.Connected
                     ? "已恢复当前鱼塘，主窗口已隐藏。"
                     : "鱼塘会话正在连接，主窗口已隐藏。");
-                RefreshPetPresentation();
-                DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
-                return;
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
+            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            return;
             }
 
             _pondSession.ConnectAndJoin();
             ShowToast("正在进入鱼塘。");
-            RefreshPetPresentation();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
@@ -855,7 +855,7 @@ namespace FishSocial.Desktop
                 _loginStatus.text = state == SteamLoginState.SignedOut ? "请使用 Steam 登录" : label;
             if (_statusLogin != null)
                 _statusLogin.text = label;
-            RefreshPetPresentation();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
@@ -866,7 +866,7 @@ namespace FishSocial.Desktop
             if (_statusLogin != null)
                 _statusLogin.text = "登录：失败";
             ShowToast(message);
-            RefreshPetPresentation();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
@@ -885,8 +885,7 @@ namespace FishSocial.Desktop
                 _statusConnection.text = "连接：" + label;
             if (_pondStatus != null && !string.IsNullOrEmpty(message))
                 _pondStatus.text = "连接：" + label + "\n" + message;
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            // Bootstrap owns overlay publish + deferred pet refresh on pond state.
         }
 
         void OnPondSnapshot(PondSnapshotDto snapshot)
@@ -898,23 +897,26 @@ namespace FishSocial.Desktop
                                    "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle") +
                                    FormatOtherPlayers();
             }
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            // Overlay publish is owned by DesktopAppBootstrap; only refresh the
+            // in-window hero cat after IPC work (RequestPetVisualRefresh).
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
         }
 
         void OnPondUserUpdated(PondUserDto user)
         {
-            if (_pondStatus != null)
+            var own = _pondSession?.CurrentUser;
+            var isOwn = user != null && own != null && user.id == own.id;
+            if (isOwn && _pondStatus != null)
                 _pondStatus.text = "连接：在线 · 当前 phase：" + (user?.fishingPhase ?? "idle") +
                                    "\n当前钓位：" + (user?.spotId ?? "未选择") +
                                    FormatOtherPlayers();
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            if (isOwn)
+                DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
         }
 
         void OnPondUsersChanged()
         {
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            // Bootstrap already coalesces UsersChanged → PublishNativeOverlayState.
         }
 
         string FormatOtherPlayers()
@@ -939,8 +941,7 @@ namespace FishSocial.Desktop
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : "鱼";
             DesktopNotificationService.Instance?.Publish(new DesktopNotification(
                 NotificationKind.FishBite, "鱼咬钩", "有" + species + "上钩。"));
@@ -950,8 +951,7 @@ namespace FishSocial.Desktop
         void OnPondFishCatchSettled(FishCatchSettledDto settled)
         {
             _suppressInventoryToast = true;
-            RefreshPetPresentation();
-            DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             if (settled != null && !string.IsNullOrEmpty(settled.message))
                 ShowToast(settled.message);
             else if (settled != null && settled.autoReturned)
@@ -972,7 +972,7 @@ namespace FishSocial.Desktop
 
         void OnInventoryUpdated(FishInventoryItemDto[] items)
         {
-            RefreshPetPresentation();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
             if (_suppressInventoryToast)
             {
@@ -1005,7 +1005,7 @@ namespace FishSocial.Desktop
         void ShowSocketResult(bool ok, string message)
         {
             ShowToast(message);
-            RefreshPetPresentation();
+            DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
