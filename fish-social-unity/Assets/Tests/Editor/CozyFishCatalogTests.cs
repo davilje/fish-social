@@ -24,6 +24,8 @@ namespace FishSocial.Tests.Editor
                 Assert.AreEqual(Vector4.zero, sprites[index].border, species[index].speciesId);
                 var entry = catalog.Single(item => item.speciesId == species[index].speciesId);
                 Assert.AreEqual(species[index].name, entry.displayName);
+                Assert.IsEmpty(entry.spriteName, "Production fish must use independent cartoon sprites");
+                Assert.AreEqual("Desktop/Theme/Cozy/items/fish/" + entry.speciesId, entry.resourcePath);
                 var importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprites[index])) as TextureImporter;
                 Assert.NotNull(importer);
                 Assert.AreEqual(TextureImporterType.Sprite, importer.textureType);

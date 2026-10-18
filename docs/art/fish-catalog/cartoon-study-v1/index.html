@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>鱼图轻 Q 版 · 六种样稿对照</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:28px 36px;background:#f6efdf;color:#69422b;font-family:system-ui,-apple-system,sans-serif}header{display:flex;align-items:center;justify-content:space-between;max-width:1740px;margin:auto auto 24px;gap:24px}h1{font-size:32px;margin:8px 0}p{line-height:1.7;margin:8px 0;color:#947358}.eyebrow{font-size:13px;letter-spacing:3px;font-weight:700;color:#b4804e}.reference{display:flex;align-items:center;border:1px solid #e2cbb0;border-radius:22px;padding:0 22px 0 0;background:#fffbf1}.reference img{width:195px;height:150px;object-fit:contain}.reference div{width:185px}strong{font-size:18px}button{font:inherit;padding:8px 16px;border-radius:20px;background:#fffbf1;color:#795036;border:1px solid #dac2a1;cursor:pointer;margin-right:8px}button[aria-pressed=true]{background:#f2cf95;border-color:#c29d63}main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;max-width:1740px;margin:auto}.card{background:#fffaf0;border:1px solid #e1cdb1;border-radius:22px;overflow:hidden}h2{font-size:21px;margin:17px 20px 6px}.id{font-size:12px;color:#ac8f71;font-weight:400;margin-left:8px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 14px}.label{font-size:12px;text-align:center;color:#967e65;margin-bottom:6px}.new .label{color:#9c6027;font-weight:700}.art{height:215px;display:flex;align-items:center;justify-content:center;background:#eee9dc;border-radius:14px;overflow:hidden}.new .art{background:#e7eddf}.art img{width:100%;height:100%;object-fit:contain;padding:9px}.crop{overflow:hidden;position:relative;flex:none}.crop img{position:absolute;max-width:none;padding:0}.note{font-size:14px;min-height:48px;padding:0 20px 14px;margin:0;line-height:1.7}.dark .art{background:#36474b}.white .art{background:#fff}.small .art img:not(.atlas){width:100px;height:100px}.small .crop{transform:scale(.5)}footer{max-width:1740px;margin:18px auto;color:#937860;font-size:13px}a{color:#8f613c}@media(max-width:1000px){main{grid-template-columns:repeat(2,minmax(0,1fr))}.reference{display:none}}@media(max-width:650px){body{padding:18px}main{grid-template-columns:1fr}h1{font-size:26px}.art{height:180px}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">MEOW & FISH / STYLE STUDY 01</div><h1>鱼图轻 Q 版 · 六种样稿</h1><p>简化鳞片与高光，强调圆润轮廓；保留每种鱼的体形与花纹。</p><nav><button data-bg="" aria-pressed="true">柔和底色</button><button data-bg="white" aria-pressed="false">白底</button><button data-bg="dark" aria-pressed="false">深色底</button><button id="small" aria-pressed="false">小图辨识</button></nav></div><aside class="reference"><img src="../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/characters/cat-ready.png" alt="猫咪风格参考"><div><strong>与猫咪同一画风</strong><p>深棕描边 · 简洁色块<br>柔和明暗 · 黑亮眼睛</p></div></aside></header>
+<main id="grid"></main><footer>本页保留已确认样稿与归档旧版的对照；正式素材已按此风格统一更新。<a href="../index.html">返回现有 50 种鱼图总览</a> · <a href="prompts.json">生成提示词与来源</a></footer>
+<script>
+const base='../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/';
+const samples=[['crucian','鲫鱼','略短的椭圆鱼身，只留少量鳞片提示；保留背鳍和叉尾。'],['koi','锦鲤','用大块红白黑花纹识别品种，鱼鳍轻盈、眼睛更简洁。'],['mandarin','鳜鱼','保留大嘴、斑块和背鳍轮廓，减少尖锐细节。'],['hairtail','带鱼','保留长条身体与尖尾，用柔和弯曲增加亲和感。'],['chinese_sturgeon','中华鲟','长吻、骨板和异形尾保留，细节合并为清楚的大形。'],['ricefield_eel','黄鳝','光滑长身体、暖色斑点与小表情，保持无明显鱼鳍的轮廓。']];
+for(const [id,name,note] of samples){
+ const card=document.createElement('article');card.className='card';
+ const title=document.createElement('h2');title.textContent=name;const code=document.createElement('span');code.className='id';code.textContent=id;title.append(code);
+ const pair=document.createElement('div');pair.className='pair';
+ for(const fresh of [false,true]){
+  const column=document.createElement('div');column.className=fresh?'new':'old';const label=document.createElement('div');label.className='label';label.textContent=fresh?'轻 Q 版 · 新样稿':'现有版本';const art=document.createElement('div');art.className='art';const img=new Image();img.alt=name+(fresh?'轻 Q 版':'现有版本');
+  if(!fresh&&id==='koi'){const crop=document.createElement('div');crop.className='crop';const scale=.42;crop.style.width=497*scale+'px';crop.style.height=303*scale+'px';img.className='atlas';img.src='../realistic-v1/fish-atlas.png';img.style.width=1536*scale+'px';img.style.height=1024*scale+'px';img.style.left=-521*scale+'px';img.style.top=-140*scale+'px';crop.append(img);art.append(crop)}else{img.src=fresh?'assets/'+id+'.png':'../realistic-v1/'+id+'.png';art.append(img)}
+  column.append(label,art);pair.append(column);
+ }
+ const description=document.createElement('p');description.className='note';description.textContent=note;card.append(title,pair,description);document.getElementById('grid').append(card);
+}
+for(const button of document.querySelectorAll('[data-bg]'))button.onclick=()=>{document.body.classList.remove('dark','white');if(button.dataset.bg)document.body.classList.add(button.dataset.bg);for(const other of document.querySelectorAll('[data-bg]'))other.setAttribute('aria-pressed',String(other===button))};
+document.getElementById('small').onclick=event=>{const active=document.body.classList.toggle('small');event.currentTarget.setAttribute('aria-pressed',String(active))};
+</script>
+</body></html>

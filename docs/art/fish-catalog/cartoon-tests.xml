@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="9" result="Passed" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.0495819">
+  <test-suite type="TestSuite" id="1288" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="243" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.049582" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1568" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="243" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.042296" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="24848" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="1569" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="243" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.042148" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1570" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="243" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.042071" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1571" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="243" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.041015" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1297" name="CozyFishCatalogTests" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.039712" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1298" name="EveryGameSpeciesHasOneDistinctIllustration" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.EveryGameSpeciesHasOneDistinctIllustration" methodname="EveryGameSpeciesHasOneDistinctIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="619417565" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.033889" asserts="0">
+                <properties />
+                <output><![CDATA[[GameData] fish_species loaded 50 rows.
+]]></output>
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1304" name="LegacyNamesResolveToCanonicalIllustration" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.LegacyNamesResolveToCanonicalIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.001134" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1299" name="LegacyNamesResolveToCanonicalIllustration(&quot;bass&quot;,&quot;black_bass&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.LegacyNamesResolveToCanonicalIllustration(&quot;bass&quot;,&quot;black_bass&quot;)" methodname="LegacyNamesResolveToCanonicalIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="353580808" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000167" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1300" name="LegacyNamesResolveToCanonicalIllustration(&quot;perch&quot;,&quot;black_bass&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.LegacyNamesResolveToCanonicalIllustration(&quot;perch&quot;,&quot;black_bass&quot;)" methodname="LegacyNamesResolveToCanonicalIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="23403841" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1301" name="LegacyNamesResolveToCanonicalIllustration(&quot;largemouth_bass&quot;,&quot;black_bass&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.LegacyNamesResolveToCanonicalIllustration(&quot;largemouth_bass&quot;,&quot;black_bass&quot;)" methodname="LegacyNamesResolveToCanonicalIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="1882483823" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1302" name="LegacyNamesResolveToCanonicalIllustration(&quot;trout&quot;,&quot;rainbow_trout&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.LegacyNamesResolveToCanonicalIllustration(&quot;trout&quot;,&quot;rainbow_trout&quot;)" methodname="LegacyNamesResolveToCanonicalIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="319367197" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1303" name="LegacyNamesResolveToCanonicalIllustration(&quot;sturgeon&quot;,&quot;chinese_sturgeon&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.LegacyNamesResolveToCanonicalIllustration(&quot;sturgeon&quot;,&quot;chinese_sturgeon&quot;)" methodname="LegacyNamesResolveToCanonicalIllustration" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="478944574" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="1308" name="UnknownSpeciesDoesNotShowAnotherFish" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.UnknownSpeciesDoesNotShowAnotherFish" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000306" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1305" name="UnknownSpeciesDoesNotShowAnotherFish(null)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.UnknownSpeciesDoesNotShowAnotherFish(null)" methodname="UnknownSpeciesDoesNotShowAnotherFish" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="1285766707" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000084" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1306" name="UnknownSpeciesDoesNotShowAnotherFish(&quot;&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.UnknownSpeciesDoesNotShowAnotherFish(&quot;&quot;)" methodname="UnknownSpeciesDoesNotShowAnotherFish" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="1125123669" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000017" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1307" name="UnknownSpeciesDoesNotShowAnotherFish(&quot;unknown_species&quot;)" fullname="FishSocial.Tests.Editor.CozyFishCatalogTests.UnknownSpeciesDoesNotShowAnotherFish(&quot;unknown_species&quot;)" methodname="UnknownSpeciesDoesNotShowAnotherFish" classname="FishSocial.Tests.Editor.CozyFishCatalogTests" runstate="Runnable" seed="1787442113" result="Passed" start-time="2026-10-18 08:13:37Z" end-time="2026-10-18 08:13:37Z" duration="0.000017" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
