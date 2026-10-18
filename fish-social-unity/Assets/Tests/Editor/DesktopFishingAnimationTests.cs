@@ -285,12 +285,14 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void SourceSkinsAreNotBreedAliases()
+        public void SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases()
         {
-            CollectionAssert.AreEqual(new[] { "orange", "silver", "brown", "cream", "blue" }, FishingLayerArt.SkinIds);
+            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue" }, FishingLayerArt.SkinIds);
             Assert.IsNull(FishingLayerArt.Open("british", "idle", 640, 512));
             Assert.IsNull(FishingLayerArt.Open("ragdoll", "idle", 640, 512));
-            Assert.IsNull(FishingLayerArt.Open("calico", "idle", 640, 512));
+            var calico = FishingLayerArt.Open("calico", "idle", 640, 512);
+            Assert.IsNotNull(calico);
+            FishingLayerArt.Release(calico);
             Assert.IsNull(FishingLayerArt.Open("../orange", "idle", 640, 512));
         }
 

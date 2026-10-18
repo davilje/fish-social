@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>猫咪换肤 · 原帧绘制对照</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f1e7;color:#654831;font:16px/1.6 system-ui,sans-serif}main{max-width:1440px;margin:auto;padding:32px}h1{font-size:29px;margin:0}p{margin:8px 0 18px}.note{background:#ffe5bd;border-radius:12px;padding:12px 18px}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}button,select{font:inherit;color:inherit;border:1px solid #ceb59a;background:#fffcf6;border-radius:10px;padding:9px 15px;cursor:pointer}button[aria-pressed=true]{background:#724e35;color:white}button:focus-visible,select:focus-visible{outline:3px solid #4d91aa}button:disabled{opacity:.5}#poses{display:flex;gap:10px;flex-wrap:wrap}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:20px}figure{margin:0;border:1px solid #decdb8;border-radius:16px;background:#fffcf6;overflow:hidden}figcaption{padding:12px 20px;font-weight:600}canvas{display:block;width:100%;height:auto;background-color:#ece9e0;background-image:linear-gradient(45deg,#e1dfd5 25%,transparent 25%,transparent 75%,#e1dfd5 75%),linear-gradient(45deg,#e1dfd5 25%,transparent 25%,transparent 75%,#e1dfd5 75%);background-size:24px 24px;background-position:0 0,12px 12px}.metrics{display:flex;gap:20px;flex-wrap:wrap;margin:20px 0;padding:15px;background:#eee4d3;border-radius:12px}.small{font-size:14px;color:#806d5e}details{margin:18px 0}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:6px 12px;text-align:left;border-bottom:1px solid #deceb8}#error{color:#b6291f}#status{min-height:26px}a{color:#83582f}@media(max-width:800px){main{padding:16px}.comparison{grid-template-columns:1fr}}
+</style>
+<main>
+<h1>猫咪换肤 · 原帧绘制对照</h1>
+<p>橘猫原动作 → 三花猫完整姿势素材。头、身体、手臂不做拼装。</p>
+<p class="note">首批四张关键姿势为待校准稿。尚未接入 Unity / Overlay，也不代表完整动画已完成。</p>
+<nav id="poses" aria-label="关键姿势"></nav>
+<div class="toolbar">
+<label>查看方式 <select id="mode"><option value="art">完整角色素材</option><option value="ghost">叠加原版轮廓</option><option value="difference">轮廓差异：红色为新稿，青色为原版</option><option value="gear">原道具与原遮挡蒙版试配</option></select></label>
+<button id="blink" aria-pressed="false">交替对照</button>
+<span class="small">交替只比较同一姿势，不把四张关键姿势当连续动画。</span>
+</div>
+<div class="comparison">
+<figure><figcaption id="left-label">原版橘猫</figcaption><canvas id="original" width="640" height="512"></canvas></figure>
+<figure><figcaption id="right-label">三花猫 · 完整姿势重绘</figcaption><canvas id="candidate" width="640" height="512"></canvas></figure>
+</div>
+<div id="metrics" class="metrics"></div>
+<p id="status"></p><p id="error" role="alert"></p>
+<p class="small">新稿按整个画布缩放到 640 × 512 对照；没有单独缩放头、肢体或自动移动握点。道具试配沿用原帧蒙版，只有绘图精确对齐后才能复用；该视图不能代替逐帧遮挡验收。</p>
+<details><summary>全部动作的绘制进度</summary><table><thead><tr><th>源动作 / 帧</th><th>运行时复用</th><th>状态</th></tr></thead><tbody id="coverage"></tbody></table></details>
+<p><a href="full.html">查看全套 63 帧动作</a> · <a href="README.md">制作与接入说明</a> · <a href="manifest.json">帧对应清单</a> · <a href="prompts.json">绘制提示词</a></p>
+</main>
+<script src="data.js"></script><script src="embedded.js"></script><script src="study.js"></script>
+</html>

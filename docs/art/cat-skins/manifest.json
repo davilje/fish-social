@@ -1,0 +1,960 @@
+{
+  "version": 2,
+  "method": "whole-pose-painted-frames",
+  "canvas": [
+    640,
+    512
+  ],
+  "skinId": "calico",
+  "productionReady": false,
+  "bodyLayers": [
+    "body",
+    "head",
+    "far_hand",
+    "hands"
+  ],
+  "frames": [
+    {
+      "id": "ready-00",
+      "label": "准备握杆",
+      "clip": "ready",
+      "index": 0,
+      "original": "reference/ready-00/cat.png",
+      "candidate": "calico/ready-00.png",
+      "order": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "head",
+        "far_hand",
+        "rod",
+        "hands",
+        "fish"
+      ],
+      "layers": {
+        "line": "reference/ready-00/line.png",
+        "bobber": "reference/ready-00/bobber.png",
+        "bait": "reference/ready-00/bait.png",
+        "body": "reference/ready-00/body.png",
+        "head": "reference/ready-00/head.png",
+        "far_hand": "reference/ready-00/far_hand.png",
+        "rod": "reference/ready-00/rod.png",
+        "hands": "reference/ready-00/hands.png",
+        "fish": "reference/ready-00/fish.png"
+      },
+      "hashes": {
+        "original": "94fba090959f76202b4c5a98c44b89fc7d02de403b0bad9f1b3f9579c75d2edc",
+        "candidate": "6b595e3b2457932484c1906ccac4e16b87368405813124c560104a9927a170a8"
+      }
+    },
+    {
+      "id": "effort-02",
+      "label": "后仰发力",
+      "clip": "effort",
+      "index": 2,
+      "original": "reference/effort-02/cat.png",
+      "candidate": "calico/effort-02.png",
+      "order": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "head",
+        "far_hand",
+        "rod",
+        "hands",
+        "fish"
+      ],
+      "layers": {
+        "line": "reference/effort-02/line.png",
+        "bobber": "reference/effort-02/bobber.png",
+        "bait": "reference/effort-02/bait.png",
+        "body": "reference/effort-02/body.png",
+        "head": "reference/effort-02/head.png",
+        "far_hand": "reference/effort-02/far_hand.png",
+        "rod": "reference/effort-02/rod.png",
+        "hands": "reference/effort-02/hands.png",
+        "fish": "reference/effort-02/fish.png"
+      },
+      "hashes": {
+        "original": "a3ab5ed00b06ac9fceefc4de8ed043538dd071cf5b3eda419ddfdd414fa44256",
+        "candidate": "e41460280455c3c92e7116b4e0830e78a182c91bc9717c0c32c0889797b12705"
+      }
+    },
+    {
+      "id": "reel-03",
+      "label": "过顶收杆",
+      "clip": "reel",
+      "index": 3,
+      "original": "reference/reel-03/cat.png",
+      "candidate": "calico/reel-03.png",
+      "order": [
+        "line",
+        "fish",
+        "body",
+        "head",
+        "far_hand",
+        "rod",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "layers": {
+        "line": "reference/reel-03/line.png",
+        "fish": "reference/reel-03/fish.png",
+        "body": "reference/reel-03/body.png",
+        "head": "reference/reel-03/head.png",
+        "far_hand": "reference/reel-03/far_hand.png",
+        "rod": "reference/reel-03/rod.png",
+        "hands": "reference/reel-03/hands.png",
+        "bobber": "reference/reel-03/bobber.png",
+        "bait": "reference/reel-03/bait.png"
+      },
+      "hashes": {
+        "original": "df97d8b41a5530cdd5656f7bac4ff310b8cd549c6a9c220c489811013fb49b3f",
+        "candidate": "30ef7b89d60b3273f0bacb9fbc27d1707885a4460eecaa9e7c78f8ba48d50457"
+      }
+    },
+    {
+      "id": "catch-04",
+      "label": "展示收获",
+      "clip": "catch",
+      "index": 4,
+      "original": "reference/catch-04/cat.png",
+      "candidate": "calico/catch-04.png",
+      "order": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "layers": {
+        "rod": "reference/catch-04/rod.png",
+        "line": "reference/catch-04/line.png",
+        "body": "reference/catch-04/body.png",
+        "head": "reference/catch-04/head.png",
+        "fish": "reference/catch-04/fish.png",
+        "far_hand": "reference/catch-04/far_hand.png",
+        "hands": "reference/catch-04/hands.png",
+        "bobber": "reference/catch-04/bobber.png",
+        "bait": "reference/catch-04/bait.png"
+      },
+      "hashes": {
+        "original": "11b59e8a5ad5a6bba7454cba5467462ee5f55adbbe52b87bae599d9e562a0e35",
+        "candidate": "41f0c1ee5d2043b7713f2fb19d22767213348f2d710fbebefd3bd483eb4575d8"
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "sourceClip": "sit",
+      "sourceIndex": 0,
+      "atlasIndex": 0,
+      "runtime": [
+        {
+          "clip": "idle",
+          "index": 0
+        },
+        {
+          "clip": "sit",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "sit",
+      "sourceIndex": 1,
+      "atlasIndex": 1,
+      "runtime": [
+        {
+          "clip": "sit",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "sit",
+      "sourceIndex": 2,
+      "atlasIndex": 2,
+      "runtime": [
+        {
+          "clip": "sit",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "sit",
+      "sourceIndex": 3,
+      "atlasIndex": 3,
+      "runtime": [
+        {
+          "clip": "sit",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "ready",
+      "sourceIndex": 0,
+      "atlasIndex": 4,
+      "runtime": [
+        {
+          "clip": "ready",
+          "index": 0
+        }
+      ],
+      "state": "draft-unapproved",
+      "draft": "calico/ready-00.png"
+    },
+    {
+      "sourceClip": "bait",
+      "sourceIndex": 0,
+      "atlasIndex": 5,
+      "runtime": [
+        {
+          "clip": "bait",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bait",
+      "sourceIndex": 1,
+      "atlasIndex": 6,
+      "runtime": [
+        {
+          "clip": "bait",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bait",
+      "sourceIndex": 2,
+      "atlasIndex": 7,
+      "runtime": [
+        {
+          "clip": "bait",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bait",
+      "sourceIndex": 3,
+      "atlasIndex": 8,
+      "runtime": [
+        {
+          "clip": "bait",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "cast",
+      "sourceIndex": 0,
+      "atlasIndex": 9,
+      "runtime": [
+        {
+          "clip": "cast",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "cast",
+      "sourceIndex": 1,
+      "atlasIndex": 10,
+      "runtime": [
+        {
+          "clip": "cast",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "cast",
+      "sourceIndex": 2,
+      "atlasIndex": 11,
+      "runtime": [
+        {
+          "clip": "cast",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "cast",
+      "sourceIndex": 3,
+      "atlasIndex": 12,
+      "runtime": [
+        {
+          "clip": "cast",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "wait",
+      "sourceIndex": 0,
+      "atlasIndex": 13,
+      "runtime": [
+        {
+          "clip": "fishing",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bite",
+      "sourceIndex": 0,
+      "atlasIndex": 14,
+      "runtime": [
+        {
+          "clip": "bite",
+          "index": 0
+        },
+        {
+          "clip": "hooked",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bite",
+      "sourceIndex": 1,
+      "atlasIndex": 15,
+      "runtime": [
+        {
+          "clip": "bite",
+          "index": 1
+        },
+        {
+          "clip": "hooked",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bite",
+      "sourceIndex": 2,
+      "atlasIndex": 16,
+      "runtime": [
+        {
+          "clip": "bite",
+          "index": 2
+        },
+        {
+          "clip": "hooked",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "bite",
+      "sourceIndex": 3,
+      "atlasIndex": 17,
+      "runtime": [
+        {
+          "clip": "bite",
+          "index": 3
+        },
+        {
+          "clip": "hooked",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "effort",
+      "sourceIndex": 0,
+      "atlasIndex": 18,
+      "runtime": [
+        {
+          "clip": "effort",
+          "index": 0
+        },
+        {
+          "clip": "hooked",
+          "index": 4
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "effort",
+      "sourceIndex": 1,
+      "atlasIndex": 19,
+      "runtime": [
+        {
+          "clip": "effort",
+          "index": 1
+        },
+        {
+          "clip": "hooked",
+          "index": 5
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "effort",
+      "sourceIndex": 2,
+      "atlasIndex": 20,
+      "runtime": [
+        {
+          "clip": "effort",
+          "index": 2
+        },
+        {
+          "clip": "hooked",
+          "index": 6
+        }
+      ],
+      "state": "draft-unapproved",
+      "draft": "calico/effort-02.png"
+    },
+    {
+      "sourceClip": "effort",
+      "sourceIndex": 3,
+      "atlasIndex": 21,
+      "runtime": [
+        {
+          "clip": "effort",
+          "index": 3
+        },
+        {
+          "clip": "hooked",
+          "index": 7
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "effort",
+      "sourceIndex": 4,
+      "atlasIndex": 22,
+      "runtime": [
+        {
+          "clip": "effort",
+          "index": 4
+        },
+        {
+          "clip": "hooked",
+          "index": 8
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "effort",
+      "sourceIndex": 5,
+      "atlasIndex": 23,
+      "runtime": [
+        {
+          "clip": "effort",
+          "index": 5
+        },
+        {
+          "clip": "hooked",
+          "index": 9
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve",
+      "sourceIndex": 0,
+      "atlasIndex": 24,
+      "runtime": [
+        {
+          "clip": "reel",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve",
+      "sourceIndex": 1,
+      "atlasIndex": 25,
+      "runtime": [
+        {
+          "clip": "reel",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve",
+      "sourceIndex": 2,
+      "atlasIndex": 26,
+      "runtime": [
+        {
+          "clip": "reel",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve",
+      "sourceIndex": 3,
+      "atlasIndex": 27,
+      "runtime": [
+        {
+          "clip": "reel",
+          "index": 3
+        }
+      ],
+      "state": "draft-unapproved",
+      "draft": "calico/reel-03.png"
+    },
+    {
+      "sourceClip": "retrieve",
+      "sourceIndex": 4,
+      "atlasIndex": 28,
+      "runtime": [
+        {
+          "clip": "reel",
+          "index": 4
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve",
+      "sourceIndex": 5,
+      "atlasIndex": 29,
+      "runtime": [
+        {
+          "clip": "reel",
+          "index": 5
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve_empty",
+      "sourceIndex": 0,
+      "atlasIndex": 30,
+      "runtime": [
+        {
+          "clip": "reel_empty",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve_empty",
+      "sourceIndex": 1,
+      "atlasIndex": 31,
+      "runtime": [
+        {
+          "clip": "reel_empty",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve_empty",
+      "sourceIndex": 2,
+      "atlasIndex": 32,
+      "runtime": [
+        {
+          "clip": "reel_empty",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve_empty",
+      "sourceIndex": 3,
+      "atlasIndex": 33,
+      "runtime": [
+        {
+          "clip": "reel_empty",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve_empty",
+      "sourceIndex": 4,
+      "atlasIndex": 34,
+      "runtime": [
+        {
+          "clip": "reel_empty",
+          "index": 4
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "retrieve_empty",
+      "sourceIndex": 5,
+      "atlasIndex": 35,
+      "runtime": [
+        {
+          "clip": "reel_empty",
+          "index": 5
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 0,
+      "atlasIndex": 36,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 1,
+      "atlasIndex": 37,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 2,
+      "atlasIndex": 38,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 3,
+      "atlasIndex": 39,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 4,
+      "atlasIndex": 40,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 4
+        }
+      ],
+      "state": "draft-unapproved",
+      "draft": "calico/catch-04.png"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 5,
+      "atlasIndex": 41,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 5
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "catch",
+      "sourceIndex": 6,
+      "atlasIndex": 42,
+      "runtime": [
+        {
+          "clip": "catch",
+          "index": 6
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_catch",
+      "sourceIndex": 0,
+      "atlasIndex": 43,
+      "runtime": [
+        {
+          "clip": "reset_catch",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_catch",
+      "sourceIndex": 1,
+      "atlasIndex": 44,
+      "runtime": [
+        {
+          "clip": "reset_catch",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_catch",
+      "sourceIndex": 2,
+      "atlasIndex": 45,
+      "runtime": [
+        {
+          "clip": "reset_catch",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_catch",
+      "sourceIndex": 3,
+      "atlasIndex": 46,
+      "runtime": [
+        {
+          "clip": "reset_catch",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_empty",
+      "sourceIndex": 0,
+      "atlasIndex": 47,
+      "runtime": [
+        {
+          "clip": "reset_empty",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_empty",
+      "sourceIndex": 1,
+      "atlasIndex": 48,
+      "runtime": [
+        {
+          "clip": "reset_empty",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_empty",
+      "sourceIndex": 2,
+      "atlasIndex": 49,
+      "runtime": [
+        {
+          "clip": "reset_empty",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "reset_empty",
+      "sourceIndex": 3,
+      "atlasIndex": 50,
+      "runtime": [
+        {
+          "clip": "reset_empty",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 0,
+      "atlasIndex": 51,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 1,
+      "atlasIndex": 52,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 2,
+      "atlasIndex": 53,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 3,
+      "atlasIndex": 54,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 4,
+      "atlasIndex": 55,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 4
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 5,
+      "atlasIndex": 56,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 5
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 6,
+      "atlasIndex": 57,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 6
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "groundbait",
+      "sourceIndex": 7,
+      "atlasIndex": 58,
+      "runtime": [
+        {
+          "clip": "groundbait",
+          "index": 7
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "leave",
+      "sourceIndex": 0,
+      "atlasIndex": 59,
+      "runtime": [
+        {
+          "clip": "leave",
+          "index": 0
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "leave",
+      "sourceIndex": 1,
+      "atlasIndex": 60,
+      "runtime": [
+        {
+          "clip": "leave",
+          "index": 1
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "leave",
+      "sourceIndex": 2,
+      "atlasIndex": 61,
+      "runtime": [
+        {
+          "clip": "leave",
+          "index": 2
+        }
+      ],
+      "state": "not-drawn"
+    },
+    {
+      "sourceClip": "leave",
+      "sourceIndex": 3,
+      "atlasIndex": 62,
+      "runtime": [
+        {
+          "clip": "leave",
+          "index": 3
+        }
+      ],
+      "state": "not-drawn"
+    }
+  ]
+}

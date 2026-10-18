@@ -21,7 +21,7 @@ namespace FishSocial.Desktop.Pet
             "body", "head", "far_hand", "rod", "line", "fish", "hands", "bobber", "bait",
         };
 
-        public static readonly string[] SkinIds = { "orange", "silver", "brown", "cream", "blue" };
+        public static readonly string[] SkinIds = { "orange", "calico", "silver", "brown", "cream", "blue" };
         public static readonly string[] ClipNames =
         {
             "idle", "sit", "ready", "bait", "cast", "fishing", "bite", "effort", "hooked",
