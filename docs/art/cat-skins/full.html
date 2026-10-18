@@ -1,16 +1,30 @@
 <!doctype html>
 <html lang="zh-CN">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>三花猫 · 全动作帧预览</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#f7f1e7;color:#654831;font:16px/1.6 system-ui,sans-serif}main{max-width:1500px;margin:auto;padding:28px}h1{margin:0 0 4px}.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}button,select{font:inherit;color:inherit;border:1px solid #ceb59a;background:#fffcf6;border-radius:10px;padding:8px 14px}button[aria-pressed=true]{background:#724e35;color:#fff}.small{color:#806d5e;font-size:14px}.stage{display:grid;grid-template-columns:420px 1fr;gap:20px}.hero,figure{margin:0;background:#fffcf6;border:1px solid #decdb8;border-radius:15px;padding:14px}.hero img{display:block;width:100%;background-color:#ece9e0;background-image:linear-gradient(45deg,#e1dfd5 25%,transparent 25%,transparent 75%,#e1dfd5 75%),linear-gradient(45deg,#e1dfd5 25%,transparent 25%,transparent 75%,#e1dfd5 75%);background-size:24px 24px;background-position:0 0,12px 12px}.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.grid figure{padding:7px}.grid img{width:100%;display:block}.grid figcaption{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:900px){.stage{grid-template-columns:1fr}.grid{grid-template-columns:repeat(4,1fr)}}
+<title>三花猫 · 重绘帧对照</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f1e7;color:#654831;font:16px/1.6 system-ui,sans-serif}main{max-width:1600px;margin:auto;padding:24px}h1{margin:0}p{margin:8px 0}.muted{font-size:14px;color:#826e5d}.notice{padding:12px 18px;border-left:4px solid #b97731;background:#fff2dc}.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0}button,select{font:inherit;color:inherit;border:1px solid #ceb59a;background:#fffcf6;border-radius:8px;padding:8px 12px;cursor:pointer}button[aria-pressed=true],button[aria-current=true]{outline:2px solid #996b48}.comparison{display:grid;grid-template-columns:1fr 1fr 240px;gap:16px}figure{margin:0;padding:10px;background:#fffcf6;border:1px solid #decdb8;border-radius:12px}figure img{display:block;width:100%;aspect-ratio:5/4;object-fit:contain;background:#e6e3db}figcaption{padding:8px 4px}.keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}.keys img{width:100%;background:#e6e3db}.keys p{grid-column:1/-1;font-size:14px}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:20px}.grid button{padding:4px;font-size:12px}.grid img{width:100%;display:block;background:#e6e3db}#error{color:#a32828}@media(max-width:900px){.comparison{grid-template-columns:1fr 1fr}.keys{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(4,1fr)}}
 </style>
-<main><h1>三花猫 · 全动作帧预览</h1><p class="small">63 张源动作帧，鱼竿、鱼线、鱼、浮标和鱼饵沿用原版独立层；猫咪本体使用同画布原轮廓重绘。</p><div class="bar"><label>动作 <select id="clip"></select></label><button id="play" aria-pressed="false">播放当前动作</button><button id="all">查看全部帧</button><span id="status" class="small"></span></div><section class="stage"><figure class="hero"><img id="current" alt="当前三花猫动作帧"><figcaption id="caption"></figcaption></figure><section id="grid" class="grid"></section></section></main>
-<script src="full-pose-data.js"></script><script>
-const frames=window.poseStudy.frames;const clip=document.querySelector('#clip');const grid=document.querySelector('#grid');const current=document.querySelector('#current');const caption=document.querySelector('#caption');const status=document.querySelector('#status');let timer=0;let playing=false;let visible=frames;
-const groups=[...new Set(frames.map(frame=>frame.clip))];for(const id of groups){const option=document.createElement('option');option.value=id;option.textContent=id;clip.append(option)}
-function path(frame){return `calico-full/${frame.id}.png`}
-function show(frame){current.src=path(frame);caption.textContent=`${frame.label} · ${frame.clip} ${frame.index+1} · ${frame.durationMs}ms`}
-function render(){grid.textContent='';for(const frame of visible){const figure=document.createElement('figure');const image=document.createElement('img');image.src=path(frame);image.loading='lazy';image.alt=frame.label;const text=document.createElement('figcaption');text.textContent=`${frame.clip} ${frame.index+1}`;figure.append(image,text);figure.onclick=()=>show(frame);grid.append(figure)}status.textContent=`${visible.length} 帧 · ${groups.length} 个动作`}
-function setClip(id){visible=frames.filter(frame=>frame.clip===id);render();show(visible[0])}
-clip.onchange=()=>setClip(clip.value);document.querySelector('#all').onclick=()=>{visible=frames;render();show(frames[0])};document.querySelector('#play').onclick=event=>{playing=!playing;event.currentTarget.setAttribute('aria-pressed',String(playing));event.currentTarget.textContent=playing?'停止播放':'播放当前动作';if(!playing){clearInterval(timer);return}let index=0;const action=visible;clearInterval(timer);timer=setInterval(()=>{show(action[index++%action.length])},Math.max(80,action[0]?.durationMs||120))};setClip(groups[0]);
-</script></html>
+<main>
+<h1>三花猫 · 重绘帧对照</h1>
+<p class="muted">44 张独立姿势稿覆盖 63 张源帧；43 张已按同一花斑基准修稿，重复动作复用同一张画稿。</p>
+<p class="notice">本轮修正：展示收获第 2 帧、收获后复位第 3 帧的左右耳斑；统一脸颊与腰侧花斑轮廓，去掉多余尾环。细小笔触尚非像素级锁定，可慢放并与修正前逐帧比较。</p>
+<div class="bar">
+<label>动作 <select id="clip"></select></label>
+<label>显示 <select id="mode"><option value="calico-full">猫咪与道具</option><option value="calico-character">仅猫咪</option></select></label>
+<label>对照 <select id="compare"><option value="before">修正前</option><option value="original">原版橘猫</option></select></label>
+<label>速度 <select id="speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label>
+<button id="previous">上一帧</button><button id="play" aria-pressed="false">播放</button><button id="next">下一帧</button><span id="status"></span>
+</div>
+<div id="error" role="alert"></div>
+<section class="comparison">
+<figure><img id="current" alt="当前三花猫重绘帧"><figcaption id="caption"></figcaption></figure>
+<figure><img id="original" alt="同一动作帧的对照图"><figcaption id="compareCaption"></figcaption></figure>
+<aside class="keys"><p>统一花斑后的关键姿势</p>
+<img src="calico-continuity/sit-03.png" alt="准备修订稿"><img src="calico/effort-02.png" alt="统一花斑基准"><img src="calico-continuity/retrieve-03.png" alt="收杆修订稿"><img src="calico-continuity/catch-04.png" alt="收获修订稿">
+<p>原版道具和时序沿用。切换动作会停止旧循环；逐帧可检查握杆与花斑连续性。</p></aside>
+</section>
+<section id="grid" class="grid" aria-label="动作帧列表"></section>
+</main>
+<script src="full-pose-data.js"></script><script src="painted-review-data.js"></script><script src="full.js"></script>
+</html>
