@@ -1,0 +1,1490 @@
+{
+  "version": 2,
+  "sourceVersion": 19,
+  "canvas": [
+    640,
+    512
+  ],
+  "layers": [
+    "body",
+    "head",
+    "far_hand",
+    "rod",
+    "line",
+    "fish",
+    "hands",
+    "bobber",
+    "bait"
+  ],
+  "bodyLayers": [
+    "body",
+    "head",
+    "far_hand",
+    "hands"
+  ],
+  "place": {
+    "foot": [
+      264,
+      450
+    ],
+    "bodyHeight": 257,
+    "reference": 512,
+    "referenceFoot": [
+      138.5,
+      404
+    ],
+    "referenceBody": 279
+  },
+  "maskModel": "pose-contours-v1",
+  "sourceFrameCount": 63,
+  "sourceManifestSha256": "04d32c66d403d192d52bb254ed7bbf1d32242b7acdff9eaa7aed1fd95884e7f8",
+  "clips": {
+    "idle": {
+      "playback": "hold",
+      "frames": [
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ]
+      ],
+      "durationsMs": [
+        120
+      ],
+      "sourceFrames": [
+        {
+          "clip": "sit",
+          "index": 0,
+          "atlasIndex": 0
+        }
+      ]
+    },
+    "sit": {
+      "playback": "once",
+      "frames": [
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "sourceFrames": [
+        {
+          "clip": "sit",
+          "index": 0,
+          "atlasIndex": 0
+        },
+        {
+          "clip": "sit",
+          "index": 1,
+          "atlasIndex": 1
+        },
+        {
+          "clip": "sit",
+          "index": 2,
+          "atlasIndex": 2
+        },
+        {
+          "clip": "sit",
+          "index": 3,
+          "atlasIndex": 3
+        }
+      ],
+      "nextClip": "ready"
+    },
+    "ready": {
+      "playback": "hold",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        180
+      ],
+      "sourceFrames": [
+        {
+          "clip": "ready",
+          "index": 0,
+          "atlasIndex": 4
+        }
+      ]
+    },
+    "bait": {
+      "playback": "once",
+      "frames": [
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ]
+      ],
+      "durationsMs": [
+        220,
+        220,
+        260,
+        300
+      ],
+      "sourceFrames": [
+        {
+          "clip": "bait",
+          "index": 0,
+          "atlasIndex": 5
+        },
+        {
+          "clip": "bait",
+          "index": 1,
+          "atlasIndex": 6
+        },
+        {
+          "clip": "bait",
+          "index": 2,
+          "atlasIndex": 7
+        },
+        {
+          "clip": "bait",
+          "index": 3,
+          "atlasIndex": 8
+        }
+      ]
+    },
+    "cast": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        140,
+        140,
+        140,
+        180
+      ],
+      "sourceFrames": [
+        {
+          "clip": "cast",
+          "index": 0,
+          "atlasIndex": 9
+        },
+        {
+          "clip": "cast",
+          "index": 1,
+          "atlasIndex": 10
+        },
+        {
+          "clip": "cast",
+          "index": 2,
+          "atlasIndex": 11
+        },
+        {
+          "clip": "cast",
+          "index": 3,
+          "atlasIndex": 12
+        }
+      ]
+    },
+    "fishing": {
+      "playback": "hold",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        500
+      ],
+      "sourceFrames": [
+        {
+          "clip": "wait",
+          "index": 0,
+          "atlasIndex": 13
+        }
+      ]
+    },
+    "bite": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        120,
+        140,
+        140,
+        160
+      ],
+      "sourceFrames": [
+        {
+          "clip": "bite",
+          "index": 0,
+          "atlasIndex": 14
+        },
+        {
+          "clip": "bite",
+          "index": 1,
+          "atlasIndex": 15
+        },
+        {
+          "clip": "bite",
+          "index": 2,
+          "atlasIndex": 16
+        },
+        {
+          "clip": "bite",
+          "index": 3,
+          "atlasIndex": 17
+        }
+      ],
+      "nextClip": "effort"
+    },
+    "effort": {
+      "playback": "intro-loop",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        140,
+        140,
+        160,
+        140,
+        140,
+        160
+      ],
+      "sourceFrames": [
+        {
+          "clip": "effort",
+          "index": 0,
+          "atlasIndex": 18
+        },
+        {
+          "clip": "effort",
+          "index": 1,
+          "atlasIndex": 19
+        },
+        {
+          "clip": "effort",
+          "index": 2,
+          "atlasIndex": 20
+        },
+        {
+          "clip": "effort",
+          "index": 3,
+          "atlasIndex": 21
+        },
+        {
+          "clip": "effort",
+          "index": 4,
+          "atlasIndex": 22
+        },
+        {
+          "clip": "effort",
+          "index": 5,
+          "atlasIndex": 23
+        }
+      ],
+      "loopStart": 0
+    },
+    "hooked": {
+      "playback": "intro-loop",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        120,
+        140,
+        140,
+        160,
+        140,
+        140,
+        160,
+        140,
+        140,
+        160
+      ],
+      "sourceFrames": [
+        {
+          "clip": "bite",
+          "index": 0,
+          "atlasIndex": 14
+        },
+        {
+          "clip": "bite",
+          "index": 1,
+          "atlasIndex": 15
+        },
+        {
+          "clip": "bite",
+          "index": 2,
+          "atlasIndex": 16
+        },
+        {
+          "clip": "bite",
+          "index": 3,
+          "atlasIndex": 17
+        },
+        {
+          "clip": "effort",
+          "index": 0,
+          "atlasIndex": 18
+        },
+        {
+          "clip": "effort",
+          "index": 1,
+          "atlasIndex": 19
+        },
+        {
+          "clip": "effort",
+          "index": 2,
+          "atlasIndex": 20
+        },
+        {
+          "clip": "effort",
+          "index": 3,
+          "atlasIndex": 21
+        },
+        {
+          "clip": "effort",
+          "index": 4,
+          "atlasIndex": 22
+        },
+        {
+          "clip": "effort",
+          "index": 5,
+          "atlasIndex": 23
+        }
+      ],
+      "loopStart": 4
+    },
+    "reel": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ]
+      ],
+      "durationsMs": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "sourceFrames": [
+        {
+          "clip": "retrieve",
+          "index": 0,
+          "atlasIndex": 24
+        },
+        {
+          "clip": "retrieve",
+          "index": 1,
+          "atlasIndex": 25
+        },
+        {
+          "clip": "retrieve",
+          "index": 2,
+          "atlasIndex": 26
+        },
+        {
+          "clip": "retrieve",
+          "index": 3,
+          "atlasIndex": 27
+        },
+        {
+          "clip": "retrieve",
+          "index": 4,
+          "atlasIndex": 28
+        },
+        {
+          "clip": "retrieve",
+          "index": 5,
+          "atlasIndex": 29
+        }
+      ],
+      "nextClip": "catch"
+    },
+    "reel_empty": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "sourceFrames": [
+        {
+          "clip": "retrieve_empty",
+          "index": 0,
+          "atlasIndex": 30
+        },
+        {
+          "clip": "retrieve_empty",
+          "index": 1,
+          "atlasIndex": 31
+        },
+        {
+          "clip": "retrieve_empty",
+          "index": 2,
+          "atlasIndex": 32
+        },
+        {
+          "clip": "retrieve_empty",
+          "index": 3,
+          "atlasIndex": 33
+        },
+        {
+          "clip": "retrieve_empty",
+          "index": 4,
+          "atlasIndex": 34
+        },
+        {
+          "clip": "retrieve_empty",
+          "index": 5,
+          "atlasIndex": 35
+        }
+      ],
+      "nextClip": "reset_empty"
+    },
+    "catch": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "fish",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ]
+      ],
+      "durationsMs": [
+        100,
+        120,
+        120,
+        160,
+        160,
+        180,
+        360
+      ],
+      "sourceFrames": [
+        {
+          "clip": "catch",
+          "index": 0,
+          "atlasIndex": 36
+        },
+        {
+          "clip": "catch",
+          "index": 1,
+          "atlasIndex": 37
+        },
+        {
+          "clip": "catch",
+          "index": 2,
+          "atlasIndex": 38
+        },
+        {
+          "clip": "catch",
+          "index": 3,
+          "atlasIndex": 39
+        },
+        {
+          "clip": "catch",
+          "index": 4,
+          "atlasIndex": 40
+        },
+        {
+          "clip": "catch",
+          "index": 5,
+          "atlasIndex": 41
+        },
+        {
+          "clip": "catch",
+          "index": 6,
+          "atlasIndex": 42
+        }
+      ],
+      "nextClip": "reset_catch"
+    },
+    "reset_catch": {
+      "playback": "once",
+      "frames": [
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "sourceFrames": [
+        {
+          "clip": "reset_catch",
+          "index": 0,
+          "atlasIndex": 43
+        },
+        {
+          "clip": "reset_catch",
+          "index": 1,
+          "atlasIndex": 44
+        },
+        {
+          "clip": "reset_catch",
+          "index": 2,
+          "atlasIndex": 45
+        },
+        {
+          "clip": "reset_catch",
+          "index": 3,
+          "atlasIndex": 46
+        }
+      ],
+      "nextClip": "ready"
+    },
+    "reset_empty": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "sourceFrames": [
+        {
+          "clip": "reset_empty",
+          "index": 0,
+          "atlasIndex": 47
+        },
+        {
+          "clip": "reset_empty",
+          "index": 1,
+          "atlasIndex": 48
+        },
+        {
+          "clip": "reset_empty",
+          "index": 2,
+          "atlasIndex": 49
+        },
+        {
+          "clip": "reset_empty",
+          "index": 3,
+          "atlasIndex": 50
+        }
+      ],
+      "nextClip": "ready"
+    },
+    "groundbait": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ]
+      ],
+      "durationsMs": [
+        100,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        160
+      ],
+      "sourceFrames": [
+        {
+          "clip": "groundbait",
+          "index": 0,
+          "atlasIndex": 51
+        },
+        {
+          "clip": "groundbait",
+          "index": 1,
+          "atlasIndex": 52
+        },
+        {
+          "clip": "groundbait",
+          "index": 2,
+          "atlasIndex": 53
+        },
+        {
+          "clip": "groundbait",
+          "index": 3,
+          "atlasIndex": 54
+        },
+        {
+          "clip": "groundbait",
+          "index": 4,
+          "atlasIndex": 55
+        },
+        {
+          "clip": "groundbait",
+          "index": 5,
+          "atlasIndex": 56
+        },
+        {
+          "clip": "groundbait",
+          "index": 6,
+          "atlasIndex": 57
+        },
+        {
+          "clip": "groundbait",
+          "index": 7,
+          "atlasIndex": 58
+        }
+      ],
+      "nextClip": "ready"
+    },
+    "leave": {
+      "playback": "once",
+      "frames": [
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "head",
+          "far_hand",
+          "rod",
+          "hands",
+          "fish"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ],
+        [
+          "rod",
+          "line",
+          "body",
+          "head",
+          "fish",
+          "far_hand",
+          "hands",
+          "bobber",
+          "bait"
+        ]
+      ],
+      "durationsMs": [
+        120,
+        140,
+        140,
+        180
+      ],
+      "sourceFrames": [
+        {
+          "clip": "leave",
+          "index": 0,
+          "atlasIndex": 59
+        },
+        {
+          "clip": "leave",
+          "index": 1,
+          "atlasIndex": 60
+        },
+        {
+          "clip": "leave",
+          "index": 2,
+          "atlasIndex": 61
+        },
+        {
+          "clip": "leave",
+          "index": 3,
+          "atlasIndex": 62
+        }
+      ],
+      "nextClip": "idle"
+    }
+  },
+  "sourceToRuntime": {
+    "wait": "fishing",
+    "retrieve": "reel",
+    "retrieve_empty": "reel_empty",
+    "hooked": "bite + effort (loopStart=4)"
+  },
+  "flows": {
+    "success": [
+      "sit",
+      "ready",
+      "bait",
+      "cast",
+      "fishing",
+      "hooked",
+      "reel",
+      "catch",
+      "reset_catch",
+      "ready"
+    ],
+    "empty": [
+      "sit",
+      "ready",
+      "bait",
+      "cast",
+      "fishing",
+      "reel_empty",
+      "reset_empty",
+      "ready"
+    ]
+  },
+  "skinId": "cow",
+  "skinName": "奶牛猫",
+  "skinKind": "painted-pose-assets-v4",
+  "artworkManifestSha256": "dfefb1c772f55de9c16781ff0be497936db668a2266ae29753ac551f2953256e"
+}

@@ -287,13 +287,43 @@ namespace FishSocial.Tests.Editor
         [Test]
         public void SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases()
         {
-            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue" }, FishingLayerArt.SkinIds);
+            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue", "black", "white", "cow" }, FishingLayerArt.SkinIds);
             Assert.IsNull(FishingLayerArt.Open("british", "idle", 640, 512));
             Assert.IsNull(FishingLayerArt.Open("ragdoll", "idle", 640, 512));
             var calico = FishingLayerArt.Open("calico", "idle", 640, 512);
             Assert.IsNotNull(calico);
             FishingLayerArt.Release(calico);
             Assert.IsNull(FishingLayerArt.Open("../orange", "idle", 640, 512));
+        }
+
+        [TestCase("silver")]
+        [TestCase("brown")]
+        [TestCase("cream")]
+        [TestCase("blue")]
+        [TestCase("black")]
+        [TestCase("white")]
+        [TestCase("cow")]
+        public void PaintedBreedAvatarResolvesToAnInstalledAnimation(string skin)
+        {
+            Assert.AreEqual(skin, DesktopDefaultAvatars.ResolvePetId("/image/profile/cat_avatar_" + skin + ".png", "player"));
+            Assert.AreEqual("/image/fishing_photos/cat_fishing_" + skin + ".png",
+                DesktopDefaultAvatars.ResolveFishingPhotoPath("/image/profile/cat_avatar_" + skin + ".png", "player"));
+            var session = FishingLayerArt.Open(skin, "ready", 640, 512);
+            Assert.IsNotNull(session, skin);
+            FishingLayerArt.Release(session);
+        }
+
+        [Test]
+        public void CustomAvatarFallbackKeepsLegacyPlayerAssignment()
+        {
+            var legacy = new[] { "calico", "gray", "orange", "siamese", "tuxedo", "white" };
+            foreach (var playerId in new[] { "player", "angler-42", "小橘", "" })
+            {
+                var hash = 0;
+                foreach (var character in playerId) hash = unchecked(hash * 31 + character);
+                var expected = legacy[(int)(Math.Abs((long)hash) % legacy.Length)];
+                Assert.AreEqual(expected, DesktopDefaultAvatars.ResolvePetId(null, playerId));
+            }
         }
 
         [Test]

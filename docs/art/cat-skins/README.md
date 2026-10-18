@@ -1,11 +1,36 @@
-# 猫咪完整姿势换肤 · 花斑连续性修订版
+# 猫咪完整姿势换肤 · 九种猫咪素材
+
+## 本轮扩充
+
+完整动作覆盖橘猫、三花、银渐层、棕虎斑、奶油、英短蓝猫、黑猫、白猫、奶牛猫。橘猫沿用动作基准；三花保留上一轮连续性修订并进行耳斑回归检查。其余七种分别绘制 44 张独立姿势，共 308 张，每种覆盖 63 张源帧、16 个运行时动作、74 个帧槽和 296 张角色图层。打窝、离席、空军收杆和两条复位均包含在内。
+
+打开 `breeds.html` 查看全部品种，支持动作切换、原版对照、逐帧与慢放。`full.html` 继续保留三花修订前后的对照。整张画稿只按画布缩放，不单独拉伸头或手；按照原动画遮挡掩码分配到 body/head/far_hand/hands，鱼竿、鱼、鱼线、浮标和鱼饵保持共享素材及原图层顺序。
+
+新增画稿位于 `breeds/<skin>/painted/`，每张旁边的 JSON 保存来源、哈希及轮廓交并比；`painted-poses.json` 是导出清单，`contact.png` 是 44 张姿势总览。原始准备稿来源见 `breed-key-imports.json`，局部重绘记录见 `breed-special-imports.json`、`breed-final-retouches.json`。`<skin>-character/`、`<skin>-full/` 分别保存角色和完整合成预览。Unity 位于 `Assets/StreamingAssets/Fishing/<skin>/`；Overlay 位于 `OverlayResources/fishing/<skin>/`。
+
+头像从各自的准备姿势 head 图层裁出，保存到 `image/profile/` 和 Unity Cozy avatars。钓鱼纪念照使用对应收获帧。选择相应头像即可解析到同名皮肤。历史 `gray/siamese/tuxedo` 入口保留原素材，不冒充本轮的蓝猫、棕虎斑或奶牛猫；自定义头像玩家仍按原六项哈希范围分配，扩充不会改动已有分配。
+
+导出依次运行（Node + sharp；可用 `SHARP_MODULE` 指向 sharp 安装目录）：
+
+```sh
+node tools/fishing-animation/review_breed_pack.mjs cow
+node tools/fishing-animation/review_breed_pack.mjs cow --accept-geometry
+node tools/fishing-animation/build_calico_fishing_pack.mjs --skin=cow --install
+node tools/fishing-animation/install_breed_identity.mjs cow
+node tools/fishing-animation/build_breed_review.mjs
+node tools/fishing-animation/verify_breed_packs.mjs
+```
+
+只有完整 44 姿势且轮廓交并比不低于 0.9 的集合才能导出。几何检查不能证明花斑连续性或握点完全准确。逐帧绘制仍存在细微笔触、边界和色调波动，因此 `productionReady` 保持 false，不能把素材齐全当作美术终验通过。
+
+以下为上一轮三花猫修订记录。
 
 ## 当前交付范围
 
 此前四张关键姿势使用绘制稿，新增帧却通过 `paintCalico` 的空间色块规则重着色，导致两者画风、花斑和笔触不一致。本次移除此实现，不再允许缺图时用脚本生成毛色补齐。
 三花猫使用 44 张独立完整姿势稿，覆盖 63 张源动作帧。本轮保留 `effort-02` 作为统一花斑参考，对另外 43 张进行局部修稿；原四张关键稿仍在 `calico/` 归档，准备、收杆和收获的活动版本已改用新修稿。相同原图复用同一张新稿，导出 16 个动作、74 个帧槽、每端 296 张角色图层。Unity 和 Overlay 已同步修订资源；原版橘猫、共享道具、动作时序不变。
 本轮修正展示收获第 2 帧 `catch-01`、收获后复位第 3 帧 `reset_catch-02` 的耳斑方向，统一为画面左橙右黑；统一脸颊大块橙斑与腰侧黑斑的轮廓，并修掉持续发力末帧多余的黑尾环。
-细小笔触边缘仍非像素级锁定，不能宣称完全消除所有波动。整体轮廓通过不代表握点、遮挡或毛色连续性全部通过；`productionReady` 保持 false。其他品种未在本次更新。
+细小笔触边缘仍非像素级锁定，不能宣称完全消除所有波动。整体轮廓通过不代表握点、遮挡或毛色连续性全部通过；`productionReady` 保持 false。其他品种当时未更新，现已按上方本轮扩充单独绘制。
 
 关键姿势在原角色四层合成后的轮廓交并比：准备 97.0%、发力 97.5%、收杆 94.3%、收获 92.7%。
 收杆与收获还存在边缘和握点偏差，四帧之间的花斑边界也需继续统一。不能把这些数值当作视觉验收通过。

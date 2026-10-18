@@ -10,6 +10,7 @@ namespace FishSocial.Desktop
     public static class DesktopDefaultAvatars
     {
         public const string Directory = "/image/profile";
+        const int LegacyAvatarCount = 6;
 
         public sealed class Entry
         {
@@ -35,6 +36,12 @@ namespace FishSocial.Desktop
             new Entry("siamese", "cat_avatar_siamese.png", "暹罗猫"),
             new Entry("tuxedo", "cat_avatar_tuxedo.png", "燕尾猫"),
             new Entry("white", "cat_avatar_white.png", "白猫"),
+            new Entry("silver", "cat_avatar_silver.png", "银渐层"),
+            new Entry("brown", "cat_avatar_brown.png", "棕虎斑"),
+            new Entry("cream", "cat_avatar_cream.png", "奶油猫"),
+            new Entry("blue", "cat_avatar_blue.png", "英短蓝猫"),
+            new Entry("black", "cat_avatar_black.png", "黑猫"),
+            new Entry("cow", "cat_avatar_cow.png", "奶牛猫"),
         };
 
         public static bool IsDefaultPath(string url)
@@ -88,7 +95,7 @@ namespace FishSocial.Desktop
                     hash = ((hash << 5) - hash) + playerId[i];
                     hash |= 0;
                 }
-                index = Math.Abs(hash) % All.Length;
+                index = (int)(Math.Abs((long)hash) % LegacyAvatarCount);
             }
             return All[index].Id;
         }
@@ -166,7 +173,7 @@ namespace FishSocial.Desktop
                     hash = ((hash << 5) - hash) + playerId[i];
                     hash |= 0;
                 }
-                index = Math.Abs(hash) % All.Length;
+                index = (int)(Math.Abs((long)hash) % LegacyAvatarCount);
             }
             return photoDir + "/cat_fishing_" + All[index].Id + ".png";
         }

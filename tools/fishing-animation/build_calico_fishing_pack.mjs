@@ -12,7 +12,12 @@ const unityRoot = path.join(repoRoot, 'fish-social-unity/Assets/StreamingAssets/
 const overlayRoot = path.join(repoRoot, 'desktop-overlay/OverlayResources/fishing');
 const sourceManifest = JSON.parse(fs.readFileSync(path.join(unityRoot, 'orange/manifest.json')));
 const poseManifest = JSON.parse(fs.readFileSync(path.join(studyRoot, 'full-pose-manifest.json')));
-const artwork = JSON.parse(fs.readFileSync(path.join(studyRoot, 'painted-poses.json')));
+const skinId = process.argv.find(argument => argument.startsWith('--skin='))?.slice(7) || 'calico';
+const breeds = JSON.parse(fs.readFileSync(path.join(studyRoot, 'breed-definitions.json'))).breeds;
+const breed = skinId === 'calico' ? { id: 'calico', name: '三花猫' } : breeds.find(entry => entry.id === skinId);
+if (!breed) throw new Error('Unknown skin: ' + skinId);
+const artworkPath = path.join(studyRoot, skinId === 'calico' ? 'painted-poses.json' : `breeds/${skinId}/painted-poses.json`);
+const artwork = JSON.parse(fs.readFileSync(artworkPath));
 const bodyLayers = sourceManifest.bodyLayers;
 const [width, height] = sourceManifest.canvas;
 const install = process.argv.includes('--install');
@@ -26,6 +31,18 @@ const records = [];
 function saveJson(filename, value) {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
   fs.writeFileSync(filename, JSON.stringify(value, null, 2) + '\n');
+}
+
+function ensureUnityMetadata(directory) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    if (entry.name.endsWith('.meta')) continue;
+    const filename = path.join(directory, entry.name);
+    if (!fs.existsSync(filename + '.meta')) {
+      const guid = crypto.createHash('md5').update('fish-social-painted:' + path.relative(unityRoot, filename)).digest('hex');
+      fs.writeFileSync(filename + '.meta', `fileFormatVersion: 2\nguid: ${guid}\n${entry.isDirectory() ? 'folderAsset: yes\n' : ''}DefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n`);
+    }
+    if (entry.isDirectory()) ensureUnityMetadata(filename);
+  }
 }
 
 for (const frame of poseManifest.frames) {
@@ -105,12 +122,12 @@ for (const { sourceHash, frames, entry, filename } of entries) {
   const overlap = intersection / union;
   if (install && overlap < 0.9) throw new Error('Pose geometry mismatch: ' + entry.file + ' ' + overlap);
   const png = await sharp(drawing, { raw: { width, height, channels: 4 } }).png().toBuffer();
-  fs.mkdirSync(path.join(studyRoot, 'calico-character'), { recursive: true });
+  fs.mkdirSync(path.join(studyRoot, skinId + '-character'), { recursive: true });
   for (const frame of frames) {
     const masks = await Promise.all(bodyLayers.map(layer => readRaw(path.join(studyRoot, frame.layers[layer]))));
     const pixels = partitionDrawing(drawing, masks);
     const layers = await Promise.all(pixels.map(layer => sharp(layer, { raw: { width, height, channels: 4 } }).png().toBuffer()));
-    fs.writeFileSync(path.join(studyRoot, 'calico-character', frame.id + '.png'), png);
+    fs.writeFileSync(path.join(studyRoot, skinId + '-character', frame.id + '.png'), png);
     rendered.set(frame.id, layers);
     records.push({ id: frame.id, artwork: entry.file, sourceHash, artworkHash: entry.sha256, overlap, review: entry.review });
   }
@@ -123,7 +140,7 @@ for (const [clip, definition] of Object.entries(sourceManifest.clips)) {
     if (!frame || !rendered.has(frame.id)) throw new Error('Missing source frame ' + clip + '/' + index);
     const layers = rendered.get(frame.id);
     for (const [layerIndex, layer] of bodyLayers.entries()) {
-      const relative = path.join('calico/body', clip, String(index), layer + '.png');
+      const relative = path.join(skinId, 'body', clip, String(index), layer + '.png');
       for (const root of install ? [outputRoot, unityRoot, overlayRoot] : [outputRoot]) {
         fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
         fs.writeFileSync(path.join(root, relative), layers[layerIndex]);
@@ -132,19 +149,26 @@ for (const [clip, definition] of Object.entries(sourceManifest.clips)) {
     const composites = definition.frames[index].map(layer => ({ input: bodyLayers.includes(layer)
       ? layers[bodyLayers.indexOf(layer)]
       : path.join(unityRoot, 'shared', clip, String(index), layer + '.png') }));
-    fs.mkdirSync(path.join(studyRoot, 'calico-full'), { recursive: true });
+    fs.mkdirSync(path.join(studyRoot, skinId + '-full'), { recursive: true });
     await sharp({ create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
-      .composite(composites).png().toFile(path.join(studyRoot, 'calico-full', frame.id + '.png'));
+      .composite(composites).png().toFile(path.join(studyRoot, skinId + '-full', frame.id + '.png'));
     runtimeFrames++;
   }
 }
-const manifest = { ...sourceManifest, skinId: 'calico', skinName: '三花猫', skinKind: 'painted-pose-assets-v' + artwork.version,
-  artworkManifestSha256: hash(fs.readFileSync(path.join(studyRoot, 'painted-poses.json'))) };
-for (const root of install ? [outputRoot, unityRoot, overlayRoot] : [outputRoot]) saveJson(path.join(root, 'calico/manifest.json'), manifest);
+const manifest = { ...sourceManifest, skinId, skinName: breed.name, skinKind: 'painted-pose-assets-v' + artwork.version,
+  artworkManifestSha256: hash(fs.readFileSync(artworkPath)) };
+for (const root of install ? [outputRoot, unityRoot, overlayRoot] : [outputRoot]) saveJson(path.join(root, skinId, 'manifest.json'), manifest);
+if (install) {
+  const folder = path.join(unityRoot, skinId);
+  if (!fs.existsSync(folder + '.meta')) {
+    fs.writeFileSync(folder + '.meta', `fileFormatVersion: 2\nguid: ${crypto.createHash('md5').update('fish-social-painted:' + skinId).digest('hex')}\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n`);
+  }
+  ensureUnityMetadata(folder);
+}
 const report = { revision: artwork.version, status: artwork.status, knownLimitations: artwork.knownLimitations,
   sourceFrames: records.length, uniqueDrawings: entries.length, runtimeFrames, characterLayers: runtimeFrames * bodyLayers.length,
   originalGearUnchanged: true, installed: install, pixelPartitionVerified: true,
   productionReady: entries.every(({ entry }) => entry.review === 'approved'), frames: records };
-saveJson(path.join(studyRoot, 'painted-validation.json'), report);
-fs.writeFileSync(path.join(studyRoot, 'painted-review-data.js'), 'window.paintedReview = ' + JSON.stringify(report) + ';\n');
+saveJson(path.join(studyRoot, skinId === 'calico' ? 'painted-validation.json' : `breeds/${skinId}/validation.json`), report);
+if (skinId === 'calico') fs.writeFileSync(path.join(studyRoot, 'painted-review-data.js'), 'window.paintedReview = ' + JSON.stringify(report) + ';\n');
 console.log(JSON.stringify({ ...report, frames: undefined }));

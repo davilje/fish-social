@@ -1,4 +1,4 @@
-import { DEFAULT_AVATARS, defaultAvatarPath } from './defaultAvatars';
+import { DEFAULT_AVATARS, LEGACY_AVATAR_COUNT } from './defaultAvatars';
 
 export const FISHING_PHOTO_DIR = '/image/fishing_photos';
 
@@ -31,7 +31,7 @@ export function resolveFishingPhotoPath(avatarUrl?: string, playerId?: string): 
   }
 
   const fallbackIndex = playerId
-    ? Math.abs(hashString(playerId)) % FISHING_PHOTOS.length
+    ? Math.abs(hashString(playerId)) % LEGACY_AVATAR_COUNT
     : 0;
   return fishingPhotoPath(FISHING_PHOTOS[fallbackIndex].filename);
 }
