@@ -23,6 +23,7 @@ namespace FishSocial.Desktop
     /// never owns authentication or game state; it only renders and sends UI
     /// commands over a versioned JSON-lines pipe.
     /// </summary>
+    [DefaultExecutionOrder(-1000)]
     public sealed class NativeOverlayProcessController : MonoBehaviour
     {
         const string OverlayImageName = "FishSocialOverlay";

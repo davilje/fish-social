@@ -24,7 +24,7 @@ npm run planning:confirm -- v0.4.0
 | [bug-50-overlay-chat-dock-dev.prompt.md](./bug-50-overlay-chat-dock-dev.prompt.md) | BUG-50：聊天栏 10 行、折叠按钮对齐、发送后清空 · **已确认** |
 | [bug-51-overlay-debug-menu-dev.prompt.md](./bug-51-overlay-debug-menu-dev.prompt.md) | BUG-51：Debug 菜单点击无反应 · **已确认** |
 | [bug-52-overlay-latency-dev.prompt.md](./bug-52-overlay-latency-dev.prompt.md) | BUG-52：Overlay 操作延迟与卡顿 · **已确认** |
-| [bug-54-own-fishing-presenter-dev.prompt.md](./bug-54-own-fishing-presenter-dev.prompt.md) | BUG-54：Unity 自己钓鱼表现权威（Overlay 变瘦）· **已确认** |
+| [bug-54-own-fishing-presenter-dev.prompt.md](./bug-54-own-fishing-presenter-dev.prompt.md) | BUG-54：Unity 自己钓鱼表现权威（Overlay 变瘦）· **已实现** |
 | [bugfix-afk-disconnect-dev.prompt.md](./bugfix-afk-disconnect-dev.prompt.md) | 挂机断线 / 重连后误踢鱼塘（服务�?P0�?|
 | [diag-afk-phase2-4-dev.prompt.md](./diag-afk-phase2-4-dev.prompt.md) | 挂机排查阶段 2�?（弱网矩�?/ leave_pond / Admin 时间线） |
 | [server-observability-v0.4.4-dev.prompt.md](./server-observability-v0.4.4-dev.prompt.md) | 服务端架构缺陷修补与 observability 第一阶段（P0 埋点�?|

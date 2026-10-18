@@ -701,13 +701,14 @@ namespace FishSocialOverlay
             SendOwnAction("leave_spot");
         }
 
+        /// <summary>
+        /// BUG-54: Overlay only forwards the command; Unity OwnFishingPresenter
+        /// owns phase / visual / availableActions feedback.
+        /// </summary>
         void SendOwnAction(string command, string spotId = null)
         {
             if (_pendingActionCommandId != 0 &&
                 !(command == "stop_fishing" && _pendingActionName == "start_fishing"))
-                return;
-            var predicted = _scene != null && _scene.PredictOwnAction(command);
-            if (!predicted)
                 return;
             var id = SendCommand(command, spotId);
             _pendingActionCommandId = id;
@@ -715,7 +716,7 @@ namespace FishSocialOverlay
             if (_lastStateMessage != null)
                 ApplyFishingControls(_lastStateMessage);
             LatencyTrace.Write(
-                "overlay_action_predicted id=" + id + " command=" + command + " predicted=True");
+                "overlay_action_sent id=" + id + " command=" + command);
         }
 
         void OnLocalPresentationChanged()
@@ -1005,10 +1006,9 @@ namespace FishSocialOverlay
                 return;
             }
 
-            var predicted = _writer != null && _scene != null && _scene.PredictOwnAction("force_bite");
             SendGameplayDebug("force_bite:" + fish.Id);
-            if (predicted)
-                _pendingActionCommandId = _pendingDebugCommandId;
+            _pendingActionCommandId = _pendingDebugCommandId;
+            _pendingActionName = "force_bite";
         }
 
         void GameplayDebugCatchFish_OnClick(object sender, RoutedEventArgs e)
@@ -1298,24 +1298,23 @@ namespace FishSocialOverlay
 
         void ApplyFishingControls(IpcMessage message)
         {
-            var phase = _scene != null && !string.IsNullOrEmpty(_scene.EffectiveOwnPhase)
-                ? _scene.EffectiveOwnPhase
-                : (message.FishingPhase ?? string.Empty);
-            var hasSpot = (_scene != null && _scene.EffectiveHasOwnSpot) ||
-                          !string.IsNullOrWhiteSpace(message.OwnSpotId);
-            var optimisticSeat = hasSpot &&
-                                 (IsIdleSeatPhase(phase) ||
-                                  (_scene != null && _scene.HasPredictedSeat));
-            var serverStart = HasAction(message, "start_fishing");
-            var serverStop = HasAction(message, "stop_fishing");
-            var serverGroundbait = HasAction(message, "groundbait_start");
-            var serverLeave = HasAction(message, "leave_spot");
-            _canStartFishing = serverStart ||
-                               (optimisticSeat && string.Equals(phase, "seated", StringComparison.Ordinal));
-            _canStopFishing = serverStop || IsReelPhase(phase);
-            _canGroundbait = serverGroundbait ||
-                             (optimisticSeat && string.Equals(phase, "seated", StringComparison.Ordinal));
-            _canLeaveSpot = serverLeave || optimisticSeat;
+            // BUG-54: trust Unity presentation fields (phase / availableActions).
+            var phase = message.FishingPhase ?? string.Empty;
+            var hasSpot = !string.IsNullOrWhiteSpace(message.OwnSpotId) ||
+                          (_scene != null && _scene.HasPredictedSeat);
+            if (_scene != null && _scene.HasPredictedSeat &&
+                string.IsNullOrWhiteSpace(message.OwnSpotId))
+                phase = string.IsNullOrEmpty(phase) || phase == "idle" ? "seated" : phase;
+
+            _canStartFishing = HasAction(message, "start_fishing") ||
+                               (_scene != null && _scene.HasPredictedSeat &&
+                                string.Equals(phase, "seated", StringComparison.Ordinal));
+            _canStopFishing = HasAction(message, "stop_fishing");
+            _canGroundbait = HasAction(message, "groundbait_start") ||
+                             (_scene != null && _scene.HasPredictedSeat &&
+                              string.Equals(phase, "seated", StringComparison.Ordinal));
+            _canLeaveSpot = HasAction(message, "leave_spot") ||
+                            (_scene != null && _scene.HasPredictedSeat);
             _canExitPond = HasAction(message, "exit_pond");
             var canPoliceDebug = HasAction(message, "debug_police_raid");
             PoliceDebugButton.Visibility = canPoliceDebug
@@ -1331,7 +1330,6 @@ namespace FishSocialOverlay
             var showDock = hasSpot && !string.Equals(phase, "idle", StringComparison.Ordinal);
             var reelPhase = IsReelPhase(phase);
             var idleSeatPhase = IsIdleSeatPhase(phase);
-            // Only lock the button for the command still in-flight at that phase.
             var busyStart = _pendingActionName == "start_fishing" && !reelPhase;
             var busyStop = _pendingActionName == "stop_fishing" && reelPhase;
             var busyGroundbait = _pendingActionName == "groundbait_start" &&
@@ -2043,12 +2041,8 @@ namespace FishSocialOverlay
             {
                 _pendingActionCommandId = 0;
                 _pendingActionName = string.Empty;
-                if (!ack.Ok)
-                {
-                    _scene?.CancelOwnActionPrediction();
-                    if (!string.IsNullOrWhiteSpace(ack.Message))
-                        ShowTransientStatus(ack.Message);
-                }
+                if (!ack.Ok && !string.IsNullOrWhiteSpace(ack.Message))
+                    ShowTransientStatus(ack.Message);
                 if (_lastStateMessage != null)
                     ApplyFishingControls(_lastStateMessage);
             }
