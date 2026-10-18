@@ -751,17 +751,20 @@ namespace FishSocial.Desktop.Editor
             var node = root.transform;
             Common(root, "钓友排行榜", "每一次收获，都值得被看见", "trophy");
             Hide(node, "Reflow_RankTableHeading", "Reflow_RankColumn", "Reflow_NameColumn", "Reflow_ValueColumn");
-            Paper(node, "Reflow_PodiumPaper", 24, 112, 980, 284).transform.SetAsFirstSibling();
-            Place(node, "Podium", 24, 112, 980, 284);
+            // Podium stays a compact strip so the rank list below can show several rows.
+            Paper(node, "Reflow_PodiumPaper", 24, 112, 980, 168).transform.SetAsFirstSibling();
+            Place(node, "Podium", 24, 112, 980, 168);
             for (var rank = 1; rank <= 3; rank++)
             {
-                var x = rank == 2 ? 70 : rank == 1 ? 358 : 646;
-                var slot = Place(node, "Podium/Slot" + rank, x, rank == 1 ? 0 : 14, 264, rank == 1 ? 280 : 266);
-                Paper(slot, "DesignBacking", 0, 0, 264, rank == 1 ? 280 : 266).transform.SetAsFirstSibling();
-                Label(slot, "Rank", rank.ToString(), 100, 8, 64, 40, 32, true).alignment = TextAnchor.MiddleCenter;
-                Picture(slot, "Avatar", CatTheme.LoadCozy("characters/portraits/orange.png", Vector4.zero), 70, 52, 124, 124);
-                Label(slot, "Nickname", "等待榜单", 16, 182, 232, 32, 23, true).alignment = TextAnchor.MiddleCenter;
-                Label(slot, "Value", "—", 16, 220, 232, 36, 20).alignment = TextAnchor.MiddleCenter;
+                var first = rank == 1;
+                var x = rank == 2 ? 70 : first ? 358 : 646;
+                var height = first ? 164 : 152;
+                var slot = Place(node, "Podium/Slot" + rank, x, first ? 0 : 12, 264, height);
+                Paper(slot, "DesignBacking", 0, 0, 264, height).transform.SetAsFirstSibling();
+                Label(slot, "Rank", rank.ToString(), 16, 2, 232, 26, 22, true).alignment = TextAnchor.MiddleCenter;
+                Picture(slot, "Avatar", CatTheme.LoadCozy("characters/portraits/orange.png", Vector4.zero), 96, 28, 72, 72);
+                Label(slot, "Nickname", "等待榜单", 12, 102, 240, 22, 16, true).alignment = TextAnchor.MiddleCenter;
+                Label(slot, "Value", "—", 12, 124, 240, 22, 14).alignment = TextAnchor.MiddleCenter;
             }
             Paper(node, "Reflow_InfoRail", 1024, 112, 322, 496).transform.SetAsFirstSibling();
             Place(node, "Tabs", 1040, 128, 290, 248);
@@ -771,11 +774,11 @@ namespace FishSocial.Desktop.Editor
                 ButtonAt(node, "Tabs/" + names[index], titles[index], index == 2 ? "pond" : "trophy", 0, index * 60, 290, 50);
             Label(node, "DesignRailHeading", "榜单说明", 1048, 404, 274, 34, 25, true);
             Label(node, "DesignRailBody", "以实际榜单数据为准\n\n切换分类，查看不同榜单", 1048, 454, 274, 120, 19);
-            Paper(node, "DesignTableHeading", 24, 410, 980, 38);
-            Label(node, "DesignRankColumn", "排名", 44, 412, 100, 34, 18);
-            Label(node, "DesignNameColumn", "钓友", 164, 412, 410, 34, 18);
-            Label(node, "DesignValueColumn", "榜单成绩", 650, 412, 330, 34, 18).alignment = TextAnchor.MiddleRight;
-            Place(node, "Scroll", 24, 458, 980, 116);
+            Paper(node, "DesignTableHeading", 24, 288, 980, 34);
+            Label(node, "DesignRankColumn", "排名", 44, 288, 100, 34, 18);
+            Label(node, "DesignNameColumn", "钓友", 164, 288, 410, 34, 18);
+            Label(node, "DesignValueColumn", "榜单成绩", 650, 288, 330, 34, 18).alignment = TextAnchor.MiddleRight;
+            Place(node, "Scroll", 24, 328, 980, 244);
             Label(node, "MyRank", "", 40, 580, 940, 28, 19);
             Label(node, "Status", "", 40, 614, 940, 24, 15);
         }

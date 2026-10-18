@@ -7,8 +7,9 @@ using FishSocial.Desktop.Auth;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Server-authoritative leaderboard page. Prefab owns layout; this view only
-    /// binds REST data. Opening or switching boards never calls leave_pond.
+    /// Server-authoritative leaderboard page. Prefab owns chrome; opening applies
+    /// a compact podium so the rank list keeps the remaining height.
+    /// Opening or switching boards never calls leave_pond.
     /// </summary>
     public sealed class DesktopLeaderboardPanel : MonoBehaviour
     {
@@ -163,9 +164,74 @@ namespace FishSocial.Desktop
                 RestylePodium(_podium3, 3);
                 ApplyLeaderboardLayout();
             }
+            else
+                ApplyCompactCozyLeaderboard();
             RestyleTabs();
             if (_retry != null)
                 _retry.gameObject.SetActive(false);
+        }
+
+        void ApplyCompactCozyLeaderboard()
+        {
+            var podium = transform.Find("Podium") as RectTransform;
+            if (podium != null)
+            {
+                var group = podium.GetComponent<HorizontalLayoutGroup>();
+                if (group != null)
+                    group.enabled = false;
+            }
+
+            PlaceTopLeft(transform.Find("Reflow_PodiumPaper") as RectTransform, 24f, 112f, 980f, 168f);
+            PlaceTopLeft(podium, 24f, 112f, 980f, 168f);
+            PlaceCompactSlot(2, 70f, 12f, 152f);
+            PlaceCompactSlot(1, 358f, 0f, 164f);
+            PlaceCompactSlot(3, 646f, 12f, 152f);
+            PlaceTopLeft(transform.Find("DesignTableHeading") as RectTransform, 24f, 288f, 980f, 34f);
+            PlaceTopLeft(transform.Find("DesignRankColumn") as RectTransform, 44f, 288f, 100f, 34f);
+            PlaceTopLeft(transform.Find("DesignNameColumn") as RectTransform, 164f, 288f, 410f, 34f);
+            PlaceTopLeft(transform.Find("DesignValueColumn") as RectTransform, 650f, 288f, 330f, 34f);
+            PlaceTopLeft(transform.Find("Scroll") as RectTransform, 24f, 328f, 980f, 244f);
+        }
+
+        void PlaceCompactSlot(int rank, float x, float y, float height)
+        {
+            var slot = transform.Find("Podium/Slot" + rank) as RectTransform;
+            if (slot == null)
+                return;
+            var element = slot.GetComponent<LayoutElement>() ?? slot.gameObject.AddComponent<LayoutElement>();
+            element.ignoreLayout = true;
+            PlaceTopLeft(slot, x, y, 264f, height);
+            PlaceTopLeft(slot.Find("DesignBacking") as RectTransform, 0f, 0f, 264f, height);
+            PlaceCompactLabel(slot.Find("Rank") as RectTransform, 16f, 2f, 232f, 26f, 22, TextAnchor.MiddleCenter);
+            PlaceTopLeft(slot.Find("Avatar") as RectTransform, 96f, 28f, 72f, 72f);
+            PlaceCompactLabel(slot.Find("Nickname") as RectTransform, 12f, 102f, 240f, 22f, 16, TextAnchor.MiddleCenter);
+            PlaceCompactLabel(slot.Find("Value") as RectTransform, 12f, 124f, 240f, 22f, 14, TextAnchor.MiddleCenter);
+        }
+
+        static void PlaceCompactLabel(
+            RectTransform rect, float x, float y, float width, float height, int fontSize, TextAnchor alignment)
+        {
+            PlaceTopLeft(rect, x, y, width, height);
+            var label = rect != null ? rect.GetComponent<Text>() : null;
+            if (label == null)
+                return;
+            label.fontSize = fontSize;
+            label.alignment = alignment;
+            label.resizeTextForBestFit = false;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+        }
+
+        static void PlaceTopLeft(RectTransform rect, float x, float y, float width, float height)
+        {
+            if (rect == null)
+                return;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(x, -y);
+            rect.sizeDelta = new Vector2(width, height);
+            rect.localScale = Vector3.one;
         }
 
         void ApplyLeaderboardLayout()
