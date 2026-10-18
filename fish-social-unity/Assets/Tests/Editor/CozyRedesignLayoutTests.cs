@@ -22,6 +22,9 @@ namespace FishSocial.Tests.Editor
         [TestCase("PanelEquipment")]
         [TestCase("PanelShop")]
         [TestCase("PanelSocialFeed")]
+        [TestCase("PanelProfileEdit")]
+        [TestCase("PanelPondSelection")]
+        [TestCase("PanelWorldMap")]
         public void SavedPageKeepsHeaderCloseAndSlicedSurfaces(string name)
         {
             var page = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + name + ".prefab");
@@ -64,6 +67,63 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(6, Resources.LoadAll<Sprite>("Desktop/Theme/Cozy/items/fish-atlas").Length);
             Assert.NotNull(CozyItemArt.Fish("koi"));
             Assert.IsNull(CozyItemArt.Fish("unillustrated_species"));
+        }
+
+        [TestCase("CatchSlot", 214)]
+        [TestCase("ShopItemCard", 214)]
+        [TestCase("ShopItemCard", 326)]
+        public void ItemArtworkStaysInsideResizedCard(string name, float width)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + name + ".prefab");
+            var instance = Object.Instantiate(prefab);
+            try
+            {
+                var card = instance.GetComponent<RectTransform>();
+                card.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                foreach (var childName in new[] { "DesignArtBacking", "DesignItemArt" })
+                {
+                    var child = instance.transform.Find(childName).GetComponent<RectTransform>();
+                    var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(card, child);
+                    Assert.GreaterOrEqual(bounds.min.x, card.rect.xMin, childName);
+                    Assert.LessOrEqual(bounds.max.x, card.rect.xMax, childName);
+                    Assert.AreEqual(card.rect.center.x, bounds.center.x, 0.01f, childName);
+                }
+            }
+            finally { Object.DestroyImmediate(instance); }
+        }
+
+        [Test]
+        public void EveryDefaultCatHasItsOwnLocalPortrait()
+        {
+            var portraits = DesktopDefaultAvatars.All.Select(entry => DesktopDefaultAvatars.Portrait(entry.Path)).ToArray();
+            Assert.IsTrue(portraits.All(sprite => sprite != null));
+            Assert.AreEqual(DesktopDefaultAvatars.All.Length, portraits.Distinct().Count());
+            foreach (var portrait in portraits)
+                StringAssert.Contains("/characters/avatars/", AssetDatabase.GetAssetPath(portrait));
+        }
+
+        [Test]
+        public void ProfileEditorRetainsFormPickerAndSixAvatarColumns()
+        {
+            var page = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelProfileEdit.prefab");
+            Assert.AreEqual(6, page.transform.Find("Avatars/Viewport/Content").GetComponent<GridLayoutGroup>().constraintCount);
+            Assert.NotNull(page.transform.Find("Form/Nickname").GetComponent<InputField>());
+            Assert.NotNull(page.transform.Find("Form/Bio").GetComponent<InputField>());
+            Assert.NotNull(page.transform.Find("Actions/Save").GetComponent<Button>());
+            Assert.IsFalse(page.transform.Find("Picker").gameObject.activeSelf);
+            foreach (var node in page.GetComponentsInChildren<RectTransform>(true))
+                if (node.name.StartsWith("Reflow_")) Assert.IsFalse(node.gameObject.activeSelf, node.name);
+        }
+
+        [Test]
+        public void MapBackdropDoesNotCoverViewportAndPondCardsKeepVisibleIcons()
+        {
+            var map = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelWorldMap.prefab");
+            Assert.Less(map.transform.Find("DesignMapFrame").GetSiblingIndex(), map.transform.Find("Viewport").GetSiblingIndex());
+            Assert.IsFalse(map.transform.Find("Details/Reflow_Heading").gameObject.activeSelf);
+            var card = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PondSelectionCard.prefab");
+            Assert.IsTrue(card.transform.Find("PondIcon").GetComponent<Image>().enabled);
+            Assert.GreaterOrEqual(card.GetComponent<LayoutElement>().preferredHeight, 190);
         }
 
         [Test]

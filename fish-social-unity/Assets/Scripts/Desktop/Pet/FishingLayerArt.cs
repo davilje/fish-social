@@ -26,6 +26,7 @@ namespace FishSocial.Desktop.Pet
         {
             "idle", "sit", "ready", "bait", "cast", "fishing", "bite", "effort", "hooked",
             "reel", "catch", "reset_catch", "reel_empty", "reset_empty",
+            "groundbait", "leave",
         };
 
         static readonly string[] BodyLayerNames = { "body", "head", "far_hand", "hands" };
@@ -276,7 +277,7 @@ namespace FishSocial.Desktop.Pet
             {
             }
 
-            error = "Invalid v2 fishing manifest: expected sourceVersion 18, canvas 640x512, " +
+            error = "Invalid v2 fishing manifest: expected sourceVersion 19, canvas 640x512, " +
                 "nine unique layers, four body layers, complete clips and positive integer durations.";
             return false;
         }
@@ -286,7 +287,7 @@ namespace FishSocial.Desktop.Pet
             var value = new JsonReader(json).Parse();
             var obj = value as Dictionary<string, object>;
             if (obj == null || !obj.TryGetValue("version", out var version) || !IsInteger(version, 2) ||
-                !obj.TryGetValue("sourceVersion", out var sourceVersion) || !IsInteger(sourceVersion, 18))
+                !obj.TryGetValue("sourceVersion", out var sourceVersion) || !IsInteger(sourceVersion, 19))
                 return null;
             if (!obj.TryGetValue("canvas", out var canvasValue) || !(canvasValue is List<object> canvas) ||
                 canvas.Count != 2 || !IsInteger(canvas[0], CanvasWidth) || !IsInteger(canvas[1], CanvasHeight))
@@ -331,7 +332,9 @@ namespace FishSocial.Desktop.Pet
                 !Matches(clips, "catch", 7, "once", "reset_catch") ||
                 !Matches(clips, "reset_catch", 4, "once", "ready") ||
                 !Matches(clips, "reel_empty", 6, "once", "reset_empty") ||
-                !Matches(clips, "reset_empty", 4, "once", "ready"))
+                !Matches(clips, "reset_empty", 4, "once", "ready") ||
+                !Matches(clips, "groundbait", 8, "once", "ready") ||
+                !Matches(clips, "leave", 4, "once", "idle"))
                 return null;
 
             return new Pack(root, body, clips, ReadPlace(obj));

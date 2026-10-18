@@ -143,6 +143,8 @@ namespace FishSocial.Desktop.Pet
         {
             switch (state)
             {
+                case PetVisualState.Idle:
+                    return _hasSeatPose ? "leave" : "idle";
                 case PetVisualState.Sit:
                     return !_hasSeatPose && (previous == PetVisualState.Idle || previous == PetVisualState.Offline)
                         ? "sit" : "ready";
@@ -472,7 +474,7 @@ namespace FishSocial.Desktop.Pet
         {
             return state == PetVisualState.Sit || state == PetVisualState.Idle ||
                 state == PetVisualState.Bait || state == PetVisualState.Cast ||
-                state == PetVisualState.Fishing;
+                state == PetVisualState.Fishing || state == PetVisualState.Groundbait;
         }
 
         static int IndexOf(string[] names, string name)

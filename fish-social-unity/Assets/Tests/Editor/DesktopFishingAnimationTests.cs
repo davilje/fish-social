@@ -17,22 +17,46 @@ namespace FishSocial.Tests.Editor
 {
     public sealed class DesktopFishingAnimationTests
     {
-        static readonly int[] Counts = { 1, 4, 1, 4, 4, 1, 4, 6, 10, 6, 7, 4, 6, 4 };
+        static readonly int[] Counts = { 1, 4, 1, 4, 4, 1, 4, 6, 10, 6, 7, 4, 6, 4, 8, 4 };
         static readonly string[] Playback =
         {
             "hold", "once", "hold", "once", "once", "hold", "once", "intro-loop",
             "intro-loop", "once", "once", "once", "once", "once",
+            "once", "once",
         };
         static readonly string[] NextClips =
         {
             null, "ready", null, null, null, null, "effort", null, null,
             "catch", "reset_catch", "ready", "reset_empty", "ready",
+            "ready", "idle",
         };
 
         [Test]
         public void VersionTwoManifestAcceptsAllSourceClips()
         {
             Assert.IsTrue(FishingLayerArt.ValidateManifest(Manifest(), out var error), error);
+        }
+
+        [Test]
+        public void GroundbaitReturnsToReadyAndLeavingEndsUnarmedWithoutReplay()
+        {
+            using (var preview = new PlaybackFixture())
+            {
+                preview.Renderer.Apply(PetVisualState.Groundbait);
+                Assert.AreEqual("groundbait", preview.Renderer.ActiveClip);
+                preview.Renderer.Tick(0.801f);
+                Assert.AreEqual("ready", preview.Renderer.ActiveClip);
+                preview.Renderer.Apply(PetVisualState.Groundbait);
+                Assert.AreEqual("ready", preview.Renderer.ActiveClip);
+                preview.Renderer.Apply(PetVisualState.Idle);
+                Assert.AreEqual("leave", preview.Renderer.ActiveClip);
+                preview.Renderer.Tick(0.401f);
+                Assert.AreEqual("idle", preview.Renderer.ActiveClip);
+                preview.Renderer.Apply(PetVisualState.Idle);
+                Assert.AreEqual("idle", preview.Renderer.ActiveClip);
+                preview.Renderer.Apply(PetVisualState.Sit);
+                Assert.AreEqual("sit", preview.Renderer.ActiveClip);
+            }
         }
 
         [Test]
@@ -49,7 +73,7 @@ namespace FishSocial.Tests.Editor
         [TestCase("\"version\":2", "\"version\":2.0")]
         [TestCase("\"version\":2", "\"version\":+2")]
         [TestCase("\"version\":2", "\"version\":02")]
-        [TestCase("\"sourceVersion\":18", "\"sourceVersion\":17")]
+        [TestCase("\"sourceVersion\":19", "\"sourceVersion\":17")]
         [TestCase("[640,512]", "[512,640]")]
         [TestCase("\"body\",\"head\"", "\"cat\",\"head\"")]
         [TestCase("\"body\",\"head\"", "\"body\",\"body\"")]
@@ -115,6 +139,7 @@ namespace FishSocial.Tests.Editor
         [TestCase(PetVisualState.Reel, 8, "reel")]
         [TestCase(PetVisualState.Bait, 9, "bait")]
         [TestCase(PetVisualState.EmptyReel, 10, "reel_empty")]
+        [TestCase(PetVisualState.Groundbait, 11, "groundbait")]
         public void ExistingEnumAndWireValuesStayStable(PetVisualState state, int numeric, string wire)
         {
             Assert.AreEqual(numeric, (int)state);
@@ -133,7 +158,7 @@ namespace FishSocial.Tests.Editor
         [TestCase("seated", false, "escape", PetVisualState.Sit)]
         [TestCase("seated", true, null, PetVisualState.Catching)]
         [TestCase("hooked", false, "escape", PetVisualState.Hooked)]
-        [TestCase("groundbaiting", false, null, PetVisualState.Sit)]
+        [TestCase("groundbaiting", false, null, PetVisualState.Groundbait)]
         [TestCase("baiting", false, null, PetVisualState.Bait)]
         [TestCase("casting", false, null, PetVisualState.Cast)]
         [TestCase("waiting", false, null, PetVisualState.Fishing)]
@@ -735,7 +760,7 @@ namespace FishSocial.Tests.Editor
 
         static string Manifest()
         {
-            var builder = new StringBuilder("{\"version\":2,\"sourceVersion\":18,\"canvas\":[640,512],\"layers\":");
+            var builder = new StringBuilder("{\"version\":2,\"sourceVersion\":19,\"canvas\":[640,512],\"layers\":");
             builder.Append(Names(FishingLayerArt.LayerNames));
             builder.Append(",\"bodyLayers\":[\"body\",\"head\",\"far_hand\",\"hands\"],\"clips\":{");
             for (var index = 0; index < FishingLayerArt.ClipNames.Length; index++)

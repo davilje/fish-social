@@ -169,6 +169,9 @@ namespace FishSocial.Desktop.Editor
             Edit("PanelPondSelection", PondSelection);
             Edit("PanelWorldMap", WorldMap);
             Edit("PanelGallery", Gallery);
+            Edit("PanelProfileEdit", ProfileEdit);
+            Edit("AvatarChoice", AvatarCard);
+            Edit("PondSelectionCard", PondCard);
             Edit("CatchSlot", root => ItemCard(root, false));
             Edit("ShopItemCard", root => ItemCard(root, true));
             Edit("ShowcaseSlot", ShowcaseCard);
@@ -342,10 +345,13 @@ namespace FishSocial.Desktop.Editor
             var rect = Place(root, path, left, top, width, height);
             var image = rect.GetComponent<Image>() ?? rect.gameObject.AddComponent<Image>();
             image.sprite = sprite;
+            image.enabled = sprite != null;
             image.color = Color.white;
             image.type = Image.Type.Simple;
             image.preserveAspect = true;
             image.raycastTarget = false;
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.anchoredPosition = new Vector2(left + width / 2, -top - height / 2);
             return image;
         }
 
@@ -633,6 +639,10 @@ namespace FishSocial.Desktop.Editor
             Paper(node, "Details/DesignPaper", 0, 0, 362, 496).transform.SetAsFirstSibling();
             Label(node, "Details/DesignHeading", equipment ? "装备详情" : "商品详情", 24, 12, 314, 36, 25, true);
             Picture(node, "Details/DesignArt", null, 24, 50, 314, 126);
+            var artBacking = Paper(node, "Details/DesignArtBacking", 18, 52, 326, 126);
+            artBacking.color = ArtBackingColor;
+            artBacking.transform.SetSiblingIndex(1);
+            node.Find("Details/DesignArt").SetAsLastSibling();
             Label(node, "Details/DesignName", "", 24, 180, 314, 36, 26, true).alignment = TextAnchor.MiddleCenter;
             ScrollingText(node, "Details/DescriptionScroll", "Details/Description", 24, 222, 314, 198);
             ButtonAt(node, "Details/Buy", "购买", "coin", 24, 432, 314, 48, true);
@@ -640,6 +650,93 @@ namespace FishSocial.Desktop.Editor
                 .GetComponent<CozyButtonVisual>().SetTint(new Color(0.35f, 0.56f, 0.95f, 1));
             Hide(node, "Details/Retry", "Details/Reflow_DetailSeal", "Details/Reflow_Heading", "Details/Reflow_DescriptionViewport");
             Label(node, "Status", "", 254, 612, 1068, 26, 16);
+        }
+
+        static void AvatarCard(GameObject root)
+        {
+            ShowcaseCard(root);
+            var art = root.transform.Find("DesignItemArt").GetComponent<Image>();
+            art.rectTransform.anchorMin = new Vector2(0, .28f);
+            art.rectTransform.offsetMin = new Vector2(12, 4);
+            art.rectTransform.offsetMax = new Vector2(-12, -8);
+            var label = root.transform.Find("Label").GetComponent<Text>();
+            label.rectTransform.anchorMax = new Vector2(1, .28f);
+            label.fontSize = 18;
+        }
+
+        static void ProfileEdit(GameObject root)
+        {
+            var node = root.transform;
+            Common(root, "编辑资料", "选择猫咪形象，整理你的展示鱼获", "user");
+            foreach (var child in node.GetComponentsInChildren<RectTransform>(true))
+                if (child.name.StartsWith("Reflow_", StringComparison.Ordinal)) child.gameObject.SetActive(false);
+            Hide(node, "Header", "Actions/Retry");
+            Paper(node, "DesignFormPaper", 24, 112, 402, 432).transform.SetAsFirstSibling();
+            Place(node, "Form", 48, 132, 354, 382);
+            Label(node, "Form/NicknameLabel", "游戏昵称", 0, 0, 354, 32, 22, true);
+            Place(node, "Form/Nickname", 0, 42, 354, 54);
+            Label(node, "Form/BioLabel", "个人简介", 0, 122, 354, 32, 22, true);
+            Place(node, "Form/Bio", 0, 164, 354, 194);
+            foreach (var input in node.Find("Form").GetComponentsInChildren<InputField>(true))
+            {
+                var background = input.GetComponent<Image>();
+                background.sprite = CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder);
+                background.type = Image.Type.Sliced;
+                background.color = Color.white;
+                foreach (var text in input.GetComponentsInChildren<Text>(true))
+                {
+                    if (text != input.textComponent && text != input.placeholder)
+                    {
+                        text.gameObject.SetActive(false);
+                        continue;
+                    }
+                    Inset(text.rectTransform, 16, 12, 16, 12);
+                    text.font = AssetFont();
+                    text.fontSize = 20;
+                    text.alignment = input.name == "Bio" ? TextAnchor.UpperLeft : TextAnchor.MiddleLeft;
+                }
+            }
+            Paper(node, "DesignAvatarPaper", 450, 112, 896, 194).transform.SetAsFirstSibling();
+            Label(node, "AvatarsTitle", "选择头像", 474, 120, 600, 34, 24, true);
+            Place(node, "Avatars", 466, 158, 864, 136);
+            Grid(node, "Avatars/Viewport/Content", 6, 126, 112);
+            Paper(node, "DesignShowcasePaper", 450, 326, 896, 264).transform.SetAsFirstSibling();
+            Label(node, "ShowcaseTitle", "我的展示柜 · 点击格子更换鱼获", 474, 334, 830, 36, 24, true);
+            Place(node, "Showcase", 466, 380, 864, 194);
+            Grid(node, "Showcase/Viewport/Content", 4, 196, 164);
+            Place(node, "Actions", 24, 558, 402, 48);
+            ButtonAt(node, "Actions/Save", "保存资料", "user", 0, 0, 402, 48, true);
+            Label(node, "Status", "", 24, 612, 1322, 28, 16);
+            Paper(node, "Picker", 236, 108, 898, 498);
+            Label(node, "Picker/Title", "选择展示鱼获", 24, 12, 700, 42, 28, true);
+            Place(node, "Picker/Viewport", 20, 68, 858, 350);
+            Grid(node, "Picker/Viewport/Content", 4, 192, 158);
+            ButtonAt(node, "Picker/Clear", "清空此格", "fish", 24, 434, 240, 44);
+            var pickerClose = ButtonAt(node, "Picker/Close", "×", null, 830, 12, 48, 48);
+            DesktopModalUi.PlaceTopRight(pickerClose, 20, 12, 48);
+            node.Find("Picker").SetAsLastSibling();
+            node.Find("Picker").gameObject.SetActive(false);
+        }
+
+        static void PondCard(GameObject root)
+        {
+            var node = root.transform;
+            Place(node, "", 0, 0, 1036, 196);
+            var element = root.GetComponent<LayoutElement>() ?? root.AddComponent<LayoutElement>();
+            element.preferredHeight = element.minHeight = 196;
+            element.flexibleWidth = 1;
+            Paper(node, "DesignPaper", 0, 0, 1036, 196).transform.SetAsFirstSibling();
+            Stretch(node.Find("DesignPaper") as RectTransform);
+            var backing = Paper(node, "DesignIconPaper", 16, 16, 156, 164);
+            backing.color = ArtBackingColor;
+            Picture(node, "PondIcon", CatTheme.LoadCozy("icons/pond.png", Vector4.zero), 50, 50, 88, 88);
+            backing.transform.SetSiblingIndex(node.Find("PondIcon").GetSiblingIndex());
+            Label(node, "Name", "", 196, 16, 540, 42, 28, true);
+            Label(node, "Description", "", 196, 66, 520, 56, 18);
+            Label(node, "Level", "", 196, 136, 250, 38, 17);
+            Label(node, "Fee", "", 458, 130, 280, 50, 17);
+            Label(node, "Access", "", 762, 24, 248, 74, 17);
+            ButtonAt(node, "FocusOnMap", "查看鱼塘", "map", 762, 126, 248, 48, true);
         }
 
         static void Leaderboard(GameObject root)
@@ -865,7 +962,7 @@ namespace FishSocial.Desktop.Editor
         {
             var node = root.transform;
             Common(root, "选择鱼塘", "选择一处水域，开始今天的垂钓", "pond");
-            Hide(node, "PondSelectionHeader", "Reflow_RailHeading", "Reflow_RailBody", "Reflow_InfoRail");
+            Hide(node, "PondSelectionHeader", "Reflow_RailHeading", "Reflow_RailBody", "Reflow_InfoRail", "Reflow_RailPaper");
             Paper(node, "DesignPondRail", 24, 112, 210, 496);
             Label(node, "DesignPondRail/Heading", "水域指南", 22, 22, 166, 36, 24, true);
             Label(node, "DesignPondRail/Body", "每个鱼塘都有\n不同的鱼种与\n垂钓节奏。", 22, 86, 166, 140, 20);
@@ -892,6 +989,11 @@ namespace FishSocial.Desktop.Editor
                     list.childForceExpandWidth = true;
                     list.childControlHeight = true;
                     list.childForceExpandHeight = false;
+                    cards.anchorMin = Vector2.up;
+                    cards.anchorMax = Vector2.one;
+                    cards.pivot = Vector2.up;
+                    cards.anchoredPosition = Vector2.zero;
+                    cards.sizeDelta = Vector2.zero;
                     var fitter = cards.GetComponent<ContentSizeFitter>() ?? cards.gameObject.AddComponent<ContentSizeFitter>();
                     fitter.enabled = true;
                     fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
@@ -906,7 +1008,8 @@ namespace FishSocial.Desktop.Editor
             var node = root.transform;
             Common(root, "探索世界", "在地图上发现新的鱼塘", "map");
             Hide(node, "Reflow_RailHeading", "Reflow_RailBody", "Reflow_ModeCaption");
-            Paper(node, "DesignMapFrame", 24, 112, 900, 496);
+            Paper(node, "DesignMapFrame", 24, 112, 900, 496).transform.SetAsFirstSibling();
+            Hide(node, "Details/Reflow_Heading", "Details/Reflow_ModeCaption", "Reflow_InfoRail");
             var viewport = node.Find("Viewport") as RectTransform;
             if (viewport != null)
             {
@@ -926,13 +1029,18 @@ namespace FishSocial.Desktop.Editor
                         mapImage.anchorMax = Vector2.one;
                         mapImage.offsetMin = Vector2.zero;
                         mapImage.offsetMax = Vector2.zero;
+                        var image = mapImage.GetComponent<Image>();
+                        image.sprite = CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero);
+                        image.color = Color.white;
+                        image.type = Image.Type.Simple;
                     }
                 }
             }
             Paper(node, "DesignDetailsPaper", 944, 112, 402, 496).transform.SetAsFirstSibling();
             Place(node, "Details", 944, 112, 402, 496);
             Label(node, "Details/DesignHeading", "鱼塘详情", 24, 18, 354, 36, 25, true);
-            Place(node, "Details/DetailsText", 24, 72, 354, 194);
+            Label(node, "Details/DesignHint", "点击地图上的鱼塘标记", 24, 62, 354, 30, 18);
+            Place(node, "Details/DetailsText", 24, 106, 354, 160);
             Place(node, "Details/StatusText", 24, 274, 354, 48);
             ButtonAt(node, "Details/ModeSell", "回鱼出售", "coin", 24, 338, 166, 46);
             ButtonAt(node, "Details/ModeAuto", "自动回鱼", "pond", 202, 338, 166, 46);
@@ -973,11 +1081,11 @@ namespace FishSocial.Desktop.Editor
                 Paper(showcase, "DesignShowcaseGrid", 0, 0, 680, 496).transform.SetAsFirstSibling();
                 Label(showcase, "DesignGridHeading", "我的展示柜", 24, 14, 400, 36, 25, true);
                 Place(showcase, "ShowcaseGrid", 18, 58, 644, 418);
-                Grid(showcase, "ShowcaseGrid/Viewport/Content", 3, 194, 172);
+                Grid(showcase, "ShowcaseGrid/Viewport/Content", 4, 140, 178);
                 Paper(showcase, "DesignDetailPaper", 704, 0, 388, 496).transform.SetAsFirstSibling();
                 DetailPanel(showcase, "展示详情");
-                Place(showcase, "Detail", 728, 66, 340, 96);
-                DetailRows(showcase, "ShowcaseDetailRows", 728, 168, 340, 8, 36);
+                Place(showcase, "Detail", 728, 200, 340, 36);
+                DetailRows(showcase, "ShowcaseDetailRows", 728, 242, 340, 8, 29);
             }
 
             var codex = node.Find("Shell/Content/Tab_图鉴");
@@ -1018,7 +1126,10 @@ namespace FishSocial.Desktop.Editor
         {
             Hide(tab, "Detail/DesignHeading");
             Label(tab, "DesignDetailHeading", heading, 728, 18, 340, 36, 25, true);
-            var detail = Place(tab, "Detail", 728, 66, 340, 410).GetComponent<Text>();
+            var backing = Paper(tab, "DesignDetailArtBacking", 722, 62, 352, 130);
+            backing.color = ArtBackingColor;
+            Picture(tab, "DesignDetailArt", null, 738, 70, 320, 114).enabled = false;
+            var detail = Place(tab, "Detail", 728, 204, 340, 272).GetComponent<Text>();
             detail.alignment = TextAnchor.UpperLeft;
             detail.horizontalOverflow = HorizontalWrapMode.Wrap;
             detail.verticalOverflow = VerticalWrapMode.Truncate;
@@ -1069,7 +1180,6 @@ namespace FishSocial.Desktop.Editor
         {
             var node = root.transform;
             Place(node, "", 0, 0, 214, 196);
-            if (!shop)
             {
                 var backing = Paper(node, "DesignArtBacking", 12, 10, 190, 112);
                 backing.color = ArtBackingColor;
@@ -1087,6 +1197,7 @@ namespace FishSocial.Desktop.Editor
                 if (rect == null) continue;
                 rect.anchorMax = Vector2.one;
                 rect.sizeDelta = new Vector2(name == "DesignItemArt" ? -32 : -24, rect.sizeDelta.y);
+                rect.anchoredPosition = new Vector2(rect.pivot.x == 0.5f ? 0 : 12, rect.anchoredPosition.y);
             }
             var element = root.GetComponent<LayoutElement>() ?? root.AddComponent<LayoutElement>();
             element.preferredHeight = 196;
@@ -1115,6 +1226,13 @@ namespace FishSocial.Desktop.Editor
         static void ShowcaseCard(GameObject root)
         {
             var node = root.transform;
+            var backing = Paper(node, "DesignArtBacking", 0, 0, 180, 100);
+            backing.color = ArtBackingColor;
+            backing.rectTransform.anchorMin = new Vector2(0, .42f);
+            backing.rectTransform.anchorMax = Vector2.one;
+            backing.rectTransform.offsetMin = new Vector2(8, 0);
+            backing.rectTransform.offsetMax = new Vector2(-8, -8);
+            backing.transform.SetSiblingIndex(node.Find("CozyVisual") != null ? node.Find("CozyVisual").GetSiblingIndex() + 1 : 0);
             var art = Picture(node, "DesignItemArt", null, 0, 0, 10, 10);
             art.rectTransform.anchorMin = new Vector2(0f, 0.42f);
             art.rectTransform.anchorMax = Vector2.one;
@@ -1132,6 +1250,10 @@ namespace FishSocial.Desktop.Editor
             var text = label.GetComponent<Text>();
             text.alignment = TextAnchor.MiddleCenter;
             text.font = AssetFont();
+            text.fontSize = 18;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 14;
+            text.resizeTextMaxSize = 18;
             Hide(node, "Icon", "CozyIcon");
             SelectedCard(root);
         }
@@ -1260,7 +1382,7 @@ namespace FishSocial.Desktop.Editor
         public static void Verify()
         {
             var errors = CozyUiBuildGuard.CollectErrors();
-            foreach (var name in new[] { "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "PanelSettings", "PanelPondSelection", "PanelWorldMap", "PanelGallery" })
+            foreach (var name in new[] { "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "PanelSettings", "PanelPondSelection", "PanelWorldMap", "PanelGallery", "PanelProfileEdit" })
             {
                 var root = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + name + ".prefab");
                 var close = root.transform.Find("DesignHeader/Close");

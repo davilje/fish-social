@@ -115,6 +115,12 @@ namespace FishSocial.Desktop
             _retry.onClick.AddListener(OnRetry);
             _back.onClick.RemoveAllListeners();
             _back.onClick.AddListener(GoBack);
+            var authoredClose = Find<Button>("DesignHeader/Close");
+            if (authoredClose != null)
+            {
+                authoredClose.onClick.RemoveAllListeners();
+                authoredClose.onClick.AddListener(GoBack);
+            }
             _clearSlot.onClick.RemoveAllListeners();
             _clearSlot.onClick.AddListener(ClearPickedSlot);
             _closePicker.onClick.RemoveAllListeners();
@@ -235,6 +241,7 @@ namespace FishSocial.Desktop
                 if (go == null)
                     continue;
                 go.name = "Avatar_" + entry.Id;
+                CozyItemArt.Set(go.transform, "DesignItemArt", DesktopDefaultAvatars.Portrait(entry.Path));
                 var labelNode = DesktopUiPrefabFactory.Child(go, "Label");
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
@@ -271,6 +278,7 @@ namespace FishSocial.Desktop
                 if (slot == null)
                     continue;
                 slot.name = "Slot" + i;
+                CozyItemArt.Set(slot.transform, "DesignItemArt", fish != null ? CozyItemArt.Fish(fish.speciesId) : null);
                 var labelNode = DesktopUiPrefabFactory.Child(slot, "Label");
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
@@ -346,6 +354,7 @@ namespace FishSocial.Desktop
                 if (label != null)
                     label.text = DesktopProfileCache.FishLabel(item);
                 StyleChoice(row);
+                CozyItemArt.Set(row.transform, "DesignItemArt", CozyItemArt.Fish(item.speciesId));
                 var button = row.GetComponent<Button>();
                 if (button != null)
                 {

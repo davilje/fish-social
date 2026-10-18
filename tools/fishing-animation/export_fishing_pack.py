@@ -24,9 +24,12 @@ MAPPING = {
     'catch': [('catch', index) for index in range(7)],
     'reset_catch': [('reset_catch', index) for index in range(4)],
     'reset_empty': [('reset_empty', index) for index in range(4)],
+    'groundbait': [('groundbait', index) for index in range(8)],
+    'leave': [('leave', index) for index in range(4)],
 }
 NEXT = {'sit': 'ready', 'bite': 'effort', 'reel': 'catch', 'catch': 'reset_catch',
-        'reset_catch': 'ready', 'reel_empty': 'reset_empty', 'reset_empty': 'ready'}
+        'reset_catch': 'ready', 'reel_empty': 'reset_empty', 'reset_empty': 'ready',
+        'groundbait': 'ready', 'leave': 'idle'}
 DEFAULT_PLACE = {'foot': [264, 450], 'bodyHeight': 257, 'reference': 512,
                  'referenceFoot': [138.5, 404], 'referenceBody': 279}
 
@@ -48,16 +51,16 @@ def export(source, output, previous_manifest=None):
     manifest_path = source / 'animation.json'
     manifest_bytes = manifest_path.read_bytes()
     source_data = json.loads(manifest_bytes)
-    if source_data.get('version') != 18 or source_data.get('characterMaskModel', {}).get('id') != 'pose-contours-v1':
-        raise ValueError('This converter requires the approved v18 pose-contours-v1 export')
+    if source_data.get('version') != 19 or source_data.get('characterMaskModel', {}).get('id') != 'pose-contours-v1':
+        raise ValueError('This converter requires the v19 pose-contours-v1 export')
     width = source_data['frameSize']['width']
     height = source_data['frameSize']['height']
     if [width, height] != [640, 512]:
         raise ValueError('Unexpected canvas size')
     if source_data['renderLayerOrder'] != LAYERS:
         raise ValueError('Unexpected render layer names')
-    if sum(len(clip['frames']) for clip in source_data['clips'].values()) != 51:
-        raise ValueError('Expected all 51 source frames')
+    if sum(len(clip['frames']) for clip in source_data['clips'].values()) != 63:
+        raise ValueError('Expected all 63 source frames')
     place = DEFAULT_PLACE
     if previous_manifest:
         place = json.loads(previous_manifest.read_text(encoding='utf-8')).get('place', place)
@@ -85,9 +88,9 @@ def export(source, output, previous_manifest=None):
             record['loopStart'] = 4 if clip_id == 'hooked' else 0
         clips[clip_id] = record
     runtime_data = {
-        'version': 2, 'sourceVersion': 18, 'canvas': [width, height],
+        'version': 2, 'sourceVersion': 19, 'canvas': [width, height],
         'layers': LAYERS, 'bodyLayers': BODY_LAYERS, 'place': place,
-        'maskModel': 'pose-contours-v1', 'sourceFrameCount': 51,
+        'maskModel': 'pose-contours-v1', 'sourceFrameCount': 63,
         'sourceManifestSha256': hashlib.sha256(manifest_bytes).hexdigest(),
         'clips': clips, 'sourceToRuntime': {
             'wait': 'fishing', 'retrieve': 'reel', 'retrieve_empty': 'reel_empty',
@@ -143,16 +146,16 @@ def export(source, output, previous_manifest=None):
         finally:
             for sheet in sheets.values():
                 sheet.close()
-    write_json(output / 'source-animation-v18.json', source_data)
+    write_json(output / 'source-animation-v19.json', source_data)
     write_json(output / 'inventory.json', {
-        'sourceVersion': 18, 'runtimeVersion': 2, 'sourceFrameCount': 51,
+        'sourceVersion': 19, 'runtimeVersion': 2, 'sourceFrameCount': 63,
         'runtimeClipCount': len(clips), 'runtimeFrameCountPerSkin': sum(len(entries) for entries in MAPPING.values()),
         'skins': [{'id': skin['id'], 'name': skin['name']} for skin in skins],
         'maskModel': 'pose-contours-v1', 'bodyLayers': BODY_LAYERS, 'layers': LAYERS,
         'note': 'Retained approved tint variants. No decorative hat/scarf layers; no invented breed patterns.',
     })
     print(json.dumps({'output': str(output), 'skins': len(skins), 'clips': len(clips),
-                      'sourceFrames': 51, 'runtimeFramesPerSkin': sum(map(len, MAPPING.values()))}))
+                      'sourceFrames': 63, 'runtimeFramesPerSkin': sum(map(len, MAPPING.values()))}))
 
 
 def main():

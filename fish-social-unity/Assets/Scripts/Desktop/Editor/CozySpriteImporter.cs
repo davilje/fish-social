@@ -16,13 +16,15 @@ namespace FishSocial.Desktop.Editor
 
         void OnPreprocessTexture()
         {
-            if (!IsSurfacePath(assetPath))
+            var portrait = assetPath.StartsWith(CozyPrefabRepair.ThemeFolder + "/characters/avatars/", StringComparison.Ordinal);
+            if (!IsSurfacePath(assetPath) && !portrait)
                 return;
             var importer = assetImporter as TextureImporter;
             if (importer == null)
                 return;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
+            if (portrait) importer.maxTextureSize = 512;
             var border = CatTheme.SurfaceBorder(assetPath);
             if (border != Vector4.zero)
                 importer.spriteBorder = border;

@@ -275,7 +275,7 @@ namespace FishSocialOverlay
                 var root = doc.RootElement;
                 if (!root.TryGetProperty("version", out var version) || version.GetInt32() != 2)
                     return null;
-                if (!root.TryGetProperty("sourceVersion", out var sourceVersion) || sourceVersion.GetInt32() != 18)
+                if (!root.TryGetProperty("sourceVersion", out var sourceVersion) || sourceVersion.GetInt32() != 19)
                     return null;
                 if (!root.TryGetProperty("canvas", out var canvas) || canvas.ValueKind != JsonValueKind.Array
                     || canvas.GetArrayLength() != 2 || canvas[0].GetInt32() != 640 || canvas[1].GetInt32() != 512)

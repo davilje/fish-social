@@ -631,10 +631,10 @@ namespace FishSocial.Desktop
         void RefreshHeaderAvatar()
         {
             var skin = PetArtLoader.CurrentOwnPetId();
-            if (_headerAvatar == null || skin == _headerAvatarSkin)
+            if (_headerAvatar == null)
                 return;
-            var sprite = CatTheme.LoadCozy("characters/portraits/" + skin + ".png", Vector4.zero)
-                ?? CatTheme.LoadCozy("characters/cat-portrait.png", Vector4.zero);
+            var profile = DesktopProfileCache.Latest;
+            var sprite = DesktopDefaultAvatars.Portrait(profile?.avatarUrl, profile?.playerId);
             if (sprite == null)
                 return;
             _headerAvatar.sprite = sprite;

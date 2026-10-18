@@ -1033,13 +1033,22 @@ namespace FishSocial.Desktop
             }
             if (_avatarRoutine != null)
                 StopCoroutine(_avatarRoutine);
-            _avatarRoutine = StartCoroutine(LoadAvatarRoutine(p.avatarUrl, p.nickname));
+            _avatarRoutine = StartCoroutine(LoadAvatarRoutine(p.avatarUrl, p.nickname, p.playerId));
         }
 
-        IEnumerator LoadAvatarRoutine(string avatarUrl, string nickname)
+        IEnumerator LoadAvatarRoutine(string avatarUrl, string nickname, string playerId)
         {
             if (_profileAvatar == null)
                 yield break;
+            _profileAvatar.enabled = true;
+            if (string.IsNullOrEmpty(avatarUrl) || DesktopDefaultAvatars.IsDefaultPath(avatarUrl))
+            {
+                _profileAvatar.sprite = DesktopDefaultAvatars.Portrait(avatarUrl, playerId);
+                _profileAvatar.color = Color.white;
+                _profileAvatar.preserveAspect = true;
+                if (_profileAvatarLabel != null) _profileAvatarLabel.gameObject.SetActive(false);
+                yield break;
+            }
             _profileAvatar.color = CatTheme.Cream;
             _profileAvatar.sprite = null;
             if (_profileAvatarLabel != null)
@@ -1177,6 +1186,7 @@ namespace FishSocial.Desktop
             if (_codexDetail == null || species == null)
                 return;
             var got = entry != null && entry.totalCaught > 0;
+            CozyItemArt.Set(_codexDetail.transform.parent, "DesignDetailArt", got ? CozyItemArt.Fish(species.Id) : null);
             if (!got)
             {
                 _codexDetail.text = "未解锁\n捕获后显示食性、钓组、体型、推荐鱼饵与捕获记录。";
@@ -1229,6 +1239,7 @@ namespace FishSocial.Desktop
             if (_showcaseDetail == null)
                 return;
             CozyItemArt.Rows(_showcaseDetail.transform.parent, "ShowcaseDetailRows");
+            CozyItemArt.Set(_showcaseDetail.transform.parent, "DesignDetailArt", null);
             _showcaseDetail.text = message;
         }
 
@@ -1237,6 +1248,7 @@ namespace FishSocial.Desktop
             if (target == null || item == null)
                 return;
             var species = DesktopFishCatalog.GetSpecies(item.speciesId);
+            CozyItemArt.Set(target.transform.parent, "DesignDetailArt", CozyItemArt.Fish(item.speciesId));
             var name = species != null ? species.Name : item.speciesId;
             var caught = item.caughtAt > 0
                 ? DateTimeOffset.FromUnixTimeMilliseconds(item.caughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm")

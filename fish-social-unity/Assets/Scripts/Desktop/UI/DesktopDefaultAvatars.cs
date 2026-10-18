@@ -50,6 +50,13 @@ namespace FishSocial.Desktop
             return false;
         }
 
+        public static UnityEngine.Sprite Portrait(string avatarUrl, string playerId = null)
+        {
+            var id = ResolvePetId(avatarUrl, playerId);
+            return CatTheme.LoadCozy("characters/avatars/" + id + ".png", UnityEngine.Vector4.zero)
+                ?? CatTheme.LoadCozy("characters/portraits/orange.png", UnityEngine.Vector4.zero);
+        }
+
         public static string LabelFor(string url)
         {
             if (string.IsNullOrEmpty(url))

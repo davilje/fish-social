@@ -20,6 +20,7 @@ namespace FishSocial.Desktop.Editor
             Directory.CreateDirectory("Library/CozyRedesignPreviews");
             foreach (var name in Pages)
                 Render(name);
+            Render("PanelProfileEdit");
             foreach (var tab in new[] { "展示柜", "图鉴", "相册" })
                 Render("PanelProfileHub", tab);
         }
@@ -130,6 +131,44 @@ namespace FishSocial.Desktop.Editor
             var root = page.transform;
             var fishIds = new[] { "black_carp", "koi", "largemouth_bass", "grass_carp", "carp", "snakehead" };
             var fishNames = new[] { "青鱼", "锦鲤", "鲈鱼", "草鱼", "鲤鱼", "黑鱼" };
+            if (name == "PanelProfileEdit")
+            {
+                root.Find("Form/Nickname").GetComponent<InputField>().text = "小橘";
+                root.Find("Form/Bio").GetComponent<InputField>().text = "一根鱼竿，一个悠闲下午。";
+                foreach (var input in root.Find("Form").GetComponentsInChildren<InputField>())
+                {
+                    input.ForceLabelUpdate();
+                    if (input.placeholder != null) input.placeholder.gameObject.SetActive(false);
+                    input.textComponent.text = input.name == "Nickname" ? "小橘" : "一根鱼竿，一个悠闲下午。";
+                }
+                foreach (var avatar in DesktopDefaultAvatars.All)
+                {
+                    var choice = Item("AvatarChoice", root.Find("Avatars/Viewport/Content"));
+                    CozyItemArt.Set(choice.transform, "DesignItemArt", DesktopDefaultAvatars.Portrait(avatar.Path));
+                    CozyItemArt.Text(choice.transform, "Label", avatar.Label);
+                    Select(choice, avatar.Id == "orange");
+                }
+                for (var index = 0; index < 8; index++)
+                {
+                var slot = Item("ShowcaseSlot", root.Find("Showcase/Viewport/Content"));
+                    CozyItemArt.Text(slot.transform, "Label", index < 6 ? fishNames[index] : "空位");
+                    CozyItemArt.Set(slot.transform, "DesignItemArt", index < 6 ? CozyItemArt.Fish(fishIds[index]) : null);
+                }
+            }
+            if (name == "PanelWorldMap")
+            {
+                CozyItemArt.Text(root, "Details/DetailsText", "花溪鱼塘\n\n平静淡水 · 适合新手\n等级要求：无\n入场费：免费");
+                CozyItemArt.Text(root, "Details/StatusText", "选择回鱼模式，前往垂钓");
+                var layer = root.Find("Viewport/MapContent/MarkerLayer");
+                for (var index = 0; index < 3; index++)
+                {
+                    var marker = Item("WorldMapPondMarker", layer);
+                    var rect = marker.GetComponent<RectTransform>();
+                    rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.up;
+                    rect.anchoredPosition = new Vector2(150 + index * 240, -160 - index % 2 * 160);
+                    CozyItemArt.Text(marker.transform, "Label", new[] { "花溪鱼塘", "青石溪流", "远山湖泊" }[index]);
+                }
+            }
             if (name == "PanelCatch")
             {
                 var grid = root.Find("Grid/Viewport/Slots");
@@ -202,6 +241,7 @@ namespace FishSocial.Desktop.Editor
                         Select(item, index == 0);
                     }
                     CozyItemArt.Text(selected, "Detail", "青鱼");
+                    CozyItemArt.Set(selected, "DesignDetailArt", CozyItemArt.Fish("black_carp"));
                     CozyItemArt.Rows(selected, "ShowcaseDetailRows",
                         "star", "品质", "稀有",
                         "hook", "体长", "0.86 m",
@@ -220,7 +260,8 @@ namespace FishSocial.Desktop.Editor
                         CozyItemArt.Text(item.transform, "Label", index < 4 ? "✓ " + fishNames[index] + "  ×" + (index + 2) : "？？？");
                         Art(item, CozyItemArt.Fish(fishIds[index % fishIds.Length]), index >= 4);
                     }
-                    CozyItemArt.Text(selected, "Detail", "已解锁 6 / 50\n\n点击左侧格子查看物种资料与捕获记录。");
+                    CozyItemArt.Set(selected, "DesignDetailArt", CozyItemArt.Fish("koi"));
+                    CozyItemArt.Text(selected, "Detail", "锦鲤\n\n淡水 · 杂食\n推荐鱼饵：通用鱼饵\n\n累计捕获：3\n最大体长：0.80 m\n已解锁 6 / 50");
                 }
                 else if (tab == "相册")
                 {

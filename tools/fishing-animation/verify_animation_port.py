@@ -32,6 +32,7 @@ SOURCE_COUNTS = {
     "sit": 4, "ready": 1, "bait": 4, "cast": 4, "wait": 1, "bite": 4,
     "effort": 6, "retrieve": 6, "retrieve_empty": 6, "catch": 7,
     "reset_catch": 4, "reset_empty": 4,
+    "groundbait": 8, "leave": 4,
 }
 SOURCE_MAP = {
     "idle": [("sit", 0)],
@@ -49,6 +50,8 @@ SOURCE_MAP = {
     "catch": [("catch", index) for index in range(7)],
     "reset_catch": [("reset_catch", index) for index in range(4)],
     "reset_empty": [("reset_empty", index) for index in range(4)],
+    "groundbait": [("groundbait", index) for index in range(8)],
+    "leave": [("leave", index) for index in range(4)],
 }
 INDEX_COUNT = sum(len(frames) for frames in SOURCE_MAP.values())
 OLD_PLACE = {
@@ -112,7 +115,7 @@ class SourceTests(unittest.TestCase):
 
     def test_source_contract_and_atlas_mapping(self):
         source = self.source
-        self.assertEqual(source["version"], 18)
+        self.assertEqual(source["version"], 19)
         self.assertEqual(source["frameSize"], {"width": 640, "height": 512})
         self.assertEqual(source["renderLayerOrder"], list(LAYERS))
         self.assertEqual(source["phaseOrder"], list(SOURCE_COUNTS))
@@ -140,14 +143,14 @@ class SourceTests(unittest.TestCase):
                     keys.append(f"{name}:{index}")
                     atlas_indices.append(frame["atlasIndex"])
             self.assertEqual(elapsed, clip["durationMs"])
-        self.assertEqual(sum(SOURCE_COUNTS.values()), 51)
-        self.assertEqual(atlas_indices, list(range(51)))
-        self.assertEqual(len(SOURCE_MAP), 14)
-        self.assertEqual(INDEX_COUNT, 62)
+        self.assertEqual(sum(SOURCE_COUNTS.values()), 63)
+        self.assertEqual(atlas_indices, list(range(63)))
+        self.assertEqual(len(SOURCE_MAP), 16)
+        self.assertEqual(INDEX_COUNT, 74)
         for skin in source["skins"]:
             with self.subTest(skin=skin["id"]):
                 self.assertEqual((skin["width"], skin["height"]), SIZE)
-                self.assertEqual((skin["columns"], skin["rows"]), (6, 9))
+                self.assertEqual((skin["columns"], skin["rows"]), (6, math.ceil(sum(SOURCE_COUNTS.values()) / 6)))
                 self.assertEqual(skin["maskModel"], "pose-contours-v1")
                 self.assertEqual(skin["frameKeys"], keys)
                 self.assertEqual(set(skin["layers"]), set(BODY_LAYERS))
@@ -197,7 +200,7 @@ class RuntimeTests(unittest.TestCase):
                 self.assertEqual(set(manifest["clips"]), set(SOURCE_MAP))
                 self.assertEqual(sum(len(clip["frames"]) for clip in manifest["clips"].values()), INDEX_COUNT)
                 optional_metadata = {
-                    "sourceVersion": 18, "sourceFrameCount": 51,
+                    "sourceVersion": 19, "sourceFrameCount": 63,
                     "maskModel": "pose-contours-v1", "skinId": skin,
                     "sourceManifestSha256": digest(SOURCE_ROOT / "animation.json"),
                     "skinName": next(item["name"] for item in self.source["skins"] if item["id"] == skin),
@@ -262,6 +265,7 @@ class RuntimeTests(unittest.TestCase):
                             "bite": "effort", "reel": "catch", "catch": "reset_catch",
                             "reel_empty": "reset_empty", "reset_catch": "ready",
                             "reset_empty": "ready",
+                            "groundbait": "ready", "leave": "idle",
                         }
                         if name in expected_next:
                             self.assertEqual(clip["nextClip"], expected_next[name])
@@ -299,7 +303,7 @@ class RuntimeTests(unittest.TestCase):
     def test_all_skin_slices_are_exact_source_atlas_pixels(self):
         for skin in self.source["skins"]:
             for layer in BODY_LAYERS:
-                atlas = read_rgba(source_path(skin["layers"][layer]), (SIZE[0] * 6, SIZE[1] * 9))
+                atlas = read_rgba(source_path(skin["layers"][layer]), (SIZE[0] * skin["columns"], SIZE[1] * skin["rows"]))
                 for clip, mapping in SOURCE_MAP.items():
                     for index in range(len(mapping)):
                         with self.subTest(skin=skin["id"], layer=layer, clip=clip, frame=index):

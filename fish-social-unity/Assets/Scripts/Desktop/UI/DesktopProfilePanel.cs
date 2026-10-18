@@ -284,8 +284,17 @@ namespace FishSocial.Desktop
         {
             if (_avatar == null)
                 yield break;
+            _avatar.enabled = true;
             _avatar.color = _avatar.sprite != null ? Color.white : CatTheme.Cream;
             var url = profile != null ? profile.avatarUrl : null;
+            if (string.IsNullOrEmpty(url) || DesktopDefaultAvatars.IsDefaultPath(url))
+            {
+                _avatar.sprite = DesktopDefaultAvatars.Portrait(url, profile?.playerId);
+                _avatar.color = Color.white;
+                _avatar.preserveAspect = true;
+                if (_avatarLabel != null) _avatarLabel.text = string.Empty;
+                yield break;
+            }
             if (string.IsNullOrEmpty(url))
                 yield break;
             if (url.StartsWith("data:image/"))

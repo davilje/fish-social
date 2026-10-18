@@ -87,6 +87,7 @@ namespace FishSocialOverlay
         static readonly string[] ActionWarmupClips =
         {
             "bait", "cast", "fishing", "hooked", "reel", "reel_empty", "sit", "idle", "catch",
+            "groundbait", "leave",
         };
 
         public string ActorKey { get; }
@@ -618,6 +619,9 @@ namespace FishSocialOverlay
                 _successCompleted = false;
             var clip = nextState == "sit" && previousState != "idle" && !string.IsNullOrEmpty(previousState)
                 ? "ready" : nextState;
+            if (nextState == "idle" && visualState == "idle" && samePet &&
+                !string.IsNullOrEmpty(previousState) && previousState != "idle")
+                clip = "leave";
             if (StartLayerClip(clip))
                 return;
             ClearLayerSources();
@@ -659,7 +663,7 @@ namespace FishSocialOverlay
         static bool IsDeferredDestination(string state)
         {
             return state == "sit" || state == "idle" || state == "bait" || state == "cast"
-                || state == "ready" || state == "fishing";
+                || state == "ready" || state == "fishing" || state == "groundbait";
         }
 
         bool HoldCatch()
