@@ -8,9 +8,6 @@ namespace FishSocial.Desktop.Pet
     /// </summary>
     public sealed class SpriteFramePetRenderer : MonoBehaviour, IPetRenderer
     {
-        [SerializeField] Sprite[] _frames;
-        [SerializeField] float _idleFps = 2f;
-        [SerializeField] float _activeFps = 6f;
 
         Image _image;
         RectTransform _layerHost;
@@ -30,7 +27,6 @@ namespace FishSocial.Desktop.Pet
         string _petId;
         float _elapsed;
         int _layerIndex;
-        bool _usingArt;
         bool _layoutInProgress;
         Vector2 _layerSlotSize;
         int _layerDrawWidth;
@@ -120,11 +116,10 @@ namespace FishSocial.Desktop.Pet
                 state != PetVisualState.Dragging;
             if (_layerHost != null)
                 _layerHost.gameObject.SetActive(false);
-            ReloadFrames();
+            _petId = petId;
+            _image.sprite = PetArtLoader.FallbackPortrait(petId);
             _image.preserveAspect = true;
-            _image.color = _usingArt ? Color.white : TintFor(state);
-            if (_frames != null && _frames.Length > 0)
-                _image.sprite = _frames[0];
+            _image.color = _image.sprite != null ? Color.white : Color.clear;
         }
 
         public bool PlayClip(string skinId, string clip)
@@ -214,6 +209,7 @@ namespace FishSocial.Desktop.Pet
 
         bool StartLayers(string petId, string clip)
         {
+            petId = DesktopDefaultAvatars.NormalizeSkinId(petId);
             var slotSize = CurrentSlotSize();
             int drawW;
             int drawH;
@@ -229,7 +225,6 @@ namespace FishSocial.Desktop.Pet
             _activeClip = clip;
             _layerFinished = false;
             _petId = petId;
-            _usingArt = true;
             _elapsed = 0f;
             _layerIndex = 0;
             _hasSeatPose = clip != "idle";
@@ -326,24 +321,6 @@ namespace FishSocial.Desktop.Pet
             _activeClip = null;
         }
 
-        void ReloadFrames()
-        {
-            var petId = PetArtLoader.CurrentOwnPetId();
-            var art = PetArtLoader.GetFrames(petId, _state);
-            if (art != null && art.Length > 0)
-            {
-                _frames = art;
-                _petId = petId;
-                _usingArt = true;
-                return;
-            }
-
-            _usingArt = false;
-            if (_frames == null || _frames.Length == 0 || _petId != null)
-                _frames = PlaceholderPetFrames.GetFrames();
-            _petId = petId;
-        }
-
         void Update()
         {
             if (IsPlaying)
@@ -355,30 +332,7 @@ namespace FishSocial.Desktop.Pet
             if (float.IsNaN(deltaSeconds) || float.IsInfinity(deltaSeconds) || deltaSeconds < 0f)
                 return;
             if (_layered != null)
-            {
                 AdvanceLayers(deltaSeconds);
-                return;
-            }
-
-            if (_image == null || _frames == null || _frames.Length < 2)
-                return;
-            if (_state == PetVisualState.Offline)
-                return;
-
-            var fps = IsOneShot(_state) ||
-                      _state == PetVisualState.Hooked ||
-                      _state == PetVisualState.Dragging
-                ? _activeFps
-                : _idleFps;
-            _elapsed += deltaSeconds * fps;
-            int index;
-            if (IsOneShot(_state))
-                index = Mathf.Min(Mathf.FloorToInt(_elapsed), _frames.Length - 1);
-            else
-                index = Mathf.FloorToInt(_elapsed) % _frames.Length;
-            if (index < 0)
-                index = 0;
-            _image.sprite = _frames[index];
         }
 
         void AdvanceLayers(float deltaSeconds)
@@ -488,39 +442,5 @@ namespace FishSocial.Desktop.Pet
             return -1;
         }
 
-        static bool IsOneShot(PetVisualState state)
-        {
-            return state == PetVisualState.Bait ||
-                   state == PetVisualState.Cast ||
-                   state == PetVisualState.Reel ||
-                   state == PetVisualState.EmptyReel ||
-                   state == PetVisualState.Catching;
-        }
-
-        static Color TintFor(PetVisualState state)
-        {
-            switch (state)
-            {
-                case PetVisualState.Sit:
-                    return new Color(0.82f, 0.92f, 0.78f, 1f);
-                case PetVisualState.Bait:
-                case PetVisualState.Cast:
-                    return new Color(0.78f, 0.86f, 1f, 1f);
-                case PetVisualState.Fishing:
-                    return new Color(0.72f, 0.88f, 1f, 1f);
-                case PetVisualState.Hooked:
-                    return new Color(1f, 0.78f, 0.38f, 1f);
-                case PetVisualState.Reel:
-                case PetVisualState.EmptyReel:
-                case PetVisualState.Catching:
-                    return new Color(0.5f, 0.82f, 1f, 1f);
-                case PetVisualState.Dragging:
-                    return new Color(1f, 0.92f, 0.45f, 1f);
-                case PetVisualState.Offline:
-                    return new Color(0.55f, 0.58f, 0.62f, 1f);
-                default:
-                    return Color.white;
-            }
-        }
     }
 }

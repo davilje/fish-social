@@ -17,7 +17,7 @@ namespace FishSocial.Desktop.Editor
             CheckSprite("scenes/world-map.png", ref errors);
             CheckSprite("scenes/home-sakura.png", ref errors);
             CheckSprite("brand/meow-fish.png", ref errors);
-            CheckSprite("characters/cat-portrait.png", ref errors);
+            CheckSprite("characters/avatars/orange.png", ref errors);
             if (errors == 0)
                 Debug.Log("[Cozy UI] Resources Sprite 和导入 border 完整；仍需执行 Prefab 持久化校验与运行验收。");
         }

@@ -221,7 +221,7 @@ namespace FishSocial.Desktop
                 _nickname.text = profile.nickname ?? "";
             if (_bio != null)
                 _bio.text = profile.bio ?? "";
-            _avatarUrl = profile.avatarUrl ?? "";
+            _avatarUrl = DesktopDefaultAvatars.NormalizeAssetPath(profile.avatarUrl) ?? "";
             _slots = DesktopProfileCache.Slots(profile);
             RenderAvatars();
             RenderShowcase();

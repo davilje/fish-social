@@ -1,12 +1,10 @@
 export const DEFAULT_AVATAR_DIR = '/image/profile';
-export const LEGACY_AVATAR_COUNT = 6;
+const LEGACY_SKINS = ['calico', 'orange', 'orange', 'orange', 'orange', 'white'] as const;
+const RETIRED_SKINS = ['gray', 'siamese', 'tuxedo'];
 
 export const DEFAULT_AVATARS = [
   { id: 'calico', filename: 'cat_avatar_calico.png', label: '三花猫' },
-  { id: 'gray', filename: 'cat_avatar_gray.png', label: '灰猫' },
   { id: 'orange', filename: 'cat_avatar_orange.png', label: '橘猫' },
-  { id: 'siamese', filename: 'cat_avatar_siamese.png', label: '暹罗猫' },
-  { id: 'tuxedo', filename: 'cat_avatar_tuxedo.png', label: '燕尾猫' },
   { id: 'white', filename: 'cat_avatar_white.png', label: '白猫' },
   { id: 'silver', filename: 'cat_avatar_silver.png', label: '银渐层' },
   { id: 'brown', filename: 'cat_avatar_brown.png', label: '棕虎斑' },
@@ -17,11 +15,34 @@ export const DEFAULT_AVATARS = [
 ] as const;
 
 export function defaultAvatarPath(filename: string): string {
-  return `${DEFAULT_AVATAR_DIR}/${filename}`;
+  return normalizeCatAssetPath(`${DEFAULT_AVATAR_DIR}/${filename}`);
 }
 
 export function isDefaultAvatarPath(url: string): boolean {
+  url = normalizeCatAssetPath(url);
   if (!url.startsWith(`${DEFAULT_AVATAR_DIR}/`)) return false;
   const filename = url.slice(DEFAULT_AVATAR_DIR.length + 1);
   return DEFAULT_AVATARS.some((a) => a.filename === filename);
+}
+
+export function normalizeCatAssetPath(url: string): string {
+  for (const id of RETIRED_SKINS) {
+    if (url === `${DEFAULT_AVATAR_DIR}/cat_avatar_${id}.png`)
+      return `${DEFAULT_AVATAR_DIR}/cat_avatar_orange.png`;
+    if (url === `/image/fishing_photos/cat_fishing_${id}.png`)
+      return '/image/fishing_photos/cat_fishing_orange.png';
+  }
+  return url;
+}
+
+export function resolveCatSkinId(avatarUrl?: string, playerId?: string): string {
+  const url = normalizeCatAssetPath(avatarUrl ?? '');
+  const matched = DEFAULT_AVATARS.find(avatar =>
+    url === `${DEFAULT_AVATAR_DIR}/${avatar.filename}` ||
+    url === `/image/fishing_photos/cat_fishing_${avatar.id}.png`);
+  if (matched) return matched.id;
+  let hash = 0;
+  for (const character of (playerId ?? '').split(''))
+    hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
+  return LEGACY_SKINS[Math.abs(hash) % LEGACY_SKINS.length];
 }

@@ -1,4 +1,4 @@
-import { DEFAULT_AVATARS, LEGACY_AVATAR_COUNT } from './defaultAvatars';
+import { DEFAULT_AVATARS, normalizeCatAssetPath, resolveCatSkinId } from './defaultAvatars';
 
 export const FISHING_PHOTO_DIR = '/image/fishing_photos';
 
@@ -10,43 +10,22 @@ export const FISHING_PHOTOS = DEFAULT_AVATARS.map((avatar) => ({
   label: avatar.label,
 }));
 
-const AVATAR_TO_FISHING = new Map<string, string>(
-  FISHING_PHOTOS.map((p) => [p.avatarFilename, `${FISHING_PHOTO_DIR}/${p.filename}`]),
-);
-
 export function fishingPhotoPath(filename: string): string {
-  return `${FISHING_PHOTO_DIR}/${filename}`;
+  return normalizeCatAssetPath(`${FISHING_PHOTO_DIR}/${filename}`);
 }
 
 /** 根据 profile 头像路径解析钓鱼纪念照；无匹配时按 playerId 稳定分配 */
 export function resolveFishingPhotoPath(avatarUrl?: string, playerId?: string): string {
   if (avatarUrl?.startsWith(`${FISHING_PHOTO_DIR}/`)) {
-    return avatarUrl;
+    return normalizeCatAssetPath(avatarUrl);
   }
 
-  if (avatarUrl?.startsWith('/image/profile/')) {
-    const avatarFilename = avatarUrl.slice('/image/profile/'.length);
-    const matched = AVATAR_TO_FISHING.get(avatarFilename);
-    if (matched) return matched;
-  }
-
-  const fallbackIndex = playerId
-    ? Math.abs(hashString(playerId)) % LEGACY_AVATAR_COUNT
-    : 0;
-  return fishingPhotoPath(FISHING_PHOTOS[fallbackIndex].filename);
+  return fishingPhotoPath(`cat_fishing_${resolveCatSkinId(avatarUrl, playerId)}.png`);
 }
 
 export function isFishingPhotoPath(url: string): boolean {
+  url = normalizeCatAssetPath(url);
   if (!url.startsWith(`${FISHING_PHOTO_DIR}/`)) return false;
   const filename = url.slice(FISHING_PHOTO_DIR.length + 1);
   return FISHING_PHOTOS.some((p) => p.filename === filename);
-}
-
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash;
 }

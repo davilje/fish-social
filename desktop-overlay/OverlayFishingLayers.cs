@@ -9,7 +9,7 @@ namespace FishSocialOverlay
 {
     /// <summary>
     /// Approved fishing clips: nine full-canvas layers and per-frame timings.
-    /// Missing or invalid manifests fall back to the flat ART-03 sequence.
+    /// Missing or invalid manifests use the current portrait.
     /// </summary>
     static class OverlayFishingLayers
     {
@@ -242,6 +242,20 @@ namespace FishSocialOverlay
                 var path = Path.Combine(FishingRoot(), petId, "manifest.json");
                 if (File.Exists(path))
                     pack = Parse(File.ReadAllText(path));
+                if (pack != null)
+                {
+                    foreach (var pair in pack.Clips)
+                    {
+                        for (var index = 0; index < pair.Value.FrameCount; index++)
+                        {
+                            foreach (var layer in LayerNames)
+                            {
+                                if (!File.Exists(LayerPath(petId, pair.Key, index, layer, pack.BodyLayers)))
+                                    return null;
+                            }
+                        }
+                    }
+                }
             }
             catch (IOException)
             {

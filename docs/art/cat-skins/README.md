@@ -8,7 +8,7 @@
 
 新增画稿位于 `breeds/<skin>/painted/`，每张旁边的 JSON 保存来源、哈希及轮廓交并比；`painted-poses.json` 是导出清单，`contact.png` 是 44 张姿势总览。原始准备稿来源见 `breed-key-imports.json`，局部重绘记录见 `breed-special-imports.json`、`breed-final-retouches.json`。`<skin>-character/`、`<skin>-full/` 分别保存角色和完整合成预览。Unity 位于 `Assets/StreamingAssets/Fishing/<skin>/`；Overlay 位于 `OverlayResources/fishing/<skin>/`。
 
-头像从各自的准备姿势 head 图层裁出，保存到 `image/profile/` 和 Unity Cozy avatars。钓鱼纪念照使用对应收获帧。选择相应头像即可解析到同名皮肤。历史 `gray/siamese/tuxedo` 入口保留原素材，不冒充本轮的蓝猫、棕虎斑或奶牛猫；自定义头像玩家仍按原六项哈希范围分配，扩充不会改动已有分配。
+头像从各自的准备姿势 head 图层裁出，保存到 `image/profile/`、Unity Cozy avatars 和 Overlay Cozy avatars。钓鱼纪念照使用对应收获帧。选择相应头像即可解析到同名皮肤。当前只提供九种完整皮肤；历史 `gray/siamese/tuxedo` 入口兼容到默认橘猫，旧图片已清理。自定义头像保留原哈希分配位置，其中已退役的位置显示橘猫，原有橘猫、三花猫、白猫分配不变。详见 [当前资源调用与清理说明](resource-routing.md)。
 
 导出依次运行（Node + sharp；可用 `SHARP_MODULE` 指向 sharp 安装目录）：
 

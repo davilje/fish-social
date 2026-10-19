@@ -252,7 +252,7 @@ namespace FishSocial.Tests.Editor
                 controller.Refresh(null, null);
                 Assert.AreEqual(applications, firstRenderer.AppliedStates.Count);
                 Assert.AreEqual(applications, secondRenderer.AppliedStates.Count);
-                DesktopProfileCache.Latest = new PlayerProfileDto { avatarUrl = "/image/profile/cat_avatar_gray.png" };
+                DesktopProfileCache.Latest = new PlayerProfileDto { avatarUrl = "/image/profile/cat_avatar_blue.png" };
                 var nextPetId = PetArtLoader.CurrentOwnPetId();
                 Assert.AreNotEqual(previousPetId, nextPetId);
                 controller.Refresh(null, null);
@@ -314,9 +314,9 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void CustomAvatarFallbackKeepsLegacyPlayerAssignment()
+        public void CustomAvatarFallbackPreservesSupportedSkinsAndRetiresOldArt()
         {
-            var legacy = new[] { "calico", "gray", "orange", "siamese", "tuxedo", "white" };
+            var legacy = new[] { "calico", "orange", "orange", "orange", "orange", "white" };
             foreach (var playerId in new[] { "player", "angler-42", "小橘", "" })
             {
                 var hash = 0;
@@ -324,6 +324,21 @@ namespace FishSocial.Tests.Editor
                 var expected = legacy[(int)(Math.Abs((long)hash) % legacy.Length)];
                 Assert.AreEqual(expected, DesktopDefaultAvatars.ResolvePetId(null, playerId));
             }
+        }
+
+        [TestCase("gray")]
+        [TestCase("siamese")]
+        [TestCase("tuxedo")]
+        public void RetiredCatsResolveToCurrentOrangeArtwork(string skin)
+        {
+            var avatar = "/image/profile/cat_avatar_" + skin + ".png";
+            Assert.IsTrue(DesktopDefaultAvatars.IsDefaultPath(avatar));
+            Assert.AreEqual("orange", DesktopDefaultAvatars.ResolvePetId(avatar, "player"));
+            Assert.AreEqual("/image/fishing_photos/cat_fishing_orange.png",
+                DesktopDefaultAvatars.ResolveFishingPhotoPath(avatar, "player"));
+            Assert.NotNull(PetArtLoader.FallbackPortrait(skin));
+            CollectionAssert.AreEquivalent(FishingLayerArt.SkinIds,
+                DesktopDefaultAvatars.All.Select(entry => entry.Id).ToArray());
         }
 
         [Test]

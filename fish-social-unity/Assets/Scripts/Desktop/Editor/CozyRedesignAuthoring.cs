@@ -762,7 +762,7 @@ namespace FishSocial.Desktop.Editor
                 var slot = Place(node, "Podium/Slot" + rank, x, first ? 0 : 12, 264, height);
                 Paper(slot, "DesignBacking", 0, 0, 264, height).transform.SetAsFirstSibling();
                 Label(slot, "Rank", rank.ToString(), 16, 2, 232, 26, 22, true).alignment = TextAnchor.MiddleCenter;
-                Picture(slot, "Avatar", CatTheme.LoadCozy("characters/portraits/orange.png", Vector4.zero), 96, 28, 72, 72);
+                Picture(slot, "Avatar", CatTheme.LoadCozy("characters/avatars/orange.png", Vector4.zero), 96, 28, 72, 72);
                 Label(slot, "Nickname", "等待榜单", 12, 102, 240, 22, 16, true).alignment = TextAnchor.MiddleCenter;
                 Label(slot, "Value", "—", 12, 124, 240, 22, 14).alignment = TextAnchor.MiddleCenter;
             }

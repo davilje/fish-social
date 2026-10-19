@@ -1,6 +1,7 @@
 import {
   SHOWCASE_SLOT_COUNT,
   isDefaultAvatarPath,
+  normalizeCatAssetPath,
   type FishInventoryItem,
   type PlayerProfile,
   type PublicPlayerView,
@@ -53,7 +54,7 @@ function rowToProfile(row: PlayerRow): PlayerProfile {
     createdAt: row.created_at,
     bio: row.bio,
     showcaseFishIds: showcase,
-    ...(row.avatar_url ? { avatarUrl: row.avatar_url } : {}),
+    ...(row.avatar_url ? { avatarUrl: normalizeCatAssetPath(row.avatar_url) } : {}),
   };
 }
 
@@ -189,7 +190,7 @@ export function updatePlayerProfile(
     if (patch.avatarUrl === null || patch.avatarUrl === '') {
       delete p.avatarUrl;
     } else if (isDefaultAvatarPath(patch.avatarUrl)) {
-      p.avatarUrl = patch.avatarUrl;
+      p.avatarUrl = normalizeCatAssetPath(patch.avatarUrl);
     } else if (patch.avatarUrl.startsWith('data:image/') && patch.avatarUrl.length <= MAX_AVATAR_LEN) {
       p.avatarUrl = patch.avatarUrl;
     } else {

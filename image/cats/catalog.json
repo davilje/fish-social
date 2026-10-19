@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "frameWidth": 320,
+  "frameHeight": 256,
+  "foot": [264, 450],
+  "skins": [
+    "orange",
+    "calico",
+    "silver",
+    "brown",
+    "cream",
+    "blue",
+    "black",
+    "white",
+    "cow"
+  ],
+  "clips": {
+    "idle": {
+      "count": 1,
+      "playback": "hold",
+      "durationsMs": [
+        120
+      ],
+      "loopStart": 0,
+      "next": null
+    },
+    "sit": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "loopStart": 0,
+      "next": "ready"
+    },
+    "ready": {
+      "count": 1,
+      "playback": "hold",
+      "durationsMs": [
+        180
+      ],
+      "loopStart": 0,
+      "next": null
+    },
+    "bait": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        220,
+        220,
+        260,
+        300
+      ],
+      "loopStart": 0,
+      "next": null
+    },
+    "cast": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        140,
+        140,
+        140,
+        180
+      ],
+      "loopStart": 0,
+      "next": null
+    },
+    "fishing": {
+      "count": 1,
+      "playback": "hold",
+      "durationsMs": [
+        500
+      ],
+      "loopStart": 0,
+      "next": null
+    },
+    "bite": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        120,
+        140,
+        140,
+        160
+      ],
+      "loopStart": 0,
+      "next": "effort"
+    },
+    "effort": {
+      "count": 6,
+      "playback": "intro-loop",
+      "durationsMs": [
+        140,
+        140,
+        160,
+        140,
+        140,
+        160
+      ],
+      "loopStart": 0,
+      "next": null
+    },
+    "hooked": {
+      "count": 10,
+      "playback": "intro-loop",
+      "durationsMs": [
+        120,
+        140,
+        140,
+        160,
+        140,
+        140,
+        160,
+        140,
+        140,
+        160
+      ],
+      "loopStart": 4,
+      "next": null
+    },
+    "reel": {
+      "count": 6,
+      "playback": "once",
+      "durationsMs": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "loopStart": 0,
+      "next": "catch"
+    },
+    "reel_empty": {
+      "count": 6,
+      "playback": "once",
+      "durationsMs": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "loopStart": 0,
+      "next": "reset_empty"
+    },
+    "catch": {
+      "count": 7,
+      "playback": "once",
+      "durationsMs": [
+        100,
+        120,
+        120,
+        160,
+        160,
+        180,
+        360
+      ],
+      "loopStart": 0,
+      "next": "reset_catch"
+    },
+    "reset_catch": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "loopStart": 0,
+      "next": "ready"
+    },
+    "reset_empty": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "loopStart": 0,
+      "next": "ready"
+    },
+    "groundbait": {
+      "count": 8,
+      "playback": "once",
+      "durationsMs": [
+        100,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        160
+      ],
+      "loopStart": 0,
+      "next": "ready"
+    },
+    "leave": {
+      "count": 4,
+      "playback": "once",
+      "durationsMs": [
+        120,
+        140,
+        140,
+        180
+      ],
+      "loopStart": 0,
+      "next": "idle"
+    }
+  }
+}

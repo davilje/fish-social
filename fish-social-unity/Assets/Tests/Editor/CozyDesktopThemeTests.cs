@@ -50,7 +50,7 @@ namespace FishSocial.Tests.Editor
             Assert.NotNull(CatTheme.LoadCozy("scenes/home-sakura.png", Vector4.zero));
             Assert.NotNull(CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero));
             Assert.NotNull(CatTheme.LoadCozy("brand/meow-fish.png", Vector4.zero));
-            Assert.NotNull(CatTheme.LoadCozy("characters/cat-portrait.png", Vector4.zero));
+            Assert.NotNull(CatTheme.LoadCozy("characters/avatars/orange.png", Vector4.zero));
             Assert.AreSame(Resources.Load<Sprite>("Desktop/Theme/Cozy/panels/paper"),
                 CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder));
             Assert.NotNull(CatTheme.LoadCozy("panels/paper.png", CatTheme.PaperBorder));

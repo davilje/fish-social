@@ -1022,14 +1022,21 @@ namespace FishSocial.Desktop
                 slot.nickname.text = emptyLabel;
                 slot.value.text = "—";
                 if (slot.avatar != null)
-                    slot.avatar.color = slot.avatar.sprite != null ? Color.white : CatTheme.Cream;
+                {
+                    slot.avatar.sprite = null;
+                    slot.avatar.color = Color.clear;
+                }
                 return;
             }
 
             slot.nickname.text = entry.nickname ?? "钓友";
             slot.value.text = FormatValue(entry, boardType);
             if (slot.avatar != null)
-                slot.avatar.color = slot.avatar.sprite != null ? Color.white : CatTheme.Cream;
+            {
+                slot.avatar.sprite = DesktopDefaultAvatars.Portrait(entry.avatarUrl, entry.playerId);
+                slot.avatar.preserveAspect = true;
+                slot.avatar.color = Color.white;
+            }
         }
 
         static string FormatValue(LeaderboardEntryDto entry, string boardType)

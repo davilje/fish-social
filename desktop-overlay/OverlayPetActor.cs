@@ -41,8 +41,6 @@ namespace FishSocialOverlay
         readonly Image[] _layerImages;
         readonly Rectangle _hitCatcher;
         readonly Image _statusIcon;
-        readonly Canvas _placeholder;
-        readonly Shape[] _tintShapes;
         readonly TextBlock _nickname;
         readonly Border _nameBadge;
         readonly TextBlock _speechLabel;
@@ -110,8 +108,6 @@ namespace FishSocialOverlay
             ToolTipService.SetIsEnabled(this, false);
             ContextMenuService.SetIsEnabled(this, false);
 
-            _placeholder = BuildPlaceholder(out _tintShapes);
-            _placeholder.IsHitTestVisible = false;
             _image = new Image
             {
                 Width = BodySize,
@@ -224,7 +220,6 @@ namespace FishSocialOverlay
                 _layerHost.Children.Add(layer);
             }
 
-            _body.Children.Add(_placeholder);
             _body.Children.Add(_image);
             _body.Children.Add(_layerHost);
 
@@ -289,8 +284,7 @@ namespace FishSocialOverlay
             {
                 if (ReferenceEquals(source, _hitCatcher) ||
                     ReferenceEquals(source, _body) ||
-                    ReferenceEquals(source, _image) ||
-                    ReferenceEquals(source, _placeholder))
+                    ReferenceEquals(source, _image))
                     return true;
                 if (ReferenceEquals(source, this))
                     return false;
@@ -566,7 +560,7 @@ namespace FishSocialOverlay
             var nextState = OverlayFrameCache.NormalizeClip(visualState);
             var interrupt = string.Equals(visualState, "offline", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(visualState, "dragging", StringComparison.OrdinalIgnoreCase);
-            var nextPet = petId ?? string.Empty;
+            var nextPet = OverlayFrameCache.NormalizePetId(petId);
             if (string.Equals(_latestState, nextState, StringComparison.Ordinal)
                 && string.Equals(_petId, nextPet, StringComparison.Ordinal)
                 && (!interrupt || _layeredClip == "idle"))
@@ -627,8 +621,6 @@ namespace FishSocialOverlay
             ClearLayerSources();
             _layerHost.Visibility = Visibility.Collapsed;
             _frames = OverlayFrameCache.Get(_petId, _visualState);
-            if (_frames.Length == 0)
-                ApplyTint(_visualState);
             ShowFrame();
             _frameTimer.Stop();
             _frameTimer.Interval = TimeSpan.FromMilliseconds(125);
@@ -1293,11 +1285,10 @@ namespace FishSocialOverlay
             if (_frames.Length == 0)
             {
                 _image.Visibility = Visibility.Collapsed;
-                _placeholder.Visibility = Visibility.Visible;
+
                 return;
             }
 
-            _placeholder.Visibility = Visibility.Collapsed;
             _image.Visibility = Visibility.Visible;
             _image.Source = _frames[_frameIndex % _frames.Length];
         }
@@ -1357,7 +1348,6 @@ namespace FishSocialOverlay
                     _layerImages[i].Source = bitmap;
             }
 
-            _placeholder.Visibility = Visibility.Collapsed;
             _image.Visibility = Visibility.Collapsed;
             _layerHost.Visibility = Visibility.Visible;
         }
@@ -1430,12 +1420,6 @@ namespace FishSocialOverlay
                 _layerImages[i].Source = null;
         }
 
-        void ApplyTint(string visualState)
-        {
-            var fill = new SolidColorBrush(StateColor(visualState));
-            foreach (var shape in _tintShapes)
-                shape.Fill = fill;
-        }
 
         static bool IsFishingPhase(string phase)
         {
@@ -1508,50 +1492,6 @@ namespace FishSocialOverlay
             }
         }
 
-        static Canvas BuildPlaceholder(out Shape[] tintShapes)
-        {
-            var earL = new Polygon
-            {
-                Points = new PointCollection { new Point(48, 70), new Point(68, 18), new Point(103, 62) },
-                Stroke = new SolidColorBrush(Color.FromRgb(0xB8, 0xE1, 0xEF)),
-                StrokeThickness = 3,
-            };
-            var earR = new Polygon
-            {
-                Points = new PointCollection { new Point(117, 62), new Point(152, 18), new Point(172, 70) },
-                Stroke = new SolidColorBrush(Color.FromRgb(0xB8, 0xE1, 0xEF)),
-                StrokeThickness = 3,
-            };
-            var body = new Ellipse
-            {
-                Width = 150,
-                Height = 145,
-                Stroke = new SolidColorBrush(Color.FromRgb(0xB8, 0xE1, 0xEF)),
-                StrokeThickness = 3,
-            };
-            Canvas.SetLeft(body, 35);
-            Canvas.SetTop(body, 52);
-            var eyeL = new Ellipse { Width = 16, Height = 22, Fill = new SolidColorBrush(Color.FromRgb(0x16, 0x21, 0x2B)) };
-            Canvas.SetLeft(eyeL, 76);
-            Canvas.SetTop(eyeL, 102);
-            var eyeR = new Ellipse { Width = 16, Height = 22, Fill = new SolidColorBrush(Color.FromRgb(0x16, 0x21, 0x2B)) };
-            Canvas.SetLeft(eyeR, 128);
-            Canvas.SetTop(eyeR, 102);
-            var nose = new Ellipse { Width = 12, Height = 8, Fill = new SolidColorBrush(Color.FromRgb(0xF3, 0xC9, 0x69)) };
-            Canvas.SetLeft(nose, 104);
-            Canvas.SetTop(nose, 139);
-
-            var canvas = new Canvas { Width = 220, Height = 220 };
-            canvas.LayoutTransform = new ScaleTransform(BodySize / 220.0, BodySize / 220.0);
-            canvas.Children.Add(earL);
-            canvas.Children.Add(earR);
-            canvas.Children.Add(body);
-            canvas.Children.Add(eyeL);
-            canvas.Children.Add(eyeR);
-            canvas.Children.Add(nose);
-            tintShapes = new Shape[] { earL, earR, body };
-            return canvas;
-        }
 
         public Border SpeechHost => _speechBadge;
 
@@ -1822,37 +1762,27 @@ namespace FishSocialOverlay
 
         static ImageSource[] Load(string petId, string visualState)
         {
-            var root = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
-            var list = new List<ImageSource>();
-            var clip = NormalizeClip(visualState);
-            if (!string.IsNullOrWhiteSpace(petId) && IsSafePetId(petId))
-            {
-                var petDir = System.IO.Path.Combine(root, "pets", petId);
-                TryLoadClip(list, petDir, clip);
-                if (list.Count == 0 && clip == "sit")
-                    TryLoadClip(list, petDir, "fishing");
-                if (list.Count == 0 && clip == "catch")
-                    TryLoadClip(list, petDir, "reel");
-                if (list.Count == 0 && clip == "bait")
-                    TryLoadClip(list, petDir, "cast");
-                if (list.Count == 0 && clip != "idle")
-                    TryLoadClip(list, petDir, "idle");
-                if (list.Count == 0 && clip != "fishing")
-                    TryLoadClip(list, petDir, "fishing");
-                if (list.Count == 0)
-                    TryAdd(list, System.IO.Path.Combine(petDir, "cat.png"));
-            }
+            var id = NormalizePetId(petId);
+            var directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "OverlayResources", "hud", "cozy", "characters", "avatars");
+            var filename = Path.Combine(directory, id + ".png");
+            if (!File.Exists(filename))
+                filename = Path.Combine(directory, "orange.png");
+            if (!File.Exists(filename))
+                return new ImageSource[0];
+            return new ImageSource[] { LoadBitmap(filename) };
+        }
 
-            if (list.Count == 0)
+        public static string NormalizePetId(string petId)
+        {
+            switch (petId)
             {
-                AppendSequence(list, root, "cat-" + clip);
-                if (list.Count == 0 && clip == "bait")
-                    AppendSequence(list, root, "cat-cast");
-                if (list.Count == 0)
-                    TryAdd(list, System.IO.Path.Combine(root, "cat.png"));
+                case "calico": case "orange": case "white": case "silver": case "brown":
+                case "cream": case "blue": case "black": case "cow":
+                    return petId;
+                default:
+                    return "orange";
             }
-
-            return list.ToArray();
         }
 
         public static string NormalizeClip(string visualState)
@@ -1866,58 +1796,6 @@ namespace FishSocialOverlay
             if (string.Equals(visualState, "dragging", StringComparison.OrdinalIgnoreCase))
                 return "idle";
             return visualState.Trim().ToLowerInvariant();
-        }
-
-        static void TryLoadClip(List<ImageSource> list, string petDir, string clip)
-        {
-            AppendClipDirectory(list, petDir, clip);
-            if (list.Count == 0)
-                AppendSequence(list, petDir, clip);
-        }
-
-        static void AppendClipDirectory(List<ImageSource> list, string petDir, string clip)
-        {
-            var clipDir = System.IO.Path.Combine(petDir, clip);
-            for (var i = 0; i < 16; i++)
-            {
-                var path = System.IO.Path.Combine(clipDir, i + ".png");
-                if (!File.Exists(path))
-                    break;
-                TryAdd(list, path);
-            }
-        }
-
-        static bool IsSafePetId(string petId)
-        {
-            for (var i = 0; i < petId.Length; i++)
-            {
-                var c = petId[i];
-                if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_'))
-                    return false;
-            }
-            return petId.Length > 0;
-        }
-
-        static void AppendSequence(List<ImageSource> list, string dir, string stem)
-        {
-            for (var i = 0; i < 16; i++)
-            {
-                var path = System.IO.Path.Combine(dir, stem + "-" + i + ".png");
-                if (!File.Exists(path))
-                {
-                    if (i == 0)
-                        TryAdd(list, System.IO.Path.Combine(dir, stem + ".png"));
-                    break;
-                }
-                TryAdd(list, path);
-            }
-        }
-
-        static void TryAdd(List<ImageSource> list, string path)
-        {
-            if (!File.Exists(path))
-                return;
-            list.Add(LoadBitmap(path));
         }
 
         static ImageSource LoadBitmap(string path)

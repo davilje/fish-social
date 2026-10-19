@@ -10,7 +10,7 @@ namespace FishSocial.Desktop
     public static class DesktopDefaultAvatars
     {
         public const string Directory = "/image/profile";
-        const int LegacyAvatarCount = 6;
+        static readonly string[] LegacySkins = { "calico", "orange", "orange", "orange", "orange", "white" };
 
         public sealed class Entry
         {
@@ -31,10 +31,7 @@ namespace FishSocial.Desktop
         public static readonly Entry[] All =
         {
             new Entry("calico", "cat_avatar_calico.png", "三花猫"),
-            new Entry("gray", "cat_avatar_gray.png", "灰猫"),
             new Entry("orange", "cat_avatar_orange.png", "橘猫"),
-            new Entry("siamese", "cat_avatar_siamese.png", "暹罗猫"),
-            new Entry("tuxedo", "cat_avatar_tuxedo.png", "燕尾猫"),
             new Entry("white", "cat_avatar_white.png", "白猫"),
             new Entry("silver", "cat_avatar_silver.png", "银渐层"),
             new Entry("brown", "cat_avatar_brown.png", "棕虎斑"),
@@ -46,6 +43,7 @@ namespace FishSocial.Desktop
 
         public static bool IsDefaultPath(string url)
         {
+            url = NormalizeAssetPath(url);
             if (string.IsNullOrEmpty(url) || !url.StartsWith(Directory + "/"))
                 return false;
             var filename = url.Substring(Directory.Length + 1);
@@ -61,11 +59,12 @@ namespace FishSocial.Desktop
         {
             var id = ResolvePetId(avatarUrl, playerId);
             return CatTheme.LoadCozy("characters/avatars/" + id + ".png", UnityEngine.Vector4.zero)
-                ?? CatTheme.LoadCozy("characters/portraits/orange.png", UnityEngine.Vector4.zero);
+                ?? CatTheme.LoadCozy("characters/avatars/orange.png", UnityEngine.Vector4.zero);
         }
 
         public static string LabelFor(string url)
         {
+            url = NormalizeAssetPath(url);
             if (string.IsNullOrEmpty(url))
                 return "默认头像";
             for (var i = 0; i < All.Length; i++)
@@ -78,7 +77,7 @@ namespace FishSocial.Desktop
 
         /// <summary>
         /// Stable pet art id shared by Unity and Overlay (orange, calico, …).
-        /// Custom avatars still map onto one of the six body sets.
+        /// Retired cat identities resolve to the current orange artwork.
         /// </summary>
         public static string ResolvePetId(string avatarUrl, string playerId)
         {
@@ -95,13 +94,14 @@ namespace FishSocial.Desktop
                     hash = ((hash << 5) - hash) + playerId[i];
                     hash |= 0;
                 }
-                index = (int)(Math.Abs((long)hash) % LegacyAvatarCount);
+                index = (int)(Math.Abs((long)hash) % LegacySkins.Length);
             }
-            return All[index].Id;
+            return LegacySkins[index];
         }
 
         static string TryPetIdFromUrl(string url)
         {
+            url = NormalizeAssetPath(url);
             if (string.IsNullOrEmpty(url))
                 return null;
 
@@ -137,6 +137,23 @@ namespace FishSocial.Desktop
             return null;
         }
 
+        public static string NormalizeSkinId(string id)
+        {
+            return KnownPetId(id) ?? "orange";
+        }
+
+        public static string NormalizeAssetPath(string url)
+        {
+            foreach (var id in new[] { "gray", "siamese", "tuxedo" })
+            {
+                if (url == Directory + "/cat_avatar_" + id + ".png")
+                    return Directory + "/cat_avatar_orange.png";
+                if (url == "/image/fishing_photos/cat_fishing_" + id + ".png")
+                    return "/image/fishing_photos/cat_fishing_orange.png";
+            }
+            return url;
+        }
+
         public static string InitialFor(PlayerProfileDto profile)
         {
             var nickname = profile != null ? profile.nickname : null;
@@ -152,30 +169,8 @@ namespace FishSocial.Desktop
         {
             const string photoDir = "/image/fishing_photos";
             if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith(photoDir + "/"))
-                return avatarUrl;
-
-            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith(Directory + "/"))
-            {
-                var filename = avatarUrl.Substring(Directory.Length + 1);
-                for (var i = 0; i < All.Length; i++)
-                {
-                    if (All[i].Filename == filename)
-                        return photoDir + "/cat_fishing_" + All[i].Id + ".png";
-                }
-            }
-
-            var index = 0;
-            if (!string.IsNullOrEmpty(playerId))
-            {
-                var hash = 0;
-                for (var i = 0; i < playerId.Length; i++)
-                {
-                    hash = ((hash << 5) - hash) + playerId[i];
-                    hash |= 0;
-                }
-                index = (int)(Math.Abs((long)hash) % LegacyAvatarCount);
-            }
-            return photoDir + "/cat_fishing_" + All[index].Id + ".png";
+                return NormalizeAssetPath(avatarUrl);
+            return photoDir + "/cat_fishing_" + ResolvePetId(avatarUrl, playerId) + ".png";
         }
     }
 

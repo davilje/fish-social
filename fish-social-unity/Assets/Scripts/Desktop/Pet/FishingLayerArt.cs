@@ -8,8 +8,8 @@ using UnityEngine;
 namespace FishSocial.Desktop.Pet
 {
     /// <summary>
-    /// Nine-layer source recolor clips from the version-two fishing pack.
-    /// Reads fishing/&lt;petId&gt;/manifest.json. Missing data falls back to flat pet frames.
+    /// Nine-layer painted fishing clips with per-frame timing and draw order.
+    /// Reads fishing/&lt;petId&gt;/manifest.json. Missing data uses the current portrait.
     /// </summary>
     public static class FishingLayerArt
     {

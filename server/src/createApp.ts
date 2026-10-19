@@ -3,7 +3,7 @@ import express, { type Express } from 'express';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import type { Server } from 'socket.io';
-import { PONDS, WORLD_POND_REGIONS, type ClientToServerEvents, type ServerToClientEvents } from '@fish-social/shared';
+import { PONDS, WORLD_POND_REGIONS, normalizeCatAssetPath, type ClientToServerEvents, type ServerToClientEvents } from '@fish-social/shared';
 import { getInventory } from './inventory.js';
 import { ensurePlayer } from './players.js';
 import { requireAuth, requireSelf, signPlayerToken } from './auth.js';
@@ -72,6 +72,16 @@ export function createApp(
     req.correlationId = requestId;
     runWithCorrelationId(requestId, next);
   });
+  app.use('/image', (req, res, next) => {
+    const requested = '/image' + req.path;
+    const normalized = normalizeCatAssetPath(requested);
+    if (normalized !== requested) {
+      res.redirect(302, normalized);
+      return;
+    }
+    next();
+  });
+  app.use('/image/cats', express.static(path.join(projectRoot, 'image/cats')));
   app.use('/image/profile', express.static(path.join(projectRoot, 'image/profile')));
   app.use('/image/fishing_photos', express.static(path.join(projectRoot, 'image/fishing_photos')));
 

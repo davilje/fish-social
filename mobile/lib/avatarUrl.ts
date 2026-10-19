@@ -1,4 +1,4 @@
-import { defaultAvatarPath } from '@fish-social/shared';
+import { defaultAvatarPath, normalizeCatAssetPath } from '@fish-social/shared';
 import { API_BASE } from './config';
 
 export function resolveAvatarUrl(url?: string): string | undefined {
@@ -6,7 +6,7 @@ export function resolveAvatarUrl(url?: string): string | undefined {
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
-  const assetPath = url.startsWith('/') ? url : `/${url}`;
+  const assetPath = normalizeCatAssetPath(url.startsWith('/') ? url : `/${url}`);
   return `${API_BASE}${assetPath}`;
 }
 

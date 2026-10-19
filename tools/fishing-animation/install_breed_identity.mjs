@@ -30,6 +30,9 @@ const portrait = await sharp(input).extract({ left, top, width: right - left + 1
 const avatars = path.join(root, 'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/characters/avatars');
 fs.writeFileSync(path.join(root, 'image/profile', `cat_avatar_${skin}.png`), portrait);
 fs.writeFileSync(path.join(avatars, skin + '.png'), portrait);
+const overlayAvatars = path.join(root, 'desktop-overlay/OverlayResources/hud/cozy/characters/avatars');
+fs.mkdirSync(overlayAvatars, { recursive: true });
+fs.writeFileSync(path.join(overlayAvatars, skin + '.png'), portrait);
 const meta = path.join(avatars, skin + '.png.meta');
 if (!fs.existsSync(meta)) {
   const template = fs.readFileSync(path.join(avatars, 'orange.png.meta'), 'utf8');

@@ -3,10 +3,9 @@ import { Pressable, View, Text, StyleSheet, Platform } from 'react-native';
 import { type PondUser, type FishingPhase } from '@fish-social/shared';
 import { ProfileAvatar } from './ProfileAvatar';
 import { HookCountdownRing } from './HookCountdownRing';
+import { CatAnimation } from './CatAnimation';
 
 const AVATAR = 28;
-const HEAD = 22;
-const BODY_H = 20;
 const HOVER_DELAY_MS = 300;
 const BUBBLE_TIMEOUT_MS = 3500;
 
@@ -94,9 +93,6 @@ export function PondCharacter({ user, isMe, faceLeft, onPress, onBubbleChange }:
     showHookRing && hookTotalMs > 0 ? Math.max(0, Math.min(1, hookRemainingMs / hookTotalMs)) : 0;
 
   const disconnected = phase === 'disconnected';
-  const casting = phase === 'casting';
-  const baiting = phase === 'baiting';
-  const animFishing = statusKind != null;
 
   const clearBubbleTimers = () => {
     if (hoverTimer.current) {
@@ -161,26 +157,7 @@ export function PondCharacter({ user, isMe, faceLeft, onPress, onBubbleChange }:
       >
         {avatarNode}
 
-        <View style={[styles.bodyStack, faceLeft && styles.faceLeft]}>
-          <View style={[styles.head, animFishing && styles.headFishing]} />
-          <View style={styles.torsoRow}>
-            <View
-              style={[
-                styles.arm,
-                styles.armLeft,
-                (animFishing || baiting) && styles.armFishing,
-                casting && styles.armCasting,
-              ]}
-            />
-            <View style={[styles.torso, animFishing && styles.torsoFishing]} />
-            <View style={[styles.arm, styles.armRight, casting && styles.armCasting]} />
-          </View>
-          <View style={styles.legs}>
-            <View style={styles.leg} />
-            <View style={styles.leg} />
-          </View>
-          {animFishing && <View style={[styles.rod, faceLeft && styles.rodLeft]} />}
-        </View>
+        <CatAnimation user={user} faceLeft={faceLeft} />
 
         <Text style={[styles.nickname, disconnected && styles.nicknameDisconnected]} numberOfLines={1}>
           {user.nickname}
@@ -202,9 +179,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     cursor: 'pointer',
   },
-  faceLeft: {
-    transform: [{ scaleX: -1 }],
-  },
   avatarFloat: {
     marginBottom: -6,
     zIndex: 3,
@@ -221,83 +195,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -6,
     zIndex: 4,
-  },
-  bodyStack: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  head: {
-    width: HEAD,
-    height: HEAD,
-    borderRadius: HEAD / 2,
-    backgroundColor: '#B0BEC5',
-    borderWidth: 1.5,
-    borderColor: '#90A4AE',
-    zIndex: 2,
-  },
-  headFishing: {
-    backgroundColor: '#A8B6BD',
-  },
-  torsoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: -2,
-  },
-  torso: {
-    width: 18,
-    height: BODY_H,
-    borderRadius: 8,
-    backgroundColor: '#90A4AE',
-    borderWidth: 1,
-    borderColor: '#78909C',
-  },
-  torsoFishing: {
-    backgroundColor: '#7E939B',
-  },
-  arm: {
-    width: 6,
-    height: 14,
-    borderRadius: 3,
-    backgroundColor: '#9EACB3',
-    marginHorizontal: 1,
-  },
-  armLeft: {
-    transform: [{ rotate: '-18deg' }],
-  },
-  armRight: {
-    transform: [{ rotate: '12deg' }],
-  },
-  armFishing: {
-    transform: [{ rotate: '-42deg' }],
-  },
-  armCasting: {
-    transform: [{ rotate: '-65deg' }],
-  },
-  legs: {
-    flexDirection: 'row',
-    gap: 4,
-    marginTop: -1,
-  },
-  leg: {
-    width: 7,
-    height: 8,
-    borderRadius: 3,
-    backgroundColor: '#78909C',
-  },
-  rod: {
-    position: 'absolute',
-    right: -10,
-    top: 26,
-    width: 28,
-    height: 2,
-    backgroundColor: '#6D4C41',
-    transform: [{ rotate: '-35deg' }],
-    borderRadius: 1,
-  },
-  rodLeft: {
-    right: undefined,
-    left: -10,
-    transform: [{ rotate: '35deg' }],
   },
   nickname: {
     marginTop: 4,

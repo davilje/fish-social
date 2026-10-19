@@ -1,5 +1,5 @@
 import { View, Image, Pressable, StyleSheet } from 'react-native';
-import { DEFAULT_AVATARS, defaultAvatarPath } from '@fish-social/shared';
+import { DEFAULT_AVATARS, defaultAvatarPath, normalizeCatAssetPath } from '@fish-social/shared';
 import { getDefaultAvatarUrl } from '../lib/avatarUrl';
 
 interface Props {
@@ -13,7 +13,7 @@ export function DefaultAvatarPicker({ selected, onSelect, size = 52 }: Props) {
     <View style={styles.grid}>
       {DEFAULT_AVATARS.map((avatar) => {
         const path = defaultAvatarPath(avatar.filename);
-        const isSelected = selected === path;
+        const isSelected = normalizeCatAssetPath(selected ?? '') === path;
         return (
           <Pressable
             key={avatar.id}

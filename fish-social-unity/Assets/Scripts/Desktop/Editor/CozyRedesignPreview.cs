@@ -287,7 +287,7 @@ namespace FishSocial.Desktop.Editor
                 }
                 else
                 {
-                    CozyItemArt.Set(selected, "Avatar", CatTheme.LoadCozy("characters/portraits/orange.png", Vector4.zero));
+                    CozyItemArt.Set(selected, "Avatar", CatTheme.LoadCozy("characters/avatars/orange.png", Vector4.zero));
                     CozyItemArt.Text(selected, "DesignName", "小橘");
                     CozyItemArt.Text(selected, "DesignBio", "今天也想钓到一条大鱼");
                     CozyItemArt.Text(selected, "DesignId", "ID：102408");
@@ -305,7 +305,7 @@ namespace FishSocial.Desktop.Editor
                     var slot = root.Find("Podium/Slot" + rank);
                     CozyItemArt.Text(slot, "Nickname", rank == 1 ? "小橘" : rank == 2 ? "溪边小白" : "橘子汽水");
                     CozyItemArt.Text(slot, "Value", fishNames[rank - 1] + " · 0." + (92 - rank * 6) + " m");
-                    CozyItemArt.Set(slot, "Avatar", CatTheme.LoadCozy("characters/portraits/orange.png", Vector4.zero));
+                    CozyItemArt.Set(slot, "Avatar", CatTheme.LoadCozy("characters/avatars/orange.png", Vector4.zero));
                 }
                 for (var rank = 4; rank <= 6; rank++)
                 {
