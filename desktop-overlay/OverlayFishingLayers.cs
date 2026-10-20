@@ -27,6 +27,9 @@ namespace FishSocialOverlay
         static readonly Dictionary<string, BitmapImage> Bitmaps =
             new Dictionary<string, BitmapImage>(StringComparer.OrdinalIgnoreCase);
 
+        static readonly Dictionary<string, int> TextureScales =
+            new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
         static readonly HashSet<string> Missing =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -119,6 +122,13 @@ namespace FishSocialOverlay
         {
             if (decodeW < 1 || decodeH < 1 || string.IsNullOrEmpty(path))
                 return null;
+            if (!TextureScales.TryGetValue(path, out var textureScale))
+                return null;
+            if (textureScale > 1)
+            {
+                decodeW = (int)Math.Min(CanvasWidth * textureScale, (long)decodeW * 2);
+                decodeH = (int)Math.Min(CanvasHeight * textureScale, (long)decodeH * 2);
+            }
 
             var key = decodeW + "x" + decodeH + "|" + path;
             if (Missing.Contains(key))
@@ -133,16 +143,27 @@ namespace FishSocialOverlay
 
             try
             {
-                var image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.DecodePixelWidth = decodeW;
-                image.DecodePixelHeight = decodeH;
-                image.UriSource = new Uri(path, UriKind.Absolute);
-                image.EndInit();
-                image.Freeze();
-                Bitmaps[key] = image;
-                return image;
+                using (var stream = File.OpenRead(path))
+                {
+                    var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
+                    if (decoder.Frames[0].PixelWidth != CanvasWidth * textureScale ||
+                        decoder.Frames[0].PixelHeight != CanvasHeight * textureScale)
+                    {
+                        Missing.Add(key);
+                        return null;
+                    }
+                    stream.Position = 0;
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.DecodePixelWidth = decodeW;
+                    image.DecodePixelHeight = decodeH;
+                    image.StreamSource = stream;
+                    image.EndInit();
+                    image.Freeze();
+                    Bitmaps[key] = image;
+                    return image;
+                }
             }
             catch (IOException)
             {
@@ -278,6 +299,18 @@ namespace FishSocialOverlay
                 pack = null;
             }
 
+            if (pack != null)
+            {
+                foreach (var pair in pack.Clips)
+                {
+                    for (var index = 0; index < pair.Value.FrameCount; index++)
+                    {
+                        foreach (var layer in LayerNames)
+                            TextureScales[LayerPath(petId, pair.Key, index, layer, pack.BodyLayers)] =
+                                IndexOf(pack.BodyLayers, layer) >= 0 ? pack.BodyTextureScale : 1;
+                    }
+                }
+            }
             Packs[petId] = pack;
             return pack;
         }
@@ -299,6 +332,11 @@ namespace FishSocialOverlay
                 if (!ReadNames(root, "bodyLayers", out var body)
                     || !SameNames(body, new[] { "body", "head", "far_hand", "hands" }))
                     return null;
+                var bodyTextureScale = 1;
+                if (root.TryGetProperty("bodyTextureScale", out var textureScale) &&
+                    (textureScale.ValueKind != JsonValueKind.Number || !textureScale.TryGetInt32(out bodyTextureScale) ||
+                    (bodyTextureScale != 1 && bodyTextureScale != 2 && bodyTextureScale != 4)))
+                    return null;
 
                 if (!root.TryGetProperty("clips", out var clipsElement) ||
                     clipsElement.ValueKind != JsonValueKind.Object)
@@ -319,7 +357,7 @@ namespace FishSocialOverlay
                 }
 
                 var place = ReadPlace(root);
-                return new PetPack(body, clips, place);
+                return new PetPack(body, clips, place, bodyTextureScale);
             }
         }
 
@@ -532,14 +570,17 @@ namespace FishSocialOverlay
             public PetPack(
                 string[] bodyLayers,
                 Dictionary<string, FishingClipPlayback> clips,
-                LayerPlace place)
+                LayerPlace place,
+                int bodyTextureScale)
             {
                 BodyLayers = bodyLayers;
                 Clips = clips;
                 Place = place;
+                BodyTextureScale = bodyTextureScale;
             }
 
             public string[] BodyLayers { get; }
+            public int BodyTextureScale { get; }
             public Dictionary<string, FishingClipPlayback> Clips { get; }
             public LayerPlace Place { get; }
         }

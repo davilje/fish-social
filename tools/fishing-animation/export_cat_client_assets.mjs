@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { compositeCatFrame } from './cat_atlas.mjs';
 
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
@@ -15,26 +17,33 @@ const catalog = { version: 1, frameWidth: 320, frameHeight: 256, foot: [264, 450
 fs.mkdirSync(output, { recursive: true });
 
 async function composite(manifest, skin, clip, index) {
-  const layers = manifest.clips[clip].frames[index].map(layer => ({
-    input: path.join(source, manifest.bodyLayers.includes(layer)
-      ? `${skin}/body/${clip}/${index}/${layer}.png` : `shared/${clip}/${index}/${layer}.png`),
-    left: 0, top: 0,
-  }));
-  return sharp({ create: { width: 640, height: 512, channels: 4, background: '#00000000' } })
-    .composite(layers).png().toBuffer();
+  return compositeCatFrame(sharp, manifest, manifest.clips[clip].frames[index], (layer, body) =>
+    path.join(source, body ? `${skin}/body/${clip}/${index}/${layer}.png` : `shared/${clip}/${index}/${layer}.png`));
 }
 
 for (const skin of skins) {
   const manifest = JSON.parse(fs.readFileSync(path.join(source, skin, 'manifest.json')));
+  const bodyScale = Object.hasOwn(manifest, 'bodyTextureScale') ? manifest.bodyTextureScale : 1;
+  assert(Number.isInteger(bodyScale) && [1, 2, 4].includes(bodyScale), skin + ': bodyTextureScale');
+  if (skin !== 'dafeiyu') assert.equal(bodyScale, 1, skin + ': legacy body scale');
+  const atlasScale = skin === 'dafeiyu' && bodyScale > 1 ? 2 : 1;
+  if (atlasScale > 1) catalog.atlasFrameScale = { ...catalog.atlasFrameScale, [skin]: atlasScale };
+  const frameWidth = catalog.frameWidth * atlasScale;
+  const frameHeight = catalog.frameHeight * atlasScale;
   fs.mkdirSync(path.join(output, skin), { recursive: true });
   for (const [clip, definition] of Object.entries(manifest.clips)) {
     const frames = [];
     for (const [index] of definition.frames.entries()) {
       const png = await composite(manifest, skin, clip, index);
-      frames.push({ input: await sharp(png).resize(320, 256).png().toBuffer(), left: index * 320, top: 0 });
+      frames.push({ input: await sharp(png).resize(frameWidth, frameHeight).png().toBuffer(), left: index * frameWidth, top: 0 });
     }
-    await sharp({ create: { width: frames.length * 320, height: 256, channels: 4, background: '#00000000' } })
+    await sharp({ create: { width: frames.length * frameWidth, height: frameHeight, channels: 4, background: '#00000000' } })
       .composite(frames).png().toFile(path.join(output, skin, clip + '.png'));
+    if (skin === 'dafeiyu') {
+      const mobileOutput = path.join(root, 'mobile/assets/cats', skin);
+      fs.mkdirSync(mobileOutput, { recursive: true });
+      fs.copyFileSync(path.join(output, skin, clip + '.png'), path.join(mobileOutput, clip + '.png'));
+    }
     catalog.clips[clip] = { count: frames.length, playback: definition.playback,
       durationsMs: definition.durationsMs, loopStart: definition.loopStart || 0, next: definition.nextClip || null };
   }
