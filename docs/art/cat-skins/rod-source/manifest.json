@@ -1,0 +1,4620 @@
+{
+  "version": 1,
+  "model": "head-layer-order-v1",
+  "canvas": [
+    640,
+    512
+  ],
+  "method": "Replay original authored rod transforms before head-alpha subtraction; no repainting.",
+  "characterGeometryUnchanged": true,
+  "frames": [
+    {
+      "id": "sit-00",
+      "clip": "sit",
+      "index": 0,
+      "file": "sit-00.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "rodVisible": false,
+        "handsResting": true,
+        "pawPositions": [
+          [
+            296.28,
+            370.03999999999996
+          ],
+          [
+            387.15999999999997,
+            367.48
+          ]
+        ],
+        "maskProfile": "sit:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          329,
+          295
+        ],
+        "handAnchors": {
+          "far_hand": [
+            393.01,
+            363.8
+          ],
+          "hands": [
+            294.98,
+            371.34
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "sit-01",
+      "clip": "sit",
+      "index": 1,
+      "file": "sit-01.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "rodVisible": false,
+        "handsResting": true,
+        "pawPositions": [
+          [
+            314.64,
+            391.52
+          ],
+          [
+            378.64,
+            388.96
+          ]
+        ],
+        "maskProfile": "sit:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          331,
+          323
+        ],
+        "handAnchors": {
+          "far_hand": [
+            375.52,
+            387.84
+          ],
+          "hands": [
+            317.5,
+            396.23
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "sit-02",
+      "clip": "sit",
+      "index": 2,
+      "file": "sit-02.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "rodVisible": false,
+        "handsResting": true,
+        "pawPositions": [
+          [
+            308.0,
+            415.48
+          ],
+          [
+            354.72,
+            414.2
+          ]
+        ],
+        "maskProfile": "sit:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          319,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.29,
+            414.78
+          ],
+          "hands": [
+            310.23,
+            409.4
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "sit-03",
+      "clip": "sit",
+      "index": 3,
+      "file": "sit-03.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "rodVisible": true,
+        "rodTakenOut": true,
+        "seated": true,
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "ready-00",
+      "clip": "ready",
+      "index": 0,
+      "file": "ready-00.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "bait-00",
+      "clip": "bait",
+      "index": 0,
+      "file": "bait-00.png",
+      "sha256": "3df05b5f2a66d21cf9ac393bc6a4d4ad173827facff91db166e894a13a531e4a",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          340,
+          353
+        ],
+        "maskProfile": "bait:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          301,
+          338
+        ],
+        "handAnchors": {
+          "far_hand": [
+            358.25,
+            363.69
+          ],
+          "hands": [
+            320.54,
+            343.83
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "bait-01",
+      "clip": "bait",
+      "index": 1,
+      "file": "bait-01.png",
+      "sha256": "3df05b5f2a66d21cf9ac393bc6a4d4ad173827facff91db166e894a13a531e4a",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          380,
+          328
+        ],
+        "maskProfile": "bait:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          302,
+          327
+        ],
+        "handAnchors": {
+          "far_hand": [
+            367.76,
+            341.02
+          ],
+          "hands": [
+            334.99,
+            339.47
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "bait-02",
+      "clip": "bait",
+      "index": 2,
+      "file": "bait-02.png",
+      "sha256": "3df05b5f2a66d21cf9ac393bc6a4d4ad173827facff91db166e894a13a531e4a",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          346,
+          329
+        ],
+        "maskProfile": "bait:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          300,
+          319
+        ],
+        "handAnchors": {
+          "far_hand": [
+            365.31,
+            332.12
+          ],
+          "hands": [
+            334.31,
+            332.59
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "bait-03",
+      "clip": "bait",
+      "index": 3,
+      "file": "bait-03.png",
+      "sha256": "3df05b5f2a66d21cf9ac393bc6a4d4ad173827facff91db166e894a13a531e4a",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          388,
+          313
+        ],
+        "maskProfile": "bait:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          303,
+          318
+        ],
+        "handAnchors": {
+          "far_hand": [
+            396.76,
+            325.32
+          ],
+          "hands": [
+            346.14,
+            335.72
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "cast-00",
+      "clip": "cast",
+      "index": 0,
+      "file": "cast-00.png",
+      "sha256": "90a36655d13bfb6fcafdc69f72b3e2219eaa2f9451e29f1afa98c31034f99e54",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          326.001194289175,
+          333.4415810091648
+        ],
+        "angleDegrees": -25,
+        "bodyLeanDegrees": 5,
+        "rodTip": [
+          202.06717306642062,
+          67.66421481038958
+        ],
+        "lineEnd": [
+          175,
+          180
+        ],
+        "rodBehindCat": false,
+        "maskProfile": "cast:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          254,
+          338
+        ],
+        "handAnchors": {
+          "far_hand": [
+            340.91,
+            324.12
+          ],
+          "hands": [
+            311.74,
+            338.9
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "cast-01",
+      "clip": "cast",
+      "index": 1,
+      "file": "cast-01.png",
+      "sha256": "41c40597fb5ec6244b1d6ee1c48942a372fd2cb619b3d25f68e21a8ace904354",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          307.68749003147144,
+          305.32176559969264
+        ],
+        "angleDegrees": -58,
+        "bodyLeanDegrees": 10,
+        "rodTip": [
+          58.994945809487405,
+          149.92141666701974
+        ],
+        "lineEnd": [
+          55,
+          165
+        ],
+        "rodBehindCat": false,
+        "maskProfile": "cast:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          231,
+          349
+        ],
+        "handAnchors": {
+          "far_hand": [
+            319.85,
+            294.39
+          ],
+          "hands": [
+            297.67,
+            314.23
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "cast-02",
+      "clip": "cast",
+      "index": 2,
+      "file": "cast-02.png",
+      "sha256": "14c463bd46f395446c44160269f64e3633a49bb2ae7696f797a60bae3b9f4533",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          358.8820828843031,
+          342.966546839574
+        ],
+        "angleDegrees": 62,
+        "bodyLeanDegrees": -3,
+        "rodTip": [
+          617.8090049279558,
+          205.29266027788736
+        ],
+        "lineEnd": [
+          594,
+          373
+        ],
+        "rodBehindCat": false,
+        "maskProfile": "cast:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          270,
+          332
+        ],
+        "handAnchors": {
+          "far_hand": [
+            372.45,
+            335.73
+          ],
+          "hands": [
+            341.82,
+            349.69
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "cast-03",
+      "clip": "cast",
+      "index": 3,
+      "file": "cast-03.png",
+      "sha256": "60713e30c3dc8506a6ce4d4a4447b8bde18c85aabb23788fd6b51ee6010e4b78",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          346.0,
+          348.5
+        ],
+        "angleDegrees": 50,
+        "bodyLeanDegrees": 0,
+        "rodTip": [
+          570.6447370258954,
+          160.00068401565406
+        ],
+        "lineEnd": [
+          580,
+          455
+        ],
+        "rodBehindCat": false,
+        "maskProfile": "cast:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          282,
+          331
+        ],
+        "handAnchors": {
+          "far_hand": [
+            363.28,
+            345.61
+          ],
+          "hands": [
+            334.37,
+            350.4
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "wait-00",
+      "clip": "wait",
+      "index": 0,
+      "file": "wait-00.png",
+      "sha256": "c7a16a5b70f21761780f2a0cfa09e6baf47a211b7a9398dde2eb7b9108cc0469",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "wait:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          293,
+          335
+        ],
+        "handAnchors": {
+          "far_hand": [
+            340.77,
+            345.9
+          ],
+          "hands": [
+            310.09,
+            351.92
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "bite-00",
+      "clip": "bite",
+      "index": 0,
+      "file": "bite-00.png",
+      "sha256": "e3f4b4ad6a1022d7acdce9a22fa4d05bc95b7f2c04d7560783e8fb5381063905",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          317.0,
+          352.0
+        ],
+        "angleDegrees": 44,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            317.0,
+            352.0
+          ],
+          [
+            384.9035219415511,
+            281.6838446163807
+          ],
+          [
+            452.8070438831022,
+            211.36768923276148
+          ],
+          [
+            520.7105658246534,
+            141.05153384914223
+          ]
+        ],
+        "lineEnd": [
+          568,
+          461
+        ],
+        "maskProfile": "bite:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          269,
+          345
+        ],
+        "handAnchors": {
+          "far_hand": [
+            333.27,
+            349.19
+          ],
+          "hands": [
+            303.12,
+            355.92
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "bite-01",
+      "clip": "bite",
+      "index": 1,
+      "file": "bite-01.png",
+      "sha256": "53669c5060cf11f6f25e9cd4b15e0e7f374cfc44c4cdbc02961714ef10e36dbf",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          323.0,
+          327.0
+        ],
+        "angleDegrees": 32,
+        "bendPixels": 35,
+        "cubicRodControls": [
+          [
+            323.0,
+            327.0
+          ],
+          [
+            374.800116310891,
+            244.10248525933866
+          ],
+          [
+            431.0524851266032,
+            163.98704665590162
+          ],
+          [
+            508.08203229814785,
+            135.3546300261781
+          ]
+        ],
+        "lineEnd": [
+          568,
+          461
+        ],
+        "maskProfile": "bite:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          291,
+          334
+        ],
+        "handAnchors": {
+          "far_hand": [
+            338.97,
+            317.41
+          ],
+          "hands": [
+            309.73,
+            333.28
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "bite-02",
+      "clip": "bite",
+      "index": 2,
+      "file": "bite-02.png",
+      "sha256": "b7d476dcb409ae0112a684878ee2c54b8ba1eb74120d57498419e73ba285765f",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          344.0,
+          315.0
+        ],
+        "angleDegrees": 24,
+        "bendPixels": 80,
+        "cubicRodControls": [
+          [
+            344.0,
+            315.0
+          ],
+          [
+            383.75889695143417,
+            225.70005535721066
+          ],
+          [
+            434.4803393945795,
+            141.28095043133092
+          ],
+          [
+            536.3603274657106,
+            167.639097517696
+          ]
+        ],
+        "lineEnd": [
+          568,
+          461
+        ],
+        "maskProfile": "bite:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          294,
+          324
+        ],
+        "handAnchors": {
+          "far_hand": [
+            358.53,
+            303.7
+          ],
+          "hands": [
+            328.81,
+            320.43
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "bite-03",
+      "clip": "bite",
+      "index": 3,
+      "file": "bite-03.png",
+      "sha256": "a572849c8edd2729f05dee04151b8a1d4e7c1e7732f11d963ee07ff2d51b0186",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          350.7,
+          321.97
+        ],
+        "angleDegrees": 18,
+        "bendPixels": 112,
+        "cubicRodControls": [
+          [
+            350.7,
+            321.97
+          ],
+          [
+            380.90670757049486,
+            229.0033133980209
+          ],
+          [
+            427.0911646147483,
+            141.22811230154088
+          ],
+          [
+            547.8384525365418,
+            200.87984356405673
+          ]
+        ],
+        "lineEnd": [
+          564,
+          461
+        ],
+        "maskProfile": "bite:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          289,
+          327
+        ],
+        "handAnchors": {
+          "far_hand": [
+            364.68,
+            309.52
+          ],
+          "hands": [
+            336.46,
+            328.35
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "effort-00",
+      "clip": "effort",
+      "index": 0,
+      "file": "effort-00.png",
+      "sha256": "a572849c8edd2729f05dee04151b8a1d4e7c1e7732f11d963ee07ff2d51b0186",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          350.7,
+          321.97
+        ],
+        "angleDegrees": 18,
+        "bendPixels": 112,
+        "cubicRodControls": [
+          [
+            350.7,
+            321.97
+          ],
+          [
+            380.90670757049486,
+            229.0033133980209
+          ],
+          [
+            427.0911646147483,
+            141.22811230154088
+          ],
+          [
+            547.8384525365418,
+            200.87984356405673
+          ]
+        ],
+        "lineEnd": [
+          564,
+          461
+        ],
+        "maskProfile": "bite:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          289,
+          327
+        ],
+        "handAnchors": {
+          "far_hand": [
+            364.68,
+            309.52
+          ],
+          "hands": [
+            336.46,
+            328.35
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "effort-01",
+      "clip": "effort",
+      "index": 1,
+      "file": "effort-01.png",
+      "sha256": "c57211c9a03ee13314f912c7e532d7c5fd0d8bda198e6b323db77c270878e13f",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          327.14,
+          307.8
+        ],
+        "angleDegrees": 16,
+        "bendPixels": 120,
+        "cubicRodControls": [
+          [
+            327.14,
+            307.8
+          ],
+          [
+            354.0838158878926,
+            213.8357473003731
+          ],
+          [
+            398.33034230267504,
+            124.83296700545215
+          ],
+          [
+            523.3228511762761,
+            190.98372459915913
+          ]
+        ],
+        "lineEnd": [
+          573,
+          463
+        ],
+        "maskProfile": "effort:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          288,
+          325
+        ],
+        "handAnchors": {
+          "far_hand": [
+            340.33,
+            299.27
+          ],
+          "hands": [
+            314.01,
+            315.36
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "effort-02",
+      "clip": "effort",
+      "index": 2,
+      "file": "effort-02.png",
+      "sha256": "5a238c78a8429e23c4aa94f84cb2206b4b410e4c23af2d414d7d4d0a889e6eb7",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          334.12,
+          290.78
+        ],
+        "angleDegrees": 14,
+        "bendPixels": 128,
+        "cubicRodControls": [
+          [
+            334.12,
+            290.78
+          ],
+          [
+            357.7680973160077,
+            195.93266217055623
+          ],
+          [
+            400.04587257651445,
+            105.7302247366261
+          ],
+          [
+            529.2621449113506,
+            178.00398914842623
+          ]
+        ],
+        "lineEnd": [
+          577,
+          459
+        ],
+        "maskProfile": "effort:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          253,
+          334
+        ],
+        "handAnchors": {
+          "far_hand": [
+            345.8,
+            275.88
+          ],
+          "hands": [
+            324.43,
+            301.32
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "effort-03",
+      "clip": "effort",
+      "index": 3,
+      "file": "effort-03.png",
+      "sha256": "fa912a31058675a128a7a0f07419dcceaa3cec04cc65cfb0729ee354b10d8f5a",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          331.93,
+          308.41999999999996
+        ],
+        "angleDegrees": 15,
+        "bendPixels": 124,
+        "cubicRodControls": [
+          [
+            331.93,
+            308.41999999999996
+          ],
+          [
+            357.2298098855381,
+            213.99982408533845
+          ],
+          [
+            400.4958401400529,
+            124.39368240958379
+          ],
+          [
+            527.6042321164588,
+            193.65303384872794
+          ]
+        ],
+        "lineEnd": [
+          568,
+          462
+        ],
+        "maskProfile": "effort:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          269,
+          331
+        ],
+        "handAnchors": {
+          "far_hand": [
+            347.03,
+            292.92
+          ],
+          "hands": [
+            321.09,
+            312.94
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "effort-04",
+      "clip": "effort",
+      "index": 4,
+      "file": "effort-04.png",
+      "sha256": "19cf4d388762a789d798bc7341147b9b83fb1af69840fb6f0412ac5b2aa9cd67",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          334.84000000000003,
+          322.22
+        ],
+        "angleDegrees": 17,
+        "bendPixels": 116,
+        "cubicRodControls": [
+          [
+            334.84000000000003,
+            322.22
+          ],
+          [
+            363.41961454291715,
+            228.74029293703217
+          ],
+          [
+            408.63893183959107,
+            140.34785353623994
+          ],
+          [
+            531.5101953204635,
+            203.29599655893395
+          ]
+        ],
+        "lineEnd": [
+          561,
+          464
+        ],
+        "maskProfile": "effort:4",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          294,
+          337
+        ],
+        "handAnchors": {
+          "far_hand": [
+            351.1,
+            303.61
+          ],
+          "hands": [
+            324.97,
+            323.42
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "effort-05",
+      "clip": "effort",
+      "index": 5,
+      "file": "effort-05.png",
+      "sha256": "2e83afd47787dba25f44e7b582e6fd14d5f035d8b4bdecc6e98183588501dce2",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          340.72,
+          323.18
+        ],
+        "angleDegrees": 18,
+        "bendPixels": 112,
+        "cubicRodControls": [
+          [
+            340.72,
+            323.18
+          ],
+          [
+            370.9267075704949,
+            230.2133133980209
+          ],
+          [
+            417.11116461474836,
+            142.43811230154085
+          ],
+          [
+            537.8584525365418,
+            202.0898435640567
+          ]
+        ],
+        "lineEnd": [
+          564,
+          461
+        ],
+        "maskProfile": "effort:5",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          283,
+          331
+        ],
+        "handAnchors": {
+          "far_hand": [
+            356.77,
+            310.43
+          ],
+          "hands": [
+            328.79,
+            328.06
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve-00",
+      "clip": "retrieve",
+      "index": 0,
+      "file": "retrieve-00.png",
+      "sha256": "d141182d2021636309d2605052aa3da5ac0ddba13d206d85e0f46e0b8f426bfa",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          350.40999999999997,
+          335.72
+        ],
+        "angleDegrees": 20,
+        "bendPixels": 90,
+        "cubicRodControls": [
+          [
+            350.40999999999997,
+            335.72
+          ],
+          [
+            383.842797032909,
+            243.86414508287288
+          ],
+          [
+            429.9614444464279,
+            156.6255621006423
+          ],
+          [
+            535.2807269694589,
+            189.93424814792883
+          ]
+        ],
+        "rodTip": [
+          535.2807269694589,
+          189.93424814792883
+        ],
+        "lineEnd": [
+          565,
+          332
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            45.0,
+            2.0
+          ],
+          "targetAnchor": [
+            565,
+            332
+          ],
+          "offset": [
+            520,
+            330
+          ]
+        },
+        "pawPositions": [
+          [
+            336.22,
+            342.6
+          ],
+          [
+            364.6,
+            328.84000000000003
+          ]
+        ],
+        "maskProfile": "retrieve:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          295,
+          335
+        ],
+        "handAnchors": {
+          "far_hand": [
+            362.15,
+            326.69
+          ],
+          "hands": [
+            334.66,
+            341.74
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve-01",
+      "clip": "retrieve",
+      "index": 1,
+      "file": "retrieve-01.png",
+      "sha256": "5f2e124afd2208032f422855198349ece46002d6e4910b5eda66a3a35adfebe1",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          343.28,
+          307.90999999999997
+        ],
+        "angleDegrees": 0,
+        "bendPixels": 60,
+        "cubicRodControls": [
+          [
+            343.28,
+            307.90999999999997
+          ],
+          [
+            343.28,
+            210.15904092542104
+          ],
+          [
+            352.28,
+            112.40808185084214
+          ],
+          [
+            403.28,
+            80.65712277626324
+          ]
+        ],
+        "rodTip": [
+          403.28,
+          80.65712277626324
+        ],
+        "lineEnd": [
+          480,
+          142
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 45,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            33.31013716151656,
+            33.31013716151655
+          ],
+          "targetAnchor": [
+            480,
+            142
+          ],
+          "offset": [
+            447,
+            109
+          ]
+        },
+        "pawPositions": [
+          [
+            331.24,
+            316.08
+          ],
+          [
+            355.32,
+            299.74
+          ]
+        ],
+        "maskProfile": "retrieve:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          292,
+          328
+        ],
+        "handAnchors": {
+          "far_hand": [
+            352.17,
+            300.05
+          ],
+          "hands": [
+            327.69,
+            317.49
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve-02",
+      "clip": "retrieve",
+      "index": 2,
+      "file": "retrieve-02.png",
+      "sha256": "444dfa0c5c0ce9b1a6c9bd701ece99483f8a69fced0379fff7bb38bd50d6a654",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          324.64,
+          300.11
+        ],
+        "angleDegrees": -25,
+        "bendPixels": 25,
+        "cubicRodControls": [
+          [
+            324.64,
+            300.11
+          ],
+          [
+            283.3286595924152,
+            211.51754460040826
+          ],
+          [
+            245.41597338621784,
+            121.34027071928888
+          ],
+          [
+            223.36367345316185,
+            51.26717725770726
+          ]
+        ],
+        "rodTip": [
+          223.36367345316185,
+          51.26717725770726
+        ],
+        "lineEnd": [
+          310,
+          74
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 90,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            2.0,
+            44.99999999999999
+          ],
+          "targetAnchor": [
+            310,
+            74
+          ],
+          "offset": [
+            308,
+            29
+          ]
+        },
+        "pawPositions": [
+          [
+            315.18,
+            313.44
+          ],
+          [
+            334.1,
+            286.78
+          ]
+        ],
+        "maskProfile": "retrieve:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          256,
+          344
+        ],
+        "handAnchors": {
+          "far_hand": [
+            334.63,
+            291.19
+          ],
+          "hands": [
+            314.43,
+            312.8
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve-03",
+      "clip": "retrieve",
+      "index": 3,
+      "file": "retrieve-03.png",
+      "sha256": "211052097d13d1b08334d4442b0cd33befa20a94d5a33d76d97eef7de55ae9d7",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          323.84000000000003,
+          301.83
+        ],
+        "angleDegrees": -50,
+        "bendPixels": 8,
+        "cubicRodControls": [
+          [
+            323.84000000000003,
+            301.83
+          ],
+          [
+            248.9584209913682,
+            238.99689467188466
+          ],
+          [
+            174.84818711436026,
+            175.24453601202657
+          ],
+          [
+            104.33756385159691,
+            116.00232847070221
+          ]
+        ],
+        "rodTip": [
+          104.33756385159691,
+          116.00232847070221
+        ],
+        "lineEnd": [
+          130,
+          188
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 135,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            33.31013716151655,
+            150.68986283848344
+          ],
+          "targetAnchor": [
+            130,
+            188
+          ],
+          "offset": [
+            97,
+            37
+          ]
+        },
+        "pawPositions": [
+          [
+            316.96000000000004,
+            313.44
+          ],
+          [
+            330.72,
+            290.22
+          ]
+        ],
+        "maskProfile": "retrieve:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          232,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            327.74,
+            289.15
+          ],
+          "hands": [
+            310.93,
+            314.2
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve-04",
+      "clip": "retrieve",
+      "index": 4,
+      "file": "retrieve-04.png",
+      "sha256": "6f2afa9cf4219680072460e066533ad31474bc2385efdfa0cbe255d38b105440",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          343.3,
+          311.75
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            343.3,
+            311.75
+          ],
+          [
+            256.2032577188801,
+            267.3719932397119
+          ],
+          [
+            169.10651543776012,
+            222.99398647942388
+          ],
+          [
+            82.00977315664016,
+            178.6159797191358
+          ]
+        ],
+        "rodTip": [
+          82.00977315664016,
+          178.6159797191358
+        ],
+        "lineEnd": [
+          70,
+          335
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 180,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            44.99999999999999,
+            168.0
+          ],
+          "targetAnchor": [
+            70,
+            335
+          ],
+          "offset": [
+            25,
+            167
+          ]
+        },
+        "pawPositions": [
+          [
+            330.4,
+            320.78
+          ],
+          [
+            356.2,
+            302.72
+          ]
+        ],
+        "maskProfile": "retrieve:4",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          280,
+          334
+        ],
+        "handAnchors": {
+          "far_hand": [
+            354.34,
+            299.99
+          ],
+          "hands": [
+            329.42,
+            320.34
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve-05",
+      "clip": "retrieve",
+      "index": 5,
+      "file": "retrieve-05.png",
+      "sha256": "e3683e4424f40195ce99852314e59bb4ebe9f30e8dcc1bafbdcb444172b7c40c",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          346.95,
+          329.81
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            346.95,
+            329.81
+          ],
+          [
+            259.85325771888006,
+            285.4319932397119
+          ],
+          [
+            172.7565154377601,
+            241.05398647942388
+          ],
+          [
+            85.65977315664014,
+            196.6759797191358
+          ]
+        ],
+        "rodTip": [
+          85.65977315664014,
+          196.6759797191358
+        ],
+        "lineEnd": [
+          75,
+          405
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 90,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            2.0,
+            44.99999999999999
+          ],
+          "targetAnchor": [
+            75,
+            405
+          ],
+          "offset": [
+            73,
+            360
+          ]
+        },
+        "pawPositions": [
+          [
+            332.76,
+            332.82
+          ],
+          [
+            361.14,
+            326.8
+          ]
+        ],
+        "maskProfile": "retrieve:5",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          296,
+          329
+        ],
+        "handAnchors": {
+          "far_hand": [
+            359.24,
+            323.13
+          ],
+          "hands": [
+            332.73,
+            333.44
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve_empty-00",
+      "clip": "retrieve_empty",
+      "index": 0,
+      "file": "retrieve_empty-00.png",
+      "sha256": "108f165acb03fa00e114d13e7c8a38ea50c77a91ef6379e8125135eb5aa534de",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          350.40999999999997,
+          335.72
+        ],
+        "angleDegrees": 20,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            350.40999999999997,
+            335.72
+          ],
+          [
+            383.842797032909,
+            243.86414508287288
+          ],
+          [
+            417.2755940658181,
+            152.00829016574576
+          ],
+          [
+            450.70839109872713,
+            60.152435248618644
+          ]
+        ],
+        "rodTip": [
+          450.70839109872713,
+          60.152435248618644
+        ],
+        "pawPositions": [
+          [
+            336.22,
+            342.6
+          ],
+          [
+            364.6,
+            328.84000000000003
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          570,
+          420
+        ],
+        "hookAnchor": [
+          570,
+          455
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          296,
+          329
+        ],
+        "handAnchors": {
+          "far_hand": [
+            362.67,
+            327.09
+          ],
+          "hands": [
+            334.89,
+            341.8
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve_empty-01",
+      "clip": "retrieve_empty",
+      "index": 1,
+      "file": "retrieve_empty-01.png",
+      "sha256": "17d42d1a9452e7a04101e6c075aa8a4b3495e0426e800ba22b2d71ea061d2e02",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          343.28,
+          306.90999999999997
+        ],
+        "angleDegrees": 0,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            343.28,
+            306.90999999999997
+          ],
+          [
+            343.28,
+            209.15904092542104
+          ],
+          [
+            343.28,
+            111.40808185084214
+          ],
+          [
+            343.28,
+            13.657122776263236
+          ]
+        ],
+        "rodTip": [
+          343.28,
+          13.657122776263236
+        ],
+        "pawPositions": [
+          [
+            331.24,
+            315.08
+          ],
+          [
+            355.32,
+            298.74
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          500,
+          280
+        ],
+        "hookAnchor": [
+          500,
+          315
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          293,
+          323
+        ],
+        "handAnchors": {
+          "far_hand": [
+            353.01,
+            299.16
+          ],
+          "hands": [
+            328.16,
+            317.04
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve_empty-02",
+      "clip": "retrieve_empty",
+      "index": 2,
+      "file": "retrieve_empty-02.png",
+      "sha256": "da8b3e2ffdef662987c1fd478a4074de91bce9e82776730c01ee40d9ff6364b2",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          324.64,
+          300.11
+        ],
+        "angleDegrees": -25,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            324.64,
+            300.11
+          ],
+          [
+            283.3286595924152,
+            211.51754460040826
+          ],
+          [
+            242.0173191848304,
+            122.9250892008165
+          ],
+          [
+            200.7059787772456,
+            34.332633801224745
+          ]
+        ],
+        "rodTip": [
+          200.7059787772456,
+          34.332633801224745
+        ],
+        "pawPositions": [
+          [
+            315.18,
+            313.44
+          ],
+          [
+            334.1,
+            286.78
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          380,
+          105
+        ],
+        "hookAnchor": [
+          380,
+          140
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          257,
+          337
+        ],
+        "handAnchors": {
+          "far_hand": [
+            335.76,
+            291.71
+          ],
+          "hands": [
+            314.78,
+            313.21
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve_empty-03",
+      "clip": "retrieve_empty",
+      "index": 3,
+      "file": "retrieve_empty-03.png",
+      "sha256": "5bfd1092ab6f8c27a0fd4ee769738af44483ec1b8c5d3d827aa8416df91281d0",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          323.84000000000003,
+          300.83
+        ],
+        "angleDegrees": -50,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            323.84000000000003,
+            300.83
+          ],
+          [
+            248.9584209913682,
+            237.99689467188466
+          ],
+          [
+            174.0768419827364,
+            175.16378934376934
+          ],
+          [
+            99.1952629741046,
+            112.33068401565404
+          ]
+        ],
+        "rodTip": [
+          99.1952629741046,
+          112.33068401565404
+        ],
+        "pawPositions": [
+          [
+            316.96000000000004,
+            312.44
+          ],
+          [
+            330.72,
+            289.22
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          145,
+          145
+        ],
+        "hookAnchor": [
+          145,
+          180
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          233,
+          340
+        ],
+        "handAnchors": {
+          "far_hand": [
+            329.5,
+            289.62
+          ],
+          "hands": [
+            311.55,
+            313.73
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve_empty-04",
+      "clip": "retrieve_empty",
+      "index": 4,
+      "file": "retrieve_empty-04.png",
+      "sha256": "6f2afa9cf4219680072460e066533ad31474bc2385efdfa0cbe255d38b105440",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          343.3,
+          311.75
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            343.3,
+            311.75
+          ],
+          [
+            256.2032577188801,
+            267.3719932397119
+          ],
+          [
+            169.10651543776012,
+            222.99398647942388
+          ],
+          [
+            82.00977315664016,
+            178.6159797191358
+          ]
+        ],
+        "rodTip": [
+          82.00977315664016,
+          178.6159797191358
+        ],
+        "pawPositions": [
+          [
+            330.4,
+            320.78
+          ],
+          [
+            356.2,
+            302.72
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          95,
+          290
+        ],
+        "hookAnchor": [
+          95,
+          325
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:4",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          281,
+          326
+        ],
+        "handAnchors": {
+          "far_hand": [
+            354.86,
+            301.01
+          ],
+          "hands": [
+            329.3,
+            320.69
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "retrieve_empty-05",
+      "clip": "retrieve_empty",
+      "index": 5,
+      "file": "retrieve_empty-05.png",
+      "sha256": "8fb2e0e6aab054af01d5a139d12d9c8178a3b5c98d8e57085571ea2e3c195101",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          344.95,
+          328.81
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            344.95,
+            328.81
+          ],
+          [
+            257.85325771888006,
+            284.4319932397119
+          ],
+          [
+            170.7565154377601,
+            240.05398647942388
+          ],
+          [
+            83.65977315664014,
+            195.6759797191358
+          ]
+        ],
+        "rodTip": [
+          83.65977315664014,
+          195.6759797191358
+        ],
+        "pawPositions": [
+          [
+            330.76,
+            331.82
+          ],
+          [
+            359.14,
+            325.8
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          110,
+          405
+        ],
+        "hookAnchor": [
+          110,
+          440
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:5",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          297,
+          322
+        ],
+        "handAnchors": {
+          "far_hand": [
+            357.68,
+            322.0
+          ],
+          "hands": [
+            330.64,
+            332.43
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "catch-00",
+      "clip": "catch",
+      "index": 0,
+      "file": "catch-00.png",
+      "sha256": "e3683e4424f40195ce99852314e59bb4ebe9f30e8dcc1bafbdcb444172b7c40c",
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          346.95,
+          329.81
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            346.95,
+            329.81
+          ],
+          [
+            259.85325771888006,
+            285.4319932397119
+          ],
+          [
+            172.7565154377601,
+            241.05398647942388
+          ],
+          [
+            85.65977315664014,
+            196.6759797191358
+          ]
+        ],
+        "rodTip": [
+          85.65977315664014,
+          196.6759797191358
+        ],
+        "lineEnd": [
+          75,
+          405
+        ],
+        "rodBehindCat": false,
+        "occlusion": "rear-toss",
+        "fishPose": {
+          "rotationDegrees": 90,
+          "sourceAnchor": [
+            45.0,
+            2
+          ],
+          "rotatedAnchor": [
+            2.0,
+            44.99999999999999
+          ],
+          "targetAnchor": [
+            75,
+            405
+          ],
+          "offset": [
+            73,
+            360
+          ]
+        },
+        "pawPositions": [
+          [
+            332.76,
+            332.82
+          ],
+          [
+            361.14,
+            326.8
+          ]
+        ],
+        "maskProfile": "retrieve:5",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          296,
+          329
+        ],
+        "handAnchors": {
+          "far_hand": [
+            359.24,
+            323.13
+          ],
+          "hands": [
+            332.73,
+            333.44
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "catch-01",
+      "clip": "catch",
+      "index": 1,
+      "file": "catch-01.png",
+      "sha256": "bcf583c58c93a6ae5da3e333bdf20dd11663d0828246979eb6a6c558276e18c6",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          340.9,
+          383.76
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            340.9,
+            383.76
+          ],
+          [
+            253.80325771888005,
+            339.3819932397119
+          ],
+          [
+            166.7065154377601,
+            295.0039864794239
+          ],
+          [
+            79.60977315664013,
+            250.62597971913578
+          ]
+        ],
+        "rodTip": [
+          79.60977315664013,
+          250.62597971913578
+        ],
+        "fishPose": {
+          "rotationDegrees": 90,
+          "sourceAnchor": [
+            40.0,
+            75.0
+          ],
+          "rotatedAnchor": [
+            75.0,
+            40.0
+          ],
+          "targetAnchor": [
+            241.74,
+            398.56
+          ],
+          "offset": [
+            167,
+            359
+          ]
+        },
+        "pawPositions": [
+          [
+            241.74,
+            398.56
+          ],
+          [
+            340.9,
+            383.76
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          300,
+          341
+        ],
+        "handAnchors": {
+          "far_hand": [
+            341.0,
+            380.83
+          ],
+          "hands": [
+            237.72,
+            402.22
+          ]
+        }
+      }
+    },
+    {
+      "id": "catch-02",
+      "clip": "catch",
+      "index": 2,
+      "file": "catch-02.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "fishPose": {
+          "rotationDegrees": 35,
+          "sourceAnchor": [
+            40.0,
+            35
+          ],
+          "rotatedAnchor": [
+            53.05694254595816,
+            52.23391822844033
+          ],
+          "targetAnchor": [
+            347.3,
+            390.81
+          ],
+          "offset": [
+            294,
+            339
+          ]
+        },
+        "pawPositions": [
+          [
+            312.36,
+            376.36
+          ],
+          [
+            358.24,
+            365.26
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          304,
+          321
+        ],
+        "handAnchors": {
+          "far_hand": [
+            358.85,
+            366.7
+          ],
+          "hands": [
+            310.63,
+            376.73
+          ]
+        }
+      }
+    },
+    {
+      "id": "catch-03",
+      "clip": "catch",
+      "index": 3,
+      "file": "catch-03.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            40.0,
+            35
+          ],
+          "rotatedAnchor": [
+            40.0,
+            35.0
+          ],
+          "targetAnchor": [
+            364.96,
+            358.62
+          ],
+          "offset": [
+            325,
+            324
+          ]
+        },
+        "pawPositions": [
+          [
+            319.65999999999997,
+            340.1
+          ],
+          [
+            386.26,
+            337.14
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          315,
+          323
+        ],
+        "handAnchors": {
+          "far_hand": [
+            387.95,
+            336.58
+          ],
+          "hands": [
+            315.67,
+            340.14
+          ]
+        }
+      }
+    },
+    {
+      "id": "catch-04",
+      "clip": "catch",
+      "index": 4,
+      "file": "catch-04.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            40.0,
+            35
+          ],
+          "rotatedAnchor": [
+            40.0,
+            35.0
+          ],
+          "targetAnchor": [
+            359.78,
+            334.0
+          ],
+          "offset": [
+            320,
+            299
+          ]
+        },
+        "pawPositions": [
+          [
+            310.78,
+            321.4
+          ],
+          [
+            384.78,
+            306.6
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:4",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          301,
+          323
+        ],
+        "handAnchors": {
+          "far_hand": [
+            381.92,
+            305.36
+          ],
+          "hands": [
+            311.44,
+            320.42
+          ]
+        }
+      }
+    },
+    {
+      "id": "catch-05",
+      "clip": "catch",
+      "index": 5,
+      "file": "catch-05.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            40.0,
+            35
+          ],
+          "rotatedAnchor": [
+            40.0,
+            35.0
+          ],
+          "targetAnchor": [
+            353.90999999999997,
+            319.57
+          ],
+          "offset": [
+            314,
+            285
+          ]
+        },
+        "pawPositions": [
+          [
+            300.1,
+            308.82
+          ],
+          [
+            383.71999999999997,
+            290.32
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:5",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          297,
+          311
+        ],
+        "handAnchors": {
+          "far_hand": [
+            381.71,
+            292.73
+          ],
+          "hands": [
+            300.3,
+            308.74
+          ]
+        }
+      }
+    },
+    {
+      "id": "catch-06",
+      "clip": "catch",
+      "index": 6,
+      "file": "catch-06.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            40.0,
+            35
+          ],
+          "rotatedAnchor": [
+            40.0,
+            35.0
+          ],
+          "targetAnchor": [
+            364.07,
+            362.12
+          ],
+          "offset": [
+            324,
+            327
+          ]
+        },
+        "pawPositions": [
+          [
+            316.18,
+            342.12
+          ],
+          [
+            387.96,
+            342.12
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:6",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          314,
+          331
+        ],
+        "handAnchors": {
+          "far_hand": [
+            386.67,
+            337.23
+          ],
+          "hands": [
+            315.01,
+            343.3
+          ]
+        }
+      }
+    },
+    {
+      "id": "reset_catch-00",
+      "clip": "reset_catch",
+      "index": 0,
+      "file": "reset_catch-00.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "occlusion": "handheld-display",
+        "rodBehindCat": true,
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            40.0,
+            35
+          ],
+          "rotatedAnchor": [
+            40.0,
+            35.0
+          ],
+          "targetAnchor": [
+            364.07,
+            362.12
+          ],
+          "offset": [
+            324,
+            327
+          ]
+        },
+        "pawPositions": [
+          [
+            316.18,
+            342.12
+          ],
+          [
+            387.96,
+            342.12
+          ]
+        ],
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "maskProfile": "catch:6",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          314,
+          331
+        ],
+        "handAnchors": {
+          "far_hand": [
+            386.67,
+            337.23
+          ],
+          "hands": [
+            315.01,
+            343.3
+          ]
+        }
+      }
+    },
+    {
+      "id": "reset_catch-01",
+      "clip": "reset_catch",
+      "index": 1,
+      "file": "reset_catch-01.png",
+      "sha256": "5e3087f35928d435e0b58252926b7f19c7111c4070db5866d9b7a33d4374235b",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "grip": [
+          126,
+          384
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            126,
+            384
+          ],
+          [
+            105.67643281974671,
+            288.3851339117722
+          ],
+          [
+            85.35286563949342,
+            192.7702678235444
+          ],
+          [
+            65.02929845924011,
+            97.15540173531662
+          ]
+        ],
+        "rodTip": [
+          65.02929845924011,
+          97.15540173531662
+        ],
+        "pawPositions": [
+          [
+            327.0,
+            374.22
+          ],
+          [
+            356.52,
+            381.6
+          ]
+        ],
+        "rodBehindCat": true,
+        "occlusion": "handheld-display",
+        "fishHeld": true,
+        "fishUnhooked": true,
+        "fishPose": {
+          "rotationDegrees": 0,
+          "sourceAnchor": [
+            40,
+            35
+          ],
+          "rotatedAnchor": [
+            40.0,
+            35.0
+          ],
+          "targetAnchor": [
+            353.76,
+            385.91
+          ],
+          "offset": [
+            314,
+            351
+          ]
+        },
+        "maskProfile": "reset_catch:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          315,
+          343
+        ],
+        "handAnchors": {
+          "far_hand": [
+            357.97,
+            373.26
+          ],
+          "hands": [
+            324.2,
+            374.16
+          ]
+        }
+      }
+    },
+    {
+      "id": "reset_catch-02",
+      "clip": "reset_catch",
+      "index": 2,
+      "file": "reset_catch-02.png",
+      "sha256": "c7d6a4ef36ba8bb3713f7881db166163858a0e0d719ebc25af53325502de05b7",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          354.08,
+          398.0
+        ],
+        "angleDegrees": -12,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            354.08,
+            398.0
+          ],
+          [
+            333.7564328197467,
+            302.3851339117722
+          ],
+          [
+            313.4328656394934,
+            206.7702678235444
+          ],
+          [
+            293.1092984592401,
+            111.15540173531662
+          ]
+        ],
+        "rodTip": [
+          293.1092984592401,
+          111.15540173531662
+        ],
+        "pawPositions": [
+          [
+            253.22,
+            429.15999999999997
+          ],
+          [
+            354.08,
+            398.0
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "fishStored": true,
+        "maskProfile": "reset_catch:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          314,
+          357
+        ],
+        "handAnchors": {
+          "far_hand": [
+            347.5,
+            390.69
+          ],
+          "hands": [
+            254.51,
+            429.3
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "reset_catch-03",
+      "clip": "reset_catch",
+      "index": 3,
+      "file": "reset_catch-03.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "reset_empty-00",
+      "clip": "reset_empty",
+      "index": 0,
+      "file": "reset_empty-00.png",
+      "sha256": "8fb2e0e6aab054af01d5a139d12d9c8178a3b5c98d8e57085571ea2e3c195101",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          344.95,
+          328.81
+        ],
+        "angleDegrees": -63,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            344.95,
+            328.81
+          ],
+          [
+            257.85325771888006,
+            284.4319932397119
+          ],
+          [
+            170.7565154377601,
+            240.05398647942388
+          ],
+          [
+            83.65977315664014,
+            195.6759797191358
+          ]
+        ],
+        "rodTip": [
+          83.65977315664014,
+          195.6759797191358
+        ],
+        "pawPositions": [
+          [
+            330.76,
+            331.82
+          ],
+          [
+            359.14,
+            325.8
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          110,
+          405
+        ],
+        "hookAnchor": [
+          110,
+          440
+        ],
+        "emptyHook": true,
+        "expression": "disappointed",
+        "maskProfile": "retrieve_empty:5",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          297,
+          322
+        ],
+        "handAnchors": {
+          "far_hand": [
+            357.68,
+            322.0
+          ],
+          "hands": [
+            330.64,
+            332.43
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "reset_empty-01",
+      "clip": "reset_empty",
+      "index": 1,
+      "file": "reset_empty-01.png",
+      "sha256": "60c1616628eb75c42566ec5ed8671eaa19e8f3b74e08d3c0c3ae6dae9ee236e1",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          357.84000000000003,
+          367.25
+        ],
+        "angleDegrees": 18,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            357.84000000000003,
+            367.25
+          ],
+          [
+            388.0467075704949,
+            274.2833133980209
+          ],
+          [
+            418.2534151409898,
+            181.31662679604173
+          ],
+          [
+            448.46012271148464,
+            88.34994019406258
+          ]
+        ],
+        "rodTip": [
+          448.46012271148464,
+          88.34994019406258
+        ],
+        "pawPositions": [
+          [
+            346.36,
+            375.86
+          ],
+          [
+            369.32,
+            358.64
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          470,
+          400
+        ],
+        "hookAnchor": [
+          470,
+          435
+        ],
+        "emptyHook": true,
+        "maskProfile": "reset_empty:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          310,
+          338
+        ],
+        "handAnchors": {
+          "far_hand": [
+            365.16,
+            343.7
+          ],
+          "hands": [
+            337.32,
+            354.79
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "reset_empty-02",
+      "clip": "reset_empty",
+      "index": 2,
+      "file": "reset_empty-02.png",
+      "sha256": "b926d723585bf67297232a051e4d432232cdfee283b96c04c3df8d763c92ca7b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "grip": [
+          372.0,
+          375.3
+        ],
+        "angleDegrees": 32,
+        "bendPixels": 0,
+        "cubicRodControls": [
+          [
+            372.0,
+            375.3
+          ],
+          [
+            423.800116310891,
+            292.4024852593387
+          ],
+          [
+            475.60023262178197,
+            209.5049705186773
+          ],
+          [
+            527.400348932673,
+            126.60745577801595
+          ]
+        ],
+        "rodTip": [
+          527.400348932673,
+          126.60745577801595
+        ],
+        "pawPositions": [
+          [
+            356.70000000000005,
+            378.9
+          ],
+          [
+            387.3,
+            371.70000000000005
+          ]
+        ],
+        "rodBehindCat": false,
+        "occlusion": "between-paws",
+        "lineEnd": [
+          540,
+          432
+        ],
+        "hookAnchor": [
+          540,
+          467
+        ],
+        "emptyHook": true,
+        "maskProfile": "reset_empty:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          329,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            386.21,
+            372.72
+          ],
+          "hands": [
+            356.57,
+            380.2
+          ]
+        },
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "reset_empty-03",
+      "clip": "reset_empty",
+      "index": 3,
+      "file": "reset_empty-03.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "groundbait-00",
+      "clip": "groundbait",
+      "index": 0,
+      "file": "groundbait-00.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "groundbait-01",
+      "clip": "groundbait",
+      "index": 1,
+      "file": "groundbait-01.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          340,
+          353
+        ],
+        "maskProfile": "bait:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          301,
+          338
+        ],
+        "handAnchors": {
+          "far_hand": [
+            358.25,
+            363.69
+          ],
+          "hands": [
+            320.54,
+            343.83
+          ]
+        },
+        "occlusion": "handheld-display",
+        "rodVisible": false,
+        "groundbaitParticles": [
+          [
+            366,
+            356,
+            3
+          ],
+          [
+            366,
+            359,
+            4
+          ],
+          [
+            366,
+            362,
+            3
+          ],
+          [
+            366,
+            356,
+            4
+          ],
+          [
+            366,
+            359,
+            3
+          ],
+          [
+            366,
+            362,
+            4
+          ],
+          [
+            366,
+            356,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "groundbait-02",
+      "clip": "groundbait",
+      "index": 2,
+      "file": "groundbait-02.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          380,
+          328
+        ],
+        "maskProfile": "bait:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          302,
+          327
+        ],
+        "handAnchors": {
+          "far_hand": [
+            367.76,
+            341.02
+          ],
+          "hands": [
+            334.99,
+            339.47
+          ]
+        },
+        "occlusion": "handheld-display",
+        "rodVisible": false,
+        "groundbaitParticles": [
+          [
+            376,
+            333,
+            3
+          ],
+          [
+            376,
+            336,
+            4
+          ],
+          [
+            376,
+            339,
+            3
+          ],
+          [
+            376,
+            333,
+            4
+          ],
+          [
+            376,
+            336,
+            3
+          ],
+          [
+            376,
+            339,
+            4
+          ],
+          [
+            376,
+            333,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "groundbait-03",
+      "clip": "groundbait",
+      "index": 3,
+      "file": "groundbait-03.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          388,
+          313
+        ],
+        "maskProfile": "bait:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          303,
+          318
+        ],
+        "handAnchors": {
+          "far_hand": [
+            396.76,
+            325.32
+          ],
+          "hands": [
+            346.14,
+            335.72
+          ]
+        },
+        "occlusion": "handheld-display",
+        "rodVisible": false,
+        "groundbaitParticles": [
+          [
+            453,
+            305,
+            3
+          ],
+          [
+            455,
+            312,
+            4
+          ],
+          [
+            456,
+            319,
+            3
+          ],
+          [
+            458,
+            305,
+            4
+          ],
+          [
+            460,
+            312,
+            3
+          ],
+          [
+            461,
+            319,
+            4
+          ],
+          [
+            463,
+            305,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "groundbait-04",
+      "clip": "groundbait",
+      "index": 4,
+      "file": "groundbait-04.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          388,
+          313
+        ],
+        "maskProfile": "bait:3",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          303,
+          318
+        ],
+        "handAnchors": {
+          "far_hand": [
+            396.76,
+            325.32
+          ],
+          "hands": [
+            346.14,
+            335.72
+          ]
+        },
+        "occlusion": "handheld-display",
+        "rodVisible": false,
+        "groundbaitParticles": [
+          [
+            501,
+            336,
+            3
+          ],
+          [
+            505,
+            347,
+            4
+          ],
+          [
+            508,
+            358,
+            3
+          ],
+          [
+            511,
+            336,
+            4
+          ],
+          [
+            515,
+            347,
+            3
+          ],
+          [
+            518,
+            358,
+            4
+          ],
+          [
+            521,
+            336,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "groundbait-05",
+      "clip": "groundbait",
+      "index": 5,
+      "file": "groundbait-05.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          346,
+          329
+        ],
+        "maskProfile": "bait:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          300,
+          319
+        ],
+        "handAnchors": {
+          "far_hand": [
+            365.31,
+            332.12
+          ],
+          "hands": [
+            334.31,
+            332.59
+          ]
+        },
+        "occlusion": "handheld-display",
+        "rodVisible": false,
+        "groundbaitParticles": [
+          [
+            518,
+            417,
+            3
+          ],
+          [
+            523,
+            432,
+            4
+          ],
+          [
+            528,
+            447,
+            3
+          ],
+          [
+            533,
+            417,
+            4
+          ],
+          [
+            538,
+            432,
+            3
+          ],
+          [
+            543,
+            447,
+            4
+          ],
+          [
+            548,
+            417,
+            3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "groundbait-06",
+      "clip": "groundbait",
+      "index": 6,
+      "file": "groundbait-06.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "baitAnchor": [
+          340,
+          353
+        ],
+        "maskProfile": "bait:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          301,
+          338
+        ],
+        "handAnchors": {
+          "far_hand": [
+            358.25,
+            363.69
+          ],
+          "hands": [
+            320.54,
+            343.83
+          ]
+        },
+        "occlusion": "handheld-display",
+        "rodVisible": false,
+        "groundbaitParticles": []
+      }
+    },
+    {
+      "id": "groundbait-07",
+      "clip": "groundbait",
+      "index": 7,
+      "file": "groundbait-07.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "leave-00",
+      "clip": "leave",
+      "index": 0,
+      "file": "leave-00.png",
+      "sha256": "8d3ae5ad81b49eca28bffd1a50e1e2fcdb1a160b3a96444abac3ea08dd13971b",
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "rig": {
+        "maskProfile": "ready:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          305,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.33,
+            369.75
+          ],
+          "hands": [
+            325.32,
+            375.56
+          ]
+        },
+        "occlusion": "between-paws",
+        "rodBehindCat": false,
+        "rodHeadOcclusion": true,
+        "rodHeadOcclusionBaked": false,
+        "rodOcclusionModel": "head-layer-order-v1",
+        "gripMode": "far-hand-rod-near-hand"
+      }
+    },
+    {
+      "id": "leave-01",
+      "clip": "leave",
+      "index": 1,
+      "file": "leave-01.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "rodVisible": false,
+        "handsResting": true,
+        "pawPositions": [
+          [
+            308.0,
+            415.48
+          ],
+          [
+            354.72,
+            414.2
+          ]
+        ],
+        "maskProfile": "sit:2",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          319,
+          347
+        ],
+        "handAnchors": {
+          "far_hand": [
+            355.29,
+            414.78
+          ],
+          "hands": [
+            310.23,
+            409.4
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "leave-02",
+      "clip": "leave",
+      "index": 2,
+      "file": "leave-02.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "rodVisible": false,
+        "handsResting": true,
+        "pawPositions": [
+          [
+            314.64,
+            391.52
+          ],
+          [
+            378.64,
+            388.96
+          ]
+        ],
+        "maskProfile": "sit:1",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          331,
+          323
+        ],
+        "handAnchors": {
+          "far_hand": [
+            375.52,
+            387.84
+          ],
+          "hands": [
+            317.5,
+            396.23
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    },
+    {
+      "id": "leave-03",
+      "clip": "leave",
+      "index": 3,
+      "file": "leave-03.png",
+      "sha256": "37598ed86d51c076a7c4ca49948c9a084b17773a805b0832a24b1f020abf3d9f",
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "rig": {
+        "rodVisible": false,
+        "handsResting": true,
+        "pawPositions": [
+          [
+            296.28,
+            370.03999999999996
+          ],
+          [
+            387.15999999999997,
+            367.48
+          ]
+        ],
+        "maskProfile": "sit:0",
+        "maskModel": "pose-contours-v1",
+        "separateHandMasks": true,
+        "headAnchor": [
+          329,
+          295
+        ],
+        "handAnchors": {
+          "far_hand": [
+            393.01,
+            363.8
+          ],
+          "hands": [
+            294.98,
+            371.34
+          ]
+        },
+        "occlusion": "handheld-display"
+      }
+    }
+  ]
+}

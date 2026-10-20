@@ -1,0 +1,3126 @@
+{
+  "characterId": "dafeiyu",
+  "name": "大肥鱼",
+  "canvas": [
+    640,
+    512
+  ],
+  "sheetCanvas": [
+    2560,
+    1024
+  ],
+  "method": "builtin-imagegen-pose-template",
+  "sourceFrameCount": 63,
+  "uniqueDrawingCount": 44,
+  "existing": {
+    "sit-03": "ready-00",
+    "bait-02": "bait-02",
+    "bite-03": "bite-03",
+    "effort-03": "effort-03",
+    "retrieve-05": "catch-00",
+    "catch-04": "catch-04"
+  },
+  "frames": [
+    {
+      "id": "sit-00",
+      "label": "空手站立，双手垂放",
+      "clip": "sit",
+      "index": 0,
+      "atlasIndex": 0,
+      "durationMs": 120,
+      "sourceCharacter": "reference/sit-00/cat.png",
+      "layers": {
+        "body": "reference/sit-00/body.png",
+        "head": "reference/sit-00/head.png",
+        "far_hand": "reference/sit-00/far_hand.png",
+        "rod": "reference/sit-00/rod.png",
+        "line": "reference/sit-00/line.png",
+        "fish": "reference/sit-00/fish.png",
+        "hands": "reference/sit-00/hands.png",
+        "bobber": "reference/sit-00/bobber.png",
+        "bait": "reference/sit-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "sit-00"
+    },
+    {
+      "id": "sit-01",
+      "label": "空手屈膝下蹲",
+      "clip": "sit",
+      "index": 1,
+      "atlasIndex": 1,
+      "durationMs": 120,
+      "sourceCharacter": "reference/sit-01/cat.png",
+      "layers": {
+        "body": "reference/sit-01/body.png",
+        "head": "reference/sit-01/head.png",
+        "far_hand": "reference/sit-01/far_hand.png",
+        "rod": "reference/sit-01/rod.png",
+        "line": "reference/sit-01/line.png",
+        "fish": "reference/sit-01/fish.png",
+        "hands": "reference/sit-01/hands.png",
+        "bobber": "reference/sit-01/bobber.png",
+        "bait": "reference/sit-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "sit-01"
+    },
+    {
+      "id": "sit-02",
+      "label": "空手坐稳",
+      "clip": "sit",
+      "index": 2,
+      "atlasIndex": 2,
+      "durationMs": 120,
+      "sourceCharacter": "reference/sit-02/cat.png",
+      "layers": {
+        "body": "reference/sit-02/body.png",
+        "head": "reference/sit-02/head.png",
+        "far_hand": "reference/sit-02/far_hand.png",
+        "rod": "reference/sit-02/rod.png",
+        "line": "reference/sit-02/line.png",
+        "fish": "reference/sit-02/fish.png",
+        "hands": "reference/sit-02/hands.png",
+        "bobber": "reference/sit-02/bobber.png",
+        "bait": "reference/sit-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "sit-02"
+    },
+    {
+      "id": "sit-03",
+      "label": "坐稳取竿，衔接准备握竿",
+      "clip": "sit",
+      "index": 3,
+      "atlasIndex": 3,
+      "durationMs": 120,
+      "sourceCharacter": "reference/sit-03/cat.png",
+      "layers": {
+        "body": "reference/sit-03/body.png",
+        "head": "reference/sit-03/head.png",
+        "far_hand": "reference/sit-03/far_hand.png",
+        "rod": "reference/sit-03/rod.png",
+        "line": "reference/sit-03/line.png",
+        "fish": "reference/sit-03/fish.png",
+        "hands": "reference/sit-03/hands.png",
+        "bobber": "reference/sit-03/bobber.png",
+        "bait": "reference/sit-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "ready-00",
+      "label": "准备",
+      "clip": "ready",
+      "index": 0,
+      "atlasIndex": 4,
+      "durationMs": 180,
+      "sourceCharacter": "reference/ready-00/cat.png",
+      "layers": {
+        "body": "reference/ready-00/body.png",
+        "head": "reference/ready-00/head.png",
+        "far_hand": "reference/ready-00/far_hand.png",
+        "rod": "reference/ready-00/rod.png",
+        "line": "reference/ready-00/line.png",
+        "fish": "reference/ready-00/fish.png",
+        "hands": "reference/ready-00/hands.png",
+        "bobber": "reference/ready-00/bobber.png",
+        "bait": "reference/ready-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "bait-00",
+      "label": "拿取鱼饵",
+      "clip": "bait",
+      "index": 0,
+      "atlasIndex": 5,
+      "durationMs": 220,
+      "sourceCharacter": "reference/bait-00/cat.png",
+      "layers": {
+        "body": "reference/bait-00/body.png",
+        "head": "reference/bait-00/head.png",
+        "far_hand": "reference/bait-00/far_hand.png",
+        "rod": "reference/bait-00/rod.png",
+        "line": "reference/bait-00/line.png",
+        "fish": "reference/bait-00/fish.png",
+        "hands": "reference/bait-00/hands.png",
+        "bobber": "reference/bait-00/bobber.png",
+        "bait": "reference/bait-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-00"
+    },
+    {
+      "id": "bait-01",
+      "label": "靠近鱼钩",
+      "clip": "bait",
+      "index": 1,
+      "atlasIndex": 6,
+      "durationMs": 220,
+      "sourceCharacter": "reference/bait-01/cat.png",
+      "layers": {
+        "body": "reference/bait-01/body.png",
+        "head": "reference/bait-01/head.png",
+        "far_hand": "reference/bait-01/far_hand.png",
+        "rod": "reference/bait-01/rod.png",
+        "line": "reference/bait-01/line.png",
+        "fish": "reference/bait-01/fish.png",
+        "hands": "reference/bait-01/hands.png",
+        "bobber": "reference/bait-01/bobber.png",
+        "bait": "reference/bait-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-01"
+    },
+    {
+      "id": "bait-02",
+      "label": "穿饵固定",
+      "clip": "bait",
+      "index": 2,
+      "atlasIndex": 7,
+      "durationMs": 260,
+      "sourceCharacter": "reference/bait-02/cat.png",
+      "layers": {
+        "body": "reference/bait-02/body.png",
+        "head": "reference/bait-02/head.png",
+        "far_hand": "reference/bait-02/far_hand.png",
+        "rod": "reference/bait-02/rod.png",
+        "line": "reference/bait-02/line.png",
+        "fish": "reference/bait-02/fish.png",
+        "hands": "reference/bait-02/hands.png",
+        "bobber": "reference/bait-02/bobber.png",
+        "bait": "reference/bait-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-02"
+    },
+    {
+      "id": "bait-03",
+      "label": "检查挂饵",
+      "clip": "bait",
+      "index": 3,
+      "atlasIndex": 8,
+      "durationMs": 300,
+      "sourceCharacter": "reference/bait-03/cat.png",
+      "layers": {
+        "body": "reference/bait-03/body.png",
+        "head": "reference/bait-03/head.png",
+        "far_hand": "reference/bait-03/far_hand.png",
+        "rod": "reference/bait-03/rod.png",
+        "line": "reference/bait-03/line.png",
+        "fish": "reference/bait-03/fish.png",
+        "hands": "reference/bait-03/hands.png",
+        "bobber": "reference/bait-03/bobber.png",
+        "bait": "reference/bait-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-03"
+    },
+    {
+      "id": "cast-00",
+      "label": "抬手后引",
+      "clip": "cast",
+      "index": 0,
+      "atlasIndex": 9,
+      "durationMs": 140,
+      "sourceCharacter": "reference/cast-00/cat.png",
+      "layers": {
+        "body": "reference/cast-00/body.png",
+        "head": "reference/cast-00/head.png",
+        "far_hand": "reference/cast-00/far_hand.png",
+        "rod": "reference/cast-00/rod.png",
+        "line": "reference/cast-00/line.png",
+        "fish": "reference/cast-00/fish.png",
+        "hands": "reference/cast-00/hands.png",
+        "bobber": "reference/cast-00/bobber.png",
+        "bait": "reference/cast-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "cast-00"
+    },
+    {
+      "id": "cast-01",
+      "label": "鱼竿甩至头后",
+      "clip": "cast",
+      "index": 1,
+      "atlasIndex": 10,
+      "durationMs": 140,
+      "sourceCharacter": "reference/cast-01/cat.png",
+      "layers": {
+        "body": "reference/cast-01/body.png",
+        "head": "reference/cast-01/head.png",
+        "far_hand": "reference/cast-01/far_hand.png",
+        "rod": "reference/cast-01/rod.png",
+        "line": "reference/cast-01/line.png",
+        "fish": "reference/cast-01/fish.png",
+        "hands": "reference/cast-01/hands.png",
+        "bobber": "reference/cast-01/bobber.png",
+        "bait": "reference/cast-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "cast-01"
+    },
+    {
+      "id": "cast-02",
+      "label": "过顶大幅前甩",
+      "clip": "cast",
+      "index": 2,
+      "atlasIndex": 11,
+      "durationMs": 140,
+      "sourceCharacter": "reference/cast-02/cat.png",
+      "layers": {
+        "body": "reference/cast-02/body.png",
+        "head": "reference/cast-02/head.png",
+        "far_hand": "reference/cast-02/far_hand.png",
+        "rod": "reference/cast-02/rod.png",
+        "line": "reference/cast-02/line.png",
+        "fish": "reference/cast-02/fish.png",
+        "hands": "reference/cast-02/hands.png",
+        "bobber": "reference/cast-02/bobber.png",
+        "bait": "reference/cast-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "cast-02"
+    },
+    {
+      "id": "cast-03",
+      "label": "落钩收势",
+      "clip": "cast",
+      "index": 3,
+      "atlasIndex": 12,
+      "durationMs": 180,
+      "sourceCharacter": "reference/cast-03/cat.png",
+      "layers": {
+        "body": "reference/cast-03/body.png",
+        "head": "reference/cast-03/head.png",
+        "far_hand": "reference/cast-03/far_hand.png",
+        "rod": "reference/cast-03/rod.png",
+        "line": "reference/cast-03/line.png",
+        "fish": "reference/cast-03/fish.png",
+        "hands": "reference/cast-03/hands.png",
+        "bobber": "reference/cast-03/bobber.png",
+        "bait": "reference/cast-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "cast-03"
+    },
+    {
+      "id": "wait-00",
+      "label": "等待",
+      "clip": "wait",
+      "index": 0,
+      "atlasIndex": 13,
+      "durationMs": 500,
+      "sourceCharacter": "reference/wait-00/cat.png",
+      "layers": {
+        "body": "reference/wait-00/body.png",
+        "head": "reference/wait-00/head.png",
+        "far_hand": "reference/wait-00/far_hand.png",
+        "rod": "reference/wait-00/rod.png",
+        "line": "reference/wait-00/line.png",
+        "fish": "reference/wait-00/fish.png",
+        "hands": "reference/wait-00/hands.png",
+        "bobber": "reference/wait-00/bobber.png",
+        "bait": "reference/wait-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "wait-00"
+    },
+    {
+      "id": "bite-00",
+      "label": "大鱼咬钩",
+      "clip": "bite",
+      "index": 0,
+      "atlasIndex": 14,
+      "durationMs": 120,
+      "sourceCharacter": "reference/bite-00/cat.png",
+      "layers": {
+        "body": "reference/bite-00/body.png",
+        "head": "reference/bite-00/head.png",
+        "far_hand": "reference/bite-00/far_hand.png",
+        "rod": "reference/bite-00/rod.png",
+        "line": "reference/bite-00/line.png",
+        "fish": "reference/bite-00/fish.png",
+        "hands": "reference/bite-00/hands.png",
+        "bobber": "reference/bite-00/bobber.png",
+        "bait": "reference/bite-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "bite-00"
+    },
+    {
+      "id": "bite-01",
+      "label": "身体后仰",
+      "clip": "bite",
+      "index": 1,
+      "atlasIndex": 15,
+      "durationMs": 140,
+      "sourceCharacter": "reference/bite-01/cat.png",
+      "layers": {
+        "body": "reference/bite-01/body.png",
+        "head": "reference/bite-01/head.png",
+        "far_hand": "reference/bite-01/far_hand.png",
+        "rod": "reference/bite-01/rod.png",
+        "line": "reference/bite-01/line.png",
+        "fish": "reference/bite-01/fish.png",
+        "hands": "reference/bite-01/hands.png",
+        "bobber": "reference/bite-01/bobber.png",
+        "bait": "reference/bite-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "bite-01"
+    },
+    {
+      "id": "bite-02",
+      "label": "抬竿拉弯",
+      "clip": "bite",
+      "index": 2,
+      "atlasIndex": 16,
+      "durationMs": 140,
+      "sourceCharacter": "reference/bite-02/cat.png",
+      "layers": {
+        "body": "reference/bite-02/body.png",
+        "head": "reference/bite-02/head.png",
+        "far_hand": "reference/bite-02/far_hand.png",
+        "rod": "reference/bite-02/rod.png",
+        "line": "reference/bite-02/line.png",
+        "fish": "reference/bite-02/fish.png",
+        "hands": "reference/bite-02/hands.png",
+        "bobber": "reference/bite-02/bobber.png",
+        "bait": "reference/bite-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "bite-02"
+    },
+    {
+      "id": "bite-03",
+      "label": "进入持续发力",
+      "clip": "bite",
+      "index": 3,
+      "atlasIndex": 17,
+      "durationMs": 160,
+      "sourceCharacter": "reference/bite-03/cat.png",
+      "layers": {
+        "body": "reference/bite-03/body.png",
+        "head": "reference/bite-03/head.png",
+        "far_hand": "reference/bite-03/far_hand.png",
+        "rod": "reference/bite-03/rod.png",
+        "line": "reference/bite-03/line.png",
+        "fish": "reference/bite-03/fish.png",
+        "hands": "reference/bite-03/hands.png",
+        "bobber": "reference/bite-03/bobber.png",
+        "bait": "reference/bite-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "bite-03"
+    },
+    {
+      "id": "effort-00",
+      "label": "稳住拉力",
+      "clip": "effort",
+      "index": 0,
+      "atlasIndex": 18,
+      "durationMs": 140,
+      "sourceCharacter": "reference/effort-00/cat.png",
+      "layers": {
+        "body": "reference/effort-00/body.png",
+        "head": "reference/effort-00/head.png",
+        "far_hand": "reference/effort-00/far_hand.png",
+        "rod": "reference/effort-00/rod.png",
+        "line": "reference/effort-00/line.png",
+        "fish": "reference/effort-00/fish.png",
+        "hands": "reference/effort-00/hands.png",
+        "bobber": "reference/effort-00/bobber.png",
+        "bait": "reference/effort-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "bite-03"
+    },
+    {
+      "id": "effort-01",
+      "label": "再次抬竿",
+      "clip": "effort",
+      "index": 1,
+      "atlasIndex": 19,
+      "durationMs": 140,
+      "sourceCharacter": "reference/effort-01/cat.png",
+      "layers": {
+        "body": "reference/effort-01/body.png",
+        "head": "reference/effort-01/head.png",
+        "far_hand": "reference/effort-01/far_hand.png",
+        "rod": "reference/effort-01/rod.png",
+        "line": "reference/effort-01/line.png",
+        "fish": "reference/effort-01/fish.png",
+        "hands": "reference/effort-01/hands.png",
+        "bobber": "reference/effort-01/bobber.png",
+        "bait": "reference/effort-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "effort-01"
+    },
+    {
+      "id": "effort-02",
+      "label": "全力后仰",
+      "clip": "effort",
+      "index": 2,
+      "atlasIndex": 20,
+      "durationMs": 160,
+      "sourceCharacter": "reference/effort-02/cat.png",
+      "layers": {
+        "body": "reference/effort-02/body.png",
+        "head": "reference/effort-02/head.png",
+        "far_hand": "reference/effort-02/far_hand.png",
+        "rod": "reference/effort-02/rod.png",
+        "line": "reference/effort-02/line.png",
+        "fish": "reference/effort-02/fish.png",
+        "hands": "reference/effort-02/hands.png",
+        "bobber": "reference/effort-02/bobber.png",
+        "bait": "reference/effort-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "effort-02"
+    },
+    {
+      "id": "effort-03",
+      "label": "保持张力",
+      "clip": "effort",
+      "index": 3,
+      "atlasIndex": 21,
+      "durationMs": 140,
+      "sourceCharacter": "reference/effort-03/cat.png",
+      "layers": {
+        "body": "reference/effort-03/body.png",
+        "head": "reference/effort-03/head.png",
+        "far_hand": "reference/effort-03/far_hand.png",
+        "rod": "reference/effort-03/rod.png",
+        "line": "reference/effort-03/line.png",
+        "fish": "reference/effort-03/fish.png",
+        "hands": "reference/effort-03/hands.png",
+        "bobber": "reference/effort-03/bobber.png",
+        "bait": "reference/effort-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "effort-03"
+    },
+    {
+      "id": "effort-04",
+      "label": "抵抗回拉",
+      "clip": "effort",
+      "index": 4,
+      "atlasIndex": 22,
+      "durationMs": 140,
+      "sourceCharacter": "reference/effort-04/cat.png",
+      "layers": {
+        "body": "reference/effort-04/body.png",
+        "head": "reference/effort-04/head.png",
+        "far_hand": "reference/effort-04/far_hand.png",
+        "rod": "reference/effort-04/rod.png",
+        "line": "reference/effort-04/line.png",
+        "fish": "reference/effort-04/fish.png",
+        "hands": "reference/effort-04/hands.png",
+        "bobber": "reference/effort-04/bobber.png",
+        "bait": "reference/effort-04/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "effort-04"
+    },
+    {
+      "id": "effort-05",
+      "label": "恢复握力",
+      "clip": "effort",
+      "index": 5,
+      "atlasIndex": 23,
+      "durationMs": 160,
+      "sourceCharacter": "reference/effort-05/cat.png",
+      "layers": {
+        "body": "reference/effort-05/body.png",
+        "head": "reference/effort-05/head.png",
+        "far_hand": "reference/effort-05/far_hand.png",
+        "rod": "reference/effort-05/rod.png",
+        "line": "reference/effort-05/line.png",
+        "fish": "reference/effort-05/fish.png",
+        "hands": "reference/effort-05/hands.png",
+        "bobber": "reference/effort-05/bobber.png",
+        "bait": "reference/effort-05/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "effort-05"
+    },
+    {
+      "id": "retrieve-00",
+      "label": "提竿带鱼出水",
+      "clip": "retrieve",
+      "index": 0,
+      "atlasIndex": 24,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve-00/cat.png",
+      "layers": {
+        "body": "reference/retrieve-00/body.png",
+        "head": "reference/retrieve-00/head.png",
+        "far_hand": "reference/retrieve-00/far_hand.png",
+        "rod": "reference/retrieve-00/rod.png",
+        "line": "reference/retrieve-00/line.png",
+        "fish": "reference/retrieve-00/fish.png",
+        "hands": "reference/retrieve-00/hands.png",
+        "bobber": "reference/retrieve-00/bobber.png",
+        "bait": "reference/retrieve-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-00"
+    },
+    {
+      "id": "retrieve-01",
+      "label": "鱼随惯性上甩",
+      "clip": "retrieve",
+      "index": 1,
+      "atlasIndex": 25,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve-01/cat.png",
+      "layers": {
+        "body": "reference/retrieve-01/body.png",
+        "head": "reference/retrieve-01/head.png",
+        "far_hand": "reference/retrieve-01/far_hand.png",
+        "rod": "reference/retrieve-01/rod.png",
+        "line": "reference/retrieve-01/line.png",
+        "fish": "reference/retrieve-01/fish.png",
+        "hands": "reference/retrieve-01/hands.png",
+        "bobber": "reference/retrieve-01/bobber.png",
+        "bait": "reference/retrieve-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-01"
+    },
+    {
+      "id": "retrieve-02",
+      "label": "鱼越过头顶",
+      "clip": "retrieve",
+      "index": 2,
+      "atlasIndex": 26,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve-02/cat.png",
+      "layers": {
+        "body": "reference/retrieve-02/body.png",
+        "head": "reference/retrieve-02/head.png",
+        "far_hand": "reference/retrieve-02/far_hand.png",
+        "rod": "reference/retrieve-02/rod.png",
+        "line": "reference/retrieve-02/line.png",
+        "fish": "reference/retrieve-02/fish.png",
+        "hands": "reference/retrieve-02/hands.png",
+        "bobber": "reference/retrieve-02/bobber.png",
+        "bait": "reference/retrieve-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-02"
+    },
+    {
+      "id": "retrieve-03",
+      "label": "向身后抛鱼",
+      "clip": "retrieve",
+      "index": 3,
+      "atlasIndex": 27,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve-03/cat.png",
+      "layers": {
+        "body": "reference/retrieve-03/body.png",
+        "head": "reference/retrieve-03/head.png",
+        "far_hand": "reference/retrieve-03/far_hand.png",
+        "rod": "reference/retrieve-03/rod.png",
+        "line": "reference/retrieve-03/line.png",
+        "fish": "reference/retrieve-03/fish.png",
+        "hands": "reference/retrieve-03/hands.png",
+        "bobber": "reference/retrieve-03/bobber.png",
+        "bait": "reference/retrieve-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-03"
+    },
+    {
+      "id": "retrieve-04",
+      "label": "鱼落向身后",
+      "clip": "retrieve",
+      "index": 4,
+      "atlasIndex": 28,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve-04/cat.png",
+      "layers": {
+        "body": "reference/retrieve-04/body.png",
+        "head": "reference/retrieve-04/head.png",
+        "far_hand": "reference/retrieve-04/far_hand.png",
+        "rod": "reference/retrieve-04/rod.png",
+        "line": "reference/retrieve-04/line.png",
+        "fish": "reference/retrieve-04/fish.png",
+        "hands": "reference/retrieve-04/hands.png",
+        "bobber": "reference/retrieve-04/bobber.png",
+        "bait": "reference/retrieve-04/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-04"
+    },
+    {
+      "id": "retrieve-05",
+      "label": "收杆停在身后",
+      "clip": "retrieve",
+      "index": 5,
+      "atlasIndex": 29,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve-05/cat.png",
+      "layers": {
+        "body": "reference/retrieve-05/body.png",
+        "head": "reference/retrieve-05/head.png",
+        "far_hand": "reference/retrieve-05/far_hand.png",
+        "rod": "reference/retrieve-05/rod.png",
+        "line": "reference/retrieve-05/line.png",
+        "fish": "reference/retrieve-05/fish.png",
+        "hands": "reference/retrieve-05/hands.png",
+        "bobber": "reference/retrieve-05/bobber.png",
+        "bait": "reference/retrieve-05/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-05"
+    },
+    {
+      "id": "retrieve_empty-00",
+      "label": "空钩收线出水",
+      "clip": "retrieve_empty",
+      "index": 0,
+      "atlasIndex": 30,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve_empty-00/cat.png",
+      "layers": {
+        "body": "reference/retrieve_empty-00/body.png",
+        "head": "reference/retrieve_empty-00/head.png",
+        "far_hand": "reference/retrieve_empty-00/far_hand.png",
+        "rod": "reference/retrieve_empty-00/rod.png",
+        "line": "reference/retrieve_empty-00/line.png",
+        "fish": "reference/retrieve_empty-00/fish.png",
+        "hands": "reference/retrieve_empty-00/hands.png",
+        "bobber": "reference/retrieve_empty-00/bobber.png",
+        "bait": "reference/retrieve_empty-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-00"
+    },
+    {
+      "id": "retrieve_empty-01",
+      "label": "抬竿提起空钩",
+      "clip": "retrieve_empty",
+      "index": 1,
+      "atlasIndex": 31,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve_empty-01/cat.png",
+      "layers": {
+        "body": "reference/retrieve_empty-01/body.png",
+        "head": "reference/retrieve_empty-01/head.png",
+        "far_hand": "reference/retrieve_empty-01/far_hand.png",
+        "rod": "reference/retrieve_empty-01/rod.png",
+        "line": "reference/retrieve_empty-01/line.png",
+        "fish": "reference/retrieve_empty-01/fish.png",
+        "hands": "reference/retrieve_empty-01/hands.png",
+        "bobber": "reference/retrieve_empty-01/bobber.png",
+        "bait": "reference/retrieve_empty-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-01"
+    },
+    {
+      "id": "retrieve_empty-02",
+      "label": "空钩越过头顶",
+      "clip": "retrieve_empty",
+      "index": 2,
+      "atlasIndex": 32,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve_empty-02/cat.png",
+      "layers": {
+        "body": "reference/retrieve_empty-02/body.png",
+        "head": "reference/retrieve_empty-02/head.png",
+        "far_hand": "reference/retrieve_empty-02/far_hand.png",
+        "rod": "reference/retrieve_empty-02/rod.png",
+        "line": "reference/retrieve_empty-02/line.png",
+        "fish": "reference/retrieve_empty-02/fish.png",
+        "hands": "reference/retrieve_empty-02/hands.png",
+        "bobber": "reference/retrieve_empty-02/bobber.png",
+        "bait": "reference/retrieve_empty-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-02"
+    },
+    {
+      "id": "retrieve_empty-03",
+      "label": "甩向身后",
+      "clip": "retrieve_empty",
+      "index": 3,
+      "atlasIndex": 33,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve_empty-03/cat.png",
+      "layers": {
+        "body": "reference/retrieve_empty-03/body.png",
+        "head": "reference/retrieve_empty-03/head.png",
+        "far_hand": "reference/retrieve_empty-03/far_hand.png",
+        "rod": "reference/retrieve_empty-03/rod.png",
+        "line": "reference/retrieve_empty-03/line.png",
+        "fish": "reference/retrieve_empty-03/fish.png",
+        "hands": "reference/retrieve_empty-03/hands.png",
+        "bobber": "reference/retrieve_empty-03/bobber.png",
+        "bait": "reference/retrieve_empty-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-03"
+    },
+    {
+      "id": "retrieve_empty-04",
+      "label": "查看空钩",
+      "clip": "retrieve_empty",
+      "index": 4,
+      "atlasIndex": 34,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve_empty-04/cat.png",
+      "layers": {
+        "body": "reference/retrieve_empty-04/body.png",
+        "head": "reference/retrieve_empty-04/head.png",
+        "far_hand": "reference/retrieve_empty-04/far_hand.png",
+        "rod": "reference/retrieve_empty-04/rod.png",
+        "line": "reference/retrieve_empty-04/line.png",
+        "fish": "reference/retrieve_empty-04/fish.png",
+        "hands": "reference/retrieve_empty-04/hands.png",
+        "bobber": "reference/retrieve_empty-04/bobber.png",
+        "bait": "reference/retrieve_empty-04/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-04"
+    },
+    {
+      "id": "retrieve_empty-05",
+      "label": "空钩停竿收势",
+      "clip": "retrieve_empty",
+      "index": 5,
+      "atlasIndex": 35,
+      "durationMs": 100,
+      "sourceCharacter": "reference/retrieve_empty-05/cat.png",
+      "layers": {
+        "body": "reference/retrieve_empty-05/body.png",
+        "head": "reference/retrieve_empty-05/head.png",
+        "far_hand": "reference/retrieve_empty-05/far_hand.png",
+        "rod": "reference/retrieve_empty-05/rod.png",
+        "line": "reference/retrieve_empty-05/line.png",
+        "fish": "reference/retrieve_empty-05/fish.png",
+        "hands": "reference/retrieve_empty-05/hands.png",
+        "bobber": "reference/retrieve_empty-05/bobber.png",
+        "bait": "reference/retrieve_empty-05/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-05"
+    },
+    {
+      "id": "catch-00",
+      "label": "放稳身后的鱼",
+      "clip": "catch",
+      "index": 0,
+      "atlasIndex": 36,
+      "durationMs": 100,
+      "sourceCharacter": "reference/catch-00/cat.png",
+      "layers": {
+        "body": "reference/catch-00/body.png",
+        "head": "reference/catch-00/head.png",
+        "far_hand": "reference/catch-00/far_hand.png",
+        "rod": "reference/catch-00/rod.png",
+        "line": "reference/catch-00/line.png",
+        "fish": "reference/catch-00/fish.png",
+        "hands": "reference/catch-00/hands.png",
+        "bobber": "reference/catch-00/bobber.png",
+        "bait": "reference/catch-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "retrieve-05"
+    },
+    {
+      "id": "catch-01",
+      "label": "回身抓住鱼",
+      "clip": "catch",
+      "index": 1,
+      "atlasIndex": 37,
+      "durationMs": 120,
+      "sourceCharacter": "reference/catch-01/cat.png",
+      "layers": {
+        "body": "reference/catch-01/body.png",
+        "head": "reference/catch-01/head.png",
+        "far_hand": "reference/catch-01/far_hand.png",
+        "rod": "reference/catch-01/rod.png",
+        "line": "reference/catch-01/line.png",
+        "fish": "reference/catch-01/fish.png",
+        "hands": "reference/catch-01/hands.png",
+        "bobber": "reference/catch-01/bobber.png",
+        "bait": "reference/catch-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-01"
+    },
+    {
+      "id": "catch-02",
+      "label": "拿起转向面前",
+      "clip": "catch",
+      "index": 2,
+      "atlasIndex": 38,
+      "durationMs": 120,
+      "sourceCharacter": "reference/catch-02/cat.png",
+      "layers": {
+        "body": "reference/catch-02/body.png",
+        "head": "reference/catch-02/head.png",
+        "far_hand": "reference/catch-02/far_hand.png",
+        "rod": "reference/catch-02/rod.png",
+        "line": "reference/catch-02/line.png",
+        "fish": "reference/catch-02/fish.png",
+        "hands": "reference/catch-02/hands.png",
+        "bobber": "reference/catch-02/bobber.png",
+        "bait": "reference/catch-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-02"
+    },
+    {
+      "id": "catch-03",
+      "label": "竖着举到胸前",
+      "clip": "catch",
+      "index": 3,
+      "atlasIndex": 39,
+      "durationMs": 160,
+      "sourceCharacter": "reference/catch-03/cat.png",
+      "layers": {
+        "body": "reference/catch-03/body.png",
+        "head": "reference/catch-03/head.png",
+        "far_hand": "reference/catch-03/far_hand.png",
+        "rod": "reference/catch-03/rod.png",
+        "line": "reference/catch-03/line.png",
+        "fish": "reference/catch-03/fish.png",
+        "hands": "reference/catch-03/hands.png",
+        "bobber": "reference/catch-03/bobber.png",
+        "bait": "reference/catch-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-03"
+    },
+    {
+      "id": "catch-04",
+      "label": "开心举鱼炫耀",
+      "clip": "catch",
+      "index": 4,
+      "atlasIndex": 40,
+      "durationMs": 160,
+      "sourceCharacter": "reference/catch-04/cat.png",
+      "layers": {
+        "body": "reference/catch-04/body.png",
+        "head": "reference/catch-04/head.png",
+        "far_hand": "reference/catch-04/far_hand.png",
+        "rod": "reference/catch-04/rod.png",
+        "line": "reference/catch-04/line.png",
+        "fish": "reference/catch-04/fish.png",
+        "hands": "reference/catch-04/hands.png",
+        "bobber": "reference/catch-04/bobber.png",
+        "bait": "reference/catch-04/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-04"
+    },
+    {
+      "id": "catch-05",
+      "label": "轻轻上举展示",
+      "clip": "catch",
+      "index": 5,
+      "atlasIndex": 41,
+      "durationMs": 180,
+      "sourceCharacter": "reference/catch-05/cat.png",
+      "layers": {
+        "body": "reference/catch-05/body.png",
+        "head": "reference/catch-05/head.png",
+        "far_hand": "reference/catch-05/far_hand.png",
+        "rod": "reference/catch-05/rod.png",
+        "line": "reference/catch-05/line.png",
+        "fish": "reference/catch-05/fish.png",
+        "hands": "reference/catch-05/hands.png",
+        "bobber": "reference/catch-05/bobber.png",
+        "bait": "reference/catch-05/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-05"
+    },
+    {
+      "id": "catch-06",
+      "label": "眨眼骄傲定格",
+      "clip": "catch",
+      "index": 6,
+      "atlasIndex": 42,
+      "durationMs": 360,
+      "sourceCharacter": "reference/catch-06/cat.png",
+      "layers": {
+        "body": "reference/catch-06/body.png",
+        "head": "reference/catch-06/head.png",
+        "far_hand": "reference/catch-06/far_hand.png",
+        "rod": "reference/catch-06/rod.png",
+        "line": "reference/catch-06/line.png",
+        "fish": "reference/catch-06/fish.png",
+        "hands": "reference/catch-06/hands.png",
+        "bobber": "reference/catch-06/bobber.png",
+        "bait": "reference/catch-06/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-06"
+    },
+    {
+      "id": "reset_catch-00",
+      "label": "结束炫耀",
+      "clip": "reset_catch",
+      "index": 0,
+      "atlasIndex": 43,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_catch-00/cat.png",
+      "layers": {
+        "body": "reference/reset_catch-00/body.png",
+        "head": "reference/reset_catch-00/head.png",
+        "far_hand": "reference/reset_catch-00/far_hand.png",
+        "rod": "reference/reset_catch-00/rod.png",
+        "line": "reference/reset_catch-00/line.png",
+        "fish": "reference/reset_catch-00/fish.png",
+        "hands": "reference/reset_catch-00/hands.png",
+        "bobber": "reference/reset_catch-00/bobber.png",
+        "bait": "reference/reset_catch-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "catch-06"
+    },
+    {
+      "id": "reset_catch-01",
+      "label": "放下收获",
+      "clip": "reset_catch",
+      "index": 1,
+      "atlasIndex": 44,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_catch-01/cat.png",
+      "layers": {
+        "body": "reference/reset_catch-01/body.png",
+        "head": "reference/reset_catch-01/head.png",
+        "far_hand": "reference/reset_catch-01/far_hand.png",
+        "rod": "reference/reset_catch-01/rod.png",
+        "line": "reference/reset_catch-01/line.png",
+        "fish": "reference/reset_catch-01/fish.png",
+        "hands": "reference/reset_catch-01/hands.png",
+        "bobber": "reference/reset_catch-01/bobber.png",
+        "bait": "reference/reset_catch-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "reset_catch-01"
+    },
+    {
+      "id": "reset_catch-02",
+      "label": "收好鱼并取竿",
+      "clip": "reset_catch",
+      "index": 2,
+      "atlasIndex": 45,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_catch-02/cat.png",
+      "layers": {
+        "body": "reference/reset_catch-02/body.png",
+        "head": "reference/reset_catch-02/head.png",
+        "far_hand": "reference/reset_catch-02/far_hand.png",
+        "rod": "reference/reset_catch-02/rod.png",
+        "line": "reference/reset_catch-02/line.png",
+        "fish": "reference/reset_catch-02/fish.png",
+        "hands": "reference/reset_catch-02/hands.png",
+        "bobber": "reference/reset_catch-02/bobber.png",
+        "bait": "reference/reset_catch-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "reset_catch-02"
+    },
+    {
+      "id": "reset_catch-03",
+      "label": "恢复准备坐姿",
+      "clip": "reset_catch",
+      "index": 3,
+      "atlasIndex": 46,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_catch-03/cat.png",
+      "layers": {
+        "body": "reference/reset_catch-03/body.png",
+        "head": "reference/reset_catch-03/head.png",
+        "far_hand": "reference/reset_catch-03/far_hand.png",
+        "rod": "reference/reset_catch-03/rod.png",
+        "line": "reference/reset_catch-03/line.png",
+        "fish": "reference/reset_catch-03/fish.png",
+        "hands": "reference/reset_catch-03/hands.png",
+        "bobber": "reference/reset_catch-03/bobber.png",
+        "bait": "reference/reset_catch-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "reset_empty-00",
+      "label": "结束空军收势",
+      "clip": "reset_empty",
+      "index": 0,
+      "atlasIndex": 47,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_empty-00/cat.png",
+      "layers": {
+        "body": "reference/reset_empty-00/body.png",
+        "head": "reference/reset_empty-00/head.png",
+        "far_hand": "reference/reset_empty-00/far_hand.png",
+        "rod": "reference/reset_empty-00/rod.png",
+        "line": "reference/reset_empty-00/line.png",
+        "fish": "reference/reset_empty-00/fish.png",
+        "hands": "reference/reset_empty-00/hands.png",
+        "bobber": "reference/reset_empty-00/bobber.png",
+        "bait": "reference/reset_empty-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "retrieve_empty-05"
+    },
+    {
+      "id": "reset_empty-01",
+      "label": "把鱼竿带回身前",
+      "clip": "reset_empty",
+      "index": 1,
+      "atlasIndex": 48,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_empty-01/cat.png",
+      "layers": {
+        "body": "reference/reset_empty-01/body.png",
+        "head": "reference/reset_empty-01/head.png",
+        "far_hand": "reference/reset_empty-01/far_hand.png",
+        "rod": "reference/reset_empty-01/rod.png",
+        "line": "reference/reset_empty-01/line.png",
+        "fish": "reference/reset_empty-01/fish.png",
+        "hands": "reference/reset_empty-01/hands.png",
+        "bobber": "reference/reset_empty-01/bobber.png",
+        "bait": "reference/reset_empty-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "reset_empty-01"
+    },
+    {
+      "id": "reset_empty-02",
+      "label": "落座重新握竿",
+      "clip": "reset_empty",
+      "index": 2,
+      "atlasIndex": 49,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_empty-02/cat.png",
+      "layers": {
+        "body": "reference/reset_empty-02/body.png",
+        "head": "reference/reset_empty-02/head.png",
+        "far_hand": "reference/reset_empty-02/far_hand.png",
+        "rod": "reference/reset_empty-02/rod.png",
+        "line": "reference/reset_empty-02/line.png",
+        "fish": "reference/reset_empty-02/fish.png",
+        "hands": "reference/reset_empty-02/hands.png",
+        "bobber": "reference/reset_empty-02/bobber.png",
+        "bait": "reference/reset_empty-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "reset_empty-02"
+    },
+    {
+      "id": "reset_empty-03",
+      "label": "恢复准备坐姿",
+      "clip": "reset_empty",
+      "index": 3,
+      "atlasIndex": 50,
+      "durationMs": 120,
+      "sourceCharacter": "reference/reset_empty-03/cat.png",
+      "layers": {
+        "body": "reference/reset_empty-03/body.png",
+        "head": "reference/reset_empty-03/head.png",
+        "far_hand": "reference/reset_empty-03/far_hand.png",
+        "rod": "reference/reset_empty-03/rod.png",
+        "line": "reference/reset_empty-03/line.png",
+        "fish": "reference/reset_empty-03/fish.png",
+        "hands": "reference/reset_empty-03/hands.png",
+        "bobber": "reference/reset_empty-03/bobber.png",
+        "bait": "reference/reset_empty-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "groundbait-00",
+      "label": "收竿准备打窝",
+      "clip": "groundbait",
+      "index": 0,
+      "atlasIndex": 51,
+      "durationMs": 100,
+      "sourceCharacter": "reference/groundbait-00/cat.png",
+      "layers": {
+        "body": "reference/groundbait-00/body.png",
+        "head": "reference/groundbait-00/head.png",
+        "far_hand": "reference/groundbait-00/far_hand.png",
+        "rod": "reference/groundbait-00/rod.png",
+        "line": "reference/groundbait-00/line.png",
+        "fish": "reference/groundbait-00/fish.png",
+        "hands": "reference/groundbait-00/hands.png",
+        "bobber": "reference/groundbait-00/bobber.png",
+        "bait": "reference/groundbait-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "groundbait-01",
+      "label": "捧起窝料",
+      "clip": "groundbait",
+      "index": 1,
+      "atlasIndex": 52,
+      "durationMs": 120,
+      "sourceCharacter": "reference/groundbait-01/cat.png",
+      "layers": {
+        "body": "reference/groundbait-01/body.png",
+        "head": "reference/groundbait-01/head.png",
+        "far_hand": "reference/groundbait-01/far_hand.png",
+        "rod": "reference/groundbait-01/rod.png",
+        "line": "reference/groundbait-01/line.png",
+        "fish": "reference/groundbait-01/fish.png",
+        "hands": "reference/groundbait-01/hands.png",
+        "bobber": "reference/groundbait-01/bobber.png",
+        "bait": "reference/groundbait-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-00"
+    },
+    {
+      "id": "groundbait-02",
+      "label": "向前送出",
+      "clip": "groundbait",
+      "index": 2,
+      "atlasIndex": 53,
+      "durationMs": 120,
+      "sourceCharacter": "reference/groundbait-02/cat.png",
+      "layers": {
+        "body": "reference/groundbait-02/body.png",
+        "head": "reference/groundbait-02/head.png",
+        "far_hand": "reference/groundbait-02/far_hand.png",
+        "rod": "reference/groundbait-02/rod.png",
+        "line": "reference/groundbait-02/line.png",
+        "fish": "reference/groundbait-02/fish.png",
+        "hands": "reference/groundbait-02/hands.png",
+        "bobber": "reference/groundbait-02/bobber.png",
+        "bait": "reference/groundbait-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-01"
+    },
+    {
+      "id": "groundbait-03",
+      "label": "抛撒窝料",
+      "clip": "groundbait",
+      "index": 3,
+      "atlasIndex": 54,
+      "durationMs": 120,
+      "sourceCharacter": "reference/groundbait-03/cat.png",
+      "layers": {
+        "body": "reference/groundbait-03/body.png",
+        "head": "reference/groundbait-03/head.png",
+        "far_hand": "reference/groundbait-03/far_hand.png",
+        "rod": "reference/groundbait-03/rod.png",
+        "line": "reference/groundbait-03/line.png",
+        "fish": "reference/groundbait-03/fish.png",
+        "hands": "reference/groundbait-03/hands.png",
+        "bobber": "reference/groundbait-03/bobber.png",
+        "bait": "reference/groundbait-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-03"
+    },
+    {
+      "id": "groundbait-04",
+      "label": "窝料飞向水面",
+      "clip": "groundbait",
+      "index": 4,
+      "atlasIndex": 55,
+      "durationMs": 120,
+      "sourceCharacter": "reference/groundbait-04/cat.png",
+      "layers": {
+        "body": "reference/groundbait-04/body.png",
+        "head": "reference/groundbait-04/head.png",
+        "far_hand": "reference/groundbait-04/far_hand.png",
+        "rod": "reference/groundbait-04/rod.png",
+        "line": "reference/groundbait-04/line.png",
+        "fish": "reference/groundbait-04/fish.png",
+        "hands": "reference/groundbait-04/hands.png",
+        "bobber": "reference/groundbait-04/bobber.png",
+        "bait": "reference/groundbait-04/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-03"
+    },
+    {
+      "id": "groundbait-05",
+      "label": "窝料散落",
+      "clip": "groundbait",
+      "index": 5,
+      "atlasIndex": 56,
+      "durationMs": 120,
+      "sourceCharacter": "reference/groundbait-05/cat.png",
+      "layers": {
+        "body": "reference/groundbait-05/body.png",
+        "head": "reference/groundbait-05/head.png",
+        "far_hand": "reference/groundbait-05/far_hand.png",
+        "rod": "reference/groundbait-05/rod.png",
+        "line": "reference/groundbait-05/line.png",
+        "fish": "reference/groundbait-05/fish.png",
+        "hands": "reference/groundbait-05/hands.png",
+        "bobber": "reference/groundbait-05/bobber.png",
+        "bait": "reference/groundbait-05/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-02"
+    },
+    {
+      "id": "groundbait-06",
+      "label": "收回双手",
+      "clip": "groundbait",
+      "index": 6,
+      "atlasIndex": 57,
+      "durationMs": 120,
+      "sourceCharacter": "reference/groundbait-06/cat.png",
+      "layers": {
+        "body": "reference/groundbait-06/body.png",
+        "head": "reference/groundbait-06/head.png",
+        "far_hand": "reference/groundbait-06/far_hand.png",
+        "rod": "reference/groundbait-06/rod.png",
+        "line": "reference/groundbait-06/line.png",
+        "fish": "reference/groundbait-06/fish.png",
+        "hands": "reference/groundbait-06/hands.png",
+        "bobber": "reference/groundbait-06/bobber.png",
+        "bait": "reference/groundbait-06/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "bait-00"
+    },
+    {
+      "id": "groundbait-07",
+      "label": "恢复准备坐姿",
+      "clip": "groundbait",
+      "index": 7,
+      "atlasIndex": 58,
+      "durationMs": 160,
+      "sourceCharacter": "reference/groundbait-07/cat.png",
+      "layers": {
+        "body": "reference/groundbait-07/body.png",
+        "head": "reference/groundbait-07/head.png",
+        "far_hand": "reference/groundbait-07/far_hand.png",
+        "rod": "reference/groundbait-07/rod.png",
+        "line": "reference/groundbait-07/line.png",
+        "fish": "reference/groundbait-07/fish.png",
+        "hands": "reference/groundbait-07/hands.png",
+        "bobber": "reference/groundbait-07/bobber.png",
+        "bait": "reference/groundbait-07/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "leave-00",
+      "label": "结束钓鱼，收起鱼竿",
+      "clip": "leave",
+      "index": 0,
+      "atlasIndex": 59,
+      "durationMs": 120,
+      "sourceCharacter": "reference/leave-00/cat.png",
+      "layers": {
+        "body": "reference/leave-00/body.png",
+        "head": "reference/leave-00/head.png",
+        "far_hand": "reference/leave-00/far_hand.png",
+        "rod": "reference/leave-00/rod.png",
+        "line": "reference/leave-00/line.png",
+        "fish": "reference/leave-00/fish.png",
+        "hands": "reference/leave-00/hands.png",
+        "bobber": "reference/leave-00/bobber.png",
+        "bait": "reference/leave-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "drawing": "sit-03"
+    },
+    {
+      "id": "leave-01",
+      "label": "收好鱼竿，双手垂放",
+      "clip": "leave",
+      "index": 1,
+      "atlasIndex": 60,
+      "durationMs": 140,
+      "sourceCharacter": "reference/leave-01/cat.png",
+      "layers": {
+        "body": "reference/leave-01/body.png",
+        "head": "reference/leave-01/head.png",
+        "far_hand": "reference/leave-01/far_hand.png",
+        "rod": "reference/leave-01/rod.png",
+        "line": "reference/leave-01/line.png",
+        "fish": "reference/leave-01/fish.png",
+        "hands": "reference/leave-01/hands.png",
+        "bobber": "reference/leave-01/bobber.png",
+        "bait": "reference/leave-01/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "sit-02"
+    },
+    {
+      "id": "leave-02",
+      "label": "蹬地起身",
+      "clip": "leave",
+      "index": 2,
+      "atlasIndex": 61,
+      "durationMs": 140,
+      "sourceCharacter": "reference/leave-02/cat.png",
+      "layers": {
+        "body": "reference/leave-02/body.png",
+        "head": "reference/leave-02/head.png",
+        "far_hand": "reference/leave-02/far_hand.png",
+        "rod": "reference/leave-02/rod.png",
+        "line": "reference/leave-02/line.png",
+        "fish": "reference/leave-02/fish.png",
+        "hands": "reference/leave-02/hands.png",
+        "bobber": "reference/leave-02/bobber.png",
+        "bait": "reference/leave-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "sit-01"
+    },
+    {
+      "id": "leave-03",
+      "label": "空手站立，完成离席",
+      "clip": "leave",
+      "index": 3,
+      "atlasIndex": 62,
+      "durationMs": 180,
+      "sourceCharacter": "reference/leave-03/cat.png",
+      "layers": {
+        "body": "reference/leave-03/body.png",
+        "head": "reference/leave-03/head.png",
+        "far_hand": "reference/leave-03/far_hand.png",
+        "rod": "reference/leave-03/rod.png",
+        "line": "reference/leave-03/line.png",
+        "fish": "reference/leave-03/fish.png",
+        "hands": "reference/leave-03/hands.png",
+        "bobber": "reference/leave-03/bobber.png",
+        "bait": "reference/leave-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "drawing": "sit-00"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "pair-01",
+      "poses": [
+        {
+          "id": "sit-00",
+          "templateFrame": "sit-00",
+          "label": "空手站立，双手垂放",
+          "bounds": {
+            "head": [
+              239,
+              144,
+              420,
+              315
+            ],
+            "far_hand": [
+              387,
+              346,
+              399,
+              382
+            ],
+            "hands": [
+              274,
+              352,
+              316,
+              390
+            ]
+          }
+        },
+        {
+          "id": "sit-01",
+          "templateFrame": "sit-01",
+          "label": "空手屈膝下蹲",
+          "bounds": {
+            "head": [
+              236,
+              177,
+              415,
+              344
+            ],
+            "far_hand": [
+              362,
+              367,
+              391,
+              409
+            ],
+            "hands": [
+              300,
+              375,
+              337,
+              418
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-01.png",
+      "prompt": "prompts/pair-01.txt"
+    },
+    {
+      "id": "pair-02",
+      "poses": [
+        {
+          "id": "sit-02",
+          "templateFrame": "sit-02",
+          "label": "空手坐稳",
+          "bounds": {
+            "head": [
+              221,
+              195,
+              401,
+              368
+            ],
+            "far_hand": [
+              339,
+              394,
+              372,
+              436
+            ],
+            "hands": [
+              290,
+              391,
+              333,
+              429
+            ]
+          }
+        },
+        {
+          "id": "bait-00",
+          "templateFrame": "bait-00",
+          "label": "拿取鱼饵",
+          "bounds": {
+            "head": [
+              209,
+              161,
+              386,
+              338
+            ],
+            "far_hand": [
+              343,
+              346,
+              374,
+              381
+            ],
+            "hands": [
+              301,
+              325,
+              341,
+              364
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-02.png",
+      "prompt": "prompts/pair-02.txt"
+    },
+    {
+      "id": "pair-03",
+      "poses": [
+        {
+          "id": "bait-01",
+          "templateFrame": "bait-01",
+          "label": "靠近鱼钩",
+          "bounds": {
+            "head": [
+              208,
+              166,
+              390,
+              341
+            ],
+            "far_hand": [
+              353,
+              321,
+              383,
+              360
+            ],
+            "hands": [
+              316,
+              321,
+              354,
+              359
+            ]
+          }
+        },
+        {
+          "id": "bait-03",
+          "templateFrame": "bait-03",
+          "label": "检查挂饵",
+          "bounds": {
+            "head": [
+              211,
+              162,
+              415,
+              334
+            ],
+            "far_hand": [
+              378,
+              303,
+              415,
+              347
+            ],
+            "hands": [
+              326,
+              316,
+              367,
+              358
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-03.png",
+      "prompt": "prompts/pair-03.txt"
+    },
+    {
+      "id": "pair-04",
+      "poses": [
+        {
+          "id": "cast-00",
+          "templateFrame": "cast-00",
+          "label": "抬手后引",
+          "bounds": {
+            "head": [
+              161,
+              182,
+              373,
+              342
+            ],
+            "far_hand": [
+              326,
+              308,
+              354,
+              342
+            ],
+            "hands": [
+              292,
+              318,
+              332,
+              361
+            ]
+          }
+        },
+        {
+          "id": "cast-01",
+          "templateFrame": "cast-01",
+          "label": "鱼竿甩至头后",
+          "bounds": {
+            "head": [
+              123,
+              186,
+              349,
+              352
+            ],
+            "far_hand": [
+              305,
+              280,
+              332,
+              312
+            ],
+            "hands": [
+              278,
+              294,
+              317,
+              335
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-04.png",
+      "prompt": "prompts/pair-04.txt"
+    },
+    {
+      "id": "pair-05",
+      "poses": [
+        {
+          "id": "cast-02",
+          "templateFrame": "cast-02",
+          "label": "过顶大幅前甩",
+          "bounds": {
+            "head": [
+              203,
+              183,
+              413,
+              350
+            ],
+            "far_hand": [
+              358,
+              319,
+              384,
+              353
+            ],
+            "hands": [
+              321,
+              330,
+              364,
+              371
+            ]
+          }
+        },
+        {
+          "id": "cast-03",
+          "templateFrame": "cast-03",
+          "label": "落钩收势",
+          "bounds": {
+            "head": [
+              187,
+              175,
+              404,
+              354
+            ],
+            "far_hand": [
+              351,
+              329,
+              374,
+              363
+            ],
+            "hands": [
+              314,
+              331,
+              356,
+              371
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-05.png",
+      "prompt": "prompts/pair-05.txt"
+    },
+    {
+      "id": "pair-06",
+      "poses": [
+        {
+          "id": "wait-00",
+          "templateFrame": "wait-00",
+          "label": "等待",
+          "bounds": {
+            "head": [
+              183,
+              178,
+              366,
+              357
+            ],
+            "far_hand": [
+              328,
+              328,
+              354,
+              364
+            ],
+            "hands": [
+              291,
+              332,
+              330,
+              373
+            ]
+          }
+        },
+        {
+          "id": "bite-00",
+          "templateFrame": "bite-00",
+          "label": "大鱼咬钩",
+          "bounds": {
+            "head": [
+              176,
+              183,
+              371,
+              360
+            ],
+            "far_hand": [
+              321,
+              332,
+              346,
+              366
+            ],
+            "hands": [
+              284,
+              336,
+              323,
+              376
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-06.png",
+      "prompt": "prompts/pair-06.txt"
+    },
+    {
+      "id": "pair-07",
+      "poses": [
+        {
+          "id": "bite-01",
+          "templateFrame": "bite-01",
+          "label": "身体后仰",
+          "bounds": {
+            "head": [
+              164,
+              174,
+              376,
+              340
+            ],
+            "far_hand": [
+              324,
+              301,
+              352,
+              335
+            ],
+            "hands": [
+              290,
+              313,
+              330,
+              355
+            ]
+          }
+        },
+        {
+          "id": "bite-02",
+          "templateFrame": "bite-02",
+          "label": "抬竿拉弯",
+          "bounds": {
+            "head": [
+              147,
+              169,
+              373,
+              333
+            ],
+            "far_hand": [
+              343,
+              286,
+              372,
+              323
+            ],
+            "hands": [
+              309,
+              300,
+              349,
+              342
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-07.png",
+      "prompt": "prompts/pair-07.txt"
+    },
+    {
+      "id": "pair-08",
+      "poses": [
+        {
+          "id": "effort-01",
+          "templateFrame": "effort-01",
+          "label": "再次抬竿",
+          "bounds": {
+            "head": [
+              162,
+              180,
+              345,
+              337
+            ],
+            "far_hand": [
+              325,
+              283,
+              354,
+              320
+            ],
+            "hands": [
+              294,
+              295,
+              333,
+              336
+            ]
+          }
+        },
+        {
+          "id": "effort-02",
+          "templateFrame": "effort-02",
+          "label": "全力后仰",
+          "bounds": {
+            "head": [
+              152,
+              171,
+              354,
+              339
+            ],
+            "far_hand": [
+              326,
+              260,
+              362,
+              297
+            ],
+            "hands": [
+              302,
+              280,
+              345,
+              323
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-08.png",
+      "prompt": "prompts/pair-08.txt"
+    },
+    {
+      "id": "pair-09",
+      "poses": [
+        {
+          "id": "effort-04",
+          "templateFrame": "effort-04",
+          "label": "抵抗回拉",
+          "bounds": {
+            "head": [
+              168,
+              182,
+              362,
+              346
+            ],
+            "far_hand": [
+              336,
+              287,
+              365,
+              324
+            ],
+            "hands": [
+              305,
+              304,
+              344,
+              344
+            ]
+          }
+        },
+        {
+          "id": "effort-05",
+          "templateFrame": "effort-05",
+          "label": "恢复握力",
+          "bounds": {
+            "head": [
+              178,
+              184,
+              371,
+              339
+            ],
+            "far_hand": [
+              341,
+              293,
+              372,
+              331
+            ],
+            "hands": [
+              308,
+              308,
+              349,
+              349
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-09.png",
+      "prompt": "prompts/pair-09.txt"
+    },
+    {
+      "id": "pair-10",
+      "poses": [
+        {
+          "id": "retrieve-00",
+          "templateFrame": "retrieve-00",
+          "label": "提竿带鱼出水",
+          "bounds": {
+            "head": [
+              196,
+              190,
+              374,
+              343
+            ],
+            "far_hand": [
+              346,
+              310,
+              377,
+              345
+            ],
+            "hands": [
+              316,
+              324,
+              354,
+              360
+            ]
+          }
+        },
+        {
+          "id": "retrieve-01",
+          "templateFrame": "retrieve-01",
+          "label": "鱼随惯性上甩",
+          "bounds": {
+            "head": [
+              179,
+              179,
+              357,
+              337
+            ],
+            "far_hand": [
+              336,
+              284,
+              367,
+              319
+            ],
+            "hands": [
+              309,
+              299,
+              346,
+              337
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-10.png",
+      "prompt": "prompts/pair-10.txt"
+    },
+    {
+      "id": "pair-11",
+      "poses": [
+        {
+          "id": "retrieve-02",
+          "templateFrame": "retrieve-02",
+          "label": "鱼越过头顶",
+          "bounds": {
+            "head": [
+              144,
+              188,
+              334,
+              354
+            ],
+            "far_hand": [
+              317,
+              277,
+              349,
+              309
+            ],
+            "hands": [
+              295,
+              294,
+              333,
+              332
+            ]
+          }
+        },
+        {
+          "id": "retrieve-03",
+          "templateFrame": "retrieve-03",
+          "label": "向身后抛鱼",
+          "bounds": {
+            "head": [
+              135,
+              189,
+              321,
+              357
+            ],
+            "far_hand": [
+              310,
+              275,
+              343,
+              307
+            ],
+            "hands": [
+              291,
+              295,
+              330,
+              334
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-11.png",
+      "prompt": "prompts/pair-11.txt"
+    },
+    {
+      "id": "pair-12",
+      "poses": [
+        {
+          "id": "retrieve-04",
+          "templateFrame": "retrieve-04",
+          "label": "鱼落向身后",
+          "bounds": {
+            "head": [
+              166,
+              177,
+              370,
+              344
+            ],
+            "far_hand": [
+              337,
+              284,
+              370,
+              317
+            ],
+            "hands": [
+              310,
+              302,
+              348,
+              340
+            ]
+          }
+        },
+        {
+          "id": "retrieve_empty-00",
+          "templateFrame": "retrieve_empty-00",
+          "label": "空钩收线出水",
+          "bounds": {
+            "head": [
+              196,
+              190,
+              378,
+              343
+            ],
+            "far_hand": [
+              346,
+              311,
+              377,
+              345
+            ],
+            "hands": [
+              316,
+              324,
+              354,
+              360
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-12.png",
+      "prompt": "prompts/pair-12.txt"
+    },
+    {
+      "id": "pair-13",
+      "poses": [
+        {
+          "id": "retrieve_empty-01",
+          "templateFrame": "retrieve_empty-01",
+          "label": "抬竿提起空钩",
+          "bounds": {
+            "head": [
+              179,
+              177,
+              358,
+              331
+            ],
+            "far_hand": [
+              336,
+              284,
+              367,
+              317
+            ],
+            "hands": [
+              309,
+              299,
+              347,
+              336
+            ]
+          }
+        },
+        {
+          "id": "retrieve_empty-02",
+          "templateFrame": "retrieve_empty-02",
+          "label": "空钩越过头顶",
+          "bounds": {
+            "head": [
+              143,
+              187,
+              335,
+              347
+            ],
+            "far_hand": [
+              318,
+              277,
+              350,
+              311
+            ],
+            "hands": [
+              295,
+              294,
+              334,
+              333
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-13.png",
+      "prompt": "prompts/pair-13.txt"
+    },
+    {
+      "id": "pair-14",
+      "poses": [
+        {
+          "id": "retrieve_empty-03",
+          "templateFrame": "retrieve_empty-03",
+          "label": "甩向身后",
+          "bounds": {
+            "head": [
+              134,
+              188,
+              323,
+              350
+            ],
+            "far_hand": [
+              311,
+              275,
+              344,
+              309
+            ],
+            "hands": [
+              292,
+              295,
+              331,
+              334
+            ]
+          }
+        },
+        {
+          "id": "retrieve_empty-04",
+          "templateFrame": "retrieve_empty-04",
+          "label": "查看空钩",
+          "bounds": {
+            "head": [
+              166,
+              178,
+              355,
+              336
+            ],
+            "far_hand": [
+              337,
+              285,
+              370,
+              320
+            ],
+            "hands": [
+              310,
+              302,
+              348,
+              340
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-14.png",
+      "prompt": "prompts/pair-14.txt"
+    },
+    {
+      "id": "pair-15",
+      "poses": [
+        {
+          "id": "retrieve_empty-05",
+          "templateFrame": "retrieve_empty-05",
+          "label": "空钩停竿收势",
+          "bounds": {
+            "head": [
+              184,
+              179,
+              372,
+              338
+            ],
+            "far_hand": [
+              340,
+              305,
+              372,
+              341
+            ],
+            "hands": [
+              312,
+              314,
+              350,
+              351
+            ]
+          }
+        },
+        {
+          "id": "catch-01",
+          "templateFrame": "catch-01",
+          "label": "回身抓住鱼",
+          "bounds": {
+            "head": [
+              212,
+              199,
+              368,
+              363
+            ],
+            "far_hand": [
+              321,
+              362,
+              361,
+              398
+            ],
+            "hands": [
+              223,
+              383,
+              255,
+              418
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-15.png",
+      "prompt": "prompts/pair-15.txt"
+    },
+    {
+      "id": "pair-16",
+      "poses": [
+        {
+          "id": "catch-02",
+          "templateFrame": "catch-02",
+          "label": "拿起转向面前",
+          "bounds": {
+            "head": [
+              210,
+              178,
+              386,
+              341
+            ],
+            "far_hand": [
+              339,
+              347,
+              378,
+              387
+            ],
+            "hands": [
+              291,
+              356,
+              331,
+              397
+            ]
+          }
+        },
+        {
+          "id": "catch-03",
+          "templateFrame": "catch-03",
+          "label": "竖着举到胸前",
+          "bounds": {
+            "head": [
+              218,
+              174,
+              401,
+              332
+            ],
+            "far_hand": [
+              370,
+              316,
+              406,
+              357
+            ],
+            "hands": [
+              296,
+              319,
+              335,
+              361
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-16.png",
+      "prompt": "prompts/pair-16.txt"
+    },
+    {
+      "id": "pair-17",
+      "poses": [
+        {
+          "id": "catch-05",
+          "templateFrame": "catch-05",
+          "label": "轻轻上举展示",
+          "bounds": {
+            "head": [
+              201,
+              153,
+              402,
+              319
+            ],
+            "far_hand": [
+              362,
+              272,
+              401,
+              315
+            ],
+            "hands": [
+              280,
+              288,
+              320,
+              330
+            ]
+          }
+        },
+        {
+          "id": "catch-06",
+          "templateFrame": "catch-06",
+          "label": "眨眼骄傲定格",
+          "bounds": {
+            "head": [
+              218,
+              174,
+              401,
+              339
+            ],
+            "far_hand": [
+              369,
+              317,
+              404,
+              358
+            ],
+            "hands": [
+              296,
+              323,
+              334,
+              364
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-17.png",
+      "prompt": "prompts/pair-17.txt"
+    },
+    {
+      "id": "pair-18",
+      "poses": [
+        {
+          "id": "reset_catch-01",
+          "templateFrame": "reset_catch-01",
+          "label": "放下收获",
+          "bounds": {
+            "head": [
+              213,
+              197,
+              388,
+              361
+            ],
+            "far_hand": [
+              341,
+              355,
+              375,
+              392
+            ],
+            "hands": [
+              306,
+              356,
+              343,
+              392
+            ]
+          }
+        },
+        {
+          "id": "reset_catch-02",
+          "templateFrame": "reset_catch-02",
+          "label": "收好鱼并取竿",
+          "bounds": {
+            "head": [
+              203,
+              211,
+              379,
+              381
+            ],
+            "far_hand": [
+              328,
+              372,
+              367,
+              409
+            ],
+            "hands": [
+              235,
+              412,
+              275,
+              446
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-18.png",
+      "prompt": "prompts/pair-18.txt"
+    },
+    {
+      "id": "pair-19",
+      "poses": [
+        {
+          "id": "reset_empty-01",
+          "templateFrame": "reset_empty-01",
+          "label": "把鱼竿带回身前",
+          "bounds": {
+            "head": [
+              215,
+              197,
+              386,
+              349
+            ],
+            "far_hand": [
+              348,
+              327,
+              379,
+              362
+            ],
+            "hands": [
+              319,
+              336,
+              356,
+              374
+            ]
+          }
+        },
+        {
+          "id": "reset_empty-02",
+          "templateFrame": "reset_empty-02",
+          "label": "落座重新握竿",
+          "bounds": {
+            "head": [
+              232,
+              199,
+              417,
+              363
+            ],
+            "far_hand": [
+              372,
+              354,
+              399,
+              393
+            ],
+            "hands": [
+              337,
+              360,
+              377,
+              400
+            ]
+          }
+        }
+      ],
+      "template": "templates/pair-19.png",
+      "prompt": "prompts/pair-19.txt"
+    }
+  ]
+}

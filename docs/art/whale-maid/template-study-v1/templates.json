@@ -1,0 +1,360 @@
+{
+  "canvas": [
+    640,
+    512
+  ],
+  "editCanvas": [
+    1536,
+    1024
+  ],
+  "editCrop": [
+    128,
+    0,
+    1280,
+    1024
+  ],
+  "poses": [
+    {
+      "id": "ready-00",
+      "label": "准备",
+      "clip": "ready",
+      "index": 0,
+      "atlasIndex": 4,
+      "durationMs": 180,
+      "sourceCharacter": "reference/ready-00/cat.png",
+      "layers": {
+        "body": "reference/ready-00/body.png",
+        "head": "reference/ready-00/head.png",
+        "far_hand": "reference/ready-00/far_hand.png",
+        "rod": "reference/ready-00/rod.png",
+        "line": "reference/ready-00/line.png",
+        "fish": "reference/ready-00/fish.png",
+        "hands": "reference/ready-00/hands.png",
+        "bobber": "reference/ready-00/bobber.png",
+        "bait": "reference/ready-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "bounds": {
+        "body": [
+          155,
+          339,
+          368,
+          450
+        ],
+        "head": [
+          207,
+          193,
+          388,
+          360
+        ],
+        "far_hand": [
+          343,
+          353,
+          368,
+          387
+        ],
+        "hands": [
+          306,
+          356,
+          346,
+          396
+        ]
+      }
+    },
+    {
+      "id": "bait-02",
+      "label": "穿饵固定",
+      "clip": "bait",
+      "index": 2,
+      "atlasIndex": 7,
+      "durationMs": 260,
+      "sourceCharacter": "reference/bait-02/cat.png",
+      "layers": {
+        "body": "reference/bait-02/body.png",
+        "head": "reference/bait-02/head.png",
+        "far_hand": "reference/bait-02/far_hand.png",
+        "rod": "reference/bait-02/rod.png",
+        "line": "reference/bait-02/line.png",
+        "fish": "reference/bait-02/fish.png",
+        "hands": "reference/bait-02/hands.png",
+        "bobber": "reference/bait-02/bobber.png",
+        "bait": "reference/bait-02/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "bounds": {
+        "body": [
+          163,
+          315,
+          377,
+          450
+        ],
+        "head": [
+          205,
+          158,
+          390,
+          336
+        ],
+        "far_hand": [
+          350,
+          313,
+          380,
+          351
+        ],
+        "hands": [
+          316,
+          313,
+          352,
+          353
+        ]
+      }
+    },
+    {
+      "id": "bite-03",
+      "label": "进入持续发力",
+      "clip": "bite",
+      "index": 3,
+      "atlasIndex": 17,
+      "durationMs": 160,
+      "sourceCharacter": "reference/bite-03/cat.png",
+      "layers": {
+        "body": "reference/bite-03/body.png",
+        "head": "reference/bite-03/head.png",
+        "far_hand": "reference/bite-03/far_hand.png",
+        "rod": "reference/bite-03/rod.png",
+        "line": "reference/bite-03/line.png",
+        "fish": "reference/bite-03/fish.png",
+        "hands": "reference/bite-03/hands.png",
+        "bobber": "reference/bite-03/bobber.png",
+        "bait": "reference/bite-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "bounds": {
+        "body": [
+          179,
+          317,
+          397,
+          450
+        ],
+        "head": [
+          190,
+          183,
+          368,
+          338
+        ],
+        "far_hand": [
+          349,
+          292,
+          380,
+          330
+        ],
+        "hands": [
+          316,
+          309,
+          356,
+          349
+        ]
+      }
+    },
+    {
+      "id": "effort-03",
+      "label": "保持张力",
+      "clip": "effort",
+      "index": 3,
+      "atlasIndex": 21,
+      "durationMs": 140,
+      "sourceCharacter": "reference/effort-03/cat.png",
+      "layers": {
+        "body": "reference/effort-03/body.png",
+        "head": "reference/effort-03/head.png",
+        "far_hand": "reference/effort-03/far_hand.png",
+        "rod": "reference/effort-03/rod.png",
+        "line": "reference/effort-03/line.png",
+        "fish": "reference/effort-03/fish.png",
+        "hands": "reference/effort-03/hands.png",
+        "bobber": "reference/effort-03/bobber.png",
+        "bait": "reference/effort-03/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "bobber",
+        "bait",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "fish"
+      ],
+      "bounds": {
+        "body": [
+          177,
+          303,
+          399,
+          450
+        ],
+        "head": [
+          134,
+          172,
+          362,
+          340
+        ],
+        "far_hand": [
+          331,
+          276,
+          361,
+          314
+        ],
+        "hands": [
+          300,
+          292,
+          341,
+          335
+        ]
+      }
+    },
+    {
+      "id": "catch-00",
+      "label": "放稳身后的鱼",
+      "clip": "catch",
+      "index": 0,
+      "atlasIndex": 36,
+      "durationMs": 100,
+      "sourceCharacter": "reference/catch-00/cat.png",
+      "layers": {
+        "body": "reference/catch-00/body.png",
+        "head": "reference/catch-00/head.png",
+        "far_hand": "reference/catch-00/far_hand.png",
+        "rod": "reference/catch-00/rod.png",
+        "line": "reference/catch-00/line.png",
+        "fish": "reference/catch-00/fish.png",
+        "hands": "reference/catch-00/hands.png",
+        "bobber": "reference/catch-00/bobber.png",
+        "bait": "reference/catch-00/bait.png"
+      },
+      "renderLayerOrder": [
+        "line",
+        "fish",
+        "body",
+        "far_hand",
+        "rod",
+        "head",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "bounds": {
+        "body": [
+          185,
+          317,
+          392,
+          450
+        ],
+        "head": [
+          186,
+          179,
+          370,
+          341
+        ],
+        "far_hand": [
+          341,
+          307,
+          374,
+          342
+        ],
+        "hands": [
+          314,
+          315,
+          352,
+          352
+        ]
+      }
+    },
+    {
+      "id": "catch-04",
+      "label": "开心举鱼炫耀",
+      "clip": "catch",
+      "index": 4,
+      "atlasIndex": 40,
+      "durationMs": 160,
+      "sourceCharacter": "reference/catch-04/cat.png",
+      "layers": {
+        "body": "reference/catch-04/body.png",
+        "head": "reference/catch-04/head.png",
+        "far_hand": "reference/catch-04/far_hand.png",
+        "rod": "reference/catch-04/rod.png",
+        "line": "reference/catch-04/line.png",
+        "fish": "reference/catch-04/fish.png",
+        "hands": "reference/catch-04/hands.png",
+        "bobber": "reference/catch-04/bobber.png",
+        "bait": "reference/catch-04/bait.png"
+      },
+      "renderLayerOrder": [
+        "rod",
+        "line",
+        "body",
+        "head",
+        "fish",
+        "far_hand",
+        "hands",
+        "bobber",
+        "bait"
+      ],
+      "bounds": {
+        "body": [
+          190,
+          299,
+          403,
+          450
+        ],
+        "head": [
+          203,
+          165,
+          402,
+          331
+        ],
+        "far_hand": [
+          361,
+          285,
+          402,
+          327
+        ],
+        "hands": [
+          291,
+          299,
+          332,
+          342
+        ]
+      }
+    }
+  ]
+}

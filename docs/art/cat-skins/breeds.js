@@ -10,7 +10,7 @@ let revision = 0;
 const selected = () => data.breeds.find(breed => breed.id === control('breed').value);
 
 function imagePath(frame, breed = selected()) {
-  if (breed.id === 'orange') return frame.sourceCharacter;
+  if (breed.id === 'orange') return control('mode').value === 'full' ? `orange-full/${frame.id}.png` : frame.sourceCharacter;
   if (breed.installed) return `${breed.id}-${control('mode').value === 'full' ? 'full' : 'character'}/${frame.id}.png`;
   return `breeds/${breed.id}/painted/${frame.drawing}.png`;
 }

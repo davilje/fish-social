@@ -3,6 +3,8 @@
 本次统一九种完整皮肤：orange、calico、silver、brown、cream、blue、black、white、cow。
 三花猫继续使用已修复花斑连续性的 v3 绘制稿；本次没有重画角色或改变桌面动作时序。
 
+共享鱼竿已恢复为完整杆身，取消橘猫头部预裁切。九只猫依各自头部和双手分层进行遮挡，Unity / Overlay 的每帧顺序与移动端合成图一致，详见 [鱼竿遮挡说明](rod-occlusion.md)。
+
 ## 身份与兼容
 
 默认头像选择只显示这九种。共享端 `resolveCatSkinId` 与 Unity `DesktopDefaultAvatars` 使用相同解析规则，Unity 将解析后的 ID 通过 IPC 交给 Overlay。

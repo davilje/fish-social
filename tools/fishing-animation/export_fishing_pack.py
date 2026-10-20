@@ -53,6 +53,8 @@ def export(source, output, previous_manifest=None):
     source_data = json.loads(manifest_bytes)
     if source_data.get('version') != 19 or source_data.get('characterMaskModel', {}).get('id') != 'pose-contours-v1':
         raise ValueError('This converter requires the v19 pose-contours-v1 export')
+    if source_data.get('rodOcclusionModel') != 'head-layer-order-v1':
+        raise ValueError('Regenerate complete rods with head-layer-order-v1 before exporting; cat-head cutout rods are not reusable')
     width = source_data['frameSize']['width']
     height = source_data['frameSize']['height']
     if [width, height] != [640, 512]:
@@ -91,6 +93,7 @@ def export(source, output, previous_manifest=None):
         'version': 2, 'sourceVersion': 19, 'canvas': [width, height],
         'layers': LAYERS, 'bodyLayers': BODY_LAYERS, 'place': place,
         'maskModel': 'pose-contours-v1', 'sourceFrameCount': 63,
+        'rodOcclusionModel': source_data['rodOcclusionModel'],
         'sourceManifestSha256': hashlib.sha256(manifest_bytes).hexdigest(),
         'clips': clips, 'sourceToRuntime': {
             'wait': 'fishing', 'retrieve': 'reel', 'retrieve_empty': 'reel_empty',
@@ -152,6 +155,7 @@ def export(source, output, previous_manifest=None):
         'runtimeClipCount': len(clips), 'runtimeFrameCountPerSkin': sum(len(entries) for entries in MAPPING.values()),
         'skins': [{'id': skin['id'], 'name': skin['name']} for skin in skins],
         'maskModel': 'pose-contours-v1', 'bodyLayers': BODY_LAYERS, 'layers': LAYERS,
+        'rodOcclusionModel': source_data['rodOcclusionModel'],
         'note': 'Retained approved tint variants. No decorative hat/scarf layers; no invented breed patterns.',
     })
     print(json.dumps({'output': str(output), 'skins': len(skins), 'clips': len(clips),
