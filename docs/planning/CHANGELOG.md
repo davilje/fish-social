@@ -1,5 +1,16 @@
 # 策划文档变更记录
 
+### [bug-55-56-implemented] - 2026-10-19
+
+- **BUG-55** 默认头像目录与运行白名单不一致 → **已实现**（设计 2026-10-19，完成 2026-10-19）。`npm run dev/start --workspace=server` 在 dist 旧于 `defaultAvatars.ts` 时先编译；听端口前断言九只现行猫。退役灰猫/暹罗/燕尾归一橘猫。vitest `defaultAvatarCatalog` 5 项通过。已在跑的 tsx 进程需要重启才会换名单。
+- **BUG-56** Overlay 阶段切换卡帧与收杆重播 → **已实现**（设计 2026-10-19，完成 2026-10-19）。预热按英雄猫真实槽位、每帧一张图；播放只取缓存。收杆锁在 `Clear` 之后仍忽略第二次收杆，日志 `stop_fishing_ignored`。P50 与 `frame_stall` 尚未用新 Debug 包复测。
+
+### [bug-55-56-confirmed] - 2026-10-19
+
+- **BUG-55** 默认头像目录与运行白名单不一致 → **已确认**，P0，hotfix。服务端加载的 shared/dist/defaultAvatars.js（2026-10-17，旧 6 只）拒绝源码里的银渐层等五只新猫。
+- **BUG-56** Overlay 阶段切换卡帧与收杆重播 → **已确认**，P0，hotfix。管道 ipc 已是数毫秒；frame_stall 2.3～5.8 秒。收杆 commandId 6 到 seated 后，commandId 7 又播 stopping。
+- 规格：docs/planning/specs/BUG修复-默认头像目录与运行白名单不一致.md、docs/planning/specs/BUG修复-Overlay阶段切换卡帧与收杆重播.md
+
 ### [bug-54-own-fishing-presenter-implemented] - 2026-10-18
 
 - **BUG-54** → **已实现**（待重打包实机验收 P50/P95）。

@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx src/index.ts",
-    "start": "tsx src/index.ts",
+    "dev": "node ../scripts/ensure-shared-dist.mjs && tsx src/index.ts",
+    "start": "node ../scripts/ensure-shared-dist.mjs && tsx src/index.ts",
+    "pretest": "node ../scripts/ensure-shared-dist.mjs",
     "test": "vitest run"
   },
   "dependencies": {

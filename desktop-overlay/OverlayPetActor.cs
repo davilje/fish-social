@@ -1763,11 +1763,11 @@ namespace FishSocialOverlay
         static ImageSource[] Load(string petId, string visualState)
         {
             var id = NormalizePetId(petId);
-            var directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+            var directory = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                 "OverlayResources", "hud", "cozy", "characters", "avatars");
-            var filename = Path.Combine(directory, id + ".png");
+            var filename = System.IO.Path.Combine(directory, id + ".png");
             if (!File.Exists(filename))
-                filename = Path.Combine(directory, "orange.png");
+                filename = System.IO.Path.Combine(directory, "orange.png");
             if (!File.Exists(filename))
                 return new ImageSource[0];
             return new ImageSource[] { LoadBitmap(filename) };

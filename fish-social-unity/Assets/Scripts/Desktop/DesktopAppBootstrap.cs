@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using FishSocial.Desktop.Auth;
@@ -447,7 +448,7 @@ namespace FishSocial.Desktop
             }
             else
             {
-                _ownFishing?.Clear();
+                _ownFishing?.ClearRound();
                 if (!string.IsNullOrEmpty(message))
                     _nativeOverlayError = message;
             }
@@ -464,22 +465,87 @@ namespace FishSocial.Desktop
 
         IEnumerator FishingArtWarmupRoutine()
         {
-            // Spread cold PNG decode across frames so take_spot/start_fishing
-            // never pay the first-load hitch on the interactive path.
-            var petId = PetArtLoader.CurrentOwnPetId();
-            FishingLayerArt.Place(petId, 256f, 256f, out var drawW, out var drawH, out _, out _);
-            var clips = new[]
+            // Cache key is pet|clip|drawW x drawH from the live slot, not 256.
+            // One sprite per frame so a phase change never decodes a whole clip.
+            var sizes = new List<Vector2Int>();
+            for (var wait = 0; wait < 180; wait++)
             {
-                "idle", "sit", "ready", "bait", "cast", "fishing", "bite", "hooked",
-                "reel", "catch", "reset_catch", "reel_empty", "reset_empty",
-                "groundbait", "leave",
-            };
-            for (var i = 0; i < clips.Length; i++)
-            {
-                FishingLayerArt.Warmup(petId, clips[i], drawW, drawH);
+                CollectHeroDrawSizes(sizes);
+                if (sizes.Count > 0)
+                    break;
                 yield return null;
             }
+
+            if (sizes.Count == 0)
+                Debug.LogWarning("[Latency][Unity] fishing_art_warmup waiting: slot size unavailable");
+
+            var petId = PetArtLoader.CurrentOwnPetId();
+            var clips = FishingLayerArt.ClipNames;
+            for (var s = 0; s < sizes.Count; s++)
+            {
+                Debug.Log(
+                    "[Latency][Unity] fishing_art_warmup pet=" + petId +
+                    " draw=" + sizes[s].x + "x" + sizes[s].y);
+                for (var i = 0; i < clips.Length; i++)
+                {
+                    while (!FishingLayerArt.WarmupSlice(petId, clips[i], sizes[s].x, sizes[s].y))
+                        yield return null;
+                    RequestPetVisualRefresh();
+                    yield return null;
+                }
+            }
+
+            while (enabled)
+            {
+                if (SliceOneVisibleClip())
+                    RequestPetVisualRefresh();
+                else
+                    yield return new WaitForSecondsRealtime(0.25f);
+                yield return null;
+            }
+
             _fishingArtWarmupRoutine = null;
+        }
+
+        static bool SliceOneVisibleClip()
+        {
+            var found = FindObjectsOfType<SpriteFramePetRenderer>();
+            for (var i = 0; i < found.Length; i++)
+            {
+                var renderer = found[i];
+                if (renderer == null || !renderer.isActiveAndEnabled)
+                    continue;
+                if (!renderer.TryGetWarmTarget(out var petId, out var clip, out var drawW, out var drawH))
+                    continue;
+                if (!FishingLayerArt.WarmupSlice(petId, clip, drawW, drawH))
+                    return true;
+            }
+
+            return false;
+        }
+
+        static void CollectHeroDrawSizes(List<Vector2Int> sizes)
+        {
+            var found = FindObjectsOfType<SpriteFramePetRenderer>();
+            for (var i = 0; i < found.Length; i++)
+            {
+                var renderer = found[i];
+                if (renderer == null || !renderer.isActiveAndEnabled)
+                    continue;
+                if (!renderer.TryGetLayerDrawSize(out var drawW, out var drawH))
+                    continue;
+                var known = false;
+                for (var j = 0; j < sizes.Count; j++)
+                {
+                    if (sizes[j].x == drawW && sizes[j].y == drawH)
+                    {
+                        known = true;
+                        break;
+                    }
+                }
+                if (!known)
+                    sizes.Add(new Vector2Int(drawW, drawH));
+            }
         }
 
         void OnPondSnapshotChanged(PondSnapshotDto _)
@@ -904,7 +970,7 @@ namespace FishSocial.Desktop
                     ? (string.IsNullOrEmpty(message) ? "强制上钩成功" : message)
                     : (string.IsNullOrEmpty(message) ? "强制上钩失败" : message);
                 if (!ok)
-                    _ownFishing?.Clear();
+                    _ownFishing?.ClearRound();
             });
             _overlayDebugInspectRoutine = null;
             FinishOverlayDebug(_overlayDebugLastOk);
@@ -1025,7 +1091,7 @@ namespace FishSocial.Desktop
                 PublishNativeOverlayState();
                 return;
             }
-            _ownFishing?.Clear();
+            _ownFishing?.ClearRound();
             _nativeOverlayError = "正在退出鱼塘…";
             PublishNativeOverlayState();
             _pondSession.ExitPond((ok, message) =>
@@ -1033,7 +1099,7 @@ namespace FishSocial.Desktop
                 _nativeOverlayError = ok ? string.Empty : (message ?? "退出鱼塘失败。");
                 if (ok)
                 {
-                    _ownFishing?.Clear();
+                    _ownFishing?.ClearRound();
                     _nativeOverlay?.CloseOverlay();
                     RaiseMainWindow(ShellPanelId.Home);
                 }

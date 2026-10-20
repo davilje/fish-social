@@ -85,6 +85,8 @@
 | [BUG修复-Cozy桌面页还原.md](./BUG修复-Cozy桌面页还原.md) | hotfix | P0/P1 | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 已确认未做 |
 | [BUG修复-OverlayHUD布局与交互.md](./BUG修复-OverlayHUD布局与交互.md) | hotfix | P0/P1 | **分项** | BUG-48～53 已实现（52/53 含延迟与 Overlay 预测过渡）；布局/聊天/Debug 见分项 |
 | [BUG修复-Unity自己钓鱼表现权威.md](./BUG修复-Unity自己钓鱼表现权威.md) | hotfix | P0 | **已实现** | BUG-54：自己钓鱼 Unity 表现权威 + 服务端校验；Overlay 变瘦 |
+| [BUG修复-默认头像目录与运行白名单不一致.md](./BUG修复-默认头像目录与运行白名单不一致.md) | hotfix | P0 | **已实现** | BUG-55：运行中的 shared dist 仍是旧 6 只猫，新猫保存被拒 |
+| [BUG修复-Overlay阶段切换卡帧与收杆重播.md](./BUG修复-Overlay阶段切换卡帧与收杆重播.md) | hotfix | P0 | **已实现** | BUG-56：贴图解码卡帧 + 收杆结束后再次收杆重播 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-18；条数 + actor-hint |
 | [Steam桌面端-19咬钩结算弹窗.md](./Steam桌面端-19咬钩结算弹窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-19；咬钩弹窗；取消领取；分档入包/回鱼 |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./Steam桌面端-14EOverlay头顶状态图标与进度环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14E；修订 14D 套猫/等鱼图标 |
