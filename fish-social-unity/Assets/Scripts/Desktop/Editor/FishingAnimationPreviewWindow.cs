@@ -58,7 +58,7 @@ namespace FishSocial.Editor
         {
             EditorGUILayout.HelpBox("LOCAL ART PREVIEW — no backend phases, account changes, or fishing actions are sent.", MessageType.Info);
             EditorGUI.BeginChangeCheck();
-            _skinIndex = EditorGUILayout.Popup("Cat artwork", _skinIndex, FishingLayerArt.SkinIds);
+            _skinIndex = EditorGUILayout.Popup("Character artwork", _skinIndex, FishingLayerArt.SkinIds);
             _clipIndex = EditorGUILayout.Popup("Clip", _clipIndex, FishingLayerArt.ClipNames);
             if (EditorGUI.EndChangeCheck())
                 PlaySelected();

@@ -1778,7 +1778,7 @@ namespace FishSocialOverlay
             switch (petId)
             {
                 case "calico": case "orange": case "white": case "silver": case "brown":
-                case "cream": case "blue": case "black": case "cow":
+                case "cream": case "blue": case "black": case "cow": case "dafeiyu":
                     return petId;
                 default:
                     return "orange";

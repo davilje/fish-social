@@ -8,7 +8,7 @@ const apply = process.argv.includes('--apply');
 const unity = path.join(root, 'fish-social-unity/Assets');
 const cozy = path.join(unity, 'Resources/Desktop/Theme/Cozy');
 const overlay = path.join(root, 'desktop-overlay/OverlayResources');
-const skins = ['orange', 'calico', 'silver', 'brown', 'cream', 'blue', 'black', 'white', 'cow'];
+const skins = JSON.parse(fs.readFileSync(path.join(unity, 'StreamingAssets/Fishing/inventory.json'))).skins.map(skin => skin.id);
 const retired = ['gray', 'siamese', 'tuxedo'];
 const removed = [];
 const retained = [];
@@ -63,9 +63,7 @@ for (const directory of [path.join(unity, 'StreamingAssets/Fishing'), path.join(
   if (apply) {
     const filename = path.join(directory, 'inventory.json');
     const inventory = JSON.parse(fs.readFileSync(filename));
-    const names = ['橘猫', '三花猫', '银渐层', '棕虎斑', '奶油猫', '英短蓝猫', '黑猫', '白猫', '奶牛猫'];
-    inventory.skins = skins.map((id, index) => ({ id, name: names[index] }));
-    inventory.note = 'Nine current layered skins. Orange baseline, calico v3, seven painted v4 packs. Retired flat art is not loaded.';
+    inventory.note = 'Active layered characters listed in skins. Retired flat art is not loaded.';
     fs.writeFileSync(filename, JSON.stringify(inventory, null, 2) + '\n');
   }
 }

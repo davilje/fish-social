@@ -709,7 +709,7 @@ namespace FishSocial.Desktop.Editor
                 }
             }
             Paper(node, "DesignAvatarPaper", 450, 112, 896, 194).transform.SetAsFirstSibling();
-            Label(node, "AvatarsTitle", "选择头像", 474, 120, 600, 34, 24, true);
+            Label(node, "AvatarsTitle", "选择角色 / 头像", 474, 120, 600, 34, 24, true);
             Place(node, "Avatars", 466, 158, 864, 136);
             Grid(node, "Avatars/Viewport/Content", 6, 126, 112);
             Paper(node, "DesignShowcasePaper", 450, 326, 896, 264).transform.SetAsFirstSibling();

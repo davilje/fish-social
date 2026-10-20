@@ -12,6 +12,7 @@ export const DEFAULT_AVATARS = [
   { id: 'blue', filename: 'cat_avatar_blue.png', label: '英短蓝猫' },
   { id: 'black', filename: 'cat_avatar_black.png', label: '黑猫' },
   { id: 'cow', filename: 'cat_avatar_cow.png', label: '奶牛猫' },
+  { id: 'dafeiyu', filename: 'cat_avatar_dafeiyu.png', label: '大肥鱼' },
 ] as const;
 
 export function defaultAvatarPath(filename: string): string {

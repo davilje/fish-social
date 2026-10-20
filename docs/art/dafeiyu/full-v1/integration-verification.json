@@ -1,0 +1,52 @@
+{
+  "characterId": "dafeiyu",
+  "name": "大肥鱼",
+  "date": "2026-10-20",
+  "unity": {
+    "version": "2021.3.29f1c1",
+    "environment": "Isolated copy of the Unity project; batch mode, no graphics",
+    "result": "passed",
+    "characterCount": 10,
+    "runtimeClipsLoaded": 16,
+    "runtimeSlotsLoaded": 74,
+    "independentPortraitLoaded": true,
+    "savedProfileIdentityResolved": true,
+    "profileEditorPrefabLoaded": true,
+    "selectionItemLabelAndPortraitMatched": true,
+    "selectionButtonSelectedDafeiyu": true,
+    "runtimeAndEditorCSharpCompilation": "passed"
+  },
+  "resourceRouting": {
+    "result": "passed",
+    "characters": 10,
+    "atlases": 160,
+    "runtimeSlotsAcrossCharacters": 740,
+    "sampledComposites": 30,
+    "unityOverlayLayerByteParity": "passed",
+    "sharedPropLayersUnchanged": 370,
+    "retiredIdentityCompatibility": "passed"
+  },
+  "server": {
+    "sharedTypescriptBuild": "passed",
+    "startupCatalogValidationAgainstBuiltSharedModule": "passed",
+    "dafeiyuAvatarWhitelist": "passed"
+  },
+  "overlay": {
+    "portraitAssetHashContract": "passed",
+    "legacyUiSnapshotSuiteTests": 18,
+    "remainingPreexistingSnapshotMismatches": [
+      "OverlayPetActor.cs:Load",
+      "final HUD layout JSON",
+      "IpcProtocol.cs",
+      "OverlayPondLayout.cs",
+      "PondScenePresenter.cs",
+      "OverlayHudWidgets.cs"
+    ],
+    "note": "These six snapshot differences concern existing files or methods unchanged by this integration. Windows WPF execution was not performed."
+  },
+  "limits": [
+    "No authenticated live server save/re-login round trip was performed.",
+    "No Windows Player or native Overlay build/playback was performed.",
+    "Final visual acceptance remains separate from loading and routing checks."
+  ]
+}

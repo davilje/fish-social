@@ -20,6 +20,7 @@ function evaluate(relative) {
   });
   assert.equal(compiled.diagnostics.length, 0, relative);
   new Function('require', 'exports', compiled.outputText)(specifier => {
+    if (specifier === '@fish-social/shared') return { ...evaluate('shared/defaultAvatars.ts'), ...evaluate('shared/fishingPhotos.ts') };
     if (specifier.endsWith('catalog.json')) return catalog;
     return evaluate(path.posix.join(path.posix.dirname(relative), specifier + '.ts'));
   }, exports);
@@ -29,7 +30,9 @@ function evaluate(relative) {
 const avatars = evaluate('shared/defaultAvatars.ts');
 const photos = evaluate('shared/fishingPhotos.ts');
 const { CatAnimationPlayer } = evaluate('mobile/lib/catAnimation.ts');
-assert.equal(avatars.DEFAULT_AVATARS.length, 9);
+assert.equal(avatars.DEFAULT_AVATARS.length, 10);
+assert.equal(avatars.DEFAULT_AVATARS.find(avatar => avatar.id === 'dafeiyu').label, '大肥鱼');
+evaluate('server/src/defaultAvatarCatalog.ts').assertDefaultAvatarCatalog();
 assert.deepEqual(new Set(catalog.skins), new Set(avatars.DEFAULT_AVATARS.map(avatar => avatar.id)));
 assert(read('image/cats/catalog.json').equals(read('mobile/assets/cats/catalog.json')));
 const program = ts.createProgram([
@@ -63,6 +66,7 @@ for (const player of ['player', 'angler-42', '小橘', '🐱', '']) {
 }
 for (const avatar of avatars.DEFAULT_AVATARS) {
   const skin = avatar.id;
+  assert(avatars.isDefaultAvatarPath(`/image/profile/${avatar.filename}`));
   assert.equal(avatars.resolveCatSkinId(`/image/profile/${avatar.filename}`), skin);
   assert.equal(photos.resolveFishingPhotoPath(`/image/profile/${avatar.filename}`), `/image/fishing_photos/cat_fishing_${skin}.png`);
   const image = read(`image/profile/${avatar.filename}`);
@@ -133,5 +137,8 @@ for (const file of ['desktop-overlay/OverlayPetActor.cs', 'fish-social-unity/Ass
 }
 const report = JSON.parse(read('docs/art/cat-skins/resource-cleanup.json'));
 for (const removed of report.removed) assert(!fs.existsSync(path.join(root, removed.file)), removed.file);
-console.log(JSON.stringify({ skins: 9, atlases: 144, frameSlots: 666, sampledComposites: 27,
+console.log(JSON.stringify({ skins: avatars.DEFAULT_AVATARS.length,
+  atlases: avatars.DEFAULT_AVATARS.length * Object.keys(catalog.clips).length,
+  frameSlots: avatars.DEFAULT_AVATARS.length * Object.values(catalog.clips).reduce((sum, clip) => sum + clip.count, 0),
+  sampledComposites: avatars.DEFAULT_AVATARS.length * 3,
   removedFiles: report.removed.length, result: 'passed' }, null, 2));

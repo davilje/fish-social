@@ -75,8 +75,8 @@ class CozyUiSourceTests(unittest.TestCase):
                 with self.subTest(filename=filename, method=name):
                     self.assertEqual(expected, hashlib.sha256(method_body(source, name).encode()).hexdigest())
 
-    def test_all_74_png_assets_match_the_updated_size_contract(self):
-        self.assertEqual(74, len(CONTRACT["png_sha256"]))
+    def test_all_75_png_assets_match_the_updated_size_contract(self):
+        self.assertEqual(75, len(CONTRACT["png_sha256"]))
         for filename, expected in CONTRACT["png_sha256"].items():
             with self.subTest(filename=filename):
                 self.assertEqual(expected, hashlib.sha256((ROOT / filename).read_bytes()).hexdigest())

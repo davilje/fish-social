@@ -10,7 +10,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const source = path.join(root, 'fish-social-unity/Assets/StreamingAssets/Fishing');
 const output = path.join(root, 'image/cats');
 const cozy = path.join(root, 'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy');
-const skins = ['orange', 'calico', 'silver', 'brown', 'cream', 'blue', 'black', 'white', 'cow'];
+const skins = JSON.parse(fs.readFileSync(path.join(source, 'inventory.json'))).skins.map(skin => skin.id);
 const catalog = { version: 1, frameWidth: 320, frameHeight: 256, foot: [264, 450], skins, clips: {} };
 fs.mkdirSync(output, { recursive: true });
 

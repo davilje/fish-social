@@ -230,8 +230,9 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(outcome, outcomeField.GetValue(contextField.GetValue(roundTrip)));
         }
 
-        [Test]
-        public void SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications()
+        [TestCase("blue")]
+        [TestCase("dafeiyu")]
+        public void SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications(string nextSkin)
         {
             var previousProfile = DesktopProfileCache.Latest;
             var root = new GameObject("PetStateSkinRefreshTest");
@@ -252,7 +253,7 @@ namespace FishSocial.Tests.Editor
                 controller.Refresh(null, null);
                 Assert.AreEqual(applications, firstRenderer.AppliedStates.Count);
                 Assert.AreEqual(applications, secondRenderer.AppliedStates.Count);
-                DesktopProfileCache.Latest = new PlayerProfileDto { avatarUrl = "/image/profile/cat_avatar_blue.png" };
+                DesktopProfileCache.Latest = new PlayerProfileDto { avatarUrl = "/image/profile/cat_avatar_" + nextSkin + ".png" };
                 var nextPetId = PetArtLoader.CurrentOwnPetId();
                 Assert.AreNotEqual(previousPetId, nextPetId);
                 controller.Refresh(null, null);
@@ -287,7 +288,7 @@ namespace FishSocial.Tests.Editor
         [Test]
         public void SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases()
         {
-            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue", "black", "white", "cow" }, FishingLayerArt.SkinIds);
+            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue", "black", "white", "cow", "dafeiyu" }, FishingLayerArt.SkinIds);
             Assert.IsNull(FishingLayerArt.Open("british", "idle", 640, 512));
             Assert.IsNull(FishingLayerArt.Open("ragdoll", "idle", 640, 512));
             var calico = FishingLayerArt.Open("calico", "idle", 640, 512);
@@ -303,7 +304,8 @@ namespace FishSocial.Tests.Editor
         [TestCase("black")]
         [TestCase("white")]
         [TestCase("cow")]
-        public void PaintedBreedAvatarResolvesToAnInstalledAnimation(string skin)
+        [TestCase("dafeiyu")]
+        public void PaintedCharacterAvatarResolvesToAnInstalledAnimation(string skin)
         {
             Assert.AreEqual(skin, DesktopDefaultAvatars.ResolvePetId("/image/profile/cat_avatar_" + skin + ".png", "player"));
             Assert.AreEqual("/image/fishing_photos/cat_fishing_" + skin + ".png",
@@ -311,6 +313,29 @@ namespace FishSocial.Tests.Editor
             var session = FishingLayerArt.Open(skin, "ready", 640, 512);
             Assert.IsNotNull(session, skin);
             FishingLayerArt.Release(session);
+        }
+
+        [Test]
+        public void DafeiyuHasAnIndependentPortraitAndAllSixteenPlayableClips()
+        {
+            const string avatar = "/image/profile/cat_avatar_dafeiyu.png";
+            Assert.IsTrue(DesktopDefaultAvatars.IsDefaultPath(avatar));
+            Assert.AreEqual("大肥鱼", DesktopDefaultAvatars.LabelFor(avatar));
+            Assert.AreEqual("dafeiyu", DesktopDefaultAvatars.NormalizeSkinId("dafeiyu"));
+            Assert.IsNotNull(DesktopDefaultAvatars.Portrait(avatar));
+            Assert.AreNotSame(DesktopDefaultAvatars.Portrait("/image/profile/cat_avatar_orange.png"),
+                DesktopDefaultAvatars.Portrait(avatar));
+            for (var index = 0; index < FishingLayerArt.ClipNames.Length; index++)
+            {
+                var clip = FishingLayerArt.ClipNames[index];
+                var session = FishingLayerArt.Open("dafeiyu", clip, 320, 256);
+                try
+                {
+                    Assert.IsNotNull(session, clip);
+                    Assert.AreEqual(Counts[index], session.FrameCount, clip);
+                }
+                finally { FishingLayerArt.Release(session); }
+            }
         }
 
         [Test]

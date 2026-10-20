@@ -18,6 +18,7 @@ const CURRENT = [
   'blue',
   'black',
   'cow',
+  'dafeiyu',
 ] as const;
 
 describe('default avatar catalog (BUG-55)', () => {
@@ -27,7 +28,7 @@ describe('default avatar catalog (BUG-55)', () => {
     expect(resolved.replace(/\\/g, '/')).toMatch(/\/shared\/dist\/index\.js$/);
   });
 
-  it('accepts the nine current cats', () => {
+  it('accepts the nine cats and Dafeiyu', () => {
     expect(DEFAULT_AVATARS.map((avatar) => avatar.id)).toEqual([...CURRENT]);
     for (const id of CURRENT) {
       expect(isDefaultAvatarPath(`/image/profile/cat_avatar_${id}.png`)).toBe(true);

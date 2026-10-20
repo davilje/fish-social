@@ -209,7 +209,7 @@ namespace FishSocial.Desktop
                 _pond.ApplyGameNickname(profile.nickname);
             ApplyProfile(profile);
             _ready = true;
-            SetStatus("可以编辑游戏昵称、简介、默认头像和展示鱼获。");
+            SetStatus("可以编辑游戏昵称、简介、角色 / 头像和展示鱼获；选择默认角色后保存即可切换外观。");
             _loadRoutine = null;
         }
 
@@ -261,7 +261,7 @@ namespace FishSocial.Desktop
         {
             _avatarUrl = path ?? string.Empty;
             RenderAvatars();
-            SetStatus("已选择默认头像：" + DesktopDefaultAvatars.LabelFor(_avatarUrl));
+            SetStatus("已选择角色：" + DesktopDefaultAvatars.LabelFor(_avatarUrl) + "，保存后生效。");
         }
 
         void RenderShowcase()
@@ -531,7 +531,7 @@ namespace FishSocial.Desktop
             var actions = EnsureRect("Actions", transform);
             _save = Find<Button>("Actions/Save") ?? CreateButton(actions, "Save", "保存资料");
             _retry = Find<Button>("Actions/Retry") ?? CreateButton(actions, "Retry", "重试");
-            EnsureText(transform, "AvatarsTitle", "默认头像", 17);
+            EnsureText(transform, "AvatarsTitle", "选择角色 / 头像", 17);
             EnsureText(transform, "ShowcaseTitle", "展示鱼获 · 点击格子选择", 17);
             _avatars = EnsureScroll("Avatars", transform, 3, 38f);
             _showcase = EnsureScroll("Showcase", transform, 4, 64f);

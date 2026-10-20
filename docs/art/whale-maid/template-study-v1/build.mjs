@@ -15,7 +15,7 @@ const labels = {
   'effort-03': '持续发力', 'catch-00': '收获起势', 'catch-04': '展示收获',
 };
 const groups = [['ready-00', 'bait-02'], ['bite-03', 'effort-03'], ['catch-00', 'catch-04']];
-const manifest = { version: 1, status: 'keypose-study', canvas: [640, 512], reviewCanvas: [640, 600], rodOcclusionModel: 'head-layer-order-v1',
+const manifest = { version: 1, characterId: 'dafeiyu', name: '大肥鱼', status: 'keypose-study', canvas: [640, 512], reviewCanvas: [640, 600], rodOcclusionModel: 'head-layer-order-v1',
   bodyLayers: ['body', 'head', 'far_hand', 'hands'],
   sharedLayers: ['rod', 'line', 'fish', 'bobber', 'bait'],
   sourceManifest: '../../cat-skins/full-pose-manifest.json',
