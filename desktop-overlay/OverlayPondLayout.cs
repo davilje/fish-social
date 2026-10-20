@@ -66,6 +66,7 @@ namespace FishSocialOverlay
 
         public IReadOnlyDictionary<string, OverlayLayoutObjectDto> Spots => _spots;
 
+        public string BackgroundSprite { get; private set; }
         public IReadOnlyList<OverlayLayoutObjectDto> Sprites => _sprites;
 
         public bool TryLoad(string pondId)
@@ -175,6 +176,7 @@ namespace FishSocialOverlay
                 return false;
             }
 
+            BackgroundSprite = pondBg?.sprite;
             ResolveSceneSize(document, pondBg);
             BuildActorTemplate();
 
@@ -589,6 +591,7 @@ namespace FishSocialOverlay
         void Clear()
         {
             IsActive = false;
+            BackgroundSprite = null;
             _spots.Clear();
             _actors.Clear();
             _actorTemplate = null;

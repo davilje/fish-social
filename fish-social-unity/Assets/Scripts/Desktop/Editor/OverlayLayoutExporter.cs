@@ -77,10 +77,11 @@ namespace FishSocial.Desktop.Editor
             }
         }
 
-        public static string ExportAll(out int count)
+        public static string ExportAll(out int count, bool ensureLayouts = true)
         {
             count = 0;
-            OverlayPondLayoutBaker.EnsureAll();
+            if (ensureLayouts)
+                OverlayPondLayoutBaker.EnsureAll();
             var guids = AssetDatabase.FindAssets("t:Prefab", new[] { OverlayPondLayoutBaker.Folder });
             if (guids == null || guids.Length == 0)
                 return "找不到 Overlay 布局 Prefab。请先在 UI Prefab 管理中创建 OverlayPondLayout。";
@@ -482,7 +483,7 @@ namespace FishSocial.Desktop.Editor
             spriteName = null;
             if (!string.IsNullOrWhiteSpace(item.spriteFile))
             {
-                spriteName = Path.GetFileName(item.spriteFile);
+                spriteName = item.spriteFile.Replace('\\', '/');
                 return null;
             }
 
@@ -526,6 +527,18 @@ namespace FishSocial.Desktop.Editor
                 var fileName = Path.GetFileName(fullAsset);
                 if (string.IsNullOrEmpty(fileName))
                     continue;
+                var relativeName = item.spriteFile == null ? string.Empty : item.spriteFile.Replace('\\', '/');
+                if (kind == "sprite" && !string.IsNullOrWhiteSpace(relativeName))
+                {
+                    var destination = Path.GetFullPath(Path.Combine(resourcesDir, relativeName));
+                    var safeRoot = Path.GetFullPath(resourcesDir) + Path.DirectorySeparatorChar;
+                    if (!destination.StartsWith(safeRoot, StringComparison.OrdinalIgnoreCase))
+                        return "贴图路径必须在 OverlayResources 内：" + relativeName;
+                    Directory.CreateDirectory(Path.GetDirectoryName(destination));
+                    if (!string.Equals(fullAsset, destination, StringComparison.OrdinalIgnoreCase))
+                        File.Copy(fullAsset, destination, true);
+                    continue;
+                }
                 var destDir = kind == "spot" || kind == "actor-seat"
                     ? Path.Combine(resourcesDir, "seats")
                     : kind == "actor-ring" || kind == "actor-ring-bg" || kind == "actor-status"
@@ -596,7 +609,7 @@ namespace FishSocial.Desktop.Editor
         }
 
         /// <summary>
-        /// Scene pan / background size. Prefer ponds/&lt;id&gt;.png pixels, then pond-bg rect, then canvas.
+        /// Scene size uses the authored pond-bg rect. Source texture pixels are only a legacy fallback.
         /// </summary>
         static void ResolvePondSize(
             string pondId,
@@ -609,20 +622,6 @@ namespace FishSocial.Desktop.Editor
         {
             pondWidth = canvasWidth;
             pondHeight = canvasHeight;
-
-            if (TryReadPondPngSize(pondId, out var pngW, out var pngH))
-            {
-                pondWidth = pngW;
-                pondHeight = pngH;
-                return;
-            }
-
-            if (TryReadPondBgSpriteSize(rootGo, out var spriteW, out var spriteH))
-            {
-                pondWidth = spriteW;
-                pondHeight = spriteH;
-                return;
-            }
 
             for (var i = 0; i < entries.Count; i++)
             {
@@ -639,6 +638,21 @@ namespace FishSocial.Desktop.Editor
                 pondHeight = entry.H > 0.5f ? Mathf.Round(entry.H) : canvasHeight;
                 return;
             }
+            if (TryReadPondPngSize(pondId, out var pngW, out var pngH))
+            {
+                pondWidth = pngW;
+                pondHeight = pngH;
+                return;
+            }
+
+            if (TryReadPondBgSpriteSize(rootGo, out var spriteW, out var spriteH))
+            {
+                pondWidth = spriteW;
+                pondHeight = spriteH;
+                return;
+            }
+
+
         }
 
         static bool TryReadPondPngSize(string pondId, out float width, out float height)

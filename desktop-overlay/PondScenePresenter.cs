@@ -207,8 +207,8 @@ namespace FishSocialOverlay
                 ClearOthers();
                 ClearDecor();
                 _pondId = pondId;
-                TryLoadPondBackground(pondId);
                 _layout.TryLoad(pondId);
+                TryLoadPondBackground(pondId);
                 ApplyLayoutSprites();
                 ApplyBackgroundArtSizeToLayout();
                 RefreshContentSize(notify: true);
@@ -646,6 +646,9 @@ namespace FishSocialOverlay
         {
             if (item == null || string.IsNullOrWhiteSpace(item.sprite))
                 return false;
+            if (string.Equals(item.id, "pond-bg", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(item.kind, "background", StringComparison.OrdinalIgnoreCase))
+                return true;
             var name = System.IO.Path.GetFileName(item.sprite);
             return string.Equals(name, "pond.png", StringComparison.OrdinalIgnoreCase) &&
                    item.w >= 900 &&
@@ -718,7 +721,7 @@ namespace FishSocialOverlay
         {
             var root = AppDomain.CurrentDomain.BaseDirectory;
             var resources = System.IO.Path.Combine(root, "OverlayResources");
-            var path = ResolvePondBackgroundPath(resources, pondId);
+            var path = PondBackgroundResources.Resolve(resources, pondId, _layout.BackgroundSprite);
             if (string.IsNullOrEmpty(path))
             {
                 _backgroundImage.Source = null;
@@ -737,26 +740,6 @@ namespace FishSocialOverlay
             _grass.Visibility = Visibility.Collapsed;
             _shore.Visibility = Visibility.Collapsed;
             _water.Visibility = Visibility.Collapsed;
-        }
-
-        static string ResolvePondBackgroundPath(string resourcesRoot, string pondId)
-        {
-            if (!string.IsNullOrWhiteSpace(pondId))
-            {
-                var perPond = System.IO.Path.Combine(resourcesRoot, "ponds", pondId + ".png");
-                if (File.Exists(perPond))
-                    return perPond;
-            }
-
-            var fallbackDefault = System.IO.Path.Combine(resourcesRoot, "ponds", "_default.png");
-            if (File.Exists(fallbackDefault))
-                return fallbackDefault;
-
-            var legacy = System.IO.Path.Combine(resourcesRoot, "pond.png");
-            if (File.Exists(legacy))
-                return legacy;
-
-            return null;
         }
 
         static bool TryFindSpot(

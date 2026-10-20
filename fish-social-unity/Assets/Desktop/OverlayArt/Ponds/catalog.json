@@ -1,0 +1,218 @@
+{
+  "version": 8,
+  "profiles": [
+    {
+      "theme": "lake",
+      "shoreY": 405,
+      "image": "maps/map-lake.png"
+    },
+    {
+      "theme": "pond",
+      "shoreY": 420,
+      "image": "maps/map-pond.png"
+    },
+    {
+      "theme": "reservoir",
+      "shoreY": 420,
+      "image": "maps/map-reservoir.png"
+    },
+    {
+      "theme": "river",
+      "shoreY": 422,
+      "image": "maps/map-river.png"
+    },
+    {
+      "theme": "coastal",
+      "shoreY": 424,
+      "image": "maps/map-coastal.png"
+    },
+    {
+      "theme": "estuary",
+      "shoreY": 416,
+      "image": "maps/map-estuary.png"
+    },
+    {
+      "theme": "wilderness",
+      "shoreY": 420,
+      "image": "maps/map-wilderness.png"
+    }
+  ],
+  "bindings": [
+    {
+      "pondId": "pond-calm",
+      "displayName": "千岛湖",
+      "theme": "reservoir",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-mist",
+      "displayName": "太湖",
+      "theme": "lake",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-sunset",
+      "displayName": "洪泽湖",
+      "theme": "lake",
+      "variant": 2
+    },
+    {
+      "pondId": "pond-bamboo",
+      "displayName": "鄱阳湖",
+      "theme": "lake",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-reed",
+      "displayName": "洞庭湖",
+      "theme": "lake",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-crystal",
+      "displayName": "滇池",
+      "theme": "lake",
+      "variant": 2
+    },
+    {
+      "pondId": "pond-lotus",
+      "displayName": "洱海",
+      "theme": "lake",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-mirror",
+      "displayName": "镜泊湖",
+      "theme": "lake",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-willow",
+      "displayName": "查干湖",
+      "theme": "lake",
+      "variant": 2
+    },
+    {
+      "pondId": "pond-stone",
+      "displayName": "万绿湖",
+      "theme": "reservoir",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-spring",
+      "displayName": "北江",
+      "theme": "river",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-dusk",
+      "displayName": "丹江口水库",
+      "theme": "reservoir",
+      "variant": 2
+    },
+    {
+      "pondId": "pond-pine",
+      "displayName": "清江",
+      "theme": "river",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-coral",
+      "displayName": "舟山近海",
+      "theme": "coastal",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-moon",
+      "displayName": "厦门湾",
+      "theme": "estuary",
+      "variant": 2
+    },
+    {
+      "pondId": "pond-fern",
+      "displayName": "南澳近海",
+      "theme": "coastal",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-ridge",
+      "displayName": "长江故道野塘",
+      "theme": "wilderness",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-harbor",
+      "displayName": "青岛近海",
+      "theme": "coastal",
+      "variant": 2
+    },
+    {
+      "pondId": "pond-orchid",
+      "displayName": "涠洲近海",
+      "theme": "coastal",
+      "variant": 0
+    },
+    {
+      "pondId": "pond-frost",
+      "displayName": "兴凯湖",
+      "theme": "lake",
+      "variant": 1
+    },
+    {
+      "pondId": "pond-novice",
+      "displayName": "城郊练杆塘",
+      "theme": "pond",
+      "variant": 2
+    }
+  ],
+  "modules": [
+    {
+      "name": "lotus",
+      "label": "荷叶模块"
+    },
+    {
+      "name": "reeds",
+      "label": "芦苇模块"
+    },
+    {
+      "name": "water-gauge",
+      "label": "水位标尺模块"
+    },
+    {
+      "name": "river-stones",
+      "label": "河石模块"
+    },
+    {
+      "name": "mooring-post",
+      "label": "系船桩模块"
+    },
+    {
+      "name": "mangrove",
+      "label": "矮红树林模块"
+    },
+    {
+      "name": "module-wooden-dock-limited",
+      "label": "通用木桥"
+    },
+    {
+      "name": "module-short-tree-limited",
+      "label": "通用矮树"
+    },
+    {
+      "name": "module-wooden-sign-limited",
+      "label": "通用木牌"
+    },
+    {
+      "name": "wire-fence",
+      "label": "铁丝网模块"
+    },
+    {
+      "name": "no-fishing-sign",
+      "label": "禁钓告示模块"
+    },
+    {
+      "name": "garden-pavilion",
+      "label": "凉亭模块"
+    }
+  ]
+}

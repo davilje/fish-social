@@ -46,6 +46,10 @@ namespace FishSocial.Desktop.Editor
                     Verify();
                 else if (action == "preview")
                     CozyRedesignPreview.RenderAll();
+                else if (action == "pond-art")
+                    OverlayPondArtBaker.Apply();
+                else if (action == "pond-art-verify")
+                    OverlayPondArtBaker.Verify();
                 else if (action == "overlayhud")
                 {
                     DesktopPrefabValidator.EnsureOverlayHud();

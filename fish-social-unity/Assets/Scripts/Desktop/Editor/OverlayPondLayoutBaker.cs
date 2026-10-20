@@ -126,7 +126,10 @@ namespace FishSocial.Desktop.Editor
             rt.anchorMax = Vector2.zero;
             rt.pivot = Vector2.zero;
             rt.anchoredPosition = Vector2.zero;
-            rt.sizeDelta = new Vector2(CanvasWidth, CanvasHeight);
+            var authoredBackground = root.transform.Find("pond-bg") as RectTransform;
+            var width = authoredBackground != null && authoredBackground.rect.width >= CanvasWidth
+                ? authoredBackground.rect.width : CanvasWidth;
+            rt.sizeDelta = new Vector2(width, CanvasHeight);
 
             var canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
@@ -153,7 +156,7 @@ namespace FishSocial.Desktop.Editor
                 if (image != null && image.sprite == null)
                     image.color = new Color(0.16f, 0.42f, 0.48f, 1f);
                 var label = bg.Find("Label");
-                if (label == null)
+                if (label == null && (image == null || image.sprite == null))
                 {
                     var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
                     labelGo.transform.SetParent(bg, false);
