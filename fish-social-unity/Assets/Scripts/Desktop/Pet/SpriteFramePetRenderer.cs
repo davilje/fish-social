@@ -162,6 +162,31 @@ namespace FishSocial.Desktop.Pet
             ReleaseLayers();
         }
 
+        public bool TryGetWarmTarget(out string petId, out string clip, out int drawW, out int drawH)
+        {
+            petId = null;
+            clip = null;
+            if (!TryGetLayerDrawSize(out drawW, out drawH))
+                return false;
+            petId = string.IsNullOrEmpty(_petId) ? PetArtLoader.CurrentOwnPetId() : _petId;
+            clip = string.IsNullOrEmpty(_activeClip) ? "idle" : _activeClip;
+            return !string.IsNullOrEmpty(petId) && !string.IsNullOrEmpty(clip);
+        }
+
+        public bool TryGetLayerDrawSize(out int drawW, out int drawH)
+        {
+            drawW = 0;
+            drawH = 0;
+            if (_image == null)
+                return false;
+            var slot = CurrentSlotSize();
+            if (slot.x < 8f || slot.y < 8f)
+                return false;
+            var petId = string.IsNullOrEmpty(_petId) ? PetArtLoader.CurrentOwnPetId() : _petId;
+            FishingLayerArt.Place(petId, slot.x, slot.y, out drawW, out drawH, out _, out _);
+            return drawW > 1 && drawH > 1;
+        }
+
         Vector2 CurrentSlotSize()
         {
             var rect = _image.rectTransform.rect;
@@ -187,7 +212,9 @@ namespace FishSocial.Desktop.Pet
                     out var drawWidth, out var drawHeight, out var originX, out var originY);
                 if (drawWidth != _layerDrawWidth || drawHeight != _layerDrawHeight)
                 {
-                    var resized = FishingLayerArt.Open(_petId, _activeClip, drawWidth, drawHeight);
+                    var resized = Application.isPlaying
+                        ? FishingLayerArt.TryGetCached(_petId, _activeClip, drawWidth, drawHeight)
+                        : FishingLayerArt.Open(_petId, _activeClip, drawWidth, drawHeight);
                     if (resized != null)
                     {
                         var previous = _layered;
@@ -216,7 +243,9 @@ namespace FishSocial.Desktop.Pet
             float originX;
             float originY;
             FishingLayerArt.Place(petId, slotSize.x, slotSize.y, out drawW, out drawH, out originX, out originY);
-            var session = FishingLayerArt.Open(petId, clip, drawW, drawH);
+            var session = Application.isPlaying
+                ? FishingLayerArt.TryGetCached(petId, clip, drawW, drawH)
+                : FishingLayerArt.Open(petId, clip, drawW, drawH);
             if (session == null)
                 return false;
 

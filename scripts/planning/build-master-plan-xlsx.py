@@ -1693,6 +1693,32 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-10-18",
         "2026-10-18",
     ],
+    [
+        "已实现",
+        "BUG-55",
+        "Bug修复",
+        "默认头像白名单与源码不一致",
+        "—",
+        "hotfix",
+        "P0",
+        "资料编辑保存新猫返回无效头像：server 加载的 shared/dist 仍是 2026-10-17 旧 6 只猫。启动必须跟 defaultAvatars.ts，禁止静默用过期 dist",
+        "docs/planning/specs/BUG修复-默认头像目录与运行白名单不一致.md",
+        "2026-10-19",
+        "2026-10-19",
+    ],
+    [
+        "已实现",
+        "BUG-56",
+        "Bug修复",
+        "Overlay 换阶段卡帧与收杆重播",
+        "—",
+        "hotfix",
+        "P0",
+        "管道已是数毫秒，但阶段切换 frame_stall 2～6 秒（贴图按真实槽位解码，预热尺寸对不上）。收杆到 seated 后再点会再播 stopping",
+        "docs/planning/specs/BUG修复-Overlay阶段切换卡帧与收杆重播.md",
+        "2026-10-19",
+        "2026-10-19",
+    ],
 ]
 
 # ENSURE 行状态优先于「总 spec」元信息同步（避免 phase2 总文档把子编号打回已确认）

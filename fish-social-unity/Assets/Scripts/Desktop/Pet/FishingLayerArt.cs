@@ -33,6 +33,7 @@ namespace FishSocial.Desktop.Pet
 
         static readonly Dictionary<string, Pack> Packs = new Dictionary<string, Pack>();
         static readonly Dictionary<string, Session> Cache = new Dictionary<string, Session>();
+        static readonly Dictionary<string, WarmSlice> Warming = new Dictionary<string, WarmSlice>();
 
         public static Session Open(string petId, string clip, int drawW, int drawH)
         {
@@ -71,6 +72,109 @@ namespace FishSocial.Desktop.Pet
             // Leave Users elevated so Release from a later Open/Release pair
             // cannot evict the warmed clip while the pond session is live.
             session.Users = Math.Max(session.Users, 2);
+        }
+
+        /// <summary>
+        /// Cache hit only. Play mode must not call Open on a click: that decodes
+        /// every layer PNG on the main thread.
+        /// </summary>
+        public static Session TryGetCached(string petId, string clip, int drawW, int drawH)
+        {
+            if (drawW < 1 || drawH < 1 || string.IsNullOrEmpty(clip))
+                return null;
+            var id = string.IsNullOrEmpty(petId) ? PetArtLoader.DefaultPetId : petId;
+            var key = id + "|" + clip + "|" + drawW + "x" + drawH;
+            if (!Cache.TryGetValue(key, out var existing))
+                return null;
+            existing.Users++;
+            return existing;
+        }
+
+        /// <summary>
+        /// Decode one layer sprite and return. True when the clip is cached or
+        /// cannot be warmed (missing pack). Callers yield a frame between calls.
+        /// </summary>
+        public static bool WarmupSlice(string petId, string clip, int drawW, int drawH)
+        {
+            if (drawW < 1 || drawH < 1 || string.IsNullOrEmpty(clip))
+                return true;
+            var id = string.IsNullOrEmpty(petId) ? PetArtLoader.DefaultPetId : petId;
+            if (IndexOf(SkinIds, id) < 0)
+                return true;
+            var pack = LoadPack(id);
+            if (pack == null || !pack.Clips.TryGetValue(clip, out var parsed) || parsed.Orders.Count == 0)
+                return true;
+            var key = id + "|" + clip + "|" + drawW + "x" + drawH;
+            if (Cache.TryGetValue(key, out var ready))
+            {
+                ready.Users = Math.Max(ready.Users, 2);
+                Warming.Remove(key);
+                return true;
+            }
+
+            if (!Warming.TryGetValue(key, out var slice))
+            {
+                var frames = new Sprite[parsed.Orders.Count, LayerNames.Length];
+                slice = new WarmSlice
+                {
+                    Pack = pack,
+                    PetId = id,
+                    Clip = clip,
+                    Parsed = parsed,
+                    DrawW = drawW,
+                    DrawH = drawH,
+                    Session = new Session(key, parsed.Playback, parsed.LoopStart, parsed.Orders,
+                        frames, parsed.DurationsMs, parsed.NextClip),
+                };
+                Warming[key] = slice;
+            }
+
+            var started = Time.realtimeSinceStartup;
+            var path = LayerPath(slice.Pack, slice.PetId, slice.Clip, slice.Frame, LayerNames[slice.Layer]);
+            Sprite sprite;
+            try
+            {
+                sprite = LoadSprite(path, slice.DrawW, slice.DrawH);
+            }
+            catch (Exception)
+            {
+                sprite = null;
+            }
+
+            var elapsedMs = (Time.realtimeSinceStartup - started) * 1000f;
+            if (elapsedMs > 50f)
+            {
+                Debug.LogWarning(
+                    "[Latency][Unity] fishing_art_slice_ms=" + elapsedMs.ToString("0") +
+                    " clip=" + clip + " frame=" + slice.Frame + " layer=" + LayerNames[slice.Layer]);
+            }
+
+            if (sprite == null)
+            {
+                slice.Session.DestroyAssets();
+                Warming.Remove(key);
+                return true;
+            }
+
+            slice.Session.Frames[slice.Frame, slice.Layer] = sprite;
+            slice.Layer++;
+            if (slice.Layer < LayerNames.Length)
+                return false;
+            slice.Layer = 0;
+            slice.Frame++;
+            if (slice.Frame < slice.Parsed.Orders.Count)
+                return false;
+
+            Warming.Remove(key);
+            if (Cache.ContainsKey(key))
+            {
+                slice.Session.DestroyAssets();
+                return true;
+            }
+
+            slice.Session.Users = 2;
+            Cache[key] = slice.Session;
+            return true;
         }
 
         public static void Release(Session session)
@@ -682,6 +786,19 @@ namespace FishSocial.Desktop.Pet
                     }
                 }
             }
+        }
+
+        sealed class WarmSlice
+        {
+            public Pack Pack;
+            public string PetId;
+            public string Clip;
+            public ParsedClip Parsed;
+            public Session Session;
+            public int Frame;
+            public int Layer;
+            public int DrawW;
+            public int DrawH;
         }
 
         sealed class JsonReader

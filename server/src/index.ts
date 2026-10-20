@@ -24,6 +24,7 @@ import { flushPlayerPondSessionsOnShutdown } from './shutdownSessions.js';
 import { SERVER_STARTED_AT, getServerLifecycleInfo } from './serverLifecycle.js';
 import { socketAuthMiddleware } from './socketAuth.js';
 import { getBiteCheckMs, isInstantFishingTestMode } from './runtimeConfig.js';
+import { assertDefaultAvatarCatalog } from './defaultAvatarCatalog.js';
 
 installGlobalErrorHandlers();
 
@@ -195,4 +196,5 @@ function startListening(retriesLeft = LISTEN_MAX_RETRIES) {
   httpServer.listen(PORT, onListening);
 }
 
+assertDefaultAvatarCatalog();
 startListening();

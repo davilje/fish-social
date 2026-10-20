@@ -29,6 +29,7 @@ namespace FishSocial.Desktop
         bool _groundbaitActive;
         long _hookDeadlineMs;
         string _pendingCommand;
+        bool _stopLatched;
         string _rollbackPhase;
         string _rollbackSpotId;
         bool _rollbackHadSpot;
@@ -72,6 +73,7 @@ namespace FishSocial.Desktop
             if (!IsEnabled || string.IsNullOrEmpty(spotId))
                 return;
             CaptureRollback();
+            _stopLatched = false;
             _pendingCommand = "take_spot";
             _leavesSpot = false;
             _groundbaitActive = false;
@@ -93,6 +95,7 @@ namespace FishSocial.Desktop
                 (_phase == "baiting" || _phase == "casting" || _phase == "waiting"))
                 return;
             CaptureRollback();
+            _stopLatched = false;
             _pendingCommand = "start_fishing";
             _leavesSpot = false;
             _groundbaitActive = false;
@@ -107,14 +110,20 @@ namespace FishSocial.Desktop
         {
             if (!IsEnabled)
                 return;
+            // Clear() drops _phase after a stop reaches seated. Without this latch,
+            // EffectivePhase falls back to a server phase that is still fishable and
+            // a second stop_fishing replays the reel.
+            if (_stopLatched)
+            {
+                LogStopIgnored(commandId);
+                return;
+            }
             var phase = EffectivePhase(_pond?.Invoke());
             if (phase != "baiting" && phase != "casting" && phase != "waiting" &&
                 phase != "hooked" && phase != "groundbaiting")
                 return;
-            if (_pendingCommand == "stop_fishing" &&
-                (_phase == "stopping" || _phase == "resolving" || _phase == "seated"))
-                return;
             CaptureRollback();
+            _stopLatched = true;
             _pendingCommand = "stop_fishing";
             _leavesSpot = false;
             _groundbaitActive = false;
@@ -139,6 +148,7 @@ namespace FishSocial.Desktop
             if (_phase == "groundbaiting" && _pendingCommand == "groundbait_start")
                 return;
             CaptureRollback();
+            _stopLatched = false;
             _pendingCommand = "groundbait_start";
             _leavesSpot = false;
             _groundbaitActive = true;
@@ -153,6 +163,7 @@ namespace FishSocial.Desktop
             if (!IsEnabled)
                 return;
             CaptureRollback();
+            _stopLatched = false;
             _pendingCommand = "leave_spot";
             _leavesSpot = true;
             _groundbaitActive = false;
@@ -187,6 +198,7 @@ namespace FishSocial.Desktop
                 return;
             StopTimeline();
             _pendingCommand = null;
+            _stopLatched = true;
             _groundbaitActive = false;
             _hookDeadlineMs = 0;
             SetPhase("resolving", commandId);
@@ -322,9 +334,16 @@ namespace FishSocial.Desktop
             if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() < _hookDeadlineMs + 120)
                 return;
             _hookDeadlineMs = 0;
+            _stopLatched = true;
             StopTimeline();
             SetPhase("resolving", 0);
             _timeline = _host.StartCoroutine(StopFishingTimeline(0));
+        }
+
+        public void ClearRound()
+        {
+            _stopLatched = false;
+            Clear();
         }
 
         public void Clear()
@@ -410,6 +429,16 @@ namespace FishSocial.Desktop
                 Clear();
         }
 
+        void LogStopIgnored(long commandId)
+        {
+            var pond = _pond?.Invoke();
+            Debug.Log(
+                "[Latency][Unity] stop_fishing_ignored commandId=" + commandId +
+                " localPhase=" + (_phase ?? "") +
+                " serverPhase=" + (pond?.CurrentPhase ?? "") +
+                " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+
         void SetPhase(string phase, long commandId)
         {
             _phase = phase ?? "idle";
@@ -436,6 +465,8 @@ namespace FishSocial.Desktop
             _groundbaitActive = false;
             _hookDeadlineMs = 0;
             _leavesSpot = false;
+            if (command == "stop_fishing")
+                _stopLatched = false;
             if (command == "take_spot" && !_rollbackHadSpot)
             {
                 _spotId = string.Empty;
