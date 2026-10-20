@@ -42,127 +42,148 @@
       "pondId": "pond-calm",
       "displayName": "千岛湖",
       "theme": "reservoir",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-mist",
       "displayName": "太湖",
       "theme": "lake",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-sunset",
       "displayName": "洪泽湖",
       "theme": "lake",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-bamboo",
       "displayName": "鄱阳湖",
       "theme": "lake",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-reed",
       "displayName": "洞庭湖",
       "theme": "lake",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-crystal",
       "displayName": "滇池",
       "theme": "lake",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-lotus",
       "displayName": "洱海",
       "theme": "lake",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-mirror",
       "displayName": "镜泊湖",
       "theme": "lake",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-willow",
       "displayName": "查干湖",
       "theme": "lake",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-stone",
       "displayName": "万绿湖",
       "theme": "reservoir",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-spring",
       "displayName": "北江",
       "theme": "river",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-dusk",
       "displayName": "丹江口水库",
       "theme": "reservoir",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-pine",
       "displayName": "清江",
       "theme": "river",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-coral",
       "displayName": "舟山近海",
       "theme": "coastal",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-moon",
       "displayName": "厦门湾",
       "theme": "estuary",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-fern",
       "displayName": "南澳近海",
       "theme": "coastal",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-ridge",
       "displayName": "长江故道野塘",
       "theme": "wilderness",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-harbor",
       "displayName": "青岛近海",
       "theme": "coastal",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-orchid",
       "displayName": "涠洲近海",
       "theme": "coastal",
-      "variant": 0
+      "variant": 0,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-frost",
       "displayName": "兴凯湖",
       "theme": "lake",
-      "variant": 1
+      "variant": 1,
+      "seat": "seat-stool-v3"
     },
     {
       "pondId": "pond-novice",
       "displayName": "城郊练杆塘",
       "theme": "pond",
-      "variant": 2
+      "variant": 2,
+      "seat": "seat-stool-v3"
     }
   ],
   "modules": [
@@ -214,5 +235,38 @@
       "name": "garden-pavilion",
       "label": "凉亭模块"
     }
-  ]
+  ],
+  "seats": [
+    {
+      "name": "seat-stump-v1",
+      "label": "树桩",
+      "width": 85,
+      "groundY": 1
+    },
+    {
+      "name": "seat-stool-v3",
+      "label": "小板凳",
+      "width": 76,
+      "supportX": 0.52,
+      "supportY": 0.43,
+      "groundY": 0.94
+    },
+    {
+      "name": "seat-stone-v2",
+      "label": "青灰石台",
+      "width": 85,
+      "supportX": 0.52,
+      "supportY": 0.55,
+      "groundY": 0.92
+    },
+    {
+      "name": "seat-folding-v2",
+      "label": "折叠椅",
+      "width": 104,
+      "supportX": 0.6,
+      "supportY": 0.58,
+      "groundY": 0.96
+    }
+  ],
+  "defaultSeat": "seat-stool-v3"
 }

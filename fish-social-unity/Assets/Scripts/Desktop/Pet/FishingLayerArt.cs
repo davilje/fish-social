@@ -93,12 +93,23 @@ namespace FishSocial.Desktop.Pet
             out float originX,
             out float originY)
         {
-            var place = DefaultPlace;
-            var id = Sanitize(petId);
-            var pack = LoadPack(id);
-            if (pack != null)
-                place = pack.Place;
+            var place = Placement(petId);
             Place(place, slotW, slotH, out drawW, out drawH, out originX, out originY);
+        }
+
+        /// <summary>Seated foot contact inside the pet slot, using the same reference as animated layers.</summary>
+        public static Vector2 SeatContact(string petId, float slotW, float slotH)
+        {
+            var place = Placement(petId);
+            var uniform = Mathf.Min(slotW, slotH) / place.Reference;
+            return new Vector2((slotW - uniform * place.Reference) * 0.5f + uniform * place.ReferenceFootX,
+                (slotH - uniform * place.Reference) * 0.5f + uniform * place.ReferenceFootY);
+        }
+
+        static LayerPlace Placement(string petId)
+        {
+            var pack = LoadPack(Sanitize(petId));
+            return pack != null ? pack.Place : DefaultPlace;
         }
 
         static void Place(

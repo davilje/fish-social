@@ -36,7 +36,8 @@ namespace FishSocial.Desktop.Editor
             {
                 if (EditorApplication.isPlayingOrWillChangePlaymode)
                     throw new InvalidOperationException("Exit Play Mode before editing UI assets.");
-                if (UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
+                if (action != "recompile" && action != "pond-art" && action != "pond-art-verify" &&
+                    UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
                     throw new InvalidOperationException("Save and close Prefab Stage before editing assets.");
                 if (action == "inspect")
                     Inspect();
