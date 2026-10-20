@@ -5,6 +5,30 @@ type Clip = { count: number; playback: string; durationsMs: number[]; loopStart:
 const clips: Record<string, Clip> = catalog.clips;
 const outcomes = new Set(['reel', 'catch', 'reset_catch', 'reel_empty', 'reset_empty']);
 
+type AtlasCatalog = {
+  frameWidth: number;
+  frameHeight: number;
+  atlasFrameScale?: Record<string, number>;
+};
+
+export function catAtlasLayout(skin: string, count: number, frame: number, width = 120,
+  source: AtlasCatalog = catalog) {
+  const scale = source.atlasFrameScale?.[skin] ?? 1;
+  if (!Number.isInteger(scale) || ![1, 2, 4].includes(scale))
+    throw new Error(`Invalid atlasFrameScale for ${skin}: ${scale}`);
+  const sourceFrameWidth = source.frameWidth * scale;
+  const sourceFrameHeight = source.frameHeight * scale;
+  const displayScale = width / sourceFrameWidth;
+  return {
+    sourceWidth: sourceFrameWidth * count,
+    sourceHeight: sourceFrameHeight,
+    width,
+    height: sourceFrameHeight * displayScale,
+    atlasWidth: sourceFrameWidth * count * displayScale,
+    translateX: -frame * sourceFrameWidth * displayScale,
+  };
+}
+
 export class CatAnimationPlayer {
   clip = 'idle';
   frame = 0;

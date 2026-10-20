@@ -134,7 +134,8 @@ namespace FishSocial.Desktop.Pet
             Sprite sprite;
             try
             {
-                sprite = LoadSprite(path, slice.DrawW, slice.DrawH);
+                sprite = LoadSprite(path, slice.DrawW, slice.DrawH,
+                    TextureScale(slice.Pack, LayerNames[slice.Layer]));
             }
             catch (Exception)
             {
@@ -261,7 +262,7 @@ namespace FishSocial.Desktop.Pet
                     for (var layer = 0; layer < LayerNames.Length; layer++)
                     {
                         var path = LayerPath(pack, petId, clip, index, LayerNames[layer]);
-                        frames[index, layer] = LoadSprite(path, drawW, drawH);
+                        frames[index, layer] = LoadSprite(path, drawW, drawH, TextureScale(pack, LayerNames[layer]));
                         if (frames[index, layer] == null)
                             throw new InvalidDataException("Missing or invalid fishing layer: " + path);
                     }
@@ -276,9 +277,15 @@ namespace FishSocial.Desktop.Pet
             }
         }
 
-        static Sprite LoadSprite(string path, int drawW, int drawH)
+        static int TextureScale(Pack pack, string layer)
         {
-            if (!File.Exists(path))
+            return IndexOf(pack.BodyLayers, layer) >= 0 ? pack.BodyTextureScale : 1;
+        }
+
+        static Sprite LoadSprite(string path, int drawW, int drawH, int textureScale)
+        {
+            if (drawW < 1 || drawH < 1 ||
+                (textureScale != 1 && textureScale != 2 && textureScale != 4) || !File.Exists(path))
                 return null;
             var bytes = File.ReadAllBytes(path);
             var source = new Texture2D(2, 2, TextureFormat.RGBA32, false);
@@ -288,13 +295,15 @@ namespace FishSocial.Desktop.Pet
                 return null;
             }
 
-            if (source.width != CanvasWidth || source.height != CanvasHeight)
+            if (source.width != CanvasWidth * textureScale || source.height != CanvasHeight * textureScale)
             {
                 DestroyAsset(source);
                 return null;
             }
 
-            var texture = Scale(source, drawW, drawH);
+            var textureW = textureScale > 1 ? (int)Math.Min(source.width, (long)drawW * 2) : drawW;
+            var textureH = textureScale > 1 ? (int)Math.Min(source.height, (long)drawH * 2) : drawH;
+            var texture = Scale(source, textureW, textureH);
             texture.filterMode = FilterMode.Bilinear;
             texture.wrapMode = TextureWrapMode.Clamp;
             return Sprite.Create(
@@ -407,7 +416,8 @@ namespace FishSocial.Desktop.Pet
             }
 
             error = "Invalid v2 fishing manifest: expected sourceVersion 19, canvas 640x512, " +
-                "nine unique layers, four body layers, complete clips and positive integer durations.";
+                "nine unique layers, four body layers, optional bodyTextureScale 1, 2 or 4, " +
+                "complete clips and positive integer durations.";
             return false;
         }
 
@@ -426,6 +436,13 @@ namespace FishSocial.Desktop.Pet
             var body = AsStrings(obj, "bodyLayers");
             if (!SameNames(body, BodyLayerNames))
                 return null;
+            var bodyTextureScale = 1;
+            if (obj.TryGetValue("bodyTextureScale", out var textureScale))
+            {
+                if (!IsInteger(textureScale, 1) && !IsInteger(textureScale, 2) && !IsInteger(textureScale, 4))
+                    return null;
+                bodyTextureScale = (int)(long)textureScale;
+            }
 
             if (!obj.TryGetValue("clips", out var clipsValue))
                 return null;
@@ -466,7 +483,7 @@ namespace FishSocial.Desktop.Pet
                 !Matches(clips, "leave", 4, "once", "idle"))
                 return null;
 
-            return new Pack(root, body, clips, ReadPlace(obj));
+            return new Pack(root, body, clips, ReadPlace(obj), bodyTextureScale);
         }
 
         static bool Matches(Dictionary<string, ParsedClip> clips, string name, int count,
@@ -693,16 +710,19 @@ namespace FishSocial.Desktop.Pet
                 string root,
                 string[] bodyLayers,
                 Dictionary<string, ParsedClip> clips,
-                LayerPlace place)
+                LayerPlace place,
+                int bodyTextureScale)
             {
                 Root = root;
                 BodyLayers = bodyLayers;
                 Clips = clips;
                 Place = place;
+                BodyTextureScale = bodyTextureScale;
             }
 
             public string Root { get; }
             public string[] BodyLayers { get; }
+            public int BodyTextureScale { get; }
             public Dictionary<string, ParsedClip> Clips { get; }
             public LayerPlace Place { get; }
         }

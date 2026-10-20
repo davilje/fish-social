@@ -37,6 +37,90 @@ namespace FishSocial.Tests.Editor
             Assert.IsTrue(FishingLayerArt.ValidateManifest(Manifest(), out var error), error);
         }
 
+        [TestCase(null, 1)]
+        [TestCase("1", 1)]
+        [TestCase("2", 2)]
+        [TestCase("4", 4)]
+        public void BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(string value, int expected)
+        {
+            var manifest = value == null ? Manifest() : ManifestWithTextureScale(value);
+            Assert.IsTrue(FishingLayerArt.ValidateManifest(manifest, out var error), error);
+            var pack = Pack(manifest);
+            Assert.AreEqual(expected, pack.GetType().GetProperty("BodyTextureScale").GetValue(pack));
+            using (var preview = new PlaybackFixture())
+            {
+                FishingLayerArt.Place(preview.SkinId, 640, 512, out var width, out var height, out var x, out var y);
+                using (var highResolution = new PlaybackFixture(manifest))
+                {
+                    FishingLayerArt.Place(highResolution.SkinId, 640, 512,
+                        out var actualWidth, out var actualHeight, out var actualX, out var actualY);
+                    Assert.AreEqual(width, actualWidth);
+                    Assert.AreEqual(height, actualHeight);
+                    Assert.AreEqual(x, actualX);
+                    Assert.AreEqual(y, actualY);
+                    highResolution.Renderer.Apply(PetVisualState.Fishing);
+                    var images = (Image[])typeof(SpriteFramePetRenderer).GetField(
+                        "_layerImages", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(highResolution.Renderer);
+                    foreach (var image in images)
+                        Assert.AreEqual(new Vector2(width, height), image.rectTransform.sizeDelta);
+                }
+            }
+        }
+
+        [TestCase("0")]
+        [TestCase("-1")]
+        [TestCase("3")]
+        [TestCase("8")]
+        [TestCase("2.0")]
+        [TestCase("2e0")]
+        [TestCase("2.5")]
+        [TestCase("2147483648")]
+        [TestCase("\"2\"")]
+        [TestCase("null")]
+        [TestCase("true")]
+        [TestCase("[]")]
+        public void UnsupportedBodyTextureScalesFailClosed(string value)
+        {
+            Assert.IsFalse(FishingLayerArt.ValidateManifest(ManifestWithTextureScale(value), out _));
+        }
+
+        [TestCase(1, 640, 512, 17, 13, 17, 13)]
+        [TestCase(2, 1280, 1024, 17, 13, 34, 26)]
+        [TestCase(2, 1280, 1024, 700, 600, 1280, 1024)]
+        [TestCase(4, 2560, 2048, 17, 13, 34, 26)]
+        [TestCase(2, 640, 512, 17, 13, 0, 0)]
+        [TestCase(2, 1280, 512, 17, 13, 0, 0)]
+        [TestCase(1, 1280, 1024, 17, 13, 0, 0)]
+        public void LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(
+            int scale, int sourceWidth, int sourceHeight, int drawWidth, int drawHeight, int expectedWidth, int expectedHeight)
+        {
+            var path = Path.Combine(Path.GetTempPath(), "FishingTexture-" + Guid.NewGuid().ToString("N") + ".png");
+            Sprite sprite = null;
+            try
+            {
+                File.WriteAllBytes(path, TextureBytes(sourceWidth, sourceHeight));
+                sprite = (Sprite)typeof(FishingLayerArt).GetMethod("LoadSprite", BindingFlags.Static | BindingFlags.NonPublic)
+                    .Invoke(null, new object[] { path, drawWidth, drawHeight, scale });
+                if (expectedWidth == 0)
+                    Assert.IsNull(sprite);
+                else
+                {
+                    Assert.IsNotNull(sprite);
+                    Assert.AreEqual(expectedWidth, sprite.texture.width);
+                    Assert.AreEqual(expectedHeight, sprite.texture.height);
+                }
+            }
+            finally
+            {
+                if (sprite != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(sprite.texture);
+                    UnityEngine.Object.DestroyImmediate(sprite);
+                }
+                File.Delete(path);
+            }
+        }
+
         [Test]
         public void GroundbaitReturnsToReadyAndLeavingEndsUnarmedWithoutReplay()
         {
@@ -366,8 +450,10 @@ namespace FishSocial.Tests.Editor
                 DesktopDefaultAvatars.All.Select(entry => entry.Id).ToArray());
         }
 
-        [Test]
-        public void ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles()
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(4)]
+        public void ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(int textureScale)
         {
             var root = Path.Combine(Path.GetTempPath(), "FishingArtTest-" + Guid.NewGuid().ToString("N"));
             var packs = (IDictionary)typeof(FishingLayerArt).GetField("Packs", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
@@ -378,14 +464,13 @@ namespace FishSocial.Tests.Editor
             {
                 Directory.CreateDirectory(body);
                 Directory.CreateDirectory(shared);
-                packs["blue"] = Pack(Manifest(), root);
-                var texture = new Texture2D(640, 512, TextureFormat.RGBA32, false);
-                var bytes = texture.EncodeToPNG();
-                UnityEngine.Object.DestroyImmediate(texture);
+                packs["blue"] = Pack(ManifestWithTextureScale(textureScale.ToString()), root);
+                var bytes = TextureBytes(640, 512);
+                var bodyBytes = textureScale == 1 ? bytes : TextureBytes(640 * textureScale, 512 * textureScale);
                 foreach (var layer in FishingLayerArt.LayerNames)
                 {
                     var folder = layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands" ? body : shared;
-                    File.WriteAllBytes(Path.Combine(folder, layer + ".png"), bytes);
+                    File.WriteAllBytes(Path.Combine(folder, layer + ".png"), folder == body ? bodyBytes : bytes);
                 }
                 var complete = typeof(FishingLayerArt).GetMethod("HasCompleteFiles", BindingFlags.Static | BindingFlags.NonPublic);
                 Assert.IsNotNull(complete);
@@ -405,7 +490,7 @@ namespace FishSocial.Tests.Editor
                         {
                             var folder = layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands"
                                 ? bodyFolder : sharedFolder;
-                            File.WriteAllBytes(Path.Combine(folder, layer + ".png"), bytes);
+                            File.WriteAllBytes(Path.Combine(folder, layer + ".png"), folder == bodyFolder ? bodyBytes : bytes);
                         }
                     }
                 }
@@ -414,12 +499,24 @@ namespace FishSocial.Tests.Editor
                 Assert.IsNotNull(session);
                 Assert.AreEqual(9, session.Frames.GetLength(1));
                 Assert.IsFalse(session.Order(0).Contains("cat"));
+                AssertLayerTextureSizes(session, textureScale);
                 FishingLayerArt.Release(session);
+                for (var layer = 0; layer < FishingLayerArt.LayerNames.Length; layer++)
+                    Assert.AreEqual(layer == FishingLayerArt.LayerNames.Length - 1,
+                        FishingLayerArt.WarmupSlice("blue", "idle", 17, 13));
+                session = FishingLayerArt.TryGetCached("blue", "idle", 17, 13);
+                Assert.IsNotNull(session);
+                AssertLayerTextureSizes(session, textureScale);
+                while (session.Users > 0)
+                    FishingLayerArt.Release(session);
                 CollectionAssert.AreEqual(bytes, File.ReadAllBytes(Path.Combine(body, "cat.png")));
                 CollectionAssert.AreEqual(bytes, File.ReadAllBytes(Path.Combine(shared, "cat.png")));
                 File.Delete(Path.Combine(body, "far_hand.png"));
                 Assert.IsFalse((bool)complete.Invoke(null, new[] { packs["blue"], "blue" }));
                 Assert.IsNull(FishingLayerArt.Open("blue", "idle", 17, 13));
+                for (var layer = 0; layer < 3; layer++)
+                    FishingLayerArt.WarmupSlice("blue", "idle", 17, 13);
+                Assert.IsNull(FishingLayerArt.TryGetCached("blue", "idle", 17, 13));
             }
             finally
             {
@@ -858,6 +955,30 @@ namespace FishSocial.Tests.Editor
         }
 
         static string Names(IEnumerable<string> names) => "[\"" + string.Join("\",\"", names) + "\"]";
+
+        static string ManifestWithTextureScale(string value)
+        {
+            return Manifest().Replace("\"version\":2", "\"version\":2,\"bodyTextureScale\":" + value);
+        }
+
+        static byte[] TextureBytes(int width, int height)
+        {
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            try { return texture.EncodeToPNG(); }
+            finally { UnityEngine.Object.DestroyImmediate(texture); }
+        }
+
+        static void AssertLayerTextureSizes(FishingLayerArt.Session session, int textureScale)
+        {
+            foreach (var layer in FishingLayerArt.LayerNames)
+            {
+                var body = layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands";
+                var multiplier = body && textureScale > 1 ? 2 : 1;
+                var texture = session.Frame(0, layer).texture;
+                Assert.AreEqual(17 * multiplier, texture.width, layer);
+                Assert.AreEqual(13 * multiplier, texture.height, layer);
+            }
+        }
 
         static object Pack(string manifest, string root = "")
         {

@@ -3,6 +3,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { assertPngSize } from './install_dafeiyu.mjs';
 
 const require = createRequire(import.meta.url);
 const ts = require(process.env.TYPESCRIPT_MODULE || 'typescript');
@@ -29,12 +30,19 @@ function evaluate(relative) {
 }
 const avatars = evaluate('shared/defaultAvatars.ts');
 const photos = evaluate('shared/fishingPhotos.ts');
-const { CatAnimationPlayer } = evaluate('mobile/lib/catAnimation.ts');
+const { CatAnimationPlayer, catAtlasLayout } = evaluate('mobile/lib/catAnimation.ts');
 assert.equal(avatars.DEFAULT_AVATARS.length, 10);
 assert.equal(avatars.DEFAULT_AVATARS.find(avatar => avatar.id === 'dafeiyu').label, '大肥鱼');
 evaluate('server/src/defaultAvatarCatalog.ts').assertDefaultAvatarCatalog();
 assert.deepEqual(new Set(catalog.skins), new Set(avatars.DEFAULT_AVATARS.map(avatar => avatar.id)));
 assert(read('image/cats/catalog.json').equals(read('mobile/assets/cats/catalog.json')));
+assert.equal(catalog.frameWidth, 320);
+assert.equal(catalog.frameHeight, 256);
+assert.deepEqual(catalog.foot, [264, 450]);
+for (const [skin, scale] of Object.entries(catalog.atlasFrameScale ?? {})) {
+  assert(catalog.skins.includes(skin), skin);
+  assert(skin === 'dafeiyu' ? scale === 1 || scale === 2 : scale === 1, skin + ': atlas scale');
+}
 const program = ts.createProgram([
   path.join(root, 'shared/defaultAvatars.ts'), path.join(root, 'shared/fishingPhotos.ts'),
   path.join(root, 'mobile/lib/catAnimation.ts'),
@@ -74,29 +82,58 @@ for (const avatar of avatars.DEFAULT_AVATARS) {
   assert(image.equals(read(`desktop-overlay/OverlayResources/hud/cozy/characters/avatars/${skin}.png`)));
   const source = `fish-social-unity/Assets/StreamingAssets/Fishing`;
   const manifest = JSON.parse(read(`${source}/${skin}/manifest.json`));
+  assert.deepEqual(manifest, JSON.parse(read(`desktop-overlay/OverlayResources/fishing/${skin}/manifest.json`)));
+  assert.deepEqual(manifest.canvas, [640, 512]);
+  const bodyScale = Object.hasOwn(manifest, 'bodyTextureScale') ? manifest.bodyTextureScale : 1;
+  assert(Number.isInteger(bodyScale) && [1, 2, 4].includes(bodyScale), skin + ': bodyTextureScale');
+  const atlasScale = catalog.atlasFrameScale?.[skin] ?? 1;
+  if (skin === 'dafeiyu') assert.equal(atlasScale, bodyScale > 1 ? 2 : 1, skin + ': atlas/body contract');
+  else assert.equal(bodyScale, 1, skin + ': legacy body scale');
+  if (skin === 'dafeiyu') assertPngSize(image, bodyScale > 1 ? 512 : 256, bodyScale > 1 ? 512 : 256, skin + ' avatar');
+  for (const directory of ['fish-social-unity/Assets/Resources/Desktop/Theme/Cozy', 'desktop-overlay/OverlayResources/hud/cozy']) {
+    const sprites = JSON.parse(read(`${directory}/asset-manifest.json`));
+    assert.deepEqual(sprites.spriteAssets[`characters/avatars/${skin}.png`].size,
+      [image.readUInt32BE(16), image.readUInt32BE(20)], skin + ': avatar manifest size');
+  }
+  const frameWidth = catalog.frameWidth * atlasScale;
+  const frameHeight = catalog.frameHeight * atlasScale;
   for (const [clip, definition] of Object.entries(catalog.clips)) {
     const png = read(`image/cats/${skin}/${clip}.png`);
-    assert.equal(png.readUInt32BE(16), catalog.frameWidth * definition.count);
-    assert.equal(png.readUInt32BE(20), catalog.frameHeight);
+    assertPngSize(png, frameWidth * definition.count, frameHeight, skin + '/' + clip);
+    if (skin === 'dafeiyu') assert(png.equals(read(`mobile/assets/cats/${skin}/${clip}.png`)), clip + ': mobile mirror');
+    const layout = catAtlasLayout(skin, definition.count, definition.count - 1);
+    assert.equal(layout.sourceWidth, frameWidth * definition.count);
+    assert.equal(layout.sourceHeight, frameHeight);
+    assert.equal(layout.width, 120);
+    assert.equal(layout.height, 96);
+    assert.equal(layout.atlasWidth, 120 * definition.count);
+    assert.equal(layout.translateX, -(definition.count - 1) * 120);
     assert.deepEqual(definition.durationsMs, manifest.clips[clip].durationsMs);
     assert.equal(definition.next, manifest.clips[clip].nextClip ?? null);
     for (const [index] of manifest.clips[clip].frames.entries()) {
       for (const layer of manifest.layers) {
         const relative = manifest.bodyLayers.includes(layer) ? `${skin}/body/${clip}/${index}/${layer}.png`
           : `shared/${clip}/${index}/${layer}.png`;
-        assert(read(`${source}/${relative}`).equals(read(`desktop-overlay/OverlayResources/fishing/${relative}`)), relative);
+        const bytes = read(`${source}/${relative}`);
+        const scale = manifest.bodyLayers.includes(layer) ? bodyScale : 1;
+        assertPngSize(bytes, 640 * scale, 512 * scale, relative);
+        assert(bytes.equals(read(`desktop-overlay/OverlayResources/fishing/${relative}`)), relative);
       }
     }
   }
   for (const clip of ['ready', 'catch', 'reel_empty']) {
     const index = manifest.clips[clip].frames.length - 1;
-    const layers = manifest.clips[clip].frames[index].map(layer => ({ input: read(`${source}/` +
-      (manifest.bodyLayers.includes(layer) ? `${skin}/body/${clip}/${index}/${layer}.png` : `shared/${clip}/${index}/${layer}.png`)), left: 0, top: 0 }));
-    const composed = await sharp({ create: { width: 640, height: 512, channels: 4, background: '#00000000' } })
+    const layers = await Promise.all(manifest.clips[clip].frames[index].map(async layer => {
+      const body = manifest.bodyLayers.includes(layer);
+      let input = read(`${source}/` + (body ? `${skin}/body/${clip}/${index}/${layer}.png` : `shared/${clip}/${index}/${layer}.png`));
+      if (!body && bodyScale > 1) input = await sharp(input).resize(640 * bodyScale, 512 * bodyScale).png().toBuffer();
+      return { input, left: 0, top: 0 };
+    }));
+    const composed = await sharp({ create: { width: 640 * bodyScale, height: 512 * bodyScale, channels: 4, background: '#00000000' } })
       .composite(layers).png().toBuffer();
-    const expected = await sharp(composed).resize(320, 256).raw().toBuffer();
+    const expected = await sharp(composed).resize(frameWidth, frameHeight).raw().toBuffer();
     const actual = await sharp(read(`image/cats/${skin}/${clip}.png`))
-      .extract({ left: index * 320, top: 0, width: 320, height: 256 }).raw().toBuffer();
+      .extract({ left: index * frameWidth, top: 0, width: frameWidth, height: frameHeight }).raw().toBuffer();
     for (let offset = 0; offset < expected.length; offset += 4) {
       assert.equal(expected[offset + 3], actual[offset + 3], skin + '/' + clip + ': alpha');
       for (let channel = 0; channel < 3; channel++) {

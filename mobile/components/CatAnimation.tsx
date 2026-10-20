@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, View } from 'react-native';
 import { resolveCatSkinId, type PondUser } from '@fish-social/shared';
 import catalog from '../assets/cats/catalog.json';
-import { CatAnimationPlayer } from '../lib/catAnimation';
+import { CatAnimationPlayer, catAtlasLayout } from '../lib/catAnimation';
 import { resolveAssetUrl } from '../lib/avatarUrl';
 
 export function CatAnimation({ user, faceLeft }: { user: PondUser; faceLeft: boolean }) {
@@ -27,19 +27,18 @@ export function CatAnimation({ user, faceLeft }: { user: PondUser; faceLeft: boo
     }, 40);
     return () => clearInterval(timer);
   }, [player, uri, loaded]);
-  const width = 120;
-  const height = width * catalog.frameHeight / catalog.frameWidth;
+  const definition = catalog.clips[snapshot.clip as keyof typeof catalog.clips];
+  const { width, height, atlasWidth, translateX } = catAtlasLayout(skin, definition.count, snapshot.frame);
   const left = 36 - catalog.foot[0] / 640 * width;
   const top = 48 - catalog.foot[1] / 512 * height;
-  const definition = catalog.clips[snapshot.clip as keyof typeof catalog.clips];
   return (
     <View pointerEvents="none" style={{ width: 72, height: 48, transform: [{ scaleX: faceLeft ? -1 : 1 }] }}>
       {loaded !== uri && <Image source={{ uri: resolveAssetUrl(`/image/profile/cat_avatar_${skin}.png`) }}
         style={{ position: 'absolute', left: 11, top: 0, width: 50, height: 48 }} resizeMode="contain" />}
       <View style={{ position: 'absolute', left, top, width, height, overflow: 'hidden' }}>
         <Image source={{ uri }} onLoad={() => setLoaded(uri)}
-          style={{ width: width * definition.count, height, opacity: loaded === uri ? 1 : 0,
-            transform: [{ translateX: -snapshot.frame * width }] }} resizeMode="stretch" />
+          style={{ width: atlasWidth, height, opacity: loaded === uri ? 1 : 0,
+            transform: [{ translateX }] }} resizeMode="stretch" />
       </View>
     </View>
   );
