@@ -431,19 +431,17 @@ function mapBody() {
 
 function mapAside() {
   const p = PONDS.find(x => x.id === S.sel.map);
-  if (!p) {
-    return `<div class="heading">鱼塘详情</div><div class="polaroid" style="opacity:.55"><div class="photo"><img class="cover" src="assets/pond-afternoon.jpg"></div>
-      <div class="caption">还没选鱼塘</div></div><div class="detail">点地图上的浮标，小猫会帮你把照片贴到这里。</div>`;
-  }
-  return `<div class="heading">鱼塘详情</div>
-    <div class="polaroid"><i class="tape lake"></i><div class="photo"><img class="cover" src="assets/pond-afternoon.jpg"></div><div class="caption">${p.name}</div></div>
-    <div class="detail">${p.theme} · ${WATER[p.water]} · <span style="color:${p.cat.color}">●</span> ${p.cat.label}
-      <div class="chips"><span class="chip">Lv.${p.lv}</span><span class="chip">${coinIcon}${p.fee ? p.fee + ' 入场' : '免费'}</span><span class="chip">鲫鱼 · 鲤鱼 · 草鱼</span></div></div>
-    <div class="seg" style="left:18px;top:356px;width:326px"><span class="knob" style="left:${S.feeMode ? 165 : 4}px;width:157px"></span>
+  if (!p) return `<div class="heading">鱼塘详情</div><div class="polaroid" style="opacity:.55"><div class="photo"><img class="cover" src="assets/pond-afternoon.jpg"></div><div class="caption">还没选鱼塘</div></div><div class="detail">点地图上的浮标，小猫会帮你把照片贴到这里。</div>`;
+    return `<div class="heading">鱼塘详情</div>
+    <div class="polaroid pond-photo"><i class="tape lake"></i><div class="photo"><img class="cover" src="assets/pond-afternoon.jpg"></div><div class="caption">${p.name}</div></div>
+    <div class="detail pond-info"><div class="pond-description">${p.theme} · ${WATER[p.water]} · <span style="color:${p.cat.color}">●</span> ${p.cat.label}</div>
+      <div class="pond-species">可遇鱼种：鲫鱼 · 鲤鱼 · 草鱼</div>
+      <div class="chips"><span class="chip">Lv.${p.lv}</span><span class="chip">${coinIcon}${p.fee ? p.fee + ' 金币入场' : '免费入场'}</span></div></div>
+    <div class="pond-entry-controls"><div class="seg pond-fee"><span class="knob" style="left:${S.feeMode ? 165 : 4}px;width:157px"></span>
       <button class="${S.feeMode ? '' : 'on'}" data-fee="0">回鱼出售</button><button class="${S.feeMode ? 'on' : ''}" data-fee="1">自动回鱼</button></div>
     ${p.locked
-      ? `<div class="btn primary off" style="left:18px;top:420px;width:326px"><img src="${iconL('lock')}">Lv.${p.lv} 解锁</div>`
-      : `<div class="btn primary" data-act="enter" style="left:18px;top:420px;width:326px"><span class="fish-icon">${miniFish()}</span>进入鱼塘</div>`}`;
+      ? `<button class="btn primary off pond-enter" disabled><img src="${iconL('lock')}">Lv.${p.lv} 解锁</button>`
+      : `<button class="btn primary pond-enter" data-act="enter"><span class="fish-icon">${miniFish()}</span>进入鱼塘</button>`}</div>`;
 }
 
 /* ----- settings ----- */
@@ -601,15 +599,19 @@ async function closePage() {
   switching = false;
 }
 
+let tabGeneration = 0;
 async function switchTab(i) {
+  if (switching) return;
   const id = S.page;
   if (S.tab[id] === i) return;
+  const generation = ++tabGeneration;
   S.tab[id] = i;
   $$('.rail .tab').forEach((t, k) => t.classList.toggle('sel', k === i));
   caption('索引贴：选中的页签从纸边多拉出 16px（200ms OutCubic）；中栏旧卡 100ms 淡出，新卡依次贴入');
   const mid = $$('.mid, .mid-h, .aside, .status, .empty', $('.content'));
   await Promise.all(mid.map(m => play(m, [{ opacity: 1 }, { opacity: 0 }], { duration: 100, fill: 'forwards' }).finished));
   const content = $('.content');
+  if (id !== S.page || generation !== tabGeneration) return;
   const rail = $('.rail', content);
   const tmp = document.createElement('div');
   tmp.innerHTML = BODY[id](id);
@@ -637,6 +639,7 @@ function startBobFloat() {
   bobFloat.cancel();
   bobFloat = play($('#bobber .float'), [{ translate: '0 -3px', rotate: '-4deg' }, { translate: '0 3px', rotate: '4deg' }],
     { duration: T.float / 2, iterations: Infinity, direction: 'alternate', easing: EASE.inOutSine });
+  if (pageLoops.length || reduced || document.hidden) bobFloat.pause();
 }
 
 function navRipple(i) {
@@ -646,6 +649,7 @@ function navRipple(i) {
 }
 
 async function moveBobber(idx) {
+  try {
   const bob = $('#bobber');
   bobAnims.forEach(a => a.cancel());
   bobAnims = [];
@@ -715,7 +719,8 @@ async function moveBobber(idx) {
   const img = $$('.navtab img')[idx];
   play(img, [{ translate: '0 0' }, { translate: '0 -8px', offset: 0.4 }, { translate: '0 0' }], { duration: 300, easing: EASE.outCubic });
   await land.finished;
-  if (bobIdx === idx) bobFloat.play();
+  if (bobIdx === idx && !pageLoops.length && !reduced) bobFloat.play();
+  } catch (error) { if (error.name !== 'AbortError') throw error; }
 }
 
 /* ---------------- effects ---------------- */
@@ -856,7 +861,7 @@ async function nextToast() {
     : '提示：小鱼叼着便签从右侧游进来 420ms OutCubic，摆尾，停 2.5 秒后继续游走');
   const swimIn = play(el, [{ translate: '460px 0', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 420, easing: EASE.outCubic });
   const fish = $('.fish', el);
-  const wag = fish ? play(fish, [{ rotate: '-5deg' }, { rotate: '5deg' }], { duration: 240, iterations: Infinity, direction: 'alternate', easing: EASE.inOutSine }) : DONE;
+  const wag = fish ? play(fish, [{ rotate: '-5deg' }, { rotate: '5deg' }], { duration: 240, iterations: 12, direction: 'alternate', easing: EASE.inOutSine }) : DONE;
   const cat = $('.cat', el);
   if (cat) play(cat, [{ rotate: '0deg' }, { rotate: '14deg' }], { duration: 300, delay: 300, easing: EASE.outBack, fill: 'forwards' });
   await swimIn.finished;
@@ -935,13 +940,13 @@ function startPageLoops(id, root) {
       { duration: 2200, iterations: Infinity, easing: 'linear' }));
   }
   if (pageLoops.length) bobFloat.pause();
-  else if (bobIdx !== null) bobFloat.play();
+  else if (bobIdx !== null && !reduced) bobFloat.play();
 }
 
 function stopPageLoops() {
   pageLoops.forEach(a => a.cancel());
   pageLoops = [];
-  if (bobIdx !== null) bobFloat.play();
+  if (bobIdx !== null && !reduced) bobFloat.play();
 }
 
 setInterval(() => {
@@ -953,7 +958,7 @@ setInterval(() => {
 /* ---------------- page bindings ---------------- */
 
 function bindPage(id, root) {
-  $$('.rail .tab', root).forEach(t => t.addEventListener('click', () => switchTab(+t.dataset.tab)));
+  $$('.rail .tab', root).forEach(t => { t.onclick = () => switchTab(+t.dataset.tab); });
   $$('.sticker', root).forEach(c => c.addEventListener('click', e => {
     if (e.target.closest('[data-act]')) return;
     selectCard(id, c);
@@ -1457,8 +1462,9 @@ function fit() {
 }
 
 function boot() {
+  installJournalPages();
   $$('[data-icon]').forEach(i => { i.src = icon(i.dataset.icon); });
-  $('#avatar-img').src = `${U}characters/avatars/orange.png`;
+  $('#avatar-img').src = jAvatar(J.avatar);
   $('#coins .num').textContent = fmt(S.coins);
   $('.page-header #close').addEventListener('click', closePage);
   const nav = $('#nav');
@@ -1517,6 +1523,7 @@ function boot() {
     toast('阿花邀请你去千岛湖钓鱼');
   });
   $('#gear').addEventListener('click', () => go('settings'));
+  $('#world-entry').addEventListener('click', () => go('map'));
   $('#coins .plus').addEventListener('click', () => toast('原型：这里打开充值页'));
 
   $('#cmp-new').addEventListener('click', () => setCompare(false));
@@ -1551,7 +1558,7 @@ function boot() {
   }));
 
   window.addEventListener('keydown', e => {
-    if (e.code === 'Space' && !e.repeat) { e.preventDefault(); setCompare(true); }
+    if (e.code === 'Space' && !e.repeat && !e.target.closest('input, textarea, select, [contenteditable=true], [role=button], button')) { e.preventDefault(); setCompare(true); }
   });
   window.addEventListener('keyup', e => {
     if (e.code === 'Space') setCompare(false);

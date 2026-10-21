@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <title>猫咪钓鱼手账 · 可交互原型</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
 </head>
 <body>
   <header id="toolbar">
-    <div class="brand">猫咪钓鱼手账 · 原型</div>
+    <div class="brand">猫咪钓鱼手账 · 完整页预览</div>
     <div class="group"><span>对比</span>
       <button id="cmp-new" class="on">新方案</button>
       <button id="cmp-old">现状</button>
@@ -21,6 +22,7 @@
     <div class="group"><button id="reduce">减少动效：关</button></div>
     <div class="group"><span>页面</span>
       <button data-goto="map">探索世界</button>
+      <button data-goto="ponds">选择鱼塘</button>
       <button data-goto="settings">设置</button>
     </div>
     <div class="group"><span>演示</span>
@@ -44,6 +46,7 @@
           <div class="xp"><i></i><b>320 / 500</b></div>
         </div>
       </div>
+      <button id="world-entry" class="btn" type="button" aria-label="打开钓鱼世界地图"><img data-icon="map" alt=""><span><strong>钓鱼世界</strong><small>探索地图 · 选择鱼塘</small></span><b>↗</b></button>
       <div id="coins" class="pill"><img data-icon="coin" alt=""><span class="num">1,280</span><span class="plus">+</span></div>
       <div id="pearls" class="pill"><img data-icon="pearl" alt=""><span class="num">24</span><small>鱼获</small></div>
       <div id="bell" class="pill round"><img data-icon="bell" alt=""><span class="dot"></span></div>
@@ -78,10 +81,12 @@
 
   <footer id="caption">
     <span class="tag">动效</span>
+    <span class="j-preview-data">示例数据 · 本地预览</span>
     <span id="caption-text">点任意按钮、页签、卡片，看看它们怎么回应你。</span>
     <span class="hint">按住空格：对比现状 · 减少动效：只留淡入淡出</span>
   </footer>
 
+  <script src="pages.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

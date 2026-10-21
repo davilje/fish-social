@@ -1,8 +1,11 @@
-# Cozy UI 持久化切图
+# Cozy UI 持久化资源
 
-所有 PNG 已提供 TextureImporter 元数据。三态按钮为 64×63、四边 border 10；大面板 paper.png 为 128×125、border 20；小面板 paper-compact.png 为 64×63、border 10。按钮与面板使用 Sliced；人物、图标和场景为 Simple。
-三态按钮保持同一源图裁切尺寸。CozyButtonVisual 字段与 Prefab 内的 Image/按钮状态均指向真实导入 Sprite，不使用临时 Sprite.Create。
-icons 为单色雕刻图案，icons-light 为主操作按钮上的浅色同轮廓版本；不改变图案几何。
-home-sakura 为依据确认的首页参考图生成的无 UI 场景，meow-fish 为独立透明 Logo。猫咪头像裁切自现有 v18 分层 head，其他角色/图标/鱼与纸纹复用已确认切图。
-asset-manifest.json 记录 GUID、大小、border 与 Resources 路径。data/player-levels.json 只读复制已有游戏数据，供 HUD 显示经验上限。
-完整说明与未执行的 Unity 验收：docs/design/ui/2026-10-14-cozy-prefab-repair.md。
+所有尺寸、GUID、fileID、Sprite rect、border和实际导入尺寸以本目录`asset-manifest.json`为准，该文件由Unity AssetDatabase重建。旧文档中的按钮border10、纸页border20已经过时，不再作为导入依据。
+
+`journal/`是原版手账UI新增资源：90张共用切图、60张角色补充姿势、21张真实鱼塘场景图。原有137张PNG继续保留供现有引用使用。共用切图参数见`journal/ui-manifest.json`，角色与鱼塘分别有独立manifest。
+
+新切图需要同时读取`contentInsets`（设计坐标的透明外延）、border（源像素）、PPU与imageType。原版纸纹使用PPU 50、Repeat、alpha .32和Multiply材质；其余新UI主要为2×/PPU 200。不要把纸纹作为普通九宫格或随面板拉伸。
+
+10页面/11状态的Unity参考prefab位于`Assets/Desktop/JournalSamples/`；12个组合组件位于其`Components/`。这些是独立资源验证与布局参考，没有替换正式游戏页面，也没有接入其业务事件。新角色姿势为补充素材，默认参考仍使用已有orange-ready。
+
+查看`docs/art/cozy-journal/README.md`、`compare.html`和`index.html`获取校正状态、预览与重建步骤。50项共用UI素材已按原版校正；补充素材与跨引擎视觉差异仍需分别验收。

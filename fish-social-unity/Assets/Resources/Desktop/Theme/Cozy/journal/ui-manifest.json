@@ -1,0 +1,3105 @@
+{
+  "schema": 1,
+  "designResolution": [
+    1672,
+    941
+  ],
+  "exportScale": 2,
+  "palette": {
+    "paper": "#fff7e9",
+    "shade": "#f3e6cf",
+    "line": "#e8d6b6",
+    "ink": "#75472e",
+    "coral": "#fc923c",
+    "deep": "#d46f22",
+    "lake": "#5dade2",
+    "leaf": "#6bb86b",
+    "gold": "#f2bf47",
+    "pink": "#f7b6c8",
+    "red": "#e2533f"
+  },
+  "assets": [
+    {
+      "id": "A01",
+      "name": "surfaces/paper-page",
+      "relativePath": "journal/surfaces/paper-page.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/paper-page",
+      "width": 512,
+      "height": 512,
+      "pixelsPerUnit": 200,
+      "border": [
+        52,
+        52,
+        52,
+        52
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-paper-page.html",
+      "guid": "57c66d5ee60a52aefe3dfe153efd9865",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        256,
+        256
+      ],
+      "visualBasis": {
+        "selector": ".journal",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "#fff7e9",
+          "boxShadow": "none"
+        }
+      }
+    },
+    {
+      "id": "A01",
+      "name": "surfaces/paper-edge",
+      "relativePath": "journal/surfaces/paper-edge.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/paper-edge",
+      "width": 560,
+      "height": 560,
+      "pixelsPerUnit": 200,
+      "border": [
+        76,
+        76,
+        76,
+        76
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-paper-edge.html",
+      "guid": "50427480401abe13f1edb540ff3b2482",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "contentSize": [
+        256,
+        256
+      ],
+      "visualBasis": {
+        "selector": ".journal",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "border": "0",
+          "boxShadow": "0 9px 0 #ead8b9, 0 10px 0 #d9c29c"
+        }
+      }
+    },
+    {
+      "id": "A01",
+      "name": "surfaces/paper-shadow",
+      "relativePath": "journal/surfaces/paper-shadow.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/paper-shadow",
+      "width": 832,
+      "height": 832,
+      "pixelsPerUnit": 200,
+      "border": [
+        212,
+        212,
+        212,
+        212
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-paper-shadow.html",
+      "guid": "d78a8e9216e8edc6bfdae4ca02b14aea",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "contentSize": [
+        256,
+        256
+      ],
+      "visualBasis": {
+        "selector": ".journal",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "border": "0",
+          "boxShadow": "0 24px 44px rgba(70,40,15,.28)"
+        }
+      }
+    },
+    {
+      "id": "A02",
+      "name": "textures/paper-dots",
+      "relativePath": "journal/textures/paper-dots.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/textures/paper-dots",
+      "width": 48,
+      "height": 48,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Repeat",
+      "imageType": "Tiled",
+      "source": "docs/art/cozy-journal/sources/css/textures-paper-dots.html",
+      "guid": "07fa4ca313ac434f74e8d29654580728",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        24,
+        24
+      ],
+      "visualBasis": {
+        "selector": ".journal",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "backgroundColor": "transparent",
+          "border": "0",
+          "borderRadius": "0",
+          "boxShadow": "none"
+        }
+      }
+    },
+    {
+      "id": "A02",
+      "name": "textures/paper-grain",
+      "relativePath": "journal/textures/paper-grain.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/textures/paper-grain",
+      "width": 256,
+      "height": 128,
+      "pixelsPerUnit": 50,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Repeat",
+      "imageType": "Tiled",
+      "source": "docs/design/ui/prototype/cozy-journal/assets/paper.png",
+      "guid": "ca923b257245199716e834596d2e6ad0",
+      "status": "reference-aligned",
+      "notes": "Tile at 512×256 design units with opacity .32 and Multiply blend. Normal alpha compositing is not equivalent.",
+      "visualBasis": {
+        "method": "Reuse original bitmap",
+        "selector": ".journal::before"
+      }
+    },
+    {
+      "id": "A02",
+      "name": "decor/paper-stitch",
+      "relativePath": "journal/decor/paper-stitch.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/paper-stitch",
+      "width": 32,
+      "height": 8,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Repeat",
+      "imageType": "Tiled",
+      "source": "docs/art/cozy-journal/sources/ui/decor/paper-stitch.svg",
+      "guid": "94912c973ee79203ad8692a9383bbe00",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A03",
+      "name": "decor/binder-ring",
+      "relativePath": "journal/decor/binder-ring.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/binder-ring",
+      "width": 148,
+      "height": 88,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-binder-ring.html",
+      "guid": "61ad082b24e7b220c2f3eaefba6b7613",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "contentSize": [
+        54,
+        24
+      ],
+      "visualBasis": {
+        "selector": ".ring",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A04",
+      "name": "surfaces/paper-rail",
+      "relativePath": "journal/surfaces/paper-rail.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/paper-rail",
+      "width": 256,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-paper-rail.html",
+      "guid": "b08f3716de523f4563d7d72bc805901c",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        128,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".rail",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "boxShadow": "none"
+        }
+      }
+    },
+    {
+      "id": "A04",
+      "name": "surfaces/paper-aside",
+      "relativePath": "journal/surfaces/paper-aside.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/paper-aside",
+      "width": 256,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-paper-aside.html",
+      "guid": "12aaf138143a1232ef077b632d9d807e",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        128,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".aside",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "boxShadow": "none"
+        }
+      }
+    },
+    {
+      "id": "A05",
+      "name": "surfaces/tab-index-default",
+      "relativePath": "journal/surfaces/tab-index-default.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/tab-index-default",
+      "width": 280,
+      "height": 176,
+      "pixelsPerUnit": 200,
+      "border": [
+        52,
+        52,
+        52,
+        52
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-tab-index-default.html",
+      "guid": "0254a23a27c1ecde5a5f43788b380a0d",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "contentSize": [
+        128,
+        76
+      ],
+      "visualBasis": {
+        "selector": ".tab:not(.sel)",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A05",
+      "name": "surfaces/tab-index-hover",
+      "relativePath": "journal/surfaces/tab-index-hover.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/tab-index-hover",
+      "width": 280,
+      "height": 176,
+      "pixelsPerUnit": 200,
+      "border": [
+        52,
+        52,
+        52,
+        52
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-tab-index-hover.html",
+      "guid": "978accda990b989cc02014480131c493",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "contentSize": [
+        128,
+        76
+      ],
+      "visualBasis": {
+        "selector": ".tab:not(.sel)",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A05",
+      "name": "surfaces/tab-index-selected",
+      "relativePath": "journal/surfaces/tab-index-selected.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/tab-index-selected",
+      "width": 280,
+      "height": 176,
+      "pixelsPerUnit": 200,
+      "border": [
+        52,
+        52,
+        52,
+        52
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-tab-index-selected.html",
+      "guid": "420dfda42ee53741e7b07f8f6856713d",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "contentSize": [
+        128,
+        76
+      ],
+      "visualBasis": {
+        "selector": ".tab.sel",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A05",
+      "name": "surfaces/tab-index-disabled",
+      "relativePath": "journal/surfaces/tab-index-disabled.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/tab-index-disabled",
+      "width": 256,
+      "height": 168,
+      "pixelsPerUnit": 200,
+      "border": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/tab-index-disabled.svg",
+      "guid": "1bbfa5fef1578cce6b322e28904f5be7",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-quiet-default",
+      "relativePath": "journal/surfaces/button-quiet-default.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-quiet-default",
+      "width": 288,
+      "height": 148,
+      "pixelsPerUnit": 200,
+      "border": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-quiet-default.html",
+      "guid": "3ce4f4424e0f82275fd53d3dc3cf5062",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": "#close",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "borderRadius": "18px",
+          "boxShadow": "0 5px 0 #e3cfae"
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-quiet-hover",
+      "relativePath": "journal/surfaces/button-quiet-hover.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-quiet-hover",
+      "width": 288,
+      "height": 148,
+      "pixelsPerUnit": 200,
+      "border": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-quiet-default.html",
+      "guid": "1ce8bfdd1b83fa3caa9b3c7636fa7b3a",
+      "status": "reference-aligned",
+      "notes": "Same surface as original; animate the RectTransform, not the texture.",
+      "contentInsets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": "#close",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "borderRadius": "18px",
+          "boxShadow": "0 5px 0 #e3cfae"
+        }
+      },
+      "stateMotion": {
+        "translateY": -2
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-quiet-pressed",
+      "relativePath": "journal/surfaces/button-quiet-pressed.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-quiet-pressed",
+      "width": 288,
+      "height": 148,
+      "pixelsPerUnit": 200,
+      "border": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-quiet-default.html",
+      "guid": "5cd225f5f00cb2f22b6d30460196607e",
+      "status": "reference-aligned",
+      "notes": "Same surface as original; animate the RectTransform, not the texture.",
+      "contentInsets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": "#close",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "borderRadius": "18px",
+          "boxShadow": "0 5px 0 #e3cfae"
+        }
+      },
+      "stateMotion": {
+        "scale": 0.96
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-quiet-disabled",
+      "relativePath": "journal/surfaces/button-quiet-disabled.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-quiet-disabled",
+      "width": 384,
+      "height": 244,
+      "pixelsPerUnit": 200,
+      "border": [
+        104,
+        104,
+        104,
+        104
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-quiet-disabled.html",
+      "guid": "224c3408043d3e19d21406aba9395a79",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": "#close",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "borderRadius": "18px",
+          "filter": "saturate(.25) brightness(1.08)",
+          "opacity": 0.75
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-primary-default",
+      "relativePath": "journal/surfaces/button-primary-default.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-primary-default",
+      "width": 384,
+      "height": 244,
+      "pixelsPerUnit": 200,
+      "border": [
+        104,
+        104,
+        104,
+        104
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-primary-default.html",
+      "guid": "97e67b688a8f93bff142f84e07f80662",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": ".btn.primary",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-primary-hover",
+      "relativePath": "journal/surfaces/button-primary-hover.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-primary-hover",
+      "width": 384,
+      "height": 244,
+      "pixelsPerUnit": 200,
+      "border": [
+        104,
+        104,
+        104,
+        104
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-primary-default.html",
+      "guid": "7b7f11ac0b0b4c17e63fe0870ec0b044",
+      "status": "reference-aligned",
+      "notes": "Same surface as original; animate the RectTransform, not the texture.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": ".btn.primary",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      },
+      "stateMotion": {
+        "translateY": -2
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-primary-pressed",
+      "relativePath": "journal/surfaces/button-primary-pressed.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-primary-pressed",
+      "width": 384,
+      "height": 244,
+      "pixelsPerUnit": 200,
+      "border": [
+        104,
+        104,
+        104,
+        104
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-primary-default.html",
+      "guid": "d01ee074dabfb45f6a86b422c7f439fc",
+      "status": "reference-aligned",
+      "notes": "Same surface as original; animate the RectTransform, not the texture.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": ".btn.primary",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      },
+      "stateMotion": {
+        "scale": 0.96
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-primary-disabled",
+      "relativePath": "journal/surfaces/button-primary-disabled.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-primary-disabled",
+      "width": 384,
+      "height": 244,
+      "pixelsPerUnit": 200,
+      "border": [
+        104,
+        104,
+        104,
+        104
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-button-primary-disabled.html",
+      "guid": "5ef421e93563024ed627700c3ba5d56c",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        128,
+        58
+      ],
+      "visualBasis": {
+        "selector": ".btn.primary",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "borderRadius": "18px",
+          "filter": "saturate(.25) brightness(1.08)",
+          "opacity": 0.75
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-danger-default",
+      "relativePath": "journal/surfaces/button-danger-default.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-danger-default",
+      "width": 256,
+      "height": 140,
+      "pixelsPerUnit": 200,
+      "border": [
+        42,
+        44,
+        42,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/button-danger-default.svg",
+      "guid": "73a8fc8fd17204fea28cf932b2ad8728",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-danger-hover",
+      "relativePath": "journal/surfaces/button-danger-hover.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-danger-hover",
+      "width": 256,
+      "height": 140,
+      "pixelsPerUnit": 200,
+      "border": [
+        42,
+        44,
+        42,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/button-danger-hover.svg",
+      "guid": "e102431cdddcd29046d21efaa1190625",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-danger-pressed",
+      "relativePath": "journal/surfaces/button-danger-pressed.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-danger-pressed",
+      "width": 256,
+      "height": 140,
+      "pixelsPerUnit": 200,
+      "border": [
+        42,
+        44,
+        42,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/button-danger-pressed.svg",
+      "guid": "694e8458ba67052f49b4def00da04075",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/button-danger-disabled",
+      "relativePath": "journal/surfaces/button-danger-disabled.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/button-danger-disabled",
+      "width": 256,
+      "height": 140,
+      "pixelsPerUnit": 200,
+      "border": [
+        42,
+        44,
+        42,
+        44
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/button-danger-disabled.svg",
+      "guid": "1337be43220b615d1b385681a7be67e8",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A06",
+      "name": "surfaces/focus-outline",
+      "relativePath": "journal/surfaces/focus-outline.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/focus-outline",
+      "width": 256,
+      "height": 192,
+      "pixelsPerUnit": 200,
+      "border": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/focus-outline.svg",
+      "guid": "e190888298afe006798e744efc567e43",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A07",
+      "name": "surfaces/header-pill",
+      "relativePath": "journal/surfaces/header-pill.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/header-pill",
+      "width": 384,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        108,
+        108,
+        108,
+        108
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-header-pill.html",
+      "guid": "4aea5415f0683da4c280f555f4c9608f",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        128,
+        64
+      ],
+      "visualBasis": {
+        "selector": "#coins",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A07",
+      "name": "surfaces/world-entry-plate",
+      "relativePath": "journal/surfaces/world-entry-plate.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/world-entry-plate",
+      "width": 448,
+      "height": 280,
+      "pixelsPerUnit": 200,
+      "border": [
+        108,
+        108,
+        108,
+        108
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-world-entry-plate.html",
+      "guid": "a717a44bd4dc5e54f4f39b9ee6dcb6ad",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        160,
+        76
+      ],
+      "visualBasis": {
+        "selector": "#world-entry",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A08",
+      "name": "surfaces/dock-board",
+      "relativePath": "journal/surfaces/dock-board.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/dock-board",
+      "width": 512,
+      "height": 216,
+      "pixelsPerUnit": 200,
+      "border": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-dock-board.html",
+      "guid": "ade93479e2c8d434237b549846deab47",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        256,
+        108
+      ],
+      "visualBasis": {
+        "selector": "#nav",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "boxShadow": "none"
+        }
+      }
+    },
+    {
+      "id": "A08",
+      "name": "surfaces/dock-edge",
+      "relativePath": "journal/surfaces/dock-edge.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/dock-edge",
+      "width": 704,
+      "height": 408,
+      "pixelsPerUnit": 200,
+      "border": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-dock-edge.html",
+      "guid": "e701a006e2eb50587ff6b2198640879d",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "contentSize": [
+        256,
+        108
+      ],
+      "visualBasis": {
+        "selector": "#nav",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "border": "0",
+          "boxShadow": "0 7px 0 #c99f6e, 0 8px 0 #a77d4f, 0 16px 26px rgba(70,40,15,.3)"
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "name": "surfaces/sticker-card",
+      "relativePath": "journal/surfaces/sticker-card.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/sticker-card",
+      "width": 288,
+      "height": 288,
+      "pixelsPerUnit": 200,
+      "border": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-sticker-card.html",
+      "guid": "90599c3b0d5a3045b0faba36a38ed814",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "contentSize": [
+        128,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".sticker:not(.sel)",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "boxShadow": "0 0 0 5px #fff, 0 0 0 7px rgba(117,71,46,.07)"
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "name": "surfaces/sticker-shadow",
+      "relativePath": "journal/surfaces/sticker-shadow.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/sticker-shadow",
+      "width": 416,
+      "height": 416,
+      "pixelsPerUnit": 200,
+      "border": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-sticker-shadow.html",
+      "guid": "df96a5f16e3748fa674131d85a99ba02",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "contentSize": [
+        128,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".sticker:not(.sel)",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "boxShadow": "0 8px 16px rgba(117,71,46,.16)"
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "name": "surfaces/sticker-shadow-lifted",
+      "relativePath": "journal/surfaces/sticker-shadow-lifted.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/sticker-shadow-lifted",
+      "width": 480,
+      "height": 480,
+      "pixelsPerUnit": 200,
+      "border": [
+        152,
+        152,
+        152,
+        152
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-sticker-shadow-lifted.html",
+      "guid": "8c1e51cff308a5b0c4c28a85136857de",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "contentSize": [
+        128,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".sticker.sel",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "boxShadow": "0 16px 26px rgba(117,71,46,.22)"
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "name": "surfaces/selection-outline",
+      "relativePath": "journal/surfaces/selection-outline.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/selection-outline",
+      "width": 288,
+      "height": 288,
+      "pixelsPerUnit": 200,
+      "border": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-selection-outline.html",
+      "guid": "a5deaa44f8d1f0bdaee7be1c6ccd4f83",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "contentSize": [
+        128,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".sticker.sel",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "boxShadow": "0 0 0 5px #fff, 0 0 0 7px rgba(252,146,60,.55)"
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "name": "decor/tape-pink-stripe",
+      "relativePath": "journal/decor/tape-pink-stripe.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/tape-pink-stripe",
+      "width": 208,
+      "height": 52,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-tape-pink-stripe.html",
+      "guid": "140d5a87697f2ea58ab65a977d50783b",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        104,
+        26
+      ],
+      "visualBasis": {
+        "selector": ".sticker.sel .tape",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "opacity": 1
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "name": "decor/tape-gold-dots",
+      "relativePath": "journal/decor/tape-gold-dots.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/tape-gold-dots",
+      "width": 208,
+      "height": 52,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-tape-gold-dots.html",
+      "guid": "91d2b217af5dbde3e6ec60831ab298e2",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        104,
+        26
+      ],
+      "visualBasis": {
+        "selector": ".polaroid .tape",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "opacity": 1
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "name": "decor/tape-blue-stripe",
+      "relativePath": "journal/decor/tape-blue-stripe.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/tape-blue-stripe",
+      "width": 208,
+      "height": 52,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-tape-blue-stripe.html",
+      "guid": "0ffa37ab9ac59a226d53fe34c08fe1f9",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        104,
+        26
+      ],
+      "visualBasis": {
+        "selector": ".polaroid .tape",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "opacity": 1,
+          "background": "repeating-linear-gradient(90deg, rgba(93,173,226,.75) 0 9px, rgba(230,246,255,.85) 9px 18px)"
+        }
+      }
+    },
+    {
+      "id": "A11",
+      "name": "surfaces/polaroid-frame",
+      "relativePath": "journal/surfaces/polaroid-frame.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/polaroid-frame",
+      "width": 320,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-polaroid-frame.html",
+      "guid": "42bd2b9444d868468a872fef4ea512fb",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        160,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".polaroid",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "boxShadow": "none"
+        }
+      }
+    },
+    {
+      "id": "A11",
+      "name": "surfaces/polaroid-shadow",
+      "relativePath": "journal/surfaces/polaroid-shadow.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/polaroid-shadow",
+      "width": 512,
+      "height": 448,
+      "pixelsPerUnit": 200,
+      "border": [
+        112,
+        112,
+        112,
+        112
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-polaroid-shadow.html",
+      "guid": "4bc5b594b3530ab2406a46ff2fa41661",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "contentSize": [
+        160,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".polaroid",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "transparent",
+          "boxShadow": "0 10px 22px rgba(80,50,20,.22)"
+        }
+      }
+    },
+    {
+      "id": "A12",
+      "name": "decor/photo-pin",
+      "relativePath": "journal/decor/photo-pin.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/photo-pin",
+      "width": 72,
+      "height": 72,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/photo-pin.svg",
+      "guid": "05f6d4d77569bf6ec5839954d787bb7c",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A13",
+      "name": "decor/stamp-ring",
+      "relativePath": "journal/decor/stamp-ring.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/stamp-ring",
+      "width": 216,
+      "height": 216,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-stamp-ring.html",
+      "guid": "decbc8f2328fc5457e7d1b59a47fcf72",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        108,
+        108
+      ],
+      "visualBasis": {
+        "selector": ".stamp",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "borderColor": "white",
+          "background": "transparent",
+          "mixBlendMode": "normal"
+        }
+      }
+    },
+    {
+      "id": "A13",
+      "name": "decor/stamp-mark",
+      "relativePath": "journal/decor/stamp-mark.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/stamp-mark",
+      "width": 80,
+      "height": 80,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/stamp-mark.svg",
+      "guid": "538491531271929651cfcd5fda60b492",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A13",
+      "name": "decor/new-corner",
+      "relativePath": "journal/decor/new-corner.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/new-corner",
+      "width": 136,
+      "height": 72,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-new-corner.html",
+      "guid": "027db6daf6ef08de2090b05d39c2ef2c",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "contentSize": [
+        60,
+        28
+      ],
+      "visualBasis": {
+        "selector": ".ribbon",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "color": "transparent"
+        }
+      }
+    },
+    {
+      "id": "A14",
+      "name": "motion/bobber",
+      "relativePath": "journal/motion/bobber.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/bobber",
+      "width": 80,
+      "height": 116,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.2
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/bobber.svg",
+      "guid": "2a209ede35a569fd8c677d37219393bc",
+      "status": "reference-aligned",
+      "notes": "",
+      "visualBasis": {
+        "source": "docs/design/ui/prototype/cozy-journal/app.js",
+        "method": "bobberSvg geometry"
+      }
+    },
+    {
+      "id": "A14",
+      "name": "motion/bobber-base",
+      "relativePath": "journal/motion/bobber-base.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/bobber-base",
+      "width": 80,
+      "height": 116,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.2
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/bobber-base.svg",
+      "guid": "82a8d5cf2cc7b6180db3177159dcc937",
+      "status": "reference-aligned",
+      "notes": "",
+      "visualBasis": {
+        "source": "docs/design/ui/prototype/cozy-journal/app.js",
+        "method": "bobberSvg geometry"
+      }
+    },
+    {
+      "id": "A14",
+      "name": "motion/bobber-color",
+      "relativePath": "journal/motion/bobber-color.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/bobber-color",
+      "width": 80,
+      "height": 116,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.2
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/bobber-color.svg",
+      "guid": "b3a61713925661f940587e29b1ac92a6",
+      "status": "reference-aligned",
+      "notes": "",
+      "visualBasis": {
+        "source": "docs/design/ui/prototype/cozy-journal/app.js",
+        "method": "bobberSvg geometry"
+      }
+    },
+    {
+      "id": "A14",
+      "name": "motion/bobber-highlight",
+      "relativePath": "journal/motion/bobber-highlight.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/bobber-highlight",
+      "width": 80,
+      "height": 116,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.2
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/bobber-highlight.svg",
+      "guid": "b847567d5a96adb4dc6f7728dc6d1b5c",
+      "status": "reference-aligned",
+      "notes": "",
+      "visualBasis": {
+        "source": "docs/design/ui/prototype/cozy-journal/app.js",
+        "method": "bobberSvg geometry"
+      }
+    },
+    {
+      "id": "A15",
+      "name": "motion/ripple-ring",
+      "relativePath": "journal/motion/ripple-ring.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/ripple-ring",
+      "width": 256,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/ripple-ring.svg",
+      "guid": "e842f16acc73e2b2bba15cc7966d3f39",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A15",
+      "name": "decor/paw-mark",
+      "relativePath": "journal/decor/paw-mark.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/paw-mark",
+      "width": 80,
+      "height": 80,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/paw-mark.svg",
+      "guid": "0f3e7086a86c72ab40824e3700b86d96",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A16",
+      "name": "surfaces/toggle-track",
+      "relativePath": "journal/surfaces/toggle-track.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/toggle-track",
+      "width": 148,
+      "height": 76,
+      "pixelsPerUnit": 200,
+      "border": [
+        38,
+        38,
+        38,
+        38
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-toggle-track.html",
+      "guid": "9b3decacc25bb2e5f5188d95c24ffe4b",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        74,
+        38
+      ],
+      "visualBasis": {
+        "selector": ".switch",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "white"
+        }
+      }
+    },
+    {
+      "id": "A16",
+      "name": "decor/toggle-knob",
+      "relativePath": "journal/decor/toggle-knob.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/toggle-knob",
+      "width": 100,
+      "height": 100,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-toggle-knob.html",
+      "guid": "a92ac7eaffcd894f347c607517975f00",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "contentSize": [
+        30,
+        30
+      ],
+      "visualBasis": {
+        "selector": ".switch .knob",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A16",
+      "name": "decor/paw-push",
+      "relativePath": "journal/decor/paw-push.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/paw-push",
+      "width": 80,
+      "height": 80,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/paw-push.svg",
+      "guid": "8b577bee444a103c50cff68f5d7d886f",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A17",
+      "name": "surfaces/progress-track",
+      "relativePath": "journal/surfaces/progress-track.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/progress-track",
+      "width": 192,
+      "height": 36,
+      "pixelsPerUnit": 200,
+      "border": [
+        18,
+        18,
+        18,
+        18
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-progress-track.html",
+      "guid": "31f47485ad3841586cfa84f173f1623e",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        96,
+        18
+      ],
+      "visualBasis": {
+        "selector": ".xp",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A17",
+      "name": "surfaces/progress-fill",
+      "relativePath": "journal/surfaces/progress-fill.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/progress-fill",
+      "width": 192,
+      "height": 36,
+      "pixelsPerUnit": 200,
+      "border": [
+        18,
+        18,
+        18,
+        18
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-progress-fill.html",
+      "guid": "74407a06e7583e8b8da0640b821055ce",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        96,
+        18
+      ],
+      "visualBasis": {
+        "selector": ".xp i",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A17",
+      "name": "motion/xp-bubble",
+      "relativePath": "journal/motion/xp-bubble.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/xp-bubble",
+      "width": 32,
+      "height": 32,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/xp-bubble.svg",
+      "guid": "d6f2770f32db8c82f0a44bfce9eb3645",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A18",
+      "name": "surfaces/input-default",
+      "relativePath": "journal/surfaces/input-default.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/input-default",
+      "width": 256,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        28,
+        28,
+        28,
+        28
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-input-default.html",
+      "guid": "7b4d51087987f691bea12aa137718e88",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        128,
+        64
+      ],
+      "visualBasis": {
+        "selector": "#reference-input",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A18",
+      "name": "surfaces/input-focus",
+      "relativePath": "journal/surfaces/input-focus.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/input-focus",
+      "width": 280,
+      "height": 152,
+      "pixelsPerUnit": 200,
+      "border": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-input-focus.html",
+      "guid": "0ca90a95e78bf95cf271934d12912ff3",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "contentSize": [
+        128,
+        64
+      ],
+      "visualBasis": {
+        "selector": "#reference-input",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A18",
+      "name": "surfaces/input-error",
+      "relativePath": "journal/surfaces/input-error.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/input-error",
+      "width": 256,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        30,
+        30,
+        30,
+        30
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/input-error.svg",
+      "guid": "5a9ad5bbfbea93552a3bcfde0c12d4d1",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A18",
+      "name": "surfaces/input-disabled",
+      "relativePath": "journal/surfaces/input-disabled.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/input-disabled",
+      "width": 256,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        30,
+        30,
+        30,
+        30
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/input-disabled.svg",
+      "guid": "64906c0a1afdbd1e12f2365e26f0abc2",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A18",
+      "name": "surfaces/input-readonly",
+      "relativePath": "journal/surfaces/input-readonly.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/input-readonly",
+      "width": 256,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        30,
+        30,
+        30,
+        30
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/input-readonly.svg",
+      "guid": "c7df136f426bb84f0e7070dd34a12bcc",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A19",
+      "name": "surfaces/modal-paper",
+      "relativePath": "journal/surfaces/modal-paper.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/modal-paper",
+      "width": 832,
+      "height": 832,
+      "pixelsPerUnit": 200,
+      "border": [
+        208,
+        208,
+        208,
+        208
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-modal-paper.html",
+      "guid": "c024bf1d7a83b77e2bec9215fbf32264",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "contentSize": [
+        256,
+        256
+      ],
+      "visualBasis": {
+        "selector": ".j-dialog-paper",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A19",
+      "name": "surfaces/modal-scrim",
+      "relativePath": "journal/surfaces/modal-scrim.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/modal-scrim",
+      "width": 8,
+      "height": 8,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/modal-scrim.svg",
+      "guid": "6edff0d6cd565f4e17b630cff16c6688",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A19",
+      "name": "decor/close",
+      "relativePath": "journal/decor/close.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/close",
+      "width": 64,
+      "height": 64,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/close.svg",
+      "guid": "a6160e05754bb822d738f383057fe734",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A20",
+      "name": "decor/empty-basket-front",
+      "relativePath": "journal/decor/empty-basket-front.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/empty-basket-front",
+      "width": 480,
+      "height": 232,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/empty-basket-front.svg",
+      "guid": "8f1090092b4ade5f5b4b3096289f4fc3",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A20",
+      "name": "decor/empty-basket-back",
+      "relativePath": "journal/decor/empty-basket-back.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/empty-basket-back",
+      "width": 480,
+      "height": 232,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/empty-basket-back.svg",
+      "guid": "e433fa9816fbb16d33610393677e4ca0",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A22",
+      "name": "surfaces/toast-note",
+      "relativePath": "journal/surfaces/toast-note.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/toast-note",
+      "width": 448,
+      "height": 288,
+      "pixelsPerUnit": 200,
+      "border": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-toast-note.html",
+      "guid": "ff2eb2cfbd3512ac9ae566d5d6875070",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        160,
+        80
+      ],
+      "visualBasis": {
+        "selector": ".toast:not(.error) .note",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A22",
+      "name": "surfaces/toast-error-note",
+      "relativePath": "journal/surfaces/toast-error-note.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/toast-error-note",
+      "width": 448,
+      "height": 288,
+      "pixelsPerUnit": 200,
+      "border": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-toast-error-note.html",
+      "guid": "4c11ac300c1f8c9c070a577fbe7edc10",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        160,
+        80
+      ],
+      "visualBasis": {
+        "selector": ".toast.error .note",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A22",
+      "name": "motion/toast-fish-body",
+      "relativePath": "journal/motion/toast-fish-body.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/toast-fish-body",
+      "width": 192,
+      "height": 112,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/toast-fish-body.svg",
+      "guid": "da82d806f65a4cad8ab7ca148c1f228c",
+      "status": "resource-ready",
+      "notes": "Editable stylized UI fish; tail separate with same96×56 registration."
+    },
+    {
+      "id": "A22",
+      "name": "motion/toast-fish-tail",
+      "relativePath": "journal/motion/toast-fish-tail.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/toast-fish-tail",
+      "width": 192,
+      "height": 112,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.75,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/toast-fish-tail.svg",
+      "guid": "186b2256c9aea32f50137528cfbc049a",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/splash-droplet-1",
+      "relativePath": "journal/motion/splash-droplet-1.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/splash-droplet-1",
+      "width": 128,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/splash-droplet-1.svg",
+      "guid": "6be5bba93d57888aaeb7ac8331341e32",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/splash-droplet-2",
+      "relativePath": "journal/motion/splash-droplet-2.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/splash-droplet-2",
+      "width": 128,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/splash-droplet-2.svg",
+      "guid": "008a77a3174bb40744b8b07367058cc4",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/splash-droplet-3",
+      "relativePath": "journal/motion/splash-droplet-3.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/splash-droplet-3",
+      "width": 128,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/splash-droplet-3.svg",
+      "guid": "90e1473d4030119db9f2b35c4d0e42db",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/splash-fan",
+      "relativePath": "journal/motion/splash-fan.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/splash-fan",
+      "width": 256,
+      "height": 160,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/splash-fan.svg",
+      "guid": "41e242091dde77fb9861f806b33f9bc9",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/coin-glint",
+      "relativePath": "journal/motion/coin-glint.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/coin-glint",
+      "width": 128,
+      "height": 128,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/coin-glint.svg",
+      "guid": "6f871191a3ba7e0e86f08db5fdb0b9e5",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/paper-confetti-1",
+      "relativePath": "journal/motion/paper-confetti-1.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/paper-confetti-1",
+      "width": 96,
+      "height": 96,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/paper-confetti-1.svg",
+      "guid": "4538ffd93d58ec164efb3a2a6aa24c8c",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/paper-confetti-2",
+      "relativePath": "journal/motion/paper-confetti-2.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/paper-confetti-2",
+      "width": 96,
+      "height": 96,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/paper-confetti-2.svg",
+      "guid": "d7424a0eadf5f9e6ee175b4c6570bba6",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A23",
+      "name": "motion/paper-confetti-3",
+      "relativePath": "journal/motion/paper-confetti-3.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/paper-confetti-3",
+      "width": 96,
+      "height": 96,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/paper-confetti-3.svg",
+      "guid": "6a03a27d3a350675b79686685c815f6a",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A24",
+      "name": "motion/rare-glint",
+      "relativePath": "journal/motion/rare-glint.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/rare-glint",
+      "width": 256,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/rare-glint.svg",
+      "guid": "fbe811fba2b0ede17d66495b30fde385",
+      "status": "resource-ready",
+      "notes": "Mask to card artwork; translate across it."
+    },
+    {
+      "id": "A24",
+      "name": "motion/award-rays",
+      "relativePath": "journal/motion/award-rays.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/motion/award-rays",
+      "width": 256,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/motion/award-rays.svg",
+      "guid": "5b75a35f4574449eb5e0679e4c462d43",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A25",
+      "name": "decor/rank-badge",
+      "relativePath": "journal/decor/rank-badge.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/rank-badge",
+      "width": 192,
+      "height": 52,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/css/decor-rank-badge.html",
+      "guid": "f9d068d4044c60118a168f6dc0f38049",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        96,
+        26
+      ],
+      "visualBasis": {
+        "selector": ".j-podium-label",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {
+          "background": "white"
+        }
+      }
+    },
+    {
+      "id": "A25",
+      "name": "surfaces/podium-plate",
+      "relativePath": "journal/surfaces/podium-plate.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/podium-plate",
+      "width": 256,
+      "height": 192,
+      "pixelsPerUnit": 200,
+      "border": [
+        34,
+        34,
+        34,
+        34
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/podium-plate.svg",
+      "guid": "bb2dc327a995b82ec67cd04a625252c4",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A26",
+      "name": "surfaces/category-chip",
+      "relativePath": "journal/surfaces/category-chip.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/category-chip",
+      "width": 192,
+      "height": 64,
+      "pixelsPerUnit": 200,
+      "border": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-category-chip.html",
+      "guid": "394e71c43fc99646e46f4cd36d6b1a5f",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contentSize": [
+        96,
+        32
+      ],
+      "visualBasis": {
+        "selector": ".chip",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A26",
+      "name": "surfaces/locked-overlay",
+      "relativePath": "journal/surfaces/locked-overlay.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/locked-overlay",
+      "width": 256,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        26,
+        26,
+        26,
+        26
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/locked-overlay.svg",
+      "guid": "fa1a495eea41ad1474d6c4791da14fc4",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A26",
+      "name": "decor/status-mark",
+      "relativePath": "journal/decor/status-mark.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/status-mark",
+      "width": 48,
+      "height": 48,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/status-mark.svg",
+      "guid": "df0ec7099b751afee16f2286785127a9",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A27",
+      "name": "surfaces/map-photo-frame",
+      "relativePath": "journal/surfaces/map-photo-frame.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/map-photo-frame",
+      "width": 640,
+      "height": 384,
+      "pixelsPerUnit": 200,
+      "border": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/css/surfaces-map-photo-frame.html",
+      "guid": "1fdc8b91ddf154d08ad2cd6c7006a45f",
+      "status": "reference-aligned",
+      "notes": "Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.",
+      "contentInsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "contentSize": [
+        256,
+        128
+      ],
+      "visualBasis": {
+        "selector": ".map-frame",
+        "source": "docs/design/ui/prototype/cozy-journal/style.css",
+        "method": "actual-computed-css",
+        "overrides": {}
+      }
+    },
+    {
+      "id": "A28",
+      "name": "surfaces/album-page-fold",
+      "relativePath": "journal/surfaces/album-page-fold.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/album-page-fold",
+      "width": 48,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/album-page-fold.svg",
+      "guid": "3ea98dfa63605536c87dffefd2b6843a",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A28",
+      "name": "surfaces/album-slot",
+      "relativePath": "journal/surfaces/album-slot.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/surfaces/album-slot",
+      "width": 320,
+      "height": 256,
+      "pixelsPerUnit": 200,
+      "border": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Sliced",
+      "source": "docs/art/cozy-journal/sources/ui/surfaces/album-slot.svg",
+      "guid": "c9da4f75f297aed5bd65e0085cf1a650",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A30",
+      "name": "decor/missing-image",
+      "relativePath": "journal/decor/missing-image.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/missing-image",
+      "width": 192,
+      "height": 144,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/missing-image.svg",
+      "guid": "dc08b352f26b1bee1afcf9155263bd79",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A30",
+      "name": "decor/avatar-placeholder",
+      "relativePath": "journal/decor/avatar-placeholder.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/avatar-placeholder",
+      "width": 144,
+      "height": 144,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/avatar-placeholder.svg",
+      "guid": "e65f5618783adae58158e1455dc10067",
+      "status": "resource-ready",
+      "notes": ""
+    },
+    {
+      "id": "A30",
+      "name": "decor/fish-placeholder",
+      "relativePath": "journal/decor/fish-placeholder.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/decor/fish-placeholder",
+      "width": 192,
+      "height": 112,
+      "pixelsPerUnit": 200,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "wrapMode": "Clamp",
+      "imageType": "Simple",
+      "source": "docs/art/cozy-journal/sources/ui/decor/fish-placeholder.svg",
+      "guid": "9292de2c89fe64ecc375ee3ad7e7211f",
+      "status": "resource-ready",
+      "notes": ""
+    }
+  ],
+  "refinement": {
+    "method": "Original CSS/SVG export; all remaining entries are supplemental designs, not yet exact-reference accepted",
+    "aligned": 50
+  }
+}

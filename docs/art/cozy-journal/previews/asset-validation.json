@@ -1,0 +1,19 @@
+{
+  "result": "PASS",
+  "ui": 90,
+  "referenceAligned": 50,
+  "characterPoses": 60,
+  "ponds": 21,
+  "referenceStates": 11,
+  "checks": [
+    "PNG dimensions, alpha, GUID uniqueness, source existence",
+    "nine-slice bounds and imported PPU",
+    "all reference layer files, native text and interaction targets",
+    "same-size original, Unity and difference images"
+  ],
+  "limits": [
+    "Reference samples are not live gameplay UI.",
+    "Supplemental resources and new character poses await visual acceptance.",
+    "Pixel differences remain; see comparison-metrics.json and compare.html."
+  ]
+}

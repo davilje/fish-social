@@ -40,6 +40,14 @@ namespace FishSocial.Desktop.Editor
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                 if (importer == null)
                     throw new InvalidOperationException("TextureImporter is missing: " + path);
+                // Journal assets carry per-sprite PPU, pivot, border and repeat settings.
+                // Do not replace these with the legacy basename-based surface rules.
+                if (path.StartsWith(CozyJournalResourcePreparation.Root, StringComparison.Ordinal))
+                {
+                    CozyJournalResourcePreparation.Configure(importer);
+                    importer.SaveAndReimport();
+                    continue;
+                }
                 var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
                 var border = ExpectedBorder(path, texture != null ? texture.width : 0,
                     texture != null ? texture.height : 0);
