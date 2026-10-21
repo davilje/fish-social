@@ -19,7 +19,7 @@ npm run planning:confirm -- v0.4.0
 
 | 文件 | 说明 |
 |------|------|
-| [bug-47-showcase-fish-detail-rows-dev.prompt.md](./bug-47-showcase-fish-detail-rows-dev.prompt.md) | BUG-47：展示柜点选详情改成分行 · **已实现**（BUG-46 成就进度条不做） |
+| [bug-47-showcase-fish-detail-rows-dev.prompt.md](./bug-47-showcase-fish-detail-rows-dev.prompt.md) | BUG-47：展示柜点选详情改成分行 · **已实现**（BUG-46 改为功能·待开发） |
 | [bug-48-49-overlay-hud-layout-dev.prompt.md](./bug-48-49-overlay-hud-layout-dev.prompt.md) | BUG-48、49：HUD 导出边距统一、布局重排 · **已确认** |
 | [bug-50-overlay-chat-dock-dev.prompt.md](./bug-50-overlay-chat-dock-dev.prompt.md) | BUG-50：聊天栏 10 行、折叠按钮对齐、发送后清空 · **已确认** |
 | [bug-51-overlay-debug-menu-dev.prompt.md](./bug-51-overlay-debug-menu-dev.prompt.md) | BUG-51：Debug 菜单点击无反应 · **已确认** |
@@ -27,6 +27,9 @@ npm run planning:confirm -- v0.4.0
 | [bug-54-own-fishing-presenter-dev.prompt.md](./bug-54-own-fishing-presenter-dev.prompt.md) | BUG-54：Unity 自己钓鱼表现权威（Overlay 变瘦）· **已实现** |
 | [bug-55-default-avatar-catalog-dev.prompt.md](./bug-55-default-avatar-catalog-dev.prompt.md) | BUG-55：默认头像白名单跟源码 · **已实现** |
 | [bug-56-overlay-stall-replay-dev.prompt.md](./bug-56-overlay-stall-replay-dev.prompt.md) | BUG-56：换阶段卡帧与收杆重播 · **已实现** |
+| [steam-desktop-20-window-presets-dev.prompt.md](./steam-desktop-20-window-presets-dev.prompt.md) | STEAM-DESKTOP-20：主窗口默认 1920×1080，设置只切固定分辨率 · **已确认** |
+| [bug-57-desktop-ui-layout-dev.prompt.md](./bug-57-desktop-ui-layout-dev.prompt.md) | BUG-57：设置重叠、世界/鱼塘尺寸、首页全身猫、装备图按 id · **已确认** |
+| [bug-58-pond-settings-info-dev.prompt.md](./bug-58-pond-settings-info-dev.prompt.md) | BUG-58：鱼塘中文信息、地图标记、设置当前项 · **已实现** |
 | [bugfix-afk-disconnect-dev.prompt.md](./bugfix-afk-disconnect-dev.prompt.md) | 挂机断线 / 重连后误踢鱼塘（服务�?P0�?|
 | [diag-afk-phase2-4-dev.prompt.md](./diag-afk-phase2-4-dev.prompt.md) | 挂机排查阶段 2�?（弱网矩�?/ leave_pond / Admin 时间线） |
 | [server-observability-v0.4.4-dev.prompt.md](./server-observability-v0.4.4-dev.prompt.md) | 服务端架构缺陷修补与 observability 第一阶段（P0 埋点�?|
@@ -41,7 +44,7 @@ npm run planning:confirm -- v0.4.0
 | [bugfix-tsx-watch-hang-dev.prompt.md](./bugfix-tsx-watch-hang-dev.prompt.md) | BUG-11：tsx watch 启动挂死�?001 永不监听�?|
 | [data-platform-dp-d-dev.prompt.md](./data-platform-dp-d-dev.prompt.md) | 数据平台 DP-D（D-L3-10 �?D-L3-06�?|
 | [daily-ops-report-remaining-dev.prompt.md](./daily-ops-report-remaining-dev.prompt.md) | 运营日报剩余（R1→R3：生�?经济/留存/版本/Webhook�?|
-| [feat05-c-phase-dev.prompt.md](./feat05-c-phase-dev.prompt.md) | FEAT-05 C 期（C1+C7→C5→C6→C2→C3；C4 不做�?|
+| [feat05-c-phase-dev.prompt.md](./feat05-c-phase-dev.prompt.md) | FEAT-05 C 期（C1+C7→C5→C6→C2→C3；C4 不做）· **已废弃** |
 | [backend-opt-a-security-dev.prompt.md](./backend-opt-a-security-dev.prompt.md) | BE-OPT-A 安全收口（SEC-01�?6�?|
 | [backend-opt-b-perf-dev.prompt.md](./backend-opt-b-perf-dev.prompt.md) | BE-OPT-B 热路径性能（PERF-01�?5�?|
 | [backend-opt-c-stability-dev.prompt.md](./backend-opt-c-stability-dev.prompt.md) | BE-OPT-C 停机与稳定性（STAB-01�?6）�?**已实�?* |
@@ -97,10 +100,10 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-07e-modal-layer-dev.prompt.md](./steam-desktop-07e-modal-layer-dev.prompt.md) | （作废）原 07E 弹窗层提示词，改走上一行 |
 | [steam-desktop-07f-main-flow-qa-dev.prompt.md](./steam-desktop-07f-main-flow-qa-dev.prompt.md) | STEAM-DESKTOP-07F：桌面宠物主流程与恢复验收 · **已实现** |
 | [steam-desktop-07g-native-overlay-dev.prompt.md](./steam-desktop-07g-native-overlay-dev.prompt.md) | STEAM-DESKTOP-07G：独立原生桌面宠物 Overlay（WPF/Win32 + Named Pipe）· **已实现** |
-| [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已确认** |
+| [steam-desktop-art-resource-replacement-dev.prompt.md](./steam-desktop-art-resource-replacement-dev.prompt.md) | STEAM-DESKTOP-ART-01：桌面宠物与鱼塘视觉资源替换 · **已实现** |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md](./steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | STEAM-DESKTOP-ART-02：Overlay 场景布局管线（Prefab→JSON→像素摆放）· **已实现** |
 | [steam-desktop-art-03-pond-pet-hud-dev.prompt.md](./steam-desktop-art-03-pond-pet-hud-dev.prompt.md) | STEAM-DESKTOP-ART-03：分塘底图、猫咪序列帧、HUD Prefab 同步 Overlay · **已实现** |
-| [steam-desktop-art-04-layered-fishing-dev.prompt.md](./steam-desktop-art-04-layered-fishing-dev.prompt.md) | STEAM-DESKTOP-ART-04：橘猫钓鱼动画 Overlay 七层同帧叠加 · **已确认** |
+| [steam-desktop-art-04-layered-fishing-dev.prompt.md](./steam-desktop-art-04-layered-fishing-dev.prompt.md) | STEAM-DESKTOP-ART-04：橘猫钓鱼动画 Overlay 七层同帧叠加 · **已实现** |
 | [steam-desktop-13-hud-chat-prefab-dev.prompt.md](./steam-desktop-13-hud-chat-prefab-dev.prompt.md) | STEAM-DESKTOP-13：HUD 聊天栏与预制体对齐 · **已实现** |
 | [steam-desktop-13a-edge-vignette-dev.prompt.md](./steam-desktop-13a-edge-vignette-dev.prompt.md) | STEAM-DESKTOP-13A：场景四边半透明渐隐 · **已实现** |
 | [steam-desktop-13b-pet-menu-login-dev.prompt.md](./steam-desktop-13b-pet-menu-login-dev.prompt.md) | STEAM-DESKTOP-13B：宠物标签/右键/登录窗 · **已实现** |
@@ -127,7 +130,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-08f-friends-prefab-dev.prompt.md](./steam-desktop-08f-friends-prefab-dev.prompt.md) | STEAM-DESKTOP-08F：好友列表与申请 Prefab · **已实现** |
 | [steam-desktop-08g-overlay-fishing-controls-dev.prompt.md](./steam-desktop-08g-overlay-fishing-controls-dev.prompt.md) | STEAM-DESKTOP-08G：Overlay 钓鱼操作栏 · **已实现** |
 | [steam-desktop-08h-ui-prefab-migration-dev.prompt.md](./steam-desktop-08h-ui-prefab-migration-dev.prompt.md) | STEAM-DESKTOP-08H：全量 UI Prefab 化与动态内容组件 · **已实现** |
-| [steam-desktop-08i-pond-exit-switch-latency-dev.prompt.md](./steam-desktop-08i-pond-exit-switch-latency-dev.prompt.md) | STEAM-DESKTOP-08I：鱼塘退出、跨塘切换与 Overlay 延迟优化 · **已实现** |
+| [steam-desktop-08i-pond-exit-switch-latency-dev.prompt.md](./steam-desktop-08i-pond-exit-switch-latency-dev.prompt.md) | STEAM-DESKTOP-08I：鱼塘退出、跨塘切换与 Overlay 延迟优化 · **已实现** · 类型 Bug修复 · P0 |
 | [steam-desktop-09a-overlay-player-menu-dev.prompt.md](./steam-desktop-09a-overlay-player-menu-dev.prompt.md) | STEAM-DESKTOP-09A：Overlay 玩家右键菜单 · **已实现** |
 | [steam-desktop-09b-overlay-hover-status-dev.prompt.md](./steam-desktop-09b-overlay-hover-status-dev.prompt.md) | STEAM-DESKTOP-09B：Overlay 悬停钓鱼时长 · **已实现** |
 | [steam-desktop-09c-overlay-pond-chat-dev.prompt.md](./steam-desktop-09c-overlay-pond-chat-dev.prompt.md) | STEAM-DESKTOP-09C：Overlay 鱼塘聊天气泡与输入 · **已实现** |
@@ -141,9 +144,9 @@ npm run planning:confirm -- v0.4.0
 | [feat-risk-01-forbidden-police-dev.prompt.md](./feat-risk-01-forbidden-police-dev.prompt.md) | FEAT-RISK-01：禁止钓鱼塘巡警事件 · **已实现** |
 | [feat-spot-01-spot-clue-bubbles-dev.prompt.md](./feat-spot-01-spot-clue-bubbles-dev.prompt.md) | FEAT-SPOT-01：坐席后聊天泡 / 表随机 habitat·activity · **已实现** |
 | [feat-spot-02-tag-clue-library-dev.prompt.md](./feat-spot-02-tag-clue-library-dev.prompt.md) | FEAT-SPOT-02：22 类标签 / 420 点位 / 标签过滤线索 / activitySignal · **已实现** |
-| [feat-spot-03-spot-tags-terrain-dev.prompt.md](./feat-spot-03-spot-tags-terrain-dev.prompt.md) | FEAT-SPOT-03：pond_spot_tags 地形微调 · **已确认** |
+| [feat-spot-03-spot-tags-terrain-dev.prompt.md](./feat-spot-03-spot-tags-terrain-dev.prompt.md) | FEAT-SPOT-03：pond_spot_tags 地形微调 · **已实现** |
 | [feat-spot-04-clue-texts-curation-dev.prompt.md](./feat-spot-04-clue-texts-curation-dev.prompt.md) | FEAT-SPOT-04：spot_clue_texts 文案审校 · **已确认** |
-| [feat-spot-05-spot-clue-ecology-tier-dev.prompt.md](./feat-spot-05-spot-clue-ecology-tier-dev.prompt.md) | FEAT-SPOT-05：鱼情 tier + activitySignal 联动 · **已确认** |
+| [feat-spot-05-spot-clue-ecology-tier-dev.prompt.md](./feat-spot-05-spot-clue-ecology-tier-dev.prompt.md) | FEAT-SPOT-05：鱼情 tier + activitySignal 联动 · **已实现** |
 | [steam-desktop-12-gameplay-debug-menu-dev.prompt.md](./steam-desktop-12-gameplay-debug-menu-dev.prompt.md) | STEAM-DESKTOP-12：玩法 Debug 菜单 · **已实现** |
 | [steam-desktop-12b-debug-fish-inspect-dev.prompt.md](./steam-desktop-12b-debug-fish-inspect-dev.prompt.md) | STEAM-DESKTOP-12B：Overlay Debug 鱼塘/钓位查看与强制上钩 |
 | [feat-return-01-return-fish-dev.prompt.md](./feat-return-01-return-fish-dev.prompt.md) | FEAT-RETURN-01：回鱼机制 · **已实现** |

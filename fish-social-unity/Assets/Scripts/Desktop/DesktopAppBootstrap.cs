@@ -466,7 +466,7 @@ namespace FishSocial.Desktop
         IEnumerator FishingArtWarmupRoutine()
         {
             // Cache key is pet|clip|drawW x drawH from the live slot, not 256.
-            // One sprite per frame so a phase change never decodes a whole clip.
+            // Play mode decodes each PNG off the main thread and uploads one texture per call.
             var sizes = new List<Vector2Int>();
             for (var wait = 0; wait < 180; wait++)
             {
@@ -480,12 +480,13 @@ namespace FishSocial.Desktop
                 Debug.LogWarning("[Latency][Unity] fishing_art_warmup waiting: slot size unavailable");
 
             var petId = PetArtLoader.CurrentOwnPetId();
-            var clips = FishingLayerArt.ClipNames;
+            var clips = OrderedWarmupClips(petId);
             for (var s = 0; s < sizes.Count; s++)
             {
                 Debug.Log(
                     "[Latency][Unity] fishing_art_warmup pet=" + petId +
-                    " draw=" + sizes[s].x + "x" + sizes[s].y);
+                    " draw=" + sizes[s].x + "x" + sizes[s].y +
+                    " first=" + clips[0]);
                 for (var i = 0; i < clips.Length; i++)
                 {
                     while (!FishingLayerArt.WarmupSlice(petId, clips[i], sizes[s].x, sizes[s].y))
@@ -505,6 +506,46 @@ namespace FishSocial.Desktop
             }
 
             _fishingArtWarmupRoutine = null;
+        }
+
+        static string[] OrderedWarmupClips(string petId)
+        {
+            var names = FishingLayerArt.ClipNames;
+            var first = names.Length > 0 ? names[0] : "idle";
+            var found = FindObjectsOfType<SpriteFramePetRenderer>();
+            for (var i = 0; i < found.Length; i++)
+            {
+                var renderer = found[i];
+                if (renderer == null || !renderer.isActiveAndEnabled)
+                    continue;
+                if (!renderer.TryGetWarmTarget(out var id, out var clip, out _, out _) || id != petId)
+                    continue;
+                var known = false;
+                for (var n = 0; n < names.Length; n++)
+                {
+                    if (names[n] != clip)
+                        continue;
+                    known = true;
+                    break;
+                }
+
+                if (!known)
+                    continue;
+                first = clip;
+                break;
+            }
+
+            var order = new string[names.Length];
+            var count = 0;
+            order[count++] = first;
+            for (var i = 0; i < names.Length; i++)
+            {
+                if (names[i] == first)
+                    continue;
+                order[count++] = names[i];
+            }
+
+            return order;
         }
 
         static bool SliceOneVisibleClip()

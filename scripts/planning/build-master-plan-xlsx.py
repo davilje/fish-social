@@ -317,7 +317,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
     [
         "已实现",
         "STEAM-DESKTOP-08I",
-        "Bug 修复 / 功能优化",
+        "Bug修复",
         "鱼塘退出与跨塘切换优化",
         "—",
         "v1.0-steam-desktop",
@@ -575,7 +575,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-25",
     ],
     [
-        "已确认",
+        "已实现",
         "FEAT-SPOT-03",
         "内容",
         "钓位标签地形微调",
@@ -585,7 +585,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "xlsx pond_spot_tags 420点按Tile岸位与真实地形人工微调标签",
         "docs/planning/specs/钓位标签地形微调.md",
         "2026-08-25",
-        "",
+        "2026-10-21",
     ],
     [
         "已确认",
@@ -601,7 +601,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "",
     ],
     [
-        "已确认",
+        "已实现",
         "FEAT-SPOT-05",
         "功能",
         "钓位鱼情联动线索",
@@ -611,7 +611,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "生态 v2：钓位鱼量/迁移/受惊→computedTier；activity 线索匹配 activitySignal",
         "docs/planning/specs/钓位鱼情联动线索.md",
         "2026-08-25",
-        "",
+        "2026-10-21",
     ],
     [
         "已实现",
@@ -731,7 +731,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-ART-01",
         "美术",
         "桌面宠物与鱼塘视觉资源替换",
@@ -741,7 +741,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "提供猫咪宠物、鱼塘环境和基础视觉资源；其他 UI 先由程序使用通用资源",
         "docs/planning/specs/Steam桌面宠物UI需求拆分.md",
         "2026-08-13",
-        "",
+        "2026-10-21",
     ],
     [
         "已实现",
@@ -770,7 +770,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-08-29",
     ],
     [
-        "已确认",
+        "已实现",
         "STEAM-DESKTOP-ART-04",
         "美术",
         "橘猫钓鱼动画 Overlay 七层叠加",
@@ -780,7 +780,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "橘猫按工作台7层同帧叠加；逐帧layerOrder；baiting单独clip；无清单的猫仍走单张序列帧",
         "docs/planning/specs/橘猫钓鱼动画接入Overlay.md",
         "2026-10-11",
-        "",
+        "2026-10-21",
     ],
     [
         "已实现",
@@ -1002,6 +1002,45 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "docs/planning/specs/Steam桌面端-19咬钩结算弹窗.md",
         "2026-09-01",
         "2026-09-02",
+    ],
+    [
+        "已确认",
+        "STEAM-DESKTOP-20",
+        "功能",
+        "主窗口固定分辨率",
+        "—",
+        "hotfix",
+        "P0",
+        "默认客户区1920×1080；设置只切1280×720/1600×900/1920×1080/2560×1440；不改Overlay 960×560",
+        "docs/planning/specs/Steam桌面端-20主窗口固定分辨率.md",
+        "2026-10-21",
+        "",
+    ],
+    [
+        "已确认",
+        "BUG-57",
+        "Bug修复",
+        "桌面设置世界首页与装备图",
+        "—",
+        "hotfix",
+        "P1",
+        "设置字段不重叠；世界/鱼塘页外框对齐商店；首页全身猫；鱼饵钓竿按id取同一张图",
+        "docs/planning/specs/BUG修复-桌面设置世界首页与装备图.md",
+        "2026-10-21",
+        "",
+    ],
+    [
+        "已实现",
+        "BUG-58",
+        "Bug修复",
+        "桌面鱼塘与设置信息",
+        "—",
+        "hotfix",
+        "P1",
+        "鱼塘中文信息与右栏详情；地图标记按类型着色；设置显示当前项并自动保存",
+        "docs/planning/specs/BUG修复-桌面鱼塘与设置信息.md",
+        "2026-10-21",
+        "2026-10-21",
     ],
     [
         "已实现",
@@ -1577,14 +1616,14 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-10-16",
     ],
     [
-        "已确认",
+        "待开发",
         "BUG-46",
-        "Bug修复",
+        "功能",
         "成就列表没有当前进度",
         "—",
         "hotfix",
         "P1",
-        "AchievementViewDto 只有目标和是否解锁，没有当前进度；不改 server/shared",
+        "从 Bug 修复改为功能，待开发。AchievementViewDto 只有目标和是否解锁，没有当前进度；不改 server/shared",
         "docs/planning/specs/BUG修复-Cozy桌面页还原.md",
         "2026-10-16",
         "",
@@ -1719,6 +1758,45 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-10-19",
         "2026-10-19",
     ],
+    [
+        "已废弃",
+        "FEAT-05",
+        "功能",
+        "C 期调优与状态机",
+        "—",
+        "Phase 2",
+        "P2",
+        "C1+C7→C5→C6→C2→C3；C4不做。2026-10-21 整包废弃，不再排期",
+        "docs/planning/specs/C-调优与状态机.md",
+        "2026-07-12",
+        "2026-10-21",
+    ],
+    [
+        "已废弃",
+        "FEAT-06",
+        "功能",
+        "完整状态机需求描述",
+        "—",
+        "—",
+        "—",
+        "C6 引用的设计规格。2026-10-21 废弃，不再作为交付物",
+        "docs/planning/specs/状态机需求描述.md",
+        "2026-07-04",
+        "2026-10-21",
+    ],
+    [
+        "已废弃",
+        "UNITY-P4",
+        "架构",
+        "Unity移植P4·壳层功能迁入",
+        "—",
+        "unity-client",
+        "P1",
+        "地图·背包商店·社交·排行榜。2026-10-21 废弃，不再迁入",
+        "docs/planning/specs/Unity移植-分阶段需求清单.md",
+        "2026-07-26",
+        "2026-10-21",
+    ],
 ]
 
 # ENSURE 行状态优先于「总 spec」元信息同步（避免 phase2 总文档把子编号打回已确认）
@@ -1768,6 +1846,19 @@ NORMALIZE_PLAN_TYPES = {
     "UNITY-P1": "架构",
     "UNITY-P2": "架构",
     "UNITY-P3": "架构",
+}
+
+# 这些编号挂在总 spec 上。总 spec 的「状态」不能回写成它们自己的状态。
+SHEET_STATUS_OVERRIDES = {
+    "FEAT-05": "已废弃",
+    "FEAT-06": "已废弃",
+    "UNITY-P4": "已废弃",
+    "FEAT-SPOT-03": "已实现",
+    "FEAT-SPOT-05": "已实现",
+    "STEAM-DESKTOP-ART-01": "已实现",
+    "STEAM-DESKTOP-ART-04": "已实现",
+    "STEAM-DESKTOP-08I": "已实现",
+    "BUG-46": "待开发",
 }
 
 
@@ -1879,9 +1970,41 @@ def update_workbook(path: Path) -> int:
         status_col = status_column(ws)
         if status_col is None:
             continue
+        # values_only reaches every used row. Cell iteration on these sheets
+        # stops early and would leave later rows on their old status.
+        for row_index, values in enumerate(
+            ws.iter_rows(min_row=2, max_col=12, values_only=True), start=2
+        ):
+            override_status = None
+            for value in values:
+                if isinstance(value, str) and value.strip() in SHEET_STATUS_OVERRIDES:
+                    override_status = SHEET_STATUS_OVERRIDES[value.strip()]
+                    break
+            if override_status is None:
+                continue
+            cell = ws.cell(row_index, status_col)
+            if cell.value != override_status:
+                cell.value = override_status
+                changed += 1
+
+    for ws in workbook.worksheets:
+        status_col = status_column(ws)
+        if status_col is None:
+            continue
         for row in ws.iter_rows(min_row=2):
             values = [cell.value for cell in row]
             plan_id = values[1] if len(values) > 1 and isinstance(values[1], str) else None
+            override_status = None
+            for value in values:
+                if isinstance(value, str) and value.strip() in SHEET_STATUS_OVERRIDES:
+                    override_status = SHEET_STATUS_OVERRIDES[value.strip()]
+                    break
+            if override_status is not None:
+                cell = row[status_col - 1]
+                if cell.value != override_status:
+                    cell.value = override_status
+                    changed += 1
+                continue
             if plan_id in NORMALIZE_PLAN_TYPES and len(row) > 2:
                 type_cell = row[2]
                 normalized_type = NORMALIZE_PLAN_TYPES[plan_id]

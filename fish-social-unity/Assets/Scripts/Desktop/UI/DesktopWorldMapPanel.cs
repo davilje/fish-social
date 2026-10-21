@@ -32,7 +32,6 @@ namespace FishSocial.Desktop
             new Dictionary<string, Button>(StringComparer.Ordinal);
         WorldMapPondView _selected;
         FishingProgressDto _progress;
-        string _feeConfirmPondId;
         string _returnFeeMode;
         string _lastSelectedPondId;
         bool _waitingEnter;
@@ -63,8 +62,7 @@ namespace FishSocial.Desktop
             }
             BuildMarkers();
             SelectById(_pond != null ? _pond.CurrentPondId : null);
-            SetStatus(_pond == null ? "请先完成 Steam 登录。" :
-                "颜色表示鱼塘类型；灰色为未开放或未解锁。");
+            SetStatus(_pond == null ? "请先完成 Steam 登录。" : "点选地图上的鱼塘。");
             ClampContent();
         }
 
@@ -75,6 +73,21 @@ namespace FishSocial.Desktop
             if (_api == null || !_api.CanUse)
                 return;
             StartCoroutine(LoadProgress());
+        }
+
+        public void EnterPond(string pondId)
+        {
+            if (!_uiReady || string.IsNullOrEmpty(pondId))
+                return;
+            WorldMapPondView pond;
+            if (!_byId.TryGetValue(pondId, out pond))
+            {
+                SetStatus("未找到对应鱼塘，请重新选择。");
+                return;
+            }
+            _lastSelectedPondId = null;
+            Select(pond);
+            EnterSelectedPond();
         }
 
         public void FocusPond(string pondId)
@@ -146,7 +159,6 @@ namespace FishSocial.Desktop
         void SelectReturnFeeMode(string mode)
         {
             _returnFeeMode = mode;
-            _feeConfirmPondId = null;
             RefreshFeeModeButtons();
             if (_selected != null)
             {
@@ -178,6 +190,25 @@ namespace FishSocial.Desktop
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(selected);
+        }
+
+        static string PlaceLine(string pondId)
+        {
+            var ponds = DesktopGameData.Ponds;
+            for (var i = 0; i < ponds.Length; i++)
+            {
+                var pond = ponds[i];
+                if (pond == null || pond.pondId != pondId)
+                    continue;
+                var place = DesktopGameData.RegionLabel(pond.bioRegion);
+                var water = DesktopGameData.WaterLabel(pond.waterType);
+                if (!string.IsNullOrEmpty(water))
+                    place = string.IsNullOrEmpty(place) ? water : place + " · " + water;
+                if (!string.IsNullOrEmpty(pond.realWorldRef))
+                    place = string.IsNullOrEmpty(place) ? pond.realWorldRef : place + " · " + pond.realWorldRef;
+                return string.IsNullOrEmpty(place) ? "" : "\n" + place;
+            }
+            return "";
         }
 
         static bool PondHasDualFee(WorldMapPondView pond)
@@ -239,16 +270,22 @@ namespace FishSocial.Desktop
                 }
                 marker.anchorMin = new Vector2(item.x, 1f - item.y);
                 marker.anchorMax = marker.anchorMin;
+                marker.pivot = new Vector2(item.x > 0.82f ? 1f : item.x < 0.18f ? 0f : 0.5f, 0.5f);
+                marker.sizeDelta = new Vector2(128f, 44f);
                 marker.anchoredPosition = Vector2.zero;
                 var captured = item;
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => Select(captured));
-                var caption = item.displayName + "\n" + DesktopGameData.CategoryLabel(item.pondCategory);
-                if (locked)
-                    caption += " · 未开放/需解锁";
-                label.text = caption;
+                label.text = item.displayName;
+                label.alignment = TextAnchor.MiddleLeft;
+                var labelRect = label.rectTransform;
+                labelRect.anchorMin = labelRect.anchorMax = new Vector2(0f, 0.5f);
+                labelRect.pivot = new Vector2(0f, 0.5f);
+                labelRect.anchoredPosition = new Vector2(40f, 0f);
+                labelRect.sizeDelta = new Vector2(82f, 36f);
                 DesktopModalUi.StyleTree(instance.transform);
                 DesktopModalUi.StyleButton(button, locked ? "lock.png" : "pond.png");
+                button.GetComponent<CozyButtonVisual>()?.SetTint(DesktopGameData.CategoryColor(item.pondCategory, locked));
                 _markersById[item.pondId] = button;
             }
             RefreshMarkerSelection();
@@ -277,7 +314,6 @@ namespace FishSocial.Desktop
         {
             _selected = item;
             RefreshMarkerSelection();
-            _feeConfirmPondId = null;
             if (_selected == null)
             {
                 _returnFeeMode = "sell_only";
@@ -286,7 +322,7 @@ namespace FishSocial.Desktop
             else if (!string.Equals(_lastSelectedPondId, _selected.pondId, StringComparison.Ordinal))
             {
                 _lastSelectedPondId = _selected.pondId;
-                _returnFeeMode = PondHasDualFee(_selected) ? null : "sell_only";
+                _returnFeeMode = "sell_only";
             }
             RefreshFeeModeButtons();
             if (_selected == null)
@@ -318,18 +354,16 @@ namespace FishSocial.Desktop
 
             _details.text = _selected.displayName +
                             "\n类型：" + DesktopGameData.CategoryLabel(_selected.pondCategory) +
+                            PlaceLine(_selected.pondId) +
                             "\n状态：" + reason +
                             "\n" + levelLine +
                             "\n" + feeLine +
-                            "\n主题：" + _selected.theme +
-                            "\n容量：" + _selected.capacity;
+                            "\n鱼种：" + DesktopGameData.PondSpeciesSummary(_selected.pondId, 4);
 
             if (locked)
                 SetEnterLabel("暂不可进入", false);
             else if (PondHasDualFee(_selected) && string.IsNullOrEmpty(_returnFeeMode))
                 SetEnterLabel("请先选收费模式", false);
-            else if (activeFee > 0)
-                SetEnterLabel("确认进入", true);
             else
                 SetEnterLabel("进入鱼塘", true);
         }
@@ -357,22 +391,6 @@ namespace FishSocial.Desktop
                 SetStatus("请先选择「出售档」或「回鱼档」。");
                 return;
             }
-            var activeFee = _returnFeeMode == "auto_return" && PondHasDualFee(_selected)
-                ? _selected.feePer2hAutoReturn
-                : (_selected.feePer2hSellOnly > 0 ? _selected.feePer2hSellOnly : _selected.feePer2h);
-            if (activeFee > 0 && _feeConfirmPondId != _selected.pondId)
-            {
-                _feeConfirmPondId = _selected.pondId;
-                var today = _progress != null ? _progress.todayFeeCharges : 0;
-                var maxFee = _selected.maxFeeChargesPerDay > 0 ? _selected.maxFeeChargesPerDay : 4;
-                var modeLabel = _returnFeeMode == "auto_return" ? "回鱼档" : "出售档";
-                SetStatus(modeLabel + "：每满 2 小时扣 " + activeFee +
-                          " 金币，今日已扣 " + today + "/" + maxFee +
-                          "。再点一次确认进入。");
-                SetEnterLabel("再次确认进入", true);
-                return;
-            }
-
             _pond.SetPendingReturnFeeMode(string.IsNullOrEmpty(_returnFeeMode) ? "sell_only" : _returnFeeMode);
             SetStatus("正在进入 " + _selected.displayName + "…");
             _waitingEnter = true;
@@ -448,9 +466,15 @@ namespace FishSocial.Desktop
             if (_enter == null)
                 return;
             _enter.interactable = enabled && _pond != null;
+            var colors = _enter.colors;
+            colors.disabledColor = new Color(0.93f, 0.86f, 0.74f, 1f);
+            _enter.colors = colors;
             var text = _enter.GetComponentInChildren<Text>();
             if (text != null)
+            {
                 text.text = label;
+                text.color = enabled ? CatTheme.Cream : CatTheme.Ink;
+            }
         }
 
         void OnPondStateChanged(SocialSocketState state, string message)

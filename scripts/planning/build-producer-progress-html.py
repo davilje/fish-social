@@ -226,7 +226,27 @@ def type_items_html(items: list[dict]) -> str:
 def render_stage_blocks(by_id: dict, stages: list[dict], label_prefix: str = "阶段") -> list[str]:
     stage_blocks = []
     for i, st in enumerate(stages):
-        p, d, n = stage_progress(by_id, st)
+        raw_ids = list(st.get("ids") or [])
+        abandoned = [
+            iid for iid in raw_ids
+            if iid in by_id and (by_id[iid]["status"] or "").strip() == "已废弃"
+        ]
+        st_view = dict(st)
+        st_view["ids"] = [iid for iid in raw_ids if iid not in abandoned]
+        p, d, n = stage_progress(by_id, st_view)
+        if not st_view["ids"] and abandoned:
+            status_txt = "已废弃"
+            tone = "future"
+            detail = "本阶段已废弃，不计入进度"
+            miss_html = ""
+            stage_blocks.append(
+                f'<div class="card">'
+                f'<div class="card-h"><strong>{html.escape(label_prefix)} {html.escape(st["id"])} · {html.escape(st["title"])}</strong>'
+                f'<span class="muted">{html.escape(status_txt)}</span></div>'
+                f'<p class="muted">{html.escape(st.get("plain") or "")} {html.escape(detail)}</p>'
+                f'</div>'
+            )
+            continue
         if st.get("future") and not st.get("ids"):
             status_txt = "未立项（计划表外）"
             tone = "future"
@@ -249,7 +269,7 @@ def render_stage_blocks(by_id: dict, stages: list[dict], label_prefix: str = "�
             detail = f"0/{n} 项已实现" if n else "待立项"
 
         missing = []
-        for iid in st.get("ids") or []:
+        for iid in st_view.get("ids") or []:
             row = by_id.get(iid)
             if not row:
                 missing.append(
@@ -366,7 +386,10 @@ def build_html(rows: list[dict]) -> str:
     unity_blocks = render_stage_blocks(by_id, UNITY_STAGES, "Phase")
 
     unity_ids = [st["ids"][0] for st in UNITY_STAGES if st.get("ids")]
-    unity_known = [i for i in unity_ids if i in by_id]
+    unity_known = [
+        i for i in unity_ids
+        if i in by_id and (by_id[i]["status"] or "").strip() != "已废弃"
+    ]
     unity_done = sum(1 for i in unity_known if is_done_status(by_id[i]["status"]))
     unity_pct = pct(unity_done, len(unity_known)) if unity_known else 0
 

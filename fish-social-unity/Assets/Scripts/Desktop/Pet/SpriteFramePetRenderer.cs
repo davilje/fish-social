@@ -41,6 +41,9 @@ namespace FishSocial.Desktop.Pet
         public FishingLayerArt.Session ActiveSession => _layered;
         public bool IsPlaying { get; set; } = true;
 
+        /// <summary>Home hero may decode a clip when the cache is cold. Overlay playback stays cache-only.</summary>
+        public bool DecodeWhenUncached { get; set; }
+
         public void Bind(Image target)
         {
             if (_image != target && _layerHost != null)
@@ -117,6 +120,13 @@ namespace FishSocial.Desktop.Pet
             if (_layerHost != null)
                 _layerHost.gameObject.SetActive(false);
             _petId = petId;
+            if (DecodeWhenUncached)
+            {
+                _image.sprite = null;
+                _image.color = new Color(1f, 1f, 1f, 0f);
+                return;
+            }
+
             _image.sprite = PetArtLoader.FallbackPortrait(petId);
             _image.preserveAspect = true;
             _image.color = _image.sprite != null ? Color.white : Color.clear;
@@ -246,6 +256,8 @@ namespace FishSocial.Desktop.Pet
             var session = Application.isPlaying
                 ? FishingLayerArt.TryGetCached(petId, clip, drawW, drawH)
                 : FishingLayerArt.Open(petId, clip, drawW, drawH);
+            if (session == null && DecodeWhenUncached)
+                session = FishingLayerArt.Open(petId, clip, drawW, drawH);
             if (session == null)
                 return false;
 

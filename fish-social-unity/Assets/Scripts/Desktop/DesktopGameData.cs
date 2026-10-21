@@ -181,6 +181,17 @@ namespace FishSocial.Desktop
         sealed class SpotClueTextArray { public SpotClueTextDef[] items; }
         sealed class PondSpotTagArray { public PondSpotTagDef[] items; }
 
+        [Serializable]
+        sealed class PondFishRow
+        {
+            public string pondId;
+            public string speciesId;
+            public string speciesName;
+            public bool enabled = true;
+        }
+
+        sealed class PondFishArray { public PondFishRow[] items; }
+
         static bool _loaded;
         static PondDef[] _ponds = new PondDef[0];
         static SpeciesDef[] _species = new SpeciesDef[0];
@@ -190,6 +201,7 @@ namespace FishSocial.Desktop
         static VesselDef[] _vessels = new VesselDef[0];
         static SpotClueTextDef[] _spotClueTexts = new SpotClueTextDef[0];
         static PondSpotTagDef[] _pondSpotTags = new PondSpotTagDef[0];
+        static PondFishRow[] _pondFish = new PondFishRow[0];
         static FormulaConstantRow[] _formulaConstants = new FormulaConstantRow[0];
         static float _sizeExp = 1.15f;
         static float _lengthWeightA = 12f;
@@ -278,6 +290,63 @@ namespace FishSocial.Desktop
                     list.Add(t);
             }
             return list.ToArray();
+        }
+
+        public static string RegionLabel(string regionId)
+        {
+            switch (regionId)
+            {
+                case "east_plain_lake": return "东部平原湖区";
+                case "north_bohai": return "渤海湾";
+                case "northeast_cold": return "东北冷水";
+                case "south_reservoir": return "南方水库";
+                case "south_sea": return "南海";
+                case "southeast_coast": return "东南沿海";
+                case "southwest_plateau": return "西南高原";
+                case "yangtze_mid": return "长江中游";
+                default: return string.IsNullOrEmpty(regionId) ? "" : regionId;
+            }
+        }
+
+        public static string WaterLabel(string waterType)
+        {
+            switch (waterType)
+            {
+                case "coastal": return "近海";
+                case "estuary": return "河口";
+                case "lake": return "湖泊";
+                case "pond": return "池塘";
+                case "reservoir": return "水库";
+                case "river": return "河流";
+                default: return string.IsNullOrEmpty(waterType) ? "" : waterType;
+            }
+        }
+
+        public static string PondSpeciesSummary(string pondId, int maxNames = 6)
+        {
+            EnsureLoaded();
+            if (string.IsNullOrEmpty(pondId) || maxNames <= 0)
+                return "暂无鱼种数据";
+            var names = new List<string>();
+            var total = 0;
+            for (var i = 0; i < _pondFish.Length; i++)
+            {
+                var row = _pondFish[i];
+                if (row == null || !row.enabled || row.pondId != pondId)
+                    continue;
+                total++;
+                if (names.Count >= maxNames)
+                    continue;
+                var name = !string.IsNullOrEmpty(row.speciesName) ? row.speciesName : SpeciesName(row.speciesId);
+                if (!string.IsNullOrEmpty(name))
+                    names.Add(name);
+            }
+            if (names.Count == 0)
+                return "暂无鱼种数据";
+            var summary = string.Join("、", names.ToArray());
+            if (total > names.Count)
+                summary += " 等 " + total + " 种";
+            return summary;
         }
 
         public static string CategoryLabel(string category)
@@ -619,6 +688,9 @@ namespace FishSocial.Desktop
                 wrap => wrap != null ? wrap.items : null);
             _pondSpotTags = ParseArray<PondSpotTagArray, PondSpotTagDef>(
                 Resources.Load<TextAsset>("GameData/pond_spot_tags"),
+                wrap => wrap != null ? wrap.items : null);
+            _pondFish = ParseArray<PondFishArray, PondFishRow>(
+                Resources.Load<TextAsset>("GameData/pond_fish_pool"),
                 wrap => wrap != null ? wrap.items : null);
             _formulaConstants = ParseArray<FormulaConstantArray, FormulaConstantRow>(
                 Resources.Load<TextAsset>("GameData/fishing_formula_constants"),

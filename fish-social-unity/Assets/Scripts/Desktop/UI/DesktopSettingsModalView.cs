@@ -8,7 +8,20 @@ namespace FishSocial.Desktop
 {
     public sealed class DesktopSettingsModalView : MonoBehaviour
     {
+        public static readonly string[] TabNames = { "Window", "Notify", "Server", "Other" };
+        public static readonly string[] TabTitles = { "窗口显示", "通知偏好", "服务器连接", "托盘与其他" };
+        public static readonly string[][] TabNodes =
+        {
+            new[] { "窗口模式", "1280×720", "1600×900", "1920×1080", "2560×1440", "DesignDisplayHeading", "无边框", "全屏" },
+            new[] { "通知", "启用通知", "免打扰", "鱼咬钩通知", "好友邀请通知", "连接错误通知", "模拟连接错误" },
+            new[] { "服务器", "当前服务器", "服务器地址输入", "保存服务器地址", "测试服务器连接", "服务器连接状态" },
+            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏" },
+        };
+
         NotificationSettings _draft;
+        int _tab;
+        Text _tabHeading;
+        Text _tabInfo;
         Toggle _hideToTrayToggle;
         Toggle _enableNotificationsToggle;
         Toggle _doNotDisturbToggle;
@@ -17,6 +30,8 @@ namespace FishSocial.Desktop
         Toggle _connectionErrorToggle;
         Text _serverUrlText;
         InputField _serverUrlInput;
+        Text _serverUrlHint;
+        string _serverUrlHintText;
         Text _serverStatusText;
         Coroutine _healthRoutine;
 
@@ -35,11 +50,19 @@ namespace FishSocial.Desktop
             _connectionErrorToggle = DesktopModalUi.FindDescendantComponent<Toggle>(
                 transform, "连接错误通知");
 
-            DesktopModalUi.BindDescendantButton(transform, "普通窗口 1280×720", ApplyWindowed);
-            DesktopModalUi.BindDescendantButton(transform, "无边框",
-                () => WindowManager.Instance?.SetMode(WindowDisplayMode.Borderless));
-            DesktopModalUi.BindDescendantButton(transform, "全屏",
-                () => WindowManager.Instance?.SetMode(WindowDisplayMode.Fullscreen));
+            EnsureResolutionButtons();
+            DesktopModalUi.BindDescendantButton(transform, "无边框", () =>
+            {
+                WindowManager.Instance?.SetMode(WindowDisplayMode.Borderless);
+                RefreshWindowSelection();
+                RefreshTabInfo();
+            });
+            DesktopModalUi.BindDescendantButton(transform, "全屏", () =>
+            {
+                WindowManager.Instance?.SetMode(WindowDisplayMode.Fullscreen);
+                RefreshWindowSelection();
+                RefreshTabInfo();
+            });
             DesktopModalUi.BindDescendantToggle(transform, "关闭窗口时隐藏到托盘",
                 WindowManager.Instance != null &&
                 WindowManager.Instance.Settings.HideToTrayOnClose,
@@ -76,8 +99,10 @@ namespace FishSocial.Desktop
                 () => DesktopAppBootstrap.Instance?.QuitForReal());
             EnsureServerUrlControls();
             EnsureResetOnboardingButton();
+            BindTabs();
             ValidatePrefabBindings();
             DesktopModalUi.StyleTree(transform);
+            ShowTab(_tab);
         }
 
         public void OnOpened()
@@ -87,6 +112,103 @@ namespace FishSocial.Desktop
                 : new NotificationSettings());
             SyncControls();
             RefreshServerUrlControls();
+            ShowTab(_tab);
+        }
+
+        void BindTabs()
+        {
+            _tabHeading = DesktopModalUi.FindDescendantComponent<Text>(transform, "DesignSettingsHeading");
+            _tabInfo = DesktopModalUi.FindComponent<Text>(transform, "DesignSettingsInfo/Body");
+            for (var i = 0; i < TabNames.Length; i++)
+            {
+                var index = i;
+                if (!DesktopModalUi.BindButton(transform, "SettingsTabs/" + TabNames[i], () => ShowTab(index)))
+                    Debug.LogError("[DesktopUI] PanelSettings requires Button: SettingsTabs/" + TabNames[i], this);
+            }
+            if (!Debug.isDebugBuild)
+            {
+                var serverTab = DesktopModalUi.FindDescendant(transform, "Server");
+                if (serverTab != null)
+                    serverTab.gameObject.SetActive(false);
+            }
+            var saveWindow = DesktopModalUi.FindDescendant(transform, "保存窗口设置");
+            if (saveWindow != null)
+                saveWindow.gameObject.SetActive(false);
+        }
+
+        void RefreshWindowSelection()
+        {
+            var window = WindowManager.Instance != null ? WindowManager.Instance.Settings : null;
+            var presets = WindowSettings.Presets;
+            for (var i = 0; i < presets.Length; i++)
+            {
+                var preset = presets[i];
+                var selected = window != null && window.Mode == WindowDisplayMode.Windowed &&
+                    window.Width == preset.Width && window.Height == preset.Height;
+                DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, preset.Label)?.SetSelected(selected);
+            }
+            DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, "无边框")
+                ?.SetSelected(window != null && window.Mode == WindowDisplayMode.Borderless);
+            DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, "全屏")
+                ?.SetSelected(window != null && window.Mode == WindowDisplayMode.Fullscreen);
+            var note = DesktopModalUi.FindDescendantComponent<Text>(transform, "DesignSettingsNote");
+            if (note == null || window == null)
+                return;
+            var current = window.Mode == WindowDisplayMode.Fullscreen ? "全屏"
+                : window.Mode == WindowDisplayMode.Borderless ? "无边框"
+                : window.Width + "×" + window.Height;
+            note.text = "当前 " + current + "\n切换后立即保存";
+        }
+
+        void ShowTab(int tab)
+        {
+            _tab = Mathf.Clamp(tab, 0, TabNames.Length - 1);
+            for (var i = 0; i < TabNodes.Length; i++)
+                foreach (var name in TabNodes[i])
+                {
+                    var node = DesktopModalUi.FindDescendant(transform, name);
+                    if (node != null)
+                        node.gameObject.SetActive(i == _tab);
+                }
+            for (var i = 0; i < TabNames.Length; i++)
+                DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "SettingsTabs/" + TabNames[i])
+                    ?.SetSelected(i == _tab);
+            if (_tabHeading != null)
+                _tabHeading.text = TabTitles[_tab];
+            var hint = DesktopModalUi.FindDescendant(transform, "DesignSettingsHint");
+            if (hint != null)
+                hint.gameObject.SetActive(_tab == 0);
+            var simulate = DesktopModalUi.FindDescendant(transform, "模拟连接错误");
+            if (simulate != null && !Debug.isDebugBuild)
+                simulate.gameObject.SetActive(false);
+            SyncServerPlaceholder();
+            RefreshWindowSelection();
+            RefreshTabInfo();
+        }
+
+        void RefreshTabInfo()
+        {
+            if (_tabInfo == null)
+                return;
+            switch (_tab)
+            {
+                case 0:
+                    var window = WindowManager.Instance != null ? WindowManager.Instance.Settings : null;
+                    var current = window == null ? "—" : window.Mode == WindowDisplayMode.Fullscreen ? "全屏"
+                        : window.Mode == WindowDisplayMode.Borderless ? "无边框" : window.Width + "×" + window.Height + " 窗口";
+                    _tabInfo.text = "当前：" + current +
+                        "\n\n选择分辨率后窗口立即调整，仅支持四种常用尺寸。\n\n无边框与全屏可随时切换。\n\n点击「保存窗口设置」，下次启动沿用当前选择。";
+                    break;
+                case 1:
+                    _tabInfo.text = "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。\n\n「模拟连接错误」用于检查提醒是否正常。";
+                    break;
+                case 2:
+                    _tabInfo.text = "填写服务器地址并保存，重启客户端后生效。\n\n保存前可先「测试服务器连接」，检查 /health 是否可达。";
+                    break;
+                default:
+                    _tabInfo.text = "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n「重置新手引导」会重新播放一次教学。";
+                    break;
+            }
         }
 
         void EnsureServerUrlControls()
@@ -96,6 +218,11 @@ namespace FishSocial.Desktop
                 transform, "服务器地址输入");
             _serverStatusText = DesktopModalUi.FindDescendantComponent<Text>(
                 transform, "服务器连接状态");
+            if (_serverUrlInput != null)
+            {
+                _serverUrlInput.onValueChanged.RemoveListener(OnServerUrlEdited);
+                _serverUrlInput.onValueChanged.AddListener(OnServerUrlEdited);
+            }
             DesktopModalUi.BindDescendantButton(transform, "保存服务器地址", SaveServerUrl);
             DesktopModalUi.BindDescendantButton(transform, "测试服务器连接", TestServerUrl);
             RefreshServerUrlControls();
@@ -128,8 +255,42 @@ namespace FishSocial.Desktop
                 _serverUrlText.text = "当前服务器：" + url;
             if (_serverUrlInput != null)
                 _serverUrlInput.text = url;
+            SyncServerPlaceholder();
             if (_serverStatusText != null && string.IsNullOrEmpty(_serverStatusText.text))
                 _serverStatusText.text = "保存后请重启客户端；可用「测试服务器连接」检查 /health。";
+        }
+
+        void LateUpdate()
+        {
+            if (_serverUrlInput != null && _serverUrlInput.gameObject.activeInHierarchy)
+                SyncServerPlaceholder();
+        }
+
+        void OnServerUrlEdited(string _)
+        {
+            SyncServerPlaceholder();
+        }
+
+        void SyncServerPlaceholder()
+        {
+            if (_serverUrlInput == null)
+                return;
+            if (_serverUrlHint == null)
+            {
+                _serverUrlHint = _serverUrlInput.placeholder as Text;
+                if (_serverUrlHint == null)
+                    _serverUrlHint = _serverUrlInput.transform.Find("Placeholder")?.GetComponent<Text>();
+                if (_serverUrlHint != null && _serverUrlInput.placeholder == null)
+                    _serverUrlInput.placeholder = _serverUrlHint;
+            }
+            if (_serverUrlHint == null || _serverUrlHint == _serverUrlInput.textComponent)
+                return;
+            if (_serverUrlHintText == null)
+                _serverUrlHintText = _serverUrlHint.text ?? string.Empty;
+            var showHint = string.IsNullOrEmpty(_serverUrlInput.text);
+            _serverUrlHint.text = showHint ? _serverUrlHintText : string.Empty;
+            if (_serverUrlHint.gameObject.activeSelf != showHint)
+                _serverUrlHint.gameObject.SetActive(showHint);
         }
 
         void SaveServerUrl()
@@ -174,12 +335,7 @@ namespace FishSocial.Desktop
                 if (request.result == UnityWebRequest.Result.Success &&
                     request.responseCode >= 200 && request.responseCode < 300)
                 {
-                    var body = request.downloadHandler != null
-                        ? request.downloadHandler.text
-                        : string.Empty;
-                    if (body != null && body.Length > 120)
-                        body = body.Substring(0, 120) + "…";
-                    SetServerStatus("连接成功（HTTP " + request.responseCode + "）：" + body, true);
+                    SetServerStatus("连接正常。", true);
                 }
                 else
                 {
@@ -203,14 +359,76 @@ namespace FishSocial.Desktop
                 : new Color(0.65f, 0.29f, 0.18f, 1f);
         }
 
-        void ApplyWindowed()
+        void EnsureResolutionButtons()
         {
-            var window = WindowManager.Instance;
-            if (window == null)
+            const string legacyName = "普通窗口 1280×720";
+            var presets = WindowSettings.Presets;
+            var template = DesktopModalUi.FindDescendant(transform, legacyName);
+            if (template == null && presets.Length > 0)
+                template = DesktopModalUi.FindDescendant(transform, presets[0].Label);
+            if (template == null)
+            {
+                Debug.LogError("[DesktopUI] PanelSettings requires Button: " + legacyName, this);
                 return;
-            window.Settings.Width = WindowManager.MainDefaultWidth;
-            window.Settings.Height = WindowManager.MainDefaultHeight;
-            window.SetMode(WindowDisplayMode.Windowed);
+            }
+
+            var templateRt = template.GetComponent<RectTransform>();
+            var origin = templateRt.anchoredPosition;
+            var sourceWidth = templateRt.sizeDelta.x;
+            var sourceHeight = templateRt.sizeDelta.y;
+            var alreadySplit = presets.Length > 1 &&
+                DesktopModalUi.FindDescendant(transform, presets[presets.Length - 1].Label) != null;
+            var gap = 8f;
+            var buttonWidth = alreadySplit
+                ? sourceWidth
+                : (sourceWidth - gap * (presets.Length - 1)) / presets.Length;
+
+            for (var i = 0; i < presets.Length; i++)
+            {
+                var preset = presets[i];
+                var label = preset.Label;
+                var node = DesktopModalUi.FindDescendant(transform, label);
+                if (node == null)
+                {
+                    if (i == 0)
+                    {
+                        template.gameObject.name = label;
+                        node = template;
+                    }
+                    else
+                    {
+                        var clone = Instantiate(template.gameObject, template.parent);
+                        clone.name = label;
+                        node = clone.transform;
+                    }
+                }
+
+                if (!alreadySplit)
+                {
+                    var rt = node.GetComponent<RectTransform>();
+                    rt.anchoredPosition = new Vector2(origin.x + i * (buttonWidth + gap), origin.y);
+                    rt.sizeDelta = new Vector2(buttonWidth, sourceHeight);
+                }
+
+                var text = node.GetComponentInChildren<Text>(true);
+                if (text != null)
+                {
+                    text.text = label;
+                    text.alignment = TextAnchor.MiddleCenter;
+                    text.resizeTextForBestFit = true;
+                    text.resizeTextMinSize = 12;
+                    text.resizeTextMaxSize = 18;
+                }
+
+                var width = preset.Width;
+                var height = preset.Height;
+                DesktopModalUi.BindDescendantButton(transform, label, () =>
+                {
+                    WindowManager.Instance?.ApplyWindowedPreset(width, height);
+                    RefreshWindowSelection();
+                    RefreshTabInfo();
+                });
+            }
         }
 
         bool ReadNotification(System.Func<NotificationSettings, bool> read)
@@ -239,10 +457,14 @@ namespace FishSocial.Desktop
 
         void ValidatePrefabBindings()
         {
-            foreach (var name in new[] { "普通窗口 1280×720", "无边框", "全屏", "立即隐藏到托盘",
+            foreach (var name in new[] { "1280×720", "1600×900", "1920×1080", "2560×1440", "无边框", "全屏", "立即隐藏到托盘",
                 "保存窗口设置", "模拟连接错误", "退出游戏", "保存服务器地址", "测试服务器连接", "重置新手引导" })
+            {
+                if (name == "模拟连接错误" && !Debug.isDebugBuild)
+                    continue;
                 if (DesktopModalUi.FindDescendantComponent<Button>(transform, name) == null)
                     Debug.LogError("[DesktopUI] PanelSettings requires Button: " + name, this);
+            }
             if (_hideToTrayToggle == null ||
                 _enableNotificationsToggle == null ||
                 _doNotDisturbToggle == null ||

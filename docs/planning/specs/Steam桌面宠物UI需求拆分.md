@@ -45,7 +45,7 @@
 ## 4. 总体验收
 
 - [x] `STEAM-DESKTOP-07A～07F` 各自完成程序验收。
-- [ ] `STEAM-DESKTOP-ART-01` 完成猫咪和鱼塘资源交付。
+- [x] `STEAM-DESKTOP-ART-01` 完成猫咪和鱼塘资源交付。（2026-10-21 已实现）
 - [x] `STEAM-DESKTOP-ART-02` 完成 Overlay 塘内布局导出与像素对齐（后续，不阻塞 07E/07F）。
 - [x] `STEAM-DESKTOP-ART-03` 完成分塘底图、序列帧加载与 HUD Prefab 同步 Overlay。
 - [x] 桌面宠物主视图、鱼塘场景和同塘玩家宠物方向统一。

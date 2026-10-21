@@ -37,8 +37,8 @@
 | [A2-Debug面板.md](./A2-Debug面板.md) | A2 | P0 | **已实�?* | Admin 钓鱼概率查询 |
 | [B0-商店基础.md](./B0-商店基础.md) | B0 | P1 | **已实�?* | 鱼饵消耗、渔具永久购�?|
 | [B1-鱼饵偏好.md](./B1-鱼饵偏好.md) | B1 | P1 | **已实�?* | 饵对 diet 的差异化加成 |
-| [C-调优与状态机.md](./C-调优与状态机.md) | C | P2 | **已确�?* | 热更 / Sink / 状态机动画 / 遗传 / 图鉴 |
-| [状态机需求描�?md](./状态机需求描�?md) | C6 引用 | �?| **已定�?* | 完整状态机规格 |
+| [C-调优与状态机.md](./C-调优与状态机.md) | C | P2 | **已废弃** | 热更 / Sink / 状态机动画 / 遗传 / 图鉴。2026-10-21 整包废弃 |
+| [状态机需求描述.md](./状态机需求描述.md) | C6 引用 | — | **已废弃** | 完整状态机规格。2026-10-21 不再作为交付物 |
 | [社交互动-动态点�?md](./社交互动-动态点�?md) | v0.6.0 | P0 | **已确�?* | FEAT-SOC-01：点�?toggle · 计数 · Socket |
 | [社交互动-动态评�?md](./社交互动-动态评�?md) | v0.6.0 | P0 | **已确�?* | FEAT-SOC-02：评论区 · 删除 P1 |
 | [排行榜系�?md](./排行榜系�?md) | v0.6.0 | P0 | **已实�?* | FEAT-SOC-03：日�?周榜 · metrics �?· Bot 不上�?|
@@ -66,7 +66,7 @@
 | [Steam桌面宠物UI需求拆分.md](./Steam桌面宠物UI需求拆分.md) | v1.0-steam-desktop | P0 | **已确认** | STEAM-DESKTOP-UI；程序 UI 并入 07A～07F，美术含 ART-01 换图与 ART-02 布局管线 |
 | [Steam桌面Overlay场景布局管线.md](./Steam桌面Overlay场景布局管线.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-ART-02；Unity Canvas Prefab 导出 JSON，Overlay 像素一一对应（塘内场景，不含 HUD） |
 | [Steam桌面Overlay分塘底图与HUD同步.md](./Steam桌面Overlay分塘底图与HUD同步.md) | v1.0-steam-desktop | P0 | **已实现** | STEAM-DESKTOP-ART-03；分塘底图、六姿势序列帧、Unity HUD Prefab 导出同步 Overlay |
-| [橘猫钓鱼动画接入Overlay.md](./橘猫钓鱼动画接入Overlay.md) | v1.0-steam-desktop | P1 | **已确认** | STEAM-DESKTOP-ART-04；Overlay 七层同帧叠加，阶段映射不变 |
+| [橘猫钓鱼动画接入Overlay.md](./橘猫钓鱼动画接入Overlay.md) | v1.0-steam-desktop | P1 | **已实现** | STEAM-DESKTOP-ART-04；Overlay 七层同帧叠加，阶段映射不变 |
 | [Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md](./Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13；聊天栏一行向上展开、Prefab 对齐 |
 | [Steam桌面端-13AOverlay场景边缘半透明渐隐.md](./Steam桌面端-13AOverlay场景边缘半透明渐隐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13A；场景层四边 40px |
 | [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-13B；徽章、右键、登录窗 |
@@ -82,7 +82,7 @@
 | [BUG修复-Overlay形象进游戏不恢复.md](./BUG修复-Overlay形象进游戏不恢复.md) | hotfix | P0 | **已实现** | BUG-24；冷启动恢复已保存猫咪形象 |
 | [BUG修复-Overlay打窝按钮剩余口数.md](./BUG修复-Overlay打窝按钮剩余口数.md) | hotfix | P0 | **已实现** | BUG-25；13C 回归，去掉 bitesLeft 后缀 |
 | [BUG修复-Overlay悬停与右键菜单指针命中.md](./BUG修复-Overlay悬停与右键菜单指针命中.md) | hotfix | P0 | **已实现** | BUG-26；命中链 + 菜单后悬停用自有开关恢复 |
-| [BUG修复-Cozy桌面页还原.md](./BUG修复-Cozy桌面页还原.md) | hotfix | P0/P1 | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 已确认未做 |
+| [BUG修复-Cozy桌面页还原.md](./BUG修复-Cozy桌面页还原.md) | hotfix | P0/P1 | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 改为功能·待开发 |
 | [BUG修复-OverlayHUD布局与交互.md](./BUG修复-OverlayHUD布局与交互.md) | hotfix | P0/P1 | **分项** | BUG-48～53 已实现（52/53 含延迟与 Overlay 预测过渡）；布局/聊天/Debug 见分项 |
 | [BUG修复-Unity自己钓鱼表现权威.md](./BUG修复-Unity自己钓鱼表现权威.md) | hotfix | P0 | **已实现** | BUG-54：自己钓鱼 Unity 表现权威 + 服务端校验；Overlay 变瘦 |
 | [BUG修复-默认头像目录与运行白名单不一致.md](./BUG修复-默认头像目录与运行白名单不一致.md) | hotfix | P0 | **已实现** | BUG-55：运行中的 shared dist 仍是旧 6 只猫，新猫保存被拒 |
@@ -123,9 +123,9 @@
 | [禁止钓鱼塘巡警事件.md](./禁止钓鱼塘巡警事件.md) | RISK | P1 | **已实现** | FEAT-RISK-01；巡警 10s、免罚短禁/超时罚款日禁 |
 | [钓位点位线索文字泡.md](./钓位点位线索文字泡.md) | SPOT | P1 | **已实现** | FEAT-SPOT-01；坐席后聊天泡；表随机；habitat/activity |
 | [钓位标签与线索库-v2.md](./钓位标签与线索库-v2.md) | SPOT | P1 | **已实现** | FEAT-SPOT-02；22 类标签×420 点；标签过滤线索；activitySignal |
-| [钓位标签地形微调.md](./钓位标签地形微调.md) | SPOT | P2 | **已确认** | FEAT-SPOT-03；xlsx 按实际地形微调 pond_spot_tags |
+| [钓位标签地形微调.md](./钓位标签地形微调.md) | SPOT | P2 | **已实现** | FEAT-SPOT-03；xlsx 按实际地形微调 pond_spot_tags |
 | [线索文案策划审校.md](./线索文案策划审校.md) | SPOT | P2 | **已确认** | FEAT-SPOT-04；spot_clue_texts 增删；§4.2 禁区 |
-| [钓位鱼情联动线索.md](./钓位鱼情联动线索.md) | SPOT | P1 | **已确认** | FEAT-SPOT-05；鱼量/迁移→activitySignal 联动抽线索 |
+| [钓位鱼情联动线索.md](./钓位鱼情联动线索.md) | SPOT | P1 | **已实现** | FEAT-SPOT-05；鱼量/迁移→activitySignal 联动抽线索 |
 | [Steam桌面端-玩法Debug菜单.md](./Steam桌面端-玩法Debug菜单.md) | DEBUG | P1 | **已实现** | STEAM-DESKTOP-12；开发版玩法 Debug 菜单 |
 | [Steam桌面端-Debug鱼塘钓位查看.md](./Steam桌面端-Debug鱼塘钓位查看.md) | DEBUG | P1 | **已实现** | STEAM-DESKTOP-12B；Overlay 塘/钓位鱼查看、属性、强制上钩、三列×1.3 |
 | [回鱼机制.md](./回鱼机制.md) | R2 | P0 | **已实现** | FEAT-RETURN-01；回塘增重、紫品准入、金=卖价×1.5 |
@@ -331,6 +331,9 @@ A0 (1w) �?A1 (2~3d) �?A2 (3~5d) �?灰度 1w �?B0 (1w) �?B1 (2~3d) �?
 | 2026-08-10 | **BUG-18** 进塘首帧状态与演示降级 → **已实现** |
 | 2026-08-10 | **BUG-19** 每日额度单一口径重构 → **已实现** |
 | 2026-08-10 | **BUG-20** 进塘与钓鱼剩余展示回归 → **已实现** |
+| 2026-10-21 | **STEAM-DESKTOP-20** 主窗口固定分辨率 → **已确认** |
+| 2026-10-21 | **BUG-57** 桌面设置、世界/鱼塘页、首页形象与装备图 → **已确认** |
+| 2026-10-21 | **BUG-58** 桌面鱼塘与设置信息 → **已实现** |
 | 2026-07-11 | Phase 2 开发计划已确认�?3 项需求分 6 组，5 Sprint 规划（基�?xlsx 全部未开始项�?|
 
 

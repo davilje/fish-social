@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace FishSocial.Desktop.Pet
@@ -93,6 +96,8 @@ namespace FishSocial.Desktop.Pet
         /// <summary>
         /// Decode one layer sprite and return. True when the clip is cached or
         /// cannot be warmed (missing pack). Callers yield a frame between calls.
+        /// In play mode the PNG is decoded off the main thread; a call only uploads
+        /// one finished texture, and returns immediately while that decode is running.
         /// </summary>
         public static bool WarmupSlice(string petId, string clip, int drawW, int drawH)
         {
@@ -129,12 +134,21 @@ namespace FishSocial.Desktop.Pet
                 Warming[key] = slice;
             }
 
+            if (!Application.isPlaying)
+                return WarmupSliceImmediate(key, clip, slice);
+            return WarmupSliceWhilePlaying(key, clip, slice);
+        }
+
+        static bool WarmupSliceImmediate(string key, string clip, WarmSlice slice)
+        {
             var started = Time.realtimeSinceStartup;
-            var path = LayerPath(slice.Pack, slice.PetId, slice.Clip, slice.Frame, LayerNames[slice.Layer]);
             Sprite sprite;
             try
             {
-                sprite = LoadSprite(path, slice.DrawW, slice.DrawH,
+                sprite = LoadSprite(
+                    LayerPath(slice.Pack, slice.PetId, slice.Clip, slice.Frame, LayerNames[slice.Layer]),
+                    slice.DrawW,
+                    slice.DrawH,
                     TextureScale(slice.Pack, LayerNames[slice.Layer]));
             }
             catch (Exception)
@@ -142,14 +156,75 @@ namespace FishSocial.Desktop.Pet
                 sprite = null;
             }
 
-            var elapsedMs = (Time.realtimeSinceStartup - started) * 1000f;
-            if (elapsedMs > 50f)
+            LogSliceCost(clip, slice, (Time.realtimeSinceStartup - started) * 1000f);
+            return FinishSlice(key, slice, sprite);
+        }
+
+        static bool WarmupSliceWhilePlaying(string key, string clip, WarmSlice slice)
+        {
+            if (slice.Pending == null)
             {
-                Debug.LogWarning(
-                    "[Latency][Unity] fishing_art_slice_ms=" + elapsedMs.ToString("0") +
-                    " clip=" + clip + " frame=" + slice.Frame + " layer=" + LayerNames[slice.Layer]);
+                var layerName = LayerNames[slice.Layer];
+                var path = LayerPath(slice.Pack, slice.PetId, slice.Clip, slice.Frame, layerName);
+                var drawW = slice.DrawW;
+                var drawH = slice.DrawH;
+                var textureScale = TextureScale(slice.Pack, layerName);
+                slice.Pending = Task.Run(() => DecodedLayer.Read(path, drawW, drawH, textureScale));
+                return false;
             }
 
+            if (!slice.Pending.IsCompleted)
+                return false;
+            if (Time.unscaledDeltaTime > 0.02f && slice.Deferral < 2)
+            {
+                slice.Deferral++;
+                return false;
+            }
+
+            slice.Deferral = 0;
+            DecodedLayer decoded;
+            try
+            {
+                decoded = slice.Pending.Result;
+            }
+            catch (Exception)
+            {
+                decoded = default;
+            }
+
+            slice.Pending = null;
+            var started = Time.realtimeSinceStartup;
+            Sprite sprite;
+            try
+            {
+                sprite = decoded.Ok
+                    ? CreateSprite(decoded.Rgba, decoded.Width, decoded.Height)
+                    : LoadSprite(
+                        LayerPath(slice.Pack, slice.PetId, slice.Clip, slice.Frame, LayerNames[slice.Layer]),
+                        slice.DrawW,
+                        slice.DrawH,
+                        TextureScale(slice.Pack, LayerNames[slice.Layer]));
+            }
+            catch (Exception)
+            {
+                sprite = null;
+            }
+
+            LogSliceCost(clip, slice, (Time.realtimeSinceStartup - started) * 1000f);
+            return FinishSlice(key, slice, sprite);
+        }
+
+        static void LogSliceCost(string clip, WarmSlice slice, float elapsedMs)
+        {
+            if (elapsedMs <= 50f)
+                return;
+            Debug.LogWarning(
+                "[Latency][Unity] fishing_art_slice_ms=" + elapsedMs.ToString("0") +
+                " clip=" + clip + " frame=" + slice.Frame + " layer=" + LayerNames[slice.Layer]);
+        }
+
+        static bool FinishSlice(string key, WarmSlice slice, Sprite sprite)
+        {
             if (sprite == null)
             {
                 slice.Session.DestroyAssets();
@@ -284,56 +359,34 @@ namespace FishSocial.Desktop.Pet
 
         static Sprite LoadSprite(string path, int drawW, int drawH, int textureScale)
         {
-            if (drawW < 1 || drawH < 1 ||
-                (textureScale != 1 && textureScale != 2 && textureScale != 4) || !File.Exists(path))
+            var decoded = DecodedLayer.Read(path, drawW, drawH, textureScale);
+            if (!decoded.Ok)
                 return null;
-            var bytes = File.ReadAllBytes(path);
-            var source = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-            if (!source.LoadImage(bytes))
-            {
-                DestroyAsset(source);
-                return null;
-            }
-
-            if (source.width != CanvasWidth * textureScale || source.height != CanvasHeight * textureScale)
-            {
-                DestroyAsset(source);
-                return null;
-            }
-
-            var textureW = textureScale > 1 ? (int)Math.Min(source.width, (long)drawW * 2) : drawW;
-            var textureH = textureScale > 1 ? (int)Math.Min(source.height, (long)drawH * 2) : drawH;
-            var texture = Scale(source, textureW, textureH);
-            texture.filterMode = FilterMode.Bilinear;
-            texture.wrapMode = TextureWrapMode.Clamp;
-            return Sprite.Create(
-                texture,
-                new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f),
-                100f);
+            return CreateSprite(decoded.Rgba, decoded.Width, decoded.Height);
         }
 
-        static Texture2D Scale(Texture2D source, int width, int height)
+        static Sprite CreateSprite(byte[] rgba, int width, int height)
         {
-            if (source.width == width && source.height == height)
-                return source;
-
-            var pixels = new Color32[width * height];
-            for (var y = 0; y < height; y++)
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            var pinned = GCHandle.Alloc(rgba, GCHandleType.Pinned);
+            try
             {
-                var v = (y + 0.5f) / height;
-                for (var x = 0; x < width; x++)
-                {
-                    var u = (x + 0.5f) / width;
-                    pixels[y * width + x] = source.GetPixelBilinear(u, v);
-                }
+                texture.LoadRawTextureData(pinned.AddrOfPinnedObject(), width * height * 4);
+            }
+            finally
+            {
+                pinned.Free();
             }
 
-            DestroyAsset(source);
-            var scaled = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            scaled.SetPixels32(pixels);
-            scaled.Apply(false, false);
-            return scaled;
+            texture.filterMode = FilterMode.Bilinear;
+            texture.wrapMode = TextureWrapMode.Clamp;
+            var sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, width, height),
+                new Vector2(0.5f, 0.5f),
+                100f);
+            texture.Apply(false, true);
+            return sprite;
         }
 
         static string LayerPath(Pack pack, string petId, string clip, int index, string layer)
@@ -819,6 +872,204 @@ namespace FishSocial.Desktop.Pet
             public int Layer;
             public int DrawW;
             public int DrawH;
+            public Task<DecodedLayer> Pending;
+            public int Deferral;
+        }
+
+        struct DecodedLayer
+        {
+            public bool Ok;
+            public int Width;
+            public int Height;
+            public byte[] Rgba;
+
+            public static DecodedLayer Read(string path, int drawW, int drawH, int textureScale)
+            {
+                if (drawW < 1 || drawH < 1 ||
+                    (textureScale != 1 && textureScale != 2 && textureScale != 4) ||
+                    string.IsNullOrEmpty(path) || !File.Exists(path))
+                    return default;
+                try
+                {
+                    if (!PngRgba.TryDecode(File.ReadAllBytes(path), out var width, out var height, out var pixels))
+                        return default;
+                    if (width != CanvasWidth * textureScale || height != CanvasHeight * textureScale)
+                        return default;
+                    var textureW = textureScale > 1 ? (int)Math.Min(width, (long)drawW * 2) : drawW;
+                    var textureH = textureScale > 1 ? (int)Math.Min(height, (long)drawH * 2) : drawH;
+                    if (textureW < 1 || textureH < 1)
+                        return default;
+                    if (textureW != width || textureH != height)
+                        pixels = PngRgba.Downsample(pixels, width, height, textureW, textureH);
+                    return new DecodedLayer { Ok = true, Width = textureW, Height = textureH, Rgba = pixels };
+                }
+                catch (Exception)
+                {
+                    return default;
+                }
+            }
+        }
+
+        static class PngRgba
+        {
+            public static bool TryDecode(byte[] png, out int width, out int height, out byte[] bottomUp)
+            {
+                width = 0;
+                height = 0;
+                bottomUp = null;
+                if (png == null || png.Length < 8)
+                    return false;
+                var index = 8;
+                var idat = new MemoryStream();
+                byte bit = 0;
+                byte color = 0;
+                byte interlace = 1;
+                while (index + 8 <= png.Length)
+                {
+                    var length = ReadInt(png, index);
+                    var type = Encoding.ASCII.GetString(png, index + 4, 4);
+                    var data = index + 8;
+                    if (length < 0 || data + length + 4 > png.Length)
+                        return false;
+                    if (type == "IHDR")
+                    {
+                        width = ReadInt(png, data);
+                        height = ReadInt(png, data + 4);
+                        bit = png[data + 8];
+                        color = png[data + 9];
+                        interlace = png[data + 12];
+                    }
+                    else if (type == "IDAT")
+                    {
+                        idat.Write(png, data, length);
+                    }
+                    else if (type == "IEND")
+                    {
+                        break;
+                    }
+
+                    index = data + length + 4;
+                }
+
+                if (bit != 8 || color != 6 || interlace != 0 || width < 1 || height < 1)
+                    return false;
+                var inflated = Inflate(idat.ToArray());
+                var stride = width * 4;
+                if (inflated == null || inflated.Length < (stride + 1) * height)
+                    return false;
+
+                var topDown = new byte[stride * height];
+                var previous = new byte[stride];
+                var row = new byte[stride];
+                var source = 0;
+                for (var y = 0; y < height; y++)
+                {
+                    var filter = inflated[source++];
+                    for (var x = 0; x < stride; x++)
+                    {
+                        var left = x >= 4 ? row[x - 4] : 0;
+                        var up = previous[x];
+                        var upperLeft = x >= 4 ? previous[x - 4] : 0;
+                        var value = (int)inflated[source++];
+                        if (filter == 1)
+                            value += left;
+                        else if (filter == 2)
+                            value += up;
+                        else if (filter == 3)
+                            value += (left + up) / 2;
+                        else if (filter == 4)
+                            value += Paeth(left, up, upperLeft);
+                        else if (filter != 0)
+                            return false;
+                        row[x] = (byte)value;
+                    }
+
+                    Buffer.BlockCopy(row, 0, topDown, y * stride, stride);
+                    var swap = previous;
+                    previous = row;
+                    row = swap;
+                }
+
+                bottomUp = new byte[stride * height];
+                for (var y = 0; y < height; y++)
+                    Buffer.BlockCopy(topDown, y * stride, bottomUp, (height - 1 - y) * stride, stride);
+                return true;
+            }
+
+            public static byte[] Downsample(byte[] source, int sourceWidth, int sourceHeight, int width, int height)
+            {
+                var pixels = new byte[width * height * 4];
+                for (var y = 0; y < height; y++)
+                {
+                    var fy = ((y + 0.5f) / height) * sourceHeight - 0.5f;
+                    var y0 = (int)Math.Floor(fy);
+                    var y1 = y0 + 1;
+                    var ty = fy - y0;
+                    y0 = Clamp(y0, sourceHeight);
+                    y1 = Clamp(y1, sourceHeight);
+                    for (var x = 0; x < width; x++)
+                    {
+                        var fx = ((x + 0.5f) / width) * sourceWidth - 0.5f;
+                        var x0 = (int)Math.Floor(fx);
+                        var x1 = x0 + 1;
+                        var tx = fx - x0;
+                        x0 = Clamp(x0, sourceWidth);
+                        x1 = Clamp(x1, sourceWidth);
+                        var i = (y * width + x) * 4;
+                        for (var channel = 0; channel < 4; channel++)
+                        {
+                            var sample = Lerp(
+                                Lerp(source[(y0 * sourceWidth + x0) * 4 + channel], source[(y0 * sourceWidth + x1) * 4 + channel], tx),
+                                Lerp(source[(y1 * sourceWidth + x0) * 4 + channel], source[(y1 * sourceWidth + x1) * 4 + channel], tx),
+                                ty);
+                            pixels[i + channel] = (byte)Math.Min(255, Math.Max(0, (int)Math.Round(sample)));
+                        }
+                    }
+                }
+
+                return pixels;
+            }
+
+            static float Lerp(float a, float b, float t)
+            {
+                return a + (b - a) * t;
+            }
+
+            static int Clamp(int value, int size)
+            {
+                if (value < 0)
+                    return 0;
+                return value >= size ? size - 1 : value;
+            }
+
+            static byte[] Inflate(byte[] zlib)
+            {
+                if (zlib == null || zlib.Length < 6 || (zlib[0] & 0x0F) != 8 || (zlib[1] & 0x20) != 0)
+                    return null;
+                using (var input = new MemoryStream(zlib, 2, zlib.Length - 6))
+                using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
+                using (var output = new MemoryStream())
+                {
+                    deflate.CopyTo(output);
+                    return output.ToArray();
+                }
+            }
+
+            static int Paeth(int left, int up, int upperLeft)
+            {
+                var estimate = left + up - upperLeft;
+                var leftDistance = Math.Abs(estimate - left);
+                var upDistance = Math.Abs(estimate - up);
+                var diagonal = Math.Abs(estimate - upperLeft);
+                if (leftDistance <= upDistance && leftDistance <= diagonal)
+                    return left;
+                return upDistance <= diagonal ? up : upperLeft;
+            }
+
+            static int ReadInt(byte[] bytes, int offset)
+            {
+                return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+            }
         }
 
         sealed class JsonReader

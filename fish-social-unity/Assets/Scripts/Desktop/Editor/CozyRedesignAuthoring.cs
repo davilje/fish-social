@@ -733,22 +733,24 @@ namespace FishSocial.Desktop.Editor
         static void PondCard(GameObject root)
         {
             var node = root.transform;
-            Place(node, "", 0, 0, 1036, 196);
+            Place(node, "", 0, 0, 678, 156);
             var element = root.GetComponent<LayoutElement>() ?? root.AddComponent<LayoutElement>();
-            element.preferredHeight = element.minHeight = 196;
+            element.preferredHeight = element.minHeight = 156;
             element.flexibleWidth = 1;
-            Paper(node, "DesignPaper", 0, 0, 1036, 196).transform.SetAsFirstSibling();
+            var cardPaper = Paper(node, "DesignPaper", 0, 0, 678, 156);
+            cardPaper.raycastTarget = true;
+            cardPaper.transform.SetAsFirstSibling();
             Stretch(node.Find("DesignPaper") as RectTransform);
-            var backing = Paper(node, "DesignIconPaper", 16, 16, 156, 164);
+            var backing = Paper(node, "DesignIconPaper", 14, 14, 128, 128);
             backing.color = ArtBackingColor;
-            Picture(node, "PondIcon", CatTheme.LoadCozy("icons/pond.png", Vector4.zero), 50, 50, 88, 88);
+            Picture(node, "PondIcon", CatTheme.LoadCozy("icons/pond.png", Vector4.zero), 34, 34, 88, 88);
             backing.transform.SetSiblingIndex(node.Find("PondIcon").GetSiblingIndex());
-            Label(node, "Name", "", 196, 16, 540, 42, 28, true);
-            Label(node, "Description", "", 196, 66, 520, 56, 18);
-            Label(node, "Level", "", 196, 136, 250, 38, 17);
-            Label(node, "Fee", "", 458, 130, 280, 50, 17);
-            Label(node, "Access", "", 762, 24, 248, 74, 17);
-            ButtonAt(node, "FocusOnMap", "查看鱼塘", "map", 762, 126, 248, 48, true);
+            Label(node, "Name", "", 156, 12, 500, 36, 26, true);
+            Label(node, "Description", "", 156, 50, 500, 48, 17);
+            Label(node, "Level", "", 156, 108, 240, 32, 16);
+            Label(node, "Fee", "", 400, 104, 260, 40, 16);
+            Hide(node, "Access");
+            ButtonAt(node, "FocusOnMap", "选择", null, 520, 104, 140, 40);
         }
 
         static void Leaderboard(GameObject root)
@@ -952,25 +954,104 @@ namespace FishSocial.Desktop.Editor
             Common(root, "设置", "调整窗口、通知与服务器连接", "settings");
             Stretch((RectTransform)node);
             root.GetComponent<Image>().color = Color.white;
-            Hide(node, "Reflow_Title", "Reflow_PageSeal", "Reflow_Eyebrow", "SettingsHeader", "Reflow_InfoRail", "DesignSettingsRail");
-            Paper(node, "DesignSettingsCard", 24, 112, 1322, 496).transform.SetAsFirstSibling();
+            Hide(node, "Reflow_Title", "Reflow_PageSeal", "Reflow_Eyebrow", "SettingsHeader", "Reflow_InfoRail", "DesignSettingsCard",
+                "DesignSettingsRail/Heading", "DesignSettingsRail/Body");
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+                DesktopModalUi.StyleButton(button, null, false);
+
+            var rail = Paper(node, "DesignSettingsRail", 24, 112, 210, 496);
+            rail.gameObject.SetActive(true);
+            rail.transform.SetAsFirstSibling();
+            Place(node, "SettingsTabs", 34, 124, 190, 340);
+            var tabIcons = new[] { "settings", "bell", "home", "star" };
+            for (var index = 0; index < DesktopSettingsModalView.TabNames.Length; index++)
+            {
+                var tab = ButtonAt(node, "SettingsTabs/" + DesktopSettingsModalView.TabNames[index],
+                    DesktopSettingsModalView.TabTitles[index], tabIcons[index], 0, index * 88, 190, 76);
+                var tabState = new SerializedObject(tab.GetComponent<CozyButtonVisual>());
+                tabState.FindProperty("selected").boolValue = index == 0;
+                tabState.ApplyModifiedPropertiesWithoutUndo();
+            }
+            Label(node, "DesignSettingsNote", "当前窗口\n切换后立即保存", 44, 480, 170, 100, 17);
+
+            Label(node, "DesignSettingsHeading", DesktopSettingsModalView.TabTitles[0], 254, 116, 710, 34, 25, true);
+            var listPaper = Paper(node, "DesignSettingsListPaper", 254, 164, 710, 432);
+            listPaper.transform.SetSiblingIndex(rail.transform.GetSiblingIndex() + 1);
             if (viewport != null)
-                Place(node, "SettingsViewport", 48, 132, 1274, 452);
+                Place(node, "SettingsViewport", 254, 164, 710, 432);
             var content = node.Find("SettingsViewport/SettingsContent") as RectTransform;
             if (content != null)
             {
+                foreach (var group in content.GetComponents<LayoutGroup>()) group.enabled = false;
                 content.anchorMin = Vector2.up;
                 content.anchorMax = Vector2.up;
                 content.pivot = Vector2.up;
                 content.anchoredPosition = Vector2.zero;
-                content.sizeDelta = new Vector2(1274, 1080);
+                content.sizeDelta = new Vector2(710, 432);
                 var contentImage = content.GetComponent<Image>();
                 if (contentImage != null)
                     contentImage.color = Color.clear;
+                SettingsGroups(content);
             }
-            foreach (var button in root.GetComponentsInChildren<Button>(true))
-                DesktopModalUi.StyleButton(button, null, false);
-            Label(node, "DesignSettingsHint", "修改后按页面内的保存按钮应用设置。", 24, 614, 1322, 24, 15);
+
+            Paper(node, "DesignSettingsInfo", 984, 112, 362, 496);
+            Label(node, "DesignSettingsInfo/Heading", "设置说明", 24, 12, 314, 36, 25, true);
+            var info = Label(node, "DesignSettingsInfo/Body", "", 24, 60, 314, 410, 18);
+            info.alignment = TextAnchor.UpperLeft;
+            Label(node, "DesignSettingsHint", "窗口尺寸仅支持 1280×720 / 1600×900 / 1920×1080 / 2560×1440。", 254, 612, 1068, 26, 16);
+            node.Find("DesignHeader").SetAsLastSibling();
+        }
+
+        static void SettingsGroups(RectTransform content)
+        {
+            const float left = 24, full = 662, half = 325, right = 361;
+            var hidden = new[] { "Reflow_ServerCard", "Reflow_NotifyCard", "Reflow_WindowCard", "Reflow_TrayCard", "Reflow_UtilityCard", "Reflow_UtilityHeading" };
+            Hide(content, hidden);
+
+            var legacy = content.Find("普通窗口 1280×720");
+            if (legacy != null && content.Find("1280×720") == null)
+                legacy.name = "1280×720";
+            Label(content, "窗口模式", "窗口尺寸", left, 16, full, 30, 22, true);
+            ButtonAt(content, "1280×720", "1280×720", null, left, 56, half, 52);
+            ButtonAt(content, "1600×900", "1600×900", null, right, 56, half, 52);
+            ButtonAt(content, "1920×1080", "1920×1080", null, left, 118, half, 52);
+            ButtonAt(content, "2560×1440", "2560×1440", null, right, 118, half, 52);
+            Label(content, "DesignDisplayHeading", "显示方式", left, 190, full, 30, 22, true);
+            ButtonAt(content, "无边框", "无边框", null, left, 230, half, 52);
+            ButtonAt(content, "全屏", "全屏", null, right, 230, half, 52);
+            ButtonAt(content, "保存窗口设置", "保存窗口设置", "check", left, 306, full, 52, true);
+            Hide(content, "保存窗口设置");
+
+            Label(content, "通知", "提醒开关", left, 16, full, 30, 22, true);
+            var toggles = new[] { "启用通知", "免打扰", "鱼咬钩通知", "好友邀请通知", "连接错误通知" };
+            for (var index = 0; index < toggles.Length; index++)
+                Place(content, toggles[index], left, 60 + index * 52, full, 48);
+            ButtonAt(content, "模拟连接错误", "模拟连接错误", null, left, 340, half, 52);
+
+            Label(content, "服务器", "服务器地址", left, 16, full, 30, 22, true);
+            Place(content, "当前服务器", left, 56, full, 48);
+            Place(content, "服务器地址输入", left, 112, full, 52);
+            Place(content, "服务器地址输入/Placeholder", 16, 7, full - 32, 38);
+            Place(content, "服务器地址输入/Text", 16, 7, full - 32, 38);
+            ButtonAt(content, "保存服务器地址", "保存服务器地址", "check", left, 180, half, 52, true);
+            ButtonAt(content, "测试服务器连接", "测试服务器连接", null, right, 180, half, 52);
+            var status = Place(content, "服务器连接状态", left, 248, full, 96).GetComponent<Text>();
+            if (status != null) status.alignment = TextAnchor.UpperLeft;
+
+            Label(content, "托盘", "系统托盘", left, 16, full, 30, 22, true);
+            Place(content, "关闭窗口时隐藏到托盘", left, 60, full, 48);
+            ButtonAt(content, "立即隐藏到托盘", "立即隐藏到托盘", null, left, 124, half, 52);
+            ButtonAt(content, "重置新手引导", "重置新手引导", null, right, 124, half, 52);
+            ButtonAt(content, "退出游戏", "退出游戏", null, left, 200, half, 52);
+
+            for (var tab = 0; tab < DesktopSettingsModalView.TabNodes.Length; tab++)
+                foreach (var name in DesktopSettingsModalView.TabNodes[tab])
+                {
+                    var child = content.Find(name);
+                    if (child == null)
+                        throw new InvalidOperationException("PanelSettings is missing " + name);
+                    child.gameObject.SetActive(tab == 0);
+                }
         }
 
         static void PondSelection(GameObject root)
@@ -980,16 +1061,32 @@ namespace FishSocial.Desktop.Editor
             Hide(node, "PondSelectionHeader", "Reflow_RailHeading", "Reflow_RailBody", "Reflow_InfoRail", "Reflow_RailPaper");
             Paper(node, "DesignPondRail", 24, 112, 210, 496);
             Label(node, "DesignPondRail/Heading", "水域指南", 22, 22, 166, 36, 24, true);
-            Label(node, "DesignPondRail/Body", "每个鱼塘都有\n不同的鱼种与\n垂钓节奏。", 22, 86, 166, 140, 20);
+            Label(node, "DesignPondRail/Body", "点选一张卡片\n右侧查看鱼种、\n费用和等级", 22, 78, 166, 150, 18);
             Paper(node, "DesignPondRail/Tip", 18, 330, 174, 126);
-            Label(node, "DesignPondRail/Tip/Body", "准备好鱼竿，\n再出发。", 18, 18, 138, 86, 18, true);
+            Label(node, "DesignPondRail/Tip/Body", "橙色描边是\n当前选中的鱼塘", 18, 22, 138, 80, 18, true);
+            Paper(node, "DesignPondAside", 984, 112, 362, 496);
+            Label(node, "DesignPondAside/Heading", "鱼塘详情", 24, 12, 314, 36, 25, true);
+            var aside = Label(node, "DesignPondAside/Body", "点选左侧的鱼塘。", 24, 56, 314, 300, 18);
+            aside.alignment = TextAnchor.UpperLeft;
+            ButtonAt(node, "DesignPondAside/Locate", "在地图查看", "map", 24, 378, 314, 46);
+            ButtonAt(node, "DesignPondAside/Enter", "进入鱼塘", "pond", 24, 432, 314, 48, true);
             var scroll = node.Find("PondCardScroll") as RectTransform;
             if (scroll != null)
             {
-                Place(node, "PondCardScroll", 254, 112, 1092, 496);
+                Place(node, "PondCardScroll", 254, 112, 710, 496);
+                var scrollImage = scroll.GetComponent<Image>() ?? scroll.gameObject.AddComponent<Image>();
+                scrollImage.sprite = null;
+                scrollImage.color = Color.clear;
+                scrollImage.raycastTarget = true;
                 var viewport = node.Find("PondCardScroll/Viewport") as RectTransform;
                 if (viewport != null)
+                {
                     Stretch(viewport, 12);
+                    var viewportImage = viewport.GetComponent<Image>() ?? viewport.gameObject.AddComponent<Image>();
+                    viewportImage.sprite = null;
+                    viewportImage.color = Color.clear;
+                    viewportImage.raycastTarget = true;
+                }
                 var cards = node.Find("PondCardScroll/Viewport/Cards") as RectTransform;
                 if (cards != null)
                 {
@@ -1022,13 +1119,23 @@ namespace FishSocial.Desktop.Editor
         {
             var node = root.transform;
             Common(root, "探索世界", "在地图上发现新的鱼塘", "map");
-            Hide(node, "Reflow_RailHeading", "Reflow_RailBody", "Reflow_ModeCaption");
-            Paper(node, "DesignMapFrame", 24, 112, 900, 496).transform.SetAsFirstSibling();
+            Hide(node, "Reflow_RailHeading", "Reflow_RailBody", "Reflow_ModeCaption", "DesignDetailsPaper");
             Hide(node, "Details/Reflow_Heading", "Details/Reflow_ModeCaption", "Reflow_InfoRail");
+            Paper(node, "DesignMapFrame", 254, 164, 710, 432).transform.SetAsFirstSibling();
+            var rail = Paper(node, "DesignMapRail", 24, 112, 210, 496);
+            rail.transform.SetAsFirstSibling();
+            Label(node, "DesignMapRail/Heading", "地图指南", 22, 22, 166, 36, 24, true);
+            var legend = Label(node, "DesignMapRail/Body",
+                "<color=#F2BF47>■</color> 高级塘\n<color=#9E6BDB>■</color> 老手塘\n<color=#61B86B>■</color> 野外塘\n<color=#479EC7>■</color> 水库塘\n<color=#61666B>■</color> 未开放",
+                22, 72, 166, 200, 18);
+            legend.alignment = TextAnchor.UpperLeft;
+            Paper(node, "DesignMapRail/Tip", 18, 340, 174, 116);
+            Label(node, "DesignMapRail/Tip/Body", "拖动浏览\n滚轮缩放\n标记颜色与图例一致", 16, 12, 142, 92, 16, true);
+            Label(node, "DesignMapHeading", "世界地图", 254, 116, 710, 34, 25, true);
             var viewport = node.Find("Viewport") as RectTransform;
             if (viewport != null)
             {
-                Place(node, "Viewport", 34, 122, 880, 476);
+                Place(node, "Viewport", 262, 172, 694, 416);
                 var content = node.Find("Viewport/MapContent") as RectTransform;
                 if (content != null)
                 {
@@ -1051,16 +1158,19 @@ namespace FishSocial.Desktop.Editor
                     }
                 }
             }
-            Paper(node, "DesignDetailsPaper", 944, 112, 402, 496).transform.SetAsFirstSibling();
-            Place(node, "Details", 944, 112, 402, 496);
-            Label(node, "Details/DesignHeading", "鱼塘详情", 24, 18, 354, 36, 25, true);
-            Label(node, "Details/DesignHint", "点击地图上的鱼塘标记", 24, 62, 354, 30, 18);
-            Place(node, "Details/DetailsText", 24, 106, 354, 160);
-            Place(node, "Details/StatusText", 24, 274, 354, 48);
-            ButtonAt(node, "Details/ModeSell", "回鱼出售", "coin", 24, 338, 166, 46);
-            ButtonAt(node, "Details/ModeAuto", "自动回鱼", "pond", 202, 338, 166, 46);
-            ButtonAt(node, "Details/ResetView", "重置视图", "map", 24, 398, 166, 46);
-            ButtonAt(node, "Details/EnterPond", "进入鱼塘", "pond", 202, 398, 166, 46, true);
+            Place(node, "Details", 984, 112, 362, 496);
+            var details = node.Find("Details").GetComponent<Image>();
+            if (details != null) details.enabled = false;
+            Paper(node, "Details/DesignPaper", 0, 0, 362, 496).transform.SetAsFirstSibling();
+            Label(node, "Details/DesignHeading", "鱼塘详情", 24, 12, 314, 36, 25, true);
+            Label(node, "Details/DesignHint", "点击地图上的鱼塘标记", 24, 52, 314, 28, 17);
+            Place(node, "Details/DetailsText", 24, 88, 314, 168).GetComponent<Text>().alignment = TextAnchor.UpperLeft;
+            Place(node, "Details/StatusText", 24, 262, 314, 56).GetComponent<Text>().alignment = TextAnchor.UpperLeft;
+            ButtonAt(node, "Details/ModeSell", "回鱼出售", "coin", 24, 324, 151, 46);
+            ButtonAt(node, "Details/ModeAuto", "自动回鱼", "pond", 187, 324, 151, 46);
+            ButtonAt(node, "Details/ResetView", "重置视图", "map", 24, 378, 314, 46);
+            ButtonAt(node, "Details/EnterPond", "进入鱼塘", "pond", 24, 432, 314, 48, true);
+            node.Find("DesignHeader").SetAsLastSibling();
         }
 
         static void Gallery(GameObject root)
@@ -1371,7 +1481,7 @@ namespace FishSocial.Desktop.Editor
         static void Shell(GameObject root)
         {
             var node = root.transform;
-            foreach (var page in new[] { "Leaderboard", "Profile", "Achievements", "Friends", "CatchBag", "Equipment", "Shop", "SocialFeed", "Settings" })
+            foreach (var page in new[] { "Leaderboard", "Profile", "Achievements", "Friends", "CatchBag", "Equipment", "Shop", "SocialFeed", "Settings", "WorldMap", "PondSelection" })
                 Place(node, "MainRoot/Content/" + page, 160, 150, 1370, 650);
             foreach (var name in new[] { "Mail", "Settings" })
             {

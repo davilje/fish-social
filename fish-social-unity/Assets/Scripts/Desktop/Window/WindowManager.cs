@@ -18,8 +18,8 @@ namespace FishSocial.Desktop
 
         public const int LoginWidth = 480;
         public const int LoginHeight = 320;
-        public const int MainDefaultWidth = 1280;
-        public const int MainDefaultHeight = 720;
+        public const int MainDefaultWidth = WindowSettings.DefaultWidth;
+        public const int MainDefaultHeight = WindowSettings.DefaultHeight;
 
         float _saveTimer;
         bool _appliedOnce;
@@ -62,9 +62,10 @@ namespace FishSocial.Desktop
         public void ApplyLoginShell()
         {
             _loginShell = true;
+            Settings.ClampSize();
             NativeWindowUtil.TrySetWindowed(
-                LoginWidth,
-                LoginHeight,
+                Settings.Width,
+                Settings.Height,
                 true,
                 Settings.HasPosition ? Settings.PosX : 80,
                 Settings.HasPosition ? Settings.PosY : 80);
@@ -74,13 +75,22 @@ namespace FishSocial.Desktop
         public void ApplyMainShell()
         {
             _loginShell = false;
-            if (Settings.Width < 960 || Settings.Height < 540)
-            {
-                Settings.Width = MainDefaultWidth;
-                Settings.Height = MainDefaultHeight;
-            }
-
+            Settings.ClampSize();
             ApplySettings(persist: false);
+        }
+
+        public void ApplyWindowedPreset(int width, int height)
+        {
+            if (!WindowSettings.IsPreset(width, height))
+                return;
+
+            var modeChanged = Settings.Mode != WindowDisplayMode.Windowed;
+            Settings.Width = width;
+            Settings.Height = height;
+            Settings.Mode = WindowDisplayMode.Windowed;
+            ApplySettings(persist: true);
+            if (modeChanged)
+                ModeChanged?.Invoke(WindowDisplayMode.Windowed);
         }
 
         void Update()
@@ -211,8 +221,6 @@ namespace FishSocial.Desktop
             if (_loginShell || Screen.fullScreenMode != FullScreenMode.Windowed)
                 return;
 
-            Settings.Width = Mathf.Max(960, Screen.width);
-            Settings.Height = Mathf.Max(540, Screen.height);
             if (NativeWindowUtil.TryGetWindowPosition(out var x, out var y))
             {
                 Settings.PosX = x;

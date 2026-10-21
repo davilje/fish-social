@@ -84,18 +84,40 @@ namespace FishSocial.Desktop
 
         public static Sprite Product(int category, string id, string displayName)
         {
-            var name = (id ?? "") + " " + (displayName ?? "");
             if (category == 1)
-                return Get(name.Contains("竹") || name.Contains("bamboo") ? "rod-bamboo" :
-                    name.Contains("远") || name.Contains("long") ? "rod-long" :
-                    name.Contains("木") || name.Contains("wood") ? "rod-wood" : "rod-light");
-            if (category == 2)
-                return Get(name.Contains("木") || name.Contains("wood") ? "boat-wood" : "boat-blue");
-            return Get(name.Contains("虾") || name.Contains("shrimp") ? "bait-shrimp" :
-                name.Contains("麦") || name.Contains("wheat") ? "bait-wheat" :
-                name.Contains("甜") || name.Contains("berry") ? "bait-berry" :
-                name.Contains("混") || name.Contains("mix") ? "bait-mixed" :
-                name.Contains("粒") || name.Contains("pellet") ? "bait-pellet" : "bait-basic");
+                return Get(RodSprite(id));
+            if (category == 0)
+                return Get(BaitSprite(id));
+            var name = (id ?? "") + " " + (displayName ?? "");
+            return Get(name.Contains("木") || name.Contains("wood") ? "boat-wood" : "boat-blue");
+        }
+
+        static string BaitSprite(string id)
+        {
+            switch (id)
+            {
+                case "bait-basic": return "bait-basic";
+                case "bait-veg": return "bait-wheat";
+                case "bait-mix": return "bait-mixed";
+                case "bait-meat": return "bait-shrimp";
+                default: return null;
+            }
+        }
+
+        static string RodSprite(string id)
+        {
+            switch (id)
+            {
+                case "rod-bamboo": return "rod-bamboo";
+                case "rod-tai":
+                case "rod-stream": return "rod-light";
+                case "rod-iso":
+                case "rod-surf":
+                case "rod-giant": return "rod-long";
+                case "rod-lure":
+                case "rod-heavy": return "rod-wood";
+                default: return null;
+            }
         }
 
         public static void Set(Transform root, string path, Sprite sprite)

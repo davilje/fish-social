@@ -216,6 +216,21 @@ namespace FishSocial.Desktop
             }
         }
 
+        public static void PlaceTopLeft(RectTransform rect, float left, float top, float width, float height)
+        {
+            if (rect == null)
+                return;
+            var layout = rect.GetComponent<LayoutElement>();
+            if (layout != null)
+                layout.ignoreLayout = true;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(left, -top);
+            rect.sizeDelta = new Vector2(width, height);
+            rect.localScale = Vector3.one;
+        }
+
         public static void PlaceTopRight(Button button, float right, float top, float size)
         {
             if (button == null)

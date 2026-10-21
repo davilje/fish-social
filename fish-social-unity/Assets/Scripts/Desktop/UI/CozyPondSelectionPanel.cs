@@ -9,12 +9,18 @@ namespace FishSocial.Desktop
     public sealed class CozyPondSelectionPanel : MonoBehaviour
     {
         Action<string> _focusPond;
+        Action<string> _enterPond;
         RectTransform _cards;
         ScrollRect _scroll;
+        Text _asideBody;
+        Button _enter;
+        Button _locate;
+        string _selectedId;
 
-        public void Bind(Action<string> focusPond)
+        public void Bind(Action<string> focusPond, Action<string> enterPond)
         {
             _focusPond = focusPond;
+            _enterPond = enterPond;
             EnsureUi();
             BuildCards();
         }
@@ -37,7 +43,15 @@ namespace FishSocial.Desktop
                 _cards = null;
                 return;
             }
+            _asideBody = DesktopModalUi.FindComponent<Text>(transform, "DesignPondAside/Body");
+            _enter = DesktopModalUi.FindComponent<Button>(transform, "DesignPondAside/Enter");
+            _locate = DesktopModalUi.FindComponent<Button>(transform, "DesignPondAside/Locate");
+            if (_asideBody == null || _enter == null || _locate == null)
+                Debug.LogError("[DesktopUI] PanelPondSelection requires DesignPondAside/{Body,Enter,Locate}.", this);
+            EnableScrollHit(_scroll);
             DesktopModalUi.StyleTree(transform);
+            DesktopModalUi.BindButton(transform, "DesignPondAside/Enter", EnterSelected);
+            DesktopModalUi.BindButton(transform, "DesignPondAside/Locate", LocateSelected);
         }
 
         void BuildCards()
@@ -75,6 +89,9 @@ namespace FishSocial.Desktop
             _scroll.StopMovement();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_cards);
             _scroll.verticalNormalizedPosition = 1f;
+            if (string.IsNullOrEmpty(_selectedId) && visiblePonds.Length > 0 && visiblePonds[0] != null)
+                _selectedId = visiblePonds[0].pondId;
+            RefreshSelection();
         }
 
         void BuildCard(WorldMapPondView pond, DesktopGameData.PondDef definition)
@@ -102,13 +119,107 @@ namespace FishSocial.Desktop
             description.text = Describe(pond, definition);
             fee.text = FeeText(pond);
             level.text = pond.minPlayerLevel > 0 ? "需要钓鱼等级 " + pond.minPlayerLevel : "等级要求：无";
-            access.text = closed ? "暂未开放\n前往地图查看开放条件" : "前往地图查看开放条件";
-            icon.sprite = CatTheme.LoadCozy(closed ? "icons/lock.png" : "icons/pond.png", Vector4.zero);
-            action.interactable = _focusPond != null;
+            access.text = closed ? "暂未开放" : "可进入";
+            icon.sprite = CatTheme.LoadCozy(closed ? "icons/lock.png" : WaterIcon(definition), Vector4.zero);
             var pondId = pond.pondId;
             action.onClick.RemoveAllListeners();
-            action.onClick.AddListener(() => _focusPond?.Invoke(pondId));
+            action.onClick.AddListener(() => SelectPond(pondId));
             DesktopModalUi.StyleTree(card.transform);
+            var paper = card.transform.Find("DesignPaper")?.GetComponent<Image>();
+            if (paper != null)
+                paper.raycastTarget = true;
+            icon.color = DesktopGameData.CategoryColor(pond.pondCategory, closed);
+        }
+
+        static void EnableScrollHit(ScrollRect scroll)
+        {
+            if (scroll == null)
+                return;
+            var background = scroll.GetComponent<Image>() ?? scroll.gameObject.AddComponent<Image>();
+            background.color = Color.clear;
+            background.raycastTarget = true;
+            if (scroll.viewport == null)
+                return;
+            var viewportImage = scroll.viewport.GetComponent<Image>() ?? scroll.viewport.gameObject.AddComponent<Image>();
+            viewportImage.color = Color.clear;
+            viewportImage.raycastTarget = true;
+        }
+
+        void SelectPond(string pondId)
+        {
+            _selectedId = pondId;
+            RefreshSelection();
+        }
+
+        void RefreshSelection()
+        {
+            for (var i = 0; i < _cards.childCount; i++)
+            {
+                var card = _cards.GetChild(i);
+                var selected = card.name == "PondCard_" + _selectedId;
+                card.GetComponentInChildren<CozyButtonVisual>(true)?.SetSelected(selected);
+            }
+            WorldMapPondView pond = null;
+            var ponds = WorldMapPondCatalog.LoadVisible();
+            for (var i = 0; i < ponds.Length; i++)
+                if (ponds[i] != null && ponds[i].pondId == _selectedId)
+                    pond = ponds[i];
+            var closed = pond == null || !pond.isOpen || pond.pondCategory == "giant";
+            if (_asideBody != null)
+                _asideBody.text = pond == null ? "点选左侧的鱼塘。" : AsideText(pond);
+            if (_enter != null)
+            {
+                _enter.interactable = pond != null && !closed && _enterPond != null;
+                var label = _enter.GetComponentInChildren<Text>(true);
+                if (label != null)
+                    label.text = closed ? "暂不可进入" : "进入鱼塘";
+            }
+            if (_locate != null)
+                _locate.interactable = pond != null && _focusPond != null;
+        }
+
+        void EnterSelected()
+        {
+            if (!string.IsNullOrEmpty(_selectedId))
+                _enterPond?.Invoke(_selectedId);
+        }
+
+        void LocateSelected()
+        {
+            if (!string.IsNullOrEmpty(_selectedId))
+                _focusPond?.Invoke(_selectedId);
+        }
+
+        static string AsideText(WorldMapPondView pond)
+        {
+            DesktopGameData.PondDef definition = null;
+            var ponds = DesktopGameData.Ponds;
+            for (var i = 0; i < ponds.Length; i++)
+                if (ponds[i] != null && ponds[i].pondId == pond.pondId)
+                    definition = ponds[i];
+            var text = new StringBuilder();
+            text.Append(pond.displayName).Append('\n');
+            text.Append(DesktopGameData.CategoryLabel(pond.pondCategory));
+            if (definition != null && !string.IsNullOrEmpty(definition.waterType))
+                text.Append(" · ").Append(DesktopGameData.WaterLabel(definition.waterType));
+            if (!string.IsNullOrEmpty(pond.theme))
+                text.Append(" · ").Append(pond.theme);
+            text.Append("\n\n鱼种：").Append(DesktopGameData.PondSpeciesSummary(pond.pondId));
+            text.Append("\n\n").Append(FeeText(pond));
+            text.Append('\n').Append(pond.minPlayerLevel > 0 ? "需要钓鱼等级 " + pond.minPlayerLevel : "等级要求：无");
+            if (definition != null && !string.IsNullOrEmpty(definition.realWorldRef))
+                text.Append("\n位置：").Append(definition.realWorldRef);
+            return text.ToString();
+        }
+
+        static string WaterIcon(DesktopGameData.PondDef definition)
+        {
+            var water = definition != null ? definition.waterType : null;
+            if (water == "coastal" || water == "estuary")
+                return "icons/fish.png";
+            if (water == "river")
+                return "icons/map.png";
+            return "icons/pond.png";
         }
 
         static string Describe(WorldMapPondView pond, DesktopGameData.PondDef definition)
@@ -116,12 +227,12 @@ namespace FishSocial.Desktop
             var description = new StringBuilder(DesktopGameData.CategoryLabel(pond.pondCategory));
             if (definition != null)
             {
-                if (!string.IsNullOrEmpty(definition.bioRegion))
-                    description.Append(" · ").Append(definition.bioRegion);
                 if (!string.IsNullOrEmpty(definition.waterType))
-                    description.Append(" · ").Append(definition.waterType);
+                    description.Append(" · ").Append(DesktopGameData.WaterLabel(definition.waterType));
+                if (!string.IsNullOrEmpty(definition.bioRegion))
+                    description.Append("\n").Append(DesktopGameData.RegionLabel(definition.bioRegion));
                 if (!string.IsNullOrEmpty(definition.realWorldRef))
-                    description.Append("\n").Append(definition.realWorldRef);
+                    description.Append(" · ").Append(definition.realWorldRef);
             }
             else if (!string.IsNullOrEmpty(pond.theme))
                 description.Append(" · ").Append(pond.theme);

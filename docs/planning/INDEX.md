@@ -46,9 +46,9 @@
 | [禁止钓鱼塘巡警事件.md](./specs/禁止钓鱼塘巡警事件.md) | **已实现** | FEAT-RISK-01：巡警气泡 10s、免罚短禁/超时罚款日禁 |
 | [钓位点位线索文字泡.md](./specs/钓位点位线索文字泡.md) | **已实现** | FEAT-SPOT-01：坐席后聊天泡；表驱动随机；habitat/activity |
 | [钓位标签与线索库-v2.md](./specs/钓位标签与线索库-v2.md) | **已实现** | FEAT-SPOT-02：22 类标签；420 点位；标签过滤线索；体长 XP 0.85 |
-| [钓位标签地形微调.md](./specs/钓位标签地形微调.md) | **已确认** | FEAT-SPOT-03：pond_spot_tags 按 Tile 地形人工微调 |
+| [钓位标签地形微调.md](./specs/钓位标签地形微调.md) | **已实现** | FEAT-SPOT-03：pond_spot_tags 按 Tile 地形人工微调 |
 | [线索文案策划审校.md](./specs/线索文案策划审校.md) | **已确认** | FEAT-SPOT-04：spot_clue_texts 扩写；habitat/activity 禁区 |
-| [钓位鱼情联动线索.md](./specs/钓位鱼情联动线索.md) | **已确认** | FEAT-SPOT-05：钓位鱼情 tier → activitySignal 联动 |
+| [钓位鱼情联动线索.md](./specs/钓位鱼情联动线索.md) | **已实现** | FEAT-SPOT-05：钓位鱼情 tier → activitySignal 联动 |
 | [Steam桌面端-玩法Debug菜单.md](./specs/Steam桌面端-玩法Debug菜单.md) | **已实现** | STEAM-DESKTOP-12：开发版玩法 Debug 菜单（升级/出警/+2h 等） |
 | [回鱼机制.md](./specs/回鱼机制.md) | **已实现** | FEAT-RETURN-01：回塘增重、准入、金≈卖价×0.7 |
 | [双价塘与自动回鱼.md](./specs/双价塘与自动回鱼.md) | **已实现** | FEAT-RETURN-02：进塘双价；达标自动回鱼 |
@@ -65,8 +65,8 @@
 | [A2-Debug面板.md](./specs/A2-Debug面板.md) | **已确认** | P0：Admin 钓鱼概率（依赖 A0） |
 | [B0-商店基础.md](./specs/B0-商店基础.md) | **已确认** | P1：鱼饵/渔具商店 |
 | [B1-鱼饵偏好.md](./specs/B1-鱼饵偏好.md) | **已确认** | P1：饵 × diet 偏好 |
-| [C-调优与状态机.md](./specs/C-调优与状态机.md) | **已确认** | P2：调优/C6 状态机等按需 |
-| [状态机需求描述.md](./specs/状态机需求描述.md) | 已定稿 | C6 引用，A/B 期不实施 |
+| [C-调优与状态机.md](./specs/C-调优与状态机.md) | **已废弃** | FEAT-05：2026-10-21 整包不再排期 |
+| [状态机需求描述.md](./specs/状态机需求描述.md) | **已废弃** | FEAT-06：2026-10-21 不再作为交付物 |
 | [钓鱼系统v2-生态与玩法重构.md](./specs/钓鱼系统v2-生态与玩法重构.md) | superseded | 已拆为 A0~C 子文档 |
 | [他人主页优化.md](./specs/他人主页优化.md) | 已确认（待验收） | 他人资料展示简介/收藏品/动态 |
 | [BUG修复-资料与鱼塘UI.md](./specs/BUG修复-资料与鱼塘UI.md) | **已实现** | 弹窗闪屏、首页头像、编辑按钮、鱼塘侧栏合并 |
@@ -77,7 +77,7 @@
 | [BUG修复-进塘与钓鱼剩余展示回归.md](./specs/BUG修复-进塘与钓鱼剩余展示回归.md) | **已实现** | BUG-20：钓鱼中剩余走动；未选钓点防满额 8h |
 | [Steam桌面Overlay场景布局管线.md](./specs/Steam桌面Overlay场景布局管线.md) | **已实现** | STEAM-DESKTOP-ART-02：Unity Canvas Prefab → Overlay 像素布局（塘内场景，不含 HUD） |
 | [Steam桌面Overlay分塘底图与HUD同步.md](./specs/Steam桌面Overlay分塘底图与HUD同步.md) | **已实现** | STEAM-DESKTOP-ART-03：分塘底图、猫咪六姿势序列帧、Unity HUD Prefab 同步 Overlay |
-| [橘猫钓鱼动画接入Overlay.md](./specs/橘猫钓鱼动画接入Overlay.md) | **已确认** | STEAM-DESKTOP-ART-04：Overlay 七层同帧叠加；不改钓鱼权威 |
+| [橘猫钓鱼动画接入Overlay.md](./specs/橘猫钓鱼动画接入Overlay.md) | **已实现** | STEAM-DESKTOP-ART-04：Overlay 七层同帧叠加；不改钓鱼权威 |
 | [Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md](./specs/Steam桌面端-13OverlayHUD聊天栏与预制体对齐.md) | **已实现** | STEAM-DESKTOP-13：聊天栏收口、Prefab 对齐 |
 | [Steam桌面端-13AOverlay场景边缘半透明渐隐.md](./specs/Steam桌面端-13AOverlay场景边缘半透明渐隐.md) | **已实现** | STEAM-DESKTOP-13A：场景四边 40px 渐隐 |
 | [Steam桌面端-13BOverlay宠物标签右键与登录窗.md](./specs/Steam桌面端-13BOverlay宠物标签右键与登录窗.md) | **已实现** | STEAM-DESKTOP-13B：徽章/右键/登录窗 |
@@ -93,13 +93,15 @@
 | [BUG修复-Overlay形象进游戏不恢复.md](./specs/BUG修复-Overlay形象进游戏不恢复.md) | **已实现** | BUG-24：冷启动 Overlay 恢复已保存形象 |
 | [BUG修复-Overlay打窝按钮剩余口数.md](./specs/BUG修复-Overlay打窝按钮剩余口数.md) | **已实现** | BUG-25：打窝按钮去掉剩余口数后缀 |
 | [BUG修复-Overlay悬停与右键菜单指针命中.md](./specs/BUG修复-Overlay悬停与右键菜单指针命中.md) | **已实现** | BUG-26：命中链 + 菜单后悬停用自有开关恢复 |
-| [BUG修复-Cozy桌面页还原.md](./specs/BUG修复-Cozy桌面页还原.md) | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 未做 |
+| [BUG修复-Cozy桌面页还原.md](./specs/BUG修复-Cozy桌面页还原.md) | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 改为功能·待开发 |
 | [BUG修复-OverlayHUD布局与交互.md](./specs/BUG修复-OverlayHUD布局与交互.md) | **分项已实现** | BUG-48～53 Overlay HUD / 延迟过渡 |
 | [BUG修复-Unity自己钓鱼表现权威.md](./specs/BUG修复-Unity自己钓鱼表现权威.md) | **已实现** | BUG-54：自己钓鱼 Unity 表现权威，Overlay 变瘦 |
 | [BUG修复-默认头像目录与运行白名单不一致.md](./specs/BUG修复-默认头像目录与运行白名单不一致.md) | **已实现** | BUG-55：资料编辑新猫头像被过期 dist 拒绝 |
 | [BUG修复-Overlay阶段切换卡帧与收杆重播.md](./specs/BUG修复-Overlay阶段切换卡帧与收杆重播.md) | **已实现** | BUG-56：换阶段主线程卡 2～6 秒；收杆后再点重播 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./specs/Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | **已实现** | STEAM-DESKTOP-18：浮窗条数 + actor-hint |
 | [Steam桌面端-19咬钩结算弹窗.md](./specs/Steam桌面端-19咬钩结算弹窗.md) | **已实现** | STEAM-DESKTOP-19：咬钩结束弹窗；取消领取；分档入包/回鱼 |
+| [Steam桌面端-20主窗口固定分辨率.md](./specs/Steam桌面端-20主窗口固定分辨率.md) | **已确认** | STEAM-DESKTOP-20：默认 1920×1080；设置只切四档固定分辨率 |
+| [BUG修复-桌面设置世界首页与装备图.md](./specs/BUG修复-桌面设置世界首页与装备图.md) | **已确认** | BUG-57：设置重叠、世界/鱼塘页尺寸、首页全身猫、装备图按 id |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./specs/Steam桌面端-14EOverlay头顶状态图标与进度环.md) | **已实现** | STEAM-DESKTOP-14E：头顶 icon/环，修订 14D |
 | [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
 | [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已实现** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |

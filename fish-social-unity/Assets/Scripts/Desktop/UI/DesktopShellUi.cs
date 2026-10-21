@@ -183,7 +183,9 @@ namespace FishSocial.Desktop
             if (_scaler != null)
             {
                 _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                _scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
+                _scaler.referenceResolution = new Vector2(
+                    WindowSettings.DefaultWidth, WindowSettings.DefaultHeight);
+                _scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
                 _scaler.matchWidthOrHeight = 0.5f;
             }
             return instance;
@@ -723,6 +725,7 @@ namespace FishSocial.Desktop
                 if (renderer != null)
                 {
                     _homeRenderer = renderer;
+                    renderer.DecodeWhenUncached = true;
                     renderer.Bind(hero);
                     renderer.Apply(PetVisualState.Fishing);
                     renderer.PlayClip(PetArtLoader.CurrentOwnPetId(), "fishing");
@@ -1060,6 +1063,14 @@ namespace FishSocial.Desktop
                 }
                 ShowMainPanel(ShellPanelId.WorldMap);
                 _worldMapPanel?.FocusPond(pondId);
+            }, pondId =>
+            {
+                if (_onboardingLock)
+                {
+                    SetStatusMessage("请先完成新手引导。");
+                    return;
+                }
+                _worldMapPanel?.EnterPond(pondId);
             });
         }
 

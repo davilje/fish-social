@@ -54,6 +54,17 @@ namespace FishSocial.Desktop
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
         [DllImport("user32.dll")]
+        static extern bool AdjustWindowRect(ref RECT lpRect, int dwStyle, bool bMenu);
+
+        [DllImport("user32.dll")]
+        static extern bool AdjustWindowRectExForDpi(ref RECT lpRect, int dwStyle, bool bMenu, uint dwExStyle, uint dpi);
+
+        [DllImport("user32.dll")]
+        static extern uint GetDpiForWindow(IntPtr hwnd);
+
+        const int GWL_EXSTYLE = -20;
+
+        [DllImport("user32.dll")]
         static extern IntPtr GetActiveWindow();
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -193,7 +204,7 @@ namespace FishSocial.Desktop
             {
                 if (!_hasWindowedStyle)
                 {
-                    _windowedStyle = GetWindowLong(hwnd, GWL_STYLE);
+                    _windowedStyle = FixedWindowStyle(GetWindowLong(hwnd, GWL_STYLE));
                     _hasWindowedStyle = true;
                 }
 
@@ -211,8 +222,10 @@ namespace FishSocial.Desktop
                 return true;
             }
 
-            var style = _hasWindowedStyle ? _windowedStyle :
-                WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+            var style = FixedWindowStyle(_hasWindowedStyle ? _windowedStyle :
+                WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU);
+            _windowedStyle = style;
+            _hasWindowedStyle = true;
             SetWindowLong(hwnd, GWL_STYLE, style);
             return SetWindowPos(hwnd, IntPtr.Zero, 0, 0, 0, 0,
                 SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
@@ -224,12 +237,52 @@ namespace FishSocial.Desktop
             if (hwnd == IntPtr.Zero)
                 return false;
 
-            var style = _hasWindowedStyle ? _windowedStyle :
-                WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+            var style = FixedWindowStyle(_hasWindowedStyle ? _windowedStyle :
+                WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU);
+            _windowedStyle = style;
+            _hasWindowedStyle = true;
             SetWindowLong(hwnd, GWL_STYLE, style);
+            ClientToOuter(hwnd, style, width, height, out var outerWidth, out var outerHeight);
             var flags = SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW;
             return SetWindowPos(hwnd, IntPtr.Zero, hasPosition ? x : 0, hasPosition ? y : 0,
-                Mathf.Max(1, width), Mathf.Max(1, height), flags);
+                outerWidth, outerHeight, flags);
+        }
+
+        static int FixedWindowStyle(int style)
+        {
+            style |= WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+            style &= ~WS_THICKFRAME;
+            style &= ~WS_MAXIMIZEBOX;
+            style &= ~WS_POPUP;
+            return style;
+        }
+
+        static void ClientToOuter(IntPtr hwnd, int style, int clientWidth, int clientHeight, out int outerWidth, out int outerHeight)
+        {
+            var rect = new RECT
+            {
+                Right = Mathf.Max(1, clientWidth),
+                Bottom = Mathf.Max(1, clientHeight),
+            };
+            var adjusted = false;
+            try
+            {
+                var dpi = GetDpiForWindow(hwnd);
+                if (dpi > 0)
+                {
+                    var exStyle = (uint)GetWindowLong(hwnd, GWL_EXSTYLE);
+                    adjusted = AdjustWindowRectExForDpi(ref rect, style, false, exStyle, dpi);
+                }
+            }
+            catch (System.EntryPointNotFoundException)
+            {
+                adjusted = false;
+            }
+
+            if (!adjusted)
+                adjusted = AdjustWindowRect(ref rect, style, false);
+            outerWidth = adjusted ? rect.Right - rect.Left : Mathf.Max(1, clientWidth);
+            outerHeight = adjusted ? rect.Bottom - rect.Top : Mathf.Max(1, clientHeight);
         }
 #else
         public static bool TryShowWindow(bool visible) => true;

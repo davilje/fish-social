@@ -424,7 +424,7 @@ namespace FishSocial.Desktop
                     if (_equipmentMode && !unlocked)
                         continue;
                     var cost = BaitCost(_baits[i]);
-                    CreateCard(i, _baits[i].name, "icons/leaf.png",
+                    CreateCard(i, _baits[i].id, _baits[i].name, "icons/leaf.png",
                         unlocked
                             ? (_equipmentMode && IsEquippedBait(_baits[i].id) ? "使用中 · " : "已解锁 · ") +
                               (cost <= 0 ? "无限 · 不扣金" : "每次 " + cost + " 金")
@@ -441,7 +441,7 @@ namespace FishSocial.Desktop
                         continue;
                     var subType = RodSubType(_tackles[i]);
                     var price = RodPrice(_tackles[i]);
-                    CreateCard(i, _tackles[i].name, "icons/rod.png",
+                    CreateCard(i, _tackles[i].id, _tackles[i].name, "icons/rod.png",
                         owned
                             ? (IsEquippedRod(_tackles[i].id) ? "使用中 · " + subType : "已拥有 · " + subType)
                             : (price <= 0 ? "新手赠送" : "未拥有 · " + price + " 金"));
@@ -453,7 +453,7 @@ namespace FishSocial.Desktop
                 for (var i = 0; i < _vessels.Length; i++)
                 {
                     var owned = Contains(_gear.ownedVessels, _vessels[i].vesselId);
-                    CreateCard(i, _vessels[i].name, "icons/pond.png",
+                    CreateCard(i, _vessels[i].vesselId, _vessels[i].name, "icons/pond.png",
                         owned ? "已拥有 · 暂不可用" :
                         "等级 " + _vessels[i].unlockPlayerLevel + " · " + _vessels[i].priceGold + " 金");
                     visibleCount++;
@@ -742,13 +742,13 @@ namespace FishSocial.Desktop
                 visual.SetSelected(active);
         }
 
-        void CreateCard(int index, string name, string iconPath, string meta)
+        void CreateCard(int index, string itemId, string name, string iconPath, string meta)
         {
             var card = DesktopUiPrefabFactory.Instantiate("ShopItemCard", _content);
             if (card == null)
                 return;
             card.name = "Item_" + index;
-            CozyItemArt.Set(card.transform, "DesignItemArt", CozyItemArt.Product(_tab, null, name));
+            CozyItemArt.Set(card.transform, "DesignItemArt", CozyItemArt.Product(_tab, itemId, name));
             var label = DesktopModalUi.FindComponent<Text>(card.transform, "Label");
             var metadata = DesktopModalUi.FindComponent<Text>(card.transform, "Meta");
             var icon = DesktopModalUi.FindComponent<Image>(card.transform, "Icon");
