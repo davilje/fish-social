@@ -28,6 +28,9 @@ namespace FishSocial.Desktop
         string _selectedPlayerId;
         Coroutine _playerRoutine;
         int _playerGeneration;
+        CozyJournalPageMotion _pageMotion;
+        Coroutine _boardTransition;
+        readonly Dictionary<GameObject, string> _cardPlayers = new Dictionary<GameObject, string>();
         Text _status;
         Text _myRank;
         Button _dailyTab;
@@ -85,6 +88,9 @@ namespace FishSocial.Desktop
 
         public void OnClosed()
         {
+            if (_boardTransition != null) StopCoroutine(_boardTransition);
+            _boardTransition = null;
+            _pageMotion?.Finish();
             CancelLoads();
             ClearSelectedPlayer();
             StopPrefetch();
@@ -141,6 +147,7 @@ namespace FishSocial.Desktop
                 return;
 
             _uiReady = true;
+            _pageMotion = GetComponent<CozyJournalPageMotion>();
             RestyleUi();
 
             BindTab(_dailyTab, BoardDaily);
@@ -342,6 +349,7 @@ namespace FishSocial.Desktop
 
         void RestyleTabs()
         {
+            CozyItemArt.Text(transform, "JournalBoardHeading", _boardType == BoardWeekly ? "每周钓王" : _boardType == BoardPond ? "当前鱼塘" : _boardType == BoardRare ? "稀有鱼获" : "今日大鱼");
             StyleAction(_dailyTab, "fish", "今日大鱼");
             StyleAction(_weeklyTab, "trophy", "每周钓王");
             StyleAction(_pondTab, "pond", "当前鱼塘");
@@ -476,13 +484,26 @@ namespace FishSocial.Desktop
 
         void SelectBoard(string boardType)
         {
-            if (_boardType == boardType && _loadRoutine == null)
-                return;
+            if (_boardType == boardType) return;
+            CancelLoads();
+            if (_boardTransition != null) StopCoroutine(_boardTransition);
             _boardType = boardType;
-            ClearSelectedPlayer();
             RestyleTabs();
+            _boardTransition = StartCoroutine(SwitchBoardRoutine(boardType));
+        }
+
+        IEnumerator SwitchBoardRoutine(string boardType)
+        {
+            if (_pageMotion != null) yield return _pageMotion.Exit();
+            if (_boardType != boardType) yield break;
+            ClearSelectedPlayer();
+            HideAllRows();
+            RenderPodium(null, null, null, boardType);
+            // Keep the real network loading/error status visible while waiting for new data.
+            _pageMotion?.Finish();
             RefreshNow();
             StartPrefetchOthers(boardType);
+            _boardTransition = null;
         }
 
         void RefreshNow()
@@ -904,17 +925,14 @@ namespace FishSocial.Desktop
                 yield break;
             if (myRank != null)
                 SetMyRank(myRank, boardType);
+            SyncPlayerSelection();
+            _pageMotion?.PlayEntrance(entries.Length + 3);
         }
 
         IEnumerator BindRows(
             LeaderboardEntryDto[] entries, string boardType, int generation)
         {
-            var needed = 0;
-            for (var i = 0; i < entries.Length; i++)
-            {
-                if (entries[i].rank >= 4)
-                    needed++;
-            }
+            var needed = entries.Length;
 
             var bound = 0;
             var sourceIndex = 0;
@@ -926,8 +944,6 @@ namespace FishSocial.Desktop
                 var batchEnd = Mathf.Min(bound + RowsPerFrame, needed);
                 while (bound < batchEnd)
                 {
-                    while (sourceIndex < entries.Length && entries[sourceIndex].rank < 4)
-                        sourceIndex++;
                     if (sourceIndex >= entries.Length)
                         break;
 
@@ -982,7 +998,8 @@ namespace FishSocial.Desktop
         {
             if (row == null || entry == null)
                 return;
-            SetChildText(row, "Rank", "#" + entry.rank);
+            _cardPlayers[row] = entry.playerId;
+            SetChildText(row, "Rank", row.transform.Find("JournalDetailParity") != null ? entry.rank.ToString("00") : "#" + entry.rank);
             SetChildText(row, "Nickname", entry.nickname ?? "钓友");
             SetChildText(row, "Value", FormatValue(entry, boardType));
             var button = row.GetComponent<Button>();
@@ -993,6 +1010,9 @@ namespace FishSocial.Desktop
                 button.interactable = !string.IsNullOrEmpty(entry.playerId);
                 button.GetComponent<CozyButtonVisual>()?.SetSelected(entry.playerId == _selectedPlayerId);
             }
+            var sticker = CozyStickerMotion.Bind(row, "rank:" + boardType + ":" + entry.playerId, row.transform.GetSiblingIndex() + 2,
+                _scroll != null ? _scroll.viewport : null, entry.playerId, 0);
+            if (!Application.isPlaying) sticker.ApplyFinalPose();
         }
 
         void HideAllRows()
@@ -1006,7 +1026,7 @@ namespace FishSocial.Desktop
 
         static LeaderboardEntryDto FindRank(LeaderboardEntryDto[] entries, int rank)
         {
-            for (var i = 0; i < entries.Length; i++)
+            for (var i = 0; entries != null && i < entries.Length; i++)
             {
                 if (entries[i] != null && entries[i].rank == rank)
                     return entries[i];
@@ -1033,6 +1053,7 @@ namespace FishSocial.Desktop
             if (slot.nickname == null || slot.value == null)
                 return;
             var button = slot.root != null ? slot.root.GetComponent<Button>() : null;
+            if (slot.root != null) _cardPlayers[slot.root] = entry != null ? entry.playerId : null;
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
@@ -1051,6 +1072,12 @@ namespace FishSocial.Desktop
                 return;
             }
 
+            var staticPose = slot.root.GetComponent<CozyJournalStaticPose>();
+            if (staticPose != null) staticPose.enabled = false;
+            var order = entry.rank == 2 ? 0 : entry.rank == 1 ? 1 : 2;
+            var sticker = CozyStickerMotion.Bind(slot.root, "podium:" + boardType + ":" + entry.playerId, order,
+                _scroll != null ? _scroll.viewport : null, entry.playerId);
+            if (!Application.isPlaying) sticker.ApplyFinalPose();
             slot.nickname.text = entry.nickname ?? "钓友";
             slot.value.text = FormatValue(entry, boardType);
             if (slot.avatar != null)
@@ -1075,12 +1102,17 @@ namespace FishSocial.Desktop
             if (open != null) open.interactable = false;
         }
 
-        void SelectPlayer(LeaderboardEntryDto entry, string boardType)
+        public void SelectPlayer(LeaderboardEntryDto entry, string boardType = null)
         {
             if (entry == null || string.IsNullOrEmpty(entry.playerId)) return;
+            boardType = boardType ?? _boardType;
             _playerGeneration++;
             if (_playerRoutine != null) StopCoroutine(_playerRoutine);
             _selectedPlayerId = entry.playerId;
+            SyncPlayerSelection();
+            foreach(var pair in _cardPlayers)
+                if(pair.Key!=null && pair.Value==entry.playerId) pair.Key.GetComponent<CozyStickerMotion>()?.ReplayTape();
+            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal();
             CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? "钓友");
             CozyItemArt.Text(transform, "DesignPlayerCard/Value", "第 " + entry.rank + " 名 · " + FormatValue(entry, boardType));
             CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "正在加载资料…");
@@ -1096,6 +1128,43 @@ namespace FishSocial.Desktop
             if (_api != null && _api.CanUse)
                 _playerRoutine = StartCoroutine(LoadPlayer(entry.playerId, _playerGeneration));
             else CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "登录后可查看钓友资料。");
+        }
+
+        /// <summary>Bind a complete real-shaped snapshot through the same card handlers as network loads; useful for deterministic Editor rendering.</summary>
+        public void PresentRows(LeaderboardEntryDto[] entries, string boardType = "daily_biggest")
+        {
+            EnsureUi();
+            if (!_uiReady) return;
+            _boardType = boardType;
+            RestyleTabs();
+            ClearSelectedPlayer();
+            entries = entries ?? new LeaderboardEntryDto[0];
+            RenderPodium(FindRank(entries, 1), FindRank(entries, 2), FindRank(entries, 3), boardType);
+            for (var i = 0; i < entries.Length; i++)
+            {
+                EnsureRowSlot(i);
+                _rowPool[i].SetActive(true);
+                BindRow(_rowPool[i], entries[i], boardType);
+            }
+            for (var i = entries.Length; i < _rowPool.Count; i++) _rowPool[i]?.SetActive(false);
+            SyncPlayerSelection();
+            foreach (var motion in GetComponentsInChildren<CozyStickerMotion>(true)) motion.ApplyFinalPose();
+            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.ApplyFinalPose();
+            _pageMotion?.Finish();
+        }
+
+        /// <summary>Advance a newly triggered selection by the requested seconds. Use a fresh snapshot/selection for each absolute capture.</summary>
+        public void SampleMotion(float seconds)
+        {
+            foreach (var motion in GetComponentsInChildren<CozyStickerMotion>(true)) motion.Advance(Mathf.Max(float.Epsilon, seconds));
+            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.SampleReveal(seconds);
+        }
+
+        void SyncPlayerSelection()
+        {
+            foreach (var pair in _cardPlayers)
+                if (pair.Key != null)
+                    pair.Key.GetComponent<CozyButtonVisual>()?.SetSelected(!string.IsNullOrEmpty(_selectedPlayerId) && pair.Value == _selectedPlayerId);
         }
 
         IEnumerator LoadPlayer(string playerId, int generation)
@@ -1173,7 +1242,7 @@ namespace FishSocial.Desktop
 
         PodiumSlot ResolvePodium(string path)
         {
-            var root = transform.Find(path);
+            var root = transform.Find(path) ?? transform.Find("Scroll/Viewport/Content/" + path);
             if (root == null)
                 return default;
             return new PodiumSlot
@@ -1187,7 +1256,7 @@ namespace FishSocial.Desktop
 
         T Find<T>(string path) where T : Component
         {
-            var node = transform.Find(path);
+            var node = transform.Find(path) ?? (path.StartsWith("Podium") ? transform.Find("Scroll/Viewport/Content/" + path) : null);
             return node != null ? node.GetComponent<T>() : null;
         }
 

@@ -51,6 +51,12 @@ namespace FishSocial.Desktop
                 transform, "连接错误通知");
 
             EnsureResolutionButtons();
+            DesktopModalUi.BindDescendantButton(transform, "JournalWindowed", () =>
+            {
+                WindowManager.Instance?.SetMode(WindowDisplayMode.Windowed);
+                RefreshWindowSelection();
+                RefreshTabInfo();
+            });
             DesktopModalUi.BindDescendantButton(transform, "无边框", () =>
             {
                 WindowManager.Instance?.SetMode(WindowDisplayMode.Borderless);
@@ -160,7 +166,7 @@ namespace FishSocial.Desktop
             for (var i = 0; i < TabNames.Length; i++)
             {
                 var index = i;
-                if (!DesktopModalUi.BindButton(transform, "SettingsTabs/" + TabNames[i], () => ShowTab(index)))
+                if (!DesktopModalUi.BindButton(transform, "SettingsTabs/" + TabNames[i], () => ChangeTab(index)))
                     Debug.LogError("[DesktopUI] PanelSettings requires Button: SettingsTabs/" + TabNames[i], this);
             }
             if (!Debug.isDebugBuild)
@@ -185,6 +191,8 @@ namespace FishSocial.Desktop
                     window.Width == preset.Width && window.Height == preset.Height;
                 DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, preset.Label)?.SetSelected(selected);
             }
+            DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, "JournalWindowed")
+                ?.SetSelected(window != null && window.Mode == WindowDisplayMode.Windowed);
             DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, "无边框")
                 ?.SetSelected(window != null && window.Mode == WindowDisplayMode.Borderless);
             DesktopModalUi.FindDescendantComponent<CozyButtonVisual>(transform, "全屏")
@@ -196,6 +204,24 @@ namespace FishSocial.Desktop
                 : window.Mode == WindowDisplayMode.Borderless ? "无边框"
                 : window.Width + "×" + window.Height;
             note.text = "当前 " + current + "\n切换后立即保存";
+        }
+
+        Coroutine _tabMotion;
+        void ChangeTab(int tab)
+        {
+            if(tab==_tab) return;
+            if(_tabMotion!=null) StopCoroutine(_tabMotion);
+            for(var i=0;i<TabNames.Length;i++)
+                DesktopModalUi.FindComponent<CozyButtonVisual>(transform,"SettingsTabs/"+TabNames[i])?.SetSelected(i==tab);
+            _tabMotion=StartCoroutine(ChangeTabRoutine(tab));
+        }
+        IEnumerator ChangeTabRoutine(int tab)
+        {
+            var motion=GetComponent<CozyJournalPageMotion>();
+            if(motion!=null) yield return motion.Exit();
+            ShowTab(tab);
+            motion?.PlayEntrance(0);
+            _tabMotion=null;
         }
 
         void ShowTab(int tab)
@@ -212,13 +238,25 @@ namespace FishSocial.Desktop
                 DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "SettingsTabs/" + TabNames[i])
                     ?.SetSelected(i == _tab);
             if (_tabHeading != null)
-                _tabHeading.text = TabTitles[_tab];
+                _tabHeading.text = transform.Find("JournalDetailParity") != null
+                    ? new[] { "窗口尺寸", "提醒开关", "服务器地址", "系统托盘" }[_tab] : TabTitles[_tab];
             var hint = DesktopModalUi.FindDescendant(transform, "DesignSettingsHint");
             if (hint != null)
                 hint.gameObject.SetActive(_tab == 0);
             var simulate = DesktopModalUi.FindDescendant(transform, "模拟连接错误");
             if (simulate != null && !Debug.isDebugBuild)
                 simulate.gameObject.SetActive(false);
+            if (transform.Find("JournalDetailParity") != null)
+            {
+                foreach (var name in new[] { "JournalWindowed", "JournalDisplayTrack" })
+                {
+                    var node = DesktopModalUi.FindDescendant(transform, name);
+                    if (node != null) node.gameObject.SetActive(_tab == 0);
+                }
+                var content = transform.Find("SettingsViewport/SettingsContent") as RectTransform;
+                if (content != null) content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _tab == 1 && Debug.isDebugBuild ? 480 : 440);
+                var scroll = GetComponent<ScrollRect>(); if (scroll != null) scroll.verticalNormalizedPosition = 1;
+            }
             SyncServerPlaceholder();
             RefreshWindowSelection();
             RefreshTabInfo();
@@ -453,9 +491,11 @@ namespace FishSocial.Desktop
                 {
                     text.text = label;
                     text.alignment = TextAnchor.MiddleCenter;
-                    text.resizeTextForBestFit = true;
+                    var journal = transform.Find("JournalDetailParity") != null;
+                    text.resizeTextForBestFit = !journal;
+                    if (journal) text.fontSize = 23;
                     text.resizeTextMinSize = 12;
-                    text.resizeTextMaxSize = 18;
+                    text.resizeTextMaxSize = journal ? 23 : 18;
                 }
 
                 var width = preset.Width;

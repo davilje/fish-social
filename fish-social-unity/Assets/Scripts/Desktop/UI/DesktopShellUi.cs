@@ -366,8 +366,7 @@ namespace FishSocial.Desktop
                     selected = pair.Value.transform as RectTransform;
             }
             var nav = _mainRoot != null ? _mainRoot.transform.Find("Nav") : null;
-            if (selected != null)
-                CozyMotion.MoveBobber(nav, selected);
+            CozyMotion.MoveBobber(nav, id == ShellPanelId.Home ? null : selected);
         }
 
         void EnterMainShell()
@@ -484,6 +483,12 @@ namespace FishSocial.Desktop
         void OnPanelChanged(ShellPanelId id)
         {
             HighlightTab(id);
+            if (_mainRoot != null)
+            {
+                var character = _mainRoot.GetComponentInChildren<CozyCornerCharacter>(true);
+                character?.SetPageOpen(id != ShellPanelId.Home);
+                character?.NotifyActivity();
+            }
             var header = _mainRoot != null ? _mainRoot.transform.Find("Header") : null;
             var page = _mainRoot != null && _mainRoot.transform.Find("Content") != null
                 ? _mainRoot.transform.Find("Content/" + id)
@@ -680,15 +685,13 @@ namespace FishSocial.Desktop
                 _homeRenderer.PlayClip(skin, "fishing");
         }
 
-        void ShowToast(string msg)
+        void ShowToast(string msg, bool error = false)
         {
-            if (_toast == null)
-                return;
-            _toast.text = msg;
-            var toast = _toastRoot != null ? _toastRoot : _toast.gameObject;
-            toast.SetActive(true);
-            CozyMotion.SlideToast(toast.transform as RectTransform);
-            _toastUntil = Time.unscaledTime + 2.5f;
+            if (string.IsNullOrEmpty(msg)) return;
+            if (_toastRoot != null) _toastRoot.SetActive(false);
+            else if (_toast != null) _toast.gameObject.SetActive(false);
+            var host = _mainRoot != null && _mainRoot.activeInHierarchy ? _mainRoot.transform : transform;
+            CozyJournalToast.Show(host, msg, error);
         }
 
         void RegisterPanel(Transform parent, ShellPanelId id, System.Action<GameObject> bind)
@@ -1006,9 +1009,10 @@ namespace FishSocial.Desktop
             {
                 var detail = DesktopFishCatalog.QualityName(settled.quality) + " · " + settled.sizeM.ToString("0.00") + " m";
                 if (settled.autoReturned) detail += "\n已回塘 · +" + settled.gold + " 金币";
-                CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
-                    DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail);
-                CozyMotion.SetCornerPose(_mainRoot.transform, CozyCornerCharacter.Pose.Jump);
+                var celebration = CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
+                    DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail, settled.sizeM);
+                celebration.CoinsTarget = _mainRoot.transform.Find("Header/FishCoins/Icon") as RectTransform;
+                celebration.Character = _mainRoot.GetComponentInChildren<CozyCornerCharacter>(true);
             }
             if (settled != null && !string.IsNullOrEmpty(settled.message))
                 ShowToast(settled.message);
@@ -1052,17 +1056,17 @@ namespace FishSocial.Desktop
             if (!string.IsNullOrEmpty(message) && message.IndexOf("金币不足") >= 0)
                 SetStatusMessage(message);
             else
-                ShowToast(message);
+                ShowToast(message, true);
         }
 
         void OnSocialLobbyError(string message)
         {
-            ShowToast(message);
+            ShowToast(message, true);
         }
 
         void ShowSocketResult(bool ok, string message)
         {
-            ShowToast(message);
+            ShowToast(message, !ok);
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
@@ -1102,6 +1106,7 @@ namespace FishSocial.Desktop
         {
             _equipmentPanel = DesktopFeaturePanelFactory.BindExisting<DesktopShopPanel>(go, view =>
             {
+                view.ShopRequested = () => ShowMainPanel(ShellPanelId.Shop);
                 view.SetEquipmentMode(true);
                 view.Bind(_authenticatedApi);
             });
@@ -1137,7 +1142,7 @@ namespace FishSocial.Desktop
         {
             _achievementPanel = DesktopFeaturePanelFactory.BindExisting<DesktopProfileHubPanel>(go,
                 view => view.Bind(_authenticatedApi, _pondSession,
-                    () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage));
+                    () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage, () => ShowMainPanel(ShellPanelId.WorldMap)));
         }
 
         void BuildShop(GameObject go)
@@ -1155,7 +1160,8 @@ namespace FishSocial.Desktop
                     _authenticatedApi,
                     _pondSession,
                     () => ShowMainPanel(ShellPanelId.ProfileEdit),
-                    SetStatusMessage));
+                    SetStatusMessage,
+                    () => ShowMainPanel(ShellPanelId.WorldMap)));
             // Keep legacy profile panel available for edit back-compat paths if needed.
             _profilePanel = null;
         }

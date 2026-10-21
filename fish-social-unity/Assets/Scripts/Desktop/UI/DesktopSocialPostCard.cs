@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using FishSocial.Desktop.Auth;
 
 namespace FishSocial.Desktop
@@ -13,7 +14,7 @@ namespace FishSocial.Desktop
     /// The component never creates layout controls; all controls must exist in
     /// SocialPostCard.prefab or PostCommentRow.prefab.
     /// </summary>
-    public sealed class DesktopSocialPostCard : MonoBehaviour
+    public sealed class DesktopSocialPostCard : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] Text _authorText;
         [SerializeField] Image _photo;
@@ -31,6 +32,7 @@ namespace FishSocial.Desktop
         IAuthenticatedApiClient _api;
         SocialPostDto _post;
         int _commentsRequestVersion;
+        bool _commentsLoadFailed;
         RectTransform _commentsHost;
         Transform _commentsHome;
         Action<DesktopSocialPostCard> _selectComments;
@@ -55,6 +57,13 @@ namespace FishSocial.Desktop
             RefreshCardLayout();
             RestyleUi();
             BindActions();
+            if (transform.Find("JournalCatch") != null)
+            {
+                var scroll = GetComponentInParent<ScrollRect>();
+                var motion = CozyStickerMotion.Bind(gameObject, "post:" + (_post?.id ?? name), transform.GetSiblingIndex(),
+                    scroll != null ? scroll.viewport : null, _post?.id, 0);
+                if (!Application.isPlaying) motion.ApplyFinalPose();
+            }
         }
 
         void ResolveBindings()
@@ -84,8 +93,18 @@ namespace FishSocial.Desktop
             if (_post == null)
                 return;
 
+            var journal = transform.Find("JournalCatch") != null;
             if (_authorText != null)
-                _authorText.text = (_post.nickname ?? "钓友") + " · " + FormatTime(_post.createdAt);
+                _authorText.text = (_post.nickname ?? "钓友") + (journal ? "" : " · " + FormatTime(_post.createdAt));
+            if (journal)
+            {
+                CozyItemArt.Set(transform, "Header/JournalAvatar", DesktopDefaultAvatars.Portrait(_post.authorAvatarUrl, _post.playerId));
+                CozyItemArt.Text(transform, "Header/JournalTime", FormatTime(_post.createdAt));
+                CozyItemArt.Text(transform, "Header/JournalVisibility", _post.visibility == "private" ? "仅自己" : _post.visibility == "friends" ? "仅好友" : "公开");
+                CozyItemArt.Set(transform, "JournalCatch/Art", _post.fish != null ? CozyItemArt.Fish(_post.fish.speciesId) : null);
+                CozyItemArt.Text(transform, "JournalCatch/Name", _post.fish != null ? DesktopFishCatalog.SpeciesName(_post.fish.speciesId) : "鱼获记录");
+                CozyItemArt.Text(transform, "JournalCatch/Pond", _post.fish?.pondId ?? "");
+            }
             if (_bodyText != null)
             {
                 _bodyText.supportRichText = false;
@@ -103,6 +122,8 @@ namespace FishSocial.Desktop
                     "  可见范围：" +
                     (_post.visibility == "friends" ? "仅好友" : "所有人");
             }
+            if (journal && _fishInfoText != null)
+                _fishInfoText.text = _post.fish != null ? _post.fish.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(_post.fish.quality) : "";
             if (_likeButton != null)
                 SetButtonText(_likeButton,
                     (_post.likedByMe ? "已赞 " : "点赞 ") + _post.likeCount);
@@ -112,8 +133,8 @@ namespace FishSocial.Desktop
                 _commentsPanel.SetActive(false);
             if (_photo != null)
             {
-                _photo.gameObject.SetActive(!string.IsNullOrEmpty(_post.photoUrl));
-                if (!string.IsNullOrEmpty(_post.photoUrl))
+                _photo.gameObject.SetActive(!journal && !string.IsNullOrEmpty(_post.photoUrl));
+                if (!journal && !string.IsNullOrEmpty(_post.photoUrl))
                 {
                     _photo.color = _photo.sprite != null ? Color.white : CatTheme.Cream;
                     StartCoroutine(LoadPhoto(_post.photoUrl));
@@ -147,7 +168,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.StyleButton(_likeButton, "heart");
             DesktopModalUi.StyleButton(_commentsButton, "social");
             DesktopModalUi.StyleButton(_sendCommentButton, "check", true);
-            SetButtonText(_sendCommentButton, "发送评论");
+            SetButtonText(_sendCommentButton, transform.Find("JournalCatch") != null ? "留下鼓励" : "发送评论");
         }
 
 
@@ -162,6 +183,27 @@ namespace FishSocial.Desktop
         {
             if (transform.Find("DesignCardVersion") == null || _bodyText == null || _photo == null)
                 return;
+            var journalCatch = transform.Find("JournalCatch") as RectTransform;
+            if (journalCatch != null)
+            {
+                var storyHeight = Mathf.Max(29, _bodyText.preferredHeight);
+                _bodyText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, storyHeight);
+                var catchTop = 76 + storyHeight + 12;
+                journalCatch.anchoredPosition = new Vector2(18, -catchTop);
+                _fishInfoText.rectTransform.anchoredPosition = new Vector2(167, -(catchTop + 46));
+                var footer = transform.Find("Actions") as RectTransform;
+                if (footer != null) footer.anchoredPosition = new Vector2(18, -(catchTop + 102));
+                var cardHeight = catchTop + 154;
+                var inlineComments = _commentsPanel.transform as RectTransform;
+                if (_commentsHost == null || inlineComments.parent != _commentsHost)
+                {
+                    inlineComments.anchoredPosition = new Vector2(18, -cardHeight);
+                    if (_commentsPanel.activeSelf) cardHeight += inlineComments.sizeDelta.y + 14;
+                }
+                var cardLayout = GetComponent<LayoutElement>();
+                if (cardLayout != null) cardLayout.minHeight = cardLayout.preferredHeight = cardHeight;
+                return;
+            }
             var bodyHeight = Mathf.Max(_bodyText.preferredHeight + 8f, 40f);
             _bodyText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, bodyHeight);
             var next = 70f + bodyHeight + 12f;
@@ -193,13 +235,33 @@ namespace FishSocial.Desktop
             StartCoroutine(_api.TogglePostLike(_post.id, (ok, liked, count, message) =>
             {
                 if (this == null || _likeButton == null) return;
-                _likeButton.interactable = true;
-                if (!ok)
-                    return;
-                _post.likedByMe = liked;
-                _post.likeCount = count;
-                SetButtonText(_likeButton, (liked ? "已赞 " : "点赞 ") + count);
+                ApplyLikeResult(ok, liked, count);
             }));
+        }
+
+        void ApplyLikeResult(bool ok, bool liked, int count)
+        {
+            if (_likeButton == null || _post == null) return;
+            _likeButton.interactable = true;
+            if (!ok) return;
+            _post.likedByMe = liked;
+            _post.likeCount = count;
+            SetButtonText(_likeButton, (liked ? "已赞 " : "点赞 ") + count);
+            var rect = _likeButton.transform as RectTransform;
+            CozyMotion.Cancel(rect);
+            var visual = _likeButton.GetComponent<CozyButtonVisual>();
+            if (visual == null) return;
+            visual.SetMotionScale(CozyMotion.Reduced ? Vector2.one : Vector2.one * 1.1f);
+            CozyMotion.Animate(rect, .22f,
+                t => { if (visual != null) visual.SetMotionScale(Vector2.one * Mathf.LerpUnclamped(1.1f, 1, t)); },
+                () => { if (visual != null) visual.SetMotionScale(Vector2.one); },
+                CozyWebMotion.Ease.OutBack,
+                cleanup: () => { if (visual != null) visual.SetMotionScale(Vector2.one); });
+        }
+
+        void OnDisable()
+        {
+            if (_likeButton != null) CozyMotion.Cancel(_likeButton.transform as RectTransform);
         }
 
         public void ApplyLiked(PostLikedDto message)
@@ -258,12 +320,29 @@ namespace FishSocial.Desktop
             if (_downloadedTexture != null) Destroy(_downloadedTexture);
         }
 
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left && !eventData.dragging && _commentsHost != null)
+                SelectComments();
+        }
+
+        public void SelectComments()
+        {
+            if (_commentsPanel != null && (!_commentsPanel.activeSelf || _commentsLoadFailed))
+                ToggleComments();
+        }
+
         void ToggleComments()
         {
             if (_post == null || _api == null || _commentsPanel == null)
                 return;
-            if (_commentsPanel.activeSelf)
+            if (_commentsPanel.activeSelf && !_commentsLoadFailed)
             {
+                if (_commentsHost != null)
+                {
+                    _commentInput?.ActivateInputField();
+                    return;
+                }
                 CloseComments();
                 return;
             }
@@ -281,6 +360,7 @@ namespace FishSocial.Desktop
             }
             _commentsRequestVersion++;
             var requestVersion = _commentsRequestVersion;
+            _commentsLoadFailed = false;
             ClearComments();
             _commentsPanel.SetActive(true);
             RefreshCardLayout();
@@ -292,6 +372,7 @@ namespace FishSocial.Desktop
                         return;
                     if (!ok)
                     {
+                        _commentsLoadFailed = true;
                         SetButtonText(_commentsButton, "评论加载失败 · 重试");
                         return;
                     }

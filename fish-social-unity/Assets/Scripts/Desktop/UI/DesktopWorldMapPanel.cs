@@ -11,8 +11,8 @@ namespace FishSocial.Desktop
     public sealed class DesktopWorldMapPanel : MonoBehaviour,
         IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
     {
-        const float MapWidth = 2200f;
-        const float MapHeight = 1300f;
+        const float MapWidth = 1050f;
+        const float MapHeight = 700f;
         const float MinZoom = 0.65f;
         const float MaxZoom = 1.8f;
 
@@ -108,12 +108,16 @@ namespace FishSocial.Desktop
                 SetStatus("未找到对应鱼塘，请重新选择。");
                 return;
             }
+            var sameSelection = _selected != null && _selected.pondId == selectedPond.pondId;
             Select(selectedPond);
+            if(sameSelection)PondDetailView.RevealPhoto(transform.Find("Details"));
             CozyMotion.Cancel(_content);
             var start = _content.anchoredPosition;
+            _zoom = 1.15f;
+            _content.localScale = new Vector3(_zoom, _zoom, 1);
             _content.anchoredPosition = new Vector2(
-                (0.5f - selectedPond.x) * MapWidth * _zoom,
-                (selectedPond.y - 0.5f) * MapHeight * _zoom);
+                _viewport.rect.width * .5f - selectedPond.x * MapWidth * _zoom,
+                selectedPond.y * MapHeight * _zoom - _viewport.rect.height * .5f);
             ClampContent();
             var destination = _content.anchoredPosition;
             _content.anchoredPosition = start;
@@ -237,11 +241,11 @@ namespace FishSocial.Desktop
                 marker.anchoredPosition = Vector2.zero;
                 var captured = item;
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => Select(captured));
+                button.onClick.AddListener(() => FocusPond(captured.pondId));
                 var markerView = instance.GetComponent<CozyPondMarkerView>() ?? instance.AddComponent<CozyPondMarkerView>();
                 DesktopModalUi.StyleTree(instance.transform);
                 markerView.Bind(item.displayName);
-                markerView.SetState(false, locked, DesktopGameData.CategoryColor(item.pondCategory, locked));
+                markerView.SetState(false, locked, CozyPondMarkerView.CategoryColor(item.pondCategory));
                 _markersById[item.pondId] = button;
             }
             RefreshMarkerSelection();
@@ -256,11 +260,9 @@ namespace FishSocial.Desktop
                 if (view == null) continue;
                 var pond = _byId[marker.Key];
                 var locked = IsLocked(pond);
-                view.SetState(selected, locked, DesktopGameData.CategoryColor(pond.pondCategory, locked));
-                var rect = view.FloatTarget;
-                CozyMotion.StopFloat(rect);
-                if (selected && !locked && isActiveAndEnabled)
-                    CozyMotion.Float(rect, PondPhase(marker.Key), 30);
+                view.SetState(selected, locked, CozyPondMarkerView.CategoryColor(pond.pondCategory));
+                view.SetEntering(selected && SelectionState.Busy);
+                view.SetFloating(selected && !locked && !SelectionState.Busy && isActiveAndEnabled, PondPhase(marker.Key));
             }
         }
 
@@ -413,7 +415,7 @@ namespace FishSocial.Desktop
             CozyMotion.Cancel(_content);
             _zoom = 1f;
             _content.localScale = Vector3.one;
-            _content.anchoredPosition = Vector2.zero;
+            _content.anchoredPosition = new Vector2(-180, 140);
             ClampContent();
         }
 
@@ -421,6 +423,7 @@ namespace FishSocial.Desktop
         {
             if (!_uiReady)
                 return;
+            if (eventData.pointerPress != null && eventData.pointerPress.GetComponentInParent<CozyPondMarkerView>() != null) return;
             _dragging = RectTransformUtility.RectangleContainsScreenPoint(_viewport, eventData.position, eventData.pressEventCamera);
             if (!_dragging) return;
             CozyMotion.Cancel(_content);
@@ -459,11 +462,15 @@ namespace FishSocial.Desktop
             if (_viewport == null || _content == null)
                 return;
             var size = _viewport.rect.size;
-            var maxX = Mathf.Max(0f, (MapWidth * _zoom - size.x) * 0.5f);
-            var maxY = Mathf.Max(0f, (MapHeight * _zoom - size.y) * 0.5f);
+            // Never zoom below cover: the old .65 minimum exposed 7.5 px at the right edge.
+            var minimum = Mathf.Max(MinZoom, Mathf.Max(size.x / MapWidth, size.y / MapHeight));
+            _zoom = Mathf.Clamp(_zoom, minimum, MaxZoom);
+            _content.localScale = new Vector3(_zoom, _zoom, 1);
+            var maxX = Mathf.Max(0f, MapWidth * _zoom - size.x);
+            var maxY = Mathf.Max(0f, MapHeight * _zoom - size.y);
             var pos = _content.anchoredPosition;
-            pos.x = Mathf.Clamp(pos.x, -maxX, maxX);
-            pos.y = Mathf.Clamp(pos.y, -maxY, maxY);
+            pos.x = Mathf.Clamp(pos.x, -maxX, 0);
+            pos.y = Mathf.Clamp(pos.y, 0, maxY);
             _content.anchoredPosition = pos;
         }
 

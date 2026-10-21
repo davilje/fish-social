@@ -128,10 +128,21 @@ namespace FishSocial.Desktop
                 if (_busy || _itemsTab == items) return;
                 _itemsTab = items;
                 ApplyCategoryState();
-                DesktopModalUi.Clear(_grid);
-                ShowMessage(items ? "正在加载已拥有的道具…" : "正在加载鱼获…");
-                Refresh();
+                if(_categoryMotion!=null) StopCoroutine(_categoryMotion);
+                _categoryMotion=StartCoroutine(ChangeBagCategory());
             });
+        }
+
+        Coroutine _categoryMotion;
+        IEnumerator ChangeBagCategory()
+        {
+            var motion=GetComponent<CozyJournalPageMotion>();
+            if(motion!=null) yield return motion.Exit();
+            ClearGrid();
+            ShowMessage(_itemsTab ? "正在加载已拥有的道具…" : "正在加载鱼获…");
+            Refresh();
+            motion?.PlayEntrance(0);
+            _categoryMotion=null;
         }
 
         void ApplyCategoryState()
@@ -230,7 +241,7 @@ namespace FishSocial.Desktop
         {
             if (_grid == null) return;
             ApplyCategoryState();
-            DesktopModalUi.Clear(_grid);
+            ClearGrid();
             var chosen = _ownedGear.Find(item => item.kind + ":" + item.id == _selectedGear);
             if (chosen == null && _ownedGear.Count > 0) chosen = _ownedGear[0];
             if (chosen == null)
@@ -245,7 +256,8 @@ namespace FishSocial.Desktop
                 var slot = DesktopUiPrefabFactory.Instantiate("CatchSlot", _grid);
                 if (slot == null) continue;
                 CozyItemArt.Set(slot.transform, "DesignItemArt", item.art);
-                CozyItemArt.Text(slot.transform, "Label", item.name + (item.equipped ? "\n已装备" : "\n已拥有 / 已解锁"));
+                CozyItemArt.Text(slot.transform, "Label", item.name);
+                CozyItemArt.Text(slot.transform, "Meta", item.equipped ? "已装备" : "已拥有 / 已解锁");
                 var backing = slot.transform.Find("DesignArtBacking");
                 if (backing != null) backing.gameObject.SetActive(true);
                 var button = slot.GetComponent<Button>();
@@ -413,6 +425,17 @@ namespace FishSocial.Desktop
             RenderGrid();
         }
 
+        void ClearGrid()
+        {
+            // Destroy is deferred in play mode. Detach retired rows now so layout and id lookup see only the replacement set.
+            for (var i = _grid.childCount - 1; i >= 0; i--)
+            {
+                var old = _grid.GetChild(i).gameObject;
+                old.SetActive(false); old.transform.SetParent(null, false);
+                if (Application.isPlaying) Destroy(old); else DestroyImmediate(old);
+            }
+        }
+
         void RenderGrid()
         {
             if (_itemsTab) { RenderOwnedGear(); return; }
@@ -425,10 +448,11 @@ namespace FishSocial.Desktop
                 else ShowMessage("背包是空的。钓到鱼并领取后会显示在这里。");
             }
             RefreshReturnButton();
-            DesktopModalUi.Clear(_grid);
-            var count = Mathf.Max(MinSlots, _items != null ? _items.Length : 0);
+            ClearGrid();
+            var count = _items != null ? _items.Length : 0;
             if (_items == null || _items.Length == 0)
                 ShowMessage("背包是空的。钓到鱼并领取后会显示在这里。");
+            var rareOrder = 0;
             for (var i = 0; i < count; i++)
             {
                 var item = _items != null && i < _items.Length ? _items[i] : null;
@@ -452,12 +476,13 @@ namespace FishSocial.Desktop
                 }
                 var label = item == null
                     ? (i + 1).ToString()
-                    : DesktopFishCatalog.SpeciesName(item.speciesId) + "\n" + item.sizeM.ToString("0.00") + " m";
+                    : DesktopFishCatalog.SpeciesName(item.speciesId);
                 var text = DesktopUiPrefabFactory.Child(slot, "Label");
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
                 {
                     labelText.text = label;
+                    CozyItemArt.Text(slot.transform, "Meta", item == null ? "" : item.sizeM.ToString("0.00") + " m");
                 }
                 DesktopModalUi.StyleTree(slot.transform);
                 if (slotButton != null)
@@ -466,7 +491,9 @@ namespace FishSocial.Desktop
                 {
                     AddUnreadBadge(slot, CozyJournalReadState.IsUnread(_api?.PlayerId, item.id));
                     CozyStickerMotion.Bind(slot, "catch:" + (_api?.PlayerId ?? "") + ":" + item.id, i,
-                        _grid.parent as RectTransform);
+                        _grid.parent as RectTransform, sourceId: item.speciesId);
+                    var tier = DesktopFishCatalog.GetSpecies(item.speciesId)?.RarityTier;
+                    if (tier == "rare" || tier == "legendary") CozyRareGlint.Bind(slot, rareOrder++);
                     var captured = item;
                     var button = slot.GetComponent<Button>();
                     if (button != null)
@@ -555,7 +582,19 @@ namespace FishSocial.Desktop
                                "\n参考售价：" + sell + " 金币" +
                                "\n" + returnHint +
                                "\n" + seatHint;
-            if (rebuild) RenderGrid();
+            if (rebuild && _grid != null)
+            {
+                for (var i=0;i<_grid.childCount;i++)
+                {
+                    var slot=_grid.GetChild(i);
+                    if (!slot.gameObject.activeSelf) continue;
+                    var visual=slot.GetComponent<CozyButtonVisual>();
+                    var selected=i<_items.Length && _items[i]!=null && _items[i].id==_selectedId;
+                    if (visual!=null) visual.SetSelected(selected);
+                    if (selected && slot.Find("JournalNew")!=null) slot.Find("JournalNew").gameObject.SetActive(false);
+                }
+                transform.Find("JournalBagPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24,0),.26f,.3f);
+            }
         }
 
         void ShowMessage(string message)
@@ -591,15 +630,37 @@ namespace FishSocial.Desktop
                     CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
                     return;
                 }
+                var before = CaptureGridPositions();
+                var soldIndex = Array.FindIndex(_items, value => value != null && value.id == _selectedId);
+                var soldCard = soldIndex >= 0 ? _grid.Find("Slot" + soldIndex) as RectTransform : null;
+                var canvas = GetComponentInParent<Canvas>();
+                var layer = canvas != null ? canvas.transform.Find("MainRoot") as RectTransform : null;
+                var coinTarget = layer != null ? layer.Find("Header/FishCoins/Icon") as RectTransform : null;
+                CozyCardFragments.Tear(soldCard, layer);
+                CozyActionFeedback.CoinsFly(soldCard, coinTarget, layer);
                 _items = items ?? new FishInventoryItemDto[0];
                 _coinsValue = total;
                 _coins.text = "金币：" + _coinsValue;
                 _selectedId = null;
                 _status.text = "出售成功，获得 " + earned + " 金币。";
-                CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, "已出售");
                 ShowMessage(_status.text);
                 RenderGrid();
+                Canvas.ForceUpdateCanvases();
+                for (var i = 0; i < _items.Length; i++)
+                    if (_items[i] != null && before.TryGetValue(_items[i].id, out var previous))
+                        _grid.Find("Slot" + i)?.GetComponent<CozyStickerMotion>()?.ApplyReflow(previous);
             }));
+        }
+
+        Dictionary<string, Vector3> CaptureGridPositions()
+        {
+            var positions = new Dictionary<string, Vector3>();
+            for (var i = 0; i < _items.Length; i++)
+            {
+                var slot = _grid.Find("Slot" + i);
+                if (slot != null && _items[i] != null) positions[_items[i].id] = slot.position;
+            }
+            return positions;
         }
 
         void ReturnSelected()

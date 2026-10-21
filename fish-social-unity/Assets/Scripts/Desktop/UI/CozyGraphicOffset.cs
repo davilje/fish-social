@@ -75,14 +75,20 @@ namespace FishSocial.Desktop
 
         internal void SetVisual(Transform owner, float verticalOffset, float alpha, Vector2 scale)
         {
-            var offset = transform.InverseTransformVector(owner.TransformVector(new Vector3(0f, verticalOffset, 0f)));
+            SetVisual(owner, new Vector2(0, verticalOffset), alpha, scale);
+        }
+
+        internal void SetVisual(Transform owner, Vector2 offsetInOwner, float alpha, Vector2 scale)
+        {
+            var offset = transform.InverseTransformVector(owner.TransformVector(offsetInOwner));
             if (localOffset == offset && Mathf.Approximately(opacity, alpha) && visualScale == scale)
                 return;
             localOffset = offset;
             opacity = alpha;
             visualScale = scale;
+            var center = owner is RectTransform ownerRect ? (Vector3)ownerRect.rect.center : Vector3.zero;
             deformation = transform.worldToLocalMatrix * owner.localToWorldMatrix
-                * Matrix4x4.Scale(new Vector3(scale.x, scale.y, 1f))
+                * Matrix4x4.Translate(center) * Matrix4x4.Scale(new Vector3(scale.x, scale.y, 1f)) * Matrix4x4.Translate(-center)
                 * owner.worldToLocalMatrix * transform.localToWorldMatrix;
             if (graphic != null)
                 graphic.SetVerticesDirty();
@@ -92,8 +98,9 @@ namespace FishSocial.Desktop
         {
             journalPose = offset != Vector2.zero || rotation != 0 || scale != 1 || alpha != 1;
             journalAlpha = alpha;
+            var center = owner is RectTransform ownerRect ? (Vector3)ownerRect.rect.center : Vector3.zero;
             journalDeformation = transform.worldToLocalMatrix * owner.localToWorldMatrix
-                * Matrix4x4.TRS(offset, Quaternion.Euler(0, 0, rotation), Vector3.one * scale)
+                * Matrix4x4.Translate(center) * Matrix4x4.TRS(offset, Quaternion.Euler(0, 0, rotation), Vector3.one * scale) * Matrix4x4.Translate(-center)
                 * owner.worldToLocalMatrix * transform.localToWorldMatrix;
             if (graphic != null) graphic.SetVerticesDirty();
         }

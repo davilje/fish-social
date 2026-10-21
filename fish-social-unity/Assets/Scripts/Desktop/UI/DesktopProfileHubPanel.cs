@@ -30,6 +30,9 @@ namespace FishSocial.Desktop
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
         Action _openEdit;
+        Action _openWorldMap;
+        int _showcaseSelection;
+        bool _showcaseBusy;
         Action<string> _toast;
 
         HubTab _tab = HubTab.Profile;
@@ -68,6 +71,7 @@ namespace FishSocial.Desktop
         Button _retryButton;
         FishCodexEntryDto[] _codexEntries = Array.Empty<FishCodexEntryDto>();
         int _albumPinsPage;
+        int _albumSelection;
         Coroutine _albumPhotoRoutine;
         int _albumPhotoLoadVersion;
 
@@ -75,11 +79,13 @@ namespace FishSocial.Desktop
             IAuthenticatedApiClient api,
             SocialPondSessionController pond,
             Action openEdit,
-            Action<string> toast = null)
+            Action<string> toast = null,
+            Action openWorldMap = null)
         {
             _api = api;
             _pond = pond;
             _openEdit = openEdit;
+            _openWorldMap = openWorldMap;
             _toast = toast;
             EnsureUi();
         }
@@ -110,6 +116,8 @@ namespace FishSocial.Desktop
         {
             StopLoad();
             _targetGeneration++;
+            _showcaseBusy = false;
+            CloseShowcasePicker();
             if (_codexRoutine != null) StopCoroutine(_codexRoutine);
             _codexRoutine = null;
             _hub = null;
@@ -136,6 +144,8 @@ namespace FishSocial.Desktop
         {
             StopLoad();
             _targetGeneration++;
+            _showcaseBusy = false;
+            CloseShowcasePicker();
             if (_codexRoutine != null) StopCoroutine(_codexRoutine);
             _codexRoutine = null;
             _albumPhotoLoadVersion++;
@@ -445,6 +455,10 @@ namespace FishSocial.Desktop
             if (root == null) return;
             _showcaseGrid = FindGridContent(root, "ShowcaseGrid");
             _showcaseDetail = FindTextUnder(root, "Detail");
+            BindPagerButton(root.Find("JournalReplace"), OpenShowcasePicker);
+            BindPagerButton(root.Find("JournalClear"), () => SaveShowcaseSelection(null));
+            BindPagerButton(transform.Find("JournalShowcasePicker/Close"), CloseShowcasePicker);
+            BindPagerButton(transform.Find("JournalShowcasePicker/Clear"), () => SaveShowcaseSelection(null));
         }
 
         void WireCodexRefs()
@@ -469,9 +483,20 @@ namespace FishSocial.Desktop
             var photoR = slotR != null ? slotR.Find("Photo") : null;
             _albumSlotLPhoto = photoL != null ? photoL.GetComponent<Image>() : null;
             _albumSlotRPhoto = photoR != null ? photoR.GetComponent<Image>() : null;
+            BindAlbumSelection(slotL, 0);
+            BindAlbumSelection(slotR, 1);
             _albumSlotLBody = FindTextUnder(slotL, "Body");
             _albumSlotRBody = FindTextUnder(slotR, "Body");
             _albumPinsPageLabel = FindTextUnder(root, "Page") ?? FindTextUnder(root, "PinsPage");
+        }
+
+        void BindAlbumSelection(Transform slot, int index)
+        {
+            if (slot == null) return;
+            var button = slot.GetComponent<Button>() ?? slot.gameObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => { _albumSelection = index; RenderAlbum(); });
         }
 
         void WireAchievementRefs()
@@ -518,11 +543,13 @@ namespace FishSocial.Desktop
             if (root == null) return;
             Action prev = () =>
             {
+                _albumSelection = 0;
                 _albumPinsPage = Math.Max(0, _albumPinsPage - 1);
                 RenderAlbum();
             };
             Action next = () =>
             {
+                _albumSelection = 0;
                 _albumPinsPage++;
                 RenderAlbum();
             };
@@ -786,14 +813,16 @@ namespace FishSocial.Desktop
                 Vector2.zero, new Vector2(72, 28),
                 () =>
                 {
-                    _albumPinsPage = Math.Max(0, _albumPinsPage - 1);
+                    _albumSelection = 0;
+                _albumPinsPage = Math.Max(0, _albumPinsPage - 1);
                     RenderAlbum();
                 });
             var nextBtn = CreateHeaderButton(parent, "Next", "下一页",
                 Vector2.zero, new Vector2(72, 28),
                 () =>
                 {
-                    _albumPinsPage++;
+                    _albumSelection = 0;
+                _albumPinsPage++;
                     RenderAlbum();
                 });
             PlaceAlbumPagerButton(prevBtn.GetComponent<RectTransform>(), true);
@@ -844,6 +873,29 @@ namespace FishSocial.Desktop
 
         void SelectTab(HubTab tab)
         {
+            if (_showcaseBusy || _tab==tab) return;
+            if(!Application.isPlaying) { ApplySelectedTab(tab); return; }
+            if(_tabMotionRoutine!=null) StopCoroutine(_tabMotionRoutine);
+            for(var i=0;i<_tabButtons.Count;i++) _tabButtons[i]?.GetComponent<CozyButtonVisual>()?.SetSelected(i==(int)tab);
+            _tabMotionRoutine=StartCoroutine(ChangeHubTab(tab));
+        }
+        Coroutine _tabMotionRoutine;
+        IEnumerator ChangeHubTab(HubTab tab)
+        {
+            var generation=_targetGeneration;
+            var old=(int)_tab<_tabContents.Count?_tabContents[(int)_tab]:null;
+            var motion=old!=null?old.GetComponent<CozyJournalPageMotion>():null;
+            if(motion!=null) yield return motion.Exit();
+            if(generation!=_targetGeneration) yield break;
+            ApplySelectedTab(tab);
+            var current=(int)_tab<_tabContents.Count?_tabContents[(int)_tab]:null;
+            if(current!=null) current.GetComponent<CozyJournalPageMotion>()?.PlayEntrance(current.GetComponentsInChildren<CozyStickerMotion>().Length);
+            _tabMotionRoutine=null;
+        }
+        void ApplySelectedTab(HubTab tab)
+        {
+            if (_showcaseBusy) return;
+            CloseShowcasePicker();
             _tab = tab;
             UpdateHeaderForTab();
             ApplyTabVisibility();
@@ -1073,6 +1125,7 @@ namespace FishSocial.Desktop
                 CozyItemArt.Set(authoredProfile, "DesignShowcase/Art", showcased != null ? CozyItemArt.Fish(showcased.speciesId) : null);
                 CozyItemArt.Text(authoredProfile, "DesignShowcase/Species", showcased != null ? DesktopFishCatalog.SpeciesName(showcased.speciesId) : "暂无展示鱼获");
                 CozyItemArt.Text(authoredProfile, "DesignShowcase/Size", showcased != null ? showcased.sizeM.ToString("0.00") + " m" : "");
+                RenderJournalProfile(authoredProfile, level, xp);
                 var showcaseButton = authoredProfile.Find("DesignShowcase/Open")?.GetComponent<Button>();
                 if (showcaseButton != null)
                 {
@@ -1083,6 +1136,24 @@ namespace FishSocial.Desktop
             if (_avatarRoutine != null)
                 StopCoroutine(_avatarRoutine);
             _avatarRoutine = StartCoroutine(LoadAvatarRoutine(p.avatarUrl, p.nickname, p.playerId));
+        }
+
+        [Serializable] sealed class JournalLevel { public int level; public int xpToNext; }
+        [Serializable] sealed class JournalLevels { public JournalLevel[] rows; }
+
+        void RenderJournalProfile(Transform profile, int level, int xp)
+        {
+            if (profile.Find("JournalProgress") == null) return;
+            var asset = Resources.Load<TextAsset>("Desktop/Theme/Cozy/data/player-levels");
+            var levels = asset != null ? JsonUtility.FromJson<JournalLevels>("{\"rows\":" + asset.text + "}") : null;
+            var required = 0;
+            foreach (var row in levels?.rows ?? Array.Empty<JournalLevel>()) if (row.level == level) required = row.xpToNext;
+            CozyItemArt.Text(profile, "JournalProgress/Level", required > 0 ? "Lv." + level + " → Lv." + (level + 1) : "Lv." + level);
+            CozyItemArt.Text(profile, "JournalProgress/Caption", required > 0 ? xp + " / " + required + " 经验 · 去收获下一段故事吧。" : xp + " 经验");
+            var fill = profile.Find("JournalProgress/Track/Fill")?.GetComponent<Image>();
+            if (fill != null) fill.fillAmount = required > 0 ? Mathf.Clamp01((float)xp / required) : 1;
+            BindPagerButton(profile.Find("JournalShowcaseLink"), () => SelectTab(HubTab.Showcase));
+            BindPagerButton(profile.Find("JournalAlbumLink"), () => SelectTab(HubTab.Album));
         }
 
         IEnumerator LoadAvatarRoutine(string avatarUrl, string nickname, string playerId)
@@ -1214,6 +1285,7 @@ namespace FishSocial.Desktop
                     got ? new Color(1f, 0.92f, 0.78f, 1f) : CatTheme.Cream,
                     15, CozyItemArt.Fish(def.speciesId), !got);
             }
+            transform.Find("Shell/Content/Tab_图鉴/JournalExplore")?.gameObject.SetActive(false);
             if (_codexDetail != null)
                 _codexDetail.text = "已解锁 " + unlocked + " / " + catalog.Length +
                                    "\n\n点击左侧格子查看物种资料与捕获记录。";
@@ -1235,6 +1307,16 @@ namespace FishSocial.Desktop
             if (_codexDetail == null || species == null)
                 return;
             var got = entry != null && entry.totalCaught > 0;
+            var explore = _codexDetail.transform.parent.Find("JournalExplore");
+            if (explore != null)
+            {
+                explore.gameObject.SetActive(!got);
+                var button = explore.GetComponent<Button>();
+                button.interactable = _openWorldMap != null;
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => _openWorldMap?.Invoke());
+            }
+            CozyItemArt.Text(_codexDetail.transform.parent, "JournalPhotoCaption", got ? species.Name : "等待一次相遇");
             CozyItemArt.Set(_codexDetail.transform.parent, "DesignDetailArt", got ? CozyItemArt.Fish(species.Id) : null);
             if (!got)
             {
@@ -1266,10 +1348,10 @@ namespace FishSocial.Desktop
             {
                 var item = i < fish.Length ? fish[i] : null;
                 var slot = i + 1;
+                var index = i;
                 if (item == null)
                 {
-                    CreateCard(_showcaseGrid, "Slot" + i, "空位 " + slot, () =>
-                        ShowShowcaseNote("格子 " + slot + " 为空。\n可在「编辑资料」中装备背包鱼。"), null, 16);
+                    CreateCard(_showcaseGrid, "Slot" + i, "空位 " + slot, () => SelectShowcase(index), null, 16);
                     continue;
                 }
                 var captured = item;
@@ -1277,10 +1359,101 @@ namespace FishSocial.Desktop
                 CreateCard(_showcaseGrid, "Slot" + i,
                     name + "\n" + DesktopFishCatalog.QualityName(item.quality) +
                     "\n" + item.sizeM.ToString("0.00") + "m",
-                    () => ShowFishDetail(_showcaseDetail, "展示柜格子 " + slot, captured),
+                    () => SelectShowcase(index),
                     CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId));
             }
-            ShowShowcaseNote("点击左侧格子查看鱼获资料。");
+            SelectShowcase(Mathf.Clamp(_showcaseSelection, 0, 7));
+        }
+
+        void SelectShowcase(int index)
+        {
+            if (_showcaseBusy || _hub == null) return;
+            _showcaseSelection = index;
+            if(_showcaseGrid!=null) foreach(Transform slot in _showcaseGrid)
+                slot.GetComponent<CozyButtonVisual>()?.SetSelected(slot.name=="Slot"+index);
+            var fish = _hub.showcaseFish;
+            var item = fish != null && index < fish.Length ? fish[index] : null;
+            if (item != null) ShowFishDetail(_showcaseDetail, "展示柜格子 " + (index + 1), item);
+            else ShowShowcaseNote("格子 " + (index + 1) + " 为空。选择一条背包鱼获摆在这里。");
+            var root = transform.Find("Shell/Content/Tab_展示柜");
+            foreach (var name in new[] { "JournalReplace", "JournalClear" })
+            {
+                var button = root?.Find(name)?.GetComponent<Button>();
+                if (button == null) continue;
+                button.gameObject.SetActive(_hub.canEdit);
+                button.interactable = name == "JournalReplace" || item != null;
+                if (name == "JournalReplace") DesktopModalUi.SetButtonLabel(button, item != null ? "更换鱼获" : "选择鱼获");
+            }
+        }
+
+        void OpenShowcasePicker()
+        {
+            if (_showcaseBusy || _hub == null || !_hub.canEdit || _api == null || !_api.CanUse) return;
+            var picker = transform.Find("JournalShowcasePicker");
+            if (picker == null) { SetStatus("展示鱼获选择器资源缺失，请重新导入 UI。"); return; }
+            picker.gameObject.SetActive(true); picker.SetAsLastSibling();
+            var content = picker.Find("Viewport/Content");
+            if (content == null) return;
+            ClearChildren(content);
+            CozyItemArt.Text(picker, "Title", "正在读取背包鱼获…");
+            var generation = _targetGeneration;
+            var slot = _showcaseSelection;
+            StartCoroutine(_api.GetInventoryItems((ok, inventory, error) =>
+            {
+                if (this == null || generation != _targetGeneration || !picker.gameObject.activeSelf || slot != _showcaseSelection) return;
+                CozyItemArt.Text(picker, "Title", !ok ? (error ?? "读取失败，请关闭后重试") : inventory == null || inventory.Length == 0 ? "背包暂时没有可展示的鱼获" : "选择展示位 " + (slot + 1) + " 的鱼获");
+                if (!ok) return;
+                foreach (var fish in inventory ?? Array.Empty<FishInventoryItemDto>())
+                {
+                    if (fish == null) continue;
+                    var selected = fish;
+                    var row = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", content);
+                    if (row == null) continue;
+                    CozyItemArt.Text(row.transform, "Label", DesktopProfileCache.FishLabel(fish));
+                    CozyItemArt.Set(row.transform, "DesignItemArt", CozyItemArt.Fish(fish.speciesId));
+                    var button = row.GetComponent<Button>();
+                    if (button != null)
+                    {
+                        button.onClick.RemoveAllListeners();
+                        button.onClick.AddListener(() => SaveShowcaseSelection(selected.id));
+                    }
+                }
+            }));
+        }
+
+        void CloseShowcasePicker()
+        {
+            if (_showcaseBusy) return;
+            transform.Find("JournalShowcasePicker")?.gameObject.SetActive(false);
+        }
+
+        void SaveShowcaseSelection(string fishId)
+        {
+            if (_showcaseBusy || _hub == null || !_hub.canEdit || _api == null || !_api.CanUse) return;
+            var slots = new string[PlayerProfileDto.ShowcaseSlotCount];
+            var existing = _hub.profile?.showcaseFishIds;
+            if (existing != null) Array.Copy(existing, slots, Math.Min(existing.Length, slots.Length));
+            slots[Mathf.Clamp(_showcaseSelection, 0, slots.Length - 1)] = fishId;
+            _showcaseBusy = true;
+            SetStatus("正在保存展示鱼获…");
+            var generation = _targetGeneration;
+            var picker = transform.Find("JournalShowcasePicker");
+            if (picker != null) CozyItemArt.Text(picker, "Title", "正在保存展示鱼获…");
+            StartCoroutine(_api.SetShowcase(slots, (ok, profile, error) =>
+            {
+                if (this == null || generation != _targetGeneration) return;
+                _showcaseBusy = false;
+                if (!ok)
+                {
+                    SetStatus(error ?? "保存失败，请重试。");
+                    if (picker != null) CozyItemArt.Text(picker, "Title", error ?? "保存失败，请重新选择或关闭");
+                    return;
+                }
+                if (profile != null) DesktopProfileCache.Latest = profile;
+                CloseShowcasePicker();
+                _toast?.Invoke(string.IsNullOrEmpty(fishId) ? "展示格已清空，鱼获仍在背包里" : "鱼获已经摆进展示柜");
+                Refresh();
+            }));
         }
 
         void ShowShowcaseNote(string message)
@@ -1298,6 +1471,7 @@ namespace FishSocial.Desktop
                 return;
             var species = DesktopFishCatalog.GetSpecies(item.speciesId);
             CozyItemArt.Set(target.transform.parent, "DesignDetailArt", CozyItemArt.Fish(item.speciesId));
+            CozyItemArt.Text(target.transform.parent, "JournalPhotoCaption", DesktopFishCatalog.SpeciesName(item.speciesId));
             var name = species != null ? species.Name : item.speciesId;
             var caught = item.caughtAt > 0
                 ? DateTimeOffset.FromUnixTimeMilliseconds(item.caughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm")
@@ -1353,6 +1527,25 @@ namespace FishSocial.Desktop
                 return;
 
             var pins = _hub.albumPins ?? Array.Empty<AlbumCardDto>();
+            var albumRoot = transform.Find("Shell/Content/Tab_相册");
+            var pageCountForButtons = Math.Max(1, (pins.Length + AlbumPinsPerPage - 1) / AlbumPinsPerPage);
+            _albumPinsPage = Mathf.Clamp(_albumPinsPage, 0, pageCountForButtons - 1);
+            var prevButton = albumRoot?.Find("Prev")?.GetComponent<Button>();
+            var nextButton = albumRoot?.Find("Next")?.GetComponent<Button>();
+            if (prevButton != null) prevButton.interactable = _albumPinsPage > 0;
+            if (nextButton != null) nextButton.interactable = _albumPinsPage + 1 < pageCountForButtons;
+            var leftButton = _albumSlotL != null ? _albumSlotL.GetComponent<Button>() : null;
+            var rightButton = _albumSlotR != null ? _albumSlotR.GetComponent<Button>() : null;
+            if (leftButton != null) leftButton.interactable = pins.Length > _albumPinsPage * 2;
+            if (rightButton != null) rightButton.interactable = pins.Length > _albumPinsPage * 2 + 1;
+            var aside = albumRoot?.Find("JournalAlbumAside");
+            if (aside != null)
+            {
+                var card = pins.Length > 0 ? pins[Mathf.Clamp(_albumPinsPage * AlbumPinsPerPage + _albumSelection, 0, pins.Length - 1)] : null;
+                CozyItemArt.Set(aside, "Art", card != null ? CozyItemArt.Fish(card.speciesId) : null);
+                CozyItemArt.Text(aside, "Caption", card != null ? DesktopFishCatalog.SpeciesName(card.speciesId) : "下一页，等你来写");
+                CozyItemArt.Text(aside, "Detail", card != null ? FormatAlbumPage(card) : "每次相遇都值得留念。新的鱼获故事，会写进湖畔相册。");
+            }
 
             if (pins.Length == 0)
             {
@@ -1501,6 +1694,7 @@ namespace FishSocial.Desktop
             foreach (var achievement in list)
                 if (achievement != null && achievement.unlocked) completed++;
             CozyItemArt.Text(transform, "DesignAchievementSummary/Value", completed + " / " + list.Length);
+            CozyItemArt.Text(transform, "Shell/Content/Tab_成就/JournalAchievementSummary/Value", completed + " / " + list.Length);
             foreach (var filterName in new[] { "All", "Completed", "Pending" })
             {
                 var filter = filterName == "All" ? 0 : filterName == "Completed" ? 1 : 2;
@@ -1792,7 +1986,10 @@ namespace FishSocial.Desktop
             Transform parent, string name, string label, Action onClick,
             Color? tint = null, int fontSize = 12, Sprite art = null, bool silhouette = false)
         {
-            var go = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", parent);
+            var scroll = parent != null ? parent.GetComponentInParent<ScrollRect>() : null;
+            var template = scroll != null ? scroll.transform.parent.Find("JournalCardTemplate") : null;
+            var go = template != null ? Instantiate(template.gameObject, parent, false) : DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", parent);
+            if (go != null) go.SetActive(true);
             if (go == null)
                 return;
             go.name = name;
@@ -1812,15 +2009,33 @@ namespace FishSocial.Desktop
                 CozyItemArt.Set(go.transform, "DesignItemArt", art);
                 if (art != null && silhouette)
                     artImage.color = new Color(CatTheme.Ink.r, CatTheme.Ink.g, CatTheme.Ink.b, 0.22f);
-                var anchorMax = text.rectTransform.anchorMax;
-                anchorMax.y = art != null ? 0.42f : 1f;
-                text.rectTransform.anchorMax = anchorMax;
+                if (template == null)
+                {
+                    var anchorMax = text.rectTransform.anchorMax;
+                    anchorMax.y = art != null ? 0.42f : 1f;
+                    text.rectTransform.anchorMax = anchorMax;
+                }
+                var stamp = go.transform.Find("JournalStamp");
+                if (stamp != null) stamp.gameObject.SetActive(!silhouette && label.StartsWith("✓"));
             }
             button.onClick.RemoveAllListeners();
             button.interactable = onClick != null;
             if (onClick != null)
-                button.onClick.AddListener(() => onClick());
+                button.onClick.AddListener(() =>
+                {
+                    foreach(Transform sibling in parent) sibling.GetComponent<CozyButtonVisual>()?.SetSelected(sibling==go.transform);
+                    onClick();
+                    var tab=parent;
+                    while(tab.parent!=null && !tab.name.StartsWith("Tab_")) tab=tab.parent;
+                    tab.Find("JournalCollectionPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal();
+                });
             DesktopModalUi.StyleTree(go.transform);
+            if (template != null)
+            {
+                var motion = CozyStickerMotion.Bind(go, "profile:" + parent.parent.name + ":" + name,
+                    Mathf.Max(0, parent.childCount - 1), scroll.viewport, art != null ? art.name : name);
+                if (!Application.isPlaying) motion.ApplyFinalPose();
+            }
         }
 
         static void CreateAchievementRow(Transform parent, string name, string label, Color tint, bool unlocked = false)
@@ -1835,6 +2050,25 @@ namespace FishSocial.Desktop
                 Debug.LogError("[DesktopUI] AchievementRow requires Label Text.", go);
                 go.SetActive(false);
                 UnityEngine.Object.Destroy(go);
+                return;
+            }
+            var description = go.transform.Find("JournalDescription")?.GetComponent<Text>();
+            if (description != null)
+            {
+                var splitAt = label.IndexOf('\n');
+                text.supportRichText = false;
+                text.text = splitAt >= 0 ? label.Substring(0, splitAt) : label;
+                description.text = splitAt >= 0 ? label.Substring(splitAt + 1) : "";
+                CozyItemArt.Text(go.transform, "DesignState", unlocked ? "已完成" : "");
+                var stamp = go.transform.Find("DesignStateBadge");
+                if (stamp != null) stamp.gameObject.SetActive(unlocked);
+                var medal = go.transform.Find("Reflow_AchievementSeal")?.GetComponent<Image>();
+                if (medal != null) medal.color = new Color(1, 1, 1, unlocked ? 1 : .45f);
+                DesktopModalUi.StyleTree(go.transform);
+                var scroll = parent.GetComponentInParent<ScrollRect>();
+                var motion = CozyStickerMotion.Bind(go, "achievement:" + name, Mathf.Max(0, parent.childCount - 1),
+                    scroll != null ? scroll.viewport : null, name);
+                if (!Application.isPlaying) motion.ApplyFinalPose();
                 return;
             }
             text.text = label;

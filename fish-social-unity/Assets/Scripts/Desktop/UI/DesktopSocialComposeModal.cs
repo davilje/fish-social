@@ -9,7 +9,7 @@ using FishSocial.Desktop.Auth;
 namespace FishSocial.Desktop
 {
     /// <summary>Native journal composer. Inventory and publication remain server authoritative.</summary>
-    public sealed class DesktopSocialComposeModal : MonoBehaviour
+    public sealed class DesktopSocialComposeModal : MonoBehaviour, IPointerClickHandler
     {
         public const int StoryLimit = 160;
         IAuthenticatedApiClient _api;
@@ -25,11 +25,13 @@ namespace FishSocial.Desktop
         [SerializeField] InputField _story;
         [SerializeField] Button _publish;
         [SerializeField] Button _close;
-        [SerializeField] Button _public;
-        [SerializeField] Button _friends;
-        [SerializeField] Transform _fishList;
+        [SerializeField] Dropdown _fishChoice;
+        [SerializeField] Dropdown _visibilityChoice;
         GameObject _previousFocus;
-        readonly List<Button> _fishChoices = new List<Button>();
+        RectTransform _paper;
+        CanvasGroup _paperAlpha;
+        Vector2 _paperRest;
+        readonly List<string> _fishIds = new List<string>();
 
         public const string ResourcePath = "Desktop/Prefabs/JournalComposeModal";
 
@@ -55,13 +57,24 @@ namespace FishSocial.Desktop
         public bool BindControls()
         {
             if (_status == null || _counter == null || _story == null || _publish == null ||
-                _close == null || _public == null || _friends == null || _fishList == null) return false;
+                _close == null || _fishChoice == null || _visibilityChoice == null) return false;
+            if (_paper == null)
+            {
+                _paper = transform.Find("ModalPanel") as RectTransform;
+                if (_paper == null) return false;
+                _paperRest = _paper.anchoredPosition;
+                _paperAlpha = _paper.GetComponent<CanvasGroup>() ?? _paper.gameObject.AddComponent<CanvasGroup>();
+            }
             _close.onClick.RemoveAllListeners();
             _close.onClick.AddListener(() => Close());
-            _public.onClick.RemoveAllListeners();
-            _public.onClick.AddListener(() => SelectVisibility("public"));
-            _friends.onClick.RemoveAllListeners();
-            _friends.onClick.AddListener(() => SelectVisibility("friends"));
+            _fishChoice.onValueChanged.RemoveAllListeners();
+            _fishChoice.onValueChanged.AddListener(index =>
+            {
+                _fishId = index >= 0 && index < _fishIds.Count ? _fishIds[index] : null;
+                RefreshControls();
+            });
+            _visibilityChoice.onValueChanged.RemoveAllListeners();
+            _visibilityChoice.onValueChanged.AddListener(index => SelectVisibility(index == 1 ? "friends" : "public"));
             _publish.onClick.RemoveAllListeners();
             _publish.onClick.AddListener(Submit);
             _story.onValueChanged.RemoveAllListeners();
@@ -80,10 +93,13 @@ namespace FishSocial.Desktop
             _busy = false;
             _fishId = null;
             _visibility = "public";
+            _visibilityChoice.SetValueWithoutNotify(0);
+            _visibilityChoice.RefreshShownValue();
             _story.SetTextWithoutNotify(string.Empty);
             _counter.text = "0 / " + StoryLimit;
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
+            PlayOpenMotion();
             EventSystem.current?.SetSelectedGameObject(_close.gameObject);
             StartCoroutine(LoadFish());
         }
@@ -93,9 +109,48 @@ namespace FishSocial.Desktop
             if (_busy && !force) return;
             StopAllCoroutines();
             _busy = _loading = false;
+            ResetOpenMotion();
+            _fishChoice.Hide();
+            _visibilityChoice.Hide();
             gameObject.SetActive(false);
             if (_previousFocus != null && _previousFocus.activeInHierarchy)
                 EventSystem.current?.SetSelectedGameObject(_previousFocus);
+        }
+
+        public void PlayOpenMotion()
+        {
+            if (_paper == null && !BindControls()) return;
+            ResetOpenMotion();
+            var offset = CozyMotion.Reduced ? 0 : 16;
+            _paper.anchoredPosition = _paperRest + Vector2.down * offset;
+            _paperAlpha.alpha = 0;
+            CozyMotion.Animate(_paper, .2f, t =>
+            {
+                if (_paper == null || _paperAlpha == null) return;
+                _paper.anchoredPosition = _paperRest + Vector2.down * (offset * (1 - t));
+                _paperAlpha.alpha = Mathf.Clamp01(t);
+            }, RestorePaperPose, CozyWebMotion.Ease.OutCubic, cleanup: RestorePaperPose);
+        }
+
+        void RestorePaperPose()
+        {
+            if (_paper != null) _paper.anchoredPosition = _paperRest;
+            if (_paperAlpha != null) _paperAlpha.alpha = 1;
+        }
+
+        void ResetOpenMotion()
+        {
+            if (_paper != null) CozyMotion.Cancel(_paper);
+            RestorePaperPose();
+        }
+
+        void OnDisable() { ResetOpenMotion(); }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left &&
+                eventData.pointerCurrentRaycast.gameObject == gameObject)
+                Close();
         }
 
         void Update()
@@ -118,8 +173,9 @@ namespace FishSocial.Desktop
             _loading = true;
             _loadFailed = false;
             _status.text = "正在读取背包鱼获…";
-            _fishChoices.Clear();
-            DesktopModalUi.Clear(_fishList);
+            _fishIds.Clear();
+            _fishChoice.ClearOptions();
+            _fishChoice.AddOptions(new List<string> { "正在读取背包鱼获…" });
             RefreshControls();
             if (_api == null || !_api.CanUse)
             {
@@ -141,20 +197,21 @@ namespace FishSocial.Desktop
                 RefreshControls();
                 yield break;
             }
+            var choices = new List<Dropdown.OptionData>();
             foreach (var item in fish ?? Array.Empty<FishInventoryItemDto>())
             {
                 if (item == null || string.IsNullOrEmpty(item.id)) continue;
-                var id = item.id;
-                if (_fishId == null) _fishId = id;
-                var button = DesktopModalUi.MakeButton(_fishList, id,
-                    DesktopFishCatalog.SpeciesName(item.speciesId) + " · " + item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(item.quality),
-                    () => { _fishId = id; RefreshControls(); });
-                button.GetComponent<LayoutElement>().minHeight = button.GetComponent<LayoutElement>().preferredHeight = 48;
-                button.navigation = new Navigation { mode = Navigation.Mode.None };
-                foreach (var label in button.GetComponentsInChildren<Text>()) label.fontSize = 18;
-                _fishChoices.Add(button);
+                _fishIds.Add(item.id);
+                choices.Add(new Dropdown.OptionData(DesktopFishCatalog.SpeciesName(item.speciesId) + " · " +
+                    item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(item.quality)));
             }
-            _status.text = _fishChoices.Count == 0 ? "背包还没有鱼获，先去湖边钓一条吧。" : "分享会保留背包里的鱼获。留空心情将使用鱼获描述。";
+            _fishId = _fishIds.Count > 0 ? _fishIds[0] : null;
+            _fishChoice.ClearOptions();
+            if (choices.Count == 0) choices.Add(new Dropdown.OptionData("背包还没有鱼获"));
+            _fishChoice.AddOptions(choices);
+            _fishChoice.SetValueWithoutNotify(0);
+            _fishChoice.RefreshShownValue();
+            _status.text = _fishIds.Count == 0 ? "背包还没有鱼获，先去湖边钓一条吧。" : "分享会保留背包里的鱼获。留空心情将使用鱼获描述。";
             RefreshControls();
         }
 
@@ -169,14 +226,8 @@ namespace FishSocial.Desktop
         {
             _story.interactable = !_busy;
             _close.interactable = !_busy;
-            _public.interactable = _friends.interactable = !_busy;
-            _public.GetComponent<CozyButtonVisual>()?.SetSelected(_visibility == "public");
-            _friends.GetComponent<CozyButtonVisual>()?.SetSelected(_visibility == "friends");
-            foreach (var button in _fishChoices)
-            {
-                button.interactable = !_busy && !_loading;
-                button.GetComponent<CozyButtonVisual>()?.SetSelected(button.name == _fishId);
-            }
+            _visibilityChoice.interactable = !_busy;
+            _fishChoice.interactable = !_busy && !_loading && _fishIds.Count > 0;
             _publish.interactable = !_busy && !_loading && (_loadFailed || !string.IsNullOrEmpty(_fishId));
             DesktopModalUi.SetButtonLabel(_publish, _busy ? "正在发布…" : _loading ? "正在读取鱼获…" : _loadFailed ? "重试加载" : "贴进动态手账");
         }

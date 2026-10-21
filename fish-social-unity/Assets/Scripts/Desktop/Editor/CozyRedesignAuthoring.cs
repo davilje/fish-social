@@ -48,6 +48,8 @@ namespace FishSocial.Desktop.Editor
                     Verify();
                 else if (action == "preview")
                     CozyRedesignPreview.RenderAll();
+                else if (action == "motion-preview")
+                    CozyRedesignPreview.RenderMotionAll();
                 else if (action == "pond-art")
                     OverlayPondArtBaker.Apply();
                 else if (action == "pond-art-verify")
@@ -182,6 +184,7 @@ namespace FishSocial.Desktop.Editor
             Edit("PanelPondSelection", PondSelection);
             Edit("PanelWorldMap", WorldMap);
             Edit("PanelGallery", Gallery);
+            Edit("GallerySpeciesSlot", root => {});
             Edit("PanelProfileEdit", ProfileEdit);
             Edit("AvatarChoice", AvatarCard);
             Edit("PondSelectionCard", PondCard);

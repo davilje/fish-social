@@ -197,10 +197,20 @@ namespace FishSocial.Desktop
             _friendsOnly = friendsOnly;
             _mineOnly = mineOnly;
             _hasLoaded = false;
-            ClearContent();
-            if (_scroll != null) _scroll.verticalNormalizedPosition = 1f;
             RestyleTabs();
+            if (_categoryMotion != null) StopCoroutine(_categoryMotion);
+            _categoryMotion=StartCoroutine(ChangeFeedCategory());
+        }
+        Coroutine _categoryMotion;
+        IEnumerator ChangeFeedCategory()
+        {
+            var motion=GetComponent<CozyJournalPageMotion>();
+            if(motion!=null) yield return motion.Exit();
+            ClearContent();
+            if(_scroll!=null) _scroll.verticalNormalizedPosition=1f;
             Refresh();
+            motion?.PlayEntrance(0);
+            _categoryMotion=null;
         }
 
         void RestyleUi()
@@ -211,6 +221,7 @@ namespace FishSocial.Desktop
 
         void RestyleTabs()
         {
+            CozyItemArt.Text(transform, "JournalFeedHeading", _mineOnly ? "我的动态" : _friendsOnly ? "好友动态" : "公开动态");
             var tabs = new[] { _publicTab, _friendsTab, _myTab };
             var names = new[] { "公开动态", "好友动态", "我的动态" };
             var icons = new[] { "social", "user", "fish" };
@@ -362,13 +373,23 @@ namespace FishSocial.Desktop
                     if (_selectedComments != null && _selectedComments != selectedCard)
                         _selectedComments.CloseComments();
                     _selectedComments = selectedCard;
+                    foreach(var postCard in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+                        postCard.GetComponent<CozyStickerMotion>()?.SetSelected(postCard==selectedCard);
                     if (_commentsTitle != null)
-                        _commentsTitle.text = (post.nickname ?? "钓友") + "的动态\n评论与留言";
+                        _commentsTitle.text = transform.Find("JournalDetailParity") != null
+                            ? (post.fish != null ? DesktopFishCatalog.SpeciesName(post.fish.speciesId) : "鱼获故事") + "\n" + post.commentCount + " 条评论"
+                            : (post.nickname ?? "钓友") + "的动态\n评论与留言";
+                    if (transform.Find("JournalDetailParity") != null)
+                    {
+                        CozyItemArt.Text(transform, "DesignFeedInfo/Heading", "给 " + (post.nickname ?? "钓友") + " 的留言");
+                        CozyItemArt.Set(transform, "DesignFeedInfo/JournalSummaryArt", post.fish != null ? CozyItemArt.Fish(post.fish.speciesId) : null);
+                    }
                     var body = transform.Find("DesignFeedInfo/Body");
                     if (body != null) body.gameObject.SetActive(false);
                     var note = transform.Find("DesignFeedInfo/Note");
                     if (note != null) note.gameObject.SetActive(false);
                 });
+            if (_commentsHost != null && _selectedComments == null) binder.SelectComments();
         }
 
         void OnPostLiked(PostLikedDto message)

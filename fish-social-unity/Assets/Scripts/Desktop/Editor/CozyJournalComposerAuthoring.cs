@@ -41,38 +41,37 @@ namespace FishSocial.Desktop.Editor
             paperVisual.GetComponent<Image>().raycastTarget = false;
             CozyJournalTheme.ApplySurface(paperVisual.GetComponent<Image>(), "surfaces/modal-paper", true);
             paperVisual.transform.SetAsFirstSibling();
-            Label(paper.transform, "Title", "分享今天的鱼获", 30, 28, 560, 42, 27);
+            Label(paper.transform, "Title", "分享今天的鱼获", 30, 28, 560, 42, 26);
             var _close = Button(paper.transform, "Close", "×", 610, 26, 44, 44, null);
-            Label(paper.transform, "FishHeading", "挑一条鱼", 32, 90, 620, 28, 19);
-            var scroll = DesktopModalUi.MakeScroll(paper.transform, "FishChoices", out var _fishList);
-            Place(scroll.GetComponent<RectTransform>(), 32, 122, 626, 164);
-            scroll.viewport = scroll.GetComponent<RectTransform>();
-            scroll.scrollSensitivity = 24f;
-            scroll.GetComponent<Image>().color = new Color(1f, .94f, .82f, .24f);
-            Label(paper.transform, "StoryHeading", "这一刻的心情（选填）", 32, 304, 480, 28, 19);
-            var _counter = Label(paper.transform, "Counter", "0 / " + DesktopSocialComposeModal.StoryLimit, 530, 304, 128, 28, 16);
+            Label(paper.transform, "FishHeading", "挑一条鱼", 32, 90, 620, 28, 18);
+            var _fishChoice = Choice(paper.transform, "FishChoice", 32, 122, 626, new[] { "正在读取背包鱼获…" });
+            Label(paper.transform, "StoryHeading", "这一刻的心情（选填）", 32, 196, 480, 28, 18);
+            var _counter = Label(paper.transform, "Counter", "0 / " + DesktopSocialComposeModal.StoryLimit, 530, 196, 128, 28, 13);
             _counter.alignment = TextAnchor.MiddleRight;
             var _story = DesktopModalUi.MakeInput(paper.transform, "Story", "今天在湖边，发生了什么开心事？", DesktopSocialComposeModal.StoryLimit);
-            Place(_story.GetComponent<RectTransform>(), 32, 340, 626, 126);
+            Place(_story.GetComponent<RectTransform>(), 32, 232, 626, 130);
             _story.lineType = InputField.LineType.MultiLineNewline;
-            _story.textComponent.fontSize = 19;
+            _story.textComponent.fontSize = 18;
             _story.textComponent.alignment = TextAnchor.UpperLeft;
             _story.textComponent.rectTransform.offsetMin = new Vector2(14, 12);
             _story.textComponent.rectTransform.offsetMax = new Vector2(-14, -12);
             var placeholder = _story.placeholder as Text;
             if (placeholder != null)
             {
-                placeholder.fontSize = 19;
+                placeholder.fontSize = 18;
                 placeholder.alignment = TextAnchor.UpperLeft;
                 placeholder.rectTransform.offsetMin = new Vector2(14, 12);
                 placeholder.rectTransform.offsetMax = new Vector2(-14, -12);
             }
             CozyJournalTheme.ApplyInput(_story);
-            Label(paper.transform, "VisibilityHeading", "谁可以看到", 32, 480, 626, 28, 19);
-            var _public = Button(paper.transform, "Public", "所有钓友", 32, 516, 302, 44, null);
-            var _friends = Button(paper.transform, "Friends", "仅好友", 350, 516, 308, 44, null);
-            var _status = Label(paper.transform, "Status", "", 32, 574, 626, 42, 17);
-            var _publish = Button(paper.transform, "Publish", "贴进动态手账", 32, 630, 626, 50, null);
+            Label(paper.transform, "VisibilityHeading", "谁可以看到", 32, 382, 626, 28, 18);
+            var _visibilityChoice = Choice(paper.transform, "Visibility", 32, 418, 626, new[] { "所有钓友", "仅好友" });
+            var _status = Label(paper.transform, "Status", "", 32, 486, 626, 42, 15);
+            _status.color = new Color(.8f, .41f, .33f);
+            var _publish = Button(paper.transform, "Publish", "贴进动态手账", 32, 546, 626, 50, null);
+            var note = Label(paper.transform, "PublicationNote", "把今天的收获，贴进钓友们的手账。", 32, 612, 626, 32, 13);
+            note.color = new Color(117f / 255, 71f / 255, 46f / 255, .68f);
+            note.alignment = TextAnchor.MiddleCenter;
             CatTheme.StyleButton(_publish, "social", true);
             foreach (var selectable in root.GetComponentsInChildren<Selectable>(true))
                 selectable.navigation = new Navigation { mode = Navigation.Mode.None };
@@ -82,10 +81,53 @@ namespace FishSocial.Desktop.Editor
             serialized.FindProperty("_story").objectReferenceValue = _story;
             serialized.FindProperty("_publish").objectReferenceValue = _publish;
             serialized.FindProperty("_close").objectReferenceValue = _close;
-            serialized.FindProperty("_public").objectReferenceValue = _public;
-            serialized.FindProperty("_friends").objectReferenceValue = _friends;
-            serialized.FindProperty("_fishList").objectReferenceValue = _fishList;
+            serialized.FindProperty("_fishChoice").objectReferenceValue = _fishChoice;
+            serialized.FindProperty("_visibilityChoice").objectReferenceValue = _visibilityChoice;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static Dropdown Choice(Transform parent, string name, float x, float y, float width, string[] options)
+        {
+            var root = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Dropdown));
+            root.transform.SetParent(parent, false);
+            Place(root.GetComponent<RectTransform>(), x, y, width, 46);
+            CozyJournalTheme.ApplySurface(root.GetComponent<Image>(), "surfaces/input-default");
+            var dropdown = root.GetComponent<Dropdown>();
+            dropdown.targetGraphic = root.GetComponent<Image>();
+            dropdown.captionText = Label(root.transform, "Caption", "", 13, 0, width - 54, 46, 18);
+            Label(root.transform, "Arrow", "▾", width - 39, 0, 26, 46, 24);
+            var template = new GameObject("Template", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
+            template.transform.SetParent(root.transform, false);
+            Place(template.GetComponent<RectTransform>(), 0, 48, width, 240);
+            CozyJournalTheme.ApplySurface(template.GetComponent<Image>(), "surfaces/input-default");
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
+            viewport.transform.SetParent(template.transform, false);
+            DesktopModalUi.Stretch(viewport);
+            var content = new GameObject("Content", typeof(RectTransform));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = Vector2.up; contentRect.anchorMax = Vector2.one; contentRect.pivot = Vector2.up;
+            contentRect.anchoredPosition = Vector2.zero; contentRect.sizeDelta = new Vector2(0, 46);
+            var item = new GameObject("Item", typeof(RectTransform), typeof(Image), typeof(Toggle));
+            item.transform.SetParent(content.transform, false);
+            var itemRect = item.GetComponent<RectTransform>();
+            itemRect.anchorMin = Vector2.up; itemRect.anchorMax = Vector2.one; itemRect.pivot = Vector2.up;
+            itemRect.sizeDelta = new Vector2(0, 46); itemRect.anchoredPosition = Vector2.zero;
+            item.GetComponent<Image>().color = new Color(1, .98f, .94f);
+            var toggle = item.GetComponent<Toggle>(); toggle.targetGraphic = item.GetComponent<Image>();
+            var check = Label(item.transform, "Check", "✓", 8, 0, 24, 46, 18);
+            toggle.graphic = check;
+            dropdown.itemText = Label(item.transform, "Label", "", 38, 0, width - 50, 46, 18);
+            var scroll = template.GetComponent<ScrollRect>();
+            scroll.content = contentRect; scroll.viewport = viewport.GetComponent<RectTransform>();
+            scroll.horizontal = false; scroll.vertical = true; scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 24;
+            dropdown.template = template.GetComponent<RectTransform>();
+            dropdown.options.Clear();
+            foreach (var option in options) dropdown.options.Add(new Dropdown.OptionData(option));
+            dropdown.RefreshShownValue();
+            template.SetActive(false);
+            return dropdown;
         }
 
         static Button Button(Transform parent, string name, string title, float x, float y, float width, float height, UnityEngine.Events.UnityAction action)

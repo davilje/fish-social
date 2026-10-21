@@ -30,7 +30,10 @@ namespace FishSocial.Desktop
         Sprite disabledSprite;
         CozyGraphicOffset plateOffset;
         Vector2 motionScale = Vector2.one;
-        public Vector2 MotionScale => motionScale;
+        public Vector2 MotionScale => IsIndex ? EnsureIndexMotion().Current.Scale : motionScale;
+        Vector2 motionOffset;
+        public bool LightPress => GetComponent<CozyStickerMotion>() != null
+            || (!string.IsNullOrEmpty(surfaceNormal) && (surfaceNormal.Contains("sticker") || surfaceNormal.Contains("bobber")));
         [SerializeField] Color tint = Color.white;
         [SerializeField] bool explicitTint;
         bool initialized;
@@ -47,11 +50,58 @@ namespace FishSocial.Desktop
         bool interactable;
         Coroutine submitRoutine;
 
+        CozyIndexMotion indexMotion;
+        CozyIndexGraphic indexGraphic;
+        CozyGraphicOffset indexGraphicOffset;
+        public CozyIndexMotion.Pose IndexPose => EnsureIndexMotion().Current;
+        CozyIndexMotion EnsureIndexMotion() => indexMotion ?? (indexMotion = new CozyIndexMotion(selected));
+        public void AdvanceIndex(float seconds)
+        {
+            if (!IsIndex || CozyMotion.Paused) return;
+            if (CozyMotion.Reduced) EnsureIndexMotion().Settle(); else EnsureIndexMotion().Advance(seconds);
+            RefreshState();
+        }
+        public void BeginIndexEntrance(int ordinal)
+        {
+            if (!IsIndex) return;
+            EnsureIndexMotion().BeginEntrance(ordinal);
+            if (CozyMotion.Reduced) indexMotion.Settle();
+            RefreshState();
+        }
+        public static void BeginRailEntrance(Transform root)
+        {
+            var tabs = new List<CozyButtonVisual>();
+            foreach (var visual in root.GetComponentsInChildren<CozyButtonVisual>(true))
+                if (visual.IsIndex && visual.gameObject.activeInHierarchy) tabs.Add(visual);
+            tabs.Sort((a,b) => b.transform.position.y.CompareTo(a.transform.position.y));
+            for(var i=0;i<tabs.Count;i++) tabs[i].BeginIndexEntrance(i);
+        }
+        bool IsNavigation => transform.parent != null && transform.parent.name == "Nav";
+        bool IsPrimary => primarySurface || (!string.IsNullOrEmpty(surfaceNormal) && surfaceNormal.Contains("button-primary"));
+        bool IsIndex => !string.IsNullOrEmpty(surfaceNormal) && surfaceNormal.Contains("tab-index");
         public bool Selected => selected;
+
+        /// <summary>Settle the visual pose synchronously for Editor screenshots, retaining fixed hit geometry.</summary>
+        public void ApplyFinalPose()
+        {
+            if (!initialized) CatTheme.StyleButton(GetComponent<Button>());
+            if (IsIndex) EnsureIndexMotion().Settle();
+            motionScale = Vector2.one;
+            motionOffset = Vector2.zero;
+            RefreshState();
+            GetComponent<CozyStickerMotion>()?.ApplyFinalPose();
+        }
 
         public void SetSelected(bool value)
         {
+            var motion = IsIndex ? EnsureIndexMotion() : null;
+            if (selected == value) { RefreshState(); return; }
             selected = value;
+            if (motion != null)
+            {
+                motion.Select(value);
+                if (CozyMotion.Reduced) motion.Settle();
+            }
             RefreshState();
             GetComponent<CozyJournalCardVisual>()?.RefreshNow();
         }
@@ -82,8 +132,16 @@ namespace FishSocial.Desktop
             RefreshState();
         }
 
+        internal void SetMotionOffset(Vector2 offset)
+        {
+            if (!initialized) CatTheme.StyleButton(GetComponent<Button>());
+            motionOffset = CozyMotion.Reduced ? Vector2.zero : offset;
+            RefreshState();
+        }
+
         internal void SetMotionScale(Vector2 scale)
         {
+            if (!initialized) CatTheme.StyleButton(GetComponent<Button>());
             motionScale = CozyMotion.Reduced ? Vector2.one : scale;
             RefreshState();
         }
@@ -145,8 +203,8 @@ namespace FishSocial.Desktop
                     Debug.LogError("[DesktopUI] CozyVisual must have an Image: " + name);
                     return;
                 }
-                icon = icon != null ? icon : transform.Find("Icon")?.GetComponent<Image>()
-                    ?? transform.Find("CozyIcon")?.GetComponent<Image>();
+                if (icon == null) icon = transform.Find("Icon")?.GetComponent<Image>();
+                if (icon == null) icon = transform.Find("CozyIcon")?.GetComponent<Image>();
                 if (!explicitTint)
                 {
                     tint = plate != null ? plate.color : primary ? CatTheme.Coral : Color.white;
@@ -235,7 +293,7 @@ namespace FishSocial.Desktop
             var hasLabel = false;
             foreach (var graphic in GetComponentsInChildren<Graphic>(true))
             {
-                if (graphic == hitImage || graphic == plate || graphic.GetComponentInParent<Selectable>(true) != button
+                if (graphic is CozyIndexGraphic || graphic == hitImage || graphic == plate || graphic.GetComponentInParent<Selectable>(true) != button
                     || graphic.GetComponentInParent<InputField>(true) != null || graphic.GetComponent<Mask>() != null
                     || graphic.GetComponent<RectMask2D>() != null
                     || (graphic is Image contentImage && contentImage.type == Image.Type.Filled))
@@ -348,22 +406,66 @@ namespace FishSocial.Desktop
                 color = Color.Lerp(color, CatTheme.Cream, 0.6f);
                 color.a = 0.55f;
             }
-            if (flat && !depressed && !highlighted)
+            // Original .navtab has no painted background in any state; only text changes color.
+            if (IsNavigation || (flat && !depressed && !highlighted))
                 color.a = 0f;
-            var state = !interactable ? "disabled" : depressed ? "pressed" : selected ? "selected"
-                : highlighted ? "hover" : "default";
+            var state = !interactable ? "disabled" : IsIndex ? selected ? "selected" : "default"
+                : depressed ? "pressed" : selected ? "selected" : highlighted ? "hover" : "default";
             CozyJournalTheme.ApplySurface(plate, SurfacePath(state), expandSurfaceInsets);
             plate.color = color;
-            if (plateOffset == null)
-                plateOffset = plate.GetComponent<CozyGraphicOffset>() ?? plate.gameObject.AddComponent<CozyGraphicOffset>();
-            var displacement = depressed && !CozyMotion.Reduced ? -3f : 0f;
-            plateOffset.SetVisual(transform, displacement, 1f, motionScale);
+            if (plateOffset == null) plateOffset = plate.GetComponent<CozyGraphicOffset>();
+            if (plateOffset == null) plateOffset = plate.gameObject.AddComponent<CozyGraphicOffset>();
+            var pose = IsIndex ? EnsureIndexMotion().Current : new CozyIndexMotion.Pose { Scale = motionScale, Alpha = 1 };
+            var displacement = (CozyMotion.Reduced ? Vector2.zero : motionOffset) + Vector2.right * pose.X;
+            var scale = IsIndex ? pose.Scale : motionScale;
+            if (IsIndex) RefreshIndexGraphic(pose, interactable);
+            if (IsIndex || IsPrimary || IsNavigation)
+            {
+                var lightIcon = !IsNavigation && (IsPrimary || selected);
+                var foreground = lightIcon ? Color.white : IsNavigation && selected
+                    ? new Color(212f / 255, 111f / 255, 34f / 255) : new Color(117f / 255, 71f / 255, 46f / 255);
+                if (IsIndex) foreground = Color.Lerp(new Color(117f/255,71f/255,46f/255),Color.white,pose.Selection);
+                foreach (var label in GetComponentsInChildren<Text>(true))
+                    if (label.GetComponentInParent<Selectable>(true) == button) label.color = foreground;
+                if (icon != null)
+                {
+                    // Source icons contain ink pixels: tinting them white cannot create the original white glyph.
+                    var source = icon.sprite;
+                    var alternate = source != null ? Resources.Load<Sprite>("Desktop/Theme/Cozy/" + (lightIcon ? "icons-light/" : "icons/") + source.name) : null;
+                    if (alternate != null) icon.sprite = alternate;
+                    icon.color = Color.white;
+                }
+            }
+            plateOffset.SetVisual(transform, displacement, pose.Alpha, scale);
             foreach (var offset in offsets)
             {
                 if (offset != null)
-                    offset.SetVisual(transform, displacement, dimmed ? 0.55f : 1f, motionScale);
+                    offset.SetVisual(transform, displacement, pose.Alpha * (dimmed ? 0.55f : 1f), scale);
             }
+            if (indexGraphicOffset != null && IsIndex)
+                indexGraphicOffset.SetVisual(transform,displacement,pose.Alpha,scale);
             HideHitImage();
+        }
+
+        void RefreshIndexGraphic(CozyIndexMotion.Pose pose, bool active)
+        {
+            if (indexGraphic == null)
+            {
+                var existing = transform.Find("JournalIndexPaint");
+                var node = existing != null ? existing.gameObject : new GameObject("JournalIndexPaint",typeof(RectTransform),typeof(CanvasRenderer),typeof(CozyIndexGraphic));
+                node.transform.SetParent(transform,false);
+                if(node.GetComponent<CanvasRenderer>()==null)node.AddComponent<CanvasRenderer>();
+                indexGraphic=node.GetComponent<CozyIndexGraphic>();
+                if(indexGraphic==null) indexGraphic=node.AddComponent<CozyIndexGraphic>();
+                var rect=(RectTransform)node.transform;
+                rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=rect.offsetMax=Vector2.zero;
+                rect.SetSiblingIndex(plate.transform.GetSiblingIndex()+1);
+                indexGraphic.raycastTarget=false;
+                indexGraphicOffset=node.GetComponent<CozyGraphicOffset>() ?? node.AddComponent<CozyGraphicOffset>();
+            }
+            indexGraphic.enabled=active;
+            indexGraphic.SetState(selected,pose.Selection);
+            if(active) plate.color=Color.clear;
         }
 
         bool CanInteract()
@@ -379,10 +481,12 @@ namespace FishSocial.Desktop
 
         void Update()
         {
+            if (IsIndex) AdvanceIndex(Time.unscaledDeltaTime);
             if (initialized && button != null && interactable != CanInteract())
             {
                 pointerPressed = false;
                 submitPressed = false;
+                if (IsIndex) EnsureIndexMotion().CancelPress();
                 CozyMotion.CancelPress(transform as RectTransform);
                 RefreshState();
             }
@@ -408,6 +512,7 @@ namespace FishSocial.Desktop
             CozyMotion.ReducedChanged -= OnReducedChanged;
             CozyMotion.CancelPress(transform as RectTransform);
             motionScale = Vector2.one;
+            if (IsIndex) EnsureIndexMotion().Settle();
             hovered = false;
             focused = false;
             pointerPressed = false;
@@ -422,7 +527,7 @@ namespace FishSocial.Desktop
 
         void OnReducedChanged(bool reduced)
         {
-            if (reduced) motionScale = Vector2.one;
+            if (reduced) { motionScale = Vector2.one; motionOffset = Vector2.zero; if (IsIndex) EnsureIndexMotion().Settle(); }
             RefreshState();
         }
 
@@ -436,12 +541,25 @@ namespace FishSocial.Desktop
         {
             hovered = true;
             RefreshState();
+            if (primarySurface && CanInteract())
+            {
+                GetComponentInParent<Canvas>()?.GetComponentInChildren<CozyCornerCharacter>(true)?.Lean(true);
+                if (icon != null)
+                {
+                    var item = icon.rectTransform;
+                    var originalRotation = item.localRotation;
+                    CozyMotion.Animate(item, .42f, t => { if (item != null) item.localRotation = originalRotation
+                        * Quaternion.Euler(0, 0, CozyWebMotion.Frames(t, 0, 14, -10, 0)); },
+                        easing: CozyWebMotion.Ease.InOutSine);
+                }
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             hovered = false;
-            if (pointerPressed) CozyMotion.CancelPress(transform as RectTransform);
+            if (primarySurface) GetComponentInParent<Canvas>()?.GetComponentInChildren<CozyCornerCharacter>(true)?.Lean(false);
+            if (pointerPressed && !IsIndex) CozyMotion.CancelPress(transform as RectTransform);
             RefreshState();
         }
 
@@ -457,7 +575,8 @@ namespace FishSocial.Desktop
             hovered = true;
             pointerPressed = true;
             RefreshState();
-            CozyMotion.PressDown(transform as RectTransform, true);
+            if (IsIndex) { EnsureIndexMotion().PointerDown(); if (CozyMotion.Reduced) indexMotion.Settle(); RefreshState(); }
+            else CozyMotion.PressDown(transform as RectTransform, true);
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -468,7 +587,10 @@ namespace FishSocial.Desktop
             pointerPressed = false;
             RefreshState();
             if (wasPressed)
-                CozyMotion.PressUp(transform as RectTransform);
+            {
+                if (IsIndex) { EnsureIndexMotion().PointerUp(); RefreshState(); }
+                else CozyMotion.PressUp(transform as RectTransform);
+            }
         }
 
         public void OnSelect(BaseEventData eventData)
@@ -481,7 +603,8 @@ namespace FishSocial.Desktop
         {
             focused = false;
             pointerPressed = false;
-            CozyMotion.PressUp(transform as RectTransform);
+            if (IsIndex) EnsureIndexMotion().PointerUp();
+            else CozyMotion.PressUp(transform as RectTransform);
             RefreshState();
         }
 
@@ -492,7 +615,8 @@ namespace FishSocial.Desktop
             if (submitRoutine != null)
                 StopCoroutine(submitRoutine);
             submitPressed = true;
-            CozyMotion.PressDown(transform as RectTransform, true);
+            if (IsIndex) { EnsureIndexMotion().PointerDown(); if (CozyMotion.Reduced) indexMotion.Settle(); RefreshState(); }
+            else CozyMotion.PressDown(transform as RectTransform, true);
             RefreshState();
             submitRoutine = StartCoroutine(ReleaseSubmit());
         }
@@ -502,7 +626,8 @@ namespace FishSocial.Desktop
             yield return new WaitForSecondsRealtime(Mathf.Max(0.1f, button.colors.fadeDuration));
             submitPressed = false;
             submitRoutine = null;
-            CozyMotion.PressUp(transform as RectTransform);
+            if (IsIndex) EnsureIndexMotion().PointerUp();
+            else CozyMotion.PressUp(transform as RectTransform);
             RefreshState();
         }
     }

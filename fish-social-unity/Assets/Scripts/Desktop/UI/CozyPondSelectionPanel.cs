@@ -131,7 +131,7 @@ namespace FishSocial.Desktop
                 if (!Matches(pond, definition)) continue;
                 if (first == null) first = pond;
                 if (pond.pondId == _selectedId) selectionVisible = true;
-                BuildCard(pond, definition);
+                BuildCard(pond, definition, cardCount);
                 cardCount++;
             }
             if (cardCount == 0)
@@ -139,7 +139,36 @@ namespace FishSocial.Desktop
                 var empty = DesktopUiPrefabFactory.Instantiate("TextStatusRow", _cards);
                 var message = empty != null ? DesktopModalUi.FindComponent<Text>(empty.transform, "Message") : null;
                 if (message != null)
-                    message.text = "没有符合条件的鱼塘，请清除筛选或修改搜索。";
+                {
+                    message.text = "没有找到这片水域。\n试试其他名称，或清除筛选。";
+                    var layout = empty.GetComponent<LayoutElement>() ?? empty.AddComponent<LayoutElement>();
+                    layout.ignoreLayout = true;
+                    var rect = (RectTransform)empty.transform;
+                    rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.up;
+                    rect.anchoredPosition = new Vector2(14, -100); rect.sizeDelta = new Vector2(682, 180);
+                    message.alignment = TextAnchor.MiddleCenter; message.fontSize = 22;
+                }
+            }
+            if (cardCount > 0)
+            {
+                var footer = DesktopUiPrefabFactory.Instantiate("TextStatusRow", _cards);
+                if (footer != null)
+                {
+                    footer.name = "PondListEnd";
+                    var layout = footer.GetComponent<LayoutElement>() ?? footer.AddComponent<LayoutElement>();
+                    layout.ignoreLayout = true;
+                    var rect = (RectTransform)footer.transform;
+                    rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
+                    rect.anchoredPosition = new Vector2(14, 16); rect.sizeDelta = new Vector2(682, 30);
+                    var message = DesktopModalUi.FindComponent<Text>(footer.transform, "Message");
+                    if (message != null)
+                    {
+                        message.text = "到底了，愿你今天满载而归。"; message.fontSize = 16;
+                        message.alignment = TextAnchor.MiddleCenter; message.color = new Color32(175,139,105,255);
+                        message.rectTransform.anchorMin = Vector2.zero; message.rectTransform.anchorMax = Vector2.one;
+                        message.rectTransform.offsetMin = message.rectTransform.offsetMax = Vector2.zero;
+                    }
+                }
             }
             _scroll.StopMovement();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_cards);
@@ -152,7 +181,7 @@ namespace FishSocial.Desktop
             RevealVisibleCards(Vector2.zero);
         }
 
-        void BuildCard(WorldMapPondView pond, DesktopGameData.PondDef definition)
+        void BuildCard(WorldMapPondView pond, DesktopGameData.PondDef definition, int index)
         {
             var card = DesktopUiPrefabFactory.Instantiate("PondSelectionCard", _cards);
             if (card == null)
@@ -174,17 +203,20 @@ namespace FishSocial.Desktop
             }
             var closed = _selection == null || !_selection.CanEnter(pond);
             name.text = pond.displayName;
-            description.text = Describe(pond, definition);
+            description.text = "<color=#" + ColorUtility.ToHtmlStringRGB(CozyPondMarkerView.CategoryColor(pond.pondCategory)) + ">●</color> " +
+                DesktopGameData.CategoryLabel(pond.pondCategory) +
+                (definition != null && !string.IsNullOrEmpty(definition.waterType) ? " · " + DesktopGameData.WaterLabel(definition.waterType) : "");
             fee.text = FeeText(pond);
             level.text = pond.minPlayerLevel > 0 ? "需要钓鱼等级 " + pond.minPlayerLevel : "等级要求：无";
-            access.text = _selection != null ? _selection.AccessReason(pond) : "等待等级信息";
+            access.text = AccessBadge(pond);
             icon.sprite = CatTheme.LoadCozy(closed ? "icons/lock.png" : WaterIcon(definition), Vector4.zero);
             var photo = DesktopModalUi.FindComponent<Image>(card.transform, "Photo");
             if (photo != null)
             {
                 photo.sprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/journal/ponds/" + pond.pondId);
                 photo.enabled = photo.sprite != null;
-                photo.preserveAspect = true;
+                photo.preserveAspect = false;
+                photo.color = new Color(1, 1, 1, closed ? .65f : 1);
                 photo.raycastTarget = false;
             }
             var pondId = pond.pondId;
@@ -203,7 +235,8 @@ namespace FishSocial.Desktop
             select.transition = Selectable.Transition.None;
             select.onClick.RemoveAllListeners();
             select.onClick.AddListener(() => SelectPond(pondId));
-            icon.color = DesktopGameData.CategoryColor(pond.pondCategory, closed);
+            icon.color = CozyPondMarkerView.CategoryColor(pond.pondCategory);
+            CozyStickerMotion.Bind(card, "pond:" + pondId, index, _scroll.viewport, pondId, pondObserver: true);
         }
 
         static void EnableScrollHit(ScrollRect scroll)
@@ -224,7 +257,13 @@ namespace FishSocial.Desktop
         {
             if (_selection == null || _selection.Busy) return;
             foreach (var pond in WorldMapPondCatalog.LoadVisible())
-                if (pond != null && pond.pondId == pondId) { _selection.Select(pond); break; }
+                if (pond != null && pond.pondId == pondId)
+                {
+                    var sameSelection = _selectedId == pondId;
+                    _selection.Select(pond);
+                    if(sameSelection)PondDetailView.RevealPhoto(transform.Find("DesignPondAside"));
+                    break;
+                }
         }
 
         void RefreshSelection()
@@ -237,17 +276,21 @@ namespace FishSocial.Desktop
                 if (!card.gameObject.activeSelf) continue;
                 var selected = card.name == "PondCard_" + _selectedId;
                 card.GetComponent<CozyButtonVisual>()?.SetSelected(selected);
+                var tape = card.Find("PondTape"); if (tape != null) tape.gameObject.SetActive(selected);
                 var access = DesktopModalUi.FindComponent<Text>(card, "Access");
                 foreach (var pond in ponds)
                     if (pond != null && card.name == "PondCard_" + pond.pondId)
                     {
-                        if (access != null) access.text = _selection != null ? _selection.AccessReason(pond) : "等待等级信息";
+                        if (access != null) access.text = AccessBadge(pond);
                         var icon = DesktopModalUi.FindComponent<Image>(card, "PondIcon");
                         var closed = _selection == null || !_selection.CanEnter(pond);
+                        var photo = DesktopModalUi.FindComponent<Image>(card, "Photo");
+                        if (photo != null) photo.color = new Color(1, 1, 1, closed ? .65f : 1);
+                        if (access != null) access.color = closed ? new Color32(146,131,114,255) : new Color32(113,137,80,255);
                         if (icon != null)
                         {
                             icon.sprite = CatTheme.LoadCozy(closed ? "icons/lock.png" : "icons/pond.png", Vector4.zero);
-                            icon.color = DesktopGameData.CategoryColor(pond.pondCategory, closed);
+                            icon.color = CozyPondMarkerView.CategoryColor(pond.pondCategory);
                         }
                     }
             }
@@ -293,8 +336,7 @@ namespace FishSocial.Desktop
                 var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, card);
                 if (bounds.max.y < viewport.rect.yMin || bounds.min.y > viewport.rect.yMax) continue;
                 _revealed.Add(card.name);
-                var visual = card.Find("DesignPaper") as RectTransform;
-                if (visual != null) CozyMotion.Punch(visual);
+                // CozyStickerMotion observes the fixed card bounds and applies the original CSS reveal.
             }
         }
 
@@ -376,12 +418,17 @@ namespace FishSocial.Desktop
             if (_scroll != null) _scroll.onValueChanged.RemoveListener(RevealVisibleCards);
         }
 
+        string AccessBadge(WorldMapPondView pond)
+        {
+            if (_selection == null || _selection.ProgressLoading || _selection.Progress == null) return "核对条件中";
+            if (_selection.CanEnter(pond)) return "可进入";
+            return pond.minPlayerLevel > 0 ? "Lv." + pond.minPlayerLevel + " 解锁" : "尚未解锁";
+        }
+
         static string FeeText(WorldMapPondView pond)
         {
-            if (pond.allowsAutoReturn && pond.feePer2hSellOnly > 0)
-                return "出售档：" + pond.feePer2hSellOnly + " 金币 / 2 小时\n回鱼档：" +
-                       pond.feePer2hAutoReturn + " 金币 / 2 小时";
-            return pond.feePer2h > 0 ? "入场费：" + pond.feePer2h + " 金币 / 2 小时" : "入场费：免费";
+            if (PondSelectionState.HasDualFee(pond)) return pond.feePer2hSellOnly + "/" + pond.feePer2hAutoReturn + " 金币";
+            return pond.feePer2h > 0 ? pond.feePer2h + " 金币" : "免费";
         }
 
     }

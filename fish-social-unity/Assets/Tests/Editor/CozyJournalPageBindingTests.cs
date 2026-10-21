@@ -20,7 +20,7 @@ namespace FishSocial.Tests.Editor
             var instance = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelLeaderboard.prefab"));
             try
             {
-                var podium = (RectTransform)instance.transform.Find("Podium");
+                var podium = (RectTransform)(instance.transform.Find("Scroll/Viewport/Content/Podium") ?? instance.transform.Find("Podium"));
                 var scroll = (RectTransform)instance.transform.Find("Scroll");
                 var podiumPosition = podium.anchoredPosition;
                 var podiumSize = podium.sizeDelta;
@@ -81,6 +81,153 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
+        public void AlbumBindsBothPhotosAndDisablesPagingForEmptyAlbum()
+        {
+            var instance = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelProfileHub.prefab"));
+            try
+            {
+                instance.SetActive(false);
+                var view = instance.GetComponent<DesktopProfileHubPanel>();
+                view.Bind(null, null, null);
+                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                typeof(DesktopProfileHubPanel).GetField("_hub", flags).SetValue(view,
+                    new ProfileHubDto { albumPins = new AlbumCardDto[0] });
+                typeof(DesktopProfileHubPanel).GetMethod("RenderAlbum", flags).Invoke(view, null);
+                var album = instance.transform.Find("Shell/Content/Tab_相册");
+                Assert.IsFalse(album.Find("Prev").GetComponent<Button>().interactable);
+                Assert.IsFalse(album.Find("Next").GetComponent<Button>().interactable);
+                var right = album.Find("AlbumStage/SlotR").GetComponent<Button>();
+                Assert.IsNotNull(album.Find("AlbumStage/SlotL").GetComponent<Button>());
+                Assert.IsNotNull(right);
+                right.onClick.Invoke();
+                Assert.AreEqual(1, typeof(DesktopProfileHubPanel).GetField("_albumSelection", flags).GetValue(view));
+            }
+            finally { Object.DestroyImmediate(instance); }
+        }
+
+        [Test]
+        public void AuthoredShowcaseActionsRespectReadOnlyAndCodexExploreUsesRoute()
+        {
+            var instance = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelProfileHub.prefab"));
+            try
+            {
+                instance.name = "PanelProfileHub";
+                CozyRedesignAuthoring.ApplyDetailParity(instance);
+                instance.SetActive(false);
+                var view = instance.GetComponent<DesktopProfileHubPanel>();
+                var openedMap = false;
+                view.Bind(null, null, null, null, () => openedMap = true);
+                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var hub = new ProfileHubDto { canEdit = true, showcaseFish = new FishInventoryItemDto[8] };
+                typeof(DesktopProfileHubPanel).GetField("_hub", flags).SetValue(view, hub);
+                typeof(DesktopProfileHubPanel).GetMethod("SelectShowcase", flags).Invoke(view, new object[] { 2 });
+                var replace = instance.transform.Find("Shell/Content/Tab_展示柜/JournalReplace").GetComponent<Button>();
+                var clear = instance.transform.Find("Shell/Content/Tab_展示柜/JournalClear").GetComponent<Button>();
+                Assert.IsTrue(replace.gameObject.activeSelf);
+                Assert.IsFalse(clear.interactable);
+                hub.canEdit = false;
+                typeof(DesktopProfileHubPanel).GetMethod("SelectShowcase", flags).Invoke(view, new object[] { 2 });
+                Assert.IsFalse(replace.gameObject.activeSelf);
+                Assert.IsFalse(clear.gameObject.activeSelf);
+                Assert.IsNotNull(instance.transform.Find("JournalShowcasePicker/Viewport/Content"));
+                Assert.IsFalse(instance.transform.Find("JournalShowcasePicker").gameObject.activeSelf);
+                var species = DesktopFishCatalog.GetSpecies("koi");
+                Assert.IsNotNull(species);
+                typeof(DesktopProfileHubPanel).GetMethod("ShowCodexDetail", flags).Invoke(view, new object[] { species, null });
+                var explore = instance.transform.Find("Shell/Content/Tab_图鉴/JournalExplore").GetComponent<Button>();
+                Assert.IsTrue(explore.gameObject.activeSelf);
+                explore.onClick.Invoke();
+                Assert.IsTrue(openedMap);
+            }
+            finally { Object.DestroyImmediate(instance); }
+        }
+
+        [Test]
+        public void ProfileBiographyDraftUpdatesAuthoredPreviewImmediately()
+        {
+            var instance = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelProfileEdit.prefab"));
+            try
+            {
+                instance.name = "PanelProfileEdit";
+                CozyRedesignAuthoring.ApplyDetailParity(instance);
+                instance.GetComponent<DesktopProfileEditPanel>().Bind(null, null, null);
+                var input = instance.transform.Find("Form/Bio").GetComponent<InputField>();
+                input.text = "今天也想去湖边看看。";
+                Assert.AreEqual(input.text, instance.transform.Find("JournalPreview/Bio").GetComponent<Text>().text);
+            }
+            finally { Object.DestroyImmediate(instance); }
+        }
+
+        [Test]
+        public void ComposerEntranceMatchesSourceAndImmediateCloseRestoresPaper()
+        {
+            var reduced = CozyMotion.Reduced;
+            CozyMotion.SetPaused(false); CozyMotion.SetReduced(false);
+            var canvas = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas));
+            try
+            {
+                var composer = DesktopSocialComposeModal.Create(canvas.transform);
+                Assert.IsNotNull(composer);
+                composer.gameObject.SetActive(true);
+                var paper = composer.transform.Find("ModalPanel") as RectTransform;
+                var rest = paper.anchoredPosition;
+                composer.PlayOpenMotion();
+                Assert.AreEqual(rest + Vector2.down * 16, paper.anchoredPosition);
+                Assert.AreEqual(0, paper.GetComponent<CanvasGroup>().alpha, .001f);
+                CozyMotion.Tick(.1f);
+                var t = CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutCubic, .5f);
+                Assert.AreEqual(rest.y - 16 * (1 - t), paper.anchoredPosition.y, .001f);
+                Assert.AreEqual(t, paper.GetComponent<CanvasGroup>().alpha, .001f);
+                composer.Close(true);
+                Assert.IsFalse(composer.gameObject.activeSelf);
+                Assert.AreEqual(rest, paper.anchoredPosition);
+                Assert.AreEqual(1, paper.GetComponent<CanvasGroup>().alpha, .001f);
+                composer.gameObject.SetActive(true);
+                composer.PlayOpenMotion();
+                CozyMotion.Tick(.2f);
+                Assert.AreEqual(rest, paper.anchoredPosition);
+                Assert.AreEqual(1, paper.GetComponent<CanvasGroup>().alpha, .001f);
+            }
+            finally
+            {
+                CozyMotion.Cancel(canvas.transform as RectTransform, true);
+                Object.DestroyImmediate(canvas); CozyMotion.SetReduced(reduced);
+            }
+        }
+
+        [Test]
+        public void LikeFailureDoesNotAnimateAndSuccessUsesSourceOutBackScale()
+        {
+            var reduced = CozyMotion.Reduced;
+            CozyMotion.SetPaused(false); CozyMotion.SetReduced(false);
+            var instance = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "SocialPostCard.prefab"));
+            try
+            {
+                var card = instance.GetComponent<DesktopSocialPostCard>();
+                card.Bind(new SocialPostDto { id = "post-motion", nickname = "钓友", text = "鱼获" }, null);
+                var button = instance.transform.Find("Actions/LikeButton").GetComponent<CozyButtonVisual>();
+                var apply = typeof(DesktopSocialPostCard).GetMethod("ApplyLikeResult", BindingFlags.NonPublic | BindingFlags.Instance);
+                apply.Invoke(card, new object[] { false, true, 1 });
+                Assert.AreEqual(Vector2.one, button.MotionScale);
+                apply.Invoke(card, new object[] { true, true, 1 });
+                Assert.AreEqual(Vector2.one * 1.1f, button.MotionScale);
+                CozyMotion.Tick(.11f);
+                var expected = Mathf.LerpUnclamped(1.1f, 1, CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutBack, .5f));
+                Assert.AreEqual(expected, button.MotionScale.x, .001f);
+                CozyMotion.Tick(.11f);
+                Assert.AreEqual(Vector2.one, button.MotionScale);
+                apply.Invoke(card, new object[] { true, false, 0 });
+                typeof(DesktopSocialPostCard).GetMethod("OnDisable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(card, null);
+                Assert.AreEqual(Vector2.one, button.MotionScale);
+            }
+            finally
+            {
+                CozyMotion.Cancel(instance.transform as RectTransform, true);
+                Object.DestroyImmediate(instance); CozyMotion.SetReduced(reduced);
+            }
+        }
+
+        [Test]
         public void IncomingLikeUpdatesTheCardWithoutDiscardingCommentDraft()
         {
             var instance = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "SocialPostCard.prefab"));
@@ -106,9 +253,12 @@ namespace FishSocial.Tests.Editor
             {
                 Assert.IsFalse(saved.activeSelf);
                 var fields = new SerializedObject(saved.GetComponent<DesktopSocialComposeModal>());
-                foreach (var name in new[] { "_status", "_counter", "_story", "_publish", "_close", "_public", "_friends", "_fishList" })
+                foreach (var name in new[] { "_status", "_counter", "_story", "_publish", "_close", "_fishChoice", "_visibilityChoice" })
                     Assert.IsNotNull(fields.FindProperty(name).objectReferenceValue, name + " must survive prefab reload");
-                Assert.AreEqual(0, saved.transform.Find("ModalPanel/FishChoices/Content").childCount);
+                var fishDropdown = saved.transform.Find("ModalPanel/FishChoice").GetComponent<Dropdown>();
+                Assert.NotNull(fishDropdown.template);
+                Assert.IsFalse(fishDropdown.template.gameObject.activeSelf);
+                Assert.IsNotNull(fishDropdown.template.GetComponent<ScrollRect>().viewport.GetComponent<RectMask2D>());
                 var logicalPanel = (RectTransform)saved.transform.Find("ModalPanel");
                 Assert.AreEqual(new Vector2(690, 720), logicalPanel.sizeDelta);
                 Assert.AreEqual(0f, logicalPanel.GetComponent<Image>().color.a);
@@ -119,11 +269,7 @@ namespace FishSocial.Tests.Editor
                 Assert.AreEqual(new Vector2(80, 80), visualPaper.offsetMax);
                 Assert.AreEqual(0, visualPaper.GetSiblingIndex());
                 Assert.IsFalse(visualPaper.GetComponent<Image>().raycastTarget);
-                var fishChoices = logicalPanel.Find("FishChoices");
-                Assert.Less(fishChoices.GetComponent<Image>().color.a, .3f);
-                Assert.IsNotNull(fishChoices.GetComponent<RectMask2D>());
-                Assert.AreSame(fishChoices, fishChoices.GetComponent<ScrollRect>().viewport);
-                Assert.AreEqual(new Vector2(32, -122), ((RectTransform)fishChoices).anchoredPosition);
+
             }
             finally { PrefabUtility.UnloadPrefabContents(saved); }
             var canvas = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas));
@@ -139,9 +285,9 @@ namespace FishSocial.Tests.Editor
                 Assert.AreEqual(geometry, ((RectTransform)paper).sizeDelta);
                 paper.Find("Story").GetComponent<InputField>().text = "湖边日记";
                 Assert.AreEqual("4 / 160", paper.Find("Counter").GetComponent<Text>().text);
-                paper.Find("Friends").GetComponent<Button>().onClick.Invoke();
+                paper.Find("Visibility").GetComponent<Dropdown>().value = 1;
                 Assert.AreEqual("friends", typeof(DesktopSocialComposeModal).GetField("_visibility", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(composer));
-                paper.Find("Public").GetComponent<Button>().onClick.Invoke();
+                paper.Find("Visibility").GetComponent<Dropdown>().value = 0;
                 Assert.AreEqual("public", typeof(DesktopSocialComposeModal).GetField("_visibility", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(composer));
                 paper.Find("Publish").GetComponent<Button>().onClick.Invoke();
                 Assert.AreEqual("请选择鱼获，并确认已登录。", paper.Find("Status").GetComponent<Text>().text);
@@ -165,7 +311,7 @@ namespace FishSocial.Tests.Editor
                 Assert.AreEqual(160, input.characterLimit);
                 Assert.AreEqual(InputField.LineType.MultiLineNewline, input.lineType);
                 Assert.IsFalse(input.textComponent.supportRichText);
-                Assert.NotNull(composer.transform.Find("ModalPanel/FishChoices").GetComponent<ScrollRect>());
+                Assert.NotNull(composer.transform.Find("ModalPanel/FishChoice").GetComponent<Dropdown>().template.GetComponent<ScrollRect>());
                 composer.gameObject.SetActive(true);
                 typeof(DesktopSocialComposeModal).GetField("_busy", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(composer, true);
                 composer.Close();

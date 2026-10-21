@@ -116,25 +116,25 @@ namespace FishSocial.Desktop
             if (_legacyLayout)
             {
                 _pondPage = DesktopModalUi.FindChild(transform, "OnlinePage")?.gameObject;
-                _onlineContent = DesktopModalUi.FindChild(transform, "OnlinePage/Scroll/Content");
-                _chatContent = DesktopModalUi.FindChild(transform, "ChatPage/Scroll/Content");
+                _onlineContent = DesktopModalUi.FindScrollContent(transform, "OnlinePage/Scroll");
+                _chatContent = DesktopModalUi.FindScrollContent(transform, "ChatPage/Scroll");
                 _chatInput = DesktopModalUi.FindComponent<InputField>(transform, "ChatPage/ChatInput");
             }
             else
             {
-                _onlineContent = DesktopModalUi.FindChild(transform, "PondPage/OnlinePage/Scroll/Content");
-                _chatContent = DesktopModalUi.FindChild(transform, "PondPage/ChatPage/Scroll/Content");
+                _onlineContent = DesktopModalUi.FindScrollContent(transform, "PondPage/OnlinePage/Scroll");
+                _chatContent = DesktopModalUi.FindScrollContent(transform, "PondPage/ChatPage/Scroll");
                 _chatInput = DesktopModalUi.FindComponent<InputField>(transform, "PondPage/ChatPage/ChatInput");
             }
-            _friendsContent = DesktopModalUi.FindChild(transform, "FriendsPage/Scroll/Content");
+            _friendsContent = DesktopModalUi.FindScrollContent(transform, "FriendsPage/Scroll");
             var friendsChatPrefix = DesktopModalUi.FindChild(
                 transform,
                 "FriendsPage/FriendsChatPage") != null
                 ? "FriendsPage/FriendsChatPage/"
                 : "FriendsPage/";
-            _messageContent = DesktopModalUi.FindChild(
+            _messageContent = DesktopModalUi.FindScrollContent(
                 transform,
-                friendsChatPrefix + "Messages/Content");
+                friendsChatPrefix + "Messages");
             _dmInput = DesktopModalUi.FindComponent<InputField>(
                 transform,
                 friendsChatPrefix + "DmInput");
@@ -143,7 +143,7 @@ namespace FishSocial.Desktop
                 friendsChatPrefix + "DmTitle");
             if (_legacyLayout)
             {
-                _messageContent = DesktopModalUi.FindChild(transform, "DmPage/Messages/Content");
+                _messageContent = DesktopModalUi.FindScrollContent(transform, "DmPage/Messages");
                 _dmInput = DesktopModalUi.FindComponent<InputField>(transform, "DmPage/DmInput");
                 _dmTitle = DesktopModalUi.FindComponent<Text>(transform, "DmPage/DmTitle");
             }

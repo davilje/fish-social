@@ -51,6 +51,8 @@ namespace FishSocial.Desktop
 
         public static Sprite Get(string name)
         {
+            var original = CozyJournalTheme.Sprite("illustrations/items/" + name);
+            if (original != null) return original;
             if (!loaded)
             {
                 loaded = true;
@@ -66,6 +68,8 @@ namespace FishSocial.Desktop
             var id = DesktopGameData.ResolveSpeciesId(speciesId);
             if (id == "largemouth_bass") id = "black_bass";
             if (string.IsNullOrEmpty(id)) return null;
+            var original = CozyJournalTheme.Sprite("illustrations/fish/" + id);
+            if (original != null) return original;
             if (FishSprites.TryGetValue(id, out var cached)) return cached;
             foreach (var entry in FishCatalog)
             {

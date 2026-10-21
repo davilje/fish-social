@@ -188,6 +188,47 @@ namespace FishSocial.Desktop.Editor
                     break;
             }
             foreach (var label in root.GetComponentsInChildren<Text>(true)) label.fontStyle = FontStyle.Normal;
+            ApplyVisualParity(root);
+            ApplyDetailParity(root);
+            ApplyPondParity(root);
+            ApplyGalleryParity(root);
+            ApplyInlineParity(root);
+            ApplyPageMotionParity(root);
+            ApplyToggleParity(root);
+            CanonicalizeScrollContents(root);
+            RemoveObsoleteLayouts(root);
+        }
+
+        static void CanonicalizeScrollContents(GameObject root)
+        {
+            foreach (var scroll in root.GetComponentsInChildren<ScrollRect>(true))
+            {
+                var viewport=scroll.transform.Find("Viewport");
+                if(viewport==null) continue;
+                var actual=(viewport.Find("Slots") ?? viewport.Find("Species") ?? viewport.Find("Cards") ?? viewport.Find("List") ?? (scroll.content != null && scroll.content.IsChildOf(viewport) ? scroll.content : viewport.Find("Content"))) as RectTransform;
+                if(actual==null) continue;
+                scroll.viewport=viewport as RectTransform;
+                scroll.content=actual;
+                foreach(var path in new[]{"Content","Species","Slots","Viewport/Content"})
+                {
+                    var legacy=scroll.transform.Find(path);
+                    if(legacy==null || legacy==actual || legacy.childCount>0) continue;
+                    foreach(var group in legacy.GetComponents<LayoutGroup>()) UnityEngine.Object.DestroyImmediate(group);
+                    foreach(var fit in legacy.GetComponents<ContentSizeFitter>()) UnityEngine.Object.DestroyImmediate(fit);
+                    legacy.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        static void RemoveObsoleteLayouts(GameObject root)
+        {
+            // Place() disables automatic ownership while the authored layout is assembled.
+            // Keep only the owners explicitly re-enabled for dynamic grids/lists/scrolling text.
+            // A disabled LayoutGroup still blocks another LayoutGroup via DisallowMultipleComponent.
+            foreach (var group in root.GetComponentsInChildren<LayoutGroup>(true))
+                if (!group.enabled) UnityEngine.Object.DestroyImmediate(group);
+            foreach (var fitter in root.GetComponentsInChildren<ContentSizeFitter>(true))
+                if (!fitter.enabled) UnityEngine.Object.DestroyImmediate(fitter);
         }
 
         static void JournalPage(GameObject root)

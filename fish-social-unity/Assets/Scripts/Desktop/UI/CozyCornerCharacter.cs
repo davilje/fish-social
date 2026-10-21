@@ -25,7 +25,32 @@ namespace FishSocial.Desktop
         float remaining;
         float elapsed;
         float idleElapsed;
-        int idleAction;
+        bool journalOpen;
+        bool leaning;
+        bool waking;
+        float leanFrom;
+        float leanTo;
+        float leanElapsed = .22f;
+        float leanAngle;
+        Text zzz;
+        public void SetPageOpen(bool open) { journalOpen = open; if (open) RestoreTransform(); }
+        public void NotifyActivity()
+        {
+            Initialize();
+            idleElapsed = 0;
+            if (CurrentPose != Pose.Sleep) return;
+            SetPose(Pose.Rest);
+            waking = true;
+            elapsed = 0;
+        }
+        public void Lean(bool on)
+        {
+            NotifyActivity();
+            leaning = on;
+            leanFrom = leanAngle;
+            leanTo = on ? 5 : 0;
+            leanElapsed = 0;
+        }
         bool initialized;
         public Pose CurrentPose { get; private set; }
         public string SkinId { get; private set; }
@@ -37,7 +62,8 @@ namespace FishSocial.Desktop
             image = GetComponent<Image>();
             rect = image.rectTransform;
             CozyMotion.StopFloat(rect);
-            original = Resources.Load<Sprite>("Desktop/Theme/Cozy/characters/poses/orange-ready") ?? image.sprite;
+            original = Resources.Load<Sprite>("Desktop/Theme/Cozy/journal/illustrations/cat-fishing")
+                ?? Resources.Load<Sprite>("Desktop/Theme/Cozy/characters/poses/orange-ready") ?? image.sprite;
             originalSize = rect.sizeDelta;
             restPosition = rect.anchoredPosition;
             restRotation = rect.localRotation;
@@ -86,9 +112,10 @@ namespace FishSocial.Desktop
             Initialize();
             RestoreTransform();
             CurrentPose = pose;
+            waking = false;
             elapsed = 0f;
             remaining = holdSeconds > 0 ? holdSeconds
-                : pose == Pose.Jump ? .9f : pose == Pose.Nod ? .7f
+                : pose == Pose.Jump ? .64f : pose == Pose.Nod ? .6f
                 : pose == Pose.LookUp || pose == Pose.Error ? 1.2f : 0f;
             idleElapsed = 0f;
             image.sprite = HasMappedPoses ? poses[(int)pose] : original;
@@ -100,26 +127,99 @@ namespace FishSocial.Desktop
         {
             Initialize();
             if (delta <= 0 || CozyMotion.Paused || !isActiveAndEnabled) return;
-            if (CurrentPose == Pose.Rest)
-            {
-                if (!HasMappedPoses || CozyMotion.Reduced) return;
-                idleElapsed += delta;
-                // Occasional poses, never another continuous floating owner.
-                if (idleElapsed >= 15f)
-                    SetPose((idleAction++ & 1) == 0 ? Pose.LookUp : Pose.Nod);
-                return;
-            }
-            if (remaining <= 0f) return;
+            idleElapsed += delta;
+            if (idleElapsed >= 30 && CurrentPose != Pose.Sleep) SetPose(Pose.Sleep);
             elapsed += delta;
-            remaining -= delta;
-            if (!CozyMotion.Reduced && HasMappedPoses)
+            leanElapsed = Mathf.Min(.22f, leanElapsed + delta);
+            leanAngle = Mathf.LerpUnclamped(leanFrom, leanTo,
+                CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutBack, leanElapsed / .22f));
+            var offset = Vector2.zero;
+            var scale = Vector2.one;
+            var rotation = leanAngle;
+            if (!CozyMotion.Reduced)
             {
-                if (CurrentPose == Pose.Jump)
-                    rect.anchoredPosition = restPosition + Vector2.up * (Mathf.Sin(Mathf.Clamp01(elapsed / CozyMotion.Hop) * Mathf.PI) * 14f);
+                if (CurrentPose == Pose.Sleep)
+                {
+                    var t = CozyWebMotion.Evaluate(CozyWebMotion.Ease.InOutSine, elapsed / .6f);
+                    offset = new Vector2(6, -10) * t;
+                    rotation = -7 * t;
+                    RenderSleepLetters();
+                }
+                else if (waking)
+                {
+                    var t = CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutCubic, elapsed / .32f);
+                    offset.y = t < .4f ? Mathf.Lerp(0, 18, t / .4f) : Mathf.Lerp(18, 0, (t - .4f) / .6f);
+                    if (elapsed >= .32f) waking = false;
+                }
+                else if (CurrentPose == Pose.Jump)
+                {
+                    var t = CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutQuad, elapsed / .64f);
+                    if (t < .12f) scale = Vector2.Lerp(Vector2.one, new Vector2(1.08f, .9f), t / .12f);
+                    else if (t < .5f)
+                    {
+                        var p = (t - .12f) / .38f;
+                        offset.y = 64 * p;
+                        scale = Vector2.Lerp(new Vector2(1.08f, .9f), new Vector2(.94f, 1.08f), p);
+                    }
+                    else if (t < .85f)
+                    {
+                        var p = CozyWebMotion.Evaluate(CozyWebMotion.Ease.InQuad, (t - .5f) / .35f);
+                        offset.y = 64 * (1 - p);
+                        scale = Vector2.Lerp(new Vector2(.94f, 1.08f), new Vector2(1.1f, .88f), p);
+                    }
+                    else scale = Vector2.Lerp(new Vector2(1.1f, .88f), Vector2.one, (t - .85f) / .15f);
+                }
                 else if (CurrentPose == Pose.Nod)
-                    rect.localRotation = restRotation * Quaternion.Euler(0, 0, Mathf.Sin(Mathf.Clamp01(elapsed / .7f) * Mathf.PI * 2f) * 3f);
+                    rotation = CozyWebMotion.Frames(CozyWebMotion.Evaluate(CozyWebMotion.Ease.InOutSine, elapsed / .6f), 0, 6, 0, 6, 0);
+                else if (CurrentPose == Pose.Rest && !journalOpen && CozyMotion.ActiveLoopOwner == null)
+                {
+                    var phase = Mathf.PingPong(elapsed / 1.5f, 1);
+                    scale.y = Mathf.Lerp(1, 1.025f, CozyWebMotion.Evaluate(CozyWebMotion.Ease.InOutSine, phase));
+                }
             }
-            if (remaining <= 0f) SetPose(Pose.Rest);
+            if (CurrentPose != Pose.Sleep || CozyMotion.Reduced)
+                if (zzz != null) zzz.gameObject.SetActive(false);
+            ApplyTransform(offset, rotation, scale);
+            if (remaining > 0)
+            {
+                remaining -= delta;
+                if (remaining <= 0) SetPose(Pose.Rest);
+            }
+        }
+
+        void RenderSleepLetters()
+        {
+            if (CozyMotion.ActiveLoopOwner != null) { if (zzz != null) zzz.gameObject.SetActive(false); return; }
+            if (zzz == null)
+            {
+                var go = new GameObject("SleepLetters", typeof(RectTransform), typeof(Text));
+                go.transform.SetParent(transform, false);
+                zzz = go.GetComponent<Text>();
+                zzz.font = CatTheme.Font;
+                zzz.fontSize = 26;
+                zzz.text = "Zzz";
+                zzz.raycastTarget = false;
+                zzz.rectTransform.anchorMin = zzz.rectTransform.anchorMax = new Vector2(0, 1);
+                zzz.rectTransform.pivot = new Vector2(0, 1);
+                zzz.rectTransform.sizeDelta = new Vector2(90, 42);
+            }
+            zzz.gameObject.SetActive(true);
+            var t = Mathf.Repeat(elapsed / 2, 1);
+            var a = t < .4f ? t / .4f : (1 - t) / .6f;
+            var x = t < .4f ? Mathf.Lerp(0, 6, t / .4f) : Mathf.Lerp(6, 14, (t - .4f) / .6f);
+            var y = t < .4f ? Mathf.Lerp(-10, 6, t / .4f) : Mathf.Lerp(6, 30, (t - .4f) / .6f);
+            zzz.rectTransform.anchoredPosition = new Vector2(70 + x, 10 + y);
+            zzz.color = new Color(117f / 255, 71f / 255, 46f / 255, .68f * a);
+        }
+
+        void ApplyTransform(Vector2 offset, float rotation, Vector2 scale)
+        {
+            if (CozyMotion.Reduced) { offset = Vector2.zero; rotation = 0; scale = Vector2.one; }
+            var origin = new Vector3((.3f - rect.pivot.x) * rect.rect.width, -rect.pivot.y * rect.rect.height);
+            var q = Quaternion.Euler(0, 0, rotation);
+            rect.localScale = new Vector3(scale.x, scale.y, 1);
+            rect.localRotation = restRotation * q;
+            rect.anchoredPosition = restPosition + offset + (Vector2)(origin - q * Vector3.Scale(origin, rect.localScale));
         }
 
         void RestoreTransform()
@@ -127,6 +227,8 @@ namespace FishSocial.Desktop
             if (rect == null) return;
             rect.anchoredPosition = restPosition;
             rect.localRotation = restRotation;
+            rect.localScale = Vector3.one;
+            if (zzz != null) zzz.gameObject.SetActive(false);
         }
 
         void OnEnable()
@@ -137,7 +239,7 @@ namespace FishSocial.Desktop
             CozyMotion.PausedChanged += OnPaused;
         }
         void Start() { if (!initialized) { Initialize(); SetPose(CozyMotion.Paused ? Pose.Sleep : Pose.Rest); } }
-        void Update() { Advance(Time.unscaledDeltaTime); }
+        void Update() { if (Input.anyKeyDown) NotifyActivity(); Advance(Time.unscaledDeltaTime); }
         void OnDisable()
         {
             CozyMotion.ReducedChanged -= OnReduced;

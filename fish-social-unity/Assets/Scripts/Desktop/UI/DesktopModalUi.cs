@@ -40,6 +40,14 @@ namespace FishSocial.Desktop
             return root.Find(path);
         }
 
+        public static Transform FindScrollContent(Transform root, string scrollPath)
+        {
+            var scroll=root != null ? root.Find(scrollPath) : null;
+            if(scroll==null) return null;
+            var view=scroll.GetComponent<ScrollRect>();
+            return view != null && view.content != null ? view.content : scroll.Find("Viewport/Content") ?? scroll.Find("Content");
+        }
+
         public static T FindComponent<T>(Transform root, string path)
             where T : Component
         {

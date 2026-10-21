@@ -24,6 +24,8 @@ namespace FishSocial.Desktop
         Button _buy;
         Button _equip;
         Button _retry;
+        Button _browseShop;
+        public Action ShopRequested;
         RectTransform _content;
         Button _baitTab;
         Button _tackleTab;
@@ -96,6 +98,12 @@ namespace FishSocial.Desktop
             _buy = Find<Button>("Details/Buy");
             _equip = Find<Button>("Details/Equip");
             _retry = Find<Button>("Details/Retry");
+            _browseShop = Find<Button>("Details/BrowseShop");
+            if(_browseShop != null)
+            {
+                _browseShop.onClick.RemoveAllListeners();
+                _browseShop.onClick.AddListener(()=>{if(!_busy && !_loading) ShopRequested?.Invoke();});
+            }
             _content = transform.Find("Items/Viewport/Content") as RectTransform;
             _baitTab = Find<Button>("Tabs/Bait");
             _tackleTab = Find<Button>("Tabs/Tackle");
@@ -229,13 +237,26 @@ namespace FishSocial.Desktop
             Render();
         }
 
+        Coroutine _tabMotionRoutine;
         void SelectTab(int tab)
         {
             if (_equipmentMode && tab == 2)
                 return;
+            if (_tab == tab) return;
             _tab = tab;
             _selectedIndex = -1;
+            TintTab(_baitTab, tab == 0); TintTab(_tackleTab, tab == 1); TintTab(_vesselTab, tab == 2);
+            if (_tabMotionRoutine != null) StopCoroutine(_tabMotionRoutine);
+            _tabMotionRoutine = StartCoroutine(ChangeCategory());
+        }
+
+        IEnumerator ChangeCategory()
+        {
+            var motion=GetComponent<CozyJournalPageMotion>();
+            if(motion!=null) yield return motion.Exit();
             Render();
+            motion?.PlayEntrance(_content.childCount);
+            _tabMotionRoutine=null;
         }
 
         void BuySelected()
@@ -440,27 +461,35 @@ namespace FishSocial.Desktop
             Render();
         }
 
-        void Render()
+        void Render() { RenderContent(true); }
+
+        void RenderContent(bool rebuildCards)
         {
             if (_coins == null || _equipped == null || _details == null || _content == null)
                 return;
             _coins.text = "金币：" + _coinBalance;
             _equipped.text = _equipmentMode
                 ? "当前钓竿：" + EquippedRodName() + "    当前鱼饵：" + EquippedBaitName() +
-                  "\n钓鱼等级：" + Math.Max(1, _gear.playerLevel) + " · 仅显示已拥有 / 已解锁装备"
+                  "\n钓鱼等级：" + Math.Max(1, _gear.playerLevel) + " · 选择钓竿查看拥有状态"
                 : "钓竿：" + EquippedRodName() + "    钓鱼等级：" + Math.Max(1, _gear.playerLevel);
             TintTab(_baitTab, _tab == 0);
             TintTab(_tackleTab, _tab == 1);
             if (_vesselTab != null)
                 TintTab(_vesselTab, _tab == 2);
 
+            var visibleCount = _content.childCount;
+            if (rebuildCards)
+            {
+                visibleCount = 0;
             for (var i = _content.childCount - 1; i >= 0; i--)
             {
                 _content.GetChild(i).gameObject.SetActive(false);
                 Destroy(_content.GetChild(i).gameObject);
             }
 
-            var visibleCount = 0;
+            var total=_tab==0?_baits.Length:_tab==1?_tackles.Length:_vessels.Length;
+            if(_selectedIndex<0 && total>0) _selectedIndex=0;
+            CozyItemArt.Text(transform,"DesignItemsHeading",(_tab==0?"垂钓补给":_tab==1?"顺手的竿":"出海装备")+"    "+total+" 件");
             if (_tab == 0)
             {
                 for (var i = 0; i < _baits.Length; i++)
@@ -482,14 +511,11 @@ namespace FishSocial.Desktop
                 for (var i = 0; i < _tackles.Length; i++)
                 {
                     var owned = OwnsRod(_tackles[i].id);
-                    if (_equipmentMode && !owned)
-                        continue;
+
                     var subType = RodSubType(_tackles[i]);
                     var price = RodPrice(_tackles[i]);
                     CreateCard(i, _tackles[i].id, _tackles[i].name, "icons/rod.png",
-                        owned
-                            ? (IsEquippedRod(_tackles[i].id) ? "使用中 · " + subType : "已拥有 · " + subType)
-                            : (price <= 0 ? "新手赠送" : "未拥有 · " + price + " 金"));
+                        _equipmentMode ? owned ? subType : "商店购买" : owned ? "已拥有" : price <= 0 ? "新手赠送" : price.ToString("N0"));
                     visibleCount++;
                 }
             }
@@ -502,6 +528,16 @@ namespace FishSocial.Desktop
                         owned ? "已拥有 · 暂不可用" :
                         "等级 " + _vessels[i].unlockPlayerLevel + " · " + _vessels[i].priceGold + " 金");
                     visibleCount++;
+                }
+            }
+
+            }
+            else
+            {
+                foreach (Transform child in _content)
+                {
+                    var visual = child.GetComponent<CozyButtonVisual>();
+                    if (visual != null) visual.SetSelected(child.name == "Item_" + _selectedIndex);
                 }
             }
 
@@ -564,19 +600,26 @@ namespace FishSocial.Desktop
 
         void SetActionButtons(bool showBuy, bool buyEnabled, bool equipEnabled)
         {
+            var selectedRod=SelectedTackle();
+            var isOwned=selectedRod!=null && OwnsRod(selectedRod.id);
+            if(_browseShop!=null)
+            {
+                _browseShop.gameObject.SetActive(_equipmentMode && selectedRod!=null && !isOwned);
+                _browseShop.interactable=!_busy && !_loading;
+            }
             showBuy = showBuy && !_equipmentMode;
             if (_buy != null)
             {
                 _buy.gameObject.SetActive(showBuy);
                 _buy.interactable = showBuy && buyEnabled && !_busy && !_loading;
-                DesktopModalUi.SetButtonLabel(_buy, "购买");
+                DesktopModalUi.SetButtonLabel(_buy, selectedRod!=null ? isOwned ? "已拥有" : RodPrice(selectedRod).ToString("N0")+" 购买" : "购买");
             }
             if (_equip != null)
             {
-                var showEquip = equipEnabled;
+                var showEquip = equipEnabled || (_equipmentMode && isOwned);
                 _equip.gameObject.SetActive(showEquip);
-                _equip.interactable = showEquip && !_busy && !_loading;
-                DesktopModalUi.SetButtonLabel(_equip, "装备");
+                _equip.interactable = equipEnabled && !_busy && !_loading;
+                DesktopModalUi.SetButtonLabel(_equip, selectedRod!=null && IsEquippedRod(selectedRod.id) ? "使用中" : "装备");
             }
         }
 
@@ -793,7 +836,13 @@ namespace FishSocial.Desktop
             if (card == null)
                 return;
             card.name = "Item_" + index;
-            CozyItemArt.Set(card.transform, "DesignItemArt", CozyItemArt.Product(_tab, itemId, name));
+            var productArt=CozyItemArt.Product(_tab, itemId, name);
+            CozyItemArt.Set(card.transform, "DesignItemArt", productArt);
+            if(_equipmentMode && _tab==1 && !OwnsRod(itemId))
+            {
+                var picture=card.transform.Find("DesignItemArt")?.GetComponent<Image>();
+                if(picture!=null) { picture.material=Resources.Load<Material>(CozyJournalTheme.ResourceRoot+"materials/Grayscale"); picture.color=new Color(1,1,1,.45f); }
+            }
             var label = DesktopModalUi.FindComponent<Text>(card.transform, "Label");
             var metadata = DesktopModalUi.FindComponent<Text>(card.transform, "Meta");
             var icon = DesktopModalUi.FindComponent<Image>(card.transform, "Icon");
@@ -815,13 +864,15 @@ namespace FishSocial.Desktop
             if (visual != null)
                 visual.SetSelected(index == _selectedIndex);
             CozyStickerMotion.Bind(card, "shop:" + _equipmentMode + ":" + _tab + ":" + itemId, index,
-                _content.parent as RectTransform);
+                _content.parent as RectTransform,sourceId:productArt!=null?productArt.name:itemId);
             button.onClick.RemoveAllListeners();
             var captured = index;
             button.onClick.AddListener(() =>
             {
+                if (_selectedIndex == captured) return;
                 _selectedIndex = captured;
-                Render();
+                RenderContent(false);
+                transform.Find("Details/JournalPolaroid")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24,0),.26f,.3f);
             });
         }
 
@@ -838,7 +889,7 @@ namespace FishSocial.Desktop
             if (_tab != 1 || _selectedIndex < 0 || _selectedIndex >= _tackles.Length)
                 return null;
             var tackle = _tackles[_selectedIndex];
-            return !_equipmentMode || OwnsRod(tackle.id) ? tackle : null;
+            return tackle;
         }
 
         ShopVesselDto SelectedVessel()

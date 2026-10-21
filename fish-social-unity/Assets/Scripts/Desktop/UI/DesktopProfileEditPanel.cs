@@ -125,6 +125,10 @@ namespace FishSocial.Desktop
             _clearSlot.onClick.AddListener(ClearPickedSlot);
             _closePicker.onClick.RemoveAllListeners();
             _closePicker.onClick.AddListener(HidePicker);
+            _nickname.onValueChanged.RemoveListener(UpdateJournalPreview);
+            _nickname.onValueChanged.AddListener(UpdateJournalPreview);
+            _bio.onValueChanged.RemoveListener(UpdateJournalBio);
+            _bio.onValueChanged.AddListener(UpdateJournalBio);
             ApplyCozyStyle();
             HidePicker();
         }
@@ -227,8 +231,21 @@ namespace FishSocial.Desktop
             RenderShowcase();
         }
 
+        void UpdateJournalBio(string value)
+        {
+            CozyItemArt.Text(transform, "JournalPreview/Bio", value);
+        }
+
+        void UpdateJournalPreview(string value)
+        {
+            CozyItemArt.Text(transform, "JournalPreview/Name", string.IsNullOrWhiteSpace(value) ? "钓友" : value);
+            CozyItemArt.Set(transform, "JournalPreview/Avatar", DesktopDefaultAvatars.Portrait(_avatarUrl));
+            UpdateJournalBio(_bio != null ? _bio.text : "");
+        }
+
         void RenderAvatars()
         {
+            UpdateJournalPreview(_nickname != null ? _nickname.text : "");
             if (_avatars == null)
                 return;
             for (var i = _avatars.childCount - 1; i >= 0; i--)

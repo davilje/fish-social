@@ -29,7 +29,7 @@ namespace FishSocial.Desktop
         public const int MapPriority = 30;
         public const int ShowcasePriority = 40;
 
-        enum Channel { Scale, Anchor, Alpha, Number, Loop }
+        enum Channel { Scale, Anchor, Alpha, Number, Loop, Custom }
 
         sealed class Job
         {
@@ -54,6 +54,9 @@ namespace FishSocial.Desktop
             public Quaternion Rotation = Quaternion.identity;
             public int Priority;
             public CozyButtonVisual ButtonVisual;
+            public CozyWebMotion.Ease Ease = CozyWebMotion.Ease.OutCubic;
+            public Action<float> Sample;
+            public float Delay;
         }
 
         static readonly List<Job> Jobs = new List<Job>();
@@ -157,9 +160,19 @@ namespace FishSocial.Desktop
             {
                 var loop = _loopOwner;
                 loop.Time += delta;
-                var wave = Mathf.Sin((loop.Time / FloatPeriod + loop.Phase) * Mathf.PI * 2f);
-                loop.Target.anchoredPosition = loop.From + new Vector2(0f, wave * 3f);
-                loop.Target.localRotation = loop.Rotation * Quaternion.Euler(0f, 0f, wave * 4f);
+                var phase = Mathf.Repeat(loop.Time / (loop.Priority == EmptyStatePriority ? 1.5f : FloatPeriod * .5f) + loop.Phase * 2, 2);
+                var progress = phase <= 1 ? phase : 2 - phase;
+                var wave = Mathf.LerpUnclamped(-1, 1, CozyWebMotion.Evaluate(CozyWebMotion.Ease.InOutSine, progress));
+                if (loop.Priority == EmptyStatePriority)
+                    loop.Target.localScale = Vector3.Scale(loop.RestScale,
+                        Vector3.LerpUnclamped(Vector3.one, new Vector3(1.02f, .97f, 1), (wave + 1) / 2));
+                else if (loop.Priority == ShowcasePriority)
+                    loop.Target.localRotation = loop.Rotation * Quaternion.Euler(0, 0, -wave * 3);
+                else
+                {
+                    loop.Target.anchoredPosition = loop.From + new Vector2(0f, -wave * 3f);
+                    loop.Target.localRotation = loop.Rotation * Quaternion.Euler(0f, 0f, -wave * 4f);
+                }
             }
             // Completion can cancel another page's jobs or add the next sequence step.
             TickJobs.Clear();
@@ -180,7 +193,7 @@ namespace FishSocial.Desktop
                     continue;
                 }
                 job.Time += delta;
-                var t = job.Duration <= 0f ? 1f : Mathf.Clamp01(job.Time / job.Duration);
+                var t = job.Duration <= 0f ? 1f : Mathf.Clamp01((job.Time - job.Delay) / job.Duration);
                 Apply(job, t);
                 if (t >= 1f)
                 {
@@ -194,11 +207,11 @@ namespace FishSocial.Desktop
         {
             if (job.Target == null)
                 return;
-            var eased = EaseOutCubic(t);
+            var eased = CozyWebMotion.Evaluate(job.Ease, t);
             switch (job.Channel)
             {
                 case Channel.Scale:
-                    var scale = Vector2.LerpUnclamped(job.From, job.To, EaseOutBack(t));
+                    var scale = Vector2.LerpUnclamped(job.From, job.To, eased);
                     if (job.ButtonVisual != null)
                         job.ButtonVisual.SetMotionScale(scale);
                     else
@@ -209,6 +222,9 @@ namespace FishSocial.Desktop
                     break;
                 case Channel.Alpha:
                     if (job.Group != null) job.Group.alpha = Mathf.Lerp(job.FromF, job.ToF, eased);
+                    break;
+                case Channel.Custom:
+                    job.Sample?.Invoke(eased);
                     break;
                 case Channel.Number:
                     if (job.Label != null)
@@ -253,7 +269,9 @@ namespace FishSocial.Desktop
                 return;
             }
             Replace(target, Channel.Scale);
+            Replace(target, Channel.Custom);
             var visual = target.GetComponent<CozyButtonVisual>();
+            if (visual != null) visual.SetMotionOffset(Vector2.zero);
             if (Reduced || _paused)
             {
                 if (visual != null) visual.SetMotionScale(Vector2.one);
@@ -265,8 +283,9 @@ namespace FishSocial.Desktop
                 Channel = Channel.Scale,
                 Duration = Tap,
                 ButtonVisual = visual,
+                Ease = CozyWebMotion.Ease.OutQuad,
                 From = Vector2.one,
-                To = new Vector2(1.06f, 0.92f),
+                To = visual != null && visual.LightPress ? new Vector2(1.02f, .96f) : new Vector2(1.06f, .92f),
             };
             Add(job);
         }
@@ -276,49 +295,50 @@ namespace FishSocial.Desktop
             if (target == null)
                 return;
             Replace(target, Channel.Scale);
+            Replace(target, Channel.Custom);
             var visual = target.GetComponent<CozyButtonVisual>();
+            if (visual != null) visual.SetMotionOffset(Vector2.zero);
             if (Reduced || _paused)
             {
                 if (visual != null) visual.SetMotionScale(Vector2.one);
                 else target.localScale = Vector3.one;
                 return;
             }
-            var from = visual != null ? visual.MotionScale : new Vector2(target.localScale.x, target.localScale.y);
-            Add(new Job
-            {
-                Target = target,
-                Channel = Channel.Scale,
-                Duration = Snap * 0.45f,
-                ButtonVisual = visual,
-                From = from,
-                To = new Vector2(0.98f, 1.04f),
-                Done = () =>
+            var light = visual != null && visual.LightPress;
+            var down = light ? new Vector2(1.02f, .96f) : new Vector2(1.06f, .92f);
+            var rebound = light ? new Vector2(.99f, 1.02f) : new Vector2(.98f, 1.04f);
+            Add(new Job { Target = target, Channel = Channel.Custom, Duration = Snap,
+                Ease = CozyWebMotion.Ease.OutCubic, Sample = t =>
                 {
-                    if (target == null)
-                        return;
-                    Add(new Job
-                    {
-                        Target = target,
-                        Channel = Channel.Scale,
-                        Duration = Snap * 0.55f,
-                        ButtonVisual = visual,
-                        From = new Vector2(0.98f, 1.04f),
-                        To = Vector2.one,
-                    });
-                },
-            });
+                    if (target == null) return;
+                    var value = t <= .5f ? Vector2.LerpUnclamped(down, rebound, t * 2)
+                        : Vector2.LerpUnclamped(rebound, Vector2.one, (t - .5f) * 2);
+                    if (visual != null) visual.SetMotionScale(value);
+                    else target.localScale = new Vector3(value.x, value.y, 1);
+                }});
         }
 
         public static void Shake(RectTransform target)
         {
-            if (target == null || Reduced || _paused)
-                return;
-            if (target.GetComponent<CozyButtonVisual>() != null) return;
-            ResetAnchor(target);
+            if (target == null || Reduced || _paused) return;
+            var visual = target.GetComponent<CozyButtonVisual>();
             var rest = target.anchoredPosition;
-            Nudge(target, rest, rest + new Vector2(-4f, 0f), 0.04f, () =>
-                Nudge(target, rest + new Vector2(-4f, 0f), rest + new Vector2(4f, 0f), 0.04f, () =>
-                    Nudge(target, rest + new Vector2(4f, 0f), rest, 0.05f, null, rest), rest), rest);
+            Animate(target, .18f, t =>
+            {
+                if (target == null) return;
+                var x = CozyWebMotion.Frames(t, 0, -4, 4, -3, 3, 0);
+                if (visual != null) visual.SetMotionOffset(new Vector2(x, 0));
+                else target.anchoredPosition = rest + new Vector2(x, 0);
+            }, null, CozyWebMotion.Ease.Linear);
+        }
+
+        public static void Animate(RectTransform target, float duration, Action<float> sample,
+            Action done = null, CozyWebMotion.Ease easing = CozyWebMotion.Ease.OutCubic, float delay = 0, Action cleanup = null)
+        {
+            if (target == null) return;
+            Replace(target, Channel.Custom);
+            Add(new Job { Target = target, Channel = Channel.Custom, Duration = duration,
+                Ease = easing, Sample = sample, Done = done, Delay = Reduced ? 0 : delay, Cleanup = cleanup });
         }
 
         public static void Punch(RectTransform target)
@@ -331,6 +351,7 @@ namespace FishSocial.Desktop
                 Target = target,
                 Channel = Channel.Scale,
                 Duration = Snap,
+                Ease = CozyWebMotion.Ease.OutBack,
                 ButtonVisual = target.GetComponent<CozyButtonVisual>(),
                 From = new Vector2(1.12f, 0.9f),
                 To = Vector2.one,
@@ -342,7 +363,7 @@ namespace FishSocial.Desktop
             if (target == null) return;
             StopFloat(target);
             Loops.Add(new Job { Target = target, Channel = Channel.Loop, Loop = true,
-                Phase = phase, From = target.anchoredPosition, Rotation = target.localRotation,
+                Phase = phase, From = target.anchoredPosition, Rotation = target.localRotation, RestScale = target.localScale,
                 Priority = priority });
             SelectLoop();
         }
@@ -382,6 +403,7 @@ namespace FishSocial.Desktop
             if (loop == null || loop.Target == null) return;
             loop.Target.anchoredPosition = loop.From;
             loop.Target.localRotation = loop.Rotation;
+            loop.Target.localScale = loop.RestScale;
             loop.Time = 0f;
         }
 
@@ -428,7 +450,7 @@ namespace FishSocial.Desktop
                 group.alpha = 1f;
                 return;
             }
-            target.anchoredPosition = rest + new Vector2(80f, 0f);
+            target.anchoredPosition = rest + new Vector2(460f, 0f);
             group.alpha = 0f;
             Replace(target, Channel.Anchor);
             Replace(target, Channel.Alpha);
@@ -436,7 +458,7 @@ namespace FishSocial.Desktop
             {
                 Target = target,
                 Channel = Channel.Anchor,
-                Duration = Slide,
+                Duration = .42f,
                 From = target.anchoredPosition,
                 To = rest,
             });
@@ -445,7 +467,7 @@ namespace FishSocial.Desktop
                 Target = target,
                 Group = group,
                 Channel = Channel.Alpha,
-                Duration = Slide,
+                Duration = .42f,
                 FromF = 0f,
                 ToF = 1f,
             });
@@ -478,146 +500,117 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            var fromRt = from.GetComponent<RectTransform>();
-            var toRt = to.GetComponent<RectTransform>();
+            if (from.name == "Home" || to.name == "Home")
+            {
+                JournalDoor(from, to, done, from.name == "Home");
+                return;
+            }
+
+            var fromRt = (RectTransform)from.transform;
+            var toRt = (RectTransform)to.transform;
             var fromGroup = EnsureGroup(from);
             var toGroup = EnsureGroup(to);
-            var fromRest = fromRt.anchoredPosition;
+            var outgoing = from.GetComponent<CozyJournalFlipPose>();
+            if (outgoing == null) outgoing = from.AddComponent<CozyJournalFlipPose>();
+            var incoming = to.GetComponent<CozyJournalFlipPose>();
+            if (incoming == null) incoming = to.AddComponent<CozyJournalFlipPose>();
             to.SetActive(true);
-            var toRest = toRt.anchoredPosition;
-            toRt.anchoredPosition = toRest + new Vector2(24f, 0f);
-            toGroup.alpha = 0f;
-            toGroup.blocksRaycasts = false;
-            fromGroup.alpha = 1f;
-            fromGroup.blocksRaycasts = false;
-            _finishFlip = done;
-            _cancelFlip = () =>
+            // Only the old sheet is visible during its content exit. The new paper replaces it at 120ms.
+            toGroup.alpha = 0;
+            fromGroup.blocksRaycasts = toGroup.blocksRaycasts = false;
+            Action settle = () =>
             {
-                Drop(fromRt);
-                Drop(toRt);
-                if (from != null)
-                {
-                    fromRt.anchoredPosition = fromRest;
-                    fromGroup.alpha = 1f;
-                    fromGroup.blocksRaycasts = true;
-                    from.SetActive(false);
-                }
-                if (to != null)
-                {
-                    toRt.anchoredPosition = toRest;
-                    toGroup.alpha = 1f;
-                    toGroup.blocksRaycasts = true;
-                }
+                Drop(fromRt); Drop(toRt);
+                if (outgoing != null) outgoing.ResetPose();
+                if (incoming != null) incoming.ResetPose();
+                if (fromGroup != null) { fromGroup.alpha=1; fromGroup.blocksRaycasts=true; }
+                if (toGroup != null) { toGroup.alpha=1; toGroup.blocksRaycasts=true; }
+                if (from != null) from.SetActive(false);
             };
-            Replace(fromRt, Channel.Anchor);
-            Replace(fromRt, Channel.Alpha);
-            Add(new Job
+            _cancelFlip=settle; _finishFlip=done;
+            Animate(fromRt, .12f, t => outgoing.Sample(-24*t,1-t), () =>
             {
-                Target = fromRt,
-                Channel = Channel.Anchor,
-                Duration = Fade,
-                From = fromRest,
-                To = fromRest + new Vector2(-24f, 0f),
-            });
-            Add(new Job
-            {
-                Target = fromRt,
-                Group = fromGroup,
-                Channel = Channel.Alpha,
-                Duration = Fade,
-                FromF = 1f,
-                ToF = 0f,
-                Done = () =>
+                if (from != null) from.SetActive(false);
+                if (to == null) { settle(); _cancelFlip=null; _finishFlip=null; done?.Invoke(); return; }
+                toGroup.alpha=1;
+                incoming.Sample(24,0,10,0);
+                StartJournalEntrance(to,false);
+                Animate(toRt,.2f,t => incoming.Sample(24*(1-t),t,10*(1-t),t), () =>
                 {
-                    if (from != null)
-                    {
-                        fromRt.anchoredPosition = fromRest;
-                        fromGroup.alpha = 1f;
-                        fromGroup.blocksRaycasts = true;
-                        from.SetActive(false);
-                    }
-                    if (toRt == null)
-                    {
-                        if (done != null)
-                            done();
-                        return;
-                    }
-                    Replace(toRt, Channel.Anchor);
-                    Replace(toRt, Channel.Alpha);
-                    Add(new Job
-                    {
-                        Target = toRt,
-                        Channel = Channel.Anchor,
-                        Duration = Slide,
-                        From = toRest + new Vector2(24f, 0f),
-                        To = toRest,
-                    });
-                    Add(new Job
-                    {
-                        Target = toRt,
-                        Group = toGroup,
-                        Channel = Channel.Alpha,
-                        Duration = Slide,
-                        FromF = 0f,
-                        ToF = 1f,
-                        Done = () =>
-                        {
-                            if (toGroup != null)
-                            {
-                                toGroup.alpha = 1f;
-                                toGroup.blocksRaycasts = true;
-                            }
-                            _cancelFlip = null;
-                            _finishFlip = null;
-                            if (done != null)
-                                done();
-                        },
-                    });
-                },
-            });
+                    settle(); _cancelFlip=null; _finishFlip=null; done?.Invoke();
+                }, CozyWebMotion.Ease.OutCubic);
+            }, CozyWebMotion.Ease.InQuad);
         }
 
-        public static void Ripple(RectTransform parent)
+        static void JournalDoor(GameObject from, GameObject to, Action done, bool opening)
         {
-            if (parent == null || Reduced || _paused || RippleSprite() == null)
-                return;
-            var ring = new GameObject("CozyRipple", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            ring.transform.SetParent(parent, false);
-            var rect = ring.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(36f, 36f);
-            rect.anchoredPosition = Vector2.zero;
-            var image = ring.GetComponent<Image>();
-            image.sprite = RippleSprite();
-            image.color = Color.white;
-            image.raycastTarget = false;
-            var group = ring.AddComponent<CanvasGroup>();
-            Add(new Job
+            var fromRect = (RectTransform)from.transform; var toRect = (RectTransform)to.transform;
+            var fromRest = fromRect.anchoredPosition; var toRest = toRect.anchoredPosition;
+            var fromGroup = EnsureGroup(from); var toGroup = EnsureGroup(to);
+            to.SetActive(true); fromGroup.blocksRaycasts = false; toGroup.blocksRaycasts = false;
+            var moving = opening ? toRect : fromRect;
+            Action settle = () =>
             {
-                Target = rect,
-                Channel = Channel.Scale,
-                Duration = 0.36f,
-                From = new Vector2(0.4f, 0.4f),
-                To = new Vector2(1.8f, 1.8f),
-            });
-            Action cleanup = () =>
-            {
-                if (ring == null) return;
-                if (Application.isPlaying) UnityEngine.Object.Destroy(ring);
-                else UnityEngine.Object.DestroyImmediate(ring);
+                Drop(fromRect); Drop(toRect);
+                if (from != null) { fromRect.anchoredPosition = fromRest; fromGroup.alpha = 1; fromGroup.blocksRaycasts = true; from.SetActive(false); }
+                if (to != null) { toRect.anchoredPosition = toRest; toGroup.alpha = 1; toGroup.blocksRaycasts = true; }
             };
-            Add(new Job
+            _cancelFlip = settle; _finishFlip = done;
+            Add(new Job { Target = moving, Channel = Channel.Custom, Duration = opening ? .2f : .14f,
+                Ease = opening ? CozyWebMotion.Ease.OutCubic : CozyWebMotion.Ease.InQuad,
+                Sample = t =>
+                {
+                    if (opening) { toRect.anchoredPosition = toRest + Vector2.down * (16 * (1 - t)); toGroup.alpha = t; }
+                    else { fromRect.anchoredPosition = fromRest + Vector2.down * (12 * t); fromGroup.alpha = 1 - t; }
+                },
+                Done = () => { settle(); if(opening) StartJournalEntrance(to,true); _cancelFlip = null; _finishFlip = null; done?.Invoke(); } });
+            if (opening) { toRect.anchoredPosition = toRest + Vector2.down * 16; toGroup.alpha = 0; }
+        }
+
+        static void StartJournalEntrance(GameObject page, bool rail)
+        {
+            if(page==null) return;
+            foreach(var sticker in page.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
+            foreach(var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
+                motion.PlayEntrance(motion.GetComponentsInChildren<CozyStickerMotion>().Length);
+            if(!rail) return;
+            CozyButtonVisual.BeginRailEntrance(page.transform);
+            for(var i=0;i<3;i++)
             {
-                Target = rect,
-                Cleanup = cleanup,
-                Group = group,
-                Channel = Channel.Alpha,
-                Duration = 0.36f,
-                FromF = 0.9f,
-                ToF = 0f,
-                Done = cleanup,
-            });
+                var ring=page.transform.Find("JournalRing"+i) as RectTransform;
+                if(ring==null) continue;
+                var captured=ring;
+                Animate(ring,.08f,t=>captured.localScale=new Vector3(1,.6f+.4f*t,1),null,CozyWebMotion.Ease.OutBack,i*.03f);
+            }
+        }
+
+        public static void Ripple(RectTransform parent, int count = 2, float width = 90, float height = 34)
+        {
+            if (parent == null || Reduced || _paused || RippleSprite() == null) return;
+            for (var i = 0; i < count; i++)
+            {
+                var ring = new GameObject("CozyRipple", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                ring.transform.SetParent(parent.parent != null ? parent.parent : parent, false);
+                var rect = ring.GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax = new Vector2(.5f, 0);
+                rect.sizeDelta = new Vector2(width, height);
+                rect.position = parent.TransformPoint(new Vector3(parent.rect.center.x, parent.rect.yMin, 0));
+                var image = ring.GetComponent<Image>();
+                image.sprite = RippleSprite(); image.color = Color.white; image.raycastTarget = false;
+                var group = ring.AddComponent<CanvasGroup>();
+                Action cleanup = () =>
+                {
+                    if (ring == null) return;
+                    if (Application.isPlaying) UnityEngine.Object.Destroy(ring); else UnityEngine.Object.DestroyImmediate(ring);
+                };
+                Add(new Job { Target = rect, Channel = Channel.Custom, Duration = .36f, Delay = i * .12f,
+                    Ease = CozyWebMotion.Ease.OutCubic, Cleanup = cleanup, Done = cleanup, Sample = t =>
+                    {
+                        if (rect == null) return;
+                        rect.localScale = Vector3.one * Mathf.LerpUnclamped(.4f, 1.5f, t);
+                        group.alpha = .9f * (1 - t);
+                    }});
+            }
         }
 
         public static Sprite BobberSprite()
@@ -638,84 +631,53 @@ namespace FishSocial.Desktop
 
         public static void EnsureBobber(Transform nav)
         {
-            if (nav == null || nav.Find("CozyBobber") != null)
-                return;
-            var go = new GameObject("CozyBobber", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            go.transform.SetParent(nav, false);
+            if (nav == null) return;
+            var existing = nav.Find("CozyBobber");
+            var go = existing != null ? existing.gameObject
+                : new GameObject("CozyBobber", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            if (existing == null) go.transform.SetParent(nav, false);
             var rect = go.GetComponent<RectTransform>();
             var navRect = nav as RectTransform;
-            rect.anchorMin = rect.anchorMax = navRect != null ? navRect.pivot : new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0f);
-            rect.sizeDelta = new Vector2(28f, 40f);
+            // Normalize persisted older prefabs too. CSS 50% 80% is Unity pivot (.5,.2).
+            rect.anchorMin = rect.anchorMax = navRect != null ? navRect.pivot : new Vector2(.5f, .5f);
+            rect.pivot = new Vector2(.5f, .2f);
+            rect.sizeDelta = new Vector2(40f, 58f);
             var image = go.GetComponent<Image>();
+            if (image == null) image = go.AddComponent<Image>();
             image.sprite = BobberSprite();
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
             image.raycastTarget = false;
             image.color = Color.white;
-            Float(rect, 0.15f, NavigationPriority);
+            if (go.GetComponent<CozyBobberNavigation>() == null) go.AddComponent<CozyBobberNavigation>();
         }
 
         public static void MoveBobber(Transform nav, RectTransform tab)
         {
-            if (nav == null || tab == null)
-                return;
+            if (nav == null) return;
             EnsureBobber(nav);
+            var bobber = nav.Find("CozyBobber");
+            if (bobber == null) return;
+            var motion = bobber.GetComponent<CozyBobberNavigation>();
+            if (motion == null) motion = bobber.gameObject.AddComponent<CozyBobberNavigation>();
+            if (tab == null) { motion.Hide(); return; }
             Canvas.ForceUpdateCanvases();
-            var bobber = nav.Find("CozyBobber") as RectTransform;
-            if (bobber == null)
-                return;
-            StopFloat(bobber);
-            ResetAnchor(bobber);
             var parent = nav as RectTransform;
-            var world = tab.TransformPoint(new Vector3(tab.rect.center.x, tab.rect.yMax, 0f));
+            var world = tab.TransformPoint(tab.rect.center);
             var local = parent != null ? (Vector2)parent.InverseTransformPoint(world) : tab.anchoredPosition;
-            var target = local + new Vector2(0f, 10f);
-            var from = bobber.anchoredPosition;
-            if (Reduced)
-            {
-                bobber.anchoredPosition = target;
-                Float(bobber, 0.15f, NavigationPriority);
-                return;
-            }
-            var peak = Vector2.Lerp(from, target, 0.5f) + new Vector2(0f, 46f);
-            Replace(bobber, Channel.Anchor);
-            Add(new Job
-            {
-                Target = bobber,
-                Channel = Channel.Anchor,
-                Duration = Hop * 0.45f,
-                Rest = target,
-                HasRest = true,
-                From = from,
-                To = peak,
-                Done = () =>
-                {
-                    if (bobber == null)
-                        return;
-                    Add(new Job
-                    {
-                        Target = bobber,
-                        Channel = Channel.Anchor,
-                        Duration = Hop * 0.55f,
-                        Rest = target,
-                        HasRest = true,
-                        From = peak,
-                        To = target,
-                        Done = () =>
-                        {
-                            Ripple(bobber);
-                            Punch(tab);
-                            Float(bobber, 0.15f, NavigationPriority);
-                        },
-                    });
-                },
-            });
+            // CSS top -60 + transform-origin 58*.8 -> pivot 13.6 above nav top.
+            // Therefore the SVG body center (y=30) is 30px above nav top, matching source y=777 at nav y=807.
+            var target = new Vector2(local.x, parent != null ? parent.rect.yMax + 13.6f : local.y + 13.6f);
+            var icon = tab.Find("Icon") as RectTransform ?? tab.Find("CozyIcon") as RectTransform;
+            motion.Move(target, icon);
         }
 
         public static void EnsureCornerCat(Transform parent)
         {
             if (parent == null || parent.Find("CozyCornerCat") != null)
                 return;
-            var sprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/characters/poses/orange-ready");
+            var sprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/journal/illustrations/cat-fishing")
+                ?? Resources.Load<Sprite>("Desktop/Theme/Cozy/characters/poses/orange-ready");
             if (sprite == null)
                 sprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/characters/avatars/orange");
             if (sprite == null)
@@ -725,8 +687,8 @@ namespace FishSocial.Desktop
             var rect = go.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-8f, 8f);
-            rect.sizeDelta = sprite.rect.width > sprite.rect.height ? new Vector2(220f, 176f) : new Vector2(140f, 140f);
+            rect.anchoredPosition = new Vector2(12f, -4f);
+            rect.sizeDelta = new Vector2(250f, 250f * sprite.rect.height / sprite.rect.width);
             var image = go.GetComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
@@ -735,12 +697,12 @@ namespace FishSocial.Desktop
         }
 
         public static CozyCatchCelebration CelebrateCatch(Transform parent, string catchId, string fishName,
-            Sprite fishSprite, bool isCodexNew, string detail = null)
+            Sprite fishSprite, bool isCodexNew, string detail = null, float? sizeM = null)
         {
             if (parent == null) return null;
             var presenter = parent.GetComponent<CozyCatchCelebration>();
             if (presenter == null) presenter = parent.gameObject.AddComponent<CozyCatchCelebration>();
-            presenter.Enqueue(catchId, fishName, fishSprite, isCodexNew, detail);
+            presenter.Enqueue(catchId, fishName, fishSprite, isCodexNew, detail, sizeM);
             return presenter;
         }
 
@@ -750,7 +712,8 @@ namespace FishSocial.Desktop
             EnsureCornerCat(parent);
             var cat = parent.Find("CozyCornerCat");
             if (cat == null) return false;
-            var character = cat.GetComponent<CozyCornerCharacter>() ?? cat.gameObject.AddComponent<CozyCornerCharacter>();
+            var character = cat.GetComponent<CozyCornerCharacter>();
+            if (character == null) character = cat.gameObject.AddComponent<CozyCornerCharacter>();
             return character.SetSkin(explicitSkinId);
         }
 
@@ -760,7 +723,8 @@ namespace FishSocial.Desktop
             EnsureCornerCat(parent);
             var cat = parent.Find("CozyCornerCat");
             if (cat == null) return;
-            var character = cat.GetComponent<CozyCornerCharacter>() ?? cat.gameObject.AddComponent<CozyCornerCharacter>();
+            var character = cat.GetComponent<CozyCornerCharacter>();
+            if (character == null) character = cat.gameObject.AddComponent<CozyCornerCharacter>();
             character.SetPose(pose, holdSeconds);
         }
 
@@ -818,8 +782,9 @@ namespace FishSocial.Desktop
         {
             if (target == null) return;
             Replace(target, Channel.Scale);
+            Replace(target, Channel.Custom);
             var visual = target.GetComponent<CozyButtonVisual>();
-            if (visual != null) visual.SetMotionScale(Vector2.one);
+            if (visual != null) { visual.SetMotionScale(Vector2.one); visual.SetMotionOffset(Vector2.zero); }
         }
 
         public static void Cancel(RectTransform target, bool includeChildren = false)

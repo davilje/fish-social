@@ -133,7 +133,7 @@ namespace FishSocial.Tests.Editor
             var instance = Object.Instantiate(asset);
             try
             {
-                var podium = instance.transform.Find("Podium/Slot1") as RectTransform;
+                var podium = (instance.transform.Find("Scroll/Viewport/Content/Podium/Slot1") ?? instance.transform.Find("Podium/Slot1")) as RectTransform;
                 var before = podium.sizeDelta;
                 instance.GetComponent<DesktopLeaderboardPanel>().Bind(null, null);
                 Assert.AreEqual(before, podium.sizeDelta);
