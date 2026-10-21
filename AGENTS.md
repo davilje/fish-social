@@ -86,3 +86,11 @@ npm run planning:close -- vX.Y.Z
 **策划全流程（写 spec → 登记计划表/看板 → 验收回写状态）**：见项目 Skill [`.cursor/skills/planning-progress-sync/SKILL.md`](.cursor/skills/planning-progress-sync/SKILL.md)。权威表：仓库根目录 [`项目开发需求计划表.xlsx`](项目开发需求计划表.xlsx)，经 `npm run planning:master-xlsx` 重生；**同时刷新** [`策划进度看板.html`](策划进度看板.html)；`docs/planning/` 下保留同步副本。运营入口：[`运营平台.html`](运营平台.html) 或 `打开运营平台.bat` → http://localhost:3001/ops/。
 
 **埋点 / `fishing_metrics` 变更**：必须同步埋点表，见 [`.cursor/skills/metrics-catalog-sync/SKILL.md`](.cursor/skills/metrics-catalog-sync/SKILL.md)（`shared/metrics-schema.ts` + `scripts/build-metrics-events-xlsx.py` + `npm run planning:metrics-xlsx` → 根目录 `v0.4.4-埋点表清单.xlsx`，并同步 `docs/planning/reports/` 副本）。
+
+## Cursor Cloud specific instructions
+
+开发闭环是根目录 `npm run dev`：先编译 `shared/`，再同时拉起 API `:3001` 与 Expo Web `:8082`。`predev` 会强制释放这两个端口，再执行一次会替换上一对进程。Expo 由 `scripts/expo-web.mjs` 以 `BROWSER=none` 启动。登录页在 http://localhost:8082/ ，输入昵称后点「进入游戏」进入世界地图。运维入口由 API 托管：http://localhost:3001/ops/ 。`fish-social-unity/` 不在这条 Cloud 开发闭环里。
+
+- `.env` 被 gitignore。缺失时从 `.env.example` 复制后再启动。开发态要带上模板里的 `JWT_SECRET` 与 `ADMIN_SECRET`，否则服务在启动校验时退出。SQLite 写到 `data/fish-social.db`。Postgres、Loki、OpenTelemetry、Steam、ComfyUI 保持关闭即可。
+- `better-sqlite3` 在 `npm ci` 时用本机的 python3、make、g++ 编译。策划表脚本需要 `python3-openpyxl`，图片脚本需要 `python3-pil`。默认镜像的 Node 22 可以跑这套工作区（生产 Dockerfile 使用 Node 20）。
+- `npm test` 会并行打开同一个 SQLite 文件，可能报 `database is locked`。要稳定结果时先停掉 `npm run dev`，再在 `server/` 下执行 `npx vitest run --no-file-parallelism`。
