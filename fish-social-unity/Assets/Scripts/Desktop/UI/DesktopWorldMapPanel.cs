@@ -211,6 +211,16 @@ namespace FishSocial.Desktop
             return "";
         }
 
+        static float PondPhase(string pondId)
+        {
+            var phase = 0.15f;
+            if (string.IsNullOrEmpty(pondId))
+                return phase;
+            for (var i = 0; i < pondId.Length; i++)
+                phase += pondId[i] * 0.017f;
+            return phase - Mathf.Floor(phase);
+        }
+
         static bool PondHasDualFee(WorldMapPondView pond)
         {
             return pond != null && pond.allowsAutoReturn && pond.feePer2hSellOnly > 0;
@@ -286,6 +296,8 @@ namespace FishSocial.Desktop
                 DesktopModalUi.StyleTree(instance.transform);
                 DesktopModalUi.StyleButton(button, locked ? "lock.png" : "pond.png");
                 button.GetComponent<CozyButtonVisual>()?.SetTint(DesktopGameData.CategoryColor(item.pondCategory, locked));
+                if (!locked)
+                    CozyMotion.Float(marker, PondPhase(item.pondId));
                 _markersById[item.pondId] = button;
             }
             RefreshMarkerSelection();
@@ -314,6 +326,8 @@ namespace FishSocial.Desktop
         {
             _selected = item;
             RefreshMarkerSelection();
+            if (item != null && _markersById.TryGetValue(item.pondId, out var selectedMarker) && selectedMarker != null)
+                CozyMotion.Ripple(selectedMarker.transform as RectTransform);
             if (_selected == null)
             {
                 _returnFeeMode = "sell_only";

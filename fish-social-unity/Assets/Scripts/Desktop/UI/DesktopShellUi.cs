@@ -26,6 +26,7 @@ namespace FishSocial.Desktop
         Text _statusPet;
         Text _toast;
         GameObject _toastRoot;
+        int _shownCoins = int.MinValue;
         float _toastUntil;
         SteamAuthController _steamAuth;
         IAuthenticatedApiClient _authenticatedApi;
@@ -256,6 +257,9 @@ namespace FishSocial.Desktop
                 _toastRoot.SetActive(false);
             _mainRoot.SetActive(false);
             CatTheme.SkinTree(canvasGo.transform);
+            CozyMotion.EnsureHost(canvasGo);
+            CozyMotion.EnsureBobber(canvasGo.transform.Find("MainRoot/Nav"));
+            CozyMotion.EnsureCornerCat(canvasGo.transform.Find("MainRoot"));
             return true;
         }
 
@@ -292,7 +296,13 @@ namespace FishSocial.Desktop
             {
                 _balanceLoading = false;
                 if (ok && _headerCoins != null)
-                    _headerCoins.text = coins.ToString("N0");
+                {
+                    if (_shownCoins == int.MinValue)
+                        _headerCoins.text = coins.ToString("N0");
+                    else
+                        CozyMotion.Roll(_headerCoins, _shownCoins, coins);
+                    _shownCoins = coins;
+                }
             }));
             StartCoroutine(_authenticatedApi.GetProfileHub(_authenticatedApi.PlayerId, "profile", (ok, hub, message) =>
             {
@@ -342,12 +352,18 @@ namespace FishSocial.Desktop
         void HighlightTab(ShellPanelId id)
         {
             var shown = id == ShellPanelId.ProfileEdit || id == ShellPanelId.Gallery ? ShellPanelId.Profile : id;
+            RectTransform selected = null;
             foreach (var pair in _tabs)
             {
                 var visual = pair.Value.GetComponent<CozyButtonVisual>();
                 if (visual != null)
                     visual.SetSelected(pair.Key == shown);
+                if (pair.Key == shown)
+                    selected = pair.Value.transform as RectTransform;
             }
+            var nav = _mainRoot != null ? _mainRoot.transform.Find("Nav") : null;
+            if (selected != null)
+                CozyMotion.MoveBobber(nav, selected);
         }
 
         void EnterMainShell()
@@ -367,6 +383,9 @@ namespace FishSocial.Desktop
             WindowManager.Instance?.ApplyMainShell();
             RefreshPetPresentation();
             RefreshHeaderBalance();
+            Canvas.ForceUpdateCanvases();
+            if (_router != null)
+                HighlightTab(_router.Current);
         }
 
         void ReturnToPetHome()
@@ -650,8 +669,10 @@ namespace FishSocial.Desktop
             if (_toast == null)
                 return;
             _toast.text = msg;
-            (_toastRoot != null ? _toastRoot : _toast.gameObject).SetActive(true);
-            _toastUntil = Time.unscaledTime + 4f;
+            var toast = _toastRoot != null ? _toastRoot : _toast.gameObject;
+            toast.SetActive(true);
+            CozyMotion.SlideToast(toast.transform as RectTransform);
+            _toastUntil = Time.unscaledTime + 2.5f;
         }
 
         void RegisterPanel(Transform parent, ShellPanelId id, System.Action<GameObject> bind)

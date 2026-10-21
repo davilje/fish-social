@@ -18,10 +18,25 @@ namespace FishSocial.Desktop
 
         public void Show(ShellPanelId id)
         {
+            GameObject previous = null;
+            _panels.TryGetValue(Current, out previous);
+            var changed = Current != id && previous != null && previous.activeSelf;
             Current = id;
-            foreach (var kv in _panels)
-                kv.Value.SetActive(kv.Key == id);
+            GameObject next = null;
+            _panels.TryGetValue(id, out next);
             PanelChanged?.Invoke(id);
+            if (!changed || next == null)
+            {
+                foreach (var kv in _panels)
+                    kv.Value.SetActive(kv.Key == id);
+                return;
+            }
+            CozyMotion.Flip(previous, next, () =>
+            {
+                foreach (var kv in _panels)
+                    if (kv.Key != id && kv.Value != null)
+                        kv.Value.SetActive(false);
+            });
         }
     }
 }

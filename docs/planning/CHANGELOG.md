@@ -1,5 +1,12 @@
 # 策划文档变更记录
 
+### [steam-desktop-21-confirmed] - 2026-10-21
+
+- **STEAM-DESKTOP-21** 猫咪钓鱼手账动效 → **已确认**，P1，hotfix。按已确认的手账方案接入按钮回弹、导航浮漂、切页、金币滚动、地图浮标、角落小猫和「减少动效」。不改 Overlay。
+- 规格：`docs/planning/specs/Steam桌面端-21猫咪钓鱼手账动效.md`
+- 开发提示词：`docs/planning/prompts/steam-desktop-21-journal-motion-dev.prompt.md`
+- 设计：`docs/design/ui/2026-10-21-cozy-journal-motion.md`
+
 ### [bug-58-implemented] - 2026-10-21
 
 - **BUG-58** 桌面鱼塘与设置信息 → **已实现**（设计 2026-10-21，完成 2026-10-21）。实机确认后补了两处：进入鱼塘一次点击生效；鱼塘列表滚动区域覆盖整列，不再只有按住按钮才能滑动。

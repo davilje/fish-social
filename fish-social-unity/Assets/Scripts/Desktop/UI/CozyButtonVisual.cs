@@ -391,19 +391,28 @@ namespace FishSocial.Desktop
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (!initialized || eventData.button != PointerEventData.InputButton.Left || !CanInteract())
+            if (!initialized || eventData.button != PointerEventData.InputButton.Left)
                 return;
+            if (!CanInteract())
+            {
+                CozyMotion.PressDown(transform as RectTransform, false);
+                return;
+            }
             hovered = true;
             pointerPressed = true;
             RefreshState();
+            CozyMotion.PressDown(transform as RectTransform, true);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             if (eventData.button != PointerEventData.InputButton.Left)
                 return;
+            var wasPressed = pointerPressed;
             pointerPressed = false;
             RefreshState();
+            if (wasPressed)
+                CozyMotion.PressUp(transform as RectTransform);
         }
 
         public void OnSelect(BaseEventData eventData)

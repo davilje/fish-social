@@ -15,7 +15,7 @@ namespace FishSocial.Desktop
             new[] { "窗口模式", "1280×720", "1600×900", "1920×1080", "2560×1440", "DesignDisplayHeading", "无边框", "全屏" },
             new[] { "通知", "启用通知", "免打扰", "鱼咬钩通知", "好友邀请通知", "连接错误通知", "模拟连接错误" },
             new[] { "服务器", "当前服务器", "服务器地址输入", "保存服务器地址", "测试服务器连接", "服务器连接状态" },
-            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏" },
+            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效" },
         };
 
         NotificationSettings _draft;
@@ -102,7 +102,41 @@ namespace FishSocial.Desktop
             BindTabs();
             ValidatePrefabBindings();
             DesktopModalUi.StyleTree(transform);
+            EnsureReduceMotionToggle();
             ShowTab(_tab);
+        }
+
+        void EnsureReduceMotionToggle()
+        {
+            CozyMotion.LoadPreference();
+            if (DesktopModalUi.FindDescendant(transform, "减少动效") != null)
+                return;
+            var source = DesktopModalUi.FindDescendant(transform, "关闭窗口时隐藏到托盘");
+            if (source == null)
+                return;
+            var copy = Instantiate(source.gameObject, source.parent);
+            copy.name = "减少动效";
+            var rect = copy.GetComponent<RectTransform>();
+            var exit = DesktopModalUi.FindDescendant(transform, "退出游戏") as RectTransform;
+            if (rect != null && exit != null)
+            {
+                rect.anchoredPosition = new Vector2(exit.anchoredPosition.x + exit.rect.width + 16f, exit.anchoredPosition.y);
+                rect.sizeDelta = new Vector2(310f, exit.rect.height);
+            }
+            var label = DesktopModalUi.FindComponent<Text>(copy.transform, "Label");
+            if (label == null)
+                label = copy.GetComponentInChildren<Text>();
+            if (label != null)
+                label.text = "减少动效";
+            var toggle = copy.GetComponent<Toggle>();
+            if (toggle == null)
+                toggle = copy.GetComponentInChildren<Toggle>();
+            if (toggle == null)
+                return;
+            toggle.onValueChanged = new Toggle.ToggleEvent();
+            toggle.SetIsOnWithoutNotify(CozyMotion.Reduced);
+            toggle.onValueChanged.AddListener(CozyMotion.SetReduced);
+            copy.SetActive(false);
         }
 
         public void OnOpened()
