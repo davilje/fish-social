@@ -40,7 +40,7 @@ import {
   grantCatchProgress,
   resetOnboarding,
 } from './playerProgress.js';
-import { createPost, getFriendsPosts, getWallPosts } from './posts.js';
+import { createPost, getFriendsPosts, getWallPosts, getOwnPosts } from './posts.js';
 import {
   addPostComment,
   deletePostComment,
@@ -620,16 +620,22 @@ export function registerSocialRoutes(
     });
   });
 
+  app.get('/api/posts/mine/:playerId', requireSelf('playerId'), (req, res) => {
+    res.json({ posts: getOwnPosts(String(req.params.playerId), Number(req.query.limit ?? 50), Number(req.query.offset ?? 0)) });
+  });
+
   app.post('/api/posts', requireAuth, (req, res) => {
     const playerId = resolveAuthedPlayerId(req, (req.body as { playerId?: string }).playerId);
-    const { nickname, fishId, visibility } = req.body as {
+    const { nickname, fishId, visibility, text } = req.body as {
       nickname?: string;
       fishId?: string;
-      visibility?: 'public' | 'friends';
+      visibility?: 'public' | 'friends' | 'private';
+      text?: string;
     };
-    if (!playerId || !fishId) return res.status(400).json({ error: '参数不完整' });
+    if (!playerId || typeof fishId !== 'string' || !fishId.trim()) return res.status(400).json({ error: '参数不完整' });
+    if (nickname !== undefined && typeof nickname !== 'string') return res.status(400).json({ error: '昵称必须为文本' });
     ensurePlayer(playerId, nickname ?? '钓友');
-    const result = createPost(playerId, nickname ?? '钓友', fishId, visibility);
+    const result = createPost(playerId, nickname ?? '钓友', fishId, visibility, text);
     if (!result.ok) return res.status(400).json({ error: result.error });
     res.json({ post: result.post });
   });

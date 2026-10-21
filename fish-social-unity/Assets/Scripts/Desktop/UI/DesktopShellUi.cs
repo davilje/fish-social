@@ -26,6 +26,7 @@ namespace FishSocial.Desktop
         Text _statusPet;
         Text _toast;
         GameObject _toastRoot;
+        PendingFishCatchDto _journalPendingCatch;
         int _shownCoins = int.MinValue;
         float _toastUntil;
         SteamAuthController _steamAuth;
@@ -221,6 +222,9 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(header, "CatchCount", () => ShowMainPanel(ShellPanelId.CatchBag));
             DesktopModalUi.BindButton(header, "Mail", () => ShowMainPanel(ShellPanelId.Friends));
             DesktopModalUi.BindButton(header, "Settings", () => ShowMainPanel(ShellPanelId.Settings));
+            DesktopModalUi.BindButton(header, "WorldMapEntry", () => ShowMainPanel(ShellPanelId.WorldMap));
+            var worldEntry = DesktopModalUi.FindComponent<Button>(header, "WorldMapEntry");
+            if (worldEntry != null) _lockableNavButtons.Add(worldEntry);
             DesktopModalUi.BindButton(header, "Leaderboard", () => ShowMainPanel(ShellPanelId.Leaderboard));
             DesktopModalUi.BindButton(header, "Home", ReturnToPetHome);
             DesktopModalUi.ConfigureXpBar(headerXpBackground, _headerXpFill);
@@ -379,7 +383,10 @@ namespace FishSocial.Desktop
                 _scaler.referenceResolution = new Vector2(
                     1672f, 941f);
             if (_scaler != null)
-                _scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            {
+                _scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                _scaler.matchWidthOrHeight = .5f;
+            }
             WindowManager.Instance?.ApplyMainShell();
             RefreshPetPresentation();
             RefreshHeaderBalance();
@@ -562,6 +569,13 @@ namespace FishSocial.Desktop
         {
             if (header == null)
                 return;
+            // The journal header is serialized at the approved design coordinates.
+            if (header.Find("WorldMapEntry") != null)
+            {
+                var oldHome = header.Find("Home");
+                if (oldHome != null) oldHome.gameObject.SetActive(false);
+                return;
+            }
             var settings = header.Find("Settings")?.GetComponent<Button>();
             var mail = header.Find("Mail")?.GetComponent<Button>();
             var home = header.Find("Home")?.GetComponent<Button>();
@@ -659,6 +673,8 @@ namespace FishSocial.Desktop
             if (sprite == null)
                 return;
             _headerAvatar.sprite = sprite;
+            if (_headerAvatarSkin != skin && _mainRoot != null)
+                CozyMotion.SetCornerCharacter(_mainRoot.transform, skin == "orange" ? null : skin);
             _headerAvatarSkin = skin;
             if (_homeRenderer != null && _homeRenderer.ActiveSkinId != skin)
                 _homeRenderer.PlayClip(skin, "fishing");
@@ -875,6 +891,12 @@ namespace FishSocial.Desktop
                     break;
             }
 
+            if (state == SteamLoginState.SignedOut)
+            {
+                _journalPendingCatch = null;
+                _mainRoot?.GetComponent<CozyCatchCelebration>()?.Clear();
+            }
+
             if (_loginStatus != null)
                 _loginStatus.text = state == SteamLoginState.SignedOut ? "请使用 Steam 登录" : label;
             if (_statusLogin != null)
@@ -965,17 +987,29 @@ namespace FishSocial.Desktop
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
+            _journalPendingCatch = fishCatch;
+            if (_mainRoot != null) CozyMotion.SetCornerPose(_mainRoot.transform, CozyCornerCharacter.Pose.LookUp);
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : "鱼";
             DesktopNotificationService.Instance?.Publish(new DesktopNotification(
                 NotificationKind.FishBite, "鱼咬钩", "有" + species + "上钩。"));
-            ShowToast("收到服务端咬钩事件。");
+            ShowToast("有" + species + "上钩了！");
         }
 
         void OnPondFishCatchSettled(FishCatchSettledDto settled)
         {
             _suppressInventoryToast = true;
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
+            var pending = _journalPendingCatch;
+            _journalPendingCatch = null;
+            if (settled != null && pending != null && pending.speciesId == settled.speciesId && _mainRoot != null)
+            {
+                var detail = DesktopFishCatalog.QualityName(settled.quality) + " · " + settled.sizeM.ToString("0.00") + " m";
+                if (settled.autoReturned) detail += "\n已回塘 · +" + settled.gold + " 金币";
+                CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
+                    DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail);
+                CozyMotion.SetCornerPose(_mainRoot.transform, CozyCornerCharacter.Pose.Jump);
+            }
             if (settled != null && !string.IsNullOrEmpty(settled.message))
                 ShowToast(settled.message);
             else if (settled != null && settled.autoReturned)
@@ -1059,6 +1093,9 @@ namespace FishSocial.Desktop
             _worldMapPanel = DesktopFeaturePanelFactory.BindExisting<DesktopWorldMapPanel>(
                 go,
                 view => view.Bind(_pondSession, _authenticatedApi));
+            if (_pondSelectionPanel != null && _worldMapPanel != null)
+                _pondSelectionPanel.BindSelection(_worldMapPanel.SelectionState);
+            DesktopModalUi.BindButton(go.transform, "ListPonds", () => ShowMainPanel(ShellPanelId.PondSelection));
         }
 
         void BuildEquipment(GameObject go)
@@ -1093,6 +1130,7 @@ namespace FishSocial.Desktop
                 }
                 _worldMapPanel?.EnterPond(pondId);
             });
+            if (_worldMapPanel != null) _pondSelectionPanel.BindSelection(_worldMapPanel.SelectionState);
         }
 
         void BuildAchievements(GameObject go)
@@ -1143,7 +1181,7 @@ namespace FishSocial.Desktop
         {
             _leaderboardPanel = DesktopFeaturePanelFactory.BindExisting<DesktopLeaderboardPanel>(
                 go,
-                view => view.Bind(_authenticatedApi, _pondSession));
+                view => view.Bind(_authenticatedApi, _pondSession, OpenOtherPlayerProfile));
         }
 
         void BuildSocialPanel(GameObject go)

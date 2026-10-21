@@ -74,6 +74,10 @@ const listPlayerPostsStmt = db.prepare(`
   SELECT * FROM social_posts WHERE player_id = ?
   ORDER BY created_at DESC LIMIT ${MAX_POSTS}
 `);
+const listOwnPostsStmt = db.prepare(`
+  SELECT * FROM social_posts WHERE player_id = ?
+  ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?
+`);
 const trimPostsStmt = db.prepare(`
   DELETE FROM social_posts WHERE id NOT IN (
     SELECT id FROM social_posts ORDER BY created_at DESC LIMIT ${MAX_POSTS}
@@ -215,6 +219,7 @@ export function createPost(
   nickname: string,
   fishId: string,
   visibility?: ShareVisibility,
+  text?: string,
 ): { ok: true; post: SocialPost } | { ok: false; error: string } {
   const player = getPlayer(playerId);
   if (!player) return { ok: false, error: '玩家不存在' };
@@ -223,8 +228,16 @@ export function createPost(
   if (!fish) return { ok: false, error: '鱼不存在' };
 
   const vis = visibility ?? player.shareVisibility;
+  if (!['public', 'friends', 'private'].includes(vis))
+    return { ok: false, error: '可见范围无效' };
+  if (text !== undefined && typeof text !== 'string')
+    return { ok: false, error: '动态文字必须为文本' };
+  const story = text?.trim();
+  if (story && story.length > 160)
+    return { ok: false, error: '动态文字不能超过 160 个字符' };
   const post = createPostFromFish(playerId, nickname, fish, vis, {
     authorAvatarUrl: player.avatarUrl,
+    ...(story ? { text: story } : {}),
   });
   return { ok: true, post };
 }
@@ -258,6 +271,13 @@ export function getFriendsPosts(
     (stmt.all(viewerPlayerId, viewerPlayerId, safeLimit, safeOffset) as PostRow[]).map(rowToPost),
     viewerPlayerId,
   );
+}
+
+/** Called only after the route has authenticated the owner. Includes all own visibility levels. */
+export function getOwnPosts(playerId: string, limit = 50, offset = 0): SocialPost[] {
+  const count = Math.max(1, Math.min(50, Math.floor(Number.isFinite(limit) ? limit : 50)));
+  const start = Math.max(0, Math.floor(Number.isFinite(offset) ? offset : 0));
+  return enrichPostsWithLikes((listOwnPostsStmt.all(playerId, count, start) as PostRow[]).map(rowToPost), playerId);
 }
 
 export function getPlayerPosts(

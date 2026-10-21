@@ -418,8 +418,11 @@ namespace FishSocial.Desktop.Auth
                 onCompleted?.Invoke(false, reject);
                 return;
             }
+            // The fee mode belongs to the joined server session. A different selection must
+            // finish the existing session and rejoin, even when the pond id stays the same.
             if (string.Equals(CurrentPondId, pondId, StringComparison.Ordinal) &&
-                _socket != null && _socket.IsConnected)
+                _socket != null && _socket.IsConnected && CurrentUser != null &&
+                SameReturnFeeMode(CurrentUser.returnFeeMode, _pendingReturnFeeMode))
             {
                 onCompleted?.Invoke(true, "已在目标鱼塘。");
                 return;
@@ -436,6 +439,13 @@ namespace FishSocial.Desktop.Auth
                 }
                 JoinTargetPond(pondId, onCompleted);
             });
+        }
+
+        public static bool SameReturnFeeMode(string current, string requested)
+        {
+            var currentMode = string.Equals(current, "auto_return", StringComparison.Ordinal) ? "auto_return" : "sell_only";
+            var requestedMode = string.Equals(requested, "auto_return", StringComparison.Ordinal) ? "auto_return" : "sell_only";
+            return string.Equals(currentMode, requestedMode, StringComparison.Ordinal);
         }
 
         void JoinTargetPond(string pondId, Action<bool, string> onCompleted)

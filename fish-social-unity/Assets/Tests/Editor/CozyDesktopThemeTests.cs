@@ -71,14 +71,17 @@ namespace FishSocial.Tests.Editor
                 button = PointerEventData.InputButton.Left
             };
             visual.OnPointerEnter(pointer);
-            Assert.AreSame(CatTheme.LoadCozy("buttons/plate-hover.png", CatTheme.PlateBorder), plate.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-hover"), plate.sprite);
+            var restingPlate = plate.rectTransform.anchoredPosition;
             visual.OnPointerDown(pointer);
-            Assert.AreSame(CatTheme.LoadCozy("buttons/plate-pressed.png", CatTheme.PlateBorder), plate.sprite);
-            Assert.AreEqual(new Vector2(0f, -3f), plate.rectTransform.anchoredPosition);
+            CozyMotion.Tick(.03f);
+            Assert.AreEqual(Vector3.one, rect.localScale);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-pressed"), plate.sprite);
+            Assert.AreEqual(restingPlate, plate.rectTransform.anchoredPosition);
             Assert.AreEqual(new Vector2(30f, 70f), rect.anchoredPosition);
             Assert.IsEmpty(plate.GetComponents<Shadow>());
             visual.OnPointerUp(pointer);
-            Assert.AreEqual(Vector2.zero, plate.rectTransform.anchoredPosition);
+            Assert.AreEqual(restingPlate, plate.rectTransform.anchoredPosition);
             button.onClick.Invoke();
             Assert.AreEqual(1, clicks);
         }

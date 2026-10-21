@@ -341,7 +341,8 @@ namespace FishSocial.Desktop.Editor
                    prefab.transform.Find("FishInfoText") != null &&
                    prefab.transform.Find("Actions/LikeButton") != null &&
                    prefab.transform.Find("Actions/CommentsButton") != null &&
-                   prefab.transform.Find("CommentsPanel/CommentsContent") != null &&
+                   (prefab.transform.Find("CommentsPanel/CommentsContent") != null ||
+                    prefab.transform.Find("CommentsPanel/CommentsViewport/CommentsContent") != null) &&
                    prefab.transform.Find("CommentsPanel/CommentInput") != null &&
                    prefab.transform.Find("CommentsPanel/SendButton") != null;
         }

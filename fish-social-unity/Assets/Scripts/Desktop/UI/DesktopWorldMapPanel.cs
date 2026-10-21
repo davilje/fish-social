@@ -30,10 +30,9 @@ namespace FishSocial.Desktop
             new Dictionary<string, WorldMapPondView>(StringComparer.Ordinal);
         readonly Dictionary<string, Button> _markersById =
             new Dictionary<string, Button>(StringComparer.Ordinal);
-        WorldMapPondView _selected;
-        FishingProgressDto _progress;
-        string _returnFeeMode;
-        string _lastSelectedPondId;
+        public PondSelectionState SelectionState { get; } = new PondSelectionState();
+        WorldMapPondView _selected => SelectionState.Selected;
+        string _enteringPondId;
         bool _waitingEnter;
         Button _modeSell;
         Button _modeAuto;
@@ -41,9 +40,19 @@ namespace FishSocial.Desktop
         Vector2 _contentStart;
         float _zoom = 1f;
         bool _uiReady;
+        bool _dragging;
 
         public void Bind(SocialPondSessionController pond, IAuthenticatedApiClient api)
         {
+            if (_pond != null)
+            {
+                _pond.ErrorReceived -= OnPondError;
+                _pond.StateChanged -= OnPondStateChanged;
+                _pond.SnapshotChanged -= OnPondSnapshot;
+            }
+            SelectionState.Changed -= RefreshSelection;
+            SelectionState.Bind(api);
+            SelectionState.Changed += RefreshSelection;
             _pond = pond;
             _api = api;
             EnsureUi();
@@ -70,9 +79,8 @@ namespace FishSocial.Desktop
         {
             if (!_uiReady)
                 return;
-            if (_api == null || !_api.CanUse)
-                return;
-            StartCoroutine(LoadProgress());
+            StartCoroutine(SelectionState.LoadProgress(this));
+            RefreshMarkerSelection();
         }
 
         public void EnterPond(string pondId)
@@ -85,14 +93,14 @@ namespace FishSocial.Desktop
                 SetStatus("未找到对应鱼塘，请重新选择。");
                 return;
             }
-            _lastSelectedPondId = null;
+            if (SelectionState.Busy) return;
             Select(pond);
             EnterSelectedPond();
         }
 
         public void FocusPond(string pondId)
         {
-            if (!_uiReady)
+            if (!_uiReady || SelectionState.Busy)
                 return;
             WorldMapPondView selectedPond;
             if (string.IsNullOrEmpty(pondId) || !_byId.TryGetValue(pondId, out selectedPond))
@@ -101,21 +109,15 @@ namespace FishSocial.Desktop
                 return;
             }
             Select(selectedPond);
+            CozyMotion.Cancel(_content);
+            var start = _content.anchoredPosition;
             _content.anchoredPosition = new Vector2(
                 (0.5f - selectedPond.x) * MapWidth * _zoom,
                 (selectedPond.y - 0.5f) * MapHeight * _zoom);
             ClampContent();
-        }
-
-        System.Collections.IEnumerator LoadProgress()
-        {
-            yield return _api.GetFishingProgress((ok, dto, _) =>
-            {
-                if (ok)
-                    _progress = dto;
-            });
-            BuildMarkers();
-            Select(_selected);
+            var destination = _content.anchoredPosition;
+            _content.anchoredPosition = start;
+            CozyMotion.MoveTo(_content, destination, .35f);
         }
 
         void EnsureUi()
@@ -123,7 +125,7 @@ namespace FishSocial.Desktop
             _viewport = transform.Find("Viewport") as RectTransform;
             _content = transform.Find("Viewport/MapContent") as RectTransform;
             _markerLayer = transform.Find("Viewport/MapContent/MarkerLayer") as RectTransform;
-            _details = Find<Text>("Details/DetailsText");
+            _details = Find<Text>("Details/FactsScroll/DetailsText") ?? Find<Text>("Details/DetailsText");
             _status = Find<Text>("Details/StatusText");
             _enter = Find<Button>("Details/EnterPond");
             _reset = Find<Button>("Details/ResetView");
@@ -141,6 +143,7 @@ namespace FishSocial.Desktop
             _enter.onClick.AddListener(EnterSelectedPond);
             _reset.onClick.RemoveAllListeners();
             _reset.onClick.AddListener(ResetView);
+            DesktopModalUi.BindButton(transform, "Details/Retry", Retry);
             EnsureFeeModeButtons(_enter != null ? _enter.transform.parent : transform);
             ApplyCozyStyle();
         }
@@ -158,57 +161,12 @@ namespace FishSocial.Desktop
 
         void SelectReturnFeeMode(string mode)
         {
-            _returnFeeMode = mode;
-            RefreshFeeModeButtons();
-            if (_selected != null)
-            {
-                var fee = mode == "auto_return" ? _selected.feePer2hAutoReturn : _selected.feePer2hSellOnly;
-                SetStatus((mode == "auto_return" ? "已选回鱼档" : "已选出售档") +
-                          "：每 2h " + fee + " 金币。再点确认进入。");
-            }
-            Select(_selected);
+            SelectionState.SelectFeeMode(mode);
         }
 
         void RefreshFeeModeButtons()
         {
-            var show = PondHasDualFee(_selected);
-            if (_modeSell != null)
-                _modeSell.gameObject.SetActive(show);
-            if (_modeAuto != null)
-                _modeAuto.gameObject.SetActive(show);
-            if (!show)
-                return;
-            TintModeButton(_modeSell, _returnFeeMode == "sell_only");
-            TintModeButton(_modeAuto, _returnFeeMode == "auto_return");
-        }
-
-        static void TintModeButton(Button button, bool selected)
-        {
-            if (button == null)
-                return;
-            DesktopModalUi.StyleButton(button);
-            var visual = button.GetComponent<CozyButtonVisual>();
-            if (visual != null)
-                visual.SetSelected(selected);
-        }
-
-        static string PlaceLine(string pondId)
-        {
-            var ponds = DesktopGameData.Ponds;
-            for (var i = 0; i < ponds.Length; i++)
-            {
-                var pond = ponds[i];
-                if (pond == null || pond.pondId != pondId)
-                    continue;
-                var place = DesktopGameData.RegionLabel(pond.bioRegion);
-                var water = DesktopGameData.WaterLabel(pond.waterType);
-                if (!string.IsNullOrEmpty(water))
-                    place = string.IsNullOrEmpty(place) ? water : place + " · " + water;
-                if (!string.IsNullOrEmpty(pond.realWorldRef))
-                    place = string.IsNullOrEmpty(place) ? pond.realWorldRef : place + " · " + pond.realWorldRef;
-                return string.IsNullOrEmpty(place) ? "" : "\n" + place;
-            }
-            return "";
+            PondDetailView.Refresh(transform.Find("Details"), SelectionState, "DetailsText");
         }
 
         static float PondPhase(string pondId)
@@ -219,11 +177,6 @@ namespace FishSocial.Desktop
             for (var i = 0; i < pondId.Length; i++)
                 phase += pondId[i] * 0.017f;
             return phase - Mathf.Floor(phase);
-        }
-
-        static bool PondHasDualFee(WorldMapPondView pond)
-        {
-            return pond != null && pond.allowsAutoReturn && pond.feePer2hSellOnly > 0;
         }
 
         T Find<T>(string path) where T : Component
@@ -280,24 +233,15 @@ namespace FishSocial.Desktop
                 }
                 marker.anchorMin = new Vector2(item.x, 1f - item.y);
                 marker.anchorMax = marker.anchorMin;
-                marker.pivot = new Vector2(item.x > 0.82f ? 1f : item.x < 0.18f ? 0f : 0.5f, 0.5f);
-                marker.sizeDelta = new Vector2(128f, 44f);
+                marker.pivot = new Vector2(.5f, .5f);
                 marker.anchoredPosition = Vector2.zero;
                 var captured = item;
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => Select(captured));
-                label.text = item.displayName;
-                label.alignment = TextAnchor.MiddleLeft;
-                var labelRect = label.rectTransform;
-                labelRect.anchorMin = labelRect.anchorMax = new Vector2(0f, 0.5f);
-                labelRect.pivot = new Vector2(0f, 0.5f);
-                labelRect.anchoredPosition = new Vector2(40f, 0f);
-                labelRect.sizeDelta = new Vector2(82f, 36f);
+                var markerView = instance.GetComponent<CozyPondMarkerView>() ?? instance.AddComponent<CozyPondMarkerView>();
                 DesktopModalUi.StyleTree(instance.transform);
-                DesktopModalUi.StyleButton(button, locked ? "lock.png" : "pond.png");
-                button.GetComponent<CozyButtonVisual>()?.SetTint(DesktopGameData.CategoryColor(item.pondCategory, locked));
-                if (!locked)
-                    CozyMotion.Float(marker, PondPhase(item.pondId));
+                markerView.Bind(item.displayName);
+                markerView.SetState(false, locked, DesktopGameData.CategoryColor(item.pondCategory, locked));
                 _markersById[item.pondId] = button;
             }
             RefreshMarkerSelection();
@@ -307,9 +251,16 @@ namespace FishSocial.Desktop
         {
             foreach (var marker in _markersById)
             {
-                var visual = marker.Value.GetComponent<CozyButtonVisual>();
-                if (visual != null)
-                    visual.SetSelected(_selected != null && marker.Key == _selected.pondId);
+                var selected = _selected != null && marker.Key == _selected.pondId;
+                var view = marker.Value.GetComponent<CozyPondMarkerView>();
+                if (view == null) continue;
+                var pond = _byId[marker.Key];
+                var locked = IsLocked(pond);
+                view.SetState(selected, locked, DesktopGameData.CategoryColor(pond.pondCategory, locked));
+                var rect = view.FloatTarget;
+                CozyMotion.StopFloat(rect);
+                if (selected && !locked && isActiveAndEnabled)
+                    CozyMotion.Float(rect, PondPhase(marker.Key), 30);
             }
         }
 
@@ -324,66 +275,29 @@ namespace FishSocial.Desktop
 
         void Select(WorldMapPondView item)
         {
-            _selected = item;
+            if (SelectionState.Busy) return;
+            var changed = _selected == null || item == null || _selected.pondId != item.pondId;
+            SelectionState.Select(item);
+            if (changed && item != null && _markersById.TryGetValue(item.pondId, out var marker) && marker != null)
+                CozyMotion.Ripple(marker.transform as RectTransform);
+        }
+
+        void RefreshSelection()
+        {
+            if (!_uiReady) return;
             RefreshMarkerSelection();
-            if (item != null && _markersById.TryGetValue(item.pondId, out var selectedMarker) && selectedMarker != null)
-                CozyMotion.Ripple(selectedMarker.transform as RectTransform);
+            PondDetailView.Refresh(transform.Find("Details"), SelectionState, "DetailsText");
             if (_selected == null)
-            {
-                _returnFeeMode = "sell_only";
-                _lastSelectedPondId = null;
-            }
-            else if (!string.Equals(_lastSelectedPondId, _selected.pondId, StringComparison.Ordinal))
-            {
-                _lastSelectedPondId = _selected.pondId;
-                _returnFeeMode = "sell_only";
-            }
-            RefreshFeeModeButtons();
-            if (_selected == null)
-            {
-                _details.text = "暂无可用鱼塘坐标配置。";
-                SetEnterLabel("进入鱼塘", false);
-                return;
-            }
-
-            var locked = IsLocked(_selected);
-            var reason = AccessReason(_selected);
-            var feeLine = PondHasDualFee(_selected)
-                ? "出售档：每 2h " + _selected.feePer2hSellOnly + " 金币（仅可卖）" +
-                  "\n回鱼档：每 2h " + _selected.feePer2hAutoReturn + " 金币（达标自动回塘）"
-                : _selected.feePer2h > 0
-                    ? "每 2 小时扣费：" + _selected.feePer2h + " 金币"
-                    : "入场费：免费";
-            var today = _progress != null ? _progress.todayFeeCharges : 0;
-            var maxFee = _selected.maxFeeChargesPerDay > 0 ? _selected.maxFeeChargesPerDay : 4;
-            var activeFee = _returnFeeMode == "auto_return" && PondHasDualFee(_selected)
-                ? _selected.feePer2hAutoReturn
-                : (_selected.feePer2hSellOnly > 0 ? _selected.feePer2hSellOnly : _selected.feePer2h);
-            if (activeFee > 0)
-                feeLine += "\n今日已扣：" + today + " / " + maxFee + " 次";
-            var levelLine = _selected.minPlayerLevel > 0
-                ? "需要钓鱼等级 " + _selected.minPlayerLevel +
-                  "（当前 " + (_progress != null ? _progress.level : 0) + "）"
-                : "等级要求：无";
-
-            _details.text = _selected.displayName +
-                            "\n类型：" + DesktopGameData.CategoryLabel(_selected.pondCategory) +
-                            PlaceLine(_selected.pondId) +
-                            "\n状态：" + reason +
-                            "\n" + levelLine +
-                            "\n" + feeLine +
-                            "\n鱼种：" + DesktopGameData.PondSpeciesSummary(_selected.pondId, 4);
-
-            if (locked)
-                SetEnterLabel("暂不可进入", false);
-            else if (PondHasDualFee(_selected) && string.IsNullOrEmpty(_returnFeeMode))
-                SetEnterLabel("请先选收费模式", false);
+                SetEnterLabel("请选择鱼塘", false);
+            else if (SelectionState.Busy)
+                SetEnterLabel("正在进入…", false);
             else
-                SetEnterLabel("进入鱼塘", true);
+                SetEnterLabel(IsLocked(_selected) ? "暂不可进入" : "进入鱼塘", !IsLocked(_selected));
         }
 
         void EnterSelectedPond()
         {
+            if (SelectionState.Busy || _waitingEnter) return;
             if (DesktopOnboardingController.Instance != null &&
                 DesktopOnboardingController.Instance.IsOnboardingActive)
             {
@@ -400,42 +314,37 @@ namespace FishSocial.Desktop
                 SetStatus(AccessReason(_selected));
                 return;
             }
-            if (PondHasDualFee(_selected) && string.IsNullOrEmpty(_returnFeeMode))
-            {
-                SetStatus("请先选择「出售档」或「回鱼档」。");
-                return;
-            }
-            _pond.SetPendingReturnFeeMode(string.IsNullOrEmpty(_returnFeeMode) ? "sell_only" : _returnFeeMode);
-            SetStatus("正在进入 " + _selected.displayName + "…");
+            _pond.SetPendingReturnFeeMode(SelectionState.ReturnFeeMode);
+            _enteringPondId = _selected.pondId;
             _waitingEnter = true;
+            SelectionState.SetEntryStatus(true, "正在进入 " + _selected.displayName + "…");
             if (_pond.State == SocialSocketState.Connected)
             {
-                _pond.SwitchPond(_selected.pondId, (ok, message) =>
+                _pond.SwitchPond(_enteringPondId, (ok, message) =>
                 {
-                    SetStatus(message);
-                    if (!ok)
-                    {
-                        _waitingEnter = false;
-                        return;
-                    }
-                    OpenOverlay();
+                    if (this == null || !_waitingEnter) return;
                     _waitingEnter = false;
+                    SelectionState.SetEntryStatus(false, message, !ok);
+                    if (ok && string.Equals(_pond.CurrentPondId, _enteringPondId, StringComparison.Ordinal))
+                        OpenOverlay();
                 });
                 return;
             }
 
-            _pond.ConnectAndJoin(_selected.pondId);
+            _pond.ConnectAndJoin(_enteringPondId);
         }
 
-        void OnPondSnapshot(PondSnapshotDto _)
+        void OnPondSnapshot(PondSnapshotDto snapshot)
         {
-            if (!_waitingEnter || _selected == null || _pond == null)
+            if (snapshot?.pond == null || !string.Equals(snapshot.pond.id, _enteringPondId, StringComparison.Ordinal)) return;
+            if (!_waitingEnter || string.IsNullOrEmpty(_enteringPondId) || _pond == null)
                 return;
-            if (!string.Equals(_pond.CurrentPondId, _selected.pondId, StringComparison.Ordinal))
+            if (!string.Equals(_pond.CurrentPondId, _enteringPondId, StringComparison.Ordinal))
                 return;
             if (_pond.CurrentUser == null)
                 return;
             _waitingEnter = false;
+            SelectionState.SetEntryStatus(false, "已进入鱼塘。");
             OpenOverlay();
         }
 
@@ -446,34 +355,9 @@ namespace FishSocial.Desktop
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
 
-        bool IsLocked(WorldMapPondView pond)
-        {
-            if (pond == null)
-                return true;
-            if (!pond.isOpen || pond.pondCategory == "giant")
-                return true;
-            if (_progress != null && !_progress.onboardingCompleted)
-                return true;
-            if (pond.minPlayerLevel > 0 &&
-                (_progress == null || _progress.level < pond.minPlayerLevel))
-                return true;
-            return false;
-        }
+        bool IsLocked(WorldMapPondView pond) => !SelectionState.CanEnter(pond);
 
-        string AccessReason(WorldMapPondView pond)
-        {
-            if (pond.pondCategory == "giant" || !pond.isOpen)
-                return "暂未开放";
-            if (_progress != null && !_progress.onboardingCompleted)
-                return "请先完成新手引导";
-            if (pond.minPlayerLevel > 0 &&
-                (_progress == null || _progress.level < pond.minPlayerLevel))
-            {
-                var current = _progress != null ? _progress.level : 0;
-                return "需要钓鱼等级 " + pond.minPlayerLevel + "（当前 " + current + "）";
-            }
-            return "可进入";
-        }
+        string AccessReason(WorldMapPondView pond) => SelectionState.AccessReason(pond);
 
         void SetEnterLabel(string label, bool enabled)
         {
@@ -493,31 +377,40 @@ namespace FishSocial.Desktop
 
         void OnPondStateChanged(SocialSocketState state, string message)
         {
-            if (state == SocialSocketState.Connected)
-                SetStatus("已连接，Overlay 正在显示鱼塘。");
-            else if (state == SocialSocketState.Failed || state == SocialSocketState.Disconnected)
-                SetStatus(string.IsNullOrEmpty(message) ? "鱼塘连接失败，可重试。" : message);
-            else
-                SetStatus(string.IsNullOrEmpty(message) ? "正在连接鱼塘…" : message);
-            Select(_selected);
+            if (state == SocialSocketState.Failed || state == SocialSocketState.Disconnected)
+            {
+                var failedEntry = _waitingEnter;
+                _waitingEnter = false;
+                SelectionState.SetEntryStatus(false, string.IsNullOrEmpty(message) ? "鱼塘连接失败，可重试。" : message, failedEntry);
+            }
+            else if (_waitingEnter)
+                SetStatus(string.IsNullOrEmpty(message) ? "正在等待鱼塘确认…" : message);
+            RefreshSelection();
         }
 
         void OnPondError(string message)
         {
             _waitingEnter = false;
-            SetStatus(string.IsNullOrEmpty(message) ? "进入失败，可重试。" : message);
+            SelectionState.SetEntryStatus(false, string.IsNullOrEmpty(message) ? "进入失败，可重试。" : message, true);
         }
 
         void SetStatus(string message)
         {
-            if (_status != null)
-                _status.text = message ?? string.Empty;
+            SelectionState.SetEntryStatus(SelectionState.Busy, message);
+        }
+
+        void Retry()
+        {
+            if (SelectionState.Busy) return;
+            if (SelectionState.EntryFailed && SelectionState.Progress != null) EnterSelectedPond();
+            else StartCoroutine(SelectionState.LoadProgress(this));
         }
 
         public void ResetView()
         {
             if (!_uiReady)
                 return;
+            CozyMotion.Cancel(_content);
             _zoom = 1f;
             _content.localScale = Vector3.one;
             _content.anchoredPosition = Vector2.zero;
@@ -528,24 +421,33 @@ namespace FishSocial.Desktop
         {
             if (!_uiReady)
                 return;
-            _dragStart = eventData.position;
+            _dragging = RectTransformUtility.RectangleContainsScreenPoint(_viewport, eventData.position, eventData.pressEventCamera);
+            if (!_dragging) return;
+            CozyMotion.Cancel(_content);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, eventData.position,
+                eventData.pressEventCamera, out _dragStart);
             _contentStart = _content.anchoredPosition;
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (!_uiReady)
+            if (!_uiReady || !_dragging)
                 return;
-            _content.anchoredPosition = _contentStart + eventData.position - _dragStart;
+            Vector2 local;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, eventData.position,
+                eventData.pressEventCamera, out local);
+            _content.anchoredPosition = _contentStart + local - _dragStart;
             ClampContent();
         }
 
-        public void OnEndDrag(PointerEventData eventData) { }
+        public void OnEndDrag(PointerEventData eventData) { _dragging = false; }
 
         public void OnScroll(PointerEventData eventData)
         {
-            if (!_uiReady)
+            if (!_uiReady || Mathf.Approximately(eventData.scrollDelta.y, 0f) ||
+                !RectTransformUtility.RectangleContainsScreenPoint(_viewport, eventData.position, eventData.enterEventCamera))
                 return;
+            CozyMotion.Cancel(_content);
             _zoom = Mathf.Clamp(_zoom + (eventData.scrollDelta.y > 0f ? 0.1f : -0.1f),
                 MinZoom, MaxZoom);
             _content.localScale = new Vector3(_zoom, _zoom, 1f);
@@ -565,8 +467,16 @@ namespace FishSocial.Desktop
             _content.anchoredPosition = pos;
         }
 
+        void OnDisable()
+        {
+            SelectionState.CancelProgress(this);
+            foreach (var marker in _markersById.Values)
+                if (marker != null) CozyMotion.StopFloat(marker.GetComponent<CozyPondMarkerView>()?.FloatTarget);
+        }
+
         void OnDestroy()
         {
+            SelectionState.Changed -= RefreshSelection;
             if (_pond == null)
                 return;
             _pond.ErrorReceived -= OnPondError;

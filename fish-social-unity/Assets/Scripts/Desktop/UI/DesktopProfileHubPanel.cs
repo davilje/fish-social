@@ -37,6 +37,8 @@ namespace FishSocial.Desktop
         ProfileHubDto _hub;
         Coroutine _loadRoutine;
         Coroutine _avatarRoutine;
+        Coroutine _codexRoutine;
+        int _targetGeneration;
 
         Text _title;
         Text _status;
@@ -61,6 +63,7 @@ namespace FishSocial.Desktop
         Text _albumPinsPageLabel;
         Transform _achievementsList;
         int _achievementFilter;
+        string _achievementCategory = "All";
         Button _editButton;
         Button _retryButton;
         FishCodexEntryDto[] _codexEntries = Array.Empty<FishCodexEntryDto>();
@@ -83,6 +86,7 @@ namespace FishSocial.Desktop
 
         public void ShowSelf(HubTab tab = HubTab.Profile)
         {
+            if (!string.IsNullOrEmpty(_viewingOtherPlayerId)) ResetViewedProfile();
             _viewingOtherPlayerId = null;
             _tab = tab;
             UpdateHeaderForTab();
@@ -93,6 +97,7 @@ namespace FishSocial.Desktop
 
         public void ShowOtherPlayer(string playerId, HubTab tab = HubTab.Profile)
         {
+            if (_viewingOtherPlayerId != playerId) ResetViewedProfile();
             _viewingOtherPlayerId = playerId ?? string.Empty;
             _tab = tab;
             UpdateHeaderForTab();
@@ -101,12 +106,26 @@ namespace FishSocial.Desktop
                 Refresh();
         }
 
+        void ResetViewedProfile()
+        {
+            StopLoad();
+            _targetGeneration++;
+            if (_codexRoutine != null) StopCoroutine(_codexRoutine);
+            _codexRoutine = null;
+            _hub = null;
+            _codexEntries = Array.Empty<FishCodexEntryDto>();
+            _albumPinsPage = 0;
+            if (_editButton != null) _editButton.gameObject.SetActive(false);
+        }
+
         public void OnOpened()
         {
             if (!_uiReady)
                 return;
             if (_pond != null)
             {
+                _pond.CodexUnlocked -= OnCodexUnlocked;
+                _pond.AchievementUnlocked -= OnAchievementUnlocked;
                 _pond.CodexUnlocked += OnCodexUnlocked;
                 _pond.AchievementUnlocked += OnAchievementUnlocked;
             }
@@ -116,6 +135,15 @@ namespace FishSocial.Desktop
         public void OnClosed()
         {
             StopLoad();
+            _targetGeneration++;
+            if (_codexRoutine != null) StopCoroutine(_codexRoutine);
+            _codexRoutine = null;
+            _albumPhotoLoadVersion++;
+            if (_albumPhotoRoutine != null)
+            {
+                StopCoroutine(_albumPhotoRoutine);
+                _albumPhotoRoutine = null;
+            }
             if (_avatarRoutine != null)
             {
                 StopCoroutine(_avatarRoutine);
@@ -458,6 +486,18 @@ namespace FishSocial.Desktop
             }
             if (_achievementsList == null)
                 _achievementsList = CreateScrollList(root, "Achievements", 0f, 1f);
+            foreach (var category in new[] { "All", "Fishing", "Collection", "Progress" })
+            {
+                var captured = category;
+                var button = FindButton("DesignAchievementCategories/" + category);
+                if (button == null) continue;
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() =>
+                {
+                    _achievementCategory = captured;
+                    if (_hub != null) RenderAchievements();
+                });
+            }
             foreach (var filterName in new[] { "All", "Completed", "Pending" })
             {
                 var filter = filterName == "All" ? 0 : filterName == "Completed" ? 1 : 2;
@@ -810,15 +850,20 @@ namespace FishSocial.Desktop
             if (_hub == null)
                 Refresh();
             else if (tab == HubTab.Codex && _hub.isSelf && (_codexEntries == null || _codexEntries.Length == 0))
-                StartCoroutine(ReloadCodexThenRender());
+            {
+                if (_codexRoutine != null) StopCoroutine(_codexRoutine);
+                _codexRoutine = StartCoroutine(ReloadCodexThenRender());
+            }
             else
                 RenderCurrentTab();
         }
 
         IEnumerator ReloadCodexThenRender()
         {
+            var generation = _targetGeneration;
             yield return LoadCodexRoutine();
-            RenderCurrentTab();
+            if (generation == _targetGeneration) RenderCurrentTab();
+            _codexRoutine = null;
         }
 
         void ApplyTabVisibility()
@@ -826,7 +871,7 @@ namespace FishSocial.Desktop
             for (var tabIndex = 0; tabIndex < _tabContents.Count; tabIndex++)
             {
                 if (_tabContents[tabIndex] != null)
-                    _tabContents[tabIndex].SetActive(tabIndex == (int)_tab);
+                    _tabContents[tabIndex].SetActive(tabIndex == (int)_tab && (!Application.isPlaying || _hub != null));
                 if (tabIndex < _tabButtons.Count && _tabButtons[tabIndex] != null)
                 {
                     var button = _tabButtons[tabIndex];
@@ -838,7 +883,7 @@ namespace FishSocial.Desktop
             }
             if (_editButton != null)
                 _editButton.gameObject.SetActive(_tab == HubTab.Profile &&
-                    (_hub == null || _hub.isSelf) && !IsAchievementsPage());
+                    (_hub != null && _hub.canEdit && _hub.isSelf) && !IsAchievementsPage());
         }
 
         bool IsAchievementsPage()
@@ -875,6 +920,7 @@ namespace FishSocial.Desktop
                 yield break;
             }
 
+            if (_retryButton != null) _retryButton.gameObject.SetActive(false);
             SetStatus("正在加载个人中心…");
             var targetId = string.IsNullOrEmpty(_viewingOtherPlayerId)
                 ? _api.PlayerId
@@ -895,6 +941,7 @@ namespace FishSocial.Desktop
 
             if (!ok || hub == null)
             {
+                if (_retryButton != null) _retryButton.gameObject.SetActive(true);
                 SetStatus(error ?? "个人中心加载失败。");
                 _loadRoutine = null;
                 yield break;
@@ -919,9 +966,11 @@ namespace FishSocial.Desktop
                 yield break;
             }
             var done = false;
+            var generation = _targetGeneration;
             yield return _api.GetCodex((ok, entries, _) =>
             {
-                _codexEntries = ok && entries != null ? entries : Array.Empty<FishCodexEntryDto>();
+                if (generation == _targetGeneration)
+                    _codexEntries = ok && entries != null ? entries : Array.Empty<FishCodexEntryDto>();
                 done = true;
             });
             while (!done)
@@ -1012,7 +1061,7 @@ namespace FishSocial.Desktop
                     "star", "经验", (_hub.progress != null ? _hub.progress.xp : 0) + " XP",
                     "fish", "图鉴收集", _hub.codexSummary != null
                         ? _hub.codexSummary.unlockedCount + " / " + _hub.codexSummary.totalSpecies : "—");
-                var visibility = p.shareVisibility == "friends" ? "好友" : "公开";
+                var visibility = p.shareVisibility == "private" ? "仅自己" : p.shareVisibility == "friends" ? "好友" : p.shareVisibility == "public" ? "公开" : "由对方隐私设置决定";
                 if (_hub.isSelf)
                     CozyItemArt.Rows(authoredProfile, "DesignInfoRows",
                         "coin", "金币", p.coins.ToString(), "social", "动态可见范围", visibility);
@@ -1439,6 +1488,7 @@ namespace FishSocial.Desktop
             var visible = 0;
             foreach (var achievement in list)
             {
+                if (achievement == null || !MatchesAchievementCategory(achievement.category)) continue;
                 if ((_achievementFilter == 1 && !achievement.unlocked) || (_achievementFilter == 2 && achievement.unlocked))
                     continue;
                 visible++;
@@ -1449,7 +1499,7 @@ namespace FishSocial.Desktop
             }
             var completed = 0;
             foreach (var achievement in list)
-                if (achievement.unlocked) completed++;
+                if (achievement != null && achievement.unlocked) completed++;
             CozyItemArt.Text(transform, "DesignAchievementSummary/Value", completed + " / " + list.Length);
             foreach (var filterName in new[] { "All", "Completed", "Pending" })
             {
@@ -1457,9 +1507,23 @@ namespace FishSocial.Desktop
                 transform.Find("Shell/Content/Tab_成就/DesignFilter" + filterName)?.GetComponent<CozyButtonVisual>()
                     ?.SetSelected(filter == _achievementFilter);
             }
+            foreach (var category in new[] { "All", "Fishing", "Collection", "Progress" })
+                transform.Find("DesignAchievementCategories/" + category)?.GetComponent<CozyButtonVisual>()
+                    ?.SetSelected(category == _achievementCategory);
             if (visible == 0)
-                CreateAchievementRow(_achievementsList, "empty", "暂无成就数据",
+                CreateAchievementRow(_achievementsList, "empty", "当前分类暂无成就",
                     CatTheme.Cream);
+        }
+
+        bool MatchesAchievementCategory(string category)
+        {
+            switch (_achievementCategory)
+            {
+                case "Fishing": return category == "catch" || category == "fishing";
+                case "Collection": return category == "album" || category == "codex" || category == "collection";
+                case "Progress": return category == "progress";
+                default: return true;
+            }
         }
 
         IEnumerator PinRoutine(string candidateId)

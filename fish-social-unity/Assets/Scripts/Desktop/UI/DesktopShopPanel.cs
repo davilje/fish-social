@@ -33,7 +33,9 @@ namespace FishSocial.Desktop
         ShopVesselDto[] _vessels = new ShopVesselDto[0];
         ShopGearDto _gear = new ShopGearDto();
         int _coinBalance;
-        int _tab;
+        int _tab = 1;
+        bool _busy;
+        bool _loading;
         int _selectedIndex = -1;
         bool _equipmentMode;
         Coroutine _refreshRoutine;
@@ -51,7 +53,7 @@ namespace FishSocial.Desktop
             if (_equipmentMode != equipmentMode)
             {
                 _equipmentMode = equipmentMode;
-                _tab = equipmentMode ? 1 : 0;
+                _tab = 1;
                 _selectedIndex = -1;
             }
             EnsureUi();
@@ -78,11 +80,10 @@ namespace FishSocial.Desktop
 
         public void OnClosed()
         {
-            if (_refreshRoutine != null)
-            {
-                StopCoroutine(_refreshRoutine);
-                _refreshRoutine = null;
-            }
+            StopAllCoroutines();
+            _refreshRoutine = null;
+            _busy = false;
+            _loading = false;
         }
 
         void EnsureUi()
@@ -154,10 +155,13 @@ namespace FishSocial.Desktop
 
         void Refresh()
         {
-            if (!_uiReady)
+            if (!_uiReady || _busy)
                 return;
             if (_refreshRoutine != null)
                 StopCoroutine(_refreshRoutine);
+            _loading = true;
+            if (_buy != null) _buy.interactable = false;
+            if (_equip != null) _equip.interactable = false;
             _refreshRoutine = StartCoroutine(RefreshRoutine());
         }
 
@@ -165,10 +169,12 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
+                _loading = false;
                 SetStatus("当前没有有效的 Steam 会话，请重新登录。");
                 yield break;
             }
 
+            if (_retry != null) _retry.gameObject.SetActive(false);
             SetStatus(_equipmentMode ? "正在加载可用装备和当前状态…" : "正在加载商店目录和装备状态…");
             var catalogDone = false;
             var catalogOk = false;
@@ -208,8 +214,10 @@ namespace FishSocial.Desktop
                 yield return null;
 
             _refreshRoutine = null;
+            _loading = false;
             if (!catalogOk || !gearOk)
             {
+                if (_retry != null) _retry.gameObject.SetActive(true);
                 SetStatus(!string.IsNullOrEmpty(catalogError)
                     ? catalogError
                     : (gearError ?? (_equipmentMode ? "装备加载失败，请稍后重新打开页面。" : "商店加载失败，请稍后重新打开页面。")));
@@ -232,6 +240,7 @@ namespace FishSocial.Desktop
 
         void BuySelected()
         {
+            if (_busy || _loading) return;
             if (_equipmentMode)
             {
                 SetStatus("装备页仅切换已拥有的钓竿和已解锁的鱼饵，不购买商品。");
@@ -252,13 +261,28 @@ namespace FishSocial.Desktop
                 var vessel = SelectedVessel();
                 if (vessel == null)
                     return;
-                StartCoroutine(BuyVesselRoutine(vessel));
+                StartCoroutine(Mutate(BuyVesselRoutine(vessel)));
                 return;
             }
             var tackle = SelectedTackle();
             if (tackle == null || tackle.price <= 0)
                 return;
-            StartCoroutine(BuyTackleRoutine(tackle));
+            StartCoroutine(Mutate(BuyTackleRoutine(tackle)));
+        }
+
+        IEnumerator Mutate(IEnumerator request)
+        {
+            _busy = true;
+            SetActionButtons(_buy != null && _buy.gameObject.activeSelf, false, false);
+            try
+            {
+                yield return request;
+            }
+            finally
+            {
+                _busy = false;
+                if (this != null && isActiveAndEnabled) Render();
+            }
         }
 
         IEnumerator BuyBaitRoutine(ShopBaitDto bait)
@@ -273,9 +297,13 @@ namespace FishSocial.Desktop
                         _gear = gear;
                         _coinBalance = coins;
                         SetStatus("购买成功，装备状态已由服务端刷新。");
+                        CozyActionFeedback.Play(transform.Find("Details"), true, "已购买");
                     }
                     else
+                    {
                         SetStatus(message ?? "购买失败，当前装备未修改。");
+                        CozyActionFeedback.Play(transform.Find("Details"), false, "请重试");
+                    }
                     done = true;
                 }));
             while (!done)
@@ -295,9 +323,13 @@ namespace FishSocial.Desktop
                         _gear = gear;
                         _coinBalance = coins;
                         SetStatus("购买成功，金币和装备状态已由服务端刷新。");
+                        CozyActionFeedback.Play(transform.Find("Details"), true, "已购买");
                     }
                     else
+                    {
                         SetStatus(message ?? "购买失败，金币和装备未修改。");
+                        CozyActionFeedback.Play(transform.Find("Details"), false, "请重试");
+                    }
                     done = true;
                 }));
             while (!done)
@@ -317,9 +349,13 @@ namespace FishSocial.Desktop
                         _gear = gear;
                         _coinBalance = coins;
                         SetStatus("已购买。船具暂不可使用（即将开放）。");
+                        CozyActionFeedback.Play(transform.Find("Details"), true, "已购买");
                     }
                     else
+                    {
                         SetStatus(message ?? "购买失败，金币和装备未修改。");
+                        CozyActionFeedback.Play(transform.Find("Details"), false, "请重试");
+                    }
                     done = true;
                 }));
             while (!done)
@@ -329,6 +365,7 @@ namespace FishSocial.Desktop
 
         void EquipSelected()
         {
+            if (_busy || _loading) return;
             if (_api == null || !_api.CanUse)
             {
                 SetStatus("当前会话已失效，请重新登录。");
@@ -338,7 +375,7 @@ namespace FishSocial.Desktop
             {
                 var bait = SelectedBait();
                 if (bait != null && BaitUnlocked(bait) && !IsEquippedBait(bait.id))
-                    StartCoroutine(EquipBaitRoutine(bait));
+                    StartCoroutine(Mutate(EquipBaitRoutine(bait)));
                 return;
             }
             if (_tab != 1)
@@ -350,7 +387,7 @@ namespace FishSocial.Desktop
             }
             var tackle = SelectedTackle();
             if (tackle != null && OwnsRod(tackle.id) && !IsEquippedRod(tackle.id))
-                StartCoroutine(EquipTackleRoutine(tackle));
+                StartCoroutine(Mutate(EquipTackleRoutine(tackle)));
         }
 
         IEnumerator EquipBaitRoutine(ShopBaitDto bait)
@@ -364,9 +401,13 @@ namespace FishSocial.Desktop
                     {
                         _gear = gear;
                         SetStatus("鱼饵已装备。");
+                        CozyActionFeedback.Play(transform.Find("Details"), true, "已装备");
                     }
                     else
+                    {
                         SetStatus(message ?? "装备失败，当前装备未修改。");
+                        CozyActionFeedback.Play(transform.Find("Details"), false, "请重试");
+                    }
                     done = true;
                 }));
             while (!done)
@@ -385,9 +426,13 @@ namespace FishSocial.Desktop
                     {
                         _gear = gear;
                         SetStatus("钓竿已装备。");
+                        CozyActionFeedback.Play(transform.Find("Details"), true, "已装备");
                     }
                     else
+                    {
                         SetStatus(message ?? "装备失败，当前装备未修改。");
+                        CozyActionFeedback.Play(transform.Find("Details"), false, "请重试");
+                    }
                     done = true;
                 }));
             while (!done)
@@ -523,14 +568,14 @@ namespace FishSocial.Desktop
             if (_buy != null)
             {
                 _buy.gameObject.SetActive(showBuy);
-                _buy.interactable = showBuy && buyEnabled;
+                _buy.interactable = showBuy && buyEnabled && !_busy && !_loading;
                 DesktopModalUi.SetButtonLabel(_buy, "购买");
             }
             if (_equip != null)
             {
                 var showEquip = equipEnabled;
                 _equip.gameObject.SetActive(showEquip);
-                _equip.interactable = showEquip;
+                _equip.interactable = showEquip && !_busy && !_loading;
                 DesktopModalUi.SetButtonLabel(_equip, "装备");
             }
         }
@@ -769,6 +814,8 @@ namespace FishSocial.Desktop
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(index == _selectedIndex);
+            CozyStickerMotion.Bind(card, "shop:" + _equipmentMode + ":" + _tab + ":" + itemId, index,
+                _content.parent as RectTransform);
             button.onClick.RemoveAllListeners();
             var captured = index;
             button.onClick.AddListener(() =>

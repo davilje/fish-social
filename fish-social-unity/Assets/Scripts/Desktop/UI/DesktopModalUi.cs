@@ -127,7 +127,7 @@ namespace FishSocial.Desktop
 
         public static void StyleButton(Button button, string iconName = null, bool primary = false)
         {
-            if (button == null)
+            if (button == null || button.GetComponent<CozyPondMarkerView>() != null || button.name == "WorldMapPondMarker")
                 return;
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual == null)
@@ -331,17 +331,11 @@ namespace FishSocial.Desktop
         {
             if (background != null)
             {
-                background.sprite = CatTheme.LoadCozy("panels/track.png", CatTheme.TrackBorder);
-                background.type = Image.Type.Sliced;
-                background.preserveAspect = false;
-                background.color = Color.white;
+                CozyJournalTheme.ApplySurface(background, "surfaces/progress-track");
             }
             if (fill == null)
                 return;
-            fill.sprite = CatTheme.LoadCozy("panels/track-fill.png", CatTheme.TrackBorder);
-            fill.type = Image.Type.Sliced;
-            fill.preserveAspect = false;
-            fill.color = Color.white;
+            CozyJournalTheme.ApplySurface(fill, "surfaces/progress-fill");
             fill.fillAmount = 1f;
             if (background != null && fill.transform.parent != background.transform)
             {

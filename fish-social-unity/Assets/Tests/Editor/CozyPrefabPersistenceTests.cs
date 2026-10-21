@@ -148,12 +148,12 @@ namespace FishSocial.Tests.Editor
             image.rectTransform.sizeDelta = new Vector2(321f, 123f);
             image.pixelsPerUnitMultiplier = 1.4f;
             CozyPrefabRepair.RepairContents(root);
-            Assert.AreSame(Imported("panels/paper.png"), image.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/paper-aside"), image.sprite);
             Assert.AreEqual(Image.Type.Sliced, image.type);
             Assert.AreEqual(new Color(1f, 1f, 1f, 0.91f), image.color);
             Assert.AreEqual(new Vector2(13f, 29f), image.rectTransform.anchoredPosition);
             Assert.AreEqual(new Vector2(321f, 123f), image.rectTransform.sizeDelta);
-            Assert.AreEqual(1.4f, image.pixelsPerUnitMultiplier);
+            Assert.AreEqual(1f, image.pixelsPerUnitMultiplier);
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace FishSocial.Tests.Editor
             var photo = photoNode.GetComponent<Image>();
             photo.color = new Color(0.08f, 0.11f, 0.14f, 0.95f);
             CatTheme.SkinTree(root.transform);
-            Assert.AreSame(Imported("panels/paper.png"), background.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/paper-aside"), background.sprite);
             Assert.AreEqual(Image.Type.Sliced, background.type);
             Assert.AreSame(background, toggle.targetGraphic);
             Assert.AreEqual(0.93f, background.color.a);
@@ -258,7 +258,7 @@ namespace FishSocial.Tests.Editor
         {
             var image = root.AddComponent<Image>();
             CatTheme.ApplyPaper(image);
-            Assert.AreSame(Imported("panels/paper.png"), image.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/paper-aside"), image.sprite);
             Assert.AreNotEqual(Vector4.zero, image.sprite.border);
             Assert.AreEqual(Image.Type.Sliced, image.type);
         }
@@ -313,7 +313,7 @@ namespace FishSocial.Tests.Editor
             Assert.AreSame(icon, button.transform.Find("Icon").GetComponent<Image>());
             Assert.AreEqual(iconPosition, icon.rectTransform.anchoredPosition);
             Assert.AreEqual(iconSize, icon.rectTransform.sizeDelta);
-            Assert.AreEqual(1.4f, plate.pixelsPerUnitMultiplier);
+            Assert.AreEqual(1f, plate.pixelsPerUnitMultiplier);
             Assert.AreEqual(labelPosition, label.rectTransform.anchoredPosition);
 
             var pointer = new PointerEventData(events.GetComponent<EventSystem>())
@@ -321,10 +321,10 @@ namespace FishSocial.Tests.Editor
                 button = PointerEventData.InputButton.Left
             };
             visual.OnPointerEnter(pointer);
-            Assert.AreSame(Imported("buttons/plate-hover.png"), plate.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-hover"), plate.sprite);
             visual.OnPointerDown(pointer);
-            Assert.AreSame(Imported("buttons/plate-pressed.png"), plate.sprite);
-            Assert.AreEqual(platePosition + new Vector2(0f, -3f), plate.rectTransform.anchoredPosition);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-pressed"), plate.sprite);
+            Assert.AreEqual(platePosition, plate.rectTransform.anchoredPosition);
             Assert.AreEqual(rootPosition, button.GetComponent<RectTransform>().anchoredPosition);
             visual.OnPointerUp(pointer);
             Assert.AreEqual(platePosition, plate.rectTransform.anchoredPosition);
@@ -536,7 +536,7 @@ namespace FishSocial.Tests.Editor
                     Assert.AreEqual(maximums[index], text.rectTransform.anchorMax);
                     Assert.AreEqual(pivots[index], text.rectTransform.pivot);
                 }
-                Assert.AreSame(plateSprite, plate.sprite);
+                Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-" + (inactive ? "disabled" : "default")), plate.sprite);
                 Assert.AreSame(iconSprite, icon.sprite);
             }
             finally
@@ -628,16 +628,16 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(0f, plate.color.a);
             visual.OnPointerEnter(pointer);
             Assert.Greater(plate.color.a, 0f);
-            Assert.AreSame(Imported("buttons/plate-hover.png"), plate.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-hover"), plate.sprite);
             visual.OnPointerDown(pointer);
-            Assert.AreSame(Imported("buttons/plate-pressed.png"), plate.sprite);
-            Assert.AreEqual(position + new Vector2(0f, -3f), plate.rectTransform.anchoredPosition);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-pressed"), plate.sprite);
+            Assert.AreEqual(position, plate.rectTransform.anchoredPosition);
             visual.OnPointerUp(pointer);
             visual.OnPointerExit(pointer);
             Assert.AreEqual(0f, plate.color.a);
             visual.SetSelected(true);
             Assert.Greater(plate.color.a, 0f);
-            Assert.AreSame(Imported("buttons/plate-hover.png"), plate.sprite);
+            Assert.AreSame(CozyJournalTheme.Sprite("surfaces/button-quiet-hover"), plate.sprite);
             visual.SetSelected(false);
             Assert.AreEqual(0f, plate.color.a);
             visual.SetFlat(false);

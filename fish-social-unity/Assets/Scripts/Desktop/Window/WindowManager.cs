@@ -181,6 +181,7 @@ namespace FishSocial.Desktop
                 CaptureWindowedGeometry(save: true);
 
             IsWindowVisible = false;
+            CozyMotion.SetPaused(true);
             NativeWindowUtil.TryShowWindow(false);
             BackgroundRenderGate.SetHidden(true);
             VisibilityChanged?.Invoke();
@@ -195,6 +196,7 @@ namespace FishSocial.Desktop
             }
 
             IsWindowVisible = true;
+            CozyMotion.SetPaused(false);
             NativeWindowUtil.TryShowWindow(true);
             if (_loginShell)
                 ApplyLoginShell();

@@ -27,6 +27,7 @@ namespace FishSocial.Desktop.Auth
             string inventoryItemId,
             Action<bool, int, int, int, float, float, int, FishInventoryItemDto[], string> onCompleted);
         IEnumerator ShareFish(string fishId, string nickname, Action<bool, string> onCompleted);
+        IEnumerator ShareFish(string fishId, string nickname, string visibility, string text, Action<bool, string> onCompleted);
         IEnumerator GetShopCatalog(Action<bool, ShopBaitDto[], ShopTackleDto[], ShopVesselDto[], string> onCompleted);
         IEnumerator GetShopGear(Action<bool, ShopGearDto, int, string> onCompleted);
         IEnumerator BuyBait(string baitId, int quantity, Action<bool, ShopGearDto, int, string> onCompleted);
@@ -55,6 +56,7 @@ namespace FishSocial.Desktop.Auth
         IEnumerator GetSocialFeed(
             bool friendsOnly, int limit, int offset,
             Action<bool, SocialPostDto[], string> onCompleted);
+        IEnumerator GetMySocialFeed(int limit, int offset, Action<bool, SocialPostDto[], string> onCompleted);
         IEnumerator GetPostComments(string postId, Action<bool, PostCommentDto[], int, string> onCompleted);
         IEnumerator TogglePostLike(string postId, Action<bool, bool, int, string> onCompleted);
         IEnumerator AddPostComment(string postId, string text, Action<bool, PostCommentDto, int, string> onCompleted);
@@ -332,6 +334,20 @@ namespace FishSocial.Desktop.Auth
                 (ok, _, message) => onCompleted?.Invoke(ok, ok ? "已分享到动态。" : message));
         }
 
+        public IEnumerator ShareFish(string fishId, string nickname, string visibility, string text, Action<bool, string> onCompleted)
+        {
+            yield return PostJson("/api/posts",
+                JsonUtility.ToJson(new ShareStoryPayload
+                {
+                    playerId = PlayerId,
+                    nickname = nickname,
+                    fishId = fishId,
+                    visibility = visibility,
+                    text = text,
+                }),
+                (ok, _, message) => onCompleted?.Invoke(ok, ok ? "鱼获故事已贴进手账。" : message));
+        }
+
         public IEnumerator GetShopCatalog(
             Action<bool, ShopBaitDto[], ShopTackleDto[], ShopVesselDto[], string> onCompleted)
         {
@@ -409,6 +425,21 @@ namespace FishSocial.Desktop.Auth
                 ok,
                 parsed != null && parsed.posts != null ? parsed.posts : new SocialPostDto[0],
                 error);
+        }
+
+        public IEnumerator GetMySocialFeed(int limit, int offset, Action<bool, SocialPostDto[], string> onCompleted)
+        {
+            SocialPostsResponse parsed = null;
+            string error = null;
+            var ok = false;
+            yield return GetJson("/api/posts/mine/" + Uri.EscapeDataString(PlayerId ?? "") +
+                "?limit=" + Mathf.Clamp(limit, 1, 50) + "&offset=" + Mathf.Max(0, offset),
+                (success, json, message) =>
+                {
+                    ok = success; error = message;
+                    if (success) ok = TryParseResponse(json, out parsed, out error, "posts");
+                });
+            onCompleted?.Invoke(ok, parsed?.posts ?? new SocialPostDto[0], error);
         }
 
         public IEnumerator GetPostComments(
@@ -1517,6 +1548,7 @@ namespace FishSocial.Desktop.Auth
         [Serializable] sealed class SellPayload { public string playerId; public string fishId; }
         [Serializable] sealed class ReturnFishPayload { public string playerId; public string inventoryItemId; }
         [Serializable] sealed class SharePayload { public string playerId; public string nickname; public string fishId; }
+        [Serializable] sealed class ShareStoryPayload { public string playerId; public string nickname; public string fishId; public string visibility; public string text; }
         [Serializable] sealed class BaitCatalogResponse { public ShopBaitDto[] baits; }
         [Serializable] sealed class TackleCatalogResponse { public ShopTackleDto[] tackles; }
         [Serializable] sealed class VesselCatalogResponse { public ShopVesselDto[] vessels; }

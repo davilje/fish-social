@@ -8,6 +8,11 @@ namespace FishSocial.Desktop
     {
         Vector3 localOffset;
         float opacity = 1f;
+        Vector2 visualScale = Vector2.one;
+        Matrix4x4 deformation = Matrix4x4.identity;
+        Matrix4x4 journalDeformation = Matrix4x4.identity;
+        float journalAlpha = 1f;
+        bool journalPose;
         bool stackedLabel;
         Vector2 savedAnchorMin;
         Vector2 savedAnchorMax;
@@ -65,25 +70,44 @@ namespace FishSocial.Desktop
 
         internal void SetVisual(Transform owner, float verticalOffset, float alpha)
         {
+            SetVisual(owner, verticalOffset, alpha, Vector2.one);
+        }
+
+        internal void SetVisual(Transform owner, float verticalOffset, float alpha, Vector2 scale)
+        {
             var offset = transform.InverseTransformVector(owner.TransformVector(new Vector3(0f, verticalOffset, 0f)));
-            if (localOffset == offset && Mathf.Approximately(opacity, alpha))
+            if (localOffset == offset && Mathf.Approximately(opacity, alpha) && visualScale == scale)
                 return;
             localOffset = offset;
             opacity = alpha;
+            visualScale = scale;
+            deformation = transform.worldToLocalMatrix * owner.localToWorldMatrix
+                * Matrix4x4.Scale(new Vector3(scale.x, scale.y, 1f))
+                * owner.worldToLocalMatrix * transform.localToWorldMatrix;
             if (graphic != null)
                 graphic.SetVerticesDirty();
         }
 
+        internal void SetJournalPose(Transform owner, Vector2 offset, float rotation, float scale, float alpha)
+        {
+            journalPose = offset != Vector2.zero || rotation != 0 || scale != 1 || alpha != 1;
+            journalAlpha = alpha;
+            journalDeformation = transform.worldToLocalMatrix * owner.localToWorldMatrix
+                * Matrix4x4.TRS(offset, Quaternion.Euler(0, 0, rotation), Vector3.one * scale)
+                * owner.worldToLocalMatrix * transform.localToWorldMatrix;
+            if (graphic != null) graphic.SetVerticesDirty();
+        }
+
         public override void ModifyMesh(VertexHelper vertices)
         {
-            if (!IsActive() || (localOffset == Vector3.zero && Mathf.Approximately(opacity, 1f)))
+            if (!IsActive() || (localOffset == Vector3.zero && Mathf.Approximately(opacity, 1f) && visualScale == Vector2.one && !journalPose))
                 return;
             var vertex = new UIVertex();
             for (var vertexIndex = 0; vertexIndex < vertices.currentVertCount; vertexIndex++)
             {
                 vertices.PopulateUIVertex(ref vertex, vertexIndex);
-                vertex.position += localOffset;
-                vertex.color.a = (byte)Mathf.RoundToInt(vertex.color.a * opacity);
+                vertex.position = journalDeformation.MultiplyPoint3x4(deformation.MultiplyPoint3x4(vertex.position) + localOffset);
+                vertex.color.a = (byte)Mathf.RoundToInt(vertex.color.a * opacity * journalAlpha);
                 vertices.SetUIVertex(vertex, vertexIndex);
             }
         }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -119,10 +120,7 @@ namespace FishSocial.Desktop.Editor
                 }
                 if (changed > 0)
                 {
-                    bool success;
-                    PrefabUtility.SaveAsPrefabAsset(root, path, out success);
-                    if (!success)
-                        throw new InvalidOperationException("Could not save Sliced Image modes: " + path);
+                    CozyRedesignAuthoring.SaveJournalPrefab(root, path);
                 }
             }
             finally
@@ -186,10 +184,7 @@ namespace FishSocial.Desktop.Editor
                 RequireStructure(root, name, componentType);
                 RepairContents(root);
                 RequireValid(root, name, componentType);
-                bool success;
-                PrefabUtility.SaveAsPrefabAsset(root, path, out success);
-                if (!success)
-                    throw new InvalidOperationException("Prefab save failed: " + path);
+                CozyRedesignAuthoring.SaveJournalPrefab(root, path);
             }
             finally
             {
@@ -206,7 +201,7 @@ namespace FishSocial.Desktop.Editor
                 var effective = image.overrideSprite != null ? image.overrideSprite : image.sprite;
                 image.sprite = PersistentSprite(effective);
                 image.overrideSprite = null;
-                CatTheme.ApplyLegacySurface(image);
+                if (!IsJournalSprite(image.sprite)) CatTheme.ApplyLegacySurface(image);
                 if (IsSlicedCozy(image.sprite) && image.type != Image.Type.Filled)
                     image.type = Image.Type.Sliced;
             }
@@ -261,14 +256,18 @@ namespace FishSocial.Desktop.Editor
                 icon.preserveAspect = true;
                 node.GetComponent<LayoutElement>().ignoreLayout = true;
             }
+            var journal = UsesJournalFamily(serialized);
             var normal = StateSprite(serialized, "normalSprite", "default");
             var hover = StateSprite(serialized, "hoverSprite", "hover");
             var pressed = StateSprite(serialized, "pressedSprite", "pressed");
+            var selected = journal ? JournalStateSprite(serialized, "selected") : hover;
+            var disabled = journal ? JournalStateSprite(serialized, "disabled") : normal;
             serialized.FindProperty("plate").objectReferenceValue = plate;
             serialized.FindProperty("icon").objectReferenceValue = icon;
             serialized.FindProperty("normalSprite").objectReferenceValue = normal;
             serialized.FindProperty("hoverSprite").objectReferenceValue = hover;
             serialized.FindProperty("pressedSprite").objectReferenceValue = pressed;
+            if (journal) serialized.FindProperty("selectedSprite").objectReferenceValue = selected;
             if (!serialized.FindProperty("explicitTint").boolValue)
             {
                 var authoredTint = plate.color;
@@ -278,7 +277,9 @@ namespace FishSocial.Desktop.Editor
             }
             serialized.FindProperty("explicitTint").boolValue = true;
             serialized.ApplyModifiedPropertiesWithoutUndo();
-            plate.sprite = normal;
+            if (journal)
+                CozyJournalTheme.ApplySurface(plate, JournalStatePath(serialized, PersistedState(button, serialized)), true);
+            else plate.sprite = normal;
             plate.overrideSprite = null;
             plate.type = Image.Type.Sliced;
             plate.raycastTarget = false;
@@ -301,9 +302,9 @@ namespace FishSocial.Desktop.Editor
                 icon.raycastTarget = false;
             var states = button.spriteState;
             states.highlightedSprite = hover;
-            states.selectedSprite = hover;
+            states.selectedSprite = selected;
             states.pressedSprite = pressed;
-            states.disabledSprite = normal;
+            states.disabledSprite = disabled;
             button.spriteState = states;
             button.transition = Selectable.Transition.None;
             foreach (var shadow in button.GetComponentsInChildren<Shadow>(true))
@@ -315,12 +316,57 @@ namespace FishSocial.Desktop.Editor
 
         static Sprite StateSprite(SerializedObject visual, string property, string state)
         {
+            if (UsesJournalFamily(visual)) return JournalStateSprite(visual, state);
             var stored = visual.FindProperty(property).objectReferenceValue as Sprite;
             var sprite = stored != null ? PersistentSprite(stored)
                 : CatTheme.LoadCozy("buttons/plate-" + state + ".png", CatTheme.PlateBorder);
             if (sprite == null || !IsSlicedCozy(sprite))
                 throw new InvalidOperationException("Imported bordered button Sprite is missing: " + state);
             return sprite;
+        }
+
+        static bool IsJournalSprite(Sprite sprite)
+        {
+            return sprite != null && AssetDatabase.GetAssetPath(sprite).StartsWith(CozyJournalResourcePreparation.Root, StringComparison.Ordinal);
+        }
+
+        static bool UsesJournalFamily(SerializedObject visual)
+        {
+            return !string.IsNullOrEmpty(visual.FindProperty("surfaceNormal").stringValue) ||
+                IsJournalSprite(visual.FindProperty("normalSprite").objectReferenceValue as Sprite);
+        }
+
+        static string JournalStatePath(SerializedObject visual, string state)
+        {
+            var normal = visual.FindProperty("surfaceNormal").stringValue;
+            if (!string.IsNullOrEmpty(normal))
+            {
+                var property = state == "hover" ? "surfaceHover" : state == "pressed" ? "surfacePressed" :
+                    state == "selected" ? "surfaceSelected" : state == "disabled" ? "surfaceDisabled" : "surfaceNormal";
+                var configured = visual.FindProperty(property).stringValue;
+                return string.IsNullOrEmpty(configured) ? normal : configured;
+            }
+            return "surfaces/button-" + (visual.FindProperty("primarySurface").boolValue ? "primary-" : "quiet-") +
+                (state == "selected" ? "hover" : state);
+        }
+
+        static Sprite JournalStateSprite(SerializedObject visual, string state)
+        {
+            var path = JournalStatePath(visual, state);
+            var sprite = CozyJournalTheme.Sprite(path);
+            if (sprite == null || !IsSlicedCozy(sprite))
+                throw new InvalidOperationException("Imported bordered journal button Sprite is missing: " + path);
+            return sprite;
+        }
+
+        static string PersistedState(Button button, SerializedObject visual)
+        {
+            // Prefab assets have no active runtime behaviours: isActiveAndEnabled is always
+            // false there. Validate the serialized control and ancestor activation instead.
+            if (!button.enabled || !button.interactable) return "disabled";
+            for (var node = button.transform; node != null; node = node.parent)
+                if (!node.gameObject.activeSelf) return "disabled";
+            return visual.FindProperty("selected").boolValue ? "selected" : "default";
         }
 
         static Sprite PersistentSprite(Sprite sprite)
@@ -352,7 +398,7 @@ namespace FishSocial.Desktop.Editor
 
         static bool IsThemeButton(Button button)
         {
-            if (button == null)
+            if (button == null || button.GetComponent<CozyPondMarkerView>() != null || button.name == "WorldMapPondMarker")
                 return false;
             switch (button.name)
             {
@@ -459,17 +505,54 @@ namespace FishSocial.Desktop.Editor
                     if (!IsSlicedCozy(sprite))
                         errors.Add(button.name + "." + property + " must reference an imported bordered Cozy Sprite.");
                 }
-                if (plate != null && (plate.sprite != serialized.FindProperty("normalSprite").objectReferenceValue
-                    || plate.type != Image.Type.Sliced))
-                    errors.Add(button.name + " must persist the normal plate and Sliced type.");
+                if (UsesJournalFamily(serialized))
+                {
+                    try
+                    {
+                        foreach (var pair in new[] { "normalSprite:default", "hoverSprite:hover", "pressedSprite:pressed", "selectedSprite:selected" })
+                        {
+                            var parts = pair.Split(':');
+                            var expected = JournalStateSprite(serialized, parts[1]);
+                            if (serialized.FindProperty(parts[0]).objectReferenceValue != expected)
+                                errors.Add(button.name + "." + parts[0] + " must match its configured journal surface path.");
+                        }
+                        var state = PersistedState(button, serialized);
+                        if (plate != null && (plate.sprite != JournalStateSprite(serialized, state) || plate.type != Image.Type.Sliced))
+                            errors.Add(button.name + " must persist its " + state + " journal surface and Sliced type.");
+                        var states = button.spriteState;
+                        if (states.highlightedSprite != JournalStateSprite(serialized, "hover") ||
+                            states.selectedSprite != JournalStateSprite(serialized, "selected") ||
+                            states.pressedSprite != JournalStateSprite(serialized, "pressed") ||
+                            states.disabledSprite != JournalStateSprite(serialized, "disabled"))
+                            errors.Add(button.name + " must persist all four configured journal SpriteState references.");
+                        if (plate != null)
+                        {
+                            if (!Mathf.Approximately(plate.pixelsPerUnitMultiplier, 1f))
+                                errors.Add(button.name + " must use the journal sprite's imported PPU without a legacy multiplier.");
+                            var entry = JournalEntry(AssetDatabase.GetAssetPath(plate.sprite));
+                            var inset = entry?["contentInsets"] as JArray;
+                            var min = inset != null ? new Vector2(-(float)inset[0], -(float)inset[3]) : Vector2.zero;
+                            var max = inset != null ? new Vector2((float)inset[2], (float)inset[1]) : Vector2.zero;
+                            var rect = plate.rectTransform;
+                            if (rect.anchorMin != Vector2.zero || rect.anchorMax != Vector2.one || rect.offsetMin != min || rect.offsetMax != max)
+                                errors.Add(button.name + " must preserve the current journal surface's transparent content insets.");
+                        }
+                    }
+                    catch (Exception error) { errors.Add(button.name + ": " + error.Message); }
+                }
+                else
+                {
+                    if (plate != null && (plate.sprite != serialized.FindProperty("normalSprite").objectReferenceValue || plate.type != Image.Type.Sliced))
+                        errors.Add(button.name + " must persist the normal legacy plate and Sliced type.");
+                    var states = button.spriteState;
+                    if (states.highlightedSprite != serialized.FindProperty("hoverSprite").objectReferenceValue
+                        || states.selectedSprite != serialized.FindProperty("hoverSprite").objectReferenceValue
+                        || states.pressedSprite != serialized.FindProperty("pressedSprite").objectReferenceValue
+                        || states.disabledSprite != serialized.FindProperty("normalSprite").objectReferenceValue)
+                        errors.Add(button.name + " must persist matching legacy Selectable SpriteState references.");
+                }
                 if (button.transition != Selectable.Transition.None)
                     errors.Add(button.name + " must use CozyButtonVisual rather than a competing transition.");
-                var states = button.spriteState;
-                if (states.highlightedSprite != serialized.FindProperty("hoverSprite").objectReferenceValue
-                    || states.selectedSprite != serialized.FindProperty("hoverSprite").objectReferenceValue
-                    || states.pressedSprite != serialized.FindProperty("pressedSprite").objectReferenceValue
-                    || states.disabledSprite != serialized.FindProperty("normalSprite").objectReferenceValue)
-                    errors.Add(button.name + " must persist matching Selectable SpriteState references.");
                 foreach (var shadow in button.GetComponentsInChildren<Shadow>(true))
                 {
                     if (shadow.enabled && shadow.GetComponentInParent<Selectable>() == button)
@@ -492,6 +575,7 @@ namespace FishSocial.Desktop.Editor
             if (sprite == null)
                 return;
             var path = AssetDatabase.GetAssetPath(sprite);
+            if (IsJournalSprite(sprite)) ValidateJournalSprite(sprite, path, owner, errors);
             if (!CozySpriteImporter.IsSurfacePath(path))
                 return;
             if (sprite.border == Vector4.zero)
@@ -504,6 +588,55 @@ namespace FishSocial.Desktop.Editor
             if (importer.textureType != TextureImporterType.Sprite || importer.spriteImportMode != SpriteImportMode.Single
                 || settings.spriteMeshType != SpriteMeshType.FullRect)
                 errors.Add(owner + " requires a Single Sprite with FullRect mesh for nine-slice rendering: " + path);
+        }
+
+        static JObject journalManifest;
+        static DateTime journalManifestTime;
+
+        static JToken JournalEntry(string path)
+        {
+            if (string.IsNullOrEmpty(path) || !path.StartsWith(CozyJournalResourcePreparation.Root, StringComparison.Ordinal)) return null;
+            var file = CozyJournalResourcePreparation.Root + "ui-manifest.json";
+            var modified = File.GetLastWriteTimeUtc(file);
+            if (journalManifest == null || modified != journalManifestTime)
+            {
+                journalManifest = JObject.Parse(File.ReadAllText(file));
+                journalManifestTime = modified;
+            }
+            var relative = "journal/" + path.Substring(CozyJournalResourcePreparation.Root.Length);
+            foreach (var entry in journalManifest["assets"])
+                if ((string)entry["relativePath"] == relative) return entry;
+            return null;
+        }
+
+        static void ValidateJournalSprite(Sprite sprite, string path, string owner, List<string> errors)
+        {
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null) { errors.Add(owner + " has no journal TextureImporter: " + path); return; }
+            try
+            {
+                var entry = JournalEntry(path);
+                var ppu = entry != null ? (float)entry["pixelsPerUnit"] : path.Contains("/ponds/") ? 100f : 200f;
+                var pivot = path.Contains("/characters/") ? new Vector2(.5f, .1f) : new Vector2(.5f, .5f);
+                var border = Vector4.zero;
+                var wrap = TextureWrapMode.Clamp;
+                if (entry != null)
+                {
+                    var b = entry["border"];
+                    border = new Vector4((float)b[0], (float)b[1], (float)b[2], (float)b[3]);
+                    var p = entry["pivot"];
+                    pivot = new Vector2((float)p[0], (float)p[1]);
+                    wrap = (string)entry["wrapMode"] == "Repeat" ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
+                }
+                var settings = new TextureImporterSettings();
+                importer.ReadTextureSettings(settings);
+                if (importer.textureType != TextureImporterType.Sprite || importer.spriteImportMode != SpriteImportMode.Single ||
+                    settings.spriteMeshType != SpriteMeshType.FullRect || importer.mipmapEnabled || !importer.alphaIsTransparency ||
+                    !Mathf.Approximately(importer.spritePixelsPerUnit, ppu) || !Mathf.Approximately(sprite.pixelsPerUnit, ppu) ||
+                    importer.spriteBorder != border || importer.spritePivot != pivot || importer.wrapMode != wrap)
+                    errors.Add(owner + " must preserve journal manifest PPU, border, pivot, wrapping and FullRect import settings: " + path);
+            }
+            catch (Exception error) { errors.Add(owner + " journal manifest cannot be validated: " + error.Message); }
         }
 
         static void RequireStructure(GameObject root, string name, Type componentType)
@@ -625,7 +758,8 @@ namespace FishSocial.Desktop.Editor
                 RequireNode<RectTransform>(root, "Viewport/MapContent");
                 RequireNode<Image>(root, "Viewport/MapContent/MapImage");
                 RequireNode<RectTransform>(root, "Viewport/MapContent/MarkerLayer");
-                RequireNode<Text>(root, "Details/DetailsText");
+                RequireNode<Text>(root, root.transform.Find("Details/FactsScroll/DetailsText") != null
+                    ? "Details/FactsScroll/DetailsText" : "Details/DetailsText");
                 RequireNode<Text>(root, "Details/StatusText");
                 foreach (var action in new[] { "EnterPond", "ResetView", "ModeSell", "ModeAuto" })
                     RequireNode<Button>(root, "Details/" + action);

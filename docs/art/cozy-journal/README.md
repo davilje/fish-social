@@ -4,6 +4,8 @@
 
 ## 查看结果
 
+- `production/index.html`：正式 Unity 页面截图与实施验证；已接入游戏业务，截图使用编辑器样例数据。
+
 - `compare.html`：10个页面、11个状态的原版 / Unity 同尺寸拖动对照，另提供4倍增强差异图。
 - `index.html`：171张新增或整理后的资源，支持类别筛选、搜索、透明背景检查。
 - 原版可交互页面：`../../design/ui/prototype/cozy-journal/index.html`。
@@ -19,7 +21,7 @@
 | 鱼塘缩略图 | 21个实际场景prefab渲染，1024×640 | 记录真实来源；不把这些图片冒充原版预览的示意照片 |
 | 原版布局对照 | 11个独立Unity样板prefab，独立视觉层、原生Text、命中区域 | 在Unity实际渲染；仍有字体栅格化、半透明合成和部分旋转文本差异 |
 | 组合组件 | 12个独立组件prefab、纸纹Multiply材质及shader | 可供正式迁移取用；不是已经接入业务的共享Library替代品 |
-| 正式游戏页面 | 原游戏业务保持当前状态 | 本批次没有把全游戏页面和业务事件迁移到新UI |
+| 正式游戏页面 | 已迁移正式预制体、共享主题、业务与动效；发布界面为原生预制体 | 自动测试与正式渲染见 production；Windows、Steam联机和最终美术仍待平台验收 |
 
 **不能把“PNG齐全”“导入成功”“样板渲染成功”写成“全部UI已替换”或“像素完全一致”。** `previews/asset-validation.json` 记录资源验证，`previews/comparison-metrics.json` 记录图像差异。大面积相同背景会稀释整屏差异，因此统计数字不作为视觉通过率。
 
@@ -53,4 +55,4 @@
 7. `node scripts/art/build-cozy-journal-preview.cjs` 与 `node scripts/art/build-cozy-journal-comparison.cjs` — 更新素材页和对照页。
 8. `node scripts/art/verify-cozy-journal-assets.cjs` — 检查尺寸、透明通道、GUID、PPU、九宫格边界、源文件及对照图。
 
-正式迁移时仍需按原Unity替换清单处理Library引用、动态内容、交互和事件、滚动/遮罩、不同窗口尺寸与DPI、动效降级等。当前样板的点击区域只标明业务接线位置。
+正式迁移已实施，详见 `../../design/ui/2026-10-21-cozy-journal-unity-implementation.md`。正式页面重建后可执行 `node scripts/art/build-cozy-journal-production-preview.cjs` 更新17个状态截图。上述步骤4–7仍是参考样板的对照链，不替代正式页面和Windows实机验收。

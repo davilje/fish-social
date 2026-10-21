@@ -21,8 +21,16 @@ namespace FishSocial.Desktop
         Text _status;
         Button _publicTab;
         Button _friendsTab;
+        Button _myTab;
+        bool _mineOnly;
+        bool _loadedMineOnly;
         bool _friendsOnly;
         Coroutine _loadRoutine;
+        int _loadGeneration;
+        RectTransform _commentsHost;
+        DesktopSocialPostCard _selectedComments;
+        Text _commentsTitle;
+        DesktopSocialComposeModal _composer;
         bool _isOpen;
         bool _hasLoaded;
         bool _loadedFriendsOnly;
@@ -34,6 +42,12 @@ namespace FishSocial.Desktop
 
         public void Bind(IAuthenticatedApiClient api, SocialPondSessionController pond)
         {
+            if (_pond != null)
+            {
+                _pond.PostLikedReceived -= OnPostLiked;
+                _pond.PostCommentedReceived -= OnPostCommented;
+                _pond.PostCommentDeletedReceived -= OnPostCommentDeleted;
+            }
             _api = api;
             _pond = pond;
             EnsureUi();
@@ -52,13 +66,22 @@ namespace FishSocial.Desktop
             if (_isOpen)
                 return;
             _isOpen = true;
-            if (!_hasLoaded || _loadedFriendsOnly != _friendsOnly)
+            var share = Find<Button>("DesignFeedInfo/Share");
+            if (share != null)
+            {
+                share.onClick.RemoveAllListeners();
+                share.onClick.AddListener(OpenComposer);
+                DesktopModalUi.SetButtonLabel(share, "分享鱼获");
+            }
+            if (!_hasLoaded || _loadedFriendsOnly != _friendsOnly || _loadedMineOnly != _mineOnly)
                 Refresh();
         }
 
         public void OnClosed()
         {
             _isOpen = false;
+            if (_composer != null) _composer.Close(true);
+            _loadGeneration++;
             if (_loadRoutine != null)
                 StopCoroutine(_loadRoutine);
             _loadRoutine = null;
@@ -87,6 +110,7 @@ namespace FishSocial.Desktop
 
         void OnDestroy()
         {
+            if (_composer != null) Destroy(_composer.gameObject);
             if (_pond != null)
             {
                 _pond.PostLikedReceived -= OnPostLiked;
@@ -95,14 +119,34 @@ namespace FishSocial.Desktop
             }
         }
 
+        public void OpenComposer()
+        {
+            if (_composer == null)
+            {
+                var canvas = GetComponentInParent<Canvas>();
+                if (canvas == null) return;
+                _composer = DesktopSocialComposeModal.Create(canvas.rootCanvas.transform);
+            }
+            if (_composer == null) { SetStatus("发布界面资源缺失，请重新导入手账 UI。"); return; }
+            _composer.Open(_api, _pond != null ? _pond.Nickname : "钓友", () =>
+            {
+                _hasLoaded = false;
+                SelectFeed(false, true);
+                SetStatus("鱼获故事已发布，正在刷新我的动态…");
+            });
+        }
+
         void EnsureUi()
         {
             _uiReady = false;
             _publicTab = Find<Button>("Header/Public");
             _friendsTab = Find<Button>("Header/Friends");
+            _myTab = Find<Button>("Header/My");
             _status = Find<Text>("Status");
             _content = Find<RectTransform>("Scroll/Viewport/Content");
             _scroll = Find<ScrollRect>("Scroll");
+            _commentsHost = Find<RectTransform>("DesignFeedInfo/CommentsHost");
+            _commentsTitle = Find<Text>("DesignFeedInfo/DetailTitle");
             if (_publicTab == null || _friendsTab == null || _status == null ||
                 _content == null || _scroll == null)
             {
@@ -130,6 +174,11 @@ namespace FishSocial.Desktop
                 _friendsTab.onClick.RemoveAllListeners();
                 _friendsTab.onClick.AddListener(() => SelectFeed(true));
             }
+            if (_myTab != null)
+            {
+                _myTab.onClick.RemoveAllListeners();
+                _myTab.onClick.AddListener(() => SelectFeed(false, true));
+            }
             if (_scroll != null)
             {
                 _scroll.onValueChanged.RemoveListener(OnScrollChanged);
@@ -137,11 +186,19 @@ namespace FishSocial.Desktop
             }
         }
 
-        void SelectFeed(bool friendsOnly)
+        void SelectFeed(bool friendsOnly, bool mineOnly = false)
         {
-            if (_friendsOnly == friendsOnly && _hasLoaded)
+            if (_friendsOnly == friendsOnly && _mineOnly == mineOnly && _hasLoaded)
                 return;
+            _loadGeneration++;
+            if (_loadRoutine != null)
+                StopCoroutine(_loadRoutine);
+            _loadRoutine = null;
             _friendsOnly = friendsOnly;
+            _mineOnly = mineOnly;
+            _hasLoaded = false;
+            ClearContent();
+            if (_scroll != null) _scroll.verticalNormalizedPosition = 1f;
             RestyleTabs();
             Refresh();
         }
@@ -154,9 +211,9 @@ namespace FishSocial.Desktop
 
         void RestyleTabs()
         {
-            var tabs = new[] { _publicTab, _friendsTab };
-            var names = new[] { "公开动态", "好友动态" };
-            var icons = new[] { "social", "user" };
+            var tabs = new[] { _publicTab, _friendsTab, _myTab };
+            var names = new[] { "公开动态", "好友动态", "我的动态" };
+            var icons = new[] { "social", "user", "fish" };
             for (var index = 0; index < tabs.Length; index++)
             {
                 var button = tabs[index];
@@ -166,7 +223,7 @@ namespace FishSocial.Desktop
                 DesktopModalUi.StyleButton(button, icons[index]);
                 var visual = button.GetComponent<CozyButtonVisual>();
                 if (visual != null)
-                    visual.SetSelected(_friendsOnly == (index == 1));
+                    visual.SetSelected(_mineOnly ? index == 2 : index == (_friendsOnly ? 1 : 0));
             }
         }
 
@@ -179,7 +236,9 @@ namespace FishSocial.Desktop
             _loadingMore = false;
             _nextOffset = 0;
             _canLoadMore = false;
-            _loadRoutine = StartCoroutine(LoadRoutine(false, InitialPageSize, 0));
+            var retry = Find<Button>("Retry");
+            if (retry != null) retry.gameObject.SetActive(false);
+            _loadRoutine = StartCoroutine(LoadRoutine(false, InitialPageSize, 0, ++_loadGeneration, _friendsOnly, _mineOnly));
         }
 
         void OnScrollChanged(Vector2 normalizedPosition)
@@ -195,10 +254,10 @@ namespace FishSocial.Desktop
                 return;
             _loadingMore = true;
             _loadRoutine = StartCoroutine(
-                LoadRoutine(true, MorePageSize, _nextOffset));
+                LoadRoutine(true, MorePageSize, _nextOffset, ++_loadGeneration, _friendsOnly, _mineOnly));
         }
 
-        IEnumerator LoadRoutine(bool append, int limit, int offset)
+        IEnumerator LoadRoutine(bool append, int limit, int offset, int generation, bool friendsOnly, bool mineOnly)
         {
             var hasContent = _content != null && _content.childCount > 0;
             if (!append)
@@ -215,16 +274,27 @@ namespace FishSocial.Desktop
             var ok = false;
             SocialPostDto[] posts = null;
             string error = null;
-            yield return _api.GetSocialFeed(_friendsOnly, limit, offset,
-                (success, items, message) =>
-            {
-                ok = success;
-                posts = items;
-                error = message;
-                done = true;
-            });
+            if (mineOnly)
+                yield return _api.GetMySocialFeed(limit, offset, (success, items, message) =>
+                {
+                    ok = success;
+                    posts = items;
+                    error = message;
+                    done = true;
+                });
+            else
+                yield return _api.GetSocialFeed(friendsOnly, limit, offset, (success, items, message) =>
+                {
+                    ok = success;
+                    posts = items;
+                    error = message;
+                    done = true;
+                });
             while (!done)
                 yield return null;
+
+            if (generation != _loadGeneration)
+                yield break;
 
             if (!ok)
             {
@@ -239,8 +309,11 @@ namespace FishSocial.Desktop
                 if (!append)
                 {
                     ClearContent();
-                    SetStatus(_friendsOnly ? "暂无好友动态。" : "暂无公开动态。");
+                    SetStatus(mineOnly ? "还没有分享鱼获。" : friendsOnly ? "暂无好友动态。" : "暂无公开动态。");
                 }
+                _hasLoaded = true;
+                _loadedFriendsOnly = friendsOnly;
+                _loadedMineOnly = mineOnly;
                 _canLoadMore = false;
                 _loadRoutine = null;
                 _loadingMore = false;
@@ -254,6 +327,7 @@ namespace FishSocial.Desktop
             }
             for (var i = 0; i < posts.Length; i++)
             {
+                if (generation != _loadGeneration) yield break;
                 CreatePostCard(posts[i]);
                 if ((i + 1) % MorePageSize == 0)
                     yield return null;
@@ -261,7 +335,9 @@ namespace FishSocial.Desktop
             _nextOffset = offset + posts.Length;
             _canLoadMore = posts.Length >= limit;
             _hasLoaded = true;
-            _loadedFriendsOnly = _friendsOnly;
+            _loadedFriendsOnly = friendsOnly;
+            _loadedMineOnly = mineOnly;
+
             _loadRoutine = null;
             _loadingMore = false;
         }
@@ -280,32 +356,54 @@ namespace FishSocial.Desktop
             }
             DesktopModalUi.StyleTree(card.transform);
             binder.Bind(post, _api);
+            if (_commentsHost != null)
+                binder.ConfigureCommentsHost(_commentsHost, selectedCard =>
+                {
+                    if (_selectedComments != null && _selectedComments != selectedCard)
+                        _selectedComments.CloseComments();
+                    _selectedComments = selectedCard;
+                    if (_commentsTitle != null)
+                        _commentsTitle.text = (post.nickname ?? "钓友") + "的动态\n评论与留言";
+                    var body = transform.Find("DesignFeedInfo/Body");
+                    if (body != null) body.gameObject.SetActive(false);
+                    var note = transform.Find("DesignFeedInfo/Note");
+                    if (note != null) note.gameObject.SetActive(false);
+                });
         }
 
         void OnPostLiked(PostLikedDto message)
         {
-            if (message != null && isActiveAndEnabled)
-                Refresh();
+            if (message == null || !_isOpen || _content == null) return;
+            foreach (var card in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+                card.ApplyLiked(message);
         }
 
         void OnPostCommented(PostCommentedDto message)
         {
-            if (message != null && isActiveAndEnabled)
-                Refresh();
+            if (message == null || !_isOpen || _content == null) return;
+            foreach (var card in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+                card.ApplyCommented(message);
         }
 
         void OnPostCommentDeleted(PostCommentDeletedDto message)
         {
-            if (message != null && isActiveAndEnabled)
-                Refresh();
+            if (message == null || !_isOpen || _content == null) return;
+            foreach (var card in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+                card.ApplyCommentDeleted(message);
         }
 
         void ClearContent()
         {
+            if (_selectedComments != null) _selectedComments.CloseComments();
+            _selectedComments = null;
+            if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
             if (_content == null)
                 return;
             for (var i = _content.childCount - 1; i >= 0; i--)
+            {
+                _content.GetChild(i).gameObject.SetActive(false);
                 Destroy(_content.GetChild(i).gameObject);
+            }
         }
 
         void ClearUiHierarchy()
@@ -324,7 +422,7 @@ namespace FishSocial.Desktop
         {
             var retry = Find<Button>("Retry");
             if (retry != null)
-                retry.gameObject.SetActive(false);
+                retry.gameObject.SetActive(true);
         }
 
         void SetStatus(string value)

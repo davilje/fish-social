@@ -1,5 +1,39 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &922927048918199071
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1120959327131680752, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+      propertyPath: m_LineType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5544903497897661276, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 130
+      objectReference: {fileID: 0}
+    - target: {fileID: 5941623986352384237, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+      propertyPath: m_Name
+      value: CozyInputMultiline
+      objectReference: {fileID: 0}
+    - target: {fileID: 8506100702524582941, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+      propertyPath: m_FontData.m_Font
+      value:
+      objectReference: {fileID: 12800000, guid: da98222397b30244d9e090feb93322fb, type: 3}
+    - target: {fileID: 8506100702524582941, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+      propertyPath: m_FontData.m_RichText
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8506100702524582941, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+      propertyPath: m_FontData.m_HorizontalOverflow
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0fd1a28be074558d9740bac282d2d181, type: 3}
+
 --- !u!1 &4977137172037589697 stripped
 GameObject:
   m_CorrespondingSourceObject:
@@ -10,6 +44,7 @@ GameObject:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!224 &3958502183188138635 stripped
 RectTransform:
   m_CorrespondingSourceObject:
@@ -20,6 +55,7 @@ RectTransform:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!222 &6950020518515791691 stripped
 CanvasRenderer:
   m_CorrespondingSourceObject:
@@ -30,6 +66,7 @@ CanvasRenderer:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!114 &8506100702524582941 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -50,6 +87,7 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
+
 --- !u!1 &5941623986352384237 stripped
 GameObject:
   m_CorrespondingSourceObject:
@@ -60,6 +98,7 @@ GameObject:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!224 &5544903497897661276 stripped
 RectTransform:
   m_CorrespondingSourceObject:
@@ -70,6 +109,7 @@ RectTransform:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!222 &2242543294867120176 stripped
 CanvasRenderer:
   m_CorrespondingSourceObject:
@@ -80,6 +120,7 @@ CanvasRenderer:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!114 &1475999464742151249 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -100,6 +141,7 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
+
 --- !u!114 &1120959327131680752 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -120,6 +162,7 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
+
 --- !u!1 &8035680332389426402 stripped
 GameObject:
   m_CorrespondingSourceObject:
@@ -130,6 +173,7 @@ GameObject:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!224 &21633013222720346 stripped
 RectTransform:
   m_CorrespondingSourceObject:
@@ -140,6 +184,7 @@ RectTransform:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!222 &2919052070879376034 stripped
 CanvasRenderer:
   m_CorrespondingSourceObject:
@@ -150,6 +195,7 @@ CanvasRenderer:
     fileID: 922927048918199071
   m_PrefabAsset:
     fileID: 0
+
 --- !u!114 &7156375053676779282 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -170,6 +216,7 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
+
 --- !u!114 &508456933083324276 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -190,43 +237,3 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
---- !u!1001 &922927048918199071
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent:
-      fileID: 0
-    m_Modifications:
-    - target:
-        fileID: 5941623986352384237
-        guid: 0fd1a28be074558d9740bac282d2d181
-        type: 3
-      propertyPath: m_Name
-      value: CozyInputMultiline
-      objectReference:
-        fileID: 0
-    - target:
-        fileID: 5544903497897661276
-        guid: 0fd1a28be074558d9740bac282d2d181
-        type: 3
-      propertyPath: m_SizeDelta.y
-      value: '130'
-      objectReference:
-        fileID: 0
-    - target:
-        fileID: 1120959327131680752
-        guid: 0fd1a28be074558d9740bac282d2d181
-        type: 3
-      propertyPath: m_LineType
-      value: '2'
-      objectReference:
-        fileID: 0
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab:
-    fileID: 100100000
-    guid: 0fd1a28be074558d9740bac282d2d181
-    type: 3

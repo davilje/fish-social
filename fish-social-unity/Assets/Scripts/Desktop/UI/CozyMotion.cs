@@ -13,11 +13,21 @@ namespace FishSocial.Desktop
     {
         public const string ReducePrefsKey = "fishsocial.desktop.motion.reduce";
 
-        const float Tap = 0.06f;
-        const float Snap = 0.22f;
-        const float Slide = 0.20f;
-        const float Hop = 0.42f;
-        const float FloatPeriod = 2.4f;
+        public const float Tap = 0.06f;
+        public const float Snap = 0.22f;
+        public const float Slide = 0.20f;
+        public const float Hop = 0.42f;
+        public const float FloatPeriod = 2.4f;
+
+        public const float Celebrate = 0.9f;
+        public const float Stagger = 0.04f;
+        public const int StaggerLimit = 8;
+        public const float Fade = 0.12f;
+        public const int MaxJobs = 64;
+        public const int NavigationPriority = 10;
+        public const int EmptyStatePriority = 20;
+        public const int MapPriority = 30;
+        public const int ShowcasePriority = 40;
 
         enum Channel { Scale, Anchor, Alpha, Number, Loop }
 
@@ -33,97 +43,204 @@ namespace FishSocial.Desktop
             public float ToF;
             public CanvasGroup Group;
             public Text Label;
-            public string Format;
             public bool Loop;
             public float Phase;
             public Action Done;
+            public Vector2 Rest;
+            public bool HasRest;
+            public bool HoldOnCancel;
+            public Action Cleanup;
+            public Vector3 RestScale = Vector3.one;
+            public Quaternion Rotation = Quaternion.identity;
+            public int Priority;
+            public CozyButtonVisual ButtonVisual;
         }
 
         static readonly List<Job> Jobs = new List<Job>();
+        static readonly List<Job> TickJobs = new List<Job>();
+        static readonly List<Job> Loops = new List<Job>();
+        static readonly List<CozyMotionHost> Hosts = new List<CozyMotionHost>();
+        static Job _loopOwner;
         static bool _paused;
+        static Action _finishFlip;
+        public static int ActiveJobCount => Jobs.Count + (_loopOwner != null ? 1 : 0);
+        public static RectTransform ActiveLoopOwner => _loopOwner != null ? _loopOwner.Target : null;
+        public static event Action<bool> ReducedChanged;
+        public static event Action<bool> PausedChanged;
+        public static bool Paused => _paused;
         static Sprite _bobber;
         static Sprite _ripple;
         static Action _cancelFlip;
 
         public static bool Reduced { get; private set; }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics()
+        {
+            Jobs.Clear();
+            Loops.Clear();
+            Hosts.Clear();
+            TickJobs.Clear();
+            _loopOwner = null;
+            _cancelFlip = null;
+            _finishFlip = null;
+            _paused = false;
+            ReducedChanged = null;
+            PausedChanged = null;
+            Reduced = PlayerPrefs.GetInt(ReducePrefsKey, 0) == 1;
+        }
+
         public static void LoadPreference()
         {
-            Reduced = PlayerPrefs.GetInt(ReducePrefsKey, 0) == 1;
+            ApplyReduced(PlayerPrefs.GetInt(ReducePrefsKey, 0) == 1);
         }
 
         public static void SetReduced(bool value)
         {
-            Reduced = value;
+            ApplyReduced(value);
             PlayerPrefs.SetInt(ReducePrefsKey, value ? 1 : 0);
             PlayerPrefs.Save();
-            if (value)
-                StopLoops();
         }
 
+        static void ApplyReduced(bool value)
+        {
+            if (Reduced == value)
+                return;
+            Reduced = value;
+            if (value)
+                SettleMotion();
+            SelectLoop();
+            ReducedChanged?.Invoke(value);
+        }
+
+        // The tray/window owner calls this explicitly; OS focus loss alone is not hiding.
         public static void SetPaused(bool paused)
         {
+            if (_paused == paused)
+                return;
             _paused = paused;
+            if (paused)
+                SettleMotion();
+            SelectLoop();
+            PausedChanged?.Invoke(paused);
+        }
+
+        static void SettleMotion()
+        {
+            var finish = _finishFlip;
+            _finishFlip = null;
+            CancelPageTransition();
+            finish?.Invoke();
+            var pending = Jobs.ToArray();
+            foreach (var job in pending)
+            {
+                if (!Jobs.Remove(job))
+                    continue;
+                if (job.Channel == Channel.Scale)
+                {
+                    if (job.ButtonVisual != null) job.ButtonVisual.SetMotionScale(Vector2.one);
+                    else if (job.Target != null) job.Target.localScale = job.RestScale;
+                    job.Done?.Invoke();
+                }
+                else Complete(job);
+            }
+            RestoreLoop(_loopOwner);
+            _loopOwner = null;
         }
 
         public static void Tick(float delta)
         {
+            SelectLoop();
             if (_paused || delta <= 0f)
                 return;
-            for (var i = Jobs.Count - 1; i >= 0; i--)
+            if (_loopOwner != null)
             {
-                var job = Jobs[i];
+                var loop = _loopOwner;
+                loop.Time += delta;
+                var wave = Mathf.Sin((loop.Time / FloatPeriod + loop.Phase) * Mathf.PI * 2f);
+                loop.Target.anchoredPosition = loop.From + new Vector2(0f, wave * 3f);
+                loop.Target.localRotation = loop.Rotation * Quaternion.Euler(0f, 0f, wave * 4f);
+            }
+            // Completion can cancel another page's jobs or add the next sequence step.
+            TickJobs.Clear();
+            TickJobs.AddRange(Jobs);
+            foreach (var job in TickJobs)
+            {
+                if (!Jobs.Contains(job))
+                    continue;
                 if (job.Target == null)
                 {
-                    Jobs.RemoveAt(i);
+                    Jobs.Remove(job);
                     continue;
                 }
-                if (job.Loop)
+                if (!job.Target.gameObject.activeInHierarchy)
                 {
-                    if (Reduced)
-                        continue;
-                    job.Time += delta;
-                    var wave = Mathf.Sin((job.Time / FloatPeriod + job.Phase) * Mathf.PI * 2f);
-                    var rest = job.From;
-                    job.Target.anchoredPosition = rest + new Vector2(0f, wave * 3f);
-                    job.Target.localRotation = Quaternion.Euler(0f, 0f, wave * 4f);
+                    Jobs.Remove(job);
+                    Complete(job);
                     continue;
                 }
-
                 job.Time += delta;
                 var t = job.Duration <= 0f ? 1f : Mathf.Clamp01(job.Time / job.Duration);
-                var e = EaseOutCubic(t);
-                switch (job.Channel)
+                Apply(job, t);
+                if (t >= 1f)
                 {
-                    case Channel.Scale:
-                        var scale = Vector2.LerpUnclamped(job.From, job.To, EaseOutBack(t));
-                        job.Target.localScale = new Vector3(scale.x, scale.y, 1f);
-                        break;
-                    case Channel.Anchor:
-                        job.Target.anchoredPosition = Vector2.LerpUnclamped(job.From, job.To, e);
-                        break;
-                    case Channel.Alpha:
-                        if (job.Group != null)
-                            job.Group.alpha = Mathf.Lerp(job.FromF, job.ToF, e);
-                        break;
-                    case Channel.Number:
-                        if (job.Label != null)
-                        {
-                            var value = Mathf.Lerp(job.FromF, job.ToF, e);
-                            job.Label.text = string.IsNullOrEmpty(job.Format)
-                                ? Mathf.RoundToInt(value).ToString("N0")
-                                : string.Format(job.Format, Mathf.RoundToInt(value));
-                        }
-                        break;
+                    Jobs.Remove(job);
+                    job.Done?.Invoke();
                 }
-
-                if (t < 1f)
-                    continue;
-                var done = job.Done;
-                Jobs.RemoveAt(i);
-                if (done != null)
-                    done();
             }
+        }
+
+        static void Apply(Job job, float t)
+        {
+            if (job.Target == null)
+                return;
+            var eased = EaseOutCubic(t);
+            switch (job.Channel)
+            {
+                case Channel.Scale:
+                    var scale = Vector2.LerpUnclamped(job.From, job.To, EaseOutBack(t));
+                    if (job.ButtonVisual != null)
+                        job.ButtonVisual.SetMotionScale(scale);
+                    else
+                        job.Target.localScale = new Vector3(scale.x, scale.y, job.RestScale.z);
+                    break;
+                case Channel.Anchor:
+                    job.Target.anchoredPosition = Vector2.LerpUnclamped(job.From, job.To, eased);
+                    break;
+                case Channel.Alpha:
+                    if (job.Group != null) job.Group.alpha = Mathf.Lerp(job.FromF, job.ToF, eased);
+                    break;
+                case Channel.Number:
+                    if (job.Label != null)
+                        job.Label.text = Mathf.RoundToInt(Mathf.Lerp(job.FromF, job.ToF, eased)).ToString("N0");
+                    break;
+            }
+        }
+
+        static void Complete(Job job)
+        {
+            Apply(job, 1f);
+            job.Done?.Invoke();
+        }
+
+        static void Add(Job job)
+        {
+            if (job.Target == null)
+                return;
+            if (_paused || (Reduced && job.Channel != Channel.Alpha))
+            {
+                Complete(job);
+                return;
+            }
+            if (Reduced) job.Duration = Mathf.Min(job.Duration, Fade);
+            // Preserve sequence completion and transient cleanup even under a burst.
+            while (Jobs.Count >= MaxJobs - 1)
+            {
+                var oldest = Jobs[0];
+                Jobs.RemoveAt(0);
+                Complete(oldest);
+            }
+            Jobs.Add(job);
         }
 
         public static void PressDown(RectTransform target, bool enabled)
@@ -136,15 +253,22 @@ namespace FishSocial.Desktop
                 return;
             }
             Replace(target, Channel.Scale);
+            var visual = target.GetComponent<CozyButtonVisual>();
+            if (Reduced || _paused)
+            {
+                if (visual != null) visual.SetMotionScale(Vector2.one);
+                return;
+            }
             var job = new Job
             {
                 Target = target,
                 Channel = Channel.Scale,
-                Duration = Reduced ? 0.08f : Tap,
+                Duration = Tap,
+                ButtonVisual = visual,
                 From = Vector2.one,
                 To = new Vector2(1.06f, 0.92f),
             };
-            Jobs.Add(job);
+            Add(job);
         }
 
         public static void PressUp(RectTransform target)
@@ -152,28 +276,32 @@ namespace FishSocial.Desktop
             if (target == null)
                 return;
             Replace(target, Channel.Scale);
-            if (Reduced)
+            var visual = target.GetComponent<CozyButtonVisual>();
+            if (Reduced || _paused)
             {
-                target.localScale = Vector3.one;
+                if (visual != null) visual.SetMotionScale(Vector2.one);
+                else target.localScale = Vector3.one;
                 return;
             }
-            var from = new Vector2(target.localScale.x, target.localScale.y);
-            Jobs.Add(new Job
+            var from = visual != null ? visual.MotionScale : new Vector2(target.localScale.x, target.localScale.y);
+            Add(new Job
             {
                 Target = target,
                 Channel = Channel.Scale,
                 Duration = Snap * 0.45f,
+                ButtonVisual = visual,
                 From = from,
                 To = new Vector2(0.98f, 1.04f),
                 Done = () =>
                 {
                     if (target == null)
                         return;
-                    Jobs.Add(new Job
+                    Add(new Job
                     {
                         Target = target,
                         Channel = Channel.Scale,
                         Duration = Snap * 0.55f,
+                        ButtonVisual = visual,
                         From = new Vector2(0.98f, 1.04f),
                         To = Vector2.one,
                     });
@@ -183,13 +311,14 @@ namespace FishSocial.Desktop
 
         public static void Shake(RectTransform target)
         {
-            if (target == null || Reduced)
+            if (target == null || Reduced || _paused)
                 return;
+            if (target.GetComponent<CozyButtonVisual>() != null) return;
+            ResetAnchor(target);
             var rest = target.anchoredPosition;
-            Replace(target, Channel.Anchor);
             Nudge(target, rest, rest + new Vector2(-4f, 0f), 0.04f, () =>
                 Nudge(target, rest + new Vector2(-4f, 0f), rest + new Vector2(4f, 0f), 0.04f, () =>
-                    Nudge(target, rest + new Vector2(4f, 0f), rest, 0.05f, null)));
+                    Nudge(target, rest + new Vector2(4f, 0f), rest, 0.05f, null, rest), rest), rest);
         }
 
         public static void Punch(RectTransform target)
@@ -197,44 +326,77 @@ namespace FishSocial.Desktop
             if (target == null || Reduced)
                 return;
             Replace(target, Channel.Scale);
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = target,
                 Channel = Channel.Scale,
                 Duration = Snap,
+                ButtonVisual = target.GetComponent<CozyButtonVisual>(),
                 From = new Vector2(1.12f, 0.9f),
                 To = Vector2.one,
             });
         }
 
-        public static void Float(RectTransform target, float phase)
+        public static void Float(RectTransform target, float phase, int priority = MapPriority)
         {
-            if (target == null)
-                return;
-            Replace(target, Channel.Loop);
-            if (Reduced)
-                return;
-            Jobs.Add(new Job
+            if (target == null) return;
+            StopFloat(target);
+            Loops.Add(new Job { Target = target, Channel = Channel.Loop, Loop = true,
+                Phase = phase, From = target.anchoredPosition, Rotation = target.localRotation,
+                Priority = priority });
+            SelectLoop();
+        }
+
+        public static void StopFloat(RectTransform target)
+        {
+            for (var i = Loops.Count - 1; i >= 0; i--)
             {
-                Target = target,
-                Channel = Channel.Loop,
-                Loop = true,
-                Phase = phase,
-                From = target.anchoredPosition,
-            });
+                if (Loops[i].Target != target) continue;
+                if (_loopOwner == Loops[i])
+                {
+                    RestoreLoop(_loopOwner);
+                    _loopOwner = null;
+                }
+                Loops.RemoveAt(i);
+            }
+            SelectLoop();
+        }
+
+        static void SelectLoop()
+        {
+            Job next = null;
+            for (var i = Loops.Count - 1; i >= 0; i--)
+            {
+                var candidate = Loops[i];
+                if (candidate.Target == null) { Loops.RemoveAt(i); continue; }
+                if (_paused || Reduced || !candidate.Target.gameObject.activeInHierarchy) continue;
+                if (next == null || candidate.Priority > next.Priority) next = candidate;
+            }
+            if (next == _loopOwner) return;
+            RestoreLoop(_loopOwner);
+            _loopOwner = next;
+        }
+
+        static void RestoreLoop(Job loop)
+        {
+            if (loop == null || loop.Target == null) return;
+            loop.Target.anchoredPosition = loop.From;
+            loop.Target.localRotation = loop.Rotation;
+            loop.Time = 0f;
         }
 
         public static void Roll(Text label, int from, int to)
         {
             if (label == null)
                 return;
+            ReplaceLabel(label);
             if (Reduced || from == to)
             {
                 label.text = to.ToString("N0");
                 return;
             }
             ReplaceLabel(label);
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = label.rectTransform,
                 Label = label,
@@ -245,11 +407,21 @@ namespace FishSocial.Desktop
             });
         }
 
+        /// <summary>Focus animation; cancelling for a drag keeps its current position.</summary>
+        public static void MoveTo(RectTransform target, Vector2 destination, float duration = .35f)
+        {
+            if (target == null) return;
+            Replace(target, Channel.Anchor);
+            Add(new Job { Target = target, Channel = Channel.Anchor, Duration = duration,
+                From = target.anchoredPosition, To = destination, HoldOnCancel = true });
+        }
+
         public static void SlideToast(RectTransform target)
         {
             if (target == null)
                 return;
             var group = EnsureGroup(target.gameObject);
+            ResetAnchor(target);
             var rest = target.anchoredPosition;
             if (Reduced)
             {
@@ -260,7 +432,7 @@ namespace FishSocial.Desktop
             group.alpha = 0f;
             Replace(target, Channel.Anchor);
             Replace(target, Channel.Alpha);
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = target,
                 Channel = Channel.Anchor,
@@ -268,7 +440,7 @@ namespace FishSocial.Desktop
                 From = target.anchoredPosition,
                 To = rest,
             });
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = target,
                 Group = group,
@@ -279,6 +451,14 @@ namespace FishSocial.Desktop
             });
         }
 
+        public static void CancelPageTransition()
+        {
+            var cancel = _cancelFlip;
+            _cancelFlip = null;
+            _finishFlip = null;
+            cancel?.Invoke();
+        }
+
         public static void Flip(GameObject from, GameObject to, Action done)
         {
             if (to == null)
@@ -287,13 +467,8 @@ namespace FishSocial.Desktop
                     done();
                 return;
             }
-            if (_cancelFlip != null)
-            {
-                var cancel = _cancelFlip;
-                _cancelFlip = null;
-                cancel();
-            }
-            if (Reduced || from == null || from == to)
+            CancelPageTransition();
+            if (Reduced || _paused || from == null || from == to)
             {
                 if (from != null && from != to)
                     from.SetActive(false);
@@ -315,6 +490,7 @@ namespace FishSocial.Desktop
             toGroup.blocksRaycasts = false;
             fromGroup.alpha = 1f;
             fromGroup.blocksRaycasts = false;
+            _finishFlip = done;
             _cancelFlip = () =>
             {
                 Drop(fromRt);
@@ -335,20 +511,20 @@ namespace FishSocial.Desktop
             };
             Replace(fromRt, Channel.Anchor);
             Replace(fromRt, Channel.Alpha);
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = fromRt,
                 Channel = Channel.Anchor,
-                Duration = 0.12f,
+                Duration = Fade,
                 From = fromRest,
                 To = fromRest + new Vector2(-24f, 0f),
             });
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = fromRt,
                 Group = fromGroup,
                 Channel = Channel.Alpha,
-                Duration = 0.12f,
+                Duration = Fade,
                 FromF = 1f,
                 ToF = 0f,
                 Done = () =>
@@ -368,7 +544,7 @@ namespace FishSocial.Desktop
                     }
                     Replace(toRt, Channel.Anchor);
                     Replace(toRt, Channel.Alpha);
-                    Jobs.Add(new Job
+                    Add(new Job
                     {
                         Target = toRt,
                         Channel = Channel.Anchor,
@@ -376,7 +552,7 @@ namespace FishSocial.Desktop
                         From = toRest + new Vector2(24f, 0f),
                         To = toRest,
                     });
-                    Jobs.Add(new Job
+                    Add(new Job
                     {
                         Target = toRt,
                         Group = toGroup,
@@ -392,6 +568,7 @@ namespace FishSocial.Desktop
                                 toGroup.blocksRaycasts = true;
                             }
                             _cancelFlip = null;
+                            _finishFlip = null;
                             if (done != null)
                                 done();
                         },
@@ -402,7 +579,7 @@ namespace FishSocial.Desktop
 
         public static void Ripple(RectTransform parent)
         {
-            if (parent == null || Reduced)
+            if (parent == null || Reduced || _paused || RippleSprite() == null)
                 return;
             var ring = new GameObject("CozyRipple", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             ring.transform.SetParent(parent, false);
@@ -413,10 +590,10 @@ namespace FishSocial.Desktop
             rect.anchoredPosition = Vector2.zero;
             var image = ring.GetComponent<Image>();
             image.sprite = RippleSprite();
-            image.color = new Color(0.36f, 0.68f, 0.89f, 0.9f);
+            image.color = Color.white;
             image.raycastTarget = false;
             var group = ring.AddComponent<CanvasGroup>();
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = rect,
                 Channel = Channel.Scale,
@@ -424,19 +601,22 @@ namespace FishSocial.Desktop
                 From = new Vector2(0.4f, 0.4f),
                 To = new Vector2(1.8f, 1.8f),
             });
-            Jobs.Add(new Job
+            Action cleanup = () =>
+            {
+                if (ring == null) return;
+                if (Application.isPlaying) UnityEngine.Object.Destroy(ring);
+                else UnityEngine.Object.DestroyImmediate(ring);
+            };
+            Add(new Job
             {
                 Target = rect,
+                Cleanup = cleanup,
                 Group = group,
                 Channel = Channel.Alpha,
                 Duration = 0.36f,
                 FromF = 0.9f,
                 ToF = 0f,
-                Done = () =>
-                {
-                    if (ring != null)
-                        UnityEngine.Object.Destroy(ring);
-                },
+                Done = cleanup,
             });
         }
 
@@ -444,26 +624,7 @@ namespace FishSocial.Desktop
         {
             if (_bobber != null)
                 return _bobber;
-            var texture = new Texture2D(40, 58, TextureFormat.RGBA32, false);
-            for (var y = 0; y < 58; y++)
-            for (var x = 0; x < 40; x++)
-            {
-                var dx = x - 19.5f;
-                var dy = y - 28f;
-                var inBall = dx * dx + dy * dy <= 14f * 14f;
-                var stem = x >= 18 && x <= 21 && (y < 16 || y > 42);
-                Color color;
-                if (inBall)
-                    color = y >= 28 ? new Color(0.89f, 0.33f, 0.25f, 1f) : new Color(1f, 0.98f, 0.94f, 1f);
-                else if (stem)
-                    color = new Color(0.46f, 0.28f, 0.18f, 1f);
-                else
-                    color = Color.clear;
-                texture.SetPixel(x, y, color);
-            }
-            texture.Apply(false, false);
-            _bobber = Sprite.Create(texture, new Rect(0, 0, 40, 58), new Vector2(0.5f, 0.15f), 100f);
-            texture.Apply(false, true);
+            _bobber = Resources.Load<Sprite>("Desktop/Theme/Cozy/journal/motion/bobber");
             return _bobber;
         }
 
@@ -490,7 +651,7 @@ namespace FishSocial.Desktop
             image.sprite = BobberSprite();
             image.raycastTarget = false;
             image.color = Color.white;
-            Float(rect, 0.15f);
+            Float(rect, 0.15f, NavigationPriority);
         }
 
         public static void MoveBobber(Transform nav, RectTransform tab)
@@ -502,7 +663,8 @@ namespace FishSocial.Desktop
             var bobber = nav.Find("CozyBobber") as RectTransform;
             if (bobber == null)
                 return;
-            Replace(bobber, Channel.Loop);
+            StopFloat(bobber);
+            ResetAnchor(bobber);
             var parent = nav as RectTransform;
             var world = tab.TransformPoint(new Vector3(tab.rect.center.x, tab.rect.yMax, 0f));
             var local = parent != null ? (Vector2)parent.InverseTransformPoint(world) : tab.anchoredPosition;
@@ -511,34 +673,38 @@ namespace FishSocial.Desktop
             if (Reduced)
             {
                 bobber.anchoredPosition = target;
-                Float(bobber, 0.15f);
+                Float(bobber, 0.15f, NavigationPriority);
                 return;
             }
             var peak = Vector2.Lerp(from, target, 0.5f) + new Vector2(0f, 46f);
             Replace(bobber, Channel.Anchor);
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = bobber,
                 Channel = Channel.Anchor,
                 Duration = Hop * 0.45f,
+                Rest = target,
+                HasRest = true,
                 From = from,
                 To = peak,
                 Done = () =>
                 {
                     if (bobber == null)
                         return;
-                    Jobs.Add(new Job
+                    Add(new Job
                     {
                         Target = bobber,
                         Channel = Channel.Anchor,
                         Duration = Hop * 0.55f,
+                        Rest = target,
+                        HasRest = true,
                         From = peak,
                         To = target,
                         Done = () =>
                         {
                             Ripple(bobber);
                             Punch(tab);
-                            Float(bobber, 0.15f);
+                            Float(bobber, 0.15f, NavigationPriority);
                         },
                     });
                 },
@@ -565,19 +731,50 @@ namespace FishSocial.Desktop
             image.sprite = sprite;
             image.preserveAspect = true;
             image.raycastTarget = false;
-            if (!Reduced)
-                Float(rect, 0.4f);
+            go.AddComponent<CozyCornerCharacter>();
         }
 
-        static void Nudge(RectTransform target, Vector2 from, Vector2 to, float duration, Action done)
+        public static CozyCatchCelebration CelebrateCatch(Transform parent, string catchId, string fishName,
+            Sprite fishSprite, bool isCodexNew, string detail = null)
+        {
+            if (parent == null) return null;
+            var presenter = parent.GetComponent<CozyCatchCelebration>();
+            if (presenter == null) presenter = parent.gameObject.AddComponent<CozyCatchCelebration>();
+            presenter.Enqueue(catchId, fishName, fishSprite, isCodexNew, detail);
+            return presenter;
+        }
+
+        public static bool SetCornerCharacter(Transform parent, string explicitSkinId)
+        {
+            if (parent == null) return false;
+            EnsureCornerCat(parent);
+            var cat = parent.Find("CozyCornerCat");
+            if (cat == null) return false;
+            var character = cat.GetComponent<CozyCornerCharacter>() ?? cat.gameObject.AddComponent<CozyCornerCharacter>();
+            return character.SetSkin(explicitSkinId);
+        }
+
+        public static void SetCornerPose(Transform parent, CozyCornerCharacter.Pose pose, float holdSeconds = 0f)
+        {
+            if (parent == null) return;
+            EnsureCornerCat(parent);
+            var cat = parent.Find("CozyCornerCat");
+            if (cat == null) return;
+            var character = cat.GetComponent<CozyCornerCharacter>() ?? cat.gameObject.AddComponent<CozyCornerCharacter>();
+            character.SetPose(pose, holdSeconds);
+        }
+
+        static void Nudge(RectTransform target, Vector2 from, Vector2 to, float duration, Action done, Vector2 rest)
         {
             if (target == null)
                 return;
-            Jobs.Add(new Job
+            Add(new Job
             {
                 Target = target,
                 Channel = Channel.Anchor,
                 Duration = duration,
+                Rest = rest,
+                HasRest = true,
                 From = from,
                 To = to,
                 Done = done,
@@ -607,16 +804,69 @@ namespace FishSocial.Desktop
                     Jobs.RemoveAt(i);
         }
 
-        static void StopLoops()
+        static void ResetAnchor(RectTransform target)
         {
             for (var i = Jobs.Count - 1; i >= 0; i--)
+                if (Jobs[i].Target == target && Jobs[i].Channel == Channel.Anchor)
+                {
+                    target.anchoredPosition = Jobs[i].HasRest ? Jobs[i].Rest : Jobs[i].To;
+                    Jobs.RemoveAt(i);
+                }
+        }
+
+        internal static void CancelPress(RectTransform target)
+        {
+            if (target == null) return;
+            Replace(target, Channel.Scale);
+            var visual = target.GetComponent<CozyButtonVisual>();
+            if (visual != null) visual.SetMotionScale(Vector2.one);
+        }
+
+        public static void Cancel(RectTransform target, bool includeChildren = false)
+        {
+            if (target == null) return;
+            for (var i = Jobs.Count - 1; i >= 0; i--)
             {
-                if (!Jobs[i].Loop || Jobs[i].Target == null)
-                    continue;
-                Jobs[i].Target.localRotation = Quaternion.identity;
-                Jobs[i].Target.anchoredPosition = Jobs[i].From;
+                var job = Jobs[i];
+                if (job.Target != target && !(includeChildren && job.Target != null && job.Target.IsChildOf(target))) continue;
                 Jobs.RemoveAt(i);
+                if (job.Channel == Channel.Scale)
+                {
+                    if (job.ButtonVisual != null) job.ButtonVisual.SetMotionScale(Vector2.one);
+                    else if (job.Target != null) job.Target.localScale = job.RestScale;
+                }
+                else if (job.HoldOnCancel) { }
+                else if (job.Channel == Channel.Anchor && job.HasRest && job.Target != null)
+                    job.Target.anchoredPosition = job.Rest;
+                else Apply(job, 1f);
+                job.Cleanup?.Invoke();
             }
+            for (var i = Loops.Count - 1; i >= 0; i--)
+                if (Loops[i].Target == target || (includeChildren && Loops[i].Target != null && Loops[i].Target.IsChildOf(target)))
+                {
+                    RestoreLoop(Loops[i]);
+                    if (_loopOwner == Loops[i]) _loopOwner = null;
+                    Loops.RemoveAt(i);
+                }
+            SelectLoop();
+        }
+
+        internal static void RegisterHost(CozyMotionHost host)
+        {
+            if (!Hosts.Contains(host)) Hosts.Add(host);
+        }
+
+        internal static void UnregisterHost(CozyMotionHost host)
+        {
+            Hosts.Remove(host);
+            SelectLoop();
+        }
+
+        internal static void TickHost(CozyMotionHost host, float delta)
+        {
+            for (var i = Hosts.Count - 1; i >= 0; i--)
+                if (Hosts[i] == null) Hosts.RemoveAt(i);
+            if (Hosts.Count > 0 && Hosts[0] == host) Tick(delta);
         }
 
         static CanvasGroup EnsureGroup(GameObject go)
@@ -631,19 +881,7 @@ namespace FishSocial.Desktop
         {
             if (_ripple != null)
                 return _ripple;
-            const int size = 64;
-            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-            var center = (size - 1) * 0.5f;
-            for (var y = 0; y < size; y++)
-            for (var x = 0; x < size; x++)
-            {
-                var distance = Vector2.Distance(new Vector2(x, y), new Vector2(center, center)) / center;
-                var ring = Mathf.Clamp01(1f - Mathf.Abs(distance - 0.72f) * 8f);
-                texture.SetPixel(x, y, new Color(1f, 1f, 1f, ring));
-            }
-            texture.Apply(false, false);
-            _ripple = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
-            texture.Apply(false, true);
+            _ripple = Resources.Load<Sprite>("Desktop/Theme/Cozy/journal/motion/ripple-ring");
             return _ripple;
         }
 
@@ -663,9 +901,16 @@ namespace FishSocial.Desktop
 
     sealed class CozyMotionHost : MonoBehaviour
     {
+        void OnEnable() { CozyMotion.RegisterHost(this); }
+        void OnDisable()
+        {
+            CozyMotion.UnregisterHost(this);
+        }
+        void OnDestroy() { CozyMotion.Cancel(transform as RectTransform, true); }
+
         void Update()
         {
-            CozyMotion.Tick(Time.unscaledDeltaTime);
+            CozyMotion.TickHost(this, Time.unscaledDeltaTime);
         }
 
         void OnApplicationPause(bool paused)

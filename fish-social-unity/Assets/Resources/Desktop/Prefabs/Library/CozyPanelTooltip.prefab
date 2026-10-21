@@ -1,5 +1,27 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &366995100236589195
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 335330475575188031, guid: 0520ed16659e5484af4435458f1f8320, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 280
+      objectReference: {fileID: 0}
+    - target: {fileID: 335330475575188031, guid: 0520ed16659e5484af4435458f1f8320, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 170
+      objectReference: {fileID: 0}
+    - target: {fileID: 795496686142804170, guid: 0520ed16659e5484af4435458f1f8320, type: 3}
+      propertyPath: m_Name
+      value: CozyPanelTooltip
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0520ed16659e5484af4435458f1f8320, type: 3}
+
 --- !u!1 &795496686142804170 stripped
 GameObject:
   m_CorrespondingSourceObject:
@@ -10,6 +32,7 @@ GameObject:
     fileID: 366995100236589195
   m_PrefabAsset:
     fileID: 0
+
 --- !u!224 &335330475575188031 stripped
 RectTransform:
   m_CorrespondingSourceObject:
@@ -20,6 +43,7 @@ RectTransform:
     fileID: 366995100236589195
   m_PrefabAsset:
     fileID: 0
+
 --- !u!222 &534486536587260238 stripped
 CanvasRenderer:
   m_CorrespondingSourceObject:
@@ -30,6 +54,7 @@ CanvasRenderer:
     fileID: 366995100236589195
   m_PrefabAsset:
     fileID: 0
+
 --- !u!114 &769134861081757415 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -50,6 +75,7 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
+
 --- !u!114 &1016519832930244724 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject:
@@ -70,43 +96,3 @@ MonoBehaviour:
     type: 3
   m_Name: ''
   m_EditorClassIdentifier: ''
---- !u!1001 &366995100236589195
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent:
-      fileID: 0
-    m_Modifications:
-    - target:
-        fileID: 795496686142804170
-        guid: 0520ed16659e5484af4435458f1f8320
-        type: 3
-      propertyPath: m_Name
-      value: CozyPanelTooltip
-      objectReference:
-        fileID: 0
-    - target:
-        fileID: 335330475575188031
-        guid: 0520ed16659e5484af4435458f1f8320
-        type: 3
-      propertyPath: m_SizeDelta.x
-      value: '280'
-      objectReference:
-        fileID: 0
-    - target:
-        fileID: 335330475575188031
-        guid: 0520ed16659e5484af4435458f1f8320
-        type: 3
-      propertyPath: m_SizeDelta.y
-      value: '170'
-      objectReference:
-        fileID: 0
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab:
-    fileID: 100100000
-    guid: 0520ed16659e5484af4435458f1f8320
-    type: 3

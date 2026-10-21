@@ -21,6 +21,16 @@ namespace FishSocial.Desktop
         [SerializeField] Sprite hoverSprite;
         [SerializeField] Sprite pressedSprite;
         [SerializeField] Sprite selectedSprite;
+        [SerializeField] string surfaceNormal;
+        [SerializeField] string surfaceHover;
+        [SerializeField] string surfacePressed;
+        [SerializeField] string surfaceSelected;
+        [SerializeField] string surfaceDisabled;
+        [SerializeField] bool primarySurface;
+        Sprite disabledSprite;
+        CozyGraphicOffset plateOffset;
+        Vector2 motionScale = Vector2.one;
+        public Vector2 MotionScale => motionScale;
         [SerializeField] Color tint = Color.white;
         [SerializeField] bool explicitTint;
         bool initialized;
@@ -32,8 +42,8 @@ namespace FishSocial.Desktop
         [SerializeField] bool stackedIcon;
         [SerializeField] bool flat;
         bool generatedPlate;
+        bool expandSurfaceInsets;
         bool generatedIcon;
-        Vector2 plateRestPosition;
         bool interactable;
         Coroutine submitRoutine;
 
@@ -43,6 +53,7 @@ namespace FishSocial.Desktop
         {
             selected = value;
             RefreshState();
+            GetComponent<CozyJournalCardVisual>()?.RefreshNow();
         }
 
         public void SetFlat(bool value)
@@ -58,31 +69,56 @@ namespace FishSocial.Desktop
             RefreshState();
         }
 
+        /// <summary>Persist a card/tab/button family; later theme refreshes preserve this contract.</summary>
+        public void ConfigureSurface(string normalPath, string hoverPath = null, string pressedPath = null,
+            string selectedPath = null, string disabledPath = null)
+        {
+            surfaceNormal = normalPath;
+            surfaceHover = hoverPath;
+            surfacePressed = pressedPath;
+            surfaceSelected = selectedPath;
+            surfaceDisabled = disabledPath;
+            ApplyPlateFamily();
+            RefreshState();
+        }
+
+        internal void SetMotionScale(Vector2 scale)
+        {
+            motionScale = CozyMotion.Reduced ? Vector2.one : scale;
+            RefreshState();
+        }
+
+        string SurfacePath(string state)
+        {
+            if (!string.IsNullOrEmpty(surfaceNormal))
+            {
+                var configured = state == "hover" ? surfaceHover : state == "pressed" ? surfacePressed
+                    : state == "selected" ? surfaceSelected : state == "disabled" ? surfaceDisabled : surfaceNormal;
+                return string.IsNullOrEmpty(configured) ? surfaceNormal : configured;
+            }
+            return "surfaces/button-" + (primarySurface ? "primary-" : "quiet-")
+                + (state == "selected" ? "hover" : state);
+        }
+
+        static Sprite LoadSurface(string path)
+        {
+            return CozyJournalTheme.Sprite(path);
+        }
+
         void ApplyPlateFamily()
         {
-            var rect = transform as RectTransform;
-            var height = 0f;
-            if (rect != null)
-            {
-                var stretched = rect.anchorMax.y - rect.anchorMin.y > 0.001f;
-                height = stretched ? rect.rect.height : Mathf.Abs(rect.sizeDelta.y);
-                if (height < 1f)
-                    height = Mathf.Max(rect.rect.height, Mathf.Abs(rect.sizeDelta.y));
-            }
-            var large = height >= 58f;
-            var prefix = large ? "buttons/plate-large-" : "buttons/plate-";
-            var border = large ? CatTheme.PlateLargeBorder : CatTheme.PlateBorder;
-            normalSprite = CatTheme.LoadCozy(prefix + "default.png", border);
-            hoverSprite = CatTheme.LoadCozy(prefix + "hover.png", border);
-            pressedSprite = CatTheme.LoadCozy(prefix + "pressed.png", border);
-            selectedSprite = CatTheme.LoadCozy(prefix + "selected.png", border);
-            if (button == null)
-                return;
+            normalSprite = LoadSurface(SurfacePath("default"));
+            hoverSprite = LoadSurface(SurfacePath("hover"));
+            pressedSprite = LoadSurface(SurfacePath("pressed"));
+            selectedSprite = LoadSurface(SurfacePath("selected"));
+            disabledSprite = LoadSurface(SurfacePath("disabled"));
+            if (button == null) return;
+            button.transition = Selectable.Transition.None;
             var states = button.spriteState;
             states.highlightedSprite = hoverSprite;
-            states.selectedSprite = hoverSprite;
+            states.selectedSprite = selectedSprite;
             states.pressedSprite = pressedSprite;
-            states.disabledSprite = normalSprite;
+            states.disabledSprite = disabledSprite;
             button.spriteState = states;
         }
 
@@ -100,6 +136,7 @@ namespace FishSocial.Desktop
         internal void Configure(Button owner, string iconName, bool primary)
         {
             button = owner;
+            primarySurface = primarySurface || primary;
             if (!initialized)
             {
                 plate = plate != null ? plate : transform.Find("CozyVisual")?.GetComponent<Image>();
@@ -140,7 +177,8 @@ namespace FishSocial.Desktop
                     if (hitImage != null)
                         plate.maskable = hitImage.maskable;
                 }
-                plateRestPosition = plate.rectTransform.anchoredPosition;
+                expandSurfaceInsets = generatedPlate || (plate.rectTransform.anchorMin == Vector2.zero
+                    && plate.rectTransform.anchorMax == Vector2.one);
                 plate.raycastTarget = false;
                 foreach (var shadow in plate.GetComponents<Shadow>())
                     shadow.enabled = false;
@@ -296,10 +334,10 @@ namespace FishSocial.Desktop
             interactable = CanInteract();
             var depressed = interactable && ((pointerPressed && hovered) || submitPressed);
             var highlighted = selected || interactable && (hovered || (!flat && focused));
-            var sprite = depressed ? pressedSprite != null ? pressedSprite : normalSprite
+            var sprite = !interactable && disabledSprite != null ? disabledSprite : depressed ? pressedSprite != null ? pressedSprite : normalSprite
                 : selected && selectedSprite != null ? selectedSprite
                 : highlighted ? hoverSprite != null ? hoverSprite : normalSprite : normalSprite;
-            var baseTint = selected ? Color.white : tint;
+            var baseTint = sprite != null ? Color.white : selected ? Color.white : tint;
             var color = sprite != null ? baseTint
                 : selected ? SelectedColor : baseTint == Color.white ? CatTheme.Cream : baseTint;
             if (depressed && sprite == null)
@@ -312,12 +350,18 @@ namespace FishSocial.Desktop
             }
             if (flat && !depressed && !highlighted)
                 color.a = 0f;
-            CatTheme.SetPlate(plate, sprite, color);
-            plate.rectTransform.anchoredPosition = plateRestPosition + (depressed ? new Vector2(0f, -3f) : Vector2.zero);
+            var state = !interactable ? "disabled" : depressed ? "pressed" : selected ? "selected"
+                : highlighted ? "hover" : "default";
+            CozyJournalTheme.ApplySurface(plate, SurfacePath(state), expandSurfaceInsets);
+            plate.color = color;
+            if (plateOffset == null)
+                plateOffset = plate.GetComponent<CozyGraphicOffset>() ?? plate.gameObject.AddComponent<CozyGraphicOffset>();
+            var displacement = depressed && !CozyMotion.Reduced ? -3f : 0f;
+            plateOffset.SetVisual(transform, displacement, 1f, motionScale);
             foreach (var offset in offsets)
             {
                 if (offset != null)
-                    offset.SetVisual(transform, depressed ? -3f : 0f, dimmed ? 0.55f : 1f);
+                    offset.SetVisual(transform, displacement, dimmed ? 0.55f : 1f, motionScale);
             }
             HideHitImage();
         }
@@ -339,6 +383,7 @@ namespace FishSocial.Desktop
             {
                 pointerPressed = false;
                 submitPressed = false;
+                CozyMotion.CancelPress(transform as RectTransform);
                 RefreshState();
             }
         }
@@ -352,6 +397,7 @@ namespace FishSocial.Desktop
         void OnEnable()
         {
             Canvas.willRenderCanvases += HideHitImage;
+            CozyMotion.ReducedChanged += OnReducedChanged;
             focused = EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
             RefreshState();
         }
@@ -359,6 +405,9 @@ namespace FishSocial.Desktop
         void OnDisable()
         {
             Canvas.willRenderCanvases -= HideHitImage;
+            CozyMotion.ReducedChanged -= OnReducedChanged;
+            CozyMotion.CancelPress(transform as RectTransform);
+            motionScale = Vector2.one;
             hovered = false;
             focused = false;
             pointerPressed = false;
@@ -368,6 +417,12 @@ namespace FishSocial.Desktop
                 StopCoroutine(submitRoutine);
                 submitRoutine = null;
             }
+            RefreshState();
+        }
+
+        void OnReducedChanged(bool reduced)
+        {
+            if (reduced) motionScale = Vector2.one;
             RefreshState();
         }
 
@@ -386,6 +441,7 @@ namespace FishSocial.Desktop
         public void OnPointerExit(PointerEventData eventData)
         {
             hovered = false;
+            if (pointerPressed) CozyMotion.CancelPress(transform as RectTransform);
             RefreshState();
         }
 
@@ -425,6 +481,7 @@ namespace FishSocial.Desktop
         {
             focused = false;
             pointerPressed = false;
+            CozyMotion.PressUp(transform as RectTransform);
             RefreshState();
         }
 
@@ -435,6 +492,7 @@ namespace FishSocial.Desktop
             if (submitRoutine != null)
                 StopCoroutine(submitRoutine);
             submitPressed = true;
+            CozyMotion.PressDown(transform as RectTransform, true);
             RefreshState();
             submitRoutine = StartCoroutine(ReleaseSubmit());
         }
@@ -444,6 +502,7 @@ namespace FishSocial.Desktop
             yield return new WaitForSecondsRealtime(Mathf.Max(0.1f, button.colors.fadeDuration));
             submitPressed = false;
             submitRoutine = null;
+            CozyMotion.PressUp(transform as RectTransform);
             RefreshState();
         }
     }

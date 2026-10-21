@@ -219,6 +219,13 @@ namespace FishSocial.Desktop
 
         static void ApplyPaperSurface(Image image)
         {
+            var alpha = image.color.a;
+            if (CozyJournalTheme.Sprite("surfaces/paper-aside") != null)
+            {
+                CozyJournalTheme.ApplySurface(image, "surfaces/paper-aside");
+                image.color = new Color(1, 1, 1, alpha);
+                return;
+            }
             var color = Cream;
             color.a = image.color.a;
             image.overrideSprite = null;
@@ -250,7 +257,8 @@ namespace FishSocial.Desktop
 
         public static void StyleButton(Button button, string iconName = null, bool primary = false)
         {
-            if (button == null || button.GetComponent<Mask>() != null || button.GetComponent<RectMask2D>() != null
+            if (button == null || button.GetComponent<CozyPondMarkerView>() != null || button.name == "WorldMapPondMarker"
+                || button.GetComponent<Mask>() != null || button.GetComponent<RectMask2D>() != null
                 || button.GetComponent<ScrollRect>() != null
                 || button.GetComponentInParent<InputField>(true) != null)
                 return;
@@ -377,6 +385,8 @@ namespace FishSocial.Desktop
                 return;
             }
             var button = node.GetComponent<Button>();
+            if (button != null && (button.GetComponent<CozyPondMarkerView>() != null || button.name == "WorldMapPondMarker"))
+                return;
             if (button != null)
             {
                 var firstStyle = skin.MarkStyled(button);

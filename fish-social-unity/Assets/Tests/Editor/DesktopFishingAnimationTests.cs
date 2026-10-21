@@ -921,10 +921,31 @@ namespace FishSocial.Tests.Editor
             {
                 "_state", "_deferred", "_hasDeferred", "_outcomeFlow", "_successCompleted", "_holdingCatch",
                 "_hasSeatPose", "_hasApplied", "_manualPlayback", "_layerFinished", "_activeClip", "_petId",
-                "_elapsed", "_layerIndex", "_usingArt",
+                "_elapsed", "_layerIndex",
             };
-            return fields.Select(name => typeof(SpriteFramePetRenderer).GetField(
-                name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(renderer)).ToArray();
+            var state = fields.Select(name =>
+            {
+                var field = typeof(SpriteFramePetRenderer).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.NotNull(field, "Playback snapshot field must exist: " + name);
+                return field.GetValue(renderer);
+            }).ToList();
+            // Resize rebuilds raster sessions at a new resolution. Playback semantics must remain
+            // identical, while sprite/session object identities and their pixel dimensions may change.
+            var session = renderer.ActiveSession;
+            state.Add(session != null);
+            if (session != null)
+            {
+                state.Add(session.Playback);
+                state.Add(session.LoopStart);
+                state.Add(session.NextClip);
+                state.Add(session.FrameCount);
+                for (var frame = 0; frame < session.FrameCount; frame++)
+                {
+                    state.Add(session.DurationMs(frame));
+                    state.Add(string.Join("|", session.Order(frame)));
+                }
+            }
+            return state.ToArray();
         }
 
         static string Manifest()

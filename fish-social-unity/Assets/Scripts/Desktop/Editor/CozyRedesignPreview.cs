@@ -21,6 +21,7 @@ namespace FishSocial.Desktop.Editor
             foreach (var name in Pages)
                 Render(name);
             Render("PanelProfileEdit");
+            Render("PanelSocialFeed", "发布");
             foreach (var tab in new[] { "展示柜", "图鉴", "相册" })
                 Render("PanelProfileHub", tab);
         }
@@ -70,7 +71,25 @@ namespace FishSocial.Desktop.Editor
                 rect.anchoredPosition = new Vector2(160, -150);
                 rect.sizeDelta = new Vector2(1370, 650);
                 Fill(page, name, tab);
+                if (tab == "发布")
+                {
+                    var composer = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "JournalComposeModal.prefab"), shell.transform, false);
+                    composer.SetActive(true);
+                    composer.GetComponent<DesktopSocialComposeModal>().BindControls();
+                    CozyItemArt.Text(composer.transform, "ModalPanel/Status", "分享会保留背包里的鱼获。留空心情将使用鱼获描述。");
+                    composer.transform.Find("ModalPanel/Story").GetComponent<InputField>().text = "今天的湖边很安静，遇见一条漂亮的锦鲤。";
+                }
                 CatTheme.SkinTree(shell.transform);
+                var bindings = new System.Text.StringBuilder();
+                foreach (var button in page.GetComponentsInChildren<Button>(true))
+                {
+                    var visual = button.GetComponent<CozyButtonVisual>();
+                    if (visual == null) continue;
+                    var so = new SerializedObject(visual);
+                    var plate = so.FindProperty("plate").objectReferenceValue as Image;
+                    bindings.AppendLine(AnimationUtility.CalculateTransformPath(button.transform, page.transform) + " | " + so.FindProperty("surfaceNormal").stringValue + " | " + (plate != null ? AssetDatabase.GetAssetPath(plate.sprite) : "null"));
+                }
+                File.WriteAllText("Library/CozyRedesignPreviews/" + name + ".bindings.txt", bindings.ToString());
                 Canvas.ForceUpdateCanvases();
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
                 Canvas.ForceUpdateCanvases();
@@ -157,16 +176,20 @@ namespace FishSocial.Desktop.Editor
             }
             if (name == "PanelWorldMap")
             {
-                CozyItemArt.Text(root, "Details/DetailsText", "花溪鱼塘\n\n平静淡水 · 适合新手\n等级要求：无\n入场费：免费");
-                CozyItemArt.Text(root, "Details/StatusText", "选择回鱼模式，前往垂钓");
                 var layer = root.Find("Viewport/MapContent/MarkerLayer");
-                for (var index = 0; index < 3; index++)
+                var ponds = WorldMapPondCatalog.LoadVisible();
+                var selected = Array.Find(ponds, PondSelectionState.HasDualFee);
+                foreach (var pond in ponds)
                 {
                     var marker = Item("WorldMapPondMarker", layer);
                     var rect = marker.GetComponent<RectTransform>();
-                    rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.up;
-                    rect.anchoredPosition = new Vector2(150 + index * 240, -160 - index % 2 * 160);
-                    CozyItemArt.Text(marker.transform, "Label", new[] { "花溪鱼塘", "青石溪流", "远山湖泊" }[index]);
+                    rect.anchorMin = rect.anchorMax = new Vector2(pond.x, 1 - pond.y);
+                    rect.pivot = new Vector2(.5f, .5f);
+                    rect.anchoredPosition = Vector2.zero;
+                    var view = marker.GetComponent<CozyPondMarkerView>() ?? marker.AddComponent<CozyPondMarkerView>();
+                    view.Bind(pond.displayName);
+                    var locked = !pond.isOpen || pond.minPlayerLevel > 30;
+                    view.SetState(pond == selected, locked, DesktopGameData.CategoryColor(pond.pondCategory, locked));
                 }
             }
             if (name == "PanelCatch")
@@ -201,23 +224,49 @@ namespace FishSocial.Desktop.Editor
                     DesktopModalUi.StyleTree(card.transform);
                 }
             }
+            if (name == "PanelPondSelection" || name == "PanelWorldMap")
+            {
+                var state = new PondSelectionState();
+                state.ApplyProgress(new FishSocial.Desktop.Auth.FishingProgressDto { level = 30, onboardingCompleted = true, todayFeeCharges = 1 });
+                var ponds = WorldMapPondCatalog.LoadVisible();
+                var selected = Array.Find(ponds, PondSelectionState.HasDualFee) ?? (ponds.Length > 0 ? ponds[0] : null);
+                state.Select(selected);
+                PondDetailView.Refresh(root.Find(name == "PanelWorldMap" ? "Details" : "DesignPondAside"), state,
+                    name == "PanelWorldMap" ? "DetailsText" : "Body");
+                if (name == "PanelPondSelection")
+                {
+                    var cards = root.Find("PondCardScroll/Viewport/Cards");
+                    for (var i = 0; i < cards.childCount && i < ponds.Length; i++)
+                    {
+                        CozyItemArt.Set(cards.GetChild(i), "Photo", CozyJournalTheme.Sprite("ponds/" + ponds[i].pondId));
+                        CozyItemArt.Text(cards.GetChild(i), "Name", ponds[i].displayName);
+                        CozyItemArt.Text(cards.GetChild(i), "Access", state.AccessReason(ponds[i]));
+                        CozyItemArt.Text(cards.GetChild(i), "Description", DesktopGameData.CategoryLabel(ponds[i].pondCategory) + "\n" + DesktopGameData.PondSpeciesSummary(ponds[i].pondId, 3));
+                        CozyItemArt.Text(cards.GetChild(i), "Fee", state.ActiveFee(ponds[i]) == 0 ? "免费入塘" : "入场费：" + state.ActiveFee(ponds[i]) + " 金币 / 2 小时");
+                        Select(cards.GetChild(i).gameObject, ponds[i] == selected);
+                    }
+                    CozyItemArt.Text(root, "ResultCount", "全部鱼塘 · " + ponds.Length);
+                }
+            }
             if (name == "PanelShop" || name == "PanelEquipment")
             {
                 var equipment = name == "PanelEquipment";
-                var names = equipment ? new[] { "竹制钓竿", "轻巧钓竿", "木柄钓竿", "远投钓竿" } :
-                    new[] { "通用鱼饵", "麦香鱼饵", "香甜鱼饵", "鲜虾鱼饵", "混合鱼饵", "颗粒鱼饵" };
+                var names = new[] { "竹制钓竿", "轻巧钓竿", "木柄钓竿", "远投钓竿" };
                 for (var index = 0; index < names.Length; index++)
                 {
                     var item = Item("ShopItemCard", root.Find("Items/Viewport/Content"));
-                    CozyItemArt.Set(item.transform, "DesignItemArt", CozyItemArt.Product(equipment ? 1 : 0, null, names[index]));
+                    CozyItemArt.Set(item.transform, "DesignItemArt", CozyItemArt.Product(1, new[] { "rod-bamboo", "rod-tai", "rod-lure", "rod-surf" }[index], names[index]));
                     CozyItemArt.Text(item.transform, "Label", names[index]);
-                    CozyItemArt.Text(item.transform, "Meta", equipment ? "已拥有" : "每次使用扣金");
+                    CozyItemArt.Text(item.transform, "Meta", equipment ? "已拥有" : "120 金币");
                     Select(item, index == 0);
                 }
-                Select(root.Find(equipment ? "Tabs/Tackle" : "Tabs/Bait").gameObject, true);
-                CozyItemArt.Set(root, "Details/DesignArt", CozyItemArt.Product(equipment ? 1 : 0, null, names[0]));
+                Select(root.Find("Tabs/Tackle").gameObject, true);
+                CozyItemArt.Set(root, "Details/DesignArt", CozyItemArt.Product(1, "rod-bamboo", names[0]));
                 CozyItemArt.Text(root, "Details/DesignName", names[0]);
-                CozyItemArt.Text(root, "Details/DescriptionScroll/Description", equipment ? "状态  已拥有\n适合悠闲的日常垂钓。" : "基础鱼饵\n咬钩成功时按规则扣金。\n鱼饵不进货，没有库存。");
+                CozyItemArt.Text(root, "Header/Equipped", "当前装备\n竹制钓竿");
+                CozyItemArt.Text(root, "Status", "");
+                CozyItemArt.Text(root, "DesignStatus", "");
+                CozyItemArt.Text(root, "Details/DescriptionScroll/Description", equipment ? "状态  已拥有\n适合悠闲的日常垂钓。" : "轻巧的入门钓竿\n适合悠闲的日常垂钓。\n购买后可在道具页装备。");
                 root.Find("Details/Buy").gameObject.SetActive(!equipment);
                 root.Find("Details/Equip").gameObject.SetActive(equipment);
             }

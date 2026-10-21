@@ -109,19 +109,23 @@ namespace FishSocial.Desktop
         void EnsureReduceMotionToggle()
         {
             CozyMotion.LoadPreference();
-            if (DesktopModalUi.FindDescendant(transform, "减少动效") != null)
-                return;
-            var source = DesktopModalUi.FindDescendant(transform, "关闭窗口时隐藏到托盘");
-            if (source == null)
-                return;
-            var copy = Instantiate(source.gameObject, source.parent);
-            copy.name = "减少动效";
-            var rect = copy.GetComponent<RectTransform>();
-            var exit = DesktopModalUi.FindDescendant(transform, "退出游戏") as RectTransform;
-            if (rect != null && exit != null)
+            var existing = DesktopModalUi.FindDescendant(transform, "减少动效");
+            var copy = existing != null ? existing.gameObject : null;
+            if (copy == null)
             {
-                rect.anchoredPosition = new Vector2(exit.anchoredPosition.x + exit.rect.width + 16f, exit.anchoredPosition.y);
-                rect.sizeDelta = new Vector2(310f, exit.rect.height);
+                // Compatibility for older prefabs. Authored journal prefabs own this control.
+                var source = DesktopModalUi.FindDescendant(transform, "关闭窗口时隐藏到托盘");
+                if (source == null)
+                    return;
+                copy = Instantiate(source.gameObject, source.parent);
+                copy.name = "减少动效";
+                var rect = copy.GetComponent<RectTransform>();
+                var exit = DesktopModalUi.FindDescendant(transform, "退出游戏") as RectTransform;
+                if (rect != null && exit != null)
+                {
+                    rect.anchoredPosition = new Vector2(exit.anchoredPosition.x + exit.rect.width + 16f, exit.anchoredPosition.y);
+                    rect.sizeDelta = new Vector2(310f, exit.rect.height);
+                }
             }
             var label = DesktopModalUi.FindComponent<Text>(copy.transform, "Label");
             if (label == null)
@@ -487,6 +491,8 @@ namespace FishSocial.Desktop
             _fishBiteToggle?.SetIsOnWithoutNotify(settings.EnableFishBite);
             _friendInviteToggle?.SetIsOnWithoutNotify(settings.EnableFriendInvite);
             _connectionErrorToggle?.SetIsOnWithoutNotify(settings.EnableConnectionError);
+            DesktopModalUi.FindDescendantComponent<Toggle>(transform, "减少动效")
+                ?.SetIsOnWithoutNotify(CozyMotion.Reduced);
         }
 
         void ValidatePrefabBindings()

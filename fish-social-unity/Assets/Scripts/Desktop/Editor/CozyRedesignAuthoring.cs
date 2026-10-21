@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace FishSocial.Desktop.Editor
 {
     [InitializeOnLoad]
-    public static class CozyRedesignAuthoring
+    public static partial class CozyRedesignAuthoring
     {
         const string Folder = "Assets/Resources/Desktop/Prefabs/";
         static readonly string[] Pages = { "DesktopShell", "PanelHome", "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "PanelSettings", "PanelPondSelection", "PanelWorldMap", "PanelGallery", "CatchSlot", "ShopItemCard", "LeaderboardRow", "AchievementRow", "SocialPostCard" };
@@ -18,7 +18,8 @@ namespace FishSocial.Desktop.Editor
 
         static CozyRedesignAuthoring()
         {
-            File.WriteAllText("Temp/CozyRedesign.version", "20261016n");
+            Directory.CreateDirectory("Temp");
+            File.WriteAllText("Temp/CozyRedesign.version", "20261021-journal");
             EditorApplication.update += CheckRequest;
         }
 
@@ -190,6 +191,8 @@ namespace FishSocial.Desktop.Editor
             Edit("AchievementRow", AchievementCard);
             Edit("LeaderboardRow", RankRow);
             Edit("SocialPostCard", PostCard);
+            ApplyJournalRemainingPrefabs();
+            CozyJournalComposerAuthoring.Bake();
             AssetDatabase.SaveAssets();
             Inspect();
             Verify();
@@ -265,8 +268,9 @@ namespace FishSocial.Desktop.Editor
             try
             {
                 action(root);
+                ApplyJournal(root);
                 Record(root);
-                PrefabUtility.SaveAsPrefabAsset(root, path);
+                SaveJournalPrefab(root, path);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
@@ -432,9 +436,17 @@ namespace FishSocial.Desktop.Editor
             var visual = rect.Find("CozyVisual")?.GetComponent<Image>();
             if (visual != null)
             {
-                Stretch(visual.rectTransform);
-                visual.type = Image.Type.Sliced;
-                visual.pixelsPerUnitMultiplier = 0.7f;
+                // Journal sprites include transparent padding outside the fixed button hit box.
+                var spritePath = AssetDatabase.GetAssetPath(visual.sprite);
+                var journalIndex = spritePath.IndexOf("/journal/", StringComparison.Ordinal);
+                if (journalIndex >= 0)
+                    CozyJournalTheme.ApplySurface(visual, spritePath.Substring(journalIndex + 9), true);
+                else
+                {
+                    Stretch(visual.rectTransform);
+                    visual.type = Image.Type.Sliced;
+                    visual.pixelsPerUnitMultiplier = 0.7f;
+                }
             }
             return button;
         }
@@ -460,7 +472,7 @@ namespace FishSocial.Desktop.Editor
                 close.GetComponentInChildren<Text>(true).fontSize = 32;
                 Paper(root.transform, "Rule", 24, 94, 1322, 1).color = new Color(0.84f, 0.72f, 0.55f, 0.45f);
                 Record(root);
-                PrefabUtility.SaveAsPrefabAsset(root, path);
+                SaveJournalPrefab(root, path);
             }
             finally
             {
@@ -1043,6 +1055,15 @@ namespace FishSocial.Desktop.Editor
             ButtonAt(content, "立即隐藏到托盘", "立即隐藏到托盘", null, left, 124, half, 52);
             ButtonAt(content, "重置新手引导", "重置新手引导", null, right, 124, half, 52);
             ButtonAt(content, "退出游戏", "退出游戏", null, left, 200, half, 52);
+            if (content.Find("减少动效") == null)
+            {
+                var template = content.Find("启用通知");
+                var reduced = UnityEngine.Object.Instantiate(template.gameObject, content, false);
+                reduced.name = "减少动效";
+                foreach (var label in reduced.GetComponentsInChildren<Text>(true)) label.text = "减少动效";
+                reduced.GetComponent<Toggle>().SetIsOnWithoutNotify(false);
+            }
+            Place(content, "减少动效", left, 304, full, 48);
 
             for (var tab = 0; tab < DesktopSettingsModalView.TabNodes.Length; tab++)
                 foreach (var name in DesktopSettingsModalView.TabNodes[tab])
@@ -1066,7 +1087,8 @@ namespace FishSocial.Desktop.Editor
             Label(node, "DesignPondRail/Tip/Body", "橙色描边是\n当前选中的鱼塘", 18, 22, 138, 80, 18, true);
             Paper(node, "DesignPondAside", 984, 112, 362, 496);
             Label(node, "DesignPondAside/Heading", "鱼塘详情", 24, 12, 314, 36, 25, true);
-            var aside = Label(node, "DesignPondAside/Body", "点选左侧的鱼塘。", 24, 56, 314, 300, 18);
+            var aside = Label(node, node.Find("DesignPondAside/FactsScroll/Body") != null
+                ? "DesignPondAside/FactsScroll/Body" : "DesignPondAside/Body", "点选左侧的鱼塘。", 24, 56, 314, 300, 18);
             aside.alignment = TextAnchor.UpperLeft;
             ButtonAt(node, "DesignPondAside/Locate", "在地图查看", "map", 24, 378, 314, 46);
             ButtonAt(node, "DesignPondAside/Enter", "进入鱼塘", "pond", 24, 432, 314, 48, true);
@@ -1164,7 +1186,8 @@ namespace FishSocial.Desktop.Editor
             Paper(node, "Details/DesignPaper", 0, 0, 362, 496).transform.SetAsFirstSibling();
             Label(node, "Details/DesignHeading", "鱼塘详情", 24, 12, 314, 36, 25, true);
             Label(node, "Details/DesignHint", "点击地图上的鱼塘标记", 24, 52, 314, 28, 17);
-            Place(node, "Details/DetailsText", 24, 88, 314, 168).GetComponent<Text>().alignment = TextAnchor.UpperLeft;
+            Place(node, node.Find("Details/FactsScroll/DetailsText") != null
+                ? "Details/FactsScroll/DetailsText" : "Details/DetailsText", 24, 88, 314, 168).GetComponent<Text>().alignment = TextAnchor.UpperLeft;
             Place(node, "Details/StatusText", 24, 262, 314, 56).GetComponent<Text>().alignment = TextAnchor.UpperLeft;
             ButtonAt(node, "Details/ModeSell", "回鱼出售", "coin", 24, 324, 151, 46);
             ButtonAt(node, "Details/ModeAuto", "自动回鱼", "pond", 187, 324, 151, 46);

@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using FishSocial.Desktop.Auth;
@@ -16,6 +18,25 @@ namespace FishSocial.Desktop
         Text _detail;
         Transform _grid;
         Button _returnButton;
+        Button _sellButton;
+        Button _shareButton;
+        Button _retry;
+        Coroutine _loadRoutine;
+        bool _itemsTab;
+        Button _equipItem;
+        ShopGearDto _gear;
+        readonly List<OwnedGearView> _ownedGear = new List<OwnedGearView>();
+        string _selectedGear;
+
+        sealed class OwnedGearView
+        {
+            public string id;
+            public string name;
+            public string description;
+            public string kind;
+            public Sprite art;
+            public bool equipped;
+        }
         FishInventoryItemDto[] _items = new FishInventoryItemDto[0];
         int _coinsValue;
         string _selectedId;
@@ -30,12 +51,23 @@ namespace FishSocial.Desktop
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
             _grid = (transform.Find("Grid/Viewport/Slots") ?? DesktopModalUi.FindChild(transform, "Grid/Slots"));
 
-            var retry = DesktopModalUi.FindComponent<Button>(transform, "Retry");
-            if (retry != null)
-                retry.gameObject.SetActive(false);
+            _retry = DesktopModalUi.FindComponent<Button>(transform, "Retry");
+            _sellButton = DesktopModalUi.FindComponent<Button>(transform, "Sell");
+            _shareButton = DesktopModalUi.FindComponent<Button>(transform, "Share");
+            if (_retry != null)
+            {
+                _retry.gameObject.SetActive(false);
+                _retry.onClick.RemoveAllListeners();
+                _retry.onClick.AddListener(Refresh);
+            }
             var sellBound = DesktopModalUi.BindButton(transform, "Sell", SellSelected);
             var shareBound = DesktopModalUi.BindButton(transform, "Share", ShareSelected);
             EnsureReturnButton();
+            _equipItem = DesktopModalUi.FindComponent<Button>(transform, "EquipItem");
+            DesktopModalUi.BindButton(transform, "EquipItem", EquipSelectedItem);
+            BindCategory("DesignCategoryFish", false);
+            BindCategory("DesignCategoryItems", true);
+            ApplyCategoryState();
             DesktopModalUi.StyleTree(transform);
             _uiReady = _coins != null && _status != null && _detail != null && _grid != null &&
                 _returnButton != null && sellBound && shareBound;
@@ -56,13 +88,19 @@ namespace FishSocial.Desktop
             if (!_uiReady)
                 return;
             if (_pond != null)
+            {
+                _pond.InventoryUpdated -= OnInventory;
                 _pond.InventoryUpdated += OnInventory;
+            }
             RefreshReturnButton();
-            StartCoroutine(Load());
+            Refresh();
         }
 
         public void OnClosed()
         {
+            StopAllCoroutines();
+            _loadRoutine = null;
+            _busy = false;
             if (_pond != null)
                 _pond.InventoryUpdated -= OnInventory;
         }
@@ -76,7 +114,190 @@ namespace FishSocial.Desktop
         void OnInventory(FishInventoryItemDto[] items)
         {
             _items = items ?? new FishInventoryItemDto[0];
-            RenderGrid();
+            if (!_itemsTab) RenderGrid();
+        }
+
+        void BindCategory(string path, bool items)
+        {
+            var button = DesktopModalUi.FindComponent<Button>(transform, path);
+            if (button == null) return;
+            button.interactable = true;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() =>
+            {
+                if (_busy || _itemsTab == items) return;
+                _itemsTab = items;
+                ApplyCategoryState();
+                DesktopModalUi.Clear(_grid);
+                ShowMessage(items ? "正在加载已拥有的道具…" : "正在加载鱼获…");
+                Refresh();
+            });
+        }
+
+        void ApplyCategoryState()
+        {
+            if (_sellButton != null) _sellButton.gameObject.SetActive(!_itemsTab);
+            if (_shareButton != null) _shareButton.gameObject.SetActive(!_itemsTab);
+            if (_returnButton != null) _returnButton.gameObject.SetActive(!_itemsTab);
+            if (_equipItem != null) _equipItem.gameObject.SetActive(_itemsTab);
+            DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "DesignCategoryFish")?.SetSelected(!_itemsTab);
+            DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "DesignCategoryItems")?.SetSelected(_itemsTab);
+            CozyItemArt.Text(transform, "Reflow_BagHeading", _itemsTab ? "我的道具" : "我的鱼获");
+            CozyItemArt.Text(transform, "DesignDetailHeading", _itemsTab ? "道具详情" : "鱼获详情");
+            CozyItemArt.Text(transform, "DesignBagNote", _itemsTab
+                ? "已拥有的钓竿和船具\n已解锁的鱼饵" : "背包内展示真实鱼获\n选中后可出售、回鱼或分享");
+        }
+
+        IEnumerator LoadOwnedGear()
+        {
+            if (_api == null || !_api.CanUse)
+            {
+                _status.text = "请先完成 Steam 登录。";
+                yield break;
+            }
+            _status.text = "正在加载道具…";
+            ShopBaitDto[] baits = null;
+            ShopTackleDto[] rods = null;
+            ShopVesselDto[] vessels = null;
+            string error = null;
+            var catalogOk = false;
+            var gearOk = false;
+            yield return _api.GetShopCatalog((ok, loadedBaits, loadedRods, loadedVessels, message) =>
+            {
+                catalogOk = ok;
+                baits = loadedBaits;
+                rods = loadedRods;
+                vessels = loadedVessels;
+                error = message;
+            });
+            yield return _api.GetShopGear((ok, gear, coins, message) =>
+            {
+                gearOk = ok && gear != null;
+                if (gearOk) { _gear = gear; _coinsValue = coins; }
+                else error = message;
+            });
+            if (!catalogOk || !gearOk)
+            {
+                _status.text = error ?? "道具加载失败，请重试。";
+                if (_retry != null) _retry.gameObject.SetActive(true);
+                yield break;
+            }
+            _ownedGear.Clear();
+            var equippedRod = string.IsNullOrEmpty(_gear.equippedRod) ? _gear.equippedTackle : _gear.equippedRod;
+            foreach (var rod in rods ?? Array.Empty<ShopTackleDto>())
+            {
+                if (rod == null || !(Contains(_gear.ownedRods, rod.id) || Contains(_gear.ownedTackles, rod.id) || equippedRod == rod.id)) continue;
+                _ownedGear.Add(new OwnedGearView
+                {
+                    id = rod.id, name = rod.name, kind = "rod", equipped = equippedRod == rod.id,
+                    art = CozyItemArt.Product(1, rod.id, rod.name),
+                    description = "已拥有的钓竿\n咬钩加成：" + (rod.biteBonus * 100f).ToString("0.#") + "%\n逃脱减免：" +
+                        (rod.escapeReduction * 100f).ToString("0.#") + "%\n" + (equippedRod == rod.id ? "当前已装备" : "可装备后用于垂钓")
+                });
+            }
+            foreach (var bait in baits ?? Array.Empty<ShopBaitDto>())
+            {
+                if (bait == null || !(bait.isDefaultInfinite || Contains(_gear.unlockedBaits, bait.id) || _gear.playerLevel >= Mathf.Max(1, bait.unlockPlayerLevel))) continue;
+                _ownedGear.Add(new OwnedGearView
+                {
+                    id = bait.id, name = bait.name, kind = "bait", equipped = _gear.equippedBait == bait.id,
+                    art = CozyItemArt.Product(0, bait.id, bait.name),
+                    description = "已解锁的鱼饵\n" + (bait.isDefaultInfinite ? "基础鱼饵 · 无限使用" : "使用费用：" + bait.costGoldPerUse + " 金币 / 次") +
+                        "\n鱼饵按实际咬钩规则消耗，不占鱼获库存。"
+                });
+            }
+            foreach (var vessel in vessels ?? Array.Empty<ShopVesselDto>())
+            {
+                if (vessel == null || !Contains(_gear.ownedVessels, vessel.vesselId)) continue;
+                _ownedGear.Add(new OwnedGearView
+                {
+                    id = vessel.vesselId, name = vessel.name, kind = "vessel",
+                    art = CozyItemArt.Product(2, vessel.vesselId, vessel.name),
+                    description = "已拥有的船具\n船具使用功能即将开放。"
+                });
+            }
+            _coins.text = "金币：" + _coinsValue;
+            _status.text = "已拥有 / 已解锁 " + _ownedGear.Count + " 件道具";
+            RenderOwnedGear();
+        }
+
+        static bool Contains(string[] values, string id)
+        {
+            return values != null && Array.IndexOf(values, id) >= 0;
+        }
+
+        void RenderOwnedGear()
+        {
+            if (_grid == null) return;
+            ApplyCategoryState();
+            DesktopModalUi.Clear(_grid);
+            var chosen = _ownedGear.Find(item => item.kind + ":" + item.id == _selectedGear);
+            if (chosen == null && _ownedGear.Count > 0) chosen = _ownedGear[0];
+            if (chosen == null)
+            {
+                ShowMessage("还没有可展示的道具。可在商店查看钓竿与鱼饵。");
+                if (_equipItem != null) _equipItem.interactable = false;
+                return;
+            }
+            _selectedGear = chosen.kind + ":" + chosen.id;
+            foreach (var item in _ownedGear)
+            {
+                var slot = DesktopUiPrefabFactory.Instantiate("CatchSlot", _grid);
+                if (slot == null) continue;
+                CozyItemArt.Set(slot.transform, "DesignItemArt", item.art);
+                CozyItemArt.Text(slot.transform, "Label", item.name + (item.equipped ? "\n已装备" : "\n已拥有 / 已解锁"));
+                var backing = slot.transform.Find("DesignArtBacking");
+                if (backing != null) backing.gameObject.SetActive(true);
+                var button = slot.GetComponent<Button>();
+                if (button == null) continue;
+                DesktopModalUi.StyleTree(slot.transform);
+                button.interactable = !_busy;
+                button.GetComponent<CozyButtonVisual>()?.SetSelected(item == chosen);
+                button.onClick.RemoveAllListeners();
+                var key = item.kind + ":" + item.id;
+                CozyStickerMotion.Bind(slot, "gear:" + (_api?.PlayerId ?? "") + ":" + key,
+                    slot.transform.GetSiblingIndex(), _grid.parent as RectTransform);
+                button.onClick.AddListener(() => { _selectedGear = key; RenderOwnedGear(); });
+            }
+            CozyItemArt.Set(transform, "DesignArt", chosen.art);
+            CozyItemArt.Text(transform, "DesignName", chosen.name);
+            CozyItemArt.Rows(transform, "DetailRows");
+            _detail.text = chosen.description;
+            if (_equipItem != null)
+            {
+                _equipItem.interactable = !_busy && !chosen.equipped && chosen.kind != "vessel";
+                DesktopModalUi.SetButtonLabel(_equipItem, chosen.equipped ? "已装备" : chosen.kind == "vessel" ? "即将开放" : "装备");
+            }
+        }
+
+        void EquipSelectedItem()
+        {
+            if (_busy || !_itemsTab || _api == null || !_api.CanUse) return;
+            var item = _ownedGear.Find(value => value.kind + ":" + value.id == _selectedGear);
+            if (item == null || item.equipped || item.kind == "vessel") return;
+            _busy = true;
+            RenderOwnedGear();
+            StartCoroutine(EquipItemRoutine(item));
+        }
+
+        IEnumerator EquipItemRoutine(OwnedGearView item)
+        {
+            var ok = false;
+            string error = null;
+            Action<bool, ShopGearDto, string> completed = (success, gear, message) => { ok = success; error = message; };
+            yield return item.kind == "rod" ? _api.EquipTackle(item.id, completed) : _api.EquipBait(item.id, completed);
+            if (!ok)
+            {
+                _busy = false;
+                _status.text = error ?? "装备失败，请重试。";
+                CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
+                RenderOwnedGear();
+                yield break;
+            }
+            yield return LoadOwnedGear();
+            _busy = false;
+            RenderOwnedGear();
+            CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, "已装备");
         }
 
         bool CanReturnHere()
@@ -93,8 +314,13 @@ namespace FishSocial.Desktop
 
         void RefreshReturnButton()
         {
+            var selected = SelectedItem();
+            var available = !_itemsTab && selected != null && !_busy && _api != null && _api.CanUse;
+            if (_sellButton != null) _sellButton.interactable = available;
+            if (_shareButton != null) _shareButton.interactable = available;
             if (_returnButton == null)
                 return;
+            if (_itemsTab) { _returnButton.gameObject.SetActive(false); return; }
             var mode = _pond != null && _pond.CurrentUser != null
                 ? _pond.CurrentUser.returnFeeMode
                 : null;
@@ -120,11 +346,33 @@ namespace FishSocial.Desktop
             var defaultLabel = _returnButton.GetComponentInChildren<Text>();
             if (defaultLabel != null && defaultLabel.text != "回鱼")
                 defaultLabel.text = "回鱼";
-            _returnButton.interactable = CanReturnHere() && !_busy;
+            _returnButton.interactable = available && CanReturnHere() &&
+                DesktopGameData.IsReturnEligible(selected.quality, selected.sizeM);
+        }
+
+        FishInventoryItemDto SelectedItem()
+        {
+            foreach (var item in _items)
+                if (item != null && item.id == _selectedId) return item;
+            return null;
+        }
+
+        void Refresh()
+        {
+            if (!_uiReady || _busy) return;
+            if (_loadRoutine != null) StopCoroutine(_loadRoutine);
+            _loadRoutine = StartCoroutine(Load());
         }
 
         IEnumerator Load()
         {
+            if (_retry != null) _retry.gameObject.SetActive(false);
+            if (_itemsTab)
+            {
+                yield return LoadOwnedGear();
+                _loadRoutine = null;
+                yield break;
+            }
             if (_status == null || _detail == null)
                 yield break;
             if (_api == null || !_api.CanUse)
@@ -148,10 +396,12 @@ namespace FishSocial.Desktop
                 if (ok) _coinsValue = coins;
                 else if (error == null) error = message;
             });
+            _loadRoutine = null;
             if (!itemsOk)
             {
+                if (_retry != null) _retry.gameObject.SetActive(true);
                 _status.text = error ?? "背包加载失败。";
-                _detail.text = _status.text + "\n请稍后重新打开背包页面。";
+                _detail.text = _status.text + "\n点击重试以重新加载。";
                 yield break;
             }
             if (coinsOk)
@@ -165,8 +415,16 @@ namespace FishSocial.Desktop
 
         void RenderGrid()
         {
+            if (_itemsTab) { RenderOwnedGear(); return; }
             if (_grid == null)
                 return;
+            if (SelectedItem() == null)
+            {
+                _selectedId = null;
+                if (_items.Length > 0 && _items[0] != null) Select(_items[0], false);
+                else ShowMessage("背包是空的。钓到鱼并领取后会显示在这里。");
+            }
+            RefreshReturnButton();
             DesktopModalUi.Clear(_grid);
             var count = Mathf.Max(MinSlots, _items != null ? _items.Length : 0);
             if (_items == null || _items.Length == 0)
@@ -190,7 +448,7 @@ namespace FishSocial.Desktop
                     var visual = slotButton.GetComponent<CozyButtonVisual>();
                     if (visual != null)
                         visual.SetSelected(selected);
-                    slotButton.interactable = item != null;
+                    slotButton.interactable = item != null && !_busy;
                 }
                 var label = item == null
                     ? (i + 1).ToString()
@@ -206,6 +464,9 @@ namespace FishSocial.Desktop
                     slotButton.onClick.RemoveAllListeners();
                 if (item != null)
                 {
+                    AddUnreadBadge(slot, CozyJournalReadState.IsUnread(_api?.PlayerId, item.id));
+                    CozyStickerMotion.Bind(slot, "catch:" + (_api?.PlayerId ?? "") + ":" + item.id, i,
+                        _grid.parent as RectTransform);
                     var captured = item;
                     var button = slot.GetComponent<Button>();
                     if (button != null)
@@ -214,9 +475,38 @@ namespace FishSocial.Desktop
             }
         }
 
-        void Select(FishInventoryItemDto item)
+        static void AddUnreadBadge(GameObject slot, bool unread)
         {
+            if (!unread) return;
+            var go = new GameObject("JournalNew", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(slot.transform, false);
+            var image = go.GetComponent<Image>();
+            image.sprite = CozyJournalTheme.Sprite("decor/new-corner");
+            image.raycastTarget = false;
+            var rect = image.rectTransform;
+            rect.anchorMin = rect.anchorMax = Vector2.one;
+            rect.pivot = Vector2.one;
+            rect.sizeDelta = new Vector2(60, 28);
+            rect.anchoredPosition = new Vector2(3, 3);
+            var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+            labelGo.transform.SetParent(go.transform, false);
+            var label = labelGo.GetComponent<Text>();
+            label.rectTransform.anchorMin = Vector2.zero;
+            label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+            label.font = CatTheme.Font;
+            label.fontSize = 12;
+            label.text = "NEW";
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = Color.white;
+            label.raycastTarget = false;
+        }
+
+        void Select(FishInventoryItemDto item, bool rebuild = true)
+        {
+            if (_busy || item == null) return;
             _selectedId = item.id;
+            if (rebuild) CozyJournalReadState.MarkRead(_api?.PlayerId, item.id);
             CozyItemArt.Set(transform, "DesignArt", CozyItemArt.Fish(item.speciesId));
             var species = DesktopFishCatalog.SpeciesName(item.speciesId);
             var quality = DesktopFishCatalog.QualityName(item.quality);
@@ -265,7 +555,7 @@ namespace FishSocial.Desktop
                                "\n参考售价：" + sell + " 金币" +
                                "\n" + returnHint +
                                "\n" + seatHint;
-            RenderGrid();
+            if (rebuild) RenderGrid();
         }
 
         void ShowMessage(string message)
@@ -278,6 +568,11 @@ namespace FishSocial.Desktop
 
         void SellSelected()
         {
+            if (_api == null || !_api.CanUse)
+            {
+                _status.text = "当前会话已失效，请重新登录。";
+                return;
+            }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
                 _status.text = "请先选中一条鱼获。";
@@ -293,6 +588,7 @@ namespace FishSocial.Desktop
                 if (!ok)
                 {
                     _status.text = message;
+                    CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
                     return;
                 }
                 _items = items ?? new FishInventoryItemDto[0];
@@ -300,6 +596,7 @@ namespace FishSocial.Desktop
                 _coins.text = "金币：" + _coinsValue;
                 _selectedId = null;
                 _status.text = "出售成功，获得 " + earned + " 金币。";
+                CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, "已出售");
                 ShowMessage(_status.text);
                 RenderGrid();
             }));
@@ -307,6 +604,11 @@ namespace FishSocial.Desktop
 
         void ReturnSelected()
         {
+            if (_api == null || !_api.CanUse)
+            {
+                _status.text = "当前会话已失效，请重新登录。";
+                return;
+            }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
                 _status.text = "请先选中一条鱼获。";
@@ -328,6 +630,7 @@ namespace FishSocial.Desktop
                     if (!ok)
                     {
                         _status.text = message ?? "回鱼失败。";
+                        CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
                         return;
                     }
                     _items = items ?? new FishInventoryItemDto[0];
@@ -343,11 +646,17 @@ namespace FishSocial.Desktop
                                    "（现 " + newSizeM.ToString("0.00") + "m）。";
                     ShowMessage(_status.text);
                     RenderGrid();
+                    CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, "已回鱼");
                 }));
         }
 
         void ShareSelected()
         {
+            if (_api == null || !_api.CanUse)
+            {
+                _status.text = "当前会话已失效，请重新登录。";
+                return;
+            }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
                 _status.text = "请先选中一条鱼获。";
@@ -362,6 +671,7 @@ namespace FishSocial.Desktop
                 _busy = false;
                 RefreshReturnButton();
                 _status.text = message;
+                CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, ok, ok ? "已分享" : "请重试");
             }));
         }
     }

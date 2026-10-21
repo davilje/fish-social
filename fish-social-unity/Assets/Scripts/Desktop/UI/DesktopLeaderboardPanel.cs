@@ -7,8 +7,8 @@ using FishSocial.Desktop.Auth;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Server-authoritative leaderboard page. Prefab owns chrome; opening applies
-    /// a compact podium so the rank list keeps the remaining height.
+    /// Server-authoritative leaderboard page. The authored prefab owns chrome
+    /// and geometry; opening only binds data and selected states.
     /// Opening or switching boards never calls leave_pond.
     /// </summary>
     public sealed class DesktopLeaderboardPanel : MonoBehaviour
@@ -24,6 +24,10 @@ namespace FishSocial.Desktop
 
         IAuthenticatedApiClient _api;
         SocialPondSessionController _pond;
+        System.Action<string> _openPlayer;
+        string _selectedPlayerId;
+        Coroutine _playerRoutine;
+        int _playerGeneration;
         Text _status;
         Text _myRank;
         Button _dailyTab;
@@ -61,10 +65,11 @@ namespace FishSocial.Desktop
             public Text value;
         }
 
-        public void Bind(IAuthenticatedApiClient api, SocialPondSessionController pond)
+        public void Bind(IAuthenticatedApiClient api, SocialPondSessionController pond, System.Action<string> openPlayer = null)
         {
             _api = api;
             _pond = pond;
+            _openPlayer = openPlayer;
             EnsureUi();
         }
 
@@ -81,6 +86,7 @@ namespace FishSocial.Desktop
         public void OnClosed()
         {
             CancelLoads();
+            ClearSelectedPlayer();
             StopPrefetch();
             _loadGeneration++;
         }
@@ -164,8 +170,6 @@ namespace FishSocial.Desktop
                 RestylePodium(_podium3, 3);
                 ApplyLeaderboardLayout();
             }
-            else
-                ApplyCompactCozyLeaderboard();
             RestyleTabs();
             if (_retry != null)
                 _retry.gameObject.SetActive(false);
@@ -475,6 +479,7 @@ namespace FishSocial.Desktop
             if (_boardType == boardType && _loadRoutine == null)
                 return;
             _boardType = boardType;
+            ClearSelectedPlayer();
             RestyleTabs();
             RefreshNow();
             StartPrefetchOthers(boardType);
@@ -980,6 +985,14 @@ namespace FishSocial.Desktop
             SetChildText(row, "Rank", "#" + entry.rank);
             SetChildText(row, "Nickname", entry.nickname ?? "钓友");
             SetChildText(row, "Value", FormatValue(entry, boardType));
+            var button = row.GetComponent<Button>();
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => SelectPlayer(entry, boardType));
+                button.interactable = !string.IsNullOrEmpty(entry.playerId);
+                button.GetComponent<CozyButtonVisual>()?.SetSelected(entry.playerId == _selectedPlayerId);
+            }
         }
 
         void HideAllRows()
@@ -1010,6 +1023,8 @@ namespace FishSocial.Desktop
             BindPodium(_podium1, first, "虚位以待", boardType);
             BindPodium(_podium2, second, "虚位以待", boardType);
             BindPodium(_podium3, third, "虚位以待", boardType);
+            if (first == null && second == null && third == null) ClearSelectedPlayer();
+            else if (string.IsNullOrEmpty(_selectedPlayerId)) SelectPlayer(first ?? second ?? third, boardType);
         }
 
         void BindPodium(
@@ -1017,6 +1032,13 @@ namespace FishSocial.Desktop
         {
             if (slot.nickname == null || slot.value == null)
                 return;
+            var button = slot.root != null ? slot.root.GetComponent<Button>() : null;
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.interactable = entry != null && !string.IsNullOrEmpty(entry.playerId);
+                if (entry != null) button.onClick.AddListener(() => SelectPlayer(entry, boardType));
+            }
             if (entry == null)
             {
                 slot.nickname.text = emptyLabel;
@@ -1037,6 +1059,60 @@ namespace FishSocial.Desktop
                 slot.avatar.preserveAspect = true;
                 slot.avatar.color = Color.white;
             }
+        }
+
+        void ClearSelectedPlayer()
+        {
+            _playerGeneration++;
+            if (_playerRoutine != null) StopCoroutine(_playerRoutine);
+            _playerRoutine = null;
+            _selectedPlayerId = null;
+            CozyItemArt.Text(transform, "DesignPlayerCard/Name", "选择一位钓友");
+            CozyItemArt.Text(transform, "DesignPlayerCard/Value", "");
+            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "点击榜单查看钓友资料。");
+            CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", null);
+            var open = Find<Button>("DesignPlayerCard/OpenProfile");
+            if (open != null) open.interactable = false;
+        }
+
+        void SelectPlayer(LeaderboardEntryDto entry, string boardType)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.playerId)) return;
+            _playerGeneration++;
+            if (_playerRoutine != null) StopCoroutine(_playerRoutine);
+            _selectedPlayerId = entry.playerId;
+            CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? "钓友");
+            CozyItemArt.Text(transform, "DesignPlayerCard/Value", "第 " + entry.rank + " 名 · " + FormatValue(entry, boardType));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "正在加载资料…");
+            CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait(entry.avatarUrl, entry.playerId));
+            var open = Find<Button>("DesignPlayerCard/OpenProfile");
+            if (open != null)
+            {
+                open.onClick.RemoveAllListeners();
+                open.onClick.AddListener(() => _openPlayer?.Invoke(entry.playerId));
+                open.interactable = _openPlayer != null;
+                DesktopModalUi.SetButtonLabel(open, "查看钓友资料");
+            }
+            if (_api != null && _api.CanUse)
+                _playerRoutine = StartCoroutine(LoadPlayer(entry.playerId, _playerGeneration));
+            else CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "登录后可查看钓友资料。");
+        }
+
+        IEnumerator LoadPlayer(string playerId, int generation)
+        {
+            yield return _api.GetPublicPlayerView(playerId, 1, (ok, view, message) =>
+            {
+                if (this == null || generation != _playerGeneration || playerId != _selectedPlayerId) return;
+                if (!ok || view == null || view.profile == null)
+                {
+                    CozyItemArt.Text(transform, "DesignPlayerCard/Bio", message ?? "资料暂不可用。");
+                    return;
+                }
+                CozyItemArt.Text(transform, "DesignPlayerCard/Name", view.profile.nickname ?? "钓友");
+                CozyItemArt.Text(transform, "DesignPlayerCard/Bio", string.IsNullOrEmpty(view.profile.bio) ? "这位钓友还没有填写简介。" : view.profile.bio);
+                CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait(view.profile.avatarUrl, playerId));
+            });
+            if (generation == _playerGeneration) _playerRoutine = null;
         }
 
         static string FormatValue(LeaderboardEntryDto entry, string boardType)
