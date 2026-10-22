@@ -48,7 +48,11 @@ namespace FishSocial.Desktop
                 _label.horizontalOverflow = HorizontalWrapMode.Overflow;
                 _label.verticalOverflow = VerticalWrapMode.Truncate;
                 _label.resizeTextForBestFit = false;
-                var width = Mathf.Max(44, _label.preferredWidth + 20);
+                _label.transform.SetAsLastSibling();
+                var width = _label.preferredWidth;
+                if (width < 8f)
+                    width = _label.fontSize * Mathf.Max(1, (name ?? string.Empty).Length);
+                width = Mathf.Max(44f, width + 20f);
                 var rect = _label.rectTransform;
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
                 rect.anchoredPosition = new Vector2(32 - width / 2, -42);

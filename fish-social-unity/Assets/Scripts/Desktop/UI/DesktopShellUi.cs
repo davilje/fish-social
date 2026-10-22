@@ -150,8 +150,11 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
-            _productMenu.Bind(canvasGo.transform, _mainRoot.GetComponent<RectTransform>(), this);
+            if (CozySurplus.Visible)
+            {
+                _productMenu = canvasGo.AddComponent<DesktopProductMenuView>();
+                _productMenu.Bind(canvasGo.transform, _mainRoot.GetComponent<RectTransform>(), this);
+            }
             _settlementCanvas = canvasGo.transform;
             _router.PanelChanged += OnPanelChanged;
 
@@ -185,8 +188,7 @@ namespace FishSocial.Desktop
             if (_scaler != null)
             {
                 _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-                _scaler.referenceResolution = new Vector2(
-                    WindowSettings.DefaultWidth, WindowSettings.DefaultHeight);
+                _scaler.referenceResolution = CozyJournalTheme.DesignResolution;
                 _scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
                 _scaler.matchWidthOrHeight = 0.5f;
             }
@@ -223,6 +225,10 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(header, "Mail", () => ShowMainPanel(ShellPanelId.Friends));
             DesktopModalUi.BindButton(header, "Settings", () => ShowMainPanel(ShellPanelId.Settings));
             DesktopModalUi.BindButton(header, "WorldMapEntry", () => ShowMainPanel(ShellPanelId.WorldMap));
+            CozySurplus.Park(header.Find("Status")?.gameObject);
+            CozySurplus.Park(header.Find("Home")?.gameObject);
+            CozySurplus.Park(header.Find("Leaderboard")?.gameObject);
+            CozyWebStage.AlignHeader(header);
             var worldEntry = DesktopModalUi.FindComponent<Button>(header, "WorldMapEntry");
             if (worldEntry != null) _lockableNavButtons.Add(worldEntry);
             DesktopModalUi.BindButton(header, "Leaderboard", () => ShowMainPanel(ShellPanelId.Leaderboard));
@@ -314,15 +320,18 @@ namespace FishSocial.Desktop
                     return;
                 if (_headerName != null && hub.profile != null)
                     _headerName.text = hub.profile.nickname;
-                if (hub.progress == null)
-                    return;
-                if (_headerLevel != null)
-                    _headerLevel.text = "Lv." + hub.progress.level;
-                var required = RequiredLevelXp(hub.progress.level);
-                if (_headerXp != null)
-                    _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : "满级";
-                if (_headerXpFill != null)
-                    DesktopModalUi.SetXpFill(_headerXpFill, required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f);
+                if (hub.progress != null)
+                {
+                    if (_headerLevel != null)
+                        _headerLevel.text = "Lv." + hub.progress.level;
+                    var required = RequiredLevelXp(hub.progress.level);
+                    if (_headerXp != null)
+                        _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : "满级";
+                    if (_headerXpFill != null)
+                        DesktopModalUi.SetXpFill(_headerXpFill, required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f);
+                }
+                var profile = _headerName != null ? _headerName.transform.parent : null;
+                CozyWebStage.AlignHeader(profile != null ? profile.parent : null);
             }));
         }
 
@@ -502,9 +511,12 @@ namespace FishSocial.Desktop
                 DesktopModalUi.HidePageUtilityButtons(view);
                 DesktopModalUi.PlacePageSealLeft(view);
             }
+            CozyWebStage.AlignPage(view);
+            if (id == ShellPanelId.CatchBag)
+                CozyWebStage.AlignBag(view);
             var competition = _mainRoot != null ? _mainRoot.transform.Find("Header/Leaderboard") : null;
             if (competition != null)
-                competition.gameObject.SetActive(id == ShellPanelId.Home);
+                competition.gameObject.SetActive(CozySurplus.Visible && id == ShellPanelId.Home);
             _productMenu?.Hide();
             _socialPanel?.OnClosed();
             _catchPanel?.OnClosed();
@@ -706,6 +718,9 @@ namespace FishSocial.Desktop
             var instance = DesktopUiPrefabFactory.Instantiate(prefabName, slot);
             if (instance == null)
                 return;
+            // Page prefabs can be saved inactive. The slot, not the page root, owns visibility.
+            if (!instance.activeSelf)
+                instance.SetActive(true);
             bind(instance);
             var close = instance.transform.Find("DesignHeader/Close")?.GetComponent<Button>();
             if (close != null)
@@ -720,6 +735,9 @@ namespace FishSocial.Desktop
                 share.onClick.AddListener(() => _router.Show(ShellPanelId.CatchBag));
             }
             CatTheme.SkinTree(instance.transform);
+            CozyWebStage.AlignPage(instance.transform);
+            if (id == ShellPanelId.CatchBag)
+                CozyWebStage.AlignBag(instance.transform);
             _router.Register(id, slot.gameObject);
         }
 

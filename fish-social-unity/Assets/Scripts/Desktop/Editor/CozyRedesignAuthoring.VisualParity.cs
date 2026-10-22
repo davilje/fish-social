@@ -39,7 +39,7 @@ namespace FishSocial.Desktop.Editor
 
         static void WebPage(Transform t)
         {
-            WebText(t,"DesignHeader/Title",100,22,310,50,34);
+            WebText(t,"DesignHeader/Title",92,22,310,50,34);
             WebText(t,"DesignHeader/Subtitle",380,36,850,26,18);
             Place(t,"DesignHeader/Icon",34,26,44,44);
             var subtitle = t.Find("DesignHeader/Subtitle").GetComponent<Text>();

@@ -30,6 +30,9 @@ namespace FishSocial.Desktop
             Current = id;
             GameObject next = null;
             _panels.TryGetValue(id, out next);
+            // Listeners start load coroutines immediately. The slot must already be active.
+            if (next != null && !next.activeSelf)
+                next.SetActive(true);
             PanelChanged?.Invoke(id);
             // A route listener may synchronously redirect (e.g. login/permission guard).
             if (version != navigationVersion) return;

@@ -38,7 +38,7 @@ namespace FishSocial.Desktop.JournalV2
             var header=JournalV2Nodes.Rect(root,"Header",0,0,1370,96);
             JournalV2Nodes.Image(header,"Icon",JournalV2Theme.Sprite("icons/"+icon),34,26,44,44);
             var underline=JournalV2Nodes.Plate(header,"Underline",92,53,Mathf.Max(68,title.Length*34)+16,15,new Color(accent.r,accent.g,accent.b,.45f),3,0);underline.ShadowColor=Color.clear;
-            page.HeaderTitle=JournalV2Nodes.Text(header,"Title",title,100,22,310,50,34);
+            page.HeaderTitle=JournalV2Nodes.Text(header,"Title",title,92,22,310,50,34);
             JournalV2Nodes.Text(header,"Subtitle",subtitle,380,36,850,26,18).color=JournalV2Theme.Soft;
             var rule=JournalV2Nodes.Plate(header,"Rule",30,94,1310,2,new Color(117/255f,71/255f,46/255f,.1f),0,0);rule.ShadowColor=Color.clear;
             page.CloseButton=JournalV2Nodes.Button(header,"Close","×",null,1294,24,52,52);

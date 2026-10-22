@@ -1193,7 +1193,7 @@ namespace FishSocial.Desktop
             {
                 var size = extra != null && extra.sizeM > 0 ? extra.sizeM : entry.value;
                 var species = extra != null && !string.IsNullOrEmpty(extra.speciesId)
-                    ? extra.speciesId
+                    ? DesktopFishCatalog.SpeciesName(extra.speciesId)
                     : "鱼获";
                 return species + " · " + size.ToString("0.00") + "m";
             }
@@ -1249,7 +1249,7 @@ namespace FishSocial.Desktop
             {
                 root = root.gameObject,
                 nickname = FindIn<Text>(root, "Nickname"),
-                avatar = FindIn<Image>(root, "Avatar"),
+                avatar = EnsureAvatar(root.Find("Avatar")),
                 value = FindIn<Text>(root, "Value"),
             };
         }
@@ -1258,6 +1258,20 @@ namespace FishSocial.Desktop
         {
             var node = transform.Find(path) ?? (path.StartsWith("Podium") ? transform.Find("Scroll/Viewport/Content/" + path) : null);
             return node != null ? node.GetComponent<T>() : null;
+        }
+
+        static Image EnsureAvatar(Transform node)
+        {
+            if (node == null)
+                return null;
+            var image = node.GetComponent<Image>();
+            if (image != null)
+                return image;
+            image = node.gameObject.AddComponent<Image>();
+            image.color = Color.white;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            return image;
         }
 
         static T FindIn<T>(Transform root, string name) where T : Component
