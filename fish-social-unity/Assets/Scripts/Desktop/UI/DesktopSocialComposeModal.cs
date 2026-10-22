@@ -27,14 +27,17 @@ namespace FishSocial.Desktop
         [SerializeField] Button _close;
         [SerializeField] Dropdown _fishChoice;
         [SerializeField] Dropdown _visibilityChoice;
+        readonly List<FishInventoryItemDto> _inventory = new List<FishInventoryItemDto>();
+        readonly List<Button> _cards = new List<Button>();
+        Button _cancel, _visibilityPublic, _visibilityFriends;
+        Transform _cardContent;
+        Button _cardTemplate;
+        string _preferredFishId;
         GameObject _previousFocus;
         RectTransform _paper;
         CanvasGroup _paperAlpha;
         Vector2 _paperRest;
         readonly List<string> _fishIds = new List<string>();
-        GameObject _choiceBlocker;
-        GameObject _choiceSheet;
-        Dropdown _choiceOwner;
 
         public const string ResourcePath = "Desktop/Prefabs/JournalComposeModal";
 
@@ -75,6 +78,7 @@ namespace FishSocial.Desktop
             _fishChoice.onValueChanged.AddListener(index =>
             {
                 _fishId = index >= 0 && index < _fishIds.Count ? _fishIds[index] : null;
+                RefreshCatchPreview();
                 RefreshControls();
             });
             _visibilityChoice.onValueChanged.RemoveAllListeners();
@@ -83,17 +87,25 @@ namespace FishSocial.Desktop
             _publish.onClick.AddListener(Submit);
             _story.onValueChanged.RemoveAllListeners();
             _story.onValueChanged.AddListener(value => _counter.text = value.Length + " / " + StoryLimit);
-            ArmPaperChoice(_fishChoice);
-            ArmPaperChoice(_visibilityChoice);
+            _cancel = _paper.Find("Cancel")?.GetComponent<Button>();
+            _visibilityPublic = _paper.Find("VisibilityPublic")?.GetComponent<Button>();
+            _visibilityFriends = _paper.Find("VisibilityFriends")?.GetComponent<Button>();
+            _cardContent = _paper.Find("FishCards/Content");
+            _cardTemplate = _cardContent?.Find("FishCardTemplate")?.GetComponent<Button>();
+            BindClick(_cancel, () => Close());
+            BindClick(_visibilityPublic, () => SetVisibility("public"));
+            BindClick(_visibilityFriends, () => SetVisibility("friends"));
             return true;
         }
 
-        public void Open(IAuthenticatedApiClient api, string nickname, Action published)
+        public void Open(IAuthenticatedApiClient api, string nickname, Action published, string avatarId = null, string selectedFishId = null)
         {
             if (_busy) return;
             StopAllCoroutines();
             _api = api;
             _nickname = nickname;
+            _preferredFishId = selectedFishId;
+            PresentAuthor(nickname, avatarId);
             _published = published;
             _previousFocus = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
             _busy = false;
@@ -101,6 +113,7 @@ namespace FishSocial.Desktop
             _visibility = "public";
             _visibilityChoice.SetValueWithoutNotify(0);
             _visibilityChoice.RefreshShownValue();
+            SelectVisibility("public");
             _story.SetTextWithoutNotify(string.Empty);
             _counter.text = "0 / " + StoryLimit;
             gameObject.SetActive(true);
@@ -115,7 +128,6 @@ namespace FishSocial.Desktop
             if (_busy && !force) return;
             StopAllCoroutines();
             _busy = _loading = false;
-            ClosePaperChoices();
             ResetOpenMotion();
             _fishChoice.Hide();
             _visibilityChoice.Hide();
@@ -153,7 +165,6 @@ namespace FishSocial.Desktop
 
         void OnDisable()
         {
-            ClosePaperChoices();
             ResetOpenMotion();
         }
 
@@ -168,8 +179,7 @@ namespace FishSocial.Desktop
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (_choiceSheet != null) ClosePaperChoices();
-                else Close();
+                Close();
                 return;
             }
             if (!Input.GetKeyDown(KeyCode.Tab) || EventSystem.current == null) return;
@@ -186,11 +196,13 @@ namespace FishSocial.Desktop
 
         IEnumerator LoadFish()
         {
-            ClosePaperChoices();
             _loading = true;
             _loadFailed = false;
             _status.text = "正在读取背包鱼获…";
             _fishIds.Clear();
+            _inventory.Clear();
+            ClearCards();
+            RefreshCatchPreview();
             _fishChoice.ClearOptions();
             _fishChoice.AddOptions(new List<string> { "正在读取背包鱼获…" });
             RefreshControls();
@@ -214,28 +226,125 @@ namespace FishSocial.Desktop
                 RefreshControls();
                 yield break;
             }
+            PresentInventory(fish, _preferredFishId);
+        }
+
+        /// <summary>Bind the real inventory response; never cap or duplicate the user's catches.</summary>
+        public void PresentInventory(FishInventoryItemDto[] fish, string selectedFishId = null)
+        {
+            _fishIds.Clear(); _inventory.Clear(); ClearCards();
             var choices = new List<Dropdown.OptionData>();
             foreach (var item in fish ?? Array.Empty<FishInventoryItemDto>())
             {
-                if (item == null || string.IsNullOrEmpty(item.id)) continue;
-                _fishIds.Add(item.id);
-                choices.Add(new Dropdown.OptionData(DesktopFishCatalog.SpeciesName(item.speciesId) + " · " +
-                    item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(item.quality)));
+                if (item == null || string.IsNullOrEmpty(item.id) || _fishIds.Contains(item.id)) continue;
+                _fishIds.Add(item.id); _inventory.Add(item);
+                choices.Add(new Dropdown.OptionData(DesktopFishCatalog.SpeciesName(item.speciesId) + " · " + item.sizeM.ToString("0.00") + " m"));
             }
-            _fishId = _fishIds.Count > 0 ? _fishIds[0] : null;
+            var requestedIndex = _fishIds.IndexOf(selectedFishId ?? "");
+            var missingRequested = !string.IsNullOrEmpty(selectedFishId) && requestedIndex < 0;
+            var selected = Mathf.Max(0, requestedIndex);
+            _fishId = !missingRequested && _fishIds.Count > 0 ? _fishIds[selected] : null;
             _fishChoice.ClearOptions();
             if (choices.Count == 0) choices.Add(new Dropdown.OptionData("背包还没有鱼获"));
-            _fishChoice.AddOptions(choices);
-            _fishChoice.SetValueWithoutNotify(0);
-            _fishChoice.RefreshShownValue();
-            _status.text = _fishIds.Count == 0 ? "背包还没有鱼获，先去湖边钓一条吧。" : "分享会保留背包里的鱼获。留空心情将使用鱼获描述。";
-            RefreshControls();
+            _fishChoice.AddOptions(choices); _fishChoice.SetValueWithoutNotify(selected); _fishChoice.RefreshShownValue();
+            _loading = _loadFailed = false;
+            _status.text = missingRequested ? "这条鱼获已不在背包中，请重新选择要分享的鱼获。" : _fishIds.Count == 0 ? "背包还没有鱼获，先去湖边钓一条吧。" : "";
+            if (_cardTemplate != null)
+            {
+                for (var i = 0; i < _inventory.Count; i++)
+                {
+                    var index = i; var item = _inventory[i];
+                    var card = Instantiate(_cardTemplate, _cardContent, false);
+                    card.name = "FishCard_" + i; card.gameObject.SetActive(true);
+                    var name = card.transform.Find("Name")?.GetComponent<Text>();
+                    if (name != null) name.text = DesktopFishCatalog.SpeciesName(item.speciesId);
+                    var art = card.transform.Find("Art")?.GetComponent<Image>();
+                    if (art != null) { art.sprite = CozyItemArt.Fish(item.speciesId); art.enabled = art.sprite != null; }
+                    card.onClick.RemoveAllListeners();
+                    card.onClick.AddListener(() => { if (!_busy && !_loading) SelectFish(index); });
+                    _cards.Add(card);
+                }
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_cardContent);
+                var scroll = _cardContent.GetComponentInParent<ScrollRect>();
+                if (scroll != null) scroll.verticalNormalizedPosition = 1;
+            }
+            RefreshCatchPreview(); RefreshControls();
+        }
+
+        public void PresentPreview(FishInventoryItemDto[] fish, string nickname, string avatarId = null, string story = null)
+        {
+            if (!BindControls()) return;
+            _nickname = nickname; _busy = _loading = _loadFailed = false;
+            PresentAuthor(nickname, avatarId);
+            _story.SetTextWithoutNotify(story ?? ""); _counter.text = _story.text.Length + " / " + StoryLimit;
+            SetVisibility("public"); PresentInventory(fish); RestorePaperPose();
+        }
+
+        void SelectFish(int index)
+        {
+            if (index < 0 || index >= _inventory.Count) return;
+            _fishChoice.SetValueWithoutNotify(index); _fishChoice.RefreshShownValue();
+            _fishId = _inventory[index].id; _status.text = ""; RefreshCatchPreview(); RefreshControls();
+        }
+
+        void ClearCards()
+        {
+            foreach (var card in _cards) if (card != null) { card.gameObject.SetActive(false); DestroyUi(card.gameObject); }
+            _cards.Clear();
+        }
+
+        void PresentAuthor(string nickname, string avatarId)
+        {
+            if (_paper == null) return;
+            SetText("AuthorName", string.IsNullOrEmpty(nickname) ? "我的钓鱼手账" : nickname);
+            var avatar = _paper.Find("AuthorAvatar")?.GetComponent<Image>();
+            if (avatar != null) { avatar.sprite = DesktopDefaultAvatars.Portrait(avatarId); avatar.enabled = avatar.sprite != null; }
+        }
+
+        void RefreshCatchPreview()
+        {
+            var index = _fishIds.IndexOf(_fishId ?? "");
+            var item = index >= 0 && index < _inventory.Count ? _inventory[index] : null;
+            var art = _paper?.Find("CatchPreview/FishArt")?.GetComponent<Image>();
+            if (art != null) { art.sprite = item == null ? null : CozyItemArt.Fish(item.speciesId); art.enabled = art.sprite != null; }
+            SetText("CatchPreview/FishName", item == null ? "挑一条今天的鱼获" : DesktopFishCatalog.SpeciesName(item.speciesId));
+            SetText("CatchPreview/Size", item == null ? "—" : item.sizeM.ToString("0.00") + " m");
+            SetText("CatchPreview/Weight", item == null ? "—" : DesktopGameData.CalcWeightKg(item.sizeM).ToString("0.00") + " kg");
+            var timestamp = "记录时间未知";
+            if (item != null && item.caughtAt > 0)
+            {
+                try { timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.caughtAt).LocalDateTime.ToString("yyyy.MM.dd HH:mm:ss"); }
+                catch (ArgumentOutOfRangeException) { }
+            }
+            var pond = item == null ? null : DesktopGameData.GetPond(item.pondId)?.name;
+            SetText("CatchPreview/CaughtAt", item == null ? "选择后查看记录时间与水域" : timestamp + " · " + (pond ?? "未知水域"));
+            for (var i = 0; i < _cards.Count; i++) _cards[i].GetComponent<CozyButtonVisual>()?.SetSelected(i == index);
+        }
+
+        void SetText(string path, string value)
+        {
+            var text = _paper?.Find(path)?.GetComponent<Text>(); if (text != null) text.text = value;
+        }
+
+        static void BindClick(Button button, UnityEngine.Events.UnityAction callback)
+        {
+            if (button == null) return; button.onClick.RemoveAllListeners(); button.onClick.AddListener(callback);
+        }
+
+        void SetVisibility(string visibility)
+        {
+            if (_busy) return;
+            _visibilityChoice.SetValueWithoutNotify(visibility == "friends" ? 1 : 0);
+            _visibilityChoice.RefreshShownValue(); SelectVisibility(visibility);
         }
 
         void SelectVisibility(string visibility)
         {
             if (_busy) return;
             _visibility = visibility;
+            SetText("VisibilityHint", visibility == "friends" ? "只出现在好友动态里，与熟悉的钓友分享。" : "出现在公开动态里，和更多钓友分享快乐。");
+            _visibilityPublic?.GetComponent<CozyButtonVisual>()?.SetSelected(visibility == "public");
+            _visibilityFriends?.GetComponent<CozyButtonVisual>()?.SetSelected(visibility == "friends");
             RefreshControls();
         }
 
@@ -243,10 +352,14 @@ namespace FishSocial.Desktop
         {
             _story.interactable = !_busy;
             _close.interactable = !_busy;
+            if (_cancel != null) _cancel.interactable = !_busy;
+            if (_visibilityPublic != null) _visibilityPublic.interactable = !_busy;
+            if (_visibilityFriends != null) _visibilityFriends.interactable = !_busy;
+            foreach (var card in _cards) if (card != null) card.interactable = !_busy && !_loading;
             _visibilityChoice.interactable = !_busy;
             _fishChoice.interactable = !_busy && !_loading && _fishIds.Count > 0;
             _publish.interactable = !_busy && !_loading && (_loadFailed || !string.IsNullOrEmpty(_fishId));
-            DesktopModalUi.SetButtonLabel(_publish, _busy ? "正在发布…" : _loading ? "正在读取鱼获…" : _loadFailed ? "重试加载" : "贴进动态手账");
+            DesktopModalUi.SetButtonLabel(_publish, _busy ? "正在发布…" : _loading ? "正在读取鱼获…" : _loadFailed ? "重试加载" : "发布动态");
         }
 
         void Submit()
@@ -283,165 +396,6 @@ namespace FishSocial.Desktop
             completed?.Invoke();
         }
 
-        void ArmPaperChoice(Dropdown dropdown)
-        {
-            if (dropdown == null || !dropdown.gameObject.scene.IsValid() || dropdown.transform.Find("ChoiceHit") != null)
-                return;
-            var hit = new GameObject("ChoiceHit", typeof(RectTransform), typeof(Image), typeof(CozyPaperChoice));
-            hit.transform.SetParent(dropdown.transform, false);
-            var rect = hit.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
-            var image = hit.GetComponent<Image>();
-            image.color = new Color(0f, 0f, 0f, 0f);
-            image.raycastTarget = true;
-            hit.GetComponent<CozyPaperChoice>().Bind(dropdown, this);
-            hit.transform.SetAsLastSibling();
-        }
-
-        public void TogglePaperChoices(Dropdown dropdown)
-        {
-            if (dropdown == null || !dropdown.IsInteractable() || _paper == null)
-                return;
-            if (_choiceOwner == dropdown && _choiceSheet != null)
-            {
-                ClosePaperChoices();
-                return;
-            }
-            ClosePaperChoices();
-            if (dropdown.options == null || dropdown.options.Count == 0)
-                return;
-            _choiceOwner = dropdown;
-            _choiceBlocker = new GameObject("ChoiceBlocker", typeof(RectTransform), typeof(Image), typeof(Button));
-            _choiceBlocker.transform.SetParent(_paper, false);
-            var blockerRect = _choiceBlocker.GetComponent<RectTransform>();
-            blockerRect.anchorMin = Vector2.zero;
-            blockerRect.anchorMax = Vector2.one;
-            blockerRect.offsetMin = blockerRect.offsetMax = Vector2.zero;
-            var blockerImage = _choiceBlocker.GetComponent<Image>();
-            blockerImage.color = new Color(0f, 0f, 0f, 0f);
-            blockerImage.raycastTarget = true;
-            var blockerButton = _choiceBlocker.GetComponent<Button>();
-            blockerButton.transition = Selectable.Transition.None;
-            blockerButton.targetGraphic = blockerImage;
-            blockerButton.onClick.AddListener(ClosePaperChoices);
-
-            var field = dropdown.GetComponent<RectTransform>();
-            var corners = new Vector3[4];
-            field.GetWorldCorners(corners);
-            var localBottom = (Vector2)_paper.InverseTransformPoint(corners[0]);
-            var localTop = (Vector2)_paper.InverseTransformPoint(corners[2]);
-            var width = Mathf.Max(field.rect.width, localTop.x - localBottom.x);
-            var rowHeight = 36f;
-            var height = Mathf.Min(dropdown.options.Count * rowHeight + 8f, rowHeight * 5f + 8f);
-            var openUp = localBottom.y - 4f - height < _paper.rect.yMin + 8f;
-
-            _choiceSheet = new GameObject("ChoiceSheet", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
-            _choiceSheet.transform.SetParent(_paper, false);
-            var sheetRect = _choiceSheet.GetComponent<RectTransform>();
-            sheetRect.anchorMin = sheetRect.anchorMax = new Vector2(.5f, .5f);
-            sheetRect.pivot = new Vector2(0f, openUp ? 0f : 1f);
-            sheetRect.sizeDelta = new Vector2(width, height);
-            sheetRect.anchoredPosition = openUp
-                ? new Vector2(localBottom.x, localTop.y + 4f)
-                : new Vector2(localBottom.x, localBottom.y - 4f);
-            var sheetImage = _choiceSheet.GetComponent<Image>();
-            var source = dropdown.GetComponent<Image>();
-            if (source != null)
-            {
-                sheetImage.sprite = source.sprite;
-                sheetImage.type = source.type;
-            }
-            sheetImage.color = Color.white;
-            sheetImage.raycastTarget = true;
-
-            var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
-            viewportGo.transform.SetParent(_choiceSheet.transform, false);
-            var viewport = viewportGo.GetComponent<RectTransform>();
-            viewport.anchorMin = Vector2.zero;
-            viewport.anchorMax = Vector2.one;
-            viewport.offsetMin = new Vector2(4f, 4f);
-            viewport.offsetMax = new Vector2(-4f, -4f);
-            var viewportImage = viewportGo.GetComponent<Image>();
-            viewportImage.color = new Color(1f, 1f, 1f, .01f);
-            viewportImage.raycastTarget = true;
-
-            var contentGo = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-            contentGo.transform.SetParent(viewport, false);
-            var content = contentGo.GetComponent<RectTransform>();
-            content.anchorMin = new Vector2(0f, 1f);
-            content.anchorMax = new Vector2(1f, 1f);
-            content.pivot = new Vector2(.5f, 1f);
-            content.anchoredPosition = Vector2.zero;
-            content.sizeDelta = new Vector2(0f, 0f);
-            var layout = contentGo.GetComponent<VerticalLayoutGroup>();
-            layout.childControlWidth = layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-            layout.spacing = 2f;
-            var fitter = contentGo.GetComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var scroll = _choiceSheet.GetComponent<ScrollRect>();
-            scroll.viewport = viewport;
-            scroll.content = content;
-            scroll.horizontal = false;
-            scroll.vertical = dropdown.options.Count > 5;
-            scroll.movementType = ScrollRect.MovementType.Clamped;
-            scroll.scrollSensitivity = 24f;
-
-            var font = dropdown.captionText != null ? dropdown.captionText.font : null;
-            var color = dropdown.captionText != null ? dropdown.captionText.color : new Color(.29f, .2f, .12f, 1f);
-            for (var i = 0; i < dropdown.options.Count; i++)
-            {
-                var option = new GameObject("Option", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-                option.transform.SetParent(content, false);
-                var element = option.GetComponent<LayoutElement>();
-                element.minHeight = element.preferredHeight = rowHeight;
-                var selected = i == dropdown.value;
-                var optionImage = option.GetComponent<Image>();
-                optionImage.color = selected ? new Color(1f, .93f, .8f, 1f) : new Color(1f, .98f, .94f, 1f);
-                var optionButton = option.GetComponent<Button>();
-                optionButton.transition = Selectable.Transition.None;
-                optionButton.targetGraphic = optionImage;
-                var index = i;
-                var captured = dropdown;
-                optionButton.onClick.AddListener(() =>
-                {
-                    captured.value = index;
-                    captured.RefreshShownValue();
-                    ClosePaperChoices();
-                });
-                var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
-                labelGo.transform.SetParent(option.transform, false);
-                var labelRect = labelGo.GetComponent<RectTransform>();
-                labelRect.anchorMin = Vector2.zero;
-                labelRect.anchorMax = Vector2.one;
-                labelRect.offsetMin = new Vector2(12f, 0f);
-                labelRect.offsetMax = new Vector2(-12f, 0f);
-                var label = labelGo.GetComponent<Text>();
-                label.font = font;
-                label.fontSize = 18;
-                label.color = color;
-                label.alignment = TextAnchor.MiddleLeft;
-                label.horizontalOverflow = HorizontalWrapMode.Overflow;
-                label.raycastTarget = false;
-                label.supportRichText = false;
-                label.text = dropdown.options[i].text;
-            }
-            _choiceSheet.transform.SetAsLastSibling();
-        }
-
-        void ClosePaperChoices()
-        {
-            DestroyUi(_choiceSheet);
-            DestroyUi(_choiceBlocker);
-            _choiceSheet = null;
-            _choiceBlocker = null;
-            _choiceOwner = null;
-        }
-
         static void DestroyUi(GameObject node)
         {
             if (node == null)
@@ -454,23 +408,4 @@ namespace FishSocial.Desktop
 
     }
 
-    /// <summary>Keeps the composer list on the paper. Unity Dropdown.Show reparents the template onto the root canvas.</summary>
-    public sealed class CozyPaperChoice : MonoBehaviour, IPointerClickHandler
-    {
-        Dropdown _dropdown;
-        DesktopSocialComposeModal _owner;
-
-        public void Bind(Dropdown dropdown, DesktopSocialComposeModal owner)
-        {
-            _dropdown = dropdown;
-            _owner = owner;
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (eventData.button != PointerEventData.InputButton.Left || _owner == null)
-                return;
-            _owner.TogglePaperChoices(_dropdown);
-        }
-    }
 }

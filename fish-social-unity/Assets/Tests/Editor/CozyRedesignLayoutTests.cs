@@ -103,10 +103,10 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void ProfileEditorRetainsFormPickerAndSixAvatarColumns()
+        public void ProfileEditorRetainsFormPickerAndThreeLargeAvatarColumns()
         {
             var page = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "PanelProfileEdit.prefab");
-            Assert.AreEqual(6, page.transform.Find("Avatars/Viewport/Content").GetComponent<GridLayoutGroup>().constraintCount);
+            Assert.AreEqual(3, page.transform.Find("Avatars/Viewport/Content").GetComponent<GridLayoutGroup>().constraintCount);
             Assert.NotNull(page.transform.Find("Form/Nickname").GetComponent<InputField>());
             Assert.NotNull(page.transform.Find("Form/Bio").GetComponent<InputField>());
             Assert.NotNull(page.transform.Find("Actions/Save").GetComponent<Button>());

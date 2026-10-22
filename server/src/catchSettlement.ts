@@ -153,6 +153,7 @@ export function settleAcceptedCatch(
       };
 
   recordSessionCatch(ctx.playerId, {
+    inventoryItemId: settled.autoReturned ? undefined : result.item.id,
     speciesId: result.item.speciesId,
     quality: result.item.quality,
     sizeM: result.item.sizeM,

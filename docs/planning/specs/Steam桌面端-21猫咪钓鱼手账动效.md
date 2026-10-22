@@ -65,3 +65,5 @@
 2026-10-22：用户认可远端 `be6f2bdf` 修复版，沿用现有正式入口，结束 JournalV2 替换推进。本地补充组件初始化、档位遮挡顺序与昵称排布健壮性修复，Unity EditMode 全套 **448/448** 通过。范围及证据见 [已认可基线记录](../../design/ui/2026-10-22-cozy-journal-approved-baseline.md)；Windows/Steam 平台待办继续保留。
 
 新增缺口的正式预制体及社交分区实现见 [八类缺口修复记录](../../design/ui/2026-10-22-cozy-journal-detail-refinements.md)。本轮全套 EditMode **468/468**、构建守卫 **PASS**；刷新 21 个原生页面/状态截图，以及页签与排行榜选择的 11 对网页/Unity 动画采样帧。这些编辑器证据不替代 Windows 实机和真实账号验收。
+
+2026-10-23：按确认的 journal-workspace 网页方案重写个人资料、编辑资料、分享鱼获、离塘结算，并接入真实统计。新增 Unity 回归 12/12；全套 476 通过／5 项旧检查失败，结构守卫 PASS。服务端台账 4/4；全套 49 通过／1 项既有失败。状态仍为已实现，未宣称全套或平台验收通过。详见 [四页实施及剩余检查](../../design/ui/2026-10-23-cozy-journal-workspace-unity.md)。

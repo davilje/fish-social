@@ -1,3 +1,4 @@
+import { recordSessionFishingDuration } from './pondSessionLedger.js';
 import { randomUUID } from 'crypto';
 import {
   MAX_DAILY_FISHING_MS,
@@ -569,6 +570,7 @@ export function settleFishingSession(
   if (elapsed > 0) {
     const after = addTodayFishingMs(user.playerId, elapsed, atMs);
     credited = Math.max(0, after - before);
+    recordSessionFishingDuration(user.playerId, credited);
     user.todayFishingMs = after;
     user.todayFishingBaseMs = after;
   } else {

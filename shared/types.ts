@@ -345,6 +345,8 @@ export interface PondSessionCatchEntry {
   speciesId: string;
   quality: string;
   sizeM: number;
+  weightKg?: number;
+  inventoryItemId?: string;
   outcome: 'returned' | 'kept';
   returnGold?: number;
   catchPlayerXp?: number;
@@ -366,6 +368,10 @@ export interface PondSessionSummaryPayload {
   totalReturnPlayerXp: number;
   totalReturnPondXp: number;
   netProfit: number;
+  /** Server-credited fishing time, excluding idle time. */
+  fishingDurationMs?: number;
+  biteCount?: number;
+  escapeCount?: number;
   joinedAt: number;
   leftAt: number;
 }

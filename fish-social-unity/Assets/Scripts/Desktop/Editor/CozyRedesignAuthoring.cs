@@ -44,6 +44,10 @@ namespace FishSocial.Desktop.Editor
                     Inspect();
                 else if (action == "apply")
                     Apply();
+                else if (action == "workspace")
+                    ApplyWorkspacePages();
+                else if (action == "workspace-preview")
+                    CozyRedesignPreview.RenderWorkspace();
                 else if (action == "refine")
                     ApplyRefinements();
                 else if (action == "verify")

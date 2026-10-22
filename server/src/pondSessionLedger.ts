@@ -2,7 +2,7 @@
  * FEAT-RETURN-02+：本塘 session 鱼获 / 回鱼 / 扣费 / XP 台账，离塘时汇总。
  */
 import type { ReturnFeeMode } from '@fish-social/shared';
-import { getGamePondDef } from '@fish-social/shared';
+import { calcFishWeightKg, getGamePondDef } from '@fish-social/shared';
 
 export type SessionCatchOutcome = 'returned' | 'kept';
 
@@ -10,6 +10,8 @@ export type SessionCatchEntry = {
   speciesId: string;
   quality: string;
   sizeM: number;
+  weightKg?: number;
+  inventoryItemId?: string;
   outcome: SessionCatchOutcome;
   returnGold?: number;
   catchPlayerXp?: number;
@@ -31,6 +33,9 @@ export type PondSessionSummary = {
   totalReturnPlayerXp: number;
   totalReturnPondXp: number;
   netProfit: number;
+  biteCount: number;
+  escapeCount: number;
+  fishingDurationMs: number;
   joinedAt: number;
   leftAt: number;
 };
@@ -40,6 +45,9 @@ type Ledger = {
   returnFeeMode: ReturnFeeMode;
   catches: SessionCatchEntry[];
   feesPaid: number;
+  biteCount: number;
+  escapeCount: number;
+  fishingDurationMs: number;
   joinedAt: number;
 };
 
@@ -64,6 +72,9 @@ function startPondSessionLedger(
     returnFeeMode,
     catches: [],
     feesPaid: 0,
+    biteCount: 0,
+    escapeCount: 0,
+    fishingDurationMs: 0,
     joinedAt: Date.now(),
   });
 }
@@ -91,7 +102,23 @@ export function recordSessionCatch(
 ): void {
   const ledger = ledgers.get(playerId);
   if (!ledger) return;
-  ledger.catches.push(entry);
+  ledger.catches.push({ ...entry, weightKg: calcFishWeightKg(entry.sizeM) });
+}
+
+/** Pond totals survive stop/restart and checkpoint segments; separate from per-cast metric counters. */
+export function recordSessionBite(playerId: string): void {
+  const ledger = ledgers.get(playerId);
+  if (ledger) ledger.biteCount += 1;
+}
+
+export function recordSessionEscape(playerId: string): void {
+  const ledger = ledgers.get(playerId);
+  if (ledger) ledger.escapeCount += 1;
+}
+
+export function recordSessionFishingDuration(playerId: string, creditedMs: number): void {
+  const ledger = ledgers.get(playerId);
+  if (ledger && Number.isFinite(creditedMs) && creditedMs > 0) ledger.fishingDurationMs += creditedMs;
 }
 
 export function buildPondSessionSummary(playerId: string): PondSessionSummary | null {
@@ -127,6 +154,9 @@ export function buildPondSessionSummary(playerId: string): PondSessionSummary | 
     totalReturnPlayerXp,
     totalReturnPondXp,
     netProfit: totalReturnGold - ledger.feesPaid,
+    biteCount: ledger.biteCount,
+    escapeCount: ledger.escapeCount,
+    fishingDurationMs: ledger.fishingDurationMs,
     joinedAt: ledger.joinedAt,
     leftAt,
   };

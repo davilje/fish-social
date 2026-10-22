@@ -80,17 +80,21 @@ namespace FishSocial.Desktop
         Coroutine _albumPhotoRoutine;
         int _albumPhotoLoadVersion;
 
+        Action _openAchievements;
+
         public void Bind(
             IAuthenticatedApiClient api,
             SocialPondSessionController pond,
             Action openEdit,
             Action<string> toast = null,
-            Action openWorldMap = null)
+            Action openWorldMap = null,
+            Action openAchievements = null)
         {
             _api = api;
             _pond = pond;
             _openEdit = openEdit;
             _openWorldMap = openWorldMap;
+            _openAchievements = openAchievements;
             _toast = toast;
             EnsureUi();
         }
@@ -449,7 +453,7 @@ namespace FishSocial.Desktop
                 {
                     btn.onClick.RemoveAllListeners();
                     var captured = tab;
-                    btn.onClick.AddListener(() => SelectTab(captured));
+                    btn.onClick.AddListener(() => { if(captured == HubTab.Achievements && !IsAchievementsPage()) _openAchievements?.Invoke(); else SelectTab(captured); });
                     _tabButtons.Add(btn);
                 }
                 else
@@ -979,7 +983,7 @@ namespace FishSocial.Desktop
                     var button = _tabButtons[tabIndex];
                     if (!IsAchievementsPage() && tabIndex == (int)HubTab.Achievements)
                     {
-                        button.gameObject.SetActive(false);
+                        button.gameObject.SetActive(transform.Find("Shell/Content/Tab_资料/WorkspaceKicker") != null);
                         if (_tabContents[tabIndex] != null)
                             _tabContents[tabIndex].SetActive(false);
                         continue;
@@ -1062,7 +1066,7 @@ namespace FishSocial.Desktop
             _hub = hub;
             _loadedHubId = targetId;
             ApplyReadOnly(hub.canEdit);
-            if (_tab == HubTab.Codex)
+            if (_tab == HubTab.Codex || _tab == HubTab.Profile)
                 yield return LoadCodexRoutine();
             RenderAll();
             SetStatus(hub.isSelf
@@ -1198,6 +1202,7 @@ namespace FishSocial.Desktop
                 CozyItemArt.Text(authoredProfile, "DesignShowcase/Species", showcased != null ? DesktopFishCatalog.SpeciesName(showcased.speciesId) : "暂无展示鱼获");
                 CozyItemArt.Text(authoredProfile, "DesignShowcase/Size", showcased != null ? showcased.sizeM.ToString("0.00") + " m" : "");
                 RenderJournalProfile(authoredProfile, level, xp);
+                RenderWorkspaceProfile(authoredProfile, level);
                 var showcaseButton = authoredProfile.Find("DesignShowcase/Open")?.GetComponent<Button>();
                 if (showcaseButton != null)
                 {
@@ -1222,7 +1227,7 @@ namespace FishSocial.Desktop
             var required = 0;
             foreach (var row in levels?.rows ?? Array.Empty<JournalLevel>()) if (row.level == level) required = row.xpToNext;
             CozyItemArt.Text(profile, "JournalProgress/Level", required > 0 ? "Lv." + level + " → Lv." + (level + 1) : "Lv." + level);
-            CozyItemArt.Text(profile, "JournalProgress/Caption", required > 0 ? xp + " / " + required + " 经验 · 去收获下一段故事吧。" : xp + " 经验");
+            CozyItemArt.Text(profile, "JournalProgress/Caption", required > 0 ? xp + " / " + required + " 经验 · 距离升级还需 " + Math.Max(0, required - xp) + " 经验" : xp + " 经验");
             var fill = profile.Find("JournalProgress/Track/Fill")?.GetComponent<Image>();
             if (fill != null)
             {
@@ -1233,6 +1238,57 @@ namespace FishSocial.Desktop
             BindPagerButton(profile.Find("JournalShowcaseLink"), () => SelectTab(HubTab.Showcase));
             BindPagerButton(profile.Find("JournalAlbumLink"), () => SelectTab(HubTab.Album));
             CozyJournalStaticPose.RevealAside(profile);
+        }
+
+        void RenderWorkspaceProfile(Transform profile, int level)
+        {
+            if (profile.Find("WorkspaceKicker") == null) return;
+            CozyItemArt.Text(profile, "WorkspaceLevel", "Lv." + level);
+            var since = "湖畔手账 · 一起等待下一次相遇";
+            var cached = DesktopProfileCache.Latest;
+            if (_hub.isSelf && cached != null && cached.playerId == _hub.profile.playerId && cached.createdAt > 0)
+            {
+                try { since = DateTimeOffset.FromUnixTimeMilliseconds(cached.createdAt).ToLocalTime().ToString("yyyy.MM.dd") + " 开始垂钓"; }
+                catch (ArgumentOutOfRangeException) { }
+            }
+            CozyItemArt.Text(profile, "WorkspaceSince", since);
+            var caught = 0;
+            FishCodexEntryDto latest = null;
+            foreach (var entry in _codexEntries ?? Array.Empty<FishCodexEntryDto>())
+            {
+                if (entry == null) continue;
+                caught += entry.totalCaught;
+                if (latest == null || entry.lastCaughtAt > latest.lastCaughtAt) latest = entry;
+            }
+            var unlocked = 0;
+            foreach (var achievement in _hub.achievements ?? Array.Empty<AchievementViewDto>())
+                if (achievement != null && achievement.unlocked) unlocked++;
+            var labels = new[] { "累计钓获", "已收录鱼种", "已解锁成就" };
+            var caughtLabel = _hub.isSelf ? (_codexEntries.Length == 0 && _hub.codexSummary != null && _hub.codexSummary.unlockedCount > 0 ? "暂未加载" : caught + " 条") : "未公开";
+            var values = new[] { caughtLabel, (_hub.codexSummary != null ? _hub.codexSummary.unlockedCount.ToString() : "0") + " 种", unlocked + " 项" };
+            for (var i = 0; i < labels.Length; i++)
+            {
+                CozyItemArt.Text(profile, "DesignStatCards/Card" + i + "/Label", labels[i]);
+                CozyItemArt.Text(profile, "DesignStatCards/Card" + i + "/Value", values[i]);
+            }
+            CozyItemArt.Set(profile, "JournalProgress/RecentArt", latest != null ? CozyItemArt.Fish(latest.speciesId) : null);
+            CozyItemArt.Text(profile, "JournalProgress/RecentTitle", latest != null ? "最近收录 · " + DesktopFishCatalog.SpeciesName(latest.speciesId) : "下一次收获，留给湖边的你");
+            CozyItemArt.Text(profile, "JournalProgress/RecentDetail", latest != null ? WorkspaceTime(latest.lastCaughtAt) + " · 该鱼种最大纪录 " + latest.maxSizeM.ToString("0.00") + " m" : "钓到鱼后，这里会记下最近一次相遇。");
+            FishInventoryItemDto treasured = null;
+            var slot = 0;
+            var fishes = _hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>();
+            for (var i = 0; i < fishes.Length; i++) if (fishes[i] != null) { treasured = fishes[i]; slot = i + 1; break; }
+            var facts = treasured != null ? new[] { treasured.sizeM.ToString("0.00") + " m", DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(treasured.sizeM)), WorkspaceTime(treasured.caughtAt), PondLabel(treasured.pondId) } : new[] { "—", "—", "—", "—" };
+            CozyItemArt.Text(profile, "DesignShowcase/WorkspaceCaption", treasured != null ? "珍藏在展示位 " + slot : "留一个位置，给下一次惊喜");
+            for (var i = 0; i < facts.Length; i++) CozyItemArt.Text(profile, "DesignShowcase/WorkspaceFact" + i + "/Value", facts[i]);
+            CozyItemArt.Text(profile, "DesignShowcase/WorkspaceNote", treasured != null ? "那些耐心等待的时刻，\n都在手账里留下了印记。" : "从左侧展示柜或编辑资料，\n选一条喜欢的鱼获珍藏吧。");
+        }
+
+        static string WorkspaceTime(long timestamp)
+        {
+            if (timestamp <= 0) return "时间未记录";
+            try { return DateTimeOffset.FromUnixTimeMilliseconds(timestamp).ToLocalTime().ToString("MM.dd HH:mm"); }
+            catch (ArgumentOutOfRangeException) { return "时间未记录"; }
         }
 
         IEnumerator LoadAvatarRoutine(string avatarUrl, string nickname, string playerId)

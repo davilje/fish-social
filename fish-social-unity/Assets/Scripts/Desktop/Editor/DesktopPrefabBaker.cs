@@ -239,6 +239,7 @@ namespace FishSocial.Desktop.Editor
                     typeof(DesktopPondSettlementModalView));
                 Stretch(root.GetComponent<RectTransform>());
                 root.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+                CozyWorkspaceSettlementAuthoring.Apply(root);
                 var errors = string.Empty;
                 SaveGeneratedPrefab(root, "PanelPondSettlement", ref errors);
                 if (!string.IsNullOrEmpty(errors))
@@ -262,7 +263,7 @@ namespace FishSocial.Desktop.Editor
                 var panel = root.GetComponent<DesktopPondSettlementModalView>();
                 if (panel == null)
                     panel = root.AddComponent<DesktopPondSettlementModalView>();
-                panel.BuildEditorLayout();
+                CozyWorkspaceSettlementAuthoring.Apply(root);
                 var image = root.GetComponent<Image>();
                 if (image != null)
                     image.color = new Color(0f, 0f, 0f, 0f);
@@ -281,7 +282,15 @@ namespace FishSocial.Desktop.Editor
                    prefab.transform.Find("Panel/Title") != null &&
                    prefab.transform.Find("Panel/Summary") != null &&
                    prefab.transform.Find("Panel/ListScroll") != null &&
-                   prefab.transform.Find("Panel/Close") != null;
+                   prefab.transform.Find("Panel/Close") != null &&
+                   prefab.transform.Find("Panel/JournalPaper") != null &&
+                   prefab.transform.Find("Panel/RecordTemplate/FishArt") != null &&
+                   prefab.transform.Find("Panel/Stats/Bites/Value") != null &&
+                   prefab.transform.Find("Panel/Stats/Escapes/Value") != null &&
+                   prefab.transform.Find("Panel/Stats/Duration/Value") != null &&
+                   prefab.transform.Find("Panel/Stats/Catches/Value") != null &&
+                   prefab.transform.Find("Panel/ChoiceLayer/FilterMenu/Option0") != null &&
+                   prefab.transform.Find("Panel/ChoiceLayer/SortMenu/Option0") != null;
         }
 
         public static void PopulatePanelLeaderboardPrefab()

@@ -20,7 +20,7 @@ namespace FishSocial.Tests.Editor
 
         [TestCase("DesktopShell", "MainRoot/Header/Home")]
         [TestCase("FeatureModalRoot", "ModalPanel/Header/Close")]
-        [TestCase("PanelProfileEdit", "Picker/Close")]
+        [TestCase("PanelProfileEdit", "Picker/Dismiss")]
         [TestCase("PanelPondSettlement", "Panel/Close")]
         public void ClosingActionsUseRightTopAnchors(string name, string path)
         {
@@ -40,8 +40,8 @@ namespace FishSocial.Tests.Editor
             var cancel = (RectTransform)prefab.transform.Find("Header/Back");
             Assert.AreEqual(Vector2.up, cancel.anchorMin);
             Assert.AreEqual(Vector2.up, cancel.anchorMax);
-            Assert.AreEqual(new Vector2(498,-548), cancel.anchoredPosition);
-            Assert.AreEqual(new Vector2(170,45), cancel.sizeDelta);
+            Assert.AreEqual(new Vector2(274,-534), cancel.anchoredPosition);
+            Assert.AreEqual(new Vector2(134,46), cancel.sizeDelta);
         }
 
         [Test]

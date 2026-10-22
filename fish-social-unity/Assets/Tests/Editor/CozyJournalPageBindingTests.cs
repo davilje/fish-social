@@ -260,7 +260,7 @@ namespace FishSocial.Tests.Editor
                 Assert.IsFalse(fishDropdown.template.gameObject.activeSelf);
                 Assert.IsNotNull(fishDropdown.template.GetComponent<ScrollRect>().viewport.GetComponent<RectMask2D>());
                 var logicalPanel = (RectTransform)saved.transform.Find("ModalPanel");
-                Assert.AreEqual(new Vector2(690, 720), logicalPanel.sizeDelta);
+                Assert.AreEqual(new Vector2(1120, 752), logicalPanel.sizeDelta);
                 Assert.AreEqual(0f, logicalPanel.GetComponent<Image>().color.a);
                 var visualPaper = (RectTransform)logicalPanel.Find("JournalPaper");
                 Assert.AreEqual(Vector2.zero, visualPaper.anchorMin);

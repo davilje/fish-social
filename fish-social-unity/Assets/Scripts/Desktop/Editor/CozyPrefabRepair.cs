@@ -825,11 +825,24 @@ namespace FishSocial.Desktop.Editor
             }
             else if (name == "PanelPondSettlement")
             {
-                RequireNode<Text>(root, "Panel/Title");
-                RequireNode<Text>(root, "Panel/Summary");
-                RequireNode<Button>(root, "Panel/Close");
+                RequireNode<Image>(root, "Dim");
+                RequireNode<Image>(root, "Panel/JournalPaper");
+                foreach (var path in new[] { "Title", "Summary", "RecordCount", "Empty", "Account/Income", "Account/Fees", "Account/Net" })
+                    RequireNode<Text>(root, "Panel/" + path);
+                foreach (var stat in new[] { "Bites", "Escapes", "Duration", "Catches" })
+                {
+                    RequireNode<Text>(root, "Panel/Stats/" + stat + "/Label");
+                    RequireNode<Text>(root, "Panel/Stats/" + stat + "/Value");
+                }
+                foreach (var action in new[] { "Close", "Home", "Filter", "Sort", "RecordTemplate/Share" })
+                {
+                    RequireNode<Button>(root, "Panel/" + action);
+                    RequireNode<Text>(root, "Panel/" + action + "/Label");
+                }
                 RequireScroll(root, "Panel/ListScroll", "List");
-                RequireNode<Text>(root, "Panel/ListScroll/Viewport/List/ListText");
+                RequireNode<Image>(root, "Panel/RecordTemplate/FishArt");
+                foreach (var label in new[] { "Name", "Time", "Quality", "Size", "Weight" })
+                    RequireNode<Text>(root, "Panel/RecordTemplate/" + label);
             }
             else if (name == "PondSelectionCard")
             {

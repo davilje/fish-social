@@ -21,11 +21,25 @@ namespace FishSocial.Desktop.Editor
             foreach (var name in Pages)
                 Render(name);
             Render("PanelProfileEdit");
+            Render("PanelProfileEdit", "展示鱼获");
+            Render("PanelProfileEdit", "选择鱼获");
+            Render("PanelPondSettlement");
             Render("PanelSocialFeed", "发布");
             foreach (var tab in new[] { "展示柜", "图鉴", "相册" })
                 Render("PanelProfileHub", tab);
             foreach (var section in new[] { "好友申请", "私信", "鱼塘聊天", "消息通知" })
                 Render("PanelSocial", section);
+        }
+
+        public static void RenderWorkspace()
+        {
+            Directory.CreateDirectory("Library/CozyRedesignPreviews");
+            Render("PanelProfileHub");
+            Render("PanelProfileEdit");
+            Render("PanelProfileEdit", "展示鱼获");
+            Render("PanelProfileEdit", "选择鱼获");
+            Render("PanelSocialFeed", "发布");
+            Render("PanelPondSettlement");
         }
 
         public static void RenderMotionAll()
@@ -79,7 +93,15 @@ namespace FishSocial.Desktop.Editor
                 rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.up;
                 rect.anchoredPosition = new Vector2(160, -150);
                 rect.sizeDelta = new Vector2(1370, 650);
+                if (name == "PanelPondSettlement")
+                {
+                    page.transform.SetParent(shell.transform, false);
+                    DesktopModalUi.Stretch(page);
+                    page.transform.SetAsLastSibling();
+                }
                 Fill(page, name, tab);
+                if (name == "PanelProfileEdit") CozyProfileRefinementPreview.FillEdit(page,tab=="展示鱼获"?"showcase":tab=="选择鱼获"?"picker":"avatars");
+                if (name == "PanelPondSettlement") CozyWorkspaceSettlementAuthoring.Fill(page);
                 CozyProfileRefinementPreview.Fill(page, tab);
                 CozySocialRefinementPreview.Fill(page);
                 if(name=="PanelSocial")
@@ -94,24 +116,11 @@ namespace FishSocial.Desktop.Editor
                 {
                     var composer = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "JournalComposeModal.prefab"), shell.transform, false);
                     composer.SetActive(true);
-                    composer.GetComponent<DesktopSocialComposeModal>().BindControls();
-                    var fishChoice = composer.transform.Find("ModalPanel/FishChoice").GetComponent<Dropdown>();
-                    fishChoice.ClearOptions();
-                    fishChoice.AddOptions(new System.Collections.Generic.List<string>
-                    {
-                        "锦鲤 · 0.62 m", "金线鲃 · 0.31 m", "鲫鱼 · 0.21 m", "鲤鱼 · 0.58 m", "草鱼 · 0.86 m", "大口黑鲈 · 0.44 m",
-                    });
-                    fishChoice.SetValueWithoutNotify(0);
-                    fishChoice.RefreshShownValue();
-                    var visibility = composer.transform.Find("ModalPanel/Visibility").GetComponent<Dropdown>();
-                    visibility.SetValueWithoutNotify(0);
-                    visibility.RefreshShownValue();
-                    var story = composer.transform.Find("ModalPanel/Story").GetComponent<InputField>();
-                    story.text = "锦鲤真的来了！这份好运，分给今天在湖边的每一位钓友。";
-                    story.ForceLabelUpdate();
-                    if (story.placeholder != null) story.placeholder.gameObject.SetActive(false);
-                    CozyItemArt.Text(composer.transform, "ModalPanel/Status", "");
-                    composer.transform.Find("ModalPanel/Publish").GetComponent<Button>().interactable = true;
+                    var ids=new[]{"koi","mandarin","grass_carp","golden_line","carp","crucian","bream","silver_carp"};
+                    var sizes=new[]{.62f,.38f,.84f,.31f,.45f,.23f,.34f,.51f};
+                    var inventory=new FishSocial.Desktop.Auth.FishInventoryItemDto[ids.Length];
+                    for(var i=0;i<ids.Length;i++) inventory[i]=new FishSocial.Desktop.Auth.FishInventoryItemDto {id="workspace-fish-"+i,speciesId=ids[i],sizeM=sizes[i],quality=i==0?"red":"purple",caughtAt=1792654938000-i*660000,pondId="pond-calm"};
+                    composer.GetComponent<DesktopSocialComposeModal>().PresentPreview(inventory,"小橘","/image/profile/cat_avatar_orange.png","锦鲤真的来了！这份好运，分给今天在湖边的每一位钓友。");
                 }
                 CatTheme.SkinTree(shell.transform);
                 var bindings = new System.Text.StringBuilder();

@@ -1,3 +1,4 @@
+import { recordSessionBite, recordSessionEscape } from './pondSessionLedger.js';
 import { randomUUID } from 'crypto';
 import type { Server } from 'socket.io';
 import {
@@ -674,6 +675,7 @@ function advanceFromHooked(
     emitFishingFloatText(io, pondId, user.id, 'escape', ctx.fish);
     if (user.playerId) {
       const counters = noteBiteEscape(user.id);
+      if (!user.isBot) recordSessionEscape(user.playerId);
       recordFishingMetric('escape', {
         playerId: user.playerId,
         pondId,
@@ -816,6 +818,7 @@ export function scheduleHookFromBite(
   const next = transitionPhase(user, pondId, 'hooked', hook.hookDurationMs, 'bite_hook', undefined, { socketId });
   emitPondUserUpdated(io, pondId, next);
   const { counters, waitingMsSinceLastHook } = noteBiteHook(userId);
+  if (user.playerId && !user.isBot) recordSessionBite(user.playerId);
   recordFishingMetric('bite_hook', {
     playerId: user.playerId,
     pondId,

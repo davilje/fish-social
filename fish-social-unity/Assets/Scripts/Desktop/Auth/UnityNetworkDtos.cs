@@ -393,6 +393,8 @@ namespace FishSocial.Desktop.Auth
         public string speciesId;
         public string quality;
         public float sizeM;
+        public float weightKg;
+        public string inventoryItemId;
         public string outcome;
         public int returnGold;
         public int catchPlayerXp;
@@ -416,6 +418,9 @@ namespace FishSocial.Desktop.Auth
         public int totalReturnPlayerXp;
         public int totalReturnPondXp;
         public int netProfit;
+        public int biteCount;
+        public int escapeCount;
+        public long fishingDurationMs;
         public long joinedAt;
         public long leftAt;
     }

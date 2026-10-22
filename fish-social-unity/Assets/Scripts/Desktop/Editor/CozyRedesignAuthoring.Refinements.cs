@@ -13,6 +13,8 @@ namespace FishSocial.Desktop.Editor
             ApplyProfileRefinement(root);
             ApplyPondRefinement(root);
             ApplySocialRefinement(root);
+            ApplyWorkspaceProfile(root);
+            CozyWorkspaceSettlementAuthoring.Apply(root);
             if (root.name == "DesktopShell")
             {
                 var header=root.transform.Find("MainRoot/Header");

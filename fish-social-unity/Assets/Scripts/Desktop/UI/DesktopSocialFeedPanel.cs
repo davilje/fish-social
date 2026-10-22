@@ -133,6 +133,17 @@ namespace FishSocial.Desktop
             }
         }
 
+        public void RefreshMyFeed()
+        {
+            EnsureFeedSlots();
+            if (_mineFeed != null)
+            {
+                _mineFeed.loaded = false;
+                ClearRoot(_mineFeed.root);
+            }
+            SelectFeed(false, true);
+        }
+
         public void OpenComposer()
         {
             if (_composer == null)
@@ -152,7 +163,7 @@ namespace FishSocial.Desktop
                 }
                 SelectFeed(false, true);
                 SetStatus("鱼获故事已发布，正在刷新我的动态…");
-            });
+            }, DesktopProfileCache.Latest?.avatarUrl);
         }
 
         void EnsureUi()

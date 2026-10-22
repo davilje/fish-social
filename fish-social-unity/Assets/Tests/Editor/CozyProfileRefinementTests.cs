@@ -24,8 +24,8 @@ namespace FishSocial.Tests.Editor
                 {
                     progress.SetValue(ratio);var image=progress.GetComponent<Image>();
                     Assert.AreEqual(Image.Type.Sliced,image.type);
-                    Assert.That(image.rectTransform.rect.width,Is.EqualTo(644*ratio).Within(.01));
-                    Assert.That(image.rectTransform.rect.height,Is.EqualTo(14).Within(.01));
+                    Assert.That(image.rectTransform.rect.width,Is.EqualTo(((RectTransform)image.transform.parent).rect.width*ratio).Within(.01));
+                    Assert.That(image.rectTransform.rect.height,Is.EqualTo(((RectTransform)image.transform.parent).rect.height).Within(.01));
                     Assert.AreEqual(ratio>0,image.enabled);
                 }
             }finally{Object.DestroyImmediate(page);}

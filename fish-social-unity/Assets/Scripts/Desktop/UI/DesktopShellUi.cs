@@ -49,6 +49,7 @@ namespace FishSocial.Desktop
         DesktopProfileHubPanel _profileHubPanel;
         DesktopProfileEditPanel _profileEditPanel;
         DesktopSocialFeedPanel _socialFeedPanel;
+        DesktopSocialComposeModal _settlementComposer;
         DesktopLeaderboardPanel _leaderboardPanel;
         readonly List<Button> _lockableNavButtons = new List<Button>();
         readonly Dictionary<ShellPanelId, Button> _tabs = new Dictionary<ShellPanelId, Button>();
@@ -93,6 +94,8 @@ namespace FishSocial.Desktop
 
         public void OpenProfileHub(DesktopProfileHubPanel.HubTab tab = DesktopProfileHubPanel.HubTab.Profile)
         {
+            if (tab == DesktopProfileHubPanel.HubTab.Achievements)
+            { ShowMainPanel(ShellPanelId.Achievements); return; }
             _profileHubPanel?.ShowSelf(tab);
             ShowMainPanel(ShellPanelId.Profile);
         }
@@ -1093,7 +1096,22 @@ namespace FishSocial.Desktop
         {
             if (summary == null || _settlementCanvas == null)
                 return;
-            DesktopPondSettlementModalView.Show(_settlementCanvas, summary);
+            var view = DesktopPondSettlementModalView.Show(_settlementCanvas, summary);
+            if (view == null) return;
+            view.ProfileRequested += () => OpenProfileHub();
+            view.ShareRequested += fishId =>
+            {
+                if (_settlementComposer == null)
+                    _settlementComposer = DesktopSocialComposeModal.Create(_settlementCanvas);
+                if (_settlementComposer == null) return;
+                _settlementComposer.Open(_authenticatedApi, _pondSession != null ? _pondSession.Nickname : "钓友", () =>
+                {
+                    if (view != null) view.Close();
+                    ShowMainPanel(ShellPanelId.SocialFeed);
+                    _socialFeedPanel?.RefreshMyFeed();
+                    ShowToast("鱼获故事已发布。");
+                }, DesktopProfileCache.Latest?.avatarUrl, fishId);
+            };
         }
 
         public void ShowPondSessionSummary(PondSessionSummaryDto summary)
@@ -1210,7 +1228,8 @@ namespace FishSocial.Desktop
         {
             _achievementPanel = DesktopFeaturePanelFactory.BindExisting<DesktopProfileHubPanel>(go,
                 view => view.Bind(_authenticatedApi, _pondSession,
-                    () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage, () => ShowMainPanel(ShellPanelId.WorldMap)));
+                    () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage, () => ShowMainPanel(ShellPanelId.WorldMap),
+                    () => ShowMainPanel(ShellPanelId.Achievements)));
         }
 
         void BuildShop(GameObject go)
@@ -1229,7 +1248,8 @@ namespace FishSocial.Desktop
                     _pondSession,
                     () => ShowMainPanel(ShellPanelId.ProfileEdit),
                     SetStatusMessage,
-                    () => ShowMainPanel(ShellPanelId.WorldMap)));
+                    () => ShowMainPanel(ShellPanelId.WorldMap),
+                    () => ShowMainPanel(ShellPanelId.Achievements)));
             // Keep legacy profile panel available for edit back-compat paths if needed.
             _profilePanel = null;
         }
@@ -1241,7 +1261,8 @@ namespace FishSocial.Desktop
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
-                    () => OpenProfileHub()));
+                    () => OpenProfileHub(),
+                    tab => OpenProfileHub(tab)));
         }
 
         void BuildSocialFeedPanel(GameObject go)
