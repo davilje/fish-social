@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <base href="../cozy-journal/">
+  <meta charset="utf-8">
+  <title>猫咪钓鱼手账 · 资料与收获新布局</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="../journal-workspace/workspace.css">
+</head>
+<body>
+  <header id="toolbar">
+    <div class="brand">猫咪钓鱼手账 · 完整页预览</div>
+    <div class="group"><span>对比</span>
+      <button id="cmp-new" class="on">新方案</button>
+      <button id="cmp-old">现状</button>
+    </div>
+    <div class="group"><span>速度</span>
+      <button data-rate="1" class="on">1×</button>
+      <button data-rate="0.5">0.5×</button>
+      <button data-rate="0.25">0.25×</button>
+      <button data-rate="0.1">0.1×</button>
+    </div>
+    <div class="group"><button id="reduce">减少动效：关</button></div>
+    <div class="group"><span>页面</span>
+      <button data-goto="map">探索世界</button>
+      <button data-goto="ponds">选择鱼塘</button>
+      <button data-goto="settings">设置</button>
+    </div>
+    <div class="group"><span>演示</span>
+      <button data-demo="catch-new">钓到新鱼</button>
+      <button data-demo="catch">普通收获</button>
+      <button data-demo="toast">提示</button>
+      <button data-demo="error">错误提示</button>
+      <button data-demo="bell">新通知</button>
+      <button data-demo="sleep">小猫睡着</button>
+    </div>
+  </header>
+
+  <main id="viewport">
+    <div id="stage">
+      <img id="bg" src="assets/home-sakura.jpg" alt="">
+
+      <div id="player" class="pill">
+        <div class="avatar"><img id="avatar-img" alt=""></div>
+        <div class="meta">
+          <div class="row"><span class="name">小橘</span><span class="lv">Lv.7</span></div>
+          <div class="xp"><i></i><b>320 / 500</b></div>
+        </div>
+      </div>
+      <button id="world-entry" class="btn" type="button" aria-label="打开钓鱼世界地图"><img data-icon="map" alt=""><span><strong>钓鱼世界</strong><small>探索地图 · 选择鱼塘</small></span><b>↗</b></button>
+      <div id="coins" class="pill"><img data-icon="coin" alt=""><span class="num">1,280</span><span class="plus">+</span></div>
+      <div id="pearls" class="pill"><img data-icon="pearl" alt=""><span class="num">24</span><small>鱼获</small></div>
+      <div id="bell" class="pill round"><img data-icon="bell" alt=""><span class="dot"></span></div>
+      <div id="gear" class="pill round"><img data-icon="settings" alt=""></div>
+
+      <section id="page">
+        <div class="journal"></div>
+        <div class="rings"><i class="ring" style="top:150px"></i><i class="ring" style="top:310px"></i><i class="ring" style="top:470px"></i></div>
+        <div class="page-header">
+          <img class="title-icon" alt="">
+          <h1></h1>
+          <span class="paw-stamp"></span>
+          <span class="sub"></span>
+          <div id="close">×</div>
+        </div>
+        <div class="content"></div>
+      </section>
+
+      <nav id="nav">
+        <div id="bobber"><div class="float"></div></div>
+      </nav>
+
+      <div id="corner-cat"><span id="zzz">Z z z</span><img src="assets/cat-fishing.png" alt=""></div>
+
+      <div id="motion"></div>
+      <div id="celebrate"></div>
+
+      <img id="compare" alt="">
+      <div id="compare-badge">现状（按住空格也可以临时对比）</div>
+    </div>
+  </main>
+
+  <footer id="caption">
+    <span class="tag">动效</span>
+    <span class="j-preview-data">示例数据 · 本地预览</span>
+    <span id="caption-text">点任意按钮、页签、卡片，看看它们怎么回应你。</span>
+    <span class="hint">按住空格：对比现状 · 减少动效：只留淡入淡出</span>
+  </footer>
+
+  <script src="pages.js"></script>
+  <script src="app.js"></script>
+  <script src="../journal-workspace/workspace.js"></script>
+</body>
+</html>
