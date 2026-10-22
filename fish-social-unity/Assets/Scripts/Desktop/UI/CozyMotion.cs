@@ -495,6 +495,13 @@ namespace FishSocial.Desktop
                 if (from != null && from != to)
                     from.SetActive(false);
                 to.SetActive(true);
+                var settled = EnsureGroup(to);
+                settled.alpha = 1f;
+                settled.blocksRaycasts = true;
+                // The animated paths reveal once inside StartJournalEntrance.
+                // Reduced motion still has to settle that same entrance, or the page stays mid-pose.
+                if (Reduced || _paused)
+                    SettleJournalPage(to);
                 if (done != null)
                     done();
                 return;
@@ -563,8 +570,35 @@ namespace FishSocial.Desktop
                     if (opening) { toRect.anchoredPosition = toRest + Vector2.down * (16 * (1 - t)); toGroup.alpha = t; }
                     else { fromRect.anchoredPosition = fromRest + Vector2.down * (12 * t); fromGroup.alpha = 1 - t; }
                 },
-                Done = () => { settle(); if(opening) StartJournalEntrance(to,true); _cancelFlip = null; _finishFlip = null; done?.Invoke(); } });
-            if (opening) { toRect.anchoredPosition = toRest + Vector2.down * 16; toGroup.alpha = 0; }
+                Done = () => { settle(); _cancelFlip = null; _finishFlip = null; done?.Invoke(); } });
+            // The door used to fade the settled page in, then restart every card.
+            // Start the entrance while the page is still hidden so that fade is the only one.
+            if (opening)
+            {
+                toRect.anchoredPosition = toRest + Vector2.down * 16;
+                toGroup.alpha = 0;
+                StartJournalEntrance(to, true);
+            }
+        }
+
+        /// <summary>Hide the page that is about to open so its refresh cannot paint ahead of the transition.</summary>
+        public static void ConcealIncoming(GameObject page)
+        {
+            if (page == null)
+                return;
+            var group = EnsureGroup(page);
+            group.alpha = 0f;
+            group.blocksRaycasts = false;
+        }
+
+        static void SettleJournalPage(GameObject page)
+        {
+            if (page == null) return;
+            foreach (var sticker in page.GetComponentsInChildren<CozyStickerMotion>())
+                sticker.ApplyFinalPose();
+            foreach (var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
+                motion.Finish();
+            CozyJournalStaticPose.RevealAside(page.transform);
         }
 
         static void StartJournalEntrance(GameObject page, bool rail)
@@ -573,6 +607,7 @@ namespace FishSocial.Desktop
             foreach(var sticker in page.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
             foreach(var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
                 motion.PlayEntrance(motion.GetComponentsInChildren<CozyStickerMotion>().Length);
+            CozyJournalStaticPose.RevealAside(page.transform);
             if(!rail) return;
             CozyButtonVisual.BeginRailEntrance(page.transform);
             for(var i=0;i<3;i++)

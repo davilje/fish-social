@@ -232,6 +232,56 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
+        public void RouterKeepsTheIncomingPageConcealedUntilTheTransitionShowsIt()
+        {
+            var router = root.AddComponent<PanelRouter>();
+            var home = Rect("Home").gameObject;
+            var shop = Rect("Shop").gameObject;
+            router.Register(ShellPanelId.Home, home);
+            router.Register(ShellPanelId.Shop, shop);
+            var alphaWhileOpening = -1f;
+            var blocksWhileOpening = true;
+            router.PanelChanged += id =>
+            {
+                if (id != ShellPanelId.Shop)
+                    return;
+                var group = shop.GetComponent<CanvasGroup>();
+                alphaWhileOpening = group != null ? group.alpha : 1f;
+                blocksWhileOpening = group == null || group.blocksRaycasts;
+            };
+            router.Show(ShellPanelId.Shop);
+            Assert.AreEqual(0f, alphaWhileOpening);
+            Assert.IsFalse(blocksWhileOpening);
+            CozyMotion.Tick(1f);
+            Assert.AreEqual(1f, shop.GetComponent<CanvasGroup>().alpha);
+            Assert.IsTrue(shop.GetComponent<CanvasGroup>().blocksRaycasts);
+            Assert.IsTrue(shop.activeSelf);
+            Assert.IsFalse(home.activeSelf);
+        }
+
+        [Test]
+        public void RouterReducedOpenLeavesTheIncomingPageVisible()
+        {
+            CozyMotion.SetReduced(true);
+            var router = root.AddComponent<PanelRouter>();
+            var home = Rect("Home").gameObject;
+            var shop = Rect("Shop").gameObject;
+            router.Register(ShellPanelId.Home, home);
+            router.Register(ShellPanelId.Shop, shop);
+            var alphaWhileOpening = 0f;
+            router.PanelChanged += id =>
+            {
+                var group = shop.GetComponent<CanvasGroup>();
+                alphaWhileOpening = group != null ? group.alpha : 1f;
+            };
+            router.Show(ShellPanelId.Shop);
+            Assert.AreEqual(1f, alphaWhileOpening);
+            Assert.IsTrue(shop.activeSelf);
+            Assert.IsFalse(home.activeSelf);
+            Assert.AreEqual(1f, shop.GetComponent<CanvasGroup>().alpha);
+        }
+
+        [Test]
         public void DragCancelsSmoothMapFocusAtCurrentPosition()
         {
             var map = Rect("Map");
