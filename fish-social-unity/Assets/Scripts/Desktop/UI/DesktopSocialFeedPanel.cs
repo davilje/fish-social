@@ -80,6 +80,9 @@ namespace FishSocial.Desktop
         public void OnClosed()
         {
             _isOpen = false;
+            if (_categoryMotion != null) StopCoroutine(_categoryMotion);
+            _categoryMotion = null;
+            GetComponent<CozyJournalPageMotion>()?.Finish();
             if (_composer != null) _composer.Close(true);
             _loadGeneration++;
             if (_loadRoutine != null)
@@ -209,7 +212,7 @@ namespace FishSocial.Desktop
             ClearContent();
             if(_scroll!=null) _scroll.verticalNormalizedPosition=1f;
             Refresh();
-            motion?.PlayEntrance(0);
+            // Start the heading/aside with received content rather than fading while the HTTP request is pending.
             _categoryMotion=null;
         }
 
@@ -309,6 +312,7 @@ namespace FishSocial.Desktop
 
             if (!ok)
             {
+                GetComponent<CozyJournalPageMotion>()?.Finish();
                 SetStatus(error ?? "动态加载失败，请稍后重新打开页面。");
                 CreateRetry();
                 _loadRoutine = null;
@@ -320,6 +324,7 @@ namespace FishSocial.Desktop
                 if (!append)
                 {
                     ClearContent();
+                    GetComponent<CozyJournalPageMotion>()?.Finish();
                     SetStatus(mineOnly ? "还没有分享鱼获。" : friendsOnly ? "暂无好友动态。" : "暂无公开动态。");
                 }
                 _hasLoaded = true;
@@ -348,6 +353,11 @@ namespace FishSocial.Desktop
             _hasLoaded = true;
             _loadedFriendsOnly = friendsOnly;
             _loadedMineOnly = mineOnly;
+            if (!append)
+            {
+                foreach(var sticker in _content.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
+                GetComponent<CozyJournalPageMotion>()?.PlayEntrance(posts.Length);
+            }
 
             _loadRoutine = null;
             _loadingMore = false;
@@ -367,29 +377,46 @@ namespace FishSocial.Desktop
             }
             DesktopModalUi.StyleTree(card.transform);
             binder.Bind(post, _api);
-            if (_commentsHost != null)
-                binder.ConfigureCommentsHost(_commentsHost, selectedCard =>
-                {
-                    if (_selectedComments != null && _selectedComments != selectedCard)
-                        _selectedComments.CloseComments();
-                    _selectedComments = selectedCard;
-                    foreach(var postCard in _content.GetComponentsInChildren<DesktopSocialPostCard>())
-                        postCard.GetComponent<CozyStickerMotion>()?.SetSelected(postCard==selectedCard);
-                    if (_commentsTitle != null)
-                        _commentsTitle.text = transform.Find("JournalDetailParity") != null
-                            ? (post.fish != null ? DesktopFishCatalog.SpeciesName(post.fish.speciesId) : "鱼获故事") + "\n" + post.commentCount + " 条评论"
-                            : (post.nickname ?? "钓友") + "的动态\n评论与留言";
-                    if (transform.Find("JournalDetailParity") != null)
-                    {
-                        CozyItemArt.Text(transform, "DesignFeedInfo/Heading", "给 " + (post.nickname ?? "钓友") + " 的留言");
-                        CozyItemArt.Set(transform, "DesignFeedInfo/JournalSummaryArt", post.fish != null ? CozyItemArt.Fish(post.fish.speciesId) : null);
-                    }
-                    var body = transform.Find("DesignFeedInfo/Body");
-                    if (body != null) body.gameObject.SetActive(false);
-                    var note = transform.Find("DesignFeedInfo/Note");
-                    if (note != null) note.gameObject.SetActive(false);
-                });
+            if (_commentsHost != null) binder.ConfigureCommentsHost(_commentsHost, SelectCommentCard);
+            binder.CommentCountChanged += count => { if (_selectedComments == binder) CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",count+" 条评论"); };
             if (_commentsHost != null && _selectedComments == null) binder.SelectComments();
+        }
+
+        void SelectCommentCard(DesktopSocialPostCard selectedCard)
+        {
+            if(selectedCard==null)return;
+            var post=selectedCard.Post;
+            if (_selectedComments != null && _selectedComments != selectedCard)
+                _selectedComments.CloseComments();
+            _selectedComments = selectedCard;
+            foreach(var postCard in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+                postCard.GetComponent<CozyStickerMotion>()?.SetSelected(postCard==selectedCard);
+            selectedCard.GetComponent<CozyStickerMotion>()?.ReplayTape();
+            var empty = transform.Find("DesignFeedInfo/CommentEmpty"); if(empty != null) empty.gameObject.SetActive(false);
+            if (_commentsTitle != null)
+                _commentsTitle.text = transform.Find("JournalDetailParity") != null
+                    ? (post.fish != null ? DesktopFishCatalog.SpeciesName(post.fish.speciesId) : "鱼获故事")
+                    : (post.nickname ?? "钓友") + "的动态\n评论与留言";
+            if (transform.Find("JournalDetailParity") != null)
+            {
+                CozyItemArt.Text(transform, "DesignFeedInfo/Heading", "给 " + (post.nickname ?? "钓友") + " 的留言");
+                CozyItemArt.Set(transform, "DesignFeedInfo/JournalSummaryArt", post.fish != null ? CozyItemArt.Fish(post.fish.speciesId) : null);
+            }
+            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",selectedCard.CommentCount+" 条评论");
+            var body = transform.Find("DesignFeedInfo/Body");
+            if (body != null) body.gameObject.SetActive(false);
+            var note = transform.Find("DesignFeedInfo/Note");
+            if (note != null) note.gameObject.SetActive(false);
+        }
+
+        /// <summary>Use the same selection and comment renderer for a supplied snapshot without a network request.</summary>
+        public void PresentSelectedComments(DesktopSocialPostCard card,PostCommentDto[] comments,int totalCount)
+        {
+            if(card==null)return;
+            EnsureUi();
+            card.ConfigureCommentsHost(_commentsHost,SelectCommentCard);
+            card.PresentComments(comments,totalCount);
+            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",card.CommentCount+" 条评论");
         }
 
         void OnPostLiked(PostLikedDto message)
@@ -417,13 +444,15 @@ namespace FishSocial.Desktop
         {
             if (_selectedComments != null) _selectedComments.CloseComments();
             _selectedComments = null;
+            var empty=transform.Find("DesignFeedInfo/CommentEmpty");if(empty!=null)empty.gameObject.SetActive(true);
+            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount","");
             if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
             if (_content == null)
                 return;
             for (var i = _content.childCount - 1; i >= 0; i--)
             {
-                _content.GetChild(i).gameObject.SetActive(false);
-                Destroy(_content.GetChild(i).gameObject);
+                var child=_content.GetChild(i);child.gameObject.SetActive(false);child.SetParent(null,false);
+                if(Application.isPlaying) Destroy(child.gameObject);else DestroyImmediate(child.gameObject);
             }
         }
 

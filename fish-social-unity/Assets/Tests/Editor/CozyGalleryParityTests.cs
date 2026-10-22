@@ -62,8 +62,8 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(DesktopGameData.SpeciesName(unlockedId), unlocked.Find("Label").GetComponent<Text>().text);
             Assert.AreEqual(Color.white, unlocked.Find("FishArt").GetComponent<Image>().color);
             Assert.IsNotNull(unlocked.Find("FishArt").GetComponent<Image>().sprite);
-            Assert.AreEqual("？？？", locked.Find("Label").GetComponent<Text>().text);
-            Assert.AreEqual(new Color(0, 0, 0, .26f), locked.Find("FishArt").GetComponent<Image>().color);
+            Assert.AreEqual("尚未发现", locked.Find("Label").GetComponent<Text>().text);
+            Assert.AreEqual(new Color(.3f, .25f, .2f, .45f), locked.Find("FishArt").GetComponent<Image>().color);
             Assert.That(page.transform.Find("Detail/Viewport/Body").GetComponent<Text>().text, Does.Contain("累计捕获：7"));
             locked.GetComponent<Button>().onClick.Invoke();
             Assert.AreEqual(lockedId, view.SelectedSpeciesId);

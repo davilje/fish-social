@@ -24,6 +24,8 @@ namespace FishSocial.Desktop.Editor
             Render("PanelSocialFeed", "发布");
             foreach (var tab in new[] { "展示柜", "图鉴", "相册" })
                 Render("PanelProfileHub", tab);
+            foreach (var section in new[] { "好友申请", "私信", "鱼塘聊天", "消息通知" })
+                Render("PanelSocial", section);
         }
 
         public static void RenderMotionAll()
@@ -68,8 +70,8 @@ namespace FishSocial.Desktop.Editor
                 main.Find("Header/Home").gameObject.SetActive(false);
                 CozyItemArt.Text(main, "Header/ProfileCard/Name", "小橘");
                 CozyItemArt.Text(main, "Header/ProfileCard/Level", "Lv.7");
-                CozyItemArt.Text(main, "Header/ProfileCard/XpLabel", "320 / 500");
-                DesktopModalUi.SetXpFill(DesktopModalUi.FindXpFill(main.Find("Header")), 320f / 500f);
+                CozyItemArt.Text(main, "Header/ProfileCard/XpLabel", "320 / 650");
+                DesktopModalUi.SetXpFill(DesktopModalUi.FindXpFill(main.Find("Header")), 320f / 650f);
                 CozyItemArt.Text(main, "Header/FishCoins/Amount", "8,600");
                 CozyItemArt.Text(main, "Header/CatchCount/Amount", "24");
                 var page = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + name + ".prefab"), main.Find("Content"), false);
@@ -78,6 +80,10 @@ namespace FishSocial.Desktop.Editor
                 rect.anchoredPosition = new Vector2(160, -150);
                 rect.sizeDelta = new Vector2(1370, 650);
                 Fill(page, name, tab);
+                CozyProfileRefinementPreview.Fill(page, tab);
+                CozySocialRefinementPreview.Fill(page);
+                if(name=="PanelSocial")
+                    page.GetComponent<DesktopSocialModalView>().PreviewSection(tab=="好友申请"?SocialSection.Requests:tab=="私信"?SocialSection.DirectMessages:tab=="鱼塘聊天"?SocialSection.PondChat:tab=="消息通知"?SocialSection.Notifications:SocialSection.Friends);
                 var navName=name=="PanelCatch"?"CatchBag":name=="PanelShop"?"Shop":name=="PanelEquipment"?"Equipment":name=="PanelAchievements"?"Achievements":name=="PanelLeaderboard"?"Leaderboard":name=="PanelSocialFeed"?"SocialFeed":name=="PanelProfileHub"||name=="PanelProfileEdit"?"Profile":null;
                 var nav=main.Find("Nav");
                 foreach(var b in nav.GetComponentsInChildren<Button>(true)) b.GetComponent<CozyButtonVisual>()?.SetSelected(b.name==navName);
@@ -122,7 +128,7 @@ namespace FishSocial.Desktop.Editor
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
                 Canvas.ForceUpdateCanvases();
                 CozyJournalInlineContent.ReflowTree(shell.transform);
-                foreach (var pose in shell.GetComponentsInChildren<CozyJournalStaticPose>(true)) pose.Refresh();
+                foreach (var pose in shell.GetComponentsInChildren<CozyJournalStaticPose>(true)) pose.ApplyFinalPose();
                 foreach (var visual in shell.GetComponentsInChildren<CozyButtonVisual>(true)) visual.ApplyFinalPose();
                 foreach (var motion in shell.GetComponentsInChildren<CozyStickerMotion>(true)) motion.ApplyFinalPose();
                 if(motionCase=="index")
@@ -339,11 +345,7 @@ namespace FishSocial.Desktop.Editor
                     var cards = root.Find("PondCardScroll/Viewport/Cards");
                     for (var i = 0; i < cards.childCount && i < ponds.Length; i++)
                     {
-                        CozyItemArt.Set(cards.GetChild(i), "Photo", CozyJournalTheme.Sprite("ponds/" + ponds[i].pondId));
-                        CozyItemArt.Text(cards.GetChild(i), "Name", ponds[i].displayName);
-                        CozyItemArt.Text(cards.GetChild(i), "Access", state.AccessReason(ponds[i]));
-                        CozyItemArt.Text(cards.GetChild(i), "Description", DesktopGameData.CategoryLabel(ponds[i].pondCategory) + "\n" + DesktopGameData.PondSpeciesSummary(ponds[i].pondId, 3));
-                        CozyItemArt.Text(cards.GetChild(i), "Fee", state.ActiveFee(ponds[i]) == 0 ? "免费入塘" : "入场费：" + state.ActiveFee(ponds[i]) + " 金币 / 2 小时");
+                        cards.GetChild(i).GetComponent<CozyPondCardContent>()?.Bind(ponds[i], DesktopGameData.GetPond(ponds[i].pondId), state);
                         Select(cards.GetChild(i).gameObject, ponds[i] == selected);
                     }
                     CozyItemArt.Text(root, "ResultCount", "全部鱼塘 · " + ponds.Length);
@@ -513,6 +515,7 @@ namespace FishSocial.Desktop.Editor
                     };
                 root.GetComponent<DesktopLeaderboardPanel>().PresentRows(snapshot);
                 root.GetComponent<DesktopLeaderboardPanel>().SelectPlayer(snapshot[0]);
+                root.GetComponent<DesktopLeaderboardPanel>().SampleMotion(.22f);
                 Select(root.Find("Tabs/Daily").gameObject, true);
                 CozyItemArt.Set(root, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait("/image/profile/cat_avatar_calico.png"));
                 CozyItemArt.Text(root, "DesignPlayerCard/Heading", "钓友名片  #1");

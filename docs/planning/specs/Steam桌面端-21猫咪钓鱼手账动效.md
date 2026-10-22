@@ -54,6 +54,7 @@
 |------|------|
 | 2026-10-21 | 用户确认手账动效方案。规格记为已确认，开始按原型接入桌面端。 |
 | 2026-10-22 | 用户认可远端逐项对齐后的修复版，结束 JournalV2 替换推进；正式入口沿用 DesktopShellUi / PanelRouter。Windows/Steam 平台验收仍待完成。 |
+| 2026-10-22 | 按新增八类缺口补排行榜渐变资源、经验条、动态排版与入场、收藏/成就标签与印章；分离好友申请、私信、塘聊及通知，修正选塘和地图排布。详见缺口修复记录。 |
 
 ## 4. 本轮实施证据
 
@@ -62,3 +63,5 @@
 详见 [UI 实施记录](../../design/ui/2026-10-21-cozy-journal-unity-implementation.md) 与 [正式页面截图](../../art/cozy-journal/production/index.html)。
 
 2026-10-22：用户认可远端 `be6f2bdf` 修复版，沿用现有正式入口，结束 JournalV2 替换推进。本地补充组件初始化、档位遮挡顺序与昵称排布健壮性修复，Unity EditMode 全套 **448/448** 通过。范围及证据见 [已认可基线记录](../../design/ui/2026-10-22-cozy-journal-approved-baseline.md)；Windows/Steam 平台待办继续保留。
+
+新增缺口的正式预制体及社交分区实现见 [八类缺口修复记录](../../design/ui/2026-10-22-cozy-journal-detail-refinements.md)。本轮全套 EditMode **468/468**、构建守卫 **PASS**；刷新 21 个原生页面/状态截图，以及页签与排行榜选择的 11 对网页/Unity 动画采样帧。这些编辑器证据不替代 Windows 实机和真实账号验收。

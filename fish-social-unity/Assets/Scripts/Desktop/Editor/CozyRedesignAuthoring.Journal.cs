@@ -197,6 +197,7 @@ namespace FishSocial.Desktop.Editor
             ApplyToggleParity(root);
             CanonicalizeScrollContents(root);
             RemoveObsoleteLayouts(root);
+            ApplyApprovedRefinements(root);
         }
 
         static void CanonicalizeScrollContents(GameObject root)

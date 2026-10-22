@@ -65,6 +65,8 @@ namespace FishSocial.Desktop
         Text _headerCatchCount;
         Image _headerXpFill;
         Image _headerAvatar;
+        Text _headerUnread;
+        GameObject _headerUnreadBadge;
         string _headerAvatarSkin;
         SpriteFramePetRenderer _homeRenderer;
         bool _balanceLoading;
@@ -99,6 +101,30 @@ namespace FishSocial.Desktop
         {
             ShowMainPanel(ShellPanelId.Friends);
             _socialPanel?.OpenDirectMessage(playerId, nickname);
+        }
+
+        public void OpenFriends()
+        {
+            ShowMainPanel(ShellPanelId.Friends);
+            _socialPanel?.OpenSection(SocialSection.Friends);
+        }
+
+        public void OpenFriendRequests()
+        {
+            ShowMainPanel(ShellPanelId.Friends);
+            _socialPanel?.OpenFriendRequests();
+        }
+
+        public void OpenNotifications()
+        {
+            ShowMainPanel(ShellPanelId.Friends);
+            _socialPanel?.OpenNotifications();
+        }
+
+        void RefreshSocialUnread(int count)
+        {
+            if (_headerUnreadBadge != null) _headerUnreadBadge.SetActive(count > 0);
+            if (_headerUnread != null) _headerUnread.text = count > 99 ? "99+" : count.ToString();
         }
 
         public void Build(PanelRouter router)
@@ -222,7 +248,10 @@ namespace FishSocial.Desktop
             DesktopModalUi.BindButton(header, "ProfileCard", () => OpenProfileHub());
             DesktopModalUi.BindButton(header, "FishCoins/Plus", () => ShowMainPanel(ShellPanelId.Shop));
             DesktopModalUi.BindButton(header, "CatchCount", () => ShowMainPanel(ShellPanelId.CatchBag));
-            DesktopModalUi.BindButton(header, "Mail", () => ShowMainPanel(ShellPanelId.Friends));
+            _headerUnreadBadge = header.Find("Mail/UnreadBadge")?.gameObject;
+            _headerUnread = DesktopModalUi.FindComponent<Text>(header, "Mail/UnreadBadge/Count");
+            DesktopModalUi.BindButton(header, "Mail", OpenNotifications);
+            RefreshSocialUnread(_socialPanel != null ? _socialPanel.UnreadCount : 0);
             DesktopModalUi.BindButton(header, "Settings", () => ShowMainPanel(ShellPanelId.Settings));
             DesktopModalUi.BindButton(header, "WorldMapEntry", () => ShowMainPanel(ShellPanelId.WorldMap));
             CozySurplus.Park(header.Find("Status")?.gameObject);
@@ -460,7 +489,7 @@ namespace FishSocial.Desktop
                     ShowMainPanel(ShellPanelId.Shop);
                     break;
                 case DesktopProductMenuAction.Friends:
-                    ShowMainPanel(ShellPanelId.Friends);
+                    OpenFriends();
                     break;
                 case DesktopProductMenuAction.CatchBag:
                     ShowMainPanel(ShellPanelId.CatchBag);
@@ -636,6 +665,11 @@ namespace FishSocial.Desktop
 
         void OnDestroy()
         {
+            if (_socialPanel != null)
+            {
+                _socialPanel.UnreadChanged -= RefreshSocialUnread;
+                _socialPanel.PondRequested -= OpenSocialPond;
+            }
             if (_router != null)
                 _router.PanelChanged -= OnPanelChanged;
             _socialPanel?.OnClosed();
@@ -1064,9 +1098,8 @@ namespace FishSocial.Desktop
 
         void OnFriendRequestNotify(FriendRequestDto request)
         {
-            DesktopNotificationService.Instance?.Publish(new DesktopNotification(
-                NotificationKind.FriendInvite, "好友请求",
-                (request != null ? request.fromNickname : "钓友") + " 想添加你为好友。"));
+            // The social inbox classifies this socket event once and routes it to Requests.
+            ShowToast((request != null ? request.fromNickname : "钓友") + " 想添加你为好友。");
         }
 
         void OnPondError(string message)
@@ -1212,7 +1245,15 @@ namespace FishSocial.Desktop
         {
             _socialPanel = DesktopFeaturePanelFactory.BindExisting<DesktopSocialModalView>(go,
                 view => view.Bind(_authenticatedApi, _pondSession, _socialLobby));
+            if (_socialPanel != null)
+            {
+                _socialPanel.UnreadChanged += RefreshSocialUnread;
+                _socialPanel.PondRequested += OpenSocialPond;
+                RefreshSocialUnread(_socialPanel.UnreadCount);
+            }
         }
+
+        void OpenSocialPond() { ShowMainPanel(ShellPanelId.WorldMap); }
 
         void BuildCatchPanel(GameObject go)
         {

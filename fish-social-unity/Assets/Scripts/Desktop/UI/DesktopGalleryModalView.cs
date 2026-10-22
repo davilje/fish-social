@@ -166,6 +166,8 @@ namespace FishSocial.Desktop
                 }
                 var rarity = DesktopModalUi.FindComponent<Text>(slot.transform, "Rarity");
                 if (rarity != null) rarity.text = unlocked ? DesktopGameData.RarityLabel(def.rarityTier) : "未解锁";
+                var collection=slot.GetComponent<CozyProfileCollectionCard>();
+                if(collection!=null) collection.Bind(unlocked?DesktopGameData.SpeciesName(def.speciesId):"尚未发现",unlocked?"累计捕获 "+entry.totalCaught+" 次":"捕获后解锁",CozyItemArt.Fish(def.speciesId),!unlocked,unlocked);
                 var captured = def.speciesId;
                 var button = slot.GetComponent<Button>();
                 if (button != null)

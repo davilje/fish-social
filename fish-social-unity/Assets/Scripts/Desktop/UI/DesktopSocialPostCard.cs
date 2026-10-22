@@ -54,8 +54,8 @@ namespace FishSocial.Desktop
                 return;
             }
             RenderPost();
-            RefreshCardLayout();
             RestyleUi();
+            RefreshCardLayout();
             BindActions();
             if (transform.Find("JournalCatch") != null)
             {
@@ -65,6 +65,11 @@ namespace FishSocial.Desktop
                 if (!Application.isPlaying) motion.ApplyFinalPose();
             }
         }
+
+        public string PostId => _post?.id;
+        public SocialPostDto Post => _post;
+        public int CommentCount => _post?.commentCount ?? 0;
+        public event Action<int> CommentCountChanged;
 
         void ResolveBindings()
         {
@@ -126,9 +131,10 @@ namespace FishSocial.Desktop
                 _fishInfoText.text = _post.fish != null ? _post.fish.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(_post.fish.quality) : "";
             if (_likeButton != null)
                 SetButtonText(_likeButton,
-                    (_post.likedByMe ? "已赞 " : "点赞 ") + _post.likeCount);
+                    (_post.likedByMe ? "♥ 已赞 " : "♡ 点赞 ") + _post.likeCount);
             if (_commentsButton != null)
                 SetButtonText(_commentsButton, "评论 " + _post.commentCount);
+            CommentCountChanged?.Invoke(_post.commentCount);
             if (_commentsPanel != null)
                 _commentsPanel.SetActive(false);
             if (_photo != null)
@@ -169,6 +175,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.StyleButton(_commentsButton, "social");
             DesktopModalUi.StyleButton(_sendCommentButton, "check", true);
             SetButtonText(_sendCommentButton, transform.Find("JournalCatch") != null ? "留下鼓励" : "发送评论");
+            RefreshLikeColor();
         }
 
 
@@ -186,7 +193,7 @@ namespace FishSocial.Desktop
             var journalCatch = transform.Find("JournalCatch") as RectTransform;
             if (journalCatch != null)
             {
-                var storyHeight = Mathf.Max(29, _bodyText.preferredHeight);
+                var storyHeight = CozySocialText.Apply(_bodyText, 17, 28.9f, _bodyText.rectTransform.rect.width > 1 ? _bodyText.rectTransform.rect.width : 640);
                 _bodyText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, storyHeight);
                 var catchTop = 76 + storyHeight + 12;
                 journalCatch.anchoredPosition = new Vector2(18, -catchTop);
@@ -194,6 +201,7 @@ namespace FishSocial.Desktop
                 var footer = transform.Find("Actions") as RectTransform;
                 if (footer != null) footer.anchoredPosition = new Vector2(18, -(catchTop + 102));
                 var cardHeight = catchTop + 154;
+                _bodyText.alignment = TextAnchor.UpperLeft;
                 var inlineComments = _commentsPanel.transform as RectTransform;
                 if (_commentsHost == null || inlineComments.parent != _commentsHost)
                 {
@@ -243,10 +251,11 @@ namespace FishSocial.Desktop
         {
             if (_likeButton == null || _post == null) return;
             _likeButton.interactable = true;
-            if (!ok) return;
+            if (!ok) { CozyActionFeedback.Play(_likeButton.transform,false,"点赞失败"); return; }
             _post.likedByMe = liked;
             _post.likeCount = count;
-            SetButtonText(_likeButton, (liked ? "已赞 " : "点赞 ") + count);
+            SetButtonText(_likeButton, (liked ? "♥ 已赞 " : "♡ 点赞 ") + count);
+            RefreshLikeColor();
             var rect = _likeButton.transform as RectTransform;
             CozyMotion.Cancel(rect);
             var visual = _likeButton.GetComponent<CozyButtonVisual>();
@@ -259,6 +268,22 @@ namespace FishSocial.Desktop
                 cleanup: () => { if (visual != null) visual.SetMotionScale(Vector2.one); });
         }
 
+        void RefreshLikeColor()
+        {
+            if (_likeButton == null || _post == null) return;
+            var label = _likeButton.transform.Find("Label")?.GetComponent<Text>();
+            var visual = _likeButton.GetComponent<CozyButtonVisual>();
+            if(visual != null) visual.SetTint(_post.likedByMe ? (Color)new Color32(255,240,237,255) : Color.white);
+            if(label != null) label.color = _post.likedByMe ? (Color)new Color32(218,109,108,255) : CatTheme.Ink;
+        }
+
+        void CommentStatus(string value)
+        {
+            if(_commentsPanel == null) return;
+            var text = _commentsPanel.transform.Find("CommentStatus")?.GetComponent<Text>();
+            if(text != null) { text.text = value ?? ""; text.gameObject.SetActive(!string.IsNullOrEmpty(value)); }
+        }
+
         void OnDisable()
         {
             if (_likeButton != null) CozyMotion.Cancel(_likeButton.transform as RectTransform);
@@ -269,7 +294,7 @@ namespace FishSocial.Desktop
             if (_post == null || message == null || message.postId != _post.id) return;
             _post.likeCount = message.likeCount;
             if (_api != null && message.playerId == _api.PlayerId) _post.likedByMe = message.liked;
-            SetButtonText(_likeButton, (_post.likedByMe ? "已赞 " : "点赞 ") + _post.likeCount);
+            SetButtonText(_likeButton, (_post.likedByMe ? "♥ 已赞 " : "♡ 点赞 ") + _post.likeCount);
         }
 
         public void ApplyCommented(PostCommentedDto message)
@@ -279,6 +304,7 @@ namespace FishSocial.Desktop
             if (!_commentRows.ContainsKey(message.comment.id ?? string.Empty))
                 _post.commentCount++;
             SetButtonText(_commentsButton, "评论 " + _post.commentCount);
+            CommentCountChanged?.Invoke(_post.commentCount);
             if (_commentsPanel != null && _commentsPanel.activeSelf) AddCommentRow(message.comment);
         }
 
@@ -287,6 +313,7 @@ namespace FishSocial.Desktop
             if (_post == null || message == null || message.postId != _post.id) return;
             _post.commentCount = message.commentCount;
             SetButtonText(_commentsButton, "评论 " + _post.commentCount);
+            CommentCountChanged?.Invoke(_post.commentCount);
             if (message.commentId != null && _commentRows.TryGetValue(message.commentId, out var row))
             {
                 _commentRows.Remove(message.commentId);
@@ -298,7 +325,7 @@ namespace FishSocial.Desktop
         {
             _commentsHost = host;
             _selectComments = select;
-            _commentsHome = _commentsPanel != null ? _commentsPanel.transform.parent : null;
+            if (_commentsHome == null && _commentsPanel != null) _commentsHome = _commentsPanel.transform.parent == host ? transform : _commentsPanel.transform.parent;
         }
 
         public void CloseComments()
@@ -328,8 +355,9 @@ namespace FishSocial.Desktop
 
         public void SelectComments()
         {
-            if (_commentsPanel != null && (!_commentsPanel.activeSelf || _commentsLoadFailed))
-                ToggleComments();
+            if (_commentsPanel == null) return;
+            if (_commentsPanel.activeSelf && !_commentsLoadFailed) { _selectComments?.Invoke(this); return; }
+            ToggleComments();
         }
 
         void ToggleComments()
@@ -363,6 +391,7 @@ namespace FishSocial.Desktop
             _commentsLoadFailed = false;
             ClearComments();
             _commentsPanel.SetActive(true);
+            CommentStatus("正在加载留言…");
             RefreshCardLayout();
             StartCoroutine(_api.GetPostComments(_post.id,
                 (ok, comments, count, message) =>
@@ -373,14 +402,31 @@ namespace FishSocial.Desktop
                     if (!ok)
                     {
                         _commentsLoadFailed = true;
+                        CommentStatus("留言加载失败，点击卡片重试。");
                         SetButtonText(_commentsButton, "评论加载失败 · 重试");
                         return;
                     }
-                    _post.commentCount = count;
-                    SetButtonText(_commentsButton, "评论 " + count);
-                    for (var i = 0; comments != null && i < comments.Length; i++)
-                        AddCommentRow(comments[i]);
+                    PresentComments(comments, count, false);
                 }));
+        }
+
+        /// <summary>Render a completed server snapshot, also used by deterministic editor fixtures.</summary>
+        public void PresentComments(PostCommentDto[] comments, int totalCount, bool select = true)
+        {
+            if (_post == null || _commentsPanel == null) return;
+            if(select)_selectComments?.Invoke(this);
+            if (_commentsHost != null)
+            {
+                var rect=(RectTransform)_commentsPanel.transform;
+                rect.SetParent(_commentsHost,false);rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;
+                rect.offsetMin=rect.offsetMax=Vector2.zero;rect.localScale=Vector3.one;
+            }
+            _commentsLoadFailed=false;ClearComments();_commentsPanel.SetActive(true);
+            _post.commentCount=totalCount;CommentCountChanged?.Invoke(totalCount);
+            SetButtonText(_commentsButton,"评论 "+totalCount);
+            CommentStatus(comments==null||comments.Length==0?"还没有留言\n给钓友留一句鼓励吧":"");
+            for(var i=0;comments!=null&&i<comments.Length;i++)AddCommentRow(comments[i]);
+            RefreshCardLayout();
         }
 
         void AddCommentRow(PostCommentDto comment)
@@ -395,7 +441,13 @@ namespace FishSocial.Desktop
             if (label != null)
             {
                 label.supportRichText = false;
-                label.text = (comment.nickname ?? "钓友") + "：" + comment.text;
+                var author = row.transform.Find("Author")?.GetComponent<Text>();
+                if(author != null) { author.supportRichText=false;author.text=comment.nickname??"钓友";label.text=comment.text??""; }
+                else label.text = (comment.nickname ?? "钓友") + "：" + comment.text;
+                var height=CozySocialText.Apply(label,15,24,label.rectTransform.rect.width>1?label.rectTransform.rect.width:280);
+                label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,height);
+                var layout=row.GetComponent<LayoutElement>();if(layout!=null)layout.preferredHeight=Mathf.Max(84,height+50);
+                CommentStatus("");
             }
             var delete = FindIn<Button>(row, "Delete");
             if (label == null || delete == null)
@@ -408,7 +460,7 @@ namespace FishSocial.Desktop
             if (!string.IsNullOrEmpty(comment.id)) _commentRows[comment.id] = row;
             RestyleCommentRow(row, label, delete);
             if (delete != null &&
-                _api.PlayerId != comment.playerId && _api.PlayerId != _post.playerId)
+                (_api == null || (_api.PlayerId != comment.playerId && _api.PlayerId != _post.playerId)))
                 delete.gameObject.SetActive(false);
             if (delete != null)
             {
@@ -438,6 +490,7 @@ namespace FishSocial.Desktop
                         return;
                     }
                     _post.commentCount = count;
+                    CommentCountChanged?.Invoke(count);
                     SetButtonText(_commentsButton, "评论 " + count);
                     if (!string.IsNullOrEmpty(comment.id)) _commentRows.Remove(comment.id);
                     if (row != null)
@@ -454,20 +507,21 @@ namespace FishSocial.Desktop
                 _sendCommentButton == null)
                 return;
             var value = (_commentInput.text ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(value) || value.Length > 200)
-                return;
+            if (string.IsNullOrEmpty(value) || value.Length > 200) { CommentStatus("请输入 1–200 字的留言。"); return; }
             _sendCommentButton.interactable = false;
             StartCoroutine(_api.AddPostComment(_post.id, value,
                 (ok, comment, count, message) =>
                 {
                     if (this == null || _sendCommentButton == null) return;
                     _sendCommentButton.interactable = true;
-                    SetButtonText(_sendCommentButton, ok ? "发送评论" : "发送失败 · 重试");
+                    SetButtonText(_sendCommentButton, ok ? "留下鼓励" : "发送失败 · 重试");
+                    CommentStatus(ok ? "" : "发送失败，留言文字已保留。");
                     if (!ok)
                         return;
                     _post.commentCount = count;
+                    CommentCountChanged?.Invoke(count);
                     SetButtonText(_commentsButton, "评论 " + count);
-                    _commentInput.text = string.Empty;
+                    if(_commentInput.text.Trim()==value) _commentInput.text = string.Empty;
                     AddCommentRow(comment);
                 }));
         }
@@ -479,8 +533,8 @@ namespace FishSocial.Desktop
                 return;
             for (var i = _commentsContent.childCount - 1; i >= 0; i--)
             {
-                _commentsContent.GetChild(i).gameObject.SetActive(false);
-                Destroy(_commentsContent.GetChild(i).gameObject);
+                var child=_commentsContent.GetChild(i);child.gameObject.SetActive(false);child.SetParent(null,false);
+                if(Application.isPlaying)Destroy(child.gameObject);else DestroyImmediate(child.gameObject);
             }
         }
 

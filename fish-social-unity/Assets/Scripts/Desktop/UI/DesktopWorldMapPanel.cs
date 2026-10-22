@@ -374,6 +374,7 @@ namespace FishSocial.Desktop
             {
                 text.text = label;
                 text.color = enabled ? CatTheme.Cream : CatTheme.Ink;
+                _enter.GetComponent<CozyJournalInlineContent>()?.Reflow();
             }
         }
 

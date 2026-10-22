@@ -44,6 +44,8 @@ namespace FishSocial.Desktop.Editor
                     Inspect();
                 else if (action == "apply")
                     Apply();
+                else if (action == "refine")
+                    ApplyRefinements();
                 else if (action == "verify")
                     Verify();
                 else if (action == "preview")

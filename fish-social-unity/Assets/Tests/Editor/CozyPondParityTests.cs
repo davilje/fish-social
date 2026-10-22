@@ -136,7 +136,7 @@ namespace FishSocial.Tests.Editor
             Assert.IsNotNull(grid); Assert.IsTrue(grid.enabled);
             Assert.IsNull(cards.GetComponent<VerticalLayoutGroup>());
             Assert.AreEqual(2, grid.constraintCount);
-            Assert.AreEqual(new Vector2(329.5f, 220), grid.cellSize);
+            Assert.AreEqual(new Vector2(329.5f, 248), grid.cellSize);
             Assert.AreEqual(new Vector2(23,23), grid.spacing);
             Assert.AreEqual(Vector2.zero, Rect(root,"PondCardScroll/Viewport").offsetMin);
         }

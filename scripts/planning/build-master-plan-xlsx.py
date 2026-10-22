@@ -1024,10 +1024,10 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "—",
         "hotfix",
         "P1",
-        "10/22用户认可远端be6f2bdf逐项对齐修复版，沿用正式UI，结束JournalV2替换推进；Unity回归448/448，Windows联机/DPI待验收",
+        "10/22沿用认可版并补八类UI缺口：渐变/经验条/动态/收藏标签/社交分区/选塘地图；Unity回归468/468、守卫PASS、21状态截图；Windows联机/DPI待验收",
         "docs/planning/specs/Steam桌面端-21猫咪钓鱼手账动效.md",
         "2026-10-21",
-        "2026-10-21",
+        "2026-10-22",
     ],
     [
         "已确认",
