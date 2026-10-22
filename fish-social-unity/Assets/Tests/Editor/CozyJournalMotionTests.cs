@@ -191,6 +191,27 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
+        public void RouterSettledTabClickDoesNotNotifyAgain()
+        {
+            var router = root.AddComponent<PanelRouter>();
+            var home = Rect("Home").gameObject;
+            var shop = Rect("Shop").gameObject;
+            router.Register(ShellPanelId.Home, home);
+            router.Register(ShellPanelId.Shop, shop);
+            var calls = 0;
+            router.PanelChanged += id => calls++;
+            router.Show(ShellPanelId.Shop);
+            CozyMotion.Tick(1);
+            CozyMotion.Tick(1);
+            var afterArrival = calls;
+            router.Show(ShellPanelId.Shop);
+            Assert.AreEqual(afterArrival, calls);
+            Assert.AreEqual(ShellPanelId.Shop, router.Current);
+            Assert.IsTrue(shop.activeSelf);
+            Assert.IsFalse(home.activeSelf);
+        }
+
+        [Test]
         public void RouterSynchronousRedirectWinsOverOuterRoute()
         {
             var router = root.AddComponent<PanelRouter>();

@@ -750,6 +750,8 @@ namespace FishSocial.Desktop
                 Debug.LogError("[DesktopUI] Serialized page slot is missing: " + id);
                 return;
             }
+            if (id == ShellPanelId.ProfileEdit)
+                FitJournalPageSlot(slot as RectTransform);
             var prefabName = PagePrefabName(id);
             var instance = DesktopUiPrefabFactory.Instantiate(prefabName, slot);
             if (instance == null)
@@ -775,6 +777,16 @@ namespace FishSocial.Desktop
             if (id == ShellPanelId.CatchBag)
                 CozyWebStage.AlignBag(instance.transform);
             _router.Register(id, slot.gameObject);
+        }
+
+        static void FitJournalPageSlot(RectTransform slot)
+        {
+            if (slot == null)
+                return;
+            slot.anchorMin = slot.anchorMax = new Vector2(0f, 1f);
+            slot.pivot = new Vector2(0f, 1f);
+            slot.anchoredPosition = new Vector2(160f, -150f);
+            slot.sizeDelta = new Vector2(1370f, 650f);
         }
 
         static string PagePrefabName(ShellPanelId id)
@@ -812,6 +824,9 @@ namespace FishSocial.Desktop
                 SetStatusMessage("每日登录礼物尚未开放；可在商店查看钓鱼补给。");
             });
             DesktopModalUi.BindButton(go.transform, "MenuCard/SelectPond", () => ShowMainPanel(ShellPanelId.PondSelection));
+            var menu = go.transform.Find("MenuCard");
+            if (menu != null)
+                CozySurplus.Park(menu.gameObject);
             var hero = DesktopModalUi.FindComponent<Image>(go.transform, "HeroCat");
             if (hero != null)
             {

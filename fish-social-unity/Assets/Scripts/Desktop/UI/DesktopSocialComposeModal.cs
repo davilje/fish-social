@@ -32,6 +32,9 @@ namespace FishSocial.Desktop
         CanvasGroup _paperAlpha;
         Vector2 _paperRest;
         readonly List<string> _fishIds = new List<string>();
+        GameObject _choiceBlocker;
+        GameObject _choiceSheet;
+        Dropdown _choiceOwner;
 
         public const string ResourcePath = "Desktop/Prefabs/JournalComposeModal";
 
@@ -80,6 +83,8 @@ namespace FishSocial.Desktop
             _publish.onClick.AddListener(Submit);
             _story.onValueChanged.RemoveAllListeners();
             _story.onValueChanged.AddListener(value => _counter.text = value.Length + " / " + StoryLimit);
+            ArmPaperChoice(_fishChoice);
+            ArmPaperChoice(_visibilityChoice);
             return true;
         }
 
@@ -110,6 +115,7 @@ namespace FishSocial.Desktop
             if (_busy && !force) return;
             StopAllCoroutines();
             _busy = _loading = false;
+            ClosePaperChoices();
             ResetOpenMotion();
             _fishChoice.Hide();
             _visibilityChoice.Hide();
@@ -145,7 +151,11 @@ namespace FishSocial.Desktop
             RestorePaperPose();
         }
 
-        void OnDisable() { ResetOpenMotion(); }
+        void OnDisable()
+        {
+            ClosePaperChoices();
+            ResetOpenMotion();
+        }
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -156,7 +166,12 @@ namespace FishSocial.Desktop
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape)) Close();
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (_choiceSheet != null) ClosePaperChoices();
+                else Close();
+                return;
+            }
             if (!Input.GetKeyDown(KeyCode.Tab) || EventSystem.current == null) return;
             var choices = new List<Selectable>();
             foreach (var selectable in GetComponentsInChildren<Selectable>())
@@ -171,6 +186,7 @@ namespace FishSocial.Desktop
 
         IEnumerator LoadFish()
         {
+            ClosePaperChoices();
             _loading = true;
             _loadFailed = false;
             _status.text = "正在读取背包鱼获…";
@@ -267,5 +283,194 @@ namespace FishSocial.Desktop
             completed?.Invoke();
         }
 
+        void ArmPaperChoice(Dropdown dropdown)
+        {
+            if (dropdown == null || !dropdown.gameObject.scene.IsValid() || dropdown.transform.Find("ChoiceHit") != null)
+                return;
+            var hit = new GameObject("ChoiceHit", typeof(RectTransform), typeof(Image), typeof(CozyPaperChoice));
+            hit.transform.SetParent(dropdown.transform, false);
+            var rect = hit.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var image = hit.GetComponent<Image>();
+            image.color = new Color(0f, 0f, 0f, 0f);
+            image.raycastTarget = true;
+            hit.GetComponent<CozyPaperChoice>().Bind(dropdown, this);
+            hit.transform.SetAsLastSibling();
+        }
+
+        public void TogglePaperChoices(Dropdown dropdown)
+        {
+            if (dropdown == null || !dropdown.IsInteractable() || _paper == null)
+                return;
+            if (_choiceOwner == dropdown && _choiceSheet != null)
+            {
+                ClosePaperChoices();
+                return;
+            }
+            ClosePaperChoices();
+            if (dropdown.options == null || dropdown.options.Count == 0)
+                return;
+            _choiceOwner = dropdown;
+            _choiceBlocker = new GameObject("ChoiceBlocker", typeof(RectTransform), typeof(Image), typeof(Button));
+            _choiceBlocker.transform.SetParent(_paper, false);
+            var blockerRect = _choiceBlocker.GetComponent<RectTransform>();
+            blockerRect.anchorMin = Vector2.zero;
+            blockerRect.anchorMax = Vector2.one;
+            blockerRect.offsetMin = blockerRect.offsetMax = Vector2.zero;
+            var blockerImage = _choiceBlocker.GetComponent<Image>();
+            blockerImage.color = new Color(0f, 0f, 0f, 0f);
+            blockerImage.raycastTarget = true;
+            var blockerButton = _choiceBlocker.GetComponent<Button>();
+            blockerButton.transition = Selectable.Transition.None;
+            blockerButton.targetGraphic = blockerImage;
+            blockerButton.onClick.AddListener(ClosePaperChoices);
+
+            var field = dropdown.GetComponent<RectTransform>();
+            var corners = new Vector3[4];
+            field.GetWorldCorners(corners);
+            var localBottom = (Vector2)_paper.InverseTransformPoint(corners[0]);
+            var localTop = (Vector2)_paper.InverseTransformPoint(corners[2]);
+            var width = Mathf.Max(field.rect.width, localTop.x - localBottom.x);
+            var rowHeight = 36f;
+            var height = Mathf.Min(dropdown.options.Count * rowHeight + 8f, rowHeight * 5f + 8f);
+            var openUp = localBottom.y - 4f - height < _paper.rect.yMin + 8f;
+
+            _choiceSheet = new GameObject("ChoiceSheet", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
+            _choiceSheet.transform.SetParent(_paper, false);
+            var sheetRect = _choiceSheet.GetComponent<RectTransform>();
+            sheetRect.anchorMin = sheetRect.anchorMax = new Vector2(.5f, .5f);
+            sheetRect.pivot = new Vector2(0f, openUp ? 0f : 1f);
+            sheetRect.sizeDelta = new Vector2(width, height);
+            sheetRect.anchoredPosition = openUp
+                ? new Vector2(localBottom.x, localTop.y + 4f)
+                : new Vector2(localBottom.x, localBottom.y - 4f);
+            var sheetImage = _choiceSheet.GetComponent<Image>();
+            var source = dropdown.GetComponent<Image>();
+            if (source != null)
+            {
+                sheetImage.sprite = source.sprite;
+                sheetImage.type = source.type;
+            }
+            sheetImage.color = Color.white;
+            sheetImage.raycastTarget = true;
+
+            var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+            viewportGo.transform.SetParent(_choiceSheet.transform, false);
+            var viewport = viewportGo.GetComponent<RectTransform>();
+            viewport.anchorMin = Vector2.zero;
+            viewport.anchorMax = Vector2.one;
+            viewport.offsetMin = new Vector2(4f, 4f);
+            viewport.offsetMax = new Vector2(-4f, -4f);
+            var viewportImage = viewportGo.GetComponent<Image>();
+            viewportImage.color = new Color(1f, 1f, 1f, .01f);
+            viewportImage.raycastTarget = true;
+
+            var contentGo = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            contentGo.transform.SetParent(viewport, false);
+            var content = contentGo.GetComponent<RectTransform>();
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(.5f, 1f);
+            content.anchoredPosition = Vector2.zero;
+            content.sizeDelta = new Vector2(0f, 0f);
+            var layout = contentGo.GetComponent<VerticalLayoutGroup>();
+            layout.childControlWidth = layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.spacing = 2f;
+            var fitter = contentGo.GetComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = _choiceSheet.GetComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.vertical = dropdown.options.Count > 5;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 24f;
+
+            var font = dropdown.captionText != null ? dropdown.captionText.font : null;
+            var color = dropdown.captionText != null ? dropdown.captionText.color : new Color(.29f, .2f, .12f, 1f);
+            for (var i = 0; i < dropdown.options.Count; i++)
+            {
+                var option = new GameObject("Option", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+                option.transform.SetParent(content, false);
+                var element = option.GetComponent<LayoutElement>();
+                element.minHeight = element.preferredHeight = rowHeight;
+                var selected = i == dropdown.value;
+                var optionImage = option.GetComponent<Image>();
+                optionImage.color = selected ? new Color(1f, .93f, .8f, 1f) : new Color(1f, .98f, .94f, 1f);
+                var optionButton = option.GetComponent<Button>();
+                optionButton.transition = Selectable.Transition.None;
+                optionButton.targetGraphic = optionImage;
+                var index = i;
+                var captured = dropdown;
+                optionButton.onClick.AddListener(() =>
+                {
+                    captured.value = index;
+                    captured.RefreshShownValue();
+                    ClosePaperChoices();
+                });
+                var labelGo = new GameObject("Label", typeof(RectTransform), typeof(Text));
+                labelGo.transform.SetParent(option.transform, false);
+                var labelRect = labelGo.GetComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = new Vector2(12f, 0f);
+                labelRect.offsetMax = new Vector2(-12f, 0f);
+                var label = labelGo.GetComponent<Text>();
+                label.font = font;
+                label.fontSize = 18;
+                label.color = color;
+                label.alignment = TextAnchor.MiddleLeft;
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.raycastTarget = false;
+                label.supportRichText = false;
+                label.text = dropdown.options[i].text;
+            }
+            _choiceSheet.transform.SetAsLastSibling();
+        }
+
+        void ClosePaperChoices()
+        {
+            DestroyUi(_choiceSheet);
+            DestroyUi(_choiceBlocker);
+            _choiceSheet = null;
+            _choiceBlocker = null;
+            _choiceOwner = null;
+        }
+
+        static void DestroyUi(GameObject node)
+        {
+            if (node == null)
+                return;
+            if (Application.isPlaying)
+                Destroy(node);
+            else
+                DestroyImmediate(node);
+        }
+
+    }
+
+    /// <summary>Keeps the composer list on the paper. Unity Dropdown.Show reparents the template onto the root canvas.</summary>
+    public sealed class CozyPaperChoice : MonoBehaviour, IPointerClickHandler
+    {
+        Dropdown _dropdown;
+        DesktopSocialComposeModal _owner;
+
+        public void Bind(Dropdown dropdown, DesktopSocialComposeModal owner)
+        {
+            _dropdown = dropdown;
+            _owner = owner;
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Left || _owner == null)
+                return;
+            _owner.TogglePaperChoices(_dropdown);
+        }
     }
 }

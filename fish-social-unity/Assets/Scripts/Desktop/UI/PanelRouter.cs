@@ -20,7 +20,10 @@ namespace FishSocial.Desktop
 
         public void Show(ShellPanelId id)
         {
-            // Even selecting the same tab or returning home must invalidate the old flip.
+            // The index button stays bound while that page is already showing.
+            // A second click must not close and reopen it, or the page reloads.
+            if (Current == id)
+                return;
             CozyMotion.CancelPageTransition();
             transitioning = false;
             var version = ++navigationVersion;

@@ -111,7 +111,7 @@ namespace FishSocial.Desktop
             SetPage("DirectMessagesPage",section==SocialSection.DirectMessages);
             SetPage("NotificationsPage",section==SocialSection.Notifications);
             var titles=new[]{"我的钓友","好友申请","私信","鱼塘聊天","消息通知"};
-            var hints=new[]{"从钓友名片发起私聊；Steam 邀请只用于一起进塘。","收到的申请需要明确接受或忽略；不会自动打开聊天。","只与你选择的钓友对话，消息不会发送到鱼塘。","当前鱼塘的公共聊天；离塘后仍可查看好友与私信。","通知只提醒发生了什么，打开后再决定如何处理。"};
+            var hints=new[]{"从钓友名片发起私聊；Steam 邀请只用于一起进塘。","收到的申请需要明确接受或忽略；不会自动打开聊天。","只与你选择的钓友对话，消息不会发送到鱼塘。","当前鱼塘的公共聊天；离塘后仍可查看好友与私信。","只保留这次登录的提醒。申请和私信可以点进去处理，进塘邀请会去选鱼塘。"};
             if(_title!=null)_title.text=titles[(int)section];if(_hint!=null)_hint.text=hints[(int)section];
             for(var i=0;i<titles.Length;i++)Find<CozyButtonVisual>("SocialRail/Tab"+i)?.SetSelected(i==(int)section);
             SectionChanged?.Invoke(section);RefreshAll();UpdateSendState();
@@ -391,19 +391,42 @@ namespace FishSocial.Desktop
         void RenderNotifications()
         {
             Clear(_notificationsContent);if(_notificationsContent==null)return;
-            if(_inbox.Entries.Count==0){TextRow(_notificationsContent,"TextStatusRow","暂无消息通知\n好友申请、私信和进塘邀请都会分开记录在这里。");return;}
-            foreach(var notice in _inbox.Entries)
+            if(_inbox.Entries.Count==0){TextRow(_notificationsContent,"TextStatusRow","这次登录还没有新通知。\n好友申请、私信和进塘邀请会记在这里，离开游戏后不会保留。");return;}
+            var ordered=new List<DesktopSocialInbox.Entry>(_inbox.Entries);
+            ordered.Sort((a,b)=>a.Read!=b.Read?(a.Read?1:-1):b.CreatedAt.CompareTo(a.CreatedAt));
+            foreach(var notice in ordered)
             {
-                var row=Row("FriendRequestRow",_notificationsContent);if(row==null)continue;
-                Label(row,"Name",(notice.Read?"":"● ")+notice.Title);Label(row,"Detail",notice.Body);
-                var open=DesktopModalUi.FindComponent<Button>(row.transform,"Accept");var read=DesktopModalUi.FindComponent<Button>(row.transform,"Reject");
-                if(open!=null)DesktopModalUi.SetButtonLabel(open,notice.Kind==SocialNoticeKind.FriendRequest?"查看申请":notice.Kind==SocialNoticeKind.DirectMessage?"查看私信":notice.Kind==SocialNoticeKind.PondInvite?"查看鱼塘":"知道了");
-                if(read!=null)DesktopModalUi.SetButtonLabel(read,notice.Read?"已读":"标记已读");
-                Bind(row,"Accept",()=>OpenNotice(notice));Bind(row,"Reject",()=>_inbox.MarkRead(notice.Id));
+                var row=Row("FriendRequestRow",_notificationsContent,!Application.isPlaying);if(row==null)continue;
+                var when=notice.CreatedAt>0?DateTimeOffset.FromUnixTimeMilliseconds(notice.CreatedAt).ToLocalTime().ToString("HH:mm")+"  ":"";
+                Label(row,"Name",(notice.Read?"":"● ")+NoticeKind(notice.Kind)+"  "+notice.Title);
+                Label(row,"Detail",when+(notice.Body??""));
+                var open=DesktopModalUi.FindComponent<Button>(row.transform,"Accept");
+                var read=DesktopModalUi.FindComponent<Button>(row.transform,"Reject");
+                if(open!=null)DesktopModalUi.SetButtonLabel(open,NoticeAction(notice.Kind));
+                if(read!=null)
+                {
+                    var dismiss=notice.Kind!=SocialNoticeKind.System;
+                    read.gameObject.SetActive(dismiss);
+                    read.interactable=dismiss&&!notice.Read;
+                    if(dismiss)DesktopModalUi.SetButtonLabel(read,notice.Read?"已读":"标为已读");
+                }
+                var extra=row.transform.Find("Remove");if(extra!=null)extra.gameObject.SetActive(false);
+                Bind(row,"Accept",()=>OpenNotice(notice));
+                if(read!=null&&read.gameObject.activeSelf)Bind(row,"Reject",()=>_inbox.MarkRead(notice.Id));
             }
         }
+        static string NoticeKind(SocialNoticeKind kind)
+        {return kind==SocialNoticeKind.FriendRequest?"好友申请":kind==SocialNoticeKind.DirectMessage?"私信":kind==SocialNoticeKind.PondInvite?"进塘邀请":"系统提醒";}
+        static string NoticeAction(SocialNoticeKind kind)
+        {return kind==SocialNoticeKind.FriendRequest?"查看申请":kind==SocialNoticeKind.DirectMessage?"打开私信":kind==SocialNoticeKind.PondInvite?"去鱼塘":"知道了";}
         public void OpenNotice(DesktopSocialInbox.Entry notice)
-        {if(notice==null)return;_inbox.MarkRead(notice.Id);if(notice.Kind==SocialNoticeKind.DirectMessage)OpenDirectMessage(notice.PlayerId,notice.Nickname);else if(notice.Kind!=SocialNoticeKind.System)OpenSection(DesktopSocialInbox.Destination(notice.Kind));}
+        {
+            if(notice==null)return;
+            _inbox.MarkRead(notice.Id);
+            if(notice.Kind==SocialNoticeKind.DirectMessage)OpenDirectMessage(notice.PlayerId,notice.Nickname);
+            else if(notice.Kind==SocialNoticeKind.FriendRequest)OpenSection(SocialSection.Requests);
+            else if(notice.Kind==SocialNoticeKind.PondInvite)PondRequested?.Invoke();
+        }
         void RenderOnline()
         {
             Clear(_onlineContent);var others=_pond?.VisibleOthers;

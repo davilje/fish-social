@@ -23,7 +23,19 @@ namespace FishSocial.Desktop
         public event Action Changed;
         public void Add(Entry entry)
         {
-            if(entry==null || string.IsNullOrEmpty(entry.Id) || !ids.Add(entry.Id)) return;
+            if(entry==null || string.IsNullOrEmpty(entry.Id) || ids.Contains(entry.Id)) return;
+            if(entry.Kind==SocialNoticeKind.System || entry.Kind==SocialNoticeKind.PondInvite)
+            {
+                for(var i=0;i<entries.Count;i++)
+                {
+                    var existing=entries[i];
+                    if(existing.Kind!=entry.Kind || existing.Title!=entry.Title) continue;
+                    existing.Body=entry.Body; existing.CreatedAt=entry.CreatedAt; existing.Read=entry.Read;
+                    if(i!=0){entries.RemoveAt(i);entries.Insert(0,existing);}
+                    Changed?.Invoke(); return;
+                }
+            }
+            ids.Add(entry.Id);
             entries.Insert(0,entry);
             if(entries.Count>100) { ids.Remove(entries[entries.Count-1].Id); entries.RemoveAt(entries.Count-1); }
             Changed?.Invoke();
