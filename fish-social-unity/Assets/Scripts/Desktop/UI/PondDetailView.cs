@@ -48,7 +48,16 @@ namespace FishSocial.Desktop
                 if (label != null) label.text = state.EntryFailed && state.Progress != null ? "重试进入" : "重新加载";
             }
             var track = root.Find("FeeTrack");
-            if (track != null) track.gameObject.SetActive(PondSelectionState.HasDualFee(pond));
+            if (track != null)
+            {
+                track.gameObject.SetActive(PondSelectionState.HasDualFee(pond));
+                var sell = root.Find("ModeSell"); var auto = root.Find("ModeAuto");
+                if (sell != null && auto != null)
+                {
+                    var first = Mathf.Min(sell.GetSiblingIndex(), auto.GetSiblingIndex());
+                    if (track.GetSiblingIndex() > first) track.SetSiblingIndex(first);
+                }
+            }
             RefreshMode(root, "ModeSell", "出售档", pond != null ? pond.feePer2hSellOnly : 0,
                 state, "sell_only");
             RefreshMode(root, "ModeAuto", "回鱼档", pond != null ? pond.feePer2hAutoReturn : 0,

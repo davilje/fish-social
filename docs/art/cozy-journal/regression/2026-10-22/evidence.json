@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-10-22T10:03:23.387958+08:00",
+  "baselineCommit": "be6f2bdf4aa2afcb238ebaf1d50234da6370122e",
+  "branch": "开发用分支",
+  "remoteBranchConfirmedViaHttps": "be6f2bdf4aa2afcb238ebaf1d50234da6370122e",
+  "userDecision": "已经认可，沿用修复版",
+  "activePresentation": "DesktopAppBootstrap → DesktopShellUi → PanelRouter → Resources/Desktop/Prefabs",
+  "journalV2Activated": false,
+  "presentationPrefabsModified": false,
+  "unityVersion": "2021.3.29f1c1",
+  "testMode": "EditMode, Unity Test Runner in the running editor",
+  "results": {
+    "passed": 448,
+    "failed": 0,
+    "skipped": 0
+  },
+  "initialResults": {
+    "passed": 424,
+    "failed": 24,
+    "skipped": 0
+  },
+  "intermediateResults": {
+    "passed": 447,
+    "failed": 1,
+    "skipped": 0
+  },
+  "report": "unity-editmode.txt",
+  "workingTreeSourceSha256": {
+    "fish-social-unity/Assets/Scripts/Desktop/UI/CozyCardFragments.cs": "77ea50cc26f5eabc8ad4a9105b3dc1690100828a4b2062c29d2030dc122c2e30",
+    "fish-social-unity/Assets/Scripts/Desktop/UI/CozyCssGraphic.cs": "23e41292208a5fd0bd165a20c70c9230e3c54302b23c0afe3873faa52a006f0d",
+    "fish-social-unity/Assets/Scripts/Desktop/UI/CozyJournalInlineContent.cs": "5c959993e9c9cb6ba0fe5cf03442bc095b85f7f7020a5b6f619a626e6f82733d",
+    "fish-social-unity/Assets/Scripts/Desktop/UI/CozyJournalPageMotion.cs": "70c8a6a0968fbac3bc6eb948a1a74c1fe1714bd552bfe4aa49556d97a6f3f2e5",
+    "fish-social-unity/Assets/Scripts/Desktop/UI/CozyRareGlint.cs": "a34684b127e061a9917b789d5233c3142b1d6d01eae611cfde24f7acc57c3b19",
+    "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopSocialComposeModal.cs": "fad497e8c4ef480e22827c96406b38a417e4ca4a9d4f647d166e83abbcf5cdea",
+    "fish-social-unity/Assets/Scripts/Desktop/UI/PondDetailView.cs": "a25f24f346fb1d6466e02605dfff9e6de128df6ec7e11b163cb078ea83ec710d",
+    "fish-social-unity/Assets/Tests/Editor/CozyJournalInlineContentTests.cs": "37368c503874d5ed7b45830aa5c47753813fa8d0a34b97dc2b3eb5b62eea0e7d",
+    "fish-social-unity/Assets/Tests/Editor/CozyJournalMotionTests.cs": "cef1ff0a4ad4e2d90eea96d309f5f94cbadf82ba430c87f45a00659158e35edb",
+    "fish-social-unity/Assets/Tests/Editor/CozyRedesignLayoutTests.cs": "4fd042ca5985dede1be38016916f746c1317b52d9862c51572b3e78808f28faf",
+    "fish-social-unity/Assets/Tests/Editor/CozyToggleMotionTests.cs": "23f0f86319dbd6daea6a9b30182ecb1f5b85c80a31453919eb8a2cdcbceac9a1",
+    "fish-social-unity/Assets/Tests/Editor/CozyUiLibraryTests.cs": "0d5147ea1a2f1582f6a98ad431315212d2e480f793a313dd879b4b8d8c431a74",
+    "fish-social-unity/Assets/Tests/Editor/JournalV2MotionTests.cs": "5eb3d17c884e27fe21209b29da9fc9dbecbf07288b470178f300d9050fcc8f7b"
+  },
+  "scope": "Regression of accepted UI baseline plus component initialization, clipping order, inline placement and test fixture corrections. No new pixel equivalence claim.",
+  "pending": "Windows build, Steam live sessions, native Overlay/tray and DPI platform acceptance."
+}

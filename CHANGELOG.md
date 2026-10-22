@@ -1,3 +1,9 @@
+## 2026-10-22 沿用已认可的手账 UI 修复版
+
+- 用户认可远端 `be6f2bdf` 的逐项对齐效果，正式入口继续使用 `DesktopShellUi` / `PanelRouter`，结束 JournalV2 完整替换推进。
+- 修复自定义图形缺少 CanvasRenderer、页面/发布弹窗 CanvasGroup 初始化、加载后昵称与等级牌排布、鱼塘收费档位底板遮挡；保留已认可的几何与动效参数，正式资源目录无新增修改。
+- 同步过时布局断言及测试夹具，Unity 编辑器全套 EditMode **448/448** 通过，包含预制体构建守卫。Windows/Steam 平台验收仍待完成。详见 `docs/design/ui/2026-10-22-cozy-journal-approved-baseline.md`。
+
 ## 2026-10-21 原版猫咪钓鱼手账正式 UI 替换
 
 - 正式 uGUI 页面、共享 Library、主壳和辅助界面迁入 journal 主题；增加常驻世界地图入口，保留原生控件和真实业务，统一 1672×941 缩放。

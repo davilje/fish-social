@@ -36,7 +36,7 @@ namespace FishSocial.Tests.Editor
             Assert.IsTrue(close.gameObject.activeSelf);
             Assert.AreEqual(Vector2.one, close.anchorMin, name);
             Assert.AreEqual(Vector2.one, close.anchorMax, name);
-            Assert.AreEqual(new Vector2(-24, -22), close.anchoredPosition, name);
+            Assert.AreEqual(new Vector2(-24, -24), close.anchoredPosition, name);
             Assert.AreEqual(52, close.sizeDelta.x);
             Assert.That(page.transform.Find("Reflow_PageSeal")?.gameObject.activeSelf, Is.Not.True);
             foreach (var image in page.GetComponentsInChildren<Image>(true))
@@ -47,8 +47,8 @@ namespace FishSocial.Tests.Editor
                     Assert.AreNotEqual("按钮", label.text, name + "/" + button.name);
         }
 
-        [TestCase("PanelCatch", "Grid/Viewport/Slots", 3)]
-        [TestCase("PanelEquipment", "Items/Viewport/Content", 2)]
+        [TestCase("PanelCatch", "Grid/Viewport/Slots", 4)]
+        [TestCase("PanelEquipment", "Items/Viewport/Content", 3)]
         [TestCase("PanelShop", "Items/Viewport/Content", 3)]
         public void ItemGridKeepsExplicitColumnCount(string name, string path, int columns)
         {

@@ -123,6 +123,7 @@ namespace FishSocial.Desktop
         }
     }
 
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CozySnapshotGraphic : MaskableGraphic
     {
         readonly List<UIVertex> vertices = new List<UIVertex>();
@@ -145,6 +146,7 @@ namespace FishSocial.Desktop
         protected override void OnPopulateMesh(VertexHelper mesh) { mesh.Clear(); mesh.AddUIVertexStream(vertices, indices); }
     }
 
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CozyPolygonGraphic : MaskableGraphic
     {
         Vector2[] points;

@@ -59,6 +59,7 @@ namespace FishSocial.Tests.Editor
             name.text = "短名";
             CozyJournalInlineContent.ReflowTree(root.transform);
             var first = ((RectTransform)card.Find("LevelBadge")).anchoredPosition.x;
+            Assert.AreEqual(14,first - Right(name.rectTransform),.01f);
             name.text = "更长的真实昵称";
             CozyJournalInlineContent.ReflowTree(root.transform);
             var badge = (RectTransform)card.Find("LevelBadge");

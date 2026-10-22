@@ -7,6 +7,7 @@
 | 功能名称 | 猫咪钓鱼手账动效 |
 | 负责人 | Unity 桌面端 |
 | 状态 | 已实现 |
+| UI 效果确认 | 2026-10-22 用户认可远端 `be6f2bdf` 修复版，沿用当前正式 UI |
 | 平台验收 | Windows 实机性能、联机与 DPI 待验收 |
 | 目标版本 | hotfix |
 | 关联 | `docs/design/ui/2026-10-21-cozy-journal-motion.md` |
@@ -52,9 +53,12 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-10-21 | 用户确认手账动效方案。规格记为已确认，开始按原型接入桌面端。 |
+| 2026-10-22 | 用户认可远端逐项对齐后的修复版，结束 JournalV2 替换推进；正式入口沿用 DesktopShellUi / PanelRouter。Windows/Steam 平台验收仍待完成。 |
 
 ## 4. 本轮实施证据
 
 2026-10-21：正式页面替换、共享主题、真实业务、原生发布弹窗和动效生命周期已接入。Unity EditMode 347/347、预制体构建守卫 PASS、服务端 HTTP/SQLite 8/8；17 个正式页面/子状态使用实际预制体渲染。状态“已实现”不表示用户视觉验收或 Windows/Steam 平台验收已通过。
 
 详见 [UI 实施记录](../../design/ui/2026-10-21-cozy-journal-unity-implementation.md) 与 [正式页面截图](../../art/cozy-journal/production/index.html)。
+
+2026-10-22：用户认可远端 `be6f2bdf` 修复版，沿用现有正式入口，结束 JournalV2 替换推进。本地补充组件初始化、档位遮挡顺序与昵称排布健壮性修复，Unity EditMode 全套 **448/448** 通过。范围及证据见 [已认可基线记录](../../design/ui/2026-10-22-cozy-journal-approved-baseline.md)；Windows/Steam 平台待办继续保留。

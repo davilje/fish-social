@@ -37,7 +37,9 @@ namespace FishSocial.Desktop
         }
         static CanvasGroup Group(Transform target)
         {
-            return target == null ? null : target.GetComponent<CanvasGroup>() ?? target.gameObject.AddComponent<CanvasGroup>();
+            if (target == null) return null;
+            var group = target.GetComponent<CanvasGroup>();
+            return group != null ? group : target.gameObject.AddComponent<CanvasGroup>();
         }
         static void Alpha(CanvasGroup group, float alpha)
         {

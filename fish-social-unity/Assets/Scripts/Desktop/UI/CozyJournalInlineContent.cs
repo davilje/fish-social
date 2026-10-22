@@ -151,9 +151,11 @@ namespace FishSocial.Desktop
         void Position(RectTransform target, float x, float y, float width, float height)
         {
             // A row may be an invisible sibling of Text, preserving every legacy binding path.
-            var world = row.TransformPoint(new Vector3(row.rect.xMin+x,row.rect.yMax-y,0));
             var parent = target.parent as RectTransform;
-            var point = (Vector2)parent.InverseTransformPoint(world);
+            var point = new Vector2(row.rect.xMin+x,row.rect.yMax-y);
+            // Direct children already share the row's coordinates. Avoid a world round trip
+            // while a newly loaded CanvasScaler still has an uninitialized transform scale.
+            if (parent != row) point = parent.InverseTransformPoint(row.TransformPoint(point));
             var anchored = point - new Vector2(parent.rect.xMin,parent.rect.yMax);
             target.anchorMin = target.anchorMax = target.pivot = Vector2.up;
             if (target.anchoredPosition != anchored) target.anchoredPosition = anchored;

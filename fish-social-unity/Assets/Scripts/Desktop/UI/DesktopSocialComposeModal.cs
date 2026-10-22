@@ -63,7 +63,8 @@ namespace FishSocial.Desktop
                 _paper = transform.Find("ModalPanel") as RectTransform;
                 if (_paper == null) return false;
                 _paperRest = _paper.anchoredPosition;
-                _paperAlpha = _paper.GetComponent<CanvasGroup>() ?? _paper.gameObject.AddComponent<CanvasGroup>();
+                _paperAlpha = _paper.GetComponent<CanvasGroup>();
+                if (_paperAlpha == null) _paperAlpha = _paper.gameObject.AddComponent<CanvasGroup>();
             }
             _close.onClick.RemoveAllListeners();
             _close.onClick.AddListener(() => Close());

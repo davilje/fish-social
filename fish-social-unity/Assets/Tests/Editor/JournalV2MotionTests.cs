@@ -82,7 +82,7 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(1,index.transform.Find("Visual/LightIcon").GetComponent<Image>().color.a);
             var nav = Button(JournalV2ButtonKind.Nav); nav.SetSelected(true); nav.Advance(.16f);
             Assert.IsFalse(nav.transform.Find("Visual/Plate").GetComponent<Graphic>().enabled);
-            Assert.AreEqual((Color)new Color32(212,111,34,255),nav.transform.Find("Visual/Label").GetComponent<Text>().color);
+            Assert.That(Vector4.Distance((Color)new Color32(212,111,34,255),nav.transform.Find("Visual/Label").GetComponent<Text>().color),Is.LessThan(.000001f));
         }
         [Test]
         public void FirstEightCardEntranceUsesFortyMillisecondStaggerAndRankRowsHaveZeroTilt()

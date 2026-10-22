@@ -426,9 +426,12 @@ namespace FishSocial.Tests.Editor
                 var expected = Mathf.Abs(CozyPolygonGraphic.SignedArea(polygon)); total += expected;
                 var rect = Rect("Polygon" + i); rect.sizeDelta = new Vector2(200, 150);
                 var graphic = rect.gameObject.AddComponent<CozyPolygonGraphic>(); graphic.SetPolygon(polygon);
+                Assert.IsNotNull(graphic.GetComponent<CanvasRenderer>(), "Sold card stencil must be renderable before Mask is added");
+                var mask = rect.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
                 using (var mesh = new VertexHelper())
                 {
-                    typeof(CozyPolygonGraphic).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(graphic, new object[] { mesh });
+                    typeof(CozyPolygonGraphic).GetMethod("OnPopulateMesh", BindingFlags.Instance | BindingFlags.NonPublic,
+                        null, new[] { typeof(VertexHelper) }, null).Invoke(graphic, new object[] { mesh });
                     var triangles = new System.Collections.Generic.List<UIVertex>(); mesh.GetUIVertexStream(triangles);
                     var area = 0f;
                     for (var v = 0; v < triangles.Count; v += 3)

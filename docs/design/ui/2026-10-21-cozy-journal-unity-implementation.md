@@ -4,6 +4,8 @@
 
 ## 当前结果
 
+2026-10-22：用户已认可远端 `be6f2bdf` 的逐项对齐修复，确认沿用该版本。正式入口继续使用下述实现，JournalV2 完整替换推进结束。版本边界及本地回归补充见 [已认可基线记录](2026-10-22-cozy-journal-approved-baseline.md)。本文原有 2026-10-21 测试计数和截图保留为历史证据。
+
 正式主壳、十个原型页面及原有辅助页已接入手账主题和现有业务。正式入口仍为 `DesktopShellUi` / `PanelRouter` / `Resources/Desktop/Prefabs`；没有使用 WebView、整页截图或 `JournalSamples/ReferenceAssets` 替代运行时 UI。共享素材、文字、按钮、Toggle、InputField 和 ScrollRect 均为原生 uGUI。
 
 查看 [17 个正式页面/子状态截图](../../art/cozy-journal/production/index.html) 与 [机器可读验证记录](../../art/cozy-journal/production/evidence.json)。截图使用正式保存的预制体，搭配编辑器样例玩家/库存数据；鱼塘目录、照片和美术取项目实际资源。它证明保存后的布局可渲染，不等同 Steam 真账号联机验收。原版互动参考仍在 [cozy-journal](prototype/cozy-journal/index.html)。
@@ -61,8 +63,8 @@
 ## 仍需平台与视觉验收
 
 - 本机为macOS且Unity仅安装MacStandaloneSupport；没有声称完成Windows构建、Steam账号登录/联机、原生Overlay与托盘全过程、Windows DPI/中文IME/四档窗口实机验证。
-- 最终美术认可与原版逐像素等价仍未确认。正式页面使用真实业务数据及场景图；40项补充UI和新增角色姿势不能因导入或测试通过就算用户视觉认可。
+- 2026-10-22 用户已认可远端修复版的实际效果，范围为该版本的 UI 表现。此认可不等同自动化逐像素等价结论，40项补充UI和新增角色姿势的导入记录也不代表每项均被单独验收。
 - 原型中的部分额外装饰表现仍保留备用资源，例如购买商品弧线飞入背包、出售金币飞入、输入框独立错误皮肤、复杂空态插画及音效。本轮已提供真实结果印章/失败反馈与必要文字状态，没有用本地演示成功替代业务。
 - A01–A30实际序列化引用和动态加载证据已写入 `coverage.json`，标为integrated、partial或available-supplemental；未使用的备用素材没有虚报为全部接入。
 
-`STEAM-DESKTOP-21`记录为已实现，设计/实现日期为2026-10-21；没有标为用户已验收。根目录计划表及进度看板已同步。
+`STEAM-DESKTOP-21`记录为已实现，设计/实现日期为2026-10-21，UI 效果认可日期为2026-10-22。Windows/Steam 平台验收保留待办，不将整个功能标为全平台已验收。

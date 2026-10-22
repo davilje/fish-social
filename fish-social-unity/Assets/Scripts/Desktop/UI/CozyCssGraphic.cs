@@ -4,6 +4,7 @@ using UnityEngine.UI;
 namespace FishSocial.Desktop
 {
     /// <summary>Native geometry for the prototype's CSS circles, elliptical gradient and rounded paper; no generated textures.</summary>
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CozyCssGraphic : MaskableGraphic
     {
         public enum Shape { Circle, Water, Paper, Stamp, Ring }

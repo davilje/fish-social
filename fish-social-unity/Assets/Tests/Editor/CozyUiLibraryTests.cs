@@ -20,7 +20,6 @@ namespace FishSocial.Tests.Editor
 
         [TestCase("DesktopShell", "MainRoot/Header/Home")]
         [TestCase("FeatureModalRoot", "ModalPanel/Header/Close")]
-        [TestCase("PanelProfileEdit", "Header/Back")]
         [TestCase("PanelProfileEdit", "Picker/Close")]
         [TestCase("PanelPondSettlement", "Panel/Close")]
         public void ClosingActionsUseRightTopAnchors(string name, string path)
@@ -32,6 +31,17 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(Vector2.one, rect.pivot);
             Assert.LessOrEqual(rect.anchoredPosition.x, 0f);
             Assert.LessOrEqual(rect.anchoredPosition.y, 0f);
+        }
+
+        [Test]
+        public void ProfileEditCancelStaysBesideTheAuthoredSaveAction()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath("PanelProfileEdit"));
+            var cancel = (RectTransform)prefab.transform.Find("Header/Back");
+            Assert.AreEqual(Vector2.up, cancel.anchorMin);
+            Assert.AreEqual(Vector2.up, cancel.anchorMax);
+            Assert.AreEqual(new Vector2(498,-548), cancel.anchoredPosition);
+            Assert.AreEqual(new Vector2(170,45), cancel.sizeDelta);
         }
 
         [Test]

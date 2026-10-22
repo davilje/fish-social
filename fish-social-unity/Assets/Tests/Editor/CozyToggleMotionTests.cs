@@ -55,7 +55,9 @@ namespace FishSocial.Tests.Editor
             var track=new GameObject("JournalTrack",typeof(RectTransform),typeof(Image));track.transform.SetParent(root.transform,false);
             var knobObject=new GameObject("JournalKnob",typeof(RectTransform));knobObject.transform.SetParent(track.transform,false);knob=(RectTransform)knobObject.transform;
             var pawObject=new GameObject("JournalPaw",typeof(RectTransform),typeof(Image));pawObject.transform.SetParent(track.transform,false);paw=pawObject.GetComponent<Image>();
-            var visual=root.AddComponent<CozyJournalToggle>();visual.Configure(toggle,track.GetComponent<Image>(),knob,paw);
+            var visual=root.AddComponent<CozyJournalToggle>();
+            typeof(CozyJournalToggle).GetMethod("OnEnable",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(visual,null);
+            visual.Configure(toggle,track.GetComponent<Image>(),knob,paw);
             visual.Configure(toggle,track.GetComponent<Image>(),knob,paw);return visual;
         }
 

@@ -55,6 +55,7 @@ namespace FishSocial.Desktop
         void Reduced(bool value) { if (value && clip != null) clip.gameObject.SetActive(false); }
         void Paused(bool value) { if (value && clip != null) clip.gameObject.SetActive(false); }
     }
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CozyGlintGraphic : MaskableGraphic
     {
         protected override void OnPopulateMesh(VertexHelper mesh)
