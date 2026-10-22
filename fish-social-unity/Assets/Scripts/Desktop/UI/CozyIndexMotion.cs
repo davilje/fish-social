@@ -38,6 +38,7 @@ namespace FishSocial.Desktop
         float entranceTime, entranceDelay, entranceTo;
         bool entrance;
         public bool Selected => selected;
+        public bool Busy => entrance || press != 0 || position.Time < position.Duration || color.Time < color.Duration;
         public Pose Current { get; private set; }
         public CozyIndexMotion(bool initiallySelected = false)
         {

@@ -21,8 +21,9 @@ namespace FishSocial.Desktop
         FriendInfoDto[] _friends = new FriendInfoDto[0];
         FriendRequestDto[] _incoming = new FriendRequestDto[0], _outgoing = new FriendRequestDto[0];
         DmConversationDto[] _conversations = new DmConversationDto[0];
-        bool _uiReady, _open, _sendingDm, _sendingChat;
-        int _friendsGeneration, _dmGeneration, _conversationGeneration;
+        bool _uiReady, _open, _sendingDm, _sendingChat, _socialReady, _friendsBuilt, _requestsBuilt, _steamRefreshQueued;
+        int _friendsGeneration, _dmGeneration, _conversationGeneration, _friendsListGeneration, _requestsListGeneration, _chatListGeneration;
+        Coroutine _friendsListBuild, _requestsListBuild, _chatListBuild;
         string _dmFriendId, _dmFriendName, _account;
         SocialSection _section = SocialSection.Friends;
         Text _status, _title, _hint, _dmTitle;
@@ -40,7 +41,11 @@ namespace FishSocial.Desktop
         public void Bind(IAuthenticatedApiClient api, SocialPondSessionController pond, SocialLobbyController lobby)
         {
             Subscribe(false);
-            if(_account!=api?.PlayerId) { _inbox.Clear();_friends=new FriendInfoDto[0];_incoming=_outgoing=new FriendRequestDto[0];_conversations=new DmConversationDto[0];_dmFriendId=null; }
+            if(_account!=api?.PlayerId)
+            {
+                _inbox.Clear();_friends=new FriendInfoDto[0];_incoming=_outgoing=new FriendRequestDto[0];_conversations=new DmConversationDto[0];_dmFriendId=null;
+                _socialReady=false;_steamRefreshQueued=false;CancelSocialBuilds();Clear(_friendsContent);Clear(_requestsContent);
+            }
             _api=api;_pond=pond;_lobby=lobby;_account=api?.PlayerId;
             _notifications=DesktopNotificationService.Instance;
             _inbox.Changed-=OnInboxChanged;_inbox.Changed+=OnInboxChanged;
@@ -48,7 +53,14 @@ namespace FishSocial.Desktop
         }
         public void OnOpened() { _open=true;if(_uiReady)OpenSection(_section); }
         public void OnClosed()
-        { _open=false;_friendsGeneration++;_dmGeneration++;_conversationGeneration++;StopAllCoroutines();_sendingDm=_sendingChat=false;_pendingRequests.Clear(); }
+        {
+            _open=false;_friendsGeneration++;_dmGeneration++;_conversationGeneration++;_chatListGeneration++;
+            var friendsIncomplete=_friendsListBuild!=null;var requestsIncomplete=_requestsListBuild!=null;
+            _friendsListGeneration++;_requestsListGeneration++;StopAllCoroutines();
+            _friendsListBuild=_requestsListBuild=_chatListBuild=null;
+            if(friendsIncomplete)_friendsBuilt=false;if(requestsIncomplete)_requestsBuilt=false;
+            _sendingDm=_sendingChat=false;_pendingRequests.Clear();
+        }
         void OnDestroy() {Subscribe(false);_inbox.Changed-=OnInboxChanged;}
         void Subscribe(bool on)
         {
@@ -76,7 +88,7 @@ namespace FishSocial.Desktop
             var sections=new[]{SocialSection.Friends,SocialSection.Requests,SocialSection.DirectMessages,SocialSection.PondChat,SocialSection.Notifications};
             for(var i=0;i<sections.Length;i++){var section=sections[i];DesktopModalUi.BindButton(transform,"SocialRail/Tab"+i,()=>OpenSection(section));}
             DesktopModalUi.BindButton(transform,"Tabs/T0",()=>OpenSection(SocialSection.PondChat));DesktopModalUi.BindButton(transform,"Tabs/T1",()=>OpenSection(SocialSection.Friends));
-            DesktopModalUi.BindButton(transform,"Retry",RefreshAll);
+            DesktopModalUi.BindButton(transform,"Retry",ForceRefresh);
             DesktopModalUi.BindButton(transform,"NotificationsPage/ReadAll",()=>_inbox.MarkAllRead());
             DesktopModalUi.BindButton(transform,"PondPage/EnterPond",()=>PondRequested?.Invoke());
             DesktopModalUi.BindButton(transform,"FriendsPage/FriendsChatPage/SendDm",SendDm);
@@ -104,7 +116,26 @@ namespace FishSocial.Desktop
             for(var i=0;i<titles.Length;i++)Find<CozyButtonVisual>("SocialRail/Tab"+i)?.SetSelected(i==(int)section);
             SectionChanged?.Invoke(section);RefreshAll();UpdateSendState();
         }
-        void SetPage(string path,bool active){var child=transform.Find(path);if(child!=null)child.gameObject.SetActive(active);}
+        void SetPage(string path,bool active)
+        {
+            var child=transform.Find(path);if(child==null)return;
+            if(child.gameObject.activeSelf!=active) child.gameObject.SetActive(active);
+        }
+        void ForceRefresh()
+        {
+            if(_section==SocialSection.Friends||_section==SocialSection.Requests){_socialReady=false;CancelSocialBuilds();}
+            RefreshAll();
+        }
+        void CancelSocialBuilds()
+        {
+            _friendsListGeneration++;_requestsListGeneration++;
+            if(Application.isPlaying)
+            {
+                if(_friendsListBuild!=null)StopCoroutine(_friendsListBuild);
+                if(_requestsListBuild!=null)StopCoroutine(_requestsListBuild);
+            }
+            _friendsListBuild=_requestsListBuild=null;_friendsBuilt=_requestsBuilt=false;
+        }
         public void OpenNotifications()=>OpenSection(SocialSection.Notifications);
         public void OpenFriendRequests()=>OpenSection(SocialSection.Requests);
         public void OpenDirectMessage(string playerId,string nickname)
@@ -116,8 +147,43 @@ namespace FishSocial.Desktop
             if(_section==SocialSection.PondChat){RenderOnline();RenderChat();SetStatus(SocketHint());return;}
             if(!_open){RenderFriends();RenderRequests();return;}
             if(_section==SocialSection.DirectMessages)
-            {StartCoroutine(LoadConversations());if(!string.IsNullOrEmpty(_dmFriendId))StartCoroutine(LoadMessages(_dmFriendId,_dmFriendName));else RenderEmptyMessages();}
-            else {if(_section==SocialSection.Friends)_lobby?.RefreshFriends();StartCoroutine(LoadFriends());}
+            {StartCoroutine(LoadConversations());if(!string.IsNullOrEmpty(_dmFriendId))StartCoroutine(LoadMessages(_dmFriendId,_dmFriendName));else RenderEmptyMessages();return;}
+            if(_section!=SocialSection.Friends&&_section!=SocialSection.Requests)return;
+            // Switching these two tabs only reveals the list already built. Refreshing here
+            // destroys every row and restyles it on the click.
+            if(_section==SocialSection.Friends)EnsureSteamFriends();
+            if(!_socialReady){StartCoroutine(LoadFriends());return;}
+            if(_section==SocialSection.Requests)
+            {
+                if(!_requestsBuilt) RenderRequests();
+                else ReplayRows(_requestsContent);
+            }
+            else if(!_friendsBuilt) RenderFriends();
+            else ReplayRows(_friendsContent);
+            ShowSocialStatus();
+        }
+        static void ReplayRows(Transform root)
+        {
+            if(root==null||!Application.isPlaying)return;
+            var stickers=root.GetComponentsInChildren<CozyStickerMotion>();
+            for(var i=0;i<stickers.Length;i++) stickers[i].RestartEntrance();
+        }
+        void ShowSocialStatus()
+        {
+            SetStatus(_section==SocialSection.Requests
+                ?"收到 "+_incoming.Length+" 条申请 · 已发出 "+_outgoing.Length+" 条"
+                :"已有 "+_friends.Length+" 位钓友");
+        }
+        void EnsureSteamFriends()
+        {
+            if(_steamRefreshQueued||_lobby==null||_lobby.SteamFriendsLoaded)return;
+            _steamRefreshQueued=true;StartCoroutine(RefreshSteamDeferred());
+        }
+        IEnumerator RefreshSteamDeferred()
+        {
+            yield return null;
+            if(!_open||_lobby==null||_lobby.SteamFriendsLoaded){_steamRefreshQueued=false;yield break;}
+            _lobby.RefreshFriends();
         }
         void OnInboxChanged(){UnreadChanged?.Invoke(UnreadCount);if(_open&&_section==SocialSection.Notifications)RenderNotifications();RefreshBadges();}
         void RefreshBadges()
@@ -134,6 +200,7 @@ namespace FishSocial.Desktop
         {
             if(request==null)return;
             _inbox.Add(new DesktopSocialInbox.Entry {Id="request:"+request.id,Kind=SocialNoticeKind.FriendRequest,Title="新的好友申请",Body=(request.fromNickname??"钓友")+" 想和你成为好友",PlayerId=request.fromPlayerId,Nickname=request.fromNickname,CreatedAt=request.createdAt});
+            _socialReady=false;CancelSocialBuilds();
             if(_open&&(_section==SocialSection.Requests||_section==SocialSection.Friends))StartCoroutine(LoadFriends());
         }
         void OnDmPush(DirectMessageDto message)
@@ -145,7 +212,11 @@ namespace FishSocial.Desktop
         }
         void OnUsersChanged(){if(_open&&_section==SocialSection.PondChat)RenderOnline();}
         void OnChat(ChatMessageDto message){if(_open&&_section==SocialSection.PondChat)RenderChat();}
-        void OnSteamFriendsChanged(IReadOnlyList<SteamFriendInfo> list){if(_open&&_section==SocialSection.Friends)RenderFriends();}
+        void OnSteamFriendsChanged(IReadOnlyList<SteamFriendInfo> list)
+        {
+            _friendsBuilt=false;
+            if(_open&&_section==SocialSection.Friends)RenderFriends();
+        }
         void OnLobbyError(string message){if(_open)SetStatus(message);}
         void OnSocketState(SocialSocketState state,string reason){if(_open&&_section==SocialSection.PondChat){SetStatus(SocketHint());UpdateSendState();}}
         string SocketHint()=>_pond!=null&&_pond.State==SocialSocketState.Connected?"鱼塘公共聊天 · 最多 200 字":_pond!=null&&(_pond.State==SocialSocketState.Connecting||_pond.State==SocialSocketState.Reconnecting)?"正在连接鱼塘聊天…":"尚未进入鱼塘。选择鱼塘后，才能发送塘内聊天。";
@@ -159,7 +230,13 @@ namespace FishSocial.Desktop
             SetPage("PondPage/EnterPond",_pond==null||_pond.State!=SocialSocketState.Connected);
         }
         public void PresentSocialSnapshot(FriendInfoDto[] friends,FriendRequestDto[] incoming,FriendRequestDto[] outgoing)
-        {_friends=friends??new FriendInfoDto[0];_incoming=incoming??new FriendRequestDto[0];_outgoing=outgoing??new FriendRequestDto[0];RenderFriends();RenderRequests();RefreshBadges();}
+        {
+            _friends=friends??new FriendInfoDto[0];_incoming=incoming??new FriendRequestDto[0];_outgoing=outgoing??new FriendRequestDto[0];
+            _socialReady=true;CancelSocialBuilds();
+            if(!_open||_section==SocialSection.Friends)RenderFriends();
+            if(!_open||_section==SocialSection.Requests)RenderRequests();
+            RefreshBadges();
+        }
         IEnumerator LoadFriends()
         {
             if(_api==null||!_api.CanUse){SetStatus("请先完成登录。");yield break;}
@@ -169,39 +246,83 @@ namespace FishSocial.Desktop
             yield return _api.GetFriendRequests((ok,inc,sent,message)=>{requestsOk=ok;incoming=inc;outgoing=sent;if(!ok)error=message;});
             if(!_open||generation!=_friendsGeneration)yield break;
             PresentSocialSnapshot(friendsOk?friends:_friends,requestsOk?incoming:_incoming,requestsOk?outgoing:_outgoing);
-            SetStatus(friendsOk&&requestsOk?(_section==SocialSection.Requests?"收到 "+_incoming.Length+" 条申请 · 已发出 "+_outgoing.Length+" 条":"已有 "+_friends.Length+" 位钓友"):error??"部分资料加载失败，请重试。");
+            if(!friendsOk||!requestsOk)SetStatus(error??"部分资料加载失败，请重试。");
+            else ShowSocialStatus();
         }
         void RenderFriends()
         {
-            Clear(_friendsContent);if(_friendsContent==null)return;
+            if(_friendsContent==null||_friendsBuilt)return;
+            _friendsBuilt=true;
+            BeginList(ref _friendsListBuild,FillFriends(++_friendsListGeneration));
+        }
+        IEnumerator FillFriends(int generation)
+        {
+            yield return null;
+            if(generation!=_friendsListGeneration||_friendsContent==null)yield break;
+            Clear(_friendsContent);
             if(_friends.Length==0)TextRow(_friendsContent,"TextStatusRow","还没有游戏内好友\n可在钓友主页发起好友申请。");
-            foreach(var friend in _friends)
+            for(var i=0;i<_friends.Length;i++)
             {
-                var row=Row("FriendRow",_friendsContent);if(row==null)continue;
+                if(generation!=_friendsListGeneration)yield break;
+                var friend=_friends[i];
+                var row=Row("FriendRow",_friendsContent,false);if(row==null)continue;
                 Label(row,"Name",friend.nickname??"钓友");Label(row,"Detail","成为好友 · "+Date(friend.since));
                 Bind(row,"Dm",()=>OpenDirectMessage(friend.playerId,friend.nickname));Bind(row,"Remove",()=>ConfirmRemove(row,friend));
                 var avatar=DesktopModalUi.FindComponent<Image>(row.transform,"Avatar");if(avatar!=null)avatar.sprite=DesktopDefaultAvatars.Portrait(friend.avatarUrl,friend.playerId);
+                yield return null;
             }
+            if(generation!=_friendsListGeneration)yield break;
             TextRow(_friendsContent,"TextStatusRow","Steam 好友 · 邀请进塘");
             if(_lobby==null||!_lobby.SteamFriendsLoaded)TextRow(_friendsContent,"TextStatusRow","Steam 好友资料尚未返回，可稍后刷新。");
             else if(_lobby.Friends.Count==0)TextRow(_friendsContent,"TextStatusRow","Steam 好友列表为空。");
-            else foreach(var friend in _lobby.Friends)
-            {var row=Row("SteamInviteRow",_friendsContent);if(row==null)continue;Label(row,"Name",friend.name);Label(row,"Detail",friend.online?"在线 · Steam 好友":"离线 · Steam 好友");Bind(row,"Invite",()=>StartCoroutine(InviteSteamRoutine(friend.steamId64)));}
+            else
+            {
+                var steam=_lobby.Friends;
+                for(var i=0;i<steam.Count;i++)
+                {
+                    if(generation!=_friendsListGeneration)yield break;
+                    var friend=steam[i];
+                    var row=Row("SteamInviteRow",_friendsContent,false);if(row==null)continue;
+                    Label(row,"Name",friend.name);Label(row,"Detail",friend.online?"在线 · Steam 好友":"离线 · Steam 好友");
+                    var steamId=friend.steamId64;
+                    Bind(row,"Invite",()=>StartCoroutine(InviteSteamRoutine(steamId)));
+                    yield return null;
+                }
+            }
+            if(generation==_friendsListGeneration)_friendsListBuild=null;
         }
         void RenderRequests()
         {
-            Clear(_requestsContent);if(_requestsContent==null)return;
+            if(_requestsContent==null||_requestsBuilt)return;
+            _requestsBuilt=true;
+            BeginList(ref _requestsListBuild,FillRequests(++_requestsListGeneration));
+        }
+        IEnumerator FillRequests(int generation)
+        {
+            yield return null;
+            if(generation!=_requestsListGeneration||_requestsContent==null)yield break;
+            Clear(_requestsContent);
             TextRow(_requestsContent,"TextStatusRow","收到的申请");
             if(_incoming.Length==0)TextRow(_requestsContent,"TextStatusRow","没有待处理申请。新的钓友来信会显示在这里。");
-            foreach(var request in _incoming)
+            for(var i=0;i<_incoming.Length;i++)
             {
-                var row=Row("FriendRequestRow",_requestsContent);if(row==null)continue;
+                if(generation!=_requestsListGeneration)yield break;
+                var request=_incoming[i];
+                var row=Row("FriendRequestRow",_requestsContent,false);if(row==null)continue;
                 Label(row,"Name",request.fromNickname??"钓友");Label(row,"Detail",Date(request.createdAt)+" · 想和你成为好友");
                 Bind(row,"Accept",()=>RespondToRequest(request,true,row));Bind(row,"Reject",()=>RespondToRequest(request,false,row));
+                yield return null;
             }
+            if(generation!=_requestsListGeneration)yield break;
             TextRow(_requestsContent,"TextStatusRow","我发出的申请");
             if(_outgoing.Length==0)TextRow(_requestsContent,"TextStatusRow","尚未发出好友申请。");
-            foreach(var request in _outgoing)TextRow(_requestsContent,"TextStatusRow",(request.toNickname??"钓友")+" · 等待对方回应");
+            for(var i=0;i<_outgoing.Length;i++)
+            {
+                if(generation!=_requestsListGeneration)yield break;
+                TextRow(_requestsContent,"TextStatusRow",(_outgoing[i].toNickname??"钓友")+" · 等待对方回应");
+                yield return null;
+            }
+            if(generation==_requestsListGeneration)_requestsListBuild=null;
         }
         public void RespondToRequest(FriendRequestDto request,bool accept,GameObject row=null)
         {if(request==null||_api==null||!_pendingRequests.Add(request.id))return;SetButtons(row,false);StartCoroutine(RespondRoutine(request,accept,row));}
@@ -213,7 +334,8 @@ namespace FishSocial.Desktop
             _pendingRequests.Remove(request.id);SetButtons(row,true);
             if(!success){SetStatus(error??"申请处理失败，请重试。");CozyActionFeedback.Play(row!=null?row.transform:transform,false,"处理失败");yield break;}
             _inbox.MarkRead("request:"+request.id);
-            var remaining=new List<FriendRequestDto>(_incoming);remaining.RemoveAll(x=>x.id==request.id);_incoming=remaining.ToArray();RenderRequests();RefreshBadges();
+            var remaining=new List<FriendRequestDto>(_incoming);remaining.RemoveAll(x=>x.id==request.id);_incoming=remaining.ToArray();
+            _requestsBuilt=false;RenderRequests();RefreshBadges();
             SetStatus(accept?"已接受好友申请，可在「我的钓友」发起私聊。":"已忽略这条申请。");
             // Stay on the request page; accepting is not opening a conversation.
             if(_open)yield return LoadFriends();
@@ -290,10 +412,43 @@ namespace FishSocial.Desktop
         }
         void RenderChat()
         {
-            Clear(_chatContent);var messages=_pond?.PondMessages;
-            if(messages==null||messages.Length==0)TextRow(_chatContent,"PondChatMessageRow","这里是当前鱼塘的公共聊天。\n进入鱼塘后，和身边的钓友聊聊吧。");
-            else foreach(var message in messages)MessageRow(_chatContent,"PondChatMessageRow",message.type=="announcement"?"鱼塘公告":message.nickname,message.text,message.createdAt,message.userId==_api?.PlayerId);
+            if(_chatContent==null)return;
+            var messages=_pond!=null?_pond.PondMessages:null;
+            if(messages==null||messages.Length==0)
+            {
+                CancelList(ref _chatListBuild,ref _chatListGeneration);
+                Clear(_chatContent);
+                TextRow(_chatContent,"PondChatMessageRow","这里是当前鱼塘的公共聊天。\n进入鱼塘后，和身边的钓友聊聊吧。");
+                if(_chatContent.childCount>0)_chatContent.GetChild(_chatContent.childCount-1).name="ChatEmpty";
+                UpdateSendState();
+                return;
+            }
+            var rows=CountNamed(_chatContent,"PondChatMessageRow");
+            if(rows>0&&rows==messages.Length-1)
+                AppendChat(messages[messages.Length-1]);
+            else if(rows>=200&&rows==messages.Length)
+            {
+                RemoveFirstNamed(_chatContent,"PondChatMessageRow");
+                AppendChat(messages[messages.Length-1]);
+            }
+            else if(rows!=messages.Length)
+                BeginList(ref _chatListBuild,FillChat(messages,++_chatListGeneration));
             UpdateSendState();
+        }
+        void AppendChat(ChatMessageDto message)
+        {
+            if(message==null)return;
+            MessageRow(_chatContent,"PondChatMessageRow",message.type=="announcement"?"鱼塘公告":message.nickname,message.text,message.createdAt,message.userId==_api?.PlayerId);
+        }
+        IEnumerator FillChat(ChatMessageDto[] messages,int generation)
+        {
+            Clear(_chatContent);
+            for(var i=0;i<messages.Length;i++)
+            {
+                if(generation!=_chatListGeneration)yield break;
+                AppendChat(messages[i]);
+                if((i&3)==3)yield return null;
+            }
         }
         void SendDm()
         {
@@ -352,8 +507,56 @@ namespace FishSocial.Desktop
         }
 #endif
 
+        void BeginList(ref Coroutine running,IEnumerator routine)
+        {
+            if(running!=null)StopCoroutine(running);
+            if(!Application.isPlaying||!isActiveAndEnabled)
+            {
+                while(routine.MoveNext()){}
+                running=null;
+                return;
+            }
+            running=StartCoroutine(routine);
+        }
+        void CancelList(ref Coroutine running,ref int generation)
+        {
+            generation++;
+            if(running==null)return;
+            StopCoroutine(running);
+            running=null;
+        }
+        static int CountNamed(Transform parent,string name)
+        {
+            if(parent==null)return 0;
+            var count=0;
+            for(var i=0;i<parent.childCount;i++)if(parent.GetChild(i).name==name)count++;
+            return count;
+        }
+        static void RemoveFirstNamed(Transform parent,string name)
+        {
+            if(parent==null)return;
+            for(var i=0;i<parent.childCount;i++)
+            {
+                var child=parent.GetChild(i);
+                if(child.name!=name)continue;
+                child.SetParent(null,false);
+                if(Application.isPlaying)Destroy(child.gameObject);else DestroyImmediate(child.gameObject);
+                return;
+            }
+        }
         static void Clear(Transform parent){if(parent==null)return;for(var i=parent.childCount-1;i>=0;i--){var child=parent.GetChild(i);child.SetParent(null,false);if(Application.isPlaying)Destroy(child.gameObject);else DestroyImmediate(child.gameObject);}}
-        static GameObject Row(string prefab,Transform parent){if(parent==null)return null;var row=DesktopUiPrefabFactory.Instantiate(prefab,parent);if(row!=null)DesktopModalUi.StyleTree(row.transform);return row;}
+        static GameObject Row(string prefab,Transform parent){return Row(prefab,parent,true);}
+        static GameObject Row(string prefab,Transform parent,bool skin)
+        {
+            if(parent==null)return null;var row=DesktopUiPrefabFactory.Instantiate(prefab,parent);if(row==null)return null;row.name=prefab;
+            if(skin||!Application.isPlaying)DesktopModalUi.StyleTree(row.transform);else FreezeRow(row);
+            return row;
+        }
+        static void FreezeRow(GameObject row)
+        {
+            var skin=row.GetComponent<CozyPanelSkin>()??row.AddComponent<CozyPanelSkin>();
+            skin.MarkSkinned();skin.RememberChildren();
+        }
         static void Label(GameObject row,string path,string value){if(row==null)return;var text=DesktopModalUi.FindComponent<Text>(row.transform,path);if(text!=null){text.supportRichText=false;text.text=value??"";}}
         static void Bind(GameObject row,string path,UnityEngine.Events.UnityAction action){if(row==null)return;var button=DesktopModalUi.FindComponent<Button>(row.transform,path);if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
         static void SetButtons(GameObject row,bool enabled){if(row!=null)foreach(var button in row.GetComponentsInChildren<Button>(true))button.interactable=enabled;}

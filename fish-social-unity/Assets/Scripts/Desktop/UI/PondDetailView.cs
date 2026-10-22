@@ -1,4 +1,3 @@
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,9 +29,7 @@ namespace FishSocial.Desktop
             if (fee != null) fee.text = feeText;
             if (facts != null)
             {
-                facts.text = pond == null ? "点选鱼塘，查看真实场景和入塘条件。" :
-                    (name == null ? pond.displayName + "\n" : "") + Facts(pond, state) +
-                    (fee == null ? "\n" + feeText : "");
+                facts.text = pond == null ? "点选鱼塘，查看真实场景和入塘条件。" : ShortFacts(pond);
             }
             var status = DesktopModalUi.FindComponent<Text>(root, "StatusText");
             if (status != null)
@@ -66,7 +63,7 @@ namespace FishSocial.Desktop
 
         public static void RevealPhoto(Transform root)
         {
-            if(root==null || !root.gameObject.activeInHierarchy)return;
+            if(root==null)return;
             var frame=root.Find("PhotoFrame");if(frame==null)return;
             var pose=frame.GetComponent<CozyJournalStaticPose>();
             if(pose==null)
@@ -106,29 +103,20 @@ namespace FishSocial.Desktop
             return fee + " 金币 / 2 小时 · 今日 " + count + "/" + cap + " 次";
         }
 
-        static string Facts(WorldMapPondView pond, PondSelectionState state)
+        static string ShortFacts(WorldMapPondView pond)
         {
-            var text = new StringBuilder(DesktopGameData.CategoryLabel(pond.pondCategory));
+            var line = DesktopGameData.CategoryLabel(pond.pondCategory);
             foreach (var definition in DesktopGameData.Ponds)
             {
                 if (definition == null || definition.pondId != pond.pondId) continue;
                 if (!string.IsNullOrEmpty(definition.waterType))
-                    text.Append(" · ").Append(DesktopGameData.WaterLabel(definition.waterType));
-                if (!string.IsNullOrEmpty(definition.realWorldRef))
-                    text.Append("\n").Append(definition.realWorldRef);
+                    line += " · " + DesktopGameData.WaterLabel(definition.waterType);
                 break;
             }
-            text.Append("\n鱼种：").Append(DesktopGameData.PondSpeciesSummary(pond.pondId, 4));
-            text.Append("\n").Append(state.AccessReason(pond));
-            if (pond.minPlayerLevel > 0 && state.CanEnter(pond))
-                text.Append(" · 等级 ≥ ").Append(pond.minPlayerLevel);
-            if (PondSelectionState.HasDualFee(pond))
-                text.Append("\n出售档：").Append(pond.feePer2hSellOnly).Append(" 金币 / 2小时；回鱼档：")
-                    .Append(pond.feePer2hAutoReturn).Append(" 金币 / 2小时")
-                    .Append(state.ReturnFeeMode == "auto_return" ? "\n当前回鱼档：达标自动回塘" : "\n当前出售档：鱼获仅可出售");
-            if (!string.IsNullOrEmpty(state.Status) && state.Status != state.AccessReason(pond))
-                text.Append("\n").Append(state.Status);
-            return text.ToString();
+            var species = DesktopGameData.PondSpeciesSummary(pond.pondId, 3);
+            if (!string.IsNullOrEmpty(species))
+                line += "\n可遇鱼种：" + species;
+            return line;
         }
     }
 }

@@ -59,19 +59,25 @@ namespace FishSocial.Tests.Editor
         [TearDown]
         public void TearDown(){if(page!=null){view.OnClosed();Object.DestroyImmediate(page);}CozyMotion.CancelPageTransition();}
         static object Invoke(object target,string name,params object[] args)=>target.GetType().GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public).Invoke(target,args);
+        static bool Shown(GameObject node)
+        {
+            if(node==null||!node.activeInHierarchy)return false;
+            var canvas=node.GetComponent<Canvas>();
+            return canvas==null||canvas.enabled;
+        }
         static void Drain(IEnumerator routine){while(routine.MoveNext())if(routine.Current is IEnumerator nested)Drain(nested);}
         static void Set(object target,string name,object value)=>target.GetType().GetField(name,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(target,value);
         [Test]
         public void FiveDestinationsSeparateRequestsFromFriendsAndBothFromPrivateAndPondChat()
         {
             view.OpenSection(SocialSection.Requests);
-            Assert.IsTrue(page.transform.Find("RequestsPage").gameObject.activeSelf);
-            Assert.IsFalse(page.transform.Find("FriendsPage").gameObject.activeSelf);
+            Assert.IsTrue(Shown(page.transform.Find("RequestsPage").gameObject));
+            Assert.IsFalse(Shown(page.transform.Find("FriendsPage").gameObject));
             Assert.IsFalse(page.transform.Find("PondPage").gameObject.activeSelf);
             view.OpenDirectMessage("alice","Alice");
             Assert.AreEqual(SocialSection.DirectMessages,view.Section);Assert.AreEqual("alice",view.DirectMessagePlayerId);
             Assert.IsTrue(page.transform.Find("FriendsPage/FriendsChatPage").gameObject.activeInHierarchy);
-            Assert.IsFalse(page.transform.Find("FriendsPage/Scroll").gameObject.activeSelf);
+            Assert.IsFalse(Shown(page.transform.Find("FriendsPage/Scroll").gameObject));
             Assert.IsFalse(page.transform.Find("FriendsPage/FriendGuide").gameObject.activeSelf);
             view.OpenSection(SocialSection.PondChat);
             Assert.IsFalse(page.transform.Find("FriendsPage/FriendsChatPage").gameObject.activeInHierarchy);

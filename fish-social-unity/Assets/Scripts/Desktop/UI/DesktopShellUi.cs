@@ -556,7 +556,8 @@ namespace FishSocial.Desktop
             _profilePanel?.OnClosed();
             _profileHubPanel?.OnClosed();
             _profileEditPanel?.OnClosed();
-            _socialFeedPanel?.OnClosed();
+            if (id != ShellPanelId.SocialFeed)
+                _socialFeedPanel?.OnClosed();
             _leaderboardPanel?.OnClosed();
             RefreshHeaderBalance();
             switch (id)
@@ -609,6 +610,7 @@ namespace FishSocial.Desktop
                     _settingsPanel?.OnOpened();
                     break;
             }
+            CozyJournalStaticPose.RevealAside(view);
         }
 
         static void AlignHeaderActions(Transform header, bool showClose)

@@ -14,6 +14,10 @@ namespace FishSocial.Desktop
         float revealOpacity = .3f;
         float elapsed;
         bool revealing;
+        bool armed;
+        Vector2 armedOffset;
+        float armedDuration = .26f;
+        float armedOpacity = .3f;
         public float CssAngle => cssAngle;
         public float AppliedScale { get; private set; } = 1;
         public float AppliedOpacity { get; private set; } = 1;
@@ -23,12 +27,56 @@ namespace FishSocial.Desktop
         {
             cssAngle = angle; graphics = targets; Refresh();
         }
+        public static bool IsDetailPolaroid(string node)
+        {
+            return node == "JournalPolaroid" || node == "JournalBagPhoto" ||
+                node == "JournalCollectionPhoto" || node == "JournalPhoto" ||
+                node == "PhotoFrame";
+        }
+
+        public static void RevealAside(Transform page)
+        {
+            if (page == null) return;
+            foreach (var pose in page.GetComponentsInChildren<CozyJournalStaticPose>(true))
+            {
+                if (!IsDetailPolaroid(pose.gameObject.name))
+                    continue;
+                pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+            }
+        }
+
         public void PlayReveal(Vector2 offset = default, float duration = .22f, float initialOpacity = .3f)
         {
-            revealOffset = offset; revealDuration = Mathf.Max(.001f, duration);
-            revealOpacity = Mathf.Clamp01(initialOpacity); elapsed = 0;
+            armed = true;
+            armedOffset = offset;
+            armedDuration = duration;
+            armedOpacity = initialOpacity;
+            BeginReveal();
+        }
+
+        void BeginReveal()
+        {
+            if (graphics == null || graphics.Length == 0)
+                graphics = GetComponentsInChildren<Graphic>(true);
+            revealOffset = armedOffset;
+            revealDuration = Mathf.Max(.001f, armedDuration);
+            revealOpacity = Mathf.Clamp01(armedOpacity);
+            elapsed = 0;
             revealing = !CozyMotion.Reduced && !CozyMotion.Paused;
             Refresh();
+        }
+
+        bool HierarchyVisible()
+        {
+            if (!isActiveAndEnabled) return false;
+            var node = transform;
+            while (node != null)
+            {
+                var group = node.GetComponent<CanvasGroup>();
+                if (group != null && group.alpha < .98f) return false;
+                node = node.parent;
+            }
+            return true;
         }
         public void Advance(float delta)
         {
@@ -44,17 +92,37 @@ namespace FishSocial.Desktop
             Refresh();
         }
         public void ApplyFinalPose() { revealing = false; elapsed = revealDuration; Refresh(); }
+        bool StickerOwnsPose()
+        {
+            return Application.isPlaying && GetComponent<CozyStickerMotion>() != null;
+        }
+
         void OnEnable()
         {
             CozyMotion.ReducedChanged -= OnReduced; CozyMotion.PausedChanged -= OnPaused;
-            CozyMotion.ReducedChanged += OnReduced; CozyMotion.PausedChanged += OnPaused; Refresh();
+            CozyMotion.ReducedChanged += OnReduced; CozyMotion.PausedChanged += OnPaused;
+            if (Application.isPlaying && armed) BeginReveal();
+            else if (!StickerOwnsPose()) Refresh();
         }
         void OnDisable()
         {
-            CozyMotion.ReducedChanged -= OnReduced; CozyMotion.PausedChanged -= OnPaused; ApplyFinalPose();
+            CozyMotion.ReducedChanged -= OnReduced; CozyMotion.PausedChanged -= OnPaused;
+            revealing = false;
+            if (!Application.isPlaying) ApplyFinalPose();
         }
-        void Update() { if (Application.isPlaying) Advance(Time.unscaledDeltaTime); }
-        void LateUpdate() { Refresh(); }
+        void Update()
+        {
+            if (!Application.isPlaying || !revealing) return;
+            // Page flips fade the aside while this 0.26s snap would otherwise finish unseen.
+            if (!HierarchyVisible())
+            {
+                elapsed = 0;
+                Refresh();
+                return;
+            }
+            Advance(Time.unscaledDeltaTime);
+        }
+        void LateUpdate() { if (revealing || !StickerOwnsPose()) Refresh(); }
         void OnReduced(bool value) { if (value) ApplyFinalPose(); }
         void OnPaused(bool value) { if (value) ApplyFinalPose(); }
         public void Refresh()

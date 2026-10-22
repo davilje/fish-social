@@ -27,6 +27,8 @@ namespace FishSocial.Desktop
         Vector2 tapePosition;
         float tapeTime = .16f;
         bool configured;
+        bool selectionOrdered;
+        int orderedChildCount = -1;
         public string SourceId { get; private set; }
         public bool EntranceComplete => complete;
         public float TapeReveal => tapeTime >= .16f ? 1 : CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutCubic, tapeTime / .16f);
@@ -48,6 +50,7 @@ namespace FishSocial.Desktop
         float time;
         float duration;
         bool pondObserver;
+        bool animateAll;
         bool entering;
         bool complete;
         bool waitForLayout;
@@ -70,12 +73,13 @@ namespace FishSocial.Desktop
         }
 
         public static CozyStickerMotion Bind(GameObject card, string stableKey, int index,
-            RectTransform visibleArea = null, string sourceId = null, float? cssAngle = null, bool pondObserver = false)
+            RectTransform visibleArea = null, string sourceId = null, float? cssAngle = null, bool pondObserver = false,
+            bool enterAll = false)
         {
             if (card == null) return null;
             var motion = card.GetComponent<CozyStickerMotion>();
             if (motion == null) motion = card.AddComponent<CozyStickerMotion>();
-            motion.Configure(stableKey, index, visibleArea, sourceId, cssAngle, pondObserver);
+            motion.Configure(stableKey, index, visibleArea, sourceId, cssAngle, pondObserver, enterAll);
             return motion;
         }
 
@@ -90,12 +94,13 @@ namespace FishSocial.Desktop
             }
         }
 
-        void Configure(string stableKey, int index, RectTransform visibleArea, string sourceId, float? cssAngle, bool observe)
+        void Configure(string stableKey, int index, RectTransform visibleArea, string sourceId, float? cssAngle, bool observe, bool enterAll)
         {
             rect = transform as RectTransform;
             var nextKey = stableKey ?? name;
             var preserveEntrance = configured && key == nextKey;
             key = nextKey;
+            animateAll = enterAll;
             // Compatibility with the existing account-scoped controller keys: only the final id feeds tilt().
             sourceId = sourceId ?? key.Substring(key.LastIndexOf(':') + 1);
             SourceId = sourceId;
@@ -117,7 +122,10 @@ namespace FishSocial.Desktop
             var hit = GetComponent<Button>();
             foreach (var graphic in GetComponentsInChildren<Graphic>(true))
             {
-                if (graphic.transform == transform || (hit != null && graphic == hit.targetGraphic)) continue;
+                // The card plate is often the root Image. Empty showcase slots have no child art,
+                // so skipping the root leaves that slot without an entrance.
+                var isRoot = graphic.transform == transform;
+                if (!isRoot && hit != null && graphic == hit.targetGraphic) continue;
                 var offset = graphic.GetComponent<CozyGraphicOffset>();
                 if (offset == null) offset = graphic.gameObject.AddComponent<CozyGraphicOffset>();
                 graphics.Add(offset);
@@ -125,7 +133,7 @@ namespace FishSocial.Desktop
             if (!preserveEntrance)
             {
                 selectedOverride = null;
-                complete = observe ? PondSeen.Contains(key) : index >= 8;
+                complete = observe ? PondSeen.Contains(key) : !animateAll && index >= 8;
                 entering = false; waitForLayout = true; time = 0;
                 lastSelected = IsSelected;
                 lift = liftFrom = liftTo = lastSelected ? 6 : 0;
@@ -165,10 +173,54 @@ namespace FishSocial.Desktop
 
         void RefreshExplicitSelection()
         {
-            if (!selectedOverride.HasValue) return;
             var selection = transform.Find("JournalSelection");
-            if (selection != null) selection.gameObject.SetActive(IsSelected);
-            if (tape != null) tape.gameObject.SetActive(IsSelected);
+            if (selectedOverride.HasValue)
+            {
+                if (selection != null) selection.gameObject.SetActive(IsSelected);
+                if (tape != null) tape.gameObject.SetActive(IsSelected);
+            }
+            if (!isActiveAndEnabled) return;
+            if (!IsSelected)
+            {
+                if (selectionOrdered)
+                {
+                    selectionOrdered = false;
+                    orderedChildCount = -1;
+                    var idleRibbon = transform.Find("JournalRibbon");
+                    if (idleRibbon != null && idleRibbon.gameObject.activeSelf) idleRibbon.SetAsLastSibling();
+                    var idleStamp = transform.Find("JournalStamp");
+                    if (idleStamp != null && idleStamp.gameObject.activeSelf) idleStamp.SetAsLastSibling();
+                }
+                return;
+            }
+            // Reordering every frame dirties the shared canvas and hitches the rail tabs.
+            if (selectionOrdered && orderedChildCount == transform.childCount) return;
+            var ribbon = transform.Find("JournalRibbon");
+            var stamp = transform.Find("JournalStamp");
+            var place = transform.Find("Rank");
+            if (place != null) place.SetAsLastSibling();
+            if (selection != null && selection.gameObject.activeSelf) selection.SetAsLastSibling();
+            if (ribbon != null && ribbon.gameObject.activeSelf) ribbon.SetAsLastSibling();
+            if (stamp != null && stamp.gameObject.activeSelf) stamp.SetAsLastSibling();
+            // The podium pill hangs across the selection stroke, so it paints after the ring.
+            var rankBacking = transform.Find("JournalRankBacking");
+            if (rankBacking != null) rankBacking.SetAsLastSibling();
+            var rankLabel = transform.Find("JournalRankLabel");
+            if (rankLabel != null) rankLabel.SetAsLastSibling();
+            // The corner tape is z-index 2 in the preview, above the place mark.
+            if (tape != null && tape.gameObject.activeSelf) tape.SetAsLastSibling();
+            selectionOrdered = true;
+            orderedChildCount = transform.childCount;
+        }
+
+        /// <summary>StylePostTape runs after the first capture; keep the styled corner pose.</summary>
+        public void RememberTape()
+        {
+            if (tape == null)
+                tape = transform.Find("JournalTape") as RectTransform;
+            if (tape == null) return;
+            tapeScale = tape.localScale;
+            tapePosition = tape.anchoredPosition;
         }
 
         /// <summary>Start after the journal door/old-page exit has finished; preserve the prototype first-eight and pond-observer rules.</summary>
@@ -177,7 +229,7 @@ namespace FishSocial.Desktop
             if (!configured) return;
             delay = baseDelay + Mathf.Max(0, additionalDelay);
             complete = CozyMotion.Reduced || CozyMotion.Paused
-                || (pondObserver ? PondSeen.Contains(key) : cardIndex >= 8);
+                || (pondObserver ? PondSeen.Contains(key) : !animateAll && cardIndex >= 8);
             entering = false; time = 0; waitForLayout = true;
             Apply(complete ? 1 : 0);
         }
@@ -268,6 +320,8 @@ namespace FishSocial.Desktop
         {
             ApplyShadow();
             ApplyTape();
+            var pose = GetComponent<CozyJournalStaticPose>();
+            if (pose != null && pose.IsRevealing) return;
             var t = CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutBack, progress);
             // CSS rotate is clockwise in a downward-y coordinate system, opposite Unity's z axis.
             var scale = CozyMotion.Reduced ? 1f : Mathf.LerpUnclamped(1.12f, 1, t);

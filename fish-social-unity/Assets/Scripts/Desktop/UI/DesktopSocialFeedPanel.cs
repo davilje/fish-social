@@ -34,8 +34,15 @@ namespace FishSocial.Desktop
         bool _isOpen;
         bool _hasLoaded;
         bool _loadedFriendsOnly;
+        bool _feedTabsStyled;
         bool _loadingMore;
+        FeedSlot _publicFeed;
+        FeedSlot _friendFeed;
+        FeedSlot _mineFeed;
         bool _canLoadMore;
+        bool _shellEntrance;
+        bool _seenListTop;
+        bool _suppressScrollLoad;
         int _nextOffset;
         const int InitialPageSize = 50;
         const int MorePageSize = 10;
@@ -66,6 +73,8 @@ namespace FishSocial.Desktop
             if (_isOpen)
                 return;
             _isOpen = true;
+            _shellEntrance = true;
+            _seenListTop = false;
             var share = Find<Button>("DesignFeedInfo/Share");
             if (share != null)
             {
@@ -73,8 +82,14 @@ namespace FishSocial.Desktop
                 share.onClick.AddListener(OpenComposer);
                 DesktopModalUi.SetButtonLabel(share, "分享鱼获");
             }
-            if (!_hasLoaded || _loadedFriendsOnly != _friendsOnly || _loadedMineOnly != _mineOnly)
-                Refresh();
+            EnsureFeedSlots();
+            var slot = CurrentFeed;
+            if (slot != null && slot.loaded)
+            {
+                ShowFeed(slot);
+                return;
+            }
+            Refresh();
         }
 
         public void OnClosed()
@@ -89,10 +104,6 @@ namespace FishSocial.Desktop
                 StopCoroutine(_loadRoutine);
             _loadRoutine = null;
             _loadingMore = false;
-            _hasLoaded = false;
-            _canLoadMore = false;
-            _nextOffset = 0;
-            ClearContent();
         }
 
         public void BuildEditorLayout()
@@ -133,7 +144,12 @@ namespace FishSocial.Desktop
             if (_composer == null) { SetStatus("发布界面资源缺失，请重新导入手账 UI。"); return; }
             _composer.Open(_api, _pond != null ? _pond.Nickname : "钓友", () =>
             {
-                _hasLoaded = false;
+                EnsureFeedSlots();
+                if (_mineFeed != null)
+                {
+                    _mineFeed.loaded = false;
+                    ClearRoot(_mineFeed.root);
+                }
                 SelectFeed(false, true);
                 SetStatus("鱼获故事已发布，正在刷新我的动态…");
             });
@@ -187,39 +203,88 @@ namespace FishSocial.Desktop
                 _scroll.onValueChanged.RemoveListener(OnScrollChanged);
                 _scroll.onValueChanged.AddListener(OnScrollChanged);
             }
+            if (_content != null)
+            {
+                var rows = _content.GetComponent<VerticalLayoutGroup>();
+                if (rows != null && rows.padding.top < 18)
+                    rows.padding = new RectOffset(rows.padding.left, rows.padding.right, 18, Mathf.Max(rows.padding.bottom, 12));
+            }
         }
 
         void SelectFeed(bool friendsOnly, bool mineOnly = false)
         {
-            if (_friendsOnly == friendsOnly && _mineOnly == mineOnly && _hasLoaded)
-                return;
-            _loadGeneration++;
-            if (_loadRoutine != null)
-                StopCoroutine(_loadRoutine);
-            _loadRoutine = null;
-            _friendsOnly = friendsOnly;
-            _mineOnly = mineOnly;
-            _hasLoaded = false;
+            var same = _friendsOnly == friendsOnly && _mineOnly == mineOnly;
+            EnsureFeedSlots();
+            if (!same)
+            {
+                _loadGeneration++;
+                if (_loadRoutine != null)
+                    StopCoroutine(_loadRoutine);
+                _loadRoutine = null;
+                if (_categoryMotion != null) StopCoroutine(_categoryMotion);
+                _categoryMotion = null;
+                _friendsOnly = friendsOnly;
+                _mineOnly = mineOnly;
+                _seenListTop = false;
+                _suppressScrollLoad = false;
+                _shellEntrance = false;
+            }
             RestyleTabs();
-            if (_categoryMotion != null) StopCoroutine(_categoryMotion);
-            _categoryMotion=StartCoroutine(ChangeFeedCategory());
+            var slot = CurrentFeed;
+            if (slot != null && slot.loaded && !same && Application.isPlaying)
+            {
+                _categoryMotion = StartCoroutine(RevealFeed(slot));
+                return;
+            }
+            if (slot != null)
+                ShowFeed(slot);
+            if (slot != null && slot.loaded)
+                return;
+            if (_loadRoutine != null)
+                return;
+            Refresh();
+        }
+
+        IEnumerator RevealFeed(FeedSlot slot)
+        {
+            var motion = GetComponent<CozyJournalPageMotion>();
+            if (motion != null) yield return motion.Exit();
+            ShowFeed(slot);
+            if (slot != null && slot.root != null)
+            {
+                var stickers = slot.root.GetComponentsInChildren<CozyStickerMotion>();
+                for (var i = 0; i < stickers.Length; i++)
+                    stickers[i].RestartEntrance();
+            }
+            motion?.PlayEntrance(slot != null && slot.root != null ? slot.root.childCount : 0);
+            _categoryMotion = null;
         }
         Coroutine _categoryMotion;
-        IEnumerator ChangeFeedCategory()
-        {
-            var motion=GetComponent<CozyJournalPageMotion>();
-            if(motion!=null) yield return motion.Exit();
-            ClearContent();
-            if(_scroll!=null) _scroll.verticalNormalizedPosition=1f;
-            Refresh();
-            // Start the heading/aside with received content rather than fading while the HTTP request is pending.
-            _categoryMotion=null;
-        }
 
         void RestyleUi()
         {
             DesktopModalUi.StyleTree(transform);
             RestyleTabs();
+            StyleCommentColumn();
+        }
+
+        void StyleCommentColumn()
+        {
+            var aside = transform.Find("DesignFeedInfo");
+            if (aside == null) return;
+            CozyCssGraphic.EnsureWash(aside, "AsideWash",
+                new Color(1f, 253f / 255f, 247f / 255f, 0.92f), 20f, 2f,
+                new Color(239f / 255f, 223f / 255f, 196f / 255f, 1f));
+            var summary = aside.Find("JournalSummary") as RectTransform;
+            if (summary == null) return;
+            var framed = summary.Find("JournalPaper");
+            if (framed != null) framed.gameObject.SetActive(false);
+            summary.anchorMin = summary.anchorMax = new Vector2(0f, 1f);
+            summary.pivot = new Vector2(0f, 1f);
+            summary.anchoredPosition = new Vector2(18f, -58f);
+            summary.sizeDelta = new Vector2(326f, 82f);
+            CozyCssGraphic.EnsureWash(summary, "SummaryWash",
+                new Color(251f / 255f, 243f / 255f, 228f / 255f, 1f), 12f, 0f, Color.clear);
         }
 
         void RestyleTabs()
@@ -233,12 +298,16 @@ namespace FishSocial.Desktop
                 var button = tabs[index];
                 if (button == null)
                     continue;
-                DesktopModalUi.SetButtonLabel(button, names[index]);
-                DesktopModalUi.StyleButton(button, icons[index]);
+                if (!_feedTabsStyled)
+                {
+                    DesktopModalUi.SetButtonLabel(button, names[index]);
+                    DesktopModalUi.StyleButton(button, icons[index]);
+                }
                 var visual = button.GetComponent<CozyButtonVisual>();
                 if (visual != null)
                     visual.SetSelected(_mineOnly ? index == 2 : index == (_friendsOnly ? 1 : 0));
             }
+            _feedTabsStyled = true;
         }
 
         void Refresh()
@@ -247,9 +316,17 @@ namespace FishSocial.Desktop
                 return;
             if (_loadRoutine != null)
                 return;
+            EnsureFeedSlots();
+            var slot = CurrentFeed;
+            if (slot != null)
+            {
+                slot.loaded = false;
+                slot.canMore = false;
+                slot.nextOffset = 0;
+                ClearRoot(slot.root);
+                SyncFeed(slot);
+            }
             _loadingMore = false;
-            _nextOffset = 0;
-            _canLoadMore = false;
             var retry = Find<Button>("Retry");
             if (retry != null) retry.gameObject.SetActive(false);
             _loadRoutine = StartCoroutine(LoadRoutine(false, InitialPageSize, 0, ++_loadGeneration, _friendsOnly, _mineOnly));
@@ -257,25 +334,33 @@ namespace FishSocial.Desktop
 
         void OnScrollChanged(Vector2 normalizedPosition)
         {
-            if (normalizedPosition.y <= 0.05f)
-                LoadMore();
+            if (_suppressScrollLoad)
+                return;
+            if (normalizedPosition.y > 0.2f)
+                _seenListTop = true;
+            if (!_seenListTop || normalizedPosition.y > 0.05f)
+                return;
+            LoadMore();
         }
 
         void LoadMore()
         {
-            if (!_isOpen || !_hasLoaded || !_canLoadMore ||
+            var slot = CurrentFeed;
+            if (!_isOpen || slot == null || !slot.loaded || !slot.canMore ||
                 _loadingMore || _loadRoutine != null)
                 return;
             _loadingMore = true;
             _loadRoutine = StartCoroutine(
-                LoadRoutine(true, MorePageSize, _nextOffset, ++_loadGeneration, _friendsOnly, _mineOnly));
+                LoadRoutine(true, MorePageSize, slot.nextOffset, ++_loadGeneration, _friendsOnly, _mineOnly));
         }
 
         IEnumerator LoadRoutine(bool append, int limit, int offset, int generation, bool friendsOnly, bool mineOnly)
         {
-            var hasContent = _content != null && _content.childCount > 0;
-            if (!append)
-                SetStatus(hasContent ? "正在更新动态…" : "正在加载动态…");
+            var slot = FeedFor(friendsOnly, mineOnly);
+            var root = slot != null ? slot.root : _content;
+            var hasContent = root != null && root.childCount > 0;
+            if (!append && !hasContent)
+                SetStatus("正在加载动态…");
             if (_api == null || !_api.CanUse)
             {
                 SetStatus("当前没有有效的 Steam 会话。");
@@ -323,49 +408,57 @@ namespace FishSocial.Desktop
             {
                 if (!append)
                 {
-                    ClearContent();
+                    ClearRoot(root);
                     GetComponent<CozyJournalPageMotion>()?.Finish();
                     SetStatus(mineOnly ? "还没有分享鱼获。" : friendsOnly ? "暂无好友动态。" : "暂无公开动态。");
                 }
-                _hasLoaded = true;
-                _loadedFriendsOnly = friendsOnly;
-                _loadedMineOnly = mineOnly;
-                _canLoadMore = false;
+                RememberFeed(slot, true, false, offset);
                 _loadRoutine = null;
                 _loadingMore = false;
+                _suppressScrollLoad = false;
                 yield break;
             }
 
             if (!append)
             {
-                ClearContent();
+                ClearRoot(root);
                 SetStatus(string.Empty);
             }
             for (var i = 0; i < posts.Length; i++)
             {
                 if (generation != _loadGeneration) yield break;
-                CreatePostCard(posts[i]);
+                CreatePostCard(posts[i], root);
                 if ((i + 1) % MorePageSize == 0)
                     yield return null;
             }
-            _nextOffset = offset + posts.Length;
-            _canLoadMore = posts.Length >= limit;
-            _hasLoaded = true;
-            _loadedFriendsOnly = friendsOnly;
-            _loadedMineOnly = mineOnly;
-            if (!append)
-            {
-                foreach(var sticker in _content.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
+            RememberFeed(slot, true, posts.Length >= limit, offset + posts.Length);
+            if (!append && slot == CurrentFeed)
                 GetComponent<CozyJournalPageMotion>()?.PlayEntrance(posts.Length);
+            _shellEntrance = false;
+            if (!append && _scroll != null)
+            {
+                _suppressScrollLoad = true;
+                Canvas.ForceUpdateCanvases();
+                _scroll.verticalNormalizedPosition = 1f;
+                _seenListTop = false;
             }
 
             _loadRoutine = null;
             _loadingMore = false;
+            if (!append)
+            {
+                yield return null;
+                if (generation == _loadGeneration)
+                {
+                    _suppressScrollLoad = false;
+                    _seenListTop = false;
+                }
+            }
         }
 
-        void CreatePostCard(SocialPostDto post)
+        void CreatePostCard(SocialPostDto post, Transform root)
         {
-            var card = DesktopUiPrefabFactory.Instantiate("SocialPostCard", _content);
+            var card = DesktopUiPrefabFactory.Instantiate("SocialPostCard", root != null ? root : _content);
             if (card == null)
                 return;
             var binder = card.GetComponent<DesktopSocialPostCard>();
@@ -375,7 +468,14 @@ namespace FishSocial.Desktop
                 Destroy(card);
                 return;
             }
-            DesktopModalUi.StyleTree(card.transform);
+            if (!Application.isPlaying)
+                DesktopModalUi.StyleTree(card.transform);
+            else
+            {
+                var skin = card.GetComponent<CozyPanelSkin>() ?? card.AddComponent<CozyPanelSkin>();
+                skin.MarkSkinned();
+                skin.RememberChildren();
+            }
             binder.Bind(post, _api);
             if (_commentsHost != null) binder.ConfigureCommentsHost(_commentsHost, SelectCommentCard);
             binder.CommentCountChanged += count => { if (_selectedComments == binder) CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",count+" 条评论"); };
@@ -402,11 +502,58 @@ namespace FishSocial.Desktop
                 CozyItemArt.Text(transform, "DesignFeedInfo/Heading", "给 " + (post.nickname ?? "钓友") + " 的留言");
                 CozyItemArt.Set(transform, "DesignFeedInfo/JournalSummaryArt", post.fish != null ? CozyItemArt.Fish(post.fish.speciesId) : null);
             }
-            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",selectedCard.CommentCount+" 条评论");
+            var pondName = post.fish != null ? DesktopGameData.GetPond(post.fish.pondId) : null;
+            var pondLabel = pondName != null && !string.IsNullOrEmpty(pondName.name) ? pondName.name : "";
+            CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount",
+                (string.IsNullOrEmpty(pondLabel) ? "" : pondLabel + " · ") + selectedCard.CommentCount + " 条评论");
+            StyleCommentColumn();
+            RevealCommentAside();
+            RaiseSelectedTape(selectedCard);
             var body = transform.Find("DesignFeedInfo/Body");
             if (body != null) body.gameObject.SetActive(false);
             var note = transform.Find("DesignFeedInfo/Note");
             if (note != null) note.gameObject.SetActive(false);
+        }
+
+        void RevealCommentAside()
+        {
+            var info = transform.Find("DesignFeedInfo");
+            if (info == null) return;
+            foreach (var name in new[] { "Heading", "JournalSummary", "JournalSummaryArt", "DetailTitle", "CommentCount" })
+            {
+                var node = info.Find(name);
+                if (node == null) continue;
+                var pose = node.GetComponent<CozyJournalStaticPose>() ?? node.gameObject.AddComponent<CozyJournalStaticPose>();
+                pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+            }
+            var host = info.Find("CommentsHost");
+            if (host == null) return;
+            for (var i = 0; i < host.childCount; i++)
+            {
+                var child = host.GetChild(i);
+                var pose = child.GetComponent<CozyJournalStaticPose>() ?? child.gameObject.AddComponent<CozyJournalStaticPose>();
+                pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+            }
+        }
+
+        static void RaiseSelectedTape(DesktopSocialPostCard selectedCard)
+        {
+            if (selectedCard == null) return;
+            var content = selectedCard.transform.parent;
+            if (content == null) return;
+            for (var i = 0; i < content.childCount; i++)
+            {
+                var tape = content.GetChild(i).Find("JournalTape");
+                if (tape == null) continue;
+                // A nested canvas draws above the scroll mask, so the corner tape
+                // stays on screen after the post has scrolled out of the list.
+                var raycaster = tape.GetComponent<GraphicRaycaster>();
+                if (raycaster != null) Destroy(raycaster);
+                var overlay = tape.GetComponent<Canvas>();
+                if (overlay != null) Destroy(overlay);
+                if (content.GetChild(i) == selectedCard.transform)
+                    tape.SetAsLastSibling();
+            }
         }
 
         /// <summary>Use the same selection and comment renderer for a supplied snapshot without a network request.</summary>
@@ -422,37 +569,137 @@ namespace FishSocial.Desktop
         void OnPostLiked(PostLikedDto message)
         {
             if (message == null || !_isOpen || _content == null) return;
-            foreach (var card in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+            foreach (var card in FeedCards())
                 card.ApplyLiked(message);
         }
 
         void OnPostCommented(PostCommentedDto message)
         {
             if (message == null || !_isOpen || _content == null) return;
-            foreach (var card in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+            foreach (var card in FeedCards())
                 card.ApplyCommented(message);
         }
 
         void OnPostCommentDeleted(PostCommentDeletedDto message)
         {
             if (message == null || !_isOpen || _content == null) return;
-            foreach (var card in _content.GetComponentsInChildren<DesktopSocialPostCard>())
+            foreach (var card in FeedCards())
                 card.ApplyCommentDeleted(message);
         }
 
         void ClearContent()
         {
-            if (_selectedComments != null) _selectedComments.CloseComments();
-            _selectedComments = null;
-            var empty=transform.Find("DesignFeedInfo/CommentEmpty");if(empty!=null)empty.gameObject.SetActive(true);
-            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount","");
-            if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
-            if (_content == null)
+            ClearRoot(_content);
+        }
+
+        sealed class FeedSlot
+        {
+            public RectTransform root;
+            public bool loaded;
+            public bool canMore;
+            public int nextOffset;
+        }
+
+        FeedSlot CurrentFeed => _mineOnly ? _mineFeed : _friendsOnly ? _friendFeed : _publicFeed;
+
+        FeedSlot FeedFor(bool friendsOnly, bool mineOnly)
+        {
+            EnsureFeedSlots();
+            return mineOnly ? _mineFeed : friendsOnly ? _friendFeed : _publicFeed;
+        }
+
+        void EnsureFeedSlots()
+        {
+            if (_content == null || _publicFeed != null)
                 return;
-            for (var i = _content.childCount - 1; i >= 0; i--)
+            _publicFeed = new FeedSlot { root = _content };
+            _friendFeed = new FeedSlot { root = CozyKeptPage.DuplicateList(_content, "FriendsFeed") };
+            _mineFeed = new FeedSlot { root = CozyKeptPage.DuplicateList(_content, "MineFeed") };
+        }
+
+        void ShowFeed(FeedSlot slot)
+        {
+            SetFeedRoot(_publicFeed, slot == _publicFeed);
+            SetFeedRoot(_friendFeed, slot == _friendFeed);
+            SetFeedRoot(_mineFeed, slot == _mineFeed);
+            SyncFeed(slot);
+            if (_selectedComments != null && !_selectedComments.gameObject.activeInHierarchy)
             {
-                var child=_content.GetChild(i);child.gameObject.SetActive(false);child.SetParent(null,false);
-                if(Application.isPlaying) Destroy(child.gameObject);else DestroyImmediate(child.gameObject);
+                _selectedComments.CloseComments();
+                _selectedComments = null;
+                var empty = transform.Find("DesignFeedInfo/CommentEmpty");
+                if (empty != null) empty.gameObject.SetActive(true);
+                CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount", "");
+                if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
+            }
+        }
+
+        static void SetFeedRoot(FeedSlot slot, bool active)
+        {
+            if (slot == null || slot.root == null || slot.root.gameObject.activeSelf == active)
+                return;
+            slot.root.gameObject.SetActive(active);
+        }
+
+        void SyncFeed(FeedSlot slot)
+        {
+            if (slot == null)
+                return;
+            _content = slot.root;
+            _hasLoaded = slot.loaded;
+            _canLoadMore = slot.canMore;
+            _nextOffset = slot.nextOffset;
+            _loadedFriendsOnly = slot == _friendFeed;
+            _loadedMineOnly = slot == _mineFeed;
+            if (_scroll != null && slot.root != null)
+                _scroll.content = slot.root;
+        }
+
+        void RememberFeed(FeedSlot slot, bool loaded, bool canMore, int nextOffset)
+        {
+            if (slot != null)
+            {
+                slot.loaded = loaded;
+                slot.canMore = canMore;
+                slot.nextOffset = nextOffset;
+            }
+            if (slot == CurrentFeed)
+                SyncFeed(slot);
+        }
+
+        IEnumerable<DesktopSocialPostCard> FeedCards()
+        {
+            if (_publicFeed != null && _publicFeed.root != null)
+                foreach (var card in _publicFeed.root.GetComponentsInChildren<DesktopSocialPostCard>(true))
+                    yield return card;
+            if (_friendFeed != null && _friendFeed.root != null)
+                foreach (var card in _friendFeed.root.GetComponentsInChildren<DesktopSocialPostCard>(true))
+                    yield return card;
+            if (_mineFeed != null && _mineFeed.root != null)
+                foreach (var card in _mineFeed.root.GetComponentsInChildren<DesktopSocialPostCard>(true))
+                    yield return card;
+        }
+
+        void ClearRoot(Transform root)
+        {
+            if (root == _content)
+            {
+                if (_selectedComments != null) _selectedComments.CloseComments();
+                _selectedComments = null;
+                var empty = transform.Find("DesignFeedInfo/CommentEmpty");
+                if (empty != null) empty.gameObject.SetActive(true);
+                CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount", "");
+                if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
+            }
+            if (root == null)
+                return;
+            for (var i = root.childCount - 1; i >= 0; i--)
+            {
+                var child = root.GetChild(i);
+                child.gameObject.SetActive(false);
+                child.SetParent(null, false);
+                if (Application.isPlaying) Destroy(child.gameObject);
+                else DestroyImmediate(child.gameObject);
             }
         }
 

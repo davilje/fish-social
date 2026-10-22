@@ -30,6 +30,7 @@ namespace FishSocial.Desktop
         int _playerGeneration;
         CozyJournalPageMotion _pageMotion;
         Coroutine _boardTransition;
+        string _pendingBoard;
         readonly Dictionary<GameObject, string> _cardPlayers = new Dictionary<GameObject, string>();
         Text _status;
         Text _myRank;
@@ -48,7 +49,11 @@ namespace FishSocial.Desktop
         Coroutine _prefetchRoutine;
         int _loadGeneration;
         int _prefetchEpoch;
-        readonly List<GameObject> _rowPool = new List<GameObject>(48);
+        List<GameObject> _rowPool = new List<GameObject>(48);
+        readonly Dictionary<string, RectTransform> _boardRoots = new Dictionary<string, RectTransform>();
+        readonly Dictionary<string, List<GameObject>> _boardPools = new Dictionary<string, List<GameObject>>();
+        readonly HashSet<string> _builtBoards = new HashSet<string>();
+        bool _leaderTabsStyled;
         readonly Dictionary<string, BoardCache> _clientCache =
             new Dictionary<string, BoardCache>();
 
@@ -79,17 +84,21 @@ namespace FishSocial.Desktop
         public void OnOpened()
         {
             if (!_uiReady)
+                EnsureUi();
+            if (!_uiReady)
                 return;
-            _boardType = BoardDaily;
-            EnsureUi();
+            ShowBoard(_boardType);
+            if (_builtBoards.Contains(_boardType))
+                return;
             RefreshNow();
-            StartPrefetchOthers(BoardDaily);
+            StartPrefetchOthers(_boardType);
         }
 
         public void OnClosed()
         {
             if (_boardTransition != null) StopCoroutine(_boardTransition);
             _boardTransition = null;
+            _pendingBoard = null;
             _pageMotion?.Finish();
             CancelLoads();
             ClearSelectedPlayer();
@@ -148,6 +157,8 @@ namespace FishSocial.Desktop
 
             _uiReady = true;
             _pageMotion = GetComponent<CozyJournalPageMotion>();
+            EnsureRankScrollbar();
+            AlignJournalPodium();
             RestyleUi();
 
             BindTab(_dailyTab, BoardDaily);
@@ -350,10 +361,14 @@ namespace FishSocial.Desktop
         void RestyleTabs()
         {
             CozyItemArt.Text(transform, "JournalBoardHeading", _boardType == BoardWeekly ? "每周钓王" : _boardType == BoardPond ? "当前鱼塘" : _boardType == BoardRare ? "稀有鱼获" : "今日大鱼");
-            StyleAction(_dailyTab, "fish", "今日大鱼");
-            StyleAction(_weeklyTab, "trophy", "每周钓王");
-            StyleAction(_pondTab, "pond", "当前鱼塘");
-            StyleAction(_rareTab, "star", "稀有鱼获");
+            if (!_leaderTabsStyled)
+            {
+                StyleAction(_dailyTab, "fish", "今日大鱼");
+                StyleAction(_weeklyTab, "trophy", "每周钓王");
+                StyleAction(_pondTab, "pond", "当前鱼塘");
+                StyleAction(_rareTab, "star", "稀有鱼获");
+                _leaderTabsStyled = true;
+            }
             var tabs = new[] { _dailyTab, _weeklyTab, _pondTab, _rareTab };
             var boards = new[] { BoardDaily, BoardWeekly, BoardPond, BoardRare };
             for (var index = 0; index < tabs.Length; index++)
@@ -372,7 +387,17 @@ namespace FishSocial.Desktop
             if (position != null)
             {
                 position.text = "第 " + rank + " 名";
-                PlacePodiumText(position.rectTransform, 0f, 8f, 112f, 24f, TextAnchor.MiddleCenter);
+                var place = position.rectTransform;
+                place.anchorMin = place.anchorMax = new Vector2(0f, 1f);
+                place.pivot = new Vector2(0f, 1f);
+                place.anchoredPosition = new Vector2(10f, -6f);
+                place.sizeDelta = new Vector2(120f, 28f);
+                position.fontSize = 18;
+                position.resizeTextForBestFit = false;
+                position.alignment = TextAnchor.MiddleLeft;
+                position.color = new Color(198f / 255f, 160f / 255f, 94f / 255f);
+                position.horizontalOverflow = HorizontalWrapMode.Overflow;
+                position.transform.SetAsLastSibling();
             }
             PlacePodiumImage(slot.avatar != null ? slot.avatar.rectTransform : null,
                 new Vector2(56f, 56f), 0f, 38f);
@@ -380,7 +405,131 @@ namespace FishSocial.Desktop
                 0f, 74f, 112f, 24f, TextAnchor.MiddleCenter);
             PlacePodiumText(slot.value != null ? slot.value.rectTransform : null,
                 0f, 102f, 112f, 24f, TextAnchor.MiddleCenter);
+            if (slot.value != null)
+            {
+                slot.value.fontSize = 22;
+                slot.value.resizeTextForBestFit = false;
+            }
             DesktopModalUi.StyleTree(slot.root.transform);
+            if (position != null)
+            {
+                position.fontSize = 18;
+                position.resizeTextForBestFit = false;
+                position.color = new Color(198f / 255f, 160f / 255f, 94f / 255f);
+                position.transform.SetAsLastSibling();
+            }
+            TuckPodiumPill(slot.root.transform.Find("JournalRankBacking") as RectTransform);
+            TuckPodiumPill(slot.root.transform.Find("JournalRankLabel") as RectTransform);
+        }
+
+        void AlignJournalPodium()
+        {
+            var podium = _podium1.root != null ? _podium1.root.transform.parent as RectTransform : null;
+            if (podium == null)
+                podium = transform.Find("Scroll/Viewport/Content/Podium") as RectTransform
+                    ?? transform.Find("Podium") as RectTransform;
+            if (podium == null)
+                return;
+            // The scroll content already reserves 232px for this box. Flowing the podium
+            // as a layout child drops the three cards to the bottom of the page.
+            var element = podium.GetComponent<LayoutElement>() ?? podium.gameObject.AddComponent<LayoutElement>();
+            element.ignoreLayout = true;
+            podium.anchorMin = podium.anchorMax = new Vector2(0f, 1f);
+            podium.pivot = new Vector2(0f, 1f);
+            podium.anchoredPosition = new Vector2(15f, -4f);
+            podium.sizeDelta = new Vector2(680f, 220f);
+            var rows = podium.parent != null ? podium.parent.GetComponent<VerticalLayoutGroup>() : null;
+            if (rows != null && rows.padding.top < 240)
+            {
+                var pad = rows.padding;
+                rows.padding = new RectOffset(pad.left, pad.right, 240, pad.bottom);
+            }
+            for (var rank = 1; rank <= 3; rank++)
+            {
+                var card = podium.Find("Slot" + rank);
+                if (card == null) continue;
+                HangPodiumLabel(card.Find("JournalRankBacking") as RectTransform, rank);
+                HangPodiumLabel(card.Find("JournalRankLabel") as RectTransform, rank);
+                var place = card.Find("Rank");
+                if (place != null)
+                {
+                    var placeLabel = place.GetComponent<Text>();
+                    if (placeLabel != null)
+                    {
+                        placeLabel.fontSize = 27;
+                        placeLabel.resizeTextForBestFit = false;
+                    }
+                }
+            }
+            // Slot1 is authored first, so the side cards paint over its tape and shadow.
+            var first = podium.Find("Slot1");
+            if (first != null) first.SetAsLastSibling();
+            // Rank rows are later siblings of this box, so they cover the 10px label that hangs
+            // out of the first-place card. The podium itself has no graphic, so it does not block the list.
+            podium.SetAsLastSibling();
+        }
+
+        static void HangPodiumLabel(RectTransform rect, int rank)
+        {
+            if (rect == null) return;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            // Preview: bottom -10px, padding 4px 15px, font 13, so the pill is 21px tall and hangs under the card.
+            rect.sizeDelta = new Vector2(70f, 21f);
+            rect.anchoredPosition = new Vector2(0f, -10f);
+            rect.SetAsLastSibling();
+            var plate = rect.GetComponent<Image>();
+            if (plate != null)
+            {
+                plate.sprite = null;
+                plate.type = Image.Type.Simple;
+                plate.color = Color.clear;
+                plate.raycastTarget = false;
+                var washNode = rect.Find("RankPill");
+                if (washNode == null)
+                {
+                    var go = new GameObject("RankPill", typeof(RectTransform), typeof(CozyCssGraphic));
+                    go.transform.SetParent(rect, false);
+                    washNode = go.transform;
+                }
+                var washRect = (RectTransform)washNode;
+                washRect.anchorMin = Vector2.zero;
+                washRect.anchorMax = Vector2.one;
+                washRect.offsetMin = washRect.offsetMax = Vector2.zero;
+                washNode.SetAsFirstSibling();
+                var wash = washNode.GetComponent<CozyCssGraphic>();
+                if (wash != null)
+                {
+                    wash.shape = CozyCssGraphic.Shape.Paper;
+                    wash.radius = 8f;
+                    wash.border = 0f;
+                    wash.raycastTarget = false;
+                    wash.color = rank == 1
+                        ? new Color(248f / 255f, 223f / 255f, 153f / 255f)
+                        : rank == 2
+                            ? new Color(220f / 255f, 234f / 255f, 241f / 255f)
+                            : new Color(238f / 255f, 209f / 255f, 185f / 255f);
+                }
+            }
+            var label = rect.GetComponent<Text>();
+            if (label == null) return;
+            label.text = rank == 1 ? "第一名" : rank == 2 ? "第二名" : "第三名";
+            label.fontSize = 13;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = rank == 1
+                ? new Color(139f / 255f, 97f / 255f, 43f / 255f)
+                : rank == 2
+                    ? new Color(109f / 255f, 140f / 255f, 153f / 255f)
+                    : new Color(174f / 255f, 119f / 255f, 82f / 255f);
+        }
+
+        static void TuckPodiumPill(RectTransform rect)
+        {
+            if (rect == null) return;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = new Vector2(0f, 10f);
+            rect.SetAsLastSibling();
         }
 
         static void PlacePodiumImage(RectTransform rect, Vector2 size, float x, float y)
@@ -484,26 +633,113 @@ namespace FishSocial.Desktop
 
         void SelectBoard(string boardType)
         {
-            if (_boardType == boardType) return;
+            if (_boardType == boardType && _boardTransition == null) return;
+            if (_pendingBoard == boardType) return;
             CancelLoads();
             if (_boardTransition != null) StopCoroutine(_boardTransition);
-            _boardType = boardType;
-            RestyleTabs();
+            _boardTransition = null;
+            _pendingBoard = boardType;
+            if (!Application.isPlaying)
+            {
+                ApplyBoardSwitch(boardType);
+                _pendingBoard = null;
+                return;
+            }
             _boardTransition = StartCoroutine(SwitchBoardRoutine(boardType));
         }
 
         IEnumerator SwitchBoardRoutine(string boardType)
         {
             if (_pageMotion != null) yield return _pageMotion.Exit();
-            if (_boardType != boardType) yield break;
-            ClearSelectedPlayer();
-            HideAllRows();
+            if (_pendingBoard != boardType)
+                yield break;
+            ApplyBoardSwitch(boardType);
+            _pendingBoard = null;
+            _boardTransition = null;
+        }
+
+        void ApplyBoardSwitch(string boardType)
+        {
+            _boardType = boardType;
+            RestyleTabs();
+            ShowBoard(boardType);
+            var pondId = _pond != null ? _pond.CurrentPondId : null;
+            BoardCache cached;
+            if (_builtBoards.Contains(boardType) && TryGetFreshCache(BuildCacheKey(boardType, pondId), out cached))
+            {
+                RenderPodium(FindRank(cached.entries, 1), FindRank(cached.entries, 2), FindRank(cached.entries, 3), boardType);
+                if (cached.hasMyRank)
+                    SetMyRank(cached.myRank, boardType);
+                SetStatus(cached.entries != null && cached.entries.Length > 0 ? string.Empty : "当前榜单暂无数据。");
+                ReplayBoardMotion();
+                return;
+            }
             RenderPodium(null, null, null, boardType);
-            // Keep the real network loading/error status visible while waiting for new data.
             _pageMotion?.Finish();
             RefreshNow();
             StartPrefetchOthers(boardType);
-            _boardTransition = null;
+        }
+
+        void ReplayBoardMotion()
+        {
+            if (_content != null)
+            {
+                var stickers = _content.GetComponentsInChildren<CozyStickerMotion>();
+                for (var i = 0; i < stickers.Length; i++)
+                    stickers[i].RestartEntrance();
+            }
+            _pageMotion?.PlayEntrance((_content != null ? _content.childCount : 0) + 3);
+        }
+
+        void ShowBoard(string boardType)
+        {
+            EnsureBoard(boardType);
+            RectTransform root;
+            List<GameObject> pool;
+            if (!_boardRoots.TryGetValue(boardType, out root) || root == null || !_boardPools.TryGetValue(boardType, out pool))
+                return;
+            _content = root;
+            _rowPool = pool;
+            if (_scroll != null)
+                _scroll.content = root;
+            var podium = _podium1.root != null ? _podium1.root.transform.parent as RectTransform : null;
+            if (podium != null && podium.parent != root)
+            {
+                podium.SetParent(root, false);
+                if (!podium.gameObject.activeSelf)
+                    podium.gameObject.SetActive(true);
+            }
+            if (!root.gameObject.activeSelf)
+                root.gameObject.SetActive(true);
+            foreach (var pair in _boardRoots)
+            {
+                if (pair.Key == boardType || pair.Value == null)
+                    continue;
+                if (pair.Value.gameObject.activeSelf)
+                    pair.Value.gameObject.SetActive(false);
+            }
+            AlignJournalPodium();
+        }
+
+        void EnsureBoard(string boardType)
+        {
+            if (_boardRoots.ContainsKey(boardType) || _content == null)
+                return;
+            if (_boardRoots.Count == 0)
+            {
+                _boardRoots[boardType] = _content;
+                _boardPools[boardType] = _rowPool;
+                return;
+            }
+            var root = CozyKeptPage.DuplicateList(_content, "Board_" + boardType);
+            _boardRoots[boardType] = root;
+            _boardPools[boardType] = new List<GameObject>(48);
+        }
+
+        void MarkBoardBuilt(string boardType)
+        {
+            if (!string.IsNullOrEmpty(boardType))
+                _builtBoards.Add(boardType);
         }
 
         void RefreshNow()
@@ -736,6 +972,7 @@ namespace FishSocial.Desktop
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);
+                MarkBoardBuilt(boardType);
                 yield break;
             }
 
@@ -909,10 +1146,13 @@ namespace FishSocial.Desktop
         {
             if (entries == null || entries.Length == 0)
             {
+                if (IsStaleGeneration(generation, boardType))
+                    yield break;
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 if (myRank != null)
                     SetMyRank(myRank, boardType);
+                MarkBoardBuilt(boardType);
                 yield break;
             }
 
@@ -926,6 +1166,7 @@ namespace FishSocial.Desktop
             if (myRank != null)
                 SetMyRank(myRank, boardType);
             SyncPlayerSelection();
+            MarkBoardBuilt(boardType);
             _pageMotion?.PlayEntrance(entries.Length + 3);
         }
 
@@ -969,6 +1210,7 @@ namespace FishSocial.Desktop
 
             if (_scroll != null)
                 _scroll.verticalNormalizedPosition = 1f;
+            AlignJournalPodium();
         }
 
         void EnsureRowSlot(int index)
@@ -1002,6 +1244,30 @@ namespace FishSocial.Desktop
             SetChildText(row, "Rank", row.transform.Find("JournalDetailParity") != null ? entry.rank.ToString("00") : "#" + entry.rank);
             SetChildText(row, "Nickname", entry.nickname ?? "钓友");
             SetChildText(row, "Value", FormatValue(entry, boardType));
+            var valueLabel = row.transform.Find("Value")?.GetComponent<Text>();
+            if (valueLabel != null)
+            {
+                valueLabel.fontSize = row.transform.Find("JournalDetailParity") != null ? 23 : 22;
+                valueLabel.resizeTextForBestFit = false;
+                valueLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+                valueLabel.verticalOverflow = VerticalWrapMode.Truncate;
+            }
+            if (row.transform.Find("JournalDetailParity") != null)
+            {
+                var rankLabel = row.transform.Find("Rank")?.GetComponent<Text>();
+                if (rankLabel != null)
+                {
+                    rankLabel.fontSize = 25;
+                    rankLabel.resizeTextForBestFit = false;
+                    rankLabel.color = new Color(197f / 255f, 168f / 255f, 136f / 255f);
+                }
+                var nickname = row.transform.Find("Nickname")?.GetComponent<Text>();
+                if (nickname != null)
+                {
+                    nickname.fontSize = 19;
+                    nickname.resizeTextForBestFit = false;
+                }
+            }
             var button = row.GetComponent<Button>();
             if (button != null)
             {
@@ -1086,6 +1352,8 @@ namespace FishSocial.Desktop
                 slot.avatar.preserveAspect = true;
                 slot.avatar.color = Color.white;
             }
+            if (slot.root != null && slot.root.name == "Slot1")
+                slot.root.transform.SetAsLastSibling();
         }
 
         void ClearSelectedPlayer()
@@ -1112,7 +1380,7 @@ namespace FishSocial.Desktop
             SyncPlayerSelection();
             foreach(var pair in _cardPlayers)
                 if(pair.Key!=null && pair.Value==entry.playerId) pair.Key.GetComponent<CozyStickerMotion>()?.ReplayTape();
-            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal();
+            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
             CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? "钓友");
             CozyItemArt.Text(transform, "DesignPlayerCard/Value", "第 " + entry.rank + " 名 · " + FormatValue(entry, boardType));
             CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "正在加载资料…");
@@ -1192,29 +1460,76 @@ namespace FishSocial.Desktop
             if (boardType == BoardDaily)
             {
                 var size = extra != null && extra.sizeM > 0 ? extra.sizeM : entry.value;
-                var species = extra != null && !string.IsNullOrEmpty(extra.speciesId)
-                    ? DesktopFishCatalog.SpeciesName(extra.speciesId)
-                    : "鱼获";
-                return species + " · " + size.ToString("0.00") + "m";
+                return size.ToString("0.00") + " m";
             }
             if (boardType == BoardWeekly)
             {
-                var count = extra != null ? extra.catchCount : 0;
-                return Mathf.RoundToInt(entry.value) + " 金币" +
-                       (count > 0 ? " · " + count + " 条" : string.Empty);
+                // Server weekly_king.value is the week's biggest fish in meters, not coins.
+                var size = extra != null && extra.sizeM > 0 ? extra.sizeM : entry.value;
+                if (size <= 0f) return "—";
+                return DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(size));
             }
             if (boardType == BoardPond)
-            {
-                var max = extra != null && extra.sizeM > 0
-                    ? " · 最大 " + extra.sizeM.ToString("0.00") + "m"
-                    : string.Empty;
-                return Mathf.RoundToInt(entry.value) + " 条" + max;
-            }
+                return Mathf.RoundToInt(entry.value) + " 条";
+            return Mathf.RoundToInt(entry.value) + " 条";
+        }
 
-            var rareMax = extra != null && extra.sizeM > 0
-                ? " · " + extra.sizeM.ToString("0.00") + "m"
-                : string.Empty;
-            return "史诗+ " + Mathf.RoundToInt(entry.value) + " 条" + rareMax;
+        void EnsureRankScrollbar()
+        {
+            if (_scroll == null)
+                return;
+            var existing = _scroll.transform.Find("RankScrollbar");
+            if (existing == null && _scroll.viewport != null)
+                existing = _scroll.viewport.Find("RankScrollbar");
+            var barGo = existing != null
+                ? existing.gameObject
+                : new GameObject("RankScrollbar", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+            // The list is the 710px column. A bar inside that rect covers the rows.
+            // The profile card starts 20px further right, so the track sits in that gutter.
+            barGo.transform.SetParent(_scroll.transform, false);
+            barGo.transform.SetAsLastSibling();
+            var bar = (RectTransform)barGo.transform;
+            bar.anchorMin = new Vector2(1f, 0f);
+            bar.anchorMax = new Vector2(1f, 1f);
+            bar.pivot = new Vector2(0f, 0.5f);
+            bar.offsetMin = new Vector2(8f, 8f);
+            bar.offsetMax = new Vector2(16f, -8f);
+            var track = barGo.GetComponent<Image>();
+            track.color = new Color(0.886f, 0.812f, 0.686f, 0.95f);
+            track.raycastTarget = true;
+            var sliding = barGo.transform.Find("Sliding Area");
+            if (sliding == null)
+            {
+                var slidingGo = new GameObject("Sliding Area", typeof(RectTransform));
+                slidingGo.transform.SetParent(barGo.transform, false);
+                sliding = slidingGo.transform;
+                var slide = (RectTransform)sliding;
+                slide.anchorMin = Vector2.zero;
+                slide.anchorMax = Vector2.one;
+                slide.offsetMin = new Vector2(1f, 1f);
+                slide.offsetMax = new Vector2(-1f, -1f);
+            }
+            var handleTransform = sliding.Find("Handle");
+            if (handleTransform == null)
+            {
+                var handleGo = new GameObject("Handle", typeof(RectTransform), typeof(Image));
+                handleGo.transform.SetParent(sliding, false);
+                handleTransform = handleGo.transform;
+            }
+            var handle = (RectTransform)handleTransform;
+            handle.anchorMin = Vector2.zero;
+            handle.anchorMax = Vector2.one;
+            handle.offsetMin = Vector2.zero;
+            handle.offsetMax = Vector2.zero;
+            var handleImage = handleTransform.GetComponent<Image>();
+            handleImage.color = new Color(0.72f, 0.58f, 0.40f, 1f);
+            var scrollbar = barGo.GetComponent<Scrollbar>();
+            scrollbar.handleRect = handle;
+            scrollbar.targetGraphic = handleImage;
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+            _scroll.vertical = true;
+            _scroll.verticalScrollbar = scrollbar;
+            _scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
         }
 
         void SetMyRank(LeaderboardMyRankDto myRank, string boardType)

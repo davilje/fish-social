@@ -60,6 +60,7 @@ namespace FishSocial.Desktop
             EnsureUi();
             BuildCards();
             if (_selection != null) StartCoroutine(_selection.LoadProgress(this));
+            PondDetailView.RevealPhoto(transform.Find("DesignPondAside"));
         }
 
         void EnsureUi()
@@ -173,7 +174,10 @@ namespace FishSocial.Desktop
             _scroll.StopMovement();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_cards);
             _scroll.verticalNormalizedPosition = 1f;
-            if (_resultCount != null) _resultCount.text = cardCount + " / " + visiblePonds.Length + " 个鱼塘";
+            if (_resultCount != null) _resultCount.text = cardCount + " 个鱼塘";
+            var grid = _cards != null ? _cards.GetComponent<GridLayoutGroup>() : null;
+            if (grid != null && grid.padding.top < 28)
+                grid.padding = new RectOffset(grid.padding.left, grid.padding.right, 28, grid.padding.bottom);
             if (!selectionVisible && !(_selection?.Busy ?? false) && !(_selection?.ProgressLoading ?? false))
                 _selection?.Select(first);
             _building = false;
@@ -246,7 +250,8 @@ namespace FishSocial.Desktop
                 {
                     var sameSelection = _selectedId == pondId;
                     _selection.Select(pond);
-                    if(sameSelection)PondDetailView.RevealPhoto(transform.Find("DesignPondAside"));
+                    if (!sameSelection)
+                        PondDetailView.RevealPhoto(transform.Find("DesignPondAside"));
                     break;
                 }
         }
@@ -261,7 +266,16 @@ namespace FishSocial.Desktop
                 if (!card.gameObject.activeSelf) continue;
                 var selected = card.name == "PondCard_" + _selectedId;
                 card.GetComponent<CozyButtonVisual>()?.SetSelected(selected);
-                var tape = card.Find("PondTape"); if (tape != null) tape.gameObject.SetActive(selected);
+                var tape = card.Find("PondTape");
+                if (tape != null)
+                {
+                    tape.gameObject.SetActive(selected);
+                    if (selected) tape.SetAsLastSibling();
+                }
+                var badge = card.Find("AccessBadge");
+                if (badge != null) badge.SetAsLastSibling();
+                var accessLabel = card.Find("Access");
+                if (accessLabel != null) accessLabel.SetAsLastSibling();
                 var access = DesktopModalUi.FindComponent<Text>(card, "Access");
                 foreach (var pond in ponds)
                     if (pond != null && card.name == "PondCard_" + pond.pondId)

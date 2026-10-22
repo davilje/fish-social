@@ -36,8 +36,20 @@ namespace FishSocial.Desktop
             root.anchoredPosition = new Vector2(-40, -112);
             alpha = root.gameObject.AddComponent<CanvasGroup>(); alpha.blocksRaycasts = false;
             var note = Node("Note", root, new Vector2(360, 60));
-            var paper = note.gameObject.AddComponent<Image>(); paper.raycastTarget = false;
-            CozyJournalTheme.ApplySurface(paper, error ? "surfaces/toast-error-note" : "surfaces/toast-note");
+            // The authored toast slice has 100px borders, so it disappears inside a short note.
+            // The preview note is a plain paper card, drawn here at the text size.
+            var plateRect = Node("Plate", note, Vector2.zero);
+            plateRect.anchorMin = Vector2.zero;
+            plateRect.anchorMax = Vector2.one;
+            plateRect.offsetMin = Vector2.zero;
+            plateRect.offsetMax = Vector2.zero;
+            var plate = plateRect.gameObject.AddComponent<CozyCssGraphic>();
+            plate.shape = CozyCssGraphic.Shape.Paper;
+            plate.radius = 16f;
+            plate.border = 2f;
+            plate.color = new Color(1f, 253f / 255f, 247f / 255f, 1f);
+            plate.borderColor = error ? new Color(163f / 255f, 57f / 255f, 43f / 255f, 1f) : new Color(0.91f, 0.82f, 0.67f, 1f);
+            plate.raycastTarget = false;
             var label = Node("Text", note, new Vector2(324, 42)).gameObject.AddComponent<Text>();
             label.font = CatTheme.Font; label.fontSize = 20; label.text = notice.Text;
             label.supportRichText = false; label.raycastTarget = false;

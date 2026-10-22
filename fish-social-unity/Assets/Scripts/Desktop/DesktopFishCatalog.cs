@@ -117,6 +117,40 @@ namespace FishSocial.Desktop
             return QualityNames.TryGetValue(quality, out name) ? name : quality;
         }
 
+        /// <summary>Web <c>★</c> marks. Quality already exists; this is only the mark.</summary>
+        public static string Stars(string quality)
+        {
+            int count;
+            switch (quality)
+            {
+                case "green": count = 2; break;
+                case "blue": count = 3; break;
+                case "purple": count = 4; break;
+                case "red":
+                case "orange":
+                case "gold": count = 5; break;
+                default: count = 1; break;
+            }
+            return new string('★', count);
+        }
+
+        public static string Stars(int qualityRank)
+        {
+            var count = qualityRank <= 0 ? 1 : qualityRank;
+            if (count > 5) count = 5;
+            return new string('★', count);
+        }
+
+        public static string StarRich(string quality)
+        {
+            return "<color=#c98a12>" + Stars(quality) + "</color>";
+        }
+
+        public static string StarRich(int qualityRank)
+        {
+            return "<color=#c98a12>" + Stars(qualityRank) + "</color>";
+        }
+
         public static int EstimateSellPrice(string quality, float sizeM, string speciesId = null)
         {
             return DesktopGameData.EstimateSellPrice(quality, sizeM, speciesId);

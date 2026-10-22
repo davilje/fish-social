@@ -47,7 +47,14 @@ namespace FishSocial.Desktop
         bool generatedPlate;
         bool expandSurfaceInsets;
         bool generatedIcon;
+        bool feedLikeActive;
+        bool feedLiked;
+        bool flatComment;
         bool interactable;
+        bool hitCleared;
+        string paintedSurface;
+        string paintedIconKey;
+        Sprite paintedIcon;
         Coroutine submitRoutine;
 
         CozyIndexMotion indexMotion;
@@ -58,7 +65,17 @@ namespace FishSocial.Desktop
         public void AdvanceIndex(float seconds)
         {
             if (!IsIndex || CozyMotion.Paused) return;
-            if (CozyMotion.Reduced) EnsureIndexMotion().Settle(); else EnsureIndexMotion().Advance(seconds);
+            var motion = EnsureIndexMotion();
+            if (CozyMotion.Reduced)
+            {
+                if (!motion.Busy) return;
+                motion.Settle();
+                RefreshState();
+                return;
+            }
+            // Idle rail tabs used to repaint every frame and stall the chat and request buttons.
+            if (!motion.Busy) return;
+            motion.Advance(seconds);
             RefreshState();
         }
         public void BeginIndexEntrance(int ordinal)
@@ -119,6 +136,23 @@ namespace FishSocial.Desktop
             RefreshState();
         }
 
+        /// <summary>Comment send matches the preview button: flat orange, radius 12, no sliced plate and no icon.</summary>
+        public void SetCommentSend()
+        {
+            flatComment = true;
+            primarySurface = true;
+            expandSurfaceInsets = false;
+            if (initialized) RefreshState();
+        }
+
+        /// <summary>Feed like uses the outline heart and the filled heart, plus the pink paper from the preview.</summary>
+        public void SetFeedLike(bool liked)
+        {
+            feedLikeActive = true;
+            feedLiked = liked;
+            if (initialized) RefreshState();
+        }
+
         /// <summary>Persist a card/tab/button family; later theme refreshes preserve this contract.</summary>
         public void ConfigureSurface(string normalPath, string hoverPath = null, string pressedPath = null,
             string selectedPath = null, string disabledPath = null)
@@ -136,14 +170,26 @@ namespace FishSocial.Desktop
         {
             if (!initialized) CatTheme.StyleButton(GetComponent<Button>());
             motionOffset = CozyMotion.Reduced ? Vector2.zero : offset;
-            RefreshState();
+            if (IsIndex || plateOffset == null) RefreshState();
+            else ApplyMotionPose();
         }
 
         internal void SetMotionScale(Vector2 scale)
         {
             if (!initialized) CatTheme.StyleButton(GetComponent<Button>());
             motionScale = CozyMotion.Reduced ? Vector2.one : scale;
-            RefreshState();
+            if (IsIndex || plateOffset == null) RefreshState();
+            else ApplyMotionPose();
+        }
+
+        void ApplyMotionPose()
+        {
+            plateOffset.SetVisual(transform, motionOffset, 1f, motionScale);
+            for (var i = 0; i < offsets.Count; i++)
+            {
+                var offset = offsets[i];
+                if (offset != null) offset.SetVisual(transform, motionOffset, 1f, motionScale);
+            }
         }
 
         string SurfacePath(string state)
@@ -293,6 +339,12 @@ namespace FishSocial.Desktop
             var hasLabel = false;
             foreach (var graphic in GetComponentsInChildren<Graphic>(true))
             {
+                if (graphic is CozyCssGraphic)
+                {
+                    var washOffset = graphic.GetComponent<CozyGraphicOffset>();
+                    if (washOffset != null) washOffset.SetVisual(transform, Vector2.zero, 1f, Vector2.one);
+                    continue;
+                }
                 if (graphic is CozyIndexGraphic || graphic == hitImage || graphic == plate || graphic.GetComponentInParent<Selectable>(true) != button
                     || graphic.GetComponentInParent<InputField>(true) != null || graphic.GetComponent<Mask>() != null
                     || graphic.GetComponent<RectMask2D>() != null
@@ -411,8 +463,36 @@ namespace FishSocial.Desktop
                 color.a = 0f;
             var state = !interactable ? "disabled" : IsIndex ? selected ? "selected" : "default"
                 : depressed ? "pressed" : selected ? "selected" : highlighted ? "hover" : "default";
-            CozyJournalTheme.ApplySurface(plate, SurfacePath(state), expandSurfaceInsets);
-            plate.color = color;
+            if (flatComment)
+            {
+                expandSurfaceInsets = false;
+                var plateRect = plate.rectTransform;
+                plateRect.anchorMin = Vector2.zero;
+                plateRect.anchorMax = Vector2.one;
+                plateRect.offsetMin = plateRect.offsetMax = Vector2.zero;
+                var fill = depressed
+                    ? new Color(232f / 255f, 122f / 255f, 42f / 255f, 1f)
+                    : new Color(252f / 255f, 146f / 255f, 60f / 255f, 1f);
+                CozyCssGraphic.EnsureWash(plate.transform, "ButtonWash", fill, 12f, 0f, Color.clear);
+                if (icon != null) icon.enabled = false;
+                var caption = transform.Find("Label")?.GetComponent<Text>();
+                if (caption != null)
+                {
+                    caption.alignment = TextAnchor.MiddleCenter;
+                    caption.rectTransform.offsetMin = Vector2.zero;
+                    caption.rectTransform.offsetMax = Vector2.zero;
+                }
+            }
+            else
+            {
+                var path = SurfacePath(state);
+                if (paintedSurface != path || plate.sprite == null)
+                {
+                    CozyJournalTheme.ApplySurface(plate, path, expandSurfaceInsets);
+                    paintedSurface = path;
+                }
+                if (plate.color != color) plate.color = color;
+            }
             if (plateOffset == null) plateOffset = plate.GetComponent<CozyGraphicOffset>();
             if (plateOffset == null) plateOffset = plate.gameObject.AddComponent<CozyGraphicOffset>();
             var pose = IsIndex ? EnsureIndexMotion().Current : new CozyIndexMotion.Pose { Scale = motionScale, Alpha = 1 };
@@ -431,10 +511,32 @@ namespace FishSocial.Desktop
                 {
                     // Source icons contain ink pixels: tinting them white cannot create the original white glyph.
                     var source = icon.sprite;
-                    var alternate = source != null ? Resources.Load<Sprite>("Desktop/Theme/Cozy/" + (lightIcon ? "icons-light/" : "icons/") + source.name) : null;
-                    if (alternate != null) icon.sprite = alternate;
-                    icon.color = Color.white;
+                    var key = source != null ? (lightIcon ? "icons-light/" : "icons/") + source.name : null;
+                    if (key != paintedIconKey)
+                    {
+                        paintedIconKey = key;
+                        paintedIcon = key != null ? Resources.Load<Sprite>("Desktop/Theme/Cozy/" + key) : null;
+                    }
+                    if (paintedIcon != null && icon.sprite != paintedIcon) icon.sprite = paintedIcon;
+                    if (icon.color != Color.white) icon.color = Color.white;
                 }
+            }
+            if (feedLikeActive)
+            {
+                plate.color = feedLiked
+                    ? new Color(255f / 255f, 240f / 255f, 237f / 255f, 1f)
+                    : Color.white;
+                var likeLabel = transform.Find("Label")?.GetComponent<Text>();
+                if (likeLabel != null)
+                {
+                    likeLabel.color = feedLiked
+                        ? new Color(218f / 255f, 109f / 255f, 108f / 255f, 1f)
+                        : CatTheme.Ink;
+                    likeLabel.alignment = TextAnchor.MiddleCenter;
+                    likeLabel.rectTransform.offsetMin = new Vector2(8f, likeLabel.rectTransform.offsetMin.y);
+                    likeLabel.rectTransform.offsetMax = new Vector2(-8f, likeLabel.rectTransform.offsetMax.y);
+                }
+                if (icon != null) icon.enabled = false;
             }
             plateOffset.SetVisual(transform, displacement, pose.Alpha, scale);
             foreach (var offset in offsets)
@@ -492,23 +594,16 @@ namespace FishSocial.Desktop
             }
         }
 
-        void LateUpdate()
-        {
-            if (hitImage != null)
-                hitImage.canvasRenderer.SetAlpha(0f);
-        }
-
         void OnEnable()
         {
-            Canvas.willRenderCanvases += HideHitImage;
             CozyMotion.ReducedChanged += OnReducedChanged;
             focused = EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
-            RefreshState();
+            if (!initialized || IsIndex)
+                RefreshState();
         }
 
         void OnDisable()
         {
-            Canvas.willRenderCanvases -= HideHitImage;
             CozyMotion.ReducedChanged -= OnReducedChanged;
             CozyMotion.CancelPress(transform as RectTransform);
             motionScale = Vector2.one;
@@ -522,7 +617,8 @@ namespace FishSocial.Desktop
                 StopCoroutine(submitRoutine);
                 submitRoutine = null;
             }
-            RefreshState();
+            if (!initialized || IsIndex)
+                RefreshState();
         }
 
         void OnReducedChanged(bool reduced)
@@ -533,8 +629,12 @@ namespace FishSocial.Desktop
 
         void HideHitImage()
         {
-            if (hitImage != null)
-                hitImage.canvasRenderer.SetAlpha(0f);
+            if (hitImage == null || hitImage == plate || hitCleared) return;
+            // Clearing the color once keeps the hit target without a per-frame canvas callback.
+            hitImage.overrideSprite = null;
+            hitImage.sprite = null;
+            hitImage.color = new Color(1f, 1f, 1f, 0f);
+            hitCleared = true;
         }
 
         public void OnPointerEnter(PointerEventData eventData)

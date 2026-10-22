@@ -27,6 +27,10 @@ namespace FishSocial.Desktop
         Button _browseShop;
         public Action ShopRequested;
         RectTransform _content;
+        readonly RectTransform[] _tabRoots = new RectTransform[3];
+        readonly bool[] _tabBuilt = new bool[3];
+        bool _catalogReady;
+        bool _shopTabsStyled;
         Button _baitTab;
         Button _tackleTab;
         Button _vesselTab;
@@ -39,6 +43,7 @@ namespace FishSocial.Desktop
         bool _busy;
         bool _loading;
         int _selectedIndex = -1;
+        string _detailMotionKey;
         bool _equipmentMode;
         Coroutine _refreshRoutine;
 
@@ -57,6 +62,7 @@ namespace FishSocial.Desktop
                 _equipmentMode = equipmentMode;
                 _tab = 1;
                 _selectedIndex = -1;
+                _tabBuilt[0] = _tabBuilt[1] = _tabBuilt[2] = false;
             }
             EnsureUi();
             SetStatus(_equipmentMode ? "选择已拥有的钓竿或已解锁的鱼饵进行装备。" : "选择商品查看详情。");
@@ -65,6 +71,13 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            if (_catalogReady)
+            {
+                ShowShopTab();
+                RenderContent(false);
+                return;
+            }
+            _detailMotionKey = null;
             Refresh();
         }
 
@@ -234,6 +247,8 @@ namespace FishSocial.Desktop
             }
 
             SetStatus(_equipmentMode ? "装备已同步，可选择钓竿或鱼饵。" : "商店数据已同步。");
+            _catalogReady = true;
+            _tabBuilt[0] = _tabBuilt[1] = _tabBuilt[2] = false;
             Render();
         }
 
@@ -243,20 +258,43 @@ namespace FishSocial.Desktop
             if (_equipmentMode && tab == 2)
                 return;
             if (_tab == tab) return;
+            if (!Application.isPlaying)
+            {
+                _tab = tab;
+                _selectedIndex = -1;
+                TintTab(_baitTab, tab == 0); TintTab(_tackleTab, tab == 1); TintTab(_vesselTab, tab == 2);
+                ShowShopTab();
+                if (_tabBuilt[tab]) RenderContent(false);
+                else if (_catalogReady) RenderCurrent();
+                return;
+            }
+            if (_tabMotionRoutine != null) StopCoroutine(_tabMotionRoutine);
+            _tabMotionRoutine = StartCoroutine(ChangeCategory(tab));
+        }
+
+        IEnumerator ChangeCategory(int tab)
+        {
+            var motion = GetComponent<CozyJournalPageMotion>();
+            if (motion != null) yield return motion.Exit();
+            var built = _tabBuilt[tab];
             _tab = tab;
             _selectedIndex = -1;
             TintTab(_baitTab, tab == 0); TintTab(_tackleTab, tab == 1); TintTab(_vesselTab, tab == 2);
-            if (_tabMotionRoutine != null) StopCoroutine(_tabMotionRoutine);
-            _tabMotionRoutine = StartCoroutine(ChangeCategory());
-        }
-
-        IEnumerator ChangeCategory()
-        {
-            var motion=GetComponent<CozyJournalPageMotion>();
-            if(motion!=null) yield return motion.Exit();
-            Render();
-            motion?.PlayEntrance(_content.childCount);
-            _tabMotionRoutine=null;
+            ShowShopTab();
+            if (built)
+            {
+                RenderContent(false);
+                if (_content != null)
+                {
+                    var stickers = _content.GetComponentsInChildren<CozyStickerMotion>();
+                    for (var i = 0; i < stickers.Length; i++)
+                        stickers[i].RestartEntrance();
+                }
+            }
+            else if (_catalogReady)
+                RenderCurrent();
+            motion?.PlayEntrance(_content != null ? _content.childCount : 0);
+            _tabMotionRoutine = null;
         }
 
         void BuySelected()
@@ -461,7 +499,44 @@ namespace FishSocial.Desktop
             Render();
         }
 
-        void Render() { RenderContent(true); }
+        void Render()
+        {
+            for (var i = 0; i < _tabBuilt.Length; i++)
+                if (i != _tab)
+                    _tabBuilt[i] = false;
+            RenderCurrent();
+        }
+
+        void RenderCurrent()
+        {
+            ShowShopTab();
+            RenderContent(true);
+            _tabBuilt[_tab] = true;
+        }
+
+        void ShowShopTab()
+        {
+            if (_content == null)
+                return;
+            if (_tabRoots[_tab] == null)
+            {
+                var any = _tabRoots[0] != null || _tabRoots[1] != null || _tabRoots[2] != null;
+                _tabRoots[_tab] = any ? CozyKeptPage.DuplicateList(_content, "ShopTab" + _tab) : _content;
+            }
+            var root = _tabRoots[_tab];
+            _content = root;
+            var scroll = root.GetComponentInParent<ScrollRect>();
+            if (scroll != null)
+                scroll.content = root;
+            if (!root.gameObject.activeSelf)
+                root.gameObject.SetActive(true);
+            for (var i = 0; i < _tabRoots.Length; i++)
+            {
+                if (i == _tab || _tabRoots[i] == null || !_tabRoots[i].gameObject.activeSelf)
+                    continue;
+                _tabRoots[i].gameObject.SetActive(false);
+            }
+        }
 
         void RenderContent(bool rebuildCards)
         {
@@ -476,6 +551,7 @@ namespace FishSocial.Desktop
             TintTab(_tackleTab, _tab == 1);
             if (_vesselTab != null)
                 TintTab(_vesselTab, _tab == 2);
+            _shopTabsStyled = true;
 
             var visibleCount = _content.childCount;
             if (rebuildCards)
@@ -584,6 +660,20 @@ namespace FishSocial.Desktop
                         : "请选择商品查看详情。"));
                 SetActionButtons(_tab != 0, false, false);
             }
+            RevealDetail();
+        }
+
+        void RevealDetail()
+        {
+            var key = _equipmentMode + ":" + _tab + ":" + _selectedIndex;
+            if (key == _detailMotionKey)
+                return;
+            _detailMotionKey = key;
+            var polaroid = transform.Find("Details/JournalPolaroid");
+            if (polaroid != null)
+                polaroid.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+            else
+                CozyJournalStaticPose.RevealAside(transform.Find("Details"));
         }
 
         void ShowDetails(string name, string text)
@@ -820,11 +910,12 @@ namespace FishSocial.Desktop
             return text.ToString();
         }
 
-        static void TintTab(Button tab, bool active)
+        void TintTab(Button tab, bool active)
         {
             if (tab == null)
                 return;
-            DesktopModalUi.StyleButton(tab);
+            if (!_shopTabsStyled)
+                DesktopModalUi.StyleButton(tab);
             var visual = tab.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(active);
@@ -859,7 +950,14 @@ namespace FishSocial.Desktop
             icon.overrideSprite = null;
             icon.sprite = CatTheme.LoadCozy(iconPath, Vector4.zero);
             icon.enabled = icon.sprite != null;
-            DesktopModalUi.StyleTree(card.transform);
+            if (!Application.isPlaying)
+                DesktopModalUi.StyleTree(card.transform);
+            else
+            {
+                var skin = card.GetComponent<CozyPanelSkin>() ?? card.AddComponent<CozyPanelSkin>();
+                skin.MarkSkinned();
+                skin.RememberChildren();
+            }
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(index == _selectedIndex);

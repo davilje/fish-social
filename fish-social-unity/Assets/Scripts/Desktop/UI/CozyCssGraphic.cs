@@ -84,6 +84,44 @@ namespace FishSocial.Desktop
                 mesh.AddTriangle(p - 2, p - 1, p); mesh.AddTriangle(p, p - 1, p + 1);
             }
         }
+        /// <summary>Flat CSS fill. Clears a sliced sprite on the host so the wash is the only plate.</summary>
+        public static CozyCssGraphic EnsureWash(Transform host, string washName, Color fill, float radius, float border, Color borderColor)
+        {
+            if (host == null) return null;
+            var image = host.GetComponent<Image>();
+            if (image != null)
+            {
+                image.overrideSprite = null;
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.color = new Color(1f, 1f, 1f, 0f);
+            }
+            var wash = host.Find(washName);
+            if (wash == null)
+            {
+                var go = new GameObject(washName, typeof(RectTransform), typeof(CozyCssGraphic));
+                go.transform.SetParent(host, false);
+                wash = go.transform;
+            }
+            wash.SetAsFirstSibling();
+            var rect = (RectTransform)wash;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            rect.localScale = Vector3.one;
+            var graphic = wash.GetComponent<CozyCssGraphic>();
+            graphic.shape = Shape.Paper;
+            graphic.radius = radius;
+            graphic.border = border;
+            graphic.borderColor = borderColor;
+            graphic.color = fill;
+            graphic.raycastTarget = false;
+            graphic.enabled = true;
+            wash.gameObject.SetActive(true);
+            return graphic;
+        }
+
         static void Rounded(VertexHelper mesh, Rect r, float radius, Color color)
         {
             var start = mesh.currentVertCount;

@@ -30,6 +30,7 @@ npm run planning:confirm -- v0.4.0
 | [steam-desktop-20-window-presets-dev.prompt.md](./steam-desktop-20-window-presets-dev.prompt.md) | STEAM-DESKTOP-20：主窗口默认 1920×1080，设置只切固定分辨率 · **已确认** |
 | [bug-57-desktop-ui-layout-dev.prompt.md](./bug-57-desktop-ui-layout-dev.prompt.md) | BUG-57：设置重叠、世界/鱼塘尺寸、首页全身猫、装备图按 id · **已确认** |
 | [bug-58-pond-settings-info-dev.prompt.md](./bug-58-pond-settings-info-dev.prompt.md) | BUG-58：鱼塘中文信息、地图标记、设置当前项 · **已实现** |
+| [bug-59-journal-labels-motion-dev.prompt.md](./bug-59-journal-labels-motion-dev.prompt.md) | BUG-59：手账翻页、标签、右侧详情、排行榜与动态 · **已实现** |
 | [steam-desktop-21-journal-motion-dev.prompt.md](./steam-desktop-21-journal-motion-dev.prompt.md) | STEAM-DESKTOP-21：猫咪钓鱼手账动效 · **已确认** |
 | [bugfix-afk-disconnect-dev.prompt.md](./bugfix-afk-disconnect-dev.prompt.md) | 挂机断线 / 重连后误踢鱼塘（服务�?P0�?|
 | [diag-afk-phase2-4-dev.prompt.md](./diag-afk-phase2-4-dev.prompt.md) | 挂机排查阶段 2�?（弱网矩�?/ leave_pond / Admin 时间线） |

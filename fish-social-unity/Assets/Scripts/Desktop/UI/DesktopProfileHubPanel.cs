@@ -48,6 +48,9 @@ namespace FishSocial.Desktop
         Transform _sidebar;
         readonly List<Button> _tabButtons = new List<Button>();
         readonly List<GameObject> _tabContents = new List<GameObject>();
+        readonly HashSet<HubTab> _paintedTabs = new HashSet<HubTab>();
+        bool _hubTabsStyled;
+        string _loadedHubId;
 
         Image _profileAvatar;
         Text _profileAvatarLabel;
@@ -72,6 +75,8 @@ namespace FishSocial.Desktop
         FishCodexEntryDto[] _codexEntries = Array.Empty<FishCodexEntryDto>();
         int _albumPinsPage;
         int _albumSelection;
+        int _albumMotionPage = -1;
+        int _albumMotionSelection = -1;
         Coroutine _albumPhotoRoutine;
         int _albumPhotoLoadVersion;
 
@@ -121,6 +126,8 @@ namespace FishSocial.Desktop
             if (_codexRoutine != null) StopCoroutine(_codexRoutine);
             _codexRoutine = null;
             _hub = null;
+            _loadedHubId = null;
+            _paintedTabs.Clear();
             _codexEntries = Array.Empty<FishCodexEntryDto>();
             _albumPinsPage = 0;
             if (_editButton != null) _editButton.gameObject.SetActive(false);
@@ -136,6 +143,12 @@ namespace FishSocial.Desktop
                 _pond.AchievementUnlocked -= OnAchievementUnlocked;
                 _pond.CodexUnlocked += OnCodexUnlocked;
                 _pond.AchievementUnlocked += OnAchievementUnlocked;
+            }
+            var id = string.IsNullOrEmpty(_viewingOtherPlayerId) ? _api != null ? _api.PlayerId : null : _viewingOtherPlayerId;
+            if (_hub != null && _loadedHubId == id)
+            {
+                ApplyTabVisibility();
+                return;
             }
             Refresh();
         }
@@ -320,8 +333,8 @@ namespace FishSocial.Desktop
                 _profileBody.lineSpacing = 1.15f;
                 _profileBody.verticalOverflow = VerticalWrapMode.Truncate;
             }
-            FitGrid(_showcaseGrid, 2);
-            FitGrid(_codexGrid, 3);
+            FitGrid(_showcaseGrid, 3, true);
+            FitGrid(_codexGrid, 4, true);
 
             var achievementsRoot = transform.Find("Shell/Content/Tab_成就");
             var achievementsScroll = achievementsRoot != null
@@ -342,7 +355,7 @@ namespace FishSocial.Desktop
 
         }
 
-        static void FitGrid(Transform content, int columns)
+        static void FitGrid(Transform content, int columns, bool fallbackPadding = false)
         {
             if (content == null)
                 return;
@@ -352,7 +365,24 @@ namespace FishSocial.Desktop
                 return;
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = columns;
-            var availableWidth = viewport.rect.width - grid.padding.left - grid.padding.right -
+            if (fallbackPadding)
+                grid.padding = new RectOffset(12, 28, 18, 16);
+            var width = viewport.rect.width;
+            if (width < 32f && viewport.parent is RectTransform scroll)
+                width = scroll.rect.width;
+            if (width < 32f)
+                return;
+            var contentRect = content as RectTransform;
+            if (contentRect != null)
+            {
+                contentRect.anchorMin = new Vector2(0f, 1f);
+                contentRect.anchorMax = new Vector2(1f, 1f);
+                contentRect.pivot = new Vector2(0.5f, 1f);
+                contentRect.sizeDelta = new Vector2(0f, contentRect.sizeDelta.y);
+            }
+            var scrollRect = viewport.GetComponent<ScrollRect>() ?? viewport.GetComponentInParent<ScrollRect>();
+            if (scrollRect != null) scrollRect.horizontal = false;
+            var availableWidth = width - grid.padding.left - grid.padding.right -
                                  grid.spacing.x * (columns - 1);
             grid.cellSize = new Vector2(Mathf.Max(64f, availableWidth / columns), grid.cellSize.y);
         }
@@ -887,15 +917,32 @@ namespace FishSocial.Desktop
             var motion=old!=null?old.GetComponent<CozyJournalPageMotion>():null;
             if(motion!=null) yield return motion.Exit();
             if(generation!=_targetGeneration) yield break;
-            ApplySelectedTab(tab);
+            if (_paintedTabs.Contains(tab))
+            {
+                _tab = tab;
+                UpdateHeaderForTab();
+                ApplyTabVisibility();
+            }
+            else
+                ApplySelectedTab(tab);
             var current=(int)_tab<_tabContents.Count?_tabContents[(int)_tab]:null;
-            if(current!=null) current.GetComponent<CozyJournalPageMotion>()?.PlayEntrance(current.GetComponentsInChildren<CozyStickerMotion>().Length);
+            if(current!=null)
+            {
+                current.GetComponent<CozyJournalPageMotion>()?.PlayEntrance(current.GetComponentsInChildren<CozyStickerMotion>().Length);
+                ReplayCenter(current.transform);
+                CozyJournalStaticPose.RevealAside(current.transform);
+            }
             _tabMotionRoutine=null;
         }
         void ApplySelectedTab(HubTab tab)
         {
             if (_showcaseBusy) return;
             CloseShowcasePicker();
+            if (tab == HubTab.Album)
+            {
+                _albumMotionPage = -1;
+                _albumMotionSelection = -1;
+            }
             _tab = tab;
             UpdateHeaderForTab();
             ApplyTabVisibility();
@@ -920,19 +967,31 @@ namespace FishSocial.Desktop
 
         void ApplyTabVisibility()
         {
+            if (!IsAchievementsPage() && _tab == HubTab.Achievements)
+                _tab = HubTab.Profile;
             for (var tabIndex = 0; tabIndex < _tabContents.Count; tabIndex++)
             {
-                if (_tabContents[tabIndex] != null)
-                    _tabContents[tabIndex].SetActive(tabIndex == (int)_tab && (!Application.isPlaying || _hub != null));
+                var show = tabIndex == (int)_tab && (!Application.isPlaying || _hub != null);
+                if (_tabContents[tabIndex] != null && _tabContents[tabIndex].activeSelf != show)
+                    _tabContents[tabIndex].SetActive(show);
                 if (tabIndex < _tabButtons.Count && _tabButtons[tabIndex] != null)
                 {
                     var button = _tabButtons[tabIndex];
-                    DesktopModalUi.StyleButton(button);
+                    if (!IsAchievementsPage() && tabIndex == (int)HubTab.Achievements)
+                    {
+                        button.gameObject.SetActive(false);
+                        if (_tabContents[tabIndex] != null)
+                            _tabContents[tabIndex].SetActive(false);
+                        continue;
+                    }
+                    if (!_hubTabsStyled)
+                        DesktopModalUi.StyleButton(button);
                     var visual = button.GetComponent<CozyButtonVisual>();
                     if (visual != null)
                         visual.SetSelected(tabIndex == (int)_tab);
                 }
             }
+            _hubTabsStyled = true;
             if (_editButton != null)
                 _editButton.gameObject.SetActive(_tab == HubTab.Profile &&
                     (_hub != null && _hub.canEdit && _hub.isSelf) && !IsAchievementsPage());
@@ -960,6 +1019,7 @@ namespace FishSocial.Desktop
                 return;
             if (!isActiveAndEnabled)
                 return;
+            _paintedTabs.Clear();
             StopLoad();
             _loadRoutine = StartCoroutine(LoadRoutine());
         }
@@ -1000,6 +1060,7 @@ namespace FishSocial.Desktop
             }
 
             _hub = hub;
+            _loadedHubId = targetId;
             ApplyReadOnly(hub.canEdit);
             if (_tab == HubTab.Codex)
                 yield return LoadCodexRoutine();
@@ -1073,6 +1134,7 @@ namespace FishSocial.Desktop
                     RenderAchievements();
                     break;
             }
+            _paintedTabs.Add(_tab);
         }
 
         void RenderProfile()
@@ -1170,6 +1232,7 @@ namespace FishSocial.Desktop
             }
             BindPagerButton(profile.Find("JournalShowcaseLink"), () => SelectTab(HubTab.Showcase));
             BindPagerButton(profile.Find("JournalAlbumLink"), () => SelectTab(HubTab.Album));
+            CozyJournalStaticPose.RevealAside(profile);
         }
 
         IEnumerator LoadAvatarRoutine(string avatarUrl, string nickname, string playerId)
@@ -1260,6 +1323,7 @@ namespace FishSocial.Desktop
         {
             if (_codexGrid == null)
                 return;
+            FitGrid(_codexGrid, 4);
             ClearChildren(_codexGrid);
             if (_hub == null)
                 return;
@@ -1299,10 +1363,12 @@ namespace FishSocial.Desktop
                     got ? DesktopGameData.SpeciesName(def.speciesId) : "尚未发现",
                     () => ShowCodexDetail(captured, capturedEntry),
                     got ? new Color(1f, 0.92f, 0.78f, 1f) : CatTheme.Cream,
-                    15, CozyItemArt.Fish(def.speciesId), !got, got ? "累计捕获 " + entry.totalCaught + " 次" : "捕获后解锁", got);
+                    15, CozyItemArt.Fish(def.speciesId), !got,
+                    got ? DesktopFishCatalog.StarRich(captured != null ? captured.QualityMax : 1) : "捕获后解锁", got);
             }
             CozyItemArt.Text(transform, "Shell/Content/Tab_图鉴/DesignGridHeading", "鱼类图鉴 · 已收录 " + unlocked + " / " + catalog.Length);
             if (_codexGrid.childCount > 0) _codexGrid.GetChild(0).GetComponent<Button>()?.onClick.Invoke();
+            ReplayCenter(_codexGrid);
         }
 
         FishCodexEntryDto FindCodexEntry(string speciesId)
@@ -1341,10 +1407,22 @@ namespace FishSocial.Desktop
             {
                 _codexDetail.text = "还没有遇见这位朋友。捕获后解锁食性、推荐鱼饵和捕获纪录。";
                 _codexDetail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 88);
+                CozyJournalChips.Show(_codexDetail);
                 return;
             }
-            _codexDetail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 38);
-            _codexDetail.text = species.DietLabel + " · " + DesktopFishCatalog.TopBaits(species) + "推荐";
+            _codexDetail.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 4);
+            _codexDetail.text = string.Empty;
+            CozyJournalChips.Show(_codexDetail, species.DietLabel, FirstBait(species));
+            var chipRow = root.Find("JournalChips") as RectTransform;
+            var firstRecord = root.Find("JournalRecord0") as RectTransform;
+            if (chipRow != null && firstRecord != null)
+            {
+                chipRow.anchorMin = firstRecord.anchorMin;
+                chipRow.anchorMax = firstRecord.anchorMax;
+                chipRow.pivot = new Vector2(0f, 1f);
+                chipRow.anchoredPosition = firstRecord.anchoredPosition + new Vector2(0f, 36f);
+                chipRow.SetSiblingIndex(firstRecord.GetSiblingIndex());
+            }
             var values = new[] { entry.maxSizeM.ToString("0.00") + " m", entry.totalCaught + " 次", RecordDate(entry.firstCaughtAt), RecordDate(entry.lastCaughtAt) };
             var labels = new[] { "最大体长", "累计捕获", "首次相遇", "最近相遇" };
             for(var i=0;i<4;i++)
@@ -1354,6 +1432,14 @@ namespace FishSocial.Desktop
             }
         }
 
+        static string FirstBait(DesktopFishCatalog.SpeciesInfo species)
+        {
+            var baits = DesktopFishCatalog.TopBaits(species);
+            if (string.IsNullOrEmpty(baits) || baits == "—") return null;
+            var cut = baits.IndexOf('、');
+            return cut > 0 ? baits.Substring(0, cut) : baits;
+        }
+
         static string RecordDate(long timestamp)
         { return timestamp > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime.ToString("yyyy.MM.dd") : "—"; }
 
@@ -1361,6 +1447,7 @@ namespace FishSocial.Desktop
         {
             if (_showcaseGrid == null)
                 return;
+            FitGrid(_showcaseGrid, 3);
             ClearChildren(_showcaseGrid);
             var fish = _hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>();
             for (var i = 0; i < 8; i++)
@@ -1375,12 +1462,19 @@ namespace FishSocial.Desktop
                 }
                 var captured = item;
                 var name = DesktopFishCatalog.SpeciesName(item.speciesId);
+                if (string.IsNullOrEmpty(name) && item.sizeM <= 0.001f)
+                {
+                    CreateCard(_showcaseGrid, "Slot" + i, "留给下一次惊喜", () => SelectShowcase(index), null, 16, null, false, "点击选择一条鱼", false, slot);
+                    continue;
+                }
+                name = name ?? item.speciesId ?? "鱼获";
                 CreateCard(_showcaseGrid, "Slot" + i,
                     name,
                     () => SelectShowcase(index),
-                    CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId), false, item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(item.quality), false, slot);
+                    CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId), false, item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.StarRich(item.quality), false, slot);
             }
             SelectShowcase(Mathf.Clamp(_showcaseSelection, 0, 7));
+            ReplayCenter(_showcaseGrid);
         }
 
         void SelectShowcase(int index)
@@ -1483,6 +1577,7 @@ namespace FishSocial.Desktop
             CozyItemArt.Text(_showcaseDetail.transform.parent, "JournalPhotoCaption", "还没有摆上鱼获");
             CozyItemArt.Text(_showcaseDetail.transform.parent, "DesignDetailHeading", "展示位 " + (_showcaseSelection+1));
             _showcaseDetail.text = "从背包里选一条最喜欢的鱼，贴进这一个展示格。";
+            CozyJournalChips.Show(_showcaseDetail);
         }
 
         void ShowFishDetail(Text target, string title, FishInventoryItemDto item)
@@ -1496,7 +1591,12 @@ namespace FishSocial.Desktop
                 CozyItemArt.Set(root,"DesignDetailArt",CozyItemArt.Fish(item.speciesId));
                 CozyItemArt.Text(root,"JournalPhotoCaption",DesktopFishCatalog.SpeciesName(item.speciesId));
                 CozyItemArt.Text(root,"DesignDetailHeading","展示位 " + (_showcaseSelection+1));
-                target.text = item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.QualityName(item.quality) + "\n\n已珍藏在展示柜";
+                var rows = root.Find("ShowcaseDetailRows");
+                if (rows != null) rows.gameObject.SetActive(false);
+                target.supportRichText = true;
+                target.text = item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.StarRich(item.quality);
+                CozyJournalChips.Show(target, PondLabel(item.pondId), "已珍藏在展示柜");
+                CozyJournalStaticPose.RevealAside(root);
                 return;
             }
             CozyItemArt.Set(target.transform.parent, "DesignDetailArt", CozyItemArt.Fish(item.speciesId));
@@ -1573,7 +1673,12 @@ namespace FishSocial.Desktop
                 var card = pins.Length > 0 ? pins[Mathf.Clamp(_albumPinsPage * AlbumPinsPerPage + _albumSelection, 0, pins.Length - 1)] : null;
                 CozyItemArt.Set(aside, "Art", card != null ? CozyItemArt.Fish(card.speciesId) : null);
                 CozyItemArt.Text(aside, "Caption", card != null ? DesktopFishCatalog.SpeciesName(card.speciesId) : "下一页，等你来写");
-                CozyItemArt.Text(aside, "Detail", card != null ? FormatAlbumPage(card) : "每次相遇都值得留念。新的鱼获故事，会写进湖畔相册。");
+                CozyItemArt.Text(aside, "Detail", card != null ? FormatAlbumAside(card) : "每次相遇都值得留念。新的鱼获故事，会写进湖畔相册。");
+                var detail = aside.Find("Detail")?.GetComponent<Text>();
+                if (card != null)
+                    CozyJournalChips.Show(detail, AlbumDate(card), AlbumPond(card));
+                else
+                    CozyJournalChips.Show(detail);
             }
 
             if (pins.Length == 0)
@@ -1581,10 +1686,16 @@ namespace FishSocial.Desktop
                 _albumPinsPage = 0;
                 ClearAlbumPhoto(_albumSlotLPhoto);
                 ClearAlbumPhoto(_albumSlotRPhoto);
-                _albumSlotLBody.text = "相册为空\n稀有 / 大鱼 / 回鱼 / 新图鉴会自动记入";
-                _albumSlotRBody.text = string.Empty;
+                ApplyAlbumFace(_albumSlotLBody, null, "相册为空\n稀有 / 大鱼 / 回鱼 / 新图鉴会自动记入");
+                ApplyAlbumFace(_albumSlotRBody, null, string.Empty);
                 if (_albumPinsPageLabel != null)
                     _albumPinsPageLabel.text = "0/0";
+                if (_albumMotionPage != 0 || _albumMotionSelection != _albumSelection)
+                {
+                    _albumMotionPage = 0;
+                    _albumMotionSelection = _albumSelection;
+                    PlayAlbumTurn(albumRoot);
+                }
                 return;
             }
 
@@ -1594,8 +1705,14 @@ namespace FishSocial.Desktop
             var left = start < pins.Length ? pins[start] : null;
             var right = start + 1 < pins.Length ? pins[start + 1] : null;
 
-            _albumSlotLBody.text = left != null ? FormatAlbumPage(left) : string.Empty;
-            _albumSlotRBody.text = right != null ? FormatAlbumPage(right) : string.Empty;
+            ApplyAlbumFace(_albumSlotLBody, left, string.Empty);
+            ApplyAlbumFace(_albumSlotRBody, right, string.Empty);
+            if (_albumPinsPage != _albumMotionPage || _albumSelection != _albumMotionSelection)
+            {
+                _albumMotionPage = _albumPinsPage;
+                _albumMotionSelection = _albumSelection;
+                PlayAlbumTurn(albumRoot);
+            }
 
             if (_albumPinsPageLabel != null)
                 _albumPinsPageLabel.text = (_albumPinsPage + 1) + "/" + pageCount;
@@ -1680,23 +1797,131 @@ namespace FishSocial.Desktop
             target.color = CatTheme.Cream;
         }
 
-        static string FormatAlbumPage(AlbumCardDto pin)
+        static void ApplyAlbumFace(Text body, AlbumCardDto pin, string empty)
+        {
+            if (body == null)
+                return;
+            var date = EnsureAlbumDate(body);
+            if (pin == null)
+            {
+                body.text = empty ?? string.Empty;
+                date.gameObject.SetActive(false);
+                return;
+            }
+            var rare = pin.quality == "blue" || pin.quality == "purple" || pin.quality == "red" ||
+                       pin.quality == "orange" || pin.quality == "gold";
+            body.supportRichText = false;
+            body.text = DesktopFishCatalog.SpeciesName(pin.speciesId) + " · " + pin.sizeM.ToString("0.00") + " m\n" +
+                        (rare ? "难忘的稀有鱼获" : "值得记下的一次收获");
+            date.gameObject.SetActive(true);
+            date.text = AlbumDate(pin) + " · " + AlbumPond(pin);
+        }
+
+        static Text EnsureAlbumDate(Text body)
+        {
+            var existing = body.transform.parent.Find("Date")?.GetComponent<Text>();
+            if (existing != null)
+                return existing;
+            var go = new GameObject("Date", typeof(RectTransform), typeof(Text));
+            go.transform.SetParent(body.transform.parent, false);
+            var date = go.GetComponent<Text>();
+            date.font = body.font;
+            date.fontSize = 13;
+            date.alignment = TextAnchor.MiddleCenter;
+            date.color = new Color(178f / 255f, 141f / 255f, 104f / 255f, 1f);
+            date.raycastTarget = false;
+            date.horizontalOverflow = HorizontalWrapMode.Wrap;
+            date.verticalOverflow = VerticalWrapMode.Truncate;
+            var rect = date.rectTransform;
+            var source = body.rectTransform;
+            rect.anchorMin = source.anchorMin;
+            rect.anchorMax = source.anchorMax;
+            rect.pivot = source.pivot;
+            rect.sizeDelta = new Vector2(source.sizeDelta.x, 22f);
+            rect.anchoredPosition = source.anchoredPosition + new Vector2(0f, -source.sizeDelta.y + 22f);
+            var rule = new GameObject("Rule", typeof(RectTransform), typeof(Image));
+            rule.transform.SetParent(go.transform, false);
+            var ruleRect = (RectTransform)rule.transform;
+            ruleRect.anchorMin = new Vector2(0.08f, 1f);
+            ruleRect.anchorMax = new Vector2(0.92f, 1f);
+            ruleRect.pivot = new Vector2(0.5f, 1f);
+            ruleRect.sizeDelta = new Vector2(0f, 1f);
+            ruleRect.anchoredPosition = new Vector2(0f, 2f);
+            var line = rule.GetComponent<Image>();
+            line.color = new Color(230f / 255f, 213f / 255f, 184f / 255f, 1f);
+            line.raycastTarget = false;
+            return date;
+        }
+
+        static string FormatAlbumCard(AlbumCardDto pin)
+        {
+            if (pin == null)
+                return string.Empty;
+            var rare = pin.quality == "blue" || pin.quality == "purple" || pin.quality == "red" ||
+                       pin.quality == "orange" || pin.quality == "gold";
+            return DesktopFishCatalog.SpeciesName(pin.speciesId) + " · " + pin.sizeM.ToString("0.00") + " m\n" +
+                   (rare ? "难忘的稀有鱼获" : "值得记下的一次收获") + "\n" +
+                   AlbumDate(pin) + " · " + AlbumPond(pin);
+        }
+
+        static string FormatAlbumAside(AlbumCardDto pin)
+        {
+            if (pin == null)
+                return "每次相遇都值得留念。新的鱼获故事，会写进湖畔相册。";
+            return "在" + AlbumPond(pin) + "，遇见 " + pin.sizeM.ToString("0.00") + " m 的" +
+                   DesktopFishCatalog.SpeciesName(pin.speciesId) + "。\n这一天的风和水光，也一起留在了照片里。";
+        }
+
+        static string AlbumDate(AlbumCardDto pin)
+        {
+            return pin != null && pin.eventAt > 0
+                ? DateTimeOffset.FromUnixTimeMilliseconds(pin.eventAt).LocalDateTime.ToString("M月d日")
+                : "—";
+        }
+
+        static string AlbumPond(AlbumCardDto pin)
         {
             if (pin == null)
                 return "—";
-            var name = DesktopFishCatalog.SpeciesName(pin.speciesId);
-            var quality = DesktopFishCatalog.QualityName(pin.quality);
-            var when = pin.eventAt > 0
-                ? DateTimeOffset.FromUnixTimeMilliseconds(pin.eventAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm")
-                : "—";
-            var pond = string.IsNullOrEmpty(pin.pondName)
-                ? (string.IsNullOrEmpty(pin.pondId) ? "—" : pin.pondId)
-                : pin.pondName;
-            return name + "\n" +
-                   quality + "  ·  " + pin.sizeM.ToString("0.00") + "m\n\n" +
-                   "来源塘：" + pond + "\n" +
-                   "记录：" + when + "\n" +
-                   SourceLabel(pin.source);
+            if (!string.IsNullOrEmpty(pin.pondName))
+                return pin.pondName;
+            return PondLabel(pin.pondId);
+        }
+
+        static string PondLabel(string pondId)
+        {
+            if (string.IsNullOrEmpty(pondId))
+                return "—";
+            var pond = DesktopGameData.GetPond(pondId);
+            return pond != null && !string.IsNullOrEmpty(pond.name) ? pond.name : pondId;
+        }
+
+        static void PlayAlbumTurn(Transform albumRoot)
+        {
+            RevealAlbumSlot(albumRoot != null ? albumRoot.Find("AlbumStage/SlotL") : null, new Vector2(-28f, 0f), -1.3f);
+            RevealAlbumSlot(albumRoot != null ? albumRoot.Find("AlbumStage/SlotR") : null, new Vector2(28f, 0f), 1.3f);
+            CozyJournalStaticPose.RevealAside(albumRoot);
+        }
+
+        static void RevealAlbumSlot(Transform slot, Vector2 offset, float angle)
+        {
+            if (slot == null || !Application.isPlaying)
+                return;
+            var pose = slot.GetComponent<CozyJournalStaticPose>();
+            if (pose == null)
+            {
+                pose = slot.gameObject.AddComponent<CozyJournalStaticPose>();
+                pose.Configure(angle, slot.GetComponentsInChildren<Graphic>(true));
+            }
+            pose.PlayReveal(offset, .28f, .25f);
+        }
+
+        void ReplayCenter(Transform root)
+        {
+            if (root == null || !Application.isPlaying)
+                return;
+            foreach (var sticker in root.GetComponentsInChildren<CozyStickerMotion>(true))
+                sticker.RestartEntrance();
         }
 
         void RenderAchievements()
@@ -1736,6 +1961,8 @@ namespace FishSocial.Desktop
             if (visible == 0)
                 CreateAchievementRow(_achievementsList, "empty", "当前分类暂无成就",
                     CatTheme.Cream);
+            ReplayCenter(_achievementsList);
+            CozyJournalStaticPose.RevealAside(transform.Find("Shell/Content/Tab_成就") ?? transform.Find("DesignAchievementSummary"));
         }
 
         bool MatchesAchievementCategory(string category)
@@ -2051,7 +2278,7 @@ namespace FishSocial.Desktop
                     text.rectTransform.anchorMax = anchorMax;
                 }
                 var stamp = go.transform.Find("JournalStamp");
-                if (stamp != null) stamp.gameObject.SetActive(collected || (!silhouette && label.StartsWith("✓")));
+                if (stamp != null) stamp.gameObject.SetActive(collected || (!silhouette && label != null && label.StartsWith("✓")));
             }
             button.onClick.RemoveAllListeners();
             button.interactable = onClick != null;
@@ -2062,15 +2289,13 @@ namespace FishSocial.Desktop
                     onClick();
                     var tab=parent;
                     while(tab.parent!=null && !tab.name.StartsWith("Tab_")) tab=tab.parent;
-                    tab.Find("JournalCollectionPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal();
+                    tab.Find("JournalCollectionPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
                 });
             DesktopModalUi.StyleTree(go.transform);
-            if (template != null)
-            {
-                var motion = CozyStickerMotion.Bind(go, "profile:" + parent.parent.name + ":" + name,
-                    Mathf.Max(0, parent.childCount - 1), scroll.viewport, art != null ? art.name : name);
-                if (!Application.isPlaying) motion.ApplyFinalPose();
-            }
+            var scope = parent.parent != null ? parent.parent.name : parent.name;
+            var motion = CozyStickerMotion.Bind(go, "profile:" + scope + ":" + name,
+                Mathf.Max(0, parent.childCount - 1), scroll != null ? scroll.viewport : null, art != null ? art.name : name);
+            if (!Application.isPlaying && motion != null) motion.ApplyFinalPose();
         }
 
         static void CreateAchievementRow(Transform parent, string name, string label, Color tint, bool unlocked = false, string iconKey = null)
@@ -2123,7 +2348,7 @@ namespace FishSocial.Desktop
                 DesktopModalUi.StyleTree(go.transform);
                 var scroll = parent.GetComponentInParent<ScrollRect>();
                 var motion = CozyStickerMotion.Bind(go, "achievement:" + name, Mathf.Max(0, parent.childCount - 1),
-                    scroll != null ? scroll.viewport : null, name);
+                    scroll != null ? scroll.viewport : null, name, null, false, true);
                 if (!Application.isPlaying) motion.ApplyFinalPose();
                 return;
             }
@@ -2152,6 +2377,10 @@ namespace FishSocial.Desktop
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
             DesktopModalUi.StyleTree(go.transform);
+            var listScroll = parent.GetComponentInParent<ScrollRect>();
+            var rowMotion = CozyStickerMotion.Bind(go, "achievement:" + name, Mathf.Max(0, parent.childCount - 1),
+                listScroll != null ? listScroll.viewport : null, name, null, false, true);
+            if (!Application.isPlaying && rowMotion != null) rowMotion.ApplyFinalPose();
         }
 
         static void Stretch(RectTransform rt)

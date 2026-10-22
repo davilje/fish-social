@@ -81,6 +81,7 @@ namespace FishSocial.Desktop
                 return;
             StartCoroutine(SelectionState.LoadProgress(this));
             RefreshMarkerSelection();
+            PondDetailView.RevealPhoto(transform.Find("Details"));
         }
 
         public void EnterPond(string pondId)
@@ -282,6 +283,8 @@ namespace FishSocial.Desktop
             SelectionState.Select(item);
             if (changed && item != null && _markersById.TryGetValue(item.pondId, out var marker) && marker != null)
                 CozyMotion.Ripple(marker.transform as RectTransform);
+            if (changed)
+                PondDetailView.RevealPhoto(transform.Find("Details"));
         }
 
         void RefreshSelection()
