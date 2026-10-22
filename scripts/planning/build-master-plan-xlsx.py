@@ -1004,7 +1004,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-09-02",
     ],
     [
-        "已确认",
+        "已验收",
         "STEAM-DESKTOP-20",
         "功能",
         "主窗口固定分辨率",
@@ -1014,7 +1014,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "默认客户区1920×1080；设置只切1280×720/1600×900/1920×1080/2560×1440；不改Overlay 960×560",
         "docs/planning/specs/Steam桌面端-20主窗口固定分辨率.md",
         "2026-10-21",
-        "",
+        "2026-10-22",
     ],
     [
         "已实现",
@@ -1030,7 +1030,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-10-23",
     ],
     [
-        "已确认",
+        "已验收",
         "BUG-57",
         "Bug修复",
         "桌面设置世界首页与装备图",
@@ -1040,7 +1040,7 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "设置字段不重叠；世界/鱼塘页外框对齐商店；首页全身猫；鱼饵钓竿按id取同一张图",
         "docs/planning/specs/BUG修复-桌面设置世界首页与装备图.md",
         "2026-10-21",
-        "",
+        "2026-10-22",
     ],
     [
         "已实现",
@@ -1642,15 +1642,15 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
         "2026-10-16",
     ],
     [
-        "待开发",
+        "已确认",
         "BUG-46",
         "功能",
         "成就列表没有当前进度",
         "—",
         "hotfix",
         "P1",
-        "从 Bug 修复改为功能，待开发。AchievementViewDto 只有目标和是否解锁，没有当前进度；不改 server/shared",
-        "docs/planning/specs/BUG修复-Cozy桌面页还原.md",
+        "profile-hub 下发 currentValue（复用 progressValue）；自己的未完成卡片显示当前/目标。解锁规则不变",
+        "docs/planning/specs/BUG-46成就列表当前进度.md",
         "2026-10-16",
         "",
     ],
@@ -1884,7 +1884,6 @@ SHEET_STATUS_OVERRIDES = {
     "STEAM-DESKTOP-ART-01": "已实现",
     "STEAM-DESKTOP-ART-04": "已实现",
     "STEAM-DESKTOP-08I": "已实现",
-    "BUG-46": "待开发",
 }
 
 

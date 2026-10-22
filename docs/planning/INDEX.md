@@ -93,15 +93,16 @@
 | [BUG修复-Overlay形象进游戏不恢复.md](./specs/BUG修复-Overlay形象进游戏不恢复.md) | **已实现** | BUG-24：冷启动 Overlay 恢复已保存形象 |
 | [BUG修复-Overlay打窝按钮剩余口数.md](./specs/BUG修复-Overlay打窝按钮剩余口数.md) | **已实现** | BUG-25：打窝按钮去掉剩余口数后缀 |
 | [BUG修复-Overlay悬停与右键菜单指针命中.md](./specs/BUG修复-Overlay悬停与右键菜单指针命中.md) | **已实现** | BUG-26：命中链 + 菜单后悬停用自有开关恢复 |
-| [BUG修复-Cozy桌面页还原.md](./specs/BUG修复-Cozy桌面页还原.md) | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 改为功能·待开发 |
+| [BUG修复-Cozy桌面页还原.md](./specs/BUG修复-Cozy桌面页还原.md) | **分项** | BUG-27～35 已验收；36～45、47 已实现；46 见专项 spec |
+| [BUG-46成就列表当前进度.md](./specs/BUG-46成就列表当前进度.md) | **已确认** | BUG-46：profile-hub 下发 currentValue，自己的未完成卡片显示当前/目标 |
 | [BUG修复-OverlayHUD布局与交互.md](./specs/BUG修复-OverlayHUD布局与交互.md) | **分项已实现** | BUG-48～53 Overlay HUD / 延迟过渡 |
 | [BUG修复-Unity自己钓鱼表现权威.md](./specs/BUG修复-Unity自己钓鱼表现权威.md) | **已实现** | BUG-54：自己钓鱼 Unity 表现权威，Overlay 变瘦 |
 | [BUG修复-默认头像目录与运行白名单不一致.md](./specs/BUG修复-默认头像目录与运行白名单不一致.md) | **已实现** | BUG-55：资料编辑新猫头像被过期 dist 拒绝 |
 | [BUG修复-Overlay阶段切换卡帧与收杆重播.md](./specs/BUG修复-Overlay阶段切换卡帧与收杆重播.md) | **已实现** | BUG-56：换阶段主线程卡 2～6 秒；收杆后再点重播 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](./specs/Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | **已实现** | STEAM-DESKTOP-18：浮窗条数 + actor-hint |
 | [Steam桌面端-19咬钩结算弹窗.md](./specs/Steam桌面端-19咬钩结算弹窗.md) | **已实现** | STEAM-DESKTOP-19：咬钩结束弹窗；取消领取；分档入包/回鱼 |
-| [Steam桌面端-20主窗口固定分辨率.md](./specs/Steam桌面端-20主窗口固定分辨率.md) | **已确认** | STEAM-DESKTOP-20：默认 1920×1080；设置只切四档固定分辨率 |
-| [BUG修复-桌面设置世界首页与装备图.md](./specs/BUG修复-桌面设置世界首页与装备图.md) | **已确认** | BUG-57：设置重叠、世界/鱼塘页尺寸、首页全身猫、装备图按 id |
+| [Steam桌面端-20主窗口固定分辨率.md](./specs/Steam桌面端-20主窗口固定分辨率.md) | **已验收** | STEAM-DESKTOP-20：默认 1920×1080；设置只切四档固定分辨率 |
+| [BUG修复-桌面设置世界首页与装备图.md](./specs/BUG修复-桌面设置世界首页与装备图.md) | **已验收** | BUG-57：设置重叠、世界/鱼塘页尺寸、首页全身猫、装备图按 id |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](./specs/Steam桌面端-14EOverlay头顶状态图标与进度环.md) | **已实现** | STEAM-DESKTOP-14E：头顶 icon/环，修订 14D |
 | [Steam桌面端Web功能对齐设计.md](./specs/Steam桌面端Web功能对齐设计.md) | **已实现** | STEAM-DESKTOP-07E：主窗口页签；菜单唤起时主窗口高于 Overlay |
 | [Steam桌面端-09AOverlay玩家右键菜单.md](./specs/Steam桌面端-09AOverlay玩家右键菜单.md) | **已实现** | STEAM-DESKTOP-09A：Overlay 单玩家右键社交菜单 |

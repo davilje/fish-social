@@ -56,70 +56,70 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.PondRefinement.cs" />
     <Compile Include="Assets\Tests\Editor\CozyUiLibraryTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabManagerWindow.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\FishingAnimationPreviewWindow.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyPondRefinementTests.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyPondMarkerMotionTests.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyJournalPersistenceTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyFishCatalogPreview.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopBuildMenu.cs" />
     <Compile Include="Assets\Tests\Editor\CozyFishCatalogTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyThemeValidationMenu.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyRankRefinementTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyDesktopThemeTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozySocialRefinementPreview.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.MotionParity.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.GalleryParity.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyUiBuildGuard.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyJournalPageBindingTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondLayoutBaker.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPrefabPersistenceTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondArtBaker.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyToggleMotionTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudWidgetCatalog.cs" />
+    <Compile Include="Assets\Scripts\Desktop\JournalV2\Editor\JournalV2Authoring.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.ProfileRefinement.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyJournalProductionLayoutTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.SocialRefinement.cs" />
+    <Compile Include="Assets\Tests\Editor\JournalV2MotionTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Refinements.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyPondSelectionTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyRedesignLayoutTests.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyJournalLeaderboardMotionTests.cs" />
     <Compile Include="Assets\Tests\Editor\DesktopProtocolResponseTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Journal.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyIndexMotionTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabBaker.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozySpriteImporter.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondActorBaker.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyPrefabRepair.cs" />
-    <Compile Include="Assets\Tests\Editor\DesktopFishingAnimationTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignPreview.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\OverlayLayoutExporter.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabCatalog.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudExporter.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyJournalResourcePreparation.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalMotionTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Journal.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyJournalPersistenceTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyJournalPageBindingTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyPondSelectionTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyJournalComposerAuthoring.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyJournalProductionLayoutTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\JournalV2\Editor\JournalV2Authoring.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyPondMarkerMotionTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalLayoutOwnershipTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyPondParityTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalDetailParityTests.cs" />
-    <Compile Include="Assets\Tests\Editor\JournalV2MotionTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.ToggleParity.cs" />
-    <Compile Include="Assets\Scripts\Desktop\JournalV2\Editor\JournalV2Preview.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.DetailParity.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyGalleryParityTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.GalleryParity.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyToggleMotionTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyJournalInlineContentTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.PondParity.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyJournalLeaderboardMotionTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.VisualParity.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.MotionParity.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyIndexMotionTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyProfileRefinementPreview.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.InlineParity.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyJournalResourcePreparation.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyPondParityTests.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyGalleryParityTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondActorBaker.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.RankRefinement.cs" />
+    <Compile Include="Assets\Scripts\Desktop\JournalV2\Editor\JournalV2Preview.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyPrefabRepair.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyJournalComposerAuthoring.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyProfileRefinementTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.DetailParity.cs" />
+    <Compile Include="Assets\Tests\Editor\DesktopFishingAnimationTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalFlipParityTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozySocialRefinementTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozySocialRefinementPreview.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.PondRefinement.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Refinements.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.ProfileRefinement.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyRankRefinementTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.SocialRefinement.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyProfileRefinementPreview.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyProfileRefinementTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.RankRefinement.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyPondRefinementTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignPreview.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.PondParity.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\OverlayLayoutExporter.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabCatalog.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.ToggleParity.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyJournalInlineContentTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudExporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -884,21 +884,21 @@
       <Project>{CD0FF381-ABE5-334D-383C-B7427477A884}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
+    <ProjectReference Include="MCPForUnity.Runtime.csproj">
+      <Project>{42A2EC99-036F-0063-CCAD-7DBE16704EB7}</Project>
+      <Name>MCPForUnity.Runtime</Name>
+    </ProjectReference>
     <ProjectReference Include="com.rlabrecque.steamworks.net.editor.csproj">
       <Project>{23AAF596-B012-20F2-68F5-FB765A2C8032}</Project>
       <Name>com.rlabrecque.steamworks.net.editor</Name>
-    </ProjectReference>
-    <ProjectReference Include="com.rlabrecque.steamworks.net.csproj">
-      <Project>{F2067E66-F9B7-C70A-C89B-ED895F5A4FE5}</Project>
-      <Name>com.rlabrecque.steamworks.net</Name>
     </ProjectReference>
     <ProjectReference Include="MCPForUnity.Editor.csproj">
       <Project>{402ED989-0C9D-FC33-5044-C98B0DC6E8AC}</Project>
       <Name>MCPForUnity.Editor</Name>
     </ProjectReference>
-    <ProjectReference Include="MCPForUnity.Runtime.csproj">
-      <Project>{42A2EC99-036F-0063-CCAD-7DBE16704EB7}</Project>
-      <Name>MCPForUnity.Runtime</Name>
+    <ProjectReference Include="com.rlabrecque.steamworks.net.csproj">
+      <Project>{F2067E66-F9B7-C70A-C89B-ED895F5A4FE5}</Project>
+      <Name>com.rlabrecque.steamworks.net</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

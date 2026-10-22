@@ -19,7 +19,8 @@ npm run planning:confirm -- v0.4.0
 
 | 文件 | 说明 |
 |------|------|
-| [bug-47-showcase-fish-detail-rows-dev.prompt.md](./bug-47-showcase-fish-detail-rows-dev.prompt.md) | BUG-47：展示柜点选详情改成分行 · **已实现**（BUG-46 改为功能·待开发） |
+| [bug-46-achievement-progress-dev.prompt.md](./bug-46-achievement-progress-dev.prompt.md) | BUG-46：成就卡片显示当前/目标 · **已确认** |
+| [bug-47-showcase-fish-detail-rows-dev.prompt.md](./bug-47-showcase-fish-detail-rows-dev.prompt.md) | BUG-47：展示柜点选详情改成分行 · **已实现** |
 | [bug-48-49-overlay-hud-layout-dev.prompt.md](./bug-48-49-overlay-hud-layout-dev.prompt.md) | BUG-48、49：HUD 导出边距统一、布局重排 · **已确认** |
 | [bug-50-overlay-chat-dock-dev.prompt.md](./bug-50-overlay-chat-dock-dev.prompt.md) | BUG-50：聊天栏 10 行、折叠按钮对齐、发送后清空 · **已确认** |
 | [bug-51-overlay-debug-menu-dev.prompt.md](./bug-51-overlay-debug-menu-dev.prompt.md) | BUG-51：Debug 菜单点击无反应 · **已确认** |
@@ -27,8 +28,8 @@ npm run planning:confirm -- v0.4.0
 | [bug-54-own-fishing-presenter-dev.prompt.md](./bug-54-own-fishing-presenter-dev.prompt.md) | BUG-54：Unity 自己钓鱼表现权威（Overlay 变瘦）· **已实现** |
 | [bug-55-default-avatar-catalog-dev.prompt.md](./bug-55-default-avatar-catalog-dev.prompt.md) | BUG-55：默认头像白名单跟源码 · **已实现** |
 | [bug-56-overlay-stall-replay-dev.prompt.md](./bug-56-overlay-stall-replay-dev.prompt.md) | BUG-56：换阶段卡帧与收杆重播 · **已实现** |
-| [steam-desktop-20-window-presets-dev.prompt.md](./steam-desktop-20-window-presets-dev.prompt.md) | STEAM-DESKTOP-20：主窗口默认 1920×1080，设置只切固定分辨率 · **已确认** |
-| [bug-57-desktop-ui-layout-dev.prompt.md](./bug-57-desktop-ui-layout-dev.prompt.md) | BUG-57：设置重叠、世界/鱼塘尺寸、首页全身猫、装备图按 id · **已确认** |
+| [steam-desktop-20-window-presets-dev.prompt.md](./steam-desktop-20-window-presets-dev.prompt.md) | STEAM-DESKTOP-20：主窗口默认 1920×1080，设置只切固定分辨率 · **已验收** |
+| [bug-57-desktop-ui-layout-dev.prompt.md](./bug-57-desktop-ui-layout-dev.prompt.md) | BUG-57：设置重叠、世界/鱼塘尺寸、首页全身猫、装备图按 id · **已验收** |
 | [bug-58-pond-settings-info-dev.prompt.md](./bug-58-pond-settings-info-dev.prompt.md) | BUG-58：鱼塘中文信息、地图标记、设置当前项 · **已实现** |
 | [bug-59-journal-labels-motion-dev.prompt.md](./bug-59-journal-labels-motion-dev.prompt.md) | BUG-59：手账翻页、标签、右侧详情、排行榜与动态 · **已实现** |
 | [steam-desktop-21-journal-motion-dev.prompt.md](./steam-desktop-21-journal-motion-dev.prompt.md) | STEAM-DESKTOP-21：猫咪钓鱼手账动效 · **已确认** |

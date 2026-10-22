@@ -1,5 +1,16 @@
 # 策划文档变更记录
 
+### [bug-46-confirmed] - 2026-10-22
+
+- **BUG-46** 成就列表当前进度 → **已确认**，P1，hotfix。`progressValue` 已在解锁时计算，但 `buildAchievementViews` 不下发。profile-hub 增加 `currentValue`；自己的未完成卡片显示当前/目标。解锁规则、隐藏规则和他人可见范围不变。
+- 规格：`docs/planning/specs/BUG-46成就列表当前进度.md`
+- 开发提示词：`docs/planning/prompts/bug-46-achievement-progress-dev.prompt.md`
+
+### [steam-desktop-20-bug-57-accepted] - 2026-10-22
+
+- **STEAM-DESKTOP-20** 主窗口固定分辨率 → **已验收**（设计 2026-10-21，完成 2026-10-22）。用户验收通过。
+- **BUG-57** 桌面设置、世界/鱼塘页、首页形象与装备图 → **已验收**（设计 2026-10-21，完成 2026-10-22）。用户验收通过。
+
 ### [bug-59-implemented] - 2026-10-22
 
 - **BUG-59** 手账翻页、标签、右侧详情、排行榜与动态 → **已实现**（设计 2026-10-22，完成 2026-10-22）。用户验收通过。页签再次打开保留已建列表并重播入场与退场；排行榜前三名跟随当前榜。每周钓王仍按这一条的体长换算重量。
