@@ -143,6 +143,46 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
+        public void FadingSheetKeepsThePolaroidRevealInsteadOfWaitingUntilThePageIsOpaque()
+        {
+            var page = Page("Shop");
+            var group = page.AddComponent<CanvasGroup>();
+            var photo = Art("JournalPolaroid", page.transform);
+            var pose = photo.gameObject.AddComponent<CozyJournalStaticPose>();
+            pose.Configure(-2f, photo);
+            var visible = typeof(CozyJournalStaticPose).GetMethod(
+                "HierarchyVisible",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(visible);
+            group.alpha = 0f;
+            Assert.IsFalse((bool)visible.Invoke(pose, null), "A concealed sheet must not spend the polaroid reveal.");
+            group.alpha = .2f;
+            Assert.IsTrue((bool)visible.Invoke(pose, null), "The door fade has to carry the polaroid with the cards.");
+        }
+
+        [Test]
+        public void OpeningFromHomeStartsCardEntranceOnceAndDoesNotReplayItWhenTheDoorEnds()
+        {
+            var home = Page("Home");
+            var shop = Page("Shop");
+            var card = Art("Card", shop.transform);
+            var motion = CozyStickerMotion.Bind(card.gameObject, "home-door", 0);
+            motion.ApplyFinalPose();
+            Assert.IsTrue(motion.EntranceComplete);
+
+            CozyMotion.Flip(home, shop, null);
+            Assert.IsFalse(motion.EntranceComplete, "The door must begin the card entrance, not show the settled page first.");
+            Assert.AreEqual(1.12f, motion.AppliedScale);
+            motion.Advance(.2f);
+            var progressed = motion.AppliedScale;
+            Assert.Less(progressed, 1.12f);
+
+            CozyMotion.Tick(.21f);
+            Assert.AreEqual(progressed, motion.AppliedScale, "Finishing the door must not restart the entrance.");
+            Assert.IsFalse(motion.EntranceComplete);
+        }
+
+        [Test]
         public void CardEntranceRestartsOnlyAfterOutgoingContentFinishes()
         {
             var oldPage = Page("Shop"); var newPage = Page("Bag");

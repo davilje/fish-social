@@ -21,7 +21,7 @@ namespace FishSocial.Desktop
         FriendInfoDto[] _friends = new FriendInfoDto[0];
         FriendRequestDto[] _incoming = new FriendRequestDto[0], _outgoing = new FriendRequestDto[0];
         DmConversationDto[] _conversations = new DmConversationDto[0];
-        bool _uiReady, _open, _sendingDm, _sendingChat, _socialReady, _friendsBuilt, _requestsBuilt, _steamRefreshQueued;
+        bool _uiReady, _open, _sendingDm, _sendingChat, _socialReady, _friendsBuilt, _requestsBuilt, _steamRefreshQueued, _shellEntrance;
         int _friendsGeneration, _dmGeneration, _conversationGeneration, _friendsListGeneration, _requestsListGeneration, _chatListGeneration;
         Coroutine _friendsListBuild, _requestsListBuild, _chatListBuild;
         string _dmFriendId, _dmFriendName, _account;
@@ -51,7 +51,36 @@ namespace FishSocial.Desktop
             _inbox.Changed-=OnInboxChanged;_inbox.Changed+=OnInboxChanged;
             BindPrefab();Subscribe(true);
         }
-        public void OnOpened() { _open=true;if(_uiReady)OpenSection(_section); }
+        public void OnOpened()
+        {
+            _open=true;
+            // The shell transition restarts the visible rows. Replaying them here too
+            // makes the friends and notification lists refresh a second time.
+            _shellEntrance=true;
+            if(_uiReady)OpenSection(_section);
+            _shellEntrance=false;
+        }
+        public void ArmSection(SocialSection section)
+        {
+            if(_open&&_uiReady)
+            {
+                if(_section!=section)OpenSection(section);
+                return;
+            }
+            _section=section;
+        }
+        public void ArmDirectMessage(string playerId,string nickname)
+        {
+            if(string.IsNullOrEmpty(playerId))return;
+            var changed=_dmFriendId!=playerId||_section!=SocialSection.DirectMessages;
+            _dmFriendId=playerId;_dmFriendName=nickname??"钓友";
+            if(_open&&_uiReady)
+            {
+                if(changed)OpenSection(SocialSection.DirectMessages);
+                return;
+            }
+            _section=SocialSection.DirectMessages;
+        }
         public void OnClosed()
         {
             _open=false;_friendsGeneration++;_dmGeneration++;_conversationGeneration++;_chatListGeneration++;
@@ -156,10 +185,10 @@ namespace FishSocial.Desktop
             if(_section==SocialSection.Requests)
             {
                 if(!_requestsBuilt) RenderRequests();
-                else ReplayRows(_requestsContent);
+                else if(!_shellEntrance) ReplayRows(_requestsContent);
             }
             else if(!_friendsBuilt) RenderFriends();
-            else ReplayRows(_friendsContent);
+            else if(!_shellEntrance) ReplayRows(_friendsContent);
             ShowSocialStatus();
         }
         static void ReplayRows(Transform root)

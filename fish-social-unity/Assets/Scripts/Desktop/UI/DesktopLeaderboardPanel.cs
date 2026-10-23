@@ -81,6 +81,8 @@ namespace FishSocial.Desktop
             EnsureUi();
         }
 
+        int _shellEntranceGeneration = -1;
+
         public void OnOpened()
         {
             if (!_uiReady)
@@ -90,12 +92,14 @@ namespace FishSocial.Desktop
             ShowBoard(_boardType);
             if (_builtBoards.Contains(_boardType))
                 return;
+            _shellEntranceGeneration = _loadGeneration + 1;
             RefreshNow();
             StartPrefetchOthers(_boardType);
         }
 
         public void OnClosed()
         {
+            _shellEntranceGeneration = -1;
             if (_boardTransition != null) StopCoroutine(_boardTransition);
             _boardTransition = null;
             _pendingBoard = null;
@@ -1144,6 +1148,9 @@ namespace FishSocial.Desktop
             int generation,
             LeaderboardMyRankDto myRank)
         {
+            var deferEntrance = generation == _shellEntranceGeneration;
+            if (deferEntrance)
+                _shellEntranceGeneration = -1;
             if (entries == null || entries.Length == 0)
             {
                 if (IsStaleGeneration(generation, boardType))
@@ -1167,7 +1174,8 @@ namespace FishSocial.Desktop
                 SetMyRank(myRank, boardType);
             SyncPlayerSelection();
             MarkBoardBuilt(boardType);
-            _pageMotion?.PlayEntrance(entries.Length + 3);
+            if (!deferEntrance)
+                _pageMotion?.PlayEntrance(entries.Length + 3);
         }
 
         IEnumerator BindRows(

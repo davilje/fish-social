@@ -102,26 +102,26 @@ namespace FishSocial.Desktop
 
         public void OpenDirectMessage(string playerId, string nickname)
         {
+            _socialPanel?.ArmDirectMessage(playerId, nickname);
             ShowMainPanel(ShellPanelId.Friends);
-            _socialPanel?.OpenDirectMessage(playerId, nickname);
         }
 
         public void OpenFriends()
         {
+            _socialPanel?.ArmSection(SocialSection.Friends);
             ShowMainPanel(ShellPanelId.Friends);
-            _socialPanel?.OpenSection(SocialSection.Friends);
         }
 
         public void OpenFriendRequests()
         {
+            _socialPanel?.ArmSection(SocialSection.Requests);
             ShowMainPanel(ShellPanelId.Friends);
-            _socialPanel?.OpenFriendRequests();
         }
 
         public void OpenNotifications()
         {
+            _socialPanel?.ArmSection(SocialSection.Notifications);
             ShowMainPanel(ShellPanelId.Friends);
-            _socialPanel?.OpenNotifications();
         }
 
         void RefreshSocialUnread(int count)
@@ -521,6 +521,34 @@ namespace FishSocial.Desktop
             }
         }
 
+        void CloseFeaturePanelsExcept(ShellPanelId opening)
+        {
+            if (opening != ShellPanelId.Friends)
+                _socialPanel?.OnClosed();
+            if (opening != ShellPanelId.CatchBag)
+                _catchPanel?.OnClosed();
+            if (opening != ShellPanelId.Gallery)
+                _galleryPanel?.OnClosed();
+            if (opening != ShellPanelId.Shop)
+                _shopPanel?.OnClosed();
+            if (opening != ShellPanelId.Equipment)
+                _equipmentPanel?.OnClosed();
+            if (opening != ShellPanelId.Achievements)
+                _achievementPanel?.OnClosed();
+            if (opening != ShellPanelId.Profile)
+                _profilePanel?.OnClosed();
+            // Gallery is presented by the profile hub. Closing that hub here would
+            // discard the section this same call is about to show.
+            if (opening != ShellPanelId.Profile && opening != ShellPanelId.Gallery)
+                _profileHubPanel?.OnClosed();
+            if (opening != ShellPanelId.ProfileEdit)
+                _profileEditPanel?.OnClosed();
+            if (opening != ShellPanelId.SocialFeed)
+                _socialFeedPanel?.OnClosed();
+            if (opening != ShellPanelId.Leaderboard)
+                _leaderboardPanel?.OnClosed();
+        }
+
         void OnPanelChanged(ShellPanelId id)
         {
             HighlightTab(id);
@@ -550,18 +578,8 @@ namespace FishSocial.Desktop
             if (competition != null)
                 competition.gameObject.SetActive(CozySurplus.Visible && id == ShellPanelId.Home);
             _productMenu?.Hide();
-            _socialPanel?.OnClosed();
-            _catchPanel?.OnClosed();
-            _galleryPanel?.OnClosed();
-            _shopPanel?.OnClosed();
-            _equipmentPanel?.OnClosed();
-            _achievementPanel?.OnClosed();
-            _profilePanel?.OnClosed();
-            _profileHubPanel?.OnClosed();
-            _profileEditPanel?.OnClosed();
-            if (id != ShellPanelId.SocialFeed)
-                _socialFeedPanel?.OnClosed();
-            _leaderboardPanel?.OnClosed();
+            // Closing the page that is about to open resets it, then OnOpened builds it again.
+            CloseFeaturePanelsExcept(id);
             RefreshHeaderBalance();
             switch (id)
             {
@@ -572,7 +590,7 @@ namespace FishSocial.Desktop
                     _pondSelectionPanel?.OnOpened();
                     break;
                 case ShellPanelId.Achievements:
-                    _achievementPanel?.ShowSelf(DesktopProfileHubPanel.HubTab.Achievements);
+                    _achievementPanel?.ShowSelf(DesktopProfileHubPanel.HubTab.Achievements, false);
                     _achievementPanel?.OnOpened();
                     break;
                 case ShellPanelId.Shop:
@@ -588,7 +606,7 @@ namespace FishSocial.Desktop
                     // FEAT-ALBUM-01：图鉴并入个人中心
                     if (_profileHubPanel != null)
                     {
-                        _profileHubPanel.ShowSelf(DesktopProfileHubPanel.HubTab.Codex);
+                        _profileHubPanel.ShowSelf(DesktopProfileHubPanel.HubTab.Codex, false);
                         _profileHubPanel.OnOpened();
                     }
                     else
@@ -613,7 +631,8 @@ namespace FishSocial.Desktop
                     _settingsPanel?.OnOpened();
                     break;
             }
-            CozyJournalStaticPose.RevealAside(view);
+            // The page transition owns the single polaroid reveal. Revealing here as well
+            // played it once while the sheet was hidden and again when the sheet arrived.
         }
 
         static void AlignHeaderActions(Transform header, bool showClose)

@@ -33,6 +33,11 @@ namespace FishSocial.Desktop
             Current = id;
             GameObject next = null;
             _panels.TryGetValue(id, out next);
+            // OnOpened rebuilds while this call is still on the stack. Conceal first, or a later
+            // sibling paints the settled page and the transition then plays that same page again.
+            var animate = changed && next != null && !CozyMotion.Reduced && !CozyMotion.Paused;
+            if (animate)
+                CozyMotion.ConcealIncoming(next);
             // Listeners start load coroutines immediately. The slot must already be active.
             if (next != null && !next.activeSelf)
                 next.SetActive(true);
