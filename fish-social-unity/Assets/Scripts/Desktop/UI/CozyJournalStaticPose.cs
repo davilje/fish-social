@@ -73,10 +73,9 @@ namespace FishSocial.Desktop
             while (node != null)
             {
                 var group = node.GetComponent<CanvasGroup>();
-                // Only a fully concealed sheet holds the reveal. A door that is already
-                // fading in has to carry the polaroid with the cards; waiting until the
-                // sheet was opaque played the photo again after the page had arrived.
-                if (group != null && group.alpha <= .001f) return false;
+                // Hold the polaroid until the sheet is actually on screen. Playing it
+                // during the rise spends the reveal before the page can be seen.
+                if (group != null && group.alpha < .98f) return false;
                 node = node.parent;
             }
             return true;

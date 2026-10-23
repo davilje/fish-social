@@ -64,7 +64,8 @@ namespace FishSocial.Desktop
         {
             if (!_uiReady)
                 return;
-            // Shell StartJournalEntrance already plays this page once.
+            if (Application.isPlaying)
+                PlayJournalEntrance();
             Refresh();
         }
 
@@ -175,6 +176,18 @@ namespace FishSocial.Desktop
                 transform.Find("JournalPreview"),
                 transform.Find("ShowcaseTitle"),
                 transform.Find("Showcase"));
+        }
+
+        void PlayJournalEntrance()
+        {
+            var motion = GetComponent<CozyJournalPageMotion>();
+            if (motion == null)
+                EnsureJournalMotion();
+            motion = GetComponent<CozyJournalPageMotion>();
+            if (motion == null)
+                return;
+            motion.PlayEntrance(GetComponentsInChildren<CozyStickerMotion>(true).Length);
+            CozyJournalStaticPose.RevealAside(transform);
         }
 
         void GoBack()
@@ -494,8 +507,26 @@ namespace FishSocial.Desktop
         {
             var template = transform.Find(templateName);
             var item = template != null ? Instantiate(template.gameObject, parent, false) : DesktopUiPrefabFactory.Instantiate(fallback, parent);
-            if (item != null) item.SetActive(true);
+            if (item != null)
+            {
+                item.SetActive(true);
+                EnsureChoiceHitTarget(item);
+            }
             return item;
+        }
+
+        /// <summary>Choice cards paint with raycast-disabled washes. A transparent root image is the click target.</summary>
+        static void EnsureChoiceHitTarget(GameObject choice)
+        {
+            var image = choice.GetComponent<Image>();
+            if (image == null)
+                image = choice.AddComponent<Image>();
+            if (image.sprite == null)
+                image.color = new Color(1f, 1f, 1f, 0f);
+            image.raycastTarget = true;
+            var button = choice.GetComponent<Button>();
+            if (button != null && button.targetGraphic == null)
+                button.targetGraphic = image;
         }
 
         static void ClearChoices(Transform content)

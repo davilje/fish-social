@@ -28,11 +28,17 @@ namespace FishSocial.Tests.Editor
                 var avatars=page.transform.Find("Avatars/Viewport/Content");
                 Assert.AreEqual(DesktopDefaultAvatars.All.Length,avatars.childCount);
                 Assert.AreEqual(new Vector2(222,104),avatars.GetComponent<GridLayoutGroup>().cellSize);
-                Assert.IsNotNull(avatars.GetChild(0).GetComponent<Button>());
+                var avatarButton=avatars.GetChild(0).GetComponent<Button>();
+                var avatarHit=avatars.GetChild(0).GetComponent<Image>();
+                Assert.IsNotNull(avatarButton);
+                Assert.IsTrue(avatarHit.raycastTarget);
+                Assert.AreEqual(avatarHit,avatarButton.targetGraphic);
                 page.transform.Find("WorkspaceShowcaseTab").GetComponent<Button>().onClick.Invoke();
                 Assert.IsFalse(page.transform.Find("Avatars").gameObject.activeSelf);
                 Assert.IsTrue(page.transform.Find("Showcase").gameObject.activeSelf);
                 var slots=page.transform.Find("Showcase/Viewport/Content");Assert.AreEqual(8,slots.childCount);
+                Assert.IsTrue(slots.GetChild(0).GetComponent<Image>().raycastTarget);
+                Assert.AreEqual(slots.GetChild(0).GetComponent<Image>(),slots.GetChild(0).GetComponent<Button>().targetGraphic);
                 Assert.AreEqual("锦鲤",slots.GetChild(0).Find("Label").GetComponent<Text>().text);
                 Assert.IsTrue(slots.GetChild(7).Find("WorkspaceEmpty").gameObject.activeSelf);
             }finally{Object.DestroyImmediate(page);}
@@ -47,6 +53,7 @@ namespace FishSocial.Tests.Editor
                 var picker=page.transform.Find("Picker");var search=picker.Find("Search").GetComponent<InputField>();
                 search.text="鲤鱼";
                 var rows=picker.Find("Viewport/Content");Assert.AreEqual(1,rows.childCount);
+                Assert.IsTrue(rows.GetChild(0).GetComponent<Image>().raycastTarget);
                 rows.GetChild(0).GetComponent<Button>().onClick.Invoke();
                 picker.Find("Close").GetComponent<Button>().onClick.Invoke();
                 var slots=page.transform.Find("Showcase/Viewport/Content");

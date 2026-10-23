@@ -81,6 +81,7 @@ namespace FishSocial.Desktop
                 return;
             StartCoroutine(SelectionState.LoadProgress(this));
             RefreshMarkerSelection();
+            PondDetailView.RevealPhoto(transform.Find("Details"));
         }
 
         public void EnterPond(string pondId)

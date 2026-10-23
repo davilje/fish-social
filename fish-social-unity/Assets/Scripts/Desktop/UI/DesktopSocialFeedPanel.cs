@@ -40,7 +40,6 @@ namespace FishSocial.Desktop
         FeedSlot _friendFeed;
         FeedSlot _mineFeed;
         bool _canLoadMore;
-        bool _shellEntrance;
         bool _seenListTop;
         bool _suppressScrollLoad;
         int _nextOffset;
@@ -73,7 +72,6 @@ namespace FishSocial.Desktop
             if (_isOpen)
                 return;
             _isOpen = true;
-            _shellEntrance = true;
             _seenListTop = false;
             var share = Find<Button>("DesignFeedInfo/Share");
             if (share != null)
@@ -87,7 +85,6 @@ namespace FishSocial.Desktop
             if (slot != null && slot.loaded)
             {
                 ShowFeed(slot);
-                _shellEntrance = false;
                 return;
             }
             Refresh();
@@ -96,7 +93,6 @@ namespace FishSocial.Desktop
         public void OnClosed()
         {
             _isOpen = false;
-            _shellEntrance = false;
             if (_categoryMotion != null) StopCoroutine(_categoryMotion);
             _categoryMotion = null;
             GetComponent<CozyJournalPageMotion>()?.Finish();
@@ -240,7 +236,6 @@ namespace FishSocial.Desktop
                 _mineOnly = mineOnly;
                 _seenListTop = false;
                 _suppressScrollLoad = false;
-                _shellEntrance = false;
             }
             RestyleTabs();
             var slot = CurrentFeed;
@@ -369,10 +364,6 @@ namespace FishSocial.Desktop
 
         IEnumerator LoadRoutine(bool append, int limit, int offset, int generation, bool friendsOnly, bool mineOnly)
         {
-            // OnOpened sets this so the shell transition is the only page entrance.
-            // Capturing it here lets a later in-page refresh play its own entrance.
-            var shellOwned = _shellEntrance && !append;
-            _shellEntrance = false;
             var slot = FeedFor(friendsOnly, mineOnly);
             var root = slot != null ? slot.root : _content;
             var hasContent = root != null && root.childCount > 0;
@@ -449,7 +440,7 @@ namespace FishSocial.Desktop
                     yield return null;
             }
             RememberFeed(slot, true, posts.Length >= limit, offset + posts.Length);
-            if (!append && slot == CurrentFeed && !shellOwned)
+            if (!append && slot == CurrentFeed)
                 GetComponent<CozyJournalPageMotion>()?.PlayEntrance(posts.Length);
             if (!append && _scroll != null)
             {

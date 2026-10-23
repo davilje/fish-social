@@ -21,7 +21,7 @@ namespace FishSocial.Desktop
         FriendInfoDto[] _friends = new FriendInfoDto[0];
         FriendRequestDto[] _incoming = new FriendRequestDto[0], _outgoing = new FriendRequestDto[0];
         DmConversationDto[] _conversations = new DmConversationDto[0];
-        bool _uiReady, _open, _sendingDm, _sendingChat, _socialReady, _friendsBuilt, _requestsBuilt, _steamRefreshQueued, _shellEntrance;
+        bool _uiReady, _open, _sendingDm, _sendingChat, _socialReady, _friendsBuilt, _requestsBuilt, _steamRefreshQueued;
         int _friendsGeneration, _dmGeneration, _conversationGeneration, _friendsListGeneration, _requestsListGeneration, _chatListGeneration;
         Coroutine _friendsListBuild, _requestsListBuild, _chatListBuild;
         string _dmFriendId, _dmFriendName, _account;
@@ -54,11 +54,7 @@ namespace FishSocial.Desktop
         public void OnOpened()
         {
             _open=true;
-            // The shell transition restarts the visible rows. Replaying them here too
-            // makes the friends and notification lists refresh a second time.
-            _shellEntrance=true;
             if(_uiReady)OpenSection(_section);
-            _shellEntrance=false;
         }
         public void ArmSection(SocialSection section)
         {
@@ -185,10 +181,10 @@ namespace FishSocial.Desktop
             if(_section==SocialSection.Requests)
             {
                 if(!_requestsBuilt) RenderRequests();
-                else if(!_shellEntrance) ReplayRows(_requestsContent);
+                else ReplayRows(_requestsContent);
             }
             else if(!_friendsBuilt) RenderFriends();
-            else if(!_shellEntrance) ReplayRows(_friendsContent);
+            else ReplayRows(_friendsContent);
             ShowSocialStatus();
         }
         static void ReplayRows(Transform root)

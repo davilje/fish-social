@@ -12,11 +12,14 @@ namespace FishSocial.Desktop
         public void Sample(float offset, float alpha, float titleOffset = 0, float titleAlpha = 1)
         {
             ContentOffset = offset; ContentAlpha = alpha;
-            foreach (var graphic in GetComponentsInChildren<Graphic>(true))
+            // The router slot only wraps the page prefab. Measuring from the slot treats the
+            // whole sheet, rings included, as one sliding child.
+            var root = PageRoot();
+            foreach (var graphic in root.GetComponentsInChildren<Graphic>(true))
             {
-                if (graphic.transform == transform) continue;
+                if (graphic.transform == root) continue;
                 var top = graphic.transform;
-                while (top.parent != transform && top.parent != null) top = top.parent;
+                while (top.parent != root && top.parent != null) top = top.parent;
                 var n = top.name;
                 if (n == "JournalShadow" || n == "JournalEdge" || n == "JournalDots" ||
                     n == "JournalGrain" || n == "JournalStitch" || n.StartsWith("JournalRing")) continue;
@@ -24,8 +27,24 @@ namespace FishSocial.Desktop
                 if (n == "DesignHeader" && !title) continue;
                 var effect = graphic.GetComponent<CozyJournalFlipGraphic>();
                 if (effect == null) effect = graphic.gameObject.AddComponent<CozyJournalFlipGraphic>();
-                effect.Sample(transform, title ? titleOffset : offset, title ? titleAlpha : alpha);
+                effect.Sample(root, title ? titleOffset : offset, title ? titleAlpha : alpha);
             }
+        }
+
+        Transform PageRoot()
+        {
+            if (IsJournalPage(transform)) return transform;
+            for (var i = 0; i < transform.childCount; i++)
+            {
+                var child = transform.GetChild(i);
+                if (IsJournalPage(child)) return child;
+            }
+            return transform;
+        }
+
+        static bool IsJournalPage(Transform node)
+        {
+            return node != null && (node.Find("JournalShadow") != null || node.Find("DesignHeader") != null);
         }
         public void ResetPose() { Sample(0, 1); }
         void OnDisable() { ResetPose(); }

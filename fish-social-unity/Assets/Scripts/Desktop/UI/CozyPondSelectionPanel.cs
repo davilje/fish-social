@@ -60,6 +60,7 @@ namespace FishSocial.Desktop
             EnsureUi();
             BuildCards();
             if (_selection != null) StartCoroutine(_selection.LoadProgress(this));
+            PondDetailView.RevealPhoto(transform.Find("DesignPondAside"));
         }
 
         void EnsureUi()

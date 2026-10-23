@@ -192,6 +192,9 @@ namespace FishSocial.Desktop.Editor
         {
             var rect=Place(root,name,0,0,w,h);
             var button=rect.GetComponent<Button>();if(button==null)button=rect.gameObject.AddComponent<Button>();
+            var hit=rect.GetComponent<Image>()??rect.gameObject.AddComponent<Image>();
+            hit.color=new Color(1f,1f,1f,0f);hit.raycastTarget=true;
+            if(button.targetGraphic==null)button.targetGraphic=hit;
             CatTheme.StyleButton(button);
             JournalCard(rect.gameObject); Hide(rect,"JournalTape");
             Hide(rect,"JournalSelection");

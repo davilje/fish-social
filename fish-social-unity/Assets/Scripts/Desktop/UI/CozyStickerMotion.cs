@@ -378,6 +378,11 @@ namespace FishSocial.Desktop
         }
         void Update()
         {
+            if (CozyMotion.EntranceHeld)
+            {
+                waitForLayout = false;
+                return;
+            }
             if (waitForLayout) { waitForLayout = false; return; }
             Advance(Time.unscaledDeltaTime);
         }

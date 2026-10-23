@@ -101,15 +101,11 @@ namespace FishSocial.Desktop
             ShowBagRoot();
             if ((_itemsTab && _gearReady) || (!_itemsTab && _fishReady))
                 return;
-            _deferBagReveal = true;
             Refresh();
         }
 
-        bool _deferBagReveal;
-
         public void OnClosed()
         {
-            _deferBagReveal = false;
             StopAllCoroutines();
             _loadRoutine = null;
             _busy = false;
@@ -677,11 +673,6 @@ namespace FishSocial.Desktop
 
         void RevealBagPhoto()
         {
-            if (_deferBagReveal)
-            {
-                _deferBagReveal = false;
-                return;
-            }
             var photo = transform.Find("JournalBagPhoto");
             if (photo == null) return;
             var pose = photo.GetComponent<CozyJournalStaticPose>() ?? photo.gameObject.AddComponent<CozyJournalStaticPose>();

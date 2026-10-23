@@ -232,7 +232,7 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void RouterKeepsTheIncomingPageConcealedUntilTheTransitionShowsIt()
+        public void RouterLeavesTheIncomingPageVisibleForItsOwnEntrance()
         {
             var router = root.AddComponent<PanelRouter>();
             var home = Rect("Home").gameObject;
@@ -240,7 +240,7 @@ namespace FishSocial.Tests.Editor
             router.Register(ShellPanelId.Home, home);
             router.Register(ShellPanelId.Shop, shop);
             var alphaWhileOpening = -1f;
-            var blocksWhileOpening = true;
+            var blocksWhileOpening = false;
             router.PanelChanged += id =>
             {
                 if (id != ShellPanelId.Shop)
@@ -250,8 +250,8 @@ namespace FishSocial.Tests.Editor
                 blocksWhileOpening = group == null || group.blocksRaycasts;
             };
             router.Show(ShellPanelId.Shop);
-            Assert.AreEqual(0f, alphaWhileOpening);
-            Assert.IsFalse(blocksWhileOpening);
+            Assert.AreEqual(1f, alphaWhileOpening);
+            Assert.IsTrue(blocksWhileOpening);
             CozyMotion.Tick(1f);
             Assert.AreEqual(1f, shop.GetComponent<CanvasGroup>().alpha);
             Assert.IsTrue(shop.GetComponent<CanvasGroup>().blocksRaycasts);

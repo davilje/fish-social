@@ -50,9 +50,9 @@ namespace FishSocial.Tests.Editor
             return rect.gameObject.AddComponent<Image>();
         }
 
-        GameObject Page(string name, bool entrance = false)
+        GameObject Page(string name, bool entrance = false, Transform parent = null)
         {
-            var page = Node(name, root.transform);
+            var page = Node(name, parent != null ? parent : root.transform);
             page.sizeDelta = new Vector2(1380, 680);
             page.anchoredPosition = new Vector2(51, 73);
             page.gameObject.AddComponent<Image>();
@@ -123,6 +123,31 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
+        public void RouterSlotKeepsThePaperStillWhileTheWrappedPageSlides()
+        {
+            var oldSlot = Node("Shop", root.transform);
+            var newSlot = Node("Bag", root.transform);
+            var oldPage = Page("PanelShop", false, oldSlot);
+            var newPage = Page("PanelBag", false, newSlot);
+            newSlot.gameObject.SetActive(false);
+            CozyMotion.Flip(oldSlot.gameObject, newSlot.gameObject, null);
+            CozyMotion.Tick(.06f);
+            Assert.AreEqual(new Vector3(7, 11, 0), Sample(Find(oldPage, "JournalEdge")).position);
+            Assert.Less(Sample(Find(oldPage, "Content")).position.x, 7f);
+            Assert.AreEqual(200, Sample(Find(oldPage, "DesignHeader/Icon")).color.a);
+            Assert.AreEqual(new Vector3(7, 11, 0), Sample(Find(oldPage, "DesignHeader/Title")).position);
+            CozyMotion.Tick(.061f);
+            Assert.AreEqual(1, newSlot.GetComponent<CanvasGroup>().alpha);
+            Assert.AreEqual(new Vector3(7, 11, 0), Sample(Find(newPage, "JournalEdge")).position);
+            Assert.AreEqual(new Vector3(7, 11, 0), Sample(Find(newPage, "JournalRing0")).position);
+            Assert.AreEqual(new Vector3(31, 11, 0), Sample(Find(newPage, "Content")).position);
+            Assert.AreEqual(0, Sample(Find(newPage, "Content")).color.a);
+            Assert.AreEqual(new Vector3(17, 11, 0), Sample(Find(newPage, "DesignHeader/Title")).position);
+            Assert.AreEqual(0, Sample(Find(newPage, "DesignHeader/Title")).color.a);
+            Assert.AreEqual(200, Sample(Find(newPage, "DesignHeader/Icon")).color.a);
+        }
+
+        [Test]
         public void OldContentExitsBeforeIncomingPaperAndItsTitleSlideBecomeVisible()
         {
             var oldPage = Page("Shop"); var newPage = Page("Bag"); newPage.SetActive(false);
@@ -143,7 +168,7 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void FadingSheetKeepsThePolaroidRevealInsteadOfWaitingUntilThePageIsOpaque()
+        public void FadingSheetHoldsThePolaroidUntilThePageIsOpaque()
         {
             var page = Page("Shop");
             var group = page.AddComponent<CanvasGroup>();
@@ -157,29 +182,48 @@ namespace FishSocial.Tests.Editor
             group.alpha = 0f;
             Assert.IsFalse((bool)visible.Invoke(pose, null), "A concealed sheet must not spend the polaroid reveal.");
             group.alpha = .2f;
-            Assert.IsTrue((bool)visible.Invoke(pose, null), "The door fade has to carry the polaroid with the cards.");
+            Assert.IsFalse((bool)visible.Invoke(pose, null), "The rise must finish before the polaroid starts.");
+            group.alpha = .98f;
+            Assert.IsTrue((bool)visible.Invoke(pose, null), "The polaroid plays once the sheet is on screen.");
         }
 
         [Test]
-        public void OpeningFromHomeStartsCardEntranceOnceAndDoesNotReplayItWhenTheDoorEnds()
+        public void OpeningFromHomeRaisesTheSheetBeforeTheMenuAndCards()
         {
             var home = Page("Home");
             var shop = Page("Shop");
             var card = Art("Card", shop.transform);
             var motion = CozyStickerMotion.Bind(card.gameObject, "home-door", 0);
             motion.ApplyFinalPose();
-            Assert.IsTrue(motion.EntranceComplete);
+            motion.RestartEntrance();
+            Assert.IsFalse(motion.EntranceComplete);
+            var nested = Art("JournalRing1", Node("PanelShop", shop.transform));
+            nested.rectTransform.pivot = new Vector2(0f, 1f);
+            nested.rectTransform.sizeDelta = new Vector2(74f, 44f);
+            nested.rectTransform.anchoredPosition = new Vector2(-34f, -300f);
+            var ringRest = nested.rectTransform.anchoredPosition;
 
             CozyMotion.Flip(home, shop, null);
-            Assert.IsFalse(motion.EntranceComplete, "The door must begin the card entrance, not show the settled page first.");
+            Assert.IsFalse(motion.EntranceComplete, "The finished cards are not drawn while the sheet rises.");
             Assert.AreEqual(1.12f, motion.AppliedScale);
-            motion.Advance(.2f);
-            var progressed = motion.AppliedScale;
-            Assert.Less(progressed, 1.12f);
+            Assert.AreEqual(0f, shop.GetComponent<CanvasGroup>().alpha);
+            var ring = shop.transform.Find("JournalRing0") as RectTransform;
+            Assert.AreEqual(Vector3.one, ring.localScale);
+            Assert.AreEqual(Vector3.one, nested.rectTransform.localScale);
 
-            CozyMotion.Tick(.21f);
-            Assert.AreEqual(progressed, motion.AppliedScale, "Finishing the door must not restart the entrance.");
-            Assert.IsFalse(motion.EntranceComplete);
+            CozyMotion.Tick(.1f);
+            Assert.IsFalse(motion.EntranceComplete, "The 200ms rise does not play the cards.");
+            Assert.AreEqual(1.12f, motion.AppliedScale);
+            Assert.Greater(shop.GetComponent<CanvasGroup>().alpha, 0f);
+            Assert.Less(shop.GetComponent<CanvasGroup>().alpha, 1f);
+
+            CozyMotion.Tick(.11f);
+            Assert.IsFalse(motion.EntranceComplete, "Index, rings and cards start after the sheet has arrived.");
+            Assert.AreEqual(1.12f, motion.AppliedScale);
+            Assert.AreEqual(1f, shop.GetComponent<CanvasGroup>().alpha);
+            Assert.AreEqual(.6f, ring.localScale.y, .001f);
+            Assert.AreEqual(.6f, nested.rectTransform.localScale.y, .001f);
+            Assert.AreEqual(ringRest.y - 8.8f, nested.rectTransform.anchoredPosition.y, .05f);
         }
 
         [Test]

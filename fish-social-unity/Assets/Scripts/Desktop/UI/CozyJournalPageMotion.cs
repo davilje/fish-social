@@ -78,7 +78,7 @@ namespace FishSocial.Desktop
         }
         public void Advance(float seconds)
         {
-            if (phase == 0 || CozyMotion.Paused) return;
+            if (phase == 0 || CozyMotion.Paused || CozyMotion.EntranceHeld) return;
             elapsed += Mathf.Max(0, seconds); SampleEntrance(elapsed, count);
             if (elapsed >= .4f) phase = 0;
         }

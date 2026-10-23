@@ -66,6 +66,8 @@ namespace FishSocial.Desktop
         static Job _loopOwner;
         static bool _paused;
         static Action _finishFlip;
+        /// <summary>Home open parks the sticker entrance at frame 0 until the sheet has risen.</summary>
+        public static bool EntranceHeld { get; private set; }
         public static int ActiveJobCount => Jobs.Count + (_loopOwner != null ? 1 : 0);
         public static RectTransform ActiveLoopOwner => _loopOwner != null ? _loopOwner.Target : null;
         public static event Action<bool> ReducedChanged;
@@ -88,6 +90,7 @@ namespace FishSocial.Desktop
             _cancelFlip = null;
             _finishFlip = null;
             _paused = false;
+            EntranceHeld = false;
             ReducedChanged = null;
             PausedChanged = null;
             Reduced = PlayerPrefs.GetInt(ReducePrefsKey, 0) == 1;
@@ -556,12 +559,7 @@ namespace FishSocial.Desktop
             var fromGroup = EnsureGroup(from); var toGroup = EnsureGroup(to);
             to.SetActive(true); fromGroup.blocksRaycasts = false; toGroup.blocksRaycasts = false;
             var moving = opening ? toRect : fromRect;
-            Action settle = () =>
-            {
-                Drop(fromRect); Drop(toRect);
-                if (from != null) { fromRect.anchoredPosition = fromRest; fromGroup.alpha = 1; fromGroup.blocksRaycasts = true; from.SetActive(false); }
-                if (to != null) { toRect.anchoredPosition = toRest; toGroup.alpha = 1; toGroup.blocksRaycasts = true; }
-            };
+            var entrancePlayed = false;
             _cancelFlip = settle; _finishFlip = done;
             Add(new Job { Target = moving, Channel = Channel.Custom, Duration = opening ? .2f : .14f,
                 Ease = opening ? CozyWebMotion.Ease.OutCubic : CozyWebMotion.Ease.InQuad,
@@ -570,35 +568,46 @@ namespace FishSocial.Desktop
                     if (opening) { toRect.anchoredPosition = toRest + Vector2.down * (16 * (1 - t)); toGroup.alpha = t; }
                     else { fromRect.anchoredPosition = fromRest + Vector2.down * (12 * t); fromGroup.alpha = 1 - t; }
                 },
-                Done = () => { settle(); _cancelFlip = null; _finishFlip = null; done?.Invoke(); } });
-            // The door used to fade the settled page in, then restart every card.
-            // Start the entrance while the page is still hidden so that fade is the only one.
+                Done = () =>
+                {
+                    entrancePlayed = true;
+                    settle();
+                    _cancelFlip = null;
+                    _finishFlip = null;
+                    // One entrance, after the sheet is on screen. Replaying it over the
+                    // finished page is the second refresh.
+                    if (opening) StartJournalEntrance(to, true);
+                    done?.Invoke();
+                } });
             if (opening)
             {
+                EntranceHeld = true;
+                StartJournalEntrance(to, false);
                 toRect.anchoredPosition = toRest + Vector2.down * 16;
                 toGroup.alpha = 0;
-                StartJournalEntrance(to, true);
+            }
+
+            void settle()
+            {
+                var aborted = EntranceHeld && !entrancePlayed;
+                EntranceHeld = false;
+                Drop(fromRect); Drop(toRect);
+                if (from != null) { fromRect.anchoredPosition = fromRest; fromGroup.alpha = 1; fromGroup.blocksRaycasts = true; from.SetActive(false); }
+                if (to != null) { toRect.anchoredPosition = toRest; toGroup.alpha = 1; toGroup.blocksRaycasts = true; }
+                if (aborted)
+                    SettleJournalPage(to, false);
             }
         }
 
-        /// <summary>Hide the page that is about to open so its refresh cannot paint ahead of the transition.</summary>
-        public static void ConcealIncoming(GameObject page)
-        {
-            if (page == null)
-                return;
-            var group = EnsureGroup(page);
-            group.alpha = 0f;
-            group.blocksRaycasts = false;
-        }
-
-        static void SettleJournalPage(GameObject page)
+        static void SettleJournalPage(GameObject page, bool revealPolaroid = true)
         {
             if (page == null) return;
             foreach (var sticker in page.GetComponentsInChildren<CozyStickerMotion>())
                 sticker.ApplyFinalPose();
             foreach (var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
                 motion.Finish();
-            CozyJournalStaticPose.RevealAside(page.transform);
+            if (revealPolaroid)
+                CozyJournalStaticPose.RevealAside(page.transform);
         }
 
         static void StartJournalEntrance(GameObject page, bool rail)
@@ -607,16 +616,40 @@ namespace FishSocial.Desktop
             foreach(var sticker in page.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
             foreach(var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
                 motion.PlayEntrance(motion.GetComponentsInChildren<CozyStickerMotion>().Length);
-            CozyJournalStaticPose.RevealAside(page.transform);
             if(!rail) return;
             CozyButtonVisual.BeginRailEntrance(page.transform);
             for(var i=0;i<3;i++)
+                SnapRing(FindRing(page.transform, i), i);
+        }
+
+        /// <summary>Rings live on the page prefab, one level under the router slot.</summary>
+        static RectTransform FindRing(Transform page, int index)
+        {
+            if (page == null) return null;
+            var name = "JournalRing" + index;
+            var direct = page.Find(name) as RectTransform;
+            if (direct != null) return direct;
+            foreach (var rect in page.GetComponentsInChildren<RectTransform>(true))
+                if (rect.name == name) return rect;
+            return null;
+        }
+
+        /// <summary>app.js scale 1 0.6 → 1 1, origin center. Prefab pivots are the top-left corner.</summary>
+        static void SnapRing(RectTransform ring, int index)
+        {
+            if (ring == null) return;
+            var rest = ring.anchoredPosition;
+            var size = ring.rect.size;
+            if (size.y < 1f) size = ring.sizeDelta;
+            var pivot = ring.pivot;
+            void Pose(float t)
             {
-                var ring=page.transform.Find("JournalRing"+i) as RectTransform;
-                if(ring==null) continue;
-                var captured=ring;
-                Animate(ring,.08f,t=>captured.localScale=new Vector3(1,.6f+.4f*t,1),null,CozyWebMotion.Ease.OutBack,i*.03f);
+                var scaleY = Mathf.LerpUnclamped(.6f, 1f, t);
+                ring.localScale = new Vector3(1f, scaleY, 1f);
+                ring.anchoredPosition = rest + new Vector2(0f, (0.5f - pivot.y) * size.y * (1f - scaleY));
             }
+            Pose(0f);
+            Animate(ring, .08f, Pose, null, CozyWebMotion.Ease.OutBack, index * .03f);
         }
 
         public static void Ripple(RectTransform parent, int count = 2, float width = 90, float height = 34)

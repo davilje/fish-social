@@ -145,9 +145,6 @@ namespace FishSocial.Desktop
             if (_editButton != null) _editButton.gameObject.SetActive(false);
         }
 
-        bool _suppressMotion;
-        bool _skipRenderMotion;
-
         public void OnOpened()
         {
             if (!_uiReady)
@@ -159,16 +156,12 @@ namespace FishSocial.Desktop
                 _pond.CodexUnlocked += OnCodexUnlocked;
                 _pond.AchievementUnlocked += OnAchievementUnlocked;
             }
-            // The shell plays the page entrance. This open's render must not play it again.
-            _suppressMotion = true;
             var id = string.IsNullOrEmpty(_viewingOtherPlayerId) ? _api != null ? _api.PlayerId : null : _viewingOtherPlayerId;
             if (_hub != null && _loadedHubId == id)
             {
                 ApplyTabVisibility();
                 if (!_paintedTabs.Contains(_tab))
                     RenderCurrentTab();
-                else
-                    _suppressMotion = false;
                 return;
             }
             Refresh();
@@ -938,8 +931,7 @@ namespace FishSocial.Desktop
             var motion=old!=null?old.GetComponent<CozyJournalPageMotion>():null;
             if(motion!=null) yield return motion.Exit();
             if(generation!=_targetGeneration) yield break;
-            var alreadyPainted = _paintedTabs.Contains(tab);
-            if (alreadyPainted)
+            if (_paintedTabs.Contains(tab))
             {
                 _tab = tab;
                 UpdateHeaderForTab();
@@ -951,12 +943,8 @@ namespace FishSocial.Desktop
             if(current!=null)
             {
                 current.GetComponent<CozyJournalPageMotion>()?.PlayEntrance(current.GetComponentsInChildren<CozyStickerMotion>().Length);
-                // The fresh render already restarted its cards and polaroid.
-                if(alreadyPainted)
-                {
-                    ReplayCenter(current.transform);
-                    CozyJournalStaticPose.RevealAside(current.transform);
-                }
+                ReplayCenter(current.transform);
+                CozyJournalStaticPose.RevealAside(current.transform);
             }
             _tabMotionRoutine=null;
         }
@@ -1054,7 +1042,6 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                _suppressMotion = false;
                 SetStatus("当前没有有效会话，请重新登录。");
                 yield break;
             }
@@ -1080,7 +1067,6 @@ namespace FishSocial.Desktop
 
             if (!ok || hub == null)
             {
-                _suppressMotion = false;
                 if (_retryButton != null) _retryButton.gameObject.SetActive(true);
                 SetStatus(error ?? "个人中心加载失败。");
                 _loadRoutine = null;
@@ -1144,12 +1130,6 @@ namespace FishSocial.Desktop
         {
             if (_hub == null)
                 return;
-            var suppress = _suppressMotion;
-            _suppressMotion = false;
-            var previous = _skipRenderMotion;
-            _skipRenderMotion = suppress;
-            try
-            {
             switch (_tab)
             {
                 case HubTab.Profile:
@@ -1169,11 +1149,6 @@ namespace FishSocial.Desktop
                     break;
             }
             _paintedTabs.Add(_tab);
-            }
-            finally
-            {
-                _skipRenderMotion = previous;
-            }
         }
 
         void RenderProfile()
@@ -1272,8 +1247,7 @@ namespace FishSocial.Desktop
             }
             BindPagerButton(profile.Find("JournalShowcaseLink"), () => SelectTab(HubTab.Showcase));
             BindPagerButton(profile.Find("JournalAlbumLink"), () => SelectTab(HubTab.Album));
-            if (!_skipRenderMotion)
-                CozyJournalStaticPose.RevealAside(profile);
+            CozyJournalStaticPose.RevealAside(profile);
         }
 
         void RenderWorkspaceProfile(Transform profile, int level)
@@ -1688,8 +1662,7 @@ namespace FishSocial.Desktop
                 target.supportRichText = true;
                 target.text = item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.StarRich(item.quality);
                 CozyJournalChips.Show(target, PondLabel(item.pondId), "已珍藏在展示柜");
-                if (!_skipRenderMotion)
-                    CozyJournalStaticPose.RevealAside(root);
+                CozyJournalStaticPose.RevealAside(root);
                 return;
             }
             CozyItemArt.Set(target.transform.parent, "DesignDetailArt", CozyItemArt.Fish(item.speciesId));
@@ -1787,8 +1760,7 @@ namespace FishSocial.Desktop
                 {
                     _albumMotionPage = 0;
                     _albumMotionSelection = _albumSelection;
-                    if (!_skipRenderMotion)
-                        PlayAlbumTurn(albumRoot);
+                    PlayAlbumTurn(albumRoot);
                 }
                 return;
             }
@@ -1805,8 +1777,7 @@ namespace FishSocial.Desktop
             {
                 _albumMotionPage = _albumPinsPage;
                 _albumMotionSelection = _albumSelection;
-                if (!_skipRenderMotion)
-                    PlayAlbumTurn(albumRoot);
+                PlayAlbumTurn(albumRoot);
             }
 
             if (_albumPinsPageLabel != null)
@@ -2013,7 +1984,7 @@ namespace FishSocial.Desktop
 
         void ReplayCenter(Transform root)
         {
-            if (_skipRenderMotion || root == null || !Application.isPlaying)
+            if (root == null || !Application.isPlaying)
                 return;
             foreach (var sticker in root.GetComponentsInChildren<CozyStickerMotion>(true))
                 sticker.RestartEntrance();
@@ -2057,8 +2028,7 @@ namespace FishSocial.Desktop
                 CreateAchievementRow(_achievementsList, "empty", "当前分类暂无成就",
                     CatTheme.Cream);
             ReplayCenter(_achievementsList);
-            if (!_skipRenderMotion)
-                CozyJournalStaticPose.RevealAside(transform.Find("Shell/Content/Tab_成就") ?? transform.Find("DesignAchievementSummary"));
+            CozyJournalStaticPose.RevealAside(transform.Find("Shell/Content/Tab_成就") ?? transform.Find("DesignAchievementSummary"));
         }
 
         bool MatchesAchievementCategory(string category)

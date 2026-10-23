@@ -631,8 +631,7 @@ namespace FishSocial.Desktop
                     _settingsPanel?.OnOpened();
                     break;
             }
-            // The page transition owns the single polaroid reveal. Revealing here as well
-            // played it once while the sheet was hidden and again when the sheet arrived.
+            CozyJournalStaticPose.RevealAside(view);
         }
 
         static void AlignHeaderActions(Transform header, bool showClose)
