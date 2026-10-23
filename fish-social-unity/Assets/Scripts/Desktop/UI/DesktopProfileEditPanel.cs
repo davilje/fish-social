@@ -56,8 +56,7 @@ namespace FishSocial.Desktop
         {
             if (!_uiReady)
                 return;
-            if (Application.isPlaying)
-                PlayJournalEntrance();
+            // Shell StartJournalEntrance already plays this page once.
             Refresh();
         }
 
@@ -152,18 +151,6 @@ namespace FishSocial.Desktop
                 transform.Find("JournalPreview"),
                 transform.Find("ShowcaseTitle"),
                 transform.Find("Showcase"));
-        }
-
-        void PlayJournalEntrance()
-        {
-            var motion = GetComponent<CozyJournalPageMotion>();
-            if (motion == null)
-                EnsureJournalMotion();
-            motion = GetComponent<CozyJournalPageMotion>();
-            if (motion == null)
-                return;
-            motion.PlayEntrance(GetComponentsInChildren<CozyStickerMotion>(true).Length);
-            CozyJournalStaticPose.RevealAside(transform);
         }
 
         void GoBack()

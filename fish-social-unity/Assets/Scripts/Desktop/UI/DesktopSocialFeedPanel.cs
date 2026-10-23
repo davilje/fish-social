@@ -87,6 +87,7 @@ namespace FishSocial.Desktop
             if (slot != null && slot.loaded)
             {
                 ShowFeed(slot);
+                _shellEntrance = false;
                 return;
             }
             Refresh();
@@ -95,6 +96,7 @@ namespace FishSocial.Desktop
         public void OnClosed()
         {
             _isOpen = false;
+            _shellEntrance = false;
             if (_categoryMotion != null) StopCoroutine(_categoryMotion);
             _categoryMotion = null;
             GetComponent<CozyJournalPageMotion>()?.Finish();
@@ -356,6 +358,10 @@ namespace FishSocial.Desktop
 
         IEnumerator LoadRoutine(bool append, int limit, int offset, int generation, bool friendsOnly, bool mineOnly)
         {
+            // OnOpened sets this so the shell transition is the only page entrance.
+            // Capturing it here lets a later in-page refresh play its own entrance.
+            var shellOwned = _shellEntrance && !append;
+            _shellEntrance = false;
             var slot = FeedFor(friendsOnly, mineOnly);
             var root = slot != null ? slot.root : _content;
             var hasContent = root != null && root.childCount > 0;
@@ -432,9 +438,8 @@ namespace FishSocial.Desktop
                     yield return null;
             }
             RememberFeed(slot, true, posts.Length >= limit, offset + posts.Length);
-            if (!append && slot == CurrentFeed)
+            if (!append && slot == CurrentFeed && !shellOwned)
                 GetComponent<CozyJournalPageMotion>()?.PlayEntrance(posts.Length);
-            _shellEntrance = false;
             if (!append && _scroll != null)
             {
                 _suppressScrollLoad = true;

@@ -30,6 +30,7 @@ namespace FishSocial.Desktop
         readonly RectTransform[] _tabRoots = new RectTransform[3];
         readonly bool[] _tabBuilt = new bool[3];
         bool _catalogReady;
+        bool _deferDetailReveal;
         bool _shopTabsStyled;
         Button _baitTab;
         Button _tackleTab;
@@ -71,13 +72,29 @@ namespace FishSocial.Desktop
 
         public void OnOpened()
         {
+            // The shell transition reveals the detail polaroid. Playing it again
+            // from this open's render is the second refresh.
+            _deferDetailReveal = true;
             if (_catalogReady)
             {
                 ShowShopTab();
+                // The cards are already on the page. Rebinding them here paints one refresh,
+                // and the shell transition then plays the same cards again.
+                if (_tabBuilt[_tab])
+                {
+                    _deferDetailReveal = false;
+                    return;
+                }
                 RenderContent(false);
+                _deferDetailReveal = false;
                 return;
             }
             _detailMotionKey = null;
+            if (!_uiReady || _busy)
+            {
+                _deferDetailReveal = false;
+                return;
+            }
             Refresh();
         }
 
@@ -95,6 +112,7 @@ namespace FishSocial.Desktop
 
         public void OnClosed()
         {
+            _deferDetailReveal = false;
             StopAllCoroutines();
             _refreshRoutine = null;
             _busy = false;
@@ -669,6 +687,11 @@ namespace FishSocial.Desktop
             if (key == _detailMotionKey)
                 return;
             _detailMotionKey = key;
+            if (_deferDetailReveal)
+            {
+                _deferDetailReveal = false;
+                return;
+            }
             var polaroid = transform.Find("Details/JournalPolaroid");
             if (polaroid != null)
                 polaroid.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
