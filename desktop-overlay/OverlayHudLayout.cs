@@ -1820,6 +1820,7 @@ namespace FishSocialOverlay
             [DataMember(Name = "spriteHover", EmitDefaultValue = false)] public string spriteHover = null;
             [DataMember(Name = "spritePressed", EmitDefaultValue = false)] public string spritePressed = null;
             [DataMember(Name = "iconSprite", EmitDefaultValue = false)] public string iconSprite = null;
+            [DataMember(Name = "pressedOffsetY", EmitDefaultValue = false)] public double pressedOffsetY;
             [DataMember(Name = "iconSize", EmitDefaultValue = false)] public double iconSize;
             [DataMember(Name = "spriteSlice")] public int[] spriteSlice = null;
             [DataMember(Name = "fontFile")] public string fontFile = null;
