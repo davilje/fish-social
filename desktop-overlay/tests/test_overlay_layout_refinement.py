@@ -55,9 +55,6 @@ def refinement_model(document):
     exit_button.update(parentId=None, w=88, h=36, label="退出鱼塘")
     exit_button["x"] = 960 - 16 - exit_button["w"]
     exit_button["y"] = baseline - exit_button["h"]
-    cap = widgets["cap_status"]
-    cap["x"] = exit_button["x"] - 8 - cap["w"]
-    cap["y"] = baseline - cap["h"]
     debug = widgets["btn_debug_gameplay"]
     debug.update(w=88, h=36, x=exit_button["x"])
     debug["y"] = exit_button["y"] - 8 - debug["h"]
@@ -69,7 +66,7 @@ def refinement_model(document):
         x += 88 + 8
     fishing.update(w=x - 8, h=36, y=baseline - 36)
     chat = widgets["dock_chat"]
-    left, right = chat["x"] + chat["w"] + 12, cap["x"] - 12
+    left, right = chat["x"] + chat["w"] + 12, exit_button["x"] - 12
     fishing["x"] = round(left + (right - left - fishing["w"]) / 2)
 
     dock = widgets["dock_chat"]
@@ -136,23 +133,19 @@ class OverlayLayoutRefinementTests(unittest.TestCase):
         menu = method_body((ROOT / "MainWindow.xaml.cs").read_text(encoding="utf-8"), "BuildProductContextMenu")
         self.assertIn('CreateProductMenuItem("打开主界面", OpenMain_OnClick)', menu)
 
-    def test_bottom_right_cluster_keeps_exit_status_and_debug_apart(self):
-        source = method_body(SOURCE, "FitBottomRightCluster")
-        for formula in ("exit.x = CanvasWidth - margin - exit.w", "cap.x = exit.x - gap - cap.w",
-                        'StyleBottomButton(exit, 88, "退出鱼塘")', "debug.y = top - gap - debug.h"):
-            self.assertIn(formula, source)
+    def test_bottom_right_cluster_reclaims_status_space(self):
         _, widgets = refinement_model(self.document)
-        exit_button, cap, debug = widgets["btn_exit_pond"], widgets["cap_status"], widgets["btn_debug_gameplay"]
+        self.assertFalse({"cap_status", "txt_status", "txt_pond", "txt_spot"} & widgets.keys())
+        exit_button, debug = widgets["btn_exit_pond"], widgets["btn_debug_gameplay"]
         fishing = widgets["dock_fishing"]
         self.assertEqual((856, 512, 88, 36), (exit_button["x"], exit_button["y"], exit_button["w"], exit_button["h"]))
-        self.assertLessEqual(cap["x"] + cap["w"], exit_button["x"])
         self.assertEqual(exit_button["x"], debug["x"])
         self.assertLessEqual(debug["y"] + debug["h"], exit_button["y"])
-        self.assertLessEqual(fishing["x"] + fishing["w"], cap["x"])
+        self.assertLessEqual(fishing["x"] + fishing["w"], exit_button["x"])
         self.assertLessEqual(widgets["dock_chat"]["x"] + widgets["dock_chat"]["w"], fishing["x"])
-        bottoms = {exit_button["y"] + exit_button["h"], cap["y"] + cap["h"], fishing["y"] + fishing["h"],
-                   widgets["dock_chat"]["y"] + widgets["dock_chat"]["h"]}
-        self.assertEqual({548}, bottoms)
+        frames = method_body(SOURCE, "ComputeViewportFrames")
+        self.assertIn('TryGetValue("btn_exit_pond", out var exit)', frames)
+        self.assertNotIn('"cap_status"', frames)
 
     def test_fishing_dock_buttons_share_size_font_and_centered_content(self):
         source = method_body(SOURCE, "StyleBottomButton")

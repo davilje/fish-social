@@ -11,13 +11,13 @@ namespace FishSocialOverlay
 {
     public static class CozyTheme
     {
-        public const string DefaultPlate = "cozy/buttons/plate-default.png";
-        public const string HoverPlate = "cozy/buttons/plate-hover.png";
-        public const string PressedPlate = "cozy/buttons/plate-pressed.png";
-        public const string Paper = "cozy/panels/paper.png";
-        public const string CompactPaper = "cozy/panels/paper-compact.png";
-        public static readonly int[] SpriteBorder = { 12, 12, 12, 12 };
-        public static readonly int[] CompactBorder = { 10, 10, 10, 10 };
+        public const string DefaultPlate = "cozy/journal/surfaces/button-quiet-default.png";
+        public const string HoverPlate = "cozy/journal/surfaces/button-quiet-hover.png";
+        public const string PressedPlate = "cozy/journal/surfaces/button-quiet-pressed.png";
+        public const string Paper = "cozy/journal/surfaces/paper-aside.png";
+        public const string CompactPaper = "cozy/journal/surfaces/input-default.png";
+        public static readonly int[] SpriteBorder = { 14, 14, 14, 14 };
+        public static readonly int[] CompactBorder = { 14, 14, 14, 14 };
         public static readonly int[] PaperBorder = { 22, 22, 22, 22 };
         public static readonly Brush Ink = FrozenBrush(0x75, 0x47, 0x2E);
         public static readonly Brush Cream = FrozenBrush(0xFF, 0xF7, 0xE9);
@@ -159,8 +159,14 @@ namespace FishSocialOverlay
                 image.UriSource = new Uri(path, UriKind.Absolute);
                 image.EndInit();
                 image.Freeze();
-                Images[path] = image;
-                return image;
+                // Source PNGs are byte-identical to the desktop assets. Normalize only the
+                // surface's rendered texel size; icons retain their original pixels.
+                var scale = relativePath.StartsWith("cozy/journal/surfaces/button-", StringComparison.Ordinal) ? .25
+                    : relativePath.StartsWith("cozy/journal/surfaces/", StringComparison.Ordinal) ? .5 : 1;
+                BitmapSource rendered = image;
+                if (scale != 1) { rendered = new TransformedBitmap(image, new ScaleTransform(scale, scale)); rendered.Freeze(); }
+                Images[path] = rendered;
+                return rendered;
             }
             catch (Exception exception)
             {

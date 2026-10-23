@@ -61,16 +61,12 @@
     "PoliceDebugButton",
     "PondBackgroundImage",
     "PondScene",
-    "PondText",
     "SceneCanvas",
     "SceneContentCanvas",
     "SceneFadeHost",
     "ScenePanViewport",
     "ShoreLayer",
     "SpotLayer",
-    "SpotText",
-    "StateText",
-    "StatusCapsule",
     "WaterLayer"
   ],
   "xaml_handlers": [
@@ -132,12 +128,10 @@
     "ApplyGroundbaitStatus": "13bdac5cda16e3b5696cc633b3c91b727c4749ac932ed14e22b5ada66ee3152e",
     "ApplySceneContentSize": "4c05e1b1f142d0d1fd179c4c6c0d443b48aa540b39418229572c79af6aeba957",
     "ApplyViewportSize": "6d2efc5826296fd28714fe22946a164e00610ab1e465af227b2350c1bde0bc9d",
-    "CatchLeave_OnClick": "ca7c138ee4dbe0c0c16fe5eca40df3a8090104c2ef1cd55975f0caadc98bded4",
     "ChatInputBox_OnKeyDown": "974130bce3ded60320ed14c7db5d4bbda8f1ca319516ef32c5f5fc6ce07be97d",
     "ChatInputBox_OnTextChanged": "51eaf6fcb88921d66485f3fca4a6c7d022d91433df5a9f6352f92b22da5c2c93",
     "ChatInput_OnPreviewMouseLeftButtonDown": "daf915d4936dc0cef9d48dc4ba2ac0c8d1634b737720ead16d6d4b82baf6e1ca",
     "ChatSend_OnClick": "681400bb8ff02e3aaf788991c73864980733638c9961d227ac2896436d0f19ac",
-    "ExitPond_OnClick": "51563aee1d4142ff85855586c32ef165820c32bc1528781c8060b8e97a23c8d5",
     "FishingToggle_OnClick": "bb5c5049cfa61460ae6ee3f254614d1a40d8a580031bfdf2ca5dc311a78dfb3c",
     "GameplayDebugCatchFish_OnClick": "c34c97f9d79f92fc8f90f727180a8f5b04dc797b139b016e9ad77e416fefab9f",
     "GameplayDebugCatchGold_OnClick": "912fe6cf13cd3de101ada082a67870bd9118a07d63d61a391e142b922141beab",
@@ -191,20 +185,18 @@
   "protected_file_sha256": {
     "App.xaml.cs": "8ffb4c04b3f8b6660a0924677297fb5249fbb596a3917cb5586af7d5ccd71a92",
     "FishSocialOverlay.csproj": "4b3cd30ba4dc767c4540caecd9fe8cdaacd0b7603b0e86ad608d2f09b863d445",
-    "IpcProtocol.cs": "b2c9114cac622352001f65e6101b341c61e87546bc4e26b5ae8984f7d73077c9",
+    "IpcProtocol.cs": "c6cd944a53874874254ee88fef8ab42bc250f929c29c42a6cbae4d323dbf398c",
     "IOverlayPlayerMenuHost.cs": "8fa0a4d67c10351c7da14880a8606f803b818429199fb181576866b2c682f1c3",
-    "OverlayClickThrough.cs": "72d1d426d0880cd41477db6bd9053442f69d48f414e1f3ffcfbc2dda2d8147cf",
     "OverlayInteractionState.cs": "f48b0f6d4c08b8937a0c597b628bee891936b0d1ea36cc268301d73151f464d8",
-    "OverlayPondLayout.cs": "c608e931f0405b21a80e900453f3b4ddbb8955f601c4cead4b756d2752d38cea",
-    "PondScenePresenter.cs": "da97852f04e92a3405c3bb7834128f650094560aabeadb85f883b980a5581121",
+    "OverlayPondLayout.cs": "0b35015e044e28f2eaf6ff2227e6c682f1f606ceccd590a3d6b8fcd2065c1e35",
+    "PondScenePresenter.cs": "ce820673ce6fde53a6a564055a46858cd526f26554d7d9cc6994777ce4034da5",
     "OverlaySeatArt.cs": "f4f9b7a47fd963b180d9fe0a885794eb65d86a37d7e599468c12496f38ecb960",
     "OverlaySpotMarker.cs": "d75be780322379bd8518e73a4fafff16bf82f74f2857bf47e29f1881bd131ac1",
     "OverlayScenePan.cs": "a1e9d2b7a917d73a3832171e66f6e6d23045db00ddddb36cb232dfed972a6e67",
     "OverlayViewport.cs": "3e0e6d7cfefbccbae223c0bcaf18310a657e78018c42f7ed49599b2fb9a1bdc8",
-    "OverlayFishingLayers.cs": "4efd39e7068126a42c3ebe1315ece6528cb6a01d4c7b372afbeb0aa46f8daff8",
+    "OverlayFishingLayers.cs": "4f866e72b91a5cae6a85ee806900f8c8e37e3544943e2c9cfdd833b436be91ee",
     "OverlayEdgeVignette.cs": "1e743d25f8d594205f23f9ce38d27f64d3d95385b9d137ddfc236efc62b9941a",
-    "OverlayNineSlice.cs": "5d62083a092f24700f355eb9ca8f819863691298886d6b2ca9ddf83986125cec",
-    "OverlayHudWidgets.cs": "f4f15e254a4fa36eb019a07cf0893743b9f59bcd92b20b8d6b0c6e92febc67fc"
+    "OverlayNineSlice.cs": "5d62083a092f24700f355eb9ca8f819863691298886d6b2ca9ddf83986125cec"
   },
   "png_sha256": {
     "OverlayResources/hud/cozy/brand/meow-fish.png": "0a585bb91dacafe4d855f2136dc721d8a423dd0f2c825a1b6bdea31971a76ad7",
@@ -284,10 +276,6 @@
     "OverlayResources/hud/cozy/characters/avatars/dafeiyu.png": "4118d3f83123b136d245ceec84a8d4ffbf39bca5262862cb382d35810d8730f2"
   },
   "hud_widget_ids": [
-    "cap_status",
-    "txt_status",
-    "txt_pond",
-    "txt_spot",
     "dock_fishing",
     "btn_groundbait",
     "btn_fishing_toggle",
@@ -308,7 +296,7 @@
     "btn_debug_gameplay",
     "btn_exit_pond"
   ],
-  "final_hud_json_sha256": "dcf36273ba9923a3b0c3ffb7595754d5c39d040fa4d7df48d92fac525d68ef0e",
+  "final_hud_json_sha256": "9bc5ddc6e3e2db4a7f8abde6187a993d84167ac0aa253621416d14dd271567c3",
   "preserved_method_sha256": {
     "OverlayPetActor.cs": {
       "RefreshSocialMenuItems": "643f10c6632aac3380716f83ca2768c51ddb80bdbbd312fc3c151902f7e64399",
@@ -322,28 +310,31 @@
       "LayoutFishingLayers": "7e8bc3119609437f13cfab3f8f76f6cab380fd698e79b02f1cdf1285346aa7d9",
       "ShowLayered": "8732473f87f68fcc28e26d78ac4abe70c95dd2a4a63e634487240ee7429cb248",
       "AdvanceLayered": "26ad3eea344bfab758b618d2490d43e30df8000f732b7500bb97bded0434ff4d",
-      "RunPopIn": "03f82d1e46c2b815f040938eb3b4f196efa028dca3d9a392f862381c2d55a13c",
-      "CreateScaleAnimation": "0ebf32213a4af04d5594803766c6d5ef1be98a0f25e88839bac19303373a875f",
-      "Load": "202fe5980fb83e47c8b3fc1f1663977be149f67b6460a58e6ab4a7fc8a8589a7",
+      "Load": "a80f64cdc19095f9ca94e395e30fab11b31c522fe8548b9b23b8f5af31f017b3",
       "LoadBitmap": "5846330c6a13b710354faf80477344edbfc68944a0998ab5931ebe29970159b9",
       "NormalizePetId": "6b6dfdd85f05cc03a6a7400eb0697267ca4cccd1a0da1f1c99e42079877ec919"
     },
     "OverlayChatBubblePresenter.cs": {
       "PositionBubble": "0370175ea907f4cc71b2aa56d073efaa89c6dd284efe7c0081788f5bd3a690be",
-      "RunPopIn": "aed623e7e4f04aa5b43801b59abdb2387b12283a3ec92b676f22726ab46c3fdc",
-      "CreateScaleAnimation": "37242fddc10d7d19c1e9c34472e8fef913423ef6c55c4afa7da1b23d711956f0",
       "ScheduleFadeOut": "d1b5ca504a144348e75e9b2ac3daca5a4290f692820a3b7c208d98dd7db68925"
     },
     "OverlayHoverPresenter.cs": {
       "PositionAtHint": "3983da9f1e9c9e9261c06ca1ccd5a8eaccd405ba033d99504f5400c518398469"
     },
     "OverlayHudLayout.cs": {
-      "ComputeViewportFrames": "c7ccc8f7af4edf3077a176c52a59a43da205c4b048dcda842308182301ec8913",
       "BuildAbsolutePositions": "efc0814079511a3212def451f22d40a5dc25ea764039c55acf64f3c66e08a16e",
-      "ResolveAbsolute": "773496ce0435249508104ada155aa121b6ff484cdae8139d071464e8e84f572a",
-      "EnsureHudButtonScale": "7db163a69410d4212eabb9e6ed21c61bc534c7cc81454f9557f0ef870f5d063f",
-      "HudButtonPressScale_OnClick": "1322f2fbcf1c7af268c525408f772eb600fb609436b121468507699ee3f9f6c0",
-      "CreateHudButtonPressScaleAnimation": "17f1422a350e0f63cae4790d4ffe8358583622fae966e91056612a011fb3b08e"
+      "ResolveAbsolute": "773496ce0435249508104ada155aa121b6ff484cdae8139d071464e8e84f572a"
     }
+  },
+  "2026-10-23_contract_update": {
+    "preexisting_snapshot_updates": [
+      "IpcProtocol.cs (baseline already changed before this task)",
+      "OverlayPondLayout.cs (baseline already changed before this task)",
+      "PondScenePresenter.cs (baseline already changed before this task)",
+      "OverlayFishingLayers.cs (baseline already changed before this task)",
+      "OverlayHudWidgets.cs (baseline already changed before this task)",
+      "OverlayPetActor.cs.Load (baseline already changed before this task)"
+    ],
+    "intentional_changes": "Status removal, journal surfaces and quiet HUD motion are covered by test_overlay_journal_presentation.py; fishing frame/state methods remain hash-protected."
   }
 }

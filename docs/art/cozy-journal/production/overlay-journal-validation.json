@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-23",
+  "scope": "Overlay journal presentation",
+  "assets": {
+    "count": 39,
+    "sourceManifest": "desktop-overlay/OverlayResources/hud/journal-assets.json",
+    "verification": "byte equality and SHA-256"
+  },
+  "python": {
+    "passed": 34,
+    "failed": 0,
+    "command": "python3 -m unittest discover -s desktop-overlay/tests -p 'test_*.py'"
+  },
+  "unity": {
+    "passed": 5,
+    "failed": 0,
+    "cases": [
+      {
+        "name": "ExportContractRetainsPathValidationAndCompactSlices",
+        "result": "Passed"
+      },
+      {
+        "name": "SavedHudAndItsExportUseDesktopAssetsWithoutStatusBar",
+        "result": "Passed"
+      },
+      {
+        "name": "SettledOutcomesKeepGameplayEventsWithoutPublishingBlockingPrompt(\"keep\")",
+        "result": "Passed"
+      },
+      {
+        "name": "SettledOutcomesKeepGameplayEventsWithoutPublishingBlockingPrompt(\"return\")",
+        "result": "Passed"
+      },
+      {
+        "name": "SettledOutcomesKeepGameplayEventsWithoutPublishingBlockingPrompt(\"escape\")",
+        "result": "Passed"
+      }
+    ],
+    "filter": "OverlayJournalPresentationTests",
+    "fullSuiteRerun": false
+  },
+  "csharpSyntax": {
+    "files": 24,
+    "errors": 0,
+    "compiler": "Unity bundled Roslyn; syntax only"
+  },
+  "fallbackExport": "Rejects inherited widgets it cannot resolve; existing JSON remains intact",
+  "nativeWindows": {
+    "built": false,
+    "executed": false,
+    "visualAcceptance": "pending",
+    "reason": "macOS host; no Windows WPF runtime or dotnet SDK"
+  }
+}

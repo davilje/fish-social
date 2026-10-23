@@ -9,6 +9,11 @@
 <body>
   <header id="toolbar">
     <div class="brand">猫咪钓鱼手账 · 完整页预览</div>
+    <div class="group"><span>背景</span>
+      <button id="room-bg-indoor" class="on" type="button" aria-pressed="true">室内小屋</button>
+      <button id="room-bg-outdoor" type="button" aria-pressed="false">原背景</button>
+      <button id="room-home" type="button">合上手账看房间</button>
+    </div>
     <div class="group"><span>对比</span>
       <button id="cmp-new" class="on">新方案</button>
       <button id="cmp-old">现状</button>
@@ -37,7 +42,7 @@
 
   <main id="viewport">
     <div id="stage">
-      <img id="bg" src="assets/home-sakura.jpg" alt="">
+      <img id="bg" src="assets/home-room-balanced.jpg" alt="湖畔小屋室内背景候选">
 
       <div id="player" class="pill">
         <div class="avatar"><img id="avatar-img" alt=""></div>
@@ -88,5 +93,6 @@
 
   <script src="pages.js"></script>
   <script src="app.js"></script>
+  <script src="room-preview.js"></script>
 </body>
 </html>

@@ -713,6 +713,14 @@ namespace FishSocial.Desktop.Editor
                 return null;
             }
 
+            // Unity's built-in Arial has no distributable font asset. Leave fontFile
+            // unset so WPF uses the theme's Chinese-capable system font on every host.
+            var assetPath = AssetDatabase.GetAssetPath(font);
+            if (!string.IsNullOrEmpty(assetPath) &&
+                (assetPath.Contains("unity_builtin", StringComparison.OrdinalIgnoreCase) ||
+                 assetPath.Contains("unity default resources", StringComparison.OrdinalIgnoreCase)))
+                return null;
+
             var sourcePath = ResolveFontSourcePath(font);
             if (string.IsNullOrEmpty(sourcePath) || !File.Exists(sourcePath))
             {
@@ -898,7 +906,7 @@ namespace FishSocial.Desktop.Editor
             public PaperTemplate paper = new PaperTemplate();
             public PaperTemplate input = new PaperTemplate
             {
-                sprite = "cozy/panels/paper-compact.png", spriteSlice = Slice(CatTheme.CompactPaperBorder),
+                sprite = "cozy/journal/surfaces/input-default.png", spriteSlice = new[] { 14, 14, 14, 14 },
                 padding = new float[] { 8, 6, 8, 6 }
             };
             public ScrollTemplate scroll = new ScrollTemplate();
@@ -907,11 +915,11 @@ namespace FishSocial.Desktop.Editor
         [Serializable]
         sealed class ButtonTemplate
         {
-            public string sprite = "cozy/buttons/plate-default.png";
-            public string spriteHover = "cozy/buttons/plate-hover.png";
-            public string spritePressed = "cozy/buttons/plate-pressed.png";
-            public int[] spriteSlice = Slice(CatTheme.PlateBorder);
-            public float pressedOffsetY = 3;
+            public string sprite = "cozy/journal/surfaces/button-quiet-default.png";
+            public string spriteHover = "cozy/journal/surfaces/button-quiet-hover.png";
+            public string spritePressed = "cozy/journal/surfaces/button-quiet-pressed.png";
+            public int[] spriteSlice = new[] { 14, 14, 14, 14 };
+            public float pressedOffsetY = 1;
             public float iconSize = 16;
             public float disabledOpacity = 0.45f;
             public float[] padding = { 2, 0, 2, 0 };
@@ -920,7 +928,7 @@ namespace FishSocial.Desktop.Editor
         [Serializable]
         sealed class PaperTemplate
         {
-            public string sprite = "cozy/panels/paper.png";
+            public string sprite = "cozy/journal/surfaces/paper-aside.png";
             public int[] spriteSlice = Slice(CatTheme.PaperBorder);
             public float[] padding = { 12, 8, 12, 8 };
         }
@@ -954,9 +962,9 @@ namespace FishSocial.Desktop.Editor
                 JsonUtility.FromJsonOverwrite(File.ReadAllText(source), components);
             if (components.button == null || components.paper == null || components.input == null || components.scroll == null)
                 throw new InvalidDataException("Cozy components 必须包含 button/paper/input/scroll");
-            ValidateComponentBorder(components.button.spriteSlice, Mathf.RoundToInt(CatTheme.PlateBorder.x));
+            ValidateComponentBorder(components.button.spriteSlice, 14);
             ValidateComponentBorder(components.paper.spriteSlice, Mathf.RoundToInt(CatTheme.PaperBorder.x));
-            ValidateComponentBorder(components.input.spriteSlice, Mathf.RoundToInt(CatTheme.CompactPaperBorder.x));
+            ValidateComponentBorder(components.input.spriteSlice, 14);
             ValidateComponentPadding(components.button.padding);
             ValidateComponentPadding(components.paper.padding);
             ValidateComponentPadding(components.input.padding);
@@ -1012,7 +1020,7 @@ namespace FishSocial.Desktop.Editor
 
         static bool IsCozyPlate(string path)
         {
-            return !string.IsNullOrEmpty(path) && path.StartsWith("cozy/buttons/", StringComparison.OrdinalIgnoreCase);
+            return !string.IsNullOrEmpty(path) && (path.StartsWith("cozy/buttons/", StringComparison.OrdinalIgnoreCase) || path.StartsWith("cozy/journal/surfaces/button-", StringComparison.OrdinalIgnoreCase));
         }
 
         static void AppendSpriteFileJson(StringBuilder builder, string key, string value)
@@ -1027,10 +1035,10 @@ namespace FishSocial.Desktop.Editor
             GameObject temporary = null;
             try
             {
-                if (NormalizeHudRelativePath("cozy\\buttons\\plate-default.png") != "cozy/buttons/plate-default.png" ||
+                if (NormalizeHudRelativePath("cozy\\journal\\surfaces\\button-quiet-default.png") != "cozy/journal/surfaces/button-quiet-default.png" ||
                     NormalizeHudRelativePath("图层 2.png") != "图层 2.png" ||
                     HudPathForAsset("Assets/Resources/Desktop/Theme/Cozy/icons-light/map.png") != "cozy/icons-light/map.png" ||
-                    HudPathForAsset("Assets/StreamingAssets/OverlayHud/cozy/panels/paper.png") != "cozy/panels/paper.png")
+                    HudPathForAsset("Assets/StreamingAssets/OverlayHud/cozy/journal/surfaces/paper-aside.png") != "cozy/journal/surfaces/paper-aside.png")
                     throw new InvalidDataException("HUD path regression");
                 foreach (var invalid in new[]
                 {
@@ -1046,10 +1054,10 @@ namespace FishSocial.Desktop.Editor
                 }
                 var components = new HudComponents();
                 var document = BuildDocumentJson(new List<string>(), components);
-                if (!document.Contains("\"components\":") || !document.Contains("cozy/buttons/plate-hover.png") ||
-                    !document.Contains(SliceJson(CatTheme.PlateBorder)) ||
+                if (!document.Contains("\"components\":") || !document.Contains("cozy/journal/surfaces/button-quiet-hover.png") ||
+                    !document.Contains("\"spriteSlice\":[14,14,14,14]") ||
                     !document.Contains(SliceJson(CatTheme.PaperBorder)) ||
-                    !document.Contains(SliceJson(CatTheme.CompactPaperBorder)) ||
+                    !document.Contains("\"spriteSlice\":[14,14,14,14]") ||
                     FormatColor(new Color32(0x75, 0x47, 0x2E, 0xFF)) != "#FF75472E")
                     throw new InvalidDataException("HUD components/ARGB regression");
                 temporary = new GameObject("OverlayHudExportContractCheck");
@@ -1064,8 +1072,8 @@ namespace FishSocial.Desktop.Editor
                 foreach (var token in new[]
                 {
                     "\"id\":\"chat_send\"", "\"parentId\":\"dock_chat\"", "\"x\":282", "\"y\":120",
-                    "\"spriteHover\":\"cozy/buttons/plate-hover.png\"", "\"spritePressed\":\"cozy/buttons/plate-pressed.png\"",
-                    "\"iconSprite\":\"cozy/icons-light/check.png\"", "\"pressedOffsetY\":3", "\"iconSize\":16"
+                    "\"spriteHover\":\"cozy/journal/surfaces/button-quiet-hover.png\"", "\"spritePressed\":\"cozy/journal/surfaces/button-quiet-pressed.png\"",
+                    "\"iconSprite\":\"cozy/icons-light/check.png\"", "\"pressedOffsetY\":1", "\"iconSize\":16"
                 })
                     if (!entry.Contains(token))
                         throw new InvalidDataException("HUD widget JSON regression: " + token);

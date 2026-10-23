@@ -14,9 +14,8 @@ namespace FishSocialOverlay
     internal sealed class OverlayChatBubblePresenter
     {
         const double BubbleMaxWidth = 132;
-        const double PopSeconds = 0.3;
         const double HoldSeconds = 5.0;
-        const double FadeOutSeconds = 0.3;
+        const double FadeOutSeconds = 0.12;
 
         readonly Canvas _layer;
         readonly Func<string, FrameworkElement> _resolveActor;
@@ -466,51 +465,13 @@ namespace FishSocialOverlay
 
         static void RunPopIn(Border bubble)
         {
-            var transform = bubble.RenderTransform as ScaleTransform;
-            if (transform == null)
-                return;
-
-            var storyboard = new Storyboard { FillBehavior = FillBehavior.Stop };
-
-            var scaleX = CreateScaleAnimation(bubble, true);
-            var scaleY = CreateScaleAnimation(bubble, false);
-            var fade = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(PopSeconds))
-            {
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
-            };
-            Storyboard.SetTarget(fade, bubble);
-            Storyboard.SetTargetProperty(fade, new PropertyPath(UIElement.OpacityProperty));
-
-            storyboard.Children.Add(scaleX);
-            storyboard.Children.Add(scaleY);
-            storyboard.Children.Add(fade);
-            storyboard.Completed += (_, __) =>
-            {
-                bubble.Opacity = 1;
-                transform.ScaleX = 1;
-                transform.ScaleY = 1;
-            };
-            storyboard.Begin();
+            if (bubble == null) return;
+            // Quiet UI feedback leaves the fishing actor and its animation unobstructed.
+            bubble.RenderTransform = Transform.Identity;
+            bubble.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(.12)));
         }
 
-        static DoubleAnimationUsingKeyFrames CreateScaleAnimation(Border bubble, bool scaleX)
-        {
-            var animation = new DoubleAnimationUsingKeyFrames();
-            animation.KeyFrames.Add(new EasingDoubleKeyFrame(0.5, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-            animation.KeyFrames.Add(new EasingDoubleKeyFrame(
-                1.1,
-                KeyTime.FromTimeSpan(TimeSpan.FromSeconds(PopSeconds * 0.5))));
-            animation.KeyFrames.Add(new EasingDoubleKeyFrame(
-                1.0,
-                KeyTime.FromTimeSpan(TimeSpan.FromSeconds(PopSeconds))));
 
-            var property = scaleX
-                ? "(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                : "(UIElement.RenderTransform).(ScaleTransform.ScaleY)";
-            Storyboard.SetTarget(animation, bubble);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(property));
-            return animation;
-        }
 
         void ScheduleFadeOut(Border bubble, string playerId)
         {

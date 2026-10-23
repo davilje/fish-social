@@ -14,14 +14,12 @@ ROOT_RT = "6619995883893608768"
 KIND_BY_ID = {
     "menu_rail": "group",
     "dock_fishing": "group",
-    "cap_status": "panel",
     "dock_chat": "panel",
     "chat_input": "panel",
+    "chat_log": "text",
+    "chat_scroll": "scroll",
 }
 TEXT_IDS = {
-    "txt_status",
-    "txt_pond",
-    "txt_spot",
     "txt_error",
     "txt_groundbait",
     "chat_preview",
@@ -200,10 +198,6 @@ def main() -> int:
         "btn_menu_toggle",
         "btn_open_main",
         "btn_exit_pond",
-        "cap_status",
-        "txt_status",
-        "txt_pond",
-        "txt_spot",
         "txt_error",
         "dock_fishing",
         "btn_fishing_toggle",
@@ -216,11 +210,26 @@ def main() -> int:
         "chat_send",
         "chat_placeholder",
         "txt_groundbait",
+        "chat_log",
+        "chat_scroll",
+        "btn_pan_left",
+        "btn_pan_right",
     ]
     by_id = {w["id"]: w for w in widgets}
     widgets = [by_id[i] for i in order if i in by_id]
 
-    doc = {"width": 960, "height": 560, "widgets": widgets}
+    doc = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
+    previous = {w["id"]: w for w in doc.get("widgets", [])}
+    retired = {"cap_status", "txt_status", "txt_pond", "txt_spot", "menu_rail",
+               "btn_menu_toggle", "btn_open_main", "btn_menu_settings", "btn_menu_map",
+               "btn_menu_shop", "btn_menu_friends", "btn_menu_catch", "btn_menu_leaderboard"}
+    missing = previous.keys() - {w["id"] for w in widgets} - retired
+    if missing:
+        raise SystemExit("Prefab contains inherited widgets that this YAML fallback cannot resolve: "
+                         + ", ".join(sorted(missing)) + ". Use Unity: Fish Social → Export Overlay HUD. "
+                         + "Existing JSON has not been changed.")
+    widgets = [{**previous.get(w["id"], {}), **w} for w in widgets]
+    doc.update({"width": 960, "height": 560, "widgets": widgets})
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(doc, ensure_ascii=False, indent=4), encoding="utf-8")
     print("Wrote", OUT)

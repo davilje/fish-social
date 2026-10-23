@@ -66,21 +66,12 @@ namespace FishSocial.Desktop
 
         static void FillOverlayHookPrompt(NativeOverlayStateDto dto, SocialPondSessionController pond)
         {
+            // Outcome is conveyed by the actor animation and catch inventory, never a blocking HUD card.
             dto.overlayPromptKind = string.Empty;
             dto.overlayPromptTitle = string.Empty;
             dto.overlayPromptBody = string.Empty;
             dto.overlayPromptButton = string.Empty;
             dto.overlayPromptDeadlineMs = 0;
-            if (pond == null)
-                return;
-            var prompt = pond.ConsumeExpiredOverlayHookPrompt();
-            if (prompt == null)
-                return;
-            dto.overlayPromptKind = prompt.Kind ?? string.Empty;
-            dto.overlayPromptTitle = prompt.Title ?? string.Empty;
-            dto.overlayPromptBody = prompt.Body ?? string.Empty;
-            dto.overlayPromptButton = string.IsNullOrEmpty(prompt.Button) ? "知道了" : prompt.Button;
-            dto.overlayPromptDeadlineMs = prompt.DeadlineMs;
         }
 
         static string[] MapAvailableActions(SocialPondSessionController pond)

@@ -1550,7 +1550,7 @@ namespace FishSocialOverlay
         void OnSpeechFadeTick(object sender, EventArgs e)
         {
             StopSpeechFade();
-            var fade = new DoubleAnimation(_speechBadge.Opacity, 0, TimeSpan.FromSeconds(0.3));
+            var fade = new DoubleAnimation(_speechBadge.Opacity, 0, TimeSpan.FromSeconds(.12));
             fade.Completed += (_, __) => ClearSpeech();
             _speechBadge.BeginAnimation(UIElement.OpacityProperty, fade);
         }
@@ -1668,53 +1668,13 @@ namespace FishSocialOverlay
 
         static void RunPopIn(Border bubble)
         {
-            if (bubble == null)
-                return;
-            bubble.BeginAnimation(UIElement.OpacityProperty, null);
-            if (!(bubble.RenderTransform is ScaleTransform))
-                bubble.RenderTransform = new ScaleTransform(0.5, 0.5);
-
-            var transform = (ScaleTransform)bubble.RenderTransform;
-            transform.ScaleX = 0.5;
-            transform.ScaleY = 0.5;
-            bubble.Opacity = 0;
-
-            var storyboard = new Storyboard { FillBehavior = FillBehavior.Stop };
-            storyboard.Children.Add(CreateScaleAnimation(bubble, true));
-            storyboard.Children.Add(CreateScaleAnimation(bubble, false));
-            var fade = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.3))
-            {
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
-            };
-            Storyboard.SetTarget(fade, bubble);
-            Storyboard.SetTargetProperty(fade, new PropertyPath(UIElement.OpacityProperty));
-            storyboard.Children.Add(fade);
-            storyboard.Completed += (_, __) =>
-            {
-                bubble.Opacity = 1;
-                transform.ScaleX = 1;
-                transform.ScaleY = 1;
-            };
-            storyboard.Begin();
+            if (bubble == null) return;
+            // Quiet UI feedback leaves the fishing actor and its animation unobstructed.
+            bubble.RenderTransform = Transform.Identity;
+            bubble.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(.12)));
         }
 
-        static DoubleAnimationUsingKeyFrames CreateScaleAnimation(Border bubble, bool scaleX)
-        {
-            var animation = new DoubleAnimationUsingKeyFrames();
-            animation.KeyFrames.Add(new EasingDoubleKeyFrame(0.5, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-            animation.KeyFrames.Add(new EasingDoubleKeyFrame(
-                1.1,
-                KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.15))));
-            animation.KeyFrames.Add(new EasingDoubleKeyFrame(
-                1.0,
-                KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.3))));
-            var property = scaleX
-                ? "(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                : "(UIElement.RenderTransform).(ScaleTransform.ScaleY)";
-            Storyboard.SetTarget(animation, bubble);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(property));
-            return animation;
-        }
+
 
         static Border CreateTextBadge(TextBlock textBlock, Thickness margin)
         {

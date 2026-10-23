@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace FishSocialOverlay
@@ -46,6 +45,10 @@ namespace FishSocialOverlay
 
         static readonly HashSet<string> RetiredWidgets = new HashSet<string>(StringComparer.Ordinal)
         {
+            "cap_status",
+            "txt_status",
+            "txt_pond",
+            "txt_spot",
             "menu_rail",
             "btn_menu_toggle",
             "btn_menu_map",
@@ -79,7 +82,6 @@ namespace FishSocialOverlay
         static readonly HashSet<string> ChromeBackgrounds = new HashSet<string>(StringComparer.Ordinal)
         {
             "dock_chat",
-            "cap_status",
         };
 
         static readonly HashSet<string> InteractiveWidgets = new HashSet<string>(StringComparer.Ordinal)
@@ -329,9 +331,9 @@ namespace FishSocialOverlay
                 Panel.SetZIndex(element, ResolveZIndex(widget));
                 if (ChromeBackgrounds.Contains(widget.id))
                 {
-                    // cap_status 是纯装饰；dock_chat 必须能命中子控件（输入框/按钮）
+                    // Chat keeps its input/button hit areas; other scene decoration remains click-through.
                     element.IsHitTestVisible = widget.id == "dock_chat";
-                    element.Opacity = widget.id == "cap_status" ? 0.68 : 0.82;
+                    element.Opacity = 0.82;
                     if (widget.id == "dock_chat" && element is Border chatBorder)
                     {
                         chatDockHost = EnsureChatDockHost(chatBorder, widget, hudRoot);
@@ -471,7 +473,7 @@ namespace FishSocialOverlay
             var frames = new Dictionary<string, HudFrame>(StringComparer.Ordinal);
             byId.TryGetValue("dock_chat", out var chat);
             byId.TryGetValue("dock_fishing", out var fish);
-            byId.TryGetValue("cap_status", out var cap);
+            byId.TryGetValue("btn_exit_pond", out var exit);
             byId.TryGetValue("menu_rail", out var rail);
 
             const double MinGap = 8;
@@ -491,12 +493,6 @@ namespace FishSocialOverlay
                 ? Math.Max(0, CanvasHeight - fish.y - fish.h)
                 : 14;
 
-            var capW = cap != null && cap.w > 0.5 ? cap.w : 134;
-            var capH = cap != null && cap.h > 0.5 ? cap.h : 88;
-            var capBottom = cap != null
-                ? Math.Max(0, CanvasHeight - cap.y - cap.h)
-                : 14;
-
             var railW = rail != null && rail.w > 0.5 ? rail.w : 40;
             var railH = rail != null && rail.h > 0.5 ? rail.h : 370;
             var railBottom = rail != null
@@ -505,23 +501,18 @@ namespace FishSocialOverlay
             var railRight = rail != null
                 ? Math.Max(0, CanvasWidth - rail.x - rail.w)
                 : 8;
-            var capRailGap = cap != null && rail != null
-                ? Math.Max(0, rail.x - (cap.x + cap.w))
-                : 9;
 
             double fishX;
             double chatX;
             double railX;
-            double capX;
+            double rightBoundary;
 
             void PlaceFromMargins()
             {
                 chatX = chatLeft;
                 fishX = (viewW - fishW) / 2.0;
                 railX = viewW - railRight - railW;
-                capX = rail != null
-                    ? railX - capRailGap - capW
-                    : viewW - (cap != null ? Math.Max(0, CanvasWidth - cap.x - cap.w) : 8) - capW;
+                rightBoundary = exit != null ? viewW - Math.Max(8, CanvasWidth - exit.x - exit.w) - exit.w : viewW - 8;
             }
 
             PlaceFromMargins();
@@ -529,7 +520,7 @@ namespace FishSocialOverlay
             if (chatX + chatW + MinGap > fishX)
                 chatW = Math.Max(MinChatW, fishX - MinGap - chatX);
 
-            var overlapRight = fishX + fishW + MinGap - capX;
+            var overlapRight = fishX + fishW + MinGap - rightBoundary;
             if (overlapRight > 0.5)
             {
                 var reducible = Math.Max(0, railRight - MinMargin);
@@ -546,9 +537,9 @@ namespace FishSocialOverlay
                     chatW = Math.Max(MinChatW, fishX - MinGap - chatX);
             }
 
-            if (fishX + fishW + MinGap > capX)
+            if (fishX + fishW + MinGap > rightBoundary)
             {
-                fishX = capX - MinGap - fishW;
+                fishX = rightBoundary - MinGap - fishW;
                 if (chatX + chatW + MinGap > fishX)
                 {
                     chatX = MinMargin;
@@ -575,17 +566,6 @@ namespace FishSocialOverlay
                     Y = viewH - fishBottom - fishH,
                     W = fishW,
                     H = fishH,
-                };
-            }
-
-            if (cap != null)
-            {
-                frames["cap_status"] = new HudFrame
-                {
-                    X = capX,
-                    Y = viewH - capBottom - capH,
-                    W = capW,
-                    H = capH,
                 };
             }
 
@@ -628,10 +608,10 @@ namespace FishSocialOverlay
                 };
             }
 
-            if (frames.TryGetValue("cap_status", out var capFrame) && cap != null)
+            if (exit != null && frames.TryGetValue("btn_exit_pond", out var exitFrame))
             {
-                PlaceRelativeTo(frames, byId, "btn_debug_police", cap, capFrame);
-                PlaceRelativeTo(frames, byId, "btn_debug_gameplay", cap, capFrame);
+                PlaceRelativeTo(frames, byId, "btn_debug_police", exit, exitFrame);
+                PlaceRelativeTo(frames, byId, "btn_debug_gameplay", exit, exitFrame);
             }
 
             foreach (var widget in byId.Values)
@@ -882,10 +862,6 @@ namespace FishSocialOverlay
                 { "btn_menu_catch", window.MenuCatchButton },
                 { "btn_menu_leaderboard", window.MenuLeaderboardButton },
                 { "btn_menu_settings", window.MenuSettingsButton },
-                { "cap_status", window.StatusCapsule },
-                { "txt_status", window.StateText },
-                { "txt_pond", window.PondText },
-                { "txt_spot", window.SpotText },
                 { "txt_error", window.ErrorText },
                 { "btn_open_main", window.OpenMainButton },
                 { "btn_exit_pond", window.ExitPondButton },
@@ -1208,78 +1184,6 @@ namespace FishSocialOverlay
             CozyTheme.SetIconSize(button, widget.iconSize > 0 ? widget.iconSize : 16);
             button.Foreground = CozyTheme.Ink;
             button.SetResourceReference(Control.PaddingProperty, "CozyButtonPadding");
-            EnsureHudButtonScale(button);
-            button.Click -= HudButtonPressScale_OnClick;
-            button.Click += HudButtonPressScale_OnClick;
-        }
-
-        static ScaleTransform EnsureHudButtonScale(Button button)
-        {
-            button.RenderTransformOrigin = new Point(0.5, 0.5);
-            if (button.RenderTransform is TransformGroup group)
-            {
-                foreach (var child in group.Children)
-                {
-                    if (child is ScaleTransform existing)
-                        return existing;
-                }
-
-                var inserted = new ScaleTransform(1, 1);
-                group.Children.Insert(0, inserted);
-                return inserted;
-            }
-
-            if (button.RenderTransform is ScaleTransform onlyScale)
-            {
-                var wrapped = new TransformGroup();
-                wrapped.Children.Add(onlyScale);
-                wrapped.Children.Add(new RotateTransform(0));
-                button.RenderTransform = wrapped;
-                return onlyScale;
-            }
-
-            if (button.RenderTransform is RotateTransform onlyRotate)
-            {
-                var scale = new ScaleTransform(1, 1);
-                var wrapped = new TransformGroup();
-                wrapped.Children.Add(scale);
-                wrapped.Children.Add(onlyRotate);
-                button.RenderTransform = wrapped;
-                return scale;
-            }
-
-            var createdScale = new ScaleTransform(1, 1);
-            var createdGroup = new TransformGroup();
-            createdGroup.Children.Add(createdScale);
-            createdGroup.Children.Add(new RotateTransform(0));
-            button.RenderTransform = createdGroup;
-            return createdScale;
-        }
-
-        static void HudButtonPressScale_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (!(sender is Button button))
-                return;
-
-            var scale = EnsureHudButtonScale(button);
-
-            var pulseX = CreateHudButtonPressScaleAnimation();
-            var pulseY = CreateHudButtonPressScaleAnimation();
-            scale.BeginAnimation(ScaleTransform.ScaleXProperty, pulseX);
-            scale.BeginAnimation(ScaleTransform.ScaleYProperty, pulseY);
-        }
-
-        static DoubleAnimationUsingKeyFrames CreateHudButtonPressScaleAnimation()
-        {
-            const double durationSeconds = 0.2;
-            var animation = new DoubleAnimationUsingKeyFrames
-            {
-                Duration = TimeSpan.FromSeconds(durationSeconds),
-            };
-            animation.KeyFrames.Add(new LinearDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-            animation.KeyFrames.Add(new LinearDoubleKeyFrame(1.1, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(durationSeconds * 0.5))));
-            animation.KeyFrames.Add(new LinearDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(durationSeconds))));
-            return animation;
         }
 
         static void ApplyCozyResourceMapping(OverlayHudDocument document)
@@ -1299,6 +1203,7 @@ namespace FishSocialOverlay
                     widget.spriteHover = components.button.spriteHover;
                     widget.spritePressed = components.button.spritePressed;
                     widget.spriteSlice = (int[])components.button.spriteSlice.Clone();
+                    widget.pressedOffsetY = 1;
                     var icon = IconForWidget(widget.id);
                     widget.iconSprite = icon == null ? null : CozyTheme.IconPath(icon);
                     if (MenuRailOrder.Contains(widget.id))
@@ -1316,7 +1221,7 @@ namespace FishSocialOverlay
                     else if (widget.id == "btn_pan_right")
                         widget.label = "向右";
                 }
-                if (widget.id == "dock_chat" || widget.id == "cap_status" || widget.id == "chat_input")
+                if (widget.id == "dock_chat" || widget.id == "chat_input")
                 {
                     var panel = widget.id == "chat_input" ? components.input : components.paper;
                     widget.sprite = panel.sprite;
@@ -1380,7 +1285,7 @@ namespace FishSocialOverlay
             dock.w = Math.Max(0, x - gap);
             dock.h = BottomButtonHeight;
             var left = byId.TryGetValue("dock_chat", out var chat) ? chat.x + chat.w + 12 : 0;
-            var right = byId.TryGetValue("cap_status", out var cap) ? cap.x - 12 : CanvasWidth;
+            var right = byId.TryGetValue("btn_exit_pond", out var exit) ? exit.x - 12 : CanvasWidth;
             dock.x = right - left >= dock.w
                 ? Math.Round(left + (right - left - dock.w) / 2)
                 : Math.Round((CanvasWidth - dock.w) / 2);
@@ -1398,11 +1303,6 @@ namespace FishSocialOverlay
             exit.x = CanvasWidth - margin - exit.w;
             exit.y = BottomBaseline - exit.h;
             var top = exit.y;
-            if (byId.TryGetValue("cap_status", out var cap))
-            {
-                cap.x = exit.x - gap - cap.w;
-                cap.y = BottomBaseline - cap.h;
-            }
             if (byId.TryGetValue("btn_debug_gameplay", out var debug))
             {
                 StyleBottomButton(debug, exit.w, "Debug");
@@ -1513,23 +1413,15 @@ namespace FishSocialOverlay
             components.paper = components.paper ?? defaults.paper;
             components.input = components.input ?? defaults.input;
             components.scroll = components.scroll ?? defaults.scroll;
-            foreach (var panel in new[] { components.button, components.paper, components.input })
-            {
-                var expected = ReferenceEquals(panel, components.paper) ? CozyTheme.PaperBorder
-                    : ReferenceEquals(panel, components.input) ? CozyTheme.CompactBorder
-                    : CozyTheme.SpriteBorder;
-                if (panel.spriteSlice == null || panel.spriteSlice.SequenceEqual(new[] { 64, 64, 64, 64 }))
-                    panel.spriteSlice = (int[])expected.Clone();
-                if (!panel.spriteSlice.SequenceEqual(expected))
-                    throw new InvalidDataException("Cozy spriteSlice 与对应底板的像素边距不匹配");
-            }
-            components.button.sprite = components.button.sprite ?? defaults.button.sprite;
-            components.button.spriteHover = components.button.spriteHover ?? defaults.button.spriteHover;
-            components.button.spritePressed = components.button.spritePressed ?? defaults.button.spritePressed;
-            components.paper.sprite = components.paper.sprite ?? defaults.paper.sprite;
-            components.input.sprite = components.input.sprite ?? defaults.input.sprite;
-            if (components.input.sprite == CozyTheme.Paper)
-                components.input.sprite = CozyTheme.CompactPaper;
+            components.button.sprite = defaults.button.sprite;
+            components.button.spriteHover = defaults.button.spriteHover;
+            components.button.spritePressed = defaults.button.spritePressed;
+            components.paper.sprite = defaults.paper.sprite;
+            components.input.sprite = defaults.input.sprite;
+            components.button.spriteSlice = (int[])CozyTheme.SpriteBorder.Clone();
+            components.paper.spriteSlice = (int[])CozyTheme.PaperBorder.Clone();
+            components.input.spriteSlice = (int[])CozyTheme.CompactBorder.Clone();
+            components.button.pressedOffsetY = 1;
             components.button.padding = components.button.padding ?? defaults.button.padding;
             components.paper.padding = components.paper.padding ?? defaults.paper.padding;
             components.input.padding = components.input.padding ?? defaults.input.padding;
@@ -1541,7 +1433,7 @@ namespace FishSocialOverlay
             }
             else
                 components.input.padding = defaults.input.padding;
-            if (components.button.pressedOffsetY <= 0) components.button.pressedOffsetY = 3;
+            if (components.button.pressedOffsetY <= 0) components.button.pressedOffsetY = 1;
             if (components.button.iconSize <= 0) components.button.iconSize = 16;
             if (components.button.disabledOpacity <= 0 || components.button.disabledOpacity > 1)
                 components.button.disabledOpacity = 0.45;
@@ -1569,7 +1461,7 @@ namespace FishSocialOverlay
                 {
                     sprite = CozyTheme.DefaultPlate, spriteHover = CozyTheme.HoverPlate,
                     spritePressed = CozyTheme.PressedPlate, spriteSlice = (int[])CozyTheme.SpriteBorder.Clone(),
-                    pressedOffsetY = 3, iconSize = 16, disabledOpacity = 0.45,
+                    pressedOffsetY = 1, iconSize = 16, disabledOpacity = 0.45,
                     padding = new double[] { 2, 0, 2, 0 },
                 },
                 paper = new OverlayHudComponentDto
@@ -1864,6 +1756,8 @@ namespace FishSocialOverlay
             if (string.IsNullOrWhiteSpace(spriteFile))
                 return null;
 
+            if (spriteFile.StartsWith("cozy/journal/surfaces/", StringComparison.Ordinal))
+                return CozyTheme.LoadImage(spriteFile);
             var spritePath = Path.Combine(hudRoot, spriteFile);
             if (_bitmapCache.TryGetValue(spritePath, out var cached))
                 return cached;

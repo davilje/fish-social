@@ -250,7 +250,6 @@ namespace FishSocialOverlay
                 _selectedSpotId = spotId ?? string.Empty;
                 if (!string.IsNullOrEmpty(_selectedSpotId))
                 {
-                    StateText.Text = "状态：正在选择钓位…";
                     _scene.PredictOwnSeat(_selectedSpotId);
                     _pendingSeatCommandId = SendCommand("take_spot", _selectedSpotId);
                     if (_lastStateMessage != null)
@@ -429,7 +428,7 @@ namespace FishSocialOverlay
 
             if (string.IsNullOrWhiteSpace(_pipeName))
             {
-                StateText.Text = "状态：缺少主进程管道";
+                ShowTransientStatus("缺少主进程连接，请从游戏内进入鱼塘。");
                 return;
             }
 
@@ -523,8 +522,7 @@ namespace FishSocialOverlay
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        if (!_stopping)
-                            StateText.Text = "状态：等待主界面";
+                        if (!_stopping) ShowTransientStatus("连接已断开，正在等待主界面重连。");
                     }));
                 }
                 finally
@@ -588,11 +586,7 @@ namespace FishSocialOverlay
                     return;
                 var startedAt = System.Diagnostics.Stopwatch.GetTimestamp();
                 _latestSequence = message.Sequence;
-                StateText.Text = "状态：" + FormatFishingState(message);
-                PondText.Text = "鱼塘：" +
-                    (string.IsNullOrWhiteSpace(message.PondName)
-                        ? "未进入" : message.PondName);
-                SpotText.Text = "钓位：" + FormatSpot(message);
+
                 var stateError = message.ErrorMessage ?? string.Empty;
                 if (!string.Equals(stateError, _lastStateError, StringComparison.Ordinal))
                 {
@@ -697,7 +691,6 @@ namespace FishSocialOverlay
             if (!_canLeaveSpot || _pendingActionCommandId != 0)
                 return;
             CatchLeaveButton.IsEnabled = false;
-            StateText.Text = "状态：正在离席…";
             SendOwnAction("leave_spot");
         }
 
@@ -727,7 +720,6 @@ namespace FishSocialOverlay
 
         void ExitPond_OnClick(object sender, RoutedEventArgs e)
         {
-            StateText.Text = "状态：正在退出鱼塘…";
             SendCommand("exit_pond");
         }
 
@@ -2233,7 +2225,7 @@ namespace FishSocialOverlay
         void ApplyOverlayPrompt(IpcMessage message)
         {
             var kind = message.OverlayPromptKind ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(kind))
+            if (string.IsNullOrWhiteSpace(kind) || IsHookSettlePrompt(kind))
             {
                 OverlayPromptChrome.Visibility = Visibility.Collapsed;
                 _promptDeadlineMs = 0;

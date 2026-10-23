@@ -1,207 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1249498548051818478
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5703561037170522481}
-  - component: {fileID: 5643684003359357776}
-  - component: {fileID: 7200530147722314809}
-  - component: {fileID: 3193141582645177592}
-  m_Layer: 0
-  m_Name: txt_status
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &5703561037170522481
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249498548051818478}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 8544985771765694095}
-  m_Father: {fileID: 4317338155264365383}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6, y: -6}
-  m_SizeDelta: {x: 152, y: 18}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &5643684003359357776
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249498548051818478}
-  m_CullTransparentMesh: 1
---- !u!114 &7200530147722314809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249498548051818478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.12, b: 0.16, a: 0.35}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &3193141582645177592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249498548051818478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5c81f5fa3f6c82409cf64cec9d292bb, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  widgetId: txt_status
-  kind: text
-  spriteFile:
-  spriteHoverFile:
-  spritePressedFile:
-  iconSpriteFile:
-  pressedOffsetY: 3
-  iconSize: 22
-  zIndex: 100
-  visibleDefault: 1
---- !u!1 &1993363247755382362
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4317338155264365383}
-  - component: {fileID: 6553855347121899564}
-  - component: {fileID: 854614526000273077}
-  - component: {fileID: 8021453062075479905}
-  m_Layer: 0
-  m_Name: cap_status
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &4317338155264365383
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1993363247755382362}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5703561037170522481}
-  - {fileID: 1977281447404177955}
-  - {fileID: 7555366833985322807}
-  m_Father: {fileID: 298878072248023384}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 734, y: -472}
-  m_SizeDelta: {x: 164, y: 76}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &6553855347121899564
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1993363247755382362}
-  m_CullTransparentMesh: 1
---- !u!114 &854614526000273077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1993363247755382362}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 12aaf138143a1232ef077b632d9d807e, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &8021453062075479905
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1993363247755382362}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5c81f5fa3f6c82409cf64cec9d292bb, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  widgetId: cap_status
-  kind: panel
-  spriteFile: cozy/panels/paper.png
-  spriteHoverFile:
-  spritePressedFile:
-  iconSpriteFile:
-  pressedOffsetY: 3
-  iconSize: 22
-  zIndex: 100
-  visibleDefault: 1
 --- !u!1 &1996292268076508627
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,7 +113,7 @@ RectTransform:
   m_Children:
   - {fileID: 5030725823916296917}
   m_Father: {fileID: 298878072248023384}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -378,7 +176,7 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 1
@@ -478,7 +276,7 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 1
@@ -575,86 +373,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7be0ecbbd10c5ecaaf9c3fedaee5685b, type: 3}
   m_Name:
   m_EditorClassIdentifier:
---- !u!1 &2742719741618266765
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 534501431484017986}
-  - component: {fileID: 8463590434116730177}
-  - component: {fileID: 3864304990411874273}
-  m_Layer: 0
-  m_Name: Label
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &534501431484017986
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2742719741618266765}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1977281447404177955}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 48.5, y: -8}
-  m_SizeDelta: {x: 97, y: 16}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &8463590434116730177
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2742719741618266765}
-  m_CullTransparentMesh: 1
---- !u!114 &3864304990411874273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2742719741618266765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 3
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: txt_pond
 --- !u!1 &3246804931520777141
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,7 +406,7 @@ RectTransform:
   m_Children:
   - {fileID: 6909474654981590491}
   m_Father: {fileID: 298878072248023384}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -751,7 +469,7 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 0
@@ -789,12 +507,12 @@ RectTransform:
   - {fileID: 128241579803531946}
   - {fileID: 33728541849197036}
   m_Father: {fileID: 298878072248023384}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 371, y: -508}
-  m_SizeDelta: {x: 218, y: 40}
+  m_AnchoredPosition: {x: 456, y: -512}
+  m_SizeDelta: {x: 280, y: 36}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6485662093767185505
 CanvasRenderer:
@@ -822,7 +540,7 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 1
@@ -865,7 +583,7 @@ RectTransform:
   - {fileID: 2731669781935532354}
   - {fileID: 8110216498073279802}
   m_Father: {fileID: 298878072248023384}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -924,94 +642,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: dock_chat
   kind: panel
-  spriteFile: cozy/panels/paper-compact.png
+  spriteFile: cozy/journal/surfaces/paper-aside.png
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 1
---- !u!1 &4386733804468358427
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 457788717178873948}
-  - component: {fileID: 1694359755329266886}
-  - component: {fileID: 4589797765944099170}
-  m_Layer: 0
-  m_Name: Label
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &457788717178873948
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4386733804468358427}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7555366833985322807}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 48.5, y: -8}
-  m_SizeDelta: {x: 97, y: 16}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1694359755329266886
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4386733804468358427}
-  m_CullTransparentMesh: 1
---- !u!114 &4589797765944099170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4386733804468358427}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 3
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: txt_spot
 --- !u!1 &4759664842829442014
 GameObject:
   m_ObjectHideFlags: 0
@@ -1103,11 +741,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: chat_input
   kind: panel
-  spriteFile: cozy/panels/paper-compact.png
+  spriteFile: cozy/journal/surfaces/input-default.png
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 0
@@ -1207,7 +845,7 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 0
@@ -1477,106 +1115,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7be0ecbbd10c5ecaaf9c3fedaee5685b, type: 3}
   m_Name:
   m_EditorClassIdentifier:
---- !u!1 &7013774330688308745
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7555366833985322807}
-  - component: {fileID: 3537884374574567804}
-  - component: {fileID: 2485537179946527322}
-  - component: {fileID: 1685842981266441507}
-  m_Layer: 0
-  m_Name: txt_spot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &7555366833985322807
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7013774330688308745}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 457788717178873948}
-  m_Father: {fileID: 4317338155264365383}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6, y: -50}
-  m_SizeDelta: {x: 152, y: 18}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &3537884374574567804
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7013774330688308745}
-  m_CullTransparentMesh: 1
---- !u!114 &2485537179946527322
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7013774330688308745}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.12, b: 0.16, a: 0.35}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &1685842981266441507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7013774330688308745}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5c81f5fa3f6c82409cf64cec9d292bb, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  widgetId: txt_spot
-  kind: text
-  spriteFile:
-  spriteHoverFile:
-  spritePressedFile:
-  iconSpriteFile:
-  pressedOffsetY: 3
-  iconSize: 22
-  zIndex: 100
-  visibleDefault: 1
 --- !u!1 &7345469597604036752
 GameObject:
   m_ObjectHideFlags: 0
@@ -1615,7 +1153,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 12, y: -12}
-  m_SizeDelta: {x: 254, y: 212}
+  m_SizeDelta: {x: 288, y: 212}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8373792290648390638
 CanvasRenderer:
@@ -1673,7 +1211,7 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 0
@@ -1713,7 +1251,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -12}
+  m_AnchoredPosition: {x: 304, y: -12}
   m_SizeDelta: {x: 6, y: 212}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8110216498073279803
@@ -1772,110 +1310,10 @@ MonoBehaviour:
   spriteHoverFile:
   spritePressedFile:
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 0
---- !u!1 &8353284831465318947
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1977281447404177955}
-  - component: {fileID: 10355526366760798}
-  - component: {fileID: 4673587666981805842}
-  - component: {fileID: 812950757909051168}
-  m_Layer: 0
-  m_Name: txt_pond
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1977281447404177955
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8353284831465318947}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 534501431484017986}
-  m_Father: {fileID: 4317338155264365383}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6, y: -28}
-  m_SizeDelta: {x: 152, y: 18}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &10355526366760798
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8353284831465318947}
-  m_CullTransparentMesh: 1
---- !u!114 &4673587666981805842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8353284831465318947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.08, g: 0.12, b: 0.16, a: 0.35}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &812950757909051168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8353284831465318947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5c81f5fa3f6c82409cf64cec9d292bb, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  widgetId: txt_pond
-  kind: text
-  spriteFile:
-  spriteHoverFile:
-  spritePressedFile:
-  iconSpriteFile:
-  pressedOffsetY: 3
-  iconSize: 22
-  zIndex: 100
-  visibleDefault: 1
 --- !u!1 &8397026931721201561
 GameObject:
   m_ObjectHideFlags: 0
@@ -2116,86 +1554,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uFF08\u516C\u5C4F\u8BB0\u5F55\u533A\uFF09"
---- !u!1 &9159744756432087941
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8544985771765694095}
-  - component: {fileID: 5821917009073618611}
-  - component: {fileID: 6698272003733729266}
-  m_Layer: 0
-  m_Name: Label
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &8544985771765694095
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9159744756432087941}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5703561037170522481}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 48.5, y: -9}
-  m_SizeDelta: {x: 97, y: 18}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &5821917009073618611
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9159744756432087941}
-  m_CullTransparentMesh: 1
---- !u!114 &6698272003733729266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9159744756432087941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: null
-  m_EditorClassIdentifier: null
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 12
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 3
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: txt_status
 --- !u!1001 &29228195574672191
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2345,15 +1703,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.a
-      value: 0.55
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.b
-      value: 0.9482353
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.g
-      value: 0.9811765
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1136159688361719791, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Name
@@ -2436,11 +1794,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: chat_send
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/check.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 0
@@ -2645,7 +2003,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2709,15 +2067,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.a
-      value: 0.55
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.b
-      value: 0.9482353
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.g
-      value: 0.9811765
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1136159688361719791, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Name
@@ -2800,11 +2158,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_pan_right
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 0
@@ -2893,7 +2251,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2905,11 +2263,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 810
+      value: 856
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -428
+      value: -468
       objectReference: {fileID: 0}
     - target: {fileID: 642119414982116717, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2957,15 +2315,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.a
-      value: 0.55
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.b
-      value: 0.9482353
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.g
-      value: 0.9811765
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1136159688361719791, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Name
@@ -3048,11 +2406,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_debug_gameplay
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/settings.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 0
@@ -3273,11 +2631,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: chat_toggle
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/social.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 1
@@ -3358,7 +2716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -3422,15 +2780,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.a
-      value: 0.55
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.b
-      value: 0.9482353
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.g
-      value: 0.9811765
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1136159688361719791, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Name
@@ -3513,11 +2871,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_pan_left
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile:
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 0
@@ -3594,15 +2952,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 70
+      value: 88
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 32
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 148
+      value: 192
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3726,11 +3084,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_catch_leave
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/gift.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 1
@@ -3807,11 +3165,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 70
+      value: 88
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 32
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -3934,11 +3292,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_fishing_toggle
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/rod.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 1
@@ -4028,7 +3386,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_RootOrder
-      value: 9
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4040,19 +3398,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 38
+      value: 88
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 40
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 906
+      value: 856
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -508
+      value: -512
       objectReference: {fileID: 0}
     - target: {fileID: 642119414982116717, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -4167,11 +3525,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_exit_pond
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/lock.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 22
   zIndex: 100
   visibleDefault: 1
@@ -4248,15 +3606,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 70
+      value: 88
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 32
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 74
+      value: 96
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -4308,15 +3666,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.a
-      value: 0.55
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.b
-      value: 0.9482353
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.g
-      value: 0.9811765
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1136159688361719791, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Name
@@ -4399,11 +3757,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_groundbait
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/leaf.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 0
@@ -4497,7 +3855,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -4509,11 +3867,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 764
+      value: 906
       objectReference: {fileID: 0}
     - target: {fileID: 640174037065610063, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -428
+      value: -424
       objectReference: {fileID: 0}
     - target: {fileID: 642119414982116717, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_SizeDelta.x
@@ -4561,15 +3919,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.a
-      value: 0.55
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.b
-      value: 0.9482353
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Color.g
-      value: 0.9811765
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1136159688361719791, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_Name
@@ -4652,11 +4010,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: null
   widgetId: btn_debug_police
   kind: button
-  spriteFile: cozy/buttons/plate-default.png
-  spriteHoverFile: cozy/buttons/plate-hover.png
-  spritePressedFile: cozy/buttons/plate-pressed.png
+  spriteFile: cozy/journal/surfaces/button-quiet-default.png
+  spriteHoverFile: cozy/journal/surfaces/button-quiet-hover.png
+  spritePressedFile: cozy/journal/surfaces/button-quiet-pressed.png
   iconSpriteFile: cozy/icons/bell.png
-  pressedOffsetY: 3
+  pressedOffsetY: 1
   iconSize: 16
   zIndex: 100
   visibleDefault: 0

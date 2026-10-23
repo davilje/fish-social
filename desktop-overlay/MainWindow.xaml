@@ -150,6 +150,10 @@
                                TextAlignment="Center" />
                 </Border>
                 <!-- Z100: 右下状态（HUD JSON 激活后整组隐藏；菜单只走右键） -->
+
+                <TextBlock x:Name="ErrorText" Canvas.Left="16" Canvas.Top="16" Width="928"
+                           Foreground="{StaticResource CozyInk}" FontSize="12" TextWrapping="Wrap"
+                           IsHitTestVisible="False" />
                 <StackPanel x:Name="LegacyLeftHudStack"
                             Canvas.Right="112"
                             Canvas.Bottom="12"
@@ -178,34 +182,7 @@
                             <Button Content="导出 HUD JSON" Height="32" Margin="0,4,0,0" local:CozyTheme.Icon="cozy/icons-light/settings.png" Click="ExportHudJson_OnClick" />
                         </StackPanel>
                     </Border>
-                    <Border x:Name="StatusCapsule"
-                            local:CozyTheme.IsPaper="True"
-                            CornerRadius="10"
-                            Padding="10,6"
-                            Margin="0,6,0,0">
-                        <StackPanel>
-                            <TextBlock x:Name="StateText"
-                                       Text="状态：等待主界面"
-                                       Foreground="{StaticResource CozyInk}"
-                                       FontSize="16" />
-                            <TextBlock x:Name="PondText"
-                                       Text="鱼塘：未连接"
-                                       Foreground="{StaticResource CozyInk}"
-                                       FontSize="13"
-                                       Margin="0,2,0,0" />
-                            <TextBlock x:Name="SpotText"
-                                       Text="钓位：未选择"
-                                       Foreground="{StaticResource CozyInk}"
-                                       FontSize="13"
-                                       Margin="0,2,0,0" />
-                            <TextBlock x:Name="ErrorText"
-                                       Foreground="{StaticResource CozyInk}"
-                                       TextWrapping="Wrap"
-                                       FontSize="12"
-                                       TextAlignment="Center"
-                                       Margin="0,4,0,0" />
-                        </StackPanel>
-                    </Border>
+
                 </StackPanel>
                 <!-- Z100: 右下角 — Debug（只调宽度）+ 退出鱼塘；打开主界面改走右键菜单 -->
                 <StackPanel x:Name="LegacyRightTopHudStack"

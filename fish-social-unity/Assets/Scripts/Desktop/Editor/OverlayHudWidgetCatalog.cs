@@ -9,7 +9,6 @@ namespace FishSocial.Desktop.Editor
     {
         public static readonly string[] Required =
         {
-            "cap_status",
             "btn_exit_pond",
             "btn_fishing_toggle",
             "btn_groundbait",
@@ -27,6 +26,10 @@ namespace FishSocial.Desktop.Editor
         /// <summary>菜单只走右键；这些节点在补齐 OverlayHud 时从 prefab 删除。</summary>
         public static readonly string[] Retired =
         {
+            "cap_status",
+            "txt_status",
+            "txt_pond",
+            "txt_spot",
             "menu_rail",
             "btn_menu_toggle",
             "btn_menu_map",
@@ -40,19 +43,15 @@ namespace FishSocial.Desktop.Editor
 
         public static readonly HudWidgetSpec[] All =
         {
-            // ── 右下角：Debug（仅调宽）+ 状态胶囊 + 退出鱼塘 ──
+            // ── 右下角：Debug + 退出鱼塘 ──
             new HudWidgetSpec("btn_debug_police", "button", 906, 424, 38, 36, false, null),
             new HudWidgetSpec("btn_debug_gameplay", "button", 856, 468, 88, 36, false, null),
             new HudWidgetSpec("btn_exit_pond", "button", 856, 512, 88, 36, true, null),
 
-            new HudWidgetSpec("cap_status", "panel", 684, 472, 164, 76, true, null),
-            new HudWidgetSpec("txt_status", "text", 6, 6, 152, 18, true, "cap_status"),
-            new HudWidgetSpec("txt_pond", "text", 6, 28, 152, 18, true, "cap_status"),
-            new HudWidgetSpec("txt_spot", "text", 6, 50, 152, 18, true, "cap_status"),
             new HudWidgetSpec("txt_error", "text", 12, 12, 936, 28, true, null),
 
             // ── 底部居中钓鱼条 ──
-            new HudWidgetSpec("dock_fishing", "group", 370, 512, 280, 36, true, null),
+            new HudWidgetSpec("dock_fishing", "group", 456, 512, 280, 36, true, null),
             new HudWidgetSpec("btn_fishing_toggle", "button", 0, 0, 88, 36, true, "dock_fishing"),
             new HudWidgetSpec("btn_groundbait", "button", 96, 0, 88, 36, false, "dock_fishing"),
             new HudWidgetSpec("btn_catch_leave", "button", 192, 0, 88, 36, true, "dock_fishing"),

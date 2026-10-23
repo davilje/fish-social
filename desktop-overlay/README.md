@@ -3,6 +3,12 @@
 独立的 Windows WPF 桌面宠物 Overlay。它不引用 Unity、Steamworks.NET 或 Fish Social 业务程序集，只通过 Named Pipe 接收状态并发送 UI 命令。
 
 
+## 手账 Overlay 收口（2026-10-23）
+
+已换成桌面手账同源按钮、纸张、输入底板、图标和头像；取消按钮回弹，气泡改为 120ms 淡入淡出。移除常驻状态栏和正常鱼塘钓获／回鱼／脱钩弹窗，角色钓鱼动画及真实结算继续运行。需重建 EXE 并同步全部 OverlayResources。
+
+资源同步：从仓库根运行 `python3 scripts/art/sync-overlay-journal-assets.py`。完整参数、导出和 Windows 待验收项见 [交接说明](COZY_UI_HANDOFF.md)。
+
 ## 钓鱼动画九层包 v2（2026-10-13）
 
 优先读取 `OverlayResources/fishing/<petId>/manifest.json`，角色四层和公共道具五层按每帧顺序、时长叠加；源画布 640×512，不是下面旧平面回退的 256×256。新增空军与两种复位，`reel_empty` 为新增展示状态。完整说明见 `../docs/art/animations/2026-10-13-fishing-animation-port.md`。旧 EXE 不兼容九层资源，必须重新构建并分发最新资源；其他原有猫种保持平面回退。
@@ -62,7 +68,7 @@ Overlay 回传命令：
 - `hide_to_tray`
 - `quit_app`
 
-状态可附带 `recentChats[]`（`messageId` / `playerId` / `nickname` / `text` / `sentAtMs`）与 `ownPlayerId`。新消息在对应宠物头顶弹出气泡（0.3s 缩放渐显，停留 5s 后渐隐）；左下为可收缩聊天窗（收起仅显示最新一条，展开可输入）。完整聊天与私聊仍在 Unity 主窗口。
+状态可附带 `recentChats[]`（`messageId` / `playerId` / `nickname` / `text` / `sentAtMs`）与 `ownPlayerId`。新消息在对应宠物头顶弹出气泡（120ms 淡入，停留 5s 后以 120ms 淡出）；左下为可收缩聊天窗（收起仅显示最新一条，展开可输入）。完整聊天与私聊仍在 Unity 主窗口。
 
 Overlay 收到旧 `sequence` 时丢弃，不覆盖当前状态。打开主窗口不得销毁鱼塘会话。
 

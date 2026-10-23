@@ -1979,6 +1979,15 @@ namespace FishSocial.Desktop.Editor
                 widget.kind = spec.Kind;
                 widget.zIndex = 100;
                 widget.visibleDefault = spec.VisibleDefault;
+                widget.pressedOffsetY = 1;
+                if (spec.Kind == "button")
+                {
+                    widget.spriteFile = "cozy/journal/surfaces/button-quiet-default.png";
+                    widget.spriteHoverFile = "cozy/journal/surfaces/button-quiet-hover.png";
+                    widget.spritePressedFile = "cozy/journal/surfaces/button-quiet-pressed.png";
+                }
+                else if (spec.Id == "dock_chat") widget.spriteFile = "cozy/journal/surfaces/paper-aside.png";
+                else if (spec.Id == "chat_input") widget.spriteFile = "cozy/journal/surfaces/input-default.png";
             }
 
             foreach (var spec in OverlayHudWidgetCatalog.All)

@@ -79,10 +79,6 @@ namespace FishSocialOverlay
                 if (ReferenceEquals(source, window.MenuPanel) &&
                     window.MenuPanel.Visibility == Visibility.Visible)
                     return true;
-                if (ReferenceEquals(source, window.StatusCapsule) &&
-                    window.StatusCapsule.IsHitTestVisible &&
-                    window.StatusCapsule.Visibility == Visibility.Visible)
-                    return true;
                 if (source is Ellipse && IsUnder(source, window.SpotLayer))
                     return true;
                 if (ReferenceEquals(source, window.OwnCat) &&

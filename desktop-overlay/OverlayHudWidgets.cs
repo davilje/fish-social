@@ -8,7 +8,6 @@ namespace FishSocialOverlay
     {
         public static readonly string[] Required =
         {
-            "cap_status",
             "btn_exit_pond",
             "btn_fishing_toggle",
             "btn_groundbait",

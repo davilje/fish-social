@@ -19,6 +19,12 @@
 
 ---
 
+## 2026-10-23 变更：取消 Overlay 单次结算卡
+
+用户要求钓获和脱钩不再弹窗，以免遮挡角色动画。正常鱼塘 `hook_keep / hook_return / hook_escape` 已在 Unity 下发与 WPF 接收两端停用；以下旧版弹卡文案、5 秒展示和确认按钮要求仅作历史记录，不再是当前验收目标。自动入包／回鱼、取消领取按钮、离席与结算事件保持。
+
+本次变更归入 STEAM-DESKTOP-21 的 Overlay 收口；Python 34/34、Unity 新增专项 5/5 通过。Windows 原生 EXE 需重新构建并实机验收。教学提示与离塘总账保留。详见 `docs/design/ui/2026-10-23-overlay-journal-refinement.md`。
+
 ## 1. 背景与目标
 
 ### 1.1 背景
