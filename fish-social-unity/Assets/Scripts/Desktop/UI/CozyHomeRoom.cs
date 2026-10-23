@@ -8,7 +8,7 @@ namespace FishSocial.Desktop
 {
     /// <summary>The approved layered room, in the journal's 1672 x 941 design coordinates.</summary>
     [DisallowMultipleComponent]
-    public sealed class CozyHomeRoom : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public sealed partial class CozyHomeRoom : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public const string ResourceRoot = "Desktop/Theme/Cozy/home-room/";
         [Serializable] public sealed class Placement
@@ -20,7 +20,7 @@ namespace FishSocial.Desktop
         [Serializable] sealed class Manifest { public Placement[] placements; }
         [Serializable] sealed class SavedFurniture { public string id; public Vector2 bottomCenter; }
         [Serializable] sealed class SavedLayout { public int version = 1; public SavedFurniture[] items; }
-        public enum Activity { Free, GoingToBed, Sleeping }
+        public enum Activity { Free, GoingToBed, Sleeping, Rolling, Pouring, GoingToFood, Eating }
         [SerializeField] RectTransform actor;
         [SerializeField] RawImage artwork;
         [SerializeField] Button equipment, aquarium;
@@ -140,6 +140,7 @@ namespace FishSocial.Desktop
             }
             bedFront.texture = Resources.Load<Texture2D>(ResourceRoot + "cat-bed");
             bedFront.gameObject.SetActive(IsSleeping && !pageOpen);
+            EnsureAnimationLayers();
         }
         public CozyRoomProp Prop(string id)
         { return transform.Find("Props/" + id)?.GetComponent<CozyRoomProp>(); }
@@ -148,7 +149,7 @@ namespace FishSocial.Desktop
             if (!CanInteract) return;
             if (id == "rod-1" || id == "rod-2" || id == "rod-3") equipment.onClick.Invoke();
             else if (id == "cat-bed") SleepInBed();
-            // Food pouring/eating and petting rolls await the frame sets in the art request.
+            else if (id == "food-bowls") Feed();
         }
         Vector2 BedDestination()
         {
@@ -158,17 +159,19 @@ namespace FishSocial.Desktop
         public void SleepInBed()
         {
             if (!CanInteract || sleepingPose == null) return;
+            CancelAnimation();
             dragging = false; pointer = int.MinValue; sitting = false; inactive = wander = feedback = 0;
             activity = Activity.GoingToBed; target = BedDestination();
             bubble.transform.parent.gameObject.SetActive(false);
             if (CozyMotion.Reduced) { feet = target; activity = Activity.Sleeping; }
             Present();
         }
-        public void BeginFurnitureDrag() { furnitureDragging = true; dragging = false; pointer = int.MinValue; inactive = wander = 0; }
+        public void BeginFurnitureDrag() { CancelFeeding(); furnitureDragging = true; dragging = false; pointer = int.MinValue; inactive = wander = 0; }
         public void EndFurnitureDrag() { furnitureDragging = false; inactive = wander = 0; }
         public void FurnitureMoved(string id)
         {
-            if (id == "cat-bed" && activity != Activity.Free)
+            if (id == "food-bowls") PresentFood();
+            if (id == "cat-bed" && (activity == Activity.GoingToBed || IsSleeping))
             {
                 target = BedDestination();
                 if (IsSleeping) feet = target;
@@ -178,6 +181,7 @@ namespace FishSocial.Desktop
         public void SetLayoutOwner(string owner)
         {
             if (layoutOwner == owner) return;
+            CancelAnimation();
             CancelPropDrags(); layoutOwner = owner; activity = Activity.Free; feet = target = new Vector2(835, 742);
             var data = Resources.Load<TextAsset>(ResourceRoot + "manifest");
             foreach (var p in JsonUtility.FromJson<Manifest>(data.text).placements)
@@ -265,6 +269,7 @@ namespace FishSocial.Desktop
         }
         public void SetPageOpen(bool value)
         {
+            if (value) CancelAnimation();
             CancelPropDrags();
             pageOpen=value;dragging=false;pointer=int.MinValue;target=feet;inactive=wander=feedback=0;
             actor.gameObject.SetActive(!value);equipment.gameObject.SetActive(!value);aquarium.gameObject.SetActive(!value);
@@ -276,7 +281,7 @@ namespace FishSocial.Desktop
         }
         void RefreshSkin()
         {
-            var id=PetArtLoader.CurrentOwnPetId();if(id==skin)return;skin=id;
+            var id=PetArtLoader.CurrentOwnPetId();if(id==skin)return;CancelAnimation();skin=id;
             sleepingPose = Resources.Load<Sprite>(ResourceRoot + "poses/" + id + "-sleep");
             standing=Resources.Load<Texture2D>(ResourceRoot+"cat-standing");seated=Resources.Load<Texture2D>(ResourceRoot+"cat-sitting");
             mappedRest=id=="orange"?null:Resources.Load<Sprite>(CozyJournalTheme.ResourceRoot+"characters/"+id+"/rest");
@@ -284,35 +289,52 @@ namespace FishSocial.Desktop
         }
         public void MoveTo(Vector2 position, bool immediate=false)
         {
-            if(pageOpen)return;activity=Activity.Free;target=ClampFeet(position);inactive=wander=0;sitting=false;
+            if(pageOpen)return;
+            if (activity != Activity.Free || sitting || immediate) CancelAnimation();
+            activity=Activity.Free;target=ClampFeet(position);inactive=wander=0;sitting=false;
             if(immediate||CozyMotion.Reduced)feet=target;Present();
         }
-        public void Sit() { activity=Activity.Free;target=feet;sitting=true;inactive=wander=0;Present(); }
+        public void Sit() { CancelAnimation(); activity=Activity.Free;target=feet;sitting=true;inactive=wander=0;Present(); }
         public void Respond()
         {
+            if (!CanInteract) return;
+            CancelAnimation();
             DesktopAudioService.PlayMeow();
             if (activity != Activity.Free) { activity=Activity.Free; target=ClampFeet(feet); }
             inactive=wander=0;sitting=false;feedback=1.6f;bubble.text="喵～一起待一会儿";
+            var roll = CozyHomeAnimation.Find(skin, "pet-roll");
+            if (!CozyMotion.Reduced && roll != null) { activity = Activity.Rolling; target = feet; PlayAnimation(roll); }
             bubble.transform.parent.gameObject.SetActive(true);Present();
         }
         public void Advance(float delta)
         {
-            if(delta<=0||!isActiveAndEnabled||pageOpen||!focused||CozyMotion.Paused)return;
-            RefreshSkin();inactive+=delta;wander+=delta;feedback=Mathf.Max(0,feedback-delta);
+            if(delta<=0||float.IsNaN(delta)||float.IsInfinity(delta)||!isActiveAndEnabled||pageOpen||!focused)return;
+            if (CozyMotion.Paused) { CancelAnimation(); Present(); return; }
+            RefreshSkin();
+            while (delta > 0)
+            {
+                var step = Mathf.Min(delta, 1f / 24f);
+                AdvanceRoom(step); delta -= step;
+            }
+            Present();
+        }
+        void AdvanceRoom(float delta)
+        {
+            inactive+=delta;wander+=delta;feedback=Mathf.Max(0,feedback-delta);
             bubble.transform.parent.gameObject.SetActive(feedback>0);
-            if (activity != Activity.Free)
+            if (AdvanceInteraction(delta)) return;
+            if (activity == Activity.GoingToBed || IsSleeping)
             {
                 target = BedDestination();
-                if (!furnitureDragging) feet = CozyMotion.Reduced ? target : Vector2.MoveTowards(feet, target, 210 * delta);
-                if ((feet-target).sqrMagnitude < .01f) activity = Activity.Sleeping;
+                if (!furnitureDragging && !IsSleeping) AdvanceLocomotion(delta, 210);
+                if ((feet-target).sqrMagnitude < .01f) { activity = Activity.Sleeping; animationClip = null; }
             }
             else if(!dragging && !furnitureDragging)
             {
-                feet=CozyMotion.Reduced?target:Vector2.MoveTowards(feet,target,180*delta);
-                if(inactive>=30) {if(!sitting)Sit();inactive=30;}
+                AdvanceLocomotion(delta, 180);
+                if(inactive>=29.999f) {if(!sitting)Sit();inactive=30;}
                 else if(wander>=12&&!CozyMotion.Reduced&&!sitting) {target=ClampFeet(new Vector2(UnityEngine.Random.Range(620,1030),UnityEngine.Random.Range(710,765)));wander=0;}
             }
-            Present();
         }
         void Present()
         {
@@ -338,7 +360,8 @@ namespace FishSocial.Desktop
                 artwork.uvRect = new Rect(0,0,1,1);
             }
             actor.sizeDelta=size;actor.anchoredPosition=new Vector2(feet.x-size.x/2,-feet.y+size.y);
-            actor.localEulerAngles=new Vector3(0,0,feedback>0&&!CozyMotion.Reduced?Mathf.Sin(feedback*16)*3:0);
+            if (animationClip != null && !IsSleeping && !sitting) PresentAnimation();
+            actor.localEulerAngles=new Vector3(0,0,animationClip==null&&feedback>0&&!CozyMotion.Reduced?Mathf.Sin(feedback*16)*3:0);
             ((RectTransform)bubble.transform.parent).anchoredPosition=new Vector2(feet.x-120,-feet.y+size.y+60);
             if (bedFront != null)
             {
@@ -352,6 +375,7 @@ namespace FishSocial.Desktop
                     bedFront.uvRect = new Rect(0,0,1,.35f);
                 }
             }
+            PresentFood();
         }
         public Vector2 PointerPosition(PointerEventData e)
         {
@@ -361,7 +385,7 @@ namespace FishSocial.Desktop
         public void OnPointerClick(PointerEventData e)
         { if(!CanInteract||e.button!=PointerEventData.InputButton.Left||e.dragging)return;if(ActorHit(e))Respond();else MoveTo(PointerPosition(e)); }
         public void OnBeginDrag(PointerEventData e)
-        {if(!CanInteract||e.button!=PointerEventData.InputButton.Left||!ActorHit(e))return;activity=Activity.Free;dragging=true;pointer=e.pointerId;dragOffset=feet-PointerPosition(e);inactive=wander=0;sitting=false;}
+        {if(!CanInteract||e.button!=PointerEventData.InputButton.Left||!ActorHit(e))return;CancelAnimation();activity=Activity.Free;dragging=true;pointer=e.pointerId;dragOffset=feet-PointerPosition(e);inactive=wander=0;sitting=false;}
         public void OnDrag(PointerEventData e)
         {if(!CanInteract||!dragging||pointer!=e.pointerId)return;feet=target=ClampFeet(PointerPosition(e)+dragOffset);Present();}
         public void OnEndDrag(PointerEventData e) {if(pointer!=e.pointerId)return;dragging=false;pointer=int.MinValue;target=feet;}
@@ -370,7 +394,7 @@ namespace FishSocial.Desktop
             if (CanInteract && !InputFieldFocused())
             {
                 var d=new Vector2(Input.GetKey(KeyCode.RightArrow)?1:Input.GetKey(KeyCode.LeftArrow)?-1:0,Input.GetKey(KeyCode.DownArrow)?1:Input.GetKey(KeyCode.UpArrow)?-1:0);
-                if(d!=Vector2.zero)MoveTo(feet+d.normalized*180*Time.unscaledDeltaTime,true);
+                if(d!=Vector2.zero)MoveTo(feet+d.normalized*60);
                 if(Input.GetKeyDown(KeyCode.Home))MoveTo(new Vector2(835,742));if(Input.GetKeyDown(KeyCode.R))Sit();
             }
             Advance(Time.unscaledDeltaTime);
@@ -382,8 +406,9 @@ namespace FishSocial.Desktop
             var selected = events.currentSelectedGameObject;
             return selected != null && selected.GetComponent<InputField>() != null;
         }
-        void OnApplicationFocus(bool value){focused=value;if(!value){CancelPropDrags();dragging=false;pointer=int.MinValue;target=feet;}}
+        void OnApplicationFocus(bool value){focused=value;if(!value){CancelAnimation();CancelPropDrags();dragging=false;pointer=int.MinValue;target=feet;Present();}}
+        void OnApplicationPause(bool value){if(value){CancelAnimation();CancelPropDrags();dragging=false;pointer=int.MinValue;target=feet;Present();}}
         void OnEnable(){if(actor!=null){RefreshSkin();Present();}}
-        void OnDisable(){CancelPropDrags();dragging=false;pointer=int.MinValue;target=feet;}
+        void OnDisable(){CancelAnimation();CancelPropDrags();dragging=false;pointer=int.MinValue;target=feet;}
     }
 }

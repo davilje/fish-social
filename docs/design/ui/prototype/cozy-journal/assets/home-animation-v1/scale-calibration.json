@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "method": "Manual head-width calibration per source sheet; no per-frame silhouette fitting or runtime scaling.",
+  "baseScale": 0.62,
+  "sheets": {
+    "orange-eat-right-00": {"referenceHeadWidthPx": 270, "sourceHeadWidthPx": 270, "referenceFrame": 3, "landmark": "Outer cheek silhouette, excluding whiskers; reference source x=1067..1337"},
+    "orange-eat-right-04": {"referenceHeadWidthPx": 270, "sourceHeadWidthPx": 283, "landmark": "First cell outer cheek silhouette, source x=388..671"},
+    "orange-eat-right-08": {"referenceHeadWidthPx": 270, "sourceHeadWidthPx": 308, "landmark": "First cell outer cheek silhouette, source x=392..700"},
+    "orange-eat-right-12": {"referenceHeadWidthPx": 270, "sourceHeadWidthPx": 289, "landmark": "First cell head silhouette excluding whiskers, source x=362..651"},
+    "orange-eat-left-00": {"referenceHeadWidthPx": 265, "sourceHeadWidthPx": 265, "referenceFrame": 3, "landmark": "Low-head reference cheek silhouette; source x=801..1066"},
+    "orange-eat-left-04": {"referenceHeadWidthPx": 265, "sourceHeadWidthPx": 252, "apply": false, "landmark": "First cell cheek silhouette, source x=141..393; pose differences rather than whole-body enlargement, retain original scale after silhouette comparison"},
+    "orange-eat-left-08": {"referenceHeadWidthPx": 265, "sourceHeadWidthPx": 262, "apply": false, "landmark": "First cell cheek silhouette, source x=132..394; within drawing variation, retain original scale"},
+    "orange-eat-left-12": {"referenceHeadWidthPx": 265, "sourceHeadWidthPx": 289, "landmark": "First cell head silhouette excluding whiskers, source x=169..458"}
+  }
+}

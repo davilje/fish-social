@@ -37,7 +37,7 @@ namespace FishSocial.Desktop
                 case "PanelGallery":
                     Regions(root,"DesignSpeciesHeading","GalleryAside","Status","Grid"); break;
                 case "PanelCatch":
-                    var bag = Regions(root,"Reflow_BagHeading",null,"Status","Grid");
+                    var bag = Regions(root,"Reflow_BagHeading",null,"Status","Grid","BagItemsEmpty");
                     AsideParts(root,bag,984); break;
                 case "PanelProfileEdit":
                     var edit = Regions(root,"JournalEditHeading",null,"Status",

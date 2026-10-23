@@ -21,7 +21,6 @@ namespace FishSocial.Desktop.Editor
                     InlineAction(t,"Sell",false,true);
                     InlineAction(t,"Return",false,false);
                     InlineAction(t,"Share",false,false);
-                    InlineAction(t,"EquipItem",false,true);
                     break;
                 case "ShopItemCard":
                     var meta = t.Find("Meta")?.GetComponent<Text>();
@@ -64,7 +63,8 @@ namespace FishSocial.Desktop.Editor
                 icon = Picture(button,"Icon",miniFish,0,0,30,22);
             var size = fish ? new Vector2(30,22) : new Vector2(28,28);
             var component = button.GetComponent<CozyJournalInlineContent>() ?? button.gameObject.AddComponent<CozyJournalInlineContent>();
-            component.ConfigureCentered(button,label,icon,size,10,12,prefix,fish ? miniFish : null);
+            var inset = root.name == "PanelCatch" && (path == "Return" || path == "Share") ? 4 : 12;
+            component.ConfigureCentered(button,label,icon,size,10,inset,prefix,fish ? miniFish : null);
         }
     }
 }

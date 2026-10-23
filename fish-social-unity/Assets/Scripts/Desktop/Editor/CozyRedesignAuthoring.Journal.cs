@@ -506,7 +506,11 @@ namespace FishSocial.Desktop.Editor
             node.Find("DesignCategoryFish").GetComponent<Button>().interactable = true;
             ButtonAt(node, "DesignCategoryItems", "道具", "bag", 34, 212, 190, 76);
             Place(node, "DesignBagNote", 44, 320, 170, 142);
-            ButtonAt(node, "EquipItem", "装备", "rod", 1008, 498, 314, 46, true).gameObject.SetActive(false);
+            var obsolete = node.Find("EquipItem");
+            if (obsolete != null) UnityEngine.Object.DestroyImmediate(obsolete.gameObject);
+            Label(node, "BagItemsEmpty", "道具袋空空的，小猫在里面睡着了。", 254, 320, 1092, 100, 22)
+                .alignment = TextAnchor.MiddleCenter;
+            node.Find("BagItemsEmpty").gameObject.SetActive(false);
         }
 
         static void JournalLeaderboard(GameObject root)

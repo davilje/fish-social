@@ -31,6 +31,14 @@ namespace FishSocial.Desktop.Editor
                 Render("PanelSocial", section);
         }
 
+        public static void RenderInventoryComments()
+        {
+            Directory.CreateDirectory("Library/CozyRedesignPreviews");
+            Render("PanelCatch");
+            Render("PanelCatch", "道具");
+            Render("PanelSocialFeed", "留言输入");
+        }
+
         public static void RenderWorkspace()
         {
             Directory.CreateDirectory("Library/CozyRedesignPreviews");
@@ -143,6 +151,17 @@ namespace FishSocial.Desktop.Editor
                     var inventory=new FishSocial.Desktop.Auth.FishInventoryItemDto[ids.Length];
                     for(var i=0;i<ids.Length;i++) inventory[i]=new FishSocial.Desktop.Auth.FishInventoryItemDto {id="workspace-fish-"+i,speciesId=ids[i],sizeM=sizes[i],quality=i==0?"red":"purple",caughtAt=1792654938000-i*660000,pondId="pond-calm"};
                     composer.GetComponent<DesktopSocialComposeModal>().PresentPreview(inventory,"小橘","/image/profile/cat_avatar_orange.png","锦鲤真的来了！这份好运，分给今天在湖边的每一位钓友。");
+                }
+                if (name == "PanelCatch" && tab == "道具")
+                {
+                    var bag = page.GetComponent<DesktopCatchBagModalView>();
+                    bag.Bind(null, null);
+                    page.transform.Find("DesignCategoryItems").GetComponent<Button>().onClick.Invoke();
+                }
+                if (name == "PanelSocialFeed" && tab == "留言输入")
+                {
+                    var input = page.transform.Find("DesignFeedInfo/CommentsHost/CommentsPanel/CommentInput")?.GetComponent<InputField>();
+                    if (input != null) input.text = "好漂亮的鱼，下次一起钓！";
                 }
                 CatTheme.SkinTree(shell.transform);
                 var bindings = new System.Text.StringBuilder();

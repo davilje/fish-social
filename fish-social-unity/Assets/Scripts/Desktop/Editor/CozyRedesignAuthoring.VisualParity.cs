@@ -188,6 +188,24 @@ namespace FishSocial.Desktop.Editor
             t.Find(artPath)?.SetAsLastSibling(); t.Find(namePath)?.SetAsLastSibling(); strip.transform.SetAsLastSibling();
         }
 
+        [UnityEditor.MenuItem("Fish Social/Cozy Redesign/Repair Inventory Details")]
+        public static void RepairInventoryDetails()
+        {
+            var path = Folder + "PanelCatch.prefab";
+            var root = UnityEditor.PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                JournalInventory(root);
+                WebBag(root.transform);
+                ApplyInlineParity(root);
+                ApplyPageMotionParity(root);
+                Record(root);
+                SaveJournalPrefab(root, path);
+            }
+            finally { UnityEditor.PrefabUtility.UnloadPrefabContents(root); }
+            UnityEditor.AssetDatabase.SaveAssets();
+        }
+
         static void WebBag(Transform t)
         {
             WebGrid(t,"Grid","Grid/Viewport/Slots",4);
@@ -206,11 +224,12 @@ namespace FishSocial.Desktop.Editor
             frame.transform.SetSiblingIndex(t.Find("Reflow_CatchDetails").GetSiblingIndex()+1);
             back.transform.SetSiblingIndex(frame.transform.GetSiblingIndex()+1);
             t.Find("DesignArt").SetAsLastSibling();t.Find("DesignName").SetAsLastSibling();strip.transform.SetAsLastSibling();
-            DetailRows(t,"DetailRows",1008,426,314,5,20);
+            DetailRows(t,"DetailRows",1008,418,314,5,20);
             foreach(var label in t.Find("DetailRows").GetComponentsInChildren<Text>(true)) label.fontSize=14;
-            WebText(t,"Detail",1008,426,314,86,16,TextAnchor.UpperLeft);
-            Place(t,"Sell",1002,532,142,58); Place(t,"Return",1154,532,82,58);Place(t,"Share",1246,532,82,58);
-            foreach(var name in new[]{"Sell","Return","Share"}) WebText(t,name+"/Label",0,0,name=="Sell"?142:82,58,20,TextAnchor.MiddleCenter);
+            WebText(t,"Detail",1008,418,314,100,16,TextAnchor.UpperLeft);
+            // Keep the web primary action's 204 x 58 silhouette. Extra native actions fit beside it.
+            Place(t,"Sell",1002,532,204,58); Place(t,"Return",1216,532,51,58);Place(t,"Share",1277,532,51,58);
+            foreach(var name in new[]{"Sell","Return","Share"}) WebText(t,name+"/Label",0,0,name=="Sell"?204:51,58,name=="Sell"?23:18,TextAnchor.MiddleCenter);
             Hide(t,"Return/Icon","Share/Icon");
         }
 

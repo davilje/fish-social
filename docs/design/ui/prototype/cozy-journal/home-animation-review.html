@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小屋动作预览 · 猫咪钓鱼手账</title>
+  <link rel="stylesheet" href="home-animation-review.css">
+</head>
+<body>
+  <header class="heading">
+    <div><span class="eyebrow">HOME · ANIMATION STUDIES</span><h1>小屋动作预览 <span>素材审阅</span></h1>
+      <p>先看橘猫与公共素材，再逐一展开其他猫咪。待验收动作仅在这里预览。</p></div>
+    <div class="header-actions"><button id="reload" type="button">刷新素材</button><button id="close" type="button" aria-label="关闭动作预览">关闭 ×</button></div>
+  </header>
+  <section class="review-banner" aria-label="当前制作与接入状态">
+    <strong>首版待验收</strong><span>逐帧接触锚点待标定</span><span>橘猫已接入 Unity</span><span>其余 8 猫待制作</span>
+    <p>当前仅审阅首版姿态与连续性；数值锚点不代表接触关系已验收，重建素材后请刷新。</p>
+  </section>
+  <div class="workspace">
+    <aside class="sidebar">
+      <span class="eyebrow">01 / 选择素材</span>
+      <label for="skin">猫咪 / 公共素材</label><select id="skin"></select>
+      <label for="action">动作</label><select id="action"></select>
+      <label for="direction">方向</label><select id="direction"></select>
+      <div class="review-note"><strong>首套验收</strong><p>检查动作连续性、固定注册点与透明边缘。其他八猫待首套通过后制作。</p></div>
+      <span id="clip-status" class="badge">等待素材</span>
+      <dl id="metadata"></dl>
+      <p class="small-note">注册点不随帧图边界移动。预览不自动裁切，也不镜像生成另一方向。</p>
+    </aside>
+    <main>
+      <div class="stage-toolbar"><span class="eyebrow">02 / 逐帧检查</span><div>
+        <label>底色 <select id="background"><option value="paper">米白</option><option value="dark">深色</option></select></label>
+        <label>显示 <select id="zoom"><option value="1">1×</option><option value="2">2×</option></select></label>
+        <label class="check"><input id="anchors" type="checkbox" checked>锚点</label>
+      </div></div>
+      <div id="stage" class="stage" data-background="paper">
+        <div id="canvas" class="canvas" hidden><img id="art" alt="" draggable="false" hidden>
+          <div id="registration" class="anchor registration" hidden><span>注册点</span></div>
+          <div id="mouth" class="anchor mouth" hidden><span>嘴部</span></div>
+        </div>
+        <div id="empty" class="empty"><span class="empty-mark">…</span><strong>正在读取素材清单</strong><p>请稍候</p></div>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite">正在加载…</div>
+      <section class="transport" aria-label="播放控制">
+        <div class="transport-row"><div class="play-buttons">
+          <button id="previous" type="button" aria-label="上一帧">← 上一帧</button>
+          <button id="play" type="button" class="primary">播放</button>
+          <button id="next" type="button" aria-label="下一帧">下一帧 →</button>
+        </div><div class="play-options">
+          <label>速度 <select id="speed"><option value="1">1×</option><option value="2">2×</option></select></label>
+          <label class="check"><input id="loop" type="checkbox" checked>循环</label>
+        </div></div>
+        <label class="scrub"><span id="frame-label">帧 — / —</span><input id="scrubber" aria-label="选择帧" type="range" min="0" max="0" value="0"><span id="duration">— ms</span></label>
+        <div id="frame-list" class="frame-list" aria-label="帧列表"></div>
+        <div class="file-row"><code id="filename">尚未选择帧</code><a id="download" aria-disabled="true">下载此帧 PNG ↓</a></div>
+        <p id="loop-note" class="small-note">空格播放 / 暂停 · ← → 逐帧 · Esc 关闭</p>
+      </section>
+    </main>
+  </div>
+  <script src="home-animation-review.js"></script>
+</body>
+</html>
