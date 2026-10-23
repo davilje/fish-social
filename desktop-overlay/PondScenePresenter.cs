@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -39,6 +40,9 @@ namespace FishSocialOverlay
         string _predictedSpotId;
         long _predictedUntilMs;
         bool _disposed;
+        CancellationTokenSource _artLoad = new CancellationTokenSource();
+        int _artVersion;
+        internal bool BackgroundPending { get; private set; }
         string _spotGeometry;
         readonly Dictionary<string, OverlayActorChrome> _chromeBySpot = new Dictionary<string, OverlayActorChrome>();
         OverlayActorChrome ActorChrome(string spotId)
@@ -247,6 +251,10 @@ namespace FishSocialOverlay
             var pondChanged = !string.Equals(pondId, _pondId, StringComparison.Ordinal);
             if (pondChanged)
             {
+                _artLoad.Cancel();
+                _artLoad.Dispose();
+                _artLoad = new CancellationTokenSource();
+                _artVersion++;
                 _chromeBySpot.Clear();
                 ClearSpots();
                 ClearOthers();
@@ -445,7 +453,7 @@ namespace FishSocialOverlay
             UpdateSpotStates(message);
         }
 
-        void PlaceSpotMarker(
+        async void PlaceSpotMarker(
             string spotId,
             double x,
             double y,
@@ -470,8 +478,15 @@ namespace FishSocialOverlay
             Canvas.SetLeft(marker, left);
             Canvas.SetTop(marker, top);
 
-            var seatArt = OverlaySeatArt.TryLoad(pondId, layoutSpot, layoutSeat, out var usedFallback);
-            marker.SetSeatArt(seatArt, usedFallback);
+            var version = _artVersion;
+            var token = _artLoad.Token;
+            try
+            {
+                var seatArt = await OverlaySeatArt.LoadAsync(pondId, layoutSpot, layoutSeat, token);
+                if (_disposed || version != _artVersion || !_spotVisuals.TryGetValue(spotId, out var current) || !ReferenceEquals(current, marker)) return;
+                marker.SetSeatArt(seatArt, seatArt == null);
+            }
+            catch (OperationCanceledException) { }
         }
 
         static bool IsGroundbaitActive(IpcMessage message)
@@ -661,6 +676,10 @@ namespace FishSocialOverlay
         {
             if (_disposed) return;
             _disposed = true;
+            _artVersion++;
+            BackgroundPending = false;
+            _artLoad.Cancel();
+            _artLoad.Dispose();
             ClearOthers();
             ClearSpots();
             ClearDecor();
@@ -677,7 +696,7 @@ namespace FishSocialOverlay
                 _decorLayer.Children.Clear();
         }
 
-        void ApplyLayoutSprites()
+        async void ApplyLayoutSprites()
         {
             ClearDecor();
             if (!_layout.IsActive || _decorLayer == null)
@@ -692,18 +711,22 @@ namespace FishSocialOverlay
                 var bz = b == null ? 0 : b.z;
                 return az.CompareTo(bz);
             });
-            foreach (var sprite in sprites)
+            var version = _artVersion;
+            var token = _artLoad.Token;
+            try
             {
-                if (IsLegacyFullCanvasPond(sprite))
-                    continue;
-                var image = _layout.CreateSpriteImage(sprite, resources);
-                if (image != null)
-                    _decorLayer.Children.Add(image);
+                // Publish the static decoration group together, in saved z-order.
+                var images = new List<Image>();
+                foreach (var sprite in sprites)
+                {
+                    if (IsLegacyFullCanvasPond(sprite)) continue;
+                    var image = await _layout.CreateSpriteImageAsync(sprite, resources, token);
+                    if (image != null) images.Add(image);
+                }
+                if (_disposed || version != _artVersion) return;
+                foreach (var image in images) _decorLayer.Children.Add(image);
             }
-
-            _grass.Visibility = Visibility.Collapsed;
-            _shore.Visibility = Visibility.Collapsed;
-            _water.Visibility = Visibility.Collapsed;
+            catch (OperationCanceledException) { }
         }
 
         static bool IsLegacyFullCanvasPond(OverlayLayoutObjectDto item)
@@ -781,29 +804,46 @@ namespace FishSocialOverlay
             _spotVisuals.Clear();
         }
 
-        void TryLoadPondBackground(string pondId)
+        async void TryLoadPondBackground(string pondId)
         {
-            var root = AppDomain.CurrentDomain.BaseDirectory;
-            var resources = System.IO.Path.Combine(root, "OverlayResources");
-            var path = PondBackgroundResources.Resolve(resources, pondId, _layout.BackgroundSprite);
-            if (string.IsNullOrEmpty(path))
+            var version = _artVersion;
+            var token = _artLoad.Token;
+            var resources = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
+            var sprite = _layout.BackgroundSprite;
+            BackgroundPending = true;
+            // Do not show the previous pond beneath the new pond's seats and actors.
+            _backgroundImage.Source = null;
+            _backgroundImage.Visibility = Visibility.Collapsed;
+            _grass.Visibility = Visibility.Visible;
+            _shore.Visibility = Visibility.Visible;
+            _water.Visibility = Visibility.Visible;
+            try
             {
-                _backgroundImage.Source = null;
-                _backgroundImage.Visibility = Visibility.Collapsed;
-                _grass.Visibility = Visibility.Visible;
-                _shore.Visibility = Visibility.Visible;
-                _water.Visibility = Visibility.Visible;
-                return;
+                var path = await OverlayStaticArt.ResolveAsync(() => PondBackgroundResources.Resolve(resources, pondId, sprite), token);
+                var art = await OverlayStaticArt.LoadAsync(path, true, token);
+                if (_disposed || version != _artVersion || art?.Bitmap == null) return;
+                // Alpha map was registered before Source becomes hittable.
+                _backgroundImage.Source = art.Bitmap;
+                _backgroundImage.Visibility = Visibility.Visible;
+                _grass.Visibility = Visibility.Collapsed;
+                _shore.Visibility = Visibility.Collapsed;
+                _water.Visibility = Visibility.Collapsed;
+                var oldWidth = ContentWidth;
+                var oldHeight = ContentHeight;
+                ApplyBackgroundArtSizeToLayout();
+                RefreshContentSize(notify: false);
+                if (_lastMessage != null && string.Equals(_lastMessage.PondId ?? string.Empty, pondId, StringComparison.Ordinal) &&
+                    (oldWidth != ContentWidth || oldHeight != ContentHeight))
+                {
+                    _chromeBySpot.Clear();
+                    SyncSpots(_lastMessage);
+                    ApplyOwnActor(_lastMessage);
+                    if (_lastMessage.Users != null) SyncOthers(_lastMessage);
+                    UpdateActorVisibility();
+                }
             }
-
-            _backgroundImage.Source = LoadBitmap(path);
-            _backgroundImage.Stretch = Stretch.Fill;
-            _backgroundImage.Width = ContentWidth;
-            _backgroundImage.Height = ContentHeight;
-            _backgroundImage.Visibility = Visibility.Visible;
-            _grass.Visibility = Visibility.Collapsed;
-            _shore.Visibility = Visibility.Collapsed;
-            _water.Visibility = Visibility.Collapsed;
+            catch (OperationCanceledException) { }
+            finally { if (version == _artVersion) BackgroundPending = false; }
         }
 
         static bool TryFindSpot(
@@ -831,17 +871,6 @@ namespace FishSocialOverlay
             var col = index % 6;
             var row = index / 6;
             return new Point(96 + col * 140, 72 + row * 44);
-        }
-
-        static BitmapImage LoadBitmap(string path)
-        {
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            image.UriSource = new Uri(path);
-            image.EndInit();
-            image.Freeze();
-            return image;
         }
 
         static Point MapToScene(float worldX, float worldY, OverlaySpotDto[] spots)

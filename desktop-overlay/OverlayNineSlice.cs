@@ -18,10 +18,17 @@ namespace FishSocialOverlay
     /// </summary>
     internal static class OverlayNineSlice
     {
-        static readonly Dictionary<string, BitmapSource> RenderCache =
-            new Dictionary<string, BitmapSource>(StringComparer.Ordinal);
-        static readonly Dictionary<string, ImageBrush> BrushCache =
-            new Dictionary<string, ImageBrush>(StringComparer.Ordinal);
+        sealed class Surface
+        {
+            public BitmapSource Bitmap;
+            public ImageBrush Brush;
+        }
+        sealed class SourceId { public long Value; }
+        static long _nextId;
+        static readonly ConditionalWeakTable<BitmapSource, SourceId> SourceIds = new ConditionalWeakTable<BitmapSource, SourceId>();
+        static readonly OverlayResourceCache<Surface> Cache = new OverlayResourceCache<Surface>(16L * 1024 * 1024);
+        internal static long CachedBytes => Cache.ResidentBytes;
+        internal static int CachedCount => Cache.Count;
 
         public static bool IsValid(int[] sliceBorder)
         {
@@ -39,8 +46,8 @@ namespace FishSocialOverlay
             var key = MakeKey(source, sliceBorder, targetWidth, targetHeight);
             if (string.IsNullOrEmpty(key))
                 return null;
-            if (BrushCache.TryGetValue(key, out var cached))
-                return cached;
+            if (Cache.TryGet(key, out var cached) && cached.Brush != null)
+                return cached.Brush;
 
             var bitmap = TryRender(source, sliceBorder, targetWidth, targetHeight);
             if (bitmap == null)
@@ -52,7 +59,7 @@ namespace FishSocialOverlay
                 TileMode = TileMode.None,
             };
             brush.Freeze();
-            BrushCache[key] = brush;
+            if (Cache.TryGet(key, out var surface)) surface.Brush = brush;
             return brush;
         }
 
@@ -65,8 +72,8 @@ namespace FishSocialOverlay
             var key = MakeKey(source, sliceBorder, targetWidth, targetHeight);
             if (string.IsNullOrEmpty(key))
                 return null;
-            if (RenderCache.TryGetValue(key, out var cached))
-                return cached;
+            if (Cache.TryGet(key, out var cached))
+                return cached.Bitmap;
 
             try
             {
@@ -82,7 +89,7 @@ namespace FishSocialOverlay
                 var rtb = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
                 rtb.Render(grid);
                 rtb.Freeze();
-                RenderCache[key] = rtb;
+                Cache.Add(key, key, new Surface { Bitmap = rtb }, (long)width * height * 4 + 256);
                 return rtb;
             }
             catch
@@ -118,7 +125,7 @@ namespace FishSocialOverlay
 
             var width = Math.Max(1, (int)Math.Round(targetWidth));
             var height = Math.Max(1, (int)Math.Round(targetHeight));
-            return RuntimeHelpers.GetHashCode(source) + ":" +
+            return SourceIds.GetValue(source, _ => new SourceId { Value = ++_nextId }).Value + ":" +
                    source.PixelWidth + "x" + source.PixelHeight + ":" +
                    sliceBorder[0] + "," + sliceBorder[1] + "," + sliceBorder[2] + "," + sliceBorder[3] +
                    ":" + width + "x" + height;

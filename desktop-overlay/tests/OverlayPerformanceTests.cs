@@ -34,6 +34,13 @@ public static class OverlayPerformanceTests
         Run("async decoding shares frozen results and rejects stale actors", AsyncFrames);
         Run("hidden actors resume terminal animation chains", HiddenAnimation);
         Run("viewport changes preserve pan limits", ViewportPan);
+        Run("static alpha extraction is exact and prepared before display", OverlayStaticPerformanceTests.AlphaExtraction);
+        Run("static decoding shares warm results and balances cancellation", OverlayStaticPerformanceTests.SharedStaticLoads);
+        Run("static image cache evicts under real decoded pixel pressure", OverlayStaticPerformanceTests.StaticCacheBudget);
+        Run("pond switch and disposal reject stale static art", OverlayStaticPerformanceTests.SceneCancellation);
+        Run("async decoration preserves geometry and z-order", OverlayStaticPerformanceTests.DecorationGeometry);
+        Run("nine-slice eviction bounds cache and preserves live brushes", OverlayStaticPerformanceTests.NineSliceBudget);
+        Run("combined and dual masks preserve rendered alpha", OverlayStaticPerformanceTests.MaskParity);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();
     }

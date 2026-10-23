@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-23",
+  "requirement": "STEAM-DESKTOP-21",
+  "batch": 3,
+  "status": "implemented_windows_acceptance_pending",
+  "execution_host": "macOS",
+  "executed": {
+    "static_art_behavior": { "passed": 6, "failed": 0 },
+    "scheduling_behavior": { "passed": 10, "failed": 0 },
+    "cache_behavior": { "passed": 8, "failed": 0 },
+    "python_source_resource_regression": { "passed": 48, "failed": 0 },
+    "wpf_cross_build": { "errors": 0, "warnings": 5, "warning_code": "NETSDK1138" }
+  },
+  "windows_native": { "compiled_groups": 18, "executed": false },
+  "cache_payload_budgets_bytes": { "static_art": 50331648, "nine_slice": 16777216 },
+  "combined_mask_default_enabled": false,
+  "render_callback_profile_default_enabled": false,
+  "runtime_performance_measured": false,
+  "installed_game_executable_replaced": false,
+  "pending": ["Windows native tests", "30 pond transitions", "DPI and click-through acceptance", "CPU/memory/frame-time A/B", "combined mask rendered parity", "live multiplayer acceptance"]
+}

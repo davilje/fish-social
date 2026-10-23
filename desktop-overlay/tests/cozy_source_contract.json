@@ -169,11 +169,11 @@
     "OverlayPromptConfirm_OnClick": "f15f62496023906e85bd2d387655b6c36de1eff430d93c9f5112c424650072ca",
     "PoliceDebug_OnClick": "dc332bafb6b58eba9ed5df191dea5b51563785fc3bd46a777a90dc4af6f29243",
     "PondScene_OnMouseLeave": "d0231fab0cb3bc1567c0013646ff130a4bbd3dd0649bb2146a4a5d4cc53a141c",
-    "PondScene_OnMouseLeftButtonDown": "777bc7b644e65ec7a72791d84e2909b58b9de018592c4b46fa96eda075405966",
+    "PondScene_OnMouseLeftButtonDown": "18d675cd5cef2148d14ed0aa537ed875e39021efc2c2ff5998f182991efac7c1",
     "PondScene_OnMouseLeftButtonUp": "2e7f642dd6607db1921d4f21f436aa57a3a3ce6282f70c5dadc899e9066e5f58",
     "PondScene_OnMouseMove": "1441a89136398385af73a26e4b577f03c719e68ef066d611fbaa7159214c3eac",
     "PondScene_PreviewMouseRightButtonDown": "7c2a123d301b730e58fc57681535e622424cbfe58e001e9ce5932f103e5f974f",
-    "PondScene_PreviewMouseRightButtonUp": "72c826edc701ebbceb8930c0d0a3db60669dac3b62ed4804100f8f918ac5d5c2",
+    "PondScene_PreviewMouseRightButtonUp": "62de3f14abb38fcbe8742db512b58f3cd47ef19de1c61eb5eca23f0076ef8464",
     "SendCommand": "80ebee8a1f998400cac4f5ce1518426cc0f008e7121dcd60ad7af7c5c229cd42",
     "SendGameplayDebug": "e2a91018a3a8455d4dc2485097174446e628553da26be03ab92c92f529c6b5f1",
     "SendPlayerCommand": "8825fd54fad1d06cf80dfb723dc7ecee041c8ac7e987a0bdc5d9d33fd9b103ec",
@@ -183,16 +183,12 @@
     "SendOwnAction": "6e29115a74ea50f2f6060380a800b4e90ddf2a5cad89c9c66185668f148fb199"
   },
   "protected_file_sha256": {
-    "App.xaml.cs": "8ffb4c04b3f8b6660a0924677297fb5249fbb596a3917cb5586af7d5ccd71a92",
+    "App.xaml.cs": "04b4246544ff13ed9533271f17e77b8097fec36711c3aeec88f5e55c6181810a",
     "IpcProtocol.cs": "c6cd944a53874874254ee88fef8ab42bc250f929c29c42a6cbae4d323dbf398c",
     "IOverlayPlayerMenuHost.cs": "8fa0a4d67c10351c7da14880a8606f803b818429199fb181576866b2c682f1c3",
     "OverlayInteractionState.cs": "f48b0f6d4c08b8937a0c597b628bee891936b0d1ea36cc268301d73151f464d8",
-    "OverlayPondLayout.cs": "0b35015e044e28f2eaf6ff2227e6c682f1f606ceccd590a3d6b8fcd2065c1e35",
-    "OverlaySeatArt.cs": "f4f9b7a47fd963b180d9fe0a885794eb65d86a37d7e599468c12496f38ecb960",
     "OverlaySpotMarker.cs": "d75be780322379bd8518e73a4fafff16bf82f74f2857bf47e29f1881bd131ac1",
-    "OverlayViewport.cs": "3e0e6d7cfefbccbae223c0bcaf18310a657e78018c42f7ed49599b2fb9a1bdc8",
-    "OverlayEdgeVignette.cs": "1e743d25f8d594205f23f9ce38d27f64d3d95385b9d137ddfc236efc62b9941a",
-    "OverlayNineSlice.cs": "5d62083a092f24700f355eb9ca8f819863691298886d6b2ca9ddf83986125cec"
+    "OverlayViewport.cs": "3e0e6d7cfefbccbae223c0bcaf18310a657e78018c42f7ed49599b2fb9a1bdc8"
   },
   "png_sha256": {
     "OverlayResources/hud/cozy/brand/meow-fish.png": "0a585bb91dacafe4d855f2136dc721d8a423dd0f2c825a1b6bdea31971a76ad7",
@@ -321,11 +317,31 @@
     },
     "PondScenePresenter.cs": {
       "SyncSpots": "b03082c629cd972731d15c6d0fe7c857cca81d5e84a361fa7952497d64b1fa75",
-      "PlaceSpotMarker": "459f3a9b1ed75d8ed98019ee9e767bdb79410ea4d19efbe17e026675f441c479",
       "UpdateSpotStates": "2e4272ee39007e5613b112eac088d7a292b479a0ee343636381cb565e8ff182e",
       "PredictOwnSeat": "44ca69fe23c72decf3cf41c6a2ed896532fa8dab07d3ec08eeb922d36d24a13d",
-      "CancelOwnSeatPrediction": "ae1d7994a351eec16bd1948f1a6f5d7d91ea03afe48788fe5442e1bfdb0d5dbe",
-      "TryLoadPondBackground": "3b9630f2275449ba6a6360305179d4e2d580d743757cb2bd1f751ffa750821a3"
+      "CancelOwnSeatPrediction": "ae1d7994a351eec16bd1948f1a6f5d7d91ea03afe48788fe5442e1bfdb0d5dbe"
+    },
+    "OverlayPondLayout.cs": {
+      "TryLoad": "59fb46a870860e1656425016b483c756100b80fb359759c9a4f88487624c8238",
+      "ResolveRect": "c31fc4a08fcde746f26c1c2bd10072bc5d672e3e6aedb0c5e198111e680e8c15",
+      "CreateSpriteImage": "de0eab4a9331e1326bbe2988d4cf68d2526d42bac7bd169d057d04d8990a3088",
+      "ResolveSpritePath": "642b662494c9f0141eed986c79c41c5d0aaf70e6beb302994da24dae0b4ebc84"
+    },
+    "OverlaySeatArt.cs": {
+      "TryLoad": "cfbccefd6c54f0e63d22bced526882cb7549213830a9393c1e4f64a0b2aa131d",
+      "ResolveSpritePath": "81767f3cac6f4c033c8e3c3ae3a3e02ba883278f0ff84d28b6ee75a564b18ae0"
+    },
+    "OverlayNineSlice.cs": {
+      "Create": "bc9210bfbdc540dec39316ba822ac1a20eb8ab9a85a0167d5e40f62a92f6e2a4",
+      "EnsureStretchableCenter": "3aad8e0d86d1715a77d556b8ec1002bcd9f5bbdf7cd52c182bfce0c6ad1601f4",
+      "DisplayBorder": "82b24a0c5ca91964d9c86510e70b166e2f85c9e0c769a269c4ba9e04f1516479",
+      "Crop": "f1c320aee327145fc44c3b86aec689bcf08fe1c7ded0f05dd79bd5a04f87c01e"
+    },
+    "OverlayEdgeVignette.cs": {
+      "SampleMask": "7be53d9023265b981c9f6d8e3570b43ddb917ae0150371d49e40afeab35dba75",
+      "EdgeAlpha": "e018df6b8f914927a8b28dee5b61b9eee43a69aa439bbfc67837f533a179e077",
+      "CreateVerticalMask": "fd8705c4da727c16632cb17849b75ad4187434231521996dedcf3229bec02e16",
+      "CreateHorizontalMask": "433923f36e351763de25021ccb720fc2f1ef30bf86024fa62cc76aae3851c2e3"
     }
   },
   "2026-10-23_contract_update": {
@@ -347,5 +363,14 @@
     "OverlayFishingLayers.cs:Place": "2ca0c898e79947aa0616653e408de472faf21b44d042da5b1a425fca54b5e323",
     "OverlayFishingLayers.cs:TryOpen": "e86103fb80843dd8c9ff56d164adf1fce2538eec2ed69b3ef4908e0f49763db2",
     "OverlayScenePan.cs": "a1e9d2b7a917d73a3832171e66f6e6d23045db00ddddb36cb232dfed972a6e67"
-  }
+  },
+  "performance_batch3_replaced_by_behavior_tests": {
+    "OverlayPondLayout.cs": "0b35015e044e28f2eaf6ff2227e6c682f1f606ceccd590a3d6b8fcd2065c1e35",
+    "OverlaySeatArt.cs": "f4f9b7a47fd963b180d9fe0a885794eb65d86a37d7e599468c12496f38ecb960",
+    "OverlayNineSlice.cs": "5d62083a092f24700f355eb9ca8f819863691298886d6b2ca9ddf83986125cec",
+    "OverlayEdgeVignette.cs": "1e743d25f8d594205f23f9ce38d27f64d3d95385b9d137ddfc236efc62b9941a",
+    "PondScenePresenter.cs:PlaceSpotMarker": "459f3a9b1ed75d8ed98019ee9e767bdb79410ea4d19efbe17e026675f441c479",
+    "PondScenePresenter.cs:TryLoadPondBackground": "3b9630f2275449ba6a6360305179d4e2d580d743757cb2bd1f751ffa750821a3"
+  },
+  "performance_batch3_audio_baseline_note": "Three pre-audio snapshots refreshed from committed HEAD; source unchanged by batch3, routed audio guarded by test_overlay_performance_batch3.py."
 }

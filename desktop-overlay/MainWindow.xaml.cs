@@ -69,6 +69,7 @@ namespace FishSocialOverlay
         readonly OverlayHudLayout _hudLayout = new OverlayHudLayout();
         OverlayEdgeVignette _edgeVignette;
         OverlayScenePan _scenePan;
+        OverlayRenderDiagnostics _renderDiagnostics;
         bool _hudMenuMode;
         bool _hudLayoutActive;
         bool _hudChatDockMetricsValid;
@@ -285,6 +286,8 @@ namespace FishSocialOverlay
             _scenePan.ViewportChanged += RefreshPresentationViewport;
             IsVisibleChanged += (sender, args) => RefreshPresentationViewport();
             StateChanged += (sender, args) => RefreshPresentationViewport();
+            DpiChanged += (sender, args) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded,
+                new Action(() => _edgeVignette?.ApplySize(_scenePan.ViewportWidth, _scenePan.ViewportHeight)));
             _scenePan.AttachButtons(BtnPanLeft, BtnPanRight);
             ApplyInitialViewport();
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
@@ -305,6 +308,7 @@ namespace FishSocialOverlay
             if (_scenePan == null || _scene == null) return;
             var visible = IsVisible && WindowState != WindowState.Minimized;
             OverlayAnimationClock.SetVisible(visible);
+            _renderDiagnostics?.SetVisible(visible);
             _scene.SetPresentationViewport(new Rect(-_scenePan.OffsetX,
                 Math.Max(0, _scene.ContentHeight - _scenePan.ViewportHeight),
                 _scenePan.ViewportWidth, _scenePan.ViewportHeight), visible);
@@ -390,6 +394,7 @@ namespace FishSocialOverlay
         void OnSceneContentChanged()
         {
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
+            RecenterOwnSeat();
         }
 
         void ApplySceneContentSize(double sceneWidth, double sceneHeight, bool resetPan)
@@ -459,6 +464,9 @@ namespace FishSocialOverlay
 
         void OnSourceInitialized(object sender, EventArgs e)
         {
+            _edgeVignette?.ApplySize(_scenePan.ViewportWidth, _scenePan.ViewportHeight);
+            _renderDiagnostics = new OverlayRenderDiagnostics(this, () => _edgeVignette?.Mode ?? "dual");
+            _renderDiagnostics.SetVisible(IsVisible && WindowState != WindowState.Minimized);
             if (_safeWindow)
                 return;
 
@@ -650,6 +658,11 @@ namespace FishSocialOverlay
                         " pendingDecodes=" + OverlayFishingLayers.PendingDecodes +
                         " rejectedDecodes=" + OverlayFishingLayers.RejectedDecodes +
                         " actorLayouts=" + OverlayPetActor.TotalLayoutPasses +
+                        " staticArtBytes=" + OverlayStaticArt.CachedBytes +
+                        " staticArtDecodes=" + OverlayStaticArt.DecodeCount +
+                        " staticArtPending=" + OverlayStaticArt.PendingCount +
+                        " nineSliceBytes=" + OverlayNineSlice.CachedBytes +
+                        " nineSliceEntries=" + OverlayNineSlice.CachedCount +
                         (ackTrace ?? string.Empty));
                 }
             }
@@ -2579,6 +2592,8 @@ namespace FishSocialOverlay
             _chatAckTimer?.Stop();
             _chatBubbles?.HideAll();
             _scene?.Dispose();
+            _edgeVignette?.Dispose();
+            _renderDiagnostics?.Dispose();
             NamedPipeClientStream pipe;
             lock (_writeLock)
             {

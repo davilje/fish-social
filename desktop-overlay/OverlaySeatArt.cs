@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media;
@@ -13,6 +15,26 @@ namespace FishSocialOverlay
     {
         static readonly Dictionary<string, ImageSource> Cache =
             new Dictionary<string, ImageSource>(StringComparer.OrdinalIgnoreCase);
+
+        public static async Task<ImageSource> LoadAsync(string pondId, OverlayLayoutObjectDto spot,
+            OverlayLayoutObjectDto seat, CancellationToken token)
+        {
+            var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
+            foreach (var sprite in new[] { seat?.sprite, spot?.sprite })
+            {
+                if (string.IsNullOrWhiteSpace(sprite)) continue;
+                var path = await OverlayStaticArt.ResolveAsync(() => ResolveSpritePath(root, sprite), token);
+                var image = await OverlayStaticArt.LoadAsync(path, false, token);
+                if (image?.Bitmap != null) return image.Bitmap;
+            }
+            foreach (var path in new[] { Path.Combine(root, "seats", "_default.png"),
+                string.IsNullOrWhiteSpace(pondId) ? null : Path.Combine(root, "seats", pondId + ".png") })
+            {
+                var image = await OverlayStaticArt.LoadAsync(path, false, token);
+                if (image?.Bitmap != null) return image.Bitmap;
+            }
+            return null;
+        }
 
         public static ImageSource TryLoad(
             string pondId,

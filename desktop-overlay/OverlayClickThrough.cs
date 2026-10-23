@@ -18,12 +18,6 @@ namespace FishSocialOverlay
         // Ignore 1/255 "glass" fills; keep visibly faded pond art hittable for DragMove.
         const double AlphaThreshold = 8;
 
-        static BitmapSource _cachedSource;
-        static byte[] _cachedBgra;
-        static int _cachedWidth;
-        static int _cachedHeight;
-        static int _cachedStride;
-
         public static bool HitsPondArt(MainWindow window, Point windowLocal)
         {
             return IsVisiblePondArt(window, windowLocal);
@@ -234,65 +228,9 @@ namespace FishSocialOverlay
             if (viewW < 1 || viewH < 1)
                 return false;
 
-            EnsureAlphaCache(source);
-            if (_cachedBgra == null || _cachedWidth < 1 || _cachedHeight < 1)
-                return false;
-
-            MapFill(
-                imageLocal.X, imageLocal.Y, viewW, viewH,
-                _cachedWidth, _cachedHeight,
-                out var px, out var py);
-            if (px < 0 || py < 0 || px >= _cachedWidth || py >= _cachedHeight)
-                return true;
-
-            alpha = _cachedBgra[py * _cachedStride + px * 4 + 3];
+            if (!OverlayStaticArt.TryGetAlpha(source, out var map)) return false;
+            alpha = map.Sample(imageLocal.X, imageLocal.Y, viewW, viewH);
             return true;
-        }
-
-        static void MapFill(
-            double x, double y, double viewW, double viewH,
-            int srcW, int srcH,
-            out int px, out int py)
-        {
-            px = (int)Math.Floor(x / viewW * srcW);
-            py = (int)Math.Floor(y / viewH * srcH);
-        }
-
-        static void EnsureAlphaCache(BitmapSource source)
-        {
-            if (ReferenceEquals(_cachedSource, source) && _cachedBgra != null)
-                return;
-
-            try
-            {
-                BitmapSource bgra = source;
-                if (source.Format != PixelFormats.Bgra32 && source.Format != PixelFormats.Pbgra32)
-                {
-                    var converted = new FormatConvertedBitmap();
-                    converted.BeginInit();
-                    converted.Source = source;
-                    converted.DestinationFormat = PixelFormats.Bgra32;
-                    converted.EndInit();
-                    if (converted.CanFreeze)
-                        converted.Freeze();
-                    bgra = converted;
-                }
-
-                _cachedWidth = bgra.PixelWidth;
-                _cachedHeight = bgra.PixelHeight;
-                _cachedStride = _cachedWidth * 4;
-                _cachedBgra = new byte[_cachedStride * _cachedHeight];
-                bgra.CopyPixels(_cachedBgra, _cachedStride, 0);
-                _cachedSource = source;
-            }
-            catch
-            {
-                _cachedSource = null;
-                _cachedBgra = null;
-                _cachedWidth = 0;
-                _cachedHeight = 0;
-                _cachedStride = 0;
-            }
         }
     }
 }

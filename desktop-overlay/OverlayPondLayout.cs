@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
@@ -513,6 +515,24 @@ namespace FishSocialOverlay
 
             left = x;
             top = y;
+        }
+
+        public async Task<Image> CreateSpriteImageAsync(OverlayLayoutObjectDto item, string resourcesRoot, CancellationToken token)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.sprite)) return null;
+            var path = await OverlayStaticArt.ResolveAsync(() => ResolveSpritePath(resourcesRoot, item.sprite), token);
+            var art = await OverlayStaticArt.LoadAsync(path, false, token);
+            token.ThrowIfCancellationRequested();
+            if (art?.Bitmap == null) return null;
+            var image = new Image
+            {
+                Width = item.w > 0 ? item.w : CanvasWidth,
+                Height = item.h > 0 ? item.h : CanvasHeight,
+                Stretch = Stretch.Fill, IsHitTestVisible = false, Source = art.Bitmap,
+            };
+            ResolveRect(item.x, item.y, image.Width, image.Height, item.anchor, out var left, out var top);
+            Canvas.SetLeft(image, left); Canvas.SetTop(image, top); Panel.SetZIndex(image, item.z);
+            return image;
         }
 
         public Image CreateSpriteImage(OverlayLayoutObjectDto item, string resourcesRoot)

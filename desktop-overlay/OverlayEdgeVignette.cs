@@ -1,4 +1,7 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using System.Windows;
 using System.Windows.Media;
 
@@ -8,28 +11,79 @@ namespace FishSocialOverlay
     /// Scene-only edge fade. Absolute mapping is required: RelativeToBoundingBox follows
     /// overflowing descendants (pets/labels), which pushes the bottom fade below ClipToBounds.
     /// </summary>
-    public sealed class OverlayEdgeVignette
+    public sealed class OverlayEdgeVignette : IDisposable
     {
         public const double EdgeTop = 40;
         public const double EdgeBottom = 40;
         public const double EdgeLeft = 40;
         public const double EdgeRight = 40;
 
+        readonly bool _combined;
+        double _width, _height, _scaleX, _scaleY;
+        int _version;
+        bool _disposed;
+        CancellationTokenSource _build;
+        public string Mode { get; private set; } = "dual";
         readonly FrameworkElement _verticalHost;
         readonly FrameworkElement _horizontalHost;
 
-        public OverlayEdgeVignette(FrameworkElement verticalHost, FrameworkElement horizontalHost)
+        public OverlayEdgeVignette(FrameworkElement verticalHost, FrameworkElement horizontalHost, bool? combined = null)
         {
+            _combined = combined ?? string.Equals(Environment.GetEnvironmentVariable("FISH_SOCIAL_OVERLAY_COMBINED_MASK"), "1", StringComparison.Ordinal);
             _verticalHost = verticalHost ?? throw new ArgumentNullException(nameof(verticalHost));
             _horizontalHost = horizontalHost ?? throw new ArgumentNullException(nameof(horizontalHost));
         }
 
-        public void ApplySize(double width, double height)
+        public async void ApplySize(double width, double height)
         {
+            if (_disposed) return;
             var w = Math.Max(1.0, width);
             var h = Math.Max(1.0, height);
+            var dpi = VisualTreeHelper.GetDpi(_horizontalHost);
+            if (w == _width && h == _height && dpi.DpiScaleX == _scaleX && dpi.DpiScaleY == _scaleY) return;
+            _width = w; _height = h; _scaleX = dpi.DpiScaleX; _scaleY = dpi.DpiScaleY;
+            var version = ++_version;
+            _build?.Cancel(); _build?.Dispose(); _build = null;
             _verticalHost.OpacityMask = CreateVerticalMask(h);
             _horizontalHost.OpacityMask = CreateHorizontalMask(w);
+            Mode = "dual";
+            if (!_combined) return;
+            _build = new CancellationTokenSource();
+            var token = _build.Token;
+            // Diagnostic A/B path. Default remains the original continuous gradients
+            // until Windows GPU/frame-time and edge-pixel comparisons are accepted.
+            try
+            {
+                var source = await Task.Run(() =>
+                {
+                    var px = Math.Max(1, (int)Math.Ceiling(w * dpi.DpiScaleX));
+                    var py = Math.Max(1, (int)Math.Ceiling(h * dpi.DpiScaleY));
+                    var pixels = OverlayMaskRaster.Build(px, py, px / w, py / h, (x, y) => SampleMask(x, y, w, h), token);
+                    var bitmap = BitmapSource.Create(px, py, 96, 96, PixelFormats.Pbgra32, null, pixels, px * 4);
+                    bitmap.Freeze(); return bitmap;
+                }, token);
+                await _horizontalHost.Dispatcher.InvokeAsync(() =>
+                {
+                    if (_disposed || version != _version) return;
+                    var brush = new ImageBrush(source)
+                    {
+                        ViewportUnits = BrushMappingMode.Absolute, Viewport = new Rect(0, 0, w, h),
+                        Stretch = Stretch.Fill, TileMode = TileMode.None,
+                    };
+                    brush.Freeze();
+                    _verticalHost.OpacityMask = null;
+                    _horizontalHost.OpacityMask = brush;
+                    Mode = "combined";
+                });
+            }
+            catch (OperationCanceledException) { }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true; _version++;
+            _build?.Cancel(); _build?.Dispose(); _build = null;
         }
 
         /// <summary>
