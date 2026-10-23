@@ -117,6 +117,7 @@ namespace FishSocial.Desktop
         public string type;
         public int version;
         public string command;
+        public long sequence;
         public string spotId;
         public string playerId;
         public string text;

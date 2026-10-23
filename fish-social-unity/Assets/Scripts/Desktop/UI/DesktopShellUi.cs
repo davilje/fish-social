@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -711,6 +712,9 @@ namespace FishSocial.Desktop
 
         void OnDestroy()
         {
+            if (_summaryPresentation != null) StopCoroutine(_summaryPresentation);
+            _summaryPresentation = null;
+            _pendingSessionSummary = null;
             if (_socialPanel != null)
             {
                 _socialPanel.UnreadChanged -= RefreshSocialUnread;
@@ -883,7 +887,6 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            _router.Show(ShellPanelId.Pond);
             DesktopAppBootstrap.Instance?.StartNativeOverlay();
             WindowManager.Instance?.HideToTray();
 
@@ -1126,6 +1129,34 @@ namespace FishSocial.Desktop
         {
             if (summary == null || _settlementCanvas == null)
                 return;
+            _pendingSessionSummary = summary;
+            if (_summaryPresentation == null)
+                _summaryPresentation = StartCoroutine(PresentSummaryAfterReturn());
+        }
+
+        PondSessionSummaryDto _pendingSessionSummary;
+        Coroutine _summaryPresentation;
+
+        IEnumerator PresentSummaryAfterReturn()
+        {
+            // The server receipt can precede the leave acknowledgement. Do not
+            // create even the backdrop until routing and native restore settle.
+            do
+            {
+                yield return null;
+            } while (CozyMotion.Paused ||
+                (WindowManager.Instance != null && !WindowManager.Instance.IsWindowVisible) ||
+                (_router != null && _router.IsTransitioning) ||
+                (_pondSession != null && _pondSession.IsTransitioning));
+            var summary = _pendingSessionSummary;
+            _pendingSessionSummary = null;
+            _summaryPresentation = null;
+            PresentPondSessionSummary(summary);
+        }
+
+        void PresentPondSessionSummary(PondSessionSummaryDto summary)
+        {
+            if (summary == null || _settlementCanvas == null) return;
             var view = DesktopPondSettlementModalView.Show(_settlementCanvas, summary);
             if (view == null) return;
             view.ProfileRequested += () => OpenProfileHub();
@@ -1293,6 +1324,8 @@ namespace FishSocial.Desktop
                     _pondSession,
                     () => ReturnToProfileFromEditor(),
                     tab => OpenProfileHub(tab)));
+            if (_profileEditPanel != null)
+                _profileEditPanel.ProfileSaved += profile => _profileHubPanel?.ApplySavedProfile(profile);
         }
 
         void BuildSocialFeedPanel(GameObject go)

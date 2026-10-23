@@ -11,6 +11,7 @@ namespace FishSocial.Desktop
         public event Action<ShellPanelId> PanelChanged;
         int navigationVersion;
         bool transitioning;
+        public bool IsTransitioning => transitioning;
 
         public void Register(ShellPanelId id, GameObject panel)
         {

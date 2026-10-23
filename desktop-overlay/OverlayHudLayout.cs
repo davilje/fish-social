@@ -753,8 +753,10 @@ namespace FishSocialOverlay
             if (host == null)
                 return;
 
-            var width = chatBorder.ActualWidth > 1 ? chatBorder.ActualWidth : widget.w;
-            var height = chatBorder.ActualHeight > 1 ? chatBorder.ActualHeight : widget.h;
+            // The explicit size is already updated by the toggle; ActualHeight
+            // still describes the previous layout pass while handling the click.
+            var width = !double.IsNaN(chatBorder.Width) ? chatBorder.Width : chatBorder.ActualWidth;
+            var height = !double.IsNaN(chatBorder.Height) ? chatBorder.Height : chatBorder.ActualHeight;
             if (width < 1)
                 width = widget.w;
             if (height < 1)

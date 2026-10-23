@@ -33,8 +33,10 @@ namespace FishSocialOverlay
                 if (window.HitsSocialPetArt(windowLocal))
                     return true;
 
-                var hit = VisualTreeHelper.HitTest(window, windowLocal);
-                if (hit != null && IsInteractiveVisual(hit.VisualHit as DependencyObject, window))
+                // Match WPF's input hit testing: decorative visuals with
+                // IsHitTestVisible=false must not hide the chat/button beneath them.
+                var hit = window.InputHitTest(windowLocal) as DependencyObject;
+                if (hit != null && IsInteractiveVisual(hit, window))
                     return true;
 
                 return IsVisiblePondArt(window, windowLocal);

@@ -109,9 +109,11 @@ public static class OverlayStaticPerformanceTests
         var actors=new Canvas(); var background=new Image();
         var scene = new PondScenePresenter(new Canvas(),actors,new Canvas(),new Canvas(),background,
             new System.Windows.Shapes.Rectangle(),new System.Windows.Shapes.Rectangle(),new System.Windows.Shapes.Rectangle(),null);
+        Check(background.Source == null && !scene.BackgroundPending && !scene.IsPresentationReady, "startup displayed a default pond before the first snapshot");
         scene.Apply(new IpcMessage { PondId="pond-calm",OwnPetId="orange",PetVisualState="sit",Users=Array.Empty<OverlayUserDto>() });
         scene.Apply(new IpcMessage { PondId="pond-bamboo",OwnPetId="orange",PetVisualState="sit",Users=Array.Empty<OverlayUserDto>() });
-        Wait(()=>!scene.BackgroundPending);
+        if (scene.BackgroundPending) Check(!scene.IsPresentationReady, "scene became visible before target art was ready");
+        Wait(()=>scene.IsPresentationReady);
         var latest = background.Source;
         Check(latest != null, "latest pond fixture did not load");
         Wait(()=>OverlayStaticArt.PendingCount==0);

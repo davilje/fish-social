@@ -84,9 +84,12 @@ namespace FishSocial.Tests.Editor
             var button=EditorButton();var view=button.GetComponentInParent<DesktopProfileEditPanel>();var returned=0;
             var api=new SaveApi{ProfileOk=profileOk,ShowcaseOk=showcaseOk};
             view.Bind(api.Client,null,()=>returned++);
+            PlayerProfileDto savedProfile=null;
+            view.ProfileSaved += profile => savedProfile=profile;
             view.PresentSnapshot(new PlayerProfileDto{nickname="小橘"},new FishInventoryItemDto[0]);
             Drain((IEnumerator)typeof(DesktopProfileEditPanel).GetMethod("SaveRoutine",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(view,new object[]{"湖畔小橘"}));
             Assert.AreEqual(0,returned);
+            Assert.AreEqual(profileOk,savedProfile!=null,"A successful profile write must invalidate the journal even if showcase saving fails.");
             var success=profileOk&&showcaseOk;
             Assert.AreEqual(success,button.GetComponentInChildren<Text>().text=="✓ 已保存");
             if(success)Assert.IsFalse(button.interactable);

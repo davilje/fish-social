@@ -43,6 +43,9 @@ namespace FishSocialOverlay
         CancellationTokenSource _artLoad = new CancellationTokenSource();
         int _artVersion;
         internal bool BackgroundPending { get; private set; }
+        bool _decorPending;
+        public bool IsPresentationReady => !_disposed && !string.IsNullOrEmpty(_pondId) && !BackgroundPending && !_decorPending;
+        public event Action ScenePresentationChanged;
         string _spotGeometry;
         readonly Dictionary<string, OverlayActorChrome> _chromeBySpot = new Dictionary<string, OverlayActorChrome>();
         OverlayActorChrome ActorChrome(string spotId)
@@ -123,7 +126,9 @@ namespace FishSocialOverlay
             _grass = grass;
             _shore = shore;
             _water = water;
-            TryLoadPondBackground(string.Empty);
+            _grass.Visibility = _shore.Visibility = _water.Visibility = Visibility.Collapsed;
+            _backgroundImage.Source = null;
+            _backgroundImage.Visibility = Visibility.Collapsed;
         }
 
         public void CancelAllHovers()
@@ -260,6 +265,8 @@ namespace FishSocialOverlay
                 ClearOthers();
                 ClearDecor();
                 _pondId = pondId;
+                BackgroundPending = _decorPending = true;
+                ScenePresentationChanged?.Invoke();
                 _layout.TryLoad(pondId);
                 TryLoadPondBackground(pondId);
                 ApplyLayoutSprites();
@@ -700,7 +707,11 @@ namespace FishSocialOverlay
         {
             ClearDecor();
             if (!_layout.IsActive || _decorLayer == null)
+            {
+                _decorPending = false;
+                ScenePresentationChanged?.Invoke();
                 return;
+            }
 
             var resources = System.IO.Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
@@ -727,6 +738,14 @@ namespace FishSocialOverlay
                 foreach (var image in images) _decorLayer.Children.Add(image);
             }
             catch (OperationCanceledException) { }
+            finally
+            {
+                if (version == _artVersion)
+                {
+                    _decorPending = false;
+                    ScenePresentationChanged?.Invoke();
+                }
+            }
         }
 
         static bool IsLegacyFullCanvasPond(OverlayLayoutObjectDto item)
@@ -814,14 +833,22 @@ namespace FishSocialOverlay
             // Do not show the previous pond beneath the new pond's seats and actors.
             _backgroundImage.Source = null;
             _backgroundImage.Visibility = Visibility.Collapsed;
-            _grass.Visibility = Visibility.Visible;
-            _shore.Visibility = Visibility.Visible;
-            _water.Visibility = Visibility.Visible;
+            _grass.Visibility = Visibility.Collapsed;
+            _shore.Visibility = Visibility.Collapsed;
+            _water.Visibility = Visibility.Collapsed;
             try
             {
+                if (string.IsNullOrEmpty(pondId)) return;
                 var path = await OverlayStaticArt.ResolveAsync(() => PondBackgroundResources.Resolve(resources, pondId, sprite), token);
                 var art = await OverlayStaticArt.LoadAsync(path, true, token);
-                if (_disposed || version != _artVersion || art?.Bitmap == null) return;
+                if (_disposed || version != _artVersion) return;
+                if (art?.Bitmap == null)
+                {
+                    // A real missing resource may use fallback art; loading is
+                    // not a failure and must never flash this placeholder.
+                    _grass.Visibility = _shore.Visibility = _water.Visibility = Visibility.Visible;
+                    return;
+                }
                 // Alpha map was registered before Source becomes hittable.
                 _backgroundImage.Source = art.Bitmap;
                 _backgroundImage.Visibility = Visibility.Visible;
@@ -843,7 +870,14 @@ namespace FishSocialOverlay
                 }
             }
             catch (OperationCanceledException) { }
-            finally { if (version == _artVersion) BackgroundPending = false; }
+            finally
+            {
+                if (version == _artVersion)
+                {
+                    BackgroundPending = false;
+                    ScenePresentationChanged?.Invoke();
+                }
+            }
         }
 
         static bool TryFindSpot(

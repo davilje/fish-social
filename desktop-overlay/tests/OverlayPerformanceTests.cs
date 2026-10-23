@@ -41,12 +41,53 @@ public static class OverlayPerformanceTests
         Run("async decoration preserves geometry and z-order", OverlayStaticPerformanceTests.DecorationGeometry);
         Run("nine-slice eviction bounds cache and preserves live brushes", OverlayStaticPerformanceTests.NineSliceBudget);
         Run("combined and dual masks preserve rendered alpha", OverlayStaticPerformanceTests.MaskParity);
+        Run("chat dock opens, resizes and remains hittable", ChatDockInteraction);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();
     }
 
     static void Run(string name, Action test) { test(); passed++; Console.WriteLine("PASS " + name); }
     static void Require(bool condition, string message) { if (!condition) throw new Exception(message); }
+
+    static void ChatDockInteraction()
+    {
+        var window = new MainWindow();
+        try
+        {
+            window.Show();
+            foreach (var size in new[] { new Size(960,560), new Size(800,400), new Size(600,300) })
+            {
+                typeof(MainWindow).GetMethod("ApplyViewportSize", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(window, new object[] { OverlayViewportPreset.FromSize(size.Width,size.Height), false, false });
+                window.UpdateLayout();
+                var folded = window.ChatDockChrome.Height;
+                for (var cycle=0; cycle<3; cycle++)
+                {
+                    var toggle = window.ChatDockToggle;
+                    var point = toggle.TranslatePoint(new Point(toggle.ActualWidth/2,toggle.ActualHeight/2),window);
+                    var decoration=new Border { Width=window.Width, Height=window.Height, Background=Brushes.Transparent, IsHitTestVisible=false };
+                    Panel.SetZIndex(decoration,999); window.SceneCanvas.Children.Add(decoration); window.UpdateLayout();
+                    Require(OverlayClickThrough.IsClientHit(window,point), "folded chat toggle is click-through");
+                    window.SceneCanvas.Children.Remove(decoration);
+                    toggle.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                    window.UpdateLayout();
+                    Require(window.ChatDockChrome.Height>folded && window.ChatInputBox.IsVisible && window.ChatLogScroll.IsVisible, "chat did not expand");
+                    var chrome=(Grid)window.ChatDockChrome.Child;
+                    Require(Math.Abs(((FrameworkElement)chrome.Children[0]).ActualHeight-window.ChatDockChrome.Height)<1, "chrome retained folded height");
+                    window.ChatInputBox.Text="test";
+                    point=window.ChatInputBox.TranslatePoint(new Point(10,10),window);
+                    Require(OverlayClickThrough.IsClientHit(window,point), "expanded input is click-through");
+                    toggle.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                    window.UpdateLayout();
+                    Require(window.ChatDockChrome.Height==folded && !window.ChatInputBox.IsVisible, "chat did not collapse");
+                }
+            }
+            var menu=Field<ContextMenu>(window,"_productMenu");
+            foreach(var item in menu.Items)
+                if(item is MenuItem entry) Require((string)entry.Header!="当前鱼塘", "retired pond menu remains");
+        }
+        finally { window.Close(); }
+    }
     static T Field<T>(object value, string name) => (T)value.GetType()
         .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(value);
     static ImageSource Frame(string pet, string clip, string layer) => OverlayFishingLayers.BitmapFor(

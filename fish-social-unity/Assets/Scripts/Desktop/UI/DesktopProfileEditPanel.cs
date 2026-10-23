@@ -45,6 +45,7 @@ namespace FishSocial.Desktop
         bool _ready;
         Coroutine _loadRoutine;
         Coroutine _saveRoutine;
+        public event System.Action<PlayerProfileDto> ProfileSaved;
 
         public void Bind(
             IAuthenticatedApiClient api,
@@ -629,6 +630,7 @@ namespace FishSocial.Desktop
                     _pond.ApplyGameNickname(profile.nickname);
                 _pond.ApplyGameAvatarUrl(profile.avatarUrl);
             }
+            ProfileSaved?.Invoke(profile);
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
 
             SetStatus("资料已保存，正在同步展示鱼获…");
@@ -657,6 +659,7 @@ namespace FishSocial.Desktop
 
             _lastSaveFailed = false;
             DesktopProfileCache.Latest = profile;
+            ProfileSaved?.Invoke(profile);
             ApplyProfile(profile);
             _busy = true;
             SetStatus("保存成功。");

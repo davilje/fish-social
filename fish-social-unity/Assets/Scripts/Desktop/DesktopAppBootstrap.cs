@@ -237,7 +237,9 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            EnsureNativeOverlay().StartOverlay();
+            var overlay = EnsureNativeOverlay();
+            PublishNativeOverlayState(true);
+            overlay.StartOverlay();
             QueueFishingProgressRefresh();
             PublishNativeOverlayState();
         }
@@ -415,6 +417,8 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
         }
 
+        Coroutine _raiseWindowRoutine;
+
         public void RaiseMainWindow(ShellPanelId id)
         {
             if (_onboarding != null &&
@@ -428,8 +432,25 @@ namespace FishSocial.Desktop
                 return;
             }
 
-            _window?.ShowFromTray();
             _router?.Show(id);
+            if (_window != null && !_window.IsWindowVisible)
+            {
+                if (_raiseWindowRoutine != null) StopCoroutine(_raiseWindowRoutine);
+                _raiseWindowRoutine = StartCoroutine(RestorePreparedMainWindow());
+                return;
+            }
+            _window?.ShowFromTray();
+            NativeWindowUtil.TryBringToFront();
+            PublishNativeOverlayState();
+        }
+
+        IEnumerator RestorePreparedMainWindow()
+        {
+            // Let Unity render the selected page while the native window is
+            // still hidden, so Windows cannot expose the old pond/page buffer.
+            yield return null;
+            _raiseWindowRoutine = null;
+            _window?.ShowFromTray();
             NativeWindowUtil.TryBringToFront();
             PublishNativeOverlayState();
         }

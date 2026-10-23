@@ -104,6 +104,7 @@ namespace FishSocialOverlay
         string _pendingActionName = string.Empty;
         string _lastOwnAnimSig = string.Empty;
         IpcMessage _lastStateMessage;
+        long _minimumPresentationSequence;
         long _pendingDebugCommandId;
         readonly Dictionary<long, string> _sentCommands = new Dictionary<long, string>();
 
@@ -261,8 +262,16 @@ namespace FishSocialOverlay
             };
             _scene.LocalPresentationChanged += OnLocalPresentationChanged;
             _scene.SceneContentChanged += OnSceneContentChanged;
+            _scene.ScenePresentationChanged += RefreshScenePresentation;
+            SceneFadeHost.Visibility = Visibility.Collapsed;
             _chat = new OverlayChatPresenter(ChatLatestPreview, ChatLogScroll, ChatLogList);
             _chat.SetExpanded(_chatDockExpanded);
+            ChatDockChrome.MouseLeftButtonUp += (sender, args) =>
+            {
+                if (_chatDockExpanded || IsUnderElement(args.OriginalSource as DependencyObject, ChatDockToggle)) return;
+                ChatDockToggle_OnClick(ChatDockToggle, args);
+                args.Handled = true;
+            };
             _chatBubbles = new OverlayChatBubblePresenter(
                 ChatBubbleLayer,
                 playerId => _scene?.TryResolveActor(playerId),
@@ -312,6 +321,12 @@ namespace FishSocialOverlay
             _scene.SetPresentationViewport(new Rect(-_scenePan.OffsetX,
                 Math.Max(0, _scene.ContentHeight - _scenePan.ViewportHeight),
                 _scenePan.ViewportWidth, _scenePan.ViewportHeight), visible);
+        }
+
+        void RefreshScenePresentation()
+        {
+            SceneFadeHost.Visibility = _scene.IsPresentationReady && _latestSequence >= _minimumPresentationSequence
+                ? Visibility.Visible : Visibility.Collapsed;
         }
 
         void ApplyInitialViewport()
@@ -630,6 +645,7 @@ namespace FishSocialOverlay
                 var ackTrace = ApplyCommandAcks(message);
                 _scene?.Apply(message);
                 _lastStateMessage = message;
+                RefreshScenePresentation();
                 _lastOwnAnimSig = OwnAnimSig(message);
                 SyncScenePanFocus(message);
                 ApplyFishingControls(message);
@@ -677,6 +693,8 @@ namespace FishSocialOverlay
                         QuitProcess();
                         break;
                     case "show_overlay":
+                        _minimumPresentationSequence = message.Sequence;
+                        RefreshScenePresentation();
                         Show();
                         break;
                     case "request_snapshot":
@@ -1619,7 +1637,6 @@ namespace FishSocialOverlay
             menu.Opened += OnProductMenuOpened;
             menu.Closed += OnProductMenuClosed;
             menu.Items.Add(CreateProductMenuItem("打开主界面", OpenMain_OnClick));
-            menu.Items.Add(CreateProductMenuItem("当前鱼塘", MenuPond_OnClick));
             menu.Items.Add(CreateProductMenuItem("世界地图", MenuMap_OnClick));
             menu.Items.Add(CreateProductMenuItem("商店与装备", MenuShop_OnClick));
             menu.Items.Add(CreateProductMenuItem("好友与聊天", MenuFriends_OnClick));

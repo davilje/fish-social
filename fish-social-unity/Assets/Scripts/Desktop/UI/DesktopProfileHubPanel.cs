@@ -51,6 +51,22 @@ namespace FishSocial.Desktop
         readonly HashSet<HubTab> _paintedTabs = new HashSet<HubTab>();
         bool _hubTabsStyled;
         string _loadedHubId;
+        bool _selfProfileDirty;
+
+        public void ApplySavedProfile(PlayerProfileDto profile)
+        {
+            if (profile == null || _hub == null || !_hub.isSelf ||
+                _hub.profile == null || _hub.profile.playerId != profile.playerId) return;
+            StopLoad();
+            _targetGeneration++;
+            _hub.profile.nickname = profile.nickname;
+            _hub.profile.avatarUrl = profile.avatarUrl;
+            _hub.profile.bio = profile.bio;
+            _hub.profile.showcaseFishIds = profile.showcaseFishIds;
+            _paintedTabs.Clear();
+            _selfProfileDirty = true;
+            if (isActiveAndEnabled) RenderCurrentTab();
+        }
 
         Image _profileAvatar;
         Text _profileAvatarLabel;
@@ -113,6 +129,7 @@ namespace FishSocial.Desktop
             {
                 if (!_paintedTabs.Contains(_tab))
                     RenderCurrentTab();
+                if (_selfProfileDirty) Refresh();
                 return;
             }
             Refresh();
@@ -162,6 +179,7 @@ namespace FishSocial.Desktop
                 ApplyTabVisibility();
                 if (!_paintedTabs.Contains(_tab))
                     RenderCurrentTab();
+                if (_selfProfileDirty && _hub.isSelf) Refresh();
                 return;
             }
             Refresh();
@@ -1074,6 +1092,7 @@ namespace FishSocial.Desktop
             }
 
             _hub = hub;
+            _selfProfileDirty = false;
             _loadedHubId = targetId;
             ApplyReadOnly(hub.canEdit);
             if (_tab == HubTab.Codex || _tab == HubTab.Profile)

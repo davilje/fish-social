@@ -317,14 +317,10 @@ namespace FishSocial.Desktop
         {
             if (state == null)
                 return;
-            lock (_lifecycleLock)
-            {
-                if (LifecycleState == NativeOverlayLifecycleState.Stopped ||
-                    LifecycleState == NativeOverlayLifecycleState.Stopping)
-                    return;
-            }
+            // Retain the target snapshot even before process startup. Sending
+            // remains gated by SendLatestState; never launch with a stale pond.
+            state.sequence = ++_nextStateSequence;
             _latestState = state;
-            _latestState.sequence = ++_nextStateSequence;
             _statesSinceLog++;
             var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             if (nowMs - _lastStateLogMs >= 1000)
@@ -363,6 +359,7 @@ namespace FishSocial.Desktop
                     type = "command",
                     version = 1,
                     command = command,
+                    sequence = command == "show_overlay" ? _latestState.sequence : 0,
                 }));
             }
             _writeSignal.Set();
