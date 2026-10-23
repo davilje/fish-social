@@ -596,6 +596,7 @@ namespace FishSocial.Desktop
 
         void OnEnable()
         {
+            DesktopUiAudioFeedback.Ensure(gameObject);
             CozyMotion.ReducedChanged += OnReducedChanged;
             focused = EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
             if (!initialized || IsIndex)

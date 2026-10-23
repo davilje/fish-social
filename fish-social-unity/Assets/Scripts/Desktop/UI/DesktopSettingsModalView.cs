@@ -15,7 +15,7 @@ namespace FishSocial.Desktop
             new[] { "窗口模式", "1280×720", "1600×900", "1920×1080", "2560×1440", "DesignDisplayHeading", "无边框", "全屏" },
             new[] { "通知", "启用通知", "免打扰", "鱼咬钩通知", "好友邀请通知", "连接错误通知", "模拟连接错误" },
             new[] { "服务器", "当前服务器", "服务器地址输入", "保存服务器地址", "测试服务器连接", "服务器连接状态" },
-            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效" },
+            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效", "AudioSettings" },
         };
 
         NotificationSettings _draft;
@@ -109,6 +109,8 @@ namespace FishSocial.Desktop
             ValidatePrefabBindings();
             DesktopModalUi.StyleTree(transform);
             EnsureReduceMotionToggle();
+            var audioParent = transform.Find("SettingsViewport/SettingsContent");
+            if (audioParent != null) DesktopAudioSettingsView.Ensure(audioParent, 374);
             ShowTab(_tab);
         }
 
@@ -254,7 +256,8 @@ namespace FishSocial.Desktop
                     if (node != null) node.gameObject.SetActive(_tab == 0);
                 }
                 var content = transform.Find("SettingsViewport/SettingsContent") as RectTransform;
-                if (content != null) content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _tab == 1 && Debug.isDebugBuild ? 480 : 440);
+                if (content != null) content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                    _tab == 3 ? 556 : _tab == 1 && Debug.isDebugBuild ? 480 : 440);
                 var scroll = GetComponent<ScrollRect>(); if (scroll != null) scroll.verticalNormalizedPosition = 1;
             }
             SyncServerPlaceholder();
@@ -282,7 +285,7 @@ namespace FishSocial.Desktop
                     _tabInfo.text = "填写服务器地址并保存，重启客户端后生效。\n\n保存前可先「测试服务器连接」，检查 /health 是否可达。";
                     break;
                 default:
-                    _tabInfo.text = "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n「重置新手引导」会重新播放一次教学。";
+                    _tabInfo.text = "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n背景音乐和音效音量可分别调整，设为 0 即可静音。改动会自动保存。\n\n「重置新手引导」会重新播放一次教学。";
                     break;
             }
         }

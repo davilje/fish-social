@@ -41,6 +41,8 @@ namespace FishSocialOverlay
             _timer.Tick += OnTick;
         }
 
+        public event Action ViewportChanged;
+
         public double ViewportWidth => _viewportWidth;
 
         public double ViewportHeight => _viewportHeight;
@@ -50,6 +52,8 @@ namespace FishSocialOverlay
         public double SceneWidth => _sceneWidth;
 
         public bool CanPan => _sceneWidth > _viewportWidth + 0.5;
+
+        public event Action PanActivated;
 
         public void AttachButtons(Button leftButton, Button rightButton)
         {
@@ -93,8 +97,11 @@ namespace FishSocialOverlay
         void OnPanButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var button = sender as Button;
+            if (button == null || !button.IsEnabled || !CanPan)
+                return;
             var dir = button?.Tag is int d ? d : 0;
             BeginPan(dir);
+            PanActivated?.Invoke();
             button?.CaptureMouse();
             e.Handled = true;
         }
@@ -219,11 +226,13 @@ namespace FishSocialOverlay
             var min = Math.Min(0, _viewportWidth - _sceneWidth);
             _offsetX = Math.Max(min, Math.Min(0, offsetX));
             _translate.X = _offsetX;
+            ViewportChanged?.Invoke();
         }
 
         void ApplyCropY()
         {
             _translate.Y = -Math.Max(0, _sceneHeight - _viewportHeight);
+            ViewportChanged?.Invoke();
         }
 
         void UpdateButtons()

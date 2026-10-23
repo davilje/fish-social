@@ -12,6 +12,7 @@ namespace FishSocial.Desktop.JournalV2
         {Page=page;this.tabs=tabs;this.panels=panels;this.presets=presets;this.modes=modes;this.notify=notify;this.tray=tray;this.hide=hide;this.reset=reset;this.quit=quit;this.heading=heading;this.photo=photo;this.detail=detail;}
         public override void Bind(JournalV2App app,JournalV2Page page)
         {
+            if(panels!=null&&panels.Length>2)DesktopAudioSettingsView.Ensure(panels[2]);
             base.Bind(app,page);for(var i=0;i<tabs.Length;i++){var index=i;Action(tabs[i],()=>{tab=index;Render();});}
             for(var i=0;i<presets.Length;i++){var index=i;Action(presets[i],()=>{var p=WindowSettings.Presets[index];WindowManager.Instance?.ApplyWindowedPreset(p.Width,p.Height);window=WindowManager.Instance?.Settings??window;Render();});}
             for(var i=0;i<modes.Length;i++){var index=i;Action(modes[i],()=>{WindowManager.Instance?.SetMode((WindowDisplayMode)index);window=WindowManager.Instance?.Settings??window;Render();});}

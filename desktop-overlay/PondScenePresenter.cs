@@ -39,6 +39,49 @@ namespace FishSocialOverlay
         string _predictedSpotId;
         long _predictedUntilMs;
         bool _disposed;
+        string _spotGeometry;
+        readonly Dictionary<string, OverlayActorChrome> _chromeBySpot = new Dictionary<string, OverlayActorChrome>();
+        OverlayActorChrome ActorChrome(string spotId)
+        {
+            var key = spotId ?? string.Empty;
+            if (!_chromeBySpot.TryGetValue(key, out var chrome))
+            {
+                chrome = _layout.ResolveActorChrome(spotId);
+                _chromeBySpot[key] = chrome;
+            }
+            return chrome;
+        }
+        Rect _viewport = Rect.Empty;
+        bool _windowVisible = true;
+
+        public void SetPresentationViewport(Rect viewport, bool visible)
+        {
+            _viewport = viewport;
+            _windowVisible = visible;
+            UpdateActorVisibility();
+        }
+
+        void UpdateActorVisibility()
+        {
+            foreach (OverlayPetActor actor in _actorLayer.Children)
+            {
+                // Include rods, expanded nameplates and speech above the pet slot.
+                var bounds = actor.PresentationBounds;
+                bounds.Inflate(256, 256);
+                actor.SetPresentationVisible(_windowVisible && (_viewport.IsEmpty || bounds.IntersectsWith(_viewport)));
+            }
+        }
+
+        static string SpotGeometry(OverlaySpotDto[] spots)
+        {
+            if (spots == null) return string.Empty;
+            var text = new System.Text.StringBuilder();
+            foreach (var spot in spots)
+                if (spot != null) text.Append(spot.Id?.Length ?? 0).Append(':').Append(spot.Id)
+                    .Append(':').Append(spot.X.ToString("R", System.Globalization.CultureInfo.InvariantCulture))
+                    .Append(':').Append(spot.Y.ToString("R", System.Globalization.CultureInfo.InvariantCulture)).Append(';');
+            return text.ToString();
+        }
         string _pondId = string.Empty;
         string _ownPlayerId = string.Empty;
         string _ownUserId = string.Empty;
@@ -204,6 +247,7 @@ namespace FishSocialOverlay
             var pondChanged = !string.Equals(pondId, _pondId, StringComparison.Ordinal);
             if (pondChanged)
             {
+                _chromeBySpot.Clear();
                 ClearSpots();
                 ClearOthers();
                 ClearDecor();
@@ -224,10 +268,17 @@ namespace FishSocialOverlay
                  DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > _predictedUntilMs))
                 _predictedSpotId = null;
 
-            SyncSpots(message);
+            var geometry = _layout.IsActive ? _pondId : SpotGeometry(message.Spots);
+            if (pondChanged || geometry != _spotGeometry)
+            {
+                SyncSpots(message);
+                _spotGeometry = geometry;
+            }
+            else UpdateSpotStates(message);
             ApplyOwnActor(message);
             if (message.Users != null)
                 SyncOthers(message);
+            UpdateActorVisibility();
         }
 
         /// <summary>
@@ -467,9 +518,6 @@ namespace FishSocialOverlay
 
         void RemoveMissingSpots(HashSet<string> keep)
         {
-            if (_spotVisuals.Count == keep.Count)
-                return;
-
             var remove = new List<string>();
             foreach (var id in _spotVisuals.Keys)
             {
@@ -489,6 +537,7 @@ namespace FishSocialOverlay
             if (_ownActor != null)
                 return;
             _ownActor = new OverlayPetActor(OwnActorKey, _hoverPresenter);
+            _ownActor.SetPresentationVisible(_windowVisible);
             _actorLayer.Children.Add(_ownActor);
         }
 
@@ -501,7 +550,7 @@ namespace FishSocialOverlay
             Point point;
             if (!TryResolveActorPoint(ownSpotId, !predicted && message.HasOwnPosition, message.OwnX, message.OwnY, message.Spots, 0, out point))
                 point = FallbackOwnPoint();
-            _ownActor.ApplyChrome(_layout.ResolveActorChrome(ownSpotId));
+            _ownActor.ApplyChrome(ActorChrome(ownSpotId));
             _ownActor.WarmupActionClips(message.OwnPetId);
             _ownActor.Apply(
                 message.OwnNickname,
@@ -536,6 +585,7 @@ namespace FishSocialOverlay
                 if (!_others.TryGetValue(key, out var actor))
                 {
                     actor = new OverlayPetActor(key, _hoverPresenter);
+                    actor.SetPresentationVisible(_windowVisible);
                     actor.ConfigurePlayerMenu(
                         menuPlayerId,
                         user.IsBot,
@@ -557,7 +607,7 @@ namespace FishSocialOverlay
                 Point point;
                 if (!TryResolveActorPoint(user.SpotId, user.HasPosition, user.X, user.Y, message.Spots, keep.Count - 1, out point))
                     point = WaitingPoint(keep.Count - 1);
-                actor.ApplyChrome(_layout.ResolveActorChrome(user.SpotId));
+                actor.ApplyChrome(ActorChrome(user.SpotId));
                 actor.Apply(
                     user.Nickname,
                     user.PetVisualState,

@@ -90,6 +90,7 @@ namespace FishSocial.Desktop
             _window = gameObject.AddComponent<WindowManager>();
             _tray = gameObject.AddComponent<SystemTrayService>();
             _notify = gameObject.AddComponent<DesktopNotificationService>();
+            gameObject.AddComponent<DesktopAudioService>();
             _router = gameObject.AddComponent<PanelRouter>();
             _serverBaseUrl = DesktopServerConfig.Resolve(out var serverUrlSource);
             Debug.Log("[DesktopShell] serverBaseUrl=" + _serverBaseUrl +
@@ -118,7 +119,7 @@ namespace FishSocial.Desktop
             _ownFishing = new OwnFishingPresenter(
                 this,
                 () => _pondSession,
-                () => PublishNativeOverlayState(true));
+                () => { RefreshFishingAudio(); PublishNativeOverlayState(true); });
             var socialAdapter = gameObject.AddComponent<SteamSocialLobbyAdapter>();
             _socialLobby = gameObject.AddComponent<SocialLobbyController>();
             _socialLobby.Configure(_steamAuth, _pondSession, socialAdapter, _serverBaseUrl);
@@ -591,7 +592,14 @@ namespace FishSocial.Desktop
 
         void OnPondSnapshotChanged(PondSnapshotDto _)
         {
+            RefreshFishingAudio();
             PublishNativeOverlayState();
+        }
+
+        void RefreshFishingAudio()
+        {
+            DesktopAudioService.Instance?.ObserveFishingPhase(
+                _ownFishing != null && _ownFishing.IsActive ? _ownFishing.Phase : _pondSession?.CurrentPhase);
         }
 
         void OnPondUserUpdated(PondUserDto user)
@@ -600,6 +608,7 @@ namespace FishSocial.Desktop
             var isOwn = user != null && own != null && user.id == own.id;
             if (isOwn)
                 _ownFishing?.ReconcileFromServer();
+            if (isOwn) RefreshFishingAudio();
             PublishNativeOverlayState(isOwn);
         }
 
@@ -610,6 +619,7 @@ namespace FishSocial.Desktop
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
+            DesktopAudioService.Play("splash");
             var duration = fishCatch != null ? fishCatch.hookDurationMs : 0;
             _ownFishing?.BeginHooked(duration);
             PublishNativeOverlayState(true);
@@ -629,6 +639,7 @@ namespace FishSocial.Desktop
 
         void OnPondCatchAccepted()
         {
+            DesktopAudioService.CelebrateCatch();
             QueueFishingProgressRefresh();
         }
 
@@ -656,6 +667,7 @@ namespace FishSocial.Desktop
 
         void OnPondError(string message)
         {
+            DesktopAudioService.Play("ui_error");
             _nativeOverlayError = message ?? "鱼塘操作失败。";
             if (!string.IsNullOrEmpty(message) && message.IndexOf("金币不足") >= 0)
                 _shellUi?.SetStatusMessage(message);
@@ -666,6 +678,11 @@ namespace FishSocial.Desktop
         {
             if (message == null)
                 return;
+            if (message.command == "play_audio")
+            {
+                DesktopAudioService.Play(message.text);
+                return;
+            }
             if (_onboarding != null && _onboarding.HandleOverlayCommand(message))
             {
                 PublishNativeOverlayState();

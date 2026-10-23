@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -56,10 +58,25 @@ namespace FishSocialOverlay
         readonly Grid _stage;
         readonly Grid _body;
         OverlayActorChrome _chrome;
-        readonly DispatcherTimer _frameTimer;
-        readonly DispatcherTimer _refreshTimer;
+        readonly OverlayAnimationSchedule.Subscription _frameTimer;
+        readonly OverlayAnimationSchedule.Subscription _refreshTimer;
         readonly DispatcherTimer _tooltipTimer;
         bool _disposed;
+        bool _presentationVisible = true;
+        bool _frameDirty;
+        bool _frameLoading;
+        CancellationTokenSource _frameRequest;
+        int _renderVersion;
+        int _stateVersion;
+        int _warmupVersion;
+        string _requestedPet, _requestedVisual, _warmingPet;
+        double _bodyOriginX, _bodyOriginY;
+        internal int LayoutPassCount { get; private set; }
+        internal static long TotalLayoutPasses { get; private set; }
+        internal bool WarmupPending { get; private set; }
+        internal bool FramePending => _frameDirty || _frameLoading;
+        public Rect PresentationBounds => new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), Width, Height);
+
         bool _pointerInside;
         bool _hoverShown;
         double _centerX;
@@ -262,13 +279,12 @@ namespace FishSocialOverlay
             _tooltipTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _tooltipTimer.Tick += OnTooltipTimerTick;
 
-            _frameTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(125) };
+            _frameTimer = OverlayAnimationClock.Create(125);
             _frameTimer.Tick += OnFrameTick;
-            _frameTimer.Start();
 
-            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _refreshTimer = OverlayAnimationClock.Create(100);
             _refreshTimer.Tick += OnRefreshTick;
-            _refreshTimer.Start();
+            OverlayAnimationClock.AfterTick += RenderLatestFrame;
             ActiveActorCount++;
         }
 
@@ -456,7 +472,10 @@ namespace FishSocialOverlay
             bool groundbaitActive = false)
         {
             if (_disposed) return;
-            _nickname.Text = string.IsNullOrWhiteSpace(nickname) ? "玩家" : nickname;
+            var nextName = string.IsNullOrWhiteSpace(nickname) ? "玩家" : nickname;
+            var layoutChanged = nextName != _nickname.Text;
+            if (layoutChanged) _nickname.Text = nextName;
+            var oldPhase = _fishingPhase;
             _hookDeadlineMs = hookDeadlineMs;
             _sessionCatchCount = Math.Max(0, sessionCatchCount);
 
@@ -476,75 +495,125 @@ namespace FishSocialOverlay
 
             _fishingPhase = phase ?? string.Empty;
             SyncSessionAnchor(Math.Max(0, sessionFishingMs), fishingStartedAt);
-            UpdateStatusVisuals();
+            if (oldPhase != _fishingPhase)
+            {
+                UpdateStatusVisuals();
+                layoutChanged = true;
+            }
             ApplyVisualState(visualState, petId);
-            RelayoutCluster();
+            if (layoutChanged) RelayoutCluster();
+            SyncRefreshClock();
             RefreshOpenHover();
         }
 
         public void ApplyChrome(OverlayActorChrome chrome)
         {
             if (_disposed) return;
+            if (SameChrome(_chrome, chrome)) return;
             _chrome = chrome;
+            _warmupVersion++;
             RelayoutCluster();
+        }
+
+        static bool SameSlot(OverlayLayoutObjectDto a, OverlayLayoutObjectDto b)
+        {
+            if (a == null || b == null) return a == b;
+            return a.x == b.x && a.y == b.y && a.w == b.w && a.h == b.h;
+        }
+        static bool SameChrome(OverlayActorChrome a, OverlayActorChrome b)
+        {
+            if (a == null || b == null) return a == b;
+            return SameSlot(a.Pet,b.Pet) && SameSlot(a.Hit,b.Hit) && SameSlot(a.Name,b.Name) &&
+                SameSlot(a.Status,b.Status) && SameSlot(a.Ring,b.Ring) && SameSlot(a.RingBg,b.RingBg) &&
+                SameSlot(a.Bubble,b.Bubble) && SameSlot(a.Hint,b.Hint);
+        }
+
+        public void SetPresentationVisible(bool visible)
+        {
+            if (_disposed || _presentationVisible == visible) return;
+            _presentationVisible = visible;
+            _frameTimer.Suspended = !visible;
+            if (visible) OverlayAnimationClock.Wake();
+            if (!visible) { _frameRequest?.Cancel(); CancelTooltip(); }
+            else { ShowFrame(); UpdateStatusVisuals(); }
+            SyncRefreshClock();
+        }
+
+        void SyncRefreshClock()
+        {
+            if (_refreshTimer == null) return;
+            if (!_disposed && _presentationVisible && (IsRingPhase(_fishingPhase) || _hoverShown))
+            { _refreshTimer.Start(); OverlayAnimationClock.Wake(); }
+            else _refreshTimer.Stop();
         }
 
         /// <summary>
         /// Prefetch first frames of fishing clips so click-time prediction
         /// does not stall on PNG decode.
         /// </summary>
-        public void WarmupActionClips(string petId)
+        public async void WarmupActionClips(string petId)
         {
             if (_disposed) return;
+            if (!_presentationVisible) return;
             var id = OverlayFrameCache.NormalizePetId(petId ?? _petId);
-            OverlayFishingLayers.Place(
-                id, _body.Width, _body.Height, out var drawW, out var drawH, out _, out _);
-            if (string.Equals(id, _warmedPetId, StringComparison.Ordinal) &&
-                drawW == _warmedDrawW && drawH == _warmedDrawH) return;
-            _warmedPetId = id;
-            _warmedDrawW = drawW;
-            _warmedDrawH = drawH;
-            if (drawW < 1 || drawH < 1)
+            if (WarmupPending)
             {
-                drawW = (int)BodySize;
-                drawH = (int)BodySize;
+                if (_warmingPet != id) _warmupVersion++;
+                return;
             }
-
-            for (var c = 0; c < ActionWarmupClips.Length; c++)
+            _warmingPet = id;
+            var version = ++_warmupVersion;
+            WarmupPending = true;
+            try
             {
-                var clip = ActionWarmupClips[c];
-                if (OverlayFishingLayers.TryOpen(id, clip) == null)
-                    continue;
-                for (var i = 0; i < OverlayFishingLayers.LayerNames.Length; i++)
+                if (!await OverlayFishingLayers.EnsurePackAsync(id) || _disposed || version != _warmupVersion) return;
+                OverlayFishingLayers.Place(
+                    id, _body.Width, _body.Height, out var drawW, out var drawH, out _, out _);
+                if (string.Equals(id, _warmedPetId, StringComparison.Ordinal) &&
+                    drawW == _warmedDrawW && drawH == _warmedDrawH) return;
+                if (drawW < 1 || drawH < 1)
                 {
-                    var path = OverlayFishingLayers.LayerFile(
-                        id, clip, 0, OverlayFishingLayers.LayerNames[i]);
-                    OverlayFishingLayers.BitmapFor(path, drawW, drawH);
+                    drawW = (int)BodySize;
+                    drawH = (int)BodySize;
+                }
+
+                for (var c = 0; c < ActionWarmupClips.Length; c++)
+                {
+                    var clip = ActionWarmupClips[c];
+                    if (OverlayFishingLayers.TryOpen(id, clip) == null)
+                        continue;
+                    for (var i = 0; i < OverlayFishingLayers.LayerNames.Length; i++)
+                    {
+                        var path = OverlayFishingLayers.LayerFile(
+                            id, clip, 0, OverlayFishingLayers.LayerNames[i]);
+                        // Sequential prefetch keeps only one outstanding job per owner.
+                        if (_disposed || version != _warmupVersion || !_presentationVisible) return;
+                        var rejected = OverlayFishingLayers.RejectedDecodes;
+                        await OverlayFishingLayers.BitmapAsync(path, drawW, drawH);
+                        if (OverlayFishingLayers.RejectedDecodes != rejected) return;
+                    }
+                }
+                if (!_disposed && version == _warmupVersion)
+                {
+                    _warmedPetId = id;
+                    _warmedDrawW = drawW;
+                    _warmedDrawH = drawH;
                 }
             }
+            finally { WarmupPending = false; }
         }
 
         public void Place(double centerX, double centerY)
         {
             _centerX = centerX;
             _centerY = centerY;
-            UpdateLayout();
-            var originX = BodySize * 0.5;
-            var originY = BodySize * 0.5;
-            if (_body != null && _body.IsVisible)
-            {
-                var origin = _body.TranslatePoint(
-                    new Point(_body.Width * 0.5, _body.Height * 0.5),
-                    this);
-                if (!double.IsNaN(origin.X) && !double.IsNaN(origin.Y))
-                {
-                    originX = origin.X;
-                    originY = origin.Y;
-                }
-            }
-
-            Canvas.SetLeft(this, centerX - originX);
-            Canvas.SetTop(this, centerY - originY);
+            // RelayoutCluster already computes the stage/body origin; no synchronous
+            // WPF measure/arrange is needed for placement, even before the first render.
+            var left = centerX - _bodyOriginX;
+            var top = centerY - _bodyOriginY;
+            if (Canvas.GetLeft(this) == left && Canvas.GetTop(this) == top) return;
+            Canvas.SetLeft(this, left);
+            Canvas.SetTop(this, top);
             if (_hoverShown)
                 TryShowHover();
         }
@@ -554,6 +623,11 @@ namespace FishSocialOverlay
         {
             if (_disposed) return;
             _disposed = true;
+            _stateVersion++;
+            _renderVersion++;
+            _frameRequest?.Cancel();
+            _warmupVersion++;
+            OverlayAnimationClock.AfterTick -= RenderLatestFrame;
             ActiveActorCount--;
             _frameTimer.Stop();
             _frameTimer.Tick -= OnFrameTick;
@@ -592,11 +666,29 @@ namespace FishSocialOverlay
             OverlayFishingLayers.Release(_petId, _layeredClip);
             _layered = null;
             _layeredClip = string.Empty;
-            ClearLayerSources();
-            _layerHost.Visibility = Visibility.Collapsed;
+            _renderVersion++;
+            _frameRequest?.Cancel();
+            _frameDirty = false;
+            // Keep the last complete composite until its replacement is ready.
         }
 
-        void ApplyVisualState(string visualState, string petId)
+        async void ApplyVisualState(string visualState, string petId)
+        {
+            var pet = OverlayFrameCache.NormalizePetId(petId);
+            if (_requestedPet == pet && _requestedVisual == visualState &&
+                !OverlayFishingLayers.PackIsLoaded(pet)) return;
+            _requestedPet = pet;
+            _requestedVisual = visualState;
+            var version = ++_stateVersion;
+            await OverlayFishingLayers.EnsurePackAsync(pet);
+            if (!OverlayFishingLayers.PackIsLoaded(pet))
+            { _requestedPet = null; return; }
+            if (_disposed || version != _stateVersion) return;
+            ApplyLoadedVisualState(visualState, petId);
+            OverlayAnimationClock.Wake();
+        }
+
+        void ApplyLoadedVisualState(string visualState, string petId)
         {
             var nextState = OverlayFrameCache.NormalizeClip(visualState);
             var interrupt = string.Equals(visualState, "offline", StringComparison.OrdinalIgnoreCase)
@@ -716,6 +808,8 @@ namespace FishSocialOverlay
 
         void RelayoutCluster()
         {
+            LayoutPassCount++;
+            TotalLayoutPasses++;
             var petW = _chrome != null && _chrome.Pet != null && _chrome.Pet.w > 0
                 ? _chrome.Pet.w
                 : BodySize;
@@ -926,6 +1020,9 @@ namespace FishSocialOverlay
             Canvas.SetTop(_hintBadge, hintY);
             Canvas.SetLeft(_stage, petX);
             Canvas.SetTop(_stage, petY);
+            _bodyOriginX = petX + petW * 0.5;
+            _bodyOriginY = petY + petH * 0.5;
+            Place(_centerX, _centerY);
             _hitCatcher.Width = hitW;
             _hitCatcher.Height = hitH;
             Canvas.SetLeft(_hitCatcher, hitX);
@@ -1122,7 +1219,8 @@ namespace FishSocialOverlay
 
         void OnRefreshTick(object sender, EventArgs e)
         {
-            if (_disposed) return;
+            if (_disposed || !_presentationVisible) return;
+            _refreshTimer.SkipPeriods(OverlayAnimationClock.Now, 100);
             if (_hookRing.Visibility == Visibility.Visible ||
                 _hookRingImage.Visibility == Visibility.Visible)
                 UpdateHookRing();
@@ -1135,6 +1233,12 @@ namespace FishSocialOverlay
             if (_disposed) return;
             if (_layered != null)
             {
+                if (_layered.Playback != "once" && _layered.Playback != "hold" && _frameIndex >= _layered.LoopStart)
+                {
+                    double period = 0;
+                    for (var i = _layered.LoopStart; i < _layered.FrameCount; i++) period += _layered.DurationMs(i);
+                    _frameTimer.SkipPeriods(OverlayAnimationClock.Now, period);
+                }
                 AdvanceLayered();
                 return;
             }
@@ -1154,6 +1258,7 @@ namespace FishSocialOverlay
                 return;
             }
 
+            _frameTimer.SkipPeriods(OverlayAnimationClock.Now, _frames.Length * 125);
             _frameIndex = (_frameIndex + 1) % _frames.Length;
             ShowFrame();
         }
@@ -1219,6 +1324,7 @@ namespace FishSocialOverlay
 
             _hoverHost?.ShowHoverCard(ActorKey, text, this, _hintAnchor);
             _hoverShown = true;
+            SyncRefreshClock();
             return true;
         }
 
@@ -1237,6 +1343,7 @@ namespace FishSocialOverlay
         void CloseHover()
         {
             _hoverShown = false;
+            SyncRefreshClock();
             _hoverHost?.HideHoverCard(ActorKey);
         }
 
@@ -1321,6 +1428,7 @@ namespace FishSocialOverlay
 
         void ShowFrame()
         {
+            if (!_presentationVisible || _disposed) return;
             if (_layered != null)
             {
                 ShowLayered();
@@ -1361,39 +1469,59 @@ namespace FishSocialOverlay
 
         void ShowLayered()
         {
-            var count = _layered.FrameCount;
-            if (count <= 0)
-                return;
+            if (_layered == null || _layered.FrameCount <= 0) return;
+            _frameTimer.Interval = TimeSpan.FromMilliseconds(_layered.DurationMs(_frameIndex));
+            _renderVersion++;
+            _frameRequest?.Cancel();
+            _frameDirty = true;
+            OverlayAnimationClock.Wake();
+        }
+
+        async void RenderLatestFrame()
+        {
+            if (_disposed || !_presentationVisible || !_frameDirty || _frameLoading || _layered == null) return;
+            _frameDirty = false;
+            _frameLoading = true;
+            var request = new CancellationTokenSource();
+            _frameRequest = request;
+            var version = _renderVersion;
             var index = _frameIndex;
-            if (index < 0 || index >= count)
-                index = 0;
-            var order = _layered.Orders[index];
-            var interval = TimeSpan.FromMilliseconds(_layered.DurationMs(index));
-            if (_frameTimer.Interval != interval)
-                _frameTimer.Interval = interval;
-            for (var i = 0; i < OverlayFishingLayers.LayerNames.Length; i++)
+            var clip = _layered;
+            var rejected = OverlayFishingLayers.RejectedDecodes;
+            try
             {
-                var name = OverlayFishingLayers.LayerNames[i];
-                var z = 0;
-                for (var n = 0; n < order.Length; n++)
-                {
-                    if (string.Equals(order[n], name, StringComparison.Ordinal))
+                var pending = new Task<BitmapImage>[_layerImages.Length];
+                for (var i = 0; i < pending.Length; i++)
+                    pending[i] = OverlayFishingLayers.BitmapAsync(
+                        OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, OverlayFishingLayers.LayerNames[i]),
+                        _layerDrawW, _layerDrawH, request.Token);
+                var images = await Task.WhenAll(pending);
+                if (_disposed || version != _renderVersion || !_presentationVisible) return;
+                foreach (var image in images)
+                    if (image == null)
                     {
-                        z = n;
-                        break;
+                        _frameDirty = OverlayFishingLayers.RejectedDecodes != rejected;
+                        return;
                     }
+                // Publish all nine layers atomically on the dispatcher. Missing/pending
+                // images never clear individual layers or mix two animation frames.
+                var order = clip.Orders[index];
+                for (var i = 0; i < images.Length; i++)
+                {
+                    var z = Array.IndexOf(order, OverlayFishingLayers.LayerNames[i]);
+                    if (Panel.GetZIndex(_layerImages[i]) != z) Panel.SetZIndex(_layerImages[i], z);
+                    if (!ReferenceEquals(_layerImages[i].Source, images[i])) _layerImages[i].Source = images[i];
                 }
-
-                if (Panel.GetZIndex(_layerImages[i]) != z)
-                    Panel.SetZIndex(_layerImages[i], z);
-                var path = OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, name);
-                var bitmap = OverlayFishingLayers.BitmapFor(path, _layerDrawW, _layerDrawH);
-                if (!ReferenceEquals(_layerImages[i].Source, bitmap))
-                    _layerImages[i].Source = bitmap;
+                _image.Visibility = Visibility.Collapsed;
+                _layerHost.Visibility = Visibility.Visible;
             }
-
-            _image.Visibility = Visibility.Collapsed;
-            _layerHost.Visibility = Visibility.Visible;
+            finally
+            {
+                _frameRequest = null;
+                request.Dispose();
+                _frameLoading = false;
+                if (!_disposed && _frameDirty) OverlayAnimationClock.Wake();
+            }
         }
 
         void AdvanceLayered()

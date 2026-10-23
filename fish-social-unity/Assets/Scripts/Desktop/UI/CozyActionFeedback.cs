@@ -14,6 +14,7 @@ namespace FishSocial.Desktop
         public static void Play(Transform target, bool succeeded, string caption)
         {
             if (target == null || !target.gameObject.activeInHierarchy) return;
+            DesktopAudioService.Play(succeeded ? "ui_success" : "ui_error");
             if (!succeeded)
             {
                 CozyMotion.Shake(target as RectTransform);

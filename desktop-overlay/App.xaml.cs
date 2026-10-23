@@ -1,5 +1,7 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Threading;
 using System.Windows.Threading;
 
@@ -11,6 +13,12 @@ namespace FishSocialOverlay
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // Run before actions can close their popup or raise the Unity window.
+            // Button excludes the repeating controls inside scrollbars.
+            EventManager.RegisterClassHandler(typeof(Button), ButtonBase.ClickEvent,
+                new RoutedEventHandler(OnButtonActivated), true);
+            EventManager.RegisterClassHandler(typeof(MenuItem), MenuItem.ClickEvent,
+                new RoutedEventHandler(OnMenuItemActivated), true);
             DispatcherUnhandledException += OnDispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             bool created;
@@ -23,6 +31,21 @@ namespace FishSocialOverlay
                 return;
             }
             base.OnStartup(e);
+        }
+
+        static void OnButtonActivated(object sender, RoutedEventArgs e)
+        {
+            if (ReferenceEquals(sender, e.Source) && sender is Button button && button.IsEnabled)
+                (Current.MainWindow as MainWindow)?.PlayButtonAudio(button);
+        }
+
+        static void OnMenuItemActivated(object sender, RoutedEventArgs e)
+        {
+            // Leaf activation also bubbles through its parent MenuItems. Emit once,
+            // including context menus hosted in a separate WPF popup source.
+            if (ReferenceEquals(sender, e.Source) && sender is MenuItem item &&
+                item.IsEnabled && !item.HasItems)
+                (Current.MainWindow as MainWindow)?.PlayInteractionAudio("ui_click");
         }
 
         static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -46,6 +48,39 @@ namespace FishSocialOverlay
         internal static int ActiveClipCount => ClipUsers.Count;
         internal static long DecodeCount { get; private set; }
 
+        // These dictionaries and the LRU belong exclusively to the dispatcher.
+        // Workers only read files and return immutable packs / frozen bitmaps.
+        static readonly OverlayDecodeQueue DecodeQueue = new OverlayDecodeQueue();
+        static readonly Dictionary<string, Task<PetPack>> PendingPacks = new Dictionary<string, Task<PetPack>>();
+        sealed class PendingImage
+        {
+            public Task<BitmapImage> Task;
+            public readonly CancellationTokenSource Cancel = new CancellationTokenSource();
+            public int Users;
+        }
+        static readonly Dictionary<string, PendingImage> PendingImages = new Dictionary<string, PendingImage>(StringComparer.OrdinalIgnoreCase);
+        internal static int PendingDecodes => DecodeQueue.Pending;
+        internal static long RejectedDecodes { get; private set; }
+
+        internal static bool PackIsLoaded(string petId) => Packs.ContainsKey(petId);
+
+        public static async Task<bool> EnsurePackAsync(string petId)
+        {
+            System.Windows.Application.Current?.Dispatcher.VerifyAccess();
+            if (!IsSafePetId(petId)) return false;
+            if (Packs.TryGetValue(petId, out var pack)) return pack != null;
+            if (!PendingPacks.TryGetValue(petId, out var pending))
+            {
+                pending = DecodeQueue.TryRun(() => ReadPack(petId));
+                if (pending == null) { RejectedDecodes++; return false; }
+                PendingPacks[petId] = pending;
+            }
+            pack = await pending;
+            PendingPacks.Remove(petId);
+            if (!Packs.ContainsKey(petId)) PublishPack(petId, pack);
+            return pack != null;
+        }
+
         public static FishingClipPlayback TryOpen(string petId, string clip)
         {
             if (!IsSafePetId(petId) || !IsSafePetId(clip))
@@ -53,8 +88,6 @@ namespace FishSocialOverlay
 
             var pack = LoadPack(petId);
             if (pack == null || !pack.Clips.TryGetValue(clip, out var playback))
-                return null;
-            if (!File.Exists(LayerPath(petId, clip, 0, "body", pack.BodyLayers)))
                 return null;
             return playback;
         }
@@ -133,65 +166,105 @@ namespace FishSocialOverlay
                 Bitmaps.Release(resources);
         }
 
-        public static ImageSource BitmapFor(string path, int decodeW, int decodeH)
+        static bool DecodeKey(string path, ref int width, ref int height, out int scale, out string key)
         {
-            if (decodeW < 1 || decodeH < 1 || string.IsNullOrEmpty(path))
-                return null;
-            if (!TextureScales.TryGetValue(path, out var textureScale))
-                return null;
-            if (textureScale > 1)
+            scale = 1;
+            key = null;
+            if (width < 1 || height < 1 || string.IsNullOrEmpty(path) ||
+                !TextureScales.TryGetValue(path, out scale)) return false;
+            if (scale > 1)
             {
-                decodeW = (int)Math.Min(CanvasWidth * textureScale, (long)decodeW * 2);
-                decodeH = (int)Math.Min(CanvasHeight * textureScale, (long)decodeH * 2);
+                width = (int)Math.Min(CanvasWidth * scale, (long)width * 2);
+                height = (int)Math.Min(CanvasHeight * scale, (long)height * 2);
             }
+            key = width + "x" + height + "|" + path;
+            return true;
+        }
 
-            var key = decodeW + "x" + decodeH + "|" + path;
-            if (Missing.Contains(key))
-                return null;
-            if (Bitmaps.TryGet(key, out var cached))
-                return cached;
-            if (!File.Exists(path))
+        // Synchronous reference path for the native resource tests. Actor rendering
+        // exclusively uses BitmapAsync; never call this from a frame/state handler.
+        internal static ImageSource BitmapFor(string path, int decodeW, int decodeH)
+        {
+            if (!DecodeKey(path, ref decodeW, ref decodeH, out var scale, out var key) || Missing.Contains(key)) return null;
+            if (Bitmaps.TryGet(key, out var cached)) return cached;
+            return PublishBitmap(key, path, DecodeBitmap(path, decodeW, decodeH, scale));
+        }
+
+        public static async Task<BitmapImage> BitmapAsync(string path, int decodeW, int decodeH, CancellationToken token = default)
+        {
+            System.Windows.Application.Current?.Dispatcher.VerifyAccess();
+            if (token.IsCancellationRequested || !DecodeKey(path, ref decodeW, ref decodeH, out var scale, out var key) || Missing.Contains(key)) return null;
+            if (Bitmaps.TryGet(key, out var cached)) return cached;
+            if (!PendingImages.TryGetValue(key, out var pending))
             {
-                Missing.Add(key);
-                return null;
+                pending = new PendingImage();
+                pending.Task = DecodeQueue.TryRun(() => DecodeBitmap(path, decodeW, decodeH, scale), pending.Cancel.Token);
+                if (pending.Task == null) { pending.Cancel.Dispose(); RejectedDecodes++; return null; }
+                PendingImages[key] = pending;
             }
+            pending.Users++;
+            try
+            {
+                var image = await OverlayTaskWait.WithCancellation(pending.Task, token);
+                // One publication, even if several actors await the same resource.
+                if (PendingImages.TryGetValue(key, out var current) && ReferenceEquals(current, pending))
+                {
+                    PendingImages.Remove(key);
+                    PublishBitmap(key, path, image);
+                }
+                return image;
+            }
+            catch (OperationCanceledException) { return null; }
+            finally
+            {
+                if (--pending.Users == 0)
+                {
+                    if (!pending.Task.IsCompleted) pending.Cancel.Cancel();
+                    if (PendingImages.TryGetValue(key, out var current) && ReferenceEquals(current, pending))
+                        PendingImages.Remove(key);
+                    pending.Cancel.Dispose();
+                }
+            }
+        }
 
+        static BitmapImage PublishBitmap(string key, string path, BitmapImage image)
+        {
+            System.Windows.Application.Current?.Dispatcher.VerifyAccess();
+            if (image == null) { Missing.Add(key); return null; }
+            DecodeCount++;
+            var stride = ((long)image.PixelWidth * image.Format.BitsPerPixel + 7) / 8;
+            Bitmaps.Add(key, path, image, stride * image.PixelHeight);
+            return image;
+        }
+
+        static BitmapImage DecodeBitmap(string path, int width, int height, int scale)
+        {
             try
             {
                 using (var stream = File.OpenRead(path))
                 {
                     var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
-                    if (decoder.Frames[0].PixelWidth != CanvasWidth * textureScale ||
-                        decoder.Frames[0].PixelHeight != CanvasHeight * textureScale)
-                    {
-                        Missing.Add(key);
-                        return null;
-                    }
+                    if (decoder.Frames[0].PixelWidth != CanvasWidth * scale ||
+                        decoder.Frames[0].PixelHeight != CanvasHeight * scale) return null;
                     stream.Position = 0;
                     var image = new BitmapImage();
                     image.BeginInit();
                     image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.DecodePixelWidth = decodeW;
-                    image.DecodePixelHeight = decodeH;
+                    image.DecodePixelWidth = width;
+                    image.DecodePixelHeight = height;
                     image.StreamSource = stream;
                     image.EndInit();
                     image.Freeze();
-                    DecodeCount++;
-                    var stride = ((long)image.PixelWidth * image.Format.BitsPerPixel + 7) / 8;
-                    Bitmaps.Add(key, path, image, stride * image.PixelHeight);
                     return image;
                 }
             }
-            catch (IOException)
-            {
-                Missing.Add(key);
-                return null;
-            }
-            catch (NotSupportedException)
-            {
-                Missing.Add(key);
-                return null;
-            }
+            catch (IOException) { return null; }
+            catch (UnauthorizedAccessException) { return null; }
+            catch (NotSupportedException) { return null; }
+            catch (ArgumentException) { return null; }
+            catch (FormatException) { return null; }
+            catch (InvalidOperationException) { return null; }
+            catch (System.Runtime.InteropServices.COMException) { return null; }
         }
 
         public static void Place(
@@ -206,8 +279,7 @@ namespace FishSocialOverlay
             var place = DefaultPlace;
             if (IsSafePetId(petId))
             {
-                var pack = LoadPack(petId);
-                if (pack != null)
+                if (Packs.TryGetValue(petId, out var pack) && pack != null)
                     place = pack.Place;
             }
 
@@ -251,6 +323,13 @@ namespace FishSocialOverlay
             if (Packs.TryGetValue(petId, out var cached))
                 return cached;
 
+            var pack = ReadPack(petId);
+            PublishPack(petId, pack);
+            return pack;
+        }
+
+        static PetPack ReadPack(string petId)
+        {
             PetPack pack = null;
             try
             {
@@ -276,6 +355,10 @@ namespace FishSocialOverlay
             {
                 pack = null;
             }
+            catch (UnauthorizedAccessException)
+            {
+                pack = null;
+            }
             catch (JsonException)
             {
                 pack = null;
@@ -293,6 +376,12 @@ namespace FishSocialOverlay
                 pack = null;
             }
 
+            return pack;
+        }
+
+        static void PublishPack(string petId, PetPack pack)
+        {
+            System.Windows.Application.Current?.Dispatcher.VerifyAccess();
             if (pack != null)
             {
                 foreach (var pair in pack.Clips)
@@ -306,7 +395,6 @@ namespace FishSocialOverlay
                 }
             }
             Packs[petId] = pack;
-            return pack;
         }
 
         static PetPack Parse(string json)

@@ -69,7 +69,7 @@ namespace FishSocial.Desktop
         Text _headerUnread;
         GameObject _headerUnreadBadge;
         string _headerAvatarSkin;
-        SpriteFramePetRenderer _homeRenderer;
+        CozyHomeRoom _homeRoom;
         bool _balanceLoading;
         float _nextBalanceRefresh;
 
@@ -319,7 +319,11 @@ namespace FishSocial.Desktop
             CatTheme.SkinTree(canvasGo.transform);
             CozyMotion.EnsureHost(canvasGo);
             CozyMotion.EnsureBobber(canvasGo.transform.Find("MainRoot/Nav"));
-            CozyMotion.EnsureCornerCat(canvasGo.transform.Find("MainRoot"));
+            _homeRoom = CozyHomeRoom.Build(_mainRoot.transform);
+            _homeRoom.Bind(() => ShowMainPanel(ShellPanelId.Equipment),
+                () => OpenProfileHub(DesktopProfileHubPanel.HubTab.Showcase));
+            var corner = _mainRoot.transform.Find("CozyCornerCat");
+            if (corner != null) corner.gameObject.SetActive(false);
             return true;
         }
 
@@ -570,6 +574,7 @@ namespace FishSocial.Desktop
         void OnPanelChanged(ShellPanelId id)
         {
             HighlightTab(id);
+            _homeRoom?.SetPageOpen(id != ShellPanelId.Home);
             if (_mainRoot != null)
             {
                 var character = _mainRoot.GetComponentInChildren<CozyCornerCharacter>(true);
@@ -765,11 +770,9 @@ namespace FishSocial.Desktop
             if (sprite == null)
                 return;
             _headerAvatar.sprite = sprite;
-            if (_headerAvatarSkin != skin && _mainRoot != null)
+            if (_homeRoom == null && _headerAvatarSkin != skin && _mainRoot != null)
                 CozyMotion.SetCornerCharacter(_mainRoot.transform, skin == "orange" ? null : skin);
             _headerAvatarSkin = skin;
-            if (_homeRenderer != null && _homeRenderer.ActiveSkinId != skin)
-                _homeRenderer.PlayClip(skin, "fishing");
         }
 
         void ShowToast(string msg, bool error = false)
@@ -866,19 +869,10 @@ namespace FishSocial.Desktop
             var menu = go.transform.Find("MenuCard");
             if (menu != null)
                 CozySurplus.Park(menu.gameObject);
-            var hero = DesktopModalUi.FindComponent<Image>(go.transform, "HeroCat");
-            if (hero != null)
-            {
-                var renderer = hero.GetComponent<SpriteFramePetRenderer>();
-                if (renderer != null)
-                {
-                    _homeRenderer = renderer;
-                    renderer.DecodeWhenUncached = true;
-                    renderer.Bind(hero);
-                    renderer.Apply(PetVisualState.Fishing);
-                    renderer.PlayClip(PetArtLoader.CurrentOwnPetId(), "fishing");
-                }
-            }
+            // The room owns the sole home companion. The real pond renderer remains independent.
+            foreach (Transform child in go.transform) child.gameObject.SetActive(false);
+            var graphic = go.GetComponent<Graphic>();
+            if (graphic != null) graphic.enabled = false;
         }
 
         void OpenPond()

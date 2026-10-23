@@ -69,7 +69,8 @@ public static class FishingLayerTextureTests
             File.WriteAllBytes(propPath, scale > 1 ? bodyBytes : Png(1280, 1024));
             Require(OverlayFishingLayers.BitmapFor(propPath, 25, 20) == null, "High-resolution prop rejected");
             File.Delete(bodyPath);
-            Require(OverlayFishingLayers.TryOpen(pet, clip) == null, "Missing cached body rejected");
+            Require(OverlayFishingLayers.TryOpen(pet, clip) != null, "Validated metadata remains usable without per-frame disk probes");
+            Require(OverlayFishingLayers.BitmapFor(bodyPath, 26, 21) == null, "Missing file on cold decode rejected");
             var packs = (System.Collections.IDictionary)typeof(OverlayFishingLayers).GetField(
                 "Packs", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
             packs.Remove(pet);

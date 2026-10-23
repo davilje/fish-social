@@ -338,7 +338,7 @@ namespace FishSocial.Desktop.Editor
                 var bg = nav.GetComponent<Image>();
                 if (bg != null) CozyJournalTheme.ApplySurface(bg, "surfaces/dock-board");
             }
-            CozyMotion.EnsureCornerCat(root.transform.Find("MainRoot"));
+            CozyHomeRoom.Build(root.transform.Find("MainRoot"));
             CozyMotion.EnsureBobber(nav);
             var toast = root.transform.Find("Toast")?.GetComponent<Image>();
             if (toast != null) CozyJournalTheme.ApplySurface(toast, "surfaces/toast-note");

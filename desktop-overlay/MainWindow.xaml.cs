@@ -151,6 +151,7 @@ namespace FishSocialOverlay
                 return;
 
             _chatDockExpanded = expanded;
+            _chat?.SetExpanded(expanded);
             var height = _hudChatDockMetricsValid
                 ? (expanded ? _hudChatDockMetrics.ExpandedH : _hudChatDockMetrics.CollapsedH)
                 : (expanded ? HudChatDockExpandedHeight : HudChatDockCollapsedHeight);
@@ -250,6 +251,7 @@ namespace FishSocialOverlay
                 _selectedSpotId = spotId ?? string.Empty;
                 if (!string.IsNullOrEmpty(_selectedSpotId))
                 {
+                    PlayInteractionAudio("ui_click");
                     _scene.PredictOwnSeat(_selectedSpotId);
                     _pendingSeatCommandId = SendCommand("take_spot", _selectedSpotId);
                     if (_lastStateMessage != null)
@@ -259,6 +261,7 @@ namespace FishSocialOverlay
             _scene.LocalPresentationChanged += OnLocalPresentationChanged;
             _scene.SceneContentChanged += OnSceneContentChanged;
             _chat = new OverlayChatPresenter(ChatLatestPreview, ChatLogScroll, ChatLogList);
+            _chat.SetExpanded(_chatDockExpanded);
             _chatBubbles = new OverlayChatBubblePresenter(
                 ChatBubbleLayer,
                 playerId => _scene?.TryResolveActor(playerId),
@@ -278,6 +281,10 @@ namespace FishSocialOverlay
             // Never put both OpacityMasks on one element — the second overwrites the first.
             _edgeVignette = new OverlayEdgeVignette(SceneFadeHost, ScenePanViewport);
             _scenePan = new OverlayScenePan(SceneContentCanvas);
+            _scenePan.PanActivated += () => PlayInteractionAudio("ui_tick");
+            _scenePan.ViewportChanged += RefreshPresentationViewport;
+            IsVisibleChanged += (sender, args) => RefreshPresentationViewport();
+            StateChanged += (sender, args) => RefreshPresentationViewport();
             _scenePan.AttachButtons(BtnPanLeft, BtnPanRight);
             ApplyInitialViewport();
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
@@ -291,6 +298,16 @@ namespace FishSocialOverlay
                 Background = CozyTheme.Cream;
                 Topmost = false;
             }
+        }
+
+        void RefreshPresentationViewport()
+        {
+            if (_scenePan == null || _scene == null) return;
+            var visible = IsVisible && WindowState != WindowState.Minimized;
+            OverlayAnimationClock.SetVisible(visible);
+            _scene.SetPresentationViewport(new Rect(-_scenePan.OffsetX,
+                Math.Max(0, _scene.ContentHeight - _scenePan.ViewportHeight),
+                _scenePan.ViewportWidth, _scenePan.ViewportHeight), visible);
         }
 
         void ApplyInitialViewport()
@@ -630,6 +647,9 @@ namespace FishSocialOverlay
                         " cachedFrames=" + OverlayFishingLayers.CachedBitmapCount +
                         " cachePixelBytes=" + OverlayFishingLayers.CachedPixelBytes +
                         " layerDecodes=" + OverlayFishingLayers.DecodeCount +
+                        " pendingDecodes=" + OverlayFishingLayers.PendingDecodes +
+                        " rejectedDecodes=" + OverlayFishingLayers.RejectedDecodes +
+                        " actorLayouts=" + OverlayPetActor.TotalLayoutPasses +
                         (ackTrace ?? string.Empty));
                 }
             }
@@ -1572,7 +1592,10 @@ namespace FishSocialOverlay
             _pendingProductMenu = false;
 
             if (pet != null)
-                pet.TryOpenPlayerContextMenu();
+            {
+                if (pet.TryOpenPlayerContextMenu())
+                    PlayInteractionAudio("ui_open");
+            }
             else if (product)
                 OpenProductContextMenu();
         }
@@ -1604,6 +1627,7 @@ namespace FishSocialOverlay
 
         void OnProductMenuOpened(object sender, RoutedEventArgs e)
         {
+            PlayInteractionAudio("ui_open");
             OverlayInteractionState.BeginMenuHoverSuppress();
             _scene?.CancelAllHovers();
         }
@@ -1825,7 +1849,9 @@ namespace FishSocialOverlay
             if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)) &&
                 !IsSceneChromeSource(e.OriginalSource as DependencyObject))
                 return;
-            BeginSceneDrag();
+            var ownActor = _scene?.TryResolveOwnActor() as OverlayPetActor;
+            var petClick = ownActor != null && ownActor.HitTestsPetArt(e.GetPosition(PondScene), PondScene);
+            BeginSceneDrag(petClick);
         }
 
         bool ShouldSkipSceneDrag(DependencyObject source)
@@ -1848,19 +1874,29 @@ namespace FishSocialOverlay
                    IsUnderElement(source, SceneFadeHost);
         }
 
-        void BeginSceneDrag()
+        void BeginSceneDrag(bool petClick = false)
         {
+            var pointerBefore = new Win32Point();
+            var canMeasureClick = petClick && GetCursorPos(out pointerBefore);
+            var dragCompleted = false;
             OverlayInteractionState.SceneDragging = true;
             _scene?.CancelAllHovers();
             try
             {
                 DragMove();
+                dragCompleted = true;
             }
             catch (InvalidOperationException)
             {
             }
             OverlayInteractionState.SceneDragging = false;
             ResyncPointerHover();
+            // DragMove owns native mouse capture, so WPF may not receive button-up.
+            // Compare screen positions to distinguish a cat click from a drag.
+            if (canMeasureClick && dragCompleted && GetCursorPos(out var pointerAfter) &&
+                Math.Abs(pointerAfter.X - pointerBefore.X) <= SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(pointerAfter.Y - pointerBefore.Y) <= SystemParameters.MinimumVerticalDragDistance)
+                PlayInteractionAudio("meow");
         }
 
         void PondScene_OnMouseMove(object sender, MouseEventArgs e)
@@ -1984,6 +2020,33 @@ namespace FishSocialOverlay
             return commandId;
         }
 
+        internal void PlayButtonAudio(Button button)
+        {
+            var cue = "ui_click";
+            if (ReferenceEquals(button, MenuToggleButton))
+                cue = _menuExpanded ? "ui_close" : "ui_open";
+            else if (ReferenceEquals(button, ChatDockToggle))
+                cue = _chatDockExpanded ? "ui_close" : "ui_open";
+            else if (string.Equals(button.Content as string, "关闭", StringComparison.Ordinal))
+                cue = "ui_close";
+            PlayInteractionAudio(cue);
+        }
+
+        internal void PlayInteractionAudio(string cue)
+        {
+            if (_stopping)
+                return;
+            // Unity owns playback, volume settings and cooldowns for both windows.
+            // Cosmetic messages do not participate in gameplay command/ack state.
+            Send(new IpcMessage
+            {
+                Type = "command",
+                Version = 1,
+                Command = "play_audio",
+                Text = cue,
+            });
+        }
+
         void ShowTransientStatus(string text)
         {
             _transientStatusUntilMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 4000;
@@ -2070,6 +2133,7 @@ namespace FishSocialOverlay
             }
 
             _chatDockExpanded = !_chatDockExpanded;
+            _chat?.SetExpanded(_chatDockExpanded);
 
             ChatDockExpanded.Visibility = _chatDockExpanded
                 ? Visibility.Visible

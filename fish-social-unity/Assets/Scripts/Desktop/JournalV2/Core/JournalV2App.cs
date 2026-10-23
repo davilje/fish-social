@@ -28,6 +28,7 @@ namespace FishSocial.Desktop.JournalV2
         public void Bind(IAuthenticatedApiClient api,SocialPondSessionController pond,bool preview=false)
         {
             Api=api;Pond=pond;PreviewMode=preview;PondSelection.Bind(api);
+            if(!preview) DesktopCatAudioFeedback.Bind(Stage.Find("CornerCat"));
             foreach(var route in new[]{"bag","equip","shop","ach","rank","profile","feed"})
             {
                 var captured=route;BindButton("Stage/Nav/"+route,()=>Navigate(captured));

@@ -190,7 +190,6 @@
     "OverlayPondLayout.cs": "0b35015e044e28f2eaf6ff2227e6c682f1f606ceccd590a3d6b8fcd2065c1e35",
     "OverlaySeatArt.cs": "f4f9b7a47fd963b180d9fe0a885794eb65d86a37d7e599468c12496f38ecb960",
     "OverlaySpotMarker.cs": "d75be780322379bd8518e73a4fafff16bf82f74f2857bf47e29f1881bd131ac1",
-    "OverlayScenePan.cs": "a1e9d2b7a917d73a3832171e66f6e6d23045db00ddddb36cb232dfed972a6e67",
     "OverlayViewport.cs": "3e0e6d7cfefbccbae223c0bcaf18310a657e78018c42f7ed49599b2fb9a1bdc8",
     "OverlayEdgeVignette.cs": "1e743d25f8d594205f23f9ce38d27f64d3d95385b9d137ddfc236efc62b9941a",
     "OverlayNineSlice.cs": "5d62083a092f24700f355eb9ca8f819863691298886d6b2ca9ddf83986125cec"
@@ -298,14 +297,12 @@
     "OverlayPetActor.cs": {
       "RefreshSocialMenuItems": "643f10c6632aac3380716f83ca2768c51ddb80bdbbd312fc3c151902f7e64399",
       "StartLayerClip": "0b71c0660ae1aac4235747e43b7ab52d62842d6c233862ceeb3dd34188b96b9d",
-      "RelayoutCluster": "e52afdb14712a47492922893a32f06179373d96c87601a70cf2122ada5d4d15b",
       "UpdateHookRing": "2f9cab4d61d2ccc3b0f31d3cc9f5a13219aafece55908fb094018fb92196b3fc",
-      "ShowFrame": "44546a5b495f1b2bed972274166281e2bdac1afbb63b22a939aa1f02e1bbd12f",
-      "ShowLayered": "8732473f87f68fcc28e26d78ac4abe70c95dd2a4a63e634487240ee7429cb248",
       "AdvanceLayered": "26ad3eea344bfab758b618d2490d43e30df8000f732b7500bb97bded0434ff4d",
       "Load": "a80f64cdc19095f9ca94e395e30fab11b31c522fe8548b9b23b8f5af31f017b3",
       "LoadBitmap": "5846330c6a13b710354faf80477344edbfc68944a0998ab5931ebe29970159b9",
-      "NormalizePetId": "6b6dfdd85f05cc03a6a7400eb0697267ca4cccd1a0da1f1c99e42079877ec919"
+      "NormalizePetId": "6b6dfdd85f05cc03a6a7400eb0697267ca4cccd1a0da1f1c99e42079877ec919",
+      "ApplyLoadedVisualState": "85d0557f47b40b65937f28c96a84c7b5dae506eb4b6eb80d724810c30407da7d"
     },
     "OverlayChatBubblePresenter.cs": {
       "PositionBubble": "0370175ea907f4cc71b2aa56d073efaa89c6dd284efe7c0081788f5bd3a690be",
@@ -320,9 +317,7 @@
     },
     "OverlayFishingLayers.cs": {
       "Parse": "db1613b2d3918ea0f46b6b23853ef1b593b8d2fa1eb791dbcf167f8e0e38ac76",
-      "LayerPath": "98027fc46c8b673000746e9f1972faf1994fd5522d1e7831dc9d54552344daa4",
-      "Place": "2ca0c898e79947aa0616653e408de472faf21b44d042da5b1a425fca54b5e323",
-      "TryOpen": "e86103fb80843dd8c9ff56d164adf1fce2538eec2ed69b3ef4908e0f49763db2"
+      "LayerPath": "98027fc46c8b673000746e9f1972faf1994fd5522d1e7831dc9d54552344daa4"
     },
     "PondScenePresenter.cs": {
       "SyncSpots": "b03082c629cd972731d15c6d0fe7c857cca81d5e84a361fa7952497d64b1fa75",
@@ -344,5 +339,13 @@
     ],
     "intentional_changes": "Status removal, journal surfaces and quiet HUD motion are covered by test_overlay_journal_presentation.py; fishing frame/state methods remain hash-protected."
   },
-  "2026-10-23_performance_batch1_contract": "Scoped lifecycle/cache changes replace whole-file locks with cache behavior tests and Windows WPF regressions; preserve parser, animation advancement and scene business methods. HUD baseline corrected to existing 1a3c8769 export (not modified by this batch)."
+  "2026-10-23_performance_batch1_contract": "Scoped lifecycle/cache changes replace whole-file locks with cache behavior tests and Windows WPF regressions; preserve parser, animation advancement and scene business methods. HUD baseline corrected to existing 1a3c8769 export (not modified by this batch).",
+  "performance_batch2_replaced_by_behavior_tests": {
+    "OverlayPetActor.cs:RelayoutCluster": "e52afdb14712a47492922893a32f06179373d96c87601a70cf2122ada5d4d15b",
+    "OverlayPetActor.cs:ShowFrame": "44546a5b495f1b2bed972274166281e2bdac1afbb63b22a939aa1f02e1bbd12f",
+    "OverlayPetActor.cs:ShowLayered": "8732473f87f68fcc28e26d78ac4abe70c95dd2a4a63e634487240ee7429cb248",
+    "OverlayFishingLayers.cs:Place": "2ca0c898e79947aa0616653e408de472faf21b44d042da5b1a425fca54b5e323",
+    "OverlayFishingLayers.cs:TryOpen": "e86103fb80843dd8c9ff56d164adf1fce2538eec2ed69b3ef4908e0f49763db2",
+    "OverlayScenePan.cs": "a1e9d2b7a917d73a3832171e66f6e6d23045db00ddddb36cb232dfed972a6e67"
+  }
 }

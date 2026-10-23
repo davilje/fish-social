@@ -247,12 +247,14 @@ namespace FishSocial.Desktop
 
         void Fail(string message)
         {
+            DesktopAudioService.Play("ui_error");
             _setError?.Invoke(message ?? "操作失败。");
             _publishState?.Invoke();
         }
 
         void Succeed(string message)
         {
+            DesktopAudioService.Play("ui_success");
             _setError?.Invoke(message ?? string.Empty);
             _publishState?.Invoke();
         }

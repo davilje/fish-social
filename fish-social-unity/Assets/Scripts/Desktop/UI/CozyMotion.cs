@@ -792,6 +792,7 @@ namespace FishSocial.Desktop
 
         public static void EnsureCornerCat(Transform parent)
         {
+            if (parent != null && parent.Find("HomeRoom") != null) return;
             if (parent == null || parent.Find("CozyCornerCat") != null)
                 return;
             var sprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/journal/illustrations/cat-fishing")
@@ -826,6 +827,7 @@ namespace FishSocial.Desktop
 
         public static bool SetCornerCharacter(Transform parent, string explicitSkinId)
         {
+            if (parent != null && parent.Find("HomeRoom") != null) return false;
             if (parent == null) return false;
             EnsureCornerCat(parent);
             var cat = parent.Find("CozyCornerCat");
@@ -837,6 +839,7 @@ namespace FishSocial.Desktop
 
         public static void SetCornerPose(Transform parent, CozyCornerCharacter.Pose pose, float holdSeconds = 0f)
         {
+            if (parent != null && parent.Find("HomeRoom") != null) return;
             if (parent == null) return;
             EnsureCornerCat(parent);
             var cat = parent.Find("CozyCornerCat");

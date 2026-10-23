@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-23",
+  "scope": "overlay-performance-batch2",
+  "status": "implemented_windows_runtime_pending",
+  "runtime_behavior": {
+    "scheduling_queue_cancellation": {
+      "passed": 10,
+      "failed": 0
+    },
+    "resource_cache": {
+      "passed": 8,
+      "failed": 0
+    }
+  },
+  "static_suite": {
+    "tests_run": 43,
+    "tests_passed": 41,
+    "failed_test_methods": 2,
+    "failed_subtests": 3,
+    "unrelated_concurrent_audio_contracts": [
+      "App.xaml.cs",
+      "MainWindow.xaml.cs:PondScene_OnMouseLeftButtonDown",
+      "MainWindow.xaml.cs:PondScene_PreviewMouseRightButtonUp"
+    ],
+    "new_batch2_integration_tests_passed": 4
+  },
+  "windows_cross_build": {
+    "target": "netcoreapp3.1",
+    "sdk": "8.0.408",
+    "errors": 0,
+    "warnings": 5,
+    "warning_code": "NETSDK1138"
+  },
+  "windows_native_runtime": {
+    "executed": false,
+    "groups_prepared": 11
+  },
+  "performance_ab_measured": false,
+  "installed_executable_replaced": false,
+  "source_sha256": {
+    "OverlayAnimationClock.cs": "46dce538a7d7e721f68999b32312e4ccd235d87c0f63ffd2edc985673892e3b1",
+    "OverlayAnimationSchedule.cs": "7b91243ba8b6f5df5d30203a0f452e218ca4a3d83515dcea86936617a6ce2a83",
+    "OverlayDecodeQueue.cs": "2b9178fcddaeb14a8e815631b15a889394b9d08edf56401107c8f6b75a415a2a",
+    "OverlayTaskWait.cs": "264b2effc2ca65f72e8fbaa9cc6a3f3dc1b6fb00d998db9a0fe8962586ef1c22",
+    "OverlayFishingLayers.cs": "010abbe5fa22acc4fb0d5298ed5a183d57c24632af3f7c3328d558b86a30465e",
+    "OverlayPetActor.cs": "f40eaf71594357001be7fc3c37abab7906c405411833dfce633a35141e85405e",
+    "OverlayChatPresenter.cs": "ab01eee18cd19b00422ace7c63e703d1a433119d6bd7eeee50d54e27deedb493",
+    "PondScenePresenter.cs": "cc798da17271e7bd47e99d84c626f3c42a8104f48074e52de4b8868014a3fb79"
+  }
+}

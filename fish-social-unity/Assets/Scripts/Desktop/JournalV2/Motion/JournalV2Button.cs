@@ -262,7 +262,7 @@ namespace FishSocial.Desktop.JournalV2
         { if (!interactable || JournalV2MotionState.Immediate) return; pressPhase = 3; pressTime = 0; Render(); }
         public void OnCancel(BaseEventData data) { OnPointerUp(null); }
         void Update() { Advance(Time.unscaledDeltaTime); }
-        void OnEnable() { JournalV2MotionState.Changed += OnMotionState; if (configured) Finish(); }
+        void OnEnable() { DesktopUiAudioFeedback.Ensure(gameObject); JournalV2MotionState.Changed += OnMotionState; if (configured) Finish(); }
         void OnDisable() { JournalV2MotionState.Changed -= OnMotionState; hovered = false; Finish(); }
         void OnMotionState() { if (JournalV2MotionState.Immediate) Finish(); }
     }

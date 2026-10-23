@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +19,7 @@ public static class OverlayPerformanceTests
     [STAThread]
     public static void Main()
     {
+        SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         app.Resources.MergedDictionaries.Add(new ResourceDictionary
         { Source = new Uri("/FishSocialOverlay;component/CozyTheme.xaml", UriKind.Relative) });
@@ -25,6 +29,11 @@ public static class OverlayPerformanceTests
         Run("warmup uses final size and survives new actors", Warmup);
         Run("disposal stops timers and allows collection", Disposal);
         Run("30 pond transitions dispose departed actors", PondTransitions);
+        Run("unchanged snapshots do not measure or move actors", IncrementalLayout);
+        Run("chat appends preserve controls and defer collapsed logs", IncrementalChat);
+        Run("async decoding shares frozen results and rejects stale actors", AsyncFrames);
+        Run("hidden actors resume terminal animation chains", HiddenAnimation);
+        Run("viewport changes preserve pan limits", ViewportPan);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();
     }
@@ -79,8 +88,10 @@ public static class OverlayPerformanceTests
         {
             actor.ApplyChrome(Chrome(128));
             actor.WarmupActionClips("orange");
+            WaitUntil(() => !actor.WarmupPending);
             var decoded = OverlayFishingLayers.DecodeCount;
             actor.Apply("cat", "cast", "casting", 0, 0, petId: "orange");
+            WaitUntil(() => !actor.FramePending);
             Require(decoded == OverlayFishingLayers.DecodeCount, "first action decoded despite warmup");
             var before = Frame("orange", "cast", "body");
             using (var second = new OverlayPetActor("new cat", null))
@@ -91,8 +102,10 @@ public static class OverlayPerformanceTests
             }
             actor.ApplyChrome(Chrome(96));
             actor.WarmupActionClips("orange");
+            WaitUntil(() => !actor.WarmupPending);
             decoded = OverlayFishingLayers.DecodeCount;
             actor.Apply("cat", "bait", "baiting", 0, 0, petId: "orange");
+            WaitUntil(() => !actor.FramePending);
             Require(decoded == OverlayFishingLayers.DecodeCount, "resized warmup used stale size");
         }
     }
@@ -100,7 +113,7 @@ public static class OverlayPerformanceTests
     static void AssertStopped(OverlayPetActor actor)
     {
         foreach (var name in new[] { "_frameTimer", "_refreshTimer", "_tooltipTimer" })
-            Require(!Field<DispatcherTimer>(actor, name).IsEnabled, "timer left running: " + name);
+            Require(!(bool)Field<object>(actor, name).GetType().GetProperty("IsEnabled").GetValue(Field<object>(actor, name)), "timer left running: " + name);
         Require(Field<DispatcherTimer>(actor, "_speechFadeTimer") == null, "speech timer left attached");
     }
 
@@ -131,9 +144,140 @@ public static class OverlayPerformanceTests
         var active = OverlayPetActor.ActiveActorCount;
         var reference = RemovedActor();
         Require(OverlayPetActor.ActiveActorCount == active, "disposal left an active actor");
+        WaitUntil(() => OverlayFishingLayers.PendingDecodes == 0);
         for (var i = 0; i < 3 && reference.IsAlive; i++)
         { Pump(); GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect(); }
         Require(!reference.IsAlive, "removed actor is still rooted after dispatcher cleanup");
+    }
+
+    static void WaitUntil(Func<bool> ready)
+    {
+        var watch = Stopwatch.StartNew();
+        while (!ready())
+        {
+            if (watch.ElapsedMilliseconds > 15000) throw new Exception("Dispatcher condition timed out");
+            Pump(); Thread.Sleep(5);
+        }
+        Pump();
+    }
+
+    static void IncrementalLayout()
+    {
+        using (var actor = new OverlayPetActor("layout", null))
+        {
+            actor.ApplyChrome(Chrome(128));
+            actor.Apply("同一昵称", "sit", "seated", 0, 0, petId: "orange");
+            actor.Place(500, 300);
+            var passes = actor.LayoutPassCount;
+            var x = Canvas.GetLeft(actor); var y = Canvas.GetTop(actor);
+            for (var i = 0; i < 100; i++)
+            {
+                actor.ApplyChrome(Chrome(128));
+                actor.Apply("同一昵称", "sit", "seated", i * 100, 0, petId: "orange");
+                actor.Place(500, 300);
+            }
+            Require(actor.LayoutPassCount == passes, "unchanged snapshot forced another layout");
+            Require(Canvas.GetLeft(actor) == x && Canvas.GetTop(actor) == y, "snapshot changed body origin");
+            actor.Apply("更长的昵称需要重新排版", "sit", "seated", 0, 0, petId: "orange");
+            Require(actor.LayoutPassCount == passes + 1, "name edit did not remeasure");
+            actor.ApplyChrome(Chrome(96)); actor.Measure(new Size(1000, 1000)); actor.Arrange(new Rect(0, 0, actor.Width, actor.Height));
+            var body = Field<Grid>(actor, "_body");
+            var origin = body.TranslatePoint(new Point(48, 48), actor);
+            Require(Math.Abs(Canvas.GetLeft(actor) + origin.X - 500) < .01 &&
+                Math.Abs(Canvas.GetTop(actor) + origin.Y - 300) < .01, "computed center differs from WPF arrangement");
+        }
+    }
+
+    static OverlayChatDto Chat(string id, string text) => new OverlayChatDto { MessageId = id, Nickname = "猫", Text = text };
+    static void IncrementalChat()
+    {
+        var list = new StackPanel(); var preview = new TextBlock();
+        var presenter = new OverlayChatPresenter(preview, new ScrollViewer { Content = list }, list);
+        presenter.UpdateMessages(new[] { Chat("1", "甲"), Chat("2", "乙") });
+        var first = list.Children[0]; var second = list.Children[1];
+        presenter.UpdateMessages(new[] { Chat("1", "甲"), Chat("2", "乙"), Chat("3", "丙") });
+        Require(ReferenceEquals(first, list.Children[0]), "append recreated first row");
+        presenter.UpdateMessages(new[] { Chat("2", "乙"), Chat("3", "丙"), Chat("4", "丁") });
+        Require(ReferenceEquals(second, list.Children[0]), "sliding window recreated surviving row");
+        presenter.UpdateMessages(new[] { Chat("2", "乙"), Chat("3", "已编辑"), Chat("4", "丁") });
+        Require(((TextBlock)list.Children[1]).Text.Contains("已编辑"), "middle edit was missed");
+        presenter.SetExpanded(false);
+        presenter.UpdateMessages(new[] { Chat("5", "新消息") });
+        Require(list.Children.Count == 3 && preview.Text.Contains("新消息"), "collapsed list rebuilt or preview stale");
+        presenter.SetExpanded(true);
+        Require(list.Children.Count == 1 && ((TextBlock)list.Children[0]).Text.Contains("新消息"), "expanded list did not catch up");
+    }
+
+    static void AsyncFrames()
+    {
+        var ready = OverlayFishingLayers.EnsurePackAsync("orange"); WaitUntil(() => ready.IsCompleted);
+        Require(ready.Result, "missing manifest");
+        var path = OverlayFishingLayers.LayerFile("orange", "hooked", 0, "body");
+        var before = OverlayFishingLayers.DecodeCount;
+        var a = OverlayFishingLayers.BitmapAsync(path, 173, 138);
+        var b = OverlayFishingLayers.BitmapAsync(path, 173, 138);
+        WaitUntil(() => a.IsCompleted && b.IsCompleted);
+        Require(a.Result != null && a.Result.IsFrozen && ReferenceEquals(a.Result, b.Result), "async image was not shared/frozen");
+        Require(OverlayFishingLayers.DecodeCount == before + 1, "duplicate request decoded twice");
+        using (var cancel = new CancellationTokenSource())
+        {
+            var leaving = OverlayFishingLayers.BitmapAsync(path, 171, 136, cancel.Token);
+            var staying = OverlayFishingLayers.BitmapAsync(path, 171, 136);
+            cancel.Cancel();
+            WaitUntil(() => leaving.IsCompleted && staying.IsCompleted);
+            Require(staying.Result != null && staying.Result.IsFrozen, "canceling one real actor canceled shared image");
+        }
+        var actor = new OverlayPetActor("stale", null);
+        actor.ApplyChrome(Chrome(127));
+        actor.Apply("cat", "cast", "casting", 0, 0, petId: "orange");
+        // Start a frame request, then dispose before the asynchronous result is published.
+        typeof(OverlayPetActor).GetMethod("RenderLatestFrame", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(actor, null);
+        actor.Dispose();
+        WaitUntil(() => OverlayFishingLayers.PendingDecodes == 0); Pump();
+        foreach (var layer in Field<Image[]>(actor, "_layerImages")) Require(layer.Source == null, "late decode resurrected actor");
+        using (var visible = new OverlayPetActor("swap", null))
+        {
+            visible.ApplyChrome(Chrome(128));
+            visible.Apply("cat", "fishing", "waiting", 0, 0, petId: "orange");
+            WaitUntil(() => !visible.FramePending && Field<FishingClipPlayback>(visible, "_layered") != null);
+            var previous = Field<Image[]>(visible, "_layerImages")[0].Source;
+            visible.Apply("cat", "fishing", "waiting", 0, 0, petId: "calico");
+            Require(previous != null && ReferenceEquals(previous, Field<Image[]>(visible, "_layerImages")[0].Source),
+                "state change cleared the last complete composite before replacement was ready");
+            WaitUntil(() => !visible.FramePending && Field<string>(visible, "_petId") == "calico");
+            var expected = OverlayFishingLayers.BitmapFor(OverlayFishingLayers.LayerFile("calico", "fishing", 0, "body"),
+                Field<int>(visible, "_layerDrawW"), Field<int>(visible, "_layerDrawH"));
+            Require(ReferenceEquals(expected, Field<Image[]>(visible, "_layerImages")[0].Source), "old species overwrote new frame");
+        }
+    }
+
+    static void HiddenAnimation()
+    {
+        using (var actor = new OverlayPetActor("hidden", null))
+        {
+            actor.ApplyChrome(Chrome(128));
+            actor.Apply("cat", "reel_empty", "resolving", 0, 0, petId: "orange");
+            actor.Apply("cat", "sit", "seated", 0, 0, petId: "orange");
+            actor.SetPresentationVisible(false);
+            var timer = Field<OverlayAnimationSchedule.Subscription>(actor, "_frameTimer");
+            var before = Field<int>(actor, "_frameIndex");
+            timer.Due = OverlayAnimationClock.Now - 60000;
+            Pump(); Require(before == Field<int>(actor, "_frameIndex"), "offscreen actor advanced presentation");
+            actor.SetPresentationVisible(true);
+            WaitUntil(() => !timer.IsEnabled);
+            Require(Field<string>(actor, "_deferredState") == string.Empty, "reset did not flush deferred seated state");
+            Require(Field<string>(actor, "_layeredClip") == "ready", "reel_empty/reset_empty did not finish at ready");
+        }
+    }
+
+    static void ViewportPan()
+    {
+        var pan = new OverlayScenePan(new Canvas()); var changed = 0;
+        pan.ViewportChanged += () => changed++;
+        pan.SetViewportSize(960, 560); pan.SetSceneSize(2170, 725, true);
+        pan.TryCenterOnWorldX(10000, true);
+        Require(pan.OffsetX == -1210 && changed > 0, "right clamp or viewport notification lost");
+        pan.TryCenterOnWorldX(-10000, true); Require(pan.OffsetX == 0, "left clamp lost");
     }
 
     static void PondTransitions()

@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -40,21 +44,43 @@ namespace FishSocialOverlay
             if (!forceScrollToEnd && signature == _lastSignature)
                 return;
             _lastSignature = signature;
+            _latest = chats;
             UpdateLatest(chats);
-            UpdateLog(chats, forceScrollToEnd);
+            if (_expanded) UpdateLog(chats, forceScrollToEnd);
+            else { _logDirty = true; _forceScroll |= forceScrollToEnd; }
         }
 
         string _lastSignature;
+        OverlayChatDto[] _latest;
+        bool _expanded = true;
+        bool _logDirty;
+        bool _forceScroll;
+        DispatcherOperation _scrollOperation;
+
+        public void SetExpanded(bool expanded)
+        {
+            _expanded = expanded;
+            if (expanded && _logDirty)
+            {
+                UpdateLog(_latest, _forceScroll);
+                _forceScroll = false;
+                _logDirty = false;
+            }
+        }
 
         static string Signature(OverlayChatDto[] chats)
         {
             if (chats == null || chats.Length == 0)
                 return string.Empty;
-            var last = chats[chats.Length - 1];
-            var first = chats[0];
-            return chats.Length + "|" +
-                   (first?.MessageId ?? first?.Text) + "|" +
-                   (last?.MessageId ?? string.Empty) + "|" + last?.SentAtMs + "|" + last?.Text;
+            var signature = new StringBuilder();
+            foreach (var chat in chats)
+            {
+                // Length-prefixed values cannot collide when text contains separators.
+                var line = chat == null ? string.Empty : FormatLine(chat);
+                var id = chat?.MessageId ?? string.Empty;
+                signature.Append(id.Length).Append(':').Append(id).Append(line.Length).Append(':').Append(line);
+            }
+            return signature.ToString();
         }
 
         public void UpdateLatest(OverlayChatDto[] chats)
@@ -96,32 +122,46 @@ namespace FishSocialOverlay
             var scrollToEnd = forceScrollToEnd || _logScroll == null ||
                               _logScroll.ScrollableHeight <= 0 ||
                               previousOffset >= _logScroll.ScrollableHeight - 4;
-            _logList.Children.Clear();
-            if (chats == null || chats.Length == 0)
+            var lines = new List<string>();
+            if (chats != null)
+                foreach (var chat in chats)
+                    if (chat != null && !string.IsNullOrWhiteSpace(chat.Text)) lines.Add(FormatLine(chat));
+            if (lines.Count == 0) lines.Add("暂无公屏消息");
+
+            // Keep the longest retained suffix when the server's 20-message window
+            // advances. Existing TextBlocks survive appends and unchanged snapshots.
+            var offset = 0;
+            for (var candidate = 0; candidate < _logList.Children.Count; candidate++)
             {
-                _logList.Children.Add(CreateLogLine("暂无公屏消息"));
-                return;
+                var overlap = Math.Min(_logList.Children.Count - candidate, lines.Count);
+                var matches = overlap > 0;
+                for (var i = 0; matches && i < overlap; i++)
+                    matches = ((_logList.Children[candidate + i] as TextBlock)?.Text == lines[i]);
+                if (matches) { offset = candidate; break; }
+            }
+            for (var i = 0; i < offset; i++)
+            {
+                var removed = (TextBlock)_logList.Children[0];
+                previousOffset = Math.Max(0, previousOffset - removed.ActualHeight - removed.Margin.Top - removed.Margin.Bottom);
+                _logList.Children.RemoveAt(0);
+            }
+            while (_logList.Children.Count > lines.Count) _logList.Children.RemoveAt(_logList.Children.Count - 1);
+            for (var i = 0; i < lines.Count; i++)
+            {
+                if (i == _logList.Children.Count) _logList.Children.Add(CreateLogLine(lines[i]));
+                else if (((TextBlock)_logList.Children[i]).Text != lines[i])
+                    ((TextBlock)_logList.Children[i]).Text = lines[i];
             }
 
-            var appended = 0;
-            for (var i = 0; i < chats.Length; i++)
+            if (_logScroll == null) return;
+            _scrollOperation?.Abort();
+            // Let WPF finish its normal layout pass; never force it per message.
+            _scrollOperation = _logScroll.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
-                if (chats[i] == null || string.IsNullOrWhiteSpace(chats[i].Text))
-                    continue;
-                _logList.Children.Add(CreateLogLine(FormatLine(chats[i])));
-                appended++;
-            }
-
-            if (appended == 0)
-                _logList.Children.Add(CreateLogLine("暂无公屏消息"));
-
-            if (_logScroll == null)
-                return;
-            _logScroll.UpdateLayout();
-            if (scrollToEnd)
-                _logScroll.ScrollToEnd();
-            else
-                _logScroll.ScrollToVerticalOffset(previousOffset);
+                _scrollOperation = null;
+                if (scrollToEnd) _logScroll.ScrollToEnd();
+                else _logScroll.ScrollToVerticalOffset(previousOffset);
+            }));
         }
 
         TextBlock CreateLogLine(string text)
