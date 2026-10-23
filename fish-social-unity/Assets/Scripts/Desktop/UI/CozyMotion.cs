@@ -487,21 +487,42 @@ namespace FishSocial.Desktop
             cancel?.Invoke();
         }
 
-        /// <summary>pages.js jRefresh: change profile/editor contents inside the same sheet.
-        /// No outgoing slide, incoming content translation, ring snap or index replay.</summary>
+        /// <summary>Workspace edit/return: old body fades for 100ms, new sections enter
+        /// on their own clocks. Paper, binding and index rail stay stationary.</summary>
         public static void RefreshContent(GameObject from, GameObject to, Action done)
         {
             CancelPageTransition();
             if (to == null) { done?.Invoke(); return; }
             CozyJournalMotionBindings.ConfigureTree(to.transform);
-            if (from != null && from != to) from.SetActive(false);
             to.SetActive(true);
-            var group = EnsureGroup(to); group.alpha = 1; group.blocksRaycasts = true;
-            var pose = to.GetComponent<CozyJournalFlipPose>() ?? to.AddComponent<CozyJournalFlipPose>();
-            pose.ResetPose();
-            if (_paused) SettleJournalPage(to);
-            else StartJournalEntrance(to, false);
-            done?.Invoke();
+            var group=EnsureGroup(to);
+            var incoming=to.GetComponent<CozyJournalFlipPose>()??to.AddComponent<CozyJournalFlipPose>();
+            incoming.ResetPose();
+            if (_paused || from==null || from==to)
+            {
+                if(from!=null&&from!=to)from.SetActive(false);
+                group.alpha=1;group.blocksRaycasts=true;
+                if(_paused)SettleJournalPage(to);else StartJournalEntrance(to,false);
+                done?.Invoke();return;
+            }
+            var fromRect=(RectTransform)from.transform;
+            var oldGroup=EnsureGroup(from);
+            var oldRegions=from.GetComponentsInChildren<CozyJournalPageMotion>();
+            foreach(var region in oldRegions)region.BeginExit();
+            group.alpha=0;group.blocksRaycasts=oldGroup.blocksRaycasts=false;
+            _cancelFlip=()=>{Settle();SettleJournalPage(to);};_finishFlip=done;
+            Animate(fromRect,.1f,t=>{foreach(var region in oldRegions)if(region!=null)region.SampleExit(t*.1f);},()=>
+            {
+                Settle();StartJournalEntrance(to,false);
+                _cancelFlip=null;_finishFlip=null;done?.Invoke();
+            },CozyWebMotion.Ease.Linear,fadeWhenReduced:true);
+            void Settle()
+            {
+                Drop(fromRect);
+                foreach(var region in oldRegions)if(region!=null)region.Finish();
+                if(from!=null){oldGroup.alpha=1;oldGroup.blocksRaycasts=true;from.SetActive(false);}
+                if(to!=null){group.alpha=1;group.blocksRaycasts=true;incoming.ResetPose();}
+            }
         }
 
         public static void Flip(GameObject from, GameObject to, Action done)
@@ -627,8 +648,8 @@ namespace FishSocial.Desktop
             if (page == null) return;
             foreach (var sticker in page.GetComponentsInChildren<CozyStickerMotion>())
                 sticker.ApplyFinalPose();
-            foreach (var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
-                motion.Finish();
+            foreach (var motion in page.GetComponentsInChildren<CozyJournalPageMotion>()) motion.Finish();
+            foreach (var body in page.GetComponentsInChildren<CozyWorkspaceBodyMotion>()) body.Finish();
             if (revealPolaroid)
                 foreach (var pose in page.GetComponentsInChildren<CozyJournalStaticPose>()) pose.ApplyFinalPose();
         }
@@ -644,6 +665,7 @@ namespace FishSocial.Desktop
             foreach(var sticker in page.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
             foreach(var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
                 motion.PlayEntrance(motion.GetComponentsInChildren<CozyStickerMotion>().Length);
+            foreach(var body in page.GetComponentsInChildren<CozyWorkspaceBodyMotion>()) body.PlayEntrance();
             if(!rail) return;
             CozyButtonVisual.BeginRailEntrance(page.transform);
             for(var i=0;i<3;i++)

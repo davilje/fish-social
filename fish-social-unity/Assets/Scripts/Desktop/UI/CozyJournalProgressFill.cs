@@ -8,6 +8,13 @@ namespace FishSocial.Desktop
     public sealed class CozyJournalProgressFill : MonoBehaviour
     {
         [SerializeField] Image fill;
+        float entranceFraction=1;
+        public void SampleEntrance(float seconds)
+        {
+            entranceFraction=CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutCubic,
+                Mathf.Clamp01((seconds-(CozyMotion.Reduced?0:.2f))/(CozyMotion.Reduced?.12f:.5f)));
+            Refresh();
+        }
         public void SetValue(float value)
         {
             if (fill == null) fill = GetComponent<Image>();
@@ -23,7 +30,7 @@ namespace FishSocial.Desktop
             fill.type = Image.Type.Sliced; fill.preserveAspect = false;
             rect.anchorMin = rect.anchorMax = new Vector2(0, .5f);
             rect.pivot = new Vector2(0, .5f); rect.anchoredPosition = Vector2.zero;
-            rect.sizeDelta = new Vector2(parent.rect.width * fill.fillAmount, parent.rect.height);
+            rect.sizeDelta = new Vector2(parent.rect.width * fill.fillAmount * entranceFraction, parent.rect.height);
             fill.enabled = fill.fillAmount > 0;
         }
         void OnEnable() { Refresh(); }

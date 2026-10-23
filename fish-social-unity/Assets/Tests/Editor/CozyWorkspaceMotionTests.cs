@@ -138,7 +138,7 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void WorkspaceEditorRevealsBothColumnsTogetherAndOnlyFadesItsHeading()
+        public void WorkspaceEditorRegionsStayOutOfLegacyAsideAndUseSectionEntrance()
         {
             var page=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileEdit"),root.transform);
             page.name="PanelProfileEdit";page.SetActive(true);
@@ -161,7 +161,7 @@ namespace FishSocial.Tests.Editor
 
         [TestCase(false)]
         [TestCase(true)]
-        public void EditAndCancelRefreshContentImmediatelyWithoutAnotherPageFlip(bool returning)
+        public void EditAndCancelFadeOldContentBeforeNewSectionsWithoutMovingPaper(bool returning)
         {
             var home=Rect("Home");var profile=Rect("Profile");var edit=Rect("ProfileEdit");
             var profilePage=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileHub"),profile);
@@ -177,7 +177,13 @@ namespace FishSocial.Tests.Editor
             var target=returning?profile:edit;var old=returning?edit:profile;
             var rest=target.anchoredPosition;
             router.Show(returning?ShellPanelId.Profile:ShellPanelId.ProfileEdit,true);
-            Assert.IsFalse(old.gameObject.activeSelf,"jRefresh does not wait for 120 ms of outgoing content");
+            Assert.IsTrue(old.gameObject.activeSelf);
+            Assert.AreEqual(0,target.GetComponent<CanvasGroup>().alpha);
+            CozyMotion.Tick(.05f);
+            var oldMotion=returning?editPage.GetComponent<CozyJournalPageMotion>():profileTab.GetComponent<CozyJournalPageMotion>();
+            Assert.AreEqual(.5f,oldMotion.HeadingAlpha,.0001f);
+            CozyMotion.Tick(.05f);
+            Assert.IsFalse(old.gameObject.activeSelf,"100 ms exit completes before the new sections enter");
             Assert.IsFalse(CozyMotion.EntranceHeld);
             Assert.AreEqual(1,target.GetComponent<CanvasGroup>().alpha);
             Assert.AreEqual(1,target.GetComponent<CozyJournalFlipPose>().ContentAlpha);
@@ -189,6 +195,25 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(.625f,motion.HeadingAlpha,.0001f);
             if(returning)Assert.AreEqual(.125f,motion.AsideAlpha,.0001f);
             else Assert.AreEqual(1,editPage.transform.Find("WorkspaceEditRight").GetComponent<CanvasGroup>().alpha);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void InterruptedWorkspaceRefreshRestoresBodyAndInput(bool pause)
+        {
+            var home=Rect("Home");var profile=Rect("Profile");var edit=Rect("ProfileEdit");
+            var a=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileHub"),profile);
+            var b=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileEdit"),edit);
+            a.name="PanelProfileHub";b.name="PanelProfileEdit";a.SetActive(true);b.SetActive(true);
+            var router=root.AddComponent<PanelRouter>();router.Register(ShellPanelId.Home,home.gameObject);
+            router.Register(ShellPanelId.Profile,profile.gameObject);router.Register(ShellPanelId.ProfileEdit,edit.gameObject);
+            router.Show(ShellPanelId.Profile);CozyMotion.Tick(.2f);
+            router.Show(ShellPanelId.ProfileEdit,true);CozyMotion.Tick(.05f);
+            if(pause)CozyMotion.SetPaused(true);else CozyMotion.CancelPageTransition();
+            Assert.IsFalse(profile.gameObject.activeSelf);Assert.IsTrue(edit.gameObject.activeSelf);
+            Assert.AreEqual(1,edit.GetComponent<CanvasGroup>().alpha);Assert.IsTrue(edit.GetComponent<CanvasGroup>().blocksRaycasts);
+            Assert.AreEqual(1,b.transform.Find("Form").GetComponentInChildren<CozyWorkspaceBodyGraphic>().Opacity);
+            CozyMotion.SetPaused(false);
         }
 
         [Test]

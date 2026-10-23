@@ -44,6 +44,8 @@ namespace FishSocial.Desktop
                         "JournalPreview","Form","Actions","Header","WorkspaceEditRight",
                         "WorkspaceAvatarTab","WorkspaceShowcaseTab","WorkspaceTabHint","Avatars","Showcase");
                     edit.ConfigureHeadingParts(root.Find("WorkspaceSubtitle"));
+                    Body(root, Nodes(root,"JournalPreview","Form","Actions","Header/Back","Status"),
+                        Nodes(root,"WorkspaceEditRight","WorkspaceAvatarTab","WorkspaceShowcaseTab","WorkspaceTabHint","Avatars","Showcase"));
                     break;
                 case "PanelProfileHub": case "PanelAchievements":
                     var content = root.Find("Shell/Content");
@@ -58,11 +60,28 @@ namespace FishSocial.Desktop
                                 part != heading && !part.name.StartsWith("JournalCardTemplate")) middle.Add(part);
                         var motion = Motion(tab);
                         motion.Configure(heading,null,null,middle.ToArray());
-                        if (tab.name == "Tab_资料") motion.ConfigureHeadingParts(root.Find("Shell/Header/Edit"));
+                        if (tab.name == "Tab_资料")
+                        {
+                            motion.ConfigureHeadingParts(root.Find("Shell/Header/Edit"));
+                            Body(tab,Nodes(tab,"JournalIdentity","Avatar","WorkspaceKicker","DesignName","WorkspaceLevel","DesignBio","WorkspaceSince"),
+                                Nodes(tab,"DesignStatCards"),Nodes(tab,"JournalProgress"));
+                        }
                         AsideParts(tab,motion,720);
                     }
                     break;
             }
+        }
+
+        static Transform[] Nodes(Transform root,params string[] paths)
+        {
+            var result=new List<Transform>();
+            foreach(var path in paths)if(root.Find(path)!=null)result.Add(root.Find(path));
+            return result.ToArray();
+        }
+        static void Body(Transform root,params Transform[][] sections)
+        {
+            var motion=root.GetComponent<CozyWorkspaceBodyMotion>()??root.gameObject.AddComponent<CozyWorkspaceBodyMotion>();
+            motion.Configure(sections);
         }
 
         static CozyJournalPageMotion Motion(Transform root) =>

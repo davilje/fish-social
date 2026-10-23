@@ -197,9 +197,21 @@ namespace FishSocial.Desktop.Editor
                             var previousName = previousId == ShellPanelId.Profile ? "PanelProfileHub" : "PanelProfileEdit";
                             var previousPage = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + previousName + ".prefab"), previousSlot, false);
                             previousPage.SetActive(true);
+                            Fill(previousPage,previousName);
+                            if(previousName=="PanelProfileEdit")CozyProfileRefinementPreview.FillEdit(previousPage,"avatars");
+                            CozyProfileRefinementPreview.Fill(previousPage,null);
+                            CatTheme.SkinTree(previousPage.transform);
+                            var previousRect=(RectTransform)previousPage.transform;
+                            previousRect.anchorMin=previousRect.anchorMax=previousRect.pivot=Vector2.up;
+                            previousRect.sizeDelta=new Vector2(1370,650);
+                            previousRect.position=rect.position;
                             router.Register(previousId, previousSlot.gameObject);
                             router.Show(previousId);
                             CozyMotion.Tick(.2f);
+                            CozyMotion.Tick(1f);
+                            foreach(var body in previousPage.GetComponentsInChildren<CozyWorkspaceBodyMotion>())body.Finish();
+                            foreach(var region in previousPage.GetComponentsInChildren<CozyJournalPageMotion>())region.Finish();
+                            foreach(var visual in previousPage.GetComponentsInChildren<CozyButtonVisual>())visual.ApplyFinalPose();
                             router.Show(id, true);
                         }
                         else router.Show(id);
@@ -219,6 +231,7 @@ namespace FishSocial.Desktop.Editor
                         var delta = Mathf.Min(.01f, seconds - time);
                         foreach (var motion in shell.GetComponentsInChildren<CozyStickerMotion>()) motion.Advance(delta);
                         foreach (var motion in shell.GetComponentsInChildren<CozyJournalPageMotion>()) motion.Advance(delta);
+                        foreach (var motion in shell.GetComponentsInChildren<CozyWorkspaceBodyMotion>()) motion.Advance(delta);
                         foreach (var visual in shell.GetComponentsInChildren<CozyButtonVisual>()) visual.AdvanceIndex(delta);
                         CozyMotion.Tick(delta);
                         time += delta;

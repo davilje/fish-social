@@ -2,11 +2,11 @@
   "date": "2026-10-23",
   "reference": "docs/design/ui/prototype/journal-workspace/index.html",
   "targeted": {
-    "total": 130,
-    "passed": 130,
+    "total": 137,
+    "passed": 137,
     "failed": 0,
     "skipped": 0,
-    "finishedAtUtc": "2026-10-23 05:59:33Z",
+    "finishedAtUtc": "2026-10-23 06:28:27Z",
     "formalPagePrefabs": 13,
     "savedAsideBindingCases": 9,
     "routerAsideTimelineCases": 6,
@@ -105,6 +105,34 @@
     "source": "web-opening-timing.json",
     "script": "scripts/art/qa-cozy-workspace-opening.cjs",
     "openings": 7,
-    "editCancelButtons": 2
+    "editCancelButtons": 2,
+    "rapidClicks": true,
+    "draftPreservation": true,
+    "validationAndSave": true,
+    "reducedMotion": true
+  },
+  "fullSuiteAfterWorkspaceBody": {
+    "total": 532,
+    "passed": 528,
+    "failed": 4,
+    "skipped": 0,
+    "failures": [
+      {
+        "test": "FishSocial.Tests.Editor.CozyPondParityTests.LongFailuresAndBothFeeModesRemainScrollableAboveFixedEntry(\"PanelPondSelection\",\"DesignPondAside\",\"Body\",\"Enter\")",
+        "message": "  Expected: String containing \"125 金币\"\n  But was:  \"高级塘\n可遇鱼种：暂无鱼种数据\"\n"
+      },
+      {
+        "test": "FishSocial.Tests.Editor.CozyPondParityTests.LongFailuresAndBothFeeModesRemainScrollableAboveFixedEntry(\"PanelWorldMap\",\"Details\",\"DetailsText\",\"EnterPond\")",
+        "message": "  Expected: String containing \"125 金币\"\n  But was:  \"高级塘\n可遇鱼种：暂无鱼种数据\"\n"
+      },
+      {
+        "test": "FishSocial.Tests.Editor.CozyProfileRefinementTests.CodexStampHasSourceCenterAndNewSnapshotReplacesCards",
+        "message": "  Expected string length 8 but was 28. Strings differ at index 0.\n  Expected: \"累计捕获 2 次\"\n  But was:  \"<color=#c98a12>★★★★★</color>\"\n  -----------^\n"
+      },
+      {
+        "test": "FishSocial.Tests.Editor.CozyRankRefinementTests.PodiumGradientsSurviveSkinSelectionHoverAndPrefabRepair",
+        "message": "  Expected string length 66 but was 0. Strings differ at index 0.\n  Expected: \"Assets/Resources/Desktop/Theme/Cozy/journal/decor/rank-label-...\"\n  But was:  <string.Empty>\n  -----------^\n"
+      }
+    ]
   }
 }

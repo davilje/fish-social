@@ -81,6 +81,7 @@ namespace FishSocial.Desktop
             HeadingAlphaTo(seconds / fade); AsideAlphaTo((seconds - delay) / fade); Alpha(status, 1);
             foreach (var group in middle ?? new CanvasGroup[0]) Alpha(group, 1);
         }
+        public void BeginExit() { phase=0; SampleExit(0); }
         public IEnumerator Exit()
         {
             phase = 0;

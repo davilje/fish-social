@@ -4,6 +4,34 @@
 jSave=function(){};
 jRestore=function(){};
 const ws = { draft:null, editTab:'avatars', composer:null, filter:false, sort:'time', slots:['koi','golden_line','mandarin',null,null,null,null,null] };
+// Workspace cards are not .sticker cards: give their own sections a quiet paper entrance.
+let wsRepainting = false;
+const wsBaseEntrance = entrance;
+entrance = function(root, options = {}) {
+ wsBaseEntrance(root, options);
+ if (wsRepainting) return;
+ $$('.ws-profile > section, .ws-profile > .ws-metrics, .ws-edit > section', root).forEach((section, i) =>
+  play(section, [{opacity:0,translate:'0 12px'}, {opacity:1,translate:'0 0'}],
+   {duration:240,delay:i*40,easing:EASE.outCubic}));
+};
+const wsBaseRefresh = jRefresh;
+jRefresh = async function() {
+ const content = $('.content');
+ const changingMode = S.page === 'profile' && S.tab.profile === 0 &&
+  (!!$('.ws-edit', content) !== J.editing) && !!$('.ws-edit, .ws-profile', content);
+ if (!changingMode) {
+  wsRepainting = true;
+  try { wsBaseRefresh(); } finally { wsRepainting = false; }
+  return;
+ }
+ if (switching) return;
+ switching = true;
+ try {
+  await Promise.all($$('.mid-h, .ws-profile, .ws-edit, .aside, .status',content).map(el =>
+   play(el,[{opacity:1},{opacity:0}],{duration:100,fill:'forwards'}).finished));
+  stopPageLoops(); render(S.page); entrance(content,{rail:false});
+ } finally { switching = false; }
+};
 const wsAvatars=[...AVATARS,['cream','奶油猫'],['cow','燕尾猫'],['brown','棕猫']];
 const wsRecords=[
  {id:'koi',name:'锦鲤',size:.62,weight:2.38,time:'15:42:18',new:true,value:186},
@@ -21,7 +49,7 @@ const wsBtn=(label,attrs='',primary=false)=>`<button type="button" class="ws-but
 const wsMetric=(label,value)=>`<div class="ws-metric"><span>${label}</span><strong>${value}</strong></div>`;
 function wsCaptureDraft(){if(!$('#ws-name'))return;ws.draft.nickname=$('#ws-name').value;ws.draft.bio=$('#ws-bio').value;}
 function wsPrepareEdit(){ws.draft={nickname:J.nickname,bio:J.bio,avatar:J.avatar,slots:[...ws.slots]};ws.editTab='avatars';J.editing=true;S.tab.profile=0;}
-function wsStartEdit(){wsPrepareEdit();jRefresh();}
+function wsStartEdit(){if(switching)return;wsPrepareEdit();return jRefresh();}
 const oldProfileBody=profileBody;
 profileBody=function(){
  if(S.tab.profile!==0)return oldProfileBody();
@@ -51,8 +79,8 @@ jBindForms=function(root){oldBindForms(root);
  $$('[data-edit-tab]',root).forEach(b=>b.onclick=()=>{wsCaptureDraft();ws.editTab=b.dataset.editTab;jRefresh();});
  $$('[data-ws-avatar]',root).forEach(b=>b.onclick=()=>{wsCaptureDraft();ws.draft.avatar=b.dataset.wsAvatar;$('#ws-face').src=jAvatar(ws.draft.avatar);$$('[data-ws-avatar]',root).forEach(a=>{a.classList.toggle('selected',a===b);a.setAttribute('aria-pressed',a===b);});});
  $$('[data-ws-slot]',root).forEach(b=>b.onclick=()=>{wsCaptureDraft();wsPicker(+b.dataset.wsSlot);});
- $('[data-ws="cancel-edit"]',root).onclick=()=>{ws.draft=null;J.editing=false;jRefresh();};
- $('[data-ws="save-profile"]',root).onclick=()=>{wsCaptureDraft();if(!ws.draft.nickname.trim()){$('#ws-edit-error').textContent='先给自己起一个名字吧。';$('#ws-name').focus();return;}J.nickname=ws.draft.nickname.trim();J.bio=ws.draft.bio.trim();J.avatar=ws.draft.avatar;ws.slots=[...ws.draft.slots];J.showcase=ws.slots.slice(0,3);J.editing=false;ws.draft=null;jSyncPlayer();jRefresh();toast('名片和展示鱼获已保存到本次预览');};
+ $('[data-ws="cancel-edit"]',root).onclick=()=>{if(switching)return;ws.draft=null;J.editing=false;return jRefresh();};
+ $('[data-ws="save-profile"]',root).onclick=()=>{if(switching)return;wsCaptureDraft();if(!ws.draft.nickname.trim()){$('#ws-edit-error').textContent='先给自己起一个名字吧。';$('#ws-name').focus();return;}J.nickname=ws.draft.nickname.trim();J.bio=ws.draft.bio.trim();J.avatar=ws.draft.avatar;ws.slots=[...ws.draft.slots];J.showcase=ws.slots.slice(0,3);J.editing=false;ws.draft=null;jSyncPlayer();jRefresh();toast('名片和展示鱼获已保存到本次预览');};
 };
 function wsDialog(title,html){const modal=jDialog(title,html);$('.j-dialog-paper',modal).classList.add('ws-dialog');return modal;}
 function wsPicker(slot){
@@ -76,7 +104,7 @@ function wsSettlement(){
  const draw=()=>{let list=wsRecords.filter(f=>!ws.filter||f.new);list=[...list].sort((a,b)=>ws.sort==='time'?b.time.localeCompare(a.time):b[ws.sort]-a[ws.sort]);$('#ws-record-count').textContent=list.length+' 条';$('.ws-catches',m).innerHTML=list.map(f=>`<article class="ws-catch-row"><img src="${wsArt(f)}" alt="${f.name}"><div><b>${f.name}</b>${f.new?'<span class="ws-record-tag">新纪录</span>':''}<small>10.22 · ${f.time}</small></div><div>${f.size.toFixed(2)} m<small>体长</small></div><div>${f.weight.toFixed(2)} kg<small>体重</small></div>${wsBtn('分享',`data-share-record="${f.id}"`)}</article>`).join('');$$('[data-share-record]',m).forEach(b=>b.onclick=()=>{const id=b.dataset.shareRecord;jCloseDialog();jCompose(id,true);});};$('#ws-record-only').onchange=e=>{ws.filter=e.target.checked;draw();};$('#ws-record-sort').onchange=e=>{ws.sort=e.target.value;draw();};$('#ws-settlement-home').onclick=()=>{jCloseDialog();J.editing=false;go('profile',{tab:0});};draw();
 }
 const originalAction=jAction;
-jAction=function(name,el){if(name==='edit-profile')return wsStartEdit();if(name==='cancel-edit'){ws.draft=null;J.editing=false;jRefresh();return;}return originalAction(name,el);};
+jAction=function(name,el){if(name==='edit-profile')return wsStartEdit();if(name==='cancel-edit'){if(switching)return;ws.draft=null;J.editing=false;return jRefresh();}return originalAction(name,el);};
 const oldInstall=installJournalPages;
 installJournalPages=function(){oldInstall();journalFish=journalFish.map(f=>{const r=wsRecords.find(x=>x.id===f.id);return r?{...f,size:r.size}:f;});J.posts=[];$('#player .xp b').textContent='320 / 650';$('#player .xp i').style.width='49.23%';S.page='profile';S.tab.profile=0;bobIdx=NAV.findIndex(n=>n.id==='profile');J.editing=false;
  const toolbar=$('#toolbar');for(const g of $$('.group',toolbar))g.style.display='none';$('.brand',toolbar).textContent='手账新布局 · 可交互设计';const links=document.createElement('div');links.className='ws-links';links.innerHTML='<button data-workspace="profile">个人资料</button><button data-workspace="edit">编辑资料</button><button data-workspace="compose">分享鱼获</button><button data-workspace="settlement">离塘结算</button>';toolbar.append(links);
