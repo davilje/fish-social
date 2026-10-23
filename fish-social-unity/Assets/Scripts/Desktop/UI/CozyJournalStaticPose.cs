@@ -14,7 +14,6 @@ namespace FishSocial.Desktop
         float revealOpacity = .3f;
         float elapsed;
         bool revealing;
-        bool armed;
         Vector2 armedOffset;
         float armedDuration = .26f;
         float armedOpacity = .3f;
@@ -47,7 +46,6 @@ namespace FishSocial.Desktop
 
         public void PlayReveal(Vector2 offset = default, float duration = .22f, float initialOpacity = .3f)
         {
-            armed = true;
             armedOffset = offset;
             armedDuration = duration;
             armedOpacity = initialOpacity;
@@ -66,20 +64,6 @@ namespace FishSocial.Desktop
             Refresh();
         }
 
-        bool HierarchyVisible()
-        {
-            if (!isActiveAndEnabled) return false;
-            var node = transform;
-            while (node != null)
-            {
-                var group = node.GetComponent<CanvasGroup>();
-                // Hold the polaroid until the sheet is actually on screen. Playing it
-                // during the rise spends the reveal before the page can be seen.
-                if (group != null && group.alpha < .98f) return false;
-                node = node.parent;
-            }
-            return true;
-        }
         public void Advance(float delta)
         {
             if (!revealing || CozyMotion.Paused || delta <= 0) return;
@@ -103,8 +87,7 @@ namespace FishSocial.Desktop
         {
             CozyMotion.ReducedChanged -= OnReduced; CozyMotion.PausedChanged -= OnPaused;
             CozyMotion.ReducedChanged += OnReduced; CozyMotion.PausedChanged += OnPaused;
-            if (Application.isPlaying && armed) BeginReveal();
-            else if (!StickerOwnsPose()) Refresh();
+            if (!StickerOwnsPose()) Refresh();
         }
         void OnDisable()
         {
@@ -115,13 +98,9 @@ namespace FishSocial.Desktop
         void Update()
         {
             if (!Application.isPlaying || !revealing) return;
-            // Page flips fade the aside while this 0.26s snap would otherwise finish unseen.
-            if (!HierarchyVisible())
-            {
-                elapsed = 0;
-                Refresh();
-                return;
-            }
+            // Selection and parent opacity animate concurrently, as in Web Animations.
+            // Only the explicit paper cover holds content; ancestor alpha is not a clock.
+            if (CozyMotion.EntranceHeld) return;
             Advance(Time.unscaledDeltaTime);
         }
         void LateUpdate() { if (revealing || !StickerOwnsPose()) Refresh(); }

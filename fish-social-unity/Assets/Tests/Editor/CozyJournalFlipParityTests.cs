@@ -168,23 +168,22 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void FadingSheetHoldsThePolaroidUntilThePageIsOpaque()
+        public void ParentFadeDoesNotDelayOrReplaySelectionPolaroid()
         {
             var page = Page("Shop");
             var group = page.AddComponent<CanvasGroup>();
             var photo = Art("JournalPolaroid", page.transform);
             var pose = photo.gameObject.AddComponent<CozyJournalStaticPose>();
             pose.Configure(-2f, photo);
-            var visible = typeof(CozyJournalStaticPose).GetMethod(
-                "HierarchyVisible",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.NotNull(visible);
-            group.alpha = 0f;
-            Assert.IsFalse((bool)visible.Invoke(pose, null), "A concealed sheet must not spend the polaroid reveal.");
             group.alpha = .2f;
-            Assert.IsFalse((bool)visible.Invoke(pose, null), "The rise must finish before the polaroid starts.");
-            group.alpha = .98f;
-            Assert.IsTrue((bool)visible.Invoke(pose, null), "The polaroid plays once the sheet is on screen.");
+            pose.PlayReveal();
+            pose.Advance(.11f);
+            Assert.Greater(pose.AppliedOpacity,.3f);
+            pose.Advance(.11f);
+            Assert.AreEqual(1,pose.AppliedOpacity);
+            Assert.IsFalse(pose.IsRevealing);
+            typeof(CozyJournalStaticPose).GetMethod("OnEnable",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(pose,null);
+            Assert.IsFalse(pose.IsRevealing,"Reopening a page is not a new photo selection.");
         }
 
         [Test]

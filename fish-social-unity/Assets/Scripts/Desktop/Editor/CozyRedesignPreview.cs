@@ -60,6 +60,8 @@ namespace FishSocial.Desktop.Editor
                 {
                     Render("PanelProfileHub", null, "workspace-profile", seconds);
                     Render("PanelProfileEdit", null, "workspace-edit", seconds);
+                    Render("PanelProfileEdit", null, "workspace-edit-refresh", seconds);
+                    Render("PanelProfileHub", null, "workspace-profile-refresh", seconds);
                     Render("PanelProfileEdit", "选择鱼获", "workspace-picker", seconds);
                     Render("PanelSocialFeed", "发布", "workspace-compose", seconds);
                     Render("PanelPondSettlement", null, "workspace-settlement", seconds);
@@ -176,11 +178,31 @@ namespace FishSocial.Desktop.Editor
                 if (motionCase != null && motionCase.StartsWith("workspace-"))
                 {
                     CozyMotion.SetPaused(false); CozyMotion.SetReduced(false);
-                    if (motionCase == "workspace-profile" || motionCase == "workspace-edit")
+                    if (motionCase == "workspace-profile" || motionCase == "workspace-edit" ||
+                        motionCase == "workspace-edit-refresh" || motionCase == "workspace-profile-refresh")
                     {
-                        var home = new GameObject("Home", typeof(RectTransform));
-                        home.transform.SetParent(main.Find("Content"), false);
-                        CozyMotion.Flip(home, page, null);
+                        // Use the same saved slots and routing entry as DesktopShellUi.
+                        // Keep the rendered design coordinates while moving under its real slot.
+                        var id = motionCase.StartsWith("workspace-edit") ? ShellPanelId.ProfileEdit : ShellPanelId.Profile;
+                        var slot = main.Find("Content/" + id);
+                        page.transform.SetParent(slot, true);
+                        page.SetActive(true);
+                        var router = shell.GetComponent<PanelRouter>() ?? shell.AddComponent<PanelRouter>();
+                        router.Register(ShellPanelId.Home, main.Find("Content/Home").gameObject);
+                        router.Register(id, slot.gameObject);
+                        if (motionCase.EndsWith("-refresh"))
+                        {
+                            var previousId = id == ShellPanelId.Profile ? ShellPanelId.ProfileEdit : ShellPanelId.Profile;
+                            var previousSlot = main.Find("Content/" + previousId);
+                            var previousName = previousId == ShellPanelId.Profile ? "PanelProfileHub" : "PanelProfileEdit";
+                            var previousPage = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder + previousName + ".prefab"), previousSlot, false);
+                            previousPage.SetActive(true);
+                            router.Register(previousId, previousSlot.gameObject);
+                            router.Show(previousId);
+                            CozyMotion.Tick(.2f);
+                            router.Show(id, true);
+                        }
+                        else router.Show(id);
                     }
                     else if (motionCase == "workspace-compose")
                         shell.GetComponentInChildren<DesktopSocialComposeModal>(true).PlayOpenMotion();

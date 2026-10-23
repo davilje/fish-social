@@ -15,6 +15,7 @@ namespace FishSocial.Desktop
 
             var instance = Object.Instantiate(prefab, parent, false);
             instance.name = prefabName;
+            CozyJournalMotionBindings.ConfigurePage(instance.transform);
             return instance;
         }
 

@@ -66,6 +66,145 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(1, calls);
         }
 
+        [TestCase("PanelShop", "", "Details")]
+        [TestCase("PanelEquipment", "", "Details")]
+        [TestCase("PanelSocialFeed", "", "DesignFeedInfo")]
+        [TestCase("PanelLeaderboard", "", "DesignPlayerCard")]
+        [TestCase("PanelSettings", "", "DesignSettingsInfo")]
+        [TestCase("PanelPondSelection", "", "DesignPondAside")]
+        [TestCase("PanelWorldMap", "", "Details")]
+        [TestCase("PanelGallery", "", "GalleryAside")]
+        [TestCase("PanelProfileHub", "Shell/Content/Tab_资料", "DesignShowcase")]
+        public void SavedPrefabActuallyFadesItsVisibleAside(string resource,string ownerPath,string asidePath)
+        {
+            // Deliberately do not run the runtime repair: loading the saved asset must retain the binding.
+            var page = Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/"+resource),root.transform);
+            var owner = ownerPath == "" ? page.transform : page.transform.Find(ownerPath);
+            var aside = owner.Find(asidePath);
+            var motion = owner.GetComponent<CozyJournalPageMotion>();
+            Assert.IsNotNull(motion,resource);
+            var group = aside.GetComponent<CanvasGroup>();
+            Assert.IsNotNull(group,resource+" must save the actual region, not a null reference");
+            motion.PlayEntrance(0);
+            Assert.AreEqual(0,group.alpha,resource);
+            motion.Advance(.1f);
+            Assert.AreEqual(.125f,group.alpha,.0001f,resource);
+            Assert.AreEqual(group.alpha,motion.AsideAlpha,.0001f);
+            Assert.AreEqual(.625f,motion.HeadingAlpha,.0001f,resource+" heading must be bound too");
+            motion.Advance(.14f);
+            Assert.AreEqual(1,group.alpha,.0001f);
+        }
+
+        [TestCase("PanelProfileHub", "Shell/Content/Tab_资料", "DesignShowcase", 0)]
+        [TestCase("PanelShop", "", "Details", 8)]
+        [TestCase("PanelLeaderboard", "", "DesignPlayerCard", 11)]
+        [TestCase("PanelSocialFeed", "", "DesignFeedInfo", 4)]
+        [TestCase("PanelPondSelection", "", "DesignPondAside", 20)]
+        [TestCase("PanelWorldMap", "", "Details", 0)]
+        public void RealRouterOpeningMatchesBrowserSampledAsideClock(string resource,string ownerPath,string asidePath,int cards)
+        {
+            var home=Rect("Home"); var slot=Rect("Profile");
+            var page=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/"+resource),slot);
+            page.name=resource;page.SetActive(true);
+            var owner=ownerPath==""?page.transform:page.transform.Find(ownerPath);
+            for(var node=owner;node!=slot;node=node.parent) node.gameObject.SetActive(true);
+            for(var i=0;i<cards;i++)
+            {
+                var card=Rect("Card"+i,owner);card.gameObject.AddComponent<Image>();
+                CozyStickerMotion.Bind(card.gameObject,"timing:"+i,i);
+            }
+            var router=root.AddComponent<PanelRouter>();
+            router.Register(ShellPanelId.Home,home.gameObject);
+            router.Register(ShellPanelId.Profile,slot.gameObject);
+            router.Show(ShellPanelId.Profile);
+            var pose=slot.GetComponent<CozyJournalFlipPose>();
+            CozyMotion.Tick(.1f);
+            Assert.AreEqual(0,pose.ContentAlpha);
+            // Browser #page at 100 ms: opacity .872201 and translateY 2.04478 px.
+            Assert.AreEqual(.872201f,slot.GetComponent<CanvasGroup>().alpha,.0001f);
+            Assert.AreEqual(-2.04478f,slot.anchoredPosition.y,.001f);
+            CozyMotion.Tick(.1f);
+            var motion=owner.GetComponent<CozyJournalPageMotion>();
+            var group=owner.Find(asidePath).GetComponent<CanvasGroup>();
+            Assert.AreEqual(1,pose.ContentAlpha);
+            Assert.AreEqual(0,group.alpha);
+            motion.Advance(.1f);
+            // Web: 0 stickers -> 80 ms delay, 4 -> 160 ms, >=8 -> 240 ms.
+            Assert.AreEqual(cards==0?.125f:0,group.alpha,.0001f);
+            motion.Advance(.1f);
+            Assert.AreEqual(cards==0?.75f:cards==4?.25f:0,group.alpha,.0001f);
+            motion.Advance(.2f);
+            Assert.AreEqual(1,group.alpha,.0001f);
+        }
+
+        [Test]
+        public void WorkspaceEditorRevealsBothColumnsTogetherAndOnlyFadesItsHeading()
+        {
+            var page=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileEdit"),root.transform);
+            page.name="PanelProfileEdit";page.SetActive(true);
+            var slot=Rect("ProfileEdit");page.transform.SetParent(slot,false);
+            var home=Rect("Home");var router=root.AddComponent<PanelRouter>();
+            router.Register(ShellPanelId.Home,home.gameObject);router.Register(ShellPanelId.ProfileEdit,slot.gameObject);
+            // Bind the actual presenter path too: it used to overwrite the workspace regions with the old aside.
+            page.GetComponent<DesktopProfileEditPanel>().Bind(null,null,null);
+            router.PanelChanged+=_=>page.GetComponent<DesktopProfileEditPanel>().OnOpened();
+            router.Show(ShellPanelId.ProfileEdit);
+            CozyMotion.Tick(.2f);
+            var motion=page.GetComponent<CozyJournalPageMotion>();
+            foreach(var path in new[]{"JournalPreview","WorkspaceEditRight","Form","Avatars","Showcase"})
+                Assert.AreEqual(1,page.transform.Find(path).GetComponent<CanvasGroup>().alpha,path);
+            Assert.AreEqual(0,motion.HeadingAlpha);
+            motion.Advance(.1f);
+            Assert.AreEqual(.625f,motion.HeadingAlpha,.0001f);
+            Assert.AreEqual(.625f,page.transform.Find("WorkspaceSubtitle").GetComponent<CanvasGroup>().alpha,.0001f);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void EditAndCancelRefreshContentImmediatelyWithoutAnotherPageFlip(bool returning)
+        {
+            var home=Rect("Home");var profile=Rect("Profile");var edit=Rect("ProfileEdit");
+            var profilePage=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileHub"),profile);
+            var editPage=Object.Instantiate(Resources.Load<GameObject>("Desktop/Prefabs/PanelProfileEdit"),edit);
+            profilePage.name="PanelProfileHub";editPage.name="PanelProfileEdit";
+            profilePage.SetActive(true);editPage.SetActive(true);
+            var profileTab=profilePage.transform.Find("Shell/Content/Tab_资料");
+            for(var node=profileTab;node!=profile;node=node.parent)node.gameObject.SetActive(true);
+            var router=root.AddComponent<PanelRouter>();
+            router.Register(ShellPanelId.Home,home.gameObject);router.Register(ShellPanelId.Profile,profile.gameObject);
+            router.Register(ShellPanelId.ProfileEdit,edit.gameObject);
+            router.Show(returning?ShellPanelId.ProfileEdit:ShellPanelId.Profile);CozyMotion.Tick(.2f);
+            var target=returning?profile:edit;var old=returning?edit:profile;
+            var rest=target.anchoredPosition;
+            router.Show(returning?ShellPanelId.Profile:ShellPanelId.ProfileEdit,true);
+            Assert.IsFalse(old.gameObject.activeSelf,"jRefresh does not wait for 120 ms of outgoing content");
+            Assert.IsFalse(CozyMotion.EntranceHeld);
+            Assert.AreEqual(1,target.GetComponent<CanvasGroup>().alpha);
+            Assert.AreEqual(1,target.GetComponent<CozyJournalFlipPose>().ContentAlpha);
+            Assert.AreEqual(0,target.GetComponent<CozyJournalFlipPose>().ContentOffset);
+            Assert.AreEqual(rest,target.anchoredPosition);
+            var motion=returning?profileTab.GetComponent<CozyJournalPageMotion>():editPage.GetComponent<CozyJournalPageMotion>();
+            Assert.AreEqual(0,motion.HeadingAlpha);
+            motion.Advance(.1f);
+            Assert.AreEqual(.625f,motion.HeadingAlpha,.0001f);
+            if(returning)Assert.AreEqual(.125f,motion.AsideAlpha,.0001f);
+            else Assert.AreEqual(1,editPage.transform.Find("WorkspaceEditRight").GetComponent<CanvasGroup>().alpha);
+        }
+
+        [Test]
+        public void AsyncProfileRegionJoinsExistingEntranceInsteadOfAppearingFullyOrRestarting()
+        {
+            var page=Rect("Page");var pose=page.gameObject.AddComponent<CozyJournalFlipPose>();
+            var tab=Rect("Tab",page);var title=Rect("Title",tab);var aside=Rect("Aside",tab);
+            var motion=tab.gameObject.AddComponent<CozyJournalPageMotion>();motion.Configure(title,aside,null);
+            pose.BeginEntrance(.1f);
+            typeof(CozyJournalPageMotion).GetMethod("OnEnable",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(motion,null);
+            Assert.AreEqual(.125f,motion.AsideAlpha,.001f);
+            pose.BeginEntrance(.65f);
+            typeof(CozyJournalPageMotion).GetMethod("OnEnable",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(motion,null);
+            Assert.AreEqual(1,motion.AsideAlpha);
+        }
+
         [Test]
         public void ContentArrivingDuringRiseIsCoveredAndCancelledOpenRestoresIt()
         {

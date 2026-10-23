@@ -14,6 +14,7 @@ namespace FishSocial.Desktop.Editor
             ApplyPondRefinement(root);
             ApplySocialRefinement(root);
             ApplyWorkspaceProfile(root);
+            ApplyPageMotionParity(root);
             CozyWorkspaceSettlementAuthoring.Apply(root);
             if (root.name == "DesktopShell")
             {

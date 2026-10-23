@@ -487,6 +487,23 @@ namespace FishSocial.Desktop
             cancel?.Invoke();
         }
 
+        /// <summary>pages.js jRefresh: change profile/editor contents inside the same sheet.
+        /// No outgoing slide, incoming content translation, ring snap or index replay.</summary>
+        public static void RefreshContent(GameObject from, GameObject to, Action done)
+        {
+            CancelPageTransition();
+            if (to == null) { done?.Invoke(); return; }
+            CozyJournalMotionBindings.ConfigureTree(to.transform);
+            if (from != null && from != to) from.SetActive(false);
+            to.SetActive(true);
+            var group = EnsureGroup(to); group.alpha = 1; group.blocksRaycasts = true;
+            var pose = to.GetComponent<CozyJournalFlipPose>() ?? to.AddComponent<CozyJournalFlipPose>();
+            pose.ResetPose();
+            if (_paused) SettleJournalPage(to);
+            else StartJournalEntrance(to, false);
+            done?.Invoke();
+        }
+
         public static void Flip(GameObject from, GameObject to, Action done)
         {
             if (to == null)
@@ -496,6 +513,7 @@ namespace FishSocial.Desktop
                 return;
             }
             CancelPageTransition();
+            CozyJournalMotionBindings.ConfigureTree(to.transform);
             if (_paused || from == null || from == to)
             {
                 if (from != null && from != to)
@@ -618,6 +636,11 @@ namespace FishSocial.Desktop
         static void StartJournalEntrance(GameObject page, bool rail)
         {
             if(page==null) return;
+            var owner = page.GetComponent<CozyJournalFlipPose>() ?? page.AddComponent<CozyJournalFlipPose>();
+            owner.BeginEntrance();
+            // Initial selection is data binding, not a user selection. The Web entrance fades
+            // the entire aside; it does not append a second polaroid reveal after that fade.
+            foreach (var pose in page.GetComponentsInChildren<CozyJournalStaticPose>()) pose.ApplyFinalPose();
             foreach(var sticker in page.GetComponentsInChildren<CozyStickerMotion>()) sticker.RestartEntrance();
             foreach(var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
                 motion.PlayEntrance(motion.GetComponentsInChildren<CozyStickerMotion>().Length);

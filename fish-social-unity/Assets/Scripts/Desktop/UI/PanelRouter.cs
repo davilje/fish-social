@@ -18,7 +18,9 @@ namespace FishSocial.Desktop
             panel.SetActive(id == ShellPanelId.Home);
         }
 
-        public void Show(ShellPanelId id)
+        public void Show(ShellPanelId id) => Show(id, false);
+
+        public void Show(ShellPanelId id, bool refreshContent)
         {
             // The index button stays bound while that page is already showing.
             // A second click must not close and reopen it, or the page reloads.
@@ -46,14 +48,18 @@ namespace FishSocial.Desktop
                 return;
             }
             transitioning = true;
-            CozyMotion.Flip(previous, next, () =>
+            Action complete = () =>
             {
                 if (version != navigationVersion || Current != id) return;
                 transitioning = false;
                 foreach (var kv in _panels)
                     if (kv.Key != id && kv.Value != null)
                         kv.Value.SetActive(false);
-            });
+            };
+            if (refreshContent && previous != null && previous.name != "Home")
+                CozyMotion.RefreshContent(previous, next, complete);
+            else
+                CozyMotion.Flip(previous, next, complete);
         }
 
         void OnDisable()

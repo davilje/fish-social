@@ -10,6 +10,13 @@ namespace FishSocial.Desktop
         public float ContentOffset { get; private set; }
         public float ContentAlpha { get; private set; } = 1;
         bool covered;
+        float entranceStarted = float.NaN;
+        public void BeginEntrance(float elapsed = 0) { entranceStarted = Time.unscaledTime - elapsed; }
+        public bool TryGetEntranceElapsed(out float elapsed)
+        {
+            elapsed = Time.unscaledTime - entranceStarted;
+            return !float.IsNaN(entranceStarted);
+        }
         public void CoverContent() { covered = true; Sample(0, 0); }
         // Include content arriving from an API while the sheet is still rising.
         void LateUpdate() { if (covered) Sample(0, 0); }
@@ -51,7 +58,7 @@ namespace FishSocial.Desktop
             return node != null && (node.Find("JournalShadow") != null || node.Find("DesignHeader") != null);
         }
         public void ResetPose() { covered = false; Sample(0, 1); }
-        void OnDisable() { ResetPose(); }
+        void OnDisable() { entranceStarted = float.NaN; ResetPose(); }
     }
 
     public sealed class CozyJournalFlipGraphic : BaseMeshEffect

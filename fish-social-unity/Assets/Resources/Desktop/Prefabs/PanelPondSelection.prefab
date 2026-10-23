@@ -4103,6 +4103,7 @@ GameObject:
   - component: {fileID: 184912511009841020}
   - component: {fileID: 7632169499763247770}
   - component: {fileID: 2263056984306609529}
+  - component: {fileID: 2774741013261339535}
   m_Layer: 0
   m_Name: PondListHeading
   m_TagString: Untagged
@@ -4172,6 +4173,18 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u6311\u4E00\u7247\u559C\u6B22\u7684\u6C34"
+--- !u!225 &2774741013261339535
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3829505504891953692}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3900807451904306411
 GameObject:
   m_ObjectHideFlags: 0
@@ -4411,6 +4424,7 @@ GameObject:
   - component: {fileID: 4003938863041148826}
   - component: {fileID: 4832571311307827725}
   - component: {fileID: 6617977862566683914}
+  - component: {fileID: 1324619390925410717}
   m_Layer: 0
   m_Name: DesignPondAside
   m_TagString: Untagged
@@ -4492,6 +4506,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &1324619390925410717
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4191467490386223845}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4207458297133055950
 GameObject:
   m_ObjectHideFlags: 0
@@ -8157,6 +8183,7 @@ GameObject:
   - component: {fileID: 5068374094449608201}
   - component: {fileID: 7786039675274631506}
   - component: {fileID: 7939701151105644963}
+  - component: {fileID: 7056569652138395366}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -8226,6 +8253,18 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text:
+--- !u!225 &7056569652138395366
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8940778257963075646}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8962894688380366072
 GameObject:
   m_ObjectHideFlags: 0
@@ -8632,6 +8671,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9489fb5efe745497b4c2d4f11b18e635, type: 3}
   m_Name:
   m_EditorClassIdentifier:
+--- !u!114 &9060955433860536408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095764785787420604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba8d1db4547141aab513f688674093ce, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  heading: {fileID: 2774741013261339535}
+  aside: {fileID: 1324619390925410717}
+  status: {fileID: 7056569652138395366}
+  asideParts: []
+  headingParts: []
+  middle: []
 --- !u!1001 &663253420491538823
 PrefabInstance:
   m_ObjectHideFlags: 0

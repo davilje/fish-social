@@ -16,6 +16,7 @@ namespace FishSocial.Desktop.Editor
                 try
                 {
                     ApplyWorkspaceProfile(root);
+                    ApplyPageMotionParity(root);
                     CozyWorkspaceSettlementAuthoring.Apply(root);
                     CozyPrefabRepair.RepairContents(root);
                     Record(root);

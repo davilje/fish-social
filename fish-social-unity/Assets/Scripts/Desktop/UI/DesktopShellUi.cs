@@ -92,6 +92,24 @@ namespace FishSocial.Desktop
             ShowMainPanel(ShellPanelId.Profile);
         }
 
+        void OpenProfileEditor()
+        {
+            if (!_onboardingLock && _router != null && _router.Current == ShellPanelId.Profile)
+                _router.Show(ShellPanelId.ProfileEdit, true);
+            else
+                ShowMainPanel(ShellPanelId.ProfileEdit);
+        }
+
+        void ReturnToProfileFromEditor()
+        {
+            if (!_onboardingLock && _router != null && _router.Current == ShellPanelId.ProfileEdit)
+            {
+                _profileHubPanel?.ShowSelf(DesktopProfileHubPanel.HubTab.Profile);
+                _router.Show(ShellPanelId.Profile, true);
+            }
+            else OpenProfileHub();
+        }
+
         public void OpenProfileHub(DesktopProfileHubPanel.HubTab tab = DesktopProfileHubPanel.HubTab.Profile)
         {
             if (tab == DesktopProfileHubPanel.HubTab.Achievements)
@@ -1246,7 +1264,7 @@ namespace FishSocial.Desktop
         {
             _achievementPanel = DesktopFeaturePanelFactory.BindExisting<DesktopProfileHubPanel>(go,
                 view => view.Bind(_authenticatedApi, _pondSession,
-                    () => ShowMainPanel(ShellPanelId.ProfileEdit), SetStatusMessage, () => ShowMainPanel(ShellPanelId.WorldMap),
+                    () => OpenProfileEditor(), SetStatusMessage, () => ShowMainPanel(ShellPanelId.WorldMap),
                     () => ShowMainPanel(ShellPanelId.Achievements)));
         }
 
@@ -1264,7 +1282,7 @@ namespace FishSocial.Desktop
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
-                    () => ShowMainPanel(ShellPanelId.ProfileEdit),
+                    () => OpenProfileEditor(),
                     SetStatusMessage,
                     () => ShowMainPanel(ShellPanelId.WorldMap),
                     () => ShowMainPanel(ShellPanelId.Achievements)));
@@ -1279,7 +1297,7 @@ namespace FishSocial.Desktop
                 view => view.Bind(
                     _authenticatedApi,
                     _pondSession,
-                    () => OpenProfileHub(),
+                    () => ReturnToProfileFromEditor(),
                     tab => OpenProfileHub(tab)));
         }
 

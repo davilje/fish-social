@@ -64,8 +64,6 @@ namespace FishSocial.Desktop
         {
             if (!_uiReady)
                 return;
-            if (Application.isPlaying)
-                PlayJournalEntrance();
             Refresh();
         }
 
@@ -165,31 +163,7 @@ namespace FishSocial.Desktop
 
         void EnsureJournalMotion()
         {
-            var motion = GetComponent<CozyJournalPageMotion>() ?? gameObject.AddComponent<CozyJournalPageMotion>();
-            motion.Configure(
-                transform.Find("JournalEditHeading"),
-                null,
-                transform.Find("Status"),
-                transform.Find("Form"),
-                transform.Find("AvatarsTitle"),
-                transform.Find("Avatars"),
-                transform.Find("Actions"));
-            motion.ConfigureAside(
-                transform.Find("JournalPreview"),
-                transform.Find("ShowcaseTitle"),
-                transform.Find("Showcase"));
-        }
-
-        void PlayJournalEntrance()
-        {
-            var motion = GetComponent<CozyJournalPageMotion>();
-            if (motion == null)
-                EnsureJournalMotion();
-            motion = GetComponent<CozyJournalPageMotion>();
-            if (motion == null)
-                return;
-            motion.PlayEntrance(GetComponentsInChildren<CozyStickerMotion>(true).Length);
-
+            CozyJournalMotionBindings.ConfigurePage(transform);
         }
 
         void GoBack()
