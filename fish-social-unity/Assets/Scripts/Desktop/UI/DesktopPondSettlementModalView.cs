@@ -21,6 +21,10 @@ namespace FishSocial.Desktop
         CanvasGroup _paperAlpha;
         Vector2 _paperRest;
         bool _composerWasOpen;
+        bool _closing;
+        bool _pendingOpen;
+        CozyWorkspaceBodyMotion _bodyMotion;
+        float _bodySeconds;
         public bool ChoicesOpen => transform.Find("Panel/ChoiceLayer")?.gameObject.activeSelf == true;
         public int VisibleRecordCount { get; private set; }
         public static DesktopPondSettlementModalView Show(Transform canvas, PondSessionSummaryDto data)
@@ -148,7 +152,7 @@ namespace FishSocial.Desktop
             _data = data; _filter = 0; _sort = 0;
             BindButton("Panel/Close", Close);
             BindButton("Panel/Dismiss", Close);
-            BindButton("Panel/Home", () => { ProfileRequested?.Invoke(); Close(); });
+            BindButton("Panel/Home", () => CloseThen(() => ProfileRequested?.Invoke()));
             BindButton("Panel/Filter", () => OpenChoices(false));
             BindButton("Panel/Sort", () => OpenChoices(true));
             for (var i = 0; i < 3; i++)
@@ -247,6 +251,9 @@ namespace FishSocial.Desktop
         { var layer = transform.Find("Panel/ChoiceLayer"); if (layer != null) layer.gameObject.SetActive(false); }
         public void PlayOpenMotion()
         {
+            // Also bind explicit Show/preview calls; do not rely on an earlier OnEnable.
+            CozyMotion.PausedChanged -= OnMotionPauseChanged;
+            CozyMotion.PausedChanged += OnMotionPauseChanged;
             if (_paper == null)
             {
                 _paper = transform.Find("Panel") as RectTransform; if (_paper == null) return;
@@ -255,7 +262,23 @@ namespace FishSocial.Desktop
                 if (_paperAlpha == null) _paperAlpha = _paper.gameObject.AddComponent<CanvasGroup>();
             }
             ResetOpenMotion();
+            _closing = false;
+            _pendingOpen = CozyMotion.Paused;
+            if (_pendingOpen) { _paperAlpha.alpha = 0; return; }
+            _paperAlpha.interactable = true;
             CozyWorkspaceDialogMotion.Play(_paper);
+            _bodyMotion = _paper.GetComponent<CozyWorkspaceBodyMotion>() ?? _paper.gameObject.AddComponent<CozyWorkspaceBodyMotion>();
+            _bodyMotion.Configure(
+                new[] { _paper.Find("Stats/Bites") }, new[] { _paper.Find("Stats/Escapes") },
+                new[] { _paper.Find("Stats/Duration") }, new[] { _paper.Find("Stats/Catches") },
+                new[] { _paper.Find("RecordCount"), _paper.Find("Filter"), _paper.Find("Sort"), _paper.Find("ListScroll"), _paper.Find("Empty"), _paper.Find("DurationHint") },
+                new[] { _paper.Find("Account") },
+                new[] { _paper.Find("FooterNote"), _paper.Find("Home"), _paper.Find("FooterRule") });
+            _bodySeconds = 0;
+            _bodyMotion.Sample(0);
+            CozyMotion.Animate((RectTransform)transform, .68f,
+                t => { _bodySeconds = CozyMotion.Reduced ? t*.12f : t*.68f-.2f; _bodyMotion.Sample(_bodySeconds); },
+                _bodyMotion.Finish, CozyWebMotion.Ease.Linear, cleanup: _bodyMotion.Finish, fadeWhenReduced: true);
         }
         void RestorePaperPose()
         {
@@ -263,8 +286,23 @@ namespace FishSocial.Desktop
             if (_paperAlpha != null) _paperAlpha.alpha = 1;
         }
         void ResetOpenMotion()
-        { if (_paper != null) CozyMotion.Cancel(_paper); RestorePaperPose(); }
-        void OnDisable() { ResetOpenMotion(); CloseChoices(); }
+        {
+            CozyMotion.Cancel((RectTransform)transform);
+            if (_paper != null) CozyMotion.Cancel(_paper);
+            _bodyMotion?.Finish();
+            RestorePaperPose();
+        }
+        void OnEnable() { CozyMotion.PausedChanged += OnMotionPauseChanged; }
+        void OnMotionPauseChanged(bool paused)
+        {
+            if (!paused && _pendingOpen && !_closing) PlayOpenMotion();
+        }
+        void OnDisable()
+        {
+            CozyMotion.PausedChanged -= OnMotionPauseChanged;
+            _pendingOpen = false;
+            ResetOpenMotion(); CloseChoices();
+        }
         bool ComposerIsOpen()
         {
             if (transform.parent == null) return false;
@@ -288,6 +326,36 @@ namespace FishSocial.Desktop
             if (layer != null && target == layer.gameObject) { CloseChoices(); return; }
             if (target == gameObject || target == transform.Find("Dim")?.gameObject) Close();
         }
-        public void Close() { ResetOpenMotion(); gameObject.SetActive(false); Destroy(gameObject); }
+        public void Close() => CloseThen(null);
+        void CloseThen(System.Action completed)
+        {
+            if (_closing) return;
+            _closing = true;
+            CloseChoices();
+            if (_paper == null) { Remove(); return; }
+            // Freeze the current entrance pose, including an early close, before fading it out.
+            var position = _paper.anchoredPosition;
+            var opacity = _paperAlpha.alpha;
+            CozyMotion.Cancel((RectTransform)transform);
+            CozyMotion.Cancel(_paper);
+            _bodyMotion?.Sample(_bodySeconds);
+            _paper.anchoredPosition = position;
+            _paperAlpha.alpha = opacity;
+            var dim = transform.Find("Dim")?.GetComponent<Image>();
+            var tint = dim != null ? dim.color : Color.clear;
+            _paperAlpha.interactable = false;
+            CozyMotion.Animate(_paper, .14f, t =>
+            {
+                _paper.anchoredPosition = position + (CozyMotion.Reduced ? Vector2.zero : Vector2.down*12*t);
+                _paperAlpha.alpha = opacity*(1-t);
+                if (dim != null) dim.color = new Color(tint.r,tint.g,tint.b,tint.a*(1-t));
+            }, Remove, CozyWebMotion.Ease.InQuad, fadeWhenReduced: true);
+            void Remove()
+            {
+                gameObject.SetActive(false);
+                completed?.Invoke();
+                if (Application.isPlaying) Destroy(gameObject); else DestroyImmediate(gameObject);
+            }
+        }
     }
 }

@@ -80,9 +80,37 @@ jBindForms=function(root){oldBindForms(root);
  $$('[data-ws-avatar]',root).forEach(b=>b.onclick=()=>{wsCaptureDraft();ws.draft.avatar=b.dataset.wsAvatar;$('#ws-face').src=jAvatar(ws.draft.avatar);$$('[data-ws-avatar]',root).forEach(a=>{a.classList.toggle('selected',a===b);a.setAttribute('aria-pressed',a===b);});});
  $$('[data-ws-slot]',root).forEach(b=>b.onclick=()=>{wsCaptureDraft();wsPicker(+b.dataset.wsSlot);});
  $('[data-ws="cancel-edit"]',root).onclick=()=>{if(switching)return;ws.draft=null;J.editing=false;return jRefresh();};
- $('[data-ws="save-profile"]',root).onclick=()=>{if(switching)return;wsCaptureDraft();if(!ws.draft.nickname.trim()){$('#ws-edit-error').textContent='先给自己起一个名字吧。';$('#ws-name').focus();return;}J.nickname=ws.draft.nickname.trim();J.bio=ws.draft.bio.trim();J.avatar=ws.draft.avatar;ws.slots=[...ws.draft.slots];J.showcase=ws.slots.slice(0,3);J.editing=false;ws.draft=null;jSyncPlayer();jRefresh();toast('名片和展示鱼获已保存到本次预览');};
+ $('[data-ws="save-profile"]',root).onclick=async()=>{if(switching)return;wsCaptureDraft();if(!ws.draft.nickname.trim()){$('#ws-edit-error').textContent='先给自己起一个名字吧。';$('#ws-name').focus();return;}J.nickname=ws.draft.nickname.trim();J.bio=ws.draft.bio.trim();J.avatar=ws.draft.avatar;ws.slots=[...ws.draft.slots];J.showcase=ws.slots.slice(0,3);switching=true;
+ const button=$('[data-ws="save-profile"]',root);
+ $$('.ws-edit button, .ws-edit input, .ws-edit textarea',root).forEach(el=>el.disabled=true);
+ button.innerHTML='<span>✓ 已保存</span>';
+ $('#ws-edit-error').textContent='保存成功。';
+ try { await play(button.firstElementChild,[{opacity:.35},{opacity:1}],{duration:240,easing:EASE.outCubic}).finished; }
+ finally { switching=false; }
+ J.editing=false;ws.draft=null;jSyncPlayer();await jRefresh();toast('名片和展示鱼获已保存到本次预览');};
 };
 function wsDialog(title,html){const modal=jDialog(title,html);$('.j-dialog-paper',modal).classList.add('ws-dialog');return modal;}
+// Settlement keeps its blocking backdrop until the paper has finished closing.
+const wsBaseCloseDialog = jCloseDialog;
+jCloseDialog = function() {
+ const modal=$('#j-dialog');
+ if (!modal?.dataset.wsSettlement) return wsBaseCloseDialog();
+ if (modal.wsClosing) return modal.wsClosing;
+ const paper=$('.j-dialog-paper',modal), style=getComputedStyle(paper);
+ const opacity=style.opacity, translate=style.translate==='none'?'0 0':style.translate;
+ paper.getAnimations().forEach(a=>a.cancel());
+ $$('button,input,select',modal).forEach(el=>el.disabled=true);
+ modal.wsClosing=Promise.all([
+  play(paper,[{opacity,translate},{opacity:0,translate:'0 12px'}],{duration:140,easing:EASE.inQuad,fill:'forwards'}).finished,
+  play(modal,[{backgroundColor:getComputedStyle(modal).backgroundColor},{backgroundColor:'transparent'}],{duration:140,easing:EASE.inQuad,fill:'forwards'}).finished
+ ]).then(()=>{if($('#j-dialog')===modal)wsBaseCloseDialog();});
+ return modal.wsClosing;
+};
+function wsSettlementEntrance(modal) {
+ modal.dataset.wsSettlement='true';
+ const groups=[...$$('.ws-settlement-stats > .ws-metric',modal),$('.ws-settlement-body > section',modal),$('.ws-account',modal),$('.ws-modal-footer',modal)];
+ groups.forEach((el,i)=>play(el,[{opacity:0,translate:'0 12px'},{opacity:1,translate:'0 0'}],{duration:240,delay:200+i*40,easing:EASE.outCubic}));
+}
 function wsPicker(slot){
  let selected=ws.draft.slots[slot];
  const m=wsDialog(`整理展示位 ${slot+1}`,`<p class="ws-subtitle">挑一条喜欢的鱼获。清空展示位不会移除背包里的鱼。</p><input class="ws-picker-search" type="search" placeholder="搜索鱼种…" aria-label="搜索鱼种"><div class="ws-picker-grid"></div><footer class="ws-modal-footer">${wsBtn('清空此展示位','id="ws-clear-slot"')}<span class="ws-muted" id="ws-pick-caption"></span>${wsBtn('取消','id="ws-pick-cancel"')}${wsBtn('放进展示位','id="ws-pick-confirm"',true)}</footer>`);
@@ -101,7 +129,7 @@ function wsSettlement(){
  ws.filter=false;ws.sort='time';
  const total=wsRecords.reduce((s,f)=>s+f.value,0);
  const m=wsDialog('收竿啦，带上今天的湖畔记忆',`<p class="ws-subtitle">千岛湖 · 2026 年 10 月 22 日 · 14:00 — 15:48 · 回鱼出售</p><div class="ws-settlement-stats">${wsMetric('本次咬钩','12 <small>次</small>')}${wsMetric('脱钩','4 <small>次</small>')}${wsMetric('钓鱼时长','1 <small>时</small> 48 <small>分</small>')}${wsMetric('成功钓获','8 <small>条</small>')}</div><div class="ws-settlement-body"><section><div class="ws-record-toolbar"><span>本次鱼获 <small id="ws-record-count">8 条</small></span><label><input type="checkbox" id="ws-record-only"> 只看新纪录</label><select id="ws-record-sort" aria-label="鱼获排序"><option value="time">最近钓获优先</option><option value="size">体长从大到小</option><option value="weight">体重从大到小</option></select></div><div class="ws-catches"></div></section><aside class="ws-account"><h3>这次出行的小账本</h3><dl><dt>回鱼收入</dt><dd>+${total} 金币</dd><dt>鱼塘费用</dt><dd>−200 金币</dd></dl><div class="net">本次净收入<strong>+${total-200} <small>金币</small></strong></div><p class="ws-muted">按本次回鱼出售模式统计。<br>鱼获记录保留在钓鱼手账里。</p></aside></div><footer class="ws-modal-footer"><span class="ws-muted">这一页，记下了你的每一次耐心等待。</span>${wsBtn('回到个人手账','id="ws-settlement-home"',true)}</footer>`);
- const draw=()=>{let list=wsRecords.filter(f=>!ws.filter||f.new);list=[...list].sort((a,b)=>ws.sort==='time'?b.time.localeCompare(a.time):b[ws.sort]-a[ws.sort]);$('#ws-record-count').textContent=list.length+' 条';$('.ws-catches',m).innerHTML=list.map(f=>`<article class="ws-catch-row"><img src="${wsArt(f)}" alt="${f.name}"><div><b>${f.name}</b>${f.new?'<span class="ws-record-tag">新纪录</span>':''}<small>10.22 · ${f.time}</small></div><div>${f.size.toFixed(2)} m<small>体长</small></div><div>${f.weight.toFixed(2)} kg<small>体重</small></div>${wsBtn('分享',`data-share-record="${f.id}"`)}</article>`).join('');$$('[data-share-record]',m).forEach(b=>b.onclick=()=>{const id=b.dataset.shareRecord;jCloseDialog();jCompose(id,true);});};$('#ws-record-only').onchange=e=>{ws.filter=e.target.checked;draw();};$('#ws-record-sort').onchange=e=>{ws.sort=e.target.value;draw();};$('#ws-settlement-home').onclick=()=>{jCloseDialog();J.editing=false;go('profile',{tab:0});};draw();
+ const draw=()=>{let list=wsRecords.filter(f=>!ws.filter||f.new);list=[...list].sort((a,b)=>ws.sort==='time'?b.time.localeCompare(a.time):b[ws.sort]-a[ws.sort]);$('#ws-record-count').textContent=list.length+' 条';$('.ws-catches',m).innerHTML=list.map(f=>`<article class="ws-catch-row"><img src="${wsArt(f)}" alt="${f.name}"><div><b>${f.name}</b>${f.new?'<span class="ws-record-tag">新纪录</span>':''}<small>10.22 · ${f.time}</small></div><div>${f.size.toFixed(2)} m<small>体长</small></div><div>${f.weight.toFixed(2)} kg<small>体重</small></div>${wsBtn('分享',`data-share-record="${f.id}"`)}</article>`).join('');$$('[data-share-record]',m).forEach(b=>b.onclick=async()=>{const id=b.dataset.shareRecord;await jCloseDialog();jCompose(id,true);});};$('#ws-record-only').onchange=e=>{ws.filter=e.target.checked;draw();};$('#ws-record-sort').onchange=e=>{ws.sort=e.target.value;draw();};$('#ws-settlement-home').onclick=async()=>{await jCloseDialog();J.editing=false;go('profile',{tab:0});};draw();wsSettlementEntrance(m);
 }
 const originalAction=jAction;
 jAction=function(name,el){if(name==='edit-profile')return wsStartEdit();if(name==='cancel-edit'){if(switching)return;ws.draft=null;J.editing=false;return jRefresh();}return originalAction(name,el);};
@@ -109,7 +137,7 @@ const oldInstall=installJournalPages;
 installJournalPages=function(){oldInstall();journalFish=journalFish.map(f=>{const r=wsRecords.find(x=>x.id===f.id);return r?{...f,size:r.size}:f;});J.posts=[];$('#player .xp b').textContent='320 / 650';$('#player .xp i').style.width='49.23%';S.page='profile';S.tab.profile=0;bobIdx=NAV.findIndex(n=>n.id==='profile');J.editing=false;
  const toolbar=$('#toolbar');for(const g of $$('.group',toolbar))g.style.display='none';$('.brand',toolbar).textContent='手账新布局 · 可交互设计';const links=document.createElement('div');links.className='ws-links';links.innerHTML='<button data-workspace="profile">个人资料</button><button data-workspace="edit">编辑资料</button><button data-workspace="compose">分享鱼获</button><button data-workspace="settlement">离塘结算</button>';toolbar.append(links);
  const selectMode=mode=>{$$('[data-workspace]').forEach(b=>b.classList.toggle('active',b.dataset.workspace===mode));history.replaceState(null,'',location.pathname+'#'+mode);};
- const open=async mode=>{if(switching)return;if($('#j-dialog'))jCloseDialog();selectMode(mode);if(mode==='profile'){J.editing=false;await go('profile',{tab:0});}if(mode==='edit'){wsPrepareEdit();await go('profile',{tab:0});}if(mode==='compose'){await go('feed',{tab:0});jCompose();}if(mode==='settlement')wsSettlement();};$$('[data-workspace]').forEach(b=>b.onclick=()=>open(b.dataset.workspace));$('#caption .hint').textContent='设计预览 · 示例统计与体重 · 操作不会发送到真实账号';$('#caption-text').textContent='切换上方四个入口，体验新的资料、分享与结算流程。';
+ const open=async mode=>{if(switching)return;if($('#j-dialog'))await jCloseDialog();selectMode(mode);if(mode==='profile'){J.editing=false;await go('profile',{tab:0});}if(mode==='edit'){wsPrepareEdit();await go('profile',{tab:0});}if(mode==='compose'){await go('feed',{tab:0});jCompose();}if(mode==='settlement')wsSettlement();};$$('[data-workspace]').forEach(b=>b.onclick=()=>open(b.dataset.workspace));$('#caption .hint').textContent='设计预览 · 示例统计与体重 · 操作不会发送到真实账号';$('#caption-text').textContent='切换上方四个入口，体验新的资料、分享与结算流程。';
  // Choose the initial state before boot renders, rather than flipping it again 100ms later.
  const initialMode=['edit','compose','settlement'].includes(location.hash.slice(1))?location.hash.slice(1):'profile';
  selectMode(initialMode);

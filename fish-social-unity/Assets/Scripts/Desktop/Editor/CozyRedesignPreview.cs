@@ -62,6 +62,7 @@ namespace FishSocial.Desktop.Editor
                     Render("PanelProfileEdit", null, "workspace-edit", seconds);
                     Render("PanelProfileEdit", null, "workspace-edit-refresh", seconds);
                     Render("PanelProfileHub", null, "workspace-profile-refresh", seconds);
+                    Render("PanelProfileHub", null, "workspace-save-refresh", seconds);
                     Render("PanelProfileEdit", "选择鱼获", "workspace-picker", seconds);
                     Render("PanelSocialFeed", "发布", "workspace-compose", seconds);
                     Render("PanelPondSettlement", null, "workspace-settlement", seconds);
@@ -179,7 +180,7 @@ namespace FishSocial.Desktop.Editor
                 {
                     CozyMotion.SetPaused(false); CozyMotion.SetReduced(false);
                     if (motionCase == "workspace-profile" || motionCase == "workspace-edit" ||
-                        motionCase == "workspace-edit-refresh" || motionCase == "workspace-profile-refresh")
+                        motionCase == "workspace-edit-refresh" || motionCase == "workspace-profile-refresh" || motionCase == "workspace-save-refresh")
                     {
                         // Use the same saved slots and routing entry as DesktopShellUi.
                         // Keep the rendered design coordinates while moving under its real slot.
@@ -212,7 +213,9 @@ namespace FishSocial.Desktop.Editor
                             foreach(var body in previousPage.GetComponentsInChildren<CozyWorkspaceBodyMotion>())body.Finish();
                             foreach(var region in previousPage.GetComponentsInChildren<CozyJournalPageMotion>())region.Finish();
                             foreach(var visual in previousPage.GetComponentsInChildren<CozyButtonVisual>())visual.ApplyFinalPose();
-                            router.Show(id, true);
+                            if (motionCase == "workspace-save-refresh")
+                                CozyProfileSaveFeedback.Play(previousPage.transform.Find("Actions/Save").GetComponent<Button>(), () => router.Show(id,true));
+                            else router.Show(id, true);
                         }
                         else router.Show(id);
                     }

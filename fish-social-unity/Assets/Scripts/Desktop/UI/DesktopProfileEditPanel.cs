@@ -69,6 +69,7 @@ namespace FishSocial.Desktop
 
         public void OnClosed()
         {
+            _save?.GetComponent<CozyProfileSaveFeedback>()?.CancelFeedback();
             StopRoutines();
             HidePicker();
         }
@@ -657,8 +658,13 @@ namespace FishSocial.Desktop
             _lastSaveFailed = false;
             DesktopProfileCache.Latest = profile;
             ApplyProfile(profile);
+            _busy = true;
             SetStatus("保存成功。");
-            GoBack();
+            CozyProfileSaveFeedback.Play(_save, () =>
+            {
+                _busy = false;
+                GoBack();
+            });
         }
 
         void SetStatus(string message)
