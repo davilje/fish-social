@@ -12,7 +12,7 @@ namespace FishSocialOverlay
     /// <summary>
     /// Renders pond water, spots and pond pets from Unity-pushed snapshot fields.
     /// </summary>
-    public sealed class PondScenePresenter
+    public sealed class PondScenePresenter : IDisposable
     {
         public const double SceneWidth = 960;
         public const double SceneHeight = 560;
@@ -38,6 +38,7 @@ namespace FishSocialOverlay
         IpcMessage _lastMessage;
         string _predictedSpotId;
         long _predictedUntilMs;
+        bool _disposed;
         string _pondId = string.Empty;
         string _ownPlayerId = string.Empty;
         string _ownUserId = string.Empty;
@@ -196,7 +197,7 @@ namespace FishSocialOverlay
 
         public void Apply(IpcMessage message)
         {
-            if (message == null)
+            if (_disposed || message == null)
                 return;
 
             var pondId = message.PondId ?? string.Empty;
@@ -500,6 +501,7 @@ namespace FishSocialOverlay
             Point point;
             if (!TryResolveActorPoint(ownSpotId, !predicted && message.HasOwnPosition, message.OwnX, message.OwnY, message.Spots, 0, out point))
                 point = FallbackOwnPoint();
+            _ownActor.ApplyChrome(_layout.ResolveActorChrome(ownSpotId));
             _ownActor.WarmupActionClips(message.OwnPetId);
             _ownActor.Apply(
                 message.OwnNickname,
@@ -511,7 +513,6 @@ namespace FishSocialOverlay
                 message.OwnPetId,
                 message.SessionCatchCount,
                 IsGroundbaitActive(message));
-            _ownActor.ApplyChrome(_layout.ResolveActorChrome(ownSpotId));
             _ownActor.Place(point.X, point.Y);
         }
 
@@ -556,6 +557,7 @@ namespace FishSocialOverlay
                 Point point;
                 if (!TryResolveActorPoint(user.SpotId, user.HasPosition, user.X, user.Y, message.Spots, keep.Count - 1, out point))
                     point = WaitingPoint(keep.Count - 1);
+                actor.ApplyChrome(_layout.ResolveActorChrome(user.SpotId));
                 actor.Apply(
                     user.Nickname,
                     user.PetVisualState,
@@ -566,7 +568,6 @@ namespace FishSocialOverlay
                     user.PetId,
                     user.SessionCatchCount,
                     string.Equals(user.FishingPhase, "groundbaiting", StringComparison.Ordinal));
-                actor.ApplyChrome(_layout.ResolveActorChrome(user.SpotId));
                 actor.Place(point.X, point.Y);
             }
 
@@ -579,8 +580,7 @@ namespace FishSocialOverlay
 
             foreach (var key in remove)
             {
-                _others[key].CancelTooltip();
-                _others[key].ReleaseFishingLayers();
+                _others[key].Dispose();
                 _hoverPresenter.RemoveActor(key);
                 _actorLayer.Children.Remove(_others[key]);
                 _others.Remove(key);
@@ -593,18 +593,32 @@ namespace FishSocialOverlay
             _actorsByUserId.Clear();
             if (_ownActor != null)
             {
-                _ownActor.ReleaseFishingLayers();
+                _ownActor.Dispose();
                 _hoverPresenter.RemoveActor(OwnActorKey);
                 _actorLayer.Children.Remove(_ownActor);
                 _ownActor = null;
             }
             foreach (var key in new List<string>(_others.Keys))
             {
-                _others[key].ReleaseFishingLayers();
+                _others[key].Dispose();
                 _hoverPresenter.RemoveActor(key);
                 _actorLayer.Children.Remove(_others[key]);
                 _others.Remove(key);
             }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            ClearOthers();
+            ClearSpots();
+            ClearDecor();
+            _lastMessage = null;
+            _backgroundImage.Source = null;
+            SpotSelected = null;
+            SceneContentChanged = null;
+            LocalPresentationChanged = null;
         }
 
         void ClearDecor()

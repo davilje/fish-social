@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>FishSocialOverlay.PerformanceTests</AssemblyName>
+    <DefineConstants>$(DefineConstants);OVERLAY_PERFORMANCE_TESTS;FISHING_LAYER_TESTS</DefineConstants>
+    <StartupObject>OverlayPerformanceTests</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FishSocialOverlay.csproj" />
+  </ItemGroup>
+</Project>

@@ -5,6 +5,7 @@
   <title>猫咪钓鱼手账 · 可交互原型</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="room-preview.css">
 </head>
 <body>
   <header id="toolbar">
@@ -12,6 +13,7 @@
     <div class="group"><span>背景</span>
       <button id="room-bg-indoor" class="on" type="button" aria-pressed="true">室内小屋</button>
       <button id="room-bg-outdoor" type="button" aria-pressed="false">原背景</button>
+      <button id="room-layers-toggle" type="button" aria-pressed="true">物件：显示</button>
       <button id="room-home" type="button">合上手账看房间</button>
     </div>
     <div class="group"><span>对比</span>
@@ -42,7 +44,8 @@
 
   <main id="viewport">
     <div id="stage">
-      <img id="bg" src="assets/home-room-balanced.jpg" alt="湖畔小屋室内背景候选">
+      <img id="bg" src="assets/room-v4/room-base.jpg" alt="均匀光照的空房间底图">
+      <div id="room-scene" aria-hidden="true"></div>
 
       <div id="player" class="pill">
         <div class="avatar"><img id="avatar-img" alt=""></div>
@@ -74,7 +77,14 @@
         <div id="bobber"><div class="float"></div></div>
       </nav>
 
-      <div id="corner-cat"><span id="zzz">Z z z</span><img src="assets/cat-fishing.png" alt=""></div>
+      <button id="room-floor" class="room-only" type="button" aria-label="房间活动区，点击让小猫走到这里"></button>
+      <button id="room-tackle" class="btn room-only" type="button">我的钓具</button>
+      <button id="room-aquarium" class="btn room-only" type="button">鱼缸 · 展示柜</button>
+      <button id="corner-cat" type="button" aria-label="小橘，点击互动，拖动或用方向键移动，按 R 坐下休息">
+        <span id="zzz">Z z z</span><img class="outdoor-cat" src="assets/cat-fishing.png" alt="">
+        <span class="room-cat-art"><img class="room-cat-standing" src="assets/room-cat-standing.png" alt="小橘"><img class="room-cat-sitting" src="assets/room-cat-sitting.png" alt="小橘坐下休息"></span>
+        <span id="room-cat-bubble" role="status"></span>
+      </button>
 
       <div id="motion"></div>
       <div id="celebrate"></div>

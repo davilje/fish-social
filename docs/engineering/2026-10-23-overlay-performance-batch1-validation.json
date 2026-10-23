@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-23",
+  "scope": "Overlay performance batch 1",
+  "portableCache": {
+    "passed": 8,
+    "failed": 0,
+    "runtime": [
+      "Mono (Unity bundled)",
+      ".NET 8.0.408 SDK"
+    ]
+  },
+  "python": {
+    "passed": 39,
+    "failed": 0
+  },
+  "wpfCrossBuild": {
+    "result": "passed",
+    "errors": 0,
+    "warnings": 5,
+    "target": "netcoreapp3.1",
+    "sdk": "8.0.408",
+    "productionAndTestAssembly": true,
+    "xamlCompiled": true
+  },
+  "windowsRuntime": {
+    "executed": false,
+    "pendingRegressionGroups": 6,
+    "performanceAcceptance": "pending"
+  },
+  "productionCodeChanged": [
+    "OverlayPetActor.cs",
+    "OverlayFishingLayers.cs",
+    "OverlayResourceCache.cs",
+    "PondScenePresenter.cs",
+    "MainWindow.xaml.cs"
+  ],
+  "cacheBudget": {
+    "decodedPixelBytes": 67108864,
+    "liveResourcesMayExceedBudget": true,
+    "processMemoryLimit": false
+  },
+  "unityTestsRerun": false
+}

@@ -3,6 +3,12 @@
 独立的 Windows WPF 桌面宠物 Overlay。它不引用 Unity、Steamworks.NET 或 Fish Social 业务程序集，只通过 Named Pipe 接收状态并发送 UI 命令。
 
 
+## 性能优化第一批（2026-10-23）
+
+角色离场与关窗统一停止定时器、清理引用；动画图层按实际路径共享，64 MiB 像素载荷预算的 LRU 保留热帧，活跃资源受保护。预热先应用正式尺寸，新角色不再清除全场缓存。状态日志新增 actors、activeClips、cachedFrames、cachePixelBytes、layerDecodes。
+
+缓存行为 8/8、静态回归 39/39，正式 WPF 与原生测试交叉编译通过；Windows 原生运行与实际性能待验收。见 [实现与验收](../docs/engineering/2026-10-23-overlay-performance-batch1.md)。
+
 ## 手账 Overlay 收口（2026-10-23）
 
 已换成桌面手账同源按钮、纸张、输入底板、图标和头像；取消按钮回弹，气泡改为 120ms 淡入淡出。移除常驻状态栏和正常鱼塘钓获／回鱼／脱钩弹窗，角色钓鱼动画及真实结算继续运行。需重建 EXE 并同步全部 OverlayResources。

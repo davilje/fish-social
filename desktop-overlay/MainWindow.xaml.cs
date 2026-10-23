@@ -625,6 +625,11 @@ namespace FishSocialOverlay
                         "overlay_state_applied sequence=" + message.Sequence +
                         " pond=" + (message.PondId ?? string.Empty) +
                         " applyMs=" + appliedMs.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) +
+                        " actors=" + OverlayPetActor.ActiveActorCount +
+                        " activeClips=" + OverlayFishingLayers.ActiveClipCount +
+                        " cachedFrames=" + OverlayFishingLayers.CachedBitmapCount +
+                        " cachePixelBytes=" + OverlayFishingLayers.CachedPixelBytes +
+                        " layerDecodes=" + OverlayFishingLayers.DecodeCount +
                         (ackTrace ?? string.Empty));
                 }
             }
@@ -2507,6 +2512,9 @@ namespace FishSocialOverlay
             _hoverPollTimer.Stop();
             _stopping = true;
             _promptTimer?.Stop();
+            _chatAckTimer?.Stop();
+            _chatBubbles?.HideAll();
+            _scene?.Dispose();
             NamedPipeClientStream pipe;
             lock (_writeLock)
             {

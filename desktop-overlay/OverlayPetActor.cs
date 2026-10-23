@@ -18,7 +18,7 @@ namespace FishSocialOverlay
     /// Pond pet. Display size comes from actor-pet (default 128 for 512 art).
     /// Hover / right-click hot-zone is actor-hit when present, else actor-pet.
     /// </summary>
-    public sealed class OverlayPetActor : Grid
+    public sealed class OverlayPetActor : Grid, IDisposable
     {
         public const double BodySize = 64;
         const double RingSize = 31;
@@ -59,6 +59,7 @@ namespace FishSocialOverlay
         readonly DispatcherTimer _frameTimer;
         readonly DispatcherTimer _refreshTimer;
         readonly DispatcherTimer _tooltipTimer;
+        bool _disposed;
         bool _pointerInside;
         bool _hoverShown;
         double _centerX;
@@ -77,6 +78,8 @@ namespace FishSocialOverlay
         bool _successCompleted;
         string _petId = string.Empty;
         string _warmedPetId = string.Empty;
+        int _warmedDrawW;
+        int _warmedDrawH;
         string _fishingPhase = string.Empty;
         long _sessionAnchorMs;
         long _hookDeadlineMs;
@@ -89,6 +92,7 @@ namespace FishSocialOverlay
         };
 
         public string ActorKey { get; }
+        internal static int ActiveActorCount { get; private set; }
 
         public bool HasPlayerContextMenu =>
             !string.IsNullOrEmpty(_playerId) && _menuHost != null;
@@ -265,6 +269,7 @@ namespace FishSocialOverlay
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             _refreshTimer.Tick += OnRefreshTick;
             _refreshTimer.Start();
+            ActiveActorCount++;
         }
 
         public void ConfigurePlayerMenu(string playerId, bool isBot, IOverlayPlayerMenuHost menuHost)
@@ -363,7 +368,7 @@ namespace FishSocialOverlay
             _socialMenu.Placement = PlacementMode.MousePoint;
             Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
             {
-                if (_socialMenu != null && HasPlayerContextMenu)
+                if (!_disposed && _socialMenu != null && HasPlayerContextMenu)
                     _socialMenu.IsOpen = true;
                 else
                     OverlayInteractionState.EndMenuHoverSuppress();
@@ -450,6 +455,7 @@ namespace FishSocialOverlay
             int sessionCatchCount = 0,
             bool groundbaitActive = false)
         {
+            if (_disposed) return;
             _nickname.Text = string.IsNullOrWhiteSpace(nickname) ? "玩家" : nickname;
             _hookDeadlineMs = hookDeadlineMs;
             _sessionCatchCount = Math.Max(0, sessionCatchCount);
@@ -478,6 +484,7 @@ namespace FishSocialOverlay
 
         public void ApplyChrome(OverlayActorChrome chrome)
         {
+            if (_disposed) return;
             _chrome = chrome;
             RelayoutCluster();
         }
@@ -488,12 +495,15 @@ namespace FishSocialOverlay
         /// </summary>
         public void WarmupActionClips(string petId)
         {
-            var id = petId ?? _petId;
-            if (string.IsNullOrEmpty(id) || string.Equals(id, _warmedPetId, StringComparison.Ordinal))
-                return;
-            _warmedPetId = id;
+            if (_disposed) return;
+            var id = OverlayFrameCache.NormalizePetId(petId ?? _petId);
             OverlayFishingLayers.Place(
-                id, BodySize, BodySize, out var drawW, out var drawH, out _, out _);
+                id, _body.Width, _body.Height, out var drawW, out var drawH, out _, out _);
+            if (string.Equals(id, _warmedPetId, StringComparison.Ordinal) &&
+                drawW == _warmedDrawW && drawH == _warmedDrawH) return;
+            _warmedPetId = id;
+            _warmedDrawW = drawW;
+            _warmedDrawH = drawH;
             if (drawW < 1 || drawH < 1)
             {
                 drawW = (int)BodySize;
@@ -537,6 +547,37 @@ namespace FishSocialOverlay
             Canvas.SetTop(this, centerY - originY);
             if (_hoverShown)
                 TryShowHover();
+        }
+
+        /// <summary>Permanent removal only; animation transitions use ReleaseFishingLayers.</summary>
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            ActiveActorCount--;
+            _frameTimer.Stop();
+            _frameTimer.Tick -= OnFrameTick;
+            _refreshTimer.Stop();
+            _refreshTimer.Tick -= OnRefreshTick;
+            _tooltipTimer.Stop();
+            _tooltipTimer.Tick -= OnTooltipTimerTick;
+            StopSpeechFade();
+            CancelTooltip();
+            var hadOpenMenu = IsPlayerContextMenuOpen;
+            DiscardSocialMenu();
+            if (hadOpenMenu) OverlayInteractionState.EndMenuHoverSuppress();
+            _menuHost = null;
+            ClearBubbles();
+            ReleaseFishingLayers();
+            _frames = Array.Empty<ImageSource>();
+            ClearLayerSources();
+            _image.Source = null;
+            _statusIcon.Source = null;
+            _ringBg.Source = null;
+            _hookRingImage.Source = null;
+            _hookRingImage.OpacityMask = null;
+            _hoverHost?.RemoveActor(ActorKey);
+            IsHitTestVisible = false;
         }
 
         public void ReleaseFishingLayers(bool clearDeferred = true)
@@ -607,6 +648,7 @@ namespace FishSocialOverlay
             ReleaseFishingLayers();
             _visualState = nextState;
             _petId = nextPet;
+            LayoutFishingLayers(_body.Width, _body.Height);
             _frameIndex = 0;
             _catchHolding = false;
             if (!samePet || (nextState != "sit" && nextState != "catch" && nextState != "ready"))
@@ -1080,6 +1122,7 @@ namespace FishSocialOverlay
 
         void OnRefreshTick(object sender, EventArgs e)
         {
+            if (_disposed) return;
             if (_hookRing.Visibility == Visibility.Visible ||
                 _hookRingImage.Visibility == Visibility.Visible)
                 UpdateHookRing();
@@ -1089,6 +1132,7 @@ namespace FishSocialOverlay
 
         void OnFrameTick(object sender, EventArgs e)
         {
+            if (_disposed) return;
             if (_layered != null)
             {
                 AdvanceLayered();
@@ -1116,6 +1160,7 @@ namespace FishSocialOverlay
 
         public void SetPointerOverPet(bool inside)
         {
+            if (_disposed) return;
             if (inside)
             {
                 if (OverlayInteractionState.SceneDragging)
@@ -1310,7 +1355,6 @@ namespace FishSocialOverlay
 
             if (!sizeChanged)
                 return;
-            OverlayFishingLayers.SetDecodeSize(drawW, drawH);
             if (_layered != null)
                 ShowLayered();
         }
@@ -1499,6 +1543,7 @@ namespace FishSocialOverlay
 
         public void ShowSpeech(string text, bool autoHide)
         {
+            if (_disposed) return;
             ApplyBubbleText(_speechLabel, text, 80);
             _speechBadge.Visibility = Visibility.Visible;
             RelayoutAndPlace();
@@ -1516,6 +1561,7 @@ namespace FishSocialOverlay
 
         public void ShowHint(string text)
         {
+            if (_disposed) return;
             ApplyBubbleText(_hintLabel, text, 120);
             _hintBadge.Visibility = Visibility.Visible;
             RelayoutAndPlace();

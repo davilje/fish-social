@@ -77,7 +77,6 @@ public static class FishingLayerTextureTests
         }
         finally
         {
-            OverlayFishingLayers.SetDecodeSize(0, scale);
             Directory.Delete(petFolder, true);
             Directory.Delete(Path.Combine(root, "shared", clip), true);
         }

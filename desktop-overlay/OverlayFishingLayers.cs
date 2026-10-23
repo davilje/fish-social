@@ -24,8 +24,10 @@ namespace FishSocialOverlay
         static readonly Dictionary<string, PetPack> Packs =
             new Dictionary<string, PetPack>(StringComparer.Ordinal);
 
-        static readonly Dictionary<string, BitmapImage> Bitmaps =
-            new Dictionary<string, BitmapImage>(StringComparer.OrdinalIgnoreCase);
+        // Budget applies to decoded pixel payload, not PNG file size or total process memory.
+        // Active resources are pinned; a temporary overrun is trimmed when their users leave.
+        static readonly OverlayResourceCache<BitmapImage> Bitmaps =
+            new OverlayResourceCache<BitmapImage>(64L * 1024 * 1024);
 
         static readonly Dictionary<string, int> TextureScales =
             new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -36,8 +38,13 @@ namespace FishSocialOverlay
         static readonly Dictionary<string, int> ClipUsers =
             new Dictionary<string, int>(StringComparer.Ordinal);
 
-        static int _decodeW;
-        static int _decodeH;
+        static readonly Dictionary<string, string[]> ClipResources =
+            new Dictionary<string, string[]>(StringComparer.Ordinal);
+
+        internal static long CachedPixelBytes => Bitmaps.ResidentBytes;
+        internal static int CachedBitmapCount => Bitmaps.Count;
+        internal static int ActiveClipCount => ClipUsers.Count;
+        internal static long DecodeCount { get; private set; }
 
         public static FishingClipPlayback TryOpen(string petId, string clip)
         {
@@ -89,6 +96,23 @@ namespace FishSocialOverlay
         {
             var key = UserKey(petId, clip);
             ClipUsers.TryGetValue(key, out var count);
+            if (count == 0)
+            {
+                var pack = LoadPack(petId);
+                if (pack == null || !pack.Clips.TryGetValue(clip, out var playback)) return;
+                if (!ClipResources.TryGetValue(key, out var resources))
+                {
+                    var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    for (var frame = 0; frame < playback.FrameCount; frame++)
+                        foreach (var layer in LayerNames)
+                            paths.Add(LayerPath(petId, clip, frame, layer, pack.BodyLayers));
+                    resources = new string[paths.Count];
+                    paths.CopyTo(resources);
+                    ClipResources[key] = resources;
+                }
+                // Includes the shared prop paths, protected by all species using this clip.
+                Bitmaps.Retain(resources);
+            }
             ClipUsers[key] = count + 1;
         }
 
@@ -105,17 +129,8 @@ namespace FishSocialOverlay
             }
 
             ClipUsers.Remove(key);
-            DropClip(clip);
-        }
-
-        public static void SetDecodeSize(int width, int height)
-        {
-            if (width == _decodeW && height == _decodeH)
-                return;
-            _decodeW = width;
-            _decodeH = height;
-            Bitmaps.Clear();
-            Missing.Clear();
+            if (ClipResources.TryGetValue(key, out var resources))
+                Bitmaps.Release(resources);
         }
 
         public static ImageSource BitmapFor(string path, int decodeW, int decodeH)
@@ -133,7 +148,7 @@ namespace FishSocialOverlay
             var key = decodeW + "x" + decodeH + "|" + path;
             if (Missing.Contains(key))
                 return null;
-            if (Bitmaps.TryGetValue(key, out var cached))
+            if (Bitmaps.TryGet(key, out var cached))
                 return cached;
             if (!File.Exists(path))
             {
@@ -161,7 +176,9 @@ namespace FishSocialOverlay
                     image.StreamSource = stream;
                     image.EndInit();
                     image.Freeze();
-                    Bitmaps[key] = image;
+                    DecodeCount++;
+                    var stride = ((long)image.PixelWidth * image.Format.BitsPerPixel + 7) / 8;
+                    Bitmaps.Add(key, path, image, stride * image.PixelHeight);
                     return image;
                 }
             }
@@ -227,29 +244,6 @@ namespace FishSocialOverlay
             var footY = padY + uniform * place.ReferenceFootY;
             originX = footX - place.FootX * scaleX;
             originY = footY - place.FootY * scaleY;
-        }
-
-        static void DropClip(string clip)
-        {
-            var marker = Path.DirectorySeparatorChar + clip + Path.DirectorySeparatorChar;
-            var stale = new List<string>();
-            foreach (var key in Bitmaps.Keys)
-            {
-                if (key.IndexOf(marker, StringComparison.OrdinalIgnoreCase) >= 0)
-                    stale.Add(key);
-            }
-
-            foreach (var key in Missing)
-            {
-                if (key.IndexOf(marker, StringComparison.OrdinalIgnoreCase) >= 0)
-                    stale.Add(key);
-            }
-
-            for (var i = 0; i < stale.Count; i++)
-            {
-                Bitmaps.Remove(stale[i]);
-                Missing.Remove(stale[i]);
-            }
         }
 
         static PetPack LoadPack(string petId)

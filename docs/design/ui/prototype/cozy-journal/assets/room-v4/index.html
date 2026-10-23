@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小橘房间 · 独立切图</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f0e3;color:#75472e;font:16px/1.6 system-ui,sans-serif}main{max-width:1420px;margin:auto;padding:32px}h1{margin:0;font-size:28px}p{margin:8px 0 20px;color:#8c7054}a{color:inherit}button{font:inherit;background:#fff8ec;color:#75472e;border:1px solid #dfccaa;border-radius:10px;padding:5px 14px;cursor:pointer}.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}figure{margin:0;border:1px solid #e5d6bd;border-radius:14px;overflow:hidden;background:#fffbf4}.art{height:230px;padding:18px;display:grid;place-items:center;background-color:var(--back,#faf9f5);background-image:var(--checks,conic-gradient(#e5e3dd 25%,transparent 0 50%,#e5e3dd 0 75%,transparent 0));background-size:24px 24px}.art img{max-width:100%;max-height:194px;object-fit:contain}figcaption{padding:12px 16px}figcaption strong{display:block}small{display:block;color:#947b61}.base img{width:100%;display:block}.base{margin:20px 0 28px;max-width:900px}code{font-size:13px}.hint{font-size:14px}body[data-bg=dark]{--back:#343936;--checks:none}body[data-bg=paper]{--back:#fff2d9;--checks:none}
+</style>
+<main><h1>小橘房间 · 独立切图</h1><p>15 张透明 PNG + 空房间底图。物件外部不带投影，底图移除了窗光斑与地板投影。</p>
+<div class="bar"><a href="../../index.html?roomView=home&amp;v=4">返回房间预览</a><a href="manifest.json">布局与尺寸清单</a><span>透明边缘检查：</span><button data-bg="checker">棋盘格</button><button data-bg="dark">深色</button><button data-bg="paper">米白</button></div>
+<figure class="base"><a href="room-base.png" download><img src="room-base.jpg" alt="均匀光照空房间底图"></a><figcaption><strong>空房间底图</strong><small>room-base.png · 1672 × 941 · 点击下载 PNG</small></figcaption></figure>
+<div class="grid" id="assets"></div><p class="hint">PNG 保留独立透明通道。坐标以 1672 × 941 为基准，pivot 为底部中心；地毯按清单中的尺寸适配地面透视。三支鱼竿为同一切图的三个实例。鱼缸内部鱼、水草、水体目前作为一个组件导出。</p></main>
+<script>
+for(const button of document.querySelectorAll('[data-bg]'))button.addEventListener('click',()=>document.body.dataset.bg=button.dataset.bg);
+window.galleryReady=fetch('manifest.json').then(r=>r.json()).then(async manifest=>{
+const grid=document.getElementById('assets');
+for(const [id,asset] of Object.entries(manifest.assets)){
+const figure=document.createElement('figure');const link=document.createElement('a');link.className='art';link.href=asset.file;link.download=asset.file;
+const image=document.createElement('img');image.src=asset.file;image.alt=asset.label;link.append(image);
+const caption=document.createElement('figcaption');const label=document.createElement('strong');label.textContent=asset.label;
+const meta=document.createElement('small');meta.textContent=`${asset.file} · ${asset.width} × ${asset.height} · RGBA`;
+caption.append(label,meta);figure.append(link,caption);grid.append(figure);
+}
+await Promise.all([...grid.querySelectorAll('img')].map(img=>img.decode()));return manifest;
+});
+</script></html>

@@ -184,17 +184,14 @@
   },
   "protected_file_sha256": {
     "App.xaml.cs": "8ffb4c04b3f8b6660a0924677297fb5249fbb596a3917cb5586af7d5ccd71a92",
-    "FishSocialOverlay.csproj": "4b3cd30ba4dc767c4540caecd9fe8cdaacd0b7603b0e86ad608d2f09b863d445",
     "IpcProtocol.cs": "c6cd944a53874874254ee88fef8ab42bc250f929c29c42a6cbae4d323dbf398c",
     "IOverlayPlayerMenuHost.cs": "8fa0a4d67c10351c7da14880a8606f803b818429199fb181576866b2c682f1c3",
     "OverlayInteractionState.cs": "f48b0f6d4c08b8937a0c597b628bee891936b0d1ea36cc268301d73151f464d8",
     "OverlayPondLayout.cs": "0b35015e044e28f2eaf6ff2227e6c682f1f606ceccd590a3d6b8fcd2065c1e35",
-    "PondScenePresenter.cs": "ce820673ce6fde53a6a564055a46858cd526f26554d7d9cc6994777ce4034da5",
     "OverlaySeatArt.cs": "f4f9b7a47fd963b180d9fe0a885794eb65d86a37d7e599468c12496f38ecb960",
     "OverlaySpotMarker.cs": "d75be780322379bd8518e73a4fafff16bf82f74f2857bf47e29f1881bd131ac1",
     "OverlayScenePan.cs": "a1e9d2b7a917d73a3832171e66f6e6d23045db00ddddb36cb232dfed972a6e67",
     "OverlayViewport.cs": "3e0e6d7cfefbccbae223c0bcaf18310a657e78018c42f7ed49599b2fb9a1bdc8",
-    "OverlayFishingLayers.cs": "4f866e72b91a5cae6a85ee806900f8c8e37e3544943e2c9cfdd833b436be91ee",
     "OverlayEdgeVignette.cs": "1e743d25f8d594205f23f9ce38d27f64d3d95385b9d137ddfc236efc62b9941a",
     "OverlayNineSlice.cs": "5d62083a092f24700f355eb9ca8f819863691298886d6b2ca9ddf83986125cec"
   },
@@ -296,18 +293,14 @@
     "btn_debug_gameplay",
     "btn_exit_pond"
   ],
-  "final_hud_json_sha256": "9bc5ddc6e3e2db4a7f8abde6187a993d84167ac0aa253621416d14dd271567c3",
+  "final_hud_json_sha256": "24dc588f61f4c3add275f7bd92dc5f50636b1f6a775ae58683ad7d268276d081",
   "preserved_method_sha256": {
     "OverlayPetActor.cs": {
       "RefreshSocialMenuItems": "643f10c6632aac3380716f83ca2768c51ddb80bdbbd312fc3c151902f7e64399",
-      "Apply": "0f4a0bc101695c4eb2d16aa99ec5ad543069d4d2f16103cc0af15540152d2ff1",
-      "ApplyVisualState": "90ad3a1e28322a81ee91fd5e49444659c37eb406a9a337549714698592ec7a9c",
       "StartLayerClip": "0b71c0660ae1aac4235747e43b7ab52d62842d6c233862ceeb3dd34188b96b9d",
       "RelayoutCluster": "e52afdb14712a47492922893a32f06179373d96c87601a70cf2122ada5d4d15b",
       "UpdateHookRing": "2f9cab4d61d2ccc3b0f31d3cc9f5a13219aafece55908fb094018fb92196b3fc",
-      "OnFrameTick": "58eab8ae55755cc8e6fc03faa7bb13f2179178223c82220230332a09b8fd85a4",
       "ShowFrame": "44546a5b495f1b2bed972274166281e2bdac1afbb63b22a939aa1f02e1bbd12f",
-      "LayoutFishingLayers": "7e8bc3119609437f13cfab3f8f76f6cab380fd698e79b02f1cdf1285346aa7d9",
       "ShowLayered": "8732473f87f68fcc28e26d78ac4abe70c95dd2a4a63e634487240ee7429cb248",
       "AdvanceLayered": "26ad3eea344bfab758b618d2490d43e30df8000f732b7500bb97bded0434ff4d",
       "Load": "a80f64cdc19095f9ca94e395e30fab11b31c522fe8548b9b23b8f5af31f017b3",
@@ -324,6 +317,20 @@
     "OverlayHudLayout.cs": {
       "BuildAbsolutePositions": "efc0814079511a3212def451f22d40a5dc25ea764039c55acf64f3c66e08a16e",
       "ResolveAbsolute": "773496ce0435249508104ada155aa121b6ff484cdae8139d071464e8e84f572a"
+    },
+    "OverlayFishingLayers.cs": {
+      "Parse": "db1613b2d3918ea0f46b6b23853ef1b593b8d2fa1eb791dbcf167f8e0e38ac76",
+      "LayerPath": "98027fc46c8b673000746e9f1972faf1994fd5522d1e7831dc9d54552344daa4",
+      "Place": "2ca0c898e79947aa0616653e408de472faf21b44d042da5b1a425fca54b5e323",
+      "TryOpen": "e86103fb80843dd8c9ff56d164adf1fce2538eec2ed69b3ef4908e0f49763db2"
+    },
+    "PondScenePresenter.cs": {
+      "SyncSpots": "b03082c629cd972731d15c6d0fe7c857cca81d5e84a361fa7952497d64b1fa75",
+      "PlaceSpotMarker": "459f3a9b1ed75d8ed98019ee9e767bdb79410ea4d19efbe17e026675f441c479",
+      "UpdateSpotStates": "2e4272ee39007e5613b112eac088d7a292b479a0ee343636381cb565e8ff182e",
+      "PredictOwnSeat": "44ca69fe23c72decf3cf41c6a2ed896532fa8dab07d3ec08eeb922d36d24a13d",
+      "CancelOwnSeatPrediction": "ae1d7994a351eec16bd1948f1a6f5d7d91ea03afe48788fe5442e1bfdb0d5dbe",
+      "TryLoadPondBackground": "3b9630f2275449ba6a6360305179d4e2d580d743757cb2bd1f751ffa750821a3"
     }
   },
   "2026-10-23_contract_update": {
@@ -336,5 +343,6 @@
       "OverlayPetActor.cs.Load (baseline already changed before this task)"
     ],
     "intentional_changes": "Status removal, journal surfaces and quiet HUD motion are covered by test_overlay_journal_presentation.py; fishing frame/state methods remain hash-protected."
-  }
+  },
+  "2026-10-23_performance_batch1_contract": "Scoped lifecycle/cache changes replace whole-file locks with cache behavior tests and Windows WPF regressions; preserve parser, animation advancement and scene business methods. HUD baseline corrected to existing 1a3c8769 export (not modified by this batch)."
 }

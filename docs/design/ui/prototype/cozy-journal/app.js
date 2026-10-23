@@ -886,7 +886,8 @@ let zzzLoop = DONE;
 
 function startCatBreath() {
   catBreath.cancel();
-  catBreath = play(cat(), [{ scale: '1 1' }, { scale: '1 1.025' }], { duration: 1500, iterations: Infinity, direction: 'alternate', easing: EASE.inOutSine });
+  const target = window.roomCompanion?.active ? $('.room-cat-art', cat()) : cat();
+  catBreath = play(target, [{ scale: '1 1' }, { scale: '1 1.025' }], { duration: 1500, iterations: Infinity, direction: 'alternate', easing: EASE.inOutSine });
 }
 
 function stopCatBreath() { catBreath.cancel(); catBreath = DONE; }
@@ -911,8 +912,13 @@ function catLean(on) {
 }
 
 function sleep() {
+  if (window.roomCompanion?.active && S.open) return;
   if (sleeping) return;
   sleeping = true;
+  if (window.roomCompanion?.active) {
+    window.roomCompanion.rest();
+    return;
+  }
   caption('30 秒没有操作：角落小猫趴下睡觉，Zzz 依次飘起；任何操作都会叫醒它');
   cat()._sleep = play(cat(), [{ rotate: '0deg', translate: '0 0' }, { rotate: '7deg', translate: '6px 10px' }], { duration: 600, easing: EASE.inOutSine, fill: 'forwards' });
   zzzLoop = play($('#zzz'), [{ opacity: 0, translate: '0 10px' }, { opacity: 1, translate: '6px -6px', offset: 0.4 }, { opacity: 0, translate: '14px -30px' }],
@@ -925,6 +931,10 @@ function wake() {
   sleeping = false;
   zzzLoop.cancel();
   cat()._sleep?.cancel();
+  if (window.roomCompanion?.active) {
+    window.roomCompanion.wake();
+    return;
+  }
   play(cat(), [{ translate: '0 0' }, { translate: '0 -18px', offset: 0.4 }, { translate: '0 0' }], { duration: 320, easing: EASE.outCubic });
 }
 
