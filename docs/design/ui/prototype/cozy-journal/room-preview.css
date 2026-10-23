@@ -1,11 +1,16 @@
 /* Scene layer: all journal, header and navigation styling stays in style.css. */
 #corner-cat { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; }
 .room-only, .room-cat-art, #room-cat-bubble, #room-scene { display: none; }
-#stage.room-mode #room-scene { display: block; position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+#stage.room-mode #room-scene { display: block; position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 #stage.room-mode #room-scene[hidden] { display: none; }
 #room-scene .room-prop { position: absolute; display: block; object-fit: contain; object-position: center bottom; }
 #room-scene .room-prop[hidden] { display: none; }
+#room-scene .room-prop.is-interactive { pointer-events: auto; cursor: pointer; }
+#room-scene .room-prop.is-movable { cursor: grab; touch-action: none; }
+#room-scene .room-prop.is-movable:active { cursor: grabbing; }
+#room-scene .room-prop:focus-visible { outline: 2px dashed #7d9f57; outline-offset: 4px; }
 #stage.room-mode.room-layers-hidden #room-tackle, #stage.room-mode.room-layers-hidden #room-aquarium { display: none; }
+#stage.room-mode.room-layers-hidden #room-bed-front { display: none !important; }
 #stage.room-mode .room-only { display: block; }
 #stage.room-mode #corner-cat {
   right: auto; bottom: auto; width: 172px; height: 246px;
@@ -16,12 +21,16 @@
 #stage.room-mode #corner-cat:focus-visible { outline: 3px solid var(--coral); outline-offset: 12px; border-radius: 60px; }
 #stage.room-mode .outdoor-cat, #stage.room-mode #zzz { display: none; }
 #stage.room-mode .room-cat-art { display: block; position: absolute; inset: 0; overflow: hidden; transform-origin: 50% 100%; }
-#stage.room-mode .room-cat-art img { position: absolute; width: 294.931%; max-width: none; left: -95.392%; top: -45.484%; pointer-events: none; }
+#stage.room-mode .room-cat-art img { position: absolute; width: 100%; height: 100%; max-width: none; left: 0; top: 0; pointer-events: none; }
 #stage.room-mode .room-cat-art img.room-cat-sitting { display: none; }
+#stage.room-mode .room-cat-art img.room-cat-sleeping { display: none; }
 #stage.room-mode #corner-cat.is-sitting .room-cat-art img.room-cat-standing { display: none; }
 #stage.room-mode #corner-cat.is-sitting .room-cat-art img.room-cat-sitting { display: block; }
 #stage.room-mode #corner-cat.is-sitting { width: 176px; height: 204px; }
-#stage.room-mode #corner-cat.is-sitting .room-cat-art img { width: 286.995%; left: -81.166%; top: -74.131%; }
+#stage.room-mode #corner-cat.is-sleeping .room-cat-art img { display: none; }
+#stage.room-mode #corner-cat.is-sleeping .room-cat-art img.room-cat-sleeping { display: block; }
+#room-bed-front { position: absolute; z-index: 1; background-repeat: no-repeat; background-position: center bottom; pointer-events: none; }
+#room-bed-front[hidden] { display: none !important; }
 #stage.room-mode #room-cat-bubble {
   position: absolute; left: 50%; bottom: calc(100% + 16px); transform: translateX(-50%);
   padding: 10px 18px; border: 2px solid var(--paper-line); border-radius: 18px;
@@ -29,7 +38,7 @@
   box-shadow: 0 5px 12px rgba(80, 50, 20, .10); pointer-events: none;
 }
 #stage.room-mode #room-cat-bubble.visible { display: block; }
-#room-floor { position: absolute; left: 490px; top: 655px; width: 660px; height: 128px; z-index: 1; border: 0; background: transparent; cursor: pointer; border-radius: 50%; }
+#room-floor { position: absolute; left: 490px; top: 655px; width: 660px; height: 128px; z-index: 0; border: 0; background: transparent; cursor: pointer; border-radius: 50%; }
 #room-floor:focus-visible { outline: 3px dashed var(--ink-soft); outline-offset: -8px; background: #fff7e928; }
 #stage.room-mode #room-tackle, #stage.room-mode #room-aquarium { display: flex; z-index: 1; height: 46px; font-size: 20px; width: 170px; }
 #room-tackle { left: 495px; top: 412px; }

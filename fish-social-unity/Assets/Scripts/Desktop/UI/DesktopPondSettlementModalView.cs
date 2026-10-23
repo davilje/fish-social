@@ -25,6 +25,8 @@ namespace FishSocial.Desktop
         bool _pendingOpen;
         CozyWorkspaceBodyMotion _bodyMotion;
         float _bodySeconds;
+        Image _dim;
+        Color _dimRest;
         public bool ChoicesOpen => transform.Find("Panel/ChoiceLayer")?.gameObject.activeSelf == true;
         public int VisibleRecordCount { get; private set; }
         public static DesktopPondSettlementModalView Show(Transform canvas, PondSessionSummaryDto data)
@@ -263,10 +265,16 @@ namespace FishSocial.Desktop
             }
             ResetOpenMotion();
             _closing = false;
+            if (_dim == null)
+            {
+                _dim = transform.Find("Dim")?.GetComponent<Image>();
+                if (_dim != null) _dimRest = _dim.color;
+            }
+            SetDimProgress(0);
             _pendingOpen = CozyMotion.Paused;
             if (_pendingOpen) { _paperAlpha.alpha = 0; return; }
             _paperAlpha.interactable = true;
-            CozyWorkspaceDialogMotion.Play(_paper);
+            CozyMotion.OpenJournalSheet(_paper, _paperRest, progress: SetDimProgress);
             _bodyMotion = _paper.GetComponent<CozyWorkspaceBodyMotion>() ?? _paper.gameObject.AddComponent<CozyWorkspaceBodyMotion>();
             _bodyMotion.Configure(
                 new[] { _paper.Find("Stats/Bites") }, new[] { _paper.Find("Stats/Escapes") },
@@ -284,6 +292,11 @@ namespace FishSocial.Desktop
         {
             if (_paper != null) _paper.anchoredPosition = _paperRest;
             if (_paperAlpha != null) _paperAlpha.alpha = 1;
+            SetDimProgress(1);
+        }
+        void SetDimProgress(float t)
+        {
+            if (_dim != null) _dim.color = new Color(_dimRest.r, _dimRest.g, _dimRest.b, _dimRest.a*t);
         }
         void ResetOpenMotion()
         {
@@ -336,13 +349,14 @@ namespace FishSocial.Desktop
             // Freeze the current entrance pose, including an early close, before fading it out.
             var position = _paper.anchoredPosition;
             var opacity = _paperAlpha.alpha;
+            var dim = transform.Find("Dim")?.GetComponent<Image>();
+            var tint = dim != null ? dim.color : Color.clear;
             CozyMotion.Cancel((RectTransform)transform);
             CozyMotion.Cancel(_paper);
             _bodyMotion?.Sample(_bodySeconds);
             _paper.anchoredPosition = position;
             _paperAlpha.alpha = opacity;
-            var dim = transform.Find("Dim")?.GetComponent<Image>();
-            var tint = dim != null ? dim.color : Color.clear;
+            if (dim != null) dim.color = tint;
             _paperAlpha.interactable = false;
             CozyMotion.Animate(_paper, .14f, t =>
             {

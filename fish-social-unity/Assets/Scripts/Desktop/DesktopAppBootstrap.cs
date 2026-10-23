@@ -1162,14 +1162,18 @@ namespace FishSocial.Desktop
 
         string _pendingGroundbaitBubble;
 
+        bool _overlayExitPending;
         void ExitPondFromOverlay()
         {
+            if (_overlayExitPending) return;
             if (_pondSession == null)
             {
                 _nativeOverlayError = "鱼塘会话尚未初始化。";
                 PublishNativeOverlayState();
                 return;
             }
+            _overlayExitPending = true;
+            _shellUi?.SetOverlayReturnPending(true);
             _ownFishing?.ClearRound();
             _nativeOverlayError = "正在退出鱼塘…";
             PublishNativeOverlayState();
@@ -1179,11 +1183,41 @@ namespace FishSocial.Desktop
                 if (ok)
                 {
                     _ownFishing?.ClearRound();
-                    _nativeOverlay?.CloseOverlay();
-                    RaiseMainWindow(ShellPanelId.Home);
+                    StartCoroutine(SequenceOverlayReturn(
+                        _nativeOverlay != null ? _nativeOverlay.ShutdownOverlayAsync(true) : System.Threading.Tasks.Task.FromResult(0),
+                        () => RaiseMainWindow(ShellPanelId.Home),
+                        () => (_window == null || _window.IsWindowVisible) && (_router == null || !_router.IsTransitioning),
+                        () => { _overlayExitPending = false; _shellUi?.SetOverlayReturnPending(false); },
+                        error =>
+                        {
+                            _overlayExitPending = false;
+                            Debug.LogError("[NativeOverlay] Return interrupted: " + error);
+                            _nativeOverlayError = "悬浮窗未能关闭，请重试退出鱼塘。";
+                            // Recover access to the desktop UI, but do not open
+                            // the receipt over an overlay that failed to exit.
+                            RaiseMainWindow(ShellPanelId.Home);
+                            _shellUi?.SetStatusMessage(_nativeOverlayError);
+                        }));
                 }
+                else { _overlayExitPending = false; _shellUi?.SetOverlayReturnPending(false); }
                 PublishNativeOverlayState();
             });
+        }
+
+        internal static IEnumerator SequenceOverlayReturn(System.Threading.Tasks.Task closed,
+            Action restore, Func<bool> ready, Action completed, Action<Exception> failed)
+        {
+            while (!closed.IsCompleted) yield return null;
+            if (closed.IsFaulted || closed.IsCanceled)
+            {
+                failed?.Invoke(closed.Exception?.GetBaseException() ?? new OperationCanceledException());
+                yield break;
+            }
+            restore();
+            // Always render the desktop before releasing a queued receipt,
+            // including when the main window was already visible.
+            do { yield return null; } while (!ready());
+            completed();
         }
 
         void OnDestroy()

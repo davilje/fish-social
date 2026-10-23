@@ -14,6 +14,36 @@ namespace FishSocial.Tests.Editor
         static void Set(object obj, string name, object value) => obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(obj, value);
         static object Call(object obj, string name) => obj.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(obj, null);
 
+        static IEnumerator ReturnSequence(System.Threading.Tasks.Task closed, System.Action restore, System.Func<bool> ready, System.Action completed, System.Action<System.Exception> failed) =>
+            (IEnumerator)typeof(DesktopAppBootstrap).GetMethod("SequenceOverlayReturn", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { closed, restore, ready, completed, failed });
+
+        [Test]
+        public void ReturnWaitsForOverlayExitThenDesktopFrameBeforeReceipt()
+        {
+            var closed = new System.Threading.Tasks.TaskCompletionSource<bool>();
+            var restored = 0; var receipt = 0; var visible = false;
+            var sequence = ReturnSequence(closed.Task, () => restored++, () => visible, () => receipt++, error => Assert.Fail(error.ToString()));
+            Assert.IsTrue(sequence.MoveNext()); Assert.AreEqual(0, restored);
+            closed.SetResult(true);
+            Assert.IsTrue(sequence.MoveNext()); Assert.AreEqual(1, restored); Assert.AreEqual(0, receipt);
+            Assert.IsTrue(sequence.MoveNext()); Assert.AreEqual(0, receipt);
+            visible = true;
+            Assert.IsFalse(sequence.MoveNext()); Assert.AreEqual(1, receipt);
+            Assert.IsFalse(sequence.MoveNext()); Assert.AreEqual(1, restored);
+        }
+
+        [TestCase(false)] [TestCase(true)]
+        public void FailedOrCanceledCloseCannotOpenReceipt(bool canceled)
+        {
+            var closed = new System.Threading.Tasks.TaskCompletionSource<bool>();
+            if (canceled) closed.SetCanceled(); else closed.SetException(new System.TimeoutException());
+            var errors = 0;
+            var sequence = ReturnSequence(closed.Task, () => Assert.Fail("restored before exit"), () => true,
+                () => Assert.Fail("opened receipt after failed close"), error => errors++);
+            Assert.IsFalse(sequence.MoveNext()); Assert.AreEqual(1, errors);
+        }
+
         [Test]
         public void TargetPondSnapshotIsRetainedBeforeNativeProcessStarts()
         {
@@ -80,6 +110,10 @@ namespace FishSocial.Tests.Editor
                 Assert.IsTrue(routine.MoveNext());
                 Assert.IsNull(host.GetComponentInChildren<DesktopPondSettlementModalView>());
                 Set(router, "transitioning", false);
+                shell.SetOverlayReturnPending(true);
+                Assert.IsTrue(routine.MoveNext());
+                Assert.IsNull(host.GetComponentInChildren<DesktopPondSettlementModalView>());
+                shell.SetOverlayReturnPending(false);
                 Assert.IsFalse(routine.MoveNext());
                 var view = host.GetComponentInChildren<DesktopPondSettlementModalView>();
                 Assert.IsNotNull(view);

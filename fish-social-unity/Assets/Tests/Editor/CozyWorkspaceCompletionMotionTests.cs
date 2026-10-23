@@ -99,6 +99,22 @@ namespace FishSocial.Tests.Editor
         DesktopPondSettlementModalView Settlement() => DesktopPondSettlementModalView.Show(host.transform,
             new PondSessionSummaryDto{pondName="千岛湖",biteCount=3,escapeCount=1,catches=new[]{new PondSessionCatchEntryDto{speciesId="koi",outcome="kept",inventoryItemId="fish-1"}}});
         static float Opacity(Transform node)=>node.GetComponentInChildren<CozyWorkspaceBodyGraphic>(true).Opacity;
+        [TestCase(false)] [TestCase(true)]
+        public void ReceiptUsesTheSameSheetRiseAsBottomNavigation(bool reducedMode)
+        {
+            CozyMotion.SetReduced(reducedMode);
+            var home=new GameObject("Home",typeof(RectTransform));home.transform.SetParent(host.transform,false);
+            var page=new GameObject("JournalPage",typeof(RectTransform));page.transform.SetParent(host.transform,false);
+            CozyMotion.Flip(home,page,null);
+            var view=Settlement();var paper=(RectTransform)view.transform.Find("Panel");
+            var dim=view.transform.Find("Dim").GetComponent<Image>();
+            Assert.AreEqual(0,dim.color.a);
+            Assert.AreEqual(((RectTransform)page.transform).anchoredPosition.y,paper.anchoredPosition.y,.001f);
+            CozyMotion.Tick(reducedMode?.06f:.1f);
+            Assert.AreEqual(page.GetComponent<CanvasGroup>().alpha,paper.GetComponent<CanvasGroup>().alpha,.001f);
+            Assert.AreEqual(((RectTransform)page.transform).anchoredPosition.y,paper.anchoredPosition.y,.001f);
+            Assert.That(dim.color.a,Is.GreaterThan(0).And.LessThan(.4f));
+        }
         [Test] public void ActualSummaryEntryRevealsPaperThenStatsRecordsAndAccount()
         {
             var view=Settlement();var paper=view.transform.Find("Panel");

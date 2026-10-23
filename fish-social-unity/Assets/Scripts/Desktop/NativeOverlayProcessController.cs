@@ -256,6 +256,15 @@ namespace FishSocial.Desktop
             AbortPipeIo();
             if (forceAfterTimeout)
                 DetachedWin32Process.TaskkillImage(OverlayImageName + ".exe");
+            // taskkill is detached. Completion must mean the overlay process
+            // has actually exited, not merely that a kill was requested.
+            var deadline = Stopwatch.StartNew();
+            while (OverlayImageRunning())
+            {
+                if (deadline.ElapsedMilliseconds >= 5000)
+                    throw new TimeoutException("Overlay did not exit within 5 seconds.");
+                Thread.Sleep(25);
+            }
             _serverThread = null;
             _writerThread = null;
             SetLifecycleState(NativeOverlayLifecycleState.Stopped);

@@ -19,8 +19,10 @@ namespace FishSocial.Desktop.Editor
             importer.maxTextureSize=2048;importer.alphaIsTransparency=true;importer.mipmapEnabled=false;
             importer.textureCompression=TextureImporterCompression.Uncompressed;importer.wrapMode=TextureWrapMode.Clamp;
             importer.filterMode=FilterMode.Bilinear;
+            importer.npotScale=TextureImporterNPOTScale.None;
             var settings=new TextureImporterSettings();importer.ReadTextureSettings(settings);settings.spriteMeshType=SpriteMeshType.FullRect;importer.SetTextureSettings(settings);
         }
+        public override uint GetVersion() => 2;
     }
     public static class CozyHomeRoomAuthoring
     {
@@ -68,6 +70,7 @@ namespace FishSocial.Desktop.Editor
                 Require(main.Find("CozyCornerCat")==null,"Duplicate corner cat remains");
                 Require(!main.Find("Background").gameObject.activeSelf,"Outdoor background covers room");
                 Require(room.transform.Find("Props").childCount==17,"Expected 17 independent prop instances");
+                Require(room.Prop("rod-1") != null && room.Prop("cat-bed") != null && room.Prop("food-bowls") != null && room.Prop("cat-climber") != null,"Prop input bindings missing");
                 Require(room.transform.Find("RoomBase").GetComponent<Image>().sprite!=null,"Missing room background");
                 foreach(var image in room.transform.Find("Props").GetComponentsInChildren<Image>(true))Require(image.sprite!=null,"Missing sprite: "+image.name);
                 var clicks=0;room.Bind(()=>clicks++,()=>clicks+=10);
@@ -81,14 +84,22 @@ namespace FishSocial.Desktop.Editor
                 CozyItemArt.Text(main,"Header/ProfileCard/Name","小橘");CozyItemArt.Text(main,"Header/ProfileCard/Level","Lv.7");
                 CozyItemArt.Text(main,"Header/FishCoins/Amount","8,600");CozyItemArt.Text(main,"Header/CatchCount/Amount","24");
                 Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=target;
-                var imageOut=new Texture2D(1672,941,TextureFormat.RGBA32,false);imageOut.ReadPixels(new Rect(0,0,1672,941),0,0);imageOut.Apply();
-                Directory.CreateDirectory("Library/HomeRoom");File.WriteAllBytes("Library/HomeRoom/unity-home-room.png",imageOut.EncodeToPNG());UnityEngine.Object.DestroyImmediate(imageOut);
+                Directory.CreateDirectory("Library/HomeRoom");
+                SaveImage("unity-home-room.png");
+                room.SleepInBed();room.Advance(10);Require(room.IsSleeping,"Bed action failed to settle into sleep");
+                Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=target;SaveImage("unity-home-room-sleep.png");
+                room.MoveTo(new Vector2(835,742),true);
                 File.WriteAllText("Library/HomeRoom/verification.txt","PASS: saved shell, 17 independent props, no duplicate corner cat, both native routes, movement bounds, tap wake, sit, page suspension, reduced motion, background pause, idle sit.\n");
                 Debug.Log("[HomeRoom] Verification passed; Library/HomeRoom/unity-home-room.png");
             }
             finally {CozyMotion.SetReduced(reduced);CozyMotion.SetPaused(paused);RenderTexture.active=previous;target.Release();UnityEngine.Object.DestroyImmediate(target);EditorSceneManager.ClosePreviewScene(scene);}
         }
         static void Require(bool condition,string message){if(!condition)throw new InvalidOperationException("Home room verification: "+message);}
+        static void SaveImage(string name)
+        {
+            var output=new Texture2D(1672,941,TextureFormat.RGBA32,false);output.ReadPixels(new Rect(0,0,1672,941),0,0);output.Apply();
+            File.WriteAllBytes("Library/HomeRoom/"+name,output.EncodeToPNG());UnityEngine.Object.DestroyImmediate(output);
+        }
     }
 }
 #endif

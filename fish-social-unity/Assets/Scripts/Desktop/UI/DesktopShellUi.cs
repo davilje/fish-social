@@ -438,6 +438,7 @@ namespace FishSocial.Desktop
             if (_mainShellEntered)
                 return;
             _mainShellEntered = true;
+            _homeRoom?.SetLayoutOwner(_authenticatedApi?.PlayerId);
             if (_loginRoot != null)
                 _loginRoot.SetActive(false);
             if (_mainRoot != null)
@@ -1136,6 +1137,8 @@ namespace FishSocial.Desktop
 
         PondSessionSummaryDto _pendingSessionSummary;
         Coroutine _summaryPresentation;
+        bool _overlayReturnPending;
+        public void SetOverlayReturnPending(bool pending) => _overlayReturnPending = pending;
 
         IEnumerator PresentSummaryAfterReturn()
         {
@@ -1144,7 +1147,7 @@ namespace FishSocial.Desktop
             do
             {
                 yield return null;
-            } while (CozyMotion.Paused ||
+            } while (_overlayReturnPending || CozyMotion.Paused ||
                 (WindowManager.Instance != null && !WindowManager.Instance.IsWindowVisible) ||
                 (_router != null && _router.IsTransitioning) ||
                 (_pondSession != null && _pondSession.IsTransitioning));

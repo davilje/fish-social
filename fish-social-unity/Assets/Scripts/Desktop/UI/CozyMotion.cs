@@ -594,6 +594,23 @@ namespace FishSocial.Desktop
             }, CozyWebMotion.Ease.InQuad, fadeWhenReduced: true);
         }
 
+        /// <summary>Shared bottom-navigation sheet entrance: 16px rise, 200ms OutCubic.</summary>
+        public static void OpenJournalSheet(RectTransform sheet, Vector2 rest, Action done = null, Action<float> progress = null)
+        {
+            if (sheet == null) { done?.Invoke(); return; }
+            var group = EnsureGroup(sheet.gameObject);
+            void Sample(float t)
+            {
+                if (sheet == null) return;
+                sheet.anchoredPosition = rest + Vector2.down * (Reduced ? 0 : 16 * (1-t));
+                group.alpha = t;
+                progress?.Invoke(t);
+            }
+            Sample(0);
+            Animate(sheet, Slide, Sample, () => { Sample(1); done?.Invoke(); },
+                CozyWebMotion.Ease.OutCubic, cleanup: () => Sample(1), fadeWhenReduced: true);
+        }
+
         static void JournalDoor(GameObject from, GameObject to, Action done, bool opening)
         {
             var fromRect = (RectTransform)from.transform; var toRect = (RectTransform)to.transform;
@@ -611,24 +628,26 @@ namespace FishSocial.Desktop
                 toGroup.alpha = 0;
             }
             _cancelFlip = settle; _finishFlip = done;
-            Add(new Job { Target = moving, Channel = Channel.Custom, Duration = opening ? Slide : .14f, FadeWhenReduced = true,
-                Ease = opening ? CozyWebMotion.Ease.OutCubic : CozyWebMotion.Ease.InQuad,
+            if (opening) OpenJournalSheet(toRect, toRest, complete);
+            else Add(new Job { Target = moving, Channel = Channel.Custom, Duration = .14f, FadeWhenReduced = true,
+                Ease = CozyWebMotion.Ease.InQuad,
                 Sample = t =>
                 {
-                    if (opening) { toRect.anchoredPosition = toRest + Vector2.down * (Reduced ? 0 : 16 * (1 - t)); toGroup.alpha = t; }
-                    else { fromRect.anchoredPosition = fromRest + Vector2.down * (Reduced ? 0 : 12 * t); fromGroup.alpha = 1 - t; }
+                    fromRect.anchoredPosition = fromRest + Vector2.down * (Reduced ? 0 : 12 * t);
+                    fromGroup.alpha = 1 - t;
                 },
-                Done = () =>
-                {
-                    entrancePlayed = true;
-                    // Install the contents' first frame before uncovering them, just like
-                    // the workspace's visibility gate. No pre-rise entrance/restart pair.
-                    if (opening) StartJournalEntrance(to, true);
-                    settle();
-                    _cancelFlip = null;
-                    _finishFlip = null;
-                    done?.Invoke();
-                } });
+                Done = complete });
+
+            void complete()
+            {
+                entrancePlayed = true;
+                // Install the contents' first frame before uncovering them.
+                if (opening) StartJournalEntrance(to, true);
+                settle();
+                _cancelFlip = null;
+                _finishFlip = null;
+                done?.Invoke();
+            }
 
             void settle()
             {
