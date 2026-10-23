@@ -39,7 +39,14 @@ namespace FishSocial.Desktop
             var outdoor = main.Find("Background");
             if (outdoor != null) outdoor.gameObject.SetActive(false);
             var existing = main.Find("HomeRoom")?.GetComponent<CozyHomeRoom>();
-            if (existing != null) { existing.RefreshSkin(); existing.Present(); return existing; }
+            if (existing != null)
+            {
+                EnsureQuietButton(existing.equipment);
+                EnsureQuietButton(existing.aquarium);
+                existing.RefreshSkin();
+                existing.Present();
+                return existing;
+            }
             var root = Rect(main, "HomeRoom", 0, 0, 1672, 941);
             root.SetAsFirstSibling();
             var room = root.gameObject.AddComponent<CozyHomeRoom>();
@@ -90,12 +97,36 @@ namespace FishSocial.Desktop
         }
         static Button ActionButton(Transform parent, string name, string label, float x, float y)
         {
-            var r = Rect(parent,name,x,y,170,46);var image=r.gameObject.AddComponent<Image>();
-            CozyJournalTheme.ApplySurface(image,"surfaces/button-quiet-default");
-            if(image.sprite==null)image.color=CatTheme.Cream;
-            var button=r.gameObject.AddComponent<Button>();button.targetGraphic=image;
-            var text=Rect(r,"Label",0,0,170,46).gameObject.AddComponent<Text>();
-            text.font=CatTheme.Font;text.fontSize=20;text.color=CatTheme.Ink;text.alignment=TextAnchor.MiddleCenter;text.text=label;text.raycastTarget=false;
+            var button = EnsureQuietButton(Rect(parent, name, x, y, 170, 46).gameObject.AddComponent<Button>());
+            var text = Rect(button.transform, "Label", 0, 0, 170, 46).gameObject.AddComponent<Text>();
+            text.font = CatTheme.Font; text.fontSize = 20; text.color = CatTheme.Ink;
+            text.alignment = TextAnchor.MiddleCenter; text.text = label; text.raycastTarget = false;
+            return button;
+        }
+
+        /// <summary>Home-room actions must persist the quiet journal plate. A bare Button fails the player build guard.</summary>
+        static Button EnsureQuietButton(Button button)
+        {
+            if (button == null) return null;
+            if (button.GetComponent<CozyButtonVisual>() != null && button.transform.Find("CozyVisual")?.GetComponent<Image>() != null)
+                return button;
+            var image = button.GetComponent<Image>() ?? button.gameObject.AddComponent<Image>();
+            image.sprite = null; image.color = new Color(1f, 1f, 1f, 0f); image.raycastTarget = true;
+            button.targetGraphic = image; button.transition = Selectable.Transition.None;
+            if (button.transform.Find("CozyVisual") == null)
+            {
+                var node = new GameObject("CozyVisual", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+                node.transform.SetParent(button.transform, false); node.transform.SetAsFirstSibling();
+                var plate = node.GetComponent<Image>(); plate.raycastTarget = false;
+                node.GetComponent<LayoutElement>().ignoreLayout = true;
+                var rect = plate.rectTransform;
+                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.pivot = new Vector2(.5f, .5f);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+            }
+            var visual = button.GetComponent<CozyButtonVisual>() ?? button.gameObject.AddComponent<CozyButtonVisual>();
+            visual.ConfigureSurface("surfaces/button-quiet-default", "surfaces/button-quiet-hover",
+                "surfaces/button-quiet-pressed", "surfaces/button-quiet-hover", "surfaces/button-quiet-disabled");
+            CatTheme.StyleButton(button);
             return button;
         }
         public void Bind(Action openEquipment, Action openAquarium)
@@ -177,13 +208,20 @@ namespace FishSocial.Desktop
         public void OnEndDrag(PointerEventData e) {if(pointer!=e.pointerId)return;dragging=false;pointer=int.MinValue;target=feet;}
         void Update()
         {
-            if(CanInteract&&!(EventSystem.current?.currentSelectedGameObject?.GetComponent<InputField>()!=null))
+            if (CanInteract && !InputFieldFocused())
             {
                 var d=new Vector2(Input.GetKey(KeyCode.RightArrow)?1:Input.GetKey(KeyCode.LeftArrow)?-1:0,Input.GetKey(KeyCode.DownArrow)?1:Input.GetKey(KeyCode.UpArrow)?-1:0);
                 if(d!=Vector2.zero)MoveTo(feet+d.normalized*180*Time.unscaledDeltaTime,true);
                 if(Input.GetKeyDown(KeyCode.Home))MoveTo(new Vector2(835,742));if(Input.GetKeyDown(KeyCode.R))Sit();
             }
             Advance(Time.unscaledDeltaTime);
+        }
+        static bool InputFieldFocused()
+        {
+            var events = EventSystem.current;
+            if (events == null) return false;
+            var selected = events.currentSelectedGameObject;
+            return selected != null && selected.GetComponent<InputField>() != null;
         }
         void OnApplicationFocus(bool value){focused=value;if(!value){dragging=false;pointer=int.MinValue;target=feet;}}
         void OnEnable(){if(actor!=null){RefreshSkin();Present();}}

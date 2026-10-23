@@ -58,15 +58,20 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.PondRefinement.cs" />
     <Compile Include="Assets\Tests\Editor\CozyUiLibraryTests.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyWorkspaceBodyMotionTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopPrefabManagerWindow.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\FishingAnimationPreviewWindow.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyHomeRoomTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPondRefinementTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPondMarkerMotionTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalPersistenceTests.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyWorkspaceComposeTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyFishCatalogPreview.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\DesktopBuildMenu.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.WorkspaceProfile.cs" />
     <Compile Include="Assets\Tests\Editor\CozyFishCatalogTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyThemeValidationMenu.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyWorkspaceCompletionMotionTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyRankRefinementTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyDesktopThemeTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozySocialRefinementPreview.cs" />
@@ -76,15 +81,21 @@
     <Compile Include="Assets\Tests\Editor\CozyJournalPageBindingTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondLayoutBaker.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPrefabPersistenceTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Workspace.cs" />
+    <Compile Include="Assets\Tests\Editor\OverlayJournalPresentationTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayPondArtBaker.cs" />
     <Compile Include="Assets\Tests\Editor\CozyToggleMotionTests.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyHomeRoomAuthoring.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudWidgetCatalog.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Editor\JournalV2Authoring.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyWorkspaceSettlementTests.cs" />
+    <Compile Include="Assets\Tests\Editor\DesktopAudioTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.ProfileRefinement.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalProductionLayoutTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.SocialRefinement.cs" />
     <Compile Include="Assets\Tests\Editor\JournalV2MotionTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Refinements.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyWorkspaceMotionTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPondSelectionTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyRedesignLayoutTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalLeaderboardMotionTests.cs" />
@@ -98,7 +109,9 @@
     <Compile Include="Assets\Tests\Editor\CozyJournalLayoutOwnershipTests.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalDetailParityTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.VisualParity.cs" />
+    <Compile Include="Assets\Tests\Editor\CozyWorkspaceProfileTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyProfileRefinementPreview.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Editor\CozyWorkspaceSettlementAuthoring.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.InlineParity.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyJournalResourcePreparation.cs" />
     <Compile Include="Assets\Tests\Editor\CozyPondParityTests.cs" />
@@ -120,16 +133,6 @@
     <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.ToggleParity.cs" />
     <Compile Include="Assets\Tests\Editor\CozyJournalInlineContentTests.cs" />
     <Compile Include="Assets\Scripts\Desktop\Editor\OverlayHudExporter.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyWorkspaceSettlementTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyWorkspaceComposeTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.WorkspaceProfile.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyWorkspaceProfileTests.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyRedesignAuthoring.Workspace.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Editor\CozyWorkspaceSettlementAuthoring.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyWorkspaceMotionTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyWorkspaceBodyMotionTests.cs" />
-    <Compile Include="Assets\Tests\Editor\CozyWorkspaceCompletionMotionTests.cs" />
-    <Compile Include="Assets\Tests\Editor\OverlayJournalPresentationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

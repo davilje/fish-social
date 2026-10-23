@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamAuthController.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyCatchCelebration.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyWebMotion.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceInteraction.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\DesktopNotificationService.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyPondArtworkPose.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\PondSelectionState.cs" />
@@ -81,8 +82,10 @@
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2CatalogController.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopAppBootstrap.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyButtonVisual.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceBodyMotion.cs" />
     <Compile Include="Assets\Scripts\Desktop\Onboarding\LocalOnboardingSession.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2AchievementController.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Audio\DesktopUiAudioFeedback.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProfileEditPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SocialPondSessionController.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CatTheme.cs" />
@@ -109,6 +112,8 @@
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopSocialInbox.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalProgressFill.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopUiPrefabFactory.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceDialogMotion.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Audio\DesktopAudioSettingsView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyPondMarkerView.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2CatalogPages.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\UnityNetworkDtos.cs" />
@@ -125,6 +130,7 @@
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Core\JournalV2App.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2PondJourney.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SocialSocketClient.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Audio\DesktopAudioService.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\INotificationService.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopOverlayLayoutObject.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyStickerMotion.cs" />
@@ -155,6 +161,7 @@
     <Compile Include="Assets\Scripts\Desktop\Pet\PetArtLoader.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyCssGraphic.cs" />
     <Compile Include="Assets\Scripts\Desktop\Notifications\NotificationSettings.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyProfileSaveFeedback.cs" />
     <Compile Include="Assets\Scripts\Desktop\Tray\SystemTrayService.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamTicketProviders.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyMotion.cs" />
@@ -201,21 +208,19 @@
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Motion\JournalV2Button.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopSocialModalView.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\LobbyPanel.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Audio\DesktopCatAudioFeedback.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\PetVisualState.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalMotionBindings.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyProfileArtWell.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalChips.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopPondSettlementModalView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalReadState.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2CommunitySocialPages.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyHomeRoom.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyBobberNavigation.cs" />
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopShopPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\AuthenticatedApiClient.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceInteraction.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceDialogMotion.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalMotionBindings.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceBodyMotion.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyProfileSaveFeedback.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Desktop\Theme\Cozy\fonts\ResourceHanRounded-LICENSE.txt" />
