@@ -95,6 +95,8 @@ namespace FishSocial.Desktop
             BindClick(_cancel, () => Close());
             BindClick(_visibilityPublic, () => SetVisibility("public"));
             BindClick(_visibilityFriends, () => SetVisibility("friends"));
+            foreach (var button in new[] { _cancel, _publish, _visibilityPublic, _visibilityFriends })
+                CozyWorkspaceInteraction.Bind(button);
             return true;
         }
 
@@ -140,15 +142,7 @@ namespace FishSocial.Desktop
         {
             if (_paper == null && !BindControls()) return;
             ResetOpenMotion();
-            var offset = CozyMotion.Reduced ? 0 : 16;
-            _paper.anchoredPosition = _paperRest + Vector2.down * offset;
-            _paperAlpha.alpha = 0;
-            CozyMotion.Animate(_paper, .2f, t =>
-            {
-                if (_paper == null || _paperAlpha == null) return;
-                _paper.anchoredPosition = _paperRest + Vector2.down * (offset * (1 - t));
-                _paperAlpha.alpha = Mathf.Clamp01(t);
-            }, RestorePaperPose, CozyWebMotion.Ease.OutCubic, cleanup: RestorePaperPose);
+            CozyWorkspaceDialogMotion.Play(_paper);
         }
 
         void RestorePaperPose()
@@ -256,6 +250,7 @@ namespace FishSocial.Desktop
                     var index = i; var item = _inventory[i];
                     var card = Instantiate(_cardTemplate, _cardContent, false);
                     card.name = "FishCard_" + i; card.gameObject.SetActive(true);
+                    CozyWorkspaceInteraction.Bind(card, CozyWorkspaceInteraction.Kind.Choice);
                     var name = card.transform.Find("Name")?.GetComponent<Text>();
                     if (name != null) name.text = DesktopFishCatalog.SpeciesName(item.speciesId);
                     var art = card.transform.Find("Art")?.GetComponent<Image>();

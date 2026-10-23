@@ -34,14 +34,14 @@ namespace FishSocial.Desktop
                 node == "PhotoFrame";
         }
 
-        public static void RevealAside(Transform page)
+        public static void RevealAside(Transform page, bool stationary = false)
         {
             if (page == null) return;
             foreach (var pose in page.GetComponentsInChildren<CozyJournalStaticPose>(true))
             {
                 if (!IsDetailPolaroid(pose.gameObject.name))
                     continue;
-                pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+                pose.PlayReveal(stationary ? Vector2.zero : new Vector2(24f, 0f), stationary ? CozyMotion.Snap : .26f, .3f);
             }
         }
 
@@ -59,10 +59,10 @@ namespace FishSocial.Desktop
             if (graphics == null || graphics.Length == 0)
                 graphics = GetComponentsInChildren<Graphic>(true);
             revealOffset = armedOffset;
-            revealDuration = Mathf.Max(.001f, armedDuration);
+            revealDuration = Mathf.Max(.001f, CozyMotion.Reduced ? Mathf.Min(CozyMotion.Fade, armedDuration) : armedDuration);
             revealOpacity = Mathf.Clamp01(armedOpacity);
             elapsed = 0;
-            revealing = !CozyMotion.Reduced && !CozyMotion.Paused;
+            revealing = !CozyMotion.Paused;
             Refresh();
         }
 
@@ -90,7 +90,7 @@ namespace FishSocial.Desktop
         public void SampleReveal(float seconds)
         {
             elapsed = Mathf.Clamp(seconds, 0, revealDuration);
-            revealing = elapsed < revealDuration && !CozyMotion.Reduced && !CozyMotion.Paused;
+            revealing = elapsed < revealDuration && !CozyMotion.Paused;
             Refresh();
         }
         public void ApplyFinalPose() { revealing = false; elapsed = revealDuration; Refresh(); }
@@ -131,9 +131,9 @@ namespace FishSocial.Desktop
         {
             if (graphics == null) return;
             var t = revealing ? CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutBack, elapsed / revealDuration) : 1;
-            AppliedScale = Mathf.LerpUnclamped(.9f, 1, t);
+            AppliedScale = CozyMotion.Reduced ? 1 : Mathf.LerpUnclamped(.9f, 1, t);
             AppliedOpacity = Mathf.Clamp01(Mathf.LerpUnclamped(revealOpacity, 1, t));
-            AppliedOffset = revealOffset * (1 - t);
+            AppliedOffset = CozyMotion.Reduced ? Vector2.zero : revealOffset * (1 - t);
             foreach (var graphic in graphics)
             {
                 if (graphic == null) continue;

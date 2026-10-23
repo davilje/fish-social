@@ -76,6 +76,12 @@ namespace FishSocial.Desktop
         {
             elapsed = 0; count = stickerCount; phase = 1; SampleEntrance(0, count);
         }
+        // Async data replaces cards, not the already visible page. Their own sticker
+        // components animate new items; do not fade the heading/aside out a second time.
+        public void ContentReady(int stickerCount)
+        {
+            if (phase == 1 && elapsed <= 0) { count = stickerCount; SampleEntrance(0, count); }
+        }
         public void Advance(float seconds)
         {
             if (phase == 0 || CozyMotion.Paused || CozyMotion.EntranceHeld) return;

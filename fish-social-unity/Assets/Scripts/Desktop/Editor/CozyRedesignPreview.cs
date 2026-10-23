@@ -49,6 +49,25 @@ namespace FishSocial.Desktop.Editor
             foreach(var seconds in new[]{0f,.06f,.11f,.18f,.22f}) Render("PanelLeaderboard",null,"rank",seconds);
         }
 
+        public static void RenderWorkspaceMotion()
+        {
+            Directory.CreateDirectory("Library/CozyRedesignPreviews");
+            var reduced = CozyMotion.Reduced;
+            var paused = CozyMotion.Paused;
+            try
+            {
+                foreach (var seconds in new[] { 0f, .1f, .2f, .3f, .4f, .65f })
+                {
+                    Render("PanelProfileHub", null, "workspace-profile", seconds);
+                    Render("PanelProfileEdit", null, "workspace-edit", seconds);
+                    Render("PanelProfileEdit", "选择鱼获", "workspace-picker", seconds);
+                    Render("PanelSocialFeed", "发布", "workspace-compose", seconds);
+                    Render("PanelPondSettlement", null, "workspace-settlement", seconds);
+                }
+            }
+            finally { CozyMotion.SetReduced(reduced); CozyMotion.SetPaused(paused); }
+        }
+
         static void Render(string name, string tab = null, string motionCase = null, float seconds = 0)
         {
             var scene = EditorSceneManager.NewPreviewScene();
@@ -154,6 +173,35 @@ namespace FishSocial.Desktop.Editor
                     panel.SelectPlayer(new FishSocial.Desktop.Auth.LeaderboardEntryDto {playerId="cat-snow",nickname="小白",rank=2,value=1.16f,avatarUrl="/image/profile/cat_avatar_white.png"});
                     panel.SampleMotion(seconds);
                 }
+                if (motionCase != null && motionCase.StartsWith("workspace-"))
+                {
+                    CozyMotion.SetPaused(false); CozyMotion.SetReduced(false);
+                    if (motionCase == "workspace-profile" || motionCase == "workspace-edit")
+                    {
+                        var home = new GameObject("Home", typeof(RectTransform));
+                        home.transform.SetParent(main.Find("Content"), false);
+                        CozyMotion.Flip(home, page, null);
+                    }
+                    else if (motionCase == "workspace-compose")
+                        shell.GetComponentInChildren<DesktopSocialComposeModal>(true).PlayOpenMotion();
+                    else if (motionCase == "workspace-settlement")
+                        page.GetComponent<DesktopPondSettlementModalView>().PlayOpenMotion();
+                    else
+                    {
+                        var picker = page.transform.Find("Picker") as RectTransform;
+                        CozyWorkspaceDialogMotion.Play(picker, picker.Find("WorkspaceDim") as RectTransform);
+                    }
+                    var time = 0f;
+                    while (time < seconds - .00001f)
+                    {
+                        var delta = Mathf.Min(.01f, seconds - time);
+                        foreach (var motion in shell.GetComponentsInChildren<CozyStickerMotion>()) motion.Advance(delta);
+                        foreach (var motion in shell.GetComponentsInChildren<CozyJournalPageMotion>()) motion.Advance(delta);
+                        foreach (var visual in shell.GetComponentsInChildren<CozyButtonVisual>()) visual.AdvanceIndex(delta);
+                        CozyMotion.Tick(delta);
+                        time += delta;
+                    }
+                }
                 Canvas.ForceUpdateCanvases();
                 var outputId=motionCase!=null?"motion-"+motionCase+"-"+Mathf.RoundToInt(seconds*1000).ToString("000"):name+(tab==null?"":"-"+tab);
                 WriteGeometry(shell,camera,outputId);
@@ -173,6 +221,7 @@ namespace FishSocial.Desktop.Editor
             }
             finally
             {
+                CozyMotion.CancelPageTransition();
                 RenderTexture.active = previous;
                 if (camera != null) camera.targetTexture = null;
                 target.Release();

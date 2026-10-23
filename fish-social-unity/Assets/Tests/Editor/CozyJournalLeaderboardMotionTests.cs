@@ -68,6 +68,7 @@ namespace FishSocial.Tests.Editor
                 var photo = page.transform.Find("DesignPlayerCard/JournalPhoto").GetComponent<CozyJournalStaticPose>();
                 Assert.AreEqual(.9f, photo.AppliedScale, .001f);
                 Assert.AreEqual(.3f, photo.AppliedOpacity, .001f);
+                Assert.AreEqual(Vector2.zero, photo.AppliedOffset, "Workspace rank selection scales in place; it does not slide the photo.");
                 Assert.IsTrue(podium.Find("Slot2").GetComponent<CozyButtonVisual>().Selected);
                 Assert.IsFalse(podium.Find("Slot1").GetComponent<CozyButtonVisual>().Selected);
                 Assert.IsTrue(content.GetChild(2).GetComponent<CozyButtonVisual>().Selected);

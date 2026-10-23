@@ -220,6 +220,7 @@ namespace FishSocial.Desktop
                 SetAt(row.transform, "Weight", entry.weightKg > 0 ? entry.weightKg.ToString("0.00") + " kg" : "—");
                 var art = row.transform.Find("FishArt").GetComponent<Image>(); art.sprite = CozyItemArt.Fish(entry.speciesId); art.enabled = art.sprite != null;
                 var share = row.transform.Find("Share").GetComponent<Button>(); share.interactable = CanShare(entry);
+                CozyWorkspaceInteraction.Bind(share);
                 SetAt(share.transform, "Label", CanShare(entry) ? "分享" : entry.outcome == "returned" ? "已回塘" : "未留存");
                 share.onClick.RemoveAllListeners(); share.onClick.AddListener(() => { _composerWasOpen = true; ShareRequested?.Invoke(entry.inventoryItemId); });
             }
@@ -229,6 +230,7 @@ namespace FishSocial.Desktop
         void BindButton(string path, UnityEngine.Events.UnityAction action)
         {
             var button = transform.Find(path)?.GetComponent<Button>(); if (button == null) return;
+            if (path == "Panel/Home") CozyWorkspaceInteraction.Bind(button);
             button.onClick.RemoveAllListeners(); button.onClick.AddListener(action);
         }
         void Set(string path, string value) { SetAt(transform, path, value); }
@@ -253,15 +255,7 @@ namespace FishSocial.Desktop
                 if (_paperAlpha == null) _paperAlpha = _paper.gameObject.AddComponent<CanvasGroup>();
             }
             ResetOpenMotion();
-            var offset = CozyMotion.Reduced ? 0 : 16;
-            _paper.anchoredPosition = _paperRest + Vector2.down * offset;
-            _paperAlpha.alpha = 0;
-            CozyMotion.Animate(_paper, .2f, t =>
-            {
-                if (_paper == null || _paperAlpha == null) return;
-                _paper.anchoredPosition = _paperRest + Vector2.down * (offset * (1 - t));
-                _paperAlpha.alpha = Mathf.Clamp01(t);
-            }, RestorePaperPose, CozyWebMotion.Ease.OutCubic, cleanup: RestorePaperPose);
+            CozyWorkspaceDialogMotion.Play(_paper);
         }
         void RestorePaperPose()
         {

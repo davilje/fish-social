@@ -75,7 +75,8 @@ namespace FishSocial.Desktop
                 pose.Configure(-2,frame.GetComponent<Graphic>(),root.Find("PhotoShadow/JournalShadow")?.GetComponent<Graphic>(),
                     root.Find("Photo")?.GetComponent<Graphic>(),root.Find("Name")?.GetComponent<Graphic>(),root.Find("PhotoTape")?.GetComponent<Graphic>());
             }
-            pose.PlayReveal(new Vector2(24,0),.26f,.3f);
+            var stationary = root.GetComponentInParent<CozyPondSelectionPanel>() != null;
+            pose.PlayReveal(stationary ? Vector2.zero : new Vector2(24,0), stationary ? CozyMotion.Snap : .26f, .3f);
         }
 
         static void RefreshMode(Transform root, string path, string label, int fee, PondSelectionState state, string mode)

@@ -37,6 +37,8 @@ namespace FishSocial.Desktop
         float pressTime;
         float entranceTime, entranceDelay, entranceTo;
         bool entrance;
+        bool fadeOnly;
+        public bool FadingEntrance => entrance && fadeOnly;
         public bool Selected => selected;
         public bool Busy => entrance || press != 0 || position.Time < position.Duration || color.Time < color.Duration;
         public Pose Current { get; private set; }
@@ -55,8 +57,8 @@ namespace FishSocial.Desktop
         public void PointerDown() { press=1; pressTime=0; Refresh(); }
         public void PointerUp() { if(press!=1)return; press=2; pressTime=0; Refresh(); }
         public void CancelPress() { press=0; pressTime=0; Refresh(); }
-        public void BeginEntrance(int index)
-        { entrance=true; entranceTime=0; entranceDelay=Mathf.Max(0,index)*.03f; entranceTo=selected?-16:0; Refresh(); }
+        public void BeginEntrance(int index, bool reduced = false)
+        { fadeOnly=reduced; entrance=true; entranceTime=0; entranceDelay=reduced?0:Mathf.Max(0,index)*.03f; entranceTo=selected?-16:0; Refresh(); }
         public void Settle()
         { position.Settle(); color.Settle(); entrance=false; press=0; Refresh(); }
         public void Advance(float seconds)
@@ -64,7 +66,7 @@ namespace FishSocial.Desktop
             if(seconds<=0)return;
             position.Advance(seconds); color.Advance(seconds);
             if(press!=0) { pressTime+=seconds; if(press==2 && pressTime>=.22f)press=0; }
-            if(entrance) { entranceTime+=seconds; if(entranceTime>=entranceDelay+.2f)entrance=false; }
+            if(entrance) { entranceTime+=seconds; if(entranceTime>=entranceDelay+(fadeOnly ? .12f : .2f))entrance=false; }
             Refresh();
         }
         void Refresh()
@@ -72,8 +74,8 @@ namespace FishSocial.Desktop
             var pose=new Pose { X=position.Value,Alpha=1,Selection=color.Value,Scale=Vector2.one };
             if(entrance)
             {
-                var t=CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutCubic,Mathf.Clamp01((entranceTime-entranceDelay)/.2f));
-                pose.X=Mathf.LerpUnclamped(-18,entranceTo,t); pose.Alpha=t;
+                var t=CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutCubic,Mathf.Clamp01((entranceTime-entranceDelay)/(fadeOnly ? .12f : .2f)));
+                pose.X=fadeOnly?entranceTo:Mathf.LerpUnclamped(-18,entranceTo,t); pose.Alpha=t;
             }
             if(press==1)
                 pose.Scale=Vector2.LerpUnclamped(Vector2.one,new Vector2(1.06f,.92f),CozyWebMotion.Evaluate(CozyWebMotion.Ease.OutQuad,Mathf.Clamp01(pressTime/.06f)));

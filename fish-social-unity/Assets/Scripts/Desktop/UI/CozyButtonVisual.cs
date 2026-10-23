@@ -69,7 +69,7 @@ namespace FishSocial.Desktop
             if (CozyMotion.Reduced)
             {
                 if (!motion.Busy) return;
-                motion.Settle();
+                if (motion.FadingEntrance) motion.Advance(seconds); else motion.Settle();
                 RefreshState();
                 return;
             }
@@ -81,8 +81,7 @@ namespace FishSocial.Desktop
         public void BeginIndexEntrance(int ordinal)
         {
             if (!IsIndex) return;
-            EnsureIndexMotion().BeginEntrance(ordinal);
-            if (CozyMotion.Reduced) indexMotion.Settle();
+            EnsureIndexMotion().BeginEntrance(ordinal, CozyMotion.Reduced);
             RefreshState();
         }
         public static void BeginRailEntrance(Transform root)
@@ -93,6 +92,7 @@ namespace FishSocial.Desktop
             tabs.Sort((a,b) => b.transform.position.y.CompareTo(a.transform.position.y));
             for(var i=0;i<tabs.Count;i++) tabs[i].BeginIndexEntrance(i);
         }
+        bool WorkspaceMotion => GetComponent<CozyWorkspaceInteraction>()?.isActiveAndEnabled == true;
         bool IsNavigation => transform.parent != null && transform.parent.name == "Nav";
         bool IsPrimary => primarySurface || (!string.IsNullOrEmpty(surfaceNormal) && surfaceNormal.Contains("button-primary"));
         bool IsIndex => !string.IsNullOrEmpty(surfaceNormal) && surfaceNormal.Contains("tab-index");
@@ -641,7 +641,7 @@ namespace FishSocial.Desktop
         {
             hovered = true;
             RefreshState();
-            if (primarySurface && CanInteract())
+            if (!WorkspaceMotion && primarySurface && CanInteract())
             {
                 GetComponentInParent<Canvas>()?.GetComponentInChildren<CozyCornerCharacter>(true)?.Lean(true);
                 if (icon != null)
@@ -659,7 +659,7 @@ namespace FishSocial.Desktop
         {
             hovered = false;
             if (primarySurface) GetComponentInParent<Canvas>()?.GetComponentInChildren<CozyCornerCharacter>(true)?.Lean(false);
-            if (pointerPressed && !IsIndex) CozyMotion.CancelPress(transform as RectTransform);
+            if (pointerPressed && !IsIndex && !WorkspaceMotion) CozyMotion.CancelPress(transform as RectTransform);
             RefreshState();
         }
 
@@ -669,14 +669,14 @@ namespace FishSocial.Desktop
                 return;
             if (!CanInteract())
             {
-                CozyMotion.PressDown(transform as RectTransform, false);
+                if (!WorkspaceMotion) CozyMotion.PressDown(transform as RectTransform, false);
                 return;
             }
             hovered = true;
             pointerPressed = true;
             RefreshState();
             if (IsIndex) { EnsureIndexMotion().PointerDown(); if (CozyMotion.Reduced) indexMotion.Settle(); RefreshState(); }
-            else CozyMotion.PressDown(transform as RectTransform, true);
+            else if (!WorkspaceMotion) CozyMotion.PressDown(transform as RectTransform, true);
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -689,7 +689,7 @@ namespace FishSocial.Desktop
             if (wasPressed)
             {
                 if (IsIndex) { EnsureIndexMotion().PointerUp(); RefreshState(); }
-                else CozyMotion.PressUp(transform as RectTransform);
+                else if (!WorkspaceMotion) CozyMotion.PressUp(transform as RectTransform);
             }
         }
 
@@ -704,7 +704,7 @@ namespace FishSocial.Desktop
             focused = false;
             pointerPressed = false;
             if (IsIndex) EnsureIndexMotion().PointerUp();
-            else CozyMotion.PressUp(transform as RectTransform);
+            else if (!WorkspaceMotion) CozyMotion.PressUp(transform as RectTransform);
             RefreshState();
         }
 
@@ -716,7 +716,7 @@ namespace FishSocial.Desktop
                 StopCoroutine(submitRoutine);
             submitPressed = true;
             if (IsIndex) { EnsureIndexMotion().PointerDown(); if (CozyMotion.Reduced) indexMotion.Settle(); RefreshState(); }
-            else CozyMotion.PressDown(transform as RectTransform, true);
+            else if (!WorkspaceMotion) CozyMotion.PressDown(transform as RectTransform, true);
             RefreshState();
             submitRoutine = StartCoroutine(ReleaseSubmit());
         }
@@ -727,7 +727,7 @@ namespace FishSocial.Desktop
             submitPressed = false;
             submitRoutine = null;
             if (IsIndex) EnsureIndexMotion().PointerUp();
-            else CozyMotion.PressUp(transform as RectTransform);
+            else if (!WorkspaceMotion) CozyMotion.PressUp(transform as RectTransform);
             RefreshState();
         }
     }

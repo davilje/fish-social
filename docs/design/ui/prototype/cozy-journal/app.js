@@ -558,6 +558,9 @@ async function go(id, { tab } = {}) {
   $$('.navtab').forEach((n, i) => n.classList.toggle('on', i === navIdx));
   const content = $('.content');
   if (!S.open) {
+    // Keep the contents covered until their entrance animations are installed.
+    // Otherwise the paper reveals the finished layout, then entrance hides it again.
+    content.style.visibility = 'hidden';
     S.page = id;
     S.open = true;
     applyHeader(id);
@@ -568,6 +571,7 @@ async function go(id, { tab } = {}) {
     await play($('#page'), [{ opacity: 0, translate: '0 16px' }, { opacity: 1, translate: '0 0' }], { duration: T.slide, easing: EASE.outCubic }).finished;
     $$('.ring').forEach((r, i) => play(r, [{ scale: '1 0.6' }, { scale: '1 1' }], { duration: 80, delay: i * 30, easing: EASE.outBack }));
     entrance(content);
+    content.style.visibility = '';
     switching = false;
     return;
   }
@@ -1576,4 +1580,12 @@ function setCompare(on) {
   $('#cmp-old').classList.toggle('on', on);
 }
 
-document.fonts.load('20px FishCozy').finally(boot);
+// The workspace installs its page overrides in the next script. A cached font
+// can resolve before that script loads, so wait for both scripts and the font.
+Promise.all([
+  document.fonts.load('20px FishCozy').catch(() => {}),
+  new Promise(resolve => {
+    if (document.readyState !== 'loading') resolve();
+    else document.addEventListener('DOMContentLoaded', resolve, { once: true });
+  }),
+]).then(boot);

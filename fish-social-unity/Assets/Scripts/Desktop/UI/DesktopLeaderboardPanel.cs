@@ -1167,7 +1167,7 @@ namespace FishSocial.Desktop
                 SetMyRank(myRank, boardType);
             SyncPlayerSelection();
             MarkBoardBuilt(boardType);
-            _pageMotion?.PlayEntrance(entries.Length + 3);
+            _pageMotion?.ContentReady(entries.Length + 3);
         }
 
         IEnumerator BindRows(
@@ -1380,7 +1380,7 @@ namespace FishSocial.Desktop
             SyncPlayerSelection();
             foreach(var pair in _cardPlayers)
                 if(pair.Key!=null && pair.Value==entry.playerId) pair.Key.GetComponent<CozyStickerMotion>()?.ReplayTape();
-            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+            transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
             CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? "钓友");
             CozyItemArt.Text(transform, "DesignPlayerCard/Value", "第 " + entry.rank + " 名 · " + FormatValue(entry, boardType));
             CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "正在加载资料…");

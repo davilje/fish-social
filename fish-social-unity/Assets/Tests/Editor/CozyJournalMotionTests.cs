@@ -260,7 +260,7 @@ namespace FishSocial.Tests.Editor
         }
 
         [Test]
-        public void RouterReducedOpenLeavesTheIncomingPageVisible()
+        public void RouterReducedOpenFadesWithoutMovingTheIncomingPage()
         {
             CozyMotion.SetReduced(true);
             var router = root.AddComponent<PanelRouter>();
@@ -277,6 +277,11 @@ namespace FishSocial.Tests.Editor
             router.Show(ShellPanelId.Shop);
             Assert.AreEqual(1f, alphaWhileOpening);
             Assert.IsTrue(shop.activeSelf);
+            Assert.AreEqual(Vector2.zero, ((RectTransform)shop.transform).anchoredPosition);
+            Assert.AreEqual(0f, shop.GetComponent<CanvasGroup>().alpha);
+            CozyMotion.Tick(.06f);
+            Assert.That(shop.GetComponent<CanvasGroup>().alpha, Is.GreaterThan(0).And.LessThan(1));
+            CozyMotion.Tick(.06f);
             Assert.IsFalse(home.activeSelf);
             Assert.AreEqual(1f, shop.GetComponent<CanvasGroup>().alpha);
         }

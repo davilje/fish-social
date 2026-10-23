@@ -1,0 +1,17 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const sharp = require('sharp');
+const root = path.resolve(__dirname, '../..');
+const input = path.join(root, 'fish-social-unity/Library/CozyRedesignPreviews');
+const output = path.join(root, 'docs/art/cozy-journal/production/workspace-motion');
+const pages = [['profile', '个人资料'], ['edit', '编辑资料'], ['picker', '选择鱼获'], ['compose', '分享鱼获'], ['settlement', '离塘结算']];
+const times = [0, 100, 200, 300, 400, 650];
+(async () => {
+  fs.mkdirSync(output, { recursive: true });
+  for (const [id] of pages) for (const time of times) {
+    const name = `motion-workspace-${id}-${String(time).padStart(3, '0')}`;
+    await sharp(path.join(input, name + '.png')).webp({ quality: 86 }).toFile(path.join(output, name + '.webp'));
+  }
+  fs.writeFileSync(path.join(output, 'index.html'), `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>手账 · Unity 动效检查</title><style>*{box-sizing:border-box}body{margin:0;padding:24px;background:#f6eddd;color:#614b36;font:16px system-ui}main{max-width:1440px;margin:auto}h1{font-size:26px}p{line-height:1.7}nav,.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}button{font:inherit;padding:10px 18px;border:1px solid #d8bea0;background:#fffaf0;color:inherit;border-radius:12px;cursor:pointer}button[aria-pressed=true]{background:#fc923c;color:white}input{flex:1;min-width:160px;accent-color:#fc923c}img{width:100%;display:block;border-radius:16px;background:white;box-shadow:0 8px 30px #78563020}a{color:#9c5a27}small{color:#947858}</style><main><h1>手账 · Unity 动效检查</h1><p>选择页面，拖动时间轴查看打开过程。画面来自项目内正式预制体与实际动效代码。</p><nav>${pages.map(([id,label])=>`<button data-page="${id}">${label}</button>`).join('')}</nav><div class="controls"><button id="play">播放</button><input id="time" type="range" min="0" max="5" value="3" aria-label="动画采样帧"><output id="label"></output></div><img id="frame" alt="Unity 页面打开动效"><p><small>采样时刻：0、100、200、300、400、650 ms。播放为分帧检查，不代表实时帧率。</small></p><a href="../../../../design/ui/prototype/journal-workspace/index.html">打开网页交互方案</a> · <a href="../workspace.html">查看页面布局对照</a></main><script>const times=${JSON.stringify(times)},buttons=[...document.querySelectorAll('[data-page]')],slider=document.querySelector('#time'),play=document.querySelector('#play');let current='profile',timer;function draw(){document.querySelector('#frame').src='motion-workspace-'+current+'-'+String(times[+slider.value]).padStart(3,'0')+'.webp';document.querySelector('#label').textContent=times[+slider.value]+' ms';buttons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.page===current));}function stop(){clearTimeout(timer);timer=null;play.textContent='播放';}function step(){draw();if(+slider.value===5){stop();return;}const i=+slider.value;timer=setTimeout(()=>{slider.value=i+1;step();},(times[i+1]-times[i])*3);}buttons.forEach(b=>b.onclick=()=>{stop();current=b.dataset.page;draw();});slider.oninput=()=>{stop();draw();};play.onclick=()=>{if(timer){stop();return;}slider.value=0;play.textContent='暂停';step();};draw();</script></html>`);
+  console.log('Generated 30 Unity motion frames and workspace-motion/index.html');
+})().catch(error => { console.error(error); process.exitCode = 1; });

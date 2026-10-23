@@ -294,7 +294,7 @@ namespace FishSocial.Desktop
             }
             var pose = _commentsPanel.GetComponent<CozyJournalStaticPose>() ?? _commentsPanel.AddComponent<CozyJournalStaticPose>();
             pose.Configure(0f, _commentsPanel.GetComponentsInChildren<Graphic>(true));
-            pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+            pose.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
         }
 
         void RenderPost()

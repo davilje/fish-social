@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-23",
+  "reference": "docs/design/ui/prototype/journal-workspace/index.html",
+  "targeted": {
+    "total": 111,
+    "passed": 111,
+    "failed": 0,
+    "skipped": 0,
+    "finishedAtUtc": "2026-10-23 05:03:56Z",
+    "formalPagePrefabs": 13
+  },
+  "fullSuiteBeforeFinalDimAndReducedRefinements": {
+    "total": 502,
+    "passed": 498,
+    "failed": 4,
+    "skipped": 0,
+    "failures": [
+      {
+        "test": "FishSocial.Tests.Editor.CozyPondParityTests.LongFailuresAndBothFeeModesRemainScrollableAboveFixedEntry(\"PanelPondSelection\",\"DesignPondAside\",\"Body\",\"Enter\")",
+        "message": "  Expected: String containing \"125 金币\"\n  But was:  \"高级塘\n可遇鱼种：暂无鱼种数据\"\n"
+      },
+      {
+        "test": "FishSocial.Tests.Editor.CozyPondParityTests.LongFailuresAndBothFeeModesRemainScrollableAboveFixedEntry(\"PanelWorldMap\",\"Details\",\"DetailsText\",\"EnterPond\")",
+        "message": "  Expected: String containing \"125 金币\"\n  But was:  \"高级塘\n可遇鱼种：暂无鱼种数据\"\n"
+      },
+      {
+        "test": "FishSocial.Tests.Editor.CozyProfileRefinementTests.CodexStampHasSourceCenterAndNewSnapshotReplacesCards",
+        "message": "  Expected string length 8 but was 28. Strings differ at index 0.\n  Expected: \"累计捕获 2 次\"\n  But was:  \"<color=#c98a12>★★★★★</color>\"\n  -----------^\n"
+      },
+      {
+        "test": "FishSocial.Tests.Editor.CozyRankRefinementTests.PodiumGradientsSurviveSkinSelectionHoverAndPrefabRepair",
+        "message": "  Expected string length 66 but was 0. Strings differ at index 0.\n  Expected: \"Assets/Resources/Desktop/Theme/Cozy/journal/decor/rank-label-...\"\n  But was:  <string.Empty>\n  -----------^\n"
+      }
+    ]
+  },
+  "renderedFrames": {
+    "source": "Unity Editor, saved production prefabs and production motion code",
+    "scenarios": [
+      "profile",
+      "edit",
+      "picker",
+      "compose",
+      "settlement"
+    ],
+    "milliseconds": [
+      0,
+      100,
+      200,
+      300,
+      400,
+      650
+    ],
+    "total": 30,
+    "pickerDimPixelRGBAAt0_100_200_650": [
+      206,
+      198,
+      189,
+      255
+    ]
+  },
+  "browserChecks": {
+    "result": "PASS",
+    "decodedImages": 30,
+    "tabs": 5,
+    "scrubber": true,
+    "playback": true,
+    "links": true,
+    "scriptErrors": []
+  },
+  "limitations": [
+    "Windows/Steam live rendering, real accounts and DPI have not been accepted.",
+    "Frame playback is a sampled inspection, not a realtime framerate measurement."
+  ]
+}

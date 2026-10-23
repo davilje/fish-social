@@ -20,7 +20,8 @@ const wsArt=f=>`assets/fish/${f.id}.png`;
 const wsBtn=(label,attrs='',primary=false)=>`<button type="button" class="ws-button${primary?' primary':''}" ${attrs}>${label}</button>`;
 const wsMetric=(label,value)=>`<div class="ws-metric"><span>${label}</span><strong>${value}</strong></div>`;
 function wsCaptureDraft(){if(!$('#ws-name'))return;ws.draft.nickname=$('#ws-name').value;ws.draft.bio=$('#ws-bio').value;}
-function wsStartEdit(){ws.draft={nickname:J.nickname,bio:J.bio,avatar:J.avatar,slots:[...ws.slots]};ws.editTab='avatars';J.editing=true;S.tab.profile=0;jRefresh();}
+function wsPrepareEdit(){ws.draft={nickname:J.nickname,bio:J.bio,avatar:J.avatar,slots:[...ws.slots]};ws.editTab='avatars';J.editing=true;S.tab.profile=0;}
+function wsStartEdit(){wsPrepareEdit();jRefresh();}
 const oldProfileBody=profileBody;
 profileBody=function(){
  if(S.tab.profile!==0)return oldProfileBody();
@@ -79,6 +80,12 @@ jAction=function(name,el){if(name==='edit-profile')return wsStartEdit();if(name=
 const oldInstall=installJournalPages;
 installJournalPages=function(){oldInstall();journalFish=journalFish.map(f=>{const r=wsRecords.find(x=>x.id===f.id);return r?{...f,size:r.size}:f;});J.posts=[];$('#player .xp b').textContent='320 / 650';$('#player .xp i').style.width='49.23%';S.page='profile';S.tab.profile=0;bobIdx=NAV.findIndex(n=>n.id==='profile');J.editing=false;
  const toolbar=$('#toolbar');for(const g of $$('.group',toolbar))g.style.display='none';$('.brand',toolbar).textContent='手账新布局 · 可交互设计';const links=document.createElement('div');links.className='ws-links';links.innerHTML='<button data-workspace="profile">个人资料</button><button data-workspace="edit">编辑资料</button><button data-workspace="compose">分享鱼获</button><button data-workspace="settlement">离塘结算</button>';toolbar.append(links);
- const open=async mode=>{if($('#j-dialog'))jCloseDialog();$$('[data-workspace]').forEach(b=>b.classList.toggle('active',b.dataset.workspace===mode));if(mode==='profile'){J.editing=false;await go('profile',{tab:0});}if(mode==='edit'){J.editing=false;await go('profile',{tab:0});wsStartEdit();}if(mode==='compose'){await go('feed',{tab:0});jCompose();}if(mode==='settlement')wsSettlement();history.replaceState(null,'',location.pathname+'#'+mode);};$$('[data-workspace]').forEach(b=>b.onclick=()=>open(b.dataset.workspace));$('#caption .hint').textContent='设计预览 · 示例统计与体重 · 操作不会发送到真实账号';$('#caption-text').textContent='切换上方四个入口，体验新的资料、分享与结算流程。';
- setTimeout(()=>open(['edit','compose','settlement'].includes(location.hash.slice(1))?location.hash.slice(1):'profile'),100);
+ const selectMode=mode=>{$$('[data-workspace]').forEach(b=>b.classList.toggle('active',b.dataset.workspace===mode));history.replaceState(null,'',location.pathname+'#'+mode);};
+ const open=async mode=>{if(switching)return;if($('#j-dialog'))jCloseDialog();selectMode(mode);if(mode==='profile'){J.editing=false;await go('profile',{tab:0});}if(mode==='edit'){wsPrepareEdit();await go('profile',{tab:0});}if(mode==='compose'){await go('feed',{tab:0});jCompose();}if(mode==='settlement')wsSettlement();};$$('[data-workspace]').forEach(b=>b.onclick=()=>open(b.dataset.workspace));$('#caption .hint').textContent='设计预览 · 示例统计与体重 · 操作不会发送到真实账号';$('#caption-text').textContent='切换上方四个入口，体验新的资料、分享与结算流程。';
+ // Choose the initial state before boot renders, rather than flipping it again 100ms later.
+ const initialMode=['edit','compose','settlement'].includes(location.hash.slice(1))?location.hash.slice(1):'profile';
+ selectMode(initialMode);
+ if(initialMode==='edit')wsPrepareEdit();
+ if(initialMode==='compose'){S.page='feed';S.tab.feed=0;bobIdx=NAV.findIndex(n=>n.id==='feed');}
+ if(initialMode==='compose'||initialMode==='settlement')queueMicrotask(()=>initialMode==='compose'?jCompose():wsSettlement());
 };

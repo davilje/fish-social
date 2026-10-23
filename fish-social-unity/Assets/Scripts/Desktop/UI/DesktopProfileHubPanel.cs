@@ -944,7 +944,7 @@ namespace FishSocial.Desktop
             {
                 current.GetComponent<CozyJournalPageMotion>()?.PlayEntrance(current.GetComponentsInChildren<CozyStickerMotion>().Length);
                 ReplayCenter(current.transform);
-                CozyJournalStaticPose.RevealAside(current.transform);
+
             }
             _tabMotionRoutine=null;
         }
@@ -1247,12 +1247,13 @@ namespace FishSocial.Desktop
             }
             BindPagerButton(profile.Find("JournalShowcaseLink"), () => SelectTab(HubTab.Showcase));
             BindPagerButton(profile.Find("JournalAlbumLink"), () => SelectTab(HubTab.Album));
-            CozyJournalStaticPose.RevealAside(profile);
+
         }
 
         void RenderWorkspaceProfile(Transform profile, int level)
         {
             if (profile.Find("WorkspaceKicker") == null) return;
+            CozyWorkspaceInteraction.Bind(transform.Find("Shell/Header/Edit")?.GetComponent<Button>());
             CozyItemArt.Text(profile, "WorkspaceLevel", "Lv." + level);
             var since = "湖畔手账 · 一起等待下一次相遇";
             var cached = DesktopProfileCache.Latest;
@@ -1570,6 +1571,7 @@ namespace FishSocial.Desktop
             var picker = transform.Find("JournalShowcasePicker");
             if (picker == null) { SetStatus("展示鱼获选择器资源缺失，请重新导入 UI。"); return; }
             picker.gameObject.SetActive(true); picker.SetAsLastSibling();
+            CozyWorkspaceDialogMotion.Play(picker as RectTransform, picker.Find("WorkspaceDim") as RectTransform);
             var content = picker.Find("Viewport/Content");
             if (content == null) return;
             ClearChildren(content);
@@ -1662,7 +1664,7 @@ namespace FishSocial.Desktop
                 target.supportRichText = true;
                 target.text = item.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.StarRich(item.quality);
                 CozyJournalChips.Show(target, PondLabel(item.pondId), "已珍藏在展示柜");
-                CozyJournalStaticPose.RevealAside(root);
+                CozyJournalStaticPose.RevealAside(root, true);
                 return;
             }
             CozyItemArt.Set(target.transform.parent, "DesignDetailArt", CozyItemArt.Fish(item.speciesId));
@@ -1966,7 +1968,7 @@ namespace FishSocial.Desktop
         {
             RevealAlbumSlot(albumRoot != null ? albumRoot.Find("AlbumStage/SlotL") : null, new Vector2(-28f, 0f), -1.3f);
             RevealAlbumSlot(albumRoot != null ? albumRoot.Find("AlbumStage/SlotR") : null, new Vector2(28f, 0f), 1.3f);
-            CozyJournalStaticPose.RevealAside(albumRoot);
+            CozyJournalStaticPose.RevealAside(albumRoot, true);
         }
 
         static void RevealAlbumSlot(Transform slot, Vector2 offset, float angle)
@@ -2028,7 +2030,7 @@ namespace FishSocial.Desktop
                 CreateAchievementRow(_achievementsList, "empty", "当前分类暂无成就",
                     CatTheme.Cream);
             ReplayCenter(_achievementsList);
-            CozyJournalStaticPose.RevealAside(transform.Find("Shell/Content/Tab_成就") ?? transform.Find("DesignAchievementSummary"));
+            CozyJournalStaticPose.RevealAside(transform.Find("Shell/Content/Tab_成就") ?? transform.Find("DesignAchievementSummary"), true);
         }
 
         bool MatchesAchievementCategory(string category)
@@ -2355,7 +2357,7 @@ namespace FishSocial.Desktop
                     onClick();
                     var tab=parent;
                     while(tab.parent!=null && !tab.name.StartsWith("Tab_")) tab=tab.parent;
-                    tab.Find("JournalCollectionPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+                    tab.Find("JournalCollectionPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
                 });
             DesktopModalUi.StyleTree(go.transform);
             var scope = parent.parent != null ? parent.parent.name : parent.name;

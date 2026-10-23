@@ -441,7 +441,7 @@ namespace FishSocial.Desktop
             }
             RememberFeed(slot, true, posts.Length >= limit, offset + posts.Length);
             if (!append && slot == CurrentFeed)
-                GetComponent<CozyJournalPageMotion>()?.PlayEntrance(posts.Length);
+                GetComponent<CozyJournalPageMotion>()?.ContentReady(posts.Length);
             if (!append && _scroll != null)
             {
                 _suppressScrollLoad = true;
@@ -531,7 +531,7 @@ namespace FishSocial.Desktop
                 var node = info.Find(name);
                 if (node == null) continue;
                 var pose = node.GetComponent<CozyJournalStaticPose>() ?? node.gameObject.AddComponent<CozyJournalStaticPose>();
-                pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+                pose.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
             }
             var host = info.Find("CommentsHost");
             if (host == null) return;
@@ -539,7 +539,7 @@ namespace FishSocial.Desktop
             {
                 var child = host.GetChild(i);
                 var pose = child.GetComponent<CozyJournalStaticPose>() ?? child.gameObject.AddComponent<CozyJournalStaticPose>();
-                pose.PlayReveal(new Vector2(24f, 0f), .26f, .3f);
+                pose.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
             }
         }
 

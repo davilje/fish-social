@@ -5,13 +5,14 @@ namespace FishSocial.Desktop
     /// <summary>Literal easing curves from prototype/cozy-journal/app.js, sampled as CSS cubic-bezier(x,y).</summary>
     public static class CozyWebMotion
     {
-        public enum Ease { Linear, OutQuad, OutCubic, OutBack, InOutSine, InQuad, Fly, ItemFly }
+        public enum Ease { Linear, OutQuad, OutCubic, OutBack, InOutSine, InQuad, Fly, ItemFly, CssEase }
         public static float Evaluate(Ease ease, float progress)
         {
             if (progress <= 0) return 0;
             if (progress >= 1) return 1;
             switch (ease)
             {
+                case Ease.CssEase: return Bezier(progress, .25f, .1f, .25f, 1);
                 case Ease.OutQuad: return Bezier(progress, .5f, 1, .89f, 1);
                 case Ease.OutCubic: return Bezier(progress, .33f, 1, .68f, 1);
                 case Ease.OutBack: return Bezier(progress, .34f, 1.56f, .64f, 1);

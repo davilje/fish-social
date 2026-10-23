@@ -631,7 +631,7 @@ namespace FishSocial.Desktop
                     _settingsPanel?.OnOpened();
                     break;
             }
-            CozyJournalStaticPose.RevealAside(view);
+            // Page entrance belongs to the router; selection reveals belong to each presenter.
         }
 
         static void AlignHeaderActions(Transform header, bool showClose)

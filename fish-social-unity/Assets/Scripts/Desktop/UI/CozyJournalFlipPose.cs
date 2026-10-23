@@ -9,6 +9,10 @@ namespace FishSocial.Desktop
     {
         public float ContentOffset { get; private set; }
         public float ContentAlpha { get; private set; } = 1;
+        bool covered;
+        public void CoverContent() { covered = true; Sample(0, 0); }
+        // Include content arriving from an API while the sheet is still rising.
+        void LateUpdate() { if (covered) Sample(0, 0); }
         public void Sample(float offset, float alpha, float titleOffset = 0, float titleAlpha = 1)
         {
             ContentOffset = offset; ContentAlpha = alpha;
@@ -46,7 +50,7 @@ namespace FishSocial.Desktop
         {
             return node != null && (node.Find("JournalShadow") != null || node.Find("DesignHeader") != null);
         }
-        public void ResetPose() { Sample(0, 1); }
+        public void ResetPose() { covered = false; Sample(0, 1); }
         void OnDisable() { ResetPose(); }
     }
 

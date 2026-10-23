@@ -155,6 +155,8 @@ namespace FishSocial.Desktop
             if (_confirmPicker != null) { _confirmPicker.onClick.RemoveAllListeners(); _confirmPicker.onClick.AddListener(ConfirmPickedFish); }
             if (_search != null) { _search.onValueChanged.RemoveAllListeners(); _search.onValueChanged.AddListener(_ => RenderPicker()); }
             ApplyCozyStyle();
+            foreach (var path in new[] { "Actions/Save", "Header/Back", "WorkspaceAvatarTab", "WorkspaceShowcaseTab", "Picker/Clear", "Picker/Close", "Picker/Confirm" })
+                CozyWorkspaceInteraction.Bind(Find<Button>(path));
             HidePicker();
             SelectWorkspaceTab(false);
             if (Application.isPlaying)
@@ -187,7 +189,7 @@ namespace FishSocial.Desktop
             if (motion == null)
                 return;
             motion.PlayEntrance(GetComponentsInChildren<CozyStickerMotion>(true).Length);
-            CozyJournalStaticPose.RevealAside(transform);
+
         }
 
         void GoBack()
@@ -333,6 +335,7 @@ namespace FishSocial.Desktop
                     label.text = entry.Label;
                 StyleChoice(go, entry.Path == _avatarUrl);
                 var button = go.GetComponent<Button>();
+                CozyWorkspaceInteraction.Bind(button, CozyWorkspaceInteraction.Kind.Avatar, go.transform.Find("DesignItemArt")?.GetComponent<Graphic>());
                 if (button != null)
                 {
                     var path = entry.Path;
@@ -346,7 +349,12 @@ namespace FishSocial.Desktop
         {
             if (_busy) return;
             _avatarUrl = path ?? string.Empty;
-            RenderAvatars();
+            UpdateJournalPreview(_nickname != null ? _nickname.text : "");
+            foreach (var entry in DesktopDefaultAvatars.All)
+            {
+                var card = _avatars != null ? _avatars.Find("Avatar_" + entry.Id) : null;
+                if (card != null) StyleChoice(card.gameObject, entry.Path == _avatarUrl);
+            }
             SetStatus("已选择角色：" + DesktopDefaultAvatars.LabelFor(_avatarUrl) + "，保存后生效。");
         }
 
@@ -396,6 +404,8 @@ namespace FishSocial.Desktop
                 if (overlay != null) { overlay.overrideSorting = true; overlay.sortingOrder = 100; }
             }
             RenderPicker();
+            if (_picker != null)
+                CozyWorkspaceDialogMotion.Play(_picker.transform as RectTransform, _picker.transform.Find("WorkspaceDim") as RectTransform);
         }
 
         public void OnPointerClick(PointerEventData data)
@@ -511,6 +521,7 @@ namespace FishSocial.Desktop
             {
                 item.SetActive(true);
                 EnsureChoiceHitTarget(item);
+                CozyWorkspaceInteraction.Bind(item.GetComponent<Button>(), CozyWorkspaceInteraction.Kind.Choice);
             }
             return item;
         }

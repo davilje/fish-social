@@ -343,4 +343,6 @@ A0 (1w) �?A1 (2~3d) �?A2 (3~5d) �?灰度 1w �?B0 (1w) �?B1 (2~3d) �?
 | 2026-10-22 | **STEAM-DESKTOP-21** 用户认可远端 UI 修复版并沿用；本地回归 **448/448**，结束 JournalV2 替换推进；Windows/Steam 平台待验收 |
 | 2026-10-22 | **STEAM-DESKTOP-21** 补用户新增八类 UI 缺口及独立社交分区；最新回归 **468/468**、预制体守卫 PASS，21 个正式页面状态截图更新；Windows/Steam 平台待验收 |
 | 2026-10-23 | **STEAM-DESKTOP-21** 按 Web 重写资料、编辑、分享和离塘结算；新增回归 12/12，全套 476 通过／5 项旧检查失败，守卫 PASS；24 状态截图与六状态对照；Windows/Steam 待验收 |
+| 2026-10-23 | **STEAM-DESKTOP-21** 两个 Web 预览底栏打开闪回与工作区重复渲染修复，保留原动效参数；历史定位与逐帧回归见 `docs/design/ui/2026-10-23-journal-preview-navigation-fix.md` |
+| 2026-10-23 | **STEAM-DESKTOP-21** 工作区动效同步到正式 Unity；全套 498 通过／4 旧检查失败，专项复验与 30 张动效帧见 `docs/design/ui/2026-10-23-workspace-motion-unity.md` |
 | 2026-07-11 | Phase 2 开发计划已确认�?3 项需求分 6 组，5 Sprint 规划（基�?xlsx 全部未开始项�?|

@@ -141,7 +141,7 @@ namespace FishSocial.Desktop
                 shadowTime = .18f; tapeTime = .16f;
             }
             configured = true; enabled = true;
-            Apply(complete ? 1 : Mathf.Clamp01((time - delay) / duration));
+            Apply(complete ? 1 : Mathf.Clamp01((time - (CozyMotion.Reduced ? 0 : delay)) / (CozyMotion.Reduced ? CozyMotion.Fade : duration)));
         }
 
         /// <summary>Selection for pointer-click cards that have no Button; button-backed cards keep their decoration state in sync.</summary>
@@ -228,7 +228,7 @@ namespace FishSocial.Desktop
         {
             if (!configured) return;
             delay = baseDelay + Mathf.Max(0, additionalDelay);
-            complete = CozyMotion.Reduced || CozyMotion.Paused
+            complete = CozyMotion.Paused
                 || (pondObserver ? PondSeen.Contains(key) : !animateAll && cardIndex >= 8);
             entering = false; time = 0; waitForLayout = true;
             Apply(complete ? 1 : 0);
@@ -311,9 +311,9 @@ namespace FishSocial.Desktop
                     if (pondObserver) PondSeen.Add(key);
                 }
                 time += delta;
-                if (time >= delay + duration || CozyMotion.Reduced) complete = true;
+                if (time >= (CozyMotion.Reduced ? CozyMotion.Fade : delay + duration)) complete = true;
             }
-            Apply(complete ? 1 : Mathf.Clamp01((time - delay) / duration));
+            Apply(complete ? 1 : Mathf.Clamp01((time - (CozyMotion.Reduced ? 0 : delay)) / (CozyMotion.Reduced ? CozyMotion.Fade : duration)));
         }
 
         void Apply(float progress)

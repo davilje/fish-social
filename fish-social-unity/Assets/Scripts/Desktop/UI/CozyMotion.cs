@@ -57,6 +57,7 @@ namespace FishSocial.Desktop
             public CozyWebMotion.Ease Ease = CozyWebMotion.Ease.OutCubic;
             public Action<float> Sample;
             public float Delay;
+            public bool FadeWhenReduced;
         }
 
         static readonly List<Job> Jobs = new List<Job>();
@@ -246,7 +247,7 @@ namespace FishSocial.Desktop
         {
             if (job.Target == null)
                 return;
-            if (_paused || (Reduced && job.Channel != Channel.Alpha))
+            if (_paused || (Reduced && job.Channel != Channel.Alpha && !job.FadeWhenReduced))
             {
                 Complete(job);
                 return;
@@ -336,12 +337,14 @@ namespace FishSocial.Desktop
         }
 
         public static void Animate(RectTransform target, float duration, Action<float> sample,
-            Action done = null, CozyWebMotion.Ease easing = CozyWebMotion.Ease.OutCubic, float delay = 0, Action cleanup = null)
+            Action done = null, CozyWebMotion.Ease easing = CozyWebMotion.Ease.OutCubic, float delay = 0, Action cleanup = null,
+            bool fadeWhenReduced = false)
         {
             if (target == null) return;
             Replace(target, Channel.Custom);
             Add(new Job { Target = target, Channel = Channel.Custom, Duration = duration,
-                Ease = easing, Sample = sample, Done = done, Delay = Reduced ? 0 : delay, Cleanup = cleanup });
+                Ease = easing, Sample = sample, Done = done, Delay = Reduced ? 0 : delay, Cleanup = cleanup,
+                FadeWhenReduced = fadeWhenReduced });
         }
 
         public static void Punch(RectTransform target)
@@ -493,7 +496,7 @@ namespace FishSocial.Desktop
                 return;
             }
             CancelPageTransition();
-            if (Reduced || _paused || from == null || from == to)
+            if (_paused || from == null || from == to)
             {
                 if (from != null && from != to)
                     from.SetActive(false);
@@ -538,18 +541,18 @@ namespace FishSocial.Desktop
                 if (from != null) from.SetActive(false);
             };
             _cancelFlip=settle; _finishFlip=done;
-            Animate(fromRt, .12f, t => outgoing.Sample(-24*t,1-t), () =>
+            Animate(fromRt, .12f, t => outgoing.Sample(Reduced ? 0 : -24*t,1-t), () =>
             {
                 if (from != null) from.SetActive(false);
                 if (to == null) { settle(); _cancelFlip=null; _finishFlip=null; done?.Invoke(); return; }
                 toGroup.alpha=1;
-                incoming.Sample(24,0,10,0);
+                incoming.Sample(Reduced ? 0 : 24,0,Reduced ? 0 : 10,0);
                 StartJournalEntrance(to,false);
-                Animate(toRt,.2f,t => incoming.Sample(24*(1-t),t,10*(1-t),t), () =>
+                Animate(toRt,Slide,t => incoming.Sample(Reduced ? 0 : 24*(1-t),t,Reduced ? 0 : 10*(1-t),t), () =>
                 {
                     settle(); _cancelFlip=null; _finishFlip=null; done?.Invoke();
-                }, CozyWebMotion.Ease.OutCubic);
-            }, CozyWebMotion.Ease.InQuad);
+                }, CozyWebMotion.Ease.OutCubic, fadeWhenReduced: true);
+            }, CozyWebMotion.Ease.InQuad, fadeWhenReduced: true);
         }
 
         static void JournalDoor(GameObject from, GameObject to, Action done, bool opening)
@@ -559,38 +562,40 @@ namespace FishSocial.Desktop
             var fromGroup = EnsureGroup(from); var toGroup = EnsureGroup(to);
             to.SetActive(true); fromGroup.blocksRaycasts = false; toGroup.blocksRaycasts = false;
             var moving = opening ? toRect : fromRect;
+            var content = to.GetComponent<CozyJournalFlipPose>() ?? to.AddComponent<CozyJournalFlipPose>();
             var entrancePlayed = false;
+            if (opening)
+            {
+                EntranceHeld = true;
+                content.CoverContent();
+                toRect.anchoredPosition = toRest + Vector2.down * (Reduced ? 0 : 16);
+                toGroup.alpha = 0;
+            }
             _cancelFlip = settle; _finishFlip = done;
-            Add(new Job { Target = moving, Channel = Channel.Custom, Duration = opening ? .2f : .14f,
+            Add(new Job { Target = moving, Channel = Channel.Custom, Duration = opening ? Slide : .14f, FadeWhenReduced = true,
                 Ease = opening ? CozyWebMotion.Ease.OutCubic : CozyWebMotion.Ease.InQuad,
                 Sample = t =>
                 {
-                    if (opening) { toRect.anchoredPosition = toRest + Vector2.down * (16 * (1 - t)); toGroup.alpha = t; }
-                    else { fromRect.anchoredPosition = fromRest + Vector2.down * (12 * t); fromGroup.alpha = 1 - t; }
+                    if (opening) { toRect.anchoredPosition = toRest + Vector2.down * (Reduced ? 0 : 16 * (1 - t)); toGroup.alpha = t; }
+                    else { fromRect.anchoredPosition = fromRest + Vector2.down * (Reduced ? 0 : 12 * t); fromGroup.alpha = 1 - t; }
                 },
                 Done = () =>
                 {
                     entrancePlayed = true;
+                    // Install the contents' first frame before uncovering them, just like
+                    // the workspace's visibility gate. No pre-rise entrance/restart pair.
+                    if (opening) StartJournalEntrance(to, true);
                     settle();
                     _cancelFlip = null;
                     _finishFlip = null;
-                    // One entrance, after the sheet is on screen. Replaying it over the
-                    // finished page is the second refresh.
-                    if (opening) StartJournalEntrance(to, true);
                     done?.Invoke();
                 } });
-            if (opening)
-            {
-                EntranceHeld = true;
-                StartJournalEntrance(to, false);
-                toRect.anchoredPosition = toRest + Vector2.down * 16;
-                toGroup.alpha = 0;
-            }
 
             void settle()
             {
                 var aborted = EntranceHeld && !entrancePlayed;
                 EntranceHeld = false;
+                if (content != null) content.ResetPose();
                 Drop(fromRect); Drop(toRect);
                 if (from != null) { fromRect.anchoredPosition = fromRest; fromGroup.alpha = 1; fromGroup.blocksRaycasts = true; from.SetActive(false); }
                 if (to != null) { toRect.anchoredPosition = toRest; toGroup.alpha = 1; toGroup.blocksRaycasts = true; }
@@ -607,7 +612,7 @@ namespace FishSocial.Desktop
             foreach (var motion in page.GetComponentsInChildren<CozyJournalPageMotion>())
                 motion.Finish();
             if (revealPolaroid)
-                CozyJournalStaticPose.RevealAside(page.transform);
+                foreach (var pose in page.GetComponentsInChildren<CozyJournalStaticPose>()) pose.ApplyFinalPose();
         }
 
         static void StartJournalEntrance(GameObject page, bool rail)
@@ -637,7 +642,7 @@ namespace FishSocial.Desktop
         /// <summary>app.js scale 1 0.6 → 1 1, origin center. Prefab pivots are the top-left corner.</summary>
         static void SnapRing(RectTransform ring, int index)
         {
-            if (ring == null) return;
+            if (ring == null || Reduced || _paused) return;
             var rest = ring.anchoredPosition;
             var size = ring.rect.size;
             if (size.y < 1f) size = ring.sizeDelta;
