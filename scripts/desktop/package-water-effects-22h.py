@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Publish a reviewable Windows bundle; this does not run or install the app."""
 import argparse
+from datetime import date
 import hashlib
 import json
 from pathlib import Path
@@ -18,9 +19,10 @@ def sha256(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dotnet', default='dotnet')
-    parser.add_argument('--output', default='dist/overlay-water-effects-22h-2026-10-24.zip')
+    parser.add_argument('--date', default=date.today().isoformat())
+    parser.add_argument('--output')
     args = parser.parse_args()
-    output = ROOT / args.output
+    output = ROOT / (args.output or f'dist/overlay-water-effects-22h-v4-{args.date}.zip')
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='fish-water-22h-package-') as temporary:
         bundle = Path(temporary) / 'FishSocialOverlay'
@@ -38,13 +40,15 @@ def main():
             'echo Log: %CD%\\native-tests.log\r\npause\r\nexit /b %TEST_EXIT%\r\n'
         ).encode('ascii'))
         (bundle / 'README-22H.txt').write_text(
-            'STEAM-DESKTOP-22H review bundle, 2026-10-24\n'
+            f'STEAM-DESKTOP-22H review bundle, {args.date}\n'
             'Run-Native-Tests.cmd runs the Windows native regression suite.\n'
             'The macOS publisher cannot execute WPF or validate desktop click-through.\n'
             'This bundle does not replace the installed game or deploy the server.\n'
             'The paired Unity/server protocol changes are required for live H events.\n'
             'Visual rules: ripples below waterline; splash droplets above allowed; actual contact only.\n'
-            'Source report: docs/engineering/2026-10-24-water-effects-22h-v4.md\n'
+            'Approved presentation: pond palette v8; pale cyan, cream foam, deep blue shading.\n'
+            'Waiting ripples 1.7x; other ripples 1.2x; peak playback opacity 0.95.\n'
+            'Source report: docs/engineering/2026-10-25-water-effects-22h-adoption.md\n'
             'Windows A/B, 10-minute stability and H/I audio capture remain separate acceptance.\n',
             encoding='utf-8')
         source_paths = list((ROOT / 'desktop-overlay').glob('*.cs'))
@@ -68,10 +72,16 @@ def main():
             'scripts/art/export-water-source-markers.py',
             'scripts/art/build-water-effects-22h-v4.cjs',
             'docs/art/water-effects-22h/preview.js',
+            'docs/art/water-effects-22h/index.html',
+            'docs/engineering/water-effects-22h-adoption.json',
+            'scripts/desktop/package-water-effects-22h.py',
         ]]
+        adoption = ROOT / 'docs/engineering/water-effects-22h-adoption.json'
+        (bundle / 'ADOPTED-PRESENTATION.json').write_bytes(adoption.read_bytes())
         info = {
-            'task': 'STEAM-DESKTOP-22H', 'date': '2026-10-24',
+            'task': 'STEAM-DESKTOP-22H', 'date': args.date,
             'artVersion': '22h-water-v4-approved-style',
+            'presentationRevision': 'v8-pond-palette-adopted-2026-10-25',
             'behaviorRevision': '22h-contact-rules-2026-10-24',
             'baseCommit': '4ecc32482ff13a5529a25ba541e8b917ad18cc27',
             'packagedHead': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),

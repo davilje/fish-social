@@ -104,16 +104,27 @@ namespace FishSocial.Desktop.Pet
                 if (!texture.LoadImage(read.Result, false)) { Destroy(texture); yield break; }
                 decodedBytes += (long)texture.width * texture.height * 4;
                 if (decodedBytes > 4 * 1024 * 1024) { Destroy(texture); yield break; }
+                var pixels = texture.GetPixels32();
                 if (asset.id.StartsWith("ripple-", StringComparison.Ordinal))
                 {
-                    // Position the entire visible ellipse below the contact, rather than
-                    // cutting its upper half off. Alpha is inspected once during prewarm.
-                    var alpha = texture.GetPixels32();
                     var top = 0;
-                    for (var pixel = 0; pixel < alpha.Length; pixel++)
-                        if (alpha[pixel].a > 0) top = Math.Max(top, pixel / texture.width + 1);
+                    for (var pixel = 0; pixel < pixels.Length; pixel++)
+                        if (pixels[pixel].a > 0) top = Math.Max(top, pixel / texture.width + 1);
                     rippleVisibleTop[asset.id] = Mathf.Max(0, top - texture.height * .3125f);
                 }
+                // Same cached pond-contrast palette as Overlay and Web. Preserve alpha.
+                for (var pixel = 0; pixel < pixels.Length; pixel++)
+                {
+                    var colour = pixels[pixel];
+                    var tone = Mathf.Clamp01((colour.g - 125) / 85f);
+                    var upper = tone >= .32f;
+                    var blend = upper ? (tone - .32f) / .68f : tone / .32f;
+                    colour.r = (byte)Mathf.RoundToInt(upper ? 181 + 74 * blend : 27 + 154 * blend);
+                    colour.g = (byte)Mathf.RoundToInt(upper ? 240 + 7 * blend : 82 + 158 * blend);
+                    colour.b = (byte)Mathf.RoundToInt(upper ? 245 - 21 * blend : 114 + 131 * blend);
+                    pixels[pixel] = colour;
+                }
+                texture.SetPixels32(pixels);
                 texture.Apply(false, true);
                 texture.name = asset.id;
                 texture.filterMode = FilterMode.Bilinear;
@@ -199,7 +210,8 @@ namespace FishSocial.Desktop.Pet
                 p.Rect.SetParent(p.Kind == 0 ? group.RippleHost : group.Host, false);
                 p.Image.uvRect = new Rect(0, 0, 1, 1);
                 p.Rect.pivot = new Vector2(.5f, .3125f);
-                p.Rect.sizeDelta = new Vector2(texture.width, texture.height) * scale;
+                var rippleScale = p.Kind == 0 ? marker.Marker == "waiting.ripple" ? 1.7f : 1.2f : 1;
+                p.Rect.sizeDelta = new Vector2(texture.width, texture.height) * scale * rippleScale;
                 if (kind == "splash" && crowns == 2)
                 {
                     var half = i - arcs;
@@ -209,7 +221,7 @@ namespace FishSocial.Desktop.Pet
                 }
                 p.Origin = contact.Anchor - contact.WaterClip.min;
                 if (p.Kind == 0 && rippleVisibleTop.TryGetValue(asset, out var visibleTop))
-                    p.Origin.y -= visibleTop * scale;
+                    p.Origin.y -= visibleTop * scale * rippleScale;
                 if (marker.Marker == "groundbait.contact" && p.Kind == 0)
                     p.Origin.x += (i - (arcs - 1) * .5f) * 7 * scale;
                 p.Direction = (i % 2 == 0 ? -1 : 1) * (4 + i * 1.7f) * scale;
@@ -243,7 +255,11 @@ namespace FishSocial.Desktop.Pet
                 foreach (var p in group.Particles)
                 {
                     var t = Mathf.Clamp01((progress - p.Delay) / (1 - p.Delay));
-                    var alpha = progress < p.Delay ? 0 : Mathf.Min(.55f, (1 - t) * .7f) * Mathf.Min(1, (group.EndAt - now) / .1f);
+                    // Preserve the PNG's painted translucency through the readable part
+                    // of the effect; match Overlay and the review preview.
+                    var fade = Mathf.Clamp01((t - .4f) / .6f);
+                    var opacity = .95f * Mathf.Min(1, t / .06f) * (1 - fade * fade * (3 - 2 * fade));
+                    var alpha = progress < p.Delay ? 0 : opacity * Mathf.Min(1, (group.EndAt - now) / .1f);
                     p.Image.color = new Color(1, 1, 1, alpha);
                     p.Rect.localScale = p.Kind == 0 ? new Vector3(.62f + t * .48f, .7f + t * .3f, 1) :
                         p.Kind == 1 ? new Vector3(.7f + Mathf.Sin(t * Mathf.PI / 2) * .3f, .35f + Mathf.Sin(t * Mathf.PI) * .65f, 1) : Vector3.one;

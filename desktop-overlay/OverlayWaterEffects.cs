@@ -67,7 +67,7 @@ namespace FishSocialOverlay
         {
             public WaterEffectManifest Manifest;
             public SourceWaterManifest Source;
-            public readonly Dictionary<string, BitmapImage> Textures = new Dictionary<string, BitmapImage>();
+            public readonly Dictionary<string, BitmapSource> Textures = new Dictionary<string, BitmapSource>();
             public long DecodedBytes;
             public readonly Dictionary<string, int> OpaqueTop = new Dictionary<string, int>();
         }
@@ -114,21 +114,33 @@ namespace FishSocialOverlay
                         pack.DecodedBytes += (long)image.PixelWidth * image.PixelHeight * 4;
                         if (pack.DecodedBytes > 4 * 1024 * 1024) return null;
                         pack.Textures[asset.Id] = image;
+                        // Remap the painted shading once at prewarm: deep blue edge,
+                        // pale cyan body, cream foam against the saturated blue pond.
+                        BitmapSource rgba = image;
+                        if (image.Format != PixelFormats.Bgra32)
+                        { rgba = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0); rgba.Freeze(); }
+                        var pixels = new byte[rgba.PixelWidth * rgba.PixelHeight * 4];
+                        rgba.CopyPixels(pixels, rgba.PixelWidth * 4, 0);
                         if (asset.Id.StartsWith("ripple-", StringComparison.Ordinal))
                         {
-                            // Once during shared background decode, measure the
-                            // real visible ellipse, excluding transparent padding.
-                            BitmapSource rgba = image;
-                            if (image.Format != PixelFormats.Bgra32 && image.Format != PixelFormats.Pbgra32)
-                            { rgba = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0); rgba.Freeze(); }
-                            var pixels = new byte[rgba.PixelWidth * rgba.PixelHeight * 4];
-                            rgba.CopyPixels(pixels, rgba.PixelWidth * 4, 0);
                             var top = rgba.PixelHeight;
                             for (var y = 0; y < rgba.PixelHeight && top == rgba.PixelHeight; y++)
                                 for (var x = 0; x < rgba.PixelWidth; x++)
                                     if (pixels[(y * rgba.PixelWidth + x) * 4 + 3] > 8) { top = y; break; }
                             pack.OpaqueTop[asset.Id] = top;
                         }
+                        for (var pixel = 0; pixel < pixels.Length; pixel += 4)
+                        {
+                            var tone = Math.Max(0, Math.Min(1, (pixels[pixel + 1] - 125) / 85.0));
+                            var upper = tone >= .32;
+                            var blend = upper ? (tone - .32) / .68 : tone / .32;
+                            pixels[pixel + 2] = (byte)Math.Round(upper ? 181 + 74 * blend : 27 + 154 * blend);
+                            pixels[pixel + 1] = (byte)Math.Round(upper ? 240 + 7 * blend : 82 + 158 * blend);
+                            pixels[pixel] = (byte)Math.Round(upper ? 245 - 21 * blend : 114 + 131 * blend);
+                        }
+                        var tinted = BitmapSource.Create(rgba.PixelWidth, rgba.PixelHeight, 96, 96,
+                            PixelFormats.Bgra32, null, pixels, rgba.PixelWidth * 4);
+                        tinted.Freeze(); pack.Textures[asset.Id] = tinted;
                     }
                 }
                 return pack;
@@ -263,6 +275,7 @@ namespace FishSocialOverlay
                 if (!pack.Textures.TryGetValue(asset, out var texture)) { particle.Used = false; continue; }
                 particle.Image.Source = texture;
                 var scale = slotScale * (cue == "groundbait.contact" ? .6 : 1);
+                if (particle.Kind == "ripple") scale *= cue == "waiting.ripple" ? 1.7 : 1.2;
                 // Remote L/XL retain range differences while using only a single M arc.
                 if (!_self && tierIndex > 1) scale *= tierIndex == 2 ? 1.25 : 1.5;
                 var canvasWidth = particle.Kind == "drop" ? 64 : 128;
@@ -311,7 +324,11 @@ namespace FishSocialOverlay
                 foreach (var p in effect.Particles)
                 {
                     var t = Math.Max(0, Math.Min(1, (progress - p.Delay) / (1 - p.Delay)));
-                    p.Image.Opacity = progress < p.Delay ? 0 : Math.Min(.55, (1 - t) * .7) * ending;
+                    // The PNG already carries translucent paint. Hold its colour before
+                    // fading, instead of multiplying it by a second 55% ceiling.
+                    var fade = Math.Max(0, Math.Min(1, (t - .4) / .6));
+                    var opacity = .95 * Math.Min(1, t / .06) * (1 - fade * fade * (3 - 2 * fade));
+                    p.Image.Opacity = progress < p.Delay ? 0 : opacity * ending;
                     if (p.Kind == "ripple")
                     {
                         p.Scale.ScaleX = .62 + t * .48; p.Scale.ScaleY = .7 + t * .3;

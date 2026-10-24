@@ -4,7 +4,7 @@
 
 | 方案 | 玩家看到／听到的变化 | 设计文档 |
 |---|---|---|
-| 22H 钓鱼特效 | 猫咪风格的7类水面效果，S/M/L/XL四档；咬钩纯波纹，抛竿／撒饵／收杆真实触水才喷水；移除结果装饰 | [完整方案](../../../planning/specs/Steam桌面端-22H钓鱼特效设计.md) · [资源与同屏预览](../../../art/water-effects-22h/index.html) · [实现验证](../../../engineering/2026-10-24-water-effects-22h.md) |
+| 22H 钓鱼特效 | 猫咪风格的7类水面效果，S/M/L/XL四档；咬钩纯波纹，抛竿／撒饵／收杆真实触水才喷水；移除结果装饰 | [完整方案](../../../planning/specs/Steam桌面端-22H钓鱼特效设计.md) · [资源与同屏预览](../../../art/water-effects-22h/index.html) · [正式采用与实现验证](../../../engineering/2026-10-25-water-effects-22h-adoption.md) |
 | 22I 音效 | 纸张／翻页／手账物件操作音、柔和轻缓器乐、清晰真实的分档水声；同一事件一次发声 | [完整方案](../../../planning/specs/Steam桌面端-22I声音体验设计.md) · [v2 九场景试听／配器 A/B](../../../art/audio-22i/v2/index.html) · [冻结 v1 对照](../../../art/audio-22i/index.html) |
 | 22J 世界地图 | 地形成为主体，左栏只做筛选，中间探索与定位，右栏上方看塘、下方选档位和确认费用；按钮始终可见 | [完整方案](../../../planning/specs/Steam桌面端-22J世界地图设计.md) |
 
