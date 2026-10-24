@@ -1,0 +1,61 @@
+{
+  "scope": "STEAM-DESKTOP-22I v2 native WPF audio adapter",
+  "date": "2026-10-24",
+  "host": "macOS cross compilation; Windows interactive runtime unavailable",
+  "portableTests": {
+    "command": "/tmp/fish-overlay-dotnet/dotnet run --project desktop-overlay/tests/FishSocialOverlay.AudioTests.csproj --nologo",
+    "passedGroups": 19,
+    "failedGroups": 0,
+    "log": "output/game-audio-v2/wpf-portable-tests.log",
+    "coverage": [
+      "real IPC serialization, invalid capability and ownership rejection",
+      "snapshot baseline keyed by event kind plus stable event ID; fresh catch after baseline bite of same attempt",
+      "one marker per result; distinct close results remain distinct",
+      "revision/generation fences, cancellation, skin and actor replacement",
+      "hidden baseline, authoritative deadline, action-to-source-clip binding",
+      "10000 loop occurrences; bounded history plus pinned active occurrence maxima",
+      "source-frame windows and skipped historical markers",
+      "real exported bounds and source contact solver across sizes",
+      "submerged fish never fabricate surface/slap; interpolated bait contact",
+      "source-derived groundbait loop occurrence",
+      "UI semantic whitelist/navigation ownership; click vs drag/out-and-back/cancel/long press",
+      "H/I visible tier shares action capability despite unlike event IDs; stale, hidden and unknown tiers remain S"
+    ]
+  },
+  "crossBuilds": {
+    "application": "passed; zero errors; existing NETSDK1138 target-framework warning",
+    "applicationLog": "output/game-audio-v2/wpf-build.log",
+    "windowsRegressionSuite": "compiled; zero errors; execution NOT performed",
+    "windowsRegressionLog": "output/game-audio-v2/wpf-native-tests-build.log"
+  },
+  "windowsOnlyIntegrationTest": {
+    "file": "desktop-overlay/tests/OverlayAudioNativeTests.cs",
+    "status": "compiled, not run",
+    "design": "real async decoder worker gates at 0/150/400ms, real dispatcher and shown Window, all nine Images required before marker, cancellation before decode completion remains silent"
+  },
+  "productionProof": {
+    "publishPoint": "OverlayPetActor.RenderLatestFrame: all nine sources assigned, existing transforms/contact solved, host visibility set, PublishWaterFrame then PublishAudioMarkers",
+    "authority": "only own actor is subscribed; exact scene visibility and session/owner epoch/action/event checks; no phase-only playback",
+    "sourceMetadata": "desktop-overlay/OverlayResources/fishing/presentation-markers.json",
+    "timing": "actual published source frame windows; source-duration-derived groundbait occurrence; no independent audio animation timer",
+    "tier": "strict H/I shared session+actor+pond+spot+action+ownerEpoch after H publishes current hooked/effort frame; unlike H phase UUID and I catch ID are not compared; unknown S",
+    "ipc": "dedicated presentation_marker; local monotonic publish-to-send age plus UTC SentAtMs; work aged >=250ms dropped; Unity validates receipt age and authority",
+    "playbackOwner": "Unity only; no native sound player, no gameplay sounds via ui_audio",
+    "ui": "actual Button/MenuItem activation, navigation owned by successful Unity routing, Enter and send button share chat path, no ACK result echo, no hover/disabled/drag cues"
+  },
+  "currentSourceMarkers": {
+    "eligibleWhenAllAuthorityAndVisibilityGatesPass": [
+      "cast.release", "float.contact", "bite.onset", "groundbait.contact", "retrieve.start", "result.presented"
+    ],
+    "silentForCurrentShippedGeometry": {
+      "fish.surface": "hooked/effort fish is below water; no real surface intersection",
+      "fish.slap": "same submerged source geometry; no invented contact",
+      "escape.contact": "reel_empty source fish has no visible alpha bounds"
+    }
+  },
+  "limitations": [
+    "Portable tests prove policy/source math, not Windows rendering, native input, IPC process roundtrip or audible latency.",
+    "No Windows end-to-end run, Unity Editor run, output-device audition or measured audiovisual alignment in this host.",
+    "No H visuals, source animation samples or D/E/F motion logic changed by this audio adapter. Concurrent H files were preserved."
+  ]
+}

@@ -26,6 +26,12 @@ export interface PondUserGroundbaitState {
 export interface PondUserPhaseContext {
   isRebait?: boolean;
   outcome?: 'catch' | 'escape';
+  /** One authoritative hook identity, retained through its pending/settled result. */
+  catchId?: string;
+  /** Failed result identity; reuses the hook's catchId, never regenerated on replay. */
+  resultId?: string;
+  /** Current hooked fish size for presentation; absent outside this hook/result. */
+  sizeM?: number;
   disconnectedFromPhase?: FishingPhase;
 }
 
@@ -97,6 +103,9 @@ export interface PendingFishCatch {
 
 export interface FishingMiss {
   resultId: string;
+  /** Identifies the owner when a result is delivered through pond broadcast. */
+  actorId?: string;
+  pondId?: string;
   /** 空军 | 脱钩 | 本 tick 无咬钩（A0 服务端触发均为 escaped） */
   reason: 'empty' | 'escaped' | 'nobite';
 }
@@ -177,6 +186,10 @@ export interface PondUser {
   isBot?: boolean;
   /** C6 钓鱼阶段（比 status 更细） */
   fishingPhase?: FishingPhase;
+  /** Stable authoritative H/I presentation identity; never a transport sequence. */
+  presentationActionId?: string;
+  presentationEventId?: string;
+  presentationRevision?: number;
   phaseEndsAt?: number | null;
   phaseContext?: PondUserPhaseContext;
   equippedBaitId?: string;
@@ -330,6 +343,8 @@ export interface SessionTimerTickPayload {
 }
 
 export interface FishCatchSettledPayload {
+  /** Same identity as the authoritative hook, pending catch and acceptance ACK. */
+  catchId?: string;
   speciesId: string;
   quality: string;
   sizeM: number;
@@ -501,6 +516,7 @@ export interface ClientToServerEvents {
     catchId: string,
     ack?: (result: {
       ok: boolean;
+      catchId?: string;
       error?: string;
       item?: FishInventoryItem;
       autoReturned?: boolean;

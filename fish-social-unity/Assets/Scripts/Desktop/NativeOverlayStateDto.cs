@@ -5,9 +5,12 @@ namespace FishSocial.Desktop
     [Serializable]
     public sealed class NativeOverlayStateDto
     {
+        public AudioPresentationDto audioPresentation;
         public string type = "state";
         public int version = 1;
         public long sequence;
+        public FishingPresentationEnvelope presentation;
+        public string fishingEffectsQuality = "standard";
         public string loginState = "SignedOut";
         public string connectionState = "Disconnected";
         public string pondName = string.Empty;
@@ -96,6 +99,7 @@ namespace FishSocial.Desktop
     [Serializable]
     public sealed class NativeOverlayActorDto
     {
+        public FishingPresentationEnvelope presentation;
         public string playerId;
         public string userId;
         public string nickname;
@@ -118,7 +122,14 @@ namespace FishSocial.Desktop
     [Serializable]
     public sealed class NativeOverlayCommandDto
     {
+        public string commandSessionId;
+        public FishingPresentationEnvelope presentation;
         public string type;
+        public int protocolVersion;
+        public string presentationSessionId, actorId, pondId, actionId, eventId, marker, waterSizeTier, source;
+        public long ownerEpoch, actorGeneration;
+        public int occurrence;
+        public float elapsedMs, validityMs;
         public int version;
         public string command;
         public long sequence;

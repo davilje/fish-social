@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "method": "4x polyphase oversampling; sum of absolute per-channel maxima proves any phase/time alignment at 100% sliders is bounded. No limiter assumed.",
+  "individualTruePeaksDbTP": {
+    "sfx/ui_click_01.wav": -15.585,
+    "sfx/ui_click_02.wav": -15.912,
+    "sfx/ui_open_01.wav": -15.855,
+    "sfx/ui_open_02.wav": -15.868,
+    "sfx/ui_close_01.wav": -15.568,
+    "sfx/ui_close_02.wav": -15.912,
+    "sfx/ui_toggle_01.wav": -15.816,
+    "sfx/ui_toggle_02.wav": -15.913,
+    "sfx/ui_tick.wav": -15.881,
+    "sfx/ui_success.wav": -15.703,
+    "sfx/ui_error.wav": -15.903,
+    "sfx/catch.wav": -15.703,
+    "sfx/cast.wav": -15.914,
+    "sfx/reel.wav": -15.912,
+    "sfx/escape.wav": -12.957,
+    "water/bite_s_01.wav": -12.218,
+    "water/bite_s_02.wav": -12.217,
+    "water/bite_m_01.wav": -12.217,
+    "water/bite_m_02.wav": -12.217,
+    "water/bite_l_01.wav": -12.902,
+    "water/bite_l_02.wav": -13.346,
+    "water/bite_xl_01.wav": -12.351,
+    "water/bite_xl_02.wav": -12.216,
+    "water/water_struggle_s_01.wav": -12.217,
+    "water/water_struggle_s_02.wav": -12.216,
+    "water/water_struggle_m_01.wav": -12.216,
+    "water/water_struggle_m_02.wav": -12.216,
+    "water/water_struggle_l_01.wav": -13.413,
+    "water/water_struggle_l_02.wav": -12.216,
+    "water/water_struggle_xl_01.wav": -12.394,
+    "water/water_struggle_xl_02.wav": -13.354,
+    "water/water_slap_s_01.wav": -12.218,
+    "water/water_slap_s_02.wav": -12.218,
+    "water/water_slap_m_01.wav": -12.217,
+    "water/water_slap_m_02.wav": -12.216,
+    "water/water_slap_l_01.wav": -12.217,
+    "water/water_slap_l_02.wav": -12.217,
+    "water/water_slap_xl_01.wav": -12.216,
+    "water/water_slap_xl_02.wav": -12.607,
+    "water/splash_01.wav": -12.758,
+    "water/splash_02.wav": -12.351,
+    "water/groundbait_01.wav": -12.442,
+    "water/groundbait_02.wav": -13.032,
+    "sfx/meow_01.wav": -10.366,
+    "sfx/meow_02.wav": -10.369,
+    "sfx/meow_03.wav": -10.439,
+    "music/pond_daylight.wav": -19.994
+  },
+  "groupMaxima": {
+    "ui": 0.0966936193427174,
+    "fishing": 0.24501999789368412,
+    "voice": 0.1818981887973374
+  },
+  "worstCaseFullVolumeBound": 0.8687015678372442,
+  "worstCaseFullVolumeDbTP": -1.223,
+  "defaultMixBound": 0.5730666801176335,
+  "waterRmsComparison": {
+    "splash": [
+      {
+        "path": "water/splash_01.wav",
+        "baselineEffectiveRms": 0.06034071294784567,
+        "effectiveRms": 0.09600006905956514,
+        "deltaDb": 4.033
+      },
+      {
+        "path": "water/splash_02.wav",
+        "baselineEffectiveRms": 0.06034071294784567,
+        "effectiveRms": 0.09599603436549287,
+        "deltaDb": 4.033
+      }
+    ],
+    "groundbait": [
+      {
+        "path": "water/groundbait_01.wav",
+        "baselineEffectiveRms": 0.057305874210933624,
+        "effectiveRms": 0.09098370659781216,
+        "deltaDb": 4.015
+      },
+      {
+        "path": "water/groundbait_02.wav",
+        "baselineEffectiveRms": 0.057305874210933624,
+        "effectiveRms": 0.09099598760556926,
+        "deltaDb": 4.016
+      }
+    ]
+  },
+  "decodedShortBytes": 2903252,
+  "humanListening": "NOT EXECUTED: headphones and speakers required",
+  "windowsAvMeasurement": "NOT EXECUTED: requires >=30 actual displayed marker and output onset captures"
+}

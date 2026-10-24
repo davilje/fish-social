@@ -96,6 +96,9 @@ namespace FishSocial.Desktop.Auth
         public string spotId;
         public string status;
         public string fishingPhase;
+        public string presentationActionId;
+        public string presentationEventId;
+        public long presentationRevision;
         public bool fishingAsleep;
         public long? fishingSleepAt;
         public PondUserPhaseContextDto phaseContext;
@@ -116,6 +119,8 @@ namespace FishSocial.Desktop.Auth
     [Serializable]
     public sealed class PondUserPhaseContextDto
     {
+        public string catchId, resultId;
+        public float sizeM;
         public string outcome;
         public bool isRebait;
     }
@@ -355,6 +360,7 @@ namespace FishSocial.Desktop.Auth
     [Serializable]
     public sealed class SocketActionAckDto
     {
+        public string catchId;
         public bool ok;
         public string error;
         public bool autoReturned;
@@ -369,6 +375,7 @@ namespace FishSocial.Desktop.Auth
     [Serializable]
     public sealed class FishingMissDto
     {
+        public string actorId, pondId;
         public string resultId;
         public string reason;
     }
@@ -376,6 +383,7 @@ namespace FishSocial.Desktop.Auth
     [Serializable]
     public sealed class FishCatchSettledDto
     {
+        public string catchId;
         public string speciesId;
         public string quality;
         public float sizeM;

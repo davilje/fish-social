@@ -23,6 +23,7 @@ namespace FishSocial.Desktop.Pet
             if (renderer == null || _renderers.Contains(renderer))
                 return;
             _renderers.Add(renderer);
+            if (renderer is SpriteFramePetRenderer spriteRenderer) spriteRenderer.OwnAudioPresentation = true;
             renderer.Apply(Current);
         }
 

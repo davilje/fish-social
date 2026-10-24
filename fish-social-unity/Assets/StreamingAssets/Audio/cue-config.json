@@ -1,0 +1,317 @@
+{
+  "version": 2,
+  "uiInterval": 0.09,
+  "tickInterval": 0.18,
+  "waterInterval": 0.9,
+  "groundbaitInterval": 2.16,
+  "manualMeowInterval": 2.5,
+  "autoMeowInterval": 12,
+  "cues": [
+    {
+      "cue": "ui_click",
+      "group": "ui",
+      "priority": 1,
+      "gain": 0.5,
+      "paths": [
+        "sfx/ui_click_01.wav",
+        "sfx/ui_click_02.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "ui_open",
+      "group": "ui",
+      "priority": 1,
+      "gain": 0.6,
+      "paths": [
+        "sfx/ui_open_01.wav",
+        "sfx/ui_open_02.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "ui_close",
+      "group": "ui",
+      "priority": 1,
+      "gain": 0.55,
+      "paths": [
+        "sfx/ui_close_01.wav",
+        "sfx/ui_close_02.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "ui_toggle",
+      "group": "ui",
+      "priority": 1,
+      "gain": 0.5,
+      "paths": [
+        "sfx/ui_toggle_01.wav",
+        "sfx/ui_toggle_02.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "ui_tick",
+      "group": "ui",
+      "priority": 0,
+      "gain": 0.35,
+      "paths": [
+        "sfx/ui_tick.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "ui_success",
+      "group": "ui",
+      "priority": 2,
+      "gain": 0.55,
+      "paths": [
+        "sfx/ui_success.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "ui_error",
+      "group": "ui",
+      "priority": 2,
+      "gain": 0.5,
+      "paths": [
+        "sfx/ui_error.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "cast",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.65,
+      "paths": [
+        "sfx/cast.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "reel",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.55,
+      "paths": [
+        "sfx/reel.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "escape",
+      "group": "fishing",
+      "priority": 2,
+      "gain": 0.75,
+      "paths": [
+        "sfx/escape.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.32
+    },
+    {
+      "cue": "catch",
+      "group": "fishing",
+      "priority": 2,
+      "gain": 0.55,
+      "paths": [
+        "sfx/catch.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    },
+    {
+      "cue": "splash",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.85,
+      "paths": [
+        "water/splash_01.wav",
+        "water/splash_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.31
+    },
+    {
+      "cue": "groundbait",
+      "group": "fishing",
+      "priority": 0,
+      "gain": 0.75,
+      "paths": [
+        "water/groundbait_01.wav",
+        "water/groundbait_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.29
+    },
+    {
+      "cue": "bite_s",
+      "group": "fishing",
+      "priority": 3,
+      "gain": 0.85,
+      "paths": [
+        "water/bite_s_01.wav",
+        "water/bite_s_02.wav"
+      ],
+      "duck": 0.5,
+      "duckSeconds": 0.7
+    },
+    {
+      "cue": "bite_m",
+      "group": "fishing",
+      "priority": 3,
+      "gain": 0.9,
+      "paths": [
+        "water/bite_m_01.wav",
+        "water/bite_m_02.wav"
+      ],
+      "duck": 0.5,
+      "duckSeconds": 0.7
+    },
+    {
+      "cue": "bite_l",
+      "group": "fishing",
+      "priority": 3,
+      "gain": 0.95,
+      "paths": [
+        "water/bite_l_01.wav",
+        "water/bite_l_02.wav"
+      ],
+      "duck": 0.5,
+      "duckSeconds": 0.7
+    },
+    {
+      "cue": "bite_xl",
+      "group": "fishing",
+      "priority": 3,
+      "gain": 1,
+      "paths": [
+        "water/bite_xl_01.wav",
+        "water/bite_xl_02.wav"
+      ],
+      "duck": 0.5,
+      "duckSeconds": 0.7
+    },
+    {
+      "cue": "water_struggle_s",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.85,
+      "paths": [
+        "water/water_struggle_s_01.wav",
+        "water/water_struggle_s_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.24
+    },
+    {
+      "cue": "water_struggle_m",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.9,
+      "paths": [
+        "water/water_struggle_m_01.wav",
+        "water/water_struggle_m_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.34
+    },
+    {
+      "cue": "water_struggle_l",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.95,
+      "paths": [
+        "water/water_struggle_l_01.wav",
+        "water/water_struggle_l_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.48
+    },
+    {
+      "cue": "water_struggle_xl",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 1,
+      "paths": [
+        "water/water_struggle_xl_01.wav",
+        "water/water_struggle_xl_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.68
+    },
+    {
+      "cue": "water_slap_s",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.85,
+      "paths": [
+        "water/water_slap_s_01.wav",
+        "water/water_slap_s_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.25
+    },
+    {
+      "cue": "water_slap_m",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.9,
+      "paths": [
+        "water/water_slap_m_01.wav",
+        "water/water_slap_m_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.35
+    },
+    {
+      "cue": "water_slap_l",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 0.95,
+      "paths": [
+        "water/water_slap_l_01.wav",
+        "water/water_slap_l_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.5
+    },
+    {
+      "cue": "water_slap_xl",
+      "group": "fishing",
+      "priority": 1,
+      "gain": 1,
+      "paths": [
+        "water/water_slap_xl_01.wav",
+        "water/water_slap_xl_02.wav"
+      ],
+      "duck": 0.7,
+      "duckSeconds": 0.69
+    },
+    {
+      "cue": "meow",
+      "group": "voice",
+      "priority": 1,
+      "gain": 0.6,
+      "paths": [
+        "sfx/meow_01.wav",
+        "sfx/meow_02.wav",
+        "sfx/meow_03.wav"
+      ],
+      "duck": 1,
+      "duckSeconds": 0
+    }
+  ]
+}

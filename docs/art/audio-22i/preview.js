@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 const policy = await fetch('policy.json').then(r => r.json());
-const bundled = '../../../fish-social-unity/Assets/StreamingAssets/Audio/';
+const bundled = 'baseline-v1/';
 const proposed = new Set(['bite', 'reel', 'escape', 'groundbait']);
 const scenarios = {
   fishing: {duration: 7.5, description: '自己的抛竿 → 入水 → 等待 → 咬钩 → 收杆 → 鱼获入包。庆祝后再轻喵一声。', events: [

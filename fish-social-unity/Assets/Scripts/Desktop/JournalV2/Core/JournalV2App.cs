@@ -82,6 +82,7 @@ namespace FishSocial.Desktop.JournalV2
                     old.GetComponent<JournalV2Controller>()?.Close();
                     old.GetComponent<JournalV2PageAnimator>().Close(()=>{if(old!=null)old.gameObject.SetActive(false);if(outgoing==old)outgoing=null;});
                 }
+                if(old!=null&&!PreviewMode)DesktopAudioService.Play("ui_close");
                 RouteChanged?.Invoke(id);return;
             }
             var next=GetPage(id,Stage.Find("PageHost"));
@@ -97,6 +98,7 @@ namespace FishSocial.Desktop.JournalV2
                 next.gameObject.SetActive(true);
                 next.GetComponent<JournalV2Controller>()?.Open(tab,targetId);
                 next.GetComponent<JournalV2PageAnimator>()?.Enter(previous==null);
+                if(!PreviewMode)DesktopAudioService.Play("ui_open");
                 RouteChanged?.Invoke(id);
             };
             if(previous==null)enter();
@@ -131,11 +133,12 @@ namespace FishSocial.Desktop.JournalV2
             modal.gameObject.SetActive(true);modal.CloseButton?.onClick.RemoveAllListeners();modal.CloseButton?.onClick.AddListener(CloseModal);
             modal.GetComponent<JournalV2Controller>()?.Open(tab,targetId);
             modal.GetComponent<JournalV2PageAnimator>()?.Enter(true);
+            if(!PreviewMode)DesktopAudioService.Play("ui_open");
         }
         public void CloseModal()
         {
             if(modal!=null&&!modal.GetComponent<JournalV2Controller>().CanClose)return;
-            if(modal!=null){modal.GetComponent<JournalV2Controller>()?.Close();modal.gameObject.SetActive(false);modal=null;}
+            if(modal!=null){modal.GetComponent<JournalV2Controller>()?.Close();modal.gameObject.SetActive(false);modal=null;if(!PreviewMode)DesktopAudioService.Play("ui_close");}
             Stage.Find("ModalHost")?.gameObject.SetActive(false);
         }
         void UpdateNav()

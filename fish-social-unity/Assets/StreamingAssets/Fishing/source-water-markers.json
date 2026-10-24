@@ -1,0 +1,851 @@
+{
+  "schemaVersion": 1,
+  "sourceCanvas": [
+    640,
+    512
+  ],
+  "alphaThreshold": 8,
+  "presentationMarkersSha256": "fbbc77812b4b5b3b5adb85699fa1da7e85a75da1b02b29514ffa26f01f8241d8",
+  "markers": [
+    {
+      "clip": "cast",
+      "source": 3,
+      "sourceMs": 420,
+      "cue": "float.contact",
+      "layer": "bobber"
+    },
+    {
+      "clip": "groundbait",
+      "source": 5,
+      "sourceMs": 580,
+      "cue": "groundbait.contact",
+      "layer": "bait"
+    },
+    {
+      "clip": "fishing",
+      "source": 0,
+      "cue": "waiting.ripple",
+      "layer": "bobber"
+    },
+    {
+      "clip": "hooked",
+      "source": 4,
+      "cue": "fish.struggle",
+      "layer": "fish"
+    },
+    {
+      "clip": "effort",
+      "source": 0,
+      "cue": "fish.struggle",
+      "layer": "fish"
+    }
+  ],
+  "notes": "Bite is authoritative onset on first published hooked/bite/effort frame. Current approved fish clips remain submerged: no fish.surface/fish.slap source markers.",
+  "frames": {
+    "bait/0": {
+      "bait": {
+        "bounds": [
+          333,
+          342,
+          360,
+          364
+        ],
+        "sha256": "cd5e4685a8dbce74d1bbdab5cecb3c640817d3e5792211d9fe72492d61a2624e"
+      }
+    },
+    "bait/1": {
+      "bait": {
+        "bounds": [
+          373,
+          317,
+          392,
+          339
+        ],
+        "sha256": "55f802d27711062be89cfbd9f8c29f0e91dd1b0f986dd7b250edb63d04e5b088"
+      }
+    },
+    "bait/2": {
+      "bait": {
+        "bounds": [
+          339,
+          318,
+          354,
+          340
+        ],
+        "sha256": "65c84a86f90e1adfd5fa729d94edaa7e0b71aa16aaa3698ce152554af857bd20"
+      }
+    },
+    "bait/3": {
+      "bait": {
+        "bounds": [
+          381,
+          302,
+          396,
+          324
+        ],
+        "sha256": "e5480fccfa90da8f67d9430d74b65e165b3d1f548378e990d5f4bf0c67eb5cb2"
+      }
+    },
+    "bite/0": {
+      "fish": {
+        "bounds": [
+          400,
+          422,
+          570,
+          503
+        ],
+        "sha256": "ad9ef88e8bbcc1d37d8f90df050ae9397e9c5fab0aa12f3d235822284085daec"
+      }
+    },
+    "bite/1": {
+      "fish": {
+        "bounds": [
+          400,
+          422,
+          570,
+          503
+        ],
+        "sha256": "ad9ef88e8bbcc1d37d8f90df050ae9397e9c5fab0aa12f3d235822284085daec"
+      }
+    },
+    "bite/2": {
+      "fish": {
+        "bounds": [
+          400,
+          422,
+          570,
+          503
+        ],
+        "sha256": "ad9ef88e8bbcc1d37d8f90df050ae9397e9c5fab0aa12f3d235822284085daec"
+      }
+    },
+    "bite/3": {
+      "fish": {
+        "bounds": [
+          396,
+          422,
+          566,
+          503
+        ],
+        "sha256": "478dfe6dc1d623e0c09610983e5255aa436e707463d96571e38244670a20e263"
+      }
+    },
+    "cast/0": {
+      "bobber": {
+        "bounds": [
+          160,
+          167,
+          189,
+          191
+        ],
+        "sha256": "2faa1258d6b3331e3cce27a213945a76a6be78e9bcdd23c0599b4bbe8d64e36f"
+      }
+    },
+    "cast/1": {
+      "bobber": {
+        "bounds": [
+          40,
+          152,
+          69,
+          176
+        ],
+        "sha256": "d2022ebc884d25aca272f923ed251ad995b0dfda50562412477e9d9f4aec4326"
+      }
+    },
+    "cast/2": {
+      "bobber": {
+        "bounds": [
+          580,
+          360,
+          609,
+          384
+        ],
+        "sha256": "4444e9b54ec50c174387860923c4c4ec1fe7fa9ea02ad7554f4f6d60ace70059"
+      }
+    },
+    "cast/3": {
+      "bobber": {
+        "bounds": [
+          566,
+          442,
+          595,
+          466
+        ],
+        "sha256": "a9806ad5c6ae1108679066502cc1dc9a792e001b85b2de73820e20c9b270bb69"
+      }
+    },
+    "catch/0": {
+      "fish": {
+        "bounds": [
+          73,
+          365,
+          243,
+          450
+        ],
+        "sha256": "716060b424b8f1c95ced66a6e382480811179ed3f87e25e17bb24ded62b4da33"
+      }
+    },
+    "catch/1": {
+      "fish": {
+        "bounds": [
+          167,
+          364,
+          317,
+          439
+        ],
+        "sha256": "78c08caaae0b7a1f68e48efea886cbdf7e7366f50089511901a51bb76805db3a"
+      }
+    },
+    "catch/2": {
+      "fish": {
+        "bounds": [
+          325,
+          359,
+          423,
+          494
+        ],
+        "sha256": "f7195c8b6a8c273f2ea7de12204df6b35050184c5c6189b805dac818e32cacd4"
+      }
+    },
+    "catch/3": {
+      "fish": {
+        "bounds": [
+          325,
+          324,
+          400,
+          474
+        ],
+        "sha256": "1ebb4abe2a78494979a218c282a09b6bde498832c8b5c6fba9873b8eed256602"
+      }
+    },
+    "catch/4": {
+      "fish": {
+        "bounds": [
+          320,
+          299,
+          395,
+          449
+        ],
+        "sha256": "5fd26be9db3fae73c09bd254a2a2e44bb7d33877935770f8cf50487d44de6990"
+      }
+    },
+    "catch/5": {
+      "fish": {
+        "bounds": [
+          314,
+          285,
+          389,
+          435
+        ],
+        "sha256": "0fc35c6f41c651b3f2650467fd76c0fb9b016ebde5b33c63132b853cfcecb590"
+      }
+    },
+    "catch/6": {
+      "fish": {
+        "bounds": [
+          324,
+          327,
+          399,
+          477
+        ],
+        "sha256": "a54d03744fa80f2e83caf308b4d99db97ff0c9ffb66226a90c1d0904697005b5"
+      }
+    },
+    "effort/0": {
+      "fish": {
+        "bounds": [
+          396,
+          422,
+          566,
+          503
+        ],
+        "sha256": "478dfe6dc1d623e0c09610983e5255aa436e707463d96571e38244670a20e263"
+      }
+    },
+    "effort/1": {
+      "fish": {
+        "bounds": [
+          405,
+          424,
+          575,
+          505
+        ],
+        "sha256": "f3b2bf7a2c56a5b21e39e879c6b902e03980fd470b3c4469e345c589b69508bd"
+      }
+    },
+    "effort/2": {
+      "fish": {
+        "bounds": [
+          409,
+          420,
+          579,
+          501
+        ],
+        "sha256": "06eedfa7655ce39716f8de1a98204ece4161266f2e73585c3c485b4805469ee1"
+      }
+    },
+    "effort/3": {
+      "fish": {
+        "bounds": [
+          400,
+          423,
+          570,
+          504
+        ],
+        "sha256": "31b56e02d4c28d725d142285a03fc977b00acf325e2a7982271ec54835c47679"
+      }
+    },
+    "effort/4": {
+      "fish": {
+        "bounds": [
+          393,
+          425,
+          563,
+          506
+        ],
+        "sha256": "aa9d2e8dd4f6f93b55f7b7b0df77a349a6c3c220627580eb13ccba78c0ede854"
+      }
+    },
+    "effort/5": {
+      "fish": {
+        "bounds": [
+          396,
+          422,
+          566,
+          503
+        ],
+        "sha256": "478dfe6dc1d623e0c09610983e5255aa436e707463d96571e38244670a20e263"
+      }
+    },
+    "fishing/0": {
+      "bobber": {
+        "bounds": [
+          555,
+          451,
+          584,
+          475
+        ],
+        "sha256": "ed27cb0c7ad9507d73708140827b7de1273b931457b8fc6461e0a671948d9d3c"
+      }
+    },
+    "groundbait/0": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    },
+    "groundbait/1": {
+      "bait": {
+        "bounds": [
+          362,
+          352,
+          371,
+          367
+        ],
+        "sha256": "89d517deeeae8f9e18a2b3ce9e7a6349b699bbaf9b37a61d0019d2f9b1364cd2"
+      }
+    },
+    "groundbait/2": {
+      "bait": {
+        "bounds": [
+          372,
+          329,
+          381,
+          344
+        ],
+        "sha256": "6a1704669f8177041f359fa8e5136183f2890766716862ba7fdafc8d9b11e9af"
+      }
+    },
+    "groundbait/3": {
+      "bait": {
+        "bounds": [
+          450,
+          301,
+          467,
+          324
+        ],
+        "sha256": "dfaedb9c51fdac71391e4ef6e1db39aebf0fe9991d14a9c1f747b418e8521e72"
+      }
+    },
+    "groundbait/4": {
+      "bait": {
+        "bounds": [
+          498,
+          332,
+          525,
+          363
+        ],
+        "sha256": "a9d7cc22c2360badfefbb4f977f57714d7dae7dd6dbe58f23fdf6e573c49f4d1"
+      }
+    },
+    "groundbait/5": {
+      "bait": {
+        "bounds": [
+          515,
+          413,
+          552,
+          452
+        ],
+        "sha256": "8b1c2d00e5f52b8559d57b8ae99a9510728bbc4fac6e37045e942cb4adfb3a75"
+      }
+    },
+    "groundbait/6": {},
+    "groundbait/7": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    },
+    "hooked/0": {
+      "fish": {
+        "bounds": [
+          400,
+          422,
+          570,
+          503
+        ],
+        "sha256": "ad9ef88e8bbcc1d37d8f90df050ae9397e9c5fab0aa12f3d235822284085daec"
+      }
+    },
+    "hooked/1": {
+      "fish": {
+        "bounds": [
+          400,
+          422,
+          570,
+          503
+        ],
+        "sha256": "ad9ef88e8bbcc1d37d8f90df050ae9397e9c5fab0aa12f3d235822284085daec"
+      }
+    },
+    "hooked/2": {
+      "fish": {
+        "bounds": [
+          400,
+          422,
+          570,
+          503
+        ],
+        "sha256": "ad9ef88e8bbcc1d37d8f90df050ae9397e9c5fab0aa12f3d235822284085daec"
+      }
+    },
+    "hooked/3": {
+      "fish": {
+        "bounds": [
+          396,
+          422,
+          566,
+          503
+        ],
+        "sha256": "478dfe6dc1d623e0c09610983e5255aa436e707463d96571e38244670a20e263"
+      }
+    },
+    "hooked/4": {
+      "fish": {
+        "bounds": [
+          396,
+          422,
+          566,
+          503
+        ],
+        "sha256": "478dfe6dc1d623e0c09610983e5255aa436e707463d96571e38244670a20e263"
+      }
+    },
+    "hooked/5": {
+      "fish": {
+        "bounds": [
+          405,
+          424,
+          575,
+          505
+        ],
+        "sha256": "f3b2bf7a2c56a5b21e39e879c6b902e03980fd470b3c4469e345c589b69508bd"
+      }
+    },
+    "hooked/6": {
+      "fish": {
+        "bounds": [
+          409,
+          420,
+          579,
+          501
+        ],
+        "sha256": "06eedfa7655ce39716f8de1a98204ece4161266f2e73585c3c485b4805469ee1"
+      }
+    },
+    "hooked/7": {
+      "fish": {
+        "bounds": [
+          400,
+          423,
+          570,
+          504
+        ],
+        "sha256": "31b56e02d4c28d725d142285a03fc977b00acf325e2a7982271ec54835c47679"
+      }
+    },
+    "hooked/8": {
+      "fish": {
+        "bounds": [
+          393,
+          425,
+          563,
+          506
+        ],
+        "sha256": "aa9d2e8dd4f6f93b55f7b7b0df77a349a6c3c220627580eb13ccba78c0ede854"
+      }
+    },
+    "hooked/9": {
+      "fish": {
+        "bounds": [
+          396,
+          422,
+          566,
+          503
+        ],
+        "sha256": "478dfe6dc1d623e0c09610983e5255aa436e707463d96571e38244670a20e263"
+      }
+    },
+    "idle/0": {},
+    "leave/0": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    },
+    "leave/1": {},
+    "leave/2": {},
+    "leave/3": {},
+    "ready/0": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    },
+    "reel/0": {
+      "fish": {
+        "bounds": [
+          520,
+          330,
+          605,
+          500
+        ],
+        "sha256": "b9c26afe46d216a7b1aad78c3f40aba1c779beb3cf71964bd6d1cd9d295a97e7"
+      }
+    },
+    "reel/1": {
+      "fish": {
+        "bounds": [
+          477,
+          136,
+          608,
+          276
+        ],
+        "sha256": "e332e32ea8eeefb9174c5b266da5ffb62d5c25ce904df42a390c0cea02d56279"
+      }
+    },
+    "reel/2": {
+      "fish": {
+        "bounds": [
+          308,
+          34,
+          478,
+          119
+        ],
+        "sha256": "98ec3cc291a13ad1a432c4d56557c8893b90a4e27892ffe90d4ee2550c4270ff"
+      }
+    },
+    "reel/3": {
+      "fish": {
+        "bounds": [
+          124,
+          60,
+          264,
+          191
+        ],
+        "sha256": "286858828361a092d2bb0c3b8997c85e406630c173814cccbafb85bf9b29364f"
+      }
+    },
+    "reel/4": {
+      "fish": {
+        "bounds": [
+          30,
+          167,
+          115,
+          337
+        ],
+        "sha256": "ea7643b0ead44b594ccdf45bb1069a4f56fb15273d915372f21b56ce34158267"
+      }
+    },
+    "reel/5": {
+      "fish": {
+        "bounds": [
+          73,
+          365,
+          243,
+          450
+        ],
+        "sha256": "716060b424b8f1c95ced66a6e382480811179ed3f87e25e17bb24ded62b4da33"
+      }
+    },
+    "reel_empty/0": {
+      "bobber": {
+        "bounds": [
+          556,
+          407,
+          585,
+          431
+        ],
+        "sha256": "9951722795c83d09be47385c4314e5de9138503889e367b123f233d90b7c79ea"
+      },
+      "bait": {
+        "bounds": [
+          565,
+          452,
+          575,
+          463
+        ],
+        "sha256": "2a61c90e20db9ea9aa815cffc7d441c0b4e04149c652c0f3dfd21419b0b669ef"
+      }
+    },
+    "reel_empty/1": {
+      "bobber": {
+        "bounds": [
+          486,
+          267,
+          515,
+          291
+        ],
+        "sha256": "08834e93b33a6ae9934edb5c57ba42c7a09713619e2afb96b00b15d924ad0458"
+      },
+      "bait": {
+        "bounds": [
+          495,
+          312,
+          505,
+          323
+        ],
+        "sha256": "38bf56292f3e7354052904834fec37fe734c6aad5911ab649b9c592c5abafe6b"
+      }
+    },
+    "reel_empty/2": {
+      "bobber": {
+        "bounds": [
+          366,
+          92,
+          395,
+          116
+        ],
+        "sha256": "5ae5ae093a7c7ee37cfa281c7dd1211657ae01a13d57480eb29a27bada0a2443"
+      },
+      "bait": {
+        "bounds": [
+          375,
+          137,
+          385,
+          148
+        ],
+        "sha256": "b3d4cd644bc1aa381baf0732ad7eb39ada9ab907afb5adc79c56b54aab8a5d65"
+      }
+    },
+    "reel_empty/3": {
+      "bobber": {
+        "bounds": [
+          130,
+          132,
+          159,
+          156
+        ],
+        "sha256": "2641af415ca4ab8490f0e9fdacc12a0f80dfc5d41985db662ef097504897f831"
+      },
+      "bait": {
+        "bounds": [
+          140,
+          177,
+          150,
+          188
+        ],
+        "sha256": "18b38387c5bfd5b38f23cef085b1d527758ae3b5b1c1c60b535f67235bce63eb"
+      }
+    },
+    "reel_empty/4": {
+      "bobber": {
+        "bounds": [
+          80,
+          277,
+          109,
+          301
+        ],
+        "sha256": "07fdaaa744b4b2dfd973ec33188627dbd8484264c94a7c9c2c3bd7d31e5ec231"
+      },
+      "bait": {
+        "bounds": [
+          90,
+          322,
+          100,
+          333
+        ],
+        "sha256": "a3634e0fc84ddeffb38c0ad4916eb725530d9b5c0968b7cb6bd9828009ba106f"
+      }
+    },
+    "reel_empty/5": {
+      "bobber": {
+        "bounds": [
+          96,
+          392,
+          125,
+          416
+        ],
+        "sha256": "7b7df8b1cceb74d884c393ecb06f203e7fce01b586e1c15ccaf62378f689c8f7"
+      },
+      "bait": {
+        "bounds": [
+          105,
+          437,
+          115,
+          448
+        ],
+        "sha256": "d0252a62bcedb0913e25b17268da210ad385449bb2323596c5e9a859af0e4376"
+      }
+    },
+    "reset_catch/0": {
+      "fish": {
+        "bounds": [
+          324,
+          327,
+          399,
+          477
+        ],
+        "sha256": "a54d03744fa80f2e83caf308b4d99db97ff0c9ffb66226a90c1d0904697005b5"
+      }
+    },
+    "reset_catch/1": {
+      "fish": {
+        "bounds": [
+          314,
+          351,
+          389,
+          501
+        ],
+        "sha256": "e106eec9c170e54f6ee21e3bd0406066a548f7a55a7fae090091ebc494889eb3"
+      }
+    },
+    "reset_catch/2": {},
+    "reset_catch/3": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    },
+    "reset_empty/0": {
+      "bobber": {
+        "bounds": [
+          96,
+          392,
+          125,
+          416
+        ],
+        "sha256": "7b7df8b1cceb74d884c393ecb06f203e7fce01b586e1c15ccaf62378f689c8f7"
+      },
+      "bait": {
+        "bounds": [
+          105,
+          437,
+          115,
+          448
+        ],
+        "sha256": "d0252a62bcedb0913e25b17268da210ad385449bb2323596c5e9a859af0e4376"
+      }
+    },
+    "reset_empty/1": {
+      "bobber": {
+        "bounds": [
+          456,
+          387,
+          485,
+          411
+        ],
+        "sha256": "447807e159783fa279b276ab4134e812b116698afa4effeb9708733f36f4cf4a"
+      },
+      "bait": {
+        "bounds": [
+          465,
+          432,
+          475,
+          443
+        ],
+        "sha256": "732538148daf32f25fadbb675657bc3113f8c7a645103c96c0bbfe3aed4b53ef"
+      }
+    },
+    "reset_empty/2": {
+      "bobber": {
+        "bounds": [
+          526,
+          419,
+          555,
+          443
+        ],
+        "sha256": "c7e723b639a626d5b4b4317cedfbfd0a80ad1efd8396f329d7cd44cc84a3dd3d"
+      },
+      "bait": {
+        "bounds": [
+          535,
+          464,
+          545,
+          475
+        ],
+        "sha256": "f709cd8b31e8be78c204e3435af32c460e4e6a14dac454c8f4b36cd70cd1a064"
+      }
+    },
+    "reset_empty/3": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    },
+    "sit/0": {},
+    "sit/1": {},
+    "sit/2": {},
+    "sit/3": {
+      "bobber": {
+        "bounds": [
+          540,
+          432,
+          569,
+          456
+        ],
+        "sha256": "4b7fa73cbfc8f7c597864d35030e91a686f93675ae25cc39a6963721c7be7f88"
+      }
+    }
+  }
+}

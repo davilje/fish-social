@@ -205,6 +205,14 @@ npm run planning:dispatch -- v0.4.0
 
 - 2026-10-24：[STEAM-DESKTOP-22D–J 后续需求交接](steam-desktop-22-followups-dev.prompt.md)（当前仅登记；后续按用户选择批次开工）。
 
-- 2026-10-24：[STEAM-DESKTOP-22I 音效专项交接](steam-desktop-22i-audio-dev.prompt.md)（六场景试听已备，用户确认方案后接入；目标 Unity／Overlay 前端工程师）。
+- 2026-10-24：[STEAM-DESKTOP-22I 音效专项交接](steam-desktop-22i-audio-dev.prompt.md)（v2：纸张物音、柔和器乐、真实分档水声；旧试听仅为 v1 基线；目标 Unity／Overlay 前端工程师配合声音设计）。
 
-- 2026-10-24：[STEAM-DESKTOP-22H／22I／22J 方案与开发交接](steam-desktop-22hij-design-dev.prompt.md)（三项方案 v1 已完善；目标 Unity／Overlay 前端工程师，按用户指定范围启动实现；设计不计实现完成）。
+- 2026-10-24：[STEAM-DESKTOP-22H／22I／22J 方案与开发交接](steam-desktop-22hij-design-dev.prompt.md)（H/I v2、J v1；目标 Unity／Overlay 前端工程师，按用户指定范围启动实现；设计不计实现完成）。
+
+- 2026-10-24修订：[22H／22I／22J交接](steam-desktop-22hij-design-dev.prompt.md)中H/I升级v2：猫咪风格分档水面效果，移除三类结果／收线特效；纸张物音、柔和器乐和清晰真实分档水声。旧试听尚未重做。
+
+- 2026-10-24：[STEAM-DESKTOP-22H 水面特效独立交接](steam-desktop-22h-water-effects-dev.prompt.md)（v2；目标 Unity／Overlay 前端工程师配合动效美术）。
+
+- 2026-10-24：[STEAM-DESKTOP-22J 世界地图独立交接](steam-desktop-22j-world-map-dev.prompt.md)（v1；目标 Unity 桌面前端工程师配合 UI／地图美术）。
+
+- 2026-10-24 执行结果：**22I v2 已实现**；47 WAV、正式音频接入与自动化证据见 [实现报告](../../engineering/2026-10-24-audio-22i-v2.md)，[v2 试听](../../art/audio-22i/v2/index.html)取代旧试听作为新音色入口。Windows 实测与人工听感未冒填通过。

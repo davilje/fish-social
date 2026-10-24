@@ -9,6 +9,7 @@ import {
   isAnnounceQuality,
   type ClientToServerEvents,
   type FishInventoryItem,
+  type FishCatchSettledPayload,
   type ServerToClientEvents,
 } from '@fish-social/shared';
 import { acceptCatch, getInventory } from './inventory.js';
@@ -32,6 +33,7 @@ export type CatchSettleContext = {
 
 export type CatchSettleOk = {
   ok: true;
+  catchId: string;
   item: FishInventoryItem;
   autoReturned: boolean;
   gold?: number;
@@ -44,19 +46,7 @@ export type CatchSettleOk = {
 
 export type CatchSettleResult = CatchSettleOk | { ok: false; error: string };
 
-export type FishCatchSettledPayload = {
-  speciesId: string;
-  quality: string;
-  sizeM: number;
-  autoReturned: boolean;
-  gold?: number;
-  playerXp?: number;
-  pondXp?: number;
-  newSizeM?: number;
-  sizeGainM?: number;
-  totalCoins?: number;
-  message: string;
-};
+export type { FishCatchSettledPayload } from '@fish-social/shared';
 
 function buildSettledMessage(
   item: FishInventoryItem,
@@ -135,6 +125,7 @@ export function settleAcceptedCatch(
   const settled: CatchSettleOk = autoResult.ok
     ? {
         ok: true,
+        catchId,
         item: result.item,
         autoReturned: true,
         gold: autoResult.gold,
@@ -146,6 +137,7 @@ export function settleAcceptedCatch(
       }
     : {
         ok: true,
+        catchId,
         item: result.item,
         autoReturned: false,
         playerXp: catchXp.playerXp,
@@ -168,6 +160,7 @@ export function settleAcceptedCatch(
 
   if (ctx.socketId) {
     const payload: FishCatchSettledPayload = {
+      catchId: settled.catchId,
       speciesId: result.item.speciesId,
       quality: result.item.quality,
       sizeM: result.item.sizeM,

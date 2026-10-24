@@ -1,0 +1,85 @@
+{
+  "task": "STEAM-DESKTOP-22H",
+  "date": "2026-10-24",
+  "scope": "Static actual Overlay source/configuration binding consistency; WPF execution and pure policy runtime tests are separate.",
+  "policySha256": "cd1be57318045f9ef1d299d91da9a1cde65a424a147343e489c571b924af1b49",
+  "rendererSha256": "c2420914ff8aaf1bb8edb881f65af95f5ca94d0dbcfe70f2645037da2beba350",
+  "checks": [
+    {
+      "id": "FX01",
+      "marker": "float.contact",
+      "policyPhases": [
+        "casting",
+        "waiting"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX02",
+      "marker": "waiting.ripple",
+      "policyPhases": [
+        "waiting"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX03",
+      "marker": "bite.onset",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX04",
+      "marker": "fish.struggle",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX05",
+      "marker": "fish.surface",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX05",
+      "marker": "fish.slap",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Markers alias",
+      "result": "passed"
+    },
+    {
+      "id": "FX08",
+      "marker": "groundbait.contact",
+      "policyPhases": [
+        "groundbaiting"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    }
+  ],
+  "withdrawn": [
+    "FX06",
+    "FX07",
+    "FX09"
+  ],
+  "forbiddenMarkersUnbound": true,
+  "rendererSizingMatchesAssetMetadata": true,
+  "result": "passed"
+}

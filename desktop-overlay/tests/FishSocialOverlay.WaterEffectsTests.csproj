@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../OverlayWaterEffectsPolicy.cs" />
+    <Compile Include="../OverlayGroundbaitTimeline.cs" />
+    <Compile Include="../IpcProtocol.cs" />
+    <Compile Include="../OverlayAudioPresentation.cs" />
+    <Compile Include="WaterEffectsTests.cs" />
+    <None Include="../OverlayResources/effects/fishing/v2/effects.json" Link="effects.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../OverlayResources/fishing/presentation-markers.json" Link="presentation-markers.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../OverlayResources/fishing/source-water-markers.json" Link="source-water-markers.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -11,6 +11,7 @@ namespace FishSocial.Desktop
     {
         bool pointerAllowed;
         bool submitAllowed;
+        bool toggleBefore, hadToggle;
         public static void Ensure(GameObject target)
         {
             if (Application.isPlaying && target.GetComponent<DesktopUiAudioFeedback>() == null)
@@ -29,14 +30,30 @@ namespace FishSocial.Desktop
             return selectable != null && selectable.interactable && selectable.IsInteractable();
         }
         public void OnPointerDown(PointerEventData eventData)
-        { pointerAllowed = eventData.button == PointerEventData.InputButton.Left && Allowed(); }
+        {
+            pointerAllowed = eventData.button == PointerEventData.InputButton.Left && Allowed();
+            CaptureToggle();
+        }
+        void CaptureToggle()
+        {
+            var toggle=GetComponent<Toggle>(); var journal=GetComponent<JournalV2Toggle>();
+            hadToggle=toggle!=null||journal!=null; toggleBefore=toggle!=null?toggle.isOn:journal!=null&&journal.Value;
+        }
         void Feedback()
         {
             var selectable = GetComponent<Selectable>();
             if (selectable == null) return;
             var visual = GetComponent<JournalV2Button>();
+            if(hadToggle)
+            {
+                var toggle=GetComponent<Toggle>();var journal=GetComponent<JournalV2Toggle>();
+                var now=toggle!=null?toggle.isOn:journal!=null&&journal.Value;
+                if(now==toggleBefore)return;
+            }
             var navigation = visual != null && visual.Kind == JournalV2ButtonKind.Nav;
             navigation |= transform.parent != null && (transform.parent.name == "Header" || transform.parent.name == "Nav");
+            // Actual router transitions own navigation audio, including redirects/failures.
+            if(navigation)return;
             DesktopAudioService.Play(CueFor(name, selectable is Toggle || GetComponent<JournalV2Toggle>() != null, navigation));
         }
         public void OnPointerClick(PointerEventData eventData)
@@ -44,7 +61,7 @@ namespace FishSocial.Desktop
             if (eventData.button == PointerEventData.InputButton.Left && pointerAllowed && !eventData.dragging) Feedback();
             pointerAllowed = false;
         }
-        public void OnUpdateSelected(BaseEventData eventData) { submitAllowed = Allowed(); }
+        public void OnUpdateSelected(BaseEventData eventData) { submitAllowed = Allowed(); CaptureToggle(); }
         public void OnSubmit(BaseEventData eventData) { if (submitAllowed || Allowed()) Feedback(); }
     }
 }

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="18" result="Passed" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.1623645">
+  <test-suite type="TestSuite" id="1857" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="717" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.162365" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2703" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="717" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.148704" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="52844" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2704" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="717" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.142918" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2705" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="658" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.137216" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="2706" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="658" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.132349" total="18" passed="18" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="2574" name="DesktopFishingSleepTests" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.080268" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="2578" name="AttentionAckCannotWakeBeforeAuthoritativeState" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.AttentionAckCannotWakeBeforeAuthoritativeState" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.030166" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2576" name="AttentionAckCannotWakeBeforeAuthoritativeState(True)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.AttentionAckCannotWakeBeforeAuthoritativeState(True)" methodname="AttentionAckCannotWakeBeforeAuthoritativeState" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="491072511" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.027386" asserts="0">
+                  <properties />
+                  <output><![CDATA[[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792848188366
+[Latency][Socket] ack_received id=1 ok=True atMs=1792848188370
+]]></output>
+                </test-case>
+                <test-case id="2577" name="AttentionAckCannotWakeBeforeAuthoritativeState(False)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.AttentionAckCannotWakeBeforeAuthoritativeState(False)" methodname="AttentionAckCannotWakeBeforeAuthoritativeState" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="532863003" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000805" asserts="0">
+                  <properties />
+                  <output><![CDATA[[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792848188375
+[Latency][Socket] ack_received id=1 ok=False atMs=1792848188375
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-case id="2579" name="DisconnectedAttentionFailsWithoutChangingSleep" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.DisconnectedAttentionFailsWithoutChangingSleep" methodname="DisconnectedAttentionFailsWithoutChangingSleep" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1018481909" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000347" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2592" name="FallbackOwnClickRequestsAttentionWithoutWakingLocally" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.FallbackOwnClickRequestsAttentionWithoutWakingLocally" methodname="FallbackOwnClickRequestsAttentionWithoutWakingLocally" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1999834827" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.001459" asserts="0">
+                <properties />
+                <output><![CDATA[[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792848188377
+[Latency][Socket] event_sent id=2 event=fishing_attention atMs=1792848188377
+]]></output>
+              </test-case>
+              <test-case id="2593" name="FallbackSleepInterruptsCatchWithoutDeferringAndSupportsClick" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.FallbackSleepInterruptsCatchWithoutDeferringAndSupportsClick" methodname="FallbackSleepInterruptsCatchWithoutDeferringAndSupportsClick" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="997518365" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.001423" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2591" name="NativePipeRoutesAttentionAndPublishesSleepOnlyChanges" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.NativePipeRoutesAttentionAndPublishesSleepOnlyChanges" methodname="NativePipeRoutesAttentionAndPublishesSleepOnlyChanges" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1094284551" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.025011" asserts="0">
+                <properties />
+                <output><![CDATA[[Latency][Unity] overlay_command_received id=27 command=fishing_attention ipcMs=-1 atMs=1792848188380
+[GameData] fish_species loaded 50 rows.
+[Latency][Unity] overlay_state_queued sequence=1 count=1 atMs=1792848188402
+[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792848188402
+[Latency][Socket] ack_received id=1 ok=True atMs=1792848188403
+]]></output>
+              </test-case>
+              <test-case id="2580" name="OverlayIncludesSelfAndOtherSleepAndExplicitNullOnWake" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.OverlayIncludesSelfAndOtherSleepAndExplicitNullOnWake" methodname="OverlayIncludesSelfAndOtherSleepAndExplicitNullOnWake" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="312185210" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.011719" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2581" name="SleepClearsPendingCatchAndIgnoresLateBiteAndMiss" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepClearsPendingCatchAndIgnoresLateBiteAndMiss" methodname="SleepClearsPendingCatchAndIgnoresLateBiteAndMiss" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1112267728" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000737" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2582" name="SleepDiscardsPredictedHookAndDoesNotRestoreItOnWake" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepDiscardsPredictedHookAndDoesNotRestoreItOnWake" methodname="SleepDiscardsPredictedHookAndDoesNotRestoreItOnWake" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1843373973" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.001530" asserts="0">
+                <properties />
+                <output><![CDATA[[Latency][Unity] local_presentation_applied commandId=0 phase=hooked spot=self-spot atMs=1792848188417
+]]></output>
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2590" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.003199" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2583" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;waiting&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;waiting&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="116615232" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000765" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2584" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;resolving&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;resolving&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1079148785" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000147" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2585" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;stopping&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;stopping&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="161384465" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000136" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2586" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;baiting&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;baiting&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1248725287" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000139" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2587" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;casting&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;casting&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1905499568" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000136" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2588" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;hooked&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;hooked&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1768876265" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000138" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2589" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;seated&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;seated&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1880891637" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000226" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2575" name="SocketSnapshotPreservesNullableMillisecondsAndLegacyNulls" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SocketSnapshotPreservesNullableMillisecondsAndLegacyNulls" methodname="SocketSnapshotPreservesNullableMillisecondsAndLegacyNulls" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="316721740" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.000398" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2594" name="DesktopFishingWaterEffectsTests" fullname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests" classname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.043959" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2595" name="InjectedRealContactDrawsFixedPool_MissingContactAndNativeOwnerStaySilent" fullname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests.InjectedRealContactDrawsFixedPool_MissingContactAndNativeOwnerStaySilent" methodname="InjectedRealContactDrawsFixedPool_MissingContactAndNativeOwnerStaySilent" classname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests" runstate="Runnable" seed="1851046526" result="Passed" start-time="2026-10-24 13:23:08Z" end-time="2026-10-24 13:23:08Z" duration="0.043509" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <output><![CDATA[[WaterEffects] Unity contact provider absent; portrait view silently degrades water cues.
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

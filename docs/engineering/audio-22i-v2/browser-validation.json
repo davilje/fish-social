@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "scope": "Browser simulation only; not Unity/WPF IPC or Windows audio hardware",
+  "browser": "156.0.8078.47",
+  "results": [
+    "DOM: 9 scenarios, 12 blind groups / 24 water variants, 35/70 defaults",
+    "Water source array resolves to recorded author and CC0 license in provenance table",
+    "34 policy assertions passed",
+    "46 real short audio files fetched and decoded",
+    "Both A/B clips and both old/new music streams play with expected durations",
+    "fishing: 8 played, 0 suppressed, max 1/4",
+    "miss: 3 played, 1 suppressed, max 1/4",
+    "groundbait: 3 played, 8 suppressed, max 1/4",
+    "rapid: 4 played, 17 suppressed, max 1/4",
+    "duplicate: 3 played, 4 suppressed, max 1/4",
+    "crowd: 4 played, 14 suppressed, max 1/4",
+    "adjacent: 4 played, 1 suppressed, max 2/4",
+    "hidden: 2 played, 3 suppressed, max 1/4",
+    "muteDuck: 3 played, 2 suppressed, max 2/4",
+    "Four-source bound held through rapid replacements and cancellation/restart",
+    "Overlapping duck uses minimum factor and latest release",
+    "400ms decode completion discarded after cancellation",
+    "New muted bite cancels stale automatic celebration",
+    "All-hidden transition fades playing ordinary/voice slots within 50ms, retains valid bite",
+    "Independent volumes persist after reload",
+    "Desktop/mobile layout captured; no horizontal mobile overflow"
+  ]
+}

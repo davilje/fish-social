@@ -15,7 +15,7 @@ namespace FishSocial.Desktop
             new[] { "窗口模式", "1280×720", "1600×900", "1920×1080", "2560×1440", "DesignDisplayHeading", "无边框", "全屏" },
             new[] { "通知", "启用通知", "免打扰", "鱼咬钩通知", "好友邀请通知", "连接错误通知", "模拟连接错误" },
             new[] { "服务器", "当前服务器", "服务器地址输入", "保存服务器地址", "测试服务器连接", "服务器连接状态" },
-            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效", "AudioSettings" },
+            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效", "AudioSettings", "FishingEffectsSettings" },
         };
 
         NotificationSettings _draft;
@@ -111,6 +111,7 @@ namespace FishSocial.Desktop
             EnsureReduceMotionToggle();
             var audioParent = transform.Find("SettingsViewport/SettingsContent");
             if (audioParent != null) DesktopAudioSettingsView.Ensure(audioParent, 374);
+            DesktopFishingEffectsSettingsView.Ensure(audioParent);
             ShowTab(_tab);
         }
 
@@ -257,7 +258,7 @@ namespace FishSocial.Desktop
                 }
                 var content = transform.Find("SettingsViewport/SettingsContent") as RectTransform;
                 if (content != null) content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-                    _tab == 3 ? 556 : _tab == 1 && Debug.isDebugBuild ? 480 : 440);
+                    _tab == 3 ? 700 : _tab == 1 && Debug.isDebugBuild ? 480 : 440);
                 var scroll = GetComponent<ScrollRect>(); if (scroll != null) scroll.verticalNormalizedPosition = 1;
             }
             SyncServerPlaceholder();

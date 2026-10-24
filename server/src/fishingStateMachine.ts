@@ -1,5 +1,6 @@
 import { recordSessionBite, recordSessionEscape } from './pondSessionLedger.js';
 import { randomUUID } from 'crypto';
+import { advanceFishingPresentation } from './fishingPresentation.js';
 import type { Server } from 'socket.io';
 import {
   PONDS,
@@ -97,6 +98,7 @@ const PHASE_MS = {
 } as const;
 
 interface HookContext {
+  catchId: string;
   fish: PondFishEntity;
   escaped: boolean;
   hookDurationMs: number;
@@ -155,10 +157,16 @@ function setPhase(
   durationMs: number,
   context?: PondUser['phaseContext'],
 ): PondUser {
+  advanceFishingPresentation(user, phase);
   user.fishingPhase = phase;
   if (phase === 'idle' || phase === 'seated') setFishingStopRequested(user, false);
   user.phaseEndsAt = durationMs > 0 ? now() + durationMs : null;
   if (context !== undefined) user.phaseContext = context;
+  if (phase !== 'hooked' && phase !== 'resolving' && phase !== 'disconnected' && user.phaseContext) {
+    delete user.phaseContext.catchId;
+    delete user.phaseContext.resultId;
+    delete user.phaseContext.sizeM;
+  }
   syncStatus(user);
   if (phase === 'waiting') refreshFishingSleep(user, getFishingSleepAfterMs());
   return user;
@@ -389,8 +397,9 @@ export function handleStopFishing(
       sessionFlagsByUser.set(userId, { stopToSeated: true });
       ctx.escaped = true;
       applyEscapeGrowthBonus(ctx.fish.id);
-      user.phaseContext = { outcome: 'escape' };
-      const next = transitionPhase(user, pondId, 'resolving', PHASE_MS.resolvingEscape, 'stop_fishing_escape', { outcome: 'escape' });
+      const next = transitionPhase(user, pondId, 'resolving', PHASE_MS.resolvingEscape, 'stop_fishing_escape', {
+        outcome: 'escape', catchId: ctx.catchId, resultId: ctx.catchId, sizeM: ctx.fish.sizeM,
+      });
       clearHook(userId);
       emitFishingFloatText(io, pondId, userId, 'escape', ctx.fish);
       emitPondUserUpdated(io, pondId, next);
@@ -702,9 +711,12 @@ function advanceFromHooked(
   }
 
   const outcome = ctx.escaped ? 'escape' : 'catch';
-  user.phaseContext = { outcome };
+  const resultContext: PondUser['phaseContext'] = {
+    outcome, catchId: ctx.catchId, sizeM: ctx.fish.sizeM,
+    ...(ctx.escaped ? { resultId: ctx.catchId } : {}),
+  };
   const duration = outcome === 'catch' ? PHASE_MS.resolvingCatch : PHASE_MS.resolvingEscape;
-  const next = transitionPhase(user, pondId, 'resolving', duration, ctx.escaped ? 'stop_fishing_escape' : 'hook_timeout', { outcome }, { socketId });
+  const next = transitionPhase(user, pondId, 'resolving', duration, ctx.escaped ? 'stop_fishing_escape' : 'hook_timeout', resultContext, { socketId });
   emitPondUserUpdated(io, pondId, next);
 
   if (outcome === 'escape') {
@@ -724,7 +736,9 @@ function advanceFromHooked(
       });
       applyTackleDurabilityOnEscape(user.playerId, io);
     }
-    const miss: FishingMiss = { resultId: randomUUID(), reason: 'escaped' };
+    const miss: FishingMiss = {
+      resultId: ctx.catchId, actorId: user.id, pondId, reason: 'escaped',
+    };
     if (socketId) io.to(socketId).emit('fish_miss', miss);
     else io.to(pondId).emit('fish_miss', miss);
   } else if (user.isBot) {
@@ -732,7 +746,7 @@ function advanceFromHooked(
   } else if (user.playerId) {
     const isCodexNew = isCodexNewForPlayer(user.playerId, ctx.fish.speciesId);
     const catchData: PendingFishCatch = {
-      catchId: randomUUID(),
+      catchId: ctx.catchId,
       pondFishId: ctx.fish.id,
       speciesId: ctx.fish.speciesId,
       quality: ctx.fish.quality,
@@ -846,15 +860,21 @@ export function scheduleHookFromBite(
   if (!user || user.fishingPhase !== 'waiting') return;
   refreshFishingSleep(user, getFishingSleepAfterMs());
   const asleep = !user.isBot && user.fishingAsleep === true;
+  // Allocate the existing catch identity at the authoritative bite, so all later
+  // presentation/settlement messages refer to this attempt rather than a new ID.
+  const catchId = randomUUID();
 
   hookContextByUser.set(userId, {
+    catchId,
     fish: hook.fish,
     escaped: asleep || hook.escaped,
     hookDurationMs: hook.hookDurationMs,
   });
 
   if (!asleep) emitFishingFloatText(io, pondId, userId, 'hook', hook.fish);
-  const next = transitionPhase(user, pondId, 'hooked', hook.hookDurationMs, 'bite_hook', undefined, { socketId });
+  const next = transitionPhase(user, pondId, 'hooked', hook.hookDurationMs, 'bite_hook', {
+    catchId, sizeM: hook.fish.sizeM,
+  }, { socketId });
   if (!asleep) emitPondUserUpdated(io, pondId, next);
   const { counters, waitingMsSinceLastHook } = noteBiteHook(userId);
   if (user.playerId && !user.isBot) recordSessionBite(user.playerId);

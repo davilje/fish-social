@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="208" result="Passed" total="208" passed="208" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:52Z" duration="22.9474435">
+  <test-suite type="TestSuite" id="1852" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="712" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:52Z" duration="22.947444" total="208" passed="208" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2693" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="712" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:52Z" duration="22.933761" total="208" passed="208" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="50846" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2694" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="712" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:52Z" duration="22.927891" total="208" passed="208" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2695" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="653" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:52Z" duration="22.920265" total="208" passed="208" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="2696" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="653" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:52Z" duration="22.915262" total="208" passed="208" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="2355" name="DesktopFishingAnimationTests" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="148" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:51Z" duration="22.571721" total="148" passed="148" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="2481" name="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:31Z" duration="1.812488" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2478" name="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(1)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(1)" methodname="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="858427617" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:29Z" duration="0.276594" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2479" name="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(2)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(2)" methodname="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="769329557" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:29Z" duration="0.481245" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2480" name="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(4)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles(4)" methodname="ArtworkRequiresAllNineLayersAndIgnoresLegacyCatFiles" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1206123486" result="Passed" start-time="2026-10-24 13:17:29Z" end-time="2026-10-24 13:17:31Z" duration="1.052429" asserts="0">
+                  <properties />
+                  <output><![CDATA[[Latency][Unity] fishing_art_slice_ms=68 clip=idle frame=0 layer=body
+[Latency][Unity] fishing_art_slice_ms=64 clip=idle frame=0 layer=head
+[Latency][Unity] fishing_art_slice_ms=64 clip=idle frame=0 layer=far_hand
+[Latency][Unity] fishing_art_slice_ms=69 clip=idle frame=0 layer=hands
+[Latency][Unity] fishing_art_slice_ms=65 clip=idle frame=0 layer=body
+[Latency][Unity] fishing_art_slice_ms=63 clip=idle frame=0 layer=head
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2506" name="AuthoritativeInterruptionsCancelDeferredOutcome" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.AuthoritativeInterruptionsCancelDeferredOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.056996" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2503" name="AuthoritativeInterruptionsCancelDeferredOutcome(Hooked,&quot;hooked&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.AuthoritativeInterruptionsCancelDeferredOutcome(Hooked,&quot;hooked&quot;)" methodname="AuthoritativeInterruptionsCancelDeferredOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="198472126" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.039889" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2504" name="AuthoritativeInterruptionsCancelDeferredOutcome(Dragging,&quot;idle&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.AuthoritativeInterruptionsCancelDeferredOutcome(Dragging,&quot;idle&quot;)" methodname="AuthoritativeInterruptionsCancelDeferredOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1283114121" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.008944" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2505" name="AuthoritativeInterruptionsCancelDeferredOutcome(Offline,&quot;idle&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.AuthoritativeInterruptionsCancelDeferredOutcome(Offline,&quot;idle&quot;)" methodname="AuthoritativeInterruptionsCancelDeferredOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="398382735" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.006789" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2361" name="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.068905" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2357" name="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(null,1)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(null,1)" methodname="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1974607754" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.016003" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2358" name="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(&quot;1&quot;,1)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(&quot;1&quot;,1)" methodname="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1246326234" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.019044" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2359" name="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(&quot;2&quot;,2)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(&quot;2&quot;,2)" methodname="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="550024214" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.014908" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2360" name="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(&quot;4&quot;,4)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement(&quot;4&quot;,4)" methodname="BodyTextureScaleDefaultsToOneAndPreservesLogicalPlacement" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1705677287" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.016196" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2499" name="CatchConfirmationDoesNotTruncateReelOrReplayCatch" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.CatchConfirmationDoesNotTruncateReelOrReplayCatch" methodname="CatchConfirmationDoesNotTruncateReelOrReplayCatch" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="66968688" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.007904" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2501" name="ClaimedCatchResetsBeforeOnlyTheLatestDeferredState" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ClaimedCatchResetsBeforeOnlyTheLatestDeferredState" methodname="ClaimedCatchResetsBeforeOnlyTheLatestDeferredState" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1486326485" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.007145" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2473" name="CustomAvatarFallbackPreservesSupportedSkinsAndRetiresOldArt" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.CustomAvatarFallbackPreservesSupportedSkinsAndRetiresOldArt" methodname="CustomAvatarFallbackPreservesSupportedSkinsAndRetiresOldArt" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="524326812" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:31Z" duration="0.000144" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2472" name="DafeiyuHasAnIndependentPortraitAndAllSixteenPlayableClips" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.DafeiyuHasAnIndependentPortraitAndAllSixteenPlayableClips" methodname="DafeiyuHasAnIndependentPortraitAndAllSixteenPlayableClips" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1114251235" result="Passed" start-time="2026-10-24 13:17:31Z" end-time="2026-10-24 13:17:50Z" duration="18.907725" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2520" name="DimensionCallbackIsSafeBeforeBindingAndWithoutLayerSession" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.DimensionCallbackIsSafeBeforeBindingAndWithoutLayerSession" methodname="DimensionCallbackIsSafeBeforeBindingAndWithoutLayerSession" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="968243448" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000818" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2454" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.002858" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2444" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(null,&quot;escape&quot;,&quot;escape&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(null,&quot;escape&quot;,&quot;escape&quot;,EmptyReel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="548603342" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000265" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2445" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,&quot;escape&quot;,&quot;escape&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,&quot;escape&quot;,&quot;escape&quot;,EmptyReel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2123240381" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000029" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2446" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(null,&quot;catch&quot;,&quot;catch&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(null,&quot;catch&quot;,&quot;catch&quot;,Reel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1496030042" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000028" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2447" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,&quot;catch&quot;,&quot;catch&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,&quot;catch&quot;,&quot;catch&quot;,Reel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2080271408" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000025" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2448" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;catch&quot;,&quot;escape&quot;,&quot;catch&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;catch&quot;,&quot;escape&quot;,&quot;catch&quot;,Reel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1317899304" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000027" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2449" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;escape&quot;,&quot;catch&quot;,&quot;escape&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;escape&quot;,&quot;catch&quot;,&quot;escape&quot;,EmptyReel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1162184600" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000025" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2450" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;escaped&quot;,&quot;catch&quot;,&quot;escaped&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;escaped&quot;,&quot;catch&quot;,&quot;escaped&quot;,EmptyReel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="726645287" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000025" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2451" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(null,null,null,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(null,null,null,Reel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="619174411" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000024" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2452" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,null,null,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,null,null,Reel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="133862932" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000023" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2453" name="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,&quot;&quot;,&quot;&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome(&quot;&quot;,&quot;&quot;,&quot;&quot;,Reel)" methodname="EmptyPhaseOutcomeFallsBackWithoutOverridingAuthoritativeOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="74277019" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000023" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2422" name="ExistingEnumAndWireValuesStayStable" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000864" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2410" name="ExistingEnumAndWireValuesStayStable(Idle,0,&quot;idle&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Idle,0,&quot;idle&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2145269072" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000085" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2411" name="ExistingEnumAndWireValuesStayStable(Fishing,1,&quot;fishing&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Fishing,1,&quot;fishing&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1456901746" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2412" name="ExistingEnumAndWireValuesStayStable(Hooked,2,&quot;hooked&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Hooked,2,&quot;hooked&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="786634527" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000019" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2413" name="ExistingEnumAndWireValuesStayStable(Catching,3,&quot;catch&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Catching,3,&quot;catch&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1504883015" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000019" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2414" name="ExistingEnumAndWireValuesStayStable(Dragging,4,&quot;dragging&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Dragging,4,&quot;dragging&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="213824556" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2415" name="ExistingEnumAndWireValuesStayStable(Offline,5,&quot;offline&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Offline,5,&quot;offline&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="611329628" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2416" name="ExistingEnumAndWireValuesStayStable(Sit,6,&quot;sit&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Sit,6,&quot;sit&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="413183676" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2417" name="ExistingEnumAndWireValuesStayStable(Cast,7,&quot;cast&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Cast,7,&quot;cast&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1494104634" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2418" name="ExistingEnumAndWireValuesStayStable(Reel,8,&quot;reel&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Reel,8,&quot;reel&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1578033714" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2419" name="ExistingEnumAndWireValuesStayStable(Bait,9,&quot;bait&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Bait,9,&quot;bait&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="835829143" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2420" name="ExistingEnumAndWireValuesStayStable(EmptyReel,10,&quot;reel_empty&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(EmptyReel,10,&quot;reel_empty&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2089323281" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2421" name="ExistingEnumAndWireValuesStayStable(Groundbait,11,&quot;groundbait&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingEnumAndWireValuesStayStable(Groundbait,11,&quot;groundbait&quot;)" methodname="ExistingEnumAndWireValuesStayStable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="45255864" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2461" name="ExistingPhaseOverloadsRemainAvailable" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ExistingPhaseOverloadsRemainAvailable" methodname="ExistingPhaseOverloadsRemainAvailable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1473769789" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000084" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2519" name="FirstLayoutAfterZeroSizeResamplesWithoutReplaying" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.FirstLayoutAfterZeroSizeResamplesWithoutReplaying" methodname="FirstLayoutAfterZeroSizeResamplesWithoutReplaying" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="766791510" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.013605" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2383" name="GroundbaitReturnsToReadyAndLeavingEndsUnarmedWithoutReplay" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.GroundbaitReturnsToReadyAndLeavingEndsUnarmedWithoutReplay" methodname="GroundbaitReturnsToReadyAndLeavingEndsUnarmedWithoutReplay" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1801474009" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.006798" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2489" name="HookedKeepsLoopingUntilAuthoritativeStateChanges" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.HookedKeepsLoopingUntilAuthoritativeStateChanges" methodname="HookedKeepsLoopingUntilAuthoritativeStateChanges" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="351283401" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.008691" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2408" name="IndividualDurationsAndLayerOrdersAreRetained" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.IndividualDurationsAndLayerOrdersAreRetained" methodname="IndividualDurationsAndLayerOrdersAreRetained" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1008682923" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000662" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2482" name="IntroLoopsSupportZeroAndNonzeroLoopStarts" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.IntroLoopsSupportZeroAndNonzeroLoopStarts" methodname="IntroLoopsSupportZeroAndNonzeroLoopStarts" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="617221980" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007520" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2406" name="InvalidManifestsFailClosed" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="21" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.010611" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2385" name="InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:1&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:1&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="614152847" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000576" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2386" name="InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:2.0&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:2.0&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1946264475" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000272" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2387" name="InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:+2&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:+2&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="215492317" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000124" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2388" name="InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:02&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;version\&quot;:2&quot;,&quot;\&quot;version\&quot;:02&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1882708989" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000110" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2389" name="InvalidManifestsFailClosed(&quot;\&quot;sourceVersion\&quot;:19&quot;,&quot;\&quot;sourceVersion\&quot;:17&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;sourceVersion\&quot;:19&quot;,&quot;\&quot;sourceVersion\&quot;:17&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1314283157" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000254" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2390" name="InvalidManifestsFailClosed(&quot;[640,512]&quot;,&quot;[512,640]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;[640,512]&quot;,&quot;[512,640]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="688433616" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000260" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2391" name="InvalidManifestsFailClosed(&quot;\&quot;body\&quot;,\&quot;head\&quot;&quot;,&quot;\&quot;cat\&quot;,\&quot;head\&quot;&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;body\&quot;,\&quot;head\&quot;&quot;,&quot;\&quot;cat\&quot;,\&quot;head\&quot;&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1754375432" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000262" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2392" name="InvalidManifestsFailClosed(&quot;\&quot;body\&quot;,\&quot;head\&quot;&quot;,&quot;\&quot;body\&quot;,\&quot;body\&quot;&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;body\&quot;,\&quot;head\&quot;&quot;,&quot;\&quot;body\&quot;,\&quot;body\&quot;&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1012295747" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000270" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2393" name="InvalidManifestsFailClosed(&quot;\&quot;bodyLayers\&quot;:[\&quot;body\&quot;,\&quot;head\&quot;,\&quot;far_hand\&quot;,\&quot;hands\&quot;]&quot;,&quot;\&quot;bodyLayers\&quot;:[\&quot;body\&quot;,\&quot;hands\&quot;]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;bodyLayers\&quot;:[\&quot;body\&quot;,\&quot;head\&quot;,\&quot;far_hand\&quot;,\&quot;hands\&quot;]&quot;,&quot;\&quot;bodyLayers\&quot;:[\&quot;body\&quot;,\&quot;hands\&quot;]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1536462500" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.002331" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2394" name="InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[0]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[0]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1705648786" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000329" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2395" name="InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[-100]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[-100]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1134276868" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000271" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2396" name="InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[100.5]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[100.5]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2020546581" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000268" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2397" name="InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[\&quot;100\&quot;]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[\&quot;100\&quot;]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="723069023" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000272" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2398" name="InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[100,100]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[100,100]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2025558877" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000274" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2399" name="InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[2147483648]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;durationsMs\&quot;:[100]&quot;,&quot;\&quot;durationsMs\&quot;:[2147483648]&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2119611961" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000270" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2400" name="InvalidManifestsFailClosed(&quot;\&quot;nextClip\&quot;:\&quot;catch\&quot;&quot;,&quot;\&quot;nextClip\&quot;:\&quot;missing\&quot;&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;nextClip\&quot;:\&quot;catch\&quot;&quot;,&quot;\&quot;nextClip\&quot;:\&quot;missing\&quot;&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="213918682" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000366" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2401" name="InvalidManifestsFailClosed(&quot;\&quot;nextClip\&quot;:\&quot;catch\&quot;&quot;,&quot;\&quot;nextClip\&quot;:\&quot;reel\&quot;&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;nextClip\&quot;:\&quot;catch\&quot;&quot;,&quot;\&quot;nextClip\&quot;:\&quot;reel\&quot;&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1727717064" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000371" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2402" name="InvalidManifestsFailClosed(&quot;\&quot;loopStart\&quot;:4&quot;,&quot;\&quot;loopStart\&quot;:10&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;loopStart\&quot;:4&quot;,&quot;\&quot;loopStart\&quot;:10&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="553683499" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000303" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2403" name="InvalidManifestsFailClosed(&quot;\&quot;loopStart\&quot;:4&quot;,&quot;\&quot;loopStart\&quot;:-1&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;loopStart\&quot;:4&quot;,&quot;\&quot;loopStart\&quot;:-1&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="152301100" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.001640" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2404" name="InvalidManifestsFailClosed(&quot;\&quot;loopStart\&quot;:4&quot;,&quot;\&quot;loopStart\&quot;:4.5&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;loopStart\&quot;:4&quot;,&quot;\&quot;loopStart\&quot;:4.5&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1497994263" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000311" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2405" name="InvalidManifestsFailClosed(&quot;\&quot;playback\&quot;:\&quot;hold\&quot;&quot;,&quot;\&quot;playback\&quot;:\&quot;loop\&quot;&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.InvalidManifestsFailClosed(&quot;\&quot;playback\&quot;:\&quot;hold\&quot;&quot;,&quot;\&quot;playback\&quot;:\&quot;loop\&quot;&quot;)" methodname="InvalidManifestsFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1582677055" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000258" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2500" name="LateCatchConfirmationDoesNotReplayCompletedOutcome" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LateCatchConfirmationDoesNotReplayCompletedOutcome" methodname="LateCatchConfirmationDoesNotReplayCompletedOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2000224873" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007112" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2382" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.323296" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2375" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(1,640,512,17,13,17,13)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(1,640,512,17,13,17,13)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1542023482" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.010747" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2376" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,1280,1024,17,13,34,26)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,1280,1024,17,13,34,26)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="22122818" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.042725" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2377" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,1280,1024,700,600,1280,1024)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,1280,1024,700,600,1280,1024)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1779699004" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.056678" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2378" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(4,2560,2048,17,13,34,26)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(4,2560,2048,17,13,34,26)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1680956521" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.138815" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2379" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,640,512,17,13,0,0)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,640,512,17,13,0,0)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1548922682" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.010788" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2380" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,1280,512,17,13,0,0)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(2,1280,512,17,13,0,0)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1100936837" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.021176" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2381" name="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(1,1280,1024,17,13,0,0)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling(1,1280,1024,17,13,0,0)" methodname="LayerLoaderValidatesNativeSizeAndCapsHighResolutionSampling" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="25393232" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.041487" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2516" name="LeavingSleepPreservesNewClipHeadOnFirstFrame" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.081887" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2508" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(Hooked,&quot;hooked&quot;,False)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(Hooked,&quot;hooked&quot;,False)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="336494015" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.018260" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2509" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(Cast,&quot;cast&quot;,False)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(Cast,&quot;cast&quot;,False)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="189043814" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.008682" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2510" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(EmptyReel,&quot;reel_empty&quot;,False)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(EmptyReel,&quot;reel_empty&quot;,False)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2100494883" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.009119" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2511" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(Sit,&quot;ready&quot;,False)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(Sit,&quot;ready&quot;,False)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="559077090" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.008723" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2512" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(Hooked,&quot;hooked&quot;,True)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(Hooked,&quot;hooked&quot;,True)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1566967105" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.009024" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2513" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(Cast,&quot;cast&quot;,True)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(Cast,&quot;cast&quot;,True)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="303165103" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.008497" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2514" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(EmptyReel,&quot;reel_empty&quot;,True)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(EmptyReel,&quot;reel_empty&quot;,True)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="955922172" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.009189" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2515" name="LeavingSleepPreservesNewClipHeadOnFirstFrame(Sit,&quot;ready&quot;,True)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.LeavingSleepPreservesNewClipHeadOnFirstFrame(Sit,&quot;ready&quot;,True)" methodname="LeavingSleepPreservesNewClipHeadOnFirstFrame" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="649038993" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.009193" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2407" name="ManifestRejectsTrailingContentAndDuplicateFields" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ManifestRejectsTrailingContentAndDuplicateFields" methodname="ManifestRejectsTrailingContentAndDuplicateFields" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1187400079" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.002182" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2502" name="ManualPreviewIgnoresActualPendingCatchState" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ManualPreviewIgnoresActualPendingCatchState" methodname="ManualPreviewIgnoresActualPendingCatchState" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1771440796" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007110" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2457" name="MergePreservesJsonParsedCanonicalPhaseOutcome" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.MergePreservesJsonParsedCanonicalPhaseOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.001292" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2455" name="MergePreservesJsonParsedCanonicalPhaseOutcome(&quot;escape&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.MergePreservesJsonParsedCanonicalPhaseOutcome(&quot;escape&quot;,EmptyReel)" methodname="MergePreservesJsonParsedCanonicalPhaseOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1802004228" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000831" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2456" name="MergePreservesJsonParsedCanonicalPhaseOutcome(&quot;catch&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.MergePreservesJsonParsedCanonicalPhaseOutcome(&quot;catch&quot;,Reel)" methodname="MergePreservesJsonParsedCanonicalPhaseOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1113349861" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000067" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2384" name="NonLoopClipsCanOmitLoopStart" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.NonLoopClipsCanOmitLoopStart" methodname="NonLoopClipsCanOmitLoopStart" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="172884204" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000633" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2443" name="OnlyExistingBackendPhasesMapToPresentation" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="20" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.001476" total="20" passed="20" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2423" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;escape&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;escape&quot;,EmptyReel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2106275199" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000089" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2424" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,True,&quot;escape&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,True,&quot;escape&quot;,EmptyReel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1087971647" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000025" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2425" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;escaped&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;escaped&quot;,EmptyReel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1937463360" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000025" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2426" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,True,&quot;escaped&quot;,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,True,&quot;escaped&quot;,EmptyReel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1706913548" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000023" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2427" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,null,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,null,Reel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1876286613" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2428" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;&quot;,Reel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="999667226" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2429" name="OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;catch&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;resolving&quot;,False,&quot;catch&quot;,Reel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="295265057" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2430" name="OnlyExistingBackendPhasesMapToPresentation(&quot;stopping&quot;,False,null,EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;stopping&quot;,False,null,EmptyReel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="590743759" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000023" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2431" name="OnlyExistingBackendPhasesMapToPresentation(&quot;stopping&quot;,True,&quot;escape&quot;,Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;stopping&quot;,True,&quot;escape&quot;,Reel)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1580178650" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2432" name="OnlyExistingBackendPhasesMapToPresentation(&quot;seated&quot;,False,&quot;escape&quot;,Sit)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;seated&quot;,False,&quot;escape&quot;,Sit)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1431494677" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2433" name="OnlyExistingBackendPhasesMapToPresentation(&quot;seated&quot;,True,null,Catching)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;seated&quot;,True,null,Catching)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="699477260" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2434" name="OnlyExistingBackendPhasesMapToPresentation(&quot;hooked&quot;,False,&quot;escape&quot;,Hooked)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;hooked&quot;,False,&quot;escape&quot;,Hooked)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1886083847" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2435" name="OnlyExistingBackendPhasesMapToPresentation(&quot;groundbaiting&quot;,False,null,Groundbait)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;groundbaiting&quot;,False,null,Groundbait)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="170976295" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000023" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2436" name="OnlyExistingBackendPhasesMapToPresentation(&quot;baiting&quot;,False,null,Bait)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;baiting&quot;,False,null,Bait)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2069324731" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000024" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2437" name="OnlyExistingBackendPhasesMapToPresentation(&quot;casting&quot;,False,null,Cast)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;casting&quot;,False,null,Cast)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="37821790" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000028" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2438" name="OnlyExistingBackendPhasesMapToPresentation(&quot;waiting&quot;,False,null,Fishing)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;waiting&quot;,False,null,Fishing)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1865195780" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000023" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2439" name="OnlyExistingBackendPhasesMapToPresentation(&quot;ready&quot;,False,null,Idle)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;ready&quot;,False,null,Idle)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1155633208" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2440" name="OnlyExistingBackendPhasesMapToPresentation(&quot;bite&quot;,False,null,Idle)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;bite&quot;,False,null,Idle)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1523510122" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000021" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2441" name="OnlyExistingBackendPhasesMapToPresentation(&quot;effort&quot;,False,null,Idle)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;effort&quot;,False,null,Idle)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1351444243" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2442" name="OnlyExistingBackendPhasesMapToPresentation(&quot;reel_empty&quot;,False,null,Idle)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OnlyExistingBackendPhasesMapToPresentation(&quot;reel_empty&quot;,False,null,Idle)" methodname="OnlyExistingBackendPhasesMapToPresentation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="490600175" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.000022" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2495" name="OutcomeChainsFinishBeforeLatestDeferredRequest" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OutcomeChainsFinishBeforeLatestDeferredRequest" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.030043" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2491" name="OutcomeChainsFinishBeforeLatestDeferredRequest(Reel,&quot;reel&quot;,&quot;catch&quot;,&quot;reset_catch&quot;,17,Cast,&quot;cast&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OutcomeChainsFinishBeforeLatestDeferredRequest(Reel,&quot;reel&quot;,&quot;catch&quot;,&quot;reset_catch&quot;,17,Cast,&quot;cast&quot;)" methodname="OutcomeChainsFinishBeforeLatestDeferredRequest" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1527778533" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007935" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2492" name="OutcomeChainsFinishBeforeLatestDeferredRequest(EmptyReel,&quot;reel_empty&quot;,&quot;reset_empty&quot;,&quot;reset_empty&quot;,10,Cast,&quot;cast&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OutcomeChainsFinishBeforeLatestDeferredRequest(EmptyReel,&quot;reel_empty&quot;,&quot;reset_empty&quot;,&quot;reset_empty&quot;,10,Cast,&quot;cast&quot;)" methodname="OutcomeChainsFinishBeforeLatestDeferredRequest" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1896378916" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007004" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2493" name="OutcomeChainsFinishBeforeLatestDeferredRequest(Reel,&quot;reel&quot;,&quot;catch&quot;,&quot;reset_catch&quot;,17,Fishing,&quot;fishing&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OutcomeChainsFinishBeforeLatestDeferredRequest(Reel,&quot;reel&quot;,&quot;catch&quot;,&quot;reset_catch&quot;,17,Fishing,&quot;fishing&quot;)" methodname="OutcomeChainsFinishBeforeLatestDeferredRequest" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="616408084" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007434" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2494" name="OutcomeChainsFinishBeforeLatestDeferredRequest(EmptyReel,&quot;reel_empty&quot;,&quot;reset_empty&quot;,&quot;reset_empty&quot;,10,Fishing,&quot;fishing&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.OutcomeChainsFinishBeforeLatestDeferredRequest(EmptyReel,&quot;reel_empty&quot;,&quot;reset_empty&quot;,&quot;reset_empty&quot;,10,Fishing,&quot;fishing&quot;)" methodname="OutcomeChainsFinishBeforeLatestDeferredRequest" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="189381791" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.007274" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2471" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:51Z" duration="0.952942" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2463" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;silver&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;silver&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1646752813" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.100010" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2464" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;brown&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;brown&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1178394714" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.111018" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2465" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;cream&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;cream&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1602443807" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:50Z" duration="0.108695" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2466" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;blue&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;blue&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="101600443" result="Passed" start-time="2026-10-24 13:17:50Z" end-time="2026-10-24 13:17:51Z" duration="0.107712" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2467" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;black&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;black&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1934957432" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.106704" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2468" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;white&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;white&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1188504400" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.105746" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2469" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;cow&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;cow&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1981996052" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.105960" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2470" name="PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;dafeiyu&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.PaintedCharacterAvatarResolvesToAnInstalledAnimation(&quot;dafeiyu&quot;)" methodname="PaintedCharacterAvatarResolvesToAnInstalledAnimation" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="871914567" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.206070" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2409" name="ReelTotalsSixHundredMillisecondsAndHasCatchChain" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReelTotalsSixHundredMillisecondsAndHasCatchChain" methodname="ReelTotalsSixHundredMillisecondsAndHasCatchChain" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1220447050" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.003922" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2485" name="ReelTransitionsOnlyAfterItsFinalHundredMilliseconds" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReelTransitionsOnlyAfterItsFinalHundredMilliseconds" methodname="ReelTransitionsOnlyAfterItsFinalHundredMilliseconds" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2130996567" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.008932" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2517" name="ResizingPreservesOutcomeProgressAndLatestDeferredTarget" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ResizingPreservesOutcomeProgressAndLatestDeferredTarget" methodname="ResizingPreservesOutcomeProgressAndLatestDeferredTarget" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="811981801" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.020947" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2518" name="ResizingPreservesPendingCatchHoldAndManualPreview" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ResizingPreservesPendingCatchHoldAndManualPreview" methodname="ResizingPreservesPendingCatchHoldAndManualPreview" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="106065298" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.021784" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2507" name="RestingRendererRetainsFishingClipAndResetsOnExitOrDisable" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.RestingRendererRetainsFishingClipAndResetsOnExitOrDisable" methodname="RestingRendererRetainsFishingClipAndResetsOnExitOrDisable" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="4267988" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.014785" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2477" name="RetiredCatsResolveToCurrentOrangeArtwork" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.RetiredCatsResolveToCurrentOrangeArtwork" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.001579" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2474" name="RetiredCatsResolveToCurrentOrangeArtwork(&quot;gray&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.RetiredCatsResolveToCurrentOrangeArtwork(&quot;gray&quot;)" methodname="RetiredCatsResolveToCurrentOrangeArtwork" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2117982855" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000736" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2475" name="RetiredCatsResolveToCurrentOrangeArtwork(&quot;siamese&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.RetiredCatsResolveToCurrentOrangeArtwork(&quot;siamese&quot;)" methodname="RetiredCatsResolveToCurrentOrangeArtwork" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1397078172" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000051" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2476" name="RetiredCatsResolveToCurrentOrangeArtwork(&quot;tuxedo&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.RetiredCatsResolveToCurrentOrangeArtwork(&quot;tuxedo&quot;)" methodname="RetiredCatsResolveToCurrentOrangeArtwork" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1128215316" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000043" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2498" name="ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.014905" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2496" name="ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome(Reel,&quot;reel&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome(Reel,&quot;reel&quot;)" methodname="ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="915382480" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.007326" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2497" name="ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome(EmptyReel,&quot;reel_empty&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome(EmptyReel,&quot;reel_empty&quot;)" methodname="ReturningToReelClearsStaleDeferredTargetWithoutRestartingOutcome" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1942892744" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.007347" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2488" name="ReturningToSeatAfterOutcomeDoesNotReplaySit" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReturningToSeatAfterOutcomeDoesNotReplaySit" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.015042" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2486" name="ReturningToSeatAfterOutcomeDoesNotReplaySit(Reel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReturningToSeatAfterOutcomeDoesNotReplaySit(Reel)" methodname="ReturningToSeatAfterOutcomeDoesNotReplaySit" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="313988593" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.007474" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2487" name="ReturningToSeatAfterOutcomeDoesNotReplaySit(EmptyReel)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.ReturningToSeatAfterOutcomeDoesNotReplaySit(EmptyReel)" methodname="ReturningToSeatAfterOutcomeDoesNotReplaySit" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1275051043" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.007182" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2460" name="SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.001935" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2458" name="SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications(&quot;blue&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications(&quot;blue&quot;)" methodname="SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1728622997" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.001533" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2459" name="SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications(&quot;dafeiyu&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications(&quot;dafeiyu&quot;)" methodname="SameStatePetChangeReappliesRenderersWithoutRepeatedSnapshotApplications" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="630815109" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000086" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2490" name="SitRunsOnlyOnEnteringSeatAndRepeatedStatesDoNotRestart" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.SitRunsOnlyOnEnteringSeatAndRepeatedStatesDoNotRestart" methodname="SitRunsOnlyOnEnteringSeatAndRepeatedStatesDoNotRestart" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="761957998" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.007323" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2462" name="SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases" methodname="SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="38538036" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.107211" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2483" name="TickHonorsDurationsAndConsumesMultipleFrames" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.TickHonorsDurationsAndConsumesMultipleFrames" methodname="TickHonorsDurationsAndConsumesMultipleFrames" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="646492570" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.010930" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2374" name="UnsupportedBodyTextureScalesFailClosed" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.005497" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2362" name="UnsupportedBodyTextureScalesFailClosed(&quot;0&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;0&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1462325513" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000348" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2363" name="UnsupportedBodyTextureScalesFailClosed(&quot;-1&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;-1&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1509248900" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.001460" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2364" name="UnsupportedBodyTextureScalesFailClosed(&quot;3&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;3&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1389889709" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000253" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2365" name="UnsupportedBodyTextureScalesFailClosed(&quot;8&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;8&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="758557730" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000262" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2366" name="UnsupportedBodyTextureScalesFailClosed(&quot;2.0&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;2.0&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1267199594" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000253" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2367" name="UnsupportedBodyTextureScalesFailClosed(&quot;2e0&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;2e0&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="2097081397" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000260" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2368" name="UnsupportedBodyTextureScalesFailClosed(&quot;2.5&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;2.5&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="559440316" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000273" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2369" name="UnsupportedBodyTextureScalesFailClosed(&quot;2147483648&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;2147483648&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="600493485" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000275" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2370" name="UnsupportedBodyTextureScalesFailClosed(&quot;\&quot;2\&quot;&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;\&quot;2\&quot;&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1414710046" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000267" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2371" name="UnsupportedBodyTextureScalesFailClosed(&quot;null&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;null&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="736297119" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000341" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2372" name="UnsupportedBodyTextureScalesFailClosed(&quot;true&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;true&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1248792245" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000308" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2373" name="UnsupportedBodyTextureScalesFailClosed(&quot;[]&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.UnsupportedBodyTextureScalesFailClosed(&quot;[]&quot;)" methodname="UnsupportedBodyTextureScalesFailClosed" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="706871784" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000295" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2484" name="VariableDurationsControlPlaybackAndFinalFrameDwell" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.VariableDurationsControlPlaybackAndFinalFrameDwell" methodname="VariableDurationsControlPlaybackAndFinalFrameDwell" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1130664419" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.006851" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2356" name="VersionTwoManifestAcceptsAllSourceClips" fullname="FishSocial.Tests.Editor.DesktopFishingAnimationTests.VersionTwoManifestAcceptsAllSourceClips" methodname="VersionTwoManifestAcceptsAllSourceClips" classname="FishSocial.Tests.Editor.DesktopFishingAnimationTests" runstate="Runnable" seed="1565104991" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.000402" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2521" name="DesktopFishingRestMotionTests" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" testcasecount="38" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:52Z" duration="0.256953" total="38" passed="38" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2522" name="DayLongBreathingKeepsFootFixedAndScaleBounded" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.DayLongBreathingKeepsFootFixedAndScaleBounded" methodname="DayLongBreathingKeepsFootFixedAndScaleBounded" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="545965117" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.186080" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2554" name="DifferentOrMissingAwakeArtCannotEnableSleepReplacement" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.DifferentOrMissingAwakeArtCannotEnableSleepReplacement" methodname="DifferentOrMissingAwakeArtCannotEnableSleepReplacement" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1627183341" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.001581" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2541" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:52Z" duration="0.041558" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2530" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;orange&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;orange&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1376753028" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.002432" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2531" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;calico&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;calico&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1673552998" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.004287" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2532" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;silver&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;silver&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1678888706" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:51Z" duration="0.003368" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2533" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;brown&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;brown&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="220413398" result="Passed" start-time="2026-10-24 13:17:51Z" end-time="2026-10-24 13:17:52Z" duration="0.003422" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2534" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;cream&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;cream&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1109171669" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003011" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2535" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;blue&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;blue&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1697988469" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003538" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2536" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;black&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;black&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1307890279" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003273" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2537" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;white&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;white&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1060352250" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003203" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2538" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;cow&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;cow&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="78405090" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.002947" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2539" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;dafeiyu&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;dafeiyu&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1644496597" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.007476" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2540" name="EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;sangbiao&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.EverySkinSharesBodyRodGripAndLeavesBobberUntouched(&quot;sangbiao&quot;)" methodname="EverySkinSharesBodyRodGripAndLeavesBobberUntouched" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1319725806" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003604" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2524" name="LineFollowsRodTipAndKeepsFloatEndpointFixed" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.LineFollowsRodTipAndKeepsFloatEndpointFixed" methodname="LineFollowsRodTipAndKeepsFloatEndpointFixed" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1460988312" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003008" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2529" name="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.004271" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2525" name="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(640,512)" methodname="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="42430937" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.003555" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2526" name="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(1280,1024)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(1280,1024)" methodname="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1744709349" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000098" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2527" name="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(233,187)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(233,187)" methodname="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="446186719" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000081" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2528" name="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(800,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv(800,512)" methodname="MeshUsesLogicalCanvasAcrossResolutionAndPreservesUv" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="72450668" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000078" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2553" name="OptionalSleepResourceUsesFullCanvasWithoutResampling" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.006397" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2542" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;orange&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;orange&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1391150389" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000780" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2543" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;calico&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;calico&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="2024266061" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000371" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2544" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;silver&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;silver&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="2075918157" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000405" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2545" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;brown&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;brown&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1093240065" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000404" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2546" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;cream&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;cream&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="263524338" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000413" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2547" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;blue&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;blue&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="595620086" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000432" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2548" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;black&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;black&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1064687494" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000333" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2549" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;white&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;white&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1524810041" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000360" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2550" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;cow&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;cow&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1350124444" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000363" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2551" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;dafeiyu&quot;,1280,1024)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;dafeiyu&quot;,1280,1024)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1316035405" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001520" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2552" name="OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;sangbiao&quot;,640,512)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.OptionalSleepResourceUsesFullCanvasWithoutResampling(&quot;sangbiao&quot;,640,512)" methodname="OptionalSleepResourceUsesFullCanvasWithoutResampling" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1064353055" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000423" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2563" name="ResetOnlyRestoresItsOwnSleepOverride" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.012944" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2555" name="ResetOnlyRestoresItsOwnSleepOverride(False,False,False)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(False,False,False)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="404374581" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.002006" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2556" name="ResetOnlyRestoresItsOwnSleepOverride(False,False,True)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(False,False,True)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="487573600" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001502" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2557" name="ResetOnlyRestoresItsOwnSleepOverride(False,True,False)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(False,True,False)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="181662763" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001459" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2558" name="ResetOnlyRestoresItsOwnSleepOverride(False,True,True)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(False,True,True)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1831592522" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001479" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2559" name="ResetOnlyRestoresItsOwnSleepOverride(True,False,False)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(True,False,False)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="977235716" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001485" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2560" name="ResetOnlyRestoresItsOwnSleepOverride(True,False,True)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(True,False,True)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1593210176" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001452" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2561" name="ResetOnlyRestoresItsOwnSleepOverride(True,True,False)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(True,True,False)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1288452139" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001473" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2562" name="ResetOnlyRestoresItsOwnSleepOverride(True,True,True)" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.ResetOnlyRestoresItsOwnSleepOverride(True,True,True)" methodname="ResetOnlyRestoresItsOwnSleepOverride" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="2064127776" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001541" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2523" name="SleepWakeReversalIsContinuousAndTimeAloneDoesNotSleep" fullname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests.SleepWakeReversalIsContinuousAndTimeAloneDoesNotSleep" methodname="SleepWakeReversalIsContinuousAndTimeAloneDoesNotSleep" classname="FishSocial.Tests.Editor.DesktopFishingRestMotionTests" runstate="Runnable" seed="1647100823" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000322" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2564" name="DesktopFishingSleepTests" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.055128" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="2568" name="AttentionAckCannotWakeBeforeAuthoritativeState" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.AttentionAckCannotWakeBeforeAuthoritativeState" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.024092" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2566" name="AttentionAckCannotWakeBeforeAuthoritativeState(True)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.AttentionAckCannotWakeBeforeAuthoritativeState(True)" methodname="AttentionAckCannotWakeBeforeAuthoritativeState" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="640876121" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.023221" asserts="0">
+                  <properties />
+                  <output><![CDATA[[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792847872077
+[Latency][Socket] ack_received id=1 ok=True atMs=1792847872079
+]]></output>
+                </test-case>
+                <test-case id="2567" name="AttentionAckCannotWakeBeforeAuthoritativeState(False)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.AttentionAckCannotWakeBeforeAuthoritativeState(False)" methodname="AttentionAckCannotWakeBeforeAuthoritativeState" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="541534483" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000705" asserts="0">
+                  <properties />
+                  <output><![CDATA[[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792847872080
+[Latency][Socket] ack_received id=1 ok=False atMs=1792847872080
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-case id="2569" name="DisconnectedAttentionFailsWithoutChangingSleep" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.DisconnectedAttentionFailsWithoutChangingSleep" methodname="DisconnectedAttentionFailsWithoutChangingSleep" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1913794411" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000332" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2582" name="FallbackOwnClickRequestsAttentionWithoutWakingLocally" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.FallbackOwnClickRequestsAttentionWithoutWakingLocally" methodname="FallbackOwnClickRequestsAttentionWithoutWakingLocally" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1902085636" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001367" asserts="0">
+                <properties />
+                <output><![CDATA[[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792847872082
+[Latency][Socket] event_sent id=2 event=fishing_attention atMs=1792847872082
+]]></output>
+              </test-case>
+              <test-case id="2583" name="FallbackSleepInterruptsCatchWithoutDeferringAndSupportsClick" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.FallbackSleepInterruptsCatchWithoutDeferringAndSupportsClick" methodname="FallbackSleepInterruptsCatchWithoutDeferringAndSupportsClick" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1519733831" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000462" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2581" name="NativePipeRoutesAttentionAndPublishesSleepOnlyChanges" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.NativePipeRoutesAttentionAndPublishesSleepOnlyChanges" methodname="NativePipeRoutesAttentionAndPublishesSleepOnlyChanges" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="2132374196" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.014112" asserts="0">
+                <properties />
+                <output><![CDATA[[Latency][Unity] overlay_command_received id=27 command=fishing_attention ipcMs=-1 atMs=1792847872084
+[GameData] fish_species loaded 50 rows.
+[Latency][Unity] overlay_state_queued sequence=1 count=1 atMs=1792847872095
+[Latency][Socket] event_sent id=1 event=fishing_attention atMs=1792847872096
+[Latency][Socket] ack_received id=1 ok=True atMs=1792847872096
+]]></output>
+              </test-case>
+              <test-case id="2570" name="OverlayIncludesSelfAndOtherSleepAndExplicitNullOnWake" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.OverlayIncludesSelfAndOtherSleepAndExplicitNullOnWake" methodname="OverlayIncludesSelfAndOtherSleepAndExplicitNullOnWake" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="783270374" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.008534" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2571" name="SleepClearsPendingCatchAndIgnoresLateBiteAndMiss" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepClearsPendingCatchAndIgnoresLateBiteAndMiss" methodname="SleepClearsPendingCatchAndIgnoresLateBiteAndMiss" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1287937347" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000772" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2572" name="SleepDiscardsPredictedHookAndDoesNotRestoreItOnWake" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepDiscardsPredictedHookAndDoesNotRestoreItOnWake" methodname="SleepDiscardsPredictedHookAndDoesNotRestoreItOnWake" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="561201162" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001595" asserts="0">
+                <properties />
+                <output><![CDATA[[Latency][Unity] local_presentation_applied commandId=0 phase=hooked spot=self-spot atMs=1792847872107
+]]></output>
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2580" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.002425" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2573" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;waiting&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;waiting&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1227981730" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000739" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2574" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;resolving&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;resolving&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="1620313169" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000149" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2575" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;stopping&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;stopping&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="21311842" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000137" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2576" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;baiting&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;baiting&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="619428792" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000134" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2577" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;casting&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;casting&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="152825603" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000129" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2578" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;hooked&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;hooked&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="2101750330" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000131" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2579" name="SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;seated&quot;)" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SleepingAcrossAutomaticPhasesRetainsFishingRestPose(&quot;seated&quot;)" methodname="SleepingAcrossAutomaticPhasesRetainsFishingRestPose" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="55570962" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000207" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2565" name="SocketSnapshotPreservesNullableMillisecondsAndLegacyNulls" fullname="FishSocial.Tests.Editor.DesktopFishingSleepTests.SocketSnapshotPreservesNullableMillisecondsAndLegacyNulls" methodname="SocketSnapshotPreservesNullableMillisecondsAndLegacyNulls" classname="FishSocial.Tests.Editor.DesktopFishingSleepTests" runstate="Runnable" seed="745445056" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000349" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2584" name="DesktopFishingWaterEffectsTests" fullname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests" classname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.020729" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2585" name="InjectedRealContactDrawsFixedPool_MissingContactAndNativeOwnerStaySilent" fullname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests.InjectedRealContactDrawsFixedPool_MissingContactAndNativeOwnerStaySilent" methodname="InjectedRealContactDrawsFixedPool_MissingContactAndNativeOwnerStaySilent" classname="FishSocial.Tests.Editor.DesktopFishingWaterEffectsTests" runstate="Runnable" seed="736548307" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.020408" asserts="0">
+                <properties>
+                  <property name="_JOINTYPE" value="UnityCombinatorial" />
+                </properties>
+                <output><![CDATA[[WaterEffects] Unity contact provider absent; portrait view silently degrades water cues.
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2586" name="DesktopProtocolResponseTests" fullname="FishSocial.Tests.Editor.DesktopProtocolResponseTests" classname="FishSocial.Tests.Editor.DesktopProtocolResponseTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.001984" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2587" name="AuthResponseAcceptsCompletePayload" fullname="FishSocial.Tests.Editor.DesktopProtocolResponseTests.AuthResponseAcceptsCompletePayload" methodname="AuthResponseAcceptsCompletePayload" classname="FishSocial.Tests.Editor.DesktopProtocolResponseTests" runstate="Runnable" seed="113112278" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000574" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2588" name="AuthResponseAcceptsExplicitEmptyArray" fullname="FishSocial.Tests.Editor.DesktopProtocolResponseTests.AuthResponseAcceptsExplicitEmptyArray" methodname="AuthResponseAcceptsExplicitEmptyArray" classname="FishSocial.Tests.Editor.DesktopProtocolResponseTests" runstate="Runnable" seed="662423510" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000100" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2589" name="AuthResponseRejectsMissingField" fullname="FishSocial.Tests.Editor.DesktopProtocolResponseTests.AuthResponseRejectsMissingField" methodname="AuthResponseRejectsMissingField" classname="FishSocial.Tests.Editor.DesktopProtocolResponseTests" runstate="Runnable" seed="670705585" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000326" asserts="0">
+                <properties />
+                <output><![CDATA[[AuthenticatedApi] Missing response field: coins
+]]></output>
+              </test-case>
+              <test-case id="2590" name="LobbyResponseRejectsEmptyAndMalformedPayloads" fullname="FishSocial.Tests.Editor.DesktopProtocolResponseTests.LobbyResponseRejectsEmptyAndMalformedPayloads" methodname="LobbyResponseRejectsEmptyAndMalformedPayloads" classname="FishSocial.Tests.Editor.DesktopProtocolResponseTests" runstate="Runnable" seed="1595736491" result="Passed" start-time="2026-10-24 13:17:52Z" end-time="2026-10-24 13:17:52Z" duration="0.000626" asserts="0">
+                <properties />
+                <output><![CDATA[[SocialLobby] Empty successful response.
+[SocialLobby] Invalid JSON response: JSON parse error: Invalid value.
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -15,6 +15,10 @@ namespace FishSocial.Desktop.Auth
             if (prev == null)
                 return incoming;
 
+            // Out-of-order phase packets must not revive cancelled presentation.
+            if (prev.presentationRevision > 0 && incoming.presentationRevision > 0 &&
+                incoming.presentationRevision < prev.presentationRevision)
+                return prev;
             var merged = Copy(incoming);
             merged.sessionCatchCount = Math.Max(prev.sessionCatchCount, incoming.sessionCatchCount);
             var nextPhase = string.IsNullOrEmpty(incoming.fishingPhase)
@@ -96,9 +100,13 @@ namespace FishSocial.Desktop.Auth
                 id = source.id,
                 playerId = source.playerId,
                 nickname = source.nickname,
+                avatarUrl = source.avatarUrl,
                 spotId = source.spotId,
                 status = source.status,
                 fishingPhase = source.fishingPhase,
+                presentationActionId = source.presentationActionId,
+                presentationEventId = source.presentationEventId,
+                presentationRevision = source.presentationRevision,
                 fishingAsleep = source.fishingAsleep,
                 fishingSleepAt = source.fishingSleepAt,
                 phaseContext = source.phaseContext,

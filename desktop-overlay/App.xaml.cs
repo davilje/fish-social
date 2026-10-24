@@ -45,7 +45,7 @@ namespace FishSocialOverlay
             // including context menus hosted in a separate WPF popup source.
             if (ReferenceEquals(sender, e.Source) && sender is MenuItem item &&
                 item.IsEnabled && !item.HasItems)
-                (Current.MainWindow as MainWindow)?.PlayInteractionAudio("ui_click");
+                (Current.MainWindow as MainWindow)?.PlayMenuItemAudio(item);
         }
 
         static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

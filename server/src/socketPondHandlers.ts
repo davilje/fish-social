@@ -606,6 +606,7 @@ export function registerSocketPondHandlers(
     if (settled.autoReturned) {
       ack?.({
         ok: true,
+        catchId: settled.catchId,
         autoReturned: true,
         gold: settled.gold,
         playerXp: settled.playerXp,
@@ -615,7 +616,7 @@ export function registerSocketPondHandlers(
         totalCoins: settled.totalCoins,
       });
     } else {
-      ack?.({ ok: true, item: settled.item });
+      ack?.({ ok: true, catchId: settled.catchId, item: settled.item });
     }
   });
 }
