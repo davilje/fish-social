@@ -52,6 +52,10 @@ public static class OverlayPerformanceTests
         Run("motion actor resizing preserves grips, line contact and cached drawings", OverlayFishingMotionNativeTests.ActorResize);
         Run("sleep faces, fixed feet, rod lines and wake survive all pet sizes", OverlayFishingMotionNativeTests.SleepingRest);
         Run("seat feet and stand-before-departure survive repeated and redirected snapshots", SeatPresentation);
+        Run("water textures use one pool, real Image counts and click-through canvases", OverlayWaterEffectsNativeTests.PoolAndHitTesting);
+        Run("water quality, hidden resume and fresh authority bite preserve lifecycle", OverlayWaterEffectsNativeTests.QualityAndHiddenLifecycle);
+        Run("all shipped water cue mappings including slap alias render", OverlayWaterEffectsNativeTests.RealCueConfiguration);
+        Run("audio waits for real nine-layer cold publication and respects cancellation", OverlayAudioNativeTests.ActualCompositeAndColdCancellation);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();
     }

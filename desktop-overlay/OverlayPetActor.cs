@@ -41,6 +41,43 @@ namespace FishSocialOverlay
         readonly Image _image;
         readonly Grid _layerHost;
         readonly Image[] _layerImages;
+        readonly OverlayWaterEffects _waterEffects;
+        readonly Canvas _waterBack = new Canvas { IsHitTestVisible = false, ClipToBounds = false };
+        readonly Canvas _waterFront = new Canvas { IsHitTestVisible = false, ClipToBounds = false };
+        long _waterLoopOccurrence, _waterWaitingOccurrence;
+        double _waterNextWaitAt;
+        Rect _waterSceneClip = Rect.Empty;
+        bool _waterSelf;
+        Point? _waterContactLocal;
+        public event Action WaterGeometryChanged;
+        public Point? WaterAnchorScene => _waterContactLocal.HasValue ? WaterBodySceneOrigin + (Vector)_waterContactLocal.Value : (Point?)null;
+        public Rect WaterPetBounds => new Rect(WaterBodySceneOrigin, new Size(_body.Width, _body.Height));
+        readonly HashSet<string> _waterDiagnostics = new HashSet<string>();
+        public FishingPresentationEnvelope WaterPresentation => _waterEffects.Policy.Envelope;
+        public event Action<OverlayPetActor, string, long, string, string> WaterMarkerPublished;
+        internal int WaterDiagnosticCount => _waterDiagnostics.Count;
+        public Point WaterBodySceneOrigin => new Point(Canvas.GetLeft(this) + _bodyOriginX - _body.Width / 2,
+            Canvas.GetTop(this) + _bodyOriginY - _body.Height / 2);
+        public void SetFishingPresentation(FishingPresentationEnvelope envelope, bool self, string quality)
+        {
+            _waterSelf = self;
+            var token = _waterEffects.Policy.Version;
+            _waterEffects.Configure(envelope, self, quality);
+            if (token != _waterEffects.Policy.Version && _layered != null)
+            {
+                _renderVersion++; _frameRequest?.Cancel(); _frameDirty = true;
+                if (_presentationVisible) OverlayAnimationClock.Wake();
+            }
+        }
+        public void SetWaterSceneClip(Rect sceneClip, bool eligible)
+        {
+            _waterSceneClip = sceneClip;
+            _waterEffects.SetEligible(eligible);
+        }
+        void WaterDiagnostic(string reason)
+        {
+            if (_waterDiagnostics.Add(reason)) LatencyTrace.Write("waterFx actor=" + ActorKey + " skip=" + reason);
+        }
         readonly Rectangle _hitCatcher;
         readonly TextBlock _sleepLabel;
         readonly OverlayFishingRestMotion _restMotion = new OverlayFishingRestMotion();
@@ -66,6 +103,23 @@ namespace FishSocialOverlay
         readonly DispatcherTimer _tooltipTimer;
         bool _disposed;
         bool _presentationVisible = true;
+        readonly OverlayAudioMarkerPolicy _audioMarkers = new OverlayAudioMarkerPolicy();
+        string _audioClipActionId, _audioPublishedClip;
+        double _audioPublishedPosition = -1;
+        long _audioOccurrence;
+        public event Action<OverlayAudioMarker> AudioMarkerPublished;
+
+        public void ConfigureAudioPresentation(OverlayAudioPresentation identity, string phase, string skin)
+        {
+            var before = _audioMarkers.Revision;
+            _audioMarkers.Update(identity, phase, skin);
+            // A result can be confirmed after the held catch frame was rendered.
+            // Republish the same complete composite; never restart the animation.
+            if (before != _audioMarkers.Revision && _layered != null) ShowLayered();
+        }
+
+        public void SetAudioPresentationVisible(bool visible) => _audioMarkers.SetVisible(visible);
+        public void CancelAudioPresentation() => _audioMarkers.Cancel();
         bool _frameDirty;
         bool _frameLoading;
         CancellationTokenSource _frameRequest;
@@ -135,6 +189,7 @@ namespace FishSocialOverlay
             ClipToBounds = false;
             // Root/chrome pass through; only pet body art receives pointer hits.
             IsHitTestVisible = true;
+            IsVisibleChanged += (_, __) => { if (IsVisible && _layered != null && !_disposed) ShowLayered(); };
             ToolTipService.SetIsEnabled(this, false);
             ContextMenuService.SetIsEnabled(this, false);
 
@@ -250,8 +305,13 @@ namespace FishSocialOverlay
                 _layerHost.Children.Add(layer);
             }
 
+            _body.Children.Add(_waterBack);
             _body.Children.Add(_image);
             _body.Children.Add(_layerHost);
+            _body.Children.Add(_waterFront);
+            _waterEffects = new OverlayWaterEffects(_waterBack, _waterFront);
+            _waterEffects.MarkerPublished += (cue, occurrence, key) => WaterMarkerPublished?.Invoke(this, cue, occurrence, key,
+                OverlayWaterEffectsPolicy.Tier(_waterEffects.Policy.Envelope?.WaterSizeTier));
             _sleepLabel = new TextBlock
             {
                 Text = "Z z z",
@@ -442,6 +502,7 @@ namespace FishSocialOverlay
 
         void OnSocialMenuOpened(object sender, RoutedEventArgs e)
         {
+            _menuHost?.PlayPlayerMenuAudio("ui_open");
             OverlayInteractionState.BeginMenuHoverSuppress();
             CancelTooltip();
         }
@@ -469,6 +530,7 @@ namespace FishSocialOverlay
         MenuItem CreateMenuItem(string header, bool enabled, Action action)
         {
             var item = new MenuItem { Header = header, IsEnabled = enabled };
+            if (header == "查看资料" || header == "私聊") OverlayUiAudio.SetCue(item, "none");
             CozyTheme.SetIcon(item, CozyTheme.IconPath(CozyTheme.IconFor(header)));
             if (enabled)
             {
@@ -518,6 +580,7 @@ namespace FishSocialOverlay
             }
 
             _fishingPhase = phase ?? string.Empty;
+            _waterEffects.Phase(_fishingPhase);
             if (IsGroundbaitPhase(_fishingPhase) && !IsGroundbaitPhase(oldPhase))
             {
                 _groundbaitStartedAt = OverlayAnimationClock.Now;
@@ -568,6 +631,7 @@ namespace FishSocialOverlay
         {
             if (_disposed || _presentationVisible == visible) return;
             _presentationVisible = visible;
+            _waterEffects.SetVisible(visible);
             _frameTimer.Suspended = !visible;
             if (visible) OverlayAnimationClock.Wake();
             if (!visible) { _frameRequest?.Cancel(); CancelTooltip(); }
@@ -734,8 +798,11 @@ namespace FishSocialOverlay
         /// <summary>Permanent removal only; animation transitions use ReleaseFishingLayers.</summary>
         public void Dispose()
         {
+            _audioMarkers.Cancel();
+            AudioMarkerPublished = null;
             if (_disposed) return;
             _disposed = true;
+            _waterEffects.Dispose();
             _stateVersion++;
             _renderVersion++;
             _frameRequest?.Cancel();
@@ -913,6 +980,11 @@ namespace FishSocialOverlay
             ReleaseFishingLayers(false);
             _layered = layered;
             _layeredClip = clip;
+            _audioClipActionId = _audioMarkers.ActionId;
+            _audioPublishedClip = null;
+            _audioPublishedPosition = -1;
+            _audioOccurrence = 0;
+            _waterLoopOccurrence = 0;
             _frameIndex = 0;
             OverlayFishingLayers.Acquire(_petId, clip);
             _frames = Array.Empty<ImageSource>();
@@ -1580,6 +1652,11 @@ namespace FishSocialOverlay
             var version = _renderVersion;
             var index = _frameIndex;
             var clip = _layered;
+            var waterToken = _waterEffects.Policy.Version;
+            var clipName = _layeredClip;
+            var audioRevision = _audioMarkers.Revision;
+            var audioGeneration = _audioMarkers.Generation;
+            var audioActionId = _audioClipActionId;
             var rejected = OverlayFishingLayers.RejectedDecodes;
             try
             {
@@ -1622,6 +1699,8 @@ namespace FishSocialOverlay
                 ApplyWaterContact(index, clip.FrameCount);
                 _image.Visibility = Visibility.Collapsed;
                 _layerHost.Visibility = Visibility.Visible;
+                if (_waterEffects.Policy.CanPublish(waterToken)) PublishWaterFrame(index, clip);
+                PublishAudioMarkers(index, clip, clipName, audioRevision, audioGeneration, audioActionId);
                 if (_layeredClip == "sit" || _layeredClip == "leave")
                 {
                     _frameTimer.Start();
@@ -1635,6 +1714,126 @@ namespace FishSocialOverlay
                 request.Dispose();
                 _frameLoading = false;
                 if (!_disposed && _frameDirty) OverlayAnimationClock.Wake();
+            }
+        }
+
+
+        // Called exclusively after all nine sources and their 22B transforms are
+        // published. Authored source positions survive interpolation expansion.
+        void PublishWaterFrame(int frame, FishingClipPlayback clip)
+        {
+            var resources = WaterEffectResources.Current;
+            if (resources?.Source?.Frames == null) { WaterDiagnostic("resources-not-ready-no-replay"); return; }
+            if (_waterEffects.Policy.Envelope == null) { WaterDiagnostic("old-ipc-no-envelope"); return; }
+            var source = clip.SourceIndex(frame);
+            if (!resources.Source.Frames.TryGetValue(_layeredClip + "/" + source, out var layers)) return;
+            var surface = _chrome?.Seat != null ? _chrome.Seat.y + _chrome.Seat.h + 6 : _body.Height + 6;
+            var slotScale = _body.Width / 128.0; // logical DIP; Windows DPI is not multiplied again
+            bool Bounds(string layer, out Rect bounds)
+            {
+                bounds = Rect.Empty;
+                if (!layers.TryGetValue(layer, out var data) || data.Bounds == null || data.Bounds.Length != 4) return false;
+                var index = Array.IndexOf(OverlayFishingLayers.LayerNames, layer);
+                if (index < 0) return false;
+                var image = _layerImages[index];
+                var b = data.Bounds;
+                var raw = new Rect(b[0] * _layerDrawW / 640, b[1] * _layerDrawH / 512,
+                    (b[2] - b[0]) * _layerDrawW / 640, (b[3] - b[1]) * _layerDrawH / 512);
+                bounds = image.RenderTransform.TransformBounds(raw);
+                bounds.Offset(image.Margin.Left, image.Margin.Top);
+                return !bounds.IsEmpty;
+            }
+            var anchorLayer = _layeredClip == "groundbait" ? "bait" : _layeredClip == "cast" || _layeredClip == "fishing" ? "bobber" : "fish";
+            if (Bounds(anchorLayer, out var actualBounds))
+            {
+                var actual = new Point(actualBounds.Left + actualBounds.Width / 2, surface);
+                if (!_waterContactLocal.HasValue || Math.Abs(actual.X - _waterContactLocal.Value.X) > 4 * slotScale || actual.Y != _waterContactLocal.Value.Y)
+                { _waterContactLocal = actual; WaterGeometryChanged?.Invoke(); }
+            }
+            var origin = WaterBodySceneOrigin;
+            var scene = _waterSceneClip;
+            if (scene.IsEmpty) { _waterEffects.SetClip(Rect.Empty); return; }
+            var local = new Rect(scene.X - origin.X, scene.Y - origin.Y, scene.Width, scene.Height);
+            local.Intersect(new Rect(-2048, surface - 36 * slotScale, 4096, 68 * slotScale));
+            _waterEffects.SetClip(local);
+            bool Emit(string cue, string layer, long occurrence, bool onset = false)
+            {
+                if (!Bounds(layer, out var bounds)) { WaterDiagnostic(cue + ":missing-source-bounds"); return false; }
+                var touching = bounds.Top <= surface + 1.5 * slotScale && bounds.Bottom >= surface - 1.5 * slotScale;
+                // Authoritative bite projects the actual visible submerged fish X
+                // onto the existing water line; it does not invent a fish slap.
+                if (onset) touching = touching || bounds.Top >= surface - 2 * slotScale;
+                var anchor = new Point(bounds.Left + bounds.Width / 2, surface);
+                if (layer == "fish" && slotScale > 0)
+                    _waterEffects.Policy.Envelope.WaterSizeTier = OverlayWaterEffectsPolicy.VisibleTier(bounds.Width / slotScale);
+                var emitted = _waterEffects.Publish(cue, _fishingPhase, occurrence, anchor, slotScale, touching);
+                if (!emitted && _waterEffects.Policy.LastRejection != null)
+                    WaterDiagnostic(cue + ":" + _waterEffects.Policy.LastRejection);
+                return emitted;
+            }
+            if ((_layeredClip == "hooked" || _layeredClip == "bite" || _layeredClip == "effort") &&
+                (_fishingPhase == "hooked" || _fishingPhase == "effort"))
+            {
+                Emit("bite.onset", "fish", 0, true);
+                WaterDiagnostic("fish.surface/slap:no-authored-source-marker-current-clips-submerged");
+            }
+            foreach (var marker in resources.Source.Markers ?? Array.Empty<SourceWaterMarker>())
+            {
+                if (marker.Clip != _layeredClip || marker.Source != source || clip.SourcePosition(frame) < marker.Source) continue;
+                if (marker.Cue == "waiting.ripple")
+                {
+                    if (OverlayAnimationClock.Now < _waterNextWaitAt) continue;
+                    _waterNextWaitAt = OverlayAnimationClock.Now + 2400;
+                    Emit(marker.Cue, marker.Layer, ++_waterWaitingOccurrence);
+                }
+                else Emit(marker.Cue, marker.Layer, marker.Cue == "float.contact" ? 0 : _waterLoopOccurrence);
+            }
+        }
+
+        void PublishAudioMarkers(int index, FishingClipPlayback clip, string clipName,
+            int revision, long generation, string actionId)
+        {
+            if (_disposed || !_presentationVisible || !IsVisible || AudioMarkerPublished == null ||
+                OverlayAudioSourceMarkers.Metadata == null) return;
+            var position = clip.SourcePosition(index);
+            if (_audioPublishedClip == clipName && position < _audioPublishedPosition) _audioOccurrence++;
+            _audioPublishedClip = clipName; _audioPublishedPosition = position;
+            var occurrence = clipName == "groundbait"
+                ? OverlayAudioSourceMarkers.GroundbaitOccurrence(clip, OverlayAnimationClock.Now - _groundbaitStartedAt)
+                : _audioOccurrence;
+            var sample = clip.Motion == null ? null : clip.Motion[index];
+            var contact = sample == null || sample.Position == sample.Source
+                ? OverlayFishingWaterContact.Frame(clipName, clip.SourceIndex(index)) : sample.Contact;
+            var scale = _layerDrawH / (double)OverlayFishingLayers.CanvasHeight;
+            var origin = _layerImages[0].Margin.Top;
+            var seat = _chrome?.Seat;
+            var surface = seat != null ? seat.y + seat.h + 6 : _body.Height + 6;
+            var pose = OverlayFishingWaterContact.Solve(contact, scale, origin, surface,
+                OverlayFishingWaterContact.Weight(clipName, position, clip.SourceFrameCount));
+            if (clipName == "groundbait")
+                pose.BaitOffset = OverlayFishingWaterContact.GroundbaitOffset(position, scale, origin, surface);
+
+            foreach (var definition in OverlayAudioSourceMarkers.Metadata.Markers)
+            {
+                // A valid new bite may first become visible after its intro source
+                // frame. Ordinary skipped cast/water markers are never caught up.
+                var biteOnset = definition.Marker == "bite.onset" && definition.Clip == clipName;
+                var heldResult = definition.Marker == "result.presented" && definition.Clip == clipName;
+                if (!biteOnset && !heldResult && !OverlayAudioSourceMarkers.InWindow(definition, clipName, position)) continue;
+                var contactMatches = OverlayAudioSourceMarkers.Contact(definition.ContactLayer,
+                    clipName, clip.SourceIndex(index), sample, contact, pose, scale, origin, surface);
+                var marker = _audioMarkers.Consume(definition.Marker,
+                    biteOnset || heldResult || definition.Marker == "cast.release" || definition.Marker == "float.contact" ||
+                    definition.Marker == "retrieve.start" || definition.Marker == "escape.contact" ? 0 : occurrence,
+                    revision, generation, actionId, contactMatches, NowMs());
+                if (marker != null)
+                {
+                    // H uses a phase-presentation event UUID; I retains the stable
+                    // catch ID. Their shared actor/action capability identifies
+                    // the same published fish without comparing unlike event IDs.
+                    marker.WaterSizeTier = OverlayAudioMarkerPolicy.VisibleTier(marker.Identity, WaterPresentation, _fishingPhase);
+                    AudioMarkerPublished(marker);
+                }
             }
         }
 
@@ -1763,7 +1962,10 @@ namespace FishSocialOverlay
             }
             _frameIndex++;
             if (_frameIndex >= _layered.FrameCount)
+            {
                 _frameIndex = _layered.LoopStart;
+                _waterLoopOccurrence++;
+            }
             ShowLayered();
         }
 
@@ -1788,6 +1990,7 @@ namespace FishSocialOverlay
                 return;
             }
             _frameIndex = frame.Index;
+            _waterLoopOccurrence = frame.Occurrence;
             ShowLayered();
             _frameTimer.Stop();
             _frameTimer.Interval = TimeSpan.FromMilliseconds(frame.RemainingMs);

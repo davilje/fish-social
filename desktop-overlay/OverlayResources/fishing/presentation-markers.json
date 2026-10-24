@@ -1,0 +1,807 @@
+{
+  "version": 2,
+  "sourceManifestSha256": "083866a4e7c2a1128f5aa52fb00b93b03fa610bce88546711ea68e0bea6b4190",
+  "coordinateSystem": "shared source texture alpha bounds in 640x512; sourceIndex remains stable under D interpolation",
+  "markers": [
+    {
+      "clip": "cast",
+      "sourceIndex": 2,
+      "sourceMs": 280,
+      "marker": "cast.release",
+      "contactLayer": ""
+    },
+    {
+      "clip": "cast",
+      "sourceIndex": 3,
+      "sourceMs": 420,
+      "marker": "float.contact",
+      "contactLayer": "bobber"
+    },
+    {
+      "clip": "hooked",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "bite.onset",
+      "contactLayer": "line"
+    },
+    {
+      "clip": "bite",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "bite.onset",
+      "contactLayer": "line"
+    },
+    {
+      "clip": "groundbait",
+      "sourceIndex": 5,
+      "sourceMs": 580,
+      "marker": "groundbait.contact",
+      "contactLayer": "bait"
+    },
+    {
+      "clip": "reel",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "retrieve.start",
+      "contactLayer": ""
+    },
+    {
+      "clip": "reel_empty",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "retrieve.start",
+      "contactLayer": ""
+    },
+    {
+      "clip": "reel",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "escape.contact",
+      "contactLayer": "fish"
+    },
+    {
+      "clip": "reel_empty",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "escape.contact",
+      "contactLayer": "fish"
+    },
+    {
+      "clip": "catch",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "result.presented",
+      "contactLayer": ""
+    },
+    {
+      "clip": "reset_catch",
+      "sourceIndex": 0,
+      "sourceMs": 0,
+      "marker": "result.presented",
+      "contactLayer": ""
+    }
+  ],
+  "bounds": {
+    "idle": {
+      "bobber": [
+        null
+      ],
+      "bait": [
+        null
+      ],
+      "fish": [
+        null
+      ]
+    },
+    "sit": {
+      "bobber": [
+        null,
+        null,
+        null,
+        [
+          540,
+          431,
+          569,
+          458
+        ]
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "ready": {
+      "bobber": [
+        [
+          540,
+          431,
+          569,
+          458
+        ]
+      ],
+      "bait": [
+        null
+      ],
+      "fish": [
+        null
+      ]
+    },
+    "bait": {
+      "bobber": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        [
+          331,
+          340,
+          362,
+          366
+        ],
+        [
+          371,
+          315,
+          394,
+          341
+        ],
+        [
+          337,
+          316,
+          356,
+          342
+        ],
+        [
+          379,
+          300,
+          398,
+          326
+        ]
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "cast": {
+      "bobber": [
+        [
+          160,
+          166,
+          189,
+          193
+        ],
+        [
+          40,
+          151,
+          69,
+          178
+        ],
+        [
+          580,
+          359,
+          609,
+          386
+        ],
+        [
+          566,
+          441,
+          595,
+          468
+        ]
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "fishing": {
+      "bobber": [
+        [
+          555,
+          450,
+          584,
+          477
+        ]
+      ],
+      "bait": [
+        null
+      ],
+      "fish": [
+        null
+      ]
+    },
+    "bite": {
+      "bobber": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        [
+          400,
+          419,
+          570,
+          506
+        ],
+        [
+          400,
+          419,
+          570,
+          506
+        ],
+        [
+          400,
+          419,
+          570,
+          506
+        ],
+        [
+          396,
+          419,
+          566,
+          506
+        ]
+      ]
+    },
+    "effort": {
+      "bobber": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        [
+          396,
+          419,
+          566,
+          506
+        ],
+        [
+          405,
+          421,
+          575,
+          508
+        ],
+        [
+          409,
+          417,
+          579,
+          504
+        ],
+        [
+          400,
+          420,
+          570,
+          507
+        ],
+        [
+          393,
+          422,
+          563,
+          509
+        ],
+        [
+          396,
+          419,
+          566,
+          506
+        ]
+      ]
+    },
+    "hooked": {
+      "bobber": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        [
+          400,
+          419,
+          570,
+          506
+        ],
+        [
+          400,
+          419,
+          570,
+          506
+        ],
+        [
+          400,
+          419,
+          570,
+          506
+        ],
+        [
+          396,
+          419,
+          566,
+          506
+        ],
+        [
+          396,
+          419,
+          566,
+          506
+        ],
+        [
+          405,
+          421,
+          575,
+          508
+        ],
+        [
+          409,
+          417,
+          579,
+          504
+        ],
+        [
+          400,
+          420,
+          570,
+          507
+        ],
+        [
+          393,
+          422,
+          563,
+          509
+        ],
+        [
+          396,
+          419,
+          566,
+          506
+        ]
+      ]
+    },
+    "reel": {
+      "bobber": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        [
+          520,
+          330,
+          609,
+          500
+        ],
+        [
+          475,
+          134,
+          611,
+          278
+        ],
+        [
+          308,
+          30,
+          478,
+          119
+        ],
+        [
+          122,
+          57,
+          266,
+          193
+        ],
+        [
+          26,
+          167,
+          115,
+          337
+        ],
+        [
+          73,
+          361,
+          243,
+          450
+        ]
+      ]
+    },
+    "reel_empty": {
+      "bobber": [
+        [
+          556,
+          406,
+          585,
+          433
+        ],
+        [
+          486,
+          266,
+          515,
+          293
+        ],
+        [
+          366,
+          91,
+          395,
+          118
+        ],
+        [
+          130,
+          131,
+          159,
+          158
+        ],
+        [
+          80,
+          276,
+          109,
+          303
+        ],
+        [
+          96,
+          391,
+          125,
+          418
+        ]
+      ],
+      "bait": [
+        [
+          563,
+          450,
+          577,
+          465
+        ],
+        [
+          493,
+          310,
+          507,
+          325
+        ],
+        [
+          373,
+          135,
+          387,
+          150
+        ],
+        [
+          138,
+          175,
+          152,
+          190
+        ],
+        [
+          88,
+          320,
+          102,
+          335
+        ],
+        [
+          103,
+          435,
+          117,
+          450
+        ]
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "catch": {
+      "bobber": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        [
+          73,
+          361,
+          243,
+          450
+        ],
+        [
+          167,
+          360,
+          317,
+          439
+        ],
+        [
+          322,
+          357,
+          426,
+          497
+        ],
+        [
+          325,
+          324,
+          404,
+          474
+        ],
+        [
+          320,
+          299,
+          399,
+          449
+        ],
+        [
+          314,
+          285,
+          393,
+          435
+        ],
+        [
+          324,
+          327,
+          403,
+          477
+        ]
+      ]
+    },
+    "reset_catch": {
+      "bobber": [
+        null,
+        null,
+        null,
+        [
+          540,
+          431,
+          569,
+          458
+        ]
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        [
+          324,
+          327,
+          403,
+          477
+        ],
+        [
+          314,
+          351,
+          393,
+          501
+        ],
+        null,
+        null
+      ]
+    },
+    "reset_empty": {
+      "bobber": [
+        [
+          96,
+          391,
+          125,
+          418
+        ],
+        [
+          456,
+          386,
+          485,
+          413
+        ],
+        [
+          526,
+          418,
+          555,
+          445
+        ],
+        [
+          540,
+          431,
+          569,
+          458
+        ]
+      ],
+      "bait": [
+        [
+          103,
+          435,
+          117,
+          450
+        ],
+        [
+          463,
+          430,
+          477,
+          445
+        ],
+        [
+          533,
+          462,
+          547,
+          477
+        ],
+        null
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "groundbait": {
+      "bobber": [
+        [
+          540,
+          431,
+          569,
+          458
+        ],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          540,
+          431,
+          569,
+          458
+        ]
+      ],
+      "bait": [
+        null,
+        [
+          362,
+          352,
+          371,
+          367
+        ],
+        [
+          372,
+          329,
+          381,
+          344
+        ],
+        [
+          450,
+          301,
+          467,
+          324
+        ],
+        [
+          498,
+          332,
+          525,
+          363
+        ],
+        [
+          515,
+          413,
+          552,
+          452
+        ],
+        null,
+        null
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "leave": {
+      "bobber": [
+        [
+          540,
+          431,
+          569,
+          458
+        ],
+        null,
+        null,
+        null
+      ],
+      "bait": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "fish": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "waterSourceNote": "Approved hooked/effort fish remain submerged. No real fish.surface/fish.slap source action is authored; do not synthesize these markers."
+}

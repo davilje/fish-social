@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>猫咪角色形象 · 六款新绘稿</title>
+<style>
+:root{color-scheme:light;--ink:#604634;--paper:#fffaf2;--stage:#f3e9da}*{box-sizing:border-box}body{margin:0;background:#efe4d4;color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1500px;margin:auto;padding:32px}header{margin-bottom:28px}h1{margin:8px 0;font-size:32px}p{margin:8px 0}.eyebrow{font-size:13px;letter-spacing:2px;color:#96765a}.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}button,a{color:inherit}button{font:inherit;padding:8px 16px;border:1px solid #cdb79d;border-radius:24px;background:var(--paper);cursor:pointer}button[aria-pressed=true]{background:#654a36;color:white}button:focus-visible,a:focus-visible{outline:3px solid #3989bc;outline-offset:3px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.card{background:var(--paper);border:1px solid #dac9b4;border-radius:22px;overflow:hidden}.caption{padding:20px 24px}.caption h2{font-size:23px;margin:0}.caption p{font-size:15px;min-height:48px}.number{color:#ad8862;font-size:12px;letter-spacing:1px}.stage{background:var(--stage);padding:16px}.stage img{display:block;width:100%;aspect-ratio:3/2;object-fit:contain}.links{display:flex;gap:18px;font-size:14px}details{padding:0 24px 20px}summary{cursor:pointer;font-size:14px}.reference{max-width:100%;max-height:380px;display:block;margin:12px auto}footer{margin:26px 0;font-size:14px;color:#8a705b}body[data-background=dark]{--stage:#343a45}body[data-background=white]{--stage:#fff}body[data-background=checker] .stage{background:repeating-conic-gradient(#eee 0% 25%,#fff 0% 50%) 0/24px 24px}@media(max-width:800px){main{padding:18px}.grid{grid-template-columns:1fr}h1{font-size:26px}}
+</style>
+<style>.stage img{height:auto}</style>
+</head>
+<body><main>
+<header><div class="eyebrow">喵与鱼 · CHARACTER STUDY / 2026.10.24</div><h1>六款新猫咪形象</h1><p>每只包含正面头像与三分之四坐姿。沿用现有游戏的手绘描边与大头短身比例，区分脸型、耳形、毛量和固定花纹。</p><p>当前为形象设计稿；尚未制作完整动作帧、精确拆层或接入角色选择列表。</p><div class="toolbar" aria-label="预览底色"><button data-bg="cream" aria-pressed="true">奶油底</button><button data-bg="white" aria-pressed="false">白底</button><button data-bg="dark" aria-pressed="false">深色底</button><button data-bg="checker" aria-pressed="false">透明网格</button></div></header>
+<section class="grid" id="characters" aria-label="六款角色设计"></section>
+<footer>PNG 原稿保留生成透明通道。网红猫照片仅用于外观对照，参考网页与生成提示词见本目录 README.md / prompts.json。动作制作时需另做脚底、握点与花斑连续性配准。<br><a href="../../fishing-motion/index.html">返回钓鱼动作预览</a> · <a href="../breeds.html">查看现有猫咪</a></footer>
+</main><script src="characters.js"></script>
+<script>
+const grid = document.getElementById('characters');
+for (const [index, character] of window.catCharacters.entries()) {
+ const card = document.createElement('article'); card.className = 'card';
+ const caption = document.createElement('div'); caption.className = 'caption';
+ const number = document.createElement('div'); number.className = 'number'; number.textContent = `0${index + 1} / ${character.id.toUpperCase()}`;
+ const title = document.createElement('h2'); title.textContent = character.name;
+ const description = document.createElement('p'); description.textContent = character.description;
+ caption.append(number, title, description);
+ const stage = document.createElement('div'); stage.className = 'stage';
+ const picture = document.createElement('img'); picture.src = character.image || `sheets/${character.id}.png`; picture.alt = `${character.name}：正面头像与完整坐姿`; picture.width = 1536; picture.height = 1024; stage.append(picture);
+ const links = document.createElement('div'); links.className = 'caption links';
+ const original = document.createElement('a'); original.href = picture.src; original.target = '_blank'; original.textContent = '查看原尺寸';
+ const download = document.createElement('a'); download.href = picture.src; download.download = `${character.id}-concept.png`; download.textContent = '下载 PNG'; links.append(original, download);
+ card.append(caption, stage, links);
+ if (character.reference) {
+  const details = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = '对照外观参考';
+  const reference = document.createElement('img'); reference.className = 'reference'; reference.src = character.reference; reference.alt = `${character.name}的外观参考照片`; reference.loading = 'lazy';
+  const source = document.createElement('a'); source.href = character.source; source.target = '_blank'; source.rel = 'noopener'; source.textContent = '参考来源'; details.append(summary, reference, source); card.append(details);
+ }
+ grid.append(card);
+}
+for (const button of document.querySelectorAll('[data-bg]')) button.addEventListener('click', () => {
+ document.body.dataset.background = button.dataset.bg;
+ for (const choice of document.querySelectorAll('[data-bg]')) choice.setAttribute('aria-pressed', String(choice === button));
+});
+</script></body></html>

@@ -38,6 +38,7 @@ namespace FishSocialOverlay
         public Frame Sample(double now)
         {
             double position;
+            long occurrence = 0;
             if (_endedAt.HasValue)
             {
                 position = _boundaries[_outroStart] + Math.Max(0, now - _endedAt.Value);
@@ -48,18 +49,22 @@ namespace FishSocialOverlay
             {
                 position = Math.Max(0, now - _startedAt);
                 if (position >= _boundaries[_loopStart])
+                {
+                    occurrence = (long)((position - _boundaries[_loopStart]) / (_boundaries[_loopEnd] - _boundaries[_loopStart]));
                     position = _boundaries[_loopStart] +
                         (position - _boundaries[_loopStart]) % (_boundaries[_loopEnd] - _boundaries[_loopStart]);
+                }
             }
             var index = Array.BinarySearch(_boundaries, position);
             if (index < 0) index = ~index - 1;
-            return new Frame(index, _boundaries[index + 1] - position, false);
+            return new Frame(index, _boundaries[index + 1] - position, false, occurrence);
         }
 
         internal readonly struct Frame
         {
-            public Frame(int index, double remainingMs, bool complete)
-            { Index = index; RemainingMs = remainingMs; Complete = complete; }
+            public Frame(int index, double remainingMs, bool complete, long occurrence = 0)
+            { Index = index; RemainingMs = remainingMs; Complete = complete; Occurrence = occurrence; }
+            public long Occurrence { get; }
             public int Index { get; }
             public double RemainingMs { get; }
             public bool Complete { get; }

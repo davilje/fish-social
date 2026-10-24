@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "assets": 47,
+  "waterVariants": 28,
+  "decodedShortBytes": 2903252,
+  "checks": [
+    "PCM16/44100/mono effects/stereo music",
+    "All manifest paths and SHA-256",
+    "28 distinct hashes and non-overlapping recorded water source events",
+    "Tier duration bounds",
+    "47 output waveforms; peak <= -3 dBFS",
+    "Loop PCM seam <=3 units",
+    "4x oversampled full-volume mix bound -1.223 dBTP",
+    "Splash and groundbait effective-event RMS about +4dB"
+  ],
+  "manifestSha256": "2d5f3c49ca2a734446ad298a0fa7661fb9c5b778a12e7f84ae00e4dfb4ea82d6"
+}

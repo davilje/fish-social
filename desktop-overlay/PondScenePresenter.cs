@@ -46,6 +46,11 @@ namespace FishSocialOverlay
         bool _decorPending;
         public bool IsPresentationReady => !_disposed && !string.IsNullOrEmpty(_pondId) && !BackgroundPending && !_decorPending;
         public event Action ScenePresentationChanged;
+        public event Action<OverlayPetActor, string, long, string, string> FishingWaterMarkerPublished;
+        void ForwardWaterMarker(OverlayPetActor actor, string cue, long occurrence, string key, string tier)
+            => FishingWaterMarkerPublished?.Invoke(actor, cue, occurrence, key, tier);
+        public event Action<OverlayAudioMarker> AudioMarkerPublished;
+        public void CancelOwnAudioPresentation() => _ownActor?.CancelAudioPresentation();
         string _spotGeometry;
         readonly Dictionary<string, OverlayActorChrome> _chromeBySpot = new Dictionary<string, OverlayActorChrome>();
         OverlayActorChrome ActorChrome(string spotId)
@@ -70,12 +75,42 @@ namespace FishSocialOverlay
 
         void UpdateActorVisibility()
         {
+            var visible = new List<OverlayPetActor>();
             foreach (OverlayPetActor actor in _actorLayer.Children)
             {
-                // Include rods, expanded nameplates and speech above the pet slot.
                 var bounds = actor.PresentationBounds;
                 bounds.Inflate(256, 256);
-                actor.SetPresentationVisible(_windowVisible && (_viewport.IsEmpty || bounds.IntersectsWith(_viewport)));
+                var shown = _windowVisible && (_viewport.IsEmpty || bounds.IntersectsWith(_viewport));
+                actor.SetPresentationVisible(shown);
+                if (shown && (_viewport.IsEmpty || actor.WaterPetBounds.IntersectsWith(_viewport))) visible.Add(actor);
+            }
+            var own = _ownActor?.WaterBodySceneOrigin ?? new Point(ContentWidth / 2, ContentHeight / 2);
+            var nearest = new List<OverlayPetActor>();
+            foreach (var actor in visible) if (!ReferenceEquals(actor, _ownActor)) nearest.Add(actor);
+            double Distance(OverlayPetActor actor)
+            { var d = actor.WaterBodySceneOrigin - own; return d.X * d.X + d.Y * d.Y; }
+            nearest.Sort((a, b) => Distance(a).CompareTo(Distance(b)));
+            var sceneClip = new Rect(0, 0, Math.Max(1, ContentWidth), Math.Max(1, ContentHeight));
+            if (!_viewport.IsEmpty) sceneClip.Intersect(_viewport);
+            foreach (OverlayPetActor actor in _actorLayer.Children)
+            {
+                var clip = sceneClip;
+                var point = actor.WaterAnchorScene;
+                // Same-row seats share a midpoint boundary; effects cannot spill
+                // into a neighbour even when the XL texture is wider than space.
+                double left = clip.Left, right = clip.Right;
+                foreach (var other in visible)
+                {
+                    if (ReferenceEquals(actor, other)) continue;
+                    var p = other.WaterAnchorScene;
+                    if (!p.HasValue || !point.HasValue || Math.Abs(p.Value.Y - point.Value.Y) > Math.Max(actor.WaterPetBounds.Height, other.WaterPetBounds.Height) * .5) continue;
+                    var midpoint = (point.Value.X + p.Value.X) / 2;
+                    if (p.Value.X < point.Value.X) left = Math.Max(left, midpoint);
+                    else if (p.Value.X > point.Value.X) right = Math.Min(right, midpoint);
+                }
+                if (right <= left) clip = Rect.Empty;
+                else clip = new Rect(left, clip.Top, right - left, clip.Height);
+                actor.SetWaterSceneClip(clip, ReferenceEquals(actor, _ownActor) || nearest.IndexOf(actor) >= 0 && nearest.IndexOf(actor) < 3);
             }
         }
 
@@ -559,6 +594,9 @@ namespace FishSocialOverlay
             if (_ownActor != null)
                 return;
             _ownActor = new OverlayPetActor(OwnActorKey, _hoverPresenter);
+            _ownActor.WaterMarkerPublished += ForwardWaterMarker;
+            _ownActor.WaterGeometryChanged += UpdateActorVisibility;
+            _ownActor.AudioMarkerPublished += marker => AudioMarkerPublished?.Invoke(marker);
             _ownActor.SetPresentationVisible(_windowVisible);
             _actorLayer.Children.Add(_ownActor);
         }
@@ -573,7 +611,16 @@ namespace FishSocialOverlay
             if (!TryResolveActorPoint(ownSpotId, !predicted && message.HasOwnPosition, message.OwnX, message.OwnY, message.Spots, 0, out point))
                 point = FallbackOwnPoint();
             _ownActor.ApplyScenePlacement(ownSpotId, ActorChrome(ownSpotId), point, message.OwnPetId);
+            _ownActor.SetAudioPresentationVisible(_windowVisible && (_viewport.IsEmpty || _ownActor.PresentationBounds.IntersectsWith(_viewport)));
+            var audio = message.AudioPresentation;
+            if (audio != null && (audio.ActorId != message.OwnPlayerId && audio.ActorId != message.OwnUserId ||
+                audio.PondId != message.PondId || audio.SpotId != message.OwnSpotId)) audio = null;
+            _ownActor.ConfigureAudioPresentation(audio, message.FishingPhase, message.OwnPetId);
             _ownActor.WarmupActionClips(message.OwnPetId);
+            var ownEnvelope = message.Presentation;
+            if (ownEnvelope != null && (ownEnvelope.PondId != message.PondId || ownEnvelope.SpotId != message.OwnSpotId ||
+                ownEnvelope.ActorId != message.OwnPlayerId && ownEnvelope.ActorId != message.OwnUserId)) ownEnvelope = null;
+            _ownActor.SetFishingPresentation(predicted ? null : ownEnvelope, true, message.FishingEffectsQuality);
             _ownActor.Apply(
                 message.OwnNickname,
                 predicted ? "sit" : message.PetVisualState,
@@ -607,6 +654,8 @@ namespace FishSocialOverlay
                 if (!_others.TryGetValue(key, out var actor))
                 {
                     actor = new OverlayPetActor(key, _hoverPresenter);
+                    actor.WaterMarkerPublished += ForwardWaterMarker;
+                    actor.WaterGeometryChanged += UpdateActorVisibility;
                     actor.SetPresentationVisible(_windowVisible);
                     actor.ConfigurePlayerMenu(
                         menuPlayerId,
@@ -630,6 +679,10 @@ namespace FishSocialOverlay
                 if (!TryResolveActorPoint(user.SpotId, user.HasPosition, user.X, user.Y, message.Spots, keep.Count - 1, out point))
                     point = WaitingPoint(keep.Count - 1);
                 actor.ApplyScenePlacement(user.SpotId, ActorChrome(user.SpotId), point, user.PetId);
+                var envelope = user.Presentation;
+                if (envelope != null && (envelope.PondId != message.PondId || envelope.SpotId != user.SpotId ||
+                    envelope.ActorId != user.PlayerId && envelope.ActorId != user.UserId)) envelope = null;
+                actor.SetFishingPresentation(envelope, false, message.FishingEffectsQuality);
                 actor.Apply(
                     user.Nickname,
                     user.PetVisualState,

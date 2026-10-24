@@ -154,8 +154,39 @@ namespace FishSocialOverlay
     }
 
     [DataContract]
+    public sealed class FishingPresentationEnvelope
+    {
+        [DataMember(Name = "revision")]
+        public long Revision { get; set; }
+        [DataMember(Name = "presentationSessionId")]
+        public string PresentationSessionId { get; set; }
+        [DataMember(Name = "actorId")]
+        public string ActorId { get; set; }
+        [DataMember(Name = "pondId")]
+        public string PondId { get; set; }
+        [DataMember(Name = "spotId")]
+        public string SpotId { get; set; }
+        [DataMember(Name = "actionId")]
+        public string ActionId { get; set; }
+        [DataMember(Name = "eventId")]
+        public string EventId { get; set; }
+        [DataMember(Name = "source")]
+        public string Source { get; set; }
+        [DataMember(Name = "owner")]
+        public string Owner { get; set; }
+        [DataMember(Name = "ownerEpoch")]
+        public long OwnerEpoch { get; set; }
+        [DataMember(Name = "actorGeneration")]
+        public int ActorGeneration { get; set; }
+        [DataMember(Name = "waterSizeTier")]
+        public string WaterSizeTier { get; set; }
+    }
+
+    [DataContract]
     public sealed class OverlayUserDto
     {
+        [DataMember(Name = "presentation")]
+        public FishingPresentationEnvelope Presentation { get; set; }
         [DataMember(Name = "playerId")]
         public string PlayerId { get; set; }
 
@@ -233,6 +264,27 @@ namespace FishSocialOverlay
     [DataContract]
     public sealed class IpcMessage
     {
+        [DataMember(Name = "commandSessionId")]
+        public string CommandSessionId { get; set; }
+        [DataMember(Name = "marker")]
+        public string Marker { get; set; }
+        [DataMember(Name = "occurrence")]
+        public long Occurrence { get; set; }
+        [DataMember(Name = "elapsedMs")]
+        public double ElapsedMs { get; set; }
+        [DataMember(Name = "validityMs")]
+        public double ValidityMs { get; set; }
+
+        [DataMember(Name = "audioPresentation")] public OverlayAudioPresentation AudioPresentation { get; set; }
+        [DataMember(Name = "protocolVersion")] public int ProtocolVersion { get; set; }
+        [DataMember(Name = "presentationSessionId")] public string PresentationSessionId { get; set; }
+        [DataMember(Name = "actorId")] public string ActorId { get; set; }
+        [DataMember(Name = "ownerEpoch")] public long OwnerEpoch { get; set; }
+        [DataMember(Name = "actorGeneration")] public long ActorGeneration { get; set; }
+        [DataMember(Name = "actionId")] public string ActionId { get; set; }
+        [DataMember(Name = "eventId")] public string EventId { get; set; }
+        [DataMember(Name = "waterSizeTier")] public string WaterSizeTier { get; set; }
+        [DataMember(Name = "source")] public string Source { get; set; }
         [DataMember(Name = "type")]
         public string Type { get; set; }
 
@@ -241,6 +293,12 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "sequence")]
         public long Sequence { get; set; }
+
+        [DataMember(Name = "presentation")]
+        public FishingPresentationEnvelope Presentation { get; set; }
+
+        [DataMember(Name = "fishingEffectsQuality")]
+        public string FishingEffectsQuality { get; set; }
 
         [DataMember(Name = "loginState")]
         public string LoginState { get; set; }

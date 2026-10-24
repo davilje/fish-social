@@ -285,6 +285,7 @@ namespace FishSocial.Desktop.Auth
 
         async Task ReadLoop(Action<bool, string> onCompleted, CancellationToken token)
         {
+            var dispatchSocket = _socket;
             var buffer = new byte[16 * 1024];
             while (_socket != null && _socket.State == WebSocketState.Open && !token.IsCancellationRequested)
             {
@@ -309,7 +310,7 @@ namespace FishSocial.Desktop.Auth
                     packet.StartsWith("43", StringComparison.Ordinal) ||
                     packet.StartsWith("44", StringComparison.Ordinal))
                 {
-                    EnqueuePriority(() => HandlePacket(packet, onCompleted));
+                    EnqueuePriority(() => { if (!token.IsCancellationRequested && ReferenceEquals(dispatchSocket, _socket)) HandlePacket(packet, onCompleted); });
                     continue;
                 }
 
@@ -319,11 +320,11 @@ namespace FishSocial.Desktop.Auth
                     TryReadArrayPacket(packet.Substring(2), out var eventName, out _) &&
                     IsInteractiveSocketEvent(eventName))
                 {
-                    EnqueuePriority(() => HandlePacket(packet, onCompleted));
+                    EnqueuePriority(() => { if (!token.IsCancellationRequested && ReferenceEquals(dispatchSocket, _socket)) HandlePacket(packet, onCompleted); });
                     continue;
                 }
 
-                Enqueue(() => HandlePacket(packet, onCompleted));
+                Enqueue(() => { if (!token.IsCancellationRequested && ReferenceEquals(dispatchSocket, _socket)) HandlePacket(packet, onCompleted); });
             }
         }
 

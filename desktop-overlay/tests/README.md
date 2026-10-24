@@ -1,5 +1,7 @@
 # Overlay 回归
 
+STEAM-DESKTOP-22H 新增：`dotnet run --project desktop-overlay/tests/FishSocialOverlay.WaterEffectsTests.csproj`（1180条水效／预算／正式配置断言）与 `FishSocialOverlay.PresentationSessionTests.csproj`（共享身份与生命周期）；当前 Windows 原生共33组，H新增3组仅交叉编译，未在macOS执行。完整证据和Windows测试包见[22H交付](../../docs/engineering/2026-10-24-water-effects-22h.md)。
+
 从仓库根目录运行：
 
 - 源／资源检查：`python3 -m unittest discover -s desktop-overlay/tests -p 'test_*.py'`

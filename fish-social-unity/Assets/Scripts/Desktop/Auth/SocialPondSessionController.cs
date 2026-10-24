@@ -644,8 +644,8 @@ namespace FishSocial.Desktop.Auth
                 if (CurrentUser.fishingPhase == "hooked" || CurrentUser.fishingPhase == "baiting" ||
                     CurrentUser.fishingPhase == "casting" || CurrentUser.fishingPhase == "waiting")
                     LastFishingOutcome = string.Empty;
-                UserUpdated?.Invoke(CurrentUser);
             }
+            UserUpdated?.Invoke(IsSelf(user) ? CurrentUser : user);
             UsersChanged?.Invoke();
         }
 
@@ -720,6 +720,9 @@ namespace FishSocial.Desktop.Auth
             if (CurrentUser != null && fishCatch != null)
             {
                 CurrentUser.fishingPhase = "hooked";
+                if (CurrentUser.phaseContext == null) CurrentUser.phaseContext = new PondUserPhaseContextDto();
+                CurrentUser.phaseContext.catchId = fishCatch.catchId;
+                CurrentUser.phaseContext.sizeM = fishCatch.sizeM;
                 var duration = fishCatch.hookDurationMs > 0 ? fishCatch.hookDurationMs : 5000;
                 CurrentUser.phaseEndsAt =
                     DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + duration;
@@ -730,6 +733,8 @@ namespace FishSocial.Desktop.Auth
 
         void OnFishMiss(FishingMissDto miss)
         {
+            if (miss == null || (!string.IsNullOrEmpty(miss.actorId) && miss.actorId != CurrentUser?.id) ||
+                (!string.IsNullOrEmpty(miss.pondId) && miss.pondId != CurrentPondId)) return;
             if (IsFishingAsleep)
                 return;
             LastFishingOutcome = "escape";
@@ -741,6 +746,7 @@ namespace FishSocial.Desktop.Auth
                 if (CurrentUser.phaseContext == null)
                     CurrentUser.phaseContext = new PondUserPhaseContextDto();
                 CurrentUser.phaseContext.outcome = "escape";
+                CurrentUser.phaseContext.resultId = miss.resultId;
                 UserUpdated?.Invoke(CurrentUser);
             }
             FishMissReceived?.Invoke(miss);

@@ -32,6 +32,8 @@ namespace FishSocialOverlay
 
         [DllImport("user32.dll")]
         static extern bool GetCursorPos(out Win32Point lpPoint);
+        [DllImport("user32.dll")]
+        static extern short GetAsyncKeyState(int key);
 
         readonly object _writeLock = new object();
         readonly string _pipeName;
@@ -40,6 +42,8 @@ namespace FishSocialOverlay
         StreamWriter _writer;
         long _latestSequence;
         long _nextCommandId;
+        readonly string _commandSessionId = Guid.NewGuid().ToString("N");
+        readonly OverlayPetClickGesture _petClickGesture = new OverlayPetClickGesture();
         bool _stopping;
         string _selectedSpotId = string.Empty;
         readonly bool _safeWindow;
@@ -230,6 +234,7 @@ namespace FishSocialOverlay
         public MainWindow()
         {
             InitializeComponent();
+            LocationChanged += (_, __) => _petClickGesture.WindowMoved();
             ContextMenuService.SetIsEnabled(this, false);
             ContextMenuService.SetIsEnabled(PondScene, false);
             OverlayInteractionState.MenuHoverSuppressEnded += OnMenuHoverSuppressEnded;
@@ -263,7 +268,9 @@ namespace FishSocialOverlay
                         ApplyFishingControls(_lastStateMessage);
                 }
             };
+            _scene.FishingWaterMarkerPublished += OnFishingWaterMarkerPublished;
             _scene.LocalPresentationChanged += OnLocalPresentationChanged;
+            _scene.AudioMarkerPublished += SendPresentationMarker;
             _scene.SceneContentChanged += OnSceneContentChanged;
             _scene.ScenePresentationChanged += RefreshScenePresentation;
             SceneFadeHost.Visibility = Visibility.Collapsed;
@@ -288,7 +295,7 @@ namespace FishSocialOverlay
             // Never put both OpacityMasks on one element — the second overwrites the first.
             _edgeVignette = new OverlayEdgeVignette(SceneFadeHost, ScenePanViewport);
             _scenePan = new OverlayScenePan(SceneContentCanvas);
-            _scenePan.PanActivated += () => PlayInteractionAudio("ui_tick");
+            _scenePan.PanActivated += () => PlayInteractionAudio("ui_click");
             _scenePan.ViewportChanged += RefreshPresentationViewport;
             IsVisibleChanged += (sender, args) => RefreshPresentationViewport();
             StateChanged += (sender, args) => RefreshPresentationViewport();
@@ -489,6 +496,8 @@ namespace FishSocialOverlay
         IntPtr WindowHook(IntPtr hwnd, int message, IntPtr wParam, IntPtr lParam,
             ref bool handled)
         {
+            if (message == 0x0216) _petClickGesture.WindowMoved(); // WM_MOVING, including drag-out-and-back
+            if (message == 0x001F || message == 0x0100 && wParam.ToInt32() == 0x1B) _petClickGesture.Cancel();
             if (message != WM_NCHITTEST)
                 return IntPtr.Zero;
 
@@ -559,6 +568,7 @@ namespace FishSocialOverlay
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
+                        _scene?.CancelOwnAudioPresentation();
                         if (!_stopping) ShowTransientStatus("连接已断开，正在等待主界面重连。");
                     }));
                 }
@@ -753,6 +763,7 @@ namespace FishSocialOverlay
         /// </summary>
         void SendOwnAction(string command, string spotId = null)
         {
+            if (command == "stop_fishing" || command == "leave_spot") _scene?.CancelOwnAudioPresentation();
             if (_pendingActionCommandId != 0 &&
                 !(command == "stop_fishing" && _pendingActionName == "start_fishing"))
                 return;
@@ -773,6 +784,7 @@ namespace FishSocialOverlay
 
         void ExitPond_OnClick(object sender, RoutedEventArgs e)
         {
+            _scene?.CancelOwnAudioPresentation();
             SendCommand("exit_pond");
         }
 
@@ -1621,8 +1633,7 @@ namespace FishSocialOverlay
 
             if (pet != null)
             {
-                if (pet.TryOpenPlayerContextMenu())
-                    PlayInteractionAudio("ui_open");
+                pet.TryOpenPlayerContextMenu();
             }
             else if (product)
                 OpenProductContextMenu();
@@ -1693,6 +1704,7 @@ namespace FishSocialOverlay
         {
             ForceDismissAllContextMenus();
             var id = (sender as MenuItem)?.Tag as string;
+            if (id != _viewportPreset.Id) PlayInteractionAudio("ui_toggle");
             ApplyViewportSize(OverlayViewportPreset.FromId(id), persist: true, anchorOnScreen: true);
         }
 
@@ -1712,6 +1724,7 @@ namespace FishSocialOverlay
         MenuItem CreateProductMenuItem(string header, RoutedEventHandler click)
         {
             var item = new MenuItem { Header = header };
+            if (OverlayUiAudioPolicy.IsNavigation(click.Method.Name)) OverlayUiAudio.SetCue(item, "none");
             CozyTheme.SetIcon(item, CozyTheme.IconPath(CozyTheme.IconFor(header)));
             item.Click += (_, __) => ForceDismissAllContextMenus();
             item.Click += click;
@@ -1905,6 +1918,7 @@ namespace FishSocialOverlay
         {
             var pointerBefore = new Win32Point();
             var canMeasureClick = petClick && GetCursorPos(out pointerBefore);
+            if (canMeasureClick) _petClickGesture.Begin(pointerBefore.X, pointerBefore.Y, GestureNowMs());
             var dragCompleted = false;
             OverlayInteractionState.SceneDragging = true;
             _scene?.CancelAllHovers();
@@ -1918,16 +1932,19 @@ namespace FishSocialOverlay
             }
             OverlayInteractionState.SceneDragging = false;
             ResyncPointerHover();
-            // DragMove owns native mouse capture, so WPF may not receive button-up.
-            // Compare screen positions to distinguish a cat click from a drag.
+            // Native move/cancel messages retain the whole gesture history; a
+            // drag out and back cannot masquerade as an unmoved cat click.
             if (canMeasureClick && dragCompleted && GetCursorPos(out var pointerAfter) &&
-                Math.Abs(pointerAfter.X - pointerBefore.X) <= SystemParameters.MinimumHorizontalDragDistance &&
-                Math.Abs(pointerAfter.Y - pointerBefore.Y) <= SystemParameters.MinimumVerticalDragDistance)
+                _petClickGesture.Complete(pointerAfter.X, pointerAfter.Y, GestureNowMs(),
+                    SystemParameters.MinimumHorizontalDragDistance, SystemParameters.MinimumVerticalDragDistance,
+                    (GetAsyncKeyState(0x01) & 0x8000) == 0))
             {
-                PlayInteractionAudio("meow");
+                PlayInteractionAudio("manual_meow");
                 SendCommand("fishing_attention");
             }
         }
+
+        static double GestureNowMs() => System.Diagnostics.Stopwatch.GetTimestamp() * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
 
         void PondScene_OnMouseMove(object sender, MouseEventArgs e)
         {
@@ -2024,6 +2041,26 @@ namespace FishSocialOverlay
             OverlayInteractionState.SceneDragging = false;
         }
 
+        void OnFishingWaterMarkerPublished(OverlayPetActor actor, string cue, long occurrence, string key, string tier)
+        {
+            var envelope = actor?.WaterPresentation;
+            if (envelope == null || envelope.Owner != "overlay" || envelope.Source == "snapshot") return;
+            envelope.WaterSizeTier = tier;
+            // Carries the visual event identity to Unity's sole audio owner. No WPF playback device.
+            var message = new IpcMessage
+            {
+                Type = "presentation_marker", Version = 1, Presentation = envelope,
+                Marker = cue, Occurrence = occurrence, ElapsedMs = 0, ValidityMs = 250,
+            };
+            var publishedAt = GestureNowMs();
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                message.ElapsedMs = GestureNowMs() - publishedAt;
+                if (message.ElapsedMs >= 250) return;
+                WriteLine(message.ToJson());
+            });
+        }
+
         long SendCommand(string command, string spotId = null, string text = null)
         {
             var commandId = Interlocked.Increment(ref _nextCommandId);
@@ -2045,26 +2082,59 @@ namespace FishSocialOverlay
                 SpotId = spotId,
                 Text = text,
                 CommandId = commandId,
+                CommandSessionId = _commandSessionId,
                 SentAtMs = sentAtMs,
             });
             return commandId;
         }
 
+        void SendPresentationMarker(OverlayAudioMarker marker)
+        {
+            if (_stopping || !IsVisible || WindowState == WindowState.Minimized || !SceneFadeHost.IsVisible) return;
+            var identity = marker.Identity;
+            var message = new IpcMessage
+            {
+                Type = "command", Version = 1, ProtocolVersion = 2, Command = "presentation_marker",
+                PresentationSessionId = identity.PresentationSessionId, ActorId = identity.ActorId,
+                PondId = identity.PondId, SpotId = identity.SpotId, OwnerEpoch = identity.OwnerEpoch,
+                ActionId = identity.ActionId, EventId = identity.EventId, ActorGeneration = marker.ActorGeneration,
+                Marker = marker.Marker, Occurrence = marker.Occurrence, WaterSizeTier = marker.WaterSizeTier,
+                Source = identity.Source,
+            };
+            var publishedAt = GestureNowMs();
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                message.ElapsedMs = GestureNowMs() - publishedAt;
+                if (message.ElapsedMs >= 250) return; // never replay stalled dispatcher/pipe work
+                message.SentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                WriteLine(message.ToJson());
+            });
+        }
+
         internal void PlayButtonAudio(Button button)
         {
-            var cue = "ui_click";
-            if (ReferenceEquals(button, MenuToggleButton))
-                cue = _menuExpanded ? "ui_close" : "ui_open";
-            else if (ReferenceEquals(button, ChatDockToggle))
-                cue = _chatDockExpanded ? "ui_close" : "ui_open";
-            else if (string.Equals(button.Content as string, "关闭", StringComparison.Ordinal))
-                cue = "ui_close";
-            PlayInteractionAudio(cue);
+            if (ReferenceEquals(button, ChatSendButton) || ReferenceEquals(button, OpenMainButton) ||
+                ReferenceEquals(button, MenuMapButton) || ReferenceEquals(button, MenuShopButton) ||
+                ReferenceEquals(button, MenuFriendsButton) || ReferenceEquals(button, MenuCatchButton) ||
+                ReferenceEquals(button, MenuLeaderboardButton) || ReferenceEquals(button, MenuSettingsButton)) return;
+            var expanded = ReferenceEquals(button, MenuToggleButton) ? _menuExpanded :
+                ReferenceEquals(button, ChatDockToggle) ? _chatDockExpanded :
+                ReferenceEquals(button, GameplayDebugButton) && GameplayDebugModal.Visibility == Visibility.Visible;
+            PlayInteractionAudio(OverlayUiAudioPolicy.LocalCue(button.Name, button.Content as string, expanded));
         }
+
+        internal void PlayMenuItemAudio(MenuItem item)
+        {
+            if (item.IsCheckable) return; // viewport handler checks the old value
+            var cue = OverlayUiAudio.GetCue(item);
+            if (cue != "none") PlayInteractionAudio(cue ?? "ui_click");
+        }
+
+        void IOverlayPlayerMenuHost.PlayPlayerMenuAudio(string cue) => PlayInteractionAudio(cue);
 
         internal void PlayInteractionAudio(string cue)
         {
-            if (_stopping)
+            if (_stopping || !IsVisible || !OverlayUiAudioPolicy.Allowed(cue))
                 return;
             // Unity owns playback, volume settings and cooldowns for both windows.
             // Cosmetic messages do not participate in gameplay command/ack state.
@@ -2072,7 +2142,7 @@ namespace FishSocialOverlay
             {
                 Type = "command",
                 Version = 1,
-                Command = "play_audio",
+                Command = "ui_audio",
                 Text = cue,
             });
         }
@@ -2232,11 +2302,13 @@ namespace FishSocialOverlay
                 return;
             if (!_socketConnected)
             {
+                PlayInteractionAudio("ui_error");
                 ShowTransientStatus("实时服务未连接，请进入鱼塘后重试。");
                 return;
             }
 
             _pendingChatText = text;
+            PlayInteractionAudio("ui_click");
             _awaitingChatAck = true;
             UpdateChatSendEnabled();
             _chatAckTimer.Stop();
@@ -2481,6 +2553,7 @@ namespace FishSocialOverlay
                 Command = command,
                 PlayerId = playerId,
                 CommandId = commandId,
+                CommandSessionId = _commandSessionId,
                 SentAtMs = sentAtMs,
             });
         }

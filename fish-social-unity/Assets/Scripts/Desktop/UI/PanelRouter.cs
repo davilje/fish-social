@@ -42,6 +42,7 @@ namespace FishSocial.Desktop
             PanelChanged?.Invoke(id);
             // A route listener may synchronously redirect (e.g. login/permission guard).
             if (version != navigationVersion) return;
+            if (Application.isPlaying && next != null) DesktopAudioService.Play(id == ShellPanelId.Home ? "ui_close" : "ui_open");
             if (!changed || next == null)
             {
                 foreach (var kv in _panels)

@@ -40,6 +40,18 @@ namespace FishSocial.Desktop
         Coroutine _policeRaidRoutine;
         OverlayPlayerSocialBridge _playerSocialBridge;
         OwnFishingPresenter _ownFishing;
+        readonly FishingPresentationSession _fishingPresentation = new FishingPresentationSession();
+        public FishingPresentationSession FishingPresentation => _fishingPresentation;
+        /// <summary>Shared H/I cue interface; subscribers arbitrate their own audio consumption.</summary>
+        public event Action<NativeOverlayCommandDto> WaterMarkerReceived;
+
+        public void SetFishingEffectsQuality(string quality)
+        {
+            if (quality != "standard" && quality != "reduced" && quality != "off") return;
+            PlayerPrefs.SetString("FishSocial.FishingEffectsQuality", quality);
+            PlayerPrefs.Save();
+            PublishNativeOverlayState(true);
+        }
         DesktopGameplayDebugMenu _gameplayDebug;
         FishingProgressDto _fishingProgress;
         Coroutine _progressRoutine;
@@ -83,6 +95,7 @@ namespace FishSocial.Desktop
             }
 
             Instance = this;
+            CozyMotion.ReducedChanged += OnReducedMotionChanged;
             DontDestroyOnLoad(gameObject);
             Application.wantsToQuit += OnWantsToQuit;
             BackgroundRenderGate.ResetToForeground();
@@ -257,6 +270,7 @@ namespace FishSocial.Desktop
 
             _nativeOverlay = gameObject.AddComponent<NativeOverlayProcessController>();
             _nativeOverlay.CommandReceived += OnNativeOverlayCommand;
+            _nativeOverlay.WaterMarkerReceived += OnNativeWaterMarker;
             return _nativeOverlay;
         }
 
@@ -299,7 +313,12 @@ namespace FishSocial.Desktop
 
         void LateUpdate()
         {
+            var ownerEpoch = _fishingPresentation.OwnerEpoch;
+            _fishingPresentation.SetOwner(_nativeOverlay != null && _nativeOverlay.IsConnected &&
+                _nativeOverlay.LifecycleState == NativeOverlayLifecycleState.Running);
+            if (ownerEpoch != _fishingPresentation.OwnerEpoch) PublishNativeOverlayState(true);
             _ownFishing?.Tick();
+            RefreshFishingAudio();
             if (_nativeOverlay != null && Time.unscaledDeltaTime > 0.25f)
                 Debug.Log(
                     "[Latency][Unity] frame_stall ms=" +
@@ -320,7 +339,10 @@ namespace FishSocial.Desktop
         {
             if (commandId <= 0)
                 return;
+            if (!ok) _fishingPresentation.Cancel(_pondSession?.CurrentUser?.id);
             _ownFishing?.OnCommandFinished(command, ok);
+            if (!ok) DesktopAudioService.Instance?.RejectAction();
+            if (!ok) DesktopAudioService.PlayResult("ui_error", "overlay:" + commandId);
             _overlayAcks.Add(new NativeOverlayCommandAckDto
             {
                 commandId = commandId,
@@ -367,6 +389,9 @@ namespace FishSocial.Desktop
                 };
                 OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
                 _ownFishing?.ApplyToDto(dto, _pondSession);
+                FillFishingPresentation(dto);
+                RefreshFishingAudio();
+                dto.audioPresentation = DesktopAudioService.Instance?.Presentation;
                 dto.debugFishListMode = _overlayDebugFishListMode ?? string.Empty;
                 dto.debugFish = _overlayDebugFish ?? Array.Empty<NativeOverlayDebugFishDto>();
                 dto.debugSpotReport = _overlayDebugSpotReport ?? string.Empty;
@@ -470,6 +495,7 @@ namespace FishSocial.Desktop
             }
             else
             {
+                _fishingPresentation.Reset(_pondSession?.CurrentPondId);
                 _ownFishing?.ClearRound();
                 if (!string.IsNullOrEmpty(message))
                     _nativeOverlayError = message;
@@ -611,22 +637,73 @@ namespace FishSocial.Desktop
             }
         }
 
-        void OnPondSnapshotChanged(PondSnapshotDto _)
+        void OnPondSnapshotChanged(PondSnapshotDto snapshot)
         {
+            if (_fishingPresentation.PondId != (_pondSession?.CurrentPondId ?? string.Empty))
+                _fishingPresentation.Reset(_pondSession?.CurrentPondId);
+            if (snapshot?.users != null)
+                foreach (var user in snapshot.users) ObserveFishingPresentation(user, true);
             _ownFishing?.ReconcileFromServer();
             RefreshFishingAudio();
             PublishNativeOverlayState();
         }
 
-        void RefreshFishingAudio()
+        public string OwnFishingPresentationPhase => _ownFishing != null && _ownFishing.IsActive ? _ownFishing.Phase : _pondSession?.CurrentPhase;
+
+        public FishingPresentationEnvelope ResolveOwnFishingPresentation()
         {
-            DesktopAudioService.Instance?.ObserveFishingPhase(
-                _pondSession != null && _pondSession.IsFishingAsleep ? "idle" :
-                _ownFishing != null && _ownFishing.IsActive ? _ownFishing.Phase : _pondSession?.CurrentPhase);
+            var phase = _ownFishing != null && _ownFishing.IsActive ? _ownFishing.Phase : _pondSession?.CurrentPhase;
+            var spot = _ownFishing != null && _ownFishing.IsActive ? _ownFishing.SpotId : _pondSession?.CurrentUser?.spotId;
+            return _fishingPresentation.Envelope(_pondSession?.CurrentUser?.id, phase, spot);
+        }
+
+        void OnNativeWaterMarker(NativeOverlayCommandDto message)
+        {
+            var envelope = message?.presentation;
+            if (envelope == null || !_fishingPresentation.TryConsume(
+                envelope, message.marker, message.occurrence, "ipc-relay")) return;
+            // Flatten for the existing I adapter while preserving the shared envelope as authority.
+            message.presentationSessionId = envelope.presentationSessionId;
+            message.actorId = envelope.actorId; message.pondId = envelope.pondId;
+            message.actionId = envelope.actionId; message.eventId = envelope.eventId;
+            message.ownerEpoch = envelope.ownerEpoch; message.actorGeneration = envelope.actorGeneration;
+            message.source = envelope.source; message.waterSizeTier = envelope.waterSizeTier;
+            WaterMarkerReceived?.Invoke(message);
+        }
+
+        void ObserveFishingPresentation(PondUserDto user, bool snapshot)
+        {
+            if (user == null) return;
+            _fishingPresentation.Observe(user.id, user.presentationActionId, user.presentationEventId,
+                user.presentationRevision, user.fishingPhase, user.spotId, user.avatarUrl, snapshot);
+        }
+
+        void FillFishingPresentation(NativeOverlayStateDto dto)
+        {
+            _fishingPresentation.SetOwner(_nativeOverlay != null && _nativeOverlay.IsConnected &&
+                _nativeOverlay.LifecycleState == NativeOverlayLifecycleState.Running);
+            dto.presentation = _fishingPresentation.Envelope(dto.ownUserId, dto.fishingPhase, dto.ownSpotId);
+            dto.fishingEffectsQuality = DesktopFishingEffectsSettingsView.Quality;
+            foreach (var actor in dto.users)
+                if (actor != null) actor.presentation = _fishingPresentation.Envelope(
+                    actor.userId, actor.fishingPhase, actor.spotId);
+        }
+
+        void RefreshFishingAudio(bool snapshot = false)
+        {
+            var nativeVisible = _nativeOverlay != null && _nativeOverlay.IsConnected &&
+                _nativeOverlay.LifecycleState == NativeOverlayLifecycleState.Running;
+            _fishingPresentation.SetOwner(nativeVisible);
+            var currentPhase = _ownFishing != null && _ownFishing.IsActive ? _ownFishing.Phase : _pondSession?.CurrentPhase;
+            DesktopAudioService.Instance?.UpdateContext(_pondSession?.CurrentPondId, _pondSession?.CurrentUser,
+                _pondSession != null && _pondSession.State == SocialSocketState.Connected,
+                nativeVisible ? "overlay" : "unity", BackgroundRenderGate.IsHidden && !nativeVisible,
+                snapshot, currentPhase, ResolveOwnFishingPresentation());
         }
 
         void OnPondUserUpdated(PondUserDto user)
         {
+            ObserveFishingPresentation(user, false);
             var own = _pondSession?.CurrentUser;
             var isOwn = user != null && own != null && user.id == own.id;
             if (isOwn)
@@ -637,6 +714,11 @@ namespace FishSocial.Desktop
 
         void OnPondUsersChanged()
         {
+            var present = new List<string>();
+            if (_pondSession?.CurrentUser != null) present.Add(_pondSession.CurrentUser.id);
+            if (_pondSession != null)
+                foreach (var user in _pondSession.VisibleOthers) if (user != null) present.Add(user.id);
+            _fishingPresentation.RetainActors(present);
             if (_pondSession != null && _pondSession.IsFishingAsleep)
                 _ownFishing?.ReconcileFromServer();
             PublishNativeOverlayState();
@@ -644,28 +726,33 @@ namespace FishSocial.Desktop
 
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
-            DesktopAudioService.Play("splash");
+            RefreshFishingAudio();
+            if (fishCatch != null)
+                DesktopAudioService.Instance?.ArmEvent("bite", fishCatch.catchId, fishCatch.sizeM,
+                    _pondSession?.CurrentUser?.phaseEndsAt ?? 0);
             var duration = fishCatch != null ? fishCatch.hookDurationMs : 0;
             _ownFishing?.BeginHooked(duration);
             PublishNativeOverlayState(true);
         }
 
-        void OnPondFishMiss(FishingMissDto _)
+        void OnPondFishMiss(FishingMissDto miss)
         {
+            if (miss == null || (!string.IsNullOrEmpty(miss.actorId) && miss.actorId != _pondSession?.CurrentUser?.id) ||
+                (!string.IsNullOrEmpty(miss.pondId) && miss.pondId != _pondSession?.CurrentPondId)) return;
+            DesktopAudioService.Instance?.ArmEvent("escape", miss.resultId, _pondSession?.CurrentUser?.phaseContext?.sizeM ?? 0, 0);
             _ownFishing?.BeginMissEscape();
             PublishNativeOverlayState(true);
         }
 
-        void OnPondFishCatchSettled(FishCatchSettledDto _)
+        void OnPondFishCatchSettled(FishCatchSettledDto settled)
         {
+            if (settled != null) DesktopAudioService.Instance?.ArmEvent("catch", settled.catchId, settled.sizeM, 0);
             _ownFishing?.ReconcileFromServer();
             PublishNativeOverlayState();
         }
 
         void OnPondCatchAccepted()
         {
-            if (_pondSession == null || !_pondSession.IsFishingAsleep)
-                DesktopAudioService.CelebrateCatch();
             QueueFishingProgressRefresh();
         }
 
@@ -704,9 +791,15 @@ namespace FishSocial.Desktop
         {
             if (message == null)
                 return;
-            if (message.command == "play_audio")
+            if (message.command == "ui_audio" || message.command == "play_audio")
             {
-                DesktopAudioService.Play(message.text);
+                DesktopAudioService.Instance?.HandleNativeUi(message);
+                return;
+            }
+            if (message.command == "presentation_marker")
+            {
+                RefreshFishingAudio();
+                DesktopAudioService.Instance?.HandleMarker(message);
                 return;
             }
             if (message.command == "fishing_attention")
@@ -718,6 +811,12 @@ namespace FishSocial.Desktop
             {
                 PublishNativeOverlayState();
                 return;
+            }
+            if (message.command == "start_fishing" || message.command == "groundbait_start" ||
+                message.command == "stop_fishing" || message.command == "leave_spot" || message.command == "exit_pond")
+            {
+                RefreshFishingAudio();
+                DesktopAudioService.Instance?.BeginAction(message.command, message.commandId);
             }
             var command = message.command;
             switch (command)
@@ -737,11 +836,13 @@ namespace FishSocial.Desktop
                         callback => _pondSession?.TakeSpot(message.spotId, callback), message);
                     return;
                 case "leave_spot":
+                    _fishingPresentation.Cancel(_pondSession?.CurrentUser?.id);
                     _ownFishing?.BeginLeaveSpot(message.commandId);
                     ExecuteOverlayCommand(
                         callback => _pondSession?.LeaveSpot(callback), message);
                     return;
                 case "start_fishing":
+                    _fishingPresentation.Predict(_pondSession?.CurrentUser?.id, "baiting", message.commandId, message.commandSessionId);
                     _ownFishing?.BeginStartFishing(message.commandId);
                     ExecuteOverlayCommand(
                         callback => _pondSession?.StartFishing(
@@ -751,10 +852,12 @@ namespace FishSocial.Desktop
                             callback), message);
                     return;
                 case "groundbait_start":
+                    _fishingPresentation.Predict(_pondSession?.CurrentUser?.id, "groundbaiting", message.commandId, message.commandSessionId);
                     _ownFishing?.BeginGroundbait(message.commandId);
                     ExecuteOverlayGroundbait(message.spotId, message.commandId);
                     return;
                 case "stop_fishing":
+                    _fishingPresentation.Cancel(_pondSession?.CurrentUser?.id);
                     _ownFishing?.BeginStopFishing(message.commandId);
                     ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback), message);
                     return;
@@ -1230,8 +1333,11 @@ namespace FishSocial.Desktop
             completed();
         }
 
+        void OnReducedMotionChanged(bool _) { PublishNativeOverlayState(true); }
+
         void OnDestroy()
         {
+            CozyMotion.ReducedChanged -= OnReducedMotionChanged;
             Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy begin.");
             if (_steamAuth != null)
                 _steamAuth.StateChanged -= OnSteamAuthStateChanged;
@@ -1256,6 +1362,7 @@ namespace FishSocial.Desktop
             if (_nativeOverlay != null)
             {
                 _nativeOverlay.CommandReceived -= OnNativeOverlayCommand;
+                _nativeOverlay.WaterMarkerReceived -= OnNativeWaterMarker;
             }
 #if !UNITY_EDITOR
             if (_singleInstanceMutex != null)

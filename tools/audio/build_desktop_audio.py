@@ -155,6 +155,8 @@ def cats():
 
 
 if __name__=='__main__':
+    if (OUT/'cue-config.json').exists():
+        raise SystemExit('v1 recipe is archived; use tools/audio/build_desktop_audio_v2.py for production v2.')
     import urllib.request
     (HERE/'sources').mkdir(exist_ok=True)
     # libsndfile reads MP3 previews directly; generated game assets are always WAV.

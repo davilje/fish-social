@@ -31,6 +31,7 @@ namespace FishSocial.Desktop
         public const int OverlayHeight = 560;
 
         readonly ConcurrentQueue<string> _incoming = new ConcurrentQueue<string>();
+        readonly ConcurrentQueue<long> _incomingReceivedAt = new ConcurrentQueue<long>();
         readonly ConcurrentQueue<string> _commands = new ConcurrentQueue<string>();
         readonly object _pipeLock = new object();
         readonly object _lifecycleLock = new object();
@@ -54,6 +55,7 @@ namespace FishSocial.Desktop
         public NativeOverlayLifecycleState LifecycleState { get; private set; } =
             NativeOverlayLifecycleState.Stopped;
         public event Action<NativeOverlayCommandDto> CommandReceived;
+        public event Action<NativeOverlayCommandDto> WaterMarkerReceived;
 
         void Awake()
         {
@@ -68,6 +70,7 @@ namespace FishSocial.Desktop
         {
             while (_incoming.TryDequeue(out var line))
             {
+                var receivedAt = _incomingReceivedAt.TryDequeue(out var queuedAt) ? queuedAt : Stopwatch.GetTimestamp();
                 NativeOverlayCommandDto message;
                 try
                 {
@@ -84,6 +87,12 @@ namespace FishSocial.Desktop
                 {
                     IsConnected = true;
                     SendLatestState();
+                }
+                else if (message.type == "presentation_marker")
+                {
+                    var dwellMs = (Stopwatch.GetTimestamp() - receivedAt) * 1000.0 / Stopwatch.Frequency;
+                    if (dwellMs <= 250 && message.elapsedMs + dwellMs <= Math.Min(250, message.validityMs))
+                        WaterMarkerReceived?.Invoke(message);
                 }
                 else if (message.type == "command" && !string.IsNullOrEmpty(message.command))
                 {
@@ -498,7 +507,10 @@ namespace FishSocial.Desktop
                             string line;
                             while (!_stopping && server.IsConnected &&
                                    (line = reader.ReadLine()) != null)
+                            {
+                                _incomingReceivedAt.Enqueue(Stopwatch.GetTimestamp());
                                 _incoming.Enqueue(line);
+                            }
                         }
                     }
                 }

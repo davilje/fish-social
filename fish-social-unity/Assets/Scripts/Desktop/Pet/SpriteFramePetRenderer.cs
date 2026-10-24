@@ -10,6 +10,9 @@ namespace FishSocial.Desktop.Pet
     public sealed class SpriteFramePetRenderer : MonoBehaviour, IPetRenderer, IPointerClickHandler
     {
 
+        public bool OwnAudioPresentation { get; set; }
+        readonly DesktopAudioFrameMarkers _audioMarkers = new DesktopAudioFrameMarkers();
+        string _audioPresentedEvent;
         Image _image;
         RectTransform _layerHost;
         Image[] _layerImages;
@@ -33,6 +36,11 @@ namespace FishSocial.Desktop.Pet
         Vector2 _layerSlotSize;
         int _layerDrawWidth;
         int _layerDrawHeight;
+        bool _framePublicationPending;
+        bool _waterEffectsBound;
+        long _sourceLoopOccurrence;
+        readonly UnityFishingWaterMarkerBridge _waterMarkerBridge = new UnityFishingWaterMarkerBridge();
+        public UnityFishingWaterMarkerBridge WaterMarkerBridge => _waterMarkerBridge;
 
         public string ActiveClip => _activeClip;
         public string ActiveSkinId => _petId;
@@ -48,6 +56,19 @@ namespace FishSocial.Desktop.Pet
 
         public void Bind(Image target)
         {
+            if (!_waterEffectsBound)
+            {
+                _waterEffectsBound = true;
+                _waterMarkerBridge.MarkerPublished += UnityFishingWaterEffects.Publish;
+                _waterMarkerBridge.MarkerPublished += marker => {
+                    if(OwnAudioPresentation)DesktopAudioService.Instance?.UnityMarker(marker.Marker, (int)marker.Occurrence, marker.Envelope.waterSizeTier);
+                };
+                if (Application.isPlaying)
+                {
+                    UnityFishingWaterMarkerBridge.WarmupSourceMarkers();
+                    UnityFishingWaterEffects.Warmup();
+                }
+            }
             if (_image != target && _layerHost != null)
             {
                 Destroy(_layerHost.gameObject);
@@ -289,6 +310,7 @@ namespace FishSocial.Desktop.Pet
             ReleaseLayers(_activeClip == "fishing" && clip == "fishing" && _petId == petId);
             _layered = session;
             _activeClip = clip;
+            _sourceLoopOccurrence = 0;
             _layerFinished = false;
             _petId = petId;
             _elapsed = 0f;
@@ -378,6 +400,7 @@ namespace FishSocial.Desktop.Pet
                 image.color = Color.white;
                 image.transform.SetSiblingIndex(depth);
             }
+
         }
 
         void ReleaseLayers(bool preserveRest = false)
@@ -389,6 +412,27 @@ namespace FishSocial.Desktop.Pet
             FishingLayerArt.Release(_layered);
             _layered = null;
             _activeClip = null;
+        }
+
+        void LateUpdate()
+        {
+            var newFrame=_framePublicationPending;
+            var audioContext=DesktopAudioService.Instance?.Presentation;
+            var confirmation=OwnAudioPresentation&&audioContext?.eventKind=="catch"&&audioContext.eventId!=_audioPresentedEvent;
+            if (!newFrame&&!confirmation) return;
+            _framePublicationPending = false;
+            if (_manualPlayback || _layered == null || _layerHost == null ||
+                !_layerHost.gameObject.activeInHierarchy || _image == null || !_image.canvas ||
+                !_image.canvas.enabled || !isActiveAndEnabled) return;
+            // ShowLayer may advance several times after a stall; only this final visible frame can publish a cue.
+            for (var i = 0; i < _layerImages.Length; i++)
+                if (_layerImages[i] == null || _layerImages[i].sprite == null) return;
+            if(newFrame)_waterMarkerBridge.Publish(_activeClip, _layerIndex, _sourceLoopOccurrence);
+            if(OwnAudioPresentation)
+            {
+                _audioMarkers.Published(_activeClip, _layerIndex, true);
+                if(confirmation&&(_activeClip=="catch"||_activeClip=="reset_catch"))_audioPresentedEvent=audioContext.eventId;
+            }
         }
 
         void Update()
@@ -447,6 +491,7 @@ namespace FishSocial.Desktop.Pet
 
             if (_layered.Playback == "intro-loop")
             {
+                _sourceLoopOccurrence++;
                 _layerIndex = _layered.LoopStart;
                 ShowLayer();
                 return;

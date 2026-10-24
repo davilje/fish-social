@@ -12,12 +12,19 @@ namespace FishSocial.Desktop
 
         public static bool IsHidden { get; private set; }
         public static bool IsOverlayActive { get; private set; }
+        static bool audioWork;
+        // Main-thread socket dispatch and short fades need a responsive clock even with both windows hidden.
+        public static void SetAudioWork(bool active)
+        {
+            if(audioWork==active)return;audioWork=active;
+            Application.targetFrameRate=IsHidden&&!IsOverlayActive&&!audioWork?BackgroundFps:ForegroundFps;
+        }
 
         public static void SetHidden(bool hidden)
         {
             IsHidden = hidden;
             Application.targetFrameRate =
-                hidden && !IsOverlayActive ? BackgroundFps : ForegroundFps;
+                hidden && !IsOverlayActive && !audioWork ? BackgroundFps : ForegroundFps;
             QualitySettings.vSyncCount = 0;
         }
 
@@ -25,7 +32,7 @@ namespace FishSocial.Desktop
         {
             IsOverlayActive = active;
             Application.targetFrameRate =
-                IsHidden && !active ? BackgroundFps : ForegroundFps;
+                IsHidden && !active && !audioWork ? BackgroundFps : ForegroundFps;
             QualitySettings.vSyncCount = 0;
         }
 
