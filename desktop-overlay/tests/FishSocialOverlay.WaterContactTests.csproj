@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../OverlayFishingWaterContact.cs" />
+    <Compile Include="OverlayWaterContactTests.cs" />
+    <None Include="../OverlayResources/fishing/water-contact.json" Link="OverlayResources/fishing/water-contact.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

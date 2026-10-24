@@ -25,3 +25,9 @@ Windows 项目引用正式 Overlay 程序并复制 OverlayResources；缓存测�
 ## 后续交互回归
 
 新增第 19 组验证三种窗口尺寸下聊天开关、装饰层穿透、输入命中与菜单删除；场景组补默认塘不预加载和加载完成前不可见。Unity 34 项专项及 Windows 实机步骤见 [进出鱼塘与资料刷新修复](../../docs/engineering/2026-10-23-overlay-return-regressions.md)。
+
+## 2026-10-24 水面接触与交互
+
+- 新增可移植水面接触测试：`dotnet run --project desktop-overlay/tests/FishSocialOverlay.WaterContactTests.csproj`，6 组，使用正式求解器与真实导出边界。
+- Python 源／资源检查现为 51 项。Windows 原生现为 20 组，聊天覆盖真正的输入命中与 PreviewMouseLeftButtonDown 路由，新增手账矢量读条与截止隐藏。
+- 本轮运行边界与 Windows 验收：[交付说明](../../docs/engineering/2026-10-24-overlay-pond-presentation.md)。

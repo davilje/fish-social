@@ -505,6 +505,7 @@ namespace FishSocial.Desktop.Editor
             var node = root.transform;
             node.Find("DesignCategoryFish").GetComponent<Button>().interactable = true;
             ButtonAt(node, "DesignCategoryItems", "道具", "bag", 34, 212, 190, 76);
+            node.Find("DesignCategoryItems/Label").GetComponent<Text>().fontStyle = FontStyle.Normal;
             Place(node, "DesignBagNote", 44, 320, 170, 142);
             var obsolete = node.Find("EquipItem");
             if (obsolete != null) UnityEngine.Object.DestroyImmediate(obsolete.gameObject);

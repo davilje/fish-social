@@ -24,7 +24,7 @@ namespace FishSocialOverlay
     {
         public const double BodySize = 64;
         const double RingSize = 31;
-        const double RingStroke = 2.5;
+        const double RingStroke = OverlayHookProgressStyle.StrokeWidth;
         const double IconSize = OverlayStatusIcons.Size;
         const double PanelMinHeight = 20;
         const double NameMinWidth = 88;
@@ -200,7 +200,7 @@ namespace FishSocialOverlay
             {
                 Width = RingSize,
                 Height = RingSize,
-                Stroke = new SolidColorBrush(Color.FromRgb(232, 156, 64)),
+                Stroke = OverlayHookProgressStyle.Progress,
                 StrokeThickness = RingStroke,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round,
@@ -523,7 +523,7 @@ namespace FishSocialOverlay
         static bool SameChrome(OverlayActorChrome a, OverlayActorChrome b)
         {
             if (a == null || b == null) return a == b;
-            return SameSlot(a.Pet,b.Pet) && SameSlot(a.Hit,b.Hit) && SameSlot(a.Name,b.Name) &&
+            return SameSlot(a.Pet,b.Pet) && SameSlot(a.Seat,b.Seat) && SameSlot(a.Hit,b.Hit) && SameSlot(a.Name,b.Name) &&
                 SameSlot(a.Status,b.Status) && SameSlot(a.Ring,b.Ring) && SameSlot(a.RingBg,b.RingBg) &&
                 SameSlot(a.Bubble,b.Bubble) && SameSlot(a.Hint,b.Hint);
         }
@@ -944,6 +944,17 @@ namespace FishSocialOverlay
                 }
             }
 
+            if (showRing)
+            {
+                statusW = ringW * .52;
+                statusH = ringH * .52;
+                _statusIcon.Width = statusW;
+                _statusIcon.Height = statusH;
+                statusX = ringX + (ringW - statusW) * .5;
+                statusY = ringY + (ringH - statusH) * .5;
+                _statusIcon.Margin = new Thickness(0);
+            }
+
             // Grow from the prefab slot: name expands down, bubbles expand up, both stay centered.
             var nameX = nameSlotX + (nameSlotW - nameW) * 0.5;
             var nameY = nameSlotY;
@@ -1061,15 +1072,7 @@ namespace FishSocialOverlay
 
         void ShowRingBackground()
         {
-            var bg = OverlayStatusIcons.TryGetRingBg();
-            if (bg == null)
-            {
-                _ringBg.Source = null;
-                _ringBg.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            _ringBg.Source = bg;
+            _ringBg.Source = OverlayHookProgressStyle.Background;
             _ringBg.Visibility = Visibility.Visible;
         }
 
@@ -1093,83 +1096,10 @@ namespace FishSocialOverlay
 
             var fillAmount = Math.Max(0, Math.Min(1, (double)remaining / _hookTotalMs));
             ShowRingBackground();
-            var ringArt = OverlayStatusIcons.TryGetRing();
-            if (ringArt != null)
-            {
-                _hookRing.Visibility = Visibility.Collapsed;
-                _hookRingImage.Source = ringArt;
-                _hookRingImage.OpacityMask = CreateRadialFillMask(
-                    Math.Max(_hookRingImage.Width, 1),
-                    Math.Max(_hookRingImage.Height, 1),
-                    fillAmount);
-                _hookRingImage.Visibility = Visibility.Visible;
-                return;
-            }
-
             _hookRingImage.Visibility = Visibility.Collapsed;
             var ringSize = _hookRing.Width > 1 ? _hookRing.Width : RingSize;
             _hookRing.Data = CreateRadial360(ringSize, fillAmount);
             _hookRing.Visibility = Visibility.Visible;
-        }
-
-        /// <summary>
-        /// Opacity mask matching Unity Image Filled Radial 360, Origin=Top, Clockwise.
-        /// fillAmount 1 = full ring PNG, 0 = empty.
-        /// </summary>
-        static Brush CreateRadialFillMask(double width, double height, double fillAmount)
-        {
-            var size = Math.Max(1.0, Math.Min(width, height));
-            var pie = CreateRadialPie(size, fillAmount);
-            var drawing = new GeometryDrawing(Brushes.White, null, pie);
-            drawing.Freeze();
-            var brush = new DrawingBrush(drawing)
-            {
-                Stretch = Stretch.Fill,
-                Viewbox = new Rect(0, 0, size, size),
-                ViewboxUnits = BrushMappingMode.Absolute,
-                Viewport = new Rect(0, 0, 1, 1),
-                ViewportUnits = BrushMappingMode.RelativeToBoundingBox,
-            };
-            brush.Freeze();
-            return brush;
-        }
-
-        static Geometry CreateRadialPie(double size, double fillAmount)
-        {
-            var radius = size * 0.5;
-            var center = new Point(radius, radius);
-            if (fillAmount >= 0.999)
-            {
-                var full = new EllipseGeometry(center, radius, radius);
-                full.Freeze();
-                return full;
-            }
-
-            if (fillAmount <= 0)
-                return Geometry.Empty;
-
-            var sweep = 360.0 * fillAmount;
-            var start = Radial360Point(center, radius, 0);
-            var end = Radial360Point(center, radius, sweep);
-            var figure = new PathFigure
-            {
-                StartPoint = center,
-                IsClosed = true,
-                IsFilled = true,
-            };
-            figure.Segments.Add(new LineSegment(start, true));
-            figure.Segments.Add(new ArcSegment
-            {
-                Point = end,
-                Size = new Size(radius, radius),
-                SweepDirection = SweepDirection.Clockwise,
-                IsLargeArc = sweep > 180,
-                IsStroked = true,
-            });
-            var geometry = new PathGeometry();
-            geometry.Figures.Add(figure);
-            geometry.Freeze();
-            return geometry;
         }
 
         /// <summary>
@@ -1462,7 +1392,10 @@ namespace FishSocialOverlay
             }
 
             if (!sizeChanged)
+            {
+                if (_layered != null) ApplyWaterContact(_frameIndex, _layered.FrameCount);
                 return;
+            }
             if (_layered != null)
                 ShowLayered();
         }
@@ -1512,6 +1445,7 @@ namespace FishSocialOverlay
                     if (Panel.GetZIndex(_layerImages[i]) != z) Panel.SetZIndex(_layerImages[i], z);
                     if (!ReferenceEquals(_layerImages[i].Source, images[i])) _layerImages[i].Source = images[i];
                 }
+                ApplyWaterContact(index, clip.FrameCount);
                 _image.Visibility = Visibility.Collapsed;
                 _layerHost.Visibility = Visibility.Visible;
             }
@@ -1521,6 +1455,29 @@ namespace FishSocialOverlay
                 request.Dispose();
                 _frameLoading = false;
                 if (!_disposed && _frameDirty) OverlayAnimationClock.Wake();
+            }
+        }
+
+        void ApplyWaterContact(int frame, int count)
+        {
+            var scale = _layerDrawH / (double)OverlayFishingLayers.CanvasHeight;
+            var origin = _layerImages[0].Margin.Top;
+            // Contact belongs below the seat's front edge, independent of cat art bounds.
+            var seat = _chrome?.Seat;
+            var surface = seat != null ? seat.y + seat.h + 6 : _body.Height + 6;
+            var pose = OverlayFishingWaterContact.Solve(OverlayFishingWaterContact.Frame(_layeredClip, frame),
+                scale, origin, surface, OverlayFishingWaterContact.Weight(_layeredClip, frame, count));
+            for (var i = 0; i < _layerImages.Length; i++)
+            {
+                var layer = OverlayFishingLayers.LayerNames[i];
+                Transform transform = Transform.Identity;
+                if (layer == "line" && pose.LineScale != 1)
+                    transform = new ScaleTransform(1, pose.LineScale, 0, pose.LinePivot);
+                else if (layer == "bobber" && pose.BobberOffset != 0) transform = new TranslateTransform(0, pose.BobberOffset);
+                else if (layer == "bait" && pose.BaitOffset != 0) transform = new TranslateTransform(0, pose.BaitOffset);
+                else if (layer == "fish" && pose.FishOffset != 0) transform = new TranslateTransform(0, pose.FishOffset);
+                if (transform.CanFreeze) transform.Freeze();
+                _layerImages[i].RenderTransform = transform;
             }
         }
 

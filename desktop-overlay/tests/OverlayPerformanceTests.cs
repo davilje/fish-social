@@ -42,12 +42,31 @@ public static class OverlayPerformanceTests
         Run("nine-slice eviction bounds cache and preserves live brushes", OverlayStaticPerformanceTests.NineSliceBudget);
         Run("combined and dual masks preserve rendered alpha", OverlayStaticPerformanceTests.MaskParity);
         Run("chat dock opens, resizes and remains hittable", ChatDockInteraction);
+        Run("journal bite progress uses vector paper and ends on deadline", JournalHookProgress);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();
     }
 
     static void Run(string name, Action test) { test(); passed++; Console.WriteLine("PASS " + name); }
     static void Require(bool condition, string message) { if (!condition) throw new Exception(message); }
+
+    static void JournalHookProgress()
+    {
+        using (var actor = new OverlayPetActor("ring-test", null))
+        {
+            actor.ApplyChrome(Chrome(128));
+            actor.Apply("cat", "hooked", "hooked", 0, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 30000, petId: "orange");
+            var ring = Field<System.Windows.Shapes.Path>(actor, "_hookRing");
+            var paper = Field<Image>(actor, "_ringBg");
+            var icon = Field<Image>(actor, "_statusIcon");
+            Require(paper.Source is DrawingImage, "progress still uses legacy raster art");
+            Require(ring.Stroke is LinearGradientBrush && ring.StrokeThickness == 3, "journal progress palette lost");
+            Require(ring.Visibility == Visibility.Visible && ring.Data != null, "live deadline has no progress");
+            Require(icon.Width < ring.Width * .6, "icon crowds progress arc");
+            actor.Apply("cat", "sit", "seated", 0, 0, petId: "orange");
+            Require(ring.Visibility == Visibility.Collapsed && paper.Visibility == Visibility.Collapsed, "finished progress remains visible");
+        }
+    }
 
     static void ChatDockInteraction()
     {
@@ -69,7 +88,12 @@ public static class OverlayPerformanceTests
                     Panel.SetZIndex(decoration,999); window.SceneCanvas.Children.Add(decoration); window.UpdateLayout();
                     Require(OverlayClickThrough.IsClientHit(window,point), "folded chat toggle is click-through");
                     window.SceneCanvas.Children.Remove(decoration);
-                    toggle.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                    // Exercise the actual input hit and preview mouse route, not only Button.Click.
+                    var target = window.InputHitTest(point) as UIElement;
+                    Require(target != null, "folded dock has no WPF input target");
+                    target.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(
+                        System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, System.Windows.Input.MouseButton.Left)
+                        { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
                     window.UpdateLayout();
                     Require(window.ChatDockChrome.Height>folded && window.ChatInputBox.IsVisible && window.ChatLogScroll.IsVisible, "chat did not expand");
                     var chrome=(Grid)window.ChatDockChrome.Child;

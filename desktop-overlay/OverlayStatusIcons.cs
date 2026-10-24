@@ -9,8 +9,8 @@ namespace FishSocialOverlay
 {
     /// <summary>
     /// Monochrome Cozy phase icons from OverlayResources/hud/cozy/icons-light.
-    /// (hooked / groundbait) plus hook-ring.png and ring-bg.png for bite/groundbait
-    /// progress. Progress ring assets and animation remain unchanged.
+    /// (hooked / groundbait). Legacy PNG accessors remain for resource compatibility;
+    /// live progress uses OverlayHookProgressStyle vector paper and gradient arc.
     /// </summary>
     static class OverlayStatusIcons
     {

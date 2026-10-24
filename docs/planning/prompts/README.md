@@ -200,3 +200,5 @@ npm run planning:dispatch -- v0.4.0
 
 策划 Agent 收尾时执�?`npm run planning:confirm -- vX.Y.Z`�?
 
+
+- 2026-10-24：[STEAM-DESKTOP-22D–J 后续需求交接](steam-desktop-22-followups-dev.prompt.md)（当前仅登记；后续按用户选择批次开工）。

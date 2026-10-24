@@ -153,6 +153,7 @@ namespace FishSocialOverlay
                 return;
 
             _chatDockExpanded = expanded;
+            _hitProbeResult = int.MinValue; // Expanded controls have new hit regions immediately.
             _chat?.SetExpanded(expanded);
             var height = _hudChatDockMetricsValid
                 ? (expanded ? _hudChatDockMetrics.ExpandedH : _hudChatDockMetrics.CollapsedH)
@@ -266,12 +267,6 @@ namespace FishSocialOverlay
             SceneFadeHost.Visibility = Visibility.Collapsed;
             _chat = new OverlayChatPresenter(ChatLatestPreview, ChatLogScroll, ChatLogList);
             _chat.SetExpanded(_chatDockExpanded);
-            ChatDockChrome.MouseLeftButtonUp += (sender, args) =>
-            {
-                if (_chatDockExpanded || IsUnderElement(args.OriginalSource as DependencyObject, ChatDockToggle)) return;
-                ChatDockToggle_OnClick(ChatDockToggle, args);
-                args.Handled = true;
-            };
             _chatBubbles = new OverlayChatBubblePresenter(
                 ChatBubbleLayer,
                 playerId => _scene?.TryResolveActor(playerId),
@@ -2178,7 +2173,16 @@ namespace FishSocialOverlay
         void ChatInput_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             OverlayInteractionState.SceneDragging = false;
-            if (!_hudLayoutActive || !_chatDockExpanded || ChatInputBox == null)
+            if (!_chatDockExpanded)
+            {
+                // Handle the folded dock on the preview/down route. Waiting for a bubbling
+                // MouseUp loses the gesture when a child handles it or layout changes the hit target.
+                ChatDockToggle_OnClick(ChatDockToggle, e);
+                e.Handled = true;
+                return;
+            }
+            if (!_hudLayoutActive || ChatInputBox == null ||
+                !IsUnderElement(e.OriginalSource as DependencyObject, ChatInputPanel))
                 return;
             if (e.OriginalSource is TextBox)
                 return;

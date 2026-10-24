@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+namespace FishSocialOverlay
+{
+    // Source alpha bounds are exported once; no pixel scans or image edits on the UI thread.
+    internal sealed class FishingContactFrame
+    {
+        public double LineTop { get; set; }
+        public double LineBottom { get; set; }
+        public double BobberY { get; set; } = -1;
+        public double FishTop { get; set; } = -1;
+    }
+
+    internal struct FishingContactPose
+    {
+        public double LineScale, LinePivot, BobberOffset, FishOffset, BaitOffset;
+    }
+
+    internal static class OverlayFishingWaterContact
+    {
+        public const double ReferenceSurfaceY = 463.5;
+        static readonly Lazy<Dictionary<string, FishingContactFrame[]>> Frames =
+            new Lazy<Dictionary<string, FishingContactFrame[]>>(Load);
+
+        static Dictionary<string, FishingContactFrame[]> Load()
+        {
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources", "fishing", "water-contact.json");
+            try { return JsonSerializer.Deserialize<Dictionary<string, FishingContactFrame[]>>(File.ReadAllText(path)); }
+            catch (IOException) { return new Dictionary<string, FishingContactFrame[]>(); }
+            catch (JsonException) { return new Dictionary<string, FishingContactFrame[]>(); }
+        }
+
+        public static FishingContactFrame Frame(string clip, int index)
+        {
+            return Frames.Value != null && Frames.Value.TryGetValue(clip, out var frames) && index >= 0 && index < frames.Length
+                ? frames[index] : null;
+        }
+
+        public static double Weight(string clip, int index, int count)
+        {
+            if (clip == "fishing" || clip == "hooked" || clip == "bite" || clip == "effort") return 1;
+            var t = count > 1 ? Math.Max(0, Math.Min(1, index / (double)(count - 1))) : 1;
+            if (clip == "cast") return t * t;
+            if (clip == "reel" || clip == "reel_empty") return Math.Pow(1 - t, 2);
+            return 0;
+        }
+
+        public static FishingContactPose Solve(FishingContactFrame frame, double scale, double originY, double surfaceY, double weight)
+        {
+            var pose = new FishingContactPose { LineScale = 1 };
+            if (frame == null || scale <= 0 || weight <= 0) return pose;
+            weight = Math.Max(0, Math.Min(1, weight));
+            var delta = Math.Max(0, surfaceY - (originY + ReferenceSurfaceY * scale));
+            pose.BobberOffset = Math.Max(0, surfaceY - (originY + (frame.BobberY >= 0 ? frame.BobberY : ReferenceSurfaceY) * scale)) * weight;
+            pose.BaitOffset = delta * weight;
+            // Bite starts beneath the surface, with the line connected to the moving fish.
+            pose.FishOffset = frame.FishTop >= 0
+                ? Math.Max(delta, surfaceY + 14 * scale - (originY + frame.FishTop * scale)) * weight
+                : delta * weight;
+            var extension = frame.FishTop >= 0 ? pose.FishOffset : pose.BobberOffset;
+            var length = (frame.LineBottom - frame.LineTop) * scale;
+            if (length > 1)
+            {
+                pose.LinePivot = frame.LineTop * scale;
+                pose.LineScale = 1 + extension / length;
+            }
+            return pose;
+        }
+    }
+}
