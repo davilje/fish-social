@@ -3,9 +3,20 @@ import { FISHING_PROMPT_AUTO_CLOSE_MS } from '@fish-social/shared';
 import { db } from './db.js';
 import { register, cancelByKind } from './timerRegistry.js';
 import { ensureFishingStartedAt } from './fishingStartedAt.js';
+import { getFishingAttentionAt, restoreFishingSleep } from './fishingSleep.js';
 
 const DISCONNECT_GRACE_MS = 60_000;
 const PENDING_CATCH_TIMEOUT_MS = FISHING_PROMPT_AUTO_CLOSE_MS + 8_000;
+const stopRequestedUsers = new WeakSet<PondUser>();
+
+export function isFishingStopRequested(user: PondUser): boolean {
+  return stopRequestedUsers.has(user);
+}
+
+export function setFishingStopRequested(user: PondUser, requested: boolean): void {
+  if (requested) stopRequestedUsers.add(user);
+  else stopRequestedUsers.delete(user);
+}
 
 export interface SessionRow {
   player_id: string;
@@ -17,6 +28,11 @@ export interface SessionRow {
   hook_ends_at: number | null;
   disconnected_at: number | null;
   return_fee_mode: string | null;
+  fishing_asleep?: number;
+  fishing_sleep_at?: number | null;
+  fishing_attention_at?: number | null;
+  disconnected_from_phase?: string | null;
+  stop_requested?: number;
   updated_at: number;
 }
 
@@ -37,10 +53,12 @@ interface PendingLockRow {
 const upsertSessionStmt = db.prepare(`
   INSERT INTO player_pond_session (
     player_id, pond_id, user_id, spot_id, fishing_phase,
-    phase_ends_at, hook_ends_at, disconnected_at, return_fee_mode, updated_at
+    phase_ends_at, hook_ends_at, disconnected_at, return_fee_mode, updated_at,
+    fishing_asleep, fishing_sleep_at, fishing_attention_at, disconnected_from_phase, stop_requested
   ) VALUES (
     @playerId, @pondId, @userId, @spotId, @fishingPhase,
-    @phaseEndsAt, @hookEndsAt, @disconnectedAt, @returnFeeMode, @updatedAt
+    @phaseEndsAt, @hookEndsAt, @disconnectedAt, @returnFeeMode, @updatedAt,
+    @fishingAsleep, @fishingSleepAt, @fishingAttentionAt, @disconnectedFromPhase, @stopRequested
   )
   ON CONFLICT(player_id, pond_id) DO UPDATE SET
     user_id = excluded.user_id,
@@ -50,6 +68,11 @@ const upsertSessionStmt = db.prepare(`
     hook_ends_at = excluded.hook_ends_at,
     disconnected_at = excluded.disconnected_at,
     return_fee_mode = excluded.return_fee_mode,
+    fishing_asleep = excluded.fishing_asleep,
+    fishing_sleep_at = excluded.fishing_sleep_at,
+    fishing_attention_at = excluded.fishing_attention_at,
+    disconnected_from_phase = excluded.disconnected_from_phase,
+    stop_requested = excluded.stop_requested,
     updated_at = excluded.updated_at
 `);
 
@@ -97,6 +120,11 @@ export function upsertPlayerPondSession(user: PondUser, pondId: string, hookEnds
     hookEndsAt: hookEndsAt ?? null,
     disconnectedAt: user.disconnectedAt ?? null,
     returnFeeMode: user.returnFeeMode ?? 'sell_only',
+    fishingAsleep: user.fishingAsleep ? 1 : 0,
+    fishingSleepAt: user.fishingSleepAt ?? null,
+    fishingAttentionAt: getFishingAttentionAt(user),
+    disconnectedFromPhase: user.phaseContext?.disconnectedFromPhase ?? null,
+    stopRequested: isFishingStopRequested(user) ? 1 : 0,
     updatedAt: Date.now(),
   });
 }
@@ -160,6 +188,12 @@ export function applyCheckpointToUser(user: PondUser, row: SessionRow): PondUser
   user.fishingPhase = (row.fishing_phase as FishingPhase | null) ?? 'idle';
   user.phaseEndsAt = row.phase_ends_at;
   user.disconnectedAt = row.disconnected_at;
+  setFishingStopRequested(user, row.stop_requested === 1);
+  restoreFishingSleep(user, row.fishing_asleep === 1, row.fishing_sleep_at ?? null,
+    row.fishing_attention_at ?? null);
+  if (user.fishingPhase === 'disconnected' && row.disconnected_from_phase) {
+    user.phaseContext = { disconnectedFromPhase: row.disconnected_from_phase as FishingPhase };
+  }
   user.returnFeeMode =
     row.return_fee_mode === 'auto_return' || row.return_fee_mode === 'sell_only'
       ? row.return_fee_mode

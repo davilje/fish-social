@@ -41,6 +41,7 @@ const CONFIG_DEFAULTS: Record<string, string> = {
   BITE_LAMBDA: String(BITE_LAMBDA),
   FISH_BITE_CHECK_MS: String(FISH_BITE_CHECK_MS),
   HOOK_DURATION_SCALE: '1',
+  FISHING_SLEEP_AFTER_MS: '1800000',
   GRAY_RELEASE_PERCENT: '100',
   RULES_VERSION: 'v0.4.1',
   C3_SINK_ENABLED: 'true',
@@ -130,6 +131,12 @@ export function getConfigNumber(key: string, fallback: number): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+export function getFishingSleepAfterMs(): number {
+  const value = getConfigNumber('FISHING_SLEEP_AFTER_MS', 1_800_000);
+  if (value === 0) return 0;
+  return Math.min(86_400_000, Math.max(60_000, Math.round(value)));
+}
+
 export function getConfigString(key: string, fallback = ''): string {
   const raw = loadGameConfigFromDb().get(key) ?? CONFIG_DEFAULTS[key];
   if (raw === undefined) return fallback;
@@ -141,6 +148,13 @@ export function submitConfigChange(
   proposedValue: string,
   submittedBy: string,
 ): { ok: true; request: ConfigChangeRequest } | { ok: false; error: string } {
+  if (key === 'FISHING_SLEEP_AFTER_MS') {
+    const value = Number(proposedValue);
+    if (!proposedValue.trim() || !Number.isSafeInteger(value) ||
+        (value !== 0 && (value < 60_000 || value > 86_400_000))) {
+      return { ok: false, error: '睡眠时间须为 0（禁用）或 60000–86400000 毫秒整数' };
+    }
+  }
   if (!CONFIG_DEFAULTS[key] && !key.startsWith('SPECIES_') && !key.startsWith('QUALITY_')) {
     return { ok: false, error: '无效的配置项' };
   }

@@ -43,6 +43,7 @@ namespace FishSocialOverlay
 
         static readonly Dictionary<string, string[]> ClipResources =
             new Dictionary<string, string[]>(StringComparer.Ordinal);
+        static readonly Dictionary<string, string> SleepHeads = new Dictionary<string, string>(StringComparer.Ordinal);
 
         internal static long CachedPixelBytes => Bitmaps.ResidentBytes;
         internal static int CachedBitmapCount => Bitmaps.Count;
@@ -103,6 +104,11 @@ namespace FishSocialOverlay
             return LayerPath(petId, clip, index, layer, body);
         }
 
+        public static string SleepHead(string petId)
+        {
+            return petId != null && SleepHeads.TryGetValue(petId, out var path) ? path : null;
+        }
+
         public static string LayerPath(
             string petId, string clip, int index, string layer, IReadOnlyList<string> bodyLayers)
         {
@@ -147,6 +153,7 @@ namespace FishSocialOverlay
                     for (var frame = 0; frame < playback.FrameCount; frame++)
                         foreach (var layer in LayerNames)
                             paths.Add(LayerPath(petId, clip, frame, layer, pack.BodyLayers));
+                    if (clip == "fishing" && SleepHead(petId) != null) paths.Add(SleepHead(petId));
                     resources = new string[paths.Count];
                     paths.CopyTo(resources);
                     ClipResources[key] = resources;
@@ -402,6 +409,12 @@ namespace FishSocialOverlay
             System.Windows.Application.Current?.Dispatcher.VerifyAccess();
             if (pack != null)
             {
+                var sleepHead = Path.Combine(FishingRoot(), petId, "body", "fishing", "0", "head-sleep.png");
+                if (File.Exists(sleepHead))
+                {
+                    SleepHeads[petId] = sleepHead;
+                    TextureScales[sleepHead] = pack.BodyTextureScale;
+                }
                 foreach (var pair in pack.Clips)
                 {
                     for (var index = 0; index < pair.Value.FrameCount; index++)

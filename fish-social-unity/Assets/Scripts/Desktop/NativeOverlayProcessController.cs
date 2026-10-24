@@ -403,7 +403,7 @@ namespace FishSocial.Desktop
                         else if (_stateQueued)
                         {
                             _stateQueued = false;
-                            message = JsonUtility.ToJson(_latestState);
+                            message = Newtonsoft.Json.JsonConvert.SerializeObject(_latestState);
                         }
                     }
 

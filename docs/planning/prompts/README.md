@@ -17,6 +17,8 @@ npm run planning:confirm -- v0.4.0
 
 ### 专项 Bug 修复提示词（手维护）
 
+- [STEAM-DESKTOP-22K/22L/22M 开发与复验](./steam-desktop-22klm-dev.prompt.md)：呼吸、30 分钟瞌睡、触碰唤醒与丧彪；目标 `@frontend-dev`、`@backend-dev`。
+
 | 文件 | 说明 |
 |------|------|
 | [bug-46-achievement-progress-dev.prompt.md](./bug-46-achievement-progress-dev.prompt.md) | BUG-46：成就卡片显示当前/目标 · **已确认** |
@@ -204,3 +206,5 @@ npm run planning:dispatch -- v0.4.0
 - 2026-10-24：[STEAM-DESKTOP-22D–J 后续需求交接](steam-desktop-22-followups-dev.prompt.md)（当前仅登记；后续按用户选择批次开工）。
 
 - 2026-10-24：[STEAM-DESKTOP-22I 音效专项交接](steam-desktop-22i-audio-dev.prompt.md)（六场景试听已备，用户确认方案后接入；目标 Unity／Overlay 前端工程师）。
+
+- 2026-10-24：[STEAM-DESKTOP-22H／22I／22J 方案与开发交接](steam-desktop-22hij-design-dev.prompt.md)（三项方案 v1 已完善；目标 Unity／Overlay 前端工程师，按用户指定范围启动实现；设计不计实现完成）。

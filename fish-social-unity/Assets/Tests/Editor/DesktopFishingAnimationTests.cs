@@ -372,7 +372,7 @@ namespace FishSocial.Tests.Editor
         [Test]
         public void SourceSkinsIncludeThePaintedCalicoPackWithoutBreedAliases()
         {
-            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue", "black", "white", "cow", "dafeiyu" }, FishingLayerArt.SkinIds);
+            CollectionAssert.AreEqual(new[] { "orange", "calico", "silver", "brown", "cream", "blue", "black", "white", "cow", "dafeiyu", "sangbiao" }, FishingLayerArt.SkinIds);
             Assert.IsNull(FishingLayerArt.Open("british", "idle", 640, 512));
             Assert.IsNull(FishingLayerArt.Open("ragdoll", "idle", 640, 512));
             var calico = FishingLayerArt.Open("calico", "idle", 640, 512);
@@ -795,6 +795,96 @@ namespace FishSocial.Tests.Editor
                 Assert.AreEqual(clip, preview.Renderer.ActiveClip);
                 preview.Renderer.Tick(3f);
                 Assert.AreEqual(clip, preview.Renderer.ActiveClip);
+            }
+        }
+
+        [Test]
+        public void RestingRendererRetainsFishingClipAndResetsOnExitOrDisable()
+        {
+            using (var preview = new PlaybackFixture())
+            {
+                var renderer = preview.Renderer;
+                renderer.Apply(PetVisualState.Fishing);
+                renderer.Tick(.8f);
+                var effect = renderer.GetComponentInChildren<FishingRestLayerEffect>();
+                Assert.AreNotEqual(FishingRestTransform.Identity, effect.Pose);
+                renderer.Apply(PetVisualState.Sleep);
+                renderer.Tick(.4f);
+                renderer.Apply(PetVisualState.Sleep);
+                renderer.Tick(.4f);
+                Assert.AreEqual("fishing", renderer.ActiveClip);
+                var badge = renderer.transform.Find("FishingLayers/FishingSleepBadge");
+                Assert.IsTrue(badge.gameObject.activeSelf);
+                var head = renderer.transform.Find("FishingLayers/head").GetComponent<Image>();
+                Assert.AreSame(Resources.Load<Sprite>(FishingRestPresentation.SleepHeadResourcePath(preview.SkinId)), head.sprite);
+                var beforeResize = effect.Pose;
+                preview.Resize(960, 768);
+                Assert.AreEqual(beforeResize, effect.Pose);
+                renderer.Apply(PetVisualState.Fishing);
+                Assert.AreEqual(beforeResize, effect.Pose);
+                renderer.Tick(.8f);
+                Assert.IsFalse(badge.gameObject.activeSelf);
+                Assert.AreSame(renderer.ActiveSession.Frame(0, "head"), head.sprite);
+                renderer.Apply(PetVisualState.Sleep);
+                renderer.Tick(.8f);
+                renderer.enabled = false;
+                typeof(SpriteFramePetRenderer).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(renderer, null);
+                Assert.AreEqual(FishingRestTransform.Identity, effect.Pose);
+                Assert.IsFalse(badge.gameObject.activeSelf);
+                renderer.enabled = true;
+                renderer.Tick(.1f);
+                renderer.Apply(PetVisualState.Hooked);
+                foreach (var layer in renderer.GetComponentsInChildren<FishingRestLayerEffect>())
+                    Assert.AreEqual(FishingRestTransform.Identity, layer.Pose);
+                Assert.IsFalse(badge.gameObject.activeSelf);
+            }
+        }
+
+        [TestCase(PetVisualState.Hooked, "hooked", false)]
+        [TestCase(PetVisualState.Cast, "cast", false)]
+        [TestCase(PetVisualState.EmptyReel, "reel_empty", false)]
+        [TestCase(PetVisualState.Sit, "ready", false)]
+        [TestCase(PetVisualState.Hooked, "hooked", true)]
+        [TestCase(PetVisualState.Cast, "cast", true)]
+        [TestCase(PetVisualState.EmptyReel, "reel_empty", true)]
+        [TestCase(PetVisualState.Sit, "ready", true)]
+        public void LeavingSleepPreservesNewClipHeadOnFirstFrame(PetVisualState state, string clip, bool manual)
+        {
+            var awake = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.zero);
+            var nextHead = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.zero);
+            try
+            {
+                using (var preview = new PlaybackFixture())
+                {
+                    var renderer = preview.Renderer;
+                    var headIndex = Array.IndexOf(FishingLayerArt.LayerNames, "head");
+                    Assert.IsTrue(renderer.PlayClip(preview.SkinId, clip));
+                    renderer.ActiveSession.Frames[0, headIndex] = nextHead;
+                    renderer.Apply(PetVisualState.Fishing);
+                    for (var frame = 0; frame < renderer.ActiveSession.FrameCount; frame++)
+                        renderer.ActiveSession.Frames[frame, headIndex] = awake;
+                    renderer.Apply(PetVisualState.Sleep);
+                    renderer.Tick(.8f);
+                    var head = renderer.transform.Find("FishingLayers/head").GetComponent<Image>();
+                    Assert.AreSame(Resources.Load<Sprite>(FishingRestPresentation.SleepHeadResourcePath(preview.SkinId)), head.sprite);
+                    if (manual)
+                        Assert.IsTrue(renderer.PlayClip(preview.SkinId, clip));
+                    else
+                        renderer.Apply(state);
+                    Assert.AreEqual(clip, renderer.ActiveClip);
+                    Assert.AreSame(nextHead, head.sprite);
+                    renderer.Tick(0);
+                    Assert.AreSame(nextHead, head.sprite);
+                    foreach (var effect in renderer.GetComponentsInChildren<FishingRestLayerEffect>())
+                        Assert.AreEqual(FishingRestTransform.Identity, effect.Pose);
+                    Assert.IsFalse(renderer.transform.Find("FishingLayers/FishingSleepBadge").gameObject.activeSelf);
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(awake);
+                UnityEngine.Object.DestroyImmediate(nextHead);
             }
         }
 

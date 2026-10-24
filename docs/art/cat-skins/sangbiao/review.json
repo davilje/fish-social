@@ -1,0 +1,60 @@
+{
+  "characterId": "sangbiao",
+  "status": "installed-for-platform-integration",
+  "generationComplete": true,
+  "furtherGenerationPlanned": false,
+  "nativeFishingResourcesFrozen": true,
+  "userReportedIntegrationValidation": {
+    "allPetCount": 11,
+    "motionTestsPassed": "18/18",
+    "browserRendersPassed": 616,
+    "sleepFaceInteractionsPassed": 11,
+    "source": "Main task reported all checks passed against the installed pack and began native publishing; not independently rerun by the art task."
+  },
+  "uniqueDrawings": 44,
+  "sourceFrames": 63,
+  "runtimeClips": 16,
+  "runtimeSlots": 74,
+  "canvas": [640, 512],
+  "footAnchor": [264, 450],
+  "minimumSilhouetteIoU": 0.9196378900520913,
+  "maximumAbsoluteFootBottomDeltaPixels": 5,
+  "footMetricMeaning": "Difference from each original source silhouette bottom; this is not exact equality of every foot pixel to the logical anchor.",
+  "losslessCharacterPixelPartition": true,
+  "installedCharacterLayersVerified": 888,
+  "nineLayerFilesCheckedAcrossThreeClients": 1998,
+  "sharedPropFilesChecked": 370,
+  "sharedPropMirrorMismatchCountAtFinalExport": 0,
+  "waitingHeadSha256": "42333db23b54b7218e00101d820a331809524a390eacc6b8b1ddb8bb9c6fe211",
+  "preservedHeadSleepSha256": "0f45d475551922dc6e3ba53aa124e9844f9b17d54fc8ed4f2dd1019f13bd4db9",
+  "compositeVisualReview": {
+    "overview": "All 63 source poses with actual rods, lines and props inspected in full-contact.png.",
+    "fullSizeFrames": ["wait-00", "cast-02", "effort-04", "retrieve_empty-01", "catch-04", "reset_catch-02"],
+    "finding": "No obvious detached grip or major head/body scale jump in inspected composites; preserve existing per-frame occlusion order.",
+    "userReview": "Main task independently reviewed full-contact.png and judged sequence/style consistent enough for integration.",
+    "limitations": "Individual paintings have small stripe/texture and silhouette variation. No claim of pixel-identical stripe continuity or perfect grip geometry."
+  },
+  "browser": { "renderedSlots": 74, "clips": 16, "layerToggles": 9, "slowPlayback": true, "loadingErrors": 0 },
+  "csharp": {
+    "compiled": true,
+    "identityRoutesPassed": true,
+    "actualManifestParserPassed": true,
+    "invalidCanvasRejected": true,
+    "warnings": "Two expected CS0436 warnings: locally compiled modified types override their prior Assembly-CSharp definitions.",
+    "unityPlayerLaunched": false
+  },
+  "home": {
+    "staticStandingAndSeatedInstalled": true,
+    "copies": 6,
+    "orangeFallbackPreventedForCurrentHomeMappings": true,
+    "curledSleepingPose": false,
+    "walkAnimation": false,
+    "eatAnimation": false,
+    "petRollAnimation": false,
+    "journalSixPoseSetComplete": false,
+    "note": "Legacy journal sleep key is explicitly seated artwork. No home-room sleep pose or fictional animation clips are installed."
+  },
+  "windowsOverlayPlayerTested": false,
+  "unityPlayerTested": false,
+  "productionReady": false
+}

@@ -38,7 +38,7 @@ import { checkJoinPondAccess } from './playerProgress.js';
 import { getGamePondDef, resolvePondFeePer2h } from '@fish-social/shared';
 import { checkForbiddenPondBan } from './forbiddenPolice.js';
 import { emitEvictedBots } from './bots.js';
-import { beginFishingSequence, beginGroundbaitSequence, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
+import { beginFishingSequence, beginGroundbaitSequence, handleFishingAttention, handleStopFishing, resumeAfterReconnect } from './fishingStateMachine.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { logStructuredEvent, recordStructuredMetric } from './fishingObservability.js';
 import { bindPlayer, bindPondUser, resolveBySocket, unbindSocket } from './sessionRegistry.js';
@@ -489,6 +489,18 @@ export function registerSocketPondHandlers(
       return;
     }
     ack?.({ ok: true });
+  });
+
+  socket.on('fishing_attention', (ack) => {
+    if (ack !== undefined && typeof ack !== 'function') return;
+    if (rejectIfRateLimited('fishing_attention', ack)) return;
+    const session = getSession(socket.id);
+    if (!session || resolveSocketPlayerId(socket, session.playerId) !== session.playerId) {
+      ack?.({ ok: false, error: 'unauthorized' });
+      return;
+    }
+    const result = handleFishingAttention(io, session.pondId, session.userId);
+    ack?.(result);
   });
 
   socket.on('groundbait_start', (payload, ack) => {

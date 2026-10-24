@@ -1,29 +1,53 @@
 {
-  "sourceVersion": 18,
+  "sourceVersion": 19,
   "runtimeVersion": 2,
-  "sourceFrameCount": 51,
-  "runtimeClipCount": 14,
-  "runtimeFrameCountPerSkin": 62,
+  "sourceFrameCount": 63,
+  "runtimeClipCount": 16,
+  "runtimeFrameCountPerSkin": 74,
   "skins": [
     {
       "id": "orange",
-      "name": "原版橘猫"
+      "name": "橘猫"
+    },
+    {
+      "id": "calico",
+      "name": "三花猫"
     },
     {
       "id": "silver",
-      "name": "银灰虎斑"
+      "name": "银渐层"
     },
     {
       "id": "brown",
-      "name": "可可虎斑"
+      "name": "棕虎斑"
     },
     {
       "id": "cream",
-      "name": "奶油虎斑"
+      "name": "奶油猫"
     },
     {
       "id": "blue",
-      "name": "蓝灰虎斑"
+      "name": "英短蓝猫"
+    },
+    {
+      "id": "black",
+      "name": "黑猫"
+    },
+    {
+      "id": "white",
+      "name": "白猫"
+    },
+    {
+      "id": "cow",
+      "name": "奶牛猫"
+    },
+    {
+      "id": "dafeiyu",
+      "name": "大肥鱼"
+    },
+    {
+      "id": "sangbiao",
+      "name": "狸花猫「丧彪」"
     }
   ],
   "maskModel": "pose-contours-v1",
@@ -44,5 +68,6 @@
     "bobber",
     "bait"
   ],
-  "note": "Retained approved tint variants. No decorative hat/scarf layers; no invented breed patterns."
+  "note": "Nine current layered skins. Orange baseline, calico v3, seven painted v4 packs. Retired flat art is not loaded.",
+  "rodOcclusionModel": "head-layer-order-v1"
 }

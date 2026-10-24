@@ -99,6 +99,8 @@ namespace FishSocial.Desktop.Auth
                 spotId = source.spotId,
                 status = source.status,
                 fishingPhase = source.fishingPhase,
+                fishingAsleep = source.fishingAsleep,
+                fishingSleepAt = source.fishingSleepAt,
                 phaseContext = source.phaseContext,
                 fishingStartedAt = source.fishingStartedAt,
                 sessionStartedAt = source.sessionStartedAt,

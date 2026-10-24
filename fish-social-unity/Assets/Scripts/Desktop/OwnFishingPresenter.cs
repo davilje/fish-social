@@ -58,7 +58,8 @@ namespace FishSocial.Desktop
             }
         }
 
-        public bool IsActive => IsEnabled && !string.IsNullOrEmpty(_phase);
+        public bool IsActive => IsEnabled && !string.IsNullOrEmpty(_phase) &&
+                                !(_pond?.Invoke()?.IsFishingAsleep ?? false);
 
         public string Phase => _phase;
 
@@ -85,7 +86,7 @@ namespace FishSocial.Desktop
 
         public void BeginStartFishing(long commandId)
         {
-            if (!IsEnabled)
+            if (!IsEnabled || (_pond?.Invoke()?.IsFishingAsleep ?? false))
                 return;
             var pond = _pond?.Invoke();
             var spot = EffectiveSpot(pond);
@@ -108,7 +109,7 @@ namespace FishSocial.Desktop
 
         public void BeginStopFishing(long commandId)
         {
-            if (!IsEnabled)
+            if (!IsEnabled || (_pond?.Invoke()?.IsFishingAsleep ?? false))
                 return;
             // Clear() drops _phase after a stop reaches seated. Without this latch,
             // EffectivePhase falls back to a server phase that is still fishable and
@@ -139,7 +140,7 @@ namespace FishSocial.Desktop
 
         public void BeginGroundbait(long commandId)
         {
-            if (!IsEnabled)
+            if (!IsEnabled || (_pond?.Invoke()?.IsFishingAsleep ?? false))
                 return;
             var pond = _pond?.Invoke();
             var spot = EffectiveSpot(pond);
@@ -175,7 +176,7 @@ namespace FishSocial.Desktop
 
         public void BeginHooked(int hookDurationMs, long commandId = 0)
         {
-            if (!IsEnabled)
+            if (!IsEnabled || (_pond?.Invoke()?.IsFishingAsleep ?? false))
                 return;
             var pond = _pond?.Invoke();
             var spot = EffectiveSpot(pond);
@@ -194,7 +195,7 @@ namespace FishSocial.Desktop
 
         public void BeginMissEscape(long commandId = 0)
         {
-            if (!IsEnabled)
+            if (!IsEnabled || (_pond?.Invoke()?.IsFishingAsleep ?? false))
                 return;
             StopTimeline();
             _pendingCommand = null;
@@ -228,6 +229,11 @@ namespace FishSocial.Desktop
 
         public void ReconcileFromServer()
         {
+            if ((_pond?.Invoke()?.IsFishingAsleep ?? false) && !string.IsNullOrEmpty(_phase))
+            {
+                ClearRound();
+                return;
+            }
             if (!IsActive)
                 return;
             var pond = _pond?.Invoke();
@@ -319,6 +325,8 @@ namespace FishSocial.Desktop
 
         public PetVisualState ResolveVisual(SocialPondSessionController pond)
         {
+            if (pond != null && pond.IsFishingAsleep)
+                return PetVisualState.Sleep;
             var phase = IsActive ? _phase : (pond?.CurrentPhase ?? "idle");
             var outcome = pond?.CurrentUser?.phaseContext?.outcome ?? pond?.LastFishingOutcome;
             var hasCatch = pond != null && pond.HasPendingCatch;
@@ -373,6 +381,9 @@ namespace FishSocial.Desktop
                           (!string.IsNullOrEmpty(_spotId) ||
                            !string.IsNullOrEmpty(pond.CurrentUser?.spotId));
             var phase = _phase ?? "idle";
+            if (pond.IsFishingAsleep || pond.CanStopFishing ||
+                phase == "baiting" || phase == "casting" || phase == "waiting" || phase == "hooked")
+                actions.Add("fishing_attention");
             if (!hasSpot)
                 actions.Add("take_spot");
             if (hasSpot)

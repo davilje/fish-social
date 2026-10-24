@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace FishSocial.Desktop.Auth
 {
@@ -44,6 +45,7 @@ namespace FishSocial.Desktop.Auth
         void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted);
         void StartGroundbait(GroundbaitStartPayload payload, Action<bool, string> onCompleted);
         void StopFishing(string pondId, Action<bool, string> onCompleted);
+        void FishingAttention(Action<bool, string> onCompleted);
         void AcceptCatch(string catchId, Action<bool, string> onCompleted);
         void SendChat(SendChatPayload payload, Action<bool, string> onCompleted);
         void Pump();
@@ -58,6 +60,10 @@ namespace FishSocial.Desktop.Auth
     public sealed class SocketIoSocialSocketClient : ISocialSocketClient
     {
         const int AckTimeoutMs = 10000;
+        static readonly JsonSerializerSettings PondJsonSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+        };
         readonly string _baseUrl;
         readonly ConcurrentQueue<Action> _mainThread = new ConcurrentQueue<Action>();
         readonly ConcurrentQueue<Action> _priorityMainThread =
@@ -184,6 +190,11 @@ namespace FishSocial.Desktop.Auth
         public void AcceptCatch(string catchId, Action<bool, string> onCompleted)
         {
             SendEventWithAck("accept_catch", Quote(catchId), onCompleted);
+        }
+
+        public void FishingAttention(Action<bool, string> onCompleted)
+        {
+            SendEventWithAck("fishing_attention", null, onCompleted);
         }
 
         public void SendChat(SendChatPayload payload, Action<bool, string> onCompleted)
@@ -375,13 +386,13 @@ namespace FishSocial.Desktop.Auth
         void DispatchEvent(string eventName, string payload)
         {
             if (eventName == "pond_snapshot")
-                PondSnapshotReceived?.Invoke(JsonUtility.FromJson<PondSnapshotDto>(payload));
+                PondSnapshotReceived?.Invoke(JsonConvert.DeserializeObject<PondSnapshotDto>(payload, PondJsonSettings));
             else if (eventName == "pond_user_joined")
-                PondUserJoined?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
+                PondUserJoined?.Invoke(JsonConvert.DeserializeObject<PondUserDto>(payload, PondJsonSettings));
             else if (eventName == "pond_user_left")
                 PondUserLeft?.Invoke(Unquote(payload));
             else if (eventName == "pond_user_updated")
-                PondUserUpdated?.Invoke(JsonUtility.FromJson<PondUserDto>(payload));
+                PondUserUpdated?.Invoke(JsonConvert.DeserializeObject<PondUserDto>(payload, PondJsonSettings));
             else if (eventName == "session_timer_tick")
                 SessionTimerTick?.Invoke(JsonUtility.FromJson<SessionTimerTickDto>(payload));
             else if (eventName == "fish_bite")
@@ -495,12 +506,16 @@ namespace FishSocial.Desktop.Auth
 
         void SendEvent(string name, string payload, int? ackId)
         {
-            var packet = "42[" + Quote(name) + ",";
-            if (ackId.HasValue) packet = "42" + ackId.Value + "[" + Quote(name) + ",";
-            packet += payload + "]";
+            var packet = BuildEventPacket(name, payload, ackId);
             _outgoing.Enqueue(packet);
             if (Interlocked.CompareExchange(ref _outgoingDraining, 1, 0) == 0)
                 _ = Task.Run(DrainOutgoing);
+        }
+
+        static string BuildEventPacket(string name, string payload, int? ackId)
+        {
+            return "42" + (ackId.HasValue ? ackId.Value.ToString() : string.Empty) +
+                   "[" + Quote(name) + (payload == null ? string.Empty : "," + payload) + "]";
         }
 
         async Task DrainOutgoing()
@@ -685,6 +700,8 @@ namespace FishSocial.Desktop.Auth
         public void StartGroundbait(GroundbaitStartPayload payload, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void StopFishing(string pondId, Action<bool, string> onCompleted)
+            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+        public void FishingAttention(Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
         public void AcceptCatch(string catchId, Action<bool, string> onCompleted)
             => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");

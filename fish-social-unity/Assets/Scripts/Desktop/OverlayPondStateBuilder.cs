@@ -35,12 +35,19 @@ namespace FishSocial.Desktop
             dto.ownNickname = pond?.CurrentUser?.nickname ?? pond?.Nickname ?? string.Empty;
             dto.ownPlayerId = pond?.CurrentUser?.playerId ?? string.Empty;
             dto.ownUserId = pond?.CurrentUser?.id ?? string.Empty;
+            dto.fishingAsleep = pond != null && pond.IsFishingAsleep;
+            dto.fishingSleepAt = pond?.CurrentUser?.fishingSleepAt;
+            if (dto.fishingAsleep)
+            {
+                dto.fishingPhase = pond.CurrentPhase;
+                dto.petVisualState = "sleep";
+            }
             dto.ownPetId = ResolvePetId(
                 pond != null ? pond.CurrentUser : null,
                 DesktopProfileCache.Latest);
             dto.sessionFishingMs = ResolveSessionFishingMs(pond != null ? pond.CurrentUser : null);
             dto.sessionCatchCount = pond?.CurrentUser != null ? pond.CurrentUser.sessionCatchCount : 0;
-            dto.hookDeadlineMs = pond?.CurrentUser?.phaseEndsAt ?? 0L;
+            dto.hookDeadlineMs = dto.fishingAsleep ? 0L : pond?.CurrentUser?.phaseEndsAt ?? 0L;
             dto.ownFishingStartedAt = SessionAnchor(pond != null ? pond.CurrentUser : null);
             dto.hasOwnPosition = false;
             dto.ownX = 0f;
@@ -83,6 +90,8 @@ namespace FishSocial.Desktop
                 return actions.ToArray();
 
             var hasSpot = !string.IsNullOrEmpty(pond.CurrentUser?.spotId);
+            if (pond.IsFishingAsleep || pond.CanStopFishing)
+                actions.Add("fishing_attention");
             var phase = pond.CurrentPhase ?? "idle";
             if (!hasSpot)
                 actions.Add("take_spot");
@@ -264,13 +273,15 @@ namespace FishSocial.Desktop
                     userId = user != null ? user.id ?? string.Empty : string.Empty,
                     nickname = user != null ? user.nickname ?? string.Empty : string.Empty,
                     spotId = user != null ? user.spotId ?? string.Empty : string.Empty,
-                    petVisualState = PetStateController.ToWire(
+                    petVisualState = user != null && user.fishingAsleep ? "sleep" : PetStateController.ToWire(
                         PetStateController.FromFishingPhase(user != null ? user.fishingPhase : null,
                             false, user != null && user.phaseContext != null ? user.phaseContext.outcome : null)),
                     fishingPhase = user != null ? user.fishingPhase ?? string.Empty : string.Empty,
+                    fishingAsleep = user != null && user.fishingAsleep,
+                    fishingSleepAt = user?.fishingSleepAt,
                     sessionFishingMs = ResolveSessionFishingMs(user),
                     sessionCatchCount = user != null ? user.sessionCatchCount : 0,
-                    hookDeadlineMs = user != null ? user.phaseEndsAt : 0L,
+                    hookDeadlineMs = user != null && !user.fishingAsleep ? user.phaseEndsAt : 0L,
                     fishingStartedAt = SessionAnchor(user),
                     isBot = user != null && user.isBot,
                     petId = ResolvePetId(user, null),

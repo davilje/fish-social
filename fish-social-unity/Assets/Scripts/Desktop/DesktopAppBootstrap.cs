@@ -613,6 +613,7 @@ namespace FishSocial.Desktop
 
         void OnPondSnapshotChanged(PondSnapshotDto _)
         {
+            _ownFishing?.ReconcileFromServer();
             RefreshFishingAudio();
             PublishNativeOverlayState();
         }
@@ -620,6 +621,7 @@ namespace FishSocial.Desktop
         void RefreshFishingAudio()
         {
             DesktopAudioService.Instance?.ObserveFishingPhase(
+                _pondSession != null && _pondSession.IsFishingAsleep ? "idle" :
                 _ownFishing != null && _ownFishing.IsActive ? _ownFishing.Phase : _pondSession?.CurrentPhase);
         }
 
@@ -635,6 +637,8 @@ namespace FishSocial.Desktop
 
         void OnPondUsersChanged()
         {
+            if (_pondSession != null && _pondSession.IsFishingAsleep)
+                _ownFishing?.ReconcileFromServer();
             PublishNativeOverlayState();
         }
 
@@ -660,7 +664,8 @@ namespace FishSocial.Desktop
 
         void OnPondCatchAccepted()
         {
-            DesktopAudioService.CelebrateCatch();
+            if (_pondSession == null || !_pondSession.IsFishingAsleep)
+                DesktopAudioService.CelebrateCatch();
             QueueFishingProgressRefresh();
         }
 
@@ -702,6 +707,11 @@ namespace FishSocial.Desktop
             if (message.command == "play_audio")
             {
                 DesktopAudioService.Play(message.text);
+                return;
+            }
+            if (message.command == "fishing_attention")
+            {
+                ExecuteOverlayCommand(callback => _pondSession?.FishingAttention(callback), message);
                 return;
             }
             if (_onboarding != null && _onboarding.HandleOverlayCommand(message))

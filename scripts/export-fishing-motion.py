@@ -166,6 +166,7 @@ def main():
     for folder in (FISHING, ROOT / 'fish-social-unity/FishSocialOverlay/OverlayResources/fishing'):
         write_json(folder / 'motion-samples.json', result)
     preview = {'motion': result, 'contact': json.loads((FISHING / 'water-contact.json').read_text()),
+               'sleepHeads': sorted(path.parts[-5] for path in FISHING.glob('*/body/fishing/0/head-sleep.png')),
                'pets': {path.parent.name: json.loads(path.read_text())
                                          for path in sorted(FISHING.glob('*/manifest.json'))}}
     (RIG.parent / 'preview-data.js').write_text('window.fishingMotionPreview = ' + json.dumps(preview, ensure_ascii=False) + ';\n')

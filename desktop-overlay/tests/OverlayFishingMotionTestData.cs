@@ -7,7 +7,7 @@ using FishSocialOverlay;
 
 internal static class OverlayFishingMotionTestData
 {
-    public static readonly string[] Pets = { "orange", "calico", "white", "silver", "brown", "cream", "blue", "black", "cow", "dafeiyu" };
+    public static readonly string[] Pets = { "orange", "calico", "white", "silver", "brown", "cream", "blue", "black", "cow", "dafeiyu", "sangbiao" };
     public static string[] Clips => ExpandedClips("orange");
     public static string Root => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources", "fishing");
     public static string MotionJson => File.ReadAllText(Path.Combine(Root, "motion-samples.json"));

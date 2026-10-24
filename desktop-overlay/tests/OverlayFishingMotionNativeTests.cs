@@ -216,6 +216,51 @@ internal static class OverlayFishingMotionNativeTests
         }
     }
 
+    public static void SleepingRest()
+    {
+        foreach (var pet in Data.Pets)
+        {
+            Load(pet);
+            var sleepHead = OverlayFishingLayers.SleepHead(pet);
+            Data.Check(sleepHead != null && File.Exists(sleepHead), "missing closed-eye face: " + pet);
+            using (var actor = new OverlayPetActor("sleep-test-" + pet, null))
+            {
+                actor.Apply("cat", "fishing", "waiting", 0, 0, petId: pet, fishingAsleep: true);
+                Wait(() => !actor.FramePending);
+                Field<OverlayAnimationSchedule.Subscription>(actor, "_frameTimer").Stop();
+                var rest = Field<OverlayFishingRestMotion>(actor, "_restMotion");
+                rest.Update(OverlayAnimationClock.Now - 1200, false, false);
+                rest.Update(OverlayAnimationClock.Now - 1000, true, true);
+                foreach (var size in new[] { 64d, 128, 192 })
+                {
+                    actor.ApplyChrome(new OverlayActorChrome { Pet = new OverlayLayoutObjectDto { w = size, h = size } });
+                    Wait(() => !actor.FramePending);
+                    var layers = Field<Image[]>(actor, "_layerImages");
+                    var width = Field<int>(actor, "_layerDrawW");
+                    var height = Field<int>(actor, "_layerDrawH");
+                    var horizontal = width / 640d;
+                    var vertical = height / 512d;
+                    Data.Check(ReferenceEquals(layers[1].Source, OverlayFishingLayers.BitmapFor(sleepHead, width, height)), "sleep face not published");
+                    var foot = new Point(264 * horizontal, 450 * vertical);
+                    foreach (var layer in new[] { 0, 1, 2, 3, 6 })
+                        Data.Check((layers[layer].RenderTransform.Transform(foot) - foot).Length < .001, "breathing foot drift");
+                    var tip = new Point(541.5 * horizontal, 149 * vertical);
+                    Data.Check((layers[3].RenderTransform.Transform(tip) - layers[4].RenderTransform.Transform(tip)).Length < .25,
+                        "sleeping rod line disconnected at authored key");
+                    Data.Check(Field<TextBlock>(actor, "_sleepLabel").Visibility == Visibility.Visible, "sleep label absent");
+                }
+                actor.Apply("cat", "fishing", "waiting", 0, 0, petId: pet, fishingAsleep: false);
+                Wait(() => !actor.FramePending);
+                var awake = OverlayFishingLayers.LayerFile(pet, "fishing", 0, "head");
+                Data.Check(ReferenceEquals(Field<Image[]>(actor, "_layerImages")[1].Source,
+                    OverlayFishingLayers.BitmapFor(awake, Field<int>(actor, "_layerDrawW"), Field<int>(actor, "_layerDrawH"))), "wake retained closed eyes");
+                actor.Apply("cat", "sit", "seated", 0, 0, petId: pet);
+                Wait(() => !actor.FramePending);
+                Data.Check(Field<TextBlock>(actor, "_sleepLabel").Visibility == Visibility.Collapsed, "sleep label leaked after stop");
+            }
+        }
+    }
+
     static Transform RootTransform(FishingMotionSample sample, double horizontalScale, double verticalScale)
     {
         if (sample.Root == null) return Transform.Identity;

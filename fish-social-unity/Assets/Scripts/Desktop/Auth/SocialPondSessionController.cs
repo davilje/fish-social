@@ -32,7 +32,8 @@ namespace FishSocial.Desktop.Auth
             new FishInventoryItemDto[0];
         public string CurrentPondId { get; private set; } = DefaultPondId;
         public string CurrentPhase => CurrentUser?.fishingPhase ?? "idle";
-        public bool HasPendingCatch => _latestCatch != null;
+        public bool IsFishingAsleep => CurrentUser != null && CurrentUser.fishingAsleep;
+        public bool HasPendingCatch => !IsFishingAsleep && _latestCatch != null;
         public string LastFishingOutcome { get; private set; } = string.Empty;
         public bool CanStartFishing =>
             CurrentUser == null ||
@@ -256,6 +257,16 @@ namespace FishSocial.Desktop.Auth
         public void StartFishingAtFirstSpot(Action<bool, string> onCompleted = null)
         {
             StartFishing(FirstSpotId, onCompleted);
+        }
+
+        public void FishingAttention(Action<bool, string> onCompleted = null)
+        {
+            if (_socket == null || !_socket.IsConnected || CurrentUser == null)
+            {
+                onCompleted?.Invoke(false, "鱼塘会话尚未连接。");
+                return;
+            }
+            _socket.FishingAttention(onCompleted);
         }
 
         public void StopFishing(Action<bool, string> onCompleted = null)
@@ -585,6 +596,7 @@ namespace FishSocial.Desktop.Auth
             LatestSnapshot = snapshot;
             ReplaceUsers(snapshot?.users);
             CurrentUser = FindCurrentUser(snapshot);
+            ReconcileFishingSleep();
             CurrentInventory = snapshot?.inventory ?? new FishInventoryItemDto[0];
             ReplaceMessages(snapshot?.messages);
             SnapshotChanged?.Invoke(snapshot);
@@ -602,6 +614,7 @@ namespace FishSocial.Desktop.Auth
                 CurrentUser = !string.IsNullOrEmpty(key) && _users.TryGetValue(key, out var merged)
                     ? merged
                     : user;
+                ReconcileFishingSleep();
             }
             UsersChanged?.Invoke();
         }
@@ -627,6 +640,7 @@ namespace FishSocial.Desktop.Auth
                 CurrentUser = !string.IsNullOrEmpty(key) && _users.TryGetValue(key, out var merged)
                     ? merged
                     : user;
+                ReconcileFishingSleep();
                 if (CurrentUser.fishingPhase == "hooked" || CurrentUser.fishingPhase == "baiting" ||
                     CurrentUser.fishingPhase == "casting" || CurrentUser.fishingPhase == "waiting")
                     LastFishingOutcome = string.Empty;
@@ -686,8 +700,19 @@ namespace FishSocial.Desktop.Auth
                    phase == "resolving";
         }
 
+        void ReconcileFishingSleep()
+        {
+            if (!IsFishingAsleep)
+                return;
+            _latestCatch = null;
+            _hookPrompt = null;
+            LastFishingOutcome = string.Empty;
+        }
+
         void OnFishBite(PendingFishCatchDto fishCatch)
         {
+            if (IsFishingAsleep)
+                return;
             LastFishingOutcome = "catch";
             _latestCatch = fishCatch;
             // Apply hooked locally as soon as fish_bite arrives so Overlay does
@@ -705,6 +730,8 @@ namespace FishSocial.Desktop.Auth
 
         void OnFishMiss(FishingMissDto miss)
         {
+            if (IsFishingAsleep)
+                return;
             LastFishingOutcome = "escape";
             var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _hookPrompt = OverlayHookPrompt.Escape(nowMs);

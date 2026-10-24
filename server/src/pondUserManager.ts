@@ -42,6 +42,7 @@ import { cancelByUser } from './timerRegistry.js';
 import { getConfigString } from './gameConfig.js';
 import { getPondMessages, ensurePondChat } from './pondChat.js';
 import { ensureFishingStartedAt } from './fishingStartedAt.js';
+import { clearFishingSleep } from './fishingSleep.js';
 import { getSessionCatchCount } from './pondSessionLedger.js';
 
 let lastSnapshotBuildPerfLogAt = 0;
@@ -957,6 +958,7 @@ export function removeDisconnectedUser(pondId: string, userId: string): PondUser
   if (!user) return null;
   // BUG-16：防御式结算（断线前通常已 finalize；锚点为空则幂等 0）
   settleFishingSession(user, nowMs(), 'disconnect_timeout', { mode: 'finalize' });
+  clearFishingSleep(user);
   if (user.spotId) {
     recordFishingMetric('spot_release', {
       playerId: user.playerId,

@@ -195,6 +195,12 @@ namespace FishSocialOverlay
         [DataMember(Name = "fishingStartedAt")]
         public long FishingStartedAt { get; set; }
 
+        [DataMember(Name = "fishingAsleep")]
+        public bool FishingAsleep { get; set; }
+
+        [DataMember(Name = "fishingSleepAt")]
+        public long? FishingSleepAt { get; set; }
+
         [DataMember(Name = "isBot")]
         public bool IsBot { get; set; }
 
@@ -274,6 +280,12 @@ namespace FishSocialOverlay
 
         [DataMember(Name = "ownFishingStartedAt")]
         public long OwnFishingStartedAt { get; set; }
+
+        [DataMember(Name = "fishingAsleep")]
+        public bool FishingAsleep { get; set; }
+
+        [DataMember(Name = "fishingSleepAt")]
+        public long? FishingSleepAt { get; set; }
 
         [DataMember(Name = "pondId")]
         public string PondId { get; set; }

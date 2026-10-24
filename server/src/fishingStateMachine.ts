@@ -37,7 +37,8 @@ import {
   prepareGearForBiteTick,
   resolveBaitForBite,
 } from './gear.js';
-import { getConfigBool } from './gameConfig.js';
+import { getConfigBool, getFishingSleepAfterMs } from './gameConfig.js';
+import { clearFishingSleep, refreshFishingSleep, resetFishingSleep } from './fishingSleep.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { emitFishingFloatText, emitFishingMissFloatText, emitFishingCastFloatText } from './fishingFloatText.js';
 import {
@@ -62,6 +63,8 @@ import { canStartFishingWithFee } from './playerProgress.js';
 import {
   upsertPlayerPondSession,
   deletePlayerPondSession,
+  isFishingStopRequested,
+  setFishingStopRequested,
 } from './playerPondSession.js';
 import { register, cancelByKind, hasActiveTimer } from './timerRegistry.js';
 import {
@@ -153,9 +156,11 @@ function setPhase(
   context?: PondUser['phaseContext'],
 ): PondUser {
   user.fishingPhase = phase;
+  if (phase === 'idle' || phase === 'seated') setFishingStopRequested(user, false);
   user.phaseEndsAt = durationMs > 0 ? now() + durationMs : null;
   if (context !== undefined) user.phaseContext = context;
   syncStatus(user);
+  if (phase === 'waiting') refreshFishingSleep(user, getFishingSleepAfterMs());
   return user;
 }
 
@@ -288,6 +293,9 @@ export function beginFishingSequence(
   if (user.fishingPhase !== 'seated') {
     return { ok: false, error: '当前状态无法开始钓鱼' };
   }
+  if (!user.isBot && user.fishingAsleep) {
+    return { ok: false, error: '请先触碰角色唤醒后再开始钓鱼' };
+  }
   if (user.playerId && getTodayFishingMs(user.playerId) >= MAX_DAILY_FISHING_MS) {
     return { ok: false, error: '今日钓鱼时长已用完' };
   }
@@ -301,6 +309,8 @@ export function beginFishingSequence(
   sessionFlagsByUser.delete(userId);
   clearHook(userId);
   const startedAt = now();
+  setFishingStopRequested(user, false);
+  resetFishingSleep(user, getFishingSleepAfterMs(), startedAt);
   user.sessionStartedAt = startedAt;
   user.fishingStartedAt = startedAt;
   initQuotaCheckpoint(userId, startedAt);
@@ -324,6 +334,9 @@ export function beginGroundbaitSequence(
     return { ok: false, error: '当前状态无法打窝', code: 'NOT_SEATED' };
   }
   if (!user.playerId) return { ok: false, error: '玩家无效', code: 'NOT_SEATED' };
+  if (!user.isBot && user.fishingAsleep) {
+    return { ok: false, error: '请先触碰角色唤醒后再打窝' };
+  }
 
   const started = tryStartGroundbaitCast(user.playerId, user, groundbaitId);
   if (!started.ok) {
@@ -365,10 +378,15 @@ export function handleStopFishing(
   if (!user) return { ok: false, error: '用户不存在' };
 
   const phase = user.fishingPhase ?? 'idle';
+  if (isFishingActive(phase) || phase === 'seated') {
+    clearFishingSleep(user);
+    setFishingStopRequested(user, true);
+  }
 
   if (phase === 'hooked') {
     const ctx = hookContextByUser.get(userId);
     if (ctx) {
+      sessionFlagsByUser.set(userId, { stopToSeated: true });
       ctx.escaped = true;
       applyEscapeGrowthBonus(ctx.fish.id);
       user.phaseContext = { outcome: 'escape' };
@@ -382,6 +400,8 @@ export function handleStopFishing(
 
   if (phase === 'resolving') {
     sessionFlagsByUser.set(userId, { stopToSeated: true });
+    upsertPlayerPondSession(user, pondId);
+    emitPondUserUpdated(io, pondId, user);
     return { ok: true, user };
   }
 
@@ -512,10 +532,17 @@ export function hasPendingDisconnectTimer(userId: string): boolean {
 function restoreDefaultDisconnectedPhase(user: PondUser): FishingPhase {
   if (user.fishingPhase !== 'disconnected') return user.fishingPhase ?? 'idle';
   const disconnectedFromPhase = user.phaseContext?.disconnectedFromPhase;
+  const stopped = isFishingStopRequested(user) || disconnectedFromPhase === 'stopping';
   user.fishingPhase =
-    disconnectedFromPhase && isFishingActive(disconnectedFromPhase)
+    !stopped && disconnectedFromPhase && isFishingActive(disconnectedFromPhase)
       ? 'waiting'
       : user.spotId ? 'seated' : 'idle';
+  if (stopped) {
+    setFishingStopRequested(user, false);
+    sessionFlagsByUser.delete(user.id);
+    clearHook(user.id);
+    clearFishingSleep(user);
+  }
   user.phaseEndsAt = null;
   if (user.phaseContext) {
     delete user.phaseContext.disconnectedFromPhase;
@@ -546,6 +573,7 @@ export function restoreDisconnectedUser(user: PondUser, pondId?: string): PondUs
   user.disconnectedAt = null;
   const fromPhase: FishingPhase = 'disconnected';
   const toPhase = restoreDefaultDisconnectedPhase(user);
+  refreshFishingSleep(user, getFishingSleepAfterMs());
   if (pondId) {
     recordPhaseTransition({
       ...buildUserFields(user, pondId),
@@ -573,7 +601,13 @@ export function resumeAfterReconnect(
   let hookedExpired = false;
   let resumedToPhase: FishingPhase | null = null;
 
-  if (user.fishingPhase === 'disconnected') {
+  if (isFishingStopRequested(user) || user.fishingPhase === 'stopping') {
+    sessionFlagsByUser.delete(user.id);
+    clearHook(user.id);
+    clearFishingSleep(user);
+    resumedToPhase = user.spotId ? 'seated' : 'idle';
+    transitionPhase(user, pondId, resumedToPhase, 0, 'stop_to_seated', {}, { socketId });
+  } else if (user.fishingPhase === 'disconnected') {
     const ctx = hookContextByUser.get(user.id);
     const hookEndsAt = ctx?.hookEndsAt;
     const fromPhase: FishingPhase = 'disconnected';
@@ -607,6 +641,9 @@ export function resumeAfterReconnect(
   }
 
   logReconnect(user, pondId, { resumedHooked, hookedExpired, resumedToPhase });
+  refreshFishingSleep(user, getFishingSleepAfterMs());
+  updatePondUser(pondId, user);
+  upsertPlayerPondSession(user, pondId, user.fishingPhase === 'hooked' ? user.phaseEndsAt : null);
   // BUG-16/19：断线期不计时；恢复活跃相位时展示锚点与 checkpoint 取 now
   if (isFishingActive(user.fishingPhase) && user.fishingPhase !== 'stopping') {
     const t = now();
@@ -806,17 +843,19 @@ export function scheduleHookFromBite(
   hook: BiteHookEvent,
 ): void {
   const user = getUserById(pondId, userId);
-  if (!user) return;
+  if (!user || user.fishingPhase !== 'waiting') return;
+  refreshFishingSleep(user, getFishingSleepAfterMs());
+  const asleep = !user.isBot && user.fishingAsleep === true;
 
   hookContextByUser.set(userId, {
     fish: hook.fish,
-    escaped: hook.escaped,
+    escaped: asleep || hook.escaped,
     hookDurationMs: hook.hookDurationMs,
   });
 
-  emitFishingFloatText(io, pondId, userId, 'hook', hook.fish);
+  if (!asleep) emitFishingFloatText(io, pondId, userId, 'hook', hook.fish);
   const next = transitionPhase(user, pondId, 'hooked', hook.hookDurationMs, 'bite_hook', undefined, { socketId });
-  emitPondUserUpdated(io, pondId, next);
+  if (!asleep) emitPondUserUpdated(io, pondId, next);
   const { counters, waitingMsSinceLastHook } = noteBiteHook(userId);
   if (user.playerId && !user.isBot) recordSessionBite(user.playerId);
   recordFishingMetric('bite_hook', {
@@ -832,6 +871,27 @@ export function scheduleHookFromBite(
       waitingMsSinceLastHook,
     },
   });
+  if (asleep) advanceFromHooked(io, pondId, user, socketId);
+}
+
+export function handleFishingAttention(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  pondId: string,
+  userId: string,
+): { ok: boolean; error?: string } {
+  const user = getUserById(pondId, userId);
+  if (!user || user.isBot || user.fishingPhase === 'disconnected' ||
+      user.fishingPhase === 'stopping' ||
+      sessionFlagsByUser.get(userId)?.stopToSeated ||
+      (!user.fishingAsleep && !isFishingActive(user.fishingPhase))) {
+    return { ok: false, error: '当前未在钓鱼' };
+  }
+  if (isFishingActive(user.fishingPhase)) resetFishingSleep(user, getFishingSleepAfterMs());
+  else clearFishingSleep(user);
+  upsertPlayerPondSession(user, pondId, user.fishingPhase === 'hooked' ? user.phaseEndsAt : null);
+  markUserDirty(pondId, userId);
+  emitPondUserUpdated(io, pondId, user);
+  return { ok: true };
 }
 
 export function processWaitingBiteTick(
@@ -844,6 +904,10 @@ export function processWaitingBiteTick(
 ): boolean {
   const user = getUserById(pondId, userId);
   if (!user || user.fishingPhase !== 'waiting') return false;
+  if (refreshFishingSleep(user, getFishingSleepAfterMs())) {
+    upsertPlayerPondSession(user, pondId);
+    emitPondUserUpdated(io, pondId, user);
+  }
   if (getPendingCatch(userId)) return false;
 
   const gearState = prepareGearForBiteTick(playerId);
@@ -918,11 +982,17 @@ export function tickFishingPhases(
   socketByUserId: { get(userId: string): string | undefined },
 ): void {
   const t = now();
+  const sleepAfterMs = getFishingSleepAfterMs();
   for (const pond of PONDS) {
     const pondId = pond.id;
     const users = listUsersInPond(pondId);
     for (const user of users) {
       if (user.fishingPhase === 'disconnected') continue;
+      if (!sessionFlagsByUser.get(user.id)?.stopToSeated && refreshFishingSleep(user, sleepAfterMs, t)) {
+        upsertPlayerPondSession(user, pondId, user.fishingPhase === 'hooked' ? user.phaseEndsAt : null);
+        markUserDirty(pondId, user.id);
+        emitPondUserUpdated(io, pondId, user);
+      }
       if (!user.phaseEndsAt || user.phaseEndsAt > t) continue;
 
       const socketId = socketByUserId.get(user.id) ?? null;

@@ -81,6 +81,9 @@ namespace FishSocial.Desktop.Pet
             if (pond.State != SocialSocketState.Connected)
                 return PetVisualState.Idle;
 
+            if (pond.IsFishingAsleep)
+                return PetVisualState.Sleep;
+
             var phase = pond.CurrentPhase ?? string.Empty;
             var outcome = ResolveFishingOutcome(pond.CurrentUser?.phaseContext?.outcome, pond.LastFishingOutcome);
             return FromFishingPhase(phase, pond.HasPendingCatch, outcome);
@@ -134,6 +137,7 @@ namespace FishSocial.Desktop.Pet
             switch (state)
             {
                 case PetVisualState.Sit: return "sit";
+                case PetVisualState.Sleep: return "sleep";
                 case PetVisualState.Groundbait: return "groundbait";
                 case PetVisualState.Bait: return "bait";
                 case PetVisualState.Cast: return "cast";
@@ -153,6 +157,7 @@ namespace FishSocial.Desktop.Pet
             switch (state)
             {
                 case PetVisualState.Sit: return "坐下";
+                case PetVisualState.Sleep: return "睡着了";
                 case PetVisualState.Groundbait: return "打窝";
                 case PetVisualState.Bait: return "挂饵";
                 case PetVisualState.Cast: return "抛竿";

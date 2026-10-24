@@ -13,7 +13,7 @@ public static class OverlayFishingMotionTests
     static int _failed;
     public static void Main()
     {
-        Run("all manifest actions expand for ten pets without changing source timing", AllPets);
+        Run("all manifest actions expand for eleven pets without changing source timing", AllPets);
         Run("motion covers all requested actions and leaves idle and ready untouched", Coverage);
         Run("loop tails animate and wrap to the remapped source loop start", Loops);
         Run("loop opt-in is confined to single-frame hold clips and root remains optional", Compatibility);

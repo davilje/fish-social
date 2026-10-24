@@ -42,6 +42,9 @@ namespace FishSocialOverlay
         readonly Grid _layerHost;
         readonly Image[] _layerImages;
         readonly Rectangle _hitCatcher;
+        readonly TextBlock _sleepLabel;
+        readonly OverlayFishingRestMotion _restMotion = new OverlayFishingRestMotion();
+        bool _fishingAsleep;
         readonly Image _statusIcon;
         readonly TextBlock _nickname;
         readonly Border _nameBadge;
@@ -249,6 +252,18 @@ namespace FishSocialOverlay
 
             _body.Children.Add(_image);
             _body.Children.Add(_layerHost);
+            _sleepLabel = new TextBlock
+            {
+                Text = "Z z z",
+                FontSize = 18,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = CozyTheme.Ink,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                IsHitTestVisible = false,
+                Visibility = Visibility.Collapsed
+            };
+            _body.Children.Add(_sleepLabel);
 
             _stage = new Grid
             {
@@ -475,13 +490,16 @@ namespace FishSocialOverlay
             long fishingStartedAt = 0,
             string petId = null,
             int sessionCatchCount = 0,
-            bool groundbaitActive = false)
+            bool groundbaitActive = false,
+            bool fishingAsleep = false)
         {
             if (_disposed) return;
             var nextName = string.IsNullOrWhiteSpace(nickname) ? "玩家" : nickname;
             var layoutChanged = nextName != _nickname.Text;
             if (layoutChanged) _nickname.Text = nextName;
             var oldPhase = _fishingPhase;
+            var sleepChanged = _fishingAsleep != fishingAsleep;
+            _fishingAsleep = fishingAsleep;
             _hookDeadlineMs = hookDeadlineMs;
             _sessionCatchCount = Math.Max(0, sessionCatchCount);
 
@@ -511,12 +529,14 @@ namespace FishSocialOverlay
                 RefreshGroundbaitFrame();
             }
             SyncSessionAnchor(Math.Max(0, sessionFishingMs), fishingStartedAt);
-            if (oldPhase != _fishingPhase)
+            if (oldPhase != _fishingPhase || sleepChanged)
             {
                 UpdateStatusVisuals();
                 layoutChanged = true;
             }
-            ApplyVisualState(GroundbaitVisualState(visualState), petId);
+            var sleepingFishing = _fishingAsleep && IsSleepFishingPhase(phase);
+            ApplyVisualState(GroundbaitVisualState(sleepingFishing ? "fishing" : visualState), petId);
+            if (sleepChanged && _layered != null) ShowLayered();
             if (layoutChanged) RelayoutCluster();
             SyncRefreshClock();
             RefreshOpenHover();
@@ -750,6 +770,8 @@ namespace FishSocialOverlay
         public void ReleaseFishingLayers(bool clearDeferred = true)
         {
             _groundbaitTimeline = null;
+            _sleepLabel.Visibility = Visibility.Collapsed;
+            _restMotion.Update(OverlayAnimationClock.Now, false, false);
             if (clearDeferred)
             {
                 _deferredState = string.Empty;
@@ -1170,7 +1192,7 @@ namespace FishSocialOverlay
 
         void UpdateStatusVisuals()
         {
-            var iconKind = ResolveStatusIconKind(_fishingPhase);
+            var iconKind = _fishingAsleep ? null : ResolveStatusIconKind(_fishingPhase);
             if (string.IsNullOrEmpty(iconKind))
             {
                 _statusIcon.Source = null;
@@ -1182,7 +1204,7 @@ namespace FishSocialOverlay
                 _statusIcon.Visibility = Visibility.Visible;
             }
 
-            if (IsRingPhase(_fishingPhase))
+            if (!_fishingAsleep && IsRingPhase(_fishingPhase))
                 UpdateHookRing();
             else
                 HideHookRing();
@@ -1204,7 +1226,7 @@ namespace FishSocialOverlay
 
         void UpdateHookRing()
         {
-            if (_hookDeadlineMs <= 0)
+            if (_fishingAsleep || _hookDeadlineMs <= 0)
             {
                 HideHookRing();
                 return;
@@ -1417,6 +1439,8 @@ namespace FishSocialOverlay
 
         string BuildHoverText()
         {
+            if (_fishingAsleep)
+                return "睡着了 · 咬钩会脱钩\n" + (ActorKey == "__own__" ? "点击猫咪，唤醒继续钓鱼" : "等待主人点击唤醒");
             var catchLine = _sessionCatchCount > 0
                 ? "钓到" + _sessionCatchCount + "条!"
                 : "空军";
@@ -1561,9 +1585,14 @@ namespace FishSocialOverlay
             {
                 var pending = new Task<BitmapImage>[_layerImages.Length];
                 for (var i = 0; i < pending.Length; i++)
+                {
+                    var layer = OverlayFishingLayers.LayerNames[i];
+                    var sleepingHead = _fishingAsleep && _layeredClip == "fishing" && layer == "head"
+                        ? OverlayFishingLayers.SleepHead(_petId) : null;
                     pending[i] = OverlayFishingLayers.BitmapAsync(
-                        OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, OverlayFishingLayers.LayerNames[i]),
+                        sleepingHead ?? OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, layer),
                         _layerDrawW, _layerDrawH, request.Token);
+                }
                 var images = await Task.WhenAll(pending);
                 if (_disposed || version != _renderVersion || !_presentationVisible) return;
                 foreach (var image in images)
@@ -1621,6 +1650,23 @@ namespace FishSocialOverlay
             var sourceFrame = _layered?.SourceIndex(frame) ?? frame;
             var contact = sample == null || sample.Position == sample.Source
                 ? OverlayFishingWaterContact.Frame(_layeredClip, sourceFrame) : sample.Contact;
+            var resting = _layeredClip == "fishing" && (_fishingPhase == "waiting" || _fishingAsleep && IsSleepFishingPhase(_fishingPhase));
+            var rest = _restMotion.Update(OverlayAnimationClock.Now, resting, _fishingAsleep);
+            var lineRest = RestPose.Identity.Matrix;
+            if (resting && contact != null)
+            {
+                var tipX = sample?.Line?[0] ?? OverlayFishingRestMotion.FishingTipX;
+                var tipY = sample?.Line?[1] ?? OverlayFishingRestMotion.FishingTipY;
+                lineRest = rest.Line(tipX, tipY, contact.LineBottom);
+                contact = new FishingContactFrame
+                {
+                    LineTop = rest.Y(tipX, tipY), LineBottom = contact.LineBottom,
+                    BobberY = contact.BobberY, FishTop = contact.FishTop
+                };
+            }
+            _sleepLabel.Visibility = rest.SleepBlend > .01 ? Visibility.Visible : Visibility.Collapsed;
+            _sleepLabel.Opacity = rest.BubbleOpacity;
+            _sleepLabel.RenderTransform = new TranslateTransform(0, -rest.BubbleRise);
             var pose = OverlayFishingWaterContact.Solve(contact,
                 scale, origin, surface, OverlayFishingWaterContact.Weight(_layeredClip,
                     _layered?.SourcePosition(frame) ?? frame, _layered?.SourceFrameCount ?? count));
@@ -1636,16 +1682,22 @@ namespace FishSocialOverlay
                 else if (layer == "bobber" && pose.BobberOffset != 0) transform = new TranslateTransform(0, pose.BobberOffset);
                 else if (layer == "bait" && pose.BaitOffset != 0) transform = new TranslateTransform(0, pose.BaitOffset);
                 else if (layer == "fish" && pose.FishOffset != 0) transform = new TranslateTransform(0, pose.FishOffset);
-                if (sample != null)
+                if (sample != null || resting)
                 {
-                    var values = sample.Transforms[i];
+                    var values = sample?.Transforms[i] ?? RestPose.Identity.Matrix;
                     var matrix = new Matrix(values[0], values[1] * scale / scaleX,
                         values[2] * scaleX / scale, values[3], values[4] * scaleX, values[5] * scale);
-                    if (sample.Root != null)
+                    if (sample?.Root != null)
                     {
                         var root = sample.Root;
                         matrix.Append(new Matrix(root[0], root[1] * scale / scaleX,
                             root[2] * scaleX / scale, root[3], root[4] * scaleX, root[5] * scale));
+                    }
+                    if (resting && (layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands" || layer == "rod" || layer == "line"))
+                    {
+                        var restValues = layer == "line" ? lineRest : rest.Matrix;
+                        matrix.Append(new Matrix(restValues[0], restValues[1] * scale / scaleX,
+                            restValues[2] * scaleX / scale, restValues[3], restValues[4] * scaleX, restValues[5] * scale));
                     }
                     if (!matrix.IsIdentity)
                     {
@@ -1713,6 +1765,11 @@ namespace FishSocialOverlay
             if (_frameIndex >= _layered.FrameCount)
                 _frameIndex = _layered.LoopStart;
             ShowLayered();
+        }
+
+        static bool IsSleepFishingPhase(string phase)
+        {
+            return phase == "waiting" || phase == "hooked" || phase == "resolving" || phase == "baiting" || phase == "casting" || phase == "seated";
         }
 
         void RefreshGroundbaitFrame()
@@ -2104,7 +2161,7 @@ namespace FishSocialOverlay
             switch (petId)
             {
                 case "calico": case "orange": case "white": case "silver": case "brown":
-                case "cream": case "blue": case "black": case "cow": case "dafeiyu":
+                case "cream": case "blue": case "black": case "cow": case "dafeiyu": case "sangbiao":
                     return petId;
                 default:
                     return "orange";

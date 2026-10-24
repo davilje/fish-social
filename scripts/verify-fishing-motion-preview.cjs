@@ -63,8 +63,30 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert.ok(Number(await page.locator('#scrub').inputValue()) > 0);
     await page.click('#previous');
     assert.equal(Number(await page.locator('#scrub').inputValue()), 0);
+    const restPets = await page.evaluate(() => data.sleepHeads || []);
+    assert.ok(restPets.includes('orange'), 'sleep face missing');
+    for (const pet of restPets) {
+      await page.selectOption('#pet', pet);
+      await page.selectOption('#clip', 'fishing');
+      await page.click('#sleep');
+      await page.evaluate(async () => { elapsed += 1600; await render(); });
+      const pose = await page.evaluate(() => {
+        const current=config(),sample=current.samples[0],rest=restingPose(current,sample),water=contactPose(current,sample,0,true,rest);
+        const matrix=rest.matrix;
+        return {foot:[matrix[0]*264+matrix[2]*450+matrix[4],matrix[1]*264+matrix[3]*450+matrix[5]],blend:rest.blend,line:water.lineRest};
+      });
+      assert.ok(pose.foot.every((value,index)=>Math.abs(value-[264,450][index])<1e-8));
+      assert.equal(pose.blend,1);assert.ok(pose.line);
+      await page.click('#bite-test');
+      assert.match(await page.locator('#rest-status').textContent(),/直接脱钩.*\+0/);
+      if(pet==='orange')await page.screenshot({path:path.join(folder,'sleep-comparison.png')});
+      await page.click('#after');
+      await page.evaluate(async () => { elapsed += 900; await render(); });
+      assert.equal(await page.evaluate(()=>sleepBlend()),0);
+      assert.match(await page.locator('#rest-status').textContent(),/重新计时 30/);
+    }
     assert.deepEqual(errors, []);
-    const result = { date: '2026-10-24', pets, clips, sampledRenders: checked, errors, depthAndDrop: 'passed', groundbaitFinishAndStepControls: 'passed', nativeWindows: 'not-run' };
+    const result = { date: '2026-10-24', pets, clips, sampledRenders: checked, restPets, restAndWake:'passed', errors, depthAndDrop: 'passed', groundbaitFinishAndStepControls: 'passed', nativeWindows: 'not-run' };
     fs.writeFileSync(path.join(folder, 'browser-verification.json'), JSON.stringify(result, null, 2) + '\n');
     console.log(JSON.stringify(result));
   } finally { await browser.close(); }

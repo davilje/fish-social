@@ -4,7 +4,7 @@
 
 派发：`@docs/planning/prompts/steam-desktop-22-followups-dev.prompt.md 按本轮用户指定的批次设计与实现 STEAM-DESKTOP-22D–J`。
 
-用户已授权并实现 D、E、F。I 已按用户选择完成试听方案，待认可后接入，见 `steam-desktop-22i-audio-dev.prompt.md`。G/H/J 仍只登记。
+用户已授权并实现 D、E、F。H/I/J 已按 2026-10-24 指令补齐方案 v1，统一入口见 `steam-desktop-22hij-design-dev.prompt.md`；I 保留已有六场景试听。G 仍为登记项。本轮设计交付不表示 H/I/J 正式代码已接入。
 
 先读 `docs/planning/specs/Steam桌面端-22鱼塘表现修复与后续迭代.md`。保留 A–C 的读条、聊天预览输入路由和水面接触修复，以及之前 Overlay 的后台解码、缓存和暂停优化。
 

@@ -272,6 +272,8 @@ if (playerPondSession.tablesCreated.length > 0) {
 
 import { migratePlayerPondSessionReturnFee } from './migrations/player_pond_session_return_fee.js';
 migratePlayerPondSessionReturnFee(db);
+import { migrateFishingSleep } from './migrations/fishing_sleep.js';
+migrateFishingSleep(db);
 console.log('Migration: player_pond_session.return_fee_mode ensured');
 
 import { migrateErrorLogs } from './migrations/error_logs.js';

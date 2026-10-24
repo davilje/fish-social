@@ -154,6 +154,8 @@ export interface PondUser {
    * BUG-19：禁止因分段落账被前移；额度计算以 sessionStartedAt + checkpoint 为准。
    */
   fishingStartedAt: number | null;
+  fishingAsleep?: boolean;
+  fishingSleepAt?: number | null;
   /** BUG-19：本局展示锚点（开钓设定，收杆/离塘清空；checkpoint 不得修改） */
   sessionStartedAt?: number | null;
   /**
@@ -477,6 +479,7 @@ export interface ClientToServerEvents {
     ack?: (result: { ok: boolean; error?: string }) => void,
   ) => void;
   start_fishing: (payload: StartFishingPayload, ack?: (result: { ok: boolean; error?: string }) => void) => void;
+  fishing_attention: (ack?: (result: { ok: boolean; error?: string }) => void) => void;
   groundbait_start: (
     payload: { pondId: string; groundbaitId: string },
     ack?: (result: { ok: boolean; error?: string; code?: string }) => void,

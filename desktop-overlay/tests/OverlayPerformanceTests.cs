@@ -46,10 +46,11 @@ public static class OverlayPerformanceTests
         Run("groundbait follows real phase and latest network destination", OverlayGroundbaitNativeTests.PhaseLifecycle);
         Run("groundbait supports short repeats, interruption and disposal", OverlayGroundbaitNativeTests.RepeatAndInterrupt);
         Run("groundbait preserves hidden cache and resumes after skin changes", OverlayGroundbaitNativeTests.HiddenAndPetChange);
-        Run("motion expands ten pets while reusing source PNG paths and rig anchors", OverlayFishingMotionNativeTests.PacksAndSourcePaths);
+        Run("motion expands all registered pets while reusing source PNG paths and rig anchors", OverlayFishingMotionNativeTests.PacksAndSourcePaths);
         Run("motion samples retain and release original cached PNGs once", OverlayFishingMotionNativeTests.CacheReferences);
         Run("motion lines render as thin transparent WPF drawings", OverlayFishingMotionNativeTests.ThinLineRendering);
         Run("motion actor resizing preserves grips, line contact and cached drawings", OverlayFishingMotionNativeTests.ActorResize);
+        Run("sleep faces, fixed feet, rod lines and wake survive all pet sizes", OverlayFishingMotionNativeTests.SleepingRest);
         Run("seat feet and stand-before-departure survive repeated and redirected snapshots", SeatPresentation);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();

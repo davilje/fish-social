@@ -1921,7 +1921,10 @@ namespace FishSocialOverlay
             if (canMeasureClick && dragCompleted && GetCursorPos(out var pointerAfter) &&
                 Math.Abs(pointerAfter.X - pointerBefore.X) <= SystemParameters.MinimumHorizontalDragDistance &&
                 Math.Abs(pointerAfter.Y - pointerBefore.Y) <= SystemParameters.MinimumVerticalDragDistance)
+            {
                 PlayInteractionAudio("meow");
+                SendCommand("fishing_attention");
+            }
         }
 
         void PondScene_OnMouseMove(object sender, MouseEventArgs e)

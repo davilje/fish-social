@@ -12,6 +12,8 @@ namespace FishSocial.Desktop
         public string connectionState = "Disconnected";
         public string pondName = string.Empty;
         public string fishingPhase = "idle";
+        public bool fishingAsleep;
+        public long? fishingSleepAt;
         public string petVisualState = "offline";
         public string ownNickname = string.Empty;
         public string ownPlayerId = string.Empty;
@@ -103,6 +105,8 @@ namespace FishSocial.Desktop
         public bool hasPosition;
         public string petVisualState;
         public string fishingPhase;
+        public bool fishingAsleep;
+        public long? fishingSleepAt;
         public long sessionFishingMs;
         public int sessionCatchCount;
         public long hookDeadlineMs;

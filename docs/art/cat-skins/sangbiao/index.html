@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>丧彪 · 钓鱼动作检查</title>
+<style>
+body{margin:24px;background:#eee7db;color:#382e27;font:16px system-ui,sans-serif}h1{margin-bottom:8px}p{max-width:960px;line-height:1.6}button,select,input{font:inherit}button,select{padding:6px 10px}nav,.layers{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}.views{display:flex;flex-wrap:wrap;gap:18px}figure{margin:0}canvas{width:min(640px,94vw);height:auto;background-color:#d8cdbd;background-image:conic-gradient(#fff4 25%,transparent 0 50%,#fff4 0 75%,transparent 0);background-size:24px 24px;border:1px solid #a79a88}figcaption{margin:8px 0}output{font-variant-numeric:tabular-nums}#gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:32px}#gallery img{width:100%;background:#d8cdbd}a{color:#70492a}#error{color:#a02323;white-space:pre-wrap}
+</style>
+<h1>狸花猫「丧彪」 · sangbiao</h1>
+<p>原画布 640×512，脚锚 (264,450)。逐动作检查握杆遮挡、脚底和虎斑连续性。图层名沿用原工程，head 不代表可独立转动的解剖头部。几何校验通过不等于最终美术验收。</p>
+<p>44 张独立稿已安装，覆盖 63 源帧、16 动作。家园站姿/坐姿已接入；蜷睡、行走、进食和翻滚动画尚缺。<a href="review.json">交付验证与限制</a> · <a href="home-coverage.json">家园覆盖</a></p>
+<nav>
+<label>动作 <select id="clip"></select></label>
+<button id="play">播放</button><button id="prev">上一帧</button><button id="next">下一帧</button>
+<label>速度 <select id="speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label>
+<label>背景 <select id="background"><option value="#d8cdbd">浅色</option><option value="#24272c">深色</option><option value="#ff00cc">品红</option></select></label>
+<label><input id="anchor" type="checkbox" checked>脚锚</label>
+<output id="status"></output>
+</nav>
+<div class="layers" id="layers"></div>
+<div class="views"><figure><canvas id="preview" width="640" height="512"></canvas><figcaption>丧彪 · 实际九层顺序</figcaption></figure><figure><canvas id="original" width="640" height="512"></canvas><figcaption>原橘猫角色 · 同画布对照</figcaption></figure></div>
+<p id="order"></p><p id="error" role="alert"></p>
+<p><a href="validation.json">导出校验</a> · <a href="painted-poses.json">逐稿来源与提示词</a> · <a href="README.md">交付说明</a> · <a href="full-contact.png">63 源帧带道具总览</a> · <a href="contact.png">44 原稿总览</a></p>
+<div id="gallery"></div>
+<script src="preview-data.js"></script>
+<script src="preview.js"></script>
+</html>

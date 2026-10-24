@@ -10,6 +10,7 @@ import {
 } from '@fish-social/shared';
 import { clearPendingCatch } from './inventory.js';
 import { clearGroundbait } from './groundbait.js';
+import { clearFishingSleep } from './fishingSleep.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import { recordPhaseTransition } from './fishingObservability.js';
 import {
@@ -154,6 +155,7 @@ export function leavePond(socketId: string): PondUser | null {
       pondId: session.pondId,
     });
     clearGroundbait(user);
+    clearFishingSleep(user);
   }
   if (user?.spotId) {
     recordFishingMetric('spot_release', {
@@ -214,6 +216,7 @@ export function leaveSpot(
       pondId,
     });
   user.spotId = null;
+  clearFishingSleep(user);
   user.status = 'idle';
   user.fishingPhase = 'idle';
   user.fishingStartedAt = null;
@@ -380,6 +383,7 @@ export function restoreUserFromCheckpoint(
 ): PondUser | null {
   const user = restoreCheckpointUser(pondId, playerId, nickname);
   if (!user) return null;
+  clearSessionsForUser(user.id);
   sessions.set(socketId, { userId: user.id, playerId, pondId, nickname: user.nickname });
   return user;
 }
@@ -395,6 +399,7 @@ export function reconnectSession(
   const user = users.get(userId);
   if (!user) return null;
 
+  clearSessionsForUser(userId);
   sessions.set(socketId, { userId, playerId, pondId, nickname });
   return user;
 }

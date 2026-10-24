@@ -1,17 +1,19 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace FishSocial.Desktop.Pet
 {
     /// <summary>
     /// Authoritative presentation requests with independent, duration-driven layered playback.
     /// </summary>
-    public sealed class SpriteFramePetRenderer : MonoBehaviour, IPetRenderer
+    public sealed class SpriteFramePetRenderer : MonoBehaviour, IPetRenderer, IPointerClickHandler
     {
 
         Image _image;
         RectTransform _layerHost;
         Image[] _layerImages;
+        FishingRestPresentation _restPresentation;
         FishingLayerArt.Session _layered;
         PetVisualState _state = PetVisualState.Offline;
         PetVisualState _deferred;
@@ -51,9 +53,12 @@ namespace FishSocial.Desktop.Pet
                 Destroy(_layerHost.gameObject);
                 _layerHost = null;
                 _layerImages = null;
+                _restPresentation = null;
             }
             ReleaseLayers();
             _image = target;
+            if (_image != null)
+                _image.raycastTarget = true;
             _hasApplied = false;
             Apply(_state);
         }
@@ -66,6 +71,8 @@ namespace FishSocial.Desktop.Pet
 
             var previous = _state;
             _state = state;
+            if (state != PetVisualState.Fishing && state != PetVisualState.Sleep)
+                _restPresentation?.Reset();
             _hasApplied = true;
             if (!_manualPlayback && _successCompleted && _petId == petId && state == PetVisualState.Catching &&
                 HoldCatch(petId))
@@ -132,6 +139,15 @@ namespace FishSocial.Desktop.Pet
             _image.color = _image.sprite != null ? Color.white : Color.clear;
         }
 
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData == null || eventData.button != PointerEventData.InputButton.Left || eventData.dragging)
+                return;
+            var pond = DesktopAppBootstrap.Instance?.PondSession;
+            if (pond != null && (pond.IsFishingAsleep || pond.CanStopFishing))
+                pond.FishingAttention();
+        }
+
         public bool PlayClip(string skinId, string clip)
         {
             if (_image == null || !StartLayers(skinId, clip))
@@ -141,6 +157,7 @@ namespace FishSocial.Desktop.Pet
             _holdingCatch = false;
             _hasDeferred = false;
             _outcomeFlow = IsOutcomeClip(clip);
+            ApplyRestPose(0);
             return true;
         }
 
@@ -153,6 +170,8 @@ namespace FishSocial.Desktop.Pet
                 case PetVisualState.Sit:
                     return !_hasSeatPose && (previous == PetVisualState.Idle || previous == PetVisualState.Offline)
                         ? "sit" : "ready";
+                case PetVisualState.Sleep:
+                    return "fishing";
                 case PetVisualState.Offline:
                 case PetVisualState.Dragging:
                     return "idle";
@@ -170,6 +189,11 @@ namespace FishSocial.Desktop.Pet
         void OnDestroy()
         {
             ReleaseLayers();
+        }
+
+        void OnDisable()
+        {
+            _restPresentation?.Reset();
         }
 
         public bool TryGetWarmTarget(out string petId, out string clip, out int drawW, out int drawH)
@@ -237,6 +261,7 @@ namespace FishSocial.Desktop.Pet
                 _layerSlotSize = slotSize;
                 LayoutLayers(drawWidth, drawHeight, originX, originY);
                 ShowLayer();
+                ApplyRestPose(0);
             }
             finally
             {
@@ -261,7 +286,7 @@ namespace FishSocial.Desktop.Pet
             if (session == null)
                 return false;
 
-            ReleaseLayers();
+            ReleaseLayers(_activeClip == "fishing" && clip == "fishing" && _petId == petId);
             _layered = session;
             _activeClip = clip;
             _layerFinished = false;
@@ -282,6 +307,7 @@ namespace FishSocial.Desktop.Pet
                 _image.color = new Color(1f, 1f, 1f, 0f);
                 _image.preserveAspect = true;
                 ShowLayer();
+                ApplyRestPose(0);
             }
             finally
             {
@@ -318,6 +344,7 @@ namespace FishSocial.Desktop.Pet
                 rt.anchoredPosition = Vector2.zero;
                 _layerImages[i] = image;
             }
+            _restPresentation = new FishingRestPresentation(_layerImages, _layerHost);
         }
 
         void LayoutLayers(int drawW, int drawH, float originX, float originY)
@@ -353,8 +380,10 @@ namespace FishSocial.Desktop.Pet
             }
         }
 
-        void ReleaseLayers()
+        void ReleaseLayers(bool preserveRest = false)
         {
+            if (!preserveRest)
+                _restPresentation?.Reset();
             if (_layered == null)
                 return;
             FishingLayerArt.Release(_layered);
@@ -374,6 +403,15 @@ namespace FishSocial.Desktop.Pet
                 return;
             if (_layered != null)
                 AdvanceLayers(deltaSeconds);
+            ApplyRestPose(deltaSeconds);
+        }
+
+        void ApplyRestPose(float deltaSeconds)
+        {
+            var active = _layered != null && _activeClip == "fishing" &&
+                (_manualPlayback || _state == PetVisualState.Fishing || _state == PetVisualState.Sleep);
+            var head = _layered != null ? _layered.Frame(_layerIndex, IndexOf(FishingLayerArt.LayerNames, "head")) : null;
+            _restPresentation?.Update(deltaSeconds, active, !_manualPlayback && _state == PetVisualState.Sleep, _petId, head);
         }
 
         void AdvanceLayers(float deltaSeconds)

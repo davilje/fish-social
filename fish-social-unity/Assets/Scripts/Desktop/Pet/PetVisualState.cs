@@ -18,5 +18,6 @@ namespace FishSocial.Desktop.Pet
         Bait = 9,
         EmptyReel = 10,
         Groundbait = 11,
+        Sleep = 12,
     }
 }

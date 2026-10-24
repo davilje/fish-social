@@ -40,6 +40,7 @@ namespace FishSocial.Desktop
             new Entry("black", "cat_avatar_black.png", "黑猫"),
             new Entry("cow", "cat_avatar_cow.png", "奶牛猫"),
             new Entry("dafeiyu", "cat_avatar_dafeiyu.png", "大肥鱼"),
+            new Entry("sangbiao", "cat_avatar_sangbiao.png", "狸花猫「丧彪」"),
         };
 
         public static bool IsDefaultPath(string url)

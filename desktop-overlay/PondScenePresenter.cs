@@ -583,7 +583,8 @@ namespace FishSocialOverlay
                 message.OwnFishingStartedAt,
                 message.OwnPetId,
                 message.SessionCatchCount,
-                IsGroundbaitActive(message));
+                IsGroundbaitActive(message),
+                !predicted && message.FishingAsleep);
         }
 
         void SyncOthers(IpcMessage message)
@@ -638,7 +639,8 @@ namespace FishSocialOverlay
                     user.FishingStartedAt,
                     user.PetId,
                     user.SessionCatchCount,
-                    string.Equals(user.FishingPhase, "groundbaiting", StringComparison.Ordinal));
+                    string.Equals(user.FishingPhase, "groundbaiting", StringComparison.Ordinal),
+                    user.FishingAsleep);
             }
 
             var remove = new List<string>();

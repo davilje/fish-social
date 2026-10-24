@@ -96,6 +96,8 @@ namespace FishSocial.Desktop.Auth
         public string spotId;
         public string status;
         public string fishingPhase;
+        public bool fishingAsleep;
+        public long? fishingSleepAt;
         public PondUserPhaseContextDto phaseContext;
         public long fishingStartedAt;
         public long sessionStartedAt;
