@@ -33,10 +33,10 @@ class OverlayPerformanceLifecycleTests(unittest.TestCase):
     def test_layout_is_known_before_first_warmup_and_frame(self):
         scene = (ROOT / 'PondScenePresenter.cs').read_text()
         own = method_body(scene, 'ApplyOwnActor')
-        self.assertLess(own.index('.ApplyChrome('), own.index('.WarmupActionClips('))
+        self.assertLess(own.index('.ApplyScenePlacement('), own.index('.WarmupActionClips('))
         self.assertLess(own.index('.WarmupActionClips('), own.index('_ownActor.Apply('))
         others = method_body(scene, 'SyncOthers')
-        self.assertLess(others.index('actor.ApplyChrome('), others.index('actor.Apply('))
+        self.assertLess(others.index('actor.ApplyScenePlacement('), others.index('actor.Apply('))
         actor = (ROOT / 'OverlayPetActor.cs').read_text()
         warmup = method_body(actor, 'WarmupActionClips')
         self.assertIn('id, _body.Width, _body.Height', warmup)

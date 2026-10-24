@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>22D / 22F · 钓鱼动作对照</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6efe4;color:#624631;font:16px system-ui,sans-serif}main{max-width:1380px;margin:auto;padding:28px}h1{font-size:26px;margin:0 0 10px}p{line-height:1.6}header,section{background:#fffaf1;border:1px solid #dfceb7;border-radius:20px;padding:22px;margin-bottom:18px}.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center}button,select,input{font:inherit;color:inherit;border:1px solid #d8bfa1;border-radius:10px;background:#fff9ed;padding:10px}button{cursor:pointer}button.primary{background:#f1b16c}label{display:flex;gap:8px;align-items:center}input[type=number]{width:85px}.views{display:grid;grid-template-columns:1fr 1fr;gap:18px}article{min-width:0}canvas{display:block;width:100%;background:repeating-conic-gradient(#eee7dc 0% 25%,#f8f4ec 0% 50%) 0/24px 24px;border:1px solid #e1cdb3;border-radius:12px}h2{font-size:18px}output{display:block;min-height:50px;margin-top:10px;line-height:1.6}.note{color:#8a6a51;font-size:14px}input[type=range]{flex:1;min-width:240px}@media(max-width:800px){.views{grid-template-columns:1fr}}a{color:#92613c}
+</style>
+<main>
+<header><h1>钓鱼动作对照 · 22D / 22F</h1>
+<p>原图层与新增轨迹采样同屏播放。角色原画、画布、遮挡顺序和动作总时长保持一致；中间采样移动道具，不缩放猫咪、不叠加淡化两张猫脸。</p>
+<div class="controls"><label>角色<select id="pet"></select></label><label>动作<select id="clip"><option value="cast">抛竿</option><option value="reel">收杆出水</option><option value="reel_empty">空军收杆</option><option value="groundbait">持续打窝</option></select></label><label>速度<select id="speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label><label>打窝秒数<input id="duration" type="number" min="0.1" max="120" step="0.1" value="5"></label><button id="play" class="primary">暂停</button><button id="restart">重新播放</button><button id="finish">结束打窝</button></div></header>
+<section class="views"><article><h2>原方案</h2><canvas id="before" width="640" height="512"></canvas><output id="before-info"></output></article><article><h2>新增采样 / 按阶段循环</h2><canvas id="after" width="640" height="512"></canvas><output id="after-info"></output></article></section>
+<section><div class="controls"><button id="previous">上一帧</button><input id="scrub" type="range" min="0" max="1000" value="0"><button id="next">下一帧</button></div><p class="note" id="summary"></p><p class="note">这里直接读取 Overlay 当前角色与道具 PNG，使用同一份 motion-samples.json 导出的矩阵。打窝演示用可调时长模拟服务器阶段；正式 Overlay 以 groundbaiting 状态退出为准。此页面用于动作预览，不能替代 Windows 原生、窗口尺寸与解码性能验收。</p></section>
+</main><script src="preview-data.js"></script><script src="preview.js"></script>
+</html>

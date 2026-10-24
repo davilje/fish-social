@@ -43,6 +43,14 @@ public static class OverlayPerformanceTests
         Run("combined and dual masks preserve rendered alpha", OverlayStaticPerformanceTests.MaskParity);
         Run("chat dock opens, resizes and remains hittable", ChatDockInteraction);
         Run("journal bite progress uses vector paper and ends on deadline", JournalHookProgress);
+        Run("groundbait follows real phase and latest network destination", OverlayGroundbaitNativeTests.PhaseLifecycle);
+        Run("groundbait supports short repeats, interruption and disposal", OverlayGroundbaitNativeTests.RepeatAndInterrupt);
+        Run("groundbait preserves hidden cache and resumes after skin changes", OverlayGroundbaitNativeTests.HiddenAndPetChange);
+        Run("motion expands ten pets while reusing source PNG paths and rig anchors", OverlayFishingMotionNativeTests.PacksAndSourcePaths);
+        Run("motion samples retain and release original cached PNGs once", OverlayFishingMotionNativeTests.CacheReferences);
+        Run("motion lines render as thin transparent WPF drawings", OverlayFishingMotionNativeTests.ThinLineRendering);
+        Run("motion actor resizing preserves grips, line contact and cached drawings", OverlayFishingMotionNativeTests.ActorResize);
+        Run("seat feet and stand-before-departure survive repeated and redirected snapshots", SeatPresentation);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();
     }
@@ -65,6 +73,80 @@ public static class OverlayPerformanceTests
             Require(icon.Width < ring.Width * .6, "icon crowds progress arc");
             actor.Apply("cat", "sit", "seated", 0, 0, petId: "orange");
             Require(ring.Visibility == Visibility.Collapsed && paper.Visibility == Visibility.Collapsed, "finished progress remains visible");
+        }
+    }
+
+    static void SeatPresentation()
+    {
+        foreach (var pet in new[] { "orange", "calico", "dafeiyu" })
+        foreach (var size in new[] { 96.0, 128.0 })
+        using (var actor = new OverlayPetActor("seat-" + pet, null))
+        {
+            var chrome = Chrome(size);
+            var waiting = new Point(200,270);
+            var seat = new Point(114,351);
+            actor.ApplyScenePlacement("", chrome, waiting, pet);
+            actor.Apply("cat", "idle", "idle", 0, 0, petId: pet);
+            WaitUntil(() => Field<string>(actor,"_layeredClip")=="idle" && !actor.FramePending);
+            var foot = OverlayFishingLayers.FootInSlot(pet,size,size);
+            Require(Math.Abs(Field<double>(actor,"_centerX") - size*.5 + foot.X - waiting.X)<.001,
+                "waiting feet mistaken for sprite centre");
+            OverlayFishingLayers.Place(pet,size,size,out var w,out var h,out var ox,out var oy);
+            Require(Math.Abs(ox+264*w/640.0-foot.X)<.001 && Math.Abs(oy+450*h/512.0-foot.Y)<.001,
+                "rendered art feet differ from scene feet");
+            actor.ApplyScenePlacement("seat-a", chrome, seat, pet);
+            actor.Apply("cat", "sit", "seated", 0, 0, petId: pet);
+            var motion=Field<OverlaySeatMotion>(actor,"_seatMotion");
+            Require(motion.Moving && Field<string>(actor,"_layeredClip")=="idle", "sat before reaching chair");
+            WaitUntil(() => Field<string>(actor,"_layeredClip")=="ready" && !actor.FramePending);
+            Require(Math.Abs(Field<double>(actor,"_centerX")-seat.X)<.001 && Math.Abs(Field<double>(actor,"_centerY")-seat.Y)<.001,
+                "chair anchor changed on arrival");
+            actor.ApplyScenePlacement("", chrome, waiting, pet);
+            actor.Apply("cat", "idle", "idle", 0, 0, petId: pet);
+            Require(motion.WaitingForStand && Field<double>(actor,"_centerX")==seat.X, "seat cleared before stand");
+            for(var i=0;i<5;i++)
+            {
+                actor.ApplyScenePlacement("", chrome, waiting, pet);
+                actor.Apply("cat", "idle", "idle", 0, 0, petId: pet);
+            }
+            WaitUntil(() => Field<string>(actor,"_layeredClip")=="leave" &&
+                Field<int>(actor,"_frameIndex")==Field<FishingClipPlayback>(actor,"_layered").FrameCount-1 && !actor.FramePending);
+            var timer=Field<OverlayAnimationSchedule.Subscription>(actor,"_frameTimer");
+            Require(motion.WaitingForStand && Field<double>(actor,"_centerX")==seat.X && timer.Due>OverlayAnimationClock.Now,
+                "last stand frame did not retain seat for its duration");
+            WaitUntil(() => motion.Moving);
+            Require(Field<string>(actor,"_layeredClip")=="idle", "moving while still sitting");
+            WaitUntil(() => !motion.Moving);
+            Require(motion.X==waiting.X && motion.Y==waiting.Y,"departed to wrong feet anchor");
+
+            actor.ApplyScenePlacement("seat-a",chrome,seat,pet);
+            actor.Apply("cat","sit","seated",0,0,petId:pet);
+            WaitUntil(() => Field<string>(actor,"_layeredClip")=="ready");
+            actor.ApplyScenePlacement("",chrome,waiting,pet);
+            actor.Apply("cat","idle","idle",0,0,petId:pet);
+            var newSeat=new Point(314,351);
+            actor.ApplyScenePlacement("seat-b",chrome,newSeat,pet);
+            actor.Apply("cat","sit","seated",0,0,petId:pet);
+            WaitUntil(() => Field<string>(actor,"_layeredClip")=="ready");
+            Require(!motion.WaitingForStand && !motion.Moving && Math.Abs(Field<double>(actor,"_centerX")-newSeat.X)<.001,
+                "stale departure overrode re-entry");
+            if (pet == "orange" && size == 128)
+            {
+                actor.Apply("cat","reel_empty","resolving",0,0,petId:pet);
+                actor.ApplyScenePlacement("",chrome,waiting,pet);
+                actor.Apply("cat","idle","idle",0,0,petId:pet);
+                Require(motion.WaitingForStand && Field<string>(actor,"_layeredClip")=="reel_empty",
+                    "departure interrupted retrieve before standing");
+                WaitUntil(() => Field<string>(actor,"_layeredClip")=="leave" && !actor.FramePending);
+                actor.SetPresentationVisible(false);
+                timer.Due=OverlayAnimationClock.Now-60000;
+                actor.SetPresentationVisible(true);
+                WaitUntil(() => !actor.FramePending);
+                Require(motion.WaitingForStand && Field<string>(actor,"_layeredClip")=="leave",
+                    "hidden interval skipped stand presentation");
+                WaitUntil(() => !motion.WaitingForStand && !motion.Moving);
+                Require(motion.X==waiting.X && motion.Y==waiting.Y,"retrieve departure never settled");
+            }
         }
     }
 

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);OVERLAY_GROUNDBAIT_TESTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../OverlayGroundbaitTimeline.cs" />
+    <Compile Include="../OverlayAnimationSchedule.cs" />
+    <Compile Include="OverlayGroundbaitTests.cs" />
+  </ItemGroup>
+</Project>

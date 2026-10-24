@@ -572,7 +572,7 @@ namespace FishSocialOverlay
             Point point;
             if (!TryResolveActorPoint(ownSpotId, !predicted && message.HasOwnPosition, message.OwnX, message.OwnY, message.Spots, 0, out point))
                 point = FallbackOwnPoint();
-            _ownActor.ApplyChrome(ActorChrome(ownSpotId));
+            _ownActor.ApplyScenePlacement(ownSpotId, ActorChrome(ownSpotId), point, message.OwnPetId);
             _ownActor.WarmupActionClips(message.OwnPetId);
             _ownActor.Apply(
                 message.OwnNickname,
@@ -584,7 +584,6 @@ namespace FishSocialOverlay
                 message.OwnPetId,
                 message.SessionCatchCount,
                 IsGroundbaitActive(message));
-            _ownActor.Place(point.X, point.Y);
         }
 
         void SyncOthers(IpcMessage message)
@@ -629,7 +628,7 @@ namespace FishSocialOverlay
                 Point point;
                 if (!TryResolveActorPoint(user.SpotId, user.HasPosition, user.X, user.Y, message.Spots, keep.Count - 1, out point))
                     point = WaitingPoint(keep.Count - 1);
-                actor.ApplyChrome(ActorChrome(user.SpotId));
+                actor.ApplyScenePlacement(user.SpotId, ActorChrome(user.SpotId), point, user.PetId);
                 actor.Apply(
                     user.Nickname,
                     user.PetVisualState,
@@ -640,7 +639,6 @@ namespace FishSocialOverlay
                     user.PetId,
                     user.SessionCatchCount,
                     string.Equals(user.FishingPhase, "groundbaiting", StringComparison.Ordinal));
-                actor.Place(point.X, point.Y);
             }
 
             var remove = new List<string>();

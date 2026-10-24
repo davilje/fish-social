@@ -39,7 +39,7 @@ namespace FishSocialOverlay
                 ? frames[index] : null;
         }
 
-        public static double Weight(string clip, int index, int count)
+        public static double Weight(string clip, double index, int count)
         {
             if (clip == "fishing" || clip == "hooked" || clip == "bite" || clip == "effort") return 1;
             var t = count > 1 ? Math.Max(0, Math.Min(1, index / (double)(count - 1))) : 1;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -104,6 +105,13 @@ namespace FishSocialOverlay
 
         public static string LayerPath(
             string petId, string clip, int index, string layer, IReadOnlyList<string> bodyLayers)
+        {
+            if (Packs.TryGetValue(petId, out var pack) && pack != null && pack.Clips.TryGetValue(clip, out var playback))
+                index = playback.SourceIndex(index);
+            return SourceLayerPath(petId, clip, index, layer, bodyLayers);
+        }
+
+        static string SourceLayerPath(string petId, string clip, int index, string layer, IReadOnlyList<string> bodyLayers)
         {
             var body = false;
             if (bodyLayers != null)
@@ -267,6 +275,16 @@ namespace FishSocialOverlay
             catch (System.Runtime.InteropServices.COMException) { return null; }
         }
 
+        public static Point FootInSlot(string petId, double width, double height)
+        {
+            var place = DefaultPlace;
+            if (petId != null && Packs.TryGetValue(petId, out var pack) && pack != null)
+                place = pack.Place;
+            var unit = Math.Min(width, height) / place.Reference;
+            return new Point((width - unit * place.Reference) * .5 + unit * place.ReferenceFootX,
+                (height - unit * place.Reference) * .5 + unit * place.ReferenceFootY);
+        }
+
         public static void Place(
             string petId,
             double slotW,
@@ -344,7 +362,7 @@ namespace FishSocialOverlay
                         {
                             foreach (var layer in LayerNames)
                             {
-                                if (!File.Exists(LayerPath(petId, pair.Key, index, layer, pack.BodyLayers)))
+                                if (!File.Exists(SourceLayerPath(petId, pair.Key, pair.Value.SourceIndex(index), layer, pack.BodyLayers)))
                                     return null;
                             }
                         }
@@ -389,7 +407,7 @@ namespace FishSocialOverlay
                     for (var index = 0; index < pair.Value.FrameCount; index++)
                     {
                         foreach (var layer in LayerNames)
-                            TextureScales[LayerPath(petId, pair.Key, index, layer, pack.BodyLayers)] =
+                            TextureScales[SourceLayerPath(petId, pair.Key, pair.Value.SourceIndex(index), layer, pack.BodyLayers)] =
                                 IndexOf(pack.BodyLayers, layer) >= 0 ? pack.BodyTextureScale : 1;
                     }
                 }
@@ -430,6 +448,7 @@ namespace FishSocialOverlay
                     var playback = ParseClip(property.Value);
                     if (playback == null || !IsSafePetId(property.Name) || clips.ContainsKey(property.Name))
                         return null;
+                    playback.ApplyMotion(OverlayFishingMotion.Find(property.Name, playback.DurationsMs));
                     clips[property.Name] = playback;
                 }
                 foreach (var clip in clips.Values)
@@ -679,23 +698,4 @@ namespace FishSocialOverlay
         public double ReferenceBody;
     }
 
-    sealed class FishingClipPlayback
-    {
-        public FishingClipPlayback(string playback, int loopStart, List<string[]> orders, int[] durationsMs, string nextClip)
-        {
-            Playback = playback;
-            LoopStart = loopStart;
-            Orders = orders;
-            DurationsMs = durationsMs;
-            NextClip = nextClip;
-        }
-
-        public string Playback { get; }
-        public int LoopStart { get; }
-        public List<string[]> Orders { get; }
-        public int FrameCount => Orders.Count;
-        public int[] DurationsMs { get; }
-        public string NextClip { get; }
-        public int DurationMs(int index) => DurationsMs[Math.Max(0, Math.Min(FrameCount - 1, index))];
-    }
 }

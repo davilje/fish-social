@@ -1,0 +1,217 @@
+#if OVERLAY_PERFORMANCE_TESTS
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Text.Json;
+using System.Threading;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using FishSocialOverlay;
+using Data = OverlayFishingMotionTestData;
+
+internal static class OverlayFishingMotionNativeTests
+{
+    static readonly BindingFlags PrivateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
+    static T Field<T>(object owner, string name) => (T)owner.GetType().GetField(name, PrivateInstance).GetValue(owner);
+    static T StaticField<T>(string name) => (T)typeof(OverlayFishingLayers).GetField(name, BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+    static void Invoke(OverlayPetActor actor, string method)
+        => typeof(OverlayPetActor).GetMethod(method, PrivateInstance).Invoke(actor, null);
+    static void Wait(Func<bool> done)
+    {
+        var watch = Stopwatch.StartNew();
+        while (!done())
+        {
+            Data.Check(watch.ElapsedMilliseconds < 15000, "motion native test timed out");
+            var frame = new DispatcherFrame();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => frame.Continue = false));
+            Dispatcher.PushFrame(frame);
+            Thread.Sleep(1);
+        }
+    }
+    static void Load(string pet)
+    {
+        var task = OverlayFishingLayers.EnsurePackAsync(pet);
+        Wait(() => task.IsCompleted); Data.Check(task.Result, "motion pack missing: " + pet);
+    }
+
+    public static void PacksAndSourcePaths()
+    {
+        foreach (var pet in Data.Pets)
+        {
+            Load(pet);
+            for (var clipIndex = 0; clipIndex < Data.Clips.Length; clipIndex++)
+            {
+                var name = Data.Clips[clipIndex];
+                var original = Data.Original(pet, name);
+                var expanded = OverlayFishingLayers.TryOpen(pet, name);
+                Data.Check(expanded != null, "missing expanded clip: " + pet + "/" + name);
+                Data.CheckExpansion(original, expanded, Data.ExpandedCounts[clipIndex]);
+                Data.CheckRig(name, expanded);
+                var uniquePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (var index = 0; index < expanded.FrameCount; index++)
+                    foreach (var layer in OverlayFishingLayers.LayerNames)
+                    {
+                        var body = layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands";
+                        var expected = Path.Combine(body ? Path.Combine(Data.Root, pet, "body") : Path.Combine(Data.Root, "shared"),
+                            name, expanded.SourceIndex(index).ToString(), layer + ".png");
+                        var actual = OverlayFishingLayers.LayerFile(pet, name, index, layer);
+                        Data.Check(actual == expected && File.Exists(actual), "virtual frame requested a new PNG: " + actual);
+                        uniquePaths.Add(actual);
+                    }
+                Data.Check(uniquePaths.Count == original.FrameCount * 9, "virtual frames multiplied PNG resources");
+            }
+        }
+    }
+
+    public static void CacheReferences()
+    {
+        Load("orange"); Load("calico");
+        var cache = StaticField<OverlayResourceCache<BitmapImage>>("Bitmaps");
+        var references = Field<Dictionary<string, int>>(cache, "_references");
+        var users = StaticField<Dictionary<string, int>>("ClipUsers");
+        var resources = StaticField<Dictionary<string, string[]>>("ClipResources");
+        foreach (var name in Data.Clips)
+        {
+            var baseline = new Dictionary<string, int>(references, StringComparer.OrdinalIgnoreCase);
+            var orangeKey = "orange|" + name; var calicoKey = "calico|" + name;
+            Data.Check(!users.ContainsKey(orangeKey) && !users.ContainsKey(calicoKey), "test started with live clip users");
+            var orangeUsers = 0; var calicoUsers = 0;
+            try
+            {
+                OverlayFishingLayers.Acquire("orange", name); orangeUsers++;
+                OverlayFishingLayers.Acquire("orange", name); orangeUsers++;
+                OverlayFishingLayers.Acquire("calico", name); calicoUsers++;
+                Data.Check(users[orangeKey] == 2 && users[calicoKey] == 1, "actor clip counts are not balanced");
+                var expected = new Dictionary<string, int>(baseline, StringComparer.OrdinalIgnoreCase);
+                foreach (var key in new[] { orangeKey, calicoKey })
+                {
+                    Data.Check(resources[key].Length == Data.Original("orange", name).FrameCount * 9, "retained a resource for every virtual frame");
+                    foreach (var path in resources[key]) { expected.TryGetValue(path, out var count); expected[path] = count + 1; }
+                }
+                SameReferences(expected, references);
+                var clip = OverlayFishingLayers.TryOpen("orange", name);
+                var sampledIndex = Array.FindIndex(clip.Motion, sample => sample.Position != sample.Source);
+                Data.Check(sampledIndex >= 0, "clip contains no intermediate sample");
+                var sampledSource = clip.SourceIndex(sampledIndex);
+                var firstIndex = clip.IndexAtSource(sampledSource);
+                var decoded = OverlayFishingLayers.DecodeCount;
+                var source = OverlayFishingLayers.BitmapFor(OverlayFishingLayers.LayerFile("orange", name, firstIndex, "rod"), 61, 49);
+                Data.Check(source != null, "source PNG failed to decode");
+                for (var index = firstIndex; index < clip.FrameCount && clip.SourceIndex(index) == sampledSource; index++)
+                    Data.Check(ReferenceEquals(source, OverlayFishingLayers.BitmapFor(
+                        OverlayFishingLayers.LayerFile("orange", name, index, "rod"), 61, 49)), "samples duplicated decoded PNGs");
+                Data.Check(OverlayFishingLayers.DecodeCount - decoded <= 1, "virtual frames increased decode count");
+                OverlayFishingLayers.Release("orange", name); orangeUsers--;
+                Data.Check(users[orangeKey] == 1, "first release removed the second actor");
+                SameReferences(expected, references);
+            }
+            finally
+            {
+                while (orangeUsers-- > 0) OverlayFishingLayers.Release("orange", name);
+                while (calicoUsers-- > 0) OverlayFishingLayers.Release("calico", name);
+            }
+            SameReferences(baseline, references);
+            Data.Check(!users.ContainsKey(orangeKey) && !users.ContainsKey(calicoKey), "final release leaked clip users");
+        }
+    }
+
+    static void SameReferences(Dictionary<string, int> expected, Dictionary<string, int> actual)
+    {
+        Data.Check(expected.Count == actual.Count, "retained resource count changed");
+        foreach (var pair in expected)
+            Data.Check(actual.TryGetValue(pair.Key, out var count) && count == pair.Value, "reference count mismatch: " + pair.Key);
+    }
+
+    public static void ThinLineRendering()
+    {
+        Load("orange");
+        var checkedLines = 0;
+        foreach (var name in Data.Clips)
+            foreach (var sample in OverlayFishingLayers.TryOpen("orange", name).Motion)
+            {
+                if (sample.Line == null) continue;
+                var drawing = OverlayFishingMotionDrawing.Line(sample) as DrawingImage;
+                Data.Check(drawing != null && drawing.IsFrozen && drawing.Width == 640 && drawing.Height == 512,
+                    "line drawing lost canvas size or freezing");
+                Data.Check(ReferenceEquals(drawing, OverlayFishingMotionDrawing.Line(sample)), "line drawing was recreated for the same sample");
+                foreach (var scale in new[] { .25, .5, 1d }) AssertThinDrawing(drawing, Transform.Identity, scale);
+                checkedLines++;
+            }
+        Data.Check(checkedLines > 10, "no intermediate lines exercised the WPF renderer");
+    }
+
+    static void AssertThinDrawing(ImageSource source, Transform transform, double scale)
+    {
+        var width = (int)Math.Round(640 * scale); var height = (int)Math.Round(512 * scale);
+        var image = new Image { Source = source, Width = width, Height = height, Stretch = Stretch.Fill, RenderTransform = transform };
+        image.Measure(new Size(width, height)); image.Arrange(new Rect(0, 0, width, height)); image.UpdateLayout();
+        var rendered = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+        rendered.Render(image);
+        var pixels = new byte[width * height * 4]; rendered.CopyPixels(pixels, width * 4, 0);
+        var visible = 0;
+        for (var index = 3; index < pixels.Length; index += 4) if (pixels[index] > 0) visible++;
+        Data.Check(visible > 0 && visible < width * height * .06, "line rendered as an empty image or opaque block");
+        for (var top = 0; top + 8 <= height; top += 4)
+            for (var left = 0; left + 8 <= width; left += 4)
+            {
+                var solid = true;
+                for (var row = top; row < top + 8 && solid; row++)
+                    for (var column = left; column < left + 8; column++)
+                        if (pixels[(row * width + column) * 4 + 3] < 240) { solid = false; break; }
+                Data.Check(!solid, "thin line produced a solid 8x8 pixel block");
+            }
+    }
+
+    public static void ActorResize()
+    {
+        using (var rigDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "source-rig.json"))))
+        foreach (var pet in new[] { "orange", "dafeiyu" })
+        foreach (var name in new[] { "cast", "reel", "reel_empty" })
+        {
+            Load(pet);
+            using (var actor = new OverlayPetActor("motion-resize-" + pet + name, null))
+            {
+                actor.Apply("cat", name, name == "cast" ? "casting" : "resolving", 0, 0, petId: pet);
+                var timer = Field<OverlayAnimationSchedule.Subscription>(actor, "_frameTimer"); timer.Stop();
+                var clip = Field<FishingClipPlayback>(actor, "_layered");
+                var sampleIndex = Array.FindIndex(clip.Motion, sample => sample.Line != null);
+                Data.Check(sampleIndex >= 0, "clip has no intermediate line");
+                var sample = clip.Motion[sampleIndex];
+                typeof(OverlayPetActor).GetField("_frameIndex", PrivateInstance).SetValue(actor, sampleIndex);
+                Invoke(actor, "ShowLayered");
+                DrawingImage previousLine = null;
+                foreach (var size in new[] { 64d, 128, 192, 96 })
+                {
+                    actor.ApplyChrome(new OverlayActorChrome { Pet = new OverlayLayoutObjectDto { w = size, h = size } });
+                    Wait(() => !actor.FramePending);
+                    var layers = Field<Image[]>(actor, "_layerImages");
+                    var line = layers[Array.IndexOf(OverlayFishingLayers.LayerNames, "line")];
+                    var rod = layers[Array.IndexOf(OverlayFishingLayers.LayerNames, "rod")];
+                    Data.Check(line.Source is DrawingImage && (previousLine == null || ReferenceEquals(previousLine, line.Source)),
+                        "resizing replaced the cached line with a bitmap or a new drawing");
+                    previousLine = (DrawingImage)line.Source;
+                    var scale = Field<int>(actor, "_layerDrawH") / 512d;
+                    var horizontalScale = Field<int>(actor, "_layerDrawW") / 640d;
+                    var rig = rigDocument.RootElement.GetProperty("clips").GetProperty(name)[sample.Source];
+                    var grip = new Point(rig.GetProperty("grip")[0].GetDouble() * horizontalScale, rig.GetProperty("grip")[1].GetDouble() * scale);
+                    var actualGrip = rod.RenderTransform.Transform(grip);
+                    Data.Check((actualGrip - grip).Length < .25, "resize moved the rod grip by more than a quarter pixel");
+                    var tip = new Point(rig.GetProperty("tip")[0].GetDouble() * horizontalScale, rig.GetProperty("tip")[1].GetDouble() * scale);
+                    var lineStart = line.RenderTransform.Transform(new Point(sample.Line[0] * horizontalScale, sample.Line[1] * scale));
+                    Data.Check((rod.RenderTransform.Transform(tip) - lineStart).Length < .25, "resize separated the line from the rod");
+                    foreach (var body in new[] { "body", "head", "far_hand", "hands" })
+                        Data.Check(layers[Array.IndexOf(OverlayFishingLayers.LayerNames, body)].RenderTransform.Value.IsIdentity,
+                            "resize transformed a body layer");
+                    AssertThinDrawing(line.Source, line.RenderTransform, scale);
+                    Data.Check(Field<int>(actor, "_frameIndex") == sampleIndex && !timer.IsEnabled, "resize restarted playback during the fixed-frame test");
+                }
+            }
+        }
+    }
+}
+#endif

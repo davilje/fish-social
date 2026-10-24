@@ -81,9 +81,15 @@ namespace FishSocialOverlay
         bool _hoverShown;
         double _centerX;
         double _centerY;
+        readonly OverlaySeatMotion _seatMotion = new OverlaySeatMotion();
+        string _sceneSpot;
+        OverlayActorChrome _destinationChrome;
+        string _arrivalVisual, _arrivalPet;
         ImageSource[] _frames = Array.Empty<ImageSource>();
         int _frameIndex;
         FishingClipPlayback _layered;
+        OverlayGroundbaitTimeline _groundbaitTimeline;
+        double _groundbaitStartedAt;
         string _layeredClip = string.Empty;
         int _layerDrawW = 1;
         int _layerDrawH = 1;
@@ -494,13 +500,23 @@ namespace FishSocialOverlay
             }
 
             _fishingPhase = phase ?? string.Empty;
+            if (IsGroundbaitPhase(_fishingPhase) && !IsGroundbaitPhase(oldPhase))
+            {
+                _groundbaitStartedAt = OverlayAnimationClock.Now;
+                _latestState = string.Empty;
+            }
+            if (!IsGroundbaitPhase(_fishingPhase) && _groundbaitTimeline != null && !_groundbaitTimeline.Ending)
+            {
+                _groundbaitTimeline.End(OverlayAnimationClock.Now);
+                RefreshGroundbaitFrame();
+            }
             SyncSessionAnchor(Math.Max(0, sessionFishingMs), fishingStartedAt);
             if (oldPhase != _fishingPhase)
             {
                 UpdateStatusVisuals();
                 layoutChanged = true;
             }
-            ApplyVisualState(visualState, petId);
+            ApplyVisualState(GroundbaitVisualState(visualState), petId);
             if (layoutChanged) RelayoutCluster();
             SyncRefreshClock();
             RefreshOpenHover();
@@ -603,6 +619,83 @@ namespace FishSocialOverlay
             finally { WarmupPending = false; }
         }
 
+        // Seated points are authored pet centres; waiting-lane points are feet.
+        public void ApplyScenePlacement(string spotId, OverlayActorChrome chrome, Point point, string petId)
+        {
+            if (_disposed) return;
+            var spot = spotId ?? string.Empty;
+            var pet = OverlayFrameCache.NormalizePetId(petId);
+            var width = chrome?.Pet?.w > 0 ? chrome.Pet.w : BodySize;
+            var height = chrome?.Pet?.h > 0 ? chrome.Pet.h : BodySize;
+            var foot = OverlayFishingLayers.FootInSlot(pet, width, height);
+            var x = point.X + (spot.Length > 0 ? foot.X - width * .5 : 0);
+            var y = point.Y + (spot.Length > 0 ? foot.Y - height * .5 : 0);
+            _destinationChrome = chrome;
+            if (_sceneSpot == null)
+            {
+                _seatMotion.Snap(x, y);
+                ApplyChrome(chrome);
+            }
+            else if (_sceneSpot != spot)
+            {
+                _arrivalVisual = _arrivalPet = null;
+                var leaving = _sceneSpot.Length > 0 && spot.Length == 0;
+                _seatMotion.Retarget(x, y);
+                if (leaving) _seatMotion.WaitForStand(x, y);
+                else
+                {
+                    _seatMotion.Begin(OverlayAnimationClock.Now);
+                    ApplyChrome(chrome);
+                    // Cancel an old leave/reset chain before accepting the new seat.
+                    _latestState = string.Empty;
+                }
+            }
+            else if (_seatMotion.WaitingForStand || _seatMotion.Moving)
+                _seatMotion.Retarget(x, y);
+            else
+            {
+                _seatMotion.Snap(x, y);
+                ApplyChrome(chrome);
+            }
+            _sceneSpot = spot;
+            PlaceSceneFeet(pet);
+            if (_seatMotion.Moving) OverlayAnimationClock.Wake();
+        }
+
+        void PlaceSceneFeet(string pet)
+        {
+            var foot = OverlayFishingLayers.FootInSlot(pet, _body.Width, _body.Height);
+            Place(_seatMotion.X + _body.Width * .5 - foot.X,
+                _seatMotion.Y + _body.Height * .5 - foot.Y);
+        }
+
+        void BeginSceneDeparture()
+        {
+            if (!_seatMotion.WaitingForStand) return;
+            _seatMotion.Begin(OverlayAnimationClock.Now);
+            ApplyChrome(_destinationChrome);
+            PlaceSceneFeet(_petId);
+            OverlayAnimationClock.Wake();
+        }
+
+        void AdvanceSceneMotion()
+        {
+            if (!_seatMotion.Moving) return;
+            var arrived = _seatMotion.Advance(OverlayAnimationClock.Now);
+            PlaceSceneFeet(_petId);
+            if (arrived && _arrivalVisual != null)
+            {
+                var state = _arrivalVisual;
+                var pet = _arrivalPet;
+                _arrivalVisual = _arrivalPet = null;
+                _latestState = string.Empty;
+                if (!string.IsNullOrEmpty(_sceneSpot) && state != "offline" && state != "dragging" && state != "idle")
+                    ApplyLoadedVisualState("sit", pet);
+                ApplyVisualState(state, pet);
+            }
+            if (_seatMotion.Moving) OverlayAnimationClock.Wake();
+        }
+
         public void Place(double centerX, double centerY)
         {
             _centerX = centerX;
@@ -656,6 +749,7 @@ namespace FishSocialOverlay
 
         public void ReleaseFishingLayers(bool clearDeferred = true)
         {
+            _groundbaitTimeline = null;
             if (clearDeferred)
             {
                 _deferredState = string.Empty;
@@ -690,6 +784,15 @@ namespace FishSocialOverlay
 
         void ApplyLoadedVisualState(string visualState, string petId)
         {
+            // A cancelled seat prediction may never have reached the chair.
+            if (_seatMotion.WaitingForStand && _layeredClip == "idle") BeginSceneDeparture();
+            if (_seatMotion.Moving)
+            {
+                _arrivalVisual = visualState;
+                _arrivalPet = petId;
+                // Existing standing pose while travelling; sit only on arrival.
+                visualState = "offline";
+            }
             var nextState = OverlayFrameCache.NormalizeClip(visualState);
             var interrupt = string.Equals(visualState, "offline", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(visualState, "dragging", StringComparison.OrdinalIgnoreCase);
@@ -700,6 +803,20 @@ namespace FishSocialOverlay
                 return;
             _latestState = nextState;
             var samePet = string.Equals(_petId, nextPet, StringComparison.Ordinal);
+            // A fast fishing command must not cut the sit-down animation short.
+            if (!interrupt && samePet && _layeredClip == "sit" && nextState != "idle")
+            {
+                _deferredState = nextState;
+                _deferredPet = nextPet;
+                return;
+            }
+            if (!interrupt && samePet && _groundbaitTimeline != null && _groundbaitTimeline.Ending
+                && IsDeferredDestination(nextState) && nextState != "idle" && nextState != "groundbait")
+            {
+                _deferredState = nextState;
+                _deferredPet = nextPet;
+                return;
+            }
             if (samePet && nextState == "catch" && _successCompleted && HoldCatch())
                 return;
             if (samePet && nextState == "catch" && _layered != null
@@ -750,8 +867,10 @@ namespace FishSocialOverlay
             if (nextState == "idle" && visualState == "idle" && samePet &&
                 !string.IsNullOrEmpty(previousState) && previousState != "idle")
                 clip = "leave";
+            if (_seatMotion.WaitingForStand && nextState == "idle") clip = "leave";
             if (StartLayerClip(clip))
                 return;
+            if (_seatMotion.WaitingForStand) BeginSceneDeparture();
             ClearLayerSources();
             _layerHost.Visibility = Visibility.Collapsed;
             _frames = OverlayFrameCache.Get(_petId, _visualState);
@@ -775,8 +894,15 @@ namespace FishSocialOverlay
             _frameIndex = 0;
             OverlayFishingLayers.Acquire(_petId, clip);
             _frames = Array.Empty<ImageSource>();
+            if (clip == "groundbait" && IsGroundbaitPhase(_fishingPhase) && layered.SourceFrameCount == 8)
+            {
+                _groundbaitTimeline = new OverlayGroundbaitTimeline(layered.DurationsMs,
+                    layered.IndexAtSource(1), layered.IndexAtSource(7), layered.IndexAtSource(6), _groundbaitStartedAt);
+                RefreshGroundbaitFrame();
+                return true;
+            }
             ShowLayered();
-            if (LayerTimerRuns(layered))
+            if (LayerTimerRuns(layered) && clip != "sit" && clip != "leave")
                 _frameTimer.Start();
             return true;
         }
@@ -1161,6 +1287,11 @@ namespace FishSocialOverlay
         void OnFrameTick(object sender, EventArgs e)
         {
             if (_disposed) return;
+            if (_groundbaitTimeline != null)
+            {
+                RefreshGroundbaitFrame();
+                return;
+            }
             if (_layered != null)
             {
                 if (_layered.Playback != "once" && _layered.Playback != "hold" && _frameIndex >= _layered.LoopStart)
@@ -1404,6 +1535,9 @@ namespace FishSocialOverlay
         {
             if (_layered == null || _layered.FrameCount <= 0) return;
             _frameTimer.Interval = TimeSpan.FromMilliseconds(_layered.DurationMs(_frameIndex));
+            // Seat transitions must show every frame for its authored duration,
+            // even on a cold decode or after a long hidden interval.
+            if (_layeredClip == "sit" || _layeredClip == "leave") _frameTimer.Stop();
             _renderVersion++;
             _frameRequest?.Cancel();
             _frameDirty = true;
@@ -1412,6 +1546,8 @@ namespace FishSocialOverlay
 
         async void RenderLatestFrame()
         {
+            if (_disposed) return;
+            AdvanceSceneMotion();
             if (_disposed || !_presentationVisible || !_frameDirty || _frameLoading || _layered == null) return;
             _frameDirty = false;
             _frameLoading = true;
@@ -1434,6 +1570,13 @@ namespace FishSocialOverlay
                     if (image == null)
                     {
                         _frameDirty = OverlayFishingLayers.RejectedDecodes != rejected;
+                        // A missing asset must not strand an actor at a released seat.
+                        if (!_frameDirty && (_layeredClip == "sit" || _layeredClip == "leave"))
+                        {
+                            _frameTimer.Start();
+                            _frameTimer.Due = OverlayAnimationClock.Now + clip.DurationMs(index);
+                            OverlayAnimationClock.Wake();
+                        }
                         return;
                     }
                 // Publish all nine layers atomically on the dispatcher. Missing/pending
@@ -1443,11 +1586,19 @@ namespace FishSocialOverlay
                 {
                     var z = Array.IndexOf(order, OverlayFishingLayers.LayerNames[i]);
                     if (Panel.GetZIndex(_layerImages[i]) != z) Panel.SetZIndex(_layerImages[i], z);
-                    if (!ReferenceEquals(_layerImages[i].Source, images[i])) _layerImages[i].Source = images[i];
+                    var source = OverlayFishingLayers.LayerNames[i] == "line" && clip.Motion != null
+                        ? OverlayFishingMotionDrawing.Line(clip.Motion[index]) ?? images[i] : images[i];
+                    if (!ReferenceEquals(_layerImages[i].Source, source)) _layerImages[i].Source = source;
                 }
                 ApplyWaterContact(index, clip.FrameCount);
                 _image.Visibility = Visibility.Collapsed;
                 _layerHost.Visibility = Visibility.Visible;
+                if (_layeredClip == "sit" || _layeredClip == "leave")
+                {
+                    _frameTimer.Start();
+                    _frameTimer.Due = OverlayAnimationClock.Now + clip.DurationMs(index);
+                    OverlayAnimationClock.Wake();
+                }
             }
             finally
             {
@@ -1461,12 +1612,18 @@ namespace FishSocialOverlay
         void ApplyWaterContact(int frame, int count)
         {
             var scale = _layerDrawH / (double)OverlayFishingLayers.CanvasHeight;
+            var scaleX = _layerDrawW / (double)OverlayFishingLayers.CanvasWidth;
             var origin = _layerImages[0].Margin.Top;
             // Contact belongs below the seat's front edge, independent of cat art bounds.
             var seat = _chrome?.Seat;
             var surface = seat != null ? seat.y + seat.h + 6 : _body.Height + 6;
-            var pose = OverlayFishingWaterContact.Solve(OverlayFishingWaterContact.Frame(_layeredClip, frame),
-                scale, origin, surface, OverlayFishingWaterContact.Weight(_layeredClip, frame, count));
+            var sample = _layered?.Motion == null ? null : _layered.Motion[frame];
+            var sourceFrame = _layered?.SourceIndex(frame) ?? frame;
+            var contact = sample == null || sample.Position == sample.Source
+                ? OverlayFishingWaterContact.Frame(_layeredClip, sourceFrame) : sample.Contact;
+            var pose = OverlayFishingWaterContact.Solve(contact,
+                scale, origin, surface, OverlayFishingWaterContact.Weight(_layeredClip,
+                    _layered?.SourcePosition(frame) ?? frame, _layered?.SourceFrameCount ?? count));
             for (var i = 0; i < _layerImages.Length; i++)
             {
                 var layer = OverlayFishingLayers.LayerNames[i];
@@ -1476,6 +1633,24 @@ namespace FishSocialOverlay
                 else if (layer == "bobber" && pose.BobberOffset != 0) transform = new TranslateTransform(0, pose.BobberOffset);
                 else if (layer == "bait" && pose.BaitOffset != 0) transform = new TranslateTransform(0, pose.BaitOffset);
                 else if (layer == "fish" && pose.FishOffset != 0) transform = new TranslateTransform(0, pose.FishOffset);
+                if (sample != null)
+                {
+                    var values = sample.Transforms[i];
+                    var matrix = new Matrix(values[0], values[1] * scale / scaleX,
+                        values[2] * scaleX / scale, values[3], values[4] * scaleX, values[5] * scale);
+                    if (!matrix.IsIdentity)
+                    {
+                        var motion = new MatrixTransform(matrix);
+                        if (transform.Value.IsIdentity) transform = motion;
+                        else
+                        {
+                            var combined = new TransformGroup();
+                            combined.Children.Add(motion);
+                            combined.Children.Add(transform);
+                            transform = combined;
+                        }
+                    }
+                }
                 if (transform.CanFreeze) transform.Freeze();
                 _layerImages[i].RenderTransform = transform;
             }
@@ -1483,6 +1658,11 @@ namespace FishSocialOverlay
 
         void AdvanceLayered()
         {
+            if (_groundbaitTimeline != null)
+            {
+                RefreshGroundbaitFrame();
+                return;
+            }
             if (_layered == null || _layered.FrameCount == 0 || _layered.Playback == "hold")
             {
                 _frameTimer.Stop();
@@ -1503,9 +1683,11 @@ namespace FishSocialOverlay
                     return;
                 }
                 var completedSuccess = _layeredClip == "reset_catch";
+                var completedLeave = _layeredClip == "leave";
                 var nextClip = _layered.NextClip;
                 if (!string.IsNullOrEmpty(nextClip) && StartLayerClip(nextClip))
                 {
+                    if (completedLeave) BeginSceneDeparture();
                     if (_layered.Playback == "hold")
                     {
                         _successCompleted = completedSuccess;
@@ -1514,6 +1696,7 @@ namespace FishSocialOverlay
                     return;
                 }
                 _frameTimer.Stop();
+                if (completedLeave) BeginSceneDeparture();
                 FlushDeferredVisual();
                 return;
             }
@@ -1521,6 +1704,48 @@ namespace FishSocialOverlay
             if (_frameIndex >= _layered.FrameCount)
                 _frameIndex = _layered.LoopStart;
             ShowLayered();
+        }
+
+        void RefreshGroundbaitFrame()
+        {
+            if (_groundbaitTimeline == null || _layered == null) return;
+            var now = OverlayAnimationClock.Now;
+            var frame = _groundbaitTimeline.Sample(now);
+            if (frame.Complete)
+            {
+                _groundbaitTimeline = null;
+                _frameTimer.Stop();
+                if (!string.IsNullOrEmpty(_deferredState))
+                    FlushDeferredVisual();
+                else
+                    StartLayerClip(string.IsNullOrEmpty(_layered.NextClip) ? "ready" : _layered.NextClip);
+                return;
+            }
+            _frameIndex = frame.Index;
+            ShowLayered();
+            _frameTimer.Stop();
+            _frameTimer.Interval = TimeSpan.FromMilliseconds(frame.RemainingMs);
+            _frameTimer.Start();
+            _frameTimer.Due = now + _frameTimer.Interval.TotalMilliseconds;
+        }
+
+        string GroundbaitVisualState(string visualState)
+        {
+            if (string.Equals(visualState, "offline", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(visualState, "dragging", StringComparison.OrdinalIgnoreCase))
+                return visualState;
+            if (IsGroundbaitPhase(_fishingPhase)) return "groundbait";
+            if (!string.Equals(visualState, "groundbait", StringComparison.OrdinalIgnoreCase)) return visualState;
+            switch (_fishingPhase)
+            {
+                case "seated": return "sit";
+                case "baiting": return "bait";
+                case "casting": return "cast";
+                case "waiting": return "fishing";
+                case "hooked": return "hooked";
+                case "idle": return "idle";
+                default: return "ready";
+            }
         }
 
         bool ShouldFinishReel(string nextState)
@@ -1583,6 +1808,7 @@ namespace FishSocialOverlay
                 case "cast": return "casting";
                 case "fishing": return "waiting";
                 case "hooked": return "hooked";
+                case "groundbait": return "groundbaiting";
                 case "reel": return "resolving";
                 case "catch":
                 case "catching": return "seated";
