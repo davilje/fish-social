@@ -15,22 +15,40 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.goto(pathToFileURL(path.join(folder, 'index.html')).href);
     await page.click('#play');
     const pets = await page.locator('#pet option').evaluateAll(options => options.map(option => option.value));
+    const clips = await page.locator('#clip option').evaluateAll(options => options.map(option => option.value));
     let checked = 0;
     for (const pet of pets) {
       await page.selectOption('#pet', pet);
-      for (const clip of ['cast', 'reel', 'reel_empty', 'groundbait']) {
+      for (const clip of clips) {
         await page.selectOption('#clip', clip);
         for (const time of [0, 210, 550, 3250]) {
           await page.evaluate(async value => { elapsed = value; await render(); }, time);
           assert.match(await page.locator('#after-info').textContent(), /采样/);
           checked++;
         }
-        if (pet === 'orange' && clip !== 'reel_empty') {
-          await page.evaluate(async value => { elapsed = value; await render(); }, clip === 'groundbait' ? 3250 : 210);
+        if (pet === 'orange' && ['cast','reel','groundbait','hooked','catch','sit'].includes(clip)) {
+          await page.evaluate(async value => { elapsed = value; await render(); }, clip === 'groundbait' ? 650 : clip === 'catch' ? 600 : 210);
           await page.screenshot({ path: path.join(folder, `${clip}-comparison.png`) });
         }
       }
     }
+    for (const clip of ['bite','hooked','effort']) {
+      await page.selectOption('#clip',clip);
+      const depth=await page.evaluate(()=>{
+        const current=config(),sample=current.samples[0],pose=contactPose(current,sample,0,true);
+        const before=contactPose(current,null,0,false),frame=data.contact[current.clip][0];
+        return {top:frame.FishTop+pose.fish,surface:pose.surface,change:pose.fish-before.fish};
+      });
+      assert.ok(depth.top>=depth.surface+64-.001);
+      assert.ok(depth.change>=50-.001);
+    }
+    await page.selectOption('#clip','groundbait');
+    const drops=await page.evaluate(()=>{
+      const current=config();
+      return [2,3,4,5,5.66,6].map(position=>contactPose(current,{...current.samples[0],Source:Math.floor(position),Position:position,Contact:data.contact.groundbait[Math.floor(position)]},Math.floor(position),true).bait);
+    });
+    assert.equal(drops[0],0);assert.equal(drops[1],0);assert.equal(drops[5],0);
+    assert.ok(drops[2]>0 && drops[3]>drops[2] && drops[4]>drops[3]);
     await page.selectOption('#pet', 'calico');
     await page.selectOption('#clip', 'groundbait');
     await page.evaluate(async () => { elapsed = 3250; await render(); });
@@ -46,7 +64,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.click('#previous');
     assert.equal(Number(await page.locator('#scrub').inputValue()), 0);
     assert.deepEqual(errors, []);
-    const result = { date: '2026-10-24', pets, sampledRenders: checked, errors, groundbaitFinishAndStepControls: 'passed', nativeWindows: 'not-run' };
+    const result = { date: '2026-10-24', pets, clips, sampledRenders: checked, errors, depthAndDrop: 'passed', groundbaitFinishAndStepControls: 'passed', nativeWindows: 'not-run' };
     fs.writeFileSync(path.join(folder, 'browser-verification.json'), JSON.stringify(result, null, 2) + '\n');
     console.log(JSON.stringify(result));
   } finally { await browser.close(); }

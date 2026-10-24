@@ -202,3 +202,5 @@ npm run planning:dispatch -- v0.4.0
 
 
 - 2026-10-24：[STEAM-DESKTOP-22D–J 后续需求交接](steam-desktop-22-followups-dev.prompt.md)（当前仅登记；后续按用户选择批次开工）。
+
+- 2026-10-24：[STEAM-DESKTOP-22I 音效专项交接](steam-desktop-22i-audio-dev.prompt.md)（六场景试听已备，用户确认方案后接入；目标 Unity／Overlay 前端工程师）。

@@ -1624,6 +1624,9 @@ namespace FishSocialOverlay
             var pose = OverlayFishingWaterContact.Solve(contact,
                 scale, origin, surface, OverlayFishingWaterContact.Weight(_layeredClip,
                     _layered?.SourcePosition(frame) ?? frame, _layered?.SourceFrameCount ?? count));
+            if (_layeredClip == "groundbait")
+                pose.BaitOffset = OverlayFishingWaterContact.GroundbaitOffset(
+                    _layered?.SourcePosition(frame) ?? frame, scale, origin, surface);
             for (var i = 0; i < _layerImages.Length; i++)
             {
                 var layer = OverlayFishingLayers.LayerNames[i];
@@ -1638,6 +1641,12 @@ namespace FishSocialOverlay
                     var values = sample.Transforms[i];
                     var matrix = new Matrix(values[0], values[1] * scale / scaleX,
                         values[2] * scaleX / scale, values[3], values[4] * scaleX, values[5] * scale);
+                    if (sample.Root != null)
+                    {
+                        var root = sample.Root;
+                        matrix.Append(new Matrix(root[0], root[1] * scale / scaleX,
+                            root[2] * scaleX / scale, root[3], root[4] * scaleX, root[5] * scale));
+                    }
                     if (!matrix.IsIdentity)
                     {
                         var motion = new MatrixTransform(matrix);

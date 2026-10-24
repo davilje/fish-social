@@ -44,13 +44,12 @@ internal static class OverlayFishingMotionNativeTests
         foreach (var pet in Data.Pets)
         {
             Load(pet);
-            for (var clipIndex = 0; clipIndex < Data.Clips.Length; clipIndex++)
+            foreach (var name in Data.ExpandedClips(pet))
             {
-                var name = Data.Clips[clipIndex];
                 var original = Data.Original(pet, name);
                 var expanded = OverlayFishingLayers.TryOpen(pet, name);
                 Data.Check(expanded != null, "missing expanded clip: " + pet + "/" + name);
-                Data.CheckExpansion(original, expanded, Data.ExpandedCounts[clipIndex]);
+                Data.CheckExpansion(name, original, expanded);
                 Data.CheckRig(name, expanded);
                 var uniquePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 for (var index = 0; index < expanded.FrameCount; index++)
@@ -169,6 +168,9 @@ internal static class OverlayFishingMotionNativeTests
 
     public static void ActorResize()
     {
+        RootAndHeldFishResize();
+        LoopWrap();
+        GroundbaitDropResize();
         using (var rigDocument = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "source-rig.json"))))
         foreach (var pet in new[] { "orange", "dafeiyu" })
         foreach (var name in new[] { "cast", "reel", "reel_empty" })
@@ -210,6 +212,125 @@ internal static class OverlayFishingMotionNativeTests
                     AssertThinDrawing(line.Source, line.RenderTransform, scale);
                     Data.Check(Field<int>(actor, "_frameIndex") == sampleIndex && !timer.IsEnabled, "resize restarted playback during the fixed-frame test");
                 }
+            }
+        }
+    }
+
+    static Transform RootTransform(FishingMotionSample sample, double horizontalScale, double verticalScale)
+    {
+        if (sample.Root == null) return Transform.Identity;
+        var root = sample.Root;
+        return new MatrixTransform(root[0], root[1] * verticalScale / horizontalScale,
+            root[2] * horizontalScale / verticalScale, root[3], root[4] * horizontalScale, root[5] * verticalScale);
+    }
+
+    static void FreezeSample(OverlayPetActor actor, int index)
+    {
+        var timer = Field<OverlayAnimationSchedule.Subscription>(actor, "_frameTimer");
+        timer.Suspended = true;
+        timer.Stop();
+        typeof(OverlayPetActor).GetField("_frameIndex", PrivateInstance).SetValue(actor, index);
+        Invoke(actor, "ShowLayered");
+    }
+
+    static void SameTransform(Transform actual, Transform expected, double horizontalScale, double verticalScale, string message)
+    {
+        foreach (var point in new[] { new Point(264 * horizontalScale, 450 * verticalScale),
+            new Point(264 * horizontalScale, 300 * verticalScale), new Point(350 * horizontalScale, 360 * verticalScale) })
+            Data.Check((actual.Transform(point) - expected.Transform(point)).Length < .00001, message);
+    }
+
+    static void RootAndHeldFishResize()
+    {
+        using (var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "source-rig.json"))))
+        foreach (var pet in new[] { "orange", "dafeiyu" })
+        foreach (var name in new[] { "sit", "leave", "bait", "catch", "reset_catch", "reset_empty" })
+        {
+            Load(pet);
+            using (var actor = new OverlayPetActor("motion-root-" + pet + name, null))
+            {
+                actor.Apply("cat", name, "seated", 0, 0, petId: pet);
+                var clip = Field<FishingClipPlayback>(actor, "_layered");
+                var rig = document.RootElement.GetProperty("clips").GetProperty(name);
+                var moving = Array.FindIndex(clip.Motion, sample => sample.Root != null && !Data.Identity(sample.Root));
+                Data.Check(moving >= 0, "root test found no actual motion: " + name);
+                var samples = new List<int> { moving };
+                var held = Array.FindIndex(clip.Motion, sample => sample.Position > sample.Source &&
+                    rig[sample.Source].TryGetProperty("fishHeld", out var value) && value.GetBoolean());
+                if (held >= 0 && held != moving) samples.Add(held);
+                samples.Add(0);
+                foreach (var index in samples)
+                foreach (var size in new[] { 64d, 128, 192, 96 })
+                {
+                    FreezeSample(actor, index);
+                    actor.ApplyChrome(new OverlayActorChrome { Pet = new OverlayLayoutObjectDto { w = size, h = size } });
+                    Wait(() => !actor.FramePending);
+                    var images = Field<Image[]>(actor, "_layerImages");
+                    var horizontalScale = Field<int>(actor, "_layerDrawW") / 640d;
+                    var verticalScale = Field<int>(actor, "_layerDrawH") / 512d;
+                    var root = RootTransform(clip.Motion[index], horizontalScale, verticalScale);
+                    var foot = new Point(264 * horizontalScale, 450 * verticalScale);
+                    foreach (var layer in new[] { "body", "head", "far_hand", "hands" })
+                    {
+                        var image = images[Array.IndexOf(OverlayFishingLayers.LayerNames, layer)];
+                        SameTransform(image.RenderTransform, root, horizontalScale, verticalScale, "body layers split or lost root motion: " + name);
+                        Data.Check((image.RenderTransform.Transform(foot) - foot).Length < .00001, "resize moved the root foot pivot");
+                    }
+                    if (rig[clip.SourceIndex(index)].TryGetProperty("fishHeld", out var fishHeld) && fishHeld.GetBoolean())
+                    {
+                        var fish = images[Array.IndexOf(OverlayFishingLayers.LayerNames, "fish")];
+                        SameTransform(fish.RenderTransform, root, horizontalScale, verticalScale, "held fish separated from the root and hands");
+                    }
+                    Data.Check(Field<int>(actor, "_frameIndex") == index, "frozen root pose advanced during resize");
+                }
+            }
+        }
+    }
+
+    static void LoopWrap()
+    {
+        Load("orange");
+        foreach (var name in new[] { "fishing", "effort", "hooked" })
+        using (var actor = new OverlayPetActor("motion-loop-" + name, null))
+        {
+            var phase = name == "hooked" ? "hooked" : "waiting";
+            actor.Apply("cat", name, phase, 0, 0, petId: "orange");
+            var clip = Field<FishingClipPlayback>(actor, "_layered");
+            var source = Data.Original("orange", name);
+            Data.Check(clip.Playback == "intro-loop" && Field<OverlayAnimationSchedule.Subscription>(actor, "_frameTimer").IsEnabled,
+                "loop clip remained a static hold: " + name);
+            FreezeSample(actor, clip.FrameCount - 1);
+            Invoke(actor, "AdvanceLayered");
+            Data.Check(Field<int>(actor, "_frameIndex") == clip.LoopStart && clip.SourceIndex(clip.LoopStart) == source.LoopStart,
+                "actor did not wrap to the authored source loop start");
+            actor.Apply("cat", name, phase, 1000, 0, petId: "orange");
+            Data.Check(Field<int>(actor, "_frameIndex") == clip.LoopStart, "network refresh restarted the loop intro");
+        }
+    }
+
+    static void GroundbaitDropResize()
+    {
+        Load("orange");
+        using (var actor = new OverlayPetActor("motion-groundbait-depth", null))
+        {
+            actor.Apply("cat", "groundbait", "groundbaiting", 0, 0, petId: "orange");
+            var clip = Field<FishingClipPlayback>(actor, "_layered");
+            var falling = Array.FindIndex(clip.Motion, sample => sample.Position > 4 && sample.Position < 6);
+            Data.Check(falling >= 0, "groundbait lacks airborne intermediate samples");
+            foreach (var index in new[] { clip.IndexAtSource(2), falling, clip.IndexAtSource(6) })
+            foreach (var size in new[] { 64d, 128, 192 })
+            {
+                FreezeSample(actor, index);
+                actor.ApplyChrome(new OverlayActorChrome { Pet = new OverlayLayoutObjectDto { w = size, h = size } });
+                Wait(() => !actor.FramePending);
+                var images = Field<Image[]>(actor, "_layerImages");
+                var image = images[Array.IndexOf(OverlayFishingLayers.LayerNames, "bait")];
+                var scale = Field<int>(actor, "_layerDrawH") / 512d;
+                var local = clip.Motion[index].Transforms[8];
+                var actualDrop = image.RenderTransform.Transform(new Point(0, 0)).Y - local[5] * scale;
+                var expectedDrop = OverlayFishingWaterContact.GroundbaitOffset(clip.SourcePosition(index), scale, image.Margin.Top, size + 6);
+                Data.Check(Math.Abs(actualDrop - expectedDrop) < .00001 && (index != falling || actualDrop > 0),
+                    "actor drop ignored source position, surface height or resize");
             }
         }
     }

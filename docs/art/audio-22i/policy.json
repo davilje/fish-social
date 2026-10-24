@@ -1,0 +1,26 @@
+{
+  "status": "preview-awaiting-approval",
+  "task": "STEAM-DESKTOP-22I",
+  "master": {"music": 0.35, "effects": 0.7},
+  "groups": {"ui": 1, "fishing": 2, "voice": 1},
+  "uiGlobalCooldown": 0.09,
+  "autoMeowCooldown": 12,
+  "meowCooldown": 2.5,
+  "cues": {
+    "ui_click": {"gain": 0.65, "cooldown": 0.09, "group": "ui", "priority": 1, "label": "按钮"},
+    "ui_open": {"gain": 0.65, "cooldown": 0.12, "group": "ui", "priority": 1, "label": "展开"},
+    "ui_close": {"gain": 0.6, "cooldown": 0.12, "group": "ui", "priority": 1, "label": "收起"},
+    "ui_toggle": {"gain": 0.6, "cooldown": 0.1, "group": "ui", "priority": 1, "label": "切换"},
+    "ui_tick": {"gain": 0.45, "cooldown": 0.18, "group": "ui", "priority": 0, "label": "音量刻度"},
+    "ui_success": {"gain": 0.65, "cooldown": 0.35, "group": "ui", "priority": 2, "label": "操作成功"},
+    "ui_error": {"gain": 0.65, "cooldown": 0.6, "group": "ui", "priority": 2, "label": "操作未成功"},
+    "cast": {"gain": 0.8, "cooldown": 0.4, "group": "fishing", "priority": 1, "label": "抛竿"},
+    "splash": {"gain": 0.65, "cooldown": 0.4, "group": "fishing", "priority": 1, "label": "入水"},
+    "bite": {"gain": 0.9, "cooldown": 0.8, "group": "fishing", "priority": 3, "duck": 0.7, "label": "咬钩"},
+    "reel": {"gain": 0.65, "cooldown": 0.7, "group": "fishing", "priority": 1, "label": "收杆"},
+    "escape": {"gain": 0.6, "cooldown": 0.8, "group": "fishing", "priority": 2, "label": "脱钩"},
+    "groundbait": {"gain": 0.5, "cooldown": 2.16, "group": "fishing", "priority": 0, "label": "撒饵入水"},
+    "catch": {"gain": 0.8, "cooldown": 1.2, "group": "fishing", "priority": 3, "duck": 1.2, "label": "鱼获入包"},
+    "meow": {"gain": 0.65, "cooldown": 2.5, "group": "voice", "priority": 1, "label": "猫咪回应"}
+  }
+}

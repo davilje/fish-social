@@ -15,7 +15,7 @@ namespace FishSocialOverlay
             SourceFrameCount = orders.Count;
         }
 
-        public string Playback { get; }
+        public string Playback { get; private set; }
         public int LoopStart { get; private set; }
         public List<string[]> Orders { get; private set; }
         public int FrameCount => Orders.Count;
@@ -37,6 +37,7 @@ namespace FishSocialOverlay
         public void ApplyMotion(FishingMotionClip motion)
         {
             if (Motion != null || motion == null || !motion.Matches(DurationsMs)) return;
+            if (motion.Loop && (Playback != "hold" || SourceFrameCount != 1)) return;
             var orders = new List<string[]>();
             var durations = new int[motion.Frames.Length];
             for (var index = 0; index < motion.Frames.Length; index++)
@@ -48,6 +49,7 @@ namespace FishSocialOverlay
             Orders = orders;
             DurationsMs = durations;
             LoopStart = IndexAtSource(LoopStart);
+            if (motion.Loop) Playback = "intro-loop";
         }
     }
 }

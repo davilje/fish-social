@@ -11,6 +11,7 @@ namespace FishSocialOverlay
         public double Position { get; set; } = double.NaN;
         public int DurationMs { get; set; }
         public double[][] Transforms { get; set; }
+        public double[] Root { get; set; }
         public double[] Line { get; set; }
         public FishingContactFrame Contact { get; set; }
     }
@@ -19,6 +20,7 @@ namespace FishSocialOverlay
     {
         public int[] DurationsMs { get; set; }
         public FishingMotionSample[] Frames { get; set; }
+        public bool Loop { get; set; }
 
         public bool Matches(int[] durations)
         {
@@ -33,6 +35,16 @@ namespace FishSocialOverlay
                     frame.Transforms == null || frame.Transforms.Length != 9 || frame.Contact == null
                     || frame.Source < previousSource || frame.Source > previousSource + 1) return false;
                 if (sums[frame.Source] == 0 && frame.Position != frame.Source) return false;
+                if (frame.Root != null)
+                {
+                    if (frame.Root.Length != 6) return false;
+                    foreach (var value in frame.Root) if (!Finite(value) || Math.Abs(value) > 100000) return false;
+                    if (!Rigid(frame.Root) || Math.Abs(Math.Atan2(frame.Root[1], frame.Root[0])) > Math.PI / 30 + .000001
+                        || !Near(frame.Root[0] * 264 + frame.Root[2] * 450 + frame.Root[4], 264)
+                        || !Near(frame.Root[1] * 264 + frame.Root[3] * 450 + frame.Root[5], 450)) return false;
+                    if (frame.Position == frame.Source && (!TranslationOnly(frame.Root)
+                        || !Near(frame.Root[4], 0) || !Near(frame.Root[5], 0))) return false;
+                }
                 for (var layer = 0; layer < frame.Transforms.Length; layer++)
                 {
                     var matrix = frame.Transforms[layer];

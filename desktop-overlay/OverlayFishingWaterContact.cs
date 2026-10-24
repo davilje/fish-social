@@ -22,6 +22,8 @@ namespace FishSocialOverlay
     internal static class OverlayFishingWaterContact
     {
         public const double ReferenceSurfaceY = 463.5;
+        public const double FishDepth = 64;
+        public const double GroundbaitDrop = 90;
         static readonly Lazy<Dictionary<string, FishingContactFrame[]>> Frames =
             new Lazy<Dictionary<string, FishingContactFrame[]>>(Load);
 
@@ -58,7 +60,7 @@ namespace FishSocialOverlay
             pose.BaitOffset = delta * weight;
             // Bite starts beneath the surface, with the line connected to the moving fish.
             pose.FishOffset = frame.FishTop >= 0
-                ? Math.Max(delta, surfaceY + 14 * scale - (originY + frame.FishTop * scale)) * weight
+                ? Math.Max(delta, surfaceY + FishDepth * scale - (originY + frame.FishTop * scale)) * weight
                 : delta * weight;
             var extension = frame.FishTop >= 0 ? pose.FishOffset : pose.BobberOffset;
             var length = (frame.LineBottom - frame.LineTop) * scale;
@@ -68,6 +70,14 @@ namespace FishSocialOverlay
                 pose.LineScale = 1 + extension / length;
             }
             return pose;
+        }
+
+        public static double GroundbaitOffset(double position, double scale, double originY, double surfaceY)
+        {
+            if (position < 3 || position >= 6 || scale <= 0) return 0;
+            var progress = (position - 3) / 3;
+            var drop = Math.Max(0, surfaceY - (originY + ReferenceSurfaceY * scale)) + GroundbaitDrop * scale;
+            return drop * progress * progress;
         }
     }
 }

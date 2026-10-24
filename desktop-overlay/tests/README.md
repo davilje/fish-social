@@ -40,7 +40,9 @@ Windows 项目引用正式 Overlay 程序并复制 OverlayResources；缓存测�
 
 ## STEAM-DESKTOP-22D / 22F 补帧与打窝循环
 
-- `dotnet run --project desktop-overlay/tests/FishSocialOverlay.MotionTests.csproj`：12 组，直接编译正式运动清单、源帧映射与水面求解代码，加载十角色真实清单。
+- `dotnet run --project desktop-overlay/tests/FishSocialOverlay.MotionTests.csproj`：18 组，直接编译正式运动清单、源帧映射与水面求解代码，加载十角色十四动作，覆盖循环尾段、脚底固定、手持鱼、畸形矩阵回退。
+- `dotnet run --project desktop-overlay/tests/FishSocialOverlay.WaterContactTests.csproj`：现为 9 组，增加 64 原画单位的鱼深度、渐进撒料下落及手持／收尾保护。
 - `dotnet run --project desktop-overlay/tests/FishSocialOverlay.GroundbaitTests.csproj`：10 组，真实阶段决定循环、720ms 循环、280ms 收手收尾、短周期、重复和隐藏追赶。
 - WPF 新增四组运动采样／源 PNG 缓存／细线绘制／窗口尺寸测试，以及三组打窝阶段、中断和换皮测试；连同 22E 共 28 组，仅在 Windows 实际运行后才能标记原生通过。
+- 原生运动组已扩展十四动作、脚底固定整体微转、手持鱼、等待／发力循环及窗口尺寸下撒料偏移。当前跨平台行为合计 63 项通过，Web 560 次采样通过；原生组仅编译，未在 macOS 运行。
 - [22D / 22F 实现与验收](../../docs/engineering/2026-10-24-overlay-motion-22df.md)。
