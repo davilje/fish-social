@@ -16,7 +16,7 @@ namespace FishSocialOverlay
         readonly TextBlock _preview;
         readonly ScrollViewer _logScroll;
         readonly StackPanel _logList;
-        FontFamily _logFontFamily;
+        FontFamily _logFontFamily = new FontFamily("Microsoft YaHei UI, Segoe UI");
         double _logFontSize = 12;
         Brush _logForeground;
 

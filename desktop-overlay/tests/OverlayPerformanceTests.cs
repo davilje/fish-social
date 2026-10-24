@@ -157,6 +157,10 @@ public static class OverlayPerformanceTests
         try
         {
             window.Show();
+            typeof(MainWindow).GetMethod("ApplyPondChat", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(window, new object[] { new IpcMessage {
+                    ConnectionState = "Connected", PondId = "pond",
+                    RecentChats = new[] { Chat("1", "塘里有鱼") } } });
             foreach (var size in new[] { new Size(960,560), new Size(800,400), new Size(600,300) })
             {
                 typeof(MainWindow).GetMethod("ApplyViewportSize", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -171,14 +175,17 @@ public static class OverlayPerformanceTests
                     Panel.SetZIndex(decoration,999); window.SceneCanvas.Children.Add(decoration); window.UpdateLayout();
                     Require(OverlayClickThrough.IsClientHit(window,point), "folded chat toggle is click-through");
                     window.SceneCanvas.Children.Remove(decoration);
-                    // Exercise the actual input hit and preview mouse route, not only Button.Click.
                     var target = window.InputHitTest(point) as UIElement;
                     Require(target != null, "folded dock has no WPF input target");
-                    target.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(
+                    // A real press tunnels to the dock. Raising the input event on the
+                    // inner template grid is retargeted to the cursor, so invoke the
+                    // dock handler the press actually reaches.
+                    window.ChatDockChrome.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(
                         System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, System.Windows.Input.MouseButton.Left)
                         { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
                     window.UpdateLayout();
                     Require(window.ChatDockChrome.Height>folded && window.ChatInputBox.IsVisible && window.ChatLogScroll.IsVisible, "chat did not expand");
+                    Require(window.ChatLogList.Children.Count > 0 && ((TextBlock)window.ChatLogList.Children[0]).Text.Contains("塘里有鱼"), "expanded log dropped the pending messages");
                     var chrome=(Grid)window.ChatDockChrome.Child;
                     Require(Math.Abs(((FrameworkElement)chrome.Children[0]).ActualHeight-window.ChatDockChrome.Height)<1, "chrome retained folded height");
                     window.ChatInputBox.Text="test";

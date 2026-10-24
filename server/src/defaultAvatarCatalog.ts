@@ -15,6 +15,7 @@ const CURRENT_CHARACTER_IDS = [
   'black',
   'cow',
   'dafeiyu',
+  'sangbiao',
 ] as const;
 
 const RETIRED_CAT_IDS = ['gray', 'siamese', 'tuxedo'] as const;

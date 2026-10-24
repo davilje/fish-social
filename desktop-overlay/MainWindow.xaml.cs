@@ -154,7 +154,6 @@ namespace FishSocialOverlay
 
             _chatDockExpanded = expanded;
             _hitProbeResult = int.MinValue; // Expanded controls have new hit regions immediately.
-            _chat?.SetExpanded(expanded);
             var height = _hudChatDockMetricsValid
                 ? (expanded ? _hudChatDockMetrics.ExpandedH : _hudChatDockMetrics.CollapsedH)
                 : (expanded ? HudChatDockExpandedHeight : HudChatDockCollapsedHeight);
@@ -207,6 +206,9 @@ namespace FishSocialOverlay
 
             if (_hudLayoutActive)
                 _hudLayout.RefreshChatDockChrome(ChatDockChrome);
+            // Log rendering must not run before the dock is visible. A failure there
+            // used to abort the click while the panel was still collapsed.
+            _chat?.SetExpanded(expanded);
         }
 
         public void ConfigureHudMenuMode(bool hudMenuMode)

@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Desktop\UI\CozyWebStage.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopModalHost.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyCornerCharacter.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyRoomBowlView.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2CatalogController.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopAppBootstrap.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyButtonVisual.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Motion\JournalV2MapMarker.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\SteamworksTicketProvider.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyToggleMotion.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyHomeRoom.Animation.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2EditController.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyPondMarkerMotion.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopSocialFeedPanel.cs" />
@@ -115,6 +117,7 @@
     <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceDialogMotion.cs" />
     <Compile Include="Assets\Scripts\Desktop\Audio\DesktopAudioSettingsView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyPondMarkerView.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyHomeAnimation.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2CatalogPages.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\UnityNetworkDtos.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalCardVisual.cs" />
@@ -173,6 +176,7 @@
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProductMenuAction.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyPanelSkin.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyJournalMedalGraphic.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyRoomProp.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Motion\JournalV2Polaroid.cs" />
     <Compile Include="Assets\Scripts\Desktop\OverlayPlayerSocialBridge.cs" />
     <Compile Include="Assets\Scripts\Desktop\DetachedWin32Process.cs" />
@@ -221,12 +225,25 @@
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopShopPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\AuthenticatedApiClient.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyRoomProp.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Pet\FishingRestLayerEffect.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Pet\FishingRestPresentation.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Pet\FishingRestMotion.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\cow\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\cream\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\dafeiyu\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\orange\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\sangbiao\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\blue\body\fishing\0\head-sleep-source.txt" />
     <None Include="Assets\Resources\Desktop\Theme\Cozy\fonts\ResourceHanRounded-LICENSE.txt" />
     <None Include="Assets\Shaders\UI\CozyJournalGrayscale.shader" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\calico\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\white\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\silver\body\fishing\0\head-sleep-source.txt" />
     <None Include="Assets\Shaders\UI\CozyJournalMultiply.shader" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\brown\body\fishing\0\head-sleep-source.txt" />
+    <None Include="Assets\Resources\Desktop\Pet\Fishing\black\body\fishing\0\head-sleep-source.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
