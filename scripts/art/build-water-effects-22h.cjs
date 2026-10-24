@@ -82,7 +82,10 @@ async function main(){
  }
  const fishing=path.join(root,'desktop-overlay/OverlayResources/fishing');
  const pets={};for(const dir of fs.readdirSync(fishing)){const file=path.join(fishing,dir,'manifest.json');if(fs.existsSync(file))pets[dir]=JSON.parse(fs.readFileSync(file,'utf8'));}
- write(path.join(doc,'preview-data.js'),'window.waterPreviewData = '+json({effects,pets})+';\n');
+ const activeV4=path.join(root,'desktop-overlay/OverlayResources/effects/fishing/v4/effects.json');
+ const activeEffects=fs.existsSync(activeV4)?JSON.parse(fs.readFileSync(activeV4,'utf8')):effects;
+ const waterContact=JSON.parse(fs.readFileSync(path.join(fishing,'water-contact.json'))),motion=JSON.parse(fs.readFileSync(path.join(fishing,'motion-samples.json'))).Clips;
+ write(path.join(doc,'preview-data.js'),'window.waterPreviewData = '+json({effects:activeEffects,legacyEffects:effects,pets,waterContact,motion:Object.fromEntries(['cast','groundbait','reel','reel_empty','bite','effort','fishing'].map(c=>[c,motion[c]]))})+';\n');
  console.log(`Built ${variants.length} textures; decoded ${manifest.decodedBytes} bytes; ${Object.keys(pets).length} approved cats; Unity mirror identical.`);
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

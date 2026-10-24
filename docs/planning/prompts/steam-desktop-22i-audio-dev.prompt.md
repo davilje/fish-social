@@ -1,15 +1,33 @@
-# 开发提示词：STEAM-DESKTOP-22I 钓鱼手记声音体验（v2）
+# 开发提示词：STEAM-DESKTOP-22I 钓鱼手记声音体验（当前 v5 已采用）
 
-你是 Fish Social 的 Unity／Windows Overlay 前端开发工程师，负责声音资源、音频仲裁与实机验证；需要声音设计能力配合。重做 v2 试听并接入正式项目，保留独立音量、离线资源和用户认可的 UI。
+你是 Fish Social 的 Unity／Windows Overlay 前端开发工程师，负责声音资源、音频仲裁与实机验证；需要声音设计能力配合。当前采用 v5 配乐与已确认的 46 条 v3 音效；维护正式接入、独立音量、离线资源和用户认可的 UI。
 
 ## 必读
 
 - [22I 完整规格](../specs/Steam桌面端-22I声音体验设计.md)。
 - [H/I 共用事件契约](../../design/ui/steam-desktop-22hij/presentation-contract.md)、[22H 规格](../specs/Steam桌面端-22H钓鱼特效设计.md)的尺寸档位。
-- [旧试听](../../art/audio-22i/index.html)、[旧策略](../../art/audio-22i/policy.json)、[历史审计](../../engineering/2026-10-24-audio-22i-preview.md)。
+- [当前试听](../../art/audio-22i/v5/index.html)、[采用记录](../../engineering/audio-22i-adoption.json)、[落地及清理报告](../../engineering/2026-10-24-audio-22i-adoption.md)。
 - 当前 DesktopAudioService、音频 manifest/CREDITS、WPF 源动画 marker 和 22D/E/F 实现。
 
-旧试听与 policy.json 是 **v1 比较基线，不是已认可的 v2 音色**。历史“缺少结果 ID”结论需重新核验；当前已有 catchId/resultId，检查完整透传，不重新造一套 ID。
+旧试听与 policy.json 已退役并删除；旧试听网址跳转到当前 v5。历史“缺少结果 ID”结论需重新核验；当前已有 catchId/resultId，检查完整透传，不重新造一套 ID。
+
+## 当前执行状态：方案已采用
+
+用户已要求将当前方案应用到项目并剔除旧版资源。正式 StreamingAssets/Audio 保留 47 条已采用音频；v1–v4 音频与旧生成脚本已移除，历史来源/许可清单移至 `docs/engineering/audio-22i-retired/`。当前生成／安装／验证只使用 `tools/audio/compose_sunlight_v5.py`、`integrate_music_v5.py`、`verify_desktop_audio.py`、`verify_music_v5.py` 和独立音效锁 `accepted-effects.json`。禁止用已退役目录重建或恢复旧音乐。Windows 真机画声延迟待测。
+
+以下 v2–v5 制作反馈保留作历史说明；涉及钢琴、旧版 A/B、待试听、旧基线保留的条款已经由后续用户反馈和此次采用清理要求取代。
+
+## BGM v5 制作反馈（历史）
+
+v4旋律过于简单、吉他不清晰；仅BGM继续重做，以主题发展、连接乐句、节奏变化和真实轻拨主奏改善旋律层次与拨弦辨识。46条已确认非音乐资源及配置锁定不变。
+
+## 音效确认与 BGM v4 重写（历史）
+
+全部46条v3非音乐资源已获用户认可并应用，禁止随音乐重做而改变。v3背景音乐因旋律组织散乱被退回；v4仅重写BGM，以清晰主题、稳定伴奏、功能和声与合适声部收尾为制作重点，保留无钢琴及温暖阳光方向。素材hash与确认原文见 `docs/engineering/audio-22i-sfx-acceptance.json`。BGM及Windows画声同步继续待验收。
+
+## v3 后续反馈（历史，优先于以下 v2 初值）
+
+按钮提高可听度并保留完整尾音；音乐不使用钢琴，改为阳光、温暖、轻松的尼龙吉他方向，86 BPM；水声以干净轻柔为目标，取消强压缩和强制 RMS 增响。已交付 [v3 试听](../../art/audio-22i/v3/index.html)、[技术验证](../../engineering/2026-10-24-audio-22i-v3.md)，v2 素材归档供比较。人工听感和 Windows 实测仍待验收。
 
 ## 必须达成的听感
 
@@ -49,7 +67,7 @@
 ## 派发
 
 ```text
-@docs/planning/prompts/steam-desktop-22i-audio-dev.prompt.md 按 v2 实现 STEAM-DESKTOP-22I，重做纸张物音、柔和器乐与真实分档水声试听，完成接入、音频仲裁和逐项验证。
+@docs/planning/prompts/steam-desktop-22i-audio-dev.prompt.md 基于已采用的 v5 配乐与 v3 音效维护 STEAM-DESKTOP-22I，保留音频哈希锁和当前接入，完成 Windows 画声延迟实测。
 ```
 
 ## 本次执行记录（2026-10-24）

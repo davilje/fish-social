@@ -1,0 +1,1070 @@
+{
+  "schemaVersion": 2,
+  "version": "22h-water-v4-approved-style",
+  "status": "style-approved-runtime-acceptance-pending",
+  "styleApproval": {
+    "date": "2026-10-24",
+    "userStatement": "该风格可以",
+    "scope": "Simplified v4 water-magic visual style; Windows acceptance remains separate."
+  },
+  "source": "Built-in OpenAI image_gen edit of v3 using the actual cat-game preview as style reference; original generated alpha retained in source atlas.",
+  "license": "AI-generated project artwork; not covered by the v2 SVG CC0 declaration.",
+  "sourceScript": "scripts/art/build-water-effects-22h-v4.cjs",
+  "prompt": "docs/art/water-effects-22h/magic-v4/prompt.txt",
+  "sourceFile": "magic-v4/water-soft-atlas.png",
+  "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+  "processing": "Connected-component sprite extraction and removal of unrelated neighbouring fragments; preserve antialias edges; resize to authored tier dimensions and pad to 8px minimum transparent margin.",
+  "decodedBytes": 557056,
+  "effectsSha256": "47b30954925d11298c9a6f4863dd69aa0c46643e3b8ce1cf7c918c0d42522c91",
+  "assets": [
+    {
+      "id": "splash-s-a",
+      "file": "splash-s-a.png",
+      "kind": "splash",
+      "sizeTier": "S",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "d38ab9294a3a00d1b1183cbdf7e7cff91cbb4089b57b2e6b34325848d4c74409",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 0,
+        "top": 0,
+        "width": 444,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 153,
+        "top": 120,
+        "width": 149,
+        "height": 78
+      },
+      "retainedComponents": [
+        {
+          "pixels": 5899,
+          "bounds": [
+            153,
+            134,
+            295,
+            198
+          ]
+        },
+        {
+          "pixels": 325,
+          "bounds": [
+            157,
+            177,
+            179,
+            196
+          ]
+        },
+        {
+          "pixels": 277,
+          "bounds": [
+            282,
+            121,
+            301,
+            139
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        24,
+        8
+      ]
+    },
+    {
+      "id": "splash-s-b",
+      "file": "splash-s-b.png",
+      "kind": "splash",
+      "sizeTier": "S",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "695d1a5e24ea96879ca7f843a7ff74bfd146677c66f1ea5267b65ff17c95dcff",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 444,
+        "top": 0,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 158,
+        "top": 109,
+        "width": 139,
+        "height": 90
+      },
+      "retainedComponents": [
+        {
+          "pixels": 5900,
+          "bounds": [
+            174,
+            109,
+            287,
+            199
+          ]
+        },
+        {
+          "pixels": 377,
+          "bounds": [
+            159,
+            151,
+            181,
+            172
+          ]
+        },
+        {
+          "pixels": 368,
+          "bounds": [
+            275,
+            143,
+            297,
+            164
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        24,
+        8
+      ]
+    },
+    {
+      "id": "ripple-s-a",
+      "file": "ripple-s-a.png",
+      "kind": "ripple",
+      "sizeTier": "S",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "347922125765250dc5cb2fa10b45c464b0a64fa3707590f6f9027018c91f1457",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 887,
+        "top": 0,
+        "width": 444,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 131,
+        "top": 143,
+        "width": 168,
+        "height": 51
+      },
+      "retainedComponents": [
+        {
+          "pixels": 2244,
+          "bounds": [
+            155,
+            151,
+            299,
+            194
+          ]
+        },
+        {
+          "pixels": 1076,
+          "bounds": [
+            131,
+            143,
+            220,
+            173
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        24,
+        5
+      ]
+    },
+    {
+      "id": "ripple-s-b",
+      "file": "ripple-s-b.png",
+      "kind": "ripple",
+      "sizeTier": "S",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "f878430ce6662303b5d6338df5b797d4bbc1d605fc8973e3742749251242fe8c",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 1331,
+        "top": 0,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 115,
+        "top": 140,
+        "width": 197,
+        "height": 52
+      },
+      "retainedComponents": [
+        {
+          "pixels": 2943,
+          "bounds": [
+            115,
+            141,
+            280,
+            192
+          ]
+        },
+        {
+          "pixels": 1016,
+          "bounds": [
+            222,
+            141,
+            311,
+            174
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        24,
+        5
+      ]
+    },
+    {
+      "id": "splash-m-a",
+      "file": "splash-m-a.png",
+      "kind": "splash",
+      "sizeTier": "M",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "44b4e4b4ff6420fa74312e021b1847d211d0451994d17c8dcfd579da23a7615f",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 0,
+        "top": 222,
+        "width": 444,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 128,
+        "top": 94,
+        "width": 225,
+        "height": 95
+      },
+      "retainedComponents": [
+        {
+          "pixels": 11934,
+          "bounds": [
+            128,
+            95,
+            341,
+            189
+          ]
+        },
+        {
+          "pixels": 420,
+          "bounds": [
+            329,
+            138,
+            353,
+            160
+          ]
+        },
+        {
+          "pixels": 352,
+          "bounds": [
+            129,
+            144,
+            151,
+            165
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        40,
+        15
+      ]
+    },
+    {
+      "id": "splash-m-b",
+      "file": "splash-m-b.png",
+      "kind": "splash",
+      "sizeTier": "M",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "f9bad33a348a938ec480e0f965bb17e31e6fcb7aa25a909cd189cab1438695e5",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 444,
+        "top": 222,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 139,
+        "top": 65,
+        "width": 207,
+        "height": 125
+      },
+      "retainedComponents": [
+        {
+          "pixels": 12928,
+          "bounds": [
+            140,
+            65,
+            317,
+            189
+          ]
+        },
+        {
+          "pixels": 474,
+          "bounds": [
+            321,
+            128,
+            346,
+            153
+          ]
+        },
+        {
+          "pixels": 363,
+          "bounds": [
+            148,
+            121,
+            170,
+            143
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        40,
+        15
+      ]
+    },
+    {
+      "id": "ripple-m-a",
+      "file": "ripple-m-a.png",
+      "kind": "ripple",
+      "sizeTier": "M",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "67d343aa77470e377ee3c90617820fbc26c1dae86b6c7e3816219b90ff24af4b",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 887,
+        "top": 222,
+        "width": 444,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 90,
+        "top": 112,
+        "width": 254,
+        "height": 72
+      },
+      "retainedComponents": [
+        {
+          "pixels": 3099,
+          "bounds": [
+            129,
+            138,
+            295,
+            184
+          ]
+        },
+        {
+          "pixels": 2038,
+          "bounds": [
+            230,
+            124,
+            344,
+            171
+          ]
+        },
+        {
+          "pixels": 1491,
+          "bounds": [
+            90,
+            113,
+            195,
+            161
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        40,
+        8
+      ]
+    },
+    {
+      "id": "ripple-m-b",
+      "file": "ripple-m-b.png",
+      "kind": "ripple",
+      "sizeTier": "M",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "60d8888901ef9837eb90542750014bcaf7fd013d75fbd5a80f6bf09435c814d4",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 1331,
+        "top": 222,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 77,
+        "top": 84,
+        "width": 280,
+        "height": 104
+      },
+      "retainedComponents": [
+        {
+          "pixels": 4509,
+          "bounds": [
+            157,
+            84,
+            350,
+            172
+          ]
+        },
+        {
+          "pixels": 3640,
+          "bounds": [
+            77,
+            112,
+            235,
+            184
+          ]
+        },
+        {
+          "pixels": 1439,
+          "bounds": [
+            227,
+            144,
+            357,
+            188
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        40,
+        8
+      ]
+    },
+    {
+      "id": "splash-l-a",
+      "file": "splash-l-a.png",
+      "kind": "splash",
+      "sizeTier": "L",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "05eed793f5b23aad0a28bc9df8cfc9cc3177b57bd8b4b6bbe5d83f830ddd5a2d",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 0,
+        "top": 444,
+        "width": 444,
+        "height": 221
+      },
+      "sourceBounds": {
+        "left": 73,
+        "top": 66,
+        "width": 341,
+        "height": 131
+      },
+      "retainedComponents": [
+        {
+          "pixels": 24945,
+          "bounds": [
+            73,
+            67,
+            408,
+            195
+          ]
+        },
+        {
+          "pixels": 678,
+          "bounds": [
+            74,
+            134,
+            104,
+            163
+          ]
+        },
+        {
+          "pixels": 649,
+          "bounds": [
+            384,
+            135,
+            414,
+            163
+          ]
+        },
+        {
+          "pixels": 470,
+          "bounds": [
+            210,
+            115,
+            234,
+            141
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        60,
+        24
+      ]
+    },
+    {
+      "id": "splash-l-b",
+      "file": "splash-l-b.png",
+      "kind": "splash",
+      "sizeTier": "L",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "17b4ff5dac5fb90e01a68f5ca52708172800847cbd4b78f563461fe7c30de099",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 444,
+        "top": 444,
+        "width": 443,
+        "height": 221
+      },
+      "sourceBounds": {
+        "left": 97,
+        "top": 39,
+        "width": 302,
+        "height": 159
+      },
+      "retainedComponents": [
+        {
+          "pixels": 23454,
+          "bounds": [
+            97,
+            39,
+            399,
+            197
+          ]
+        },
+        {
+          "pixels": 544,
+          "bounds": [
+            162,
+            108,
+            187,
+            135
+          ]
+        },
+        {
+          "pixels": 522,
+          "bounds": [
+            350,
+            88,
+            375,
+            114
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        60,
+        24
+      ]
+    },
+    {
+      "id": "ripple-l-a",
+      "file": "ripple-l-a.png",
+      "kind": "ripple",
+      "sizeTier": "L",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "fddeed569d9e657c5f89aa3a48b6c1ac382685ab147cce19836113ae42e55e89",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 887,
+        "top": 444,
+        "width": 444,
+        "height": 221
+      },
+      "sourceBounds": {
+        "left": 39,
+        "top": 106,
+        "width": 355,
+        "height": 83
+      },
+      "retainedComponents": [
+        {
+          "pixels": 5196,
+          "bounds": [
+            90,
+            137,
+            327,
+            189
+          ]
+        },
+        {
+          "pixels": 3388,
+          "bounds": [
+            242,
+            115,
+            393,
+            179
+          ]
+        },
+        {
+          "pixels": 2697,
+          "bounds": [
+            39,
+            107,
+            186,
+            164
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        60,
+        12
+      ]
+    },
+    {
+      "id": "ripple-l-b",
+      "file": "ripple-l-b.png",
+      "kind": "ripple",
+      "sizeTier": "L",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "3bcbd53786331fc6ec4c788097fff2dc03c372eee4423942610825035fd8261f",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 1331,
+        "top": 444,
+        "width": 443,
+        "height": 221
+      },
+      "sourceBounds": {
+        "left": 31,
+        "top": 66,
+        "width": 375,
+        "height": 132
+      },
+      "retainedComponents": [
+        {
+          "pixels": 19217,
+          "bounds": [
+            31,
+            66,
+            406,
+            196
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        60,
+        12
+      ]
+    },
+    {
+      "id": "splash-xl-a",
+      "file": "splash-xl-a.png",
+      "kind": "splash",
+      "sizeTier": "XL",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "a7fd74d0698ebabdab9b77fe07222dca1547f5c12dbcc0c0c7963e54aee9c059",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 0,
+        "top": 665,
+        "width": 444,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 29,
+        "top": 35,
+        "width": 415,
+        "height": 156
+      },
+      "retainedComponents": [
+        {
+          "pixels": 38293,
+          "bounds": [
+            33,
+            35,
+            444,
+            191
+          ]
+        },
+        {
+          "pixels": 835,
+          "bounds": [
+            30,
+            119,
+            63,
+            150
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        84,
+        35
+      ]
+    },
+    {
+      "id": "splash-xl-b",
+      "file": "splash-xl-b.png",
+      "kind": "splash",
+      "sizeTier": "XL",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "35242696b5336881f17b2cbb3fd508ca52e409311c6d08f6781e3479a13bf259",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 444,
+        "top": 665,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 45,
+        "top": 9,
+        "width": 395,
+        "height": 182
+      },
+      "retainedComponents": [
+        {
+          "pixels": 34920,
+          "bounds": [
+            45,
+            9,
+            439,
+            190
+          ]
+        },
+        {
+          "pixels": 599,
+          "bounds": [
+            398,
+            73,
+            426,
+            101
+          ]
+        },
+        {
+          "pixels": 497,
+          "bounds": [
+            123,
+            73,
+            149,
+            99
+          ]
+        },
+        {
+          "pixels": 414,
+          "bounds": [
+            170,
+            109,
+            193,
+            133
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        84,
+        35
+      ]
+    },
+    {
+      "id": "ripple-xl-a",
+      "file": "ripple-xl-a.png",
+      "kind": "ripple",
+      "sizeTier": "XL",
+      "variant": "a",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "3b69f8a64958904feb63c468d5262c8d2cfb79b42dbacf3d7bfa207bc60f6eb8",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 887,
+        "top": 665,
+        "width": 444,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 20,
+        "top": 97,
+        "width": 401,
+        "height": 91
+      },
+      "retainedComponents": [
+        {
+          "pixels": 15205,
+          "bounds": [
+            22,
+            99,
+            421,
+            186
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        84,
+        17
+      ]
+    },
+    {
+      "id": "ripple-xl-b",
+      "file": "ripple-xl-b.png",
+      "kind": "ripple",
+      "sizeTier": "XL",
+      "variant": "b",
+      "layer": "back",
+      "width": 128,
+      "height": 64,
+      "anchor": [
+        64,
+        44
+      ],
+      "decodedBytes": 32768,
+      "sha256": "38a40d50eeb818c3417708870dc57f825ff68e33441d73bdc09a1614a311e6c7",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 1331,
+        "top": 665,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 14,
+        "top": 40,
+        "width": 409,
+        "height": 144
+      },
+      "retainedComponents": [
+        {
+          "pixels": 14242,
+          "bounds": [
+            124,
+            41,
+            414,
+            182
+          ]
+        },
+        {
+          "pixels": 7948,
+          "bounds": [
+            14,
+            91,
+            242,
+            181
+          ]
+        },
+        {
+          "pixels": 554,
+          "bounds": [
+            396,
+            130,
+            423,
+            157
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        84,
+        17
+      ]
+    },
+    {
+      "id": "drop-round",
+      "file": "drop-round.png",
+      "kind": "drop",
+      "layer": "front",
+      "width": 64,
+      "height": 64,
+      "anchor": [
+        32,
+        44
+      ],
+      "decodedBytes": 16384,
+      "sha256": "01bb32dc4117d0e0312b7cbbf60d34a930dd8ac22eeb317935ca32323eec545a",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 444,
+        "top": 0,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 158,
+        "top": 151,
+        "width": 23,
+        "height": 22
+      },
+      "retainedComponents": [
+        {
+          "pixels": 377,
+          "bounds": [
+            159,
+            151,
+            181,
+            172
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        8,
+        8
+      ]
+    },
+    {
+      "id": "drop-short",
+      "file": "drop-short.png",
+      "kind": "drop",
+      "layer": "front",
+      "width": 64,
+      "height": 64,
+      "anchor": [
+        32,
+        44
+      ],
+      "decodedBytes": 16384,
+      "sha256": "7f6e29fb1a90a47b5290a28704fe49c7ae8d072129df9a93d0a74778305e2da0",
+      "sourceFile": "magic-v4/water-soft-atlas.png",
+      "sourceSha256": "aa6c5a4f96ba3d6b6789b389eba3723988d1ef40fd6d8e1207599683820ab6df",
+      "sourceRect": {
+        "left": 444,
+        "top": 0,
+        "width": 443,
+        "height": 222
+      },
+      "sourceBounds": {
+        "left": 275,
+        "top": 143,
+        "width": 22,
+        "height": 22
+      },
+      "retainedComponents": [
+        {
+          "pixels": 368,
+          "bounds": [
+            275,
+            143,
+            297,
+            164
+          ]
+        }
+      ],
+      "targetPaintSize": [
+        9,
+        6
+      ]
+    }
+  ]
+}

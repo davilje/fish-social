@@ -400,7 +400,7 @@ namespace FishSocial.Desktop.Pet
                 image.color = Color.white;
                 image.transform.SetSiblingIndex(depth);
             }
-
+            _framePublicationPending = true;
         }
 
         void ReleaseLayers(bool preserveRest = false)
@@ -419,7 +419,6 @@ namespace FishSocial.Desktop.Pet
             var newFrame=_framePublicationPending;
             var audioContext=DesktopAudioService.Instance?.Presentation;
             var confirmation=OwnAudioPresentation&&audioContext?.eventKind=="catch"&&audioContext.eventId!=_audioPresentedEvent;
-            if (!newFrame&&!confirmation) return;
             _framePublicationPending = false;
             if (_manualPlayback || _layered == null || _layerHost == null ||
                 !_layerHost.gameObject.activeInHierarchy || _image == null || !_image.canvas ||
@@ -427,8 +426,8 @@ namespace FishSocial.Desktop.Pet
             // ShowLayer may advance several times after a stall; only this final visible frame can publish a cue.
             for (var i = 0; i < _layerImages.Length; i++)
                 if (_layerImages[i] == null || _layerImages[i].sprite == null) return;
-            if(newFrame)_waterMarkerBridge.Publish(_activeClip, _layerIndex, _sourceLoopOccurrence);
-            if(OwnAudioPresentation)
+            _waterMarkerBridge.Publish(_activeClip, _layerIndex, _sourceLoopOccurrence);
+            if(OwnAudioPresentation && (newFrame || confirmation))
             {
                 _audioMarkers.Published(_activeClip, _layerIndex, true);
                 if(confirmation&&(_activeClip=="catch"||_activeClip=="reset_catch"))_audioPresentedEvent=audioContext.eventId;

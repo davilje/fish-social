@@ -857,7 +857,7 @@ namespace FishSocial.Desktop
                     ExecuteOverlayGroundbait(message.spotId, message.commandId);
                     return;
                 case "stop_fishing":
-                    _fishingPresentation.Cancel(_pondSession?.CurrentUser?.id);
+                    _fishingPresentation.BeginRetrieve(_pondSession?.CurrentUser?.id);
                     _ownFishing?.BeginStopFishing(message.commandId);
                     ExecuteOverlayCommand(callback => _pondSession?.StopFishing(callback), message);
                     return;

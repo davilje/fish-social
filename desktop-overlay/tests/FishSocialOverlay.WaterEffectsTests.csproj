@@ -3,11 +3,14 @@
   <ItemGroup>
     <Compile Include="../OverlayWaterEffectsPolicy.cs" />
     <Compile Include="../OverlayGroundbaitTimeline.cs" />
+    <Compile Include="../OverlayFishingWaterContact.cs" />
     <Compile Include="../IpcProtocol.cs" />
     <Compile Include="../OverlayAudioPresentation.cs" />
     <Compile Include="WaterEffectsTests.cs" />
-    <None Include="../OverlayResources/effects/fishing/v2/effects.json" Link="effects.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../OverlayResources/effects/fishing/v4/effects.json" Link="effects.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../OverlayResources/fishing/presentation-markers.json" Link="presentation-markers.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../OverlayResources/fishing/source-water-markers.json" Link="source-water-markers.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../OverlayResources/fishing/motion-samples.json" Link="motion-samples.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../OverlayResources/fishing/water-contact.json" Link="water-contact.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

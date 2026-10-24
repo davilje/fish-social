@@ -1,0 +1,83 @@
+{
+  "status": "pass",
+  "activeTools": [
+    "compose_sunlight_v5.py",
+    "integrate_music_v5.py",
+    "verify_desktop_audio.py",
+    "verify_music_v5.py"
+  ],
+  "approvedEffectMetadataLock": "tools/audio/accepted-effects.json",
+  "effectAssets": 46,
+  "all47ProductionWavHashesUnchanged": true,
+  "cueConfigUnchanged": true,
+  "negativeValidationCases": [
+    {
+      "case": "approved effect metadata changed",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "approved effect source changed",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "cue configuration lock changed",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "unapproved generated music hash",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "music adoption pin changed",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "score hash changed",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "composer script hash changed",
+      "status": "pass",
+      "expected": "reject"
+    },
+    {
+      "case": "music overwrites approved effect source",
+      "status": "pass",
+      "expected": "reject"
+    }
+  ],
+  "obsoleteToolsAndInputsRemoved": [
+    "build_desktop_audio.py",
+    "build_desktop_audio_v2.py",
+    "build_desktop_audio_v3.py",
+    "analyze_desktop_audio_v2.py",
+    "analyze_desktop_audio_v3.py",
+    "compose_sunlight_v3.py",
+    "compose_sunlight_v4.py",
+    "integrate_music_v4.py",
+    "verify_music_v4.py",
+    "sources-v2.json",
+    "sources-v3.json",
+    "water-v3-regions.json"
+  ],
+  "removedPyc": [
+    "verify_desktop_audio.cpython-312.pyc",
+    "analyze_desktop_audio_v2.cpython-312.pyc",
+    "build_desktop_audio_v2.cpython-312.pyc",
+    "integrate_music_v5.cpython-312.pyc"
+  ],
+  "activeToolsHaveNoRetiredFileDependencies": true,
+  "genericVerifier": {
+    "status": "pass",
+    "assets": 47,
+    "decodedShortBytes": 3383056,
+    "decodedShortBudgetBytes": 4194304
+  },
+  "acceptance": "User adopted version5; actual Windows latency measurement remains pending"
+}

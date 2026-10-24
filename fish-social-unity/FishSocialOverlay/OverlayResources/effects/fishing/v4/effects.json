@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 2,
+  "artVersion": "22h-water-v4-approved-style",
+  "logicalCanvas": [
+    128,
+    64
+  ],
+  "anchor": [
+    64,
+    44
+  ],
+  "logicalSlot": 128,
+  "variantSelection": "stable-event-key-plus-occurrence-parity",
+  "sizeThresholdsMeters": [
+    0.3,
+    0.8,
+    1.5
+  ],
+  "visibleBodyThresholdsPixels": [
+    16,
+    32,
+    56
+  ],
+  "unknownSizeTier": "S",
+  "objectSizeTier": "S",
+  "tiers": {
+    "S": {
+      "width": 24,
+      "height": 8,
+      "durationMs": 280,
+      "dropCount": 2,
+      "arcCount": 1,
+      "crownCount": 1,
+      "spawnCount": 4
+    },
+    "M": {
+      "width": 40,
+      "height": 15,
+      "durationMs": 360,
+      "dropCount": 2,
+      "arcCount": 2,
+      "crownCount": 1,
+      "spawnCount": 5
+    },
+    "L": {
+      "width": 60,
+      "height": 24,
+      "durationMs": 480,
+      "dropCount": 2,
+      "arcCount": 2,
+      "crownCount": 2,
+      "spawnCount": 6
+    },
+    "XL": {
+      "width": 84,
+      "height": 35,
+      "durationMs": 620,
+      "dropCount": 2,
+      "arcCount": 2,
+      "crownCount": 2,
+      "spawnCount": 6
+    }
+  },
+  "cues": [
+    {
+      "id": "FX01",
+      "cue": "float.contact",
+      "anchor": "bobber.contact",
+      "sizeTier": "object",
+      "durationMs": 320,
+      "spawnCount": 3,
+      "priority": 65,
+      "reducedVariant": "arcs",
+      "allowedPhases": [
+        "casting",
+        "waiting"
+      ],
+      "cooldownMs": 0,
+      "renderKind": "splash",
+      "requiresSourceMarker": true,
+      "requiresContact": true
+    },
+    {
+      "id": "FX02",
+      "cue": "waiting.ripple",
+      "anchor": "bobber.contact",
+      "sizeTier": "object",
+      "durationMs": 850,
+      "spawnCount": 1,
+      "priority": 10,
+      "reducedVariant": "none",
+      "allowedPhases": [
+        "waiting"
+      ],
+      "cooldownMs": 2400,
+      "renderKind": "ripple"
+    },
+    {
+      "id": "FX03",
+      "cue": "bite.onset",
+      "anchor": "fish.contact",
+      "sizeTier": "shared",
+      "durationMs": 0,
+      "spawnCount": 0,
+      "priority": 100,
+      "reducedVariant": "arcs",
+      "allowedPhases": [
+        "hooked",
+        "effort"
+      ],
+      "cooldownMs": 0,
+      "renderKind": "ripple"
+    },
+    {
+      "id": "FX04",
+      "cue": "fish.struggle",
+      "anchor": "fish.contact",
+      "sizeTier": "shared",
+      "durationMs": 0,
+      "spawnCount": 0,
+      "priority": 60,
+      "reducedVariant": "none",
+      "allowedPhases": [
+        "hooked",
+        "effort"
+      ],
+      "cooldownMs": 700,
+      "renderKind": "ripple"
+    },
+    {
+      "id": "FX05",
+      "cue": "fish.surface",
+      "markers": [
+        "fish.surface",
+        "fish.slap"
+      ],
+      "anchor": "fish.contact",
+      "sizeTier": "shared",
+      "durationMs": 0,
+      "spawnCount": 0,
+      "priority": 90,
+      "reducedVariant": "arcs",
+      "allowedPhases": [
+        "hooked",
+        "effort",
+        "resolving",
+        "stopping"
+      ],
+      "cooldownMs": 0,
+      "requiresSourceMarker": true,
+      "requiresContact": true,
+      "renderKind": "splash"
+    },
+    {
+      "id": "FX08",
+      "cue": "groundbait.contact",
+      "anchor": "bait.contact",
+      "sizeTier": "object",
+      "durationMs": 280,
+      "spawnCount": 4,
+      "priority": 50,
+      "reducedVariant": "none",
+      "allowedPhases": [
+        "groundbaiting"
+      ],
+      "cooldownMs": 720,
+      "renderKind": "splash",
+      "requiresSourceMarker": true,
+      "requiresContact": true
+    },
+    {
+      "id": "FX09",
+      "cue": "retrieve.contact",
+      "anchor": "retrieve.waterline-intersection",
+      "sizeTier": "object",
+      "durationMs": 300,
+      "spawnCount": 3,
+      "priority": 65,
+      "reducedVariant": "arcs",
+      "allowedPhases": [
+        "resolving",
+        "stopping"
+      ],
+      "cooldownMs": 0,
+      "requiresSourceMarker": true,
+      "requiresContact": true,
+      "renderKind": "splash"
+    }
+  ],
+  "budget": {
+    "instances": 24,
+    "groups": 8,
+    "groupsPerActor": 2,
+    "selfReservedGroups": 2,
+    "selfReservedInstances": 12,
+    "maxDecodedBytes": 4194304
+  },
+  "reduced": {
+    "durationMs": 200,
+    "arcCount": 2,
+    "dropCount": 0
+  },
+  "endedFadeMs": 100,
+  "withdrawn": [
+    "FX06",
+    "FX07"
+  ],
+  "assets": [
+    {
+      "id": "splash-s-a",
+      "file": "splash-s-a.png",
+      "kind": "splash",
+      "sizeTier": "S",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-s-b",
+      "file": "splash-s-b.png",
+      "kind": "splash",
+      "sizeTier": "S",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-s-a",
+      "file": "ripple-s-a.png",
+      "kind": "ripple",
+      "sizeTier": "S",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-s-b",
+      "file": "ripple-s-b.png",
+      "kind": "ripple",
+      "sizeTier": "S",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-m-a",
+      "file": "splash-m-a.png",
+      "kind": "splash",
+      "sizeTier": "M",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-m-b",
+      "file": "splash-m-b.png",
+      "kind": "splash",
+      "sizeTier": "M",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-m-a",
+      "file": "ripple-m-a.png",
+      "kind": "ripple",
+      "sizeTier": "M",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-m-b",
+      "file": "ripple-m-b.png",
+      "kind": "ripple",
+      "sizeTier": "M",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-l-a",
+      "file": "splash-l-a.png",
+      "kind": "splash",
+      "sizeTier": "L",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-l-b",
+      "file": "splash-l-b.png",
+      "kind": "splash",
+      "sizeTier": "L",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-l-a",
+      "file": "ripple-l-a.png",
+      "kind": "ripple",
+      "sizeTier": "L",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-l-b",
+      "file": "ripple-l-b.png",
+      "kind": "ripple",
+      "sizeTier": "L",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-xl-a",
+      "file": "splash-xl-a.png",
+      "kind": "splash",
+      "sizeTier": "XL",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "splash-xl-b",
+      "file": "splash-xl-b.png",
+      "kind": "splash",
+      "sizeTier": "XL",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-xl-a",
+      "file": "ripple-xl-a.png",
+      "kind": "ripple",
+      "sizeTier": "XL",
+      "variant": "a",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "ripple-xl-b",
+      "file": "ripple-xl-b.png",
+      "kind": "ripple",
+      "sizeTier": "XL",
+      "variant": "b",
+      "layer": "back",
+      "anchor": [
+        64,
+        44
+      ],
+      "width": 128,
+      "height": 64
+    },
+    {
+      "id": "drop-round",
+      "file": "drop-round.png",
+      "kind": "drop",
+      "layer": "front",
+      "anchor": [
+        32,
+        44
+      ],
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "drop-short",
+      "file": "drop-short.png",
+      "kind": "drop",
+      "layer": "front",
+      "anchor": [
+        32,
+        44
+      ],
+      "width": 64,
+      "height": 64
+    }
+  ],
+  "behaviorRevision": "22h-contact-rules-2026-10-24"
+}

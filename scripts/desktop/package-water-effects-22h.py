@@ -43,7 +43,8 @@ def main():
             'The macOS publisher cannot execute WPF or validate desktop click-through.\n'
             'This bundle does not replace the installed game or deploy the server.\n'
             'The paired Unity/server protocol changes are required for live H events.\n'
-            'Source report: docs/engineering/2026-10-24-water-effects-22h.md\n'
+            'Visual rules: ripples below waterline; splash droplets above allowed; actual contact only.\n'
+            'Source report: docs/engineering/2026-10-24-water-effects-22h-v4.md\n'
             'Windows A/B, 10-minute stability and H/I audio capture remain separate acceptance.\n',
             encoding='utf-8')
         source_paths = list((ROOT / 'desktop-overlay').glob('*.cs'))
@@ -51,7 +52,7 @@ def main():
         source_paths += list((ROOT / 'desktop-overlay/tests').glob('*.cs'))
         source_paths += list((ROOT / 'desktop-overlay').glob('*.csproj'))
         source_paths += list((ROOT / 'desktop-overlay/tests').glob('*.csproj'))
-        source_paths += list((ROOT / 'desktop-overlay/OverlayResources/effects/fishing/v2').glob('*'))
+        source_paths += list((ROOT / 'desktop-overlay/OverlayResources/effects/fishing/v4').glob('*'))
         source_paths += list((ROOT / 'desktop-overlay/OverlayResources/fishing').glob('*markers.json'))
         source_paths += list((ROOT / 'fish-social-unity/Assets/Scripts/Desktop').glob('*Presentation*.cs'))
         source_paths += list((ROOT / 'fish-social-unity/Assets/Scripts/Desktop/Pet').glob('*Water*.cs'))
@@ -63,9 +64,15 @@ def main():
             'fish-social-unity/Assets/Scripts/Desktop/UI/DesktopFishingEffectsSettingsView.cs',
             'server/src/fishingPresentation.ts', 'server/src/fishingStateMachine.ts',
             'shared/types.ts',
+            'desktop-overlay/OverlayResources/fishing/water-contact.json',
+            'scripts/art/export-water-source-markers.py',
+            'scripts/art/build-water-effects-22h-v4.cjs',
+            'docs/art/water-effects-22h/preview.js',
         ]]
         info = {
             'task': 'STEAM-DESKTOP-22H', 'date': '2026-10-24',
+            'artVersion': '22h-water-v4-approved-style',
+            'behaviorRevision': '22h-contact-rules-2026-10-24',
             'baseCommit': '4ecc32482ff13a5529a25ba541e8b917ad18cc27',
             'packagedHead': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
             'workingTreeChangesIncluded': True, 'runtime': 'win-x64 self-contained netcoreapp3.1',

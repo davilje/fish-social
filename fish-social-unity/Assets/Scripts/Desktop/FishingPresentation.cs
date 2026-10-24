@@ -64,7 +64,8 @@ namespace FishSocial.Desktop
             var previousAction = actor.Action;
             var cancelledAuthorityAction = actor.AuthorityAction;
             var firstAuthorityOfPrediction = actor.Predicted && string.IsNullOrEmpty(actor.AuthorityAction) &&
-                SameActionFamily(actor.PredictionFamily, phase);
+                (SameActionFamily(actor.PredictionFamily, phase) ||
+                    actor.PredictionFamily == "fishing" && actor.Phase == "stopping" && IsRetrievePhase(phase));
             var cancelledAwaitingAcknowledgement = actor.Cancelled && firstAuthorityOfPrediction;
             var changed = !string.IsNullOrEmpty(eventId) && eventId != actor.Event;
             var restarted = actor.Spot != null && (actor.Spot != spotId || actor.Skin != skin);
@@ -89,7 +90,7 @@ namespace FishSocial.Desktop
             actor.Phase = phase;
             actor.Spot = spotId;
             actor.Skin = skin;
-            if (IsEnding(phase) || remainsCancelled)
+            if (IsEnding(phase) && !IsRetrievePhase(phase) || remainsCancelled)
             {
                 if (!actor.Cancelled) actor.Generation++;
                 actor.Cancelled = true;
@@ -122,6 +123,14 @@ namespace FishSocial.Desktop
             return actor.Action;
         }
 
+        // An active stop keeps only its actual reel contact eligible. Hard cancellation remains stronger.
+        public void BeginRetrieve(string actorId)
+        {
+            if (string.IsNullOrEmpty(actorId) || !actors.TryGetValue(actorId, out var actor) || actor.Cancelled) return;
+            actor.Phase = "stopping";
+            actor.Source = "prediction";
+        }
+
         public void Cancel(string actorId)
         {
             if (string.IsNullOrEmpty(actorId) || !actors.TryGetValue(actorId, out var actor)) return;
@@ -145,7 +154,7 @@ namespace FishSocial.Desktop
             {
                 presentationSessionId = SessionId, actorId = actorId, pondId = PondId, spotId = spotId,
                 actionId = actor.Action, eventId = actor.Event,
-                source = actor.Cancelled || IsEnding(phase) ? "snapshot" : actor.Source ?? "snapshot",
+                source = actor.Cancelled || IsEnding(phase) && !IsRetrievePhase(phase) ? "snapshot" : actor.Source ?? "snapshot",
                 owner = Owner, ownerEpoch = OwnerEpoch, actorGeneration = actor.Generation, revision = actor.Revision,
                 // No size from phaseContext, debug fish, future inventory, or hidden pending catch is allowed.
                 waterSizeTier = "S",
@@ -163,7 +172,7 @@ namespace FishSocial.Desktop
         public static bool IsWaterMarker(string marker)
         {
             return marker == "float.contact" || marker == "waiting.ripple" || marker == "bite.onset" ||
-                marker == "fish.struggle" || marker == "fish.surface" || marker == "fish.slap" || marker == "groundbait.contact";
+                marker == "fish.struggle" || marker == "fish.surface" || marker == "fish.slap" || marker == "groundbait.contact" || marker == "retrieve.contact";
         }
 
         /// <summary>Each consumer has its own bit; monotonic loop occurrences keep a long action bounded.</summary>
@@ -177,10 +186,12 @@ namespace FishSocial.Desktop
                 envelope.actorGeneration != actor.Generation || envelope.actionId != actor.Action ||
                 envelope.pondId != PondId || envelope.spotId != actor.Spot) return false;
             if (envelope.source != "authoritative" && envelope.source != "prediction" && envelope.source != "snapshot") return false;
-            if (envelope.source == "prediction" && marker != "float.contact" && marker != "groundbait.contact") return false;
+            if (envelope.source == "prediction" && marker != "float.contact" && marker != "groundbait.contact" && marker != "retrieve.contact" &&
+                !(marker == "fish.surface" && IsRetrievePhase(actor.Phase) && occurrence == 0)) return false;
+            if (marker == "retrieve.contact" && (!IsRetrievePhase(actor.Phase) || occurrence != 0)) return false;
             if (marker == "bite.onset" && (envelope.eventId != actor.Event || actor.Phase != "hooked" && actor.Phase != "effort")) return false;
-            if ((marker == "fish.struggle" || marker == "fish.surface" || marker == "fish.slap") &&
-                actor.Phase != "hooked" && actor.Phase != "effort") return false;
+            if ((marker == "fish.struggle" || marker == "fish.slap") && actor.Phase != "hooked" && actor.Phase != "effort") return false;
+            if (marker == "fish.surface" && (IsRetrievePhase(actor.Phase) ? occurrence != 0 : actor.Phase != "hooked" && actor.Phase != "effort")) return false;
             if (marker == "groundbait.contact" && actor.Phase != "groundbaiting") return false;
             if ((marker == "float.contact" || marker == "waiting.ripple") &&
                 actor.Phase != "casting" && actor.Phase != "waiting" && actor.Phase != "baiting") return false;
@@ -201,6 +212,8 @@ namespace FishSocial.Desktop
             return family == "groundbait" ? phase == "groundbaiting" : family == "fishing" &&
                 (phase == "baiting" || phase == "casting" || phase == "waiting" || phase == "hooked" || phase == "effort");
         }
+
+        public static bool IsRetrievePhase(string phase) => phase == "stopping" || phase == "resolving";
 
         public static bool IsEnding(string phase)
         {

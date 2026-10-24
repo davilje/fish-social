@@ -70,9 +70,12 @@ namespace FishSocialOverlay
             if (_envelope == null || _envelope.Owner != "overlay" || string.IsNullOrEmpty(_envelope.PresentationSessionId)
                 || string.IsNullOrEmpty(_envelope.ActorId) || string.IsNullOrEmpty(_envelope.ActionId)) return Reject("missing-owner-or-identity");
             if (!Allowed(cue, phase)) return Reject("phase-not-allowed");
+            if (cue == "retrieve.contact" && occurrence != 0) return Reject("retrieve-source-zero-only");
+            var retrieveSurface = cue == "fish.surface" && (phase == "resolving" || phase == "stopping");
+            if (retrieveSurface && occurrence != 0) return Reject("retrieve-surface-source-zero-only");
             if (_envelope.Source != "authoritative" && _envelope.Source != "prediction" && _envelope.Source != "snapshot")
                 return Reject("unknown-source");
-            if (_envelope.Source == "prediction" && cue != "float.contact" && cue != "groundbait.contact")
+            if (_envelope.Source == "prediction" && cue != "float.contact" && cue != "groundbait.contact" && cue != "retrieve.contact" && !retrieveSurface)
                 return Reject("prediction-cannot-synthesize-fish");
             var continuous = cue == "waiting.ripple" || cue == "fish.struggle";
             if ((_envelope.Source == "snapshot" || SuppressOneShots) && !continuous) return Reject("snapshot-baseline");
@@ -99,14 +102,27 @@ namespace FishSocialOverlay
             {
                 case "float.contact": return phase == "casting" || phase == "waiting";
                 case "waiting.ripple": return phase == "waiting";
-                case "bite.onset": case "fish.struggle": case "fish.surface": case "fish.slap":
+                case "fish.surface": return phase == "hooked" || phase == "effort" || phase == "resolving" || phase == "stopping";
+                case "bite.onset": case "fish.struggle": case "fish.slap":
                     return phase == "hooked" || phase == "effort";
                 case "groundbait.contact": return phase == "groundbaiting";
+                case "retrieve.contact": return phase == "resolving" || phase == "stopping";
                 default: return false;
             }
         }
         public static bool Ending(string phase) => phase != "baiting" && phase != "casting" && phase != "waiting" &&
             phase != "hooked" && phase != "effort" && phase != "groundbaiting";
+        public static bool SplashAllowed(string cue) => cue == "float.contact" || cue == "groundbait.contact" || cue == "retrieve.contact" ||
+            cue == "fish.surface" || cue == "fish.slap";
+        internal readonly struct Shape
+        {
+            public readonly int Arcs, Crowns, Drops;
+            public int Count => Arcs + Crowns + Drops;
+            public Shape(int arcs, int crowns, int drops) { Arcs = arcs; Crowns = crowns; Drops = drops; }
+        }
+        public static Shape Components(string cue, int arcs, int crowns, int drops, bool self, bool reduced)
+            => new Shape(self ? arcs : 1, self && !reduced && SplashAllowed(cue) ? crowns : 0,
+                self && !reduced && SplashAllowed(cue) ? drops : 0);
         public static double Duration(string cue, double proposed) => cue == "fish.struggle" ? Math.Max(300, Math.Min(600, proposed)) : proposed;
         public static string VisibleTier(double bodyPixelsAt128)
             => !(bodyPixelsAt128 > 16) ? "S" : bodyPixelsAt128 <= 32 ? "M" : bodyPixelsAt128 <= 56 ? "L" : "XL";

@@ -19,19 +19,20 @@ namespace FishSocial.Desktop.Pet
         sealed class Particle { public RawImage Image; public RectTransform Rect; public Vector2 Origin; public int Kind; public float Direction, Height, Delay; public bool Used; }
         sealed class Active
         {
-            public RectTransform Host;
+            public RectTransform Host, RippleHost;
             public readonly List<Particle> Particles = new List<Particle>(10);
             public UnityWaterEffectBudget.Group Budget;
             public FishingPresentationEnvelope Envelope;
             public string Cue, Quality;
             public float Started, Duration, EndAt = float.PositiveInfinity;
-            public bool Used;
+            public bool Used, Retrieve;
         }
         static UnityFishingWaterEffects instance;
         readonly UnityWaterEffectBudget budget = new UnityWaterEffectBudget();
         readonly Particle[] particles = new Particle[24];
         readonly Active[] groups = new Active[8];
         readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
+        readonly Dictionary<string, float> rippleVisibleTop = new Dictionary<string, float>();
         readonly Dictionary<string, float> lastCue = new Dictionary<string, float>();
         Config config;
         bool ready;
@@ -63,6 +64,11 @@ namespace FishSocial.Desktop.Pet
                 groups[i].Host = (RectTransform)host.transform;
                 groups[i].Host.anchorMin = groups[i].Host.anchorMax = Vector2.zero;
                 groups[i].Host.pivot = Vector2.zero;
+                var ripple = new GameObject("BelowWaterlineRipples", typeof(RectTransform), typeof(RectMask2D));
+                ripple.transform.SetParent(host.transform, false);
+                groups[i].RippleHost = (RectTransform)ripple.transform;
+                groups[i].RippleHost.anchorMin = groups[i].RippleHost.anchorMax = Vector2.zero;
+                groups[i].RippleHost.pivot = Vector2.zero;
                 host.SetActive(false);
             }
             for (var i = 0; i < particles.Length; i++)
@@ -80,7 +86,7 @@ namespace FishSocial.Desktop.Pet
         }
         IEnumerator LoadResources()
         {
-            var root = Path.Combine(Application.streamingAssetsPath, "Effects", "Fishing", "v2");
+            var root = Path.Combine(Application.streamingAssetsPath, "Effects", "Fishing", "v4");
             var task = Task.Run(() => File.ReadAllText(Path.Combine(root, "effects.json")));
             while (!task.IsCompleted) yield return null;
             if (task.IsFaulted) yield break;
@@ -95,9 +101,21 @@ namespace FishSocial.Desktop.Pet
                 while (!read.IsCompleted) yield return null;
                 if (read.IsFaulted) yield break;
                 var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                if (!texture.LoadImage(read.Result, true)) { Destroy(texture); yield break; }
+                if (!texture.LoadImage(read.Result, false)) { Destroy(texture); yield break; }
                 decodedBytes += (long)texture.width * texture.height * 4;
                 if (decodedBytes > 4 * 1024 * 1024) { Destroy(texture); yield break; }
+                if (asset.id.StartsWith("ripple-", StringComparison.Ordinal))
+                {
+                    // Position the entire visible ellipse below the contact, rather than
+                    // cutting its upper half off. Alpha is inspected once during prewarm.
+                    var alpha = texture.GetPixels32();
+                    var top = 0;
+                    for (var pixel = 0; pixel < alpha.Length; pixel++)
+                        if (alpha[pixel].a > 0) top = Math.Max(top, pixel / texture.width + 1);
+                    rippleVisibleTop[asset.id] = Mathf.Max(0, top - texture.height * .3125f);
+                }
+                texture.Apply(false, true);
+                texture.name = asset.id;
                 texture.filterMode = FilterMode.Bilinear;
                 textures[asset.id] = texture;
                 yield return null;
@@ -134,8 +152,8 @@ namespace FishSocial.Desktop.Pet
             var tier = name == "XL" ? config.tiers.XL : name == "L" ? config.tiers.L : name == "M" ? config.tiers.M : config.tiers.S;
             var tierIndex = name == "XL" ? 3 : name == "L" ? 2 : name == "M" ? 1 : 0;
             var reduced = quality == "reduced";
-            var splash = marker.Marker == "bite.onset" || marker.Marker == "fish.surface" || marker.Marker == "fish.slap" || marker.Marker == "float.contact";
-            var arcs = reduced ? tierIndex > 0 ? 2 : 1 : !self ? 1 : cue.sizeTier == "shared" ? tier.arcCount : marker.Marker == "groundbait.contact" ? 3 : 1;
+            var splash = marker.Marker == "groundbait.contact" || marker.Marker == "retrieve.contact" || marker.Marker == "fish.surface" || marker.Marker == "fish.slap" || marker.Marker == "float.contact";
+            var arcs = reduced ? tierIndex > 0 ? 2 : 1 : !self ? 1 : cue.sizeTier == "shared" ? tier.arcCount : marker.Marker == "groundbait.contact" ? 2 : 1;
             var crowns = reduced || !self || !splash ? 0 : cue.sizeTier == "shared" ? tier.crownCount : 1;
             var drops = reduced || !self || !splash ? 0 : cue.sizeTier == "shared" ? tier.dropCount : 1;
             var count = Math.Min(10, arcs + crowns + drops);
@@ -150,12 +168,18 @@ namespace FishSocial.Desktop.Pet
             if (group == null) { budget.Release(admission); return false; }
             admittedGroup = group;
             group.Used = true; group.Budget = admission; group.Envelope = marker.Envelope; group.Cue = marker.Marker; group.Quality = quality;
+            group.Retrieve = FishingPresentationSession.IsRetrievePhase(phase);
             group.Started = now; group.Duration = (reduced ? 150 + tierIndex * 20 : cue.durationMs > 0 ? cue.durationMs : tier.durationMs) / 1000f;
             if (marker.Marker == "fish.struggle") group.Duration = Mathf.Clamp(group.Duration, .3f, .6f);
             group.EndAt = float.PositiveInfinity;
             group.Host.SetParent(contact.EffectRoot, false);
             group.Host.anchoredPosition = contact.WaterClip.min - contact.EffectRoot.rect.min;
             group.Host.sizeDelta = contact.WaterClip.size;
+            // Ripple geometry is independently clipped below this exact contact, after every
+            // image transform. Splash crowns/drops retain the full shoreline clip above it.
+            group.RippleHost.anchoredPosition = Vector2.zero;
+            group.RippleHost.sizeDelta = new Vector2(contact.WaterClip.width,
+                Mathf.Clamp(contact.Anchor.y - contact.WaterClip.yMin, 0, contact.WaterClip.height));
             group.Host.SetAsFirstSibling(); // Pond water decorations remain behind actors and progress UI.
             group.Host.gameObject.SetActive(true);
             var key = marker.Envelope.presentationSessionId + "|" + marker.Envelope.actorId + "|" +
@@ -172,7 +196,7 @@ namespace FishSocial.Desktop.Pet
                 if (!textures.TryGetValue(asset, out var texture)) continue;
                 p.Used = true; p.Kind = kind == "ripple" ? 0 : kind == "splash" ? 1 : 2;
                 p.Image.texture = texture; p.Image.color = Color.clear;
-                p.Rect.SetParent(group.Host, false);
+                p.Rect.SetParent(p.Kind == 0 ? group.RippleHost : group.Host, false);
                 p.Image.uvRect = new Rect(0, 0, 1, 1);
                 p.Rect.pivot = new Vector2(.5f, .3125f);
                 p.Rect.sizeDelta = new Vector2(texture.width, texture.height) * scale;
@@ -184,7 +208,10 @@ namespace FishSocial.Desktop.Pet
                     p.Rect.pivot = new Vector2(half == 0 ? 1 : 0, .3125f);
                 }
                 p.Origin = contact.Anchor - contact.WaterClip.min;
-                if (marker.Marker == "groundbait.contact") p.Origin.x += (i - 1) * 7 * scale;
+                if (p.Kind == 0 && rippleVisibleTop.TryGetValue(asset, out var visibleTop))
+                    p.Origin.y -= visibleTop * scale;
+                if (marker.Marker == "groundbait.contact" && p.Kind == 0)
+                    p.Origin.x += (i - (arcs - 1) * .5f) * 7 * scale;
                 p.Direction = (i % 2 == 0 ? -1 : 1) * (4 + i * 1.7f) * scale;
                 p.Height = (4 + tierIndex * 7) * scale;
                 p.Delay = p.Kind == 0 ? i * .08f : p.Kind == 2 ? .08f + i % 3 * .035f : .02f;
@@ -207,7 +234,9 @@ namespace FishSocial.Desktop.Pet
                 var e = group.Envelope;
                 if (current == null || current.owner != "unity" || current.presentationSessionId != e.presentationSessionId ||
                     current.ownerEpoch != e.ownerEpoch || current.actorGeneration != e.actorGeneration ||
-                    current.actionId != e.actionId || FishingPresentationSession.IsEnding(app.OwnFishingPresentationPhase) || quality != group.Quality)
+                    current.actionId != e.actionId || current.source == "snapshot" && group.Retrieve ||
+                    (group.Retrieve && (group.Cue == "retrieve.contact" || group.Cue == "fish.surface") ? !FishingPresentationSession.IsRetrievePhase(app.OwnFishingPresentationPhase) :
+                        FishingPresentationSession.IsEnding(app.OwnFishingPresentationPhase)) || quality != group.Quality)
                     group.EndAt = Mathf.Min(group.EndAt, now + .1f);
                 if (now - group.Started >= group.Duration || now >= group.EndAt) { Recycle(group); continue; }
                 var progress = (now - group.Started) / group.Duration;

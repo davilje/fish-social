@@ -47,6 +47,7 @@ namespace FishSocialOverlay
     internal sealed class SourceWaterLayer
     {
         public double[] Bounds { get; set; }
+        public double[][] RowCenters { get; set; }
     }
     internal sealed class SourceWaterMarker
     {
@@ -68,6 +69,7 @@ namespace FishSocialOverlay
             public SourceWaterManifest Source;
             public readonly Dictionary<string, BitmapImage> Textures = new Dictionary<string, BitmapImage>();
             public long DecodedBytes;
+            public readonly Dictionary<string, int> OpaqueTop = new Dictionary<string, int>();
         }
         static Task<Pack> _loading;
         public static Pack Current { get; private set; }
@@ -82,7 +84,7 @@ namespace FishSocialOverlay
             try
             {
                 var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources");
-                var directory = Path.Combine(root, "effects", "fishing", "v2");
+                var directory = Path.Combine(root, "effects", "fishing", "v4");
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 var pack = new Pack
                 {
@@ -97,7 +99,7 @@ namespace FishSocialOverlay
                 if (shared?.Version != 2 || shared.Markers == null) return null;
                 var markers = new List<SourceWaterMarker>();
                 foreach (var marker in pack.Source.Markers ?? Array.Empty<SourceWaterMarker>())
-                    if (marker.Cue == "waiting.ripple" || marker.Cue == "fish.struggle") markers.Add(marker);
+                    if (marker.Cue == "waiting.ripple" || marker.Cue == "fish.struggle" || marker.Cue == "retrieve.contact" || marker.Cue == "fish.surface") markers.Add(marker);
                 foreach (var marker in shared.Markers)
                     if (marker.Marker == "float.contact" || marker.Marker == "groundbait.contact" || marker.Marker == "fish.surface" || marker.Marker == "fish.slap")
                         markers.Add(new SourceWaterMarker { Clip = marker.Clip, Source = marker.SourceIndex, Cue = marker.Marker, Layer = marker.ContactLayer });
@@ -112,6 +114,21 @@ namespace FishSocialOverlay
                         pack.DecodedBytes += (long)image.PixelWidth * image.PixelHeight * 4;
                         if (pack.DecodedBytes > 4 * 1024 * 1024) return null;
                         pack.Textures[asset.Id] = image;
+                        if (asset.Id.StartsWith("ripple-", StringComparison.Ordinal))
+                        {
+                            // Once during shared background decode, measure the
+                            // real visible ellipse, excluding transparent padding.
+                            BitmapSource rgba = image;
+                            if (image.Format != PixelFormats.Bgra32 && image.Format != PixelFormats.Pbgra32)
+                            { rgba = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0); rgba.Freeze(); }
+                            var pixels = new byte[rgba.PixelWidth * rgba.PixelHeight * 4];
+                            rgba.CopyPixels(pixels, rgba.PixelWidth * 4, 0);
+                            var top = rgba.PixelHeight;
+                            for (var y = 0; y < rgba.PixelHeight && top == rgba.PixelHeight; y++)
+                                for (var x = 0; x < rgba.PixelWidth; x++)
+                                    if (pixels[(y * rgba.PixelWidth + x) * 4 + 3] > 8) { top = y; break; }
+                            pack.OpaqueTop[asset.Id] = top;
+                        }
                     }
                 }
                 return pack;
@@ -133,6 +150,7 @@ namespace FishSocialOverlay
             public bool Used;
             public string Kind;
             public double Direction, Delay, Height;
+            public readonly RectangleGeometry ComponentClip = new RectangleGeometry();
             public Particle()
             {
                 var transforms = new TransformGroup(); transforms.Children.Add(Scale); transforms.Children.Add(Move);
@@ -159,6 +177,8 @@ namespace FishSocialOverlay
         public readonly OverlayWaterEffectsPolicy Policy = new OverlayWaterEffectsPolicy();
         string _quality = "standard";
         bool _self, _visible = true, _eligible = true, _disposed;
+        string _phase;
+        double _surfaceY;
         Rect _clip = Rect.Empty;
         public event Action<string, long, string> MarkerPublished;
         public OverlayWaterEffects(Canvas back, Canvas front)
@@ -188,7 +208,13 @@ namespace FishSocialOverlay
             _clip = clip;
             _clipGeometry.Rect = clip;
         }
-        public void Phase(string phase) { if (OverlayWaterEffectsPolicy.Ending(phase)) { Policy.SuppressOneShots = true; Stop(false); } }
+        public void SetSurface(double surfaceY) { _surfaceY = surfaceY; }
+        public void Phase(string phase)
+        {
+            if (_phase == phase) return;
+            _phase = phase;
+            if (OverlayWaterEffectsPolicy.Ending(phase)) Stop(false);
+        }
         public bool Publish(string cue, string phase, long occurrence, Point anchor, double slotScale, bool contact)
         {
             if (_disposed || !_visible || !_eligible) return false;
@@ -198,20 +224,22 @@ namespace FishSocialOverlay
             MarkerPublished?.Invoke(cue, occurrence, key);
             if (_quality == "off" || _clip.IsEmpty || !_clip.Contains(anchor)) return false;
             var reduced = _quality == "reduced";
-            if (reduced && (!_self || cue != "float.contact" && cue != "bite.onset" && cue != "fish.surface" && cue != "fish.slap")) return false;
+            if (reduced && !_self) return false;
             var pack = WaterEffectResources.Current;
             if (pack?.Manifest.Cues == null) return false; // no catch-up queue
             WaterEffectCue config = null;
             foreach (var item in pack.Manifest.Cues) if (item.Cue == cue || Array.IndexOf(item.Markers ?? Array.Empty<string>(), cue) >= 0) { config = item; break; }
-            if (config == null || Array.IndexOf(config.AllowedPhases ?? Array.Empty<string>(), phase) < 0) return false;
+            if (config == null || Array.IndexOf(config.AllowedPhases ?? Array.Empty<string>(), phase) < 0 || reduced && config.ReducedVariant == "none") return false;
             var tierName = config.SizeTier == "shared" ? OverlayWaterEffectsPolicy.Tier(Policy.Envelope.WaterSizeTier) : "S";
             if (!pack.Manifest.Tiers.TryGetValue(tierName, out var tier)) return false;
             var tierIndex = tierName == "XL" ? 3 : tierName == "L" ? 2 : tierName == "M" ? 1 : 0;
-            var splash = cue == "bite.onset" || cue == "fish.surface" || cue == "fish.slap" || cue == "float.contact";
-            var arcs = reduced ? (tierIndex > 0 ? 2 : 1) : !_self ? 1 : config.SizeTier == "shared" ? tier.ArcCount : cue == "groundbait.contact" ? 3 : 1;
-            var crowns = !reduced && _self && splash ? config.SizeTier == "shared" ? tier.CrownCount : 1 : 0;
-            var drops = !reduced && _self && splash ? config.SizeTier == "shared" ? tier.DropCount : 1 : 0;
-            var count = Math.Min(10, arcs + crowns + drops);
+            var sharedTier = config.SizeTier == "shared";
+            var arcCount = reduced ? (tierIndex > 0 ? 2 : 1) : sharedTier ? tier.ArcCount : cue == "groundbait.contact" ? 2 : 1;
+            var shape = OverlayWaterEffectsPolicy.Components(cue, arcCount, sharedTier ? tier.CrownCount : 1,
+                sharedTier ? tier.DropCount : 1, _self, reduced);
+            var arcs = shape.Arcs; var crowns = shape.Crowns;
+            var count = Math.Min(10, shape.Count);
+            _surfaceY = anchor.Y;
             if (count < 1) return false;
             if (cue == "bite.onset") RemoveCue("waiting.ripple");
             if (cue == "fish.surface" || cue == "fish.slap") RemoveCue("fish.struggle");
@@ -241,13 +269,26 @@ namespace FishSocialOverlay
                 var canvasAnchorX = canvasWidth / 2;
                 particle.Image.Width = canvasWidth * scale; particle.Image.Height = 64 * scale;
                 Canvas.SetLeft(particle.Image, anchor.X - canvasAnchorX * scale);
-                Canvas.SetTop(particle.Image, anchor.Y - 44 * scale);
+                var top = particle.Kind == "ripple" && pack.OpaqueTop.TryGetValue(asset, out var opaqueTop) ? opaqueTop : 44;
+                // Keep the full visible ellipse below the water plane rather
+                // than discarding its upper semicircle. The dynamic clip below
+                // remains the final guard as transforms and slot size change.
+                Canvas.SetTop(particle.Image, anchor.Y - top * scale);
                 particle.Scale.CenterX = canvasAnchorX * scale; particle.Scale.CenterY = 44 * scale;
-                particle.Image.Clip = particle.Kind == "splash" && crowns == 2
-                    ? new RectangleGeometry(new Rect((index - arcs) * 64 * scale, 0, 64 * scale, 64 * scale)) : null;
+                particle.Image.Clip = null;
+                if (particle.Kind == "ripple")
+                {
+                    particle.ComponentClip.Rect = new Rect(0, 44 * scale, 128 * scale, 20 * scale);
+                    particle.Image.Clip = particle.ComponentClip;
+                }
+                else if (particle.Kind == "splash" && crowns == 2)
+                {
+                    particle.ComponentClip.Rect = new Rect((index - arcs) * 64 * scale, 0, 64 * scale, 64 * scale);
+                    particle.Image.Clip = particle.ComponentClip;
+                }
                 particle.Direction = (index % 2 == 0 ? -1 : 1) * (4 + index * 1.7) * slotScale;
                 particle.Height = (4 + tierIndex * 7) * slotScale;
-                if (cue == "groundbait.contact") Canvas.SetLeft(particle.Image, anchor.X - canvasAnchorX * scale + (index - 1) * 7 * slotScale);
+                if (cue == "groundbait.contact") Canvas.SetLeft(particle.Image, anchor.X - canvasAnchorX * scale + (index < arcs ? index - (arcs - 1) * .5 : 0) * 7 * slotScale);
                 particle.Delay = particle.Kind == "ripple" ? index * .08 : particle.Kind == "drop" ? .08 + (index % 3) * .035 : .02;
                 (particle.Kind == "drop" ? _front : _back).Children.Add(particle.Image);
                 particle.Image.Visibility = Visibility.Visible;
@@ -272,7 +313,16 @@ namespace FishSocialOverlay
                     var t = Math.Max(0, Math.Min(1, (progress - p.Delay) / (1 - p.Delay)));
                     p.Image.Opacity = progress < p.Delay ? 0 : Math.Min(.55, (1 - t) * .7) * ending;
                     if (p.Kind == "ripple")
-                    { p.Scale.ScaleX = .62 + t * .48; p.Scale.ScaleY = .7 + t * .3; p.Move.X = p.Direction * .15 * t; p.Move.Y = t * 2; }
+                    {
+                        p.Scale.ScaleX = .62 + t * .48; p.Scale.ScaleY = .7 + t * .3;
+                        p.Move.X = p.Direction * .15 * t; p.Move.Y = t * 2;
+                        // The image clip is before RenderTransform. Invert the
+                        // current transform so the rendered arc cannot cross the
+                        // actual water line, including resize and actor motion.
+                        var y = (_surfaceY - Canvas.GetTop(p.Image) - p.Move.Y - p.Scale.CenterY * (1 - p.Scale.ScaleY)) / p.Scale.ScaleY;
+                        y = Math.Max(0, Math.Min(p.Image.Height, y));
+                        p.ComponentClip.Rect = new Rect(0, y, p.Image.Width, p.Image.Height - y);
+                    }
                     else if (p.Kind == "splash")
                     { p.Scale.ScaleX = .7 + Math.Sin(t * Math.PI / 2) * .3; p.Scale.ScaleY = .35 + Math.Sin(t * Math.PI) * .65; p.Move.X = p.Direction * .2 * t; p.Move.Y = 0; }
                     else

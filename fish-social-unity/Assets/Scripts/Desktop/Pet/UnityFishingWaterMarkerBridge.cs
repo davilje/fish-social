@@ -16,7 +16,11 @@ namespace FishSocial.Desktop.Pet
         public float? VisibleBodyLengthAt128Px;
     }
 
-    /// <summary>The actual pond view supplies its 22B contact and shoreline geometry. Portraits do not.</summary>
+    /// <summary>The actual pond view supplies its 22B contact and shoreline geometry. Portraits do not.
+    /// Resolve the named published layer, including its current source transform/alpha bounds.
+    /// Bobber/bait contact uses its actual water intersection; reel line uses the line-water crossing.
+    /// Return false when that layer has not reached water; never substitute the actor centre.
+    /// </summary>
     public interface IUnityFishingWaterAnchorProvider
     {
         bool TryResolvePublishedContact(string clip, int sourceFrame, string layer,
@@ -51,21 +55,25 @@ namespace FishSocial.Desktop.Pet
             if (envelope == null || envelope.owner != "unity") return;
             var frameIdentity = envelope.presentationSessionId + "|" + envelope.actorGeneration + "|" +
                 envelope.actionId + "|" + clip + "|" + sourceFrame + "|" + loopOccurrence;
-            if (frameIdentity == previousFrame) return;
+            var newFrame = frameIdentity != previousFrame;
             previousFrame = frameIdentity;
             EnsureManifest();
             if (manifest?.markers == null) return;
-            if (clip == "hooked" || clip == "bite" || clip == "effort")
+            if (newFrame && (clip == "hooked" || clip == "bite" || clip == "effort"))
             {
                 Emit(envelope, "bite.onset", clip, sourceFrame, "fish", 0);
             }
             foreach (var marker in manifest.markers)
             {
                 if (marker.clip != clip || marker.source != sourceFrame) continue;
+                // D interpolation can reach the water later within the same source frame.
+                // Re-check actual geometry for object contact; the session ledger consumes
+                // its successful occurrence once. Continuous cues never become frame-rate driven.
+                if (!newFrame && marker.cue != "float.contact" && marker.cue != "groundbait.contact" && marker.cue != "retrieve.contact" && marker.cue != "fish.surface") continue;
                 Emit(envelope, marker.cue, clip, sourceFrame, marker.layer,
-                    marker.cue == "waiting.ripple" ? ++waitingOccurrence : loopOccurrence);
+                    marker.cue == "waiting.ripple" ? ++waitingOccurrence : (marker.cue == "retrieve.contact" || marker.cue == "fish.surface" && FishingPresentationSession.IsRetrievePhase(app.OwnFishingPresentationPhase)) ? 0 : loopOccurrence);
             }
-            // No authored fish.surface/fish.slap metadata exists in the approved clips: FX05 stays silent.
+            // Surface/slap are emitted only by authored metadata plus the actual published layer contact.
         }
 
         void Emit(FishingPresentationEnvelope envelope, string cue, string clip, int sourceFrame, string layer, long occurrence)
@@ -82,7 +90,7 @@ namespace FishSocial.Desktop.Pet
             if (!AnchorProvider.TryResolvePublishedContact(clip, sourceFrame, layer, out var contact) ||
                 contact.WaterClip.width <= 0 || contact.WaterClip.height <= 0 ||
                 !contact.WaterClip.Contains(contact.Anchor)) return;
-            if (cue != "float.contact" && cue != "groundbait.contact" && cue != "waiting.ripple")
+            if (cue != "float.contact" && cue != "groundbait.contact" && cue != "waiting.ripple" && cue != "retrieve.contact")
                 envelope.waterSizeTier = contact.VisibleLengthM.HasValue
                     ? FishingPresentationSession.VisibleWaterSizeTier(contact.VisibleLengthM)
                     : FishingPresentationSession.VisibleBodyWaterSizeTier(contact.VisibleBodyLengthAt128Px);

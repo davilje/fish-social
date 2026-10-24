@@ -45,7 +45,7 @@ namespace FishSocial.Desktop.Pet
         public static bool CanRender(FishingPresentationEnvelope envelope, bool hasContact, string quality, bool self, string cue)
         {
             if (envelope == null || envelope.owner != "unity" || !hasContact || quality == "off") return false;
-            return quality != "reduced" || self && (cue == "float.contact" || cue == "bite.onset" || cue == "fish.surface" || cue == "fish.slap");
+            return quality != "reduced" || self && (cue == "float.contact" || cue == "retrieve.contact" || cue == "bite.onset" || cue == "fish.surface" || cue == "fish.slap");
         }
         public static int Variant(string key) { uint h = 2166136261; foreach (var c in key ?? "") h = (h ^ c) * 16777619; return (int)(h & 1); }
     }

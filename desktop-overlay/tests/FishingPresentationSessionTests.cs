@@ -108,6 +108,42 @@ static class FishingPresentationSessionTests
         Check(s.Envelope("self", "hooked", "spot").source == "snapshot", "cancel before missing-phase authority bite wins");
         s.Observe("self", "next-real-round", "next", 3, "baiting", "spot", "orange", false);
         Check(s.Envelope("self", "baiting", "spot").source == "authoritative", "later real round clears cancelled lost-packet prediction");
+        // Retrieval is the only water cue admitted during actual stop/resolve publication.
+        foreach (var phase in new[] { "stopping", "resolving" })
+        {
+            s.Reset("pond");
+            s.Observe("self", "reel", "waiting", 1, "waiting", "spot", "orange", false);
+            if (phase == "stopping") s.BeginRetrieve("self");
+            else s.Observe("self", "reel", "resolve", 2, phase, "spot", "orange", false);
+            var reel = s.Envelope("self", phase, "spot");
+            Check(s.TryConsume(reel, "retrieve.contact", 0, "visual"), "real retrieval eligible " + phase);
+            Check(!s.TryConsume(reel, "retrieve.contact", 0, "visual"), "retrieval one-shot " + phase);
+            Check(!s.TryConsume(reel, "retrieve.contact", 1, "audio"), "retrieval cannot loop " + phase);
+            Check(s.TryConsume(reel, "fish.surface", 0, "visual"), "real surface contact allowed in reel window " + phase);
+            Check(!s.TryConsume(reel, "fish.surface", 1, "visual"), "retrieve surface cannot loop " + phase);
+            Check(!s.TryConsume(reel, "fish.slap", 0, "visual"), "terminal window cannot invent slap " + phase);
+            Check(!s.TryConsume(reel, "bite.onset", 0, "visual"), "terminal window rejects bite " + phase);
+            Check(!s.TryConsume(reel, "retrieve.start", 0, "visual"), "audio start is not a water contact " + phase);
+            s.Cancel("self");
+            s.Observe("self", "reel", "late", 3, phase, "spot", "orange", false);
+            Check(!s.TryConsume(s.Envelope("self", phase, "spot"), "retrieve.contact", 0, "ipc-relay"), "hard cancel beats retrieve " + phase);
+        }
+        foreach (var phase in new[] { "stopping", "resolving", "result", "catch", "escape", "seated", "idle", "waiting" })
+        {
+            s.Reset("pond");
+            s.Observe("self", "reel", "e", 1, phase, "spot", "orange", phase == "stopping" || phase == "resolving");
+            Check(!s.TryConsume(s.Envelope("self", phase, "spot"), "retrieve.contact", 0, "visual"), "snapshot/other phase retrieval denied " + phase);
+            Check(!s.TryConsume(s.Envelope("self", phase, "spot"), "fish.surface", 0, "visual"), "snapshot/other phase surface denied " + phase);
+        }
+        s.Reset("pond");
+        s.Observe("self", "old", "idle", 1, "seated", "spot", "orange", true);
+        var quickStop = s.Predict("self", "baiting", 99);
+        s.BeginRetrieve("self");
+        Check(s.TryConsume(s.Envelope("self", "stopping", "spot"), "retrieve.contact", 0, "visual"), "quick predicted stop contact");
+        s.Observe("self", "first-server-ack", "resolve", 2, "resolving", "spot", "orange", false);
+        var resolveAck = s.Envelope("self", "resolving", "spot");
+        Check(resolveAck.actionId == quickStop, "quick stop preserves prediction action on first resolve ack");
+        Check(!s.TryConsume(resolveAck, "retrieve.contact", 0, "visual"), "quick stop resolve ack cannot replay contact");
         var budget = new UnityWaterEffectBudget();
         var recycled = 0;
         for (var i = 0; i < 6; i++) Check(budget.Admit("remote" + i, false, 2, 10, () => recycled++) != null, "remote admission");
@@ -128,6 +164,7 @@ static class FishingPresentationSessionTests
         Check(!UnityWaterEffectBudget.CanRender(owner, true, "reduced", false, "bite.onset"), "reduced removes others");
         Check(!UnityWaterEffectBudget.CanRender(owner, true, "reduced", true, "fish.struggle"), "reduced removes ongoing disturbance");
         Check(UnityWaterEffectBudget.CanRender(owner, true, "reduced", true, "bite.onset"), "reduced retains own key cue");
+        Check(UnityWaterEffectBudget.CanRender(owner, true, "reduced", true, "retrieve.contact"), "reduced retains own real retrieve arcs");
         Console.WriteLine("Presentation session: " + checks + " checks passed.");
     }
 }

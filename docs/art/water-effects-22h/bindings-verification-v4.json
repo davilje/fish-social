@@ -1,0 +1,97 @@
+{
+  "artVersion": "22h-water-v4-approved-style",
+  "task": "STEAM-DESKTOP-22H",
+  "date": "2026-10-24",
+  "scope": "Static actual Overlay source/configuration binding consistency; WPF execution and pure policy runtime tests are separate.",
+  "policySha256": "77e5c497f37b88db9e19eb711e149b0a167543e7bcabfc90437b4faee64de793",
+  "rendererSha256": "6322fe1dfa3a6b715b9a361143faeb0b1cca9a4722fa0a96a4bcc3fc451b7855",
+  "checks": [
+    {
+      "id": "FX01",
+      "marker": "float.contact",
+      "policyPhases": [
+        "casting",
+        "waiting"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX02",
+      "marker": "waiting.ripple",
+      "policyPhases": [
+        "waiting"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX03",
+      "marker": "bite.onset",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX04",
+      "marker": "fish.struggle",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX05",
+      "marker": "fish.surface",
+      "policyPhases": [
+        "hooked",
+        "effort",
+        "resolving",
+        "stopping"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX05",
+      "marker": "fish.slap",
+      "policyPhases": [
+        "hooked",
+        "effort"
+      ],
+      "rendererLookup": "Markers alias",
+      "result": "passed"
+    },
+    {
+      "id": "FX08",
+      "marker": "groundbait.contact",
+      "policyPhases": [
+        "groundbaiting"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    },
+    {
+      "id": "FX09",
+      "marker": "retrieve.contact",
+      "policyPhases": [
+        "resolving",
+        "stopping"
+      ],
+      "rendererLookup": "Cue",
+      "result": "passed"
+    }
+  ],
+  "withdrawn": [
+    "FX06",
+    "FX07"
+  ],
+  "forbiddenMarkersUnbound": true,
+  "rendererSizingMatchesAssetMetadata": true,
+  "result": "passed"
+}
