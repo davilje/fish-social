@@ -48,7 +48,7 @@ namespace FishSocial.Desktop.Editor
             new HudWidgetSpec("btn_debug_gameplay", "button", 856, 468, 88, 36, false, null),
             new HudWidgetSpec("btn_exit_pond", "button", 856, 512, 88, 36, true, null),
 
-            new HudWidgetSpec("txt_error", "text", 12, 12, 936, 28, true, null),
+            new HudWidgetSpec("txt_error", "text", 360, 468, 400, 32, true, null),
 
             // ── 底部居中钓鱼条 ──
             new HudWidgetSpec("dock_fishing", "group", 456, 512, 280, 36, true, null),

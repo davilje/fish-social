@@ -239,6 +239,21 @@ namespace FishSocial.Desktop
         public PetStateController PetState => _petState;
         public string ServerBaseUrl => _serverBaseUrl;
 
+        public void BeginOnboardingOverlay()
+        {
+            _ownFishing?.ClearRound();
+            StartNativeOverlay();
+#if !UNITY_EDITOR
+            if (string.Equals(
+                    System.Environment.GetEnvironmentVariable("FISH_SOCIAL_DISABLE_OVERLAY"),
+                    "1",
+                    System.StringComparison.OrdinalIgnoreCase))
+                return;
+            if (_window != null && _window.IsWindowVisible)
+                _window.HideToTray();
+#endif
+        }
+
         public void StartNativeOverlay()
         {
             if (string.Equals(
@@ -388,8 +403,14 @@ namespace FishSocial.Desktop
                     errorMessage = _nativeOverlayError ?? string.Empty,
                 };
                 OverlayPondStateBuilder.Fill(dto, _pondSession, _fishingProgress);
-                _ownFishing?.ApplyToDto(dto, _pondSession);
+                if (_onboarding == null || !_onboarding.IsOnboardingActive)
+                    _ownFishing?.ApplyToDto(dto, _pondSession);
                 FillFishingPresentation(dto);
+                if (string.IsNullOrEmpty(dto.errorMessage) &&
+                    (_onboarding == null || !_onboarding.IsOnboardingActive) &&
+                    _pondSession != null &&
+                    _pondSession.IsDailyQuotaExhausted)
+                    dto.errorMessage = SocialPondSessionController.DailyQuotaExhaustedMessage;
                 RefreshFishingAudio();
                 dto.audioPresentation = DesktopAudioService.Instance?.Presentation;
                 dto.debugFishListMode = _overlayDebugFishListMode ?? string.Empty;
@@ -450,8 +471,6 @@ namespace FishSocial.Desktop
                 _onboarding.IsOnboardingActive &&
                 id != ShellPanelId.Settings)
             {
-                _window?.ShowFromTray();
-                NativeWindowUtil.TryBringToFront();
                 _shellUi?.SetStatusMessage("请先完成新手引导。");
                 PublishNativeOverlayState();
                 return;
@@ -807,8 +826,9 @@ namespace FishSocial.Desktop
                 ExecuteOverlayCommand(callback => _pondSession?.FishingAttention(callback), message);
                 return;
             }
-            if (_onboarding != null && _onboarding.HandleOverlayCommand(message))
+            if (_onboarding != null && _onboarding.HandleOverlayCommand(message, out var tutorialOk, out var tutorialDetail))
             {
+                CompleteOverlayAck(message.commandId, message.command, tutorialOk, tutorialDetail);
                 PublishNativeOverlayState();
                 return;
             }
@@ -842,6 +862,12 @@ namespace FishSocial.Desktop
                         callback => _pondSession?.LeaveSpot(callback), message);
                     return;
                 case "start_fishing":
+                    if (_pondSession != null && _pondSession.IsDailyQuotaExhausted)
+                    {
+                        _nativeOverlayError = SocialPondSessionController.DailyQuotaExhaustedMessage;
+                        CompleteOverlayAck(message.commandId, message.command, false, _nativeOverlayError);
+                        return;
+                    }
                     _fishingPresentation.Predict(_pondSession?.CurrentUser?.id, "baiting", message.commandId, message.commandSessionId);
                     _ownFishing?.BeginStartFishing(message.commandId);
                     ExecuteOverlayCommand(

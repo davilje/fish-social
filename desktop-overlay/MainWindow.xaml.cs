@@ -1393,6 +1393,8 @@ namespace FishSocialOverlay
                                  string.Equals(phase, "groundbaiting", StringComparison.Ordinal);
             var busyLeave = _pendingActionName == "leave_spot";
 
+            var quotaBlocked = string.Equals(
+                message.ErrorMessage, "今日钓鱼时长已用完", StringComparison.Ordinal);
             if (showDock)
             {
                 FishingToggleButton.Visibility = Visibility.Visible;
@@ -1400,6 +1402,11 @@ namespace FishSocialOverlay
                 {
                     FishingToggleButton.Content = "收杆";
                     FishingToggleButton.IsEnabled = _canStopFishing && !busyStop;
+                }
+                else if (quotaBlocked)
+                {
+                    FishingToggleButton.Content = "今日已满";
+                    FishingToggleButton.IsEnabled = false;
                 }
                 else
                 {

@@ -479,6 +479,7 @@ namespace FishSocial.Desktop
             if (_onboardingLock && id != ShellPanelId.Settings)
             {
                 SetStatusMessage("请先完成新手引导。");
+                WindowManager.Instance?.HideToTray();
                 return;
             }
 
@@ -501,6 +502,7 @@ namespace FishSocial.Desktop
                 action != DesktopProductMenuAction.Quit)
             {
                 SetStatusMessage("请先完成新手引导。");
+                WindowManager.Instance?.HideToTray();
                 return;
             }
 

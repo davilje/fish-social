@@ -88,6 +88,8 @@ namespace FishSocial.Desktop
         {
             if (!IsEnabled || (_pond?.Invoke()?.IsFishingAsleep ?? false))
                 return;
+            if (_pond?.Invoke()?.IsDailyQuotaExhausted ?? false)
+                return;
             var pond = _pond?.Invoke();
             var spot = EffectiveSpot(pond);
             if (string.IsNullOrEmpty(spot))

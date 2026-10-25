@@ -35,10 +35,20 @@ namespace FishSocial.Desktop.Auth
         public bool IsFishingAsleep => CurrentUser != null && CurrentUser.fishingAsleep;
         public bool HasPendingCatch => !IsFishingAsleep && _latestCatch != null;
         public string LastFishingOutcome { get; private set; } = string.Empty;
+        public const string DailyQuotaExhaustedMessage = "今日钓鱼时长已用完";
         public bool CanStartFishing =>
             CurrentUser == null ||
             CurrentPhase == "idle" ||
             CurrentPhase == "seated";
+        /// <summary>
+        /// Server rejects start_fishing once todayFishingMs hits the 8h cap.
+        /// todayRemainingMs defaults to 0 before the first snapshot, so that
+        /// alone must not lock a brand-new seat.
+        /// </summary>
+        public bool IsDailyQuotaExhausted =>
+            CurrentUser != null &&
+            CurrentUser.todayRemainingMs <= 0 &&
+            CurrentUser.todayFishingMs > 0;
         public bool CanGroundbait =>
             HasSpot && CurrentPhase == "seated" && !IsGroundbaitStackFull;
         public bool IsGroundbaiting => CurrentPhase == "groundbaiting";
@@ -220,6 +230,11 @@ namespace FishSocial.Desktop.Auth
 
         public void StartFishing(string spotId = null, Action<bool, string> onCompleted = null)
         {
+            if (IsDailyQuotaExhausted)
+            {
+                onCompleted?.Invoke(false, DailyQuotaExhaustedMessage);
+                return;
+            }
             if (CurrentUser != null && CurrentPhase != "seated" && CurrentPhase != "idle")
             {
                 onCompleted?.Invoke(false, "当前 phase 为 " + CurrentPhase + "，请等收杆完成后再开始。");

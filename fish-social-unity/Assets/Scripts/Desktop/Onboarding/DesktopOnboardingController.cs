@@ -64,14 +64,15 @@ namespace FishSocial.Desktop.Onboarding
             _session.FillOverlayState(dto, nickname, playerId);
         }
 
-        public bool HandleOverlayCommand(NativeOverlayCommandDto message)
+        public bool HandleOverlayCommand(NativeOverlayCommandDto message, out bool ok, out string detail)
         {
+            ok = true;
+            detail = string.Empty;
             if (!IsOnboardingActive || _completing || message == null)
                 return false;
 
             var command = message.command;
-            if (string.Equals(command, "open_main", System.StringComparison.Ordinal) ||
-                string.Equals(command, "request_snapshot", System.StringComparison.Ordinal) ||
+            if (string.Equals(command, "request_snapshot", System.StringComparison.Ordinal) ||
                 string.Equals(command, "menu_settings", System.StringComparison.Ordinal))
                 return false;
 
@@ -79,9 +80,12 @@ namespace FishSocial.Desktop.Onboarding
                 string.Equals(command, "hide_to_tray", System.StringComparison.Ordinal))
                 return true;
 
-            if (IsLockedMenuCommand(command))
+            if (string.Equals(command, "open_main", System.StringComparison.Ordinal) ||
+                IsLockedMenuCommand(command))
             {
                 const string locked = "请先完成新手引导。";
+                ok = false;
+                detail = locked;
                 _session.SetError(locked);
                 _shellUi?.SetStatusMessage(locked);
                 PublishOverlay();
@@ -98,16 +102,19 @@ namespace FishSocial.Desktop.Onboarding
             }
 
             if (_grantRoutine != null)
+            {
+                ok = false;
+                detail = "正在收入教学鱼获…";
                 return true;
+            }
 
             if (!IsTutorialCommand(command))
                 return false;
 
             string error;
-            var ok = _session.TryCommand(command, message.spotId, out error);
-            if (!ok && !string.IsNullOrEmpty(error))
-                _shellUi?.SetStatusMessage(error);
-            else if (!string.IsNullOrEmpty(error))
+            ok = _session.TryCommand(command, message.spotId, out error);
+            detail = error ?? string.Empty;
+            if (!string.IsNullOrEmpty(error))
                 _shellUi?.SetStatusMessage(error);
             PublishOverlay();
             return true;
@@ -217,7 +224,9 @@ namespace FishSocial.Desktop.Onboarding
 
             _shellUi?.SetOnboardingLock(true);
             Debug.Log("[Onboarding] starting local Overlay tutorial (no pond-novice join).");
-            DesktopAppBootstrap.Instance?.StartNativeOverlay();
+            // Match a normal pond entry: the journal must leave the screen,
+            // otherwise the tutorial overlay stays behind it.
+            DesktopAppBootstrap.Instance?.BeginOnboardingOverlay();
             PublishOverlay();
         }
 

@@ -584,14 +584,17 @@ namespace FishSocialOverlay
             PlaceAnchoredRoot(frames, byId, "btn_pan_right", viewW, viewH, "right", "scene");
             if (byId.TryGetValue("btn_exit_pond", out var exitPond) && string.IsNullOrWhiteSpace(exitPond.parentId))
                 PlaceAnchoredRoot(frames, byId, "btn_exit_pond", viewW, viewH, "right", "bottom");
-            if (byId.TryGetValue("txt_error", out var error))
+            if (byId.TryGetValue("txt_error", out var error) &&
+                frames.TryGetValue("dock_fishing", out var fishForError))
             {
+                var errorH = error.h > 0.5 ? error.h : 28;
+                var errorW = Math.Max(fishForError.W, 280);
                 frames["txt_error"] = new HudFrame
                 {
-                    X = 16,
-                    Y = 16,
-                    W = Math.Max(120, viewW - 32),
-                    H = error.h > 0.5 ? error.h : 24,
+                    X = fishForError.X + (fishForError.W - errorW) / 2.0,
+                    Y = Math.Max(8, fishForError.Y - errorH - 6),
+                    W = errorW,
+                    H = errorH,
                 };
             }
 
