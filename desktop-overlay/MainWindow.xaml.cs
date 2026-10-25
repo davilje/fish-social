@@ -323,7 +323,7 @@ namespace FishSocialOverlay
             OverlayAnimationClock.SetVisible(visible);
             _renderDiagnostics?.SetVisible(visible);
             _scene.SetPresentationViewport(new Rect(-_scenePan.OffsetX,
-                Math.Max(0, _scene.ContentHeight - _scenePan.ViewportHeight),
+                _scenePan.CropTop,
                 _scenePan.ViewportWidth, _scenePan.ViewportHeight), visible);
         }
 

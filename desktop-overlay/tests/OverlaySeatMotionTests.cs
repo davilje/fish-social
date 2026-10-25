@@ -8,6 +8,25 @@ static class OverlaySeatMotionTests
     static void Run(string name, Action test) { test(); passed++; Console.WriteLine("PASS " + name); }
     public static void Main()
     {
+        Run("small camera shows more bank while standard and medium keep their framing", () =>
+        {
+            Check(OverlaySceneGeometry.CropTop(560,300)==236,"small camera did not rise 24 units");
+            Check(OverlaySceneGeometry.CropTop(560,400)==160,"medium camera unexpectedly changed");
+            Check(OverlaySceneGeometry.CropTop(560,560)==0,"standard camera unexpectedly changed");
+            Check(OverlaySceneGeometry.CropTop(200,300)==0,"camera exposed negative scene coordinates");
+            var waterScreenY=459.337-OverlaySceneGeometry.CropTop(560,300);
+            Check(waterScreenY>200 && waterScreenY<240,"water contact is hidden by small-window bottom controls");
+        });
+        Run("actor ordering follows ground depth and horizontal position, not entry order", () =>
+        {
+            var left=OverlaySceneGeometry.ActorOrder(402,100);
+            var right=OverlaySceneGeometry.ActorOrder(402,180);
+            var arriving=OverlaySceneGeometry.ActorOrder(379,180);
+            Check(left<right && arriving<left,"neighbour/arrival layering reversed");
+            Check(OverlaySceneGeometry.ActorOrder(402.001,100)==left,"export rounding changes row ordering");
+            Check(OverlaySceneGeometry.ActorOrder(403,0)>right,"front row fails to cover back row");
+            Check(OverlaySceneGeometry.ActorOrder(double.NaN,100)==0,"invalid depth reaches ZIndex");
+        });
         Run("seat release cannot move before stand completion", () =>
         {
             var motion = new OverlaySeatMotion(); motion.Snap(84.625,388);

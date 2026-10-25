@@ -321,7 +321,8 @@ namespace FishSocial.Desktop.Editor
         {
             var layout = ReadLayerLayout(profile);
             // Water contact is independent of the seat landing line on dry ground.
-            root.GetComponent<DesktopOverlayPondLayoutView>().waterlineY = profile.shoreY + 4;
+            root.GetComponent<DesktopOverlayPondLayoutView>().waterlineY = profile.shoreY + 20;
+            PlaceArrivalLane(root, layout.groundY);
             var sibling = 0;
             foreach (var layer in layout.layers.OrderBy(l => l.z))
             {
@@ -343,6 +344,15 @@ namespace FishSocial.Desktop.Editor
                 marker.zIndex = layer.z;
                 OverlayPondLayoutBaker.PlaceTopLeft(go.GetComponent<RectTransform>(), layer.x, layer.y, layer.w, layer.h);
             }
+        }
+
+        static void PlaceArrivalLane(Transform root, float groundY)
+        {
+            var waiting = root.Find("waiting") as RectTransform;
+            if (waiting == null) return;
+            // WaitingLane uses the centre of this strip as the standing foot line.
+            OverlayPondLayoutBaker.PlaceTopLeft(waiting, 80, groundY - 52, Width - 160, 64);
+            waiting.GetComponent<DesktopOverlayLayoutObject>().anchor = "top-left";
         }
 
         static void ImportSprite(string path)
@@ -451,7 +461,7 @@ namespace FishSocial.Desktop.Editor
                     if (spotLabel != null) spotLabel.gameObject.SetActive(false);
                 }
                 var waiting = root.transform.Find("waiting") as RectTransform;
-                if (waiting != null) OverlayPondLayoutBaker.PlaceTopLeft(waiting, 80, 260, Width - 160, 64);
+                if (waiting != null) PlaceArrivalLane(root.transform, SeatGroundY(profile));
                 foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
                 {
                     if (item.spriteFile == "null") item.spriteFile = string.Empty;

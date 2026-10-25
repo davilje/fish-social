@@ -788,6 +788,11 @@ namespace FishSocialOverlay
             // WPF measure/arrange is needed for placement, even before the first render.
             var left = centerX - _bodyOriginX;
             var top = centerY - _bodyOriginY;
+            var foot = OverlayFishingLayers.FootInSlot(_petId, _body.Width, _body.Height);
+            var seated = !string.IsNullOrEmpty(_sceneSpot) && !_seatMotion.Moving && !_seatMotion.WaitingForStand && _chrome?.Seat != null;
+            var ground = centerY - _body.Height / 2 + (seated ? _chrome.Seat.y + _chrome.Seat.h : foot.Y);
+            var order = OverlaySceneGeometry.ActorOrder(ground, centerX);
+            if (Panel.GetZIndex(this) != order) Panel.SetZIndex(this, order);
             if (Canvas.GetLeft(this) == left && Canvas.GetTop(this) == top) return;
             Canvas.SetLeft(this, left);
             Canvas.SetTop(this, top);

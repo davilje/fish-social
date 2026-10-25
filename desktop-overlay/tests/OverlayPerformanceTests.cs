@@ -34,6 +34,7 @@ public static class OverlayPerformanceTests
         Run("async decoding shares frozen results and rejects stale actors", AsyncFrames);
         Run("hidden actors resume terminal animation chains", HiddenAnimation);
         Run("viewport changes preserve pan limits", ViewportPan);
+        Run("scene actor depth overrides arrival order and tracks waiting feet", ActorDepth);
         Run("static alpha extraction is exact and prepared before display", OverlayStaticPerformanceTests.AlphaExtraction);
         Run("static decoding shares warm results and balances cancellation", OverlayStaticPerformanceTests.SharedStaticLoads);
         Run("static image cache evicts under real decoded pixel pressure", OverlayStaticPerformanceTests.StaticCacheBudget);
@@ -437,14 +438,41 @@ public static class OverlayPerformanceTests
         }
     }
 
+    static void ActorDepth()
+    {
+        var canvas = new Canvas();
+        using (var right = new OverlayPetActor("arrived-first", null))
+        using (var left = new OverlayPetActor("arrived-last", null))
+        {
+            var chrome = new OverlayActorChrome { Pet = new OverlayLayoutObjectDto { w=128,h=128 },
+                Seat = new OverlayLayoutObjectDto { x=0,y=92,w=50,h=27 } };
+            canvas.Children.Add(right); canvas.Children.Add(left);
+            right.ApplyScenePlacement("right-seat",chrome,new Point(200,350),"orange");
+            left.ApplyScenePlacement("left-seat",chrome,new Point(100,350),"orange");
+            Require(Panel.GetZIndex(right)>Panel.GetZIndex(left),"last arrival overrides right-facing row order");
+            using (var waiting = new OverlayPetActor("waiting",null))
+            {
+                canvas.Children.Add(waiting);
+                waiting.ApplyScenePlacement("",chrome,new Point(160,379),"orange");
+                Require(Panel.GetZIndex(waiting)<Panel.GetZIndex(left),"waiting actor covers the foreground row");
+            }
+        }
+    }
+
     static void ViewportPan()
     {
-        var pan = new OverlayScenePan(new Canvas()); var changed = 0;
+        var content = new Canvas();
+        var pan = new OverlayScenePan(content); var changed = 0;
         pan.ViewportChanged += () => changed++;
         pan.SetViewportSize(960, 560); pan.SetSceneSize(2170, 725, true);
         pan.TryCenterOnWorldX(10000, true);
         Require(pan.OffsetX == -1210 && changed > 0, "right clamp or viewport notification lost");
         pan.TryCenterOnWorldX(-10000, true); Require(pan.OffsetX == 0, "left clamp lost");
+        pan.SetSceneSize(1680,560,true); pan.SetViewportSize(600,300);
+        Require(pan.CropTop==236 && content.RenderTransform.Transform(new Point(0,236)).Y==0,
+            "small camera and world-to-screen transform disagree");
+        pan.SetViewportSize(960,560);
+        Require(pan.CropTop==0 && content.RenderTransform.Transform(new Point(0,0)).Y==0,"camera lift leaked into large window");
     }
 
     static void PondTransitions()

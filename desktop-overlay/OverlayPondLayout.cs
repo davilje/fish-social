@@ -481,16 +481,17 @@ namespace FishSocialOverlay
             {
                 var col = index % 6;
                 var row = index / 6;
-                return new Point(96 + col * 140, 72 + row * 44);
+                return new Point(96 + col * 140, _sceneHeight * .68 - Math.Min(row, 2) * 24);
             }
 
             var columns = Math.Max(1, (int)Math.Floor(_waiting.w / 120.0));
             var cellW = _waiting.w / columns;
             var column = index % columns;
             var lane = index / columns;
+            ResolveRect(_waiting.x, _waiting.y, _waiting.w, _waiting.h, LayoutAnchor(_waiting), out var left, out var top);
             return new Point(
-                _waiting.x + cellW * column + cellW * 0.5,
-                _waiting.y + _waiting.h * 0.5 + lane * 44);
+                left + cellW * column + cellW * 0.5,
+                top + _waiting.h * 0.5 - Math.Min(lane, 2) * 24);
         }
 
         public static void ResolveRect(

@@ -9,7 +9,7 @@ namespace FishSocialOverlay
 {
     /// <summary>
     /// Pans SceneContentCanvas inside the current viewport (STEAM-DESKTOP-14B / 16).
-    /// X = 14B offset. Y = top-crop so the pond bottom stays aligned.
+    /// X pans the pond. Y lifts the small viewport to show more bank and less water.
     /// Left/right buttons live in OverlayHud (btn_pan_left / btn_pan_right).
     /// </summary>
     public sealed class OverlayScenePan
@@ -48,6 +48,8 @@ namespace FishSocialOverlay
         public double ViewportHeight => _viewportHeight;
 
         public double OffsetX => _offsetX;
+
+        public double CropTop => OverlaySceneGeometry.CropTop(_sceneHeight, _viewportHeight);
 
         public double SceneWidth => _sceneWidth;
 
@@ -231,7 +233,7 @@ namespace FishSocialOverlay
 
         void ApplyCropY()
         {
-            _translate.Y = -Math.Max(0, _sceneHeight - _viewportHeight);
+            _translate.Y = -CropTop;
             ViewportChanged?.Invoke();
         }
 
