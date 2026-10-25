@@ -119,6 +119,9 @@ namespace FishSocialOverlay
 
         static string SourceLayerPath(string petId, string clip, int index, string layer, IReadOnlyList<string> bodyLayers)
         {
+            // Borrow through the normal cache/retain path, even if water effects are off.
+            if (layer == "bobber" && OverlayFishingWaterContact.IsSubmergedClip(clip))
+            { clip = "fishing"; index = 0; }
             var body = false;
             if (bodyLayers != null)
             {

@@ -53,6 +53,51 @@ namespace FishSocialOverlay
         public static bool IsSubmergedClip(string clip)
             => clip == "hooked" || clip == "bite" || clip == "effort";
 
+        // Reuse the approved waiting float; bite source art has an empty bobber layer.
+        public const double BobberPivotX = 569.5, BobberPivotY = 463.5;
+
+        public static void HookedBobberMotion(double position, int sourceCount, out double dip, out double angle, int loopStart = -1)
+        {
+            // Intro and looping section each end at their initial pose. A hooked
+            // clip loops from source 4, while effort loops from 0 and bite is once.
+            var period = loopStart < 0 ? sourceCount - 1 : position < loopStart ? loopStart : sourceCount - loopStart;
+            var offset = loopStart >= 0 && position >= loopStart ? loopStart : 0;
+            var phase = (position - offset) * Math.PI * 2 / Math.Max(1, period);
+            dip = 2 + 4 * (.5 - .5 * Math.Cos(phase));
+            angle = 8 * Math.Sin(phase);
+        }
+
+        // The published interpolation line is a quadratic, not the original PNG.
+        // Coordinates already include the layer/root/22B transforms and actor origin.
+        public static bool QuadraticWaterContact(double x0, double y0, double x1, double y1,
+            double x2, double y2, double surface, out double x)
+        {
+            x = 0;
+            var a = y0 - 2 * y1 + y2;
+            var b = 2 * (y1 - y0);
+            var c = y0 - surface;
+            double t;
+            if (Math.Abs(a) < 1e-9)
+            {
+                if (Math.Abs(b) < 1e-9) return false;
+                t = -c / b;
+            }
+            else
+            {
+                var discriminant = b * b - 4 * a * c;
+                if (discriminant < 0) return false;
+                var root = Math.Sqrt(discriminant);
+                var first = (-b - root) / (2 * a);
+                var second = (-b + root) / (2 * a);
+                t = first >= 0 && first <= 1 ? first : second;
+                if (second >= 0 && second <= 1 && second < t) t = second;
+            }
+            if (double.IsNaN(t) || double.IsInfinity(t) || t < 0 || t > 1) return false;
+            var u = 1 - t;
+            x = u * u * x0 + 2 * u * t * x1 + t * t * x2;
+            return !double.IsNaN(x) && !double.IsInfinity(x);
+        }
+
         // Underwater struggle projects onto the surface; an emerging fish still
         // needs an actual intersection before it can emit fish.surface/slap.
         public static bool ProjectsDisturbance(string cue, string clip)

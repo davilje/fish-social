@@ -666,11 +666,22 @@ namespace FishSocial.Desktop.Editor
                 RequireNode<RectTransform>(root, "LoginRoot");
                 var login = root.transform.Find("LoginRoot").GetComponent<RectTransform>();
                 var center = new Vector2(0.5f, 0.5f);
-                if (login.anchorMin != center || login.anchorMax != center || login.pivot != center
+                if (login.anchorMin != Vector2.zero || login.anchorMax != Vector2.one || login.pivot != center
                     || login.anchoredPosition != Vector2.zero
-                    || login.sizeDelta != new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight))
-                    throw new InvalidOperationException(name + " LoginRoot must be centered with zero offset and match the "
-                        + WindowManager.LoginWidth + "x" + WindowManager.LoginHeight + " login window.");
+                    || login.sizeDelta != Vector2.zero)
+                    throw new InvalidOperationException(name + " LoginRoot must stretch across the full shell canvas.");
+                RequireNode<Image>(root, "LoginRoot/SceneBackground");
+                RequireNode<AspectRatioFitter>(root, "LoginRoot/SceneBackground");
+                var loginBackground = root.transform.Find("LoginRoot/SceneBackground").GetComponent<Image>();
+                if (loginBackground.sprite == null || loginBackground.raycastTarget
+                    || loginBackground.GetComponent<AspectRatioFitter>().aspectMode != AspectRatioFitter.AspectMode.EnvelopeParent)
+                    throw new InvalidOperationException(name + " login background must cover the viewport without intercepting input.");
+                var backgroundRatio = loginBackground.sprite.rect.width / loginBackground.sprite.rect.height;
+                if (Mathf.Abs(loginBackground.GetComponent<AspectRatioFitter>().aspectRatio - backgroundRatio) > .001f
+                    || login.GetComponent<Image>() != null)
+                    throw new InvalidOperationException(name + " login scene must retain its source aspect ratio without an inner plate.");
+                if (root.transform.Find("Backdrop").gameObject.activeSelf)
+                    throw new InvalidOperationException(name + " home Backdrop must start hidden while logging in.");
                 RequireNode<RectTransform>(root, "MainRoot/Header");
                 RequireNode<RectTransform>(root, "MainRoot/Nav");
                 RequireNode<RectTransform>(root, "MainRoot/Content");

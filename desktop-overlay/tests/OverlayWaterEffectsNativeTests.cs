@@ -173,6 +173,37 @@ static class OverlayWaterEffectsNativeTests
         }
     }
 
+    public static void HookedBobberContact()
+    {
+        foreach (var clip in new[] { "hooked", "bite", "effort" })
+        {
+            Check(OverlayFishingLayers.TryOpen("orange", clip) != null, "real fishing pack unavailable");
+            var borrowed = OverlayFishingLayers.LayerFile("orange", clip, 0, "bobber");
+            Check(borrowed == OverlayFishingLayers.LayerFile("orange", "fishing", 0, "bobber"),
+                "hooked frame still uses the empty source bobber");
+        }
+        foreach (var scale in new[] { .125, .25, .375, .5 })
+        foreach (var surface in new[] { 90d, 140, 220 })
+        foreach (var position in new[] { 0d, 1.5, 4, 7, 9.75 })
+        {
+            var image = new Image { Width = 640 * scale, Height = 512 * scale,
+                Margin = new Thickness(-31, -17, 0, 0), IsHitTestVisible = false };
+            var anchor = new Point(165, surface);
+            OverlayFishingBobber.Apply(image, anchor, position, 10, scale, scale, 4);
+            var pivot = image.RenderTransform.Transform(new Point(569.5 * scale, 463.5 * scale));
+            pivot.Offset(image.Margin.Left, image.Margin.Top);
+            OverlayFishingWaterContact.HookedBobberMotion(position, 10, out var dip, out _, 4);
+            Check(Math.Abs(pivot.X - anchor.X) < .000001 && Math.Abs(pivot.Y - surface - dip * scale) < .000001,
+                "bobber pivot differs from actual line-water contact after scene/slot transforms");
+            Check(image.Visibility == Visibility.Visible && !image.IsHitTestVisible,
+                "restored bobber missing or intercepting desktop input");
+            OverlayFishingBobber.Apply(image, null, position, 10, scale, scale, 4);
+            Check(image.Visibility == Visibility.Hidden, "missing line contact fabricated a bobber position");
+            OverlayFishingBobber.Apply(image, anchor, position, 10, scale, scale, 4);
+            Check(image.Visibility == Visibility.Visible, "bobber did not recover after valid contact returned");
+        }
+    }
+
     static bool InkAbove(Canvas canvas, int limit)
     {
         canvas.Width = 400; canvas.Height = 200;

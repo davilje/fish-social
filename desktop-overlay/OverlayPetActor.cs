@@ -49,6 +49,8 @@ namespace FishSocialOverlay
         Rect _waterSceneClip = Rect.Empty;
         bool _waterSelf;
         Point? _waterContactLocal;
+        Point? _hookedBobberContact;
+        SourceWaterManifest _waterSourceGeometry;
         public event Action WaterGeometryChanged;
         public Point? WaterAnchorScene => _waterContactLocal.HasValue ? WaterBodySceneOrigin + (Vector)_waterContactLocal.Value : (Point?)null;
         public Rect WaterPetBounds => new Rect(WaterBodySceneOrigin, new Size(_body.Width, _body.Height));
@@ -1675,8 +1677,11 @@ namespace FishSocialOverlay
                         sleepingHead ?? OverlayFishingLayers.LayerFile(_petId, _layeredClip, index, layer),
                         _layerDrawW, _layerDrawH, request.Token);
                 }
+                var geometry = WaterEffectResources.SourceGeometryAsync();
                 var images = await Task.WhenAll(pending);
+                var sourceGeometry = await geometry;
                 if (_disposed || version != _renderVersion || !_presentationVisible) return;
+                _waterSourceGeometry = sourceGeometry;
                 foreach (var image in images)
                     if (image == null)
                     {
@@ -1757,24 +1762,7 @@ namespace FishSocialOverlay
                 // line, transformed by the same published 22B layer pose.
                 if (layer == "line")
                 {
-                    if (!layers.TryGetValue(layer, out var data) || data.RowCenters == null) return false;
-                    var image = _layerImages[Array.IndexOf(OverlayFishingLayers.LayerNames, layer)];
-                    Point? previous = null;
-                    foreach (var row in data.RowCenters)
-                    {
-                        if (row == null || row.Length != 2) continue;
-                        var point = image.RenderTransform.Transform(new Point(row[1] * _layerDrawW / 640, row[0] * _layerDrawH / 512));
-                        point.Offset(image.Margin.Left, image.Margin.Top);
-                        if (previous.HasValue && (previous.Value.Y - surface) * (point.Y - surface) <= 0)
-                        {
-                            var dy = point.Y - previous.Value.Y;
-                            var fraction = Math.Abs(dy) < .0001 ? 0 : (surface - previous.Value.Y) / dy;
-                            anchor.X = previous.Value.X + (point.X - previous.Value.X) * fraction;
-                            return true;
-                        }
-                        previous = point;
-                    }
-                    return false;
+                    return TryPublishedLineContact(frame, surface, out anchor);
                 }
                 // At most one source pixel accommodates alpha raster sampling;
                 // marker time alone never makes a falling bait touch the plane.
@@ -1783,7 +1771,13 @@ namespace FishSocialOverlay
             }
             var anchorLayer = _layeredClip == "groundbait" ? "bait" : _layeredClip == "reel" ? "line" :
                 _layeredClip == "cast" || _layeredClip == "fishing" || _layeredClip == "reel_empty" ? "bobber" : "fish";
-            if (Bounds(anchorLayer, out var actualBounds))
+            if (_hookedBobberContact.HasValue)
+            {
+                var actual = _hookedBobberContact.Value;
+                if (!_waterContactLocal.HasValue || Math.Abs(actual.X - _waterContactLocal.Value.X) > 4 * slotScale || actual.Y != _waterContactLocal.Value.Y)
+                { _waterContactLocal = actual; WaterGeometryChanged?.Invoke(); }
+            }
+            else if (Bounds(anchorLayer, out var actualBounds))
             {
                 Contact(anchorLayer, actualBounds, out var actual);
                 if (!_waterContactLocal.HasValue || Math.Abs(actual.X - _waterContactLocal.Value.X) > 4 * slotScale || actual.Y != _waterContactLocal.Value.Y)
@@ -1797,15 +1791,23 @@ namespace FishSocialOverlay
             _waterEffects.SetClip(local);
             bool Emit(string cue, string layer, long occurrence)
             {
-                if (!Bounds(layer, out var bounds)) { WaterDiagnostic(cue + ":missing-source-bounds"); return false; }
-                var touching = Contact(layer, bounds, out var anchor);
-                // Hidden fish still disturb the water at their horizontal position.
-                // Surface/exit cues continue to require a real intersection.
                 var submerged = OverlayFishingWaterContact.ProjectsDisturbance(cue, _layeredClip);
-                if (submerged) touching = touching || bounds.Top >= surface - 2 * slotScale;
-                if (submerged) _waterEffects.Policy.Envelope.WaterSizeTier = "S";
-                else if (layer == "fish" && slotScale > 0)
-                    _waterEffects.Policy.Envelope.WaterSizeTier = OverlayWaterEffectsPolicy.VisibleTier(bounds.Width / slotScale);
+                Point anchor;
+                bool touching;
+                if (submerged)
+                {
+                    if (!_hookedBobberContact.HasValue) { WaterDiagnostic(cue + ":no-line-water-contact"); return false; }
+                    anchor = _hookedBobberContact.Value;
+                    touching = true;
+                    _waterEffects.Policy.Envelope.WaterSizeTier = "S";
+                }
+                else
+                {
+                    if (!Bounds(layer, out var bounds)) { WaterDiagnostic(cue + ":missing-source-bounds"); return false; }
+                    touching = Contact(layer, bounds, out anchor);
+                    if (layer == "fish" && slotScale > 0)
+                        _waterEffects.Policy.Envelope.WaterSizeTier = OverlayWaterEffectsPolicy.VisibleTier(bounds.Width / slotScale);
+                }
                 var emitted = _waterEffects.Publish(cue, _fishingPhase, occurrence, anchor, slotScale, touching);
                 if (!emitted && _waterEffects.Policy.LastRejection != null)
                     WaterDiagnostic(cue + ":" + _waterEffects.Policy.LastRejection);
@@ -1880,6 +1882,47 @@ namespace FishSocialOverlay
         double WaterSurfaceY => OverlayFishingWaterContact.LocalSurface(
             _chrome?.WaterlineY, WaterBodySceneOrigin.Y,
             _chrome?.Seat != null ? _chrome.Seat.y + _chrome.Seat.h + 6 : _body.Height + 6);
+
+        bool TryPublishedLineContact(int frame, double surface, out Point anchor)
+        {
+            anchor = new Point(0, surface);
+            var image = _layerImages[Array.IndexOf(OverlayFishingLayers.LayerNames, "line")];
+            Point Published(double x, double y)
+            {
+                var point = image.RenderTransform.Transform(new Point(x * _layerDrawW / 640, y * _layerDrawH / 512));
+                point.Offset(image.Margin.Left, image.Margin.Top);
+                return point;
+            }
+            var line = _layered?.Motion?[frame].Line;
+            if (line != null && line.Length == 6)
+            {
+                var a = Published(line[0], line[1]);
+                var b = Published(line[2], line[3]);
+                var c = Published(line[4], line[5]);
+                if (!OverlayFishingWaterContact.QuadraticWaterContact(a.X, a.Y, b.X, b.Y, c.X, c.Y, surface, out var x)) return false;
+                anchor.X = x;
+                return true;
+            }
+            var source = _layered?.SourceIndex(frame) ?? frame;
+            if (_waterSourceGeometry?.Frames == null ||
+                !_waterSourceGeometry.Frames.TryGetValue(_layeredClip + "/" + source, out var layers) ||
+                !layers.TryGetValue("line", out var data) || data.RowCenters == null) return false;
+            Point? previous = null;
+            foreach (var row in data.RowCenters)
+            {
+                if (row == null || row.Length != 2) continue;
+                var point = Published(row[1], row[0]);
+                if (previous.HasValue && (previous.Value.Y - surface) * (point.Y - surface) <= 0)
+                {
+                    var dy = point.Y - previous.Value.Y;
+                    var fraction = Math.Abs(dy) < .0001 ? 0 : (surface - previous.Value.Y) / dy;
+                    anchor.X = previous.Value.X + (point.X - previous.Value.X) * fraction;
+                    return true;
+                }
+                previous = point;
+            }
+            return false;
+        }
 
         void ApplyWaterContact(int frame, int count)
         {
@@ -1958,6 +2001,16 @@ namespace FishSocialOverlay
                 _layerImages[i].RenderTransform = transform;
                 if (layer == "fish") OverlayFishWaterMask.Apply(_layerImages[i], _layeredClip, surface);
             }
+            _hookedBobberContact = null;
+            var bobber = _layerImages[Array.IndexOf(OverlayFishingLayers.LayerNames, "bobber")];
+            if (OverlayFishingWaterContact.IsSubmergedClip(_layeredClip))
+            {
+                if (TryPublishedLineContact(frame, surface, out var anchor)) _hookedBobberContact = anchor;
+                OverlayFishingBobber.Apply(bobber, _hookedBobberContact, _layered?.SourcePosition(frame) ?? frame,
+                    _layered?.SourceFrameCount ?? count, scaleX, scale,
+                    _layered?.Playback == "intro-loop" ? _layered.SourceIndex(_layered.LoopStart) : -1);
+            }
+            else { bobber.Visibility = Visibility.Visible; bobber.Clip = null; }
         }
 
         void AdvanceLayered()

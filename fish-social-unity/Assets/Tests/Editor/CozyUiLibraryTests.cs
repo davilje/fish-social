@@ -71,53 +71,6 @@ namespace FishSocial.Tests.Editor
             }
         }
 
-        [Test]
-        public void LoginCardMatchesSmallWindowCanvas()
-        {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath("DesktopShell"));
-            Assert.NotNull(prefab);
-            var login = prefab.transform.Find("LoginRoot").GetComponent<RectTransform>();
-            var center = new Vector2(0.5f, 0.5f);
-            Assert.AreEqual(center, login.anchorMin);
-            Assert.AreEqual(center, login.anchorMax);
-            Assert.AreEqual(center, login.pivot);
-            Assert.AreEqual(Vector2.zero, login.anchoredPosition);
-            Assert.AreEqual(new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight), login.sizeDelta);
-        }
-
-        [Test]
-        public void VisibleLoginGraphicsStayInsideSmallWindow()
-        {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DesktopPrefabCatalog.AssetPath("DesktopShell"));
-            var instance = Object.Instantiate(prefab);
-            try
-            {
-                var scaler = instance.GetComponent<CanvasScaler>();
-                scaler.referenceResolution = new Vector2(WindowManager.LoginWidth, WindowManager.LoginHeight);
-                var login = instance.transform.Find("LoginRoot").GetComponent<RectTransform>();
-                login.gameObject.SetActive(true);
-                instance.transform.Find("MainRoot").gameObject.SetActive(false);
-                Canvas.ForceUpdateCanvases();
-                var corners = new Vector3[4];
-                foreach (var graphic in login.GetComponentsInChildren<Graphic>(false))
-                {
-                    if (!graphic.enabled)
-                        continue;
-                    graphic.rectTransform.GetWorldCorners(corners);
-                    foreach (var corner in corners)
-                    {
-                        var point = login.InverseTransformPoint(corner);
-                        Assert.That(point.x, Is.InRange(login.rect.xMin - 0.5f, login.rect.xMax + 0.5f), graphic.name);
-                        Assert.That(point.y, Is.InRange(login.rect.yMin - 0.5f, login.rect.yMax + 0.5f), graphic.name);
-                    }
-                }
-            }
-            finally
-            {
-                Object.DestroyImmediate(instance);
-            }
-        }
-
         [TestCase(28f, 28f)]
         [TestCase(80f, 44f)]
         [TestCase(352f, 54f)]

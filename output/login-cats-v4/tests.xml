@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="45" result="Passed" total="45" passed="45" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.507141">
+  <test-suite type="TestSuite" id="1867" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="725" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.507141" total="45" passed="45" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2723" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="725" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.498530" total="45" passed="45" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="32352" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2724" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="725" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.495392" total="45" passed="45" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2725" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="666" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.492986" total="45" passed="45" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="2726" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="666" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.490454" total="45" passed="45" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="2035" name="CozyLoginSceneTests" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.136471" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2036" name="AuthTransitionsNeverShowTheHomeBackdropBehindLogin" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.AuthTransitionsNeverShowTheHomeBackdropBehindLogin" methodname="AuthTransitionsNeverShowTheHomeBackdropBehindLogin" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="288353298" result="Passed" start-time="2026-10-25 18:01:40Z" end-time="2026-10-25 18:01:41Z" duration="0.048668" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2044" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.082535" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2037" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,720)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,720)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1013417594" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.036418" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2038" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1600,900)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1600,900)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1478774510" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.008116" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2039" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1920,1080)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1920,1080)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1021290897" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.007436" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2040" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1440)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1440)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1298953172" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.006335" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2041" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,800)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,800)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="745660813" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.007623" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2042" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1024,768)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1024,768)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="301896822" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.006308" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2043" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1080)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1080)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="861085856" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.007878" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+            <test-suite type="TestFixture" id="2218" name="CozyUiLibraryTests" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="37" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.337516" total="37" passed="37" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="2231" name="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.003008" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2227" name="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(28.0f,28.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(28.0f,28.0f)" methodname="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1372721743" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.002207" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2228" name="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(80.0f,44.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(80.0f,44.0f)" methodname="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1765659807" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000110" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2229" name="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(352.0f,54.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(352.0f,54.0f)" methodname="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="947948136" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000080" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2230" name="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(420.0f,180.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads(420.0f,180.0f)" methodname="BorderedSurfacesGenerateSlicedMeshesInsteadOfStretchedQuads" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="843100004" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000082" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2224" name="ClosingActionsUseRightTopAnchors" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ClosingActionsUseRightTopAnchors" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.031096" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2220" name="ClosingActionsUseRightTopAnchors(&quot;DesktopShell&quot;,&quot;MainRoot/Header/Home&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ClosingActionsUseRightTopAnchors(&quot;DesktopShell&quot;,&quot;MainRoot/Header/Home&quot;)" methodname="ClosingActionsUseRightTopAnchors" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="542733632" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000669" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2221" name="ClosingActionsUseRightTopAnchors(&quot;FeatureModalRoot&quot;,&quot;ModalPanel/Header/Close&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ClosingActionsUseRightTopAnchors(&quot;FeatureModalRoot&quot;,&quot;ModalPanel/Header/Close&quot;)" methodname="ClosingActionsUseRightTopAnchors" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1157317560" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.013020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2222" name="ClosingActionsUseRightTopAnchors(&quot;PanelProfileEdit&quot;,&quot;Picker/Dismiss&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ClosingActionsUseRightTopAnchors(&quot;PanelProfileEdit&quot;,&quot;Picker/Dismiss&quot;)" methodname="ClosingActionsUseRightTopAnchors" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1340139376" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.014188" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2223" name="ClosingActionsUseRightTopAnchors(&quot;PanelPondSettlement&quot;,&quot;Panel/Close&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ClosingActionsUseRightTopAnchors(&quot;PanelPondSettlement&quot;,&quot;Panel/Close&quot;)" methodname="ClosingActionsUseRightTopAnchors" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="725305794" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.002581" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2219" name="EveryCatalogPrefabHasCompleteImportedComponentsAndLayout" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.EveryCatalogPrefabHasCompleteImportedComponentsAndLayout" methodname="EveryCatalogPrefabHasCompleteImportedComponentsAndLayout" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1573628063" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.265437" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2242" name="InputAndScrollBackgroundsAreSlicedThroughSkinTree" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.InputAndScrollBackgroundsAreSlicedThroughSkinTree" methodname="InputAndScrollBackgroundsAreSlicedThroughSkinTree" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1948322529" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.002442" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2258" name="MapFeeModeButtonsAreSerialized" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.MapFeeModeButtonsAreSerialized" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.001430" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2256" name="MapFeeModeButtonsAreSerialized(&quot;PanelWorldMap&quot;,&quot;Details/ModeSell&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.MapFeeModeButtonsAreSerialized(&quot;PanelWorldMap&quot;,&quot;Details/ModeSell&quot;)" methodname="MapFeeModeButtonsAreSerialized" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1513797427" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000086" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2257" name="MapFeeModeButtonsAreSerialized(&quot;PanelWorldMap&quot;,&quot;Details/ModeAuto&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.MapFeeModeButtonsAreSerialized(&quot;PanelWorldMap&quot;,&quot;Details/ModeAuto&quot;)" methodname="MapFeeModeButtonsAreSerialized" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1307668123" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000027" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2243" name="NineSliceNormalizationPreservesFilledProgressAndPlainIcons" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.NineSliceNormalizationPreservesFilledProgressAndPlainIcons" methodname="NineSliceNormalizationPreservesFilledProgressAndPlainIcons" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1383370499" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000673" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2255" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.001635" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2244" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelShop&quot;,&quot;Items&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelShop&quot;,&quot;Items&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="189248141" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000125" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2245" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelEquipment&quot;,&quot;Items&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelEquipment&quot;,&quot;Items&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1593460183" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000043" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2246" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelPondSelection&quot;,&quot;PondCardScroll&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelPondSelection&quot;,&quot;PondCardScroll&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="105170137" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000040" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2247" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelLeaderboard&quot;,&quot;Scroll&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelLeaderboard&quot;,&quot;Scroll&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1261712863" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000039" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2248" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelSocialFeed&quot;,&quot;Scroll&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelSocialFeed&quot;,&quot;Scroll&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="826451626" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000037" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2249" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileHub&quot;,&quot;Shell/Content/Tab_展示柜/ShowcaseGrid&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileHub&quot;,&quot;Shell/Content/Tab_展示柜/ShowcaseGrid&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="2021420139" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000040" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2250" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileHub&quot;,&quot;Shell/Content/Tab_图鉴/CodexGrid&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileHub&quot;,&quot;Shell/Content/Tab_图鉴/CodexGrid&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="347306021" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000035" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2251" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileHub&quot;,&quot;Shell/Content/Tab_成就/Achievements&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileHub&quot;,&quot;Shell/Content/Tab_成就/Achievements&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="980336843" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000035" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2252" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileEdit&quot;,&quot;Avatars&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileEdit&quot;,&quot;Avatars&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="542722310" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000038" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2253" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileEdit&quot;,&quot;Showcase&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileEdit&quot;,&quot;Showcase&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="148952131" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000036" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2254" name="PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileEdit&quot;,&quot;Picker&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.PreviouslyMissingScrollScriptsResolveToRealUguiComponents(&quot;PanelProfileEdit&quot;,&quot;Picker&quot;)" methodname="PreviouslyMissingScrollScriptsResolveToRealUguiComponents" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1221913540" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000035" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="2241" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.007192" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2232" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-default.png&quot;,64,63,12.0f,40.0f,36.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-default.png&quot;,64,63,12.0f,40.0f,36.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1887341984" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.001707" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2233" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-hover.png&quot;,64,63,12.0f,80.0f,44.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-hover.png&quot;,64,63,12.0f,80.0f,44.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1684651158" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000912" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2234" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-pressed.png&quot;,64,63,12.0f,352.0f,54.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-pressed.png&quot;,64,63,12.0f,352.0f,54.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1789315082" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000662" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2235" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-large-default.png&quot;,80,72,18.0f,214.0f,76.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;buttons/plate-large-default.png&quot;,80,72,18.0f,214.0f,76.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1621967452" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000513" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2236" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/track.png&quot;,40,26,12.0f,278.0f,25.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/track.png&quot;,40,26,12.0f,278.0f,25.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1032815622" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000590" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2237" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/chip.png&quot;,48,40,18.0f,96.0f,38.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/chip.png&quot;,48,40,18.0f,96.0f,38.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="695181566" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000695" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2238" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/paper-compact.png&quot;,64,63,10.0f,174.0f,40.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/paper-compact.png&quot;,64,63,10.0f,174.0f,40.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1330044827" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000195" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2239" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/paper.png&quot;,128,125,22.0f,420.0f,180.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/paper.png&quot;,128,125,22.0f,420.0f,180.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1784646715" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000109" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2240" name="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/window.png&quot;,160,156,32.0f,900.0f,496.0f)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProductionSurfacesKeepUncompressedCornersAndPositiveCenters(&quot;panels/window.png&quot;,160,156,32.0f,900.0f,496.0f)" methodname="ProductionSurfacesKeepUncompressedCornersAndPositiveCenters" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1175813389" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000753" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="2225" name="ProfileEditCancelStaysBesideTheAuthoredSaveAction" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ProfileEditCancelStaysBesideTheAuthoredSaveAction" methodname="ProfileEditCancelStaysBesideTheAuthoredSaveAction" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="949568" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000208" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2226" name="RuntimeButtonStylingDoesNotDoubleTintCarvedIconsOrWrapActions" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.RuntimeButtonStylingDoesNotDoubleTintCarvedIconsOrWrapActions" methodname="RuntimeButtonStylingDoesNotDoubleTintCarvedIconsOrWrapActions" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="1755600359" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.019196" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2261" name="ShopAndEquipmentHaveSerializedHeaderTitles" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ShopAndEquipmentHaveSerializedHeaderTitles" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000783" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2259" name="ShopAndEquipmentHaveSerializedHeaderTitles(&quot;PanelShop&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ShopAndEquipmentHaveSerializedHeaderTitles(&quot;PanelShop&quot;)" methodname="ShopAndEquipmentHaveSerializedHeaderTitles" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="2069755077" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000146" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2260" name="ShopAndEquipmentHaveSerializedHeaderTitles(&quot;PanelEquipment&quot;)" fullname="FishSocial.Tests.Editor.CozyUiLibraryTests.ShopAndEquipmentHaveSerializedHeaderTitles(&quot;PanelEquipment&quot;)" methodname="ShopAndEquipmentHaveSerializedHeaderTitles" classname="FishSocial.Tests.Editor.CozyUiLibraryTests" runstate="Runnable" seed="37445525" result="Passed" start-time="2026-10-25 18:01:41Z" end-time="2026-10-25 18:01:41Z" duration="0.000035" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

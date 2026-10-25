@@ -106,7 +106,7 @@ namespace FishSocial.Desktop.Editor
                 canvas.planeDistance = 10;
                 var scaler = shell.GetComponent<CanvasScaler>();
                 if (scaler != null) scaler.enabled = false;
-                shell.transform.Find("LoginRoot").gameObject.SetActive(false);
+                DesktopShellUi.SetAuthenticatedRoots(shell.transform, true);
                 var main = shell.transform.Find("MainRoot");
                 main.gameObject.SetActive(true);
                 foreach (Transform slot in main.Find("Content")) slot.gameObject.SetActive(false);

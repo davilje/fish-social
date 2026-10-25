@@ -31,6 +31,7 @@ public static class OverlayFishingMotionTests
         Run("motion application is idempotent and preserves loop mapping", Idempotence);
         Run("water contact stays finite across sample positions and sizes", WaterContact);
         Run("all pond seats and pet skins keep the animated bobber on scene water", PondBobbers);
+        Run("hooked bobbers have actual line-water intersections across all pond seats and skins", HookedPondContacts);
         Run("real groundbait samples retain 720ms loops and 280ms hand-return outro", GroundbaitSegments);
         Console.WriteLine("PASS: " + _passed + "/" + (_passed + _failed) + " motion core tests");
         if (_failed > 0) throw new Exception(_failed + " motion contract groups failed");
@@ -357,6 +358,106 @@ public static class OverlayFishingMotionTests
                     Data.Check(double.IsFinite(pose.LineScale) && pose.LineScale >= 1 && double.IsFinite(pose.BobberOffset),
                         "sample water contact became invalid");
                 }
+    }
+    static void HookedPondContacts()
+    {
+        var motions = Data.Motion();
+        var quadraticSamples = 0; var sourceSamples = 0; var seats = 0; var ponds = 0;
+        var maximumError = 0d;
+        using var source = JsonDocument.Parse(File.ReadAllText(Path.Combine(Data.Root, "source-water-markers.json")));
+        foreach (var path in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources", "layouts"), "pond-*.json"))
+        {
+            ponds++;
+            using var layout = JsonDocument.Parse(File.ReadAllText(path));
+            var surface = layout.RootElement.GetProperty("pond").GetProperty("waterlineY").GetDouble();
+            foreach (var actor in layout.RootElement.GetProperty("objects").EnumerateArray())
+            {
+                if (actor.GetProperty("kind").GetString() != "actor-pet") continue;
+                seats++;
+                foreach (var pet in Data.Pets)
+                {
+                    using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(Data.Root, pet, "manifest.json")));
+                    var place = manifest.RootElement.GetProperty("place");
+                    var width = actor.GetProperty("w").GetDouble(); var height = actor.GetProperty("h").GetDouble();
+                    var unit = Math.Min(width, height) / place.GetProperty("reference").GetDouble();
+                    var rawScale = unit * place.GetProperty("referenceBody").GetDouble() / place.GetProperty("bodyHeight").GetDouble();
+                    var scaleX = Math.Round(640 * rawScale) / 640;
+                    var scaleY = Math.Round(512 * rawScale) / 512;
+                    var actorY = actor.GetProperty("y").GetDouble();
+                    var originX = actor.GetProperty("x").GetDouble() + (width - unit * place.GetProperty("reference").GetDouble()) / 2 +
+                        unit * place.GetProperty("referenceFoot")[0].GetDouble() - place.GetProperty("foot")[0].GetDouble() * scaleX;
+                    var originY = (height - unit * place.GetProperty("reference").GetDouble()) / 2 +
+                        unit * place.GetProperty("referenceFoot")[1].GetDouble() - place.GetProperty("foot")[1].GetDouble() * scaleY;
+                    foreach (var name in new[] { "hooked", "bite", "effort" })
+                    foreach (var sample in motions[name].Frames)
+                    {
+                        var label = Path.GetFileName(path) + "/" + actor.GetProperty("id").GetString() + "/" + pet + "/" + name + "/" + sample.Position;
+                        var contact = sample.Position == sample.Source ? OverlayFishingWaterContact.Frame(name, sample.Source) : sample.Contact;
+                        var pose = OverlayFishingWaterContact.Solve(contact, scaleY, originY,
+                            OverlayFishingWaterContact.LocalSurface(surface, actorY, height + 6), 1);
+                        (double x, double y) World(double x, double y)
+                        {
+                            foreach (var matrix in new[] { sample.Transforms[4], sample.Root })
+                            {
+                                if (matrix == null) continue;
+                                var nextX = matrix[0] * x + matrix[2] * y + matrix[4];
+                                y = matrix[1] * x + matrix[3] * y + matrix[5]; x = nextX;
+                            }
+                            return (originX + x * scaleX,
+                                actorY + originY + pose.LinePivot + (y * scaleY - pose.LinePivot) * pose.LineScale);
+                        }
+                        if (sample.Line != null)
+                        {
+                            var a = World(sample.Line[0], sample.Line[1]);
+                            var b = World(sample.Line[2], sample.Line[3]);
+                            var c = World(sample.Line[4], sample.Line[5]);
+                            Data.Check(a.y < surface && c.y > surface, "published line no longer enters water: " + label);
+                            Data.Check(OverlayFishingWaterContact.QuadraticWaterContact(a.x,a.y,b.x,b.y,c.x,c.y,surface,out var x),
+                                "interpolated line lacks a float attachment: " + label);
+                            // Independent numerical oracle: bisect the transformed curve, avoiding the production quadratic formula.
+                            var lower = 0d; var upper = 1d;
+                            for (var iteration = 0; iteration < 45; iteration++)
+                            {
+                                var t = (lower + upper) / 2; var u = 1-t;
+                                var y = u*u*a.y + 2*u*t*b.y + t*t*c.y;
+                                if (y < surface) lower = t; else upper = t;
+                            }
+                            var at = (lower + upper) / 2; var before = 1-at;
+                            var expectedX = before*before*a.x + 2*before*at*b.x + at*at*c.x;
+                            var actualY = before*before*a.y + 2*before*at*b.y + at*at*c.y;
+                            var error = Math.Max(Math.Abs(x-expectedX), Math.Abs(actualY-surface));
+                            maximumError = Math.Max(maximumError,error);
+                            Data.Check(error < 1e-7, "float/effect anchor is off the published curve: " + label);
+                            quadraticSamples++;
+                        }
+                        else
+                        {
+                            var rows = source.RootElement.GetProperty("frames").GetProperty(name + "/" + sample.Source)
+                                .GetProperty("line").GetProperty("rowCenters");
+                            var found = false; (double x, double y)? previous = null;
+                            foreach (var row in rows.EnumerateArray())
+                            {
+                                var point = World(row[1].GetDouble(),row[0].GetDouble());
+                                if (previous.HasValue && previous.Value.y <= surface && point.y >= surface)
+                                {
+                                    found = true;
+                                    Data.Check(double.IsFinite(previous.Value.x) && double.IsFinite(point.x), "source alpha has non-finite contact");
+                                    break;
+                                }
+                                previous = point;
+                            }
+                            Data.Check(found, "source line alpha never reaches water: " + label);
+                            sourceSamples++;
+                        }
+                    }
+                }
+            }
+        }
+        Data.Check(ponds == 21 && seats == 420 && Data.Pets.Length == 11, "expected current 21-pond / 420-seat / 11-skin coverage");
+        Data.Check(quadraticSamples > seats * Data.Pets.Length * 3 && sourceSamples > seats * Data.Pets.Length * 3,
+            "source or interpolated hook phases were omitted");
+        Console.WriteLine("Hooked line audit: " + ponds + " ponds, " + seats + " seats, " + Data.Pets.Length +
+            " skins; " + sourceSamples + " alpha-source / " + quadraticSamples + " quadratic samples, maximum world error=" + maximumError.ToString("0.##########"));
     }
     static void GroundbaitSegments()
     {

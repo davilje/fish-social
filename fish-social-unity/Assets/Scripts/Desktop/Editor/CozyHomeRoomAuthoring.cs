@@ -63,7 +63,7 @@ namespace FishSocial.Desktop.Editor
                 camera.transform.position=new Vector3(836,470.5f,-100);camera.targetTexture=target;
                 var shell=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(Folder+"DesktopShell.prefab"));SceneManager.MoveGameObjectToScene(shell,scene);
                 var canvas=shell.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=10;shell.GetComponent<CanvasScaler>().enabled=false;
-                shell.transform.Find("LoginRoot").gameObject.SetActive(false);var main=shell.transform.Find("MainRoot");main.gameObject.SetActive(true);
+                DesktopShellUi.SetAuthenticatedRoots(shell.transform, true);var main=shell.transform.Find("MainRoot");main.gameObject.SetActive(true);
                 foreach(Transform slot in main.Find("Content"))slot.gameObject.SetActive(false);
                 var room=CozyHomeRoom.Build(main);room.SetPageOpen(false);
                 CatTheme.SkinTree(shell.transform);

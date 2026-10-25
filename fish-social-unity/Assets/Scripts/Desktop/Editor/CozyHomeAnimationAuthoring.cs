@@ -54,7 +54,7 @@ namespace FishSocial.Desktop.Editor
                 var canvas = shell.GetComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 10;
                 shell.GetComponent<CanvasScaler>().enabled = false;
-                shell.transform.Find("LoginRoot").gameObject.SetActive(false);
+                DesktopShellUi.SetAuthenticatedRoots(shell.transform, true);
                 var main = shell.transform.Find("MainRoot"); main.gameObject.SetActive(true);
                 foreach (Transform slot in main.Find("Content")) slot.gameObject.SetActive(false);
                 var room = CozyHomeRoom.Build(main); room.SetPageOpen(false);

@@ -72,6 +72,21 @@ namespace FishSocialOverlay
             public readonly Dictionary<string, int> OpaqueTop = new Dictionary<string, int>();
         }
         static Task<Pack> _loading;
+        // Contact geometry also serves the real bobber, independently of effect quality
+        // or a missing effect texture. Decode once off the dispatcher.
+        static readonly Lazy<Task<SourceWaterManifest>> SourceGeometry = new Lazy<Task<SourceWaterManifest>>(
+            () => Task.Run(() =>
+            {
+                try
+                {
+                    var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources", "fishing", "source-water-markers.json");
+                    return JsonSerializer.Deserialize<SourceWaterManifest>(File.ReadAllText(path),
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+                catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is JsonException)
+                { return null; }
+            }));
+        internal static Task<SourceWaterManifest> SourceGeometryAsync() => SourceGeometry.Value;
         public static Pack Current { get; private set; }
         public static async void Warmup()
         {
@@ -89,9 +104,9 @@ namespace FishSocialOverlay
                 var pack = new Pack
                 {
                     Manifest = JsonSerializer.Deserialize<WaterEffectManifest>(File.ReadAllText(Path.Combine(directory, "effects.json")), options),
-                    Source = JsonSerializer.Deserialize<SourceWaterManifest>(File.ReadAllText(Path.Combine(root, "fishing", "source-water-markers.json")), options)
+                    Source = SourceGeometryAsync().GetAwaiter().GetResult()
                 };
-                if (pack.Manifest?.SchemaVersion != 2 || pack.Manifest.Tiers == null || pack.Manifest.Assets == null) return null;
+                if (pack.Manifest?.SchemaVersion != 2 || pack.Manifest.Tiers == null || pack.Manifest.Assets == null || pack.Source == null) return null;
                 // H and I read one canonical one-shot source definition. This
                 // bounds export only adds low-frequency continuous visual cues.
                 var shared = JsonSerializer.Deserialize<AudioSourceMarkerDocument>(

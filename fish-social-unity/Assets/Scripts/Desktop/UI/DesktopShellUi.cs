@@ -316,7 +316,7 @@ namespace FishSocial.Desktop
             _toast = DesktopModalUi.FindComponent<Text>(canvasGo.transform, "Toast/Label");
             if (_toastRoot != null)
                 _toastRoot.SetActive(false);
-            _mainRoot.SetActive(false);
+            SetAuthenticatedRoots(canvasGo.transform, false);
             CatTheme.SkinTree(canvasGo.transform);
             CozyMotion.EnsureHost(canvasGo);
             CozyMotion.EnsureBobber(canvasGo.transform.Find("MainRoot/Nav"));
@@ -433,16 +433,23 @@ namespace FishSocial.Desktop
             CozyMotion.MoveBobber(nav, id == ShellPanelId.Home ? null : selected);
         }
 
+        // Login owns its full-window scene. The home backdrop must only be visible
+        // with the authenticated shell, including before the first auth callback.
+        public static void SetAuthenticatedRoots(Transform shell, bool authenticated)
+        {
+            if (shell == null) return;
+            shell.Find("Backdrop")?.gameObject.SetActive(authenticated);
+            shell.Find("MainRoot")?.gameObject.SetActive(authenticated);
+            shell.Find("LoginRoot")?.gameObject.SetActive(!authenticated);
+        }
+
         void EnterMainShell()
         {
             if (_mainShellEntered)
                 return;
             _mainShellEntered = true;
             _homeRoom?.SetLayoutOwner(_authenticatedApi?.PlayerId);
-            if (_loginRoot != null)
-                _loginRoot.SetActive(false);
-            if (_mainRoot != null)
-                _mainRoot.SetActive(true);
+            SetAuthenticatedRoots(_mainRoot != null ? _mainRoot.transform.parent : null, true);
             if (_scaler != null)
                 _scaler.referenceResolution = new Vector2(
                     1672f, 941f);
@@ -1006,6 +1013,12 @@ namespace FishSocial.Desktop
             {
                 _journalPendingCatch = null;
                 _mainRoot?.GetComponent<CozyCatchCelebration>()?.Clear();
+                if (_mainShellEntered)
+                {
+                    _mainShellEntered = false;
+                    SetAuthenticatedRoots(_mainRoot != null ? _mainRoot.transform.parent : null, false);
+                    WindowManager.Instance?.ApplyLoginShell();
+                }
             }
 
             if (_loginStatus != null)

@@ -8,6 +8,62 @@ static class OverlayWaterContactTests
     static void Run(string name, Action test) { test(); passed++; Console.WriteLine("PASS " + name); }
     public static void Main()
     {
+        Run("quadratic water contacts follow the curve rather than its bounds", () =>
+        {
+            // y(t)=100*t^2, x(t)=100*t. At water y=25 the contact is x=50,
+            // even though the control-point bounding box has centre x=50 for every water height.
+            Check(OverlayFishingWaterContact.QuadraticWaterContact(0,0,50,0,100,100,25,out var x)
+                && Math.Abs(x-50)<1e-8, "quadratic midpoint water contact missing");
+            Check(OverlayFishingWaterContact.QuadraticWaterContact(0,0,50,0,100,100,81,out x)
+                && Math.Abs(x-90)<1e-8, "bent line used its bounding-box midpoint");
+            Check(OverlayFishingWaterContact.QuadraticWaterContact(10,0,40,50,70,100,30,out x)
+                && Math.Abs(x-28)<1e-8, "straight line degeneration lost its crossing");
+            Check(OverlayFishingWaterContact.QuadraticWaterContact(0,100,50,0,100,100,50,out x)
+                && Math.Abs(x-50)<1e-8, "tangent water contact missing");
+            Check(OverlayFishingWaterContact.QuadraticWaterContact(0,100,50,0,100,100,75,out x)
+                && Math.Abs(x-100*(1-Math.Sqrt(.5))/2)<1e-8, "two crossings must select the first from the rod");
+            foreach (var surface in new[] { 0d, 100d })
+                Check(OverlayFishingWaterContact.QuadraticWaterContact(0,0,50,0,100,100,surface,out x)
+                    && Math.Abs(x-surface)<1e-8, "endpoint water contact rejected");
+            foreach (var surface in new[] { -1d, 101d, double.NaN, double.PositiveInfinity })
+                Check(!OverlayFishingWaterContact.QuadraticWaterContact(0,0,50,0,100,100,surface,out x),
+                    "off-curve or invalid water surface fabricated a crossing");
+            Check(!OverlayFishingWaterContact.QuadraticWaterContact(0,10,50,10,100,10,10,out x),
+                "horizontal line has no unique entry point");
+            Check(!OverlayFishingWaterContact.QuadraticWaterContact(double.NaN,0,50,0,100,100,25,out x)
+                && !OverlayFishingWaterContact.QuadraticWaterContact(0,0,double.PositiveInfinity,0,100,100,25,out x),
+                "invalid coordinates reached a visible anchor");
+        });
+        Run("hooked float dips stay visible and return continuously across intro and loop seams", () =>
+        {
+            foreach (var setup in new[] { (count:10,loop:4), (count:6,loop:0), (count:4,loop:-1) })
+            {
+                var minimum = double.MaxValue; var maximum = double.MinValue;
+                var end = setup.loop >= 0 ? setup.count : setup.count-1;
+                for (var index = 0; index <= 400; index++)
+                {
+                    OverlayFishingWaterContact.HookedBobberMotion(end*index/400d,setup.count,out var dip,out var angle,setup.loop);
+                    minimum=Math.Min(minimum,dip);maximum=Math.Max(maximum,dip);
+                    Check(dip>=2-1e-9 && dip<=6+1e-9 && Math.Abs(angle)<=8+1e-9, "hooked float motion exceeds its small dip/tilt range");
+                    // The original PNG has visible ink at y=451, pivot y=463.5.
+                    // Even at deepest dip and maximum tilt its upper body remains above the surface.
+                    var upperPixel = (451-OverlayFishingWaterContact.BobberPivotY)*Math.Cos(angle*Math.PI/180)+dip;
+                    Check(upperPixel < -6, "float disappears completely beneath the surface");
+                }
+                Check(maximum-minimum>3.9, "float motion became static");
+                var restart = Math.Max(0,setup.loop);
+                OverlayFishingWaterContact.HookedBobberMotion(restart,setup.count,out var firstDip,out var firstAngle,setup.loop);
+                OverlayFishingWaterContact.HookedBobberMotion(end,setup.count,out var lastDip,out var lastAngle,setup.loop);
+                Check(Math.Abs(firstDip-lastDip)<1e-8 && Math.Abs(firstAngle-lastAngle)<1e-8, "float jumps at its actual loop restart");
+                OverlayFishingWaterContact.HookedBobberMotion(end-1e-5,setup.count,out lastDip,out lastAngle,setup.loop);
+                Check(Math.Abs(firstDip-lastDip)<.001 && Math.Abs(firstAngle-lastAngle)<.001, "loop tail does not converge on restart pose");
+                if (setup.loop>0)
+                {
+                    OverlayFishingWaterContact.HookedBobberMotion(setup.loop-1e-5,setup.count,out var priorDip,out var priorAngle,setup.loop);
+                    Check(Math.Abs(priorDip-firstDip)<.001 && Math.Abs(priorAngle-firstAngle)<.001, "intro completion jumps into loop");
+                }
+            }
+        });
         Run("hidden bites project disturbances without inventing a fish exit", () =>
         {
             foreach (var clip in new[] { "hooked", "bite", "effort" })

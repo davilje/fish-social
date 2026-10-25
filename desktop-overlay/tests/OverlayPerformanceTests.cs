@@ -57,6 +57,7 @@ public static class OverlayPerformanceTests
         Run("water quality, hidden resume and fresh authority bite preserve lifecycle", OverlayWaterEffectsNativeTests.QualityAndHiddenLifecycle);
         Run("all shipped water cue mappings including slap alias render", OverlayWaterEffectsNativeTests.RealCueConfiguration);
         Run("fish stay invisible below water and emerge through a horizontal mask", OverlayWaterEffectsNativeTests.SubmergedFishMask);
+        Run("hooked float reuses real art and follows the line-water contact", OverlayWaterEffectsNativeTests.HookedBobberContact);
         Run("audio waits for real nine-layer cold publication and respects cancellation", OverlayAudioNativeTests.ActualCompositeAndColdCancellation);
         Console.WriteLine("PASS: " + passed + "/" + passed + " Windows WPF regression groups");
         app.Shutdown();

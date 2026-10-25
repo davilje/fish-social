@@ -45,10 +45,11 @@ async function main(){
  const bytes=fs.readFileSync(source),sourceSha256=sha(bytes),{data,info}=await sharp(bytes).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  const previous=JSON.parse(fs.readFileSync(path.join(root,'desktop-overlay/OverlayResources/effects/fishing/v2/effects.json')));
  const effects=JSON.parse(JSON.stringify(previous));effects.artVersion='22h-water-v4-approved-style';
- effects.behaviorRevision='22h-contact-rules-2026-10-24';
+ effects.behaviorRevision='hooked-bobber-line-contact-2026-10-26';
  effects.withdrawn=['FX06','FX07'];
  for(const c of effects.cues){
-  c.renderKind=['FX02','FX03','FX04'].includes(c.id)?'ripple':'splash';
+  c.renderKind=c.id==='FX02'?'ripple':'splash';
+  if(['FX03','FX04'].includes(c.id))c.anchor='bobber.waterline-intersection';
   if(c.id==='FX08')c.spawnCount=4;
   if(c.id==='FX05')c.allowedPhases=['hooked','effort','resolving','stopping'];
   if(['FX01','FX08'].includes(c.id)){c.requiresSourceMarker=true;c.requiresContact=true;}
@@ -88,7 +89,7 @@ async function main(){
  const pets={},fishing=path.join(root,'desktop-overlay/OverlayResources/fishing');for(const dir of fs.readdirSync(fishing)){const file=path.join(fishing,dir,'manifest.json');if(fs.existsSync(file))pets[dir]=JSON.parse(fs.readFileSync(file));}
  const waterSource=JSON.parse(fs.readFileSync(path.join(fishing,'source-water-markers.json'))),waterContact=JSON.parse(fs.readFileSync(path.join(fishing,'water-contact.json'))),motion=JSON.parse(fs.readFileSync(path.join(fishing,'motion-samples.json'))).Clips;
  for(const target of ['fish-social-unity/Assets/StreamingAssets/Fishing','fish-social-unity/FishSocialOverlay/OverlayResources/fishing'])fs.copyFileSync(path.join(fishing,'source-water-markers.json'),path.join(root,target,'source-water-markers.json'));
- write(path.join(doc,'preview-data.js'),'window.waterPreviewData = '+json({effects,legacyEffects:previous,pets,waterSource,waterContact,motion:Object.fromEntries(['cast','groundbait','reel','reel_empty','bite','effort','fishing'].map(c=>[c,motion[c]]))})+';\n');
+ write(path.join(doc,'preview-data.js'),'window.waterPreviewData = '+json({effects,legacyEffects:previous,pets,waterSource,waterContact,motion:Object.fromEntries(['cast','groundbait','reel','reel_empty','hooked','bite','effort','fishing'].map(c=>[c,motion[c]]))})+';\n');
  console.log(json({assets:assets.length,decodedBytes:manifest.decodedBytes,style:manifest.version,mirrors:2}));
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

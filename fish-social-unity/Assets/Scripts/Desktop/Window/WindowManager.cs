@@ -16,8 +16,6 @@ namespace FishSocial.Desktop
         public event Action<WindowDisplayMode> ModeChanged;
         public event Action VisibilityChanged;
 
-        public const int LoginWidth = 480;
-        public const int LoginHeight = 320;
         public const int MainDefaultWidth = WindowSettings.DefaultWidth;
         public const int MainDefaultHeight = WindowSettings.DefaultHeight;
 
