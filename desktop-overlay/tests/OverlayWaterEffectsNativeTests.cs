@@ -110,7 +110,7 @@ static class OverlayWaterEffectsNativeTests
                 Check(effects.Publish(cue, phase, 0, new Point(180,120), 1, true), "real effects.json cue mapping failed: " + cue);
                 Check(back.Children.Count + front.Children.Count <= 10, "real cue breaks max draw count");
                 if (cue == "bite.onset" || cue == "fish.struggle")
-                    Check(back.Children.Count == 2 && front.Children.Count == 0, "bite/struggle emitted splash/drop");
+                    Check(back.Children.Count > 2 && front.Children.Count > 0, "bite/struggle lost splash/drop");
                 if (cue == "groundbait.contact") Check(back.Children.Count == 3 && front.Children.Count == 1, "GB lost small contact crown/drop");
                 effects.Stop(true);
             }
@@ -129,7 +129,7 @@ static class OverlayWaterEffectsNativeTests
             Check(!effects.Publish("fish.slap", "stopping",0,new Point(180,120),1,true), "retrieve exception leaked to slap");
             effects.Stop(true);
             effects.Configure(Identity("ripple-raster", "XL"), true, "standard");
-            Check(effects.Publish("bite.onset", "hooked", 0, new Point(180,120), 1, true), "raster bite setup");
+            Check(effects.Publish("waiting.ripple", "waiting", 1, new Point(180,120), 1, true), "raster waiting setup");
             var watch = Stopwatch.StartNew(); PumpUntil(() => watch.ElapsedMilliseconds > 65);
             Check(!InkAbove(back, 120), "actual transformed ripple alpha crossed above waterline");
             Check(InkAbove(back, 190), "ripple clipping removed the entire ellipse");
@@ -140,6 +140,39 @@ static class OverlayWaterEffectsNativeTests
             Check(InkAbove(back, 120) || InkAbove(front,120), "waterline ripple clip incorrectly clipped flying splash/drop");
         }
     }
+    public static void SubmergedFishMask()
+    {
+        var canvas = new Canvas { Width = 400, Height = 200 };
+        var source = new DrawingImage(new GeometryDrawing(Brushes.Orange, null, new RectangleGeometry(new Rect(0,0,80,80))));
+        var fish = new Image { Source = source, Width = 80, Height = 80, Margin = new Thickness(0,11,0,0) };
+        canvas.Children.Add(fish);
+        foreach (var angle in new[] { 0d, 23d, -17d })
+        foreach (var offset in new[] { 140d, 65d, 0d })
+        {
+            var pose = new TransformGroup();
+            pose.Children.Add(new RotateTransform(angle,40,40));
+            pose.Children.Add(new TranslateTransform(80,offset));
+            fish.RenderTransform = pose;
+            foreach (var clip in new[] { "hooked", "bite", "effort", "reel", "catch" })
+            {
+                OverlayFishWaterMask.Apply(fish, clip, 100);
+                canvas.Measure(new Size(400,200)); canvas.Arrange(new Rect(0,0,400,200)); canvas.UpdateLayout();
+                var bitmap = new RenderTargetBitmap(400,200,96,96,PixelFormats.Pbgra32); bitmap.Render(canvas);
+                var pixels = new byte[400*200*4]; bitmap.CopyPixels(pixels,400*4,0);
+                var ink = 0;
+                for (var y=0;y<200;y++) for (var x=0;x<400;x++)
+                {
+                    if (pixels[(y*400+x)*4+3] <= 8) continue;
+                    ink++;
+                    Check(y < 101, "transformed fish ink leaks beneath the waterline");
+                }
+                if (OverlayFishingWaterContact.IsSubmergedClip(clip) || offset == 140)
+                    Check(ink == 0, "underwater fish became visible");
+                else Check(ink > 0, "emerging/held fish stayed hidden after the bite");
+            }
+        }
+    }
+
     static bool InkAbove(Canvas canvas, int limit)
     {
         canvas.Width = 400; canvas.Height = 200;

@@ -113,7 +113,7 @@ namespace FishSocialOverlay
         public static bool Ending(string phase) => phase != "baiting" && phase != "casting" && phase != "waiting" &&
             phase != "hooked" && phase != "effort" && phase != "groundbaiting";
         public static bool SplashAllowed(string cue) => cue == "float.contact" || cue == "groundbait.contact" || cue == "retrieve.contact" ||
-            cue == "fish.surface" || cue == "fish.slap";
+            cue == "fish.surface" || cue == "fish.slap" || cue == "bite.onset" || cue == "fish.struggle";
         internal readonly struct Shape
         {
             public readonly int Arcs, Crowns, Drops;
@@ -121,8 +121,9 @@ namespace FishSocialOverlay
             public Shape(int arcs, int crowns, int drops) { Arcs = arcs; Crowns = crowns; Drops = drops; }
         }
         public static Shape Components(string cue, int arcs, int crowns, int drops, bool self, bool reduced)
-            => new Shape(self ? arcs : 1, self && !reduced && SplashAllowed(cue) ? crowns : 0,
-                self && !reduced && SplashAllowed(cue) ? drops : 0);
+            => new Shape(self ? arcs : 1, self && !reduced && SplashAllowed(cue) ?
+                    (cue == "fish.struggle" ? Math.Min(1, crowns) : crowns) : 0,
+                self && !reduced && SplashAllowed(cue) ? (cue == "fish.struggle" ? Math.Min(1, drops) : drops) : 0);
         public static double Duration(string cue, double proposed) => cue == "fish.struggle" ? Math.Max(300, Math.Min(600, proposed)) : proposed;
         public static string VisibleTier(double bodyPixelsAt128)
             => !(bodyPixelsAt128 > 16) ? "S" : bodyPixelsAt128 <= 32 ? "M" : bodyPixelsAt128 <= 56 ? "L" : "XL";

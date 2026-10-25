@@ -163,10 +163,11 @@ namespace FishSocial.Desktop.Pet
             var tier = name == "XL" ? config.tiers.XL : name == "L" ? config.tiers.L : name == "M" ? config.tiers.M : config.tiers.S;
             var tierIndex = name == "XL" ? 3 : name == "L" ? 2 : name == "M" ? 1 : 0;
             var reduced = quality == "reduced";
-            var splash = marker.Marker == "groundbait.contact" || marker.Marker == "retrieve.contact" || marker.Marker == "fish.surface" || marker.Marker == "fish.slap" || marker.Marker == "float.contact";
+            var splash = marker.Marker == "bite.onset" || marker.Marker == "fish.struggle" || marker.Marker == "groundbait.contact" || marker.Marker == "retrieve.contact" || marker.Marker == "fish.surface" || marker.Marker == "fish.slap" || marker.Marker == "float.contact";
             var arcs = reduced ? tierIndex > 0 ? 2 : 1 : !self ? 1 : cue.sizeTier == "shared" ? tier.arcCount : marker.Marker == "groundbait.contact" ? 2 : 1;
             var crowns = reduced || !self || !splash ? 0 : cue.sizeTier == "shared" ? tier.crownCount : 1;
             var drops = reduced || !self || !splash ? 0 : cue.sizeTier == "shared" ? tier.dropCount : 1;
+            if (marker.Marker == "fish.struggle") { crowns = Math.Min(1, crowns); drops = Math.Min(1, drops); }
             var count = Math.Min(10, arcs + crowns + drops);
             if (marker.Marker == "bite.onset") RemoveCue(marker.Envelope.actorId, "waiting.ripple");
             if (marker.Marker == "fish.surface" || marker.Marker == "fish.slap") RemoveCue(marker.Envelope.actorId, "fish.struggle");

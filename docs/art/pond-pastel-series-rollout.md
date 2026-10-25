@@ -49,3 +49,13 @@ Unity 2021.3.29f1c1 编译、应用、导出及渲染完成。`python3 scripts/d
 实际 Unity 渲染、逐关卡选择及验证文件：`/Users/red/Desktop/fish/output/scene-revision/pastel-project-rollout-v1/index.html`。原始 30 张及生成提示词：`/Users/red/Desktop/fish/output/scene-revision/pastel-30-maps-v1/`。本轮没有再次使用生成工具修改图片。
 
 本机为 macOS，未运行 Windows WPF；重启 Windows Overlay 后加载新场景。本地目录同步不会自动更新其他机器的安装包。
+
+## 岸面落点修复（2026-10-25）
+
+原先把板凳落地线设为 `shoreY - 8`，导致板凳落在水边石带上。本次将 17 张图的布局 `groundY` 改为 `shoreY - 40`，21 个关卡的 420 组猫咪与板凳整体上移 32 个设计像素；水平位置、尺寸、角色内部接触点及所有底图像素保持不变。场景应用、座位应用及旧批量生成入口均读取布局的独立 `groundY`，再次导出不会恢复错误高度。
+
+Prefab 根节点新增 `waterlineY`，导出到 `pond.waterlineY`，当前为岸线下 4 个设计像素。WPF 浮漂、鱼线、水花及音效接触判断统一使用场景水线换算到角色局部坐标，不再随座位上移；缺少新字段的旧布局保持原有回退行为。
+
+验证：Unity 批量应用、导出和 21 关渲染完成；420 个座椅接触点通过；4,263 个布局对象与修复前比较，仅钓位组 Y 变化；57 张美术 PNG 哈希不变；3,957 个源资源与运行目录逐文件一致。水面接触测试 10/10、Python 回归 51/51 通过。Windows WPF Release 已编译并自包含发布到本地 `fish-social-unity/FishSocialOverlay`，包含本次独立水线逻辑；生成的 DLL/EXE 不纳入版本控制。macOS 未执行 Windows 原生程序，其他机器需要部署更新后的程序与资源。
+
+修复前后对比：`/Users/red/Desktop/fish/output/seat-revision/pastel-bank-placement-v1/index.html`。

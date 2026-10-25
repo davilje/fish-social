@@ -598,7 +598,11 @@ namespace FishSocial.Desktop.Editor
                 .Append(",\"height\":").Append(canvasHeight.ToString("0"))
                 .Append(",\"origin\":\"top-left\"},");
             sb.Append("\"pond\":{\"width\":").Append(pondWidth.ToString("0"))
-                .Append(",\"height\":").Append(pondHeight.ToString("0")).Append("},");
+                .Append(",\"height\":").Append(pondHeight.ToString("0"));
+            var waterline = rootGo.GetComponent<DesktopOverlayPondLayoutView>().waterlineY;
+            if (waterline > 0 && waterline < pondHeight)
+                sb.Append(",\"waterlineY\":").Append(waterline.ToString("0.###", CultureInfo.InvariantCulture));
+            sb.Append("},");
             sb.Append("\"objects\":[");
             for (var i = 0; i < entries.Count; i++)
             {

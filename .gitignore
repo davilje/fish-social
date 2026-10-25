@@ -14,6 +14,10 @@ fish-social-unity/Builds/
 desktop-overlay/bin/
 desktop-overlay/obj/
 
+# Locally published Windows overlay binaries; scene resources remain tracked.
+fish-social-unity/FishSocialOverlay/**/*.dll
+fish-social-unity/FishSocialOverlay/*.exe
+
 # Art staging: keep manifest, ignore large generated assets
 docs/art/generated/**
 !docs/art/generated/.gitkeep

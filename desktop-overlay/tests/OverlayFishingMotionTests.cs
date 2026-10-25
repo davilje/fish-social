@@ -30,6 +30,7 @@ public static class OverlayFishingMotionTests
         Run("duration mismatches preserve original playback", InvalidDurations);
         Run("motion application is idempotent and preserves loop mapping", Idempotence);
         Run("water contact stays finite across sample positions and sizes", WaterContact);
+        Run("all pond seats and pet skins keep the animated bobber on scene water", PondBobbers);
         Run("real groundbait samples retain 720ms loops and 280ms hand-return outro", GroundbaitSegments);
         Console.WriteLine("PASS: " + _passed + "/" + (_passed + _failed) + " motion core tests");
         if (_failed > 0) throw new Exception(_failed + " motion contract groups failed");
@@ -296,6 +297,55 @@ public static class OverlayFishingMotionTests
         Data.Check(ReferenceEquals(durations, clip.DurationsMs) && ReferenceEquals(orders, clip.Orders), "motion expanded twice");
         Data.Check(clip.LoopStart == clip.IndexAtSource(1) && clip.SourcePosition(clip.LoopStart) == 1, "loop did not retain source semantics");
     }
+    static void PondBobbers()
+    {
+        var motions = Data.Motion();
+        var count = 0;
+        var maximumError = 0d;
+        foreach (var path in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OverlayResources", "layouts"), "pond-*.json"))
+        using (var layout = JsonDocument.Parse(File.ReadAllText(path)))
+        foreach (var actor in layout.RootElement.GetProperty("objects").EnumerateArray())
+        {
+            if (actor.GetProperty("kind").GetString() != "actor-pet") continue;
+            var surface = layout.RootElement.GetProperty("pond").GetProperty("waterlineY").GetDouble();
+            foreach (var pet in Data.Pets)
+            using (var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(Data.Root, pet, "manifest.json"))))
+            {
+                var place = manifest.RootElement.GetProperty("place");
+                var width = actor.GetProperty("w").GetDouble(); var height = actor.GetProperty("h").GetDouble();
+                var unit = Math.Min(width, height) / place.GetProperty("reference").GetDouble();
+                var rawScale = unit * place.GetProperty("referenceBody").GetDouble() / place.GetProperty("bodyHeight").GetDouble();
+                var scale = Math.Round(512 * rawScale) / 512;
+                var actorY = actor.GetProperty("y").GetDouble();
+                var origin = (height - unit * place.GetProperty("reference").GetDouble()) / 2 +
+                    unit * place.GetProperty("referenceFoot")[1].GetDouble() - place.GetProperty("foot")[1].GetDouble() * scale;
+                foreach (var clip in new[] { "fishing", "cast" })
+                foreach (var sample in motions[clip].Frames)
+                {
+                    if (clip == "cast" && sample.Position < motions[clip].DurationsMs.Length - 1) continue;
+                    var contact = sample.Position == sample.Source ? OverlayFishingWaterContact.Frame(clip, sample.Source) : sample.Contact;
+                    var local = OverlayFishingWaterContact.LocalSurface(surface, actorY, height + 6);
+                    var pose = OverlayFishingWaterContact.Solve(contact, scale, origin, local, 1);
+                    // Track the original bobber contact pixel through the actual motion matrices.
+                    var x = clip == "fishing" ? 569.5 : 580.5;
+                    var y = clip == "fishing" ? 463.5 : 454.5;
+                    foreach (var matrix in new[] { sample.Transforms[7], sample.Root })
+                    {
+                        if (matrix == null) continue;
+                        var nextX = matrix[0] * x + matrix[2] * y + matrix[4];
+                        y = matrix[1] * x + matrix[3] * y + matrix[5]; x = nextX;
+                    }
+                    var actual = actorY + origin + y * scale + pose.BobberOffset;
+                    var error = Math.Abs(actual - surface); maximumError = Math.Max(maximumError, error);
+                    Data.Check(error < .25, "bobber off the water: " + Path.GetFileName(path) + "/" + pet + " error=" + error);
+                    count++;
+                }
+            }
+        }
+        Data.Check(count > 420 * 11, "missing pond/skin/sample coverage");
+        Console.WriteLine("Bobber audit: " + count + " samples, maximum world error=" + maximumError.ToString("0.######"));
+    }
+
     static void WaterContact()
     {
         foreach (var pair in Data.Motion())

@@ -9,5 +9,7 @@ namespace FishSocial.Desktop
     public sealed class DesktopOverlayPondLayoutView : MonoBehaviour
     {
         public string pondId;
+        [Tooltip("Water contact Y in the top-left scene coordinates; zero uses the legacy seat fallback.")]
+        public float waterlineY;
     }
 }

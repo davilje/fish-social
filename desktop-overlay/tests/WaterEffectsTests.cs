@@ -132,12 +132,12 @@ static class WaterEffectsTests
             surface.SetEnvelope(null);
             Check(!Accept(surface, "fish.surface", phase), "hard cancel retained surface permission");
         }
-        foreach (var cue in new[] { "bite.onset", "fish.struggle", "waiting.ripple" })
+        foreach (var cue in new[] { "waiting.ripple" })
         {
             var shape = OverlayWaterEffectsPolicy.Components(cue, 2, 2, 2, true, false);
             Check(shape.Arcs == 2 && shape.Crowns == 0 && shape.Drops == 0, "ripple cue created splash/drop " + cue);
         }
-        foreach (var cue in new[] { "float.contact", "groundbait.contact", "retrieve.contact", "fish.surface", "fish.slap" })
+        foreach (var cue in new[] { "float.contact", "groundbait.contact", "retrieve.contact", "fish.surface", "fish.slap", "bite.onset", "fish.struggle" })
         {
             Check(OverlayWaterEffectsPolicy.Components(cue, 1, 1, 1, true, false).Count == 3, "real contact lost small splash " + cue);
             var reduced = OverlayWaterEffectsPolicy.Components(cue, 1, 1, 1, true, true);
@@ -158,8 +158,8 @@ static class WaterEffectsTests
         foreach(var phase in cues["fish.surface"].GetProperty("allowedPhases").EnumerateArray()) surfacePhases.Add(phase.GetString());
         Check(surfacePhases.SetEquals(new[]{"hooked","effort","resolving","stopping"}), "real FX05 config blocks retrieve fish exit");
         Check(cues.Count == 7, "unexpected effect family count");
-        Check(cues["bite.onset"].GetProperty("renderKind").GetString() == "ripple" &&
-            cues["fish.struggle"].GetProperty("renderKind").GetString() == "ripple", "shipped bite/struggle requests splash");
+        Check(cues["bite.onset"].GetProperty("renderKind").GetString() == "splash" &&
+            cues["fish.struggle"].GetProperty("renderKind").GetString() == "splash", "shipped bite/struggle lacks splash");
         Check(cues["groundbait.contact"].GetProperty("spawnCount").GetInt32() == 4, "groundbait small splash count mismatch");
         foreach (var phase in cues["retrieve.contact"].GetProperty("allowedPhases").EnumerateArray())
             Check(phase.GetString() == "resolving" || phase.GetString() == "stopping", "retrieve config permits results or idle");

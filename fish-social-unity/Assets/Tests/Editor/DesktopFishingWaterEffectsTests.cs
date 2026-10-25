@@ -72,16 +72,17 @@ namespace FishSocial.Tests.Editor
                 Assert.LessOrEqual(pool.ActiveGroups, 2);
                 Assert.LessOrEqual(pool.ActiveInstances, 12);
                 foreach (var image in root.GetComponentsInChildren<RawImage>(true)) Assert.IsFalse(image.raycastTarget);
-                // Bite is a water-surface ripple only. Every transformed ripple is clipped
+                // Bite adds crowns/drops; every transformed ripple is still clipped
                 // by a separate mask whose top is the actual anchor, even under a scaled view.
                 root.transform.localScale = new Vector3(1.25f, .8f, 1);
                 Call(pool, "Update");
                 var rippleImages = 0;
+                var splashImages = 0;
                 foreach (var image in root.GetComponentsInChildren<RawImage>(true))
                 {
                     if (image.texture == null) continue;
+                    if (!image.texture.name.StartsWith("ripple-")) { splashImages++; continue; }
                     rippleImages++;
-                    Assert.IsTrue(image.texture.name.StartsWith("ripple-"), "bite cannot create a crown/drop");
                     var mask = image.transform.parent.GetComponent<RectMask2D>();
                     Assert.IsNotNull(mask, "ripple has an independent post-transform waterline mask");
                     var clip = (RectTransform)mask.transform;
@@ -108,6 +109,7 @@ namespace FishSocial.Tests.Editor
                     finally { Object.DestroyImmediate(png); }
                 }
                 Assert.Greater(rippleImages, 0, "assertions cover actual pooled PNG images");
+                Assert.Greater(splashImages, 0, "bite must be visible through water splashes");
                 var active = pool.ActiveGroups;
                 session.SetOwner(true);
                 session.Observe("self", "three", "bite-three", 3, "hooked", "spot", "orange", false);

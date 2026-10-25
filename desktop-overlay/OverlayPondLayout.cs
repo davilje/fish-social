@@ -38,6 +38,7 @@ namespace FishSocialOverlay
         double _petHeight = PondScenePresenter.CatSize;
         double _sceneWidth = ViewportWidth;
         double _sceneHeight = ViewportHeight;
+        double? _waterlineY;
         double _runtimeViewportWidth = ViewportWidth;
         double _runtimeViewportHeight = ViewportHeight;
         readonly Dictionary<string, BitmapImage> _bitmapCache =
@@ -196,6 +197,8 @@ namespace FishSocialOverlay
             _sceneWidth = ViewportWidth;
             _sceneHeight = ViewportHeight;
             HasExplicitPondSize = false;
+            var waterline = document?.pond?.waterlineY;
+            _waterlineY = waterline > 0 && waterline < ViewportHeight ? waterline : null;
 
             if (document?.pond != null &&
                 TryAcceptSceneSize(document.pond.width, document.pond.height, out var pondW, out var pondH))
@@ -299,7 +302,7 @@ namespace FishSocialOverlay
             _actorTemplate = source != null ? Relativize(source) : BakeDefaultTemplate();
         }
 
-        static OverlayActorChrome Relativize(OverlayActorChrome source)
+        OverlayActorChrome Relativize(OverlayActorChrome source)
         {
             if (source == null || source.Pet == null)
                 return BakeDefaultTemplate();
@@ -307,6 +310,7 @@ namespace FishSocialOverlay
             var pet = source.Pet;
             return new OverlayActorChrome
             {
+                WaterlineY = _waterlineY,
                 Pet = CopyLocal(pet, 0, 0),
                 Hit = ShiftLocal(source.Hit, pet),
                 Name = ShiftLocal(source.Name, pet),
@@ -615,6 +619,7 @@ namespace FishSocialOverlay
             _spots.Clear();
             _actors.Clear();
             _actorTemplate = null;
+            _waterlineY = null;
             _sprites.Clear();
             _waiting = null;
             _petWidth = PondScenePresenter.CatSize;
@@ -645,6 +650,7 @@ namespace FishSocialOverlay
         [DataContract]
         sealed class OverlayLayoutPondDto
         {
+            [DataMember(Name = "waterlineY", EmitDefaultValue = false)] public double? waterlineY;
             [DataMember(Name = "width")] public double width;
             [DataMember(Name = "height")] public double height;
         }
@@ -652,6 +658,7 @@ namespace FishSocialOverlay
 
     public sealed class OverlayActorChrome
     {
+        public double? WaterlineY;
         public OverlayLayoutObjectDto Pet;
         public OverlayLayoutObjectDto Hit;
         public OverlayLayoutObjectDto Name;

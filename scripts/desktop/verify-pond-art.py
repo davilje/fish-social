@@ -66,7 +66,9 @@ def verify():
             template = read(ART / profile['layerLayout'])
             assert read(RESOURCES / 'ponds' / profile['layerLayout']) == template
             assert template['width'] == 1680 and template['height'] == 560
-            assert abs(template['groundY'] - (profile['shoreY'] - 8)) < .002
+            assert 0 < template['groundY'] < profile['shoreY']
+            assert abs(document['pond']['waterlineY'] - profile['shoreY'] - 4) < .002
+            assert abs(profile['shoreY'] - template['groundY'] - 40) < .002
             scene_objects = {o['id']: o for o in objects if o['kind'] == 'sprite'}
             assert set(scene_objects) == {o['id'] for o in template['layers']}, ('Stale or missing layer', pond['pondId'])
             for expected in template['layers']:
@@ -86,7 +88,7 @@ def verify():
         pets = {o['spotId']: o for o in objects if o['kind'] == 'actor-pet'}
         for seat in seats:
             assert seat['sprite'] == 'seats/' + binding['seat'] + '.png'
-            assert abs(seat['y'] + seat['h'] * spec.get('groundY', 1) - (profile['shoreY'] - 8)) <= 1.5
+            assert abs(seat['y'] + seat['h'] * spec.get('groundY', 1) - template['groundY']) <= 1.5
             assert 0 <= seat['x'] < seat['x'] + seat['w'] <= 1681
             if spec.get('supportY', 0) > 0:
                 pet = pets[seat['spotId']]

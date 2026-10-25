@@ -110,7 +110,7 @@ namespace FishSocial.Desktop.Editor
                         var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvas, seat);
                         var ground = canvas.rect.height - bounds.min.y - seat.rect.height * (1 - spec.groundY);
                         // Move the whole actor cluster only; preserve its saved contact geometry and X position.
-                        spot.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, ground - (profile.shoreY - 8));
+                        spot.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, ground - SeatGroundY(profile));
                     }
                     PrefabUtility.SaveAsPrefabAsset(root, path);
                 }
@@ -242,7 +242,7 @@ namespace FishSocial.Desktop.Editor
                         var seat = spot.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).First(p => p.kind == "actor-seat").GetComponent<RectTransform>();
                         var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvas, seat);
                         var ground = canvas.rect.height - bounds.min.y - seat.rect.height * (1 - spec.groundY);
-                        spot.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, ground - (profile.shoreY - 8));
+                        spot.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, ground - SeatGroundY(profile));
                     }
                     PrefabUtility.SaveAsPrefabAsset(root, path);
                 }
@@ -301,12 +301,15 @@ namespace FishSocial.Desktop.Editor
             Debug.Log("[PondArt] Layered pond pilot: " + selected.Length + " level(s), " + layout.layers.Length + " shared layers.");
         }
 
+        static float SeatGroundY(Profile profile) => string.IsNullOrEmpty(profile.layerLayout)
+            ? profile.shoreY - 8 : ReadLayerLayout(profile).groundY;
+
         static LayerLayout ReadLayerLayout(Profile profile)
         {
             if (string.IsNullOrEmpty(profile.layerLayout)) throw new InvalidOperationException("Missing layer layout.");
             var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(ArtFolder + "/" + profile.layerLayout));
             if (layout == null || layout.layers == null || layout.width != Width || layout.height != Height
-                || Mathf.Abs(layout.groundY - (profile.shoreY - 8)) > 0.01f)
+                || layout.groundY <= 0 || layout.groundY >= profile.shoreY)
                 throw new InvalidOperationException("Invalid shared scene coordinates.");
             if (layout.layers.Count(l => l.id == "pond-bg" && l.image == profile.image) != 1
                 || layout.layers.Select(l => l.id).Distinct().Count() != layout.layers.Length)
@@ -317,6 +320,8 @@ namespace FishSocial.Desktop.Editor
         static void PlaceSceneLayers(Transform root, Profile profile)
         {
             var layout = ReadLayerLayout(profile);
+            // Water contact is independent of the seat landing line on dry ground.
+            root.GetComponent<DesktopOverlayPondLayoutView>().waterlineY = profile.shoreY + 4;
             var sibling = 0;
             foreach (var layer in layout.layers.OrderBy(l => l.z))
             {
@@ -439,7 +444,7 @@ namespace FishSocial.Desktop.Editor
                     var seatBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvas, seat.transform);
                     var groundY = seatSpec.groundY > 0 ? seatSpec.groundY : 1;
                     var seatBottom = Height - seatBounds.min.y - seatHeight * (1 - groundY);
-                    rt.anchoredPosition += new Vector2(0, seatBottom - (profile.shoreY - 8));
+                    rt.anchoredPosition += new Vector2(0, seatBottom - SeatGroundY(profile));
                     var guide = spot.GetComponent<Image>();
                     if (guide != null) guide.color = new Color(1, 1, 1, 0);
                     var spotLabel = spot.transform.Find("Label");

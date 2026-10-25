@@ -622,7 +622,7 @@ namespace FishSocialOverlay
         static bool SameChrome(OverlayActorChrome a, OverlayActorChrome b)
         {
             if (a == null || b == null) return a == b;
-            return SameSlot(a.Pet,b.Pet) && SameSlot(a.Seat,b.Seat) && SameSlot(a.Hit,b.Hit) && SameSlot(a.Name,b.Name) &&
+            return a.WaterlineY == b.WaterlineY && SameSlot(a.Pet,b.Pet) && SameSlot(a.Seat,b.Seat) && SameSlot(a.Hit,b.Hit) && SameSlot(a.Name,b.Name) &&
                 SameSlot(a.Status,b.Status) && SameSlot(a.Ring,b.Ring) && SameSlot(a.RingBg,b.RingBg) &&
                 SameSlot(a.Bubble,b.Bubble) && SameSlot(a.Hint,b.Hint);
         }
@@ -1727,7 +1727,7 @@ namespace FishSocialOverlay
             if (_waterEffects.Policy.Envelope == null) { WaterDiagnostic("old-ipc-no-envelope"); return; }
             var source = clip.SourceIndex(frame);
             if (!resources.Source.Frames.TryGetValue(_layeredClip + "/" + source, out var layers)) return;
-            var surface = _chrome?.Seat != null ? _chrome.Seat.y + _chrome.Seat.h + 6 : _body.Height + 6;
+            var surface = WaterSurfaceY;
             _waterEffects.SetSurface(surface);
             var slotScale = _body.Width / 128.0; // logical DIP; Windows DPI is not multiplied again
             bool Bounds(string layer, out Rect bounds)
@@ -1790,14 +1790,16 @@ namespace FishSocialOverlay
             var local = new Rect(scene.X - origin.X, scene.Y - origin.Y, scene.Width, scene.Height);
             local.Intersect(new Rect(-2048, surface - 36 * slotScale, 4096, 68 * slotScale));
             _waterEffects.SetClip(local);
-            bool Emit(string cue, string layer, long occurrence, bool onset = false)
+            bool Emit(string cue, string layer, long occurrence)
             {
                 if (!Bounds(layer, out var bounds)) { WaterDiagnostic(cue + ":missing-source-bounds"); return false; }
                 var touching = Contact(layer, bounds, out var anchor);
-                // Authoritative bite projects the actual visible submerged fish X
-                // onto the existing water line; it does not invent a fish slap.
-                if (onset) touching = touching || bounds.Top >= surface - 2 * slotScale;
-                if (layer == "fish" && slotScale > 0)
+                // Hidden fish still disturb the water at their horizontal position.
+                // Surface/exit cues continue to require a real intersection.
+                var submerged = OverlayFishingWaterContact.ProjectsDisturbance(cue, _layeredClip);
+                if (submerged) touching = touching || bounds.Top >= surface - 2 * slotScale;
+                if (submerged) _waterEffects.Policy.Envelope.WaterSizeTier = "S";
+                else if (layer == "fish" && slotScale > 0)
                     _waterEffects.Policy.Envelope.WaterSizeTier = OverlayWaterEffectsPolicy.VisibleTier(bounds.Width / slotScale);
                 var emitted = _waterEffects.Publish(cue, _fishingPhase, occurrence, anchor, slotScale, touching);
                 if (!emitted && _waterEffects.Policy.LastRejection != null)
@@ -1807,7 +1809,7 @@ namespace FishSocialOverlay
             if ((_layeredClip == "hooked" || _layeredClip == "bite" || _layeredClip == "effort") &&
                 (_fishingPhase == "hooked" || _fishingPhase == "effort"))
             {
-                Emit("bite.onset", "fish", 0, true);
+                Emit("bite.onset", "fish", 0);
                 WaterDiagnostic("fish.surface/slap:hooked-effort-source-clips-submerged");
             }
             foreach (var marker in resources.Source.Markers ?? Array.Empty<SourceWaterMarker>())
@@ -1840,8 +1842,7 @@ namespace FishSocialOverlay
                 ? OverlayFishingWaterContact.Frame(clipName, clip.SourceIndex(index)) : sample.Contact;
             var scale = _layerDrawH / (double)OverlayFishingLayers.CanvasHeight;
             var origin = _layerImages[0].Margin.Top;
-            var seat = _chrome?.Seat;
-            var surface = seat != null ? seat.y + seat.h + 6 : _body.Height + 6;
+            var surface = WaterSurfaceY;
             var pose = OverlayFishingWaterContact.Solve(contact, scale, origin, surface,
                 OverlayFishingWaterContact.Weight(clipName, position, clip.SourceFrameCount));
             if (clipName == "groundbait")
@@ -1871,14 +1872,17 @@ namespace FishSocialOverlay
             }
         }
 
+        double WaterSurfaceY => OverlayFishingWaterContact.LocalSurface(
+            _chrome?.WaterlineY, WaterBodySceneOrigin.Y,
+            _chrome?.Seat != null ? _chrome.Seat.y + _chrome.Seat.h + 6 : _body.Height + 6);
+
         void ApplyWaterContact(int frame, int count)
         {
             var scale = _layerDrawH / (double)OverlayFishingLayers.CanvasHeight;
             var scaleX = _layerDrawW / (double)OverlayFishingLayers.CanvasWidth;
             var origin = _layerImages[0].Margin.Top;
-            // Contact belongs below the seat's front edge, independent of cat art bounds.
-            var seat = _chrome?.Seat;
-            var surface = seat != null ? seat.y + seat.h + 6 : _body.Height + 6;
+            // Contact stays on scene water even when the seat is placed farther up the bank.
+            var surface = WaterSurfaceY;
             var sample = _layered?.Motion == null ? null : _layered.Motion[frame];
             var sourceFrame = _layered?.SourceIndex(frame) ?? frame;
             var contact = sample == null || sample.Position == sample.Source
@@ -1947,6 +1951,7 @@ namespace FishSocialOverlay
                 }
                 if (transform.CanFreeze) transform.Freeze();
                 _layerImages[i].RenderTransform = transform;
+                if (layer == "fish") OverlayFishWaterMask.Apply(_layerImages[i], _layeredClip, surface);
             }
         }
 

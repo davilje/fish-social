@@ -41,6 +41,23 @@ namespace FishSocialOverlay
                 ? frames[index] : null;
         }
 
+        // Scene and actor coordinates are both logical units, before viewport/DPI scaling.
+        public static double LocalSurface(double? sceneWaterlineY, double actorOriginY, double fallback)
+        {
+            if (!sceneWaterlineY.HasValue || double.IsNaN(sceneWaterlineY.Value) ||
+                double.IsInfinity(sceneWaterlineY.Value) || double.IsNaN(actorOriginY) || double.IsInfinity(actorOriginY))
+                return fallback;
+            return sceneWaterlineY.Value - actorOriginY;
+        }
+
+        public static bool IsSubmergedClip(string clip)
+            => clip == "hooked" || clip == "bite" || clip == "effort";
+
+        // Underwater struggle projects onto the surface; an emerging fish still
+        // needs an actual intersection before it can emit fish.surface/slap.
+        public static bool ProjectsDisturbance(string cue, string clip)
+            => IsSubmergedClip(clip) && (cue == "bite.onset" || cue == "fish.struggle");
+
         public static double Weight(string clip, double index, int count)
         {
             if (clip == "fishing" || clip == "hooked" || clip == "bite" || clip == "effort") return 1;

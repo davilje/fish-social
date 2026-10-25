@@ -8,6 +8,37 @@ static class OverlayWaterContactTests
     static void Run(string name, Action test) { test(); passed++; Console.WriteLine("PASS " + name); }
     public static void Main()
     {
+        Run("hidden bites project disturbances without inventing a fish exit", () =>
+        {
+            foreach (var clip in new[] { "hooked", "bite", "effort" })
+            {
+                Check(OverlayFishingWaterContact.IsSubmergedClip(clip), "bite fish is not hidden");
+                Check(OverlayFishingWaterContact.ProjectsDisturbance("bite.onset", clip), "bite cue was lost underwater");
+                Check(OverlayFishingWaterContact.ProjectsDisturbance("fish.struggle", clip), "struggle cue was lost underwater");
+                Check(!OverlayFishingWaterContact.ProjectsDisturbance("fish.surface", clip), "submerged fish emits an exit");
+            }
+            foreach (var clip in new[] { "reel", "catch", "reset_catch", "reel_empty", "fishing" })
+                Check(!OverlayFishingWaterContact.IsSubmergedClip(clip) &&
+                    !OverlayFishingWaterContact.ProjectsDisturbance("fish.struggle", clip), "submerged permission leaked to " + clip);
+        });
+        Run("moving a seat up the bank keeps bobber and fish on the scene waterline", () =>
+        {
+            const double worldWater = 446.431;
+            foreach (var actorY in new[] { 310d, 278d, 246d })
+            {
+                var surface = OverlayFishingWaterContact.LocalSurface(worldWater, actorY, 80);
+                var frame = OverlayFishingWaterContact.Frame("fishing", 0);
+                var pose = OverlayFishingWaterContact.Solve(frame, .125, -12, surface, 1);
+                Check(Math.Abs(actorY - 12 + frame.BobberY * .125 + pose.BobberOffset - worldWater) < .001,
+                    "bobber moved onto land with the seat");
+                frame = OverlayFishingWaterContact.Frame("hooked", 0);
+                pose = OverlayFishingWaterContact.Solve(frame, .125, -12, surface, 1);
+                Check(actorY - 12 + frame.FishTop * .125 + pose.FishOffset >= worldWater + 8 - .001,
+                    "fish depth follows the seat instead of water");
+            }
+            Check(OverlayFishingWaterContact.LocalSurface(null, 300, 86) == 86, "legacy layout fallback changed");
+            Check(OverlayFishingWaterContact.LocalSurface(double.NaN, 300, 86) == 86, "invalid waterline accepted");
+        });
         foreach (var size in new[] { 64, 96, 128, 192 })
         {
             var s = size;
