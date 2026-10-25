@@ -60,7 +60,7 @@ namespace FishSocial.Desktop.Editor
             return catalog;
         }
 
-        [MenuItem("Fish Social/Pond Art/Apply V8 And Export")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Apply()
         {
             var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -126,7 +126,7 @@ namespace FishSocial.Desktop.Editor
 
         // Seat art can be approved independently from scenery. Preserve backgrounds,
         // decorations, horizontal spot positions and their existing references.
-        [MenuItem("Fish Social/Pond Art/Apply Seats Only And Export")]
+        [MenuItem("Fish Social/Overlay/应用座椅资源并导出")]
         public static void ApplySeatsAndExport()
         {
             var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -197,7 +197,7 @@ namespace FishSocial.Desktop.Editor
         }
 
         // A type shares a single layout file. Never place its cutouts by hand per level.
-        [MenuItem("Fish Social/Pond Art/Apply Layered Pond Pilot And Export")]
+        [MenuItem("Fish Social/Overlay/应用池塘分层模板并导出")]
         public static void ApplyLayeredPondPilot()
         {
             if (PrefabStageUtility.GetCurrentPrefabStage() != null)
@@ -430,7 +430,7 @@ namespace FishSocial.Desktop.Editor
             go.transform.SetSiblingIndex(1);
         }
 
-        [MenuItem("Fish Social/Pond Art/Validate V8 References")]
+        [MenuItem("Fish Social/校验/钓鱼场景与座位引用")]
         public static void Verify()
         {
             var catalog = ReadCatalog();

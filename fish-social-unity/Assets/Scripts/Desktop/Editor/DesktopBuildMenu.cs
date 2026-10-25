@@ -187,7 +187,14 @@ namespace FishSocial.Desktop.Editor
                 }
 
                 Debug.Log("[Build] Native Overlay OK → " + overlayExecutable);
-                // Prefab 改动不会自动进 Overlay：必须先导出 hud JSON/PNG，再拷贝 OverlayResources。
+                // Export saved layouts without rebuilding authoring prefabs before copying resources.
+                var layoutError = OverlayLayoutExporter.ExportAll(out var layoutCount, false);
+                if (!string.IsNullOrEmpty(layoutError))
+                {
+                    FailBuild("打包前钓鱼布局导出失败：\n" + layoutError);
+                    return false;
+                }
+                Debug.Log("[Build] Exported " + layoutCount + " saved pond layouts.");
                 if (!ExportOverlayHudForBuild())
                     return false;
                 CopyOverlayResources(projectRoot, overlayOutput);
@@ -211,7 +218,7 @@ namespace FishSocial.Desktop.Editor
                     FailBuild(
                         "打包前 Export Overlay HUD 失败：\n" + error +
                         "\n\n请先修好 OverlayHud Prefab / 关闭占用 hud PNG 的进程，" +
-                        "或手动执行 Fish Social → Export Overlay HUD 后再打包。");
+                        "或手动执行 Fish Social → Overlay → 导出 HUD 后再打包。");
                     return false;
                 }
 

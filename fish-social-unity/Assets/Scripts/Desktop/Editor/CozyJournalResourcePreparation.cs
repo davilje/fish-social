@@ -18,7 +18,7 @@ namespace FishSocial.Desktop.Editor
         public const string Root = "Assets/Resources/Desktop/Theme/Cozy/journal/";
         const string Report = "../docs/art/cozy-journal/previews/";
 
-        [MenuItem("Fish Social/Journal Art/Prepare and validate resources")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Prepare()
         {
             Directory.CreateDirectory(Report);
@@ -155,7 +155,7 @@ namespace FishSocial.Desktop.Editor
             finally { Object.DestroyImmediate(pixels); }
         }
 
-        [MenuItem("Fish Social/Journal Art/Validate resource imports")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Validate()
         {
             var items = JObject.Parse(File.ReadAllText(Root+"ui-manifest.json"))["assets"];
@@ -364,7 +364,7 @@ namespace FishSocial.Desktop.Editor
             });
         }
 
-        [MenuItem("Fish Social/Journal Art/Validate prepared assets")]
+        [MenuItem("Fish Social/校验/日记美术资源")]
         public static void ValidatePreparedAssets()
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
@@ -383,7 +383,7 @@ namespace FishSocial.Desktop.Editor
             File.WriteAllText(Report+"prepared-assets-unity-result.txt","PASS: imported sprites, borders, character and pond manifests, UI multiply shader/material, sample prefab reload and native fonts.\n");
         }
 
-        [MenuItem("Fish Social/Journal Art/Rebuild reference samples")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void PrepareReference()
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);

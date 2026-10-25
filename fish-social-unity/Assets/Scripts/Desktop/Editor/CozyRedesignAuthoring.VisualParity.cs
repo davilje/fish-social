@@ -188,7 +188,7 @@ namespace FishSocial.Desktop.Editor
             t.Find(artPath)?.SetAsLastSibling(); t.Find(namePath)?.SetAsLastSibling(); strip.transform.SetAsLastSibling();
         }
 
-        [UnityEditor.MenuItem("Fish Social/Cozy Redesign/Repair Inventory Details")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void RepairInventoryDetails()
         {
             var path = Folder + "PanelCatch.prefab";

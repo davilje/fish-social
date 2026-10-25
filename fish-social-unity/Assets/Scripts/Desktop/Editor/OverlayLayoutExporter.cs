@@ -19,7 +19,7 @@ namespace FishSocial.Desktop.Editor
         /// <summary>Legacy alias for viewport / narrow pond width.</summary>
         public const float CanvasWidth = MinCanvasWidth;
 
-        [MenuItem("Fish Social/Export Overlay Layout", false, 44)]
+        [MenuItem("Fish Social/Overlay/导出选中关卡布局", false, 44)]
         public static void ExportCurrentMenu()
         {
             var error = ExportSelectionOrActive(out var wrote);
@@ -32,10 +32,10 @@ namespace FishSocial.Desktop.Editor
             EditorUtility.DisplayDialog("Export Overlay Layout", "已导出：\n" + wrote, "确定");
         }
 
-        [MenuItem("Fish Social/Export Overlay Layout（全部塘）", false, 44)]
+        [MenuItem("Fish Social/Overlay/导出全部已保存布局", false, 44)]
         public static void ExportAllMenu()
         {
-            var error = ExportAll(out var count);
+            var error = ExportAll(out var count, false);
             if (!string.IsNullOrEmpty(error))
             {
                 EditorUtility.DisplayDialog("Export Overlay Layout", error, "确定");

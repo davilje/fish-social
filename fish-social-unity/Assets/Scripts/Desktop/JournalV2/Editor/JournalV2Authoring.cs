@@ -39,7 +39,7 @@ namespace FishSocial.Desktop.JournalV2.Editor
             }
             catch(Exception error){File.WriteAllText("Temp/JournalV2.result",error.ToString());Debug.LogException(error);}
         }
-        [MenuItem("Fish Social/Journal V2/Bake independent presentation")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Bake()
         {
             Directory.CreateDirectory(Folder);
@@ -62,7 +62,7 @@ namespace FishSocial.Desktop.JournalV2.Editor
             }
             finally {UnityEngine.Object.DestroyImmediate(root);}
         }
-        [MenuItem("Fish Social/Journal V2/Verify saved presentation")]
+        [MenuItem("Fish Social/校验/日记页面")]
         public static void Verify()
         {
             var report=new StringBuilder();var count=0;

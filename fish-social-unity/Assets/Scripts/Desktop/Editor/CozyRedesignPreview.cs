@@ -14,7 +14,7 @@ namespace FishSocial.Desktop.Editor
         const string Folder = "Assets/Resources/Desktop/Prefabs/";
         static readonly string[] Pages = { "PanelLeaderboard", "PanelProfileHub", "PanelAchievements", "PanelSocial", "PanelCatch", "PanelEquipment", "PanelShop", "PanelSocialFeed", "PanelSettings", "PanelPondSelection", "PanelWorldMap", "PanelGallery" };
 
-        [MenuItem("Fish Social/Cozy Redesign/Render Saved Prefab Previews")]
+        [MenuItem("Fish Social/预览/UI 页面")]
         public static void RenderAll()
         {
             Directory.CreateDirectory("Library/CozyRedesignPreviews");

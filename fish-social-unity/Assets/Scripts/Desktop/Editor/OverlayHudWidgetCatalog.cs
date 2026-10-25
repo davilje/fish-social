@@ -3,7 +3,7 @@ namespace FishSocial.Desktop.Editor
 {
     /// <summary>
     /// Overlay HUD widget tree (960×560). Child x/y are relative to parent when ParentId is set.
-    /// Keep in sync with OverlayHud.prefab (export via Fish Social → Export Overlay HUD).
+    /// Keep in sync with OverlayHud.prefab (export via Fish Social → Overlay → 导出 HUD).
     /// </summary>
     static class OverlayHudWidgetCatalog
     {

@@ -132,7 +132,7 @@ namespace FishSocial.Desktop.Editor
             Verify();
         }
 
-        [MenuItem("Fish Social/Cozy Redesign/Inspect Saved UI")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Inspect()
         {
             var output = new StringBuilder();
@@ -171,7 +171,7 @@ namespace FishSocial.Desktop.Editor
             File.WriteAllText("Library/CozyRedesign.inspect.txt", output.ToString());
         }
 
-        [MenuItem("Fish Social/Cozy Redesign/Apply Approved Eight Page Layouts")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Apply()
         {
             ImportAtlas("items-atlas", 4, 3, new[] { "rod-bamboo", "rod-light", "rod-wood", "rod-long", "bait-basic", "bait-wheat", "bait-berry", "bait-shrimp", "bait-mixed", "bait-pellet", "boat-wood", "boat-blue" });
@@ -1535,7 +1535,7 @@ namespace FishSocial.Desktop.Editor
                 if (label.transform.IsChildOf(node.Find("MainRoot/Nav"))) label.fontStyle = FontStyle.Bold;
         }
 
-        [MenuItem("Fish Social/Cozy Redesign/Validate Saved Layouts")]
+        [MenuItem("Fish Social/校验/UI 页面布局")]
         public static void Verify()
         {
             var errors = CozyUiBuildGuard.CollectErrors();

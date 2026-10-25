@@ -27,7 +27,7 @@ namespace FishSocial.Desktop.Editor
             return Folder + "/" + pondId + ".prefab";
         }
 
-        [MenuItem("Fish Social/补齐 Overlay 布局 Prefab", false, 43)]
+        [MenuItem("Fish Social/维护/补齐缺失的钓鱼布局", false, 43)]
         public static void EnsureAllMenu()
         {
             EnsureAll();

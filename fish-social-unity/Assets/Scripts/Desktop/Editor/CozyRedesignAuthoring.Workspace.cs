@@ -6,7 +6,7 @@ namespace FishSocial.Desktop.Editor
 {
     public static partial class CozyRedesignAuthoring
     {
-        [MenuItem("Fish Social/Cozy Redesign/Apply Web Workspace Pages")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void ApplyWorkspacePages()
         {
             foreach(var name in new[]{"PanelProfileHub","PanelProfileEdit","PanelPondSettlement"})

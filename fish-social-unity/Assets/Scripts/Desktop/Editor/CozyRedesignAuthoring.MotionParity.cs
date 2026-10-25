@@ -8,7 +8,7 @@ namespace FishSocial.Desktop.Editor
     {
         static void ApplyPageMotionParity(GameObject root) => CozyJournalMotionBindings.ConfigurePage(root.transform);
 
-        [MenuItem("Fish Social/Cozy Redesign/Repair Page Motion Bindings")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void RepairPageMotionBindings()
         {
             foreach (var name in new[] { "PanelShop", "PanelEquipment", "PanelSocialFeed", "PanelSettings",

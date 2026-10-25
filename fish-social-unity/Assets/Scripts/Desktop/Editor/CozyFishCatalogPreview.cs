@@ -11,7 +11,7 @@ namespace FishSocial.Desktop.Editor
 {
     public static class CozyFishCatalogPreview
     {
-        [MenuItem("Fish Social/Cozy Redesign/Render Complete Fish Catalog")]
+        [MenuItem("Fish Social/预览/完整鱼图鉴")]
         public static void RenderAll()
         {
             AssetDatabase.Refresh();

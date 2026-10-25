@@ -33,7 +33,7 @@ namespace FishSocial.Desktop.Editor
             CozyPrefabRepair.RepairContents(root);
         }
 
-        [MenuItem("Fish Social/Cozy Redesign/Apply Approved Detail Refinements")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void ApplyRefinements()
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);

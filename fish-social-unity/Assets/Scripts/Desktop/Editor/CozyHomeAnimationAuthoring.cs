@@ -15,7 +15,7 @@ namespace FishSocial.Desktop.Editor
         const string ShellPath = "Assets/Resources/Desktop/Prefabs/DesktopShell.prefab";
         const string Output = "Library/HomeRoomAnimation";
 
-        [MenuItem("Fish Social/Home Room/Save and verify home animations")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void BakeAndVerify()
         {
             var shell = PrefabUtility.LoadPrefabContents(ShellPath);
@@ -29,7 +29,7 @@ namespace FishSocial.Desktop.Editor
             VerifyAndRender();
         }
 
-        [MenuItem("Fish Social/Home Room/Render home animation checkpoints")]
+        [MenuItem("Fish Social/预览/小屋动画")]
         public static void VerifyAndRender()
         {
             var scene = EditorSceneManager.NewPreviewScene();

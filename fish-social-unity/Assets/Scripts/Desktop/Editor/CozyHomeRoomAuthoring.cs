@@ -27,7 +27,7 @@ namespace FishSocial.Desktop.Editor
     public static class CozyHomeRoomAuthoring
     {
         const string Folder="Assets/Resources/Desktop/Prefabs/";
-        [MenuItem("Fish Social/Home Room/Apply approved layered room")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Bake()
         {
             var shell=PrefabUtility.LoadPrefabContents(Folder+"DesktopShell.prefab");
@@ -50,7 +50,7 @@ namespace FishSocial.Desktop.Editor
             finally{PrefabUtility.UnloadPrefabContents(home);}
             AssetDatabase.SaveAssets();VerifyAndRender();
         }
-        [MenuItem("Fish Social/Home Room/Verify and render saved room")]
+        [MenuItem("Fish Social/预览/小屋场景")]
         public static void VerifyAndRender()
         {
             var scene=EditorSceneManager.NewPreviewScene();var target=new RenderTexture(1672,941,24);var previous=RenderTexture.active;

@@ -24,7 +24,7 @@ namespace FishSocial.Desktop.Pet
         }
 
 #if UNITY_EDITOR
-        [MenuItem("Fish Social/同步宠物美术到 StreamingAssets + Overlay", false, 40)]
+        [MenuItem("Fish Social/资源/同步宠物美术", false, 40)]
         public static void SyncPetArtMenu()
         {
             var projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

@@ -11,7 +11,7 @@ namespace FishSocial.Desktop.Editor
     {
         public const string PrefabPath = "Assets/Resources/Desktop/Prefabs/JournalComposeModal.prefab";
 
-        [MenuItem("Fish Social/Cozy Journal/Bake Publish Modal")]
+        // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Bake()
         {
             var root = new GameObject("JournalComposeModal", typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(DesktopSocialComposeModal));

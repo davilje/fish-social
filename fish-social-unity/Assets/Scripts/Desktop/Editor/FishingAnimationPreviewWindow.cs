@@ -25,7 +25,7 @@ namespace FishSocial.Editor
         Vector2 _scroll;
         string _error;
 
-        [MenuItem("Window/Fish Social/Fishing Animation Preview")]
+        [MenuItem("Fish Social/预览/猫咪钓鱼动画")]
         public static void Open()
         {
             GetWindow<FishingAnimationPreviewWindow>("Fishing Art Preview");

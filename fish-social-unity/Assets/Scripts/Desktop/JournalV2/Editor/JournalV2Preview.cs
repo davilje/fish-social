@@ -19,7 +19,7 @@ namespace FishSocial.Desktop.JournalV2.Editor
             public string path,text,sprite;public bool active;public float x,y,width,height,angle;public int fontSize;
         }
         [Serializable] sealed class Geometry {public string page;public int tab;public Node[] nodes;}
-        [MenuItem("Fish Social/Journal V2/Render serialized page previews")]
+        [MenuItem("Fish Social/预览/日记页面")]
         public static void RenderAll()
         {
             Directory.CreateDirectory(Output);Render("home",0);
