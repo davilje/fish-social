@@ -49,7 +49,11 @@ def verify():
     for pond in ponds:
         binding = bindings[pond['pondId']]
         theme = binding['theme']
-        profile = profiles[theme]
+        profile = dict(profiles[theme])
+        if binding.get('image'):
+            profile.update(image=binding['image'], layerLayout=binding.get('layerLayout'))
+        if binding.get('shoreY', 0) > 0:
+            profile['shoreY'] = binding['shoreY']
         assert theme == ('wilderness' if pond['pondId'] == 'pond-ridge' else pond['waterType'])
         document = read(RESOURCES / 'layouts' / (pond['pondId'] + '.json'))
         assert document['canvas']['width'] == document['pond']['width'] == 1680
@@ -62,7 +66,7 @@ def verify():
             template = read(ART / profile['layerLayout'])
             assert read(RESOURCES / 'ponds' / profile['layerLayout']) == template
             assert template['width'] == 1680 and template['height'] == 560
-            assert template['groundY'] == profile['shoreY'] - 8
+            assert abs(template['groundY'] - (profile['shoreY'] - 8)) < .002
             scene_objects = {o['id']: o for o in objects if o['kind'] == 'sprite'}
             assert set(scene_objects) == {o['id'] for o in template['layers']}, ('Stale or missing layer', pond['pondId'])
             for expected in template['layers']:

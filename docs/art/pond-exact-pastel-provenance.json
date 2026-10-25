@@ -1,0 +1,19 @@
+{
+  "reference": "source.png",
+  "tool": "built-in image_gen for local redraw and outer-frame extension; pngjs for exact original-pixel retention and layer masks",
+  "discardedCandidates": [
+    "exec-72d1ab9a-9534-4f16-b0c2-fda800c41bea.png",
+    "exec-c6c6b352-0164-4873-b7c6-5f9eb13e157f.png"
+  ],
+  "redraw": {
+    "prompt": "Surgical restoration of the supplied image, not a new illustration. Keep the ENTIRE image's existing faded soft pastel color grading, exact low-contrast luminance, actual flat angular paint shapes, light mauve trunks and pale blue-lavender shadows. DO NOT increase contrast or saturation, darken shadows, make turquoise more vivid, turn green yellow, smooth brush marks, or add fine stippling. Remove ONLY the overlaid white UI buttons/banners/text and the small fishing cat with its stool/rod/line/bobber. Reconstruct just those locally occluded portions with matching soft pastel tree/grass/water paint. Keep every other pixel as unchanged as possible, including the existing edge fade/vignette, full tree positions and shape, original cloud strokes, shoreline at y~754 in 958 high canvas. Sky remains the exact pale mint cyan, grass the exact dusty mint sage, leaves pale yellow-green and dusty blue, trunks muted lavender peach. No buildings or new objects. Same exact full 1642x958 composition. Output the restored background with the same soft muted colors and same amount of brush detail as the supplied image.",
+    "source": "/Users/red/.codex/generated_images/01a1532f-7ed4-7881-a467-94e6e4a376c5/exec-094c7310-125d-418c-8f45-38bb5ad8a3ec.png",
+    "application": "Only inside repair-mask.png; original RGB elsewhere unchanged."
+  },
+  "extension": {
+    "prompt": "Outpaint the RIGHT side of this exact scene to form a very wide 3:1 horizontal fishing-game panorama. Keep the original scene in the LEFT 56% of the final width, at identical vertical placement. Full scene 2800x958 conceptual coordinates: grassy horizon y580, stone bank top y715, horizontal waterline y754. Extend only to the RIGHT: open pale mint-cyan sky with just sparse dry-brush cloud traces, a low irregular lavender-sage distant shrub silhouette at y540-585, quiet grassy meadow y585-715, small cream/mauve shoreline stones y715-754, calm pale turquoise water below. DO NOT mirror or repeat clouds/shrubs. NO new large trees, buildings, sun or objects. Exact soft washed pastel values of input: dusty muted sage/mint, pale butter-yellow, low contrast lavender-blue shadows, light turquoise water. No added vivid cyan, saturated yellow, dark shadows or heavy grain. Match the SAME fairly large angular matte gouache brush marks, not fine leaves or realistic texture. Remove edge darkening from panorama. No interface, characters, text. This will be cropped to ONLY the new right-hand area; the supplied original artwork will be preserved separately.",
+    "source": "/Users/red/.codex/generated_images/01a1532f-7ed4-7881-a467-94e6e4a376c5/exec-229f4a9a-652d-4db7-ba5b-01e856856bae.png",
+    "application": "Project panorama only, outside reference coverage with local seam transitions. Extension colors mapped to original sampled material palettes. Not used for clean-master.png."
+  },
+  "limits": "Original pixel equality applies only outside explicit repair mask at native resolution. Hidden areas and panorama extension are reconstructed. Runtime scaling interpolates pixels. Static complementary masks are not an animation-ready matte rig."
+}

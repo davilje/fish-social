@@ -1,5 +1,7 @@
 # 柔软粉彩绘本 Overlay 场景替换
 
+> 历史方案：用户指出逐层重绘偏色后，当前已改用[原图保色修订](pond-exact-pastel-overlay.md)。本文记录此前的 10 层重绘版本。
+
 2026-10-25，按用户选择，以原版 `four-reference-textures-v1/03-mint-violet.png` 为配色和纹理基准，将城郊练杆塘 `pond-novice` 的环境替换为柔软粉彩绘本效果。
 
 ## 资源与接入

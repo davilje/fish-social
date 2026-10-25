@@ -35,6 +35,21 @@ namespace FishSocial.Desktop.Editor
             File.WriteAllText(Report + "unity-result.txt", "PASS: imports, sprites, nine-slice borders, 60 character poses, 21 pond renders and reference sample prefabs rendered.\n");
         }
 
+        // Refresh only the live pond-selection photos after scenery replacement.
+        public static void RefreshPondPreviews()
+        {
+            ExportPonds();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            foreach (var file in Directory.GetFiles(Root + "ponds", "*.png"))
+            {
+                var importer = AssetImporter.GetAtPath(file.Replace('\\', '/')) as TextureImporter;
+                if (importer == null) throw new InvalidOperationException("Missing pond photo importer: " + file);
+                Configure(importer);
+                importer.SaveAndReimport();
+            }
+            AssetDatabase.SaveAssets();
+        }
+
         public static bool Configure(TextureImporter importer)
         {
             if (!importer.assetPath.StartsWith(Root, StringComparison.Ordinal)) return false;

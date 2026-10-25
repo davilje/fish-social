@@ -194,11 +194,11 @@ RectTransform:
   - {fileID: 1332722505044513994}
   - {fileID: 3554450589018913532}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 19
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 599.0526, y: -303.65604}
+  m_AnchoredPosition: {x: 599.0526, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6745351306599897368
@@ -257,101 +257,6 @@ MonoBehaviour:
   spriteFile: seats/seat-stool-v3.png
   zIndex: 10
   anchor: bottom-center
---- !u!1 &176749564742809785
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1586548828841346113}
-  - component: {fileID: 2021783181212865759}
-  - component: {fileID: 6581367342308324637}
-  - component: {fileID: 308522649353457741}
-  m_Layer: 0
-  m_Name: scene-cloud-3
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1586548828841346113
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 176749564742809785}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 733.4181, y: -177.28813}
-  m_SizeDelta: {x: 143.16385, y: 47.72128}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &2021783181212865759
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 176749564742809785}
-  m_CullTransparentMesh: 1
---- !u!114 &6581367342308324637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 176749564742809785}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 61701606ecaa443f68f4673134a12c1b, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &308522649353457741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 176749564742809785}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-cloud-3
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/cloud-3.png
-  zIndex: 1
-  anchor: top-left
 --- !u!1 &254718918696072837
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,11 +291,11 @@ RectTransform:
   - {fileID: 5032896547882106157}
   - {fileID: 2207593123165378497}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 22
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 837.7895, y: -303.65604}
+  m_AnchoredPosition: {x: 837.7895, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1023962789571674278
@@ -483,11 +388,11 @@ RectTransform:
   - {fileID: 7858521275246545360}
   - {fileID: 3591131570032541705}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 27
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1235.6842, y: -303.65604}
+  m_AnchoredPosition: {x: 1235.6842, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &4251021530590928751
@@ -660,11 +565,11 @@ RectTransform:
   - {fileID: 3468914811718192040}
   - {fileID: 3190473233792601531}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 12
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 42, y: -303.65604}
+  m_AnchoredPosition: {x: 42, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8602874173281507041
@@ -756,7 +661,7 @@ RectTransform:
   m_Children:
   - {fileID: 4754206045623594439}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 11
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -819,101 +724,6 @@ MonoBehaviour:
   spriteFile:
   zIndex: 20
   anchor: bottom-center
---- !u!1 &1052280339844238157
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6603981072262109699}
-  - component: {fileID: 7406837293204894129}
-  - component: {fileID: 86801482501399898}
-  - component: {fileID: 4538919498886025003}
-  m_Layer: 0
-  m_Name: scene-water
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &6603981072262109699
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1052280339844238157}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -425}
-  m_SizeDelta: {x: 1680, y: 135}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &7406837293204894129
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1052280339844238157}
-  m_CullTransparentMesh: 1
---- !u!114 &86801482501399898
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1052280339844238157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1ac2edc851f2f452c8cc542adc7068e0, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &4538919498886025003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1052280339844238157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-water
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/water.png
-  zIndex: 3
-  anchor: top-left
 --- !u!1 &1327049509728225521
 GameObject:
   m_ObjectHideFlags: 0
@@ -948,11 +758,11 @@ RectTransform:
   - {fileID: 6441566305382891934}
   - {fileID: 7576888449952431354}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 17
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 439.89474, y: -303.65604}
+  m_AnchoredPosition: {x: 439.89474, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1587683901639292584
@@ -1045,11 +855,11 @@ RectTransform:
   - {fileID: 8512388427089993479}
   - {fileID: 2867752188512398472}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 18
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 519.47363, y: -303.65604}
+  m_AnchoredPosition: {x: 519.47363, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7856057047446820141
@@ -1142,11 +952,11 @@ RectTransform:
   - {fileID: 7535262702852390415}
   - {fileID: 2411671152368194664}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 13
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 121.57895, y: -303.65604}
+  m_AnchoredPosition: {x: 121.57895, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6699008075902435313
@@ -1239,11 +1049,11 @@ RectTransform:
   - {fileID: 3949767918544248002}
   - {fileID: 6832614824234628056}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 25
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1076.5264, y: -303.65604}
+  m_AnchoredPosition: {x: 1076.5264, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8971079999667234879
@@ -1336,11 +1146,11 @@ RectTransform:
   - {fileID: 3090673652098666989}
   - {fileID: 2852330401413077720}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 30
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1474.4211, y: -303.65604}
+  m_AnchoredPosition: {x: 1474.4211, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &5505482060042531004
@@ -1433,11 +1243,11 @@ RectTransform:
   - {fileID: 1554409521217709983}
   - {fileID: 7954055015474519086}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 15
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 280.73682, y: -303.65604}
+  m_AnchoredPosition: {x: 280.73682, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &679756451987698437
@@ -1530,11 +1340,11 @@ RectTransform:
   - {fileID: 4895446950040811304}
   - {fileID: 5286495411823077185}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 29
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1394.842, y: -303.65604}
+  m_AnchoredPosition: {x: 1394.842, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &5275817917375862581
@@ -1900,7 +1710,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9b0d5f95c60f9452c92ff44aff5b3248, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aa6247bd2cb9f47dfa43aff173cdae72, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1925,7 +1735,7 @@ MonoBehaviour:
   objectId: pond-bg
   kind: sprite
   spotId:
-  spriteFile: ponds/layered/pond-village-v3/sky.png
+  spriteFile: ponds/series/pastel-v1/pond-01-mint.png
   zIndex: 0
   anchor: top-left
 --- !u!1 &3428207436061261810
@@ -2042,11 +1852,11 @@ RectTransform:
   - {fileID: 4217384071035175029}
   - {fileID: 4433985575389508230}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 14
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 201.1579, y: -303.65604}
+  m_AnchoredPosition: {x: 201.1579, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6903946534024982147
@@ -2139,11 +1949,11 @@ RectTransform:
   - {fileID: 6398584949110353415}
   - {fileID: 31520915952810354}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 24
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 996.94727, y: -303.65604}
+  m_AnchoredPosition: {x: 996.94727, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6757420611628473359
@@ -2236,11 +2046,11 @@ RectTransform:
   - {fileID: 4221232824587995335}
   - {fileID: 851009823687560869}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 23
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 917.3684, y: -303.65604}
+  m_AnchoredPosition: {x: 917.3684, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &750093762790104929
@@ -2333,11 +2143,11 @@ RectTransform:
   - {fileID: 7662036677467375367}
   - {fileID: 1860135563835241588}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 16
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 360.3158, y: -303.65604}
+  m_AnchoredPosition: {x: 360.3158, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6176412536959271959
@@ -2589,15 +2399,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1284416566430563477}
-  - {fileID: 4997114053689949718}
-  - {fileID: 9026989658019431312}
-  - {fileID: 1586548828841346113}
-  - {fileID: 8935938110771417576}
-  - {fileID: 6603981072262109699}
-  - {fileID: 6867626333677986390}
-  - {fileID: 6243573966775399726}
-  - {fileID: 4101922287096061574}
-  - {fileID: 577924113110995014}
   - {fileID: 8648260916250803315}
   - {fileID: 8614167555579796123}
   - {fileID: 2006422057131157769}
@@ -2782,101 +2583,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: novice-spot-16
---- !u!1 &5309661192526957347
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6867626333677986390}
-  - component: {fileID: 1171147064694060852}
-  - component: {fileID: 5196843910284116295}
-  - component: {fileID: 1150092322824755458}
-  m_Layer: 0
-  m_Name: scene-ripples
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &6867626333677986390
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5309661192526957347}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -425}
-  m_SizeDelta: {x: 1680, y: 135}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &1171147064694060852
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5309661192526957347}
-  m_CullTransparentMesh: 1
---- !u!114 &5196843910284116295
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5309661192526957347}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3c4f0343c29d54c1c93a68be879ef9a9, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &1150092322824755458
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5309661192526957347}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-ripples
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/ripples.png
-  zIndex: 4
-  anchor: top-left
 --- !u!1 &5339053670434996683
 GameObject:
   m_ObjectHideFlags: 0
@@ -2911,11 +2617,11 @@ RectTransform:
   - {fileID: 8822798785968940226}
   - {fileID: 7094708159090273001}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 21
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 758.2106, y: -303.65604}
+  m_AnchoredPosition: {x: 758.2106, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7610094719488696434
@@ -3168,11 +2874,11 @@ RectTransform:
   - {fileID: 1361376550205491477}
   - {fileID: 7445589672187127811}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 28
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1315.2632, y: -303.65604}
+  m_AnchoredPosition: {x: 1315.2632, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6161019165682000081
@@ -3265,11 +2971,11 @@ RectTransform:
   - {fileID: 3343999649658751712}
   - {fileID: 3059097495847672153}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 26
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1156.1052, y: -303.65604}
+  m_AnchoredPosition: {x: 1156.1052, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1976181883519327748
@@ -3408,101 +3114,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: novice-spot-6
---- !u!1 &6823800513148738465
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 9026989658019431312}
-  - component: {fileID: 1385247319045514253}
-  - component: {fileID: 2753504901678771787}
-  - component: {fileID: 6315661907793546942}
-  m_Layer: 0
-  m_Name: scene-cloud-2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &9026989658019431312
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6823800513148738465}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 63.24859, y: -155.46187}
-  m_SizeDelta: {x: 158.50282, y: 52.834274}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &1385247319045514253
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6823800513148738465}
-  m_CullTransparentMesh: 1
---- !u!114 &2753504901678771787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6823800513148738465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ab3eca8e9a9ff444abc6d00d36dc8870, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &6315661907793546942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6823800513148738465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-cloud-2
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/cloud-2.png
-  zIndex: 1
-  anchor: top-left
 --- !u!1 &6846140879757687119
 GameObject:
   m_ObjectHideFlags: 0
@@ -3617,11 +3228,11 @@ RectTransform:
   - {fileID: 8811538117118329655}
   - {fileID: 7823763884586145739}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 31
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1554, y: -303.65604}
+  m_AnchoredPosition: {x: 1554, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6831668165439609764
@@ -4114,11 +3725,11 @@ RectTransform:
   - {fileID: 1442969957303329176}
   - {fileID: 3986473355490462097}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 20
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 678.6316, y: -303.65604}
+  m_AnchoredPosition: {x: 678.6316, y: -322.08707}
   m_SizeDelta: {x: 84, y: 122}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6463519953747610631
@@ -4177,196 +3788,6 @@ MonoBehaviour:
   spriteFile: seats/seat-stool-v3.png
   zIndex: 10
   anchor: bottom-center
---- !u!1 &8004132786812764307
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 577924113110995014}
-  - component: {fileID: 8171681732824432474}
-  - component: {fileID: 4017093266627701915}
-  - component: {fileID: 3384230499008708510}
-  m_Layer: 0
-  m_Name: scene-home
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &577924113110995014
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004132786812764307}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1095.1648, y: -137.47864}
-  m_SizeDelta: {x: 449.1331, y: 252.77167}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &8171681732824432474
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004132786812764307}
-  m_CullTransparentMesh: 1
---- !u!114 &4017093266627701915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004132786812764307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 25b04de71828c4835901869c738966c3, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &3384230499008708510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004132786812764307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-home
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/home.png
-  zIndex: 7
-  anchor: top-left
---- !u!1 &8004364866124146415
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4101922287096061574}
-  - component: {fileID: 1474565993340693642}
-  - component: {fileID: 677345918423170882}
-  - component: {fileID: 636343038911448627}
-  m_Layer: 0
-  m_Name: scene-tree
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &4101922287096061574
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004364866124146415}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 157.07443, y: 1.4137573}
-  m_SizeDelta: {x: 716.56085, y: 358.28043}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &1474565993340693642
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004364866124146415}
-  m_CullTransparentMesh: 1
---- !u!114 &677345918423170882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004364866124146415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 57372f13734fa400a96ba6588e243a12, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &636343038911448627
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004364866124146415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-tree
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/tree-connected.png
-  zIndex: 6
-  anchor: top-left
 --- !u!1 &8060922606571109303
 GameObject:
   m_ObjectHideFlags: 0
@@ -4447,101 +3868,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: novice-spot-20
---- !u!1 &8211916368551057747
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8935938110771417576}
-  - component: {fileID: 4496691497184926345}
-  - component: {fileID: 8102140311534166744}
-  - component: {fileID: 3465509646053362800}
-  m_Layer: 0
-  m_Name: scene-forest
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &8935938110771417576
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8211916368551057747}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1680, y: 560}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &4496691497184926345
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8211916368551057747}
-  m_CullTransparentMesh: 1
---- !u!114 &8102140311534166744
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8211916368551057747}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 80db7a9161b244bf19e7fa8ec8c316d9, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &3465509646053362800
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8211916368551057747}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-forest
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/forest.png
-  zIndex: 2
-  anchor: top-left
 --- !u!1 &8371330155125049433
 GameObject:
   m_ObjectHideFlags: 0
@@ -4702,196 +4028,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: novice-spot-7
---- !u!1 &8632917797764515448
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6243573966775399726}
-  - component: {fileID: 7460775945949925310}
-  - component: {fileID: 6686257775740595703}
-  - component: {fileID: 4074138874055583016}
-  m_Layer: 0
-  m_Name: scene-bank
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &6243573966775399726
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8632917797764515448}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1680, y: 560}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &7460775945949925310
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8632917797764515448}
-  m_CullTransparentMesh: 1
---- !u!114 &6686257775740595703
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8632917797764515448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 15974a11dbdf3471692789b7f5f5a2d4, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &4074138874055583016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8632917797764515448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-bank
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/bank.png
-  zIndex: 5
-  anchor: top-left
---- !u!1 &8809823560653173173
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4997114053689949718}
-  - component: {fileID: 7232012246259897653}
-  - component: {fileID: 4235657574454931678}
-  - component: {fileID: 6188390823602786846}
-  m_Layer: 0
-  m_Name: scene-cloud-1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &4997114053689949718
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8809823560653173173}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1025.5933, y: -43.51695}
-  m_SizeDelta: {x: 398.81357, y: 132.93785}
-  m_Pivot: {x: 0, y: 1}
---- !u!222 &7232012246259897653
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8809823560653173173}
-  m_CullTransparentMesh: 1
---- !u!114 &4235657574454931678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8809823560653173173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 178cab45e39fe44888c49051e8e9a558, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &6188390823602786846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8809823560653173173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5d2b01c3e25a7f9d4b6082a3e1f5c2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  objectId: scene-cloud-1
-  kind: sprite
-  spotId:
-  spriteFile: ponds/layered/pond-village-v3/cloud-1.png
-  zIndex: 1
-  anchor: top-left
 --- !u!1 &9105670594417912126
 GameObject:
   m_ObjectHideFlags: 0
@@ -4925,7 +4061,7 @@ RectTransform:
   m_Children:
   - {fileID: 3504576697899355664}
   m_Father: {fileID: 8192466976905271642}
-  m_RootOrder: 10
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}

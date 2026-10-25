@@ -48,7 +48,7 @@ namespace FishSocial.Desktop.Editor
             Debug.Log("[OverlayResourceSync] Verified " + files.Length + " resources; updated " + changed + " → " + destination);
             if (!Application.isBatchMode)
                 EditorUtility.DisplayDialog("Overlay 场景已更新", "已同步布局与配套资源：\n" + destination
-                    + "\n\n请重新启动 Overlay，并进入城郊练杆塘查看新版池塘场景。", "确定");
+                    + "\n\n请重新启动 Overlay，进入对应鱼塘查看已更新的场景。", "确定");
         }
 
         static bool SameBytes(string left, string right)

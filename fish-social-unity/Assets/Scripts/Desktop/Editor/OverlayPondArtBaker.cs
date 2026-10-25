@@ -40,7 +40,14 @@ namespace FishSocial.Desktop.Editor
             public float x, y, w, h;
             public int z;
         }
-        [Serializable] public sealed class Binding { public string pondId; public string displayName; public string theme; public int variant; public string seat; }
+        [Serializable] public sealed class Binding
+        {
+            public string pondId, displayName, theme, seat;
+            public int variant;
+            // Optional per-level scenery; seats and gameplay still use the shared theme.
+            public string image, layerLayout;
+            public float shoreY;
+        }
         [Serializable] public sealed class Module
         {
             public string name;
@@ -58,6 +65,76 @@ namespace FishSocial.Desktop.Editor
             if (catalog == null || catalog.bindings == null || catalog.profiles == null || catalog.modules == null)
                 throw new InvalidOperationException("Missing pond art catalog.");
             return catalog;
+        }
+
+        static Profile ResolveProfile(Catalog catalog, Binding binding)
+        {
+            var shared = catalog.profiles.Single(p => p.theme == binding.theme);
+            var custom = !string.IsNullOrEmpty(binding.image);
+            return new Profile { theme = shared.theme,
+                image = custom ? binding.image : shared.image,
+                layerLayout = custom ? binding.layerLayout : shared.layerLayout,
+                shoreY = binding.shoreY > 0 ? binding.shoreY : shared.shoreY };
+        }
+
+        [MenuItem("Fish Social/Overlay/应用场景资源并导出")]
+        public static void ApplySceneryAndExport()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying scenery.");
+            var catalog = ReadCatalog();
+            // Validate every scene before modifying saved layouts.
+            var profiles = catalog.bindings.Select(b => ResolveProfile(catalog, b)).ToArray();
+            foreach (var profile in profiles)
+                foreach (var layer in ReadLayerLayout(profile).layers)
+                    if (!File.Exists(ArtFolder + "/" + layer.image))
+                        throw new FileNotFoundException("Missing scene image", layer.image);
+            foreach (var image in profiles.SelectMany(p => ReadLayerLayout(p).layers).Select(l => l.image).Distinct())
+                ImportSprite(ArtFolder + "/" + image);
+            foreach (var binding in catalog.bindings)
+            {
+                var profile = ResolveProfile(catalog, binding);
+                var spec = catalog.seats.Single(s => s.name == binding.seat);
+                var path = OverlayPondLayoutBaker.PrefabPath(binding.pondId);
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    var canvas = root.GetComponent<RectTransform>();
+                    foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
+                        if (item.kind == "sprite" && item.objectId != "pond-bg" && item.transform.parent == root.transform)
+                            Object.DestroyImmediate(item.gameObject);
+                    PlaceSceneLayers(root.transform, profile);
+                    foreach (var spot in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).Where(s => s.kind == "spot"))
+                    {
+                        var seat = spot.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).Single(s => s.kind == "actor-seat").GetComponent<RectTransform>();
+                        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvas, seat);
+                        var ground = canvas.rect.height - bounds.min.y - seat.rect.height * (1 - spec.groundY);
+                        // Move the whole actor cluster only; preserve its saved contact geometry and X position.
+                        spot.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, ground - (profile.shoreY - 8));
+                    }
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
+            }
+            AssetDatabase.SaveAssets();
+            var error = OverlayLayoutExporter.ExportAll(out var count, false);
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            var resources = Path.GetFullPath(Path.Combine(OverlayLayoutExporter.LayoutOutputDir(), "..", "ponds"));
+            foreach (var binding in catalog.bindings)
+            {
+                var profile = ResolveProfile(catalog, binding);
+                var target = Path.Combine(resources, profile.layerLayout);
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                File.Copy(ArtFolder + "/" + profile.layerLayout, target, true);
+                // Keep the legacy per-pond fallback consistent with the selected complete panorama.
+                if (ReadLayerLayout(profile).layers.Length == 1)
+                    File.Copy(ArtFolder + "/" + profile.image, Path.Combine(resources, binding.pondId + ".png"), true);
+            }
+            Verify();
+            RenderPreviews(catalog);
+            CozyJournalResourcePreparation.RefreshPondPreviews();
+            OverlayResourceSync.SyncExportedResources();
+            Debug.Log("[PondArt] Applied per-level scenery to " + count + " saved layouts; actor contacts preserved.");
         }
 
         // Batch/authoring API retained; historical operation is not a daily menu command.
@@ -100,7 +177,7 @@ namespace FishSocial.Desktop.Editor
             foreach (var seat in catalog.seats)
                 SaveModule(seat, "seats");
             foreach (var binding in catalog.bindings)
-                ApplyPond(binding, catalog.profiles.Single(p => p.theme == binding.theme), catalog.seats.Single(s => s.name == binding.seat));
+                ApplyPond(binding, ResolveProfile(catalog, binding), catalog.seats.Single(s => s.name == binding.seat));
             AssetDatabase.SaveAssets();
             var error = OverlayLayoutExporter.ExportAll(out var exported, false);
             if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
@@ -156,7 +233,7 @@ namespace FishSocial.Desktop.Editor
                 try
                 {
                     var spec = catalog.seats.Single(s => s.name == binding.seat);
-                    var profile = catalog.profiles.Single(p => p.theme == binding.theme);
+                    var profile = ResolveProfile(catalog, binding);
                     var canvas = root.GetComponent<RectTransform>();
                     foreach (var spot in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).Where(p => p.kind == "spot"))
                     {
@@ -197,13 +274,12 @@ namespace FishSocial.Desktop.Editor
         }
 
         // A type shares a single layout file. Never place its cutouts by hand per level.
-        [MenuItem("Fish Social/Overlay/应用池塘分层模板并导出")]
         public static void ApplyLayeredPondPilot()
         {
             if (PrefabStageUtility.GetCurrentPrefabStage() != null)
                 throw new InvalidOperationException("Close the Prefab Stage before applying pond scenery.");
             var catalog = ReadCatalog();
-            var profile = catalog.profiles.Single(p => p.theme == "pond");
+            var profile = ResolveProfile(catalog, catalog.bindings.First(b => b.theme == "pond"));
             var layout = ReadLayerLayout(profile);
             foreach (var layer in layout.layers) ImportSprite(ArtFolder + "/" + layer.image);
             var selected = catalog.bindings.Where(b => b.theme == profile.theme).ToArray();
@@ -443,7 +519,7 @@ namespace FishSocial.Desktop.Editor
                     if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(node.gameObject) != 0)
                         throw new InvalidOperationException("Missing script " + binding.pondId + "/" + node.name);
                 var bg = asset.transform.Find("pond-bg").GetComponent<Image>();
-                var profile = catalog.profiles.Single(p => p.theme == binding.theme);
+                var profile = ResolveProfile(catalog, binding);
                 if (bg.sprite == null || AssetDatabase.GetAssetPath(bg.sprite) != ArtFolder + "/" + profile.image)
                     throw new InvalidOperationException("Wrong background " + binding.pondId);
                 var expected = new HashSet<string>(DesktopGameData.GetSpotIds(binding.pondId));

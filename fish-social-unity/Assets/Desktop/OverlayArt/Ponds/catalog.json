@@ -1,41 +1,47 @@
 {
-  "version": 9,
+  "version": 11,
   "profiles": [
     {
       "theme": "lake",
-      "shoreY": 405,
-      "image": "maps/map-lake.png"
+      "shoreY": 442.431,
+      "image": "series/pastel-v1/lake-01-mint.png",
+      "layerLayout": "series/pastel-v1/lake-01-mint.json"
     },
     {
       "theme": "pond",
-      "shoreY": 424,
-      "image": "layered/pond-village-v3/sky.png",
-      "layerLayout": "layered/pond-village-v3/layout.json"
+      "shoreY": 442.431,
+      "image": "series/pastel-v1/pond-01-mint.png",
+      "layerLayout": "series/pastel-v1/pond-01-mint.json"
     },
     {
       "theme": "reservoir",
-      "shoreY": 420,
-      "image": "maps/map-reservoir.png"
+      "shoreY": 439.337,
+      "image": "series/pastel-v1/reservoir-01-mint.png",
+      "layerLayout": "series/pastel-v1/reservoir-01-mint.json"
     },
     {
       "theme": "river",
-      "shoreY": 422,
-      "image": "maps/map-river.png"
+      "shoreY": 426.961,
+      "image": "series/pastel-v1/river-01-mint.png",
+      "layerLayout": "series/pastel-v1/river-01-mint.json"
     },
     {
       "theme": "coastal",
-      "shoreY": 424,
-      "image": "maps/map-coastal.png"
+      "shoreY": 436.243,
+      "image": "series/pastel-v1/coast-01-mint.png",
+      "layerLayout": "series/pastel-v1/coast-01-mint.json"
     },
     {
       "theme": "estuary",
-      "shoreY": 416,
-      "image": "maps/map-estuary.png"
+      "shoreY": 433.149,
+      "image": "series/pastel-v1/estuary-05-moon.png",
+      "layerLayout": "series/pastel-v1/estuary-05-moon.json"
     },
     {
       "theme": "wilderness",
-      "shoreY": 420,
-      "image": "maps/map-wilderness.png"
+      "shoreY": 436.243,
+      "image": "series/pastel-v1/estuary-01-mint.png",
+      "layerLayout": "series/pastel-v1/estuary-01-mint.json"
     }
   ],
   "bindings": [
@@ -44,147 +50,210 @@
       "displayName": "千岛湖",
       "theme": "reservoir",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/reservoir-01-mint.png",
+      "layerLayout": "series/pastel-v1/reservoir-01-mint.json",
+      "shoreY": 439.337
     },
     {
       "pondId": "pond-mist",
       "displayName": "太湖",
       "theme": "lake",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-04-mist.png",
+      "layerLayout": "series/pastel-v1/lake-04-mist.json",
+      "shoreY": 430.055
     },
     {
       "pondId": "pond-sunset",
       "displayName": "洪泽湖",
       "theme": "lake",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-02-coral.png",
+      "layerLayout": "series/pastel-v1/lake-02-coral.json",
+      "shoreY": 442.431
     },
     {
       "pondId": "pond-bamboo",
       "displayName": "鄱阳湖",
       "theme": "lake",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-01-mint.png",
+      "layerLayout": "series/pastel-v1/lake-01-mint.json",
+      "shoreY": 442.431
     },
     {
       "pondId": "pond-reed",
       "displayName": "洞庭湖",
       "theme": "lake",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-03-apricot.png",
+      "layerLayout": "series/pastel-v1/lake-03-apricot.json",
+      "shoreY": 436.243
     },
     {
       "pondId": "pond-crystal",
       "displayName": "滇池",
       "theme": "lake",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-01-mint.png",
+      "layerLayout": "series/pastel-v1/lake-01-mint.json",
+      "shoreY": 442.431
     },
     {
       "pondId": "pond-lotus",
       "displayName": "洱海",
       "theme": "lake",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-01-mint.png",
+      "layerLayout": "series/pastel-v1/lake-01-mint.json",
+      "shoreY": 442.431
     },
     {
       "pondId": "pond-mirror",
       "displayName": "镜泊湖",
       "theme": "lake",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-05-moon.png",
+      "layerLayout": "series/pastel-v1/lake-05-moon.json",
+      "shoreY": 445.525
     },
     {
       "pondId": "pond-willow",
       "displayName": "查干湖",
       "theme": "lake",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-03-apricot.png",
+      "layerLayout": "series/pastel-v1/lake-03-apricot.json",
+      "shoreY": 436.243
     },
     {
       "pondId": "pond-stone",
       "displayName": "万绿湖",
       "theme": "reservoir",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/reservoir-03-apricot.png",
+      "layerLayout": "series/pastel-v1/reservoir-03-apricot.json",
+      "shoreY": 436.243
     },
     {
       "pondId": "pond-spring",
       "displayName": "北江",
       "theme": "river",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/river-01-mint.png",
+      "layerLayout": "series/pastel-v1/river-01-mint.json",
+      "shoreY": 426.961
     },
     {
       "pondId": "pond-dusk",
       "displayName": "丹江口水库",
       "theme": "reservoir",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/reservoir-02-coral.png",
+      "layerLayout": "series/pastel-v1/reservoir-02-coral.json",
+      "shoreY": 423.867
     },
     {
       "pondId": "pond-pine",
       "displayName": "清江",
       "theme": "river",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/river-04-mist.png",
+      "layerLayout": "series/pastel-v1/river-04-mist.json",
+      "shoreY": 430.055
     },
     {
       "pondId": "pond-coral",
       "displayName": "舟山近海",
       "theme": "coastal",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/coast-02-coral.png",
+      "layerLayout": "series/pastel-v1/coast-02-coral.json",
+      "shoreY": 439.337
     },
     {
       "pondId": "pond-moon",
       "displayName": "厦门湾",
       "theme": "estuary",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/estuary-05-moon.png",
+      "layerLayout": "series/pastel-v1/estuary-05-moon.json",
+      "shoreY": 433.149
     },
     {
       "pondId": "pond-fern",
       "displayName": "南澳近海",
       "theme": "coastal",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/coast-01-mint.png",
+      "layerLayout": "series/pastel-v1/coast-01-mint.json",
+      "shoreY": 436.243
     },
     {
       "pondId": "pond-ridge",
       "displayName": "长江故道野塘",
       "theme": "wilderness",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/estuary-01-mint.png",
+      "layerLayout": "series/pastel-v1/estuary-01-mint.json",
+      "shoreY": 436.243
     },
     {
       "pondId": "pond-harbor",
       "displayName": "青岛近海",
       "theme": "coastal",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/coast-04-mist.png",
+      "layerLayout": "series/pastel-v1/coast-04-mist.json",
+      "shoreY": 426.961
     },
     {
       "pondId": "pond-orchid",
       "displayName": "涠洲近海",
       "theme": "coastal",
       "variant": 0,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/coast-03-apricot.png",
+      "layerLayout": "series/pastel-v1/coast-03-apricot.json",
+      "shoreY": 433.149
     },
     {
       "pondId": "pond-frost",
       "displayName": "兴凯湖",
       "theme": "lake",
       "variant": 1,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/lake-04-mist.png",
+      "layerLayout": "series/pastel-v1/lake-04-mist.json",
+      "shoreY": 430.055
     },
     {
       "pondId": "pond-novice",
       "displayName": "城郊练杆塘",
       "theme": "pond",
       "variant": 2,
-      "seat": "seat-stool-v3"
+      "seat": "seat-stool-v3",
+      "image": "series/pastel-v1/pond-01-mint.png",
+      "layerLayout": "series/pastel-v1/pond-01-mint.json",
+      "shoreY": 442.431
     }
   ],
   "modules": [
