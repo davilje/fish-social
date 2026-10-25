@@ -504,6 +504,29 @@ namespace FishSocial.Desktop.Editor
             return null;
         }
 
+        [Serializable] sealed class SceneMotionResources { public string weightTexture; }
+
+        static string CopySceneMotion(string backgroundAsset, string backgroundExport)
+        {
+            var source = Path.GetDirectoryName(backgroundAsset);
+            var manifest = Path.Combine(source, "motion.json");
+            if (!File.Exists(manifest)) return null;
+            var destination = Path.GetDirectoryName(backgroundExport);
+            var spec = JsonUtility.FromJson<SceneMotionResources>(File.ReadAllText(manifest));
+            if (spec == null || string.IsNullOrWhiteSpace(spec.weightTexture)
+                || Path.GetFileName(spec.weightTexture) != spec.weightTexture)
+                return "Invalid scene motion weight resource: " + manifest;
+            var weight = Path.Combine(source, spec.weightTexture);
+            if (!File.Exists(weight)) return "Missing scene motion weight: " + weight;
+            File.Copy(manifest, Path.Combine(destination, "motion.json"), true);
+            File.Copy(weight, Path.Combine(destination, spec.weightTexture), true);
+            var layout = Path.Combine(source, "layout.json");
+            if (File.Exists(layout)) File.Copy(layout, Path.Combine(destination, "layout.json"), true);
+            var preview = Path.Combine(source, "preview.png");
+            if (File.Exists(preview)) File.Copy(preview, Path.Combine(destination, "preview.png"), true);
+            return null;
+        }
+
         static string CopyReferencedSprites(DesktopOverlayLayoutObject[] objects, string resourcesDir)
         {
             if (objects == null)
@@ -543,6 +566,11 @@ namespace FishSocial.Desktop.Editor
                     Directory.CreateDirectory(Path.GetDirectoryName(destination));
                     if (!string.Equals(fullAsset, destination, StringComparison.OrdinalIgnoreCase))
                         File.Copy(fullAsset, destination, true);
+                    if (item.objectId == "pond-bg")
+                    {
+                        var motionError = CopySceneMotion(fullAsset, destination);
+                        if (!string.IsNullOrEmpty(motionError)) return motionError;
+                    }
                     continue;
                 }
                 var destDir = kind == "spot" || kind == "actor-seat"

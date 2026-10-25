@@ -40,6 +40,7 @@ public static class OverlayPerformanceTests
         Run("static image cache evicts under real decoded pixel pressure", OverlayStaticPerformanceTests.StaticCacheBudget);
         Run("pond switch and disposal reject stale static art", OverlayStaticPerformanceTests.SceneCancellation);
         Run("async decoration preserves geometry and z-order", OverlayStaticPerformanceTests.DecorationGeometry);
+        Run("scene wind preserves roots, z-order, hidden lifecycle and cancellation", OverlaySceneMotionNativeTests.LifecycleAndGeometry);
         Run("nine-slice eviction bounds cache and preserves live brushes", OverlayStaticPerformanceTests.NineSliceBudget);
         Run("combined and dual masks preserve rendered alpha", OverlayStaticPerformanceTests.MaskParity);
         Run("chat dock opens, resizes and remains hittable", ChatDockInteraction);

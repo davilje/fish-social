@@ -44,6 +44,7 @@ namespace FishSocialOverlay
         int _artVersion;
         internal bool BackgroundPending { get; private set; }
         bool _decorPending;
+        OverlaySceneMotion _sceneMotion;
         public bool IsPresentationReady => !_disposed && !string.IsNullOrEmpty(_pondId) && !BackgroundPending && !_decorPending;
         public event Action ScenePresentationChanged;
         public event Action<OverlayPetActor, string, long, string, string> FishingWaterMarkerPublished;
@@ -70,6 +71,7 @@ namespace FishSocialOverlay
         {
             _viewport = viewport;
             _windowVisible = visible;
+            _sceneMotion?.SetVisible(visible);
             UpdateActorVisibility();
         }
 
@@ -752,6 +754,8 @@ namespace FishSocialOverlay
 
         void ClearDecor()
         {
+            _sceneMotion?.Dispose();
+            _sceneMotion = null;
             if (_decorLayer != null)
                 _decorLayer.Children.Clear();
         }
@@ -779,16 +783,25 @@ namespace FishSocialOverlay
             var token = _artLoad.Token;
             try
             {
-                // Publish the static decoration group together, in saved z-order.
-                var images = new List<Image>();
+                // Publish the complete decoration group together, in saved z-order.
+                var byId = new Dictionary<string, Image>();
                 foreach (var sprite in sprites)
                 {
                     if (IsLegacyFullCanvasPond(sprite)) continue;
                     var image = await _layout.CreateSpriteImageAsync(sprite, resources, token);
-                    if (image != null) images.Add(image);
+                    if (image != null) byId[sprite.id] = image;
                 }
                 if (_disposed || version != _artVersion) return;
-                foreach (var image in images) _decorLayer.Children.Add(image);
+                OverlaySceneMotion motion = null;
+                try { motion = await OverlaySceneMotion.TryCreateAsync(resources, _layout.BackgroundSprite, byId, token); }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine("[SceneMotion] Static fallback: " + ex.Message); }
+                if (_disposed || version != _artVersion) { motion?.Dispose(); return; }
+                foreach (var sprite in sprites)
+                    if (sprite != null && byId.TryGetValue(sprite.id, out var image))
+                        _decorLayer.Children.Add(motion?.Element(sprite.id, image) ?? image);
+                _sceneMotion = motion;
+                _sceneMotion?.SetVisible(_windowVisible);
             }
             catch (OperationCanceledException) { }
             finally

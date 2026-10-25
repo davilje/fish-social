@@ -304,6 +304,42 @@ namespace FishSocial.Desktop.Editor
         static float SeatGroundY(Profile profile) => string.IsNullOrEmpty(profile.layerLayout)
             ? profile.shoreY - 8 : ReadLayerLayout(profile).groundY;
 
+        // Targeted scene update: no seat re-alignment and no changes to other ponds.
+        public static void ApplyQiandaoAnimationAndExport()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying pond scenery.");
+            var catalog = ReadCatalog();
+            var binding = catalog.bindings.Single(b => b.pondId == "pond-calm");
+            var profile = ResolveProfile(catalog, binding);
+            foreach (var layer in ReadLayerLayout(profile).layers) ImportSprite(ArtFolder + "/" + layer.image);
+            var path = OverlayPondLayoutBaker.PrefabPath(binding.pondId);
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
+                    if (item.kind == "sprite" && item.objectId != "pond-bg" && item.transform.parent == root.transform)
+                        Object.DestroyImmediate(item.gameObject);
+                PlaceSceneLayers(root.transform, profile);
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+            AssetDatabase.SaveAssets();
+            var error = OverlayLayoutExporter.ExportPond(binding.pondId);
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            var resources = Path.GetFullPath(Path.Combine(OverlayLayoutExporter.LayoutOutputDir(), "..", "ponds"));
+            var target = Path.Combine(resources, profile.layerLayout);
+            Directory.CreateDirectory(Path.GetDirectoryName(target));
+            File.Copy(ArtFolder + "/" + profile.layerLayout, target, true);
+            var folder = Path.GetDirectoryName(ArtFolder + "/" + profile.layerLayout);
+            File.Copy(Path.Combine(folder, "preview.png"), Path.Combine(resources, binding.pondId + ".png"), true);
+            Verify();
+            catalog.bindings = new[] { binding };
+            RenderPreviews(catalog);
+            OverlayResourceSync.SyncExportedResources();
+            Debug.Log("[PondArt] Installed Qiandao animation layers; saved actor geometry preserved.");
+        }
+
         static LayerLayout ReadLayerLayout(Profile profile)
         {
             if (string.IsNullOrEmpty(profile.layerLayout)) throw new InvalidOperationException("Missing layer layout.");
