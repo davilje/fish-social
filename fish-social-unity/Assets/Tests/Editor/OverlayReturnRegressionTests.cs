@@ -129,6 +129,36 @@ namespace FishSocial.Tests.Editor
                 CozyMotion.SetPaused(previousPaused);
             }
         }
+
+        [Test]
+        public void LeaveReceiptIsPrioritySoDisconnectCannotDropIt()
+        {
+            var interactive = typeof(SocketIoSocialSocketClient).GetMethod(
+                "IsInteractiveSocketEvent", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.IsTrue((bool)interactive.Invoke(null, new object[] { "pond_session_summary" }));
+        }
+
+        [Test]
+        public void LeaveAckDeliversSessionSummaryBeforeDisconnectCallback()
+        {
+            var client = new SocketIoSocialSocketClient("http://127.0.0.1:3001");
+            var order = new System.Collections.Generic.List<string>();
+            client.PondSessionSummaryReceived += summary => order.Add(summary.pondName);
+            var acks = (System.Collections.Generic.Dictionary<int, System.Action<bool, string>>)
+                typeof(SocketIoSocialSocketClient).GetField("_pendingAcks", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .GetValue(client);
+            acks[7] = (_, __) =>
+            {
+                order.Add("ack");
+                client.Disconnect();
+            };
+            typeof(SocketIoSocialSocketClient).GetMethod("HandleAckPacket", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(client, new object[]
+                {
+                    "437[{\"ok\":true,\"sessionSummary\":{\"pondId\":\"pond-1\",\"pondName\":\"千岛湖\",\"biteCount\":2,\"catches\":[]}}]",
+                });
+            CollectionAssert.AreEqual(new[] { "千岛湖", "ack" }, order);
+        }
     }
 }
 #endif

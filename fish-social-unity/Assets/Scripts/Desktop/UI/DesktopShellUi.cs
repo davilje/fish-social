@@ -1160,6 +1160,9 @@ namespace FishSocial.Desktop
         void PresentPondSessionSummary(PondSessionSummaryDto summary)
         {
             if (summary == null || _settlementCanvas == null) return;
+            // The leave ack and the summary event can both arrive. Keep the one already open.
+            if (_settlementCanvas.GetComponentInChildren<DesktopPondSettlementModalView>(true) != null)
+                return;
             var view = DesktopPondSettlementModalView.Show(_settlementCanvas, summary);
             if (view == null) return;
             view.ProfileRequested += () => OpenProfileHub();

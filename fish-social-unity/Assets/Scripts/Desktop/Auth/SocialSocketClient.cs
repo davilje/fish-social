@@ -335,7 +335,10 @@ namespace FishSocial.Desktop.Auth
             // starve overlay IPC on the same Unity frame.
             return eventName == "fish_bite" ||
                    eventName == "fish_miss" ||
-                   eventName == "fish_catch_settled";
+                   eventName == "fish_catch_settled" ||
+                   // Leave ack is also priority and disconnects the socket.
+                   // This receipt must run first, or the disconnect guard drops it.
+                   eventName == "pond_session_summary";
         }
 
         void HandlePacket(string packet, Action<bool, string> onCompleted)
@@ -452,8 +455,28 @@ namespace FishSocial.Desktop.Auth
                 "[Latency][Socket] ack_received id=" + id +
                 " ok=" + result.ok +
                 " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            // Deliver before the callback. leave_pond disconnects inside that
+            // callback, and the queued summary event is then discarded.
+            TryDispatchAckSessionSummary(payload);
             var message = BuildAckMessage(result);
             ack(result.ok, message);
+        }
+
+        void TryDispatchAckSessionSummary(string payload)
+        {
+            if (string.IsNullOrEmpty(payload) ||
+                payload.IndexOf("\"sessionSummary\"", StringComparison.Ordinal) < 0)
+                return;
+            try
+            {
+                var envelope = JsonConvert.DeserializeObject<SessionSummaryAckEnvelope>(payload, PondJsonSettings);
+                if (envelope?.sessionSummary != null)
+                    PondSessionSummaryReceived?.Invoke(envelope.sessionSummary);
+            }
+            catch (Exception error)
+            {
+                Debug.LogWarning("[Pond] session summary ack parse failed: " + error.Message);
+            }
         }
 
         static string BuildAckMessage(SocketActionAckDto result)
@@ -655,6 +678,8 @@ namespace FishSocial.Desktop.Auth
         sealed class StringValue { public string value; }
         [Serializable]
         sealed class InventoryWrapper { public FishInventoryItemDto[] items; }
+        [Serializable]
+        sealed class SessionSummaryAckEnvelope { public PondSessionSummaryDto sessionSummary; }
         #pragma warning restore 0649
     }
 

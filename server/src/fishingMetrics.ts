@@ -114,7 +114,9 @@ export type FishingMetricEvent =
   | 'groundbait_rejected'
   | 'achievement_unlocked'
   | 'album_pin_changed'
-  | 'profile_hub_opened';
+  | 'profile_hub_opened'
+  | 'return_fee_mode_selected'
+  | 'fish_auto_returned';
 
 const IDEMPOTENT_EVENTS = new Set<FishingMetricEvent>(['catch_accept', 'pending_catch_accept']);
 
