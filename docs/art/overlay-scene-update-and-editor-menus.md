@@ -6,7 +6,7 @@
 
 该命令导出所有已保存的钓鱼布局，将 `desktop-overlay/OverlayResources` 的配套文件同步到 `fish-social-unity/FishSocialOverlay/OverlayResources`，逐字节确认复制结果。不会调用布局生成器重建已保存的场景；未保存的 Prefab 编辑会被提示先保存。重新启动 Overlay 后加载新资源。
 
-当前新版分层池塘对应 `pond-novice`（城郊练杆塘）。10 个图层沿用同一坐标表，猫咪和座位保持已保存的对齐关系。本次更新为静态分层资源，环境动画仍是浏览器预览。
+当前新版分层池塘对应 `pond-novice`（城郊练杆塘）。10 个图层沿用同一坐标表，猫咪和座位保持已保存的对齐关系。2026-10-25 已替换为原版「柔软粉彩绘本」配色与纹理，见[替换记录](pond-soft-pastel-overlay.md)。本次更新为静态分层资源，环境动画仍是浏览器预览。
 
 Windows 打包流程也会先导出已保存的场景布局，再复制资源，避免新 Prefab 搭配旧 JSON。该操作更新的是资源，不会重新编译本地 Overlay 可执行文件。使用其他安装目录时，需将同一份 OverlayResources 复制到实际执行文件旁。
 
