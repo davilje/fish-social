@@ -32,6 +32,11 @@ def verify():
     assert len(catalog['seats']) == 4
     seat_specs = {s['name']: s for s in catalog['seats']}
     pet_place = read(RESOURCES / 'fishing/orange/manifest.json')['place']
+    for manifest in (RESOURCES / 'fishing').glob('*/manifest.json'):
+        place = read(manifest)['place']
+        unity_place = read(ASSETS / 'StreamingAssets/Fishing' / manifest.parent.name / 'manifest.json')['place']
+        assert place == unity_place, ('Animation placement differs between clients', manifest)
+        assert place['referenceFoot'] == pet_place['referenceFoot'], ('Skin seat contact differs', manifest)
     pngs = list(ART.rglob('*.png'))
     for path in pngs:
         data = path.read_bytes()
@@ -53,6 +58,20 @@ def verify():
         backgrounds = [o for o in objects if o['id'] == 'pond-bg']
         assert len(backgrounds) == 1
         assert backgrounds[0]['sprite'] == 'ponds/' + profile['image']
+        if profile.get('layerLayout'):
+            template = read(ART / profile['layerLayout'])
+            assert read(RESOURCES / 'ponds' / profile['layerLayout']) == template
+            assert template['width'] == 1680 and template['height'] == 560
+            assert template['groundY'] == profile['shoreY'] - 8
+            scene_objects = {o['id']: o for o in objects if o['kind'] == 'sprite'}
+            assert set(scene_objects) == {o['id'] for o in template['layers']}, ('Stale or missing layer', pond['pondId'])
+            for expected in template['layers']:
+                actual = scene_objects[expected['id']]
+                assert actual['anchor'] == 'top-left'
+                assert actual['sprite'] == 'ponds/' + expected['image']
+                assert actual['z'] == expected['z']
+                for key in ['x', 'y', 'w', 'h']:
+                    assert abs(actual[key] - expected[key]) <= 0.002, (pond['pondId'], expected['id'], key)
         spots = [o for o in objects if o['kind'] == 'spot']
         expected_spots = {row['spotId'] for row in tags if row['pondId'] == pond['pondId']}
         assert len(spots) == len(expected_spots)
@@ -70,8 +89,9 @@ def verify():
                 uniform = min(pet['w'], pet['h']) / pet_place['reference']
                 foot_x = (pet['w'] - uniform * pet_place['reference']) / 2 + uniform * pet_place['referenceFoot'][0]
                 foot_y = (pet['h'] - uniform * pet_place['reference']) / 2 + uniform * pet_place['referenceFoot'][1]
-                assert abs(seat['x'] + seat['w'] * spec['supportX'] - (pet['x'] + foot_x)) <= 1.5
-                assert abs(seat['y'] + seat['h'] * spec['supportY'] - (pet['y'] + foot_y)) <= 1.5
+                # Preserve the shared contact point through fractional layout export.
+                assert abs(seat['x'] + seat['w'] * spec['supportX'] - (pet['x'] + foot_x)) <= 0.01
+                assert abs(seat['y'] + seat['h'] * spec['supportY'] - (pet['y'] + foot_y)) <= 0.01
         for obj in objects:
             sprite = obj.get('sprite')
             assert sprite != 'null'

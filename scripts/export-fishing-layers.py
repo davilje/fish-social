@@ -34,7 +34,7 @@ CLIPS = [
 
 # Paw contact and ear-to-paw height of pets/orange/sit/0.png (512 square, Stretch.Uniform).
 REFERENCE = 512
-REFERENCE_FOOT = (138.5, 404)
+REFERENCE_FOOT = (139.5, 399)
 REFERENCE_BODY = 279
 
 

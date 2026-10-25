@@ -31,7 +31,15 @@ namespace FishSocial.Desktop.Editor
             public Module[] seats;
             public string defaultSeat;
         }
-        [Serializable] public sealed class Profile { public string theme; public string image; public float shoreY; }
+        [Serializable] public sealed class Profile { public string theme; public string image; public float shoreY; public string layerLayout; }
+        [Serializable] public sealed class LayerLayout { public float width; public float height; public float groundY; public SceneLayer[] layers; }
+        [Serializable] public sealed class SceneLayer
+        {
+            public string id;
+            public string image;
+            public float x, y, w, h;
+            public int z;
+        }
         [Serializable] public sealed class Binding { public string pondId; public string displayName; public string theme; public int variant; public string seat; }
         [Serializable] public sealed class Module
         {
@@ -114,6 +122,146 @@ namespace FishSocial.Desktop.Editor
             Verify();
             RenderPreviews(catalog);
             Debug.Log("[PondArt] Applied V8 to " + exported + " pond layouts, including the tutorial pond.");
+        }
+
+        // Seat art can be approved independently from scenery. Preserve backgrounds,
+        // decorations, horizontal spot positions and their existing references.
+        [MenuItem("Fish Social/Pond Art/Apply Seats Only And Export")]
+        public static void ApplySeatsAndExport()
+        {
+            var stage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (stage != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying seats.");
+            var catalog = ReadCatalog();
+            foreach (var spec in catalog.seats)
+            {
+                ImportSprite(ArtFolder + "/seats/" + spec.name + ".png");
+                SaveModule(spec, "seats");
+            }
+            var defaultSpec = catalog.seats.Single(s => s.name == catalog.defaultSeat);
+            File.Copy(ArtFolder + "/seats/" + defaultSpec.name + ".png",
+                OverlayPondActorBaker.ArtFolder + "/seat-default.png", true);
+            ImportSprite(OverlayPondActorBaker.ArtFolder + "/seat-default.png");
+            var actor = PrefabUtility.LoadPrefabContents(OverlayPondActorBaker.PrefabPath);
+            try
+            {
+                ApplySeat(actor, defaultSpec, OverlayPondActorBaker.ArtFolder + "/seat-default.png");
+                PrefabUtility.SaveAsPrefabAsset(actor, OverlayPondActorBaker.PrefabPath);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(actor); }
+            foreach (var binding in catalog.bindings)
+            {
+                var path = OverlayPondLayoutBaker.PrefabPath(binding.pondId);
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    var spec = catalog.seats.Single(s => s.name == binding.seat);
+                    var profile = catalog.profiles.Single(p => p.theme == binding.theme);
+                    var canvas = root.GetComponent<RectTransform>();
+                    foreach (var spot in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).Where(p => p.kind == "spot"))
+                    {
+                        spot.spriteFile = "seats/" + spec.name + ".png";
+                        ApplySeat(spot.gameObject, spec, ArtFolder + "/seats/" + spec.name + ".png");
+                        var seat = spot.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).First(p => p.kind == "actor-seat").GetComponent<RectTransform>();
+                        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvas, seat);
+                        var ground = canvas.rect.height - bounds.min.y - seat.rect.height * (1 - spec.groundY);
+                        spot.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, ground - (profile.shoreY - 8));
+                    }
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
+            }
+            AssetDatabase.SaveAssets();
+            var error = OverlayLayoutExporter.ExportAll(out var exported, false);
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            var resources = Path.GetFullPath(Path.Combine(OverlayLayoutExporter.LayoutOutputDir(), "..", "seats"));
+            Directory.CreateDirectory(resources);
+            foreach (var spec in catalog.seats)
+                File.Copy(ArtFolder + "/seats/" + spec.name + ".png", Path.Combine(resources, spec.name + ".png"), true);
+            File.Copy(ArtFolder + "/seats/" + defaultSpec.name + ".png", Path.Combine(resources, "_default.png"), true);
+            Verify();
+            RenderPreviews(catalog);
+            Debug.Log("[PondArt] Seats only: updated and verified " + exported + " layouts.");
+        }
+
+        static void ApplySeat(GameObject actor, Module spec, string spritePath)
+        {
+            var marker = actor.GetComponentsInChildren<DesktopOverlayLayoutObject>(true).First(p => p.kind == "actor-seat");
+            marker.spriteFile = "seats/" + spec.name + ".png";
+            var image = marker.GetComponent<Image>();
+            image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+            if (image.sprite == null) throw new InvalidOperationException("Missing seat " + spritePath);
+            image.color = Color.white;
+            image.preserveAspect = true;
+            AlignActorSeat(actor, spec);
+        }
+
+        // A type shares a single layout file. Never place its cutouts by hand per level.
+        [MenuItem("Fish Social/Pond Art/Apply Layered Pond Pilot And Export")]
+        public static void ApplyLayeredPondPilot()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying pond scenery.");
+            var catalog = ReadCatalog();
+            var profile = catalog.profiles.Single(p => p.theme == "pond");
+            var layout = ReadLayerLayout(profile);
+            foreach (var layer in layout.layers) ImportSprite(ArtFolder + "/" + layer.image);
+            var selected = catalog.bindings.Where(b => b.theme == profile.theme).ToArray();
+            if (selected.Length == 0) throw new InvalidOperationException("No pond bindings.");
+            foreach (var binding in selected)
+            {
+                ApplyPond(binding, profile, catalog.seats.Single(s => s.name == binding.seat));
+                var error = OverlayLayoutExporter.ExportPond(binding.pondId);
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+            AssetDatabase.SaveAssets();
+            var resources = Path.GetFullPath(Path.Combine(OverlayLayoutExporter.LayoutOutputDir(), "..", "ponds"));
+            var target = Path.Combine(resources, profile.layerLayout);
+            Directory.CreateDirectory(Path.GetDirectoryName(target));
+            File.Copy(ArtFolder + "/" + profile.layerLayout, target, true);
+            Verify();
+            catalog.bindings = selected;
+            RenderPreviews(catalog);
+            Debug.Log("[PondArt] Layered pond pilot: " + selected.Length + " level(s), " + layout.layers.Length + " shared layers.");
+        }
+
+        static LayerLayout ReadLayerLayout(Profile profile)
+        {
+            if (string.IsNullOrEmpty(profile.layerLayout)) throw new InvalidOperationException("Missing layer layout.");
+            var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(ArtFolder + "/" + profile.layerLayout));
+            if (layout == null || layout.layers == null || layout.width != Width || layout.height != Height
+                || Mathf.Abs(layout.groundY - (profile.shoreY - 8)) > 0.01f)
+                throw new InvalidOperationException("Invalid shared scene coordinates.");
+            if (layout.layers.Count(l => l.id == "pond-bg" && l.image == profile.image) != 1
+                || layout.layers.Select(l => l.id).Distinct().Count() != layout.layers.Length)
+                throw new InvalidOperationException("Invalid layer IDs or background.");
+            return layout;
+        }
+
+        static void PlaceSceneLayers(Transform root, Profile profile)
+        {
+            var layout = ReadLayerLayout(profile);
+            var sibling = 0;
+            foreach (var layer in layout.layers.OrderBy(l => l.z))
+            {
+                var go = layer.id == "pond-bg" ? root.Find("pond-bg").gameObject
+                    : new GameObject(layer.id, typeof(RectTransform), typeof(Image), typeof(DesktopOverlayLayoutObject));
+                go.transform.SetParent(root, false);
+                go.transform.SetSiblingIndex(sibling++);
+                var image = go.GetComponent<Image>();
+                image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(ArtFolder + "/" + layer.image);
+                if (image.sprite == null) throw new InvalidOperationException("Missing scene layer " + layer.image);
+                image.color = Color.white;
+                image.preserveAspect = false;
+                image.raycastTarget = false;
+                var marker = go.GetComponent<DesktopOverlayLayoutObject>();
+                marker.objectId = layer.id;
+                marker.kind = "sprite";
+                marker.spriteFile = "ponds/" + layer.image;
+                marker.anchor = "top-left";
+                marker.zIndex = layer.z;
+                OverlayPondLayoutBaker.PlaceTopLeft(go.GetComponent<RectTransform>(), layer.x, layer.y, layer.w, layer.h);
+            }
         }
 
         static void ImportSprite(string path)
@@ -233,7 +381,8 @@ namespace FishSocial.Desktop.Editor
                         seatImage.color = Color.white;
                     }
                 }
-                PlaceDecoration(root.transform, binding, profile);
+                if (!string.IsNullOrEmpty(profile.layerLayout)) PlaceSceneLayers(root.transform, profile);
+                else PlaceDecoration(root.transform, binding, profile);
                 PrefabUtility.SaveAsPrefabAsset(root, path);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }

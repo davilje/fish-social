@@ -752,8 +752,8 @@ namespace FishSocial.Desktop.Pet
             FootY = 450f,
             BodyHeight = 257f,
             Reference = 512f,
-            ReferenceFootX = 138.5f,
-            ReferenceFootY = 404f,
+            ReferenceFootX = 139.5f,
+            ReferenceFootY = 399f,
             ReferenceBody = 279f,
         };
 

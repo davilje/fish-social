@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "profiles": [
     {
       "theme": "lake",
@@ -8,8 +8,9 @@
     },
     {
       "theme": "pond",
-      "shoreY": 420,
-      "image": "maps/map-pond.png"
+      "shoreY": 424,
+      "image": "layered/pond-village-v3/sky.png",
+      "layerLayout": "layered/pond-village-v3/layout.json"
     },
     {
       "theme": "reservoir",
@@ -239,33 +240,35 @@
   "seats": [
     {
       "name": "seat-stump-v1",
-      "label": "树桩",
-      "width": 85,
-      "groundY": 1
+      "label": "低原木座",
+      "width": 48,
+      "groundY": 0.9154539154539154,
+      "supportX": 0.5,
+      "supportY": 0.34944559944559944
     },
     {
       "name": "seat-stool-v3",
-      "label": "小板凳",
-      "width": 76,
-      "supportX": 0.52,
-      "supportY": 0.43,
-      "groundY": 0.94
+      "label": "单猫小板凳",
+      "width": 50,
+      "supportX": 0.4995656279508971,
+      "supportY": 0.32021823523239956,
+      "groundY": 0.897772182002588
     },
     {
       "name": "seat-stone-v2",
-      "label": "青灰石台",
-      "width": 85,
-      "supportX": 0.52,
-      "supportY": 0.55,
-      "groundY": 0.92
+      "label": "低溪石座",
+      "width": 50,
+      "supportX": 0.49379426644182123,
+      "supportY": 0.27241427768409215,
+      "groundY": 0.899451939291737
     },
     {
       "name": "seat-folding-v2",
-      "label": "折叠椅",
-      "width": 104,
-      "supportX": 0.6,
-      "supportY": 0.58,
-      "groundY": 0.96
+      "label": "低座折叠椅",
+      "width": 52,
+      "supportX": 0.5,
+      "supportY": 0.6531848043416167,
+      "groundY": 0.9506998000571266
     }
   ],
   "defaultSeat": "seat-stool-v3"

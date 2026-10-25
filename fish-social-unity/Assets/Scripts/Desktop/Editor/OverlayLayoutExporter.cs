@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using FishSocial.Desktop;
@@ -97,6 +98,11 @@ namespace FishSocial.Desktop.Editor
             }
 
             return null;
+        }
+
+        public static string ExportPond(string pondId)
+        {
+            return ExportPrefabAsset(OverlayPondLayoutBaker.PrefabPath(pondId), LayoutOutputDir(), out _);
         }
 
         static string ExportSelectionOrActive(out string wrote)
@@ -711,10 +717,14 @@ namespace FishSocial.Desktop.Editor
             sb.Append("\"kind\":\"").Append(Escape(entry.Kind)).Append("\",");
             if (!string.IsNullOrEmpty(entry.SpotId))
                 sb.Append("\"spotId\":\"").Append(Escape(entry.SpotId)).Append("\",");
-            sb.Append("\"x\":").Append(Mathf.Round(AnchorX(entry))).Append(",");
-            sb.Append("\"y\":").Append(Mathf.Round(AnchorY(entry))).Append(",");
-            sb.Append("\"w\":").Append(Mathf.Round(entry.W)).Append(",");
-            sb.Append("\"h\":").Append(Mathf.Round(entry.H)).Append(",");
+            // Independent integer rounding of the seat and pet loses their shared
+            // contact point. WPF supports fractional coordinates, as Unity does.
+            var actorPart = entry.Kind.StartsWith("actor-", StringComparison.Ordinal)
+                || (entry.Sprite != null && entry.Sprite.StartsWith("ponds/layered/", StringComparison.Ordinal));
+            sb.Append("\"x\":").Append(LayoutNumber(AnchorX(entry), actorPart)).Append(",");
+            sb.Append("\"y\":").Append(LayoutNumber(AnchorY(entry), actorPart)).Append(",");
+            sb.Append("\"w\":").Append(LayoutNumber(entry.W, actorPart)).Append(",");
+            sb.Append("\"h\":").Append(LayoutNumber(entry.H, actorPart)).Append(",");
             sb.Append("\"z\":").Append(entry.Z);
             sb.Append(",\"anchor\":\"").Append(Escape(entry.Anchor)).Append("\"");
             if (!string.IsNullOrEmpty(entry.Sprite))
@@ -731,6 +741,12 @@ namespace FishSocial.Desktop.Editor
             }
             sb.Append("}");
             return sb.ToString();
+        }
+
+        static string LayoutNumber(float value, bool retainFraction)
+        {
+            return (retainFraction ? value : Mathf.Round(value))
+                .ToString("0.###", CultureInfo.InvariantCulture);
         }
 
         static float AnchorX(LayoutEntry entry)

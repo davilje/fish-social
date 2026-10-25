@@ -674,8 +674,8 @@ namespace FishSocialOverlay
             FootY = 450,
             BodyHeight = 257,
             Reference = 512,
-            ReferenceFootX = 138.5,
-            ReferenceFootY = 404,
+            ReferenceFootX = 139.5,
+            ReferenceFootY = 399,
             ReferenceBody = 279,
         };
 

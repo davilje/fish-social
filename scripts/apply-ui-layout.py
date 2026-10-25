@@ -25,8 +25,8 @@ CLUSTER = {
     "actor-hint": (-44, -104, 84, 20),
 }
 
-FOOT_X = 138.5 / 512.0
-FOOT_Y = 404.0 / 512.0
+FOOT_X = 139.5 / 512.0
+FOOT_Y = 399.0 / 512.0
 NAME_KEEP_OUT = 488
 
 HUD_ZONES = {
