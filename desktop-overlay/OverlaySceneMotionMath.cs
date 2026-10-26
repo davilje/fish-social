@@ -6,22 +6,23 @@ namespace FishSocialOverlay
     internal sealed class OverlayLeafWarp
     {
         readonly byte[] _source, _weight;
-        readonly int _width, _height, _left, _cropWidth, _cropHeight;
+        readonly int _width, _height, _left, _top, _cropWidth, _cropHeight;
         readonly double[] _detail, _vertical;
         readonly double _amplitude, _verticalRatio, _primary, _secondary, _verticalPeriod;
         public int Width => _cropWidth;
         public int Height => _cropHeight;
         public int Left => _left;
+        public int Top => _top;
         public OverlayLeafWarp(byte[] source, byte[] weight, int width, int height,
             int left, int cropWidth, int cropHeight, double phase, double amplitude,
-            double verticalRatio, double primary, double secondary, double verticalPeriod)
+            double verticalRatio, double primary, double secondary, double verticalPeriod, int top = 0)
         {
             if (source == null || weight == null || width < 1 || height < 1 ||
                 source.Length != width * height * 4 || weight.Length != width * height ||
-                left < 0 || cropWidth < 1 || left + cropWidth > width || cropHeight < 1 || cropHeight > height ||
+                left < 0 || top < 0 || cropWidth < 1 || left + cropWidth > width || cropHeight < 1 || top + cropHeight > height ||
                 primary <= 0 || secondary <= 0 || verticalPeriod <= 0) throw new ArgumentException("Invalid leaf warp data");
             _source = source; _weight = weight; _width = width; _height = height;
-            _left = left; _cropWidth = cropWidth; _cropHeight = cropHeight;
+            _left = left; _top = top; _cropWidth = cropWidth; _cropHeight = cropHeight;
             _amplitude = amplitude; _verticalRatio = verticalRatio;
             _primary = primary; _secondary = secondary; _verticalPeriod = verticalPeriod;
             _detail = new double[cropWidth]; _vertical = new double[cropWidth];
@@ -36,10 +37,10 @@ namespace FishSocialOverlay
             var vertical = _verticalRatio * Math.Sin(seconds * Math.PI * 2 / _verticalPeriod);
             for (var y = 0; y < _cropHeight; y++) for (var x = 0; x < _cropWidth; x++)
             {
-                var gx = x + _left; var index = y * _width + gx; var dst = (y * _cropWidth + x) * 4;
+                var gx = x + _left; var gy = y + _top; var index = gy * _width + gx; var dst = (y * _cropWidth + x) * 4;
                 var w = _weight[index] / 255.0 * _amplitude;
                 var sx = gx - w * (slow + fast * _detail[x]);
-                var sy = y - w * vertical * _vertical[x];
+                var sy = gy - w * vertical * _vertical[x];
                 if (w == 0 || seconds == 0)
                 { Buffer.BlockCopy(_source, index * 4, output, dst, 4); continue; }
                 if (sx < -.5 || sy < -.5 || sx > _width - .5 || sy > _height - .5)
@@ -61,5 +62,11 @@ namespace FishSocialOverlay
     {
         public static double CloudOffset(double seconds, double amplitude, double period, double scale)
             => amplitude * Math.Sin(seconds * Math.PI * 2 / period) * scale;
+        public static double CloudTravel(double seconds, double speed, double width, double phase = 0)
+        {
+            if (width <= 0 || speed <= 0) throw new ArgumentException("Invalid cloud cycle");
+            var distance = seconds * speed + phase;
+            return distance - Math.Floor(distance / width) * width;
+        }
     }
 }

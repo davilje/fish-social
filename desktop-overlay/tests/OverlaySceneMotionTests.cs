@@ -22,7 +22,41 @@ static class OverlaySceneMotionTests
         Check(Math.Abs(OverlaySceneMotionMath.CloudOffset(0,12,160,1)-OverlaySceneMotionMath.CloudOffset(160,12,160,1))<1e-10,"Cloud loop jumps");
         Check(Math.Abs(OverlaySceneMotionMath.CloudOffset(120,12,160,1)+12)<1e-10,"Cloud negative excursion");
         var invalid=false;try{Warp(transparent,weight,w,h,30,10,16);}catch(ArgumentException){invalid=true;}Check(invalid,"Invalid crop accepted");
-        Console.WriteLine("PASS: rest crop, moving leaves, fixed roots, transparent edges, scale, cloud cycle, negative excursion, invalid crop");
+        // A middle-ground patch starts below the top of the source texture.
+        var patch=new OverlayLeafWarp(source,weight,w,h,5,12,10,.4,7.2,.26,6.6,4.2,9.3,6);
+        var patchResult=new byte[12*10*4];patch.Render(0,patchResult);
+        for(var y=0;y<10;y++)for(var x=0;x<12;x++)for(var c=0;c<4;c++)
+            Check(patchResult[(y*12+x)*4+c]==source[((y+6)*w+x+5)*4+c],"Middle patch sampled the wrong source row");
+        patch.Render(1.8,patchResult);
+        for(var y=2;y<10;y++)for(var x=0;x<12;x++)for(var c=0;c<4;c++)
+            Check(patchResult[(y*12+x)*4+c]==source[((y+6)*w+x+5)*4+c],"Middle patch moved fixed roots");
+        foreach(var speed in new[]{1.6,3.2,5.2})
+        {
+            var cycle=2172/speed;
+            Check(Math.Abs(OverlaySceneMotionMath.CloudTravel(cycle,speed,2172))<1e-8,"Cloud failed to wrap");
+            Check(Math.Abs(OverlaySceneMotionMath.CloudTravel(20,speed,2172)-20*speed)<1e-8,"Cloud reversed direction");
+            var before=OverlaySceneMotionMath.CloudTravel(cycle-.001,speed,2172);
+            var after=OverlaySceneMotionMath.CloudTravel(cycle+.001,speed,2172);
+            Check(Math.Abs((after+2172-before)-.002*speed)<1e-8,"Cloud copies are discontinuous at wrap");
+        }
+        Console.WriteLine("PASS: legacy motion; offset middle patches; fixed roots; transparent edges; three forward cloud speeds and wrap continuity");
+        if(args.Length==2 && args[0]=="--scene")
+        {
+            var dir=args[1];using var manifest=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(dir,"motion.json")));
+            var settings=manifest.RootElement;var warps=new System.Collections.Generic.List<OverlayLeafWarp>();
+            var outputs=new System.Collections.Generic.List<byte[]>();
+            foreach(var leaf in settings.GetProperty("leaves").EnumerateArray())
+            {
+                var id=leaf.GetProperty("id").GetString();var weightName=leaf.TryGetProperty("weightTexture",out var wn)?wn.GetString():settings.GetProperty("weightTexture").GetString();
+                var primary=leaf.TryGetProperty("primaryPeriod",out var pp)?pp.GetDouble():settings.GetProperty("primaryPeriod").GetDouble();
+                var real=new OverlayLeafWarp(File.ReadAllBytes(Path.Combine(dir,id+".pbgra")),File.ReadAllBytes(Path.Combine(dir,weightName+".gray")),2172,724,
+                    leaf.GetProperty("left").GetInt32(),leaf.GetProperty("width").GetInt32(),leaf.GetProperty("height").GetInt32(),leaf.GetProperty("phase").GetDouble(),7.2,.26,primary,4.2,9.3,leaf.GetProperty("top").GetInt32());
+                warps.Add(real);outputs.Add(new byte[real.Width*real.Height*4]);
+            }
+            var timer=Stopwatch.StartNew();for(var frame=0;frame<100;frame++)for(var i=0;i<warps.Count;i++)warps[i].Render(frame/24.0,outputs[i]);timer.Stop();
+            for(var i=0;i<warps.Count;i++){warps[i].Render(1.8,outputs[i]);File.WriteAllBytes(Path.Combine(dir,"patch-"+i+".pbgra"),outputs[i]);}
+            Console.WriteLine(warps.Count+" real foliage patches: "+(timer.Elapsed.TotalMilliseconds/100).ToString("F2")+" ms/frame (sampling only, reused buffers)");
+        }
         if(args.Length==1)
         {
             var dir=args[0];var bytes=File.ReadAllBytes(Path.Combine(dir,"tree-left.pbgra"));var map=File.ReadAllBytes(Path.Combine(dir,"wind.gray"));
