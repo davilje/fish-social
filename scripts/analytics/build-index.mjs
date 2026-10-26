@@ -1,5 +1,5 @@
 /**
- * 生成 docs/analytics/index.html + compare.html + manifest.json
+ * 生成 docs/数据分析/index.html + compare.html + manifest.json
  */
 import fs from 'fs';
 import path from 'path';

@@ -14,7 +14,7 @@ namespace FishSocial.Desktop.Editor
     {
         public const string ArtPath = "Assets/Resources/Desktop/Theme/Cozy/scenes/login-background-cats-v4.png";
         const string ShellPath = "Assets/Resources/Desktop/Prefabs/DesktopShell.prefab";
-        const string Output = "../docs/art/login-pastel-2026-10-26/cats-v4/";
+        const string Output = "../docs/美术/登录/cats-v4/";
 
         public static void ApplyAndRender()
         {

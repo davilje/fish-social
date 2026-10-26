@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>大肥鱼 · 猫咪模板关键帧试绘</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#283c58;background:#f5f1ea}*{box-sizing:border-box}body{margin:0}main{max-width:1480px;margin:auto;padding:32px}h1{font-size:28px;margin:0 0 10px}p{line-height:1.7;color:#647082}button,a{font:inherit}button{border:1px solid #cbd4df;background:white;color:#304f78;border-radius:10px;padding:10px 16px;cursor:pointer}button[aria-pressed=true]{background:#365f91;color:white;border-color:#365f91}button:focus-visible,a:focus-visible{outline:3px solid #e6a555;outline-offset:3px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}.settings{display:flex;gap:20px;flex-wrap:wrap;padding:15px 0}.settings label{display:flex;align-items:center;gap:7px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:20px}article{background:#fffdf9;border:1px solid #dfdfda;border-radius:16px;overflow:hidden}article h2{font-size:17px;margin:18px 20px 5px}.caption{font-size:13px;margin:0 20px}.stage{position:relative;width:100%;aspect-ratio:640/600;overflow:hidden;background:#f1ede5}.stage.checker{background-color:#f4f5f7;background-image:linear-gradient(45deg,#e6e8eb 25%,transparent 25%),linear-gradient(-45deg,#e6e8eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e6e8eb 75%),linear-gradient(-45deg,transparent 75%,#e6e8eb 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}.layer,.ghost{position:absolute;left:0;top:0;width:100%;height:85.333333%;object-fit:fill;pointer-events:none}.seat{position:absolute;left:18.4375%;top:63.333333%;width:43.75%;height:28.333333%;pointer-events:none}.ghost{opacity:.22}.anchor{position:absolute;border:1px dashed #cb5b4a;background:#cb5b4a12;pointer-events:none}.legend{display:flex;flex-wrap:wrap;gap:14px;padding:18px 0}.legend label{font-size:14px;display:flex;align-items:center;gap:5px}.subnote{border-left:3px solid #c49663;padding:2px 14px;margin-top:16px;font-size:14px}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px}.gallery button{padding:0;overflow:hidden;text-align:left;background:#fffdf9;color:#283c58}.gallery img{width:100%;display:block}.gallery strong{display:block;padding:13px 16px}.reference{display:flex;align-items:center;gap:25px;flex-wrap:wrap;margin-top:30px}.reference img{max-width:480px;width:100%;background:#e8edf3;border-radius:12px}.links{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0}a{color:#365f91}#current-title{margin-top:30px;font-size:22px}.badge{display:inline-block;font-size:12px;background:#e5edf6;color:#365f91;border-radius:7px;padding:4px 9px;vertical-align:middle}.compact{font-size:13px} @media(max-width:800px){main{padding:20px}.comparison{grid-template-columns:1fr}.gallery{grid-template-columns:repeat(2,1fr)}h1{font-size:23px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>大肥鱼 · 猫咪模板关键帧试绘 <span class="badge">3 组 / 6 个姿势</span></h1>
+  <p><a href="../../大肥鱼/full-v1/index.html">查看大肥鱼完整动作与分层素材</a></p>
+  <p>以工程内橘猫的关键帧为姿势模板，绘制鲸鱼女仆。角色层沿用 body / head / far_hand / hands；鱼竿、鱼线、鱼、浮标、鱼饵及默认板凳复用原素材。</p>
+  <nav class="toolbar" aria-label="选择关键姿势" id="poses"></nav>
+  <div class="settings">
+    <label><input id="seat" type="checkbox" checked>显示统一默认板凳</label>
+    <label><input id="checker" type="checkbox">透明棋盘背景</label>
+    <label><input id="ghost" type="checkbox">叠加原角色轮廓</label>
+    <label><input id="anchors" type="checkbox">显示原手部范围</label>
+  </div>
+  <h2 id="current-title"></h2>
+  <section class="comparison" aria-label="原模板与大肥鱼对照">
+    <article><h2>原猫咪模板</h2><p class="caption">原画布、原道具、原图层顺序</p><div class="stage" id="cat-stage"></div></article>
+    <article><h2>大肥鱼试绘</h2><p class="caption">同一坐标系 · 新角色图层 + 原道具</p><div class="stage" id="whale-stage"></div></article>
+  </section>
+  <fieldset class="legend" id="layers"><legend>显示图层 · 可关闭其他层检查单层</legend></fieldset>
+  <p class="subnote">这是关键姿势试绘，尚未接入运行时角色列表。需要检查握点、袖口与鱼竿的接触，以及头部、长发在后续连续帧中的一致性。分层为完整绘图的静态像素分区，不含肢体转动后的隐藏区域补画；六张姿势不能作为完整动画播放。</p>
+  <div class="links"><a href="manifest.json">资源清单与层级</a><a id="character-link" href="#">当前角色透明 PNG</a><a id="composite-link" href="#">当前合成透明 PNG</a><a href="preview.png">六姿势总览</a><a href="README.md">制作说明</a></div>
+  <section class="gallery" id="gallery" aria-label="六张试绘总览"></section>
+  <div class="reference"><div><h2>外观依据</h2><p class="compact">以第一张左侧睁眼帧为外观基准，庆祝表情参考第二张。</p></div><img src="shared/identity.png" alt="大肥鱼原始外观参考"><img src="shared/celebration.png" alt="大肥鱼庆祝动作参考"></div>
+</main>
+<script src="data.js"></script>
+<script>
+  const study = window.whaleStudy;
+  const names = {body:'身体 / 后发 / 鲸尾',head:'头部 / 头饰',far_hand:'后手',hands:'前手',rod:'鱼竿',line:'鱼线',fish:'鱼',bobber:'浮标',bait:'鱼饵'};
+  const templateBounds = {
+    'ready-00':[[306,356,346,396],[343,353,368,387]],'bait-02':[[316,313,352,353],[350,313,380,351]],
+    'bite-03':[[316,309,356,349],[349,292,380,330]],'effort-03':[[300,292,341,335],[331,276,361,314]],
+    'catch-00':[[314,315,352,352],[341,307,374,342]],'catch-04':[[291,299,332,342],[361,285,402,327]]
+  };
+  let current = study.frames[0];
+  const visible = new Set(Object.keys(names));
+  for (const [key,name] of Object.entries(names)) {
+    const label=document.createElement('label');const input=document.createElement('input');input.type='checkbox';input.checked=true;input.dataset.layer=key;
+    input.addEventListener('change',()=>{input.checked?visible.add(key):visible.delete(key);render();});label.append(input,document.createTextNode(name));document.querySelector('#layers').append(label);
+  }
+  for (const frame of study.frames) {
+    const button=document.createElement('button');button.textContent=frame.label;button.dataset.pose=frame.id;button.addEventListener('click',()=>select(frame));document.querySelector('#poses').append(button);
+    const card=document.createElement('button');const picture=document.createElement('img');picture.src=frame.review;picture.alt=frame.label+'：大肥鱼与原道具合成';const title=document.createElement('strong');title.textContent=frame.label+' · '+frame.id;card.append(picture,title);card.addEventListener('click',()=>{select(frame);document.querySelector('#current-title').scrollIntoView({behavior:'smooth',block:'start'});});document.querySelector('#gallery').append(card);
+  }
+  function appendImage(stage,source,className){const picture=document.createElement('img');picture.src=source;picture.className=className;picture.alt='';stage.append(picture);}
+  function select(frame){current=frame;render();}
+  function render(){
+    document.querySelector('#current-title').textContent=current.label+' / '+current.id;
+    document.querySelectorAll('[data-pose]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pose===current.id)));
+    for(const type of ['cat','whale']){
+      const stage=document.querySelector('#'+type+'-stage');stage.replaceChildren();stage.classList.toggle('checker',document.querySelector('#checker').checked);
+      if(document.querySelector('#seat').checked)appendImage(stage,study.seat.file,'seat');
+      for(const layer of current.renderLayerOrder){if(visible.has(layer))appendImage(stage,(type==='cat'?'templates/':'frames/')+current.id+'/'+layer+'.png','layer');}
+      if(type==='whale'&&document.querySelector('#ghost').checked)appendImage(stage,'templates/'+current.id+'/character.png','ghost');
+      if(document.querySelector('#anchors').checked){for(const [left,top,right,bottom] of templateBounds[current.id]){const marker=document.createElement('div');marker.className='anchor';Object.assign(marker.style,{left:left/640*100+'%',top:top/600*100+'%',width:(right-left+1)/640*100+'%',height:(bottom-top+1)/600*100+'%'});stage.append(marker);}}
+    }
+    document.querySelector('#character-link').href=current.character;document.querySelector('#composite-link').href=current.composite;
+  }
+  document.querySelectorAll('.settings input').forEach(input=>input.addEventListener('change',render));render();
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ permission:
   read: allow
   edit:
     mobile/assets/animations/**: allow
-    docs/art/animations/**: allow
+    docs/美术/动画/**: allow
     "*": deny
   bash: deny
 ---
@@ -18,7 +18,7 @@ permission:
 
 1. 产出 `mobile/assets/animations/` 的动效文件（Lottie JSON / SVG 动画）
 2. 写动效接入文档：触发时机、播放参数、循环方式
-3. 动效归档至 `docs/art/animations/<功能>/`
+3. 动效归档至 `docs/美术/动画/<功能>/`
 
 ## 工作方式
 

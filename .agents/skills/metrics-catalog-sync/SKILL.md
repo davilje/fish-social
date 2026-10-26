@@ -2,7 +2,7 @@
 name: metrics-catalog-sync
 description: >-
   Keep the fishing metrics catalog authoritative and fresh: shared/metrics-schema.ts,
-  scripts/build-metrics-events-xlsx.py, and root v0.4.4-埋点表清单.xlsx (docs/planning/reports copy).
+  scripts/build-metrics-events-xlsx.py, and root v0.4.4-埋点表清单.xlsx (docs/策划/报告 copy).
   Use when adding/changing/deprecating fishing_metrics or structured log eventTypes,
   implementing observability specs (D-L2-*), accepting metrics-related features, or
   when the user mentions 埋点表 / metrics-schema / planning:metrics-xlsx.
@@ -14,7 +14,7 @@ description: >-
 
 1. **代码契约**：`shared/metrics-schema.ts`（及写入点 `server/src/**`）  
 2. **生成脚本字典**：`scripts/build-metrics-events-xlsx.py` 的 `EVENTS`  
-3. **导出表**：`npm run planning:metrics-xlsx` → 仓库根目录 **`v0.4.4-埋点表清单.xlsx`**（并同步 `docs/planning/reports/` 副本）
+3. **导出表**：`npm run planning:metrics-xlsx` → 仓库根目录 **`v0.4.4-埋点表清单.xlsx`**（并同步 `docs/策划/报告/` 副本）
 
 策划进度表仍走 [`planning-progress-sync`](../planning-progress-sync/SKILL.md)；**埋点变更额外执行本 Skill**。
 
@@ -30,9 +30,9 @@ description: >-
 
 ## Checklist — 需求开发（埋点相关）
 
-1. 写/更新 `docs/planning/specs/…`（状态已确认/已实现）  
+1. 写/更新 `docs/策划/规格/…`（状态已确认/已实现）  
 2. `scripts/planning/build-master-plan-xlsx.py` 登记编号 + `npm run planning:master-xlsx`（见 planning-progress-sync）  
-3. 生成/更新 `docs/planning/prompts/*-dev.prompt.md`，**文内强制**提醒：实现时跑本 Skill  
+3. 生成/更新 `docs/策划/提示词/*-dev.prompt.md`，**文内强制**提醒：实现时跑本 Skill  
 4. 若设计已定字段：先改 `build-metrics-events-xlsx.py` 的触发时机/必填字段/示例 payload（可与实现同 PR）  
 5. 实现代码时：`metrics-schema.ts` 与写入路径一致  
 6. **`npm run planning:metrics-xlsx`**  
@@ -47,7 +47,7 @@ description: >-
 npm run planning:metrics-xlsx
 ```
 
-确认输出：仓库根目录 `v0.4.4-埋点表清单.xlsx`（及 `docs/planning/reports/` 副本）。
+确认输出：仓库根目录 `v0.4.4-埋点表清单.xlsx`（及 `docs/策划/报告/` 副本）。
 
 ## EVENTS 行约定
 

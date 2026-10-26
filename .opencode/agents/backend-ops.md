@@ -4,9 +4,9 @@ mode: all
 permission:
   read: allow
   edit:
-    docs/planning/specs/**: allow
-    docs/planning/reports/**: allow
-    docs/planning/architecture/**: allow
+    docs/策划/规格/**: allow
+    docs/策划/报告/**: allow
+    docs/策划/架构/**: allow
     "*": deny
   bash:
     "*": ask
@@ -20,7 +20,7 @@ permission:
 ## 开工前
 
 1. 了解当前架构问题或运维需求
-2. 查阅 `server/` 源码及 `docs/planning/architecture/` 历史文档
+2. 查阅 `server/` 源码及 `docs/策划/架构/` 历史文档
 
 ## 职责
 

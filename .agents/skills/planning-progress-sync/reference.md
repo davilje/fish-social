@@ -3,16 +3,16 @@
 ## 新需求文件清单
 
 ```
-docs/planning/specs/<功能名>.md                 # 主 spec，状态=已确认 / 已实现
-docs/planning/specs/vX.Y.Z-开发交接.md           # 可选：含交接提示词代码块
-docs/planning/prompts/<slug>-dev.prompt.md       # A4：刷新看板后必写并交付用户
+docs/策划/规格/<功能名>.md                 # 主 spec，状态=已确认 / 已实现
+docs/策划/规格/vX.Y.Z-开发交接.md           # 可选：含交接提示词代码块
+docs/策划/提示词/<slug>-dev.prompt.md       # A4：刷新看板后必写并交付用户
 scripts/planning/build-master-plan-xlsx.py       # 计划表行权威源（必改）
 项目开发需求计划表.xlsx（仓库根）               # master-xlsx 生成
 策划进度看板.html（仓库根）                     # master-xlsx 生成
-docs/planning/ 下同名 xlsx/html                  # 同步副本
-docs/archive/2026-10-26/indexes/planning/CHANGELOG.md
-docs/archive/2026-10-26/indexes/planning/specs/README.md
-docs/archive/2026-10-26/indexes/planning/prompts/README.md                  # 登记新 prompt 一行
+docs/策划/ 下同名 xlsx/html                  # 同步副本
+docs/归档/2026-10-26/索引/策划/CHANGELOG.md
+docs/归档/2026-10-26/索引/策划/规格/README.md
+docs/归档/2026-10-26/索引/策划/提示词/README.md                  # 登记新 prompt 一行
 ```
 
 ## 开发提示词结构
@@ -24,7 +24,7 @@ docs/archive/2026-10-26/indexes/planning/prompts/README.md                  # �
 
 ## 必读
 
-1. `docs/planning/specs/<功能名>.md`（**已确认** / **<编号>**）
+1. `docs/策划/规格/<功能名>.md`（**已确认** / **<编号>**）
 2. （相关已实现口径 / 依赖 spec）
 3. （预估关键文件路径）
 
@@ -45,7 +45,7 @@ spec→**已实现** + `build-master-plan-xlsx.py` 完成时间 + `npm run plann
 ## 派发
 
 \`\`\`text
-@docs/planning/prompts/<slug>-dev.prompt.md 按此实现 <编号>
+@docs/策划/提示词/<slug>-dev.prompt.md 按此实现 <编号>
 \`\`\`
 ```
 
@@ -53,14 +53,14 @@ spec→**已实现** + `build-master-plan-xlsx.py` 完成时间 + `npm run plann
 
 ```python
 ['已确认', 'PREFIX-01', '功能', '短标题', '—', 'hotfix', 'P0',
- '一句话说明', 'docs/planning/specs/某功能.md', '2026-07-19', ''],
+ '一句话说明', 'docs/策划/规格/某功能.md', '2026-07-19', ''],
 ```
 
 完成后改为：
 
 ```python
 ['已实现', 'PREFIX-01', '功能', '短标题', '—', 'hotfix', 'P0',
- '一句话说明', 'docs/planning/specs/某功能.md', '2026-07-19', '2026-07-20'],
+ '一句话说明', 'docs/策划/规格/某功能.md', '2026-07-19', '2026-07-20'],
 ```
 
 类型常用值：`功能` · `数据平台` · `架构` · `运维` · `Bug修复` · `后端优化`
@@ -85,10 +85,10 @@ spec→**已实现** + `build-master-plan-xlsx.py` 完成时间 + `npm run plann
 - 看板：仓库根目录「策划进度看板.html」
 
 开发提示词已就绪：
-docs/planning/prompts/<slug>-dev.prompt.md
+docs/策划/提示词/<slug>-dev.prompt.md
 
 新开开发对话，粘贴：
-@docs/planning/prompts/<slug>-dev.prompt.md 按此实现 XXX-01
+@docs/策划/提示词/<slug>-dev.prompt.md 按此实现 XXX-01
 建议角色：@backend-dev（或 @frontend-dev）
 ```
 

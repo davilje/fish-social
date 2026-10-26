@@ -348,7 +348,7 @@
       </div>
       <p class="sec-lead" id="yesterdayMissing" style="display:none;margin:0 0 0.5rem">
         昨日报告尚未生成。可先打开
-        <a data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="/analytics/index.html">分析归档索引</a>，
+        <a data-href-http="/analytics/index.html" data-href-file="docs/数据分析/index.html" href="/analytics/index.html">分析归档索引</a>，
         或跑 <code>npm run analytics:daily</code> / 计划任务。
       </p>
       <div class="kpi-row" id="kpiRow">
@@ -387,17 +387,17 @@
     <h2>每日必看</h2>
     <p class="sec-lead">主路径：昨天日报、增长趋势、线上对照、项目进度。工程导出在下方折叠区。</p>
     <div class="grid">
-      <a class="card" id="dailyMustReport" data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="/analytics/index.html">
+      <a class="card" id="dailyMustReport" data-href-http="/analytics/index.html" data-href-file="docs/数据分析/index.html" href="/analytics/index.html">
         <strong>昨日运营日报</strong>
         <p class="what">一键打开 T-1 报告（与上方「今日运维」同一深链）。</p>
         <p class="when">日会前看产量与告警。</p>
       </a>
-      <a class="card" data-href-http="/analytics/growth/" data-href-file="docs/analytics/growth/index.html" href="/analytics/growth/">
+      <a class="card" data-href-http="/analytics/growth/" data-href-file="docs/数据分析/增长/index.html" href="/analytics/growth/">
         <strong>增长与经营看板</strong>
         <p class="what">跨日新增 / DAU / 留存 D1–D30 可筛折线；商业化占位。</p>
         <p class="when">看趋势与留存，不是单日报告。</p>
       </a>
-      <a class="card" data-href-http="/analytics/live-vs-sim.html" data-href-file="docs/analytics/live-vs-sim.html" href="/analytics/live-vs-sim.html">
+      <a class="card" data-href-http="/analytics/live-vs-sim.html" data-href-file="docs/数据分析/live-vs-sim.html" href="/analytics/live-vs-sim.html">
         <strong>线上 vs 模拟</strong>
         <p class="what">真实日钓与设计/模拟目标对照。</p>
         <p class="when">调参、怀疑线上偏离时。</p>
@@ -431,11 +431,11 @@
           <p class="what">玩家客户端（Expo Web · :8082）。</p>
           <p class="when">未启动请跑 <code>dev.bat</code> / <code>npm run web</code>。</p>
         </a>
-        <a class="card" data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="/analytics/index.html">
+        <a class="card" data-href-http="/analytics/index.html" data-href-file="docs/数据分析/index.html" href="/analytics/index.html">
           <strong>分析归档索引</strong>
           <p class="what">历史线上日报 + 模拟/校准报告目录。</p>
         </a>
-        <a class="card" data-href-http="/analytics/warehouse/latest/" data-href-file="docs/analytics/warehouse/latest/" href="/analytics/warehouse/latest/">
+        <a class="card" data-href-http="/analytics/warehouse/latest/" data-href-file="docs/数据分析/数仓/最新/" href="/analytics/warehouse/latest/">
           <strong>BI CSV（Excel 汇总表下载）</strong>
           <p class="what">不是看板，是给 Excel / BI 下载的 CSV。<code>latest</code> = 最近一次导出。</p>
         </a>
@@ -447,7 +447,7 @@
           <strong>v0.4.4-埋点表清单.xlsx</strong>
           <p class="what">埋点事件字典（<code>npm run planning:metrics-xlsx</code>）。</p>
         </a>
-        <a class="card" data-href-http="/docs/ops/daily-analytics-cron.md" data-href-file="docs/ops/daily-analytics-cron.md" href="/docs/ops/daily-analytics-cron.md">
+        <a class="card" data-href-http="/docs/运维/daily-analytics-cron.md" data-href-file="docs/运维/daily-analytics-cron.md" href="/docs/运维/daily-analytics-cron.md">
           <strong>日报定时任务说明</strong>
           <p class="what">如何装 00:30 自动跑昨日日报。</p>
         </a>
@@ -512,9 +512,9 @@
 
       var t1 = shanghaiYesterday();
       var reportHttp = '/analytics/daily/' + t1 + '/report.html';
-      var reportFile = 'docs/analytics/daily/' + t1 + '/report.html';
+      var reportFile = 'docs/数据分析/日报/' + t1 + '/report.html';
       var compactHttp = '/analytics/daily/' + t1 + '/compact.json';
-      var compactFile = 'docs/analytics/daily/' + t1 + '/compact.json';
+      var compactFile = 'docs/数据分析/日报/' + t1 + '/compact.json';
 
       var pill = document.getElementById('svcPill');
       var down = document.getElementById('serverDownWarn');
@@ -555,7 +555,7 @@
         var must = document.getElementById('dailyMustReport');
         var missing = document.getElementById('yesterdayMissing');
         var hrefHttp = exists ? reportHttp + '#alerts' : '/analytics/index.html';
-        var hrefFile = exists ? reportFile + '#alerts' : 'docs/analytics/index.html';
+        var hrefFile = exists ? reportFile + '#alerts' : 'docs/数据分析/index.html';
         var label = exists
           ? ('打开昨日运营日报（' + t1 + '）')
           : ('昨日报告尚未生成 · 打开归档索引');
@@ -569,7 +569,7 @@
         }
         if (must) {
           must.setAttribute('data-href-http', exists ? reportHttp : '/analytics/index.html');
-          must.setAttribute('data-href-file', exists ? reportFile : 'docs/analytics/index.html');
+          must.setAttribute('data-href-file', exists ? reportFile : 'docs/数据分析/index.html');
           must.href = isFile ? must.getAttribute('data-href-file') : must.getAttribute('data-href-http');
         }
         ['kpiCatches', 'kpiDau', 'kpiDisc'].forEach(function (id) {
@@ -631,15 +631,15 @@
             setText('kpiDiscNum', '—');
             setHtml(
               'todayAlerts',
-              '报告未生成 · <a data-href-http="/analytics/index.html" data-href-file="docs/analytics/index.html" href="' +
-                (isFile ? 'docs/analytics/index.html' : '/analytics/index.html') +
+              '报告未生成 · <a data-href-http="/analytics/index.html" data-href-file="docs/数据分析/index.html" href="' +
+                (isFile ? 'docs/数据分析/index.html' : '/analytics/index.html') +
                 '">分析归档索引</a>'
             );
           });
       }
 
       function loadBatchStatus() {
-        var url = isFile ? 'docs/analytics/daily-batch-status.json' : '/analytics/daily-batch-status.json';
+        var url = isFile ? 'docs/数据分析/日报-batch-status.json' : '/analytics/daily-batch-status.json';
         return fetch(url, { cache: 'no-store' })
           .then(function (r) {
             if (!r.ok) throw new Error('missing');
@@ -660,8 +660,8 @@
           .catch(function () {
             setHtml(
               'todayBatch',
-              '尚无日批记录（可安装计划任务）· <a data-href-http="/docs/ops/daily-analytics-cron.md" data-href-file="docs/ops/daily-analytics-cron.md" href="' +
-                (isFile ? 'docs/ops/daily-analytics-cron.md' : '/docs/ops/daily-analytics-cron.md') +
+              '尚无日批记录（可安装计划任务）· <a data-href-http="/docs/运维/daily-analytics-cron.md" data-href-file="docs/运维/daily-analytics-cron.md" href="' +
+                (isFile ? 'docs/运维/daily-analytics-cron.md' : '/docs/运维/daily-analytics-cron.md') +
                 '">日报定时任务说明</a>'
             );
           });

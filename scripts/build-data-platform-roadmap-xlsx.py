@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 生成「三层数据体系 · 开发需求清单」xlsx
-输出：docs/planning/reports/三层数据体系-开发需求清单.xlsx
+输出：docs/策划/报告/三层数据体系-开发需求清单.xlsx
 
 【权威脚本】本文件为单一来源。旧版 scripts/build-data-platform-requirements-xlsx.py 已弃用。
 npm run planning:data-platform-xlsx
@@ -19,7 +19,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORTS = ROOT / "docs/planning/reports"
+REPORTS = ROOT / "docs/策划/报告"
 OUT = REPORTS / "三层数据体系-开发需求清单.xlsx"
 
 LAYER_FILL = {
@@ -72,7 +72,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "开发环境 pretty-print；生产环境单行 JSON。"),
         ("涉及文件", "logger.ts（新）· fishingObservability.ts · errorLog.ts · db.ts · index.ts"),
         ("依赖需求", "D-L1-06（correlationId）"),
-        ("关联文档", "docs/planning/specs/data-ops/服务器架构缺陷与埋点设计-v0.4.4.md §3.2"),
+        ("关联文档", "docs/策划/规格/数据运维/服务器架构缺陷与埋点设计-v0.4.4.md §3.2"),
         ("关联xlsx", "服务器架构问题与修复方案-v0.5.xlsx → 09-R1-5-链路追踪"),
         ("验收标准", "P0 路径无裸 console.log；日志 JSON 可被 jq 解析；含 correlationId。"),
         ("预估工作量", "1~2 天"),
@@ -152,7 +152,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "GET /api/admin/logs 改查 DB；支持 since/limit/context 过滤。"),
         ("涉及文件", "errorLog.ts · db.ts · migrations · admin.ts"),
         ("依赖需求", "D-L1-01"),
-        ("关联文档", "docs/archive/2026-10-26/versions/planning/product/v0.1.0-功能全景.md Admin 错误日志"),
+        ("关联文档", "docs/归档/2026-10-26/版本/策划/产品/v0.1.0-功能全景.md Admin 错误日志"),
         ("关联xlsx", "—"),
         ("验收标准", "重启后 /api/admin/logs 仍可查历史 error；未捕获异常均入库。"),
         ("预估工作量", "1 天"),
@@ -172,7 +172,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "客户端可选上报 correlationId（调试包）。"),
         ("涉及文件", "fishingObservability.ts · fishingMetrics.ts · admin.ts · sessionRegistry.ts"),
         ("依赖需求", "—"),
-        ("关联文档", "docs/planning/specs/backend/服务器架构优化路线图-v0.5.md R1-5"),
+        ("关联文档", "docs/策划/规格/后端/服务器架构优化路线图-v0.5.md R1-5"),
         ("关联xlsx", "服务器架构问题与修复方案-v0.5.xlsx → 09-R1-5-链路追踪"),
         ("验收标准", "一次 join→咬钩→断线 全链日志同一 correlationId。"),
         ("预估工作量", "1 天（补全）"),
@@ -192,7 +192,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "运行手册：告警 → 查 logs → 查 player timeline。"),
         ("涉及文件", "deploy/monitoring/（新）"),
         ("依赖需求", "D-L1-04 · D-L2-05"),
-        ("关联文档", "docs/planning/specs/gameplay/排查-挂机断线诊断阶段2-4.md SOP"),
+        ("关联文档", "docs/策划/规格/玩法/排查-挂机断线诊断阶段2-4.md SOP"),
         ("关联xlsx", "—"),
         ("验收标准", "模拟进程 crash 5 分钟内收到告警。"),
         ("预估工作量", "2~3 天"),
@@ -228,7 +228,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("建设目标", "禁止记录 token/密码；playerId 可配置哈希；日志保留策略文档化。"),
         ("方案-步骤1", "logger 层 redact 字段列表。"),
         ("方案-步骤2", "运维文档：保留 30~90 天、访问权限。"),
-        ("涉及文件", "logger.ts · docs/ops/（新）"),
+        ("涉及文件", "logger.ts · docs/运维/（新）"),
         ("依赖需求", "D-L1-01"),
         ("验收标准", "代码审查无 token 明文日志；有数据保留政策文档。"),
         ("预估工作量", "1 天"),
@@ -248,7 +248,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "Grafana 或 Jaeger UI 预置「一次钓鱼会话」查询模板。"),
         ("涉及文件", "index.ts · socketPondHandlers.ts · fishingStateMachine.ts · deploy/otel/（新）"),
         ("依赖需求", "D-L1-01 · D-L1-06"),
-        ("关联文档", "docs/planning/specs/data-ops/三层数据体系-可观测性补充-v0.6.md §2.1"),
+        ("关联文档", "docs/策划/规格/数据运维/三层数据体系-可观测性补充-v0.6.md §2.1"),
         ("关联xlsx", "服务器架构问题与修复方案-v0.5.xlsx → 09-R1-5-链路追踪"),
         ("验收标准", "Jaeger 中可按 correlationId 看到 join→waiting→bite 完整 span 链；P95 handler 耗时可读。"),
         ("预估工作量", "3~5 天"),
@@ -268,7 +268,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "审计日志记录谁对谁开了 debug。"),
         ("涉及文件", "logger.ts · runtimeConfig.ts · admin.ts"),
         ("依赖需求", "D-L1-01 · D-L1-02"),
-        ("关联文档", "docs/planning/specs/data-ops/三层数据体系-可观测性补充-v0.6.md §2.2"),
+        ("关联文档", "docs/策划/规格/数据运维/三层数据体系-可观测性补充-v0.6.md §2.2"),
         ("关联xlsx", "—"),
         ("验收标准", "对指定 playerId 开启后 5 分钟内日志含 bite_tick 等 debug 事件；过期自动恢复 info。"),
         ("预估工作量", "1~2 天"),
@@ -288,7 +288,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "未知 event 名打 warn 级结构化日志。"),
         ("涉及文件", "socketLifecycle.ts · logger.ts"),
         ("依赖需求", "D-L1-01 · D-L1-11"),
-        ("关联文档", "docs/planning/specs/data-ops/三层数据体系-可观测性补充-v0.6.md §2.3"),
+        ("关联文档", "docs/策划/规格/数据运维/三层数据体系-可观测性补充-v0.6.md §2.3"),
         ("关联xlsx", "—"),
         ("验收标准", "debug 模式下可见 client emit 的任意事件；生产采样不产生明显 CPU 抖动。"),
         ("预估工作量", "1 天"),
@@ -306,9 +306,9 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤1", "从 xlsx/文档导出 events.json schema。"),
         ("方案-步骤2", "recordFishingMetric 开发环境校验 payload 必填字段。"),
         ("方案-步骤3", "PR 检查：新增 event 必须更新 schema + xlsx。"),
-        ("涉及文件", "shared/ · fishingMetrics.ts · docs/planning/reports/v0.4.4-埋点表清单.xlsx"),
+        ("涉及文件", "shared/ · fishingMetrics.ts · docs/策划/报告/v0.4.4-埋点表清单.xlsx"),
         ("依赖需求", "—"),
-        ("关联文档", "docs/planning/specs/data-ops/v0.4.4-埋点缺口复核与补全.md"),
+        ("关联文档", "docs/策划/规格/数据运维/v0.4.4-埋点缺口复核与补全.md"),
         ("关联xlsx", "v0.4.4-埋点表清单.xlsx（33 条埋点标准格式）"),
         ("验收标准", "每个 event_type 有文档化 payload；非法 payload 开发环境 warn。"),
         ("预估工作量", "1~2 天"),
@@ -402,7 +402,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤2", "Admin UI 增加导出与模板按钮。"),
         ("涉及文件", "admin.ts · AdminMetricsPanel.tsx"),
         ("依赖需求", "D-L1-06"),
-        ("关联文档", "docs/planning/specs/gameplay/排查-挂机断线诊断阶段2-4.md"),
+        ("关联文档", "docs/策划/规格/玩法/排查-挂机断线诊断阶段2-4.md"),
         ("验收标准", "给定 playerId 可导出 24h CSV；SOP 步骤可在 Admin 完成。"),
         ("预估工作量", "1~2 天"),
     ],
@@ -438,7 +438,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤2", "socket_disconnect / pending_catch_accept 写入 canonical 名。"),
         ("方案-步骤3", "同步更新 v0.4.4-埋点表清单.xlsx 状态列。"),
         ("涉及文件", "fishingMetrics.ts · gameState.ts · db.ts · verify-server-observability.ts"),
-        ("关联文档", "docs/planning/specs/data-ops/v0.4.4-埋点缺口复核与补全.md"),
+        ("关联文档", "docs/策划/规格/数据运维/v0.4.4-埋点缺口复核与补全.md"),
         ("关联xlsx", "v0.4.4-埋点表清单.xlsx（总览 + 6 分类 sheet）"),
         ("验收标准", "npm run verify:server-observability 全绿；xlsx 状态与代码一致。"),
         ("预估工作量", "1~2 天（补缺口）"),
@@ -489,7 +489,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤1", "scripts/backup-db.mjs：sqlite .backup + 压缩。"),
         ("方案-步骤2", "cron / 云盘同步。"),
         ("方案-步骤3", "季度恢复演练 checklist。"),
-        ("涉及文件", "scripts/ · docs/ops/"),
+        ("涉及文件", "scripts/ · docs/运维/"),
         ("验收标准", "可从昨日备份恢复到新实例并查 metrics。"),
         ("预估工作量", "0.5~1 天"),
     ],
@@ -506,7 +506,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤1", "POST /api/client-events 批量、限流。"),
         ("方案-步骤2", "client_metrics 表或合入 fishing_metrics。"),
         ("涉及文件", "mobile/lib/pondLifecycleLog.ts · server routes"),
-        ("关联文档", "docs/planning/specs/gameplay/排查-挂机断线诊断阶段2-4.md 阶段2"),
+        ("关联文档", "docs/策划/规格/玩法/排查-挂机断线诊断阶段2-4.md 阶段2"),
         ("验收标准", "断线 case 可同时看到服务端 disconnect 与客户端 disconnect 事件。"),
         ("预估工作量", "2~3 天"),
     ],
@@ -525,7 +525,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "Admin UI「实时监视」Tab：左服务端 state、右客户端 lifecycle（若已上报）。"),
         ("涉及文件", "admin.ts · sessionRegistry.ts · AdminMetricsPanel.tsx 或 admin-web/"),
         ("依赖需求", "D-L1-06 · D-L2-06"),
-        ("关联文档", "docs/planning/specs/gameplay/A2-Debug面板.md · 三层数据体系-可观测性补充-v0.6.md §2.4"),
+        ("关联文档", "docs/策划/规格/玩法/A2-Debug面板.md · 三层数据体系-可观测性补充-v0.6.md §2.4"),
         ("关联xlsx", "—"),
         ("验收标准", "waiting 阶段可实时看到 sessionFishingMs 递增；断线瞬间可见 phase→disconnected。"),
         ("预估工作量", "2~3 天"),
@@ -545,7 +545,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("方案-步骤3", "与 D-L2-13 Live Inspector 同页集成。"),
         ("涉及文件", "admin-web/（新）· mobile/lib/adminApi.ts"),
         ("依赖需求", "D-L2-06 · D-L1-04（日志检索可选）"),
-        ("关联文档", "docs/planning/specs/data-ops/三层数据体系-可观测性补充-v0.6.md §2.5"),
+        ("关联文档", "docs/策划/规格/数据运维/三层数据体系-可观测性补充-v0.6.md §2.5"),
         ("关联xlsx", "—"),
         ("验收标准", "桌面浏览器可完成 SOP 全流程（timeline 导出 + fishing-debug + 配置只读）。"),
         ("预估工作量", "3~5 天"),
@@ -557,13 +557,13 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("优先级", "P0"),
         ("实施阶段", "Phase 0~1"),
         ("当前状态", "部分实现"),
-        ("现状与缺口", "docs/analytics 仅有离线 simulate-pond-day；与线上 fishing_metrics 无连接。"),
+        ("现状与缺口", "docs/数据分析 仅有离线 simulate-pond-day；与线上 fishing_metrics 无连接。"),
         ("商业影响", "设计目标（100 条/天）无法与真实数据对照。"),
-        ("建设目标", "npm run analytics:daily：读 DB 聚合 → 写入 docs/analytics/daily/ 或 internal HTML。"),
+        ("建设目标", "npm run analytics:daily：读 DB 聚合 → 写入 docs/数据分析/日报/ 或 internal HTML。"),
         ("方案-步骤1", "scripts/analytics/daily-pipeline.mjs。"),
         ("方案-步骤2", "产出：日钓量、断线率、经济、人口率。"),
         ("方案-步骤3", "与 simulate 报告同版式对比栏。"),
-        ("涉及文件", "scripts/analytics/ · docs/analytics/daily/"),
+        ("涉及文件", "scripts/analytics/ · docs/数据分析/日报/"),
         ("依赖需求", "D-L2-03"),
         ("验收标准", "cron 每日自动生成昨日报告 HTML。"),
         ("预估工作量", "2~3 天"),
@@ -664,7 +664,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
         ("商业影响", "调参后无法对比前后效果。"),
         ("建设目标", "metrics payload 或 daily 表含 rulesVersion、configSnapshotId。"),
         ("方案-步骤1", "runtimeConfig 变更写 config_audit；日报按版本 group by。"),
-        ("方案-步骤2", "与 docs/analytics/runs 归档 ID 对齐。"),
+        ("方案-步骤2", "与 docs/数据分析/运行记录 归档 ID 对齐。"),
         ("涉及文件", "runtimeConfig.ts · fishingMetrics.ts"),
         ("验收标准", "可对比 v0.4.0 vs v0.4.1 上线前后日钓量。"),
         ("预估工作量", "1 天"),
@@ -689,7 +689,7 @@ REQUIREMENTS: dict[str, list[tuple[str, str]]] = {
     "D-L3-09-analytics打通": [
         ("需求编号", "D-L3-09"),
         ("数据层级", "L3 产品/运营分析"),
-        ("需求标题", "docs/analytics 索引纳入线上日报"),
+        ("需求标题", "docs/数据分析 索引纳入线上日报"),
         ("优先级", "P1"),
         ("实施阶段", "Phase 1"),
         ("当前状态", "部分实现"),
@@ -777,14 +777,14 @@ GAP_MATRIX = [
 
 REF_INDEX = [
     ["文件名", "路径", "用途", "与本清单关系"],
-    ["v0.4.4-埋点表清单.xlsx", "docs/planning/reports/", "33 条埋点事件标准表（6 sheet）", "D-L2-01/08 需保持同步；L2 事件字典权威来源"],
-    ["服务器架构问题与修复方案-v0.5.xlsx", "docs/planning/reports/", "14 项架构问题（鉴权/在线态/SQLite 等）", "L1/L2 基础设施依赖 R0/R1/R2 项"],
-    ["三层数据体系-开发需求清单.xlsx", "docs/planning/reports/", "本文件", "三层缺口总清单 + 每需求 sheet"],
-    ["服务器架构缺陷与埋点设计-v0.4.4.md", "docs/planning/specs/", "埋点设计原文", "事件分类 A~E、字段规范"],
-    ["v0.4.4-埋点缺口复核与补全.md", "docs/planning/specs/", "33 条复核结论", "D-L2-08 实施依据"],
-    ["排查-挂机断线诊断阶段2-4.md", "docs/planning/specs/", "排障 SOP", "D-L2-06/12 用户故事"],
-    ["三层数据体系-可观测性补充-v0.6.md", "docs/planning/specs/", "实时排障补充需求与 xlsx 对齐说明", "D-L1-10~12 · D-L2-13~14 权威说明"],
-    ["docs/analytics/", "docs/analytics/", "离线模拟与校准报告", "D-L3-01~09 线上扩展基础"],
+    ["v0.4.4-埋点表清单.xlsx", "docs/策划/报告/", "33 条埋点事件标准表（6 sheet）", "D-L2-01/08 需保持同步；L2 事件字典权威来源"],
+    ["服务器架构问题与修复方案-v0.5.xlsx", "docs/策划/报告/", "14 项架构问题（鉴权/在线态/SQLite 等）", "L1/L2 基础设施依赖 R0/R1/R2 项"],
+    ["三层数据体系-开发需求清单.xlsx", "docs/策划/报告/", "本文件", "三层缺口总清单 + 每需求 sheet"],
+    ["服务器架构缺陷与埋点设计-v0.4.4.md", "docs/策划/规格/", "埋点设计原文", "事件分类 A~E、字段规范"],
+    ["v0.4.4-埋点缺口复核与补全.md", "docs/策划/规格/", "33 条复核结论", "D-L2-08 实施依据"],
+    ["排查-挂机断线诊断阶段2-4.md", "docs/策划/规格/", "排障 SOP", "D-L2-06/12 用户故事"],
+    ["三层数据体系-可观测性补充-v0.6.md", "docs/策划/规格/", "实时排障补充需求与 xlsx 对齐说明", "D-L1-10~12 · D-L2-13~14 权威说明"],
+    ["docs/数据分析/", "docs/数据分析/", "离线模拟与校准报告", "D-L3-01~09 线上扩展基础"],
 ]
 
 PHASE_PLAN = [

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const art = path.join(root, 'docs/art/cat-skins/sangbiao');
+const art = path.join(root, 'docs/美术/猫咪形象/sangbiao');
 const roots = ['fish-social-unity/Assets/Resources/Desktop/Theme/Cozy', 'desktop-overlay/OverlayResources/hud/cozy', 'fish-social-unity/FishSocialOverlay/OverlayResources/hud/cozy'].map(directory => path.join(root, directory));
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const guid = file => crypto.createHash('md5').update('sangbiao-home/' + file).digest('hex');

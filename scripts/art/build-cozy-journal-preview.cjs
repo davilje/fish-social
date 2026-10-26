@@ -1,4 +1,4 @@
-const fs=require('node:fs'),path=require('node:path');const root=path.resolve(__dirname,'../..'),journal=path.join(root,'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal');const dir=path.join(root,'docs/art/cozy-journal');
+const fs=require('node:fs'),path=require('node:path');const root=path.resolve(__dirname,'../..'),journal=path.join(root,'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal');const dir=path.join(root,'docs/美术/手账');
 const ui=JSON.parse(fs.readFileSync(path.join(journal,'ui-manifest.json'))).assets;
 const characters=fs.existsSync(path.join(journal,'character-manifest.json'))?JSON.parse(fs.readFileSync(path.join(journal,'character-manifest.json'))).assets:[];
 const ponds=JSON.parse(fs.readFileSync(path.join(journal,'pond-manifest.json'))).ponds;

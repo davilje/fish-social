@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>场景分层 · 云和树叶</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 14px 16px 16px;
+      background: #d7e4ef; color: #243246;
+      font: 15px/1.45 "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+    h1 { margin: 0; font-size: 18px; }
+    label { display: flex; gap: 8px; align-items: center; }
+    select, button { font: inherit; padding: 6px 10px; }
+    p { margin: 0; color: #4d6278; }
+    canvas { width: min(100%, 1100px); height: auto; background: #9eb8cc; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>场景分层</h1>
+    <label>鱼塘 <select id="pond"></select></label>
+    <button id="play" type="button">暂停</button>
+  </header>
+  <p id="status">正在读取场景…</p>
+  <canvas id="view" width="840" height="280"></canvas>
+  <script>
+    const root = '../../../fish-social-unity/Assets/Desktop/OverlayArt/Ponds/';
+    const view = document.querySelector('#view');
+    const ctx = view.getContext('2d');
+    const pondSelect = document.querySelector('#pond');
+    const status = document.querySelector('#status');
+    const playButton = document.querySelector('#play');
+    let playing = true;
+    let token = 0;
+    let frame = 0;
+    let elapsed = 0;
+    let runningFrom = 0;
+
+    function seconds() {
+      return (elapsed + (playing ? performance.now() - runningFrom : 0)) / 1000;
+    }
+
+    function cloudTravel(seconds, speed, width, phase) {
+      const distance = seconds * speed + (phase || 0);
+      return distance - Math.floor(distance / width) * width;
+    }
+
+    function loadImage(url) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error(url));
+        image.src = url;
+      });
+    }
+
+    function paint(image, width, height) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+      return canvas;
+    }
+
+    function sample(data, width, height, x, y) {
+      if (x < -0.5 || y < -0.5 || x > width - 0.5 || y > height - 0.5) return [0, 0, 0, 0];
+      x = Math.max(0, Math.min(width - 1, x));
+      y = Math.max(0, Math.min(height - 1, y));
+      const x0 = Math.floor(x);
+      const y0 = Math.floor(y);
+      const fx = x - x0;
+      const fy = y - y0;
+      const x1 = Math.min(x0 + 1, width - 1);
+      const y1 = Math.min(y0 + 1, height - 1);
+      const index = (yy, xx) => (yy * width + xx) * 4;
+      const a = index(y0, x0);
+      const b = index(y0, x1);
+      const c = index(y1, x0);
+      const d = index(y1, x1);
+      const pixel = [0, 0, 0, 0];
+      for (let channel = 0; channel < 4; channel++) {
+        pixel[channel] = Math.round(
+          (data[a + channel] * (1 - fx) + data[b + channel] * fx) * (1 - fy) +
+          (data[c + channel] * (1 - fx) + data[d + channel] * fx) * fy
+        );
+      }
+      return pixel;
+    }
+
+    function warp(layer, seconds, scale) {
+      const motion = layer.leaf;
+      const cropX = Math.max(0, Math.round(motion.left * scale));
+      const cropY = Math.max(0, Math.round(motion.top * scale));
+      const cropW = Math.max(1, Math.min(view.width - cropX, Math.round(motion.width * scale)));
+      const cropH = Math.max(1, Math.min(view.height - cropY, Math.round(motion.height * scale)));
+      const plate = layer.plate;
+      plate.width = cropW;
+      plate.height = cropH;
+      const output = plate.getContext('2d').createImageData(cropW, cropH);
+      const source = layer.pixels;
+      const weight = layer.weightPixels;
+      const amplitude = layer.amplitude * scale;
+      const slow = 0.78 * Math.sin(seconds * Math.PI * 2 / motion.primaryPeriod);
+      const fast = 0.22 * Math.sin(seconds * Math.PI * 2 / motion.secondaryPeriod);
+      const vertical = motion.verticalRatio * Math.sin(seconds * Math.PI * 2 / motion.verticalPeriod);
+      for (let y = 0; y < cropH; y++) {
+        const gy = cropY + y;
+        for (let x = 0; x < cropW; x++) {
+          const gx = cropX + x;
+          const sourceX = gx / scale;
+          const dest = (y * cropW + x) * 4;
+          const weightIndex = (gy * view.width + gx) * 4;
+          const strength = (weight.data[weightIndex] / 255) * amplitude;
+          let pixel;
+          if (strength === 0) {
+            const from = (gy * view.width + gx) * 4;
+            pixel = [source.data[from], source.data[from + 1], source.data[from + 2], source.data[from + 3]];
+          } else {
+            const detail = Math.cos((sourceX + 0.5) * 0.025 + motion.phase);
+            const rise = Math.sin((sourceX + 0.5) * 0.018 + motion.phase);
+            pixel = sample(source.data, view.width, view.height, gx - strength * (slow + fast * detail), gy - strength * vertical * rise);
+          }
+          output.data[dest] = pixel[0];
+          output.data[dest + 1] = pixel[1];
+          output.data[dest + 2] = pixel[2];
+          output.data[dest + 3] = pixel[3];
+        }
+      }
+      const plateCtx = plate.getContext('2d');
+      plateCtx.putImageData(output, 0, 0);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, view.width, view.height);
+      ctx.rect(cropX, cropY, cropW, cropH);
+      ctx.clip('evenodd');
+      ctx.drawImage(layer.canvas, 0, 0);
+      ctx.restore();
+      ctx.drawImage(plate, cropX, cropY);
+    }
+
+    function draw(scene, seconds) {
+      ctx.clearRect(0, 0, view.width, view.height);
+      for (const layer of scene.layers) {
+        if (layer.cloud) {
+          const travel = cloudTravel(seconds, layer.cloud.speed, scene.motion.width, layer.cloud.phase) * scene.scale;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, view.width, view.height);
+          ctx.clip();
+          ctx.drawImage(layer.canvas, travel, 0);
+          ctx.drawImage(layer.canvas, travel - view.width, 0);
+          ctx.restore();
+        } else if (layer.leaf) {
+          warp(layer, seconds, scene.scale);
+        } else {
+          ctx.drawImage(layer.canvas, 0, 0);
+        }
+      }
+    }
+
+    function tick(scene, generation) {
+      if (generation !== token) return;
+      frame = requestAnimationFrame(() => tick(scene, generation));
+      if (!playing) return;
+      draw(scene, seconds());
+    }
+
+    async function show(layoutPath, generation) {
+      const layout = await (await fetch(root + layoutPath)).json();
+      const sceneDir = layoutPath.slice(0, layoutPath.lastIndexOf('/') + 1);
+      const motion = await (await fetch(root + sceneDir + (layout.motion || 'motion.json'))).json();
+      const width = 840;
+      const height = Math.round(width * layout.height / layout.width);
+      view.width = width;
+      view.height = height;
+      const scale = width / motion.width;
+      const clouds = new Map((motion.clouds || []).map(cloud => [cloud.id, cloud]));
+      const leaves = new Map((motion.leaves || []).map(leaf => [leaf.id, leaf]));
+      const weights = new Map();
+      const layers = [];
+      for (const layer of [...layout.layers].sort((a, b) => a.z - b.z)) {
+        const image = await loadImage(root + layer.image);
+        const canvas = paint(image, width, height);
+        const item = { canvas };
+        const cloud = clouds.get(layer.id);
+        const leaf = leaves.get(layer.id);
+        if (cloud) item.cloud = cloud;
+        if (leaf) {
+          const weightName = leaf.weightTexture || motion.weightTexture;
+          if (!weights.has(weightName)) {
+            const weightImage = await loadImage(root + sceneDir + weightName);
+            const weightCanvas = paint(weightImage, width, height);
+            weights.set(weightName, weightCanvas.getContext('2d').getImageData(0, 0, width, height));
+          }
+          item.leaf = {
+            left: leaf.left, top: leaf.top, width: leaf.width, height: leaf.height,
+            phase: leaf.phase || 0,
+            primaryPeriod: leaf.primaryPeriod || motion.primaryPeriod,
+            secondaryPeriod: motion.secondaryPeriod,
+            verticalRatio: motion.verticalRatio,
+            verticalPeriod: motion.verticalPeriod
+          };
+          item.amplitude = motion.leafAmplitude;
+          item.pixels = canvas.getContext('2d').getImageData(0, 0, width, height);
+          item.weightPixels = weights.get(weightName);
+          item.plate = document.createElement('canvas');
+        }
+        layers.push(item);
+        if (generation !== token) return;
+      }
+      const scene = { layers, motion, scale };
+      elapsed = 0;
+      runningFrom = performance.now();
+      status.textContent = `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · 三层云向右循环 · 树叶按权重轻晃`;
+      cancelAnimationFrame(frame);
+      tick(scene, generation);
+    }
+
+    playButton.addEventListener('click', () => {
+      if (playing) elapsed += performance.now() - runningFrom;
+      playing = !playing;
+      playButton.textContent = playing ? '暂停' : '播放';
+      if (playing) runningFrom = performance.now();
+    });
+
+    pondSelect.addEventListener('change', () => {
+      token += 1;
+      status.textContent = '正在读取场景…';
+      show(pondSelect.value, token).catch(error => {
+        status.textContent = '场景没有打开：' + error.message;
+      });
+    });
+
+    fetch(root + 'catalog.json').then(response => response.json()).then(catalog => {
+      const ponds = catalog.bindings.filter(item => item.layerLayout);
+      for (const pond of ponds) {
+        const option = document.createElement('option');
+        option.value = pond.layerLayout;
+        option.textContent = pond.displayName;
+        if (pond.pondId === 'pond-calm') option.selected = true;
+        pondSelect.append(option);
+      }
+      show(pondSelect.value, token).catch(error => {
+        status.textContent = '场景没有打开：' + error.message;
+      });
+    });
+  </script>
+</body>
+</html>

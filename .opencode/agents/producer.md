@@ -4,7 +4,7 @@ mode: all
 permission:
   read: allow
   edit:
-    docs/planning/**: allow
+    docs/策划/**: allow
     "*": deny
   bash: deny
 ---
@@ -15,12 +15,12 @@ permission:
 
 ## 开工前
 
-1. 读全景基线：`docs/archive/2026-10-26/versions/planning/product/v0.1.0-功能全景.md`
-2. 了解当前版本进度：查看 `docs/archive/2026-10-26/indexes/planning/CHANGELOG.md` 和仓库根目录 `项目开发需求计划表.xlsx`
+1. 读全景基线：`docs/归档/2026-10-26/版本/策划/产品/v0.1.0-功能全景.md`
+2. 了解当前版本进度：查看 `docs/归档/2026-10-26/索引/策划/CHANGELOG.md` 和仓库根目录 `项目开发需求计划表.xlsx`
 
 ## 职责
 
-1. 新需求 → 复制模板至 `docs/planning/specs/<功能名>.md`
+1. 新需求 → 复制模板至 `docs/策划/规格/<功能名>.md`
 2. 写清：背景、交互流程、权限、API 接口、验收标准、非目标
 3. 用户确认后：spec 状态标记为 **已确认**，更新 INDEX.md
 4. 输出**开发交接提示词**（含具体需求、参考文件、验收标准）

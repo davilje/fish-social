@@ -56,7 +56,7 @@ try {
   } else {
     ok = false;
     console.error(
-      `Node:    ${required} ✗ — 请安装 ComfyUI-APIimage 并重启 ComfyUI（见 docs/art/direction/comfyui-setup.md）`,
+      `Node:    ${required} ✗ — 请安装 ComfyUI-APIimage 并重启 ComfyUI（见 docs/美术/风格/comfyui-setup.md）`,
     );
   }
 } catch (err) {

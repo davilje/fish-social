@@ -11,7 +11,7 @@ import { parseDateArg } from './date-utils.mjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../..');
 const dbPath = process.env.DB_PATH ?? path.join(projectRoot, 'data/fish-social.db');
-const warehouseRoot = path.join(projectRoot, 'docs/analytics/warehouse');
+const warehouseRoot = path.join(projectRoot, 'docs/数据分析/数仓');
 
 const dateKey = parseDateArg();
 const outDir = path.join(warehouseRoot, dateKey);
@@ -36,7 +36,7 @@ function writeCsv(filePath, headers, rows) {
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 
-const summaryPath = path.join(projectRoot, 'docs/analytics/daily', dateKey, 'summary.json');
+const summaryPath = path.join(projectRoot, 'docs/数据分析/日报', dateKey, 'summary.json');
 let summary = null;
 if (fs.existsSync(summaryPath)) {
   summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));

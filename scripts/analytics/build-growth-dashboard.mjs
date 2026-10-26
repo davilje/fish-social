@@ -1,5 +1,5 @@
 /**
- * OPS-KPI-1：生成 docs/analytics/growth/{series,retention,commercial,index}.html
+ * OPS-KPI-1：生成 docs/数据分析/增长/{series,retention,commercial,index}.html
  * 运行: npm run analytics:growth
  * 也可由 daily-pipeline 末尾非致命调用
  */
@@ -18,7 +18,7 @@ import { resolveRulesVersion } from './resolve-rules-version.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../..');
-const outDir = path.join(projectRoot, 'docs/analytics/growth');
+const outDir = path.join(projectRoot, 'docs/数据分析/增长');
 const dbPath = process.env.DB_PATH ?? path.join(projectRoot, 'data/fish-social.db');
 const HUMAN = "player_id IS NOT NULL AND player_id NOT LIKE 'bot-%'";
 const RETENTION_DNS = [1, 3, 7, 10, 14, 30];

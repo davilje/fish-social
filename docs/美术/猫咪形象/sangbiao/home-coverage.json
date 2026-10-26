@@ -1,0 +1,66 @@
+{
+  "skin": "sangbiao",
+  "installed": true,
+  "assets": [
+    {
+      "skin": "sangbiao",
+      "pose": "rest",
+      "meaning": "standing",
+      "relativePath": "journal/characters/sangbiao/rest.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/characters/sangbiao/rest",
+      "width": 384,
+      "height": 328,
+      "pivot": [
+        0.5,
+        0.1
+      ],
+      "baseline": 295,
+      "source": "docs/美术/猫咪形象/sangbiao/painted/sit-03.png",
+      "sourceSha256": "822e9bb03418e9d00c08e66e239c9193439dd5cdaf72c0bf62050cc20c472cc1",
+      "exportScale": 0.9,
+      "generation": "reuse of built-in image_gen fishing artwork; uniform export only",
+      "sha256": "94e9bdfe83b4b15643490f6a3ef4b72b0d26590c8a3b880213470528eb268663",
+      "guid": "3ee1ed6cf3fca62983d469e77bb43e64",
+      "status": "static-resource-ready"
+    },
+    {
+      "skin": "sangbiao",
+      "pose": "sleep",
+      "meaning": "seated; legacy resource key, not sleeping artwork",
+      "relativePath": "journal/characters/sangbiao/sleep.png",
+      "resourcesPath": "Desktop/Theme/Cozy/journal/characters/sangbiao/sleep",
+      "width": 384,
+      "height": 328,
+      "pivot": [
+        0.5,
+        0.1
+      ],
+      "baseline": 295,
+      "source": "docs/美术/猫咪形象/sangbiao/painted/sit-00.png",
+      "sourceSha256": "a806320f21c71aaad2cecdd752ff3c282e6bc253e5efaebb5e233295a9653d22",
+      "exportScale": 0.9,
+      "generation": "reuse of built-in image_gen fishing artwork; uniform export only",
+      "sha256": "d0a45ef5ab8e798d9c52ee357872aa31d342e8147d8dcf293ec545402dce4d13",
+      "guid": "5c7b756b2e59125f83954fafef51d918",
+      "status": "static-resource-ready"
+    }
+  ],
+  "standing": "painted sit-03",
+  "seated": "painted sit-00",
+  "orangeFallbackPrevented": true,
+  "sleepCurl": "missing; no home-room/poses/sangbiao-sleep.png installed; current home retains same-breed static pose at bed",
+  "animations": {
+    "walk": false,
+    "eat": false,
+    "petRoll": false
+  },
+  "behavior": "CozyHomeAnimation.Find returns null for missing same-skin actions. CanWalk and CanFeed remain false. Static movement remains supported; no other breed clips registered.",
+  "requiredNewArtwork": [
+    "registered curled sleeping pose",
+    "walk-start/walk/walk-stop left and right",
+    "eating left and right with mouth contacts",
+    "pet-roll sequence"
+  ],
+  "journalCoverage": "Only rest and legacy sleep/seated keys provided; six-pose journal set incomplete.",
+  "unityPlayerTested": false
+}

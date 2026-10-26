@@ -10,6 +10,6 @@
 
 Unity 预览菜单：Window → Fish Social → Fishing Animation Preview。
 
-当前资源调用、兼容与清理说明见仓库 `docs/art/cat-skins/resource-routing.md`。旧整张序列和旧程序绘制猫已退出运行路径；缺动画时显示当前头像。帽子围巾保持移除。
+当前资源调用、兼容与清理说明见仓库 `docs/美术/猫咪形象/resource-routing.md`。旧整张序列和旧程序绘制猫已退出运行路径；缺动画时显示当前头像。帽子围巾保持移除。
 
 Windows 原生桌宠需要重新编译加载器，不能只复制资源给旧 EXE。

@@ -4,8 +4,8 @@ mode: all
 permission:
   read: allow
   edit:
-    docs/art/direction/**: allow
-    docs/art/styleguide/**: allow
+    docs/美术/风格/**: allow
+    docs/美术/styleguide/**: allow
     "*": deny
   bash: deny
 ---
@@ -17,7 +17,7 @@ permission:
 ## 职责
 
 1. 制定美术风格规范：色彩体系、角色风格、场景风格
-2. 产出 `docs/art/direction/` 风格指南文档
+2. 产出 `docs/美术/风格/` 风格指南文档
 3. 审核原画/动效/UI 的美术产出，给出修改意见
 4. 定义资源命名规范、导出格式标准、分辨率要求
 

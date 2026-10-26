@@ -7,7 +7,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORTS = ROOT / "docs/planning/reports"
+REPORTS = ROOT / "docs/策划/报告"
 OUT = REPORTS / "服务器架构问题与修复方案-v0.5.xlsx"
 OUT_ALT = REPORTS / "服务器架构问题与修复方案-v0.5-完整.xlsx"
 

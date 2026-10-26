@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-26",
+  "status": "superseded-by-cats-v4",
+  "generator": "built-in image_gen",
+  "image": "login-background-v2.png",
+  "width": 1536,
+  "height": 1024,
+  "sha256": "fbe365a34a8c10eaf98125f9a830c901d6f8ad51900ab3b4b7d989764fc53efe",
+  "prompt": "generation-prompt-v2.txt",
+  "targetWindow": [
+    480,
+    320
+  ],
+  "references": [
+    "style-reference.png"
+  ],
+  "checks": {
+    "webImagesLoaded": true,
+    "toggleBackground": true,
+    "actualSize480x320": true,
+    "noOverflowAt390px": true,
+    "javascriptErrors": 0,
+    "unityRuntime": "editor-offscreen-render; Windows not run",
+    "unityPrefabValidation": true,
+    "unityRenderedSizes": [
+      [
+        480,
+        320
+      ],
+      [
+        960,
+        640
+      ]
+    ],
+    "existingLoginLayoutTests": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "version": "v2",
+  "supersedes": "login-background-v1.png",
+  "productionAsset": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/场景/login-background-v2.png",
+  "productionSha256": "fbe365a34a8c10eaf98125f9a830c901d6f8ad51900ab3b4b7d989764fc53efe",
+  "currentManifest": "../../../../../美术/登录/cats-v4/manifest.json",
+  "validationLimitation": "Historical small-card checks did not cover the full runtime canvas; superseded by v4 full-window checks."
+}

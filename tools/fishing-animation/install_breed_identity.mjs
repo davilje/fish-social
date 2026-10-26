@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const skin = process.argv[2];
-const breeds = JSON.parse(fs.readFileSync(path.join(root, 'docs/art/cat-skins/breed-definitions.json'))).breeds;
+const breeds = JSON.parse(fs.readFileSync(path.join(root, 'docs/美术/猫咪形象/breed-definitions.json'))).breeds;
 if (skin !== 'calico' && !breeds.some(breed => breed.id === skin)) throw new Error('Unknown painted breed');
 const fishing = path.join(root, 'fish-social-unity/Assets/StreamingAssets/Fishing', skin);
 const manifest = JSON.parse(fs.readFileSync(path.join(fishing, 'manifest.json')));
@@ -38,6 +38,6 @@ if (!fs.existsSync(meta)) {
   const template = fs.readFileSync(path.join(avatars, 'orange.png.meta'), 'utf8');
   fs.writeFileSync(meta, template.replace(/^guid: .*$/m, 'guid: ' + crypto.randomBytes(16).toString('hex')));
 }
-fs.copyFileSync(path.join(root, `docs/art/cat-skins/${skin}-full/catch-04.png`),
+fs.copyFileSync(path.join(root, `docs/美术/猫咪形象/${skin}-full/catch-04.png`),
   path.join(root, `image/fishing_photos/cat_fishing_${skin}.png`));
 console.log(JSON.stringify({ skin, portraitSource: 'ready/0/head.png', avatarSize: 256 }));

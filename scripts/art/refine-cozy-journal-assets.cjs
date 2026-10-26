@@ -4,9 +4,9 @@
 const fs=require('node:fs'),path=require('node:path');
 const dep='/Users/red/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/';
 let chromium;try{({chromium}=require('playwright'))}catch{({chromium}=require(dep+'playwright'))}
-const root=path.resolve(__dirname,'../..'),theme=path.join(root,'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal'),sources=path.join(root,'docs/art/cozy-journal/sources/css');
+const root=path.resolve(__dirname,'../..'),theme=path.join(root,'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal'),sources=path.join(root,'docs/美术/手账/sources/css');
 const manifest=JSON.parse(fs.readFileSync(path.join(theme,'ui-manifest.json')));fs.mkdirSync(sources,{recursive:true});
-(async()=>{const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const page=await browser.newPage({viewport:{width:1000,height:1000},deviceScaleFactor:2});await page.goto('http://127.0.0.1:8769/docs/design/ui/prototype/cozy-journal/index.html');await page.evaluate(()=>document.fonts.ready);
+(async()=>{const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const page=await browser.newPage({viewport:{width:1000,height:1000},deviceScaleFactor:2});await page.goto('http://127.0.0.1:8769/docs/设计/界面/原型/手账/index.html');await page.evaluate(()=>document.fonts.ready);
 await page.evaluate(()=>{S.page='shop';S.tab.shop=1;render('shop');document.getAnimations().forEach(a=>a.cancel())});
 // Every recipe specifies CSS content dimensions, transparent padding, and fixed corner radius.
 const recipes=[
@@ -48,7 +48,7 @@ const png=path.join(theme,name+'.png');await page.screenshot({path:png,omitBackg
 await page.evaluate(()=>{document.querySelector('#export-host').remove();document.querySelector('#export-style').remove()});
 const entry=manifest.assets.find(x=>x.name===name),border=r?Array(4).fill((r+pad)*2):[0,0,0,0];
 const sourceFile=path.join(sources,name.replaceAll('/','-')+'.html');fs.writeFileSync(sourceFile,`<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}html,body{margin:0;background:transparent}#export-box{${data.css}}${data.extra}</style><div id="export-box"></div>`);
-Object.assign(entry,{width:(w+2*pad)*2,height:(h+2*pad)*2,border,source:path.relative(root,sourceFile),imageType:r?'Sliced':'Simple',contentInsets:[pad,pad,pad,pad],contentSize:[w,h],visualBasis:{selector,source:'docs/design/ui/prototype/cozy-journal/style.css',method:'actual-computed-css',overrides},status:'reference-aligned',notes:'Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.'});
+Object.assign(entry,{width:(w+2*pad)*2,height:(h+2*pad)*2,border,source:path.relative(root,sourceFile),imageType:r?'Sliced':'Simple',contentInsets:[pad,pad,pad,pad],contentSize:[w,h],visualBasis:{selector,source:'docs/设计/界面/原型/手账/style.css',method:'actual-computed-css',overrides},status:'reference-aligned',notes:'Position outer Sprite at contentRect minus contentInsets. Do not double-add shadows; source HTML is authoritative.'});
 let meta=fs.readFileSync(png+'.meta','utf8').replace(/spriteBorder: \{.*\}/,`spriteBorder: {x: ${border[0]}, y: ${border[1]}, z: ${border[2]}, w: ${border[3]}}`);fs.writeFileSync(png+'.meta',meta);
 }
 for(const r of recipes)await capture(r);
@@ -74,14 +74,14 @@ await page.evaluate(()=>{S.sel.map=PONDS[0].id;render('map');document.getAnimati
 await capture(['surfaces/map-photo-frame','.map-frame',256,128,32,8,{}]);
 await capture(['surfaces/category-chip','.chip',96,32,0,16,{}]);
 // Preserve the actual original paper bitmap. PPU 50 makes the 256×128 source tile at 512×256 design units.
-const grain=manifest.assets.find(a=>a.name==='textures/paper-grain');fs.copyFileSync(path.join(root,'docs/design/ui/prototype/cozy-journal/assets/paper.png'),path.join(theme,grain.name+'.png'));
-Object.assign(grain,{width:256,height:128,pixelsPerUnit:50,border:[0,0,0,0],source:'docs/design/ui/prototype/cozy-journal/assets/paper.png',status:'reference-aligned',visualBasis:{method:'Reuse original bitmap',selector:'.journal::before'},notes:'Tile at 512×256 design units with opacity .32 and Multiply blend. Normal alpha compositing is not equivalent.'});
+const grain=manifest.assets.find(a=>a.name==='textures/paper-grain');fs.copyFileSync(path.join(root,'docs/设计/界面/原型/手账/assets/paper.png'),path.join(theme,grain.name+'.png'));
+Object.assign(grain,{width:256,height:128,pixelsPerUnit:50,border:[0,0,0,0],source:'docs/设计/界面/原型/手账/assets/paper.png',status:'reference-aligned',visualBasis:{method:'Reuse original bitmap',selector:'.journal::before'},notes:'Tile at 512×256 design units with opacity .32 and Multiply blend. Normal alpha compositing is not equivalent.'});
 await page.evaluate(()=>{S.tab.settings=1;render('settings');document.getAnimations().forEach(a=>a.cancel())});
 await capture(['surfaces/toggle-track','.switch',74,38,0,19,{background:'white'}]);
 await capture(['decor/toggle-knob','.switch .knob',30,30,10,0,{}]);
 // Original SVG geometry (the earlier manually redrawn bobber was one pixel off).
 const svg=await page.evaluate(()=>bobberSvg());const sharp=require(dep+'sharp');
 const variants={bobber:svg,'bobber-base':svg.replace(/<path d="M6 30a14 14 0 0 1 28 0z"[^>]*\/>/,'').replace(/<ellipse[^>]*\/>/,''),'bobber-color':'<svg viewBox="0 0 40 58"><path d="M6 30a14 14 0 0 1 28 0z" fill="white"/></svg>','bobber-highlight':'<svg viewBox="0 0 40 58"><ellipse cx="14" cy="23" rx="4" ry="2.6" fill="#fff" opacity=".65"/></svg>'};
-for(const [name,body] of Object.entries(variants)){const xml=body.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="116" '),file=path.join(root,'docs/art/cozy-journal/sources/ui/motion',name+'.svg');fs.writeFileSync(file,xml);await sharp(Buffer.from(xml)).png().toFile(path.join(theme,'motion',name+'.png'));const entry=manifest.assets.find(x=>x.name==='motion/'+name);entry.status='reference-aligned';entry.visualBasis={source:'docs/design/ui/prototype/cozy-journal/app.js',method:'bobberSvg geometry'};}
+for(const [name,body] of Object.entries(variants)){const xml=body.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="116" '),file=path.join(root,'docs/美术/手账/sources/ui/motion',name+'.svg');fs.writeFileSync(file,xml);await sharp(Buffer.from(xml)).png().toFile(path.join(theme,'motion',name+'.png'));const entry=manifest.assets.find(x=>x.name==='motion/'+name);entry.status='reference-aligned';entry.visualBasis={source:'docs/设计/界面/原型/手账/app.js',method:'bobberSvg geometry'};}
 manifest.refinement={method:'Original CSS/SVG export; all remaining entries are supplemental designs, not yet exact-reference accepted',aligned:manifest.assets.filter(x=>x.status==='reference-aligned').length};fs.writeFileSync(path.join(theme,'ui-manifest.json'),JSON.stringify(manifest,null,2));await browser.close();console.log('Aligned '+manifest.refinement.aligned+' shared UI assets to original CSS/SVG.');
 })().catch(e=>{console.error(e);process.exit(1)});

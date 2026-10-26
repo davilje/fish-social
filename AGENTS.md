@@ -8,9 +8,9 @@
 
 | Subagent | @引用 | 写权限 | 典型输出 |
 |----------|-------|--------|----------|
-| 策划 | `@producer` | `docs/planning/` | 功能规格 spec、开发交接 prompt |
-| 美术总监 | `@art-director` | `docs/art/direction/` | 美术风格规范、资源审核意见 |
-| UI 设计师 | `@ui-designer` | `docs/design/ui/` | UI 设计稿规范、交互说明 |
+| 策划 | `@producer` | `docs/策划/` | 功能规格 spec、开发交接 prompt |
+| 美术总监 | `@art-director` | `docs/美术/风格/` | 美术风格规范、资源审核意见 |
+| UI 设计师 | `@ui-designer` | `docs/设计/界面/` | UI 设计稿规范、交互说明 |
 
 ### 工程开发（写代码）
 
@@ -23,15 +23,15 @@
 
 | Subagent | @引用 | 写权限 | 典型输出 |
 |----------|-------|--------|----------|
-| 原画 | `@concept-artist` | `mobile/assets/ docs/art/` | PNG/SVG 资源、资源清单 |
+| 原画 | `@concept-artist` | `mobile/assets/ docs/美术/` | PNG/SVG 资源、资源清单 |
 | 动效师 | `@motion-designer` | `mobile/assets/animations/` | Lottie 动效、动效接入说明 |
 
 ### 数据分析与运维（产出报告，不写业务源码）
 
 | Subagent | @引用 | 写权限 | 典型输出 |
 |----------|-------|--------|----------|
-| 数据分析师 | `@data-analyst` | `docs/analytics/` | 模拟运行报告、生态调参建议 |
-| 后端维护 | `@backend-ops` | `docs/planning/architecture/` | 架构方案、性能优化报告 |
+| 数据分析师 | `@data-analyst` | `docs/数据分析/` | 模拟运行报告、生态调参建议 |
+| 后端维护 | `@backend-ops` | `docs/策划/架构/` | 架构方案、性能优化报告 |
 
 ## 协作工作流
 
@@ -81,8 +81,8 @@ npm run planning:close -- vX.Y.Z
 - **Cursor**：用于 IDE 内开发（已配置 6 角色）
 - **Opencode**：用于 CLI/TUI 协作开发（9 角色，含美术总监/动效师/UI设计师）
 
-`docs/planning/` 下的 handoff 协议是共享的，两个系统共用同一套 spec/handoff/verify 管道。
+`docs/策划/` 下的 handoff 协议是共享的，两个系统共用同一套 spec/handoff/verify 管道。
 
-**策划全流程（写 spec → 登记计划表/看板 → 验收回写状态）**：见项目 Skill [`.cursor/skills/planning-progress-sync/SKILL.md`](.cursor/skills/planning-progress-sync/SKILL.md)。权威表：仓库根目录 [`项目开发需求计划表.xlsx`](项目开发需求计划表.xlsx)，经 `npm run planning:master-xlsx` 重生；**同时刷新** [`策划进度看板.html`](策划进度看板.html)；`docs/planning/` 下保留同步副本。运营入口：[`运营平台.html`](运营平台.html) 或 `打开运营平台.bat` → http://localhost:3001/ops/。
+**策划全流程（写 spec → 登记计划表/看板 → 验收回写状态）**：见项目 Skill [`.cursor/skills/planning-progress-sync/SKILL.md`](.cursor/skills/planning-progress-sync/SKILL.md)。权威表：仓库根目录 [`项目开发需求计划表.xlsx`](项目开发需求计划表.xlsx)，经 `npm run planning:master-xlsx` 重生；**同时刷新** [`策划进度看板.html`](策划进度看板.html)；`docs/策划/` 下保留同步副本。运营入口：[`运营平台.html`](运营平台.html) 或 `打开运营平台.bat` → http://localhost:3001/ops/。
 
-**埋点 / `fishing_metrics` 变更**：必须同步埋点表，见 [`.cursor/skills/metrics-catalog-sync/SKILL.md`](.cursor/skills/metrics-catalog-sync/SKILL.md)（`shared/metrics-schema.ts` + `scripts/build-metrics-events-xlsx.py` + `npm run planning:metrics-xlsx` → 根目录 `v0.4.4-埋点表清单.xlsx`，并同步 `docs/planning/reports/` 副本）。
+**埋点 / `fishing_metrics` 变更**：必须同步埋点表，见 [`.cursor/skills/metrics-catalog-sync/SKILL.md`](.cursor/skills/metrics-catalog-sync/SKILL.md)（`shared/metrics-schema.ts` + `scripts/build-metrics-events-xlsx.py` + `npm run planning:metrics-xlsx` → 根目录 `v0.4.4-埋点表清单.xlsx`，并同步 `docs/策划/报告/` 副本）。

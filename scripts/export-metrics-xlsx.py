@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """从 CSV 导出按类别分 sheet 的埋点表 xlsx。
 
-格式标准（以 docs/planning/reports/v0.4.4-埋点表清单.xlsx 手工版为准）：
+格式标准（以 docs/策划/报告/v0.4.4-埋点表清单.xlsx 手工版为准）：
 - Sheet：总览 + 连接与会话 / 钓位与鱼塘 / 状态机 / 咬钩与产出 / 性能 / 慢测验证
 - 列顺序：类别, 事件名, 类型, 触发时机, 必填字段(核心), 示例payload JSON, 优先级, 状态, 推荐落点文件
 - 必填字段(核心)：每个字段单独一行（逗号后换行），末尾保留两个空行
@@ -25,8 +25,8 @@ except ImportError:
     from openpyxl.utils import get_column_letter
 
 ROOT = Path(__file__).resolve().parents[1]
-CSV_PATH = ROOT / "docs/planning/reports/v0.4.4-埋点表清单.csv"
-XLSX_PATH = ROOT / "docs/planning/reports/v0.4.4-埋点表清单.xlsx"
+CSV_PATH = ROOT / "docs/策划/报告/v0.4.4-埋点表清单.csv"
+XLSX_PATH = ROOT / "docs/策划/报告/v0.4.4-埋点表清单.xlsx"
 
 # sheet 顺序与 CSV「类别」列对应
 SHEET_ORDER = [

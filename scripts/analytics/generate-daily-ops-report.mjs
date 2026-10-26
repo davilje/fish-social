@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { readJson } from './lib.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const summaryPath = process.argv[2] || path.join(__dirname, '../../docs/analytics/daily/latest/summary.json');
+const summaryPath = process.argv[2] || path.join(__dirname, '../../docs/数据分析/日报/最新/summary.json');
 const outPath = process.argv[3] || path.join(path.dirname(summaryPath), 'report.html');
 
 const SUMMARY = readJson(summaryPath);

@@ -5,4 +5,4 @@
 icons 为单色雕刻图案，icons-light 为主操作按钮上的浅色同轮廓版本；不改变图案几何。
 home-sakura 为依据确认的首页参考图生成的无 UI 场景，meow-fish 为独立透明 Logo。猫咪头像裁切自现有 v18 分层 head，其他角色/图标/鱼与纸纹复用已确认切图。
 asset-manifest.json 记录 GUID、大小、border 与 Resources 路径。data/player-levels.json 只读复制已有游戏数据，供 HUD 显示经验上限。
-完整说明与未执行的 Unity 验收：docs/archive/2026-10-26/superseded/design/ui/2026-10-14-cozy-prefab-repair.md。
+完整说明与未执行的 Unity 验收：docs/归档/2026-10-26/替代/设计/界面/2026-10-14-cozy-prefab-repair.md。

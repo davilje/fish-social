@@ -3,6 +3,7 @@ import json
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -94,6 +95,8 @@ CONTAINERS = {
     "painted", "pack", "hd-v2", "full-v1", "assets", "magic-v4", "cats-v4",
     "template-study-v1", "character-study-2026-10-24", "realistic-v1",
     "cartoon-study-v1", "orange", "v5",
+    "猫咪形象", "鱼图", "大肥鱼", "钓鱼动作", "睡眼", "登录", "动画", "生成", "风格",
+    "手账", "声音", "水面特效",
 }
 
 TEXT_EXT = {
@@ -123,43 +126,111 @@ def collect():
     return rename, skipped
 
 
+def git_mv_path(rel_src, rel_dst):
+    result = subprocess.run(
+        ["git", "mv", "--", rel_src, rel_dst],
+        cwd=ROOT, capture_output=True,
+    )
+    if result.returncode == 0:
+        return ""
+    return result.stderr.decode("utf-8", "replace")
+
+
+def move_tree(src: Path, dst: Path):
+    if not src.exists():
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    error = ""
+    for attempt in range(5):
+        error = git_mv_path(src.relative_to(ROOT).as_posix(), dst.relative_to(ROOT).as_posix())
+        if not error:
+            return
+        if "Permission denied" not in error and "bad source" not in error:
+            raise SystemExit(error)
+        time.sleep(0.4 * (attempt + 1))
+    if not src.is_dir():
+        raise SystemExit(error)
+    dst.mkdir(parents=True, exist_ok=True)
+    for child in list(src.iterdir()):
+        move_tree(child, dst / child.name)
+    try:
+        src.rmdir()
+    except OSError:
+        if not only_empty(src):
+            raise SystemExit(error)
+
+
+def only_empty(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    return all(only_empty(child) for child in path.iterdir())
+
+
 def git_mv(pairs):
     for src, dst in pairs:
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["git", "mv", "--", src.as_posix(), dst.as_posix()], cwd=ROOT, check=True)
+        if not src.exists():
+            continue
+        if dst.exists():
+            for child in list(src.iterdir()):
+                target = dst / child.name
+                if target.exists():
+                    raise SystemExit(f"both sides have {target}")
+                move_tree(child, target)
+            try:
+                src.rmdir()
+            except OSError:
+                if not only_empty(src):
+                    raise SystemExit(f"could not remove {src}")
+            continue
+        move_tree(src, dst)
 
 
-def replace_path(text, old, new):
+def replace_path(text, old, new, paths_only_with_docs_prefix):
     text = text.replace("docs/" + old, "docs/" + new)
-    text = text.replace("docs\\" + old.replace("/", "\\"), "docs\\" + new.replace("/", "\\"))
-    text = re.sub(
-        r"(?<![A-Za-z0-9_\-])" + re.escape(old) + r"(?![A-Za-z0-9_\-])",
-        new.replace("\\", r"\\"),
-        text,
-    )
     old_win = old.replace("/", "\\")
     new_win = new.replace("/", "\\")
-    text = re.sub(
-        r"(?<![A-Za-z0-9_\-])" + re.escape(old_win) + r"(?![A-Za-z0-9_\-])",
-        new_win.replace("\\", r"\\"),
-        text,
-    )
+    text = text.replace("docs\\" + old_win, "docs\\" + new_win)
+    if paths_only_with_docs_prefix:
+        return text
+    if "/" in old:
+        text = re.sub(
+            r"(?<![A-Za-z0-9_\-])" + re.escape(old) + r"(?![A-Za-z0-9_\-])",
+            lambda _match: new,
+            text,
+        )
+        text = re.sub(
+            r"(?<![A-Za-z0-9_\-])" + re.escape(old_win) + r"(?![A-Za-z0-9_\-])",
+            lambda _match: new_win,
+            text,
+        )
+    else:
+        text = re.sub(
+            r"(?<=[/\\(\"'])" + re.escape(old) + r"(?=[/\\)\"'\s#?]|$)",
+            lambda _match: new,
+            text,
+        )
+        text = re.sub(
+            r"(?<=[/\\(\"'])" + re.escape(old_win) + r"(?=[/\\)\"'\s#?]|$)",
+            lambda _match: new_win,
+            text,
+        )
     return text
 
 
-def apply_renames(text, full_paths):
+def apply_renames(text, full_paths, paths_only_with_docs_prefix=False):
     for old, new in full_paths:
-        text = replace_path(text, old, new)
+        text = replace_path(text, old, new, paths_only_with_docs_prefix)
     return text
 
 
 def protect(text, keeps):
     tokens = []
     for index, keep in enumerate(keeps):
+        parent, child = keep.rsplit("/", 1)
         token = f"__KEEP_DIR_{index}__"
-        text = text.replace(keep, token)
-        text = text.replace(keep.replace("/", "\\"), token)
-        tokens.append((token, keep.split("/")[-1]))
+        text = text.replace(f"{parent}/{child}", f"{parent}/{token}")
+        text = text.replace(f"{parent}\\{child}", f"{parent}\\{token}")
+        tokens.append((token, child))
     return text, tokens
 
 
@@ -169,11 +240,40 @@ def restore(text, tokens):
     return text
 
 
+PACK_MARKS = {
+    "猫咪形象", "鱼图", "大肥鱼", "钓鱼动作", "睡眼", "登录", "动画", "生成", "风格",
+}
+
+
+def in_asset_pack(path: Path) -> bool:
+    try:
+        parts = path.relative_to(DOCS).parts
+    except ValueError:
+        return False
+    for index, part in enumerate(parts):
+        if part in CONTAINERS or part in PACK_MARKS:
+            return True
+        parent = parts[index - 1] if index else ""
+        if part == "手账" and parent not in {"界面", "ui"}:
+            return True
+        if part == "声音" and parent in {"美术", "art", "替代", "superseded"}:
+            return True
+        if part == "水面特效" and parent in {"美术", "art", "替代", "superseded"}:
+            return True
+    return False
+
+
 def basename_pass(text, safe_basenames):
+    # Only path segments, so prose like "current art" stays English.
     for name, chinese in sorted(safe_basenames.items(), key=lambda item: len(item[0]), reverse=True):
         text = re.sub(
-            r"(?<![A-Za-z0-9_\-])" + re.escape(name) + r"(?![A-Za-z0-9_\-])",
-            chinese,
+            r"(?<=[/\\])" + re.escape(name) + r"(?=[/\\)\"'\s#?]|$)",
+            lambda _match, chinese=chinese: chinese,
+            text,
+        )
+        text = re.sub(
+            r"(?<=[(\"'])" + re.escape(name) + r"(?=/)",
+            lambda _match, chinese=chinese: chinese,
             text,
         )
     return text
@@ -184,6 +284,8 @@ def iter_text_files():
         dirnames[:] = [name for name in dirnames if name not in SKIP_DIR]
         for name in filenames:
             path = Path(dirpath) / name
+            if path.name == "rename-docs-folders.py":
+                continue
             if path.suffix.lower() not in TEXT_EXT:
                 continue
             if path.stat().st_size > 8_000_000:
@@ -191,37 +293,132 @@ def iter_text_files():
             yield path
 
 
+def blob_paths(cached):
+    if cached:
+        result = subprocess.run(["git", "ls-files", "-s", "-z"], cwd=ROOT, capture_output=True)
+    else:
+        result = subprocess.run(["git", "ls-tree", "-r", "-z", "HEAD"], cwd=ROOT, capture_output=True)
+    if result.returncode != 0:
+        raise SystemExit(result.stderr.decode("utf-8", "replace"))
+    found = {}
+    for record in result.stdout.split(b"\0"):
+        if not record:
+            continue
+        meta, path = record.split(b"\t", 1)
+        pieces = meta.split()
+        # ls-files: mode hash stage; ls-tree: mode type hash
+        blob = pieces[1] if cached else pieces[2]
+        found.setdefault(blob, []).append(path.decode("utf-8"))
+    return found
+
+
+def directory_renames():
+    head = blob_paths(cached=False)
+    index = blob_paths(cached=True)
+    mapping = {}
+    for blob, old_paths in head.items():
+        new_paths = index.get(blob)
+        if not new_paths or len(old_paths) != 1 or len(new_paths) != 1:
+            continue
+        old, new = old_paths[0], new_paths[0]
+        if old == new or not old.startswith("docs/") or not new.startswith("docs/"):
+            continue
+        old_dir = old.split("/")[:-1]
+        new_dir = new.split("/")[:-1]
+        for length in range(1, min(len(old_dir), len(new_dir)) + 1):
+            old_prefix = "/".join(old_dir[:length])
+            new_prefix = "/".join(new_dir[:length])
+            if old_prefix == new_prefix:
+                continue
+            old_rel = old_prefix[len("docs/"):]
+            new_rel = new_prefix[len("docs/"):]
+            if not old_rel:
+                continue
+            previous = mapping.get(old_rel)
+            if previous and previous != new_rel:
+                continue
+            mapping[old_rel] = new_rel
+    return sorted(mapping.items(), key=lambda item: len(item[0]), reverse=True)
+
+
+PATH_TOKEN = re.compile(r"(?:docs[/\\])?(?:\.\.[/\\])*(?:[A-Za-z0-9_.-]+[/\\])+(?:[A-Za-z0-9_.-]+)?")
+DOCS_PATH = re.compile(r"docs[/\\](?:[A-Za-z0-9_.-]+[/\\])*[A-Za-z0-9_.-]+")
+
+
+ROOTS = {
+    "docs",
+    "analytics", "archive", "art", "compliance", "design", "engineering",
+    "maintenance", "monitoring", "ops", "planning",
+    "数据分析", "归档", "美术", "合规", "设计", "工程", "维护", "监控", "运维", "策划",
+}
+
+
+def rewrite_token(token: str) -> str:
+    slash = "\\" if "\\" in token and "/" not in token else "/"
+    parts = re.split(r"[/\\]", token)
+    rewritten = []
+    armed = False
+    blocked = False
+    for part in parts:
+        if part in {"", ".", ".."}:
+            rewritten.append(part)
+            continue
+        if blocked:
+            rewritten.append(part)
+            continue
+        if part in CONTAINERS:
+            rewritten.append(NAMES.get(part, part))
+            blocked = True
+            continue
+        if armed or part in ROOTS:
+            rewritten.append(NAMES.get(part, part))
+            armed = True
+            continue
+        rewritten.append(part)
+    return slash.join(rewritten)
+
+
+def rewrite_body(text: str, file_in_pack: bool, docs_prefix_only: bool) -> str:
+    text = DOCS_PATH.sub(lambda match: rewrite_token(match.group(0)), text)
+    if docs_prefix_only:
+        return text
+
+    def replace(match):
+        token = match.group(0)
+        if token.startswith("docs/") or token.startswith("docs\\"):
+            return token
+        if file_in_pack and not token.startswith(".."):
+            return token
+        return rewrite_token(token)
+
+    return PATH_TOKEN.sub(replace, text)
+
+
 def main():
     rename, skipped = collect()
-    by_name = {}
-    for path in rename:
-        by_name.setdefault(path.name, []).append(path)
     skipped_names = {path.name for path in skipped}
     safe_basenames = {
-        name: NAMES[name]
-        for name in by_name
+        name: chinese
+        for name, chinese in NAMES.items()
         if name not in skipped_names
     }
-    keeps = sorted({f"{path.parent.name}/{path.name}" for path in skipped}, key=len, reverse=True)
+    inverse = {}
+    for english, chinese in NAMES.items():
+        inverse.setdefault(chinese, set()).add(english)
+    keep_set = set()
+    for path in skipped:
+        parents = {path.parent.name}
+        parents.update(inverse.get(path.parent.name, ()))
+        for parent in parents:
+            keep_set.add(f"{parent}/{path.name}")
+    keeps = sorted(keep_set, key=len, reverse=True)
     pairs = sorted(rename, key=lambda path: len(path.relative_to(DOCS).parts), reverse=True)
     moves = []
     for src in pairs:
         dst = src.with_name(NAMES[src.name])
-        if dst.exists():
-            raise SystemExit(f"destination exists: {dst}")
         moves.append((src, dst))
-    print(f"rename {len(moves)} folders; protect {len(keeps)} asset paths")
+    print(f"rename {len(moves)} folders; protect {len(keeps)} asset paths", flush=True)
     git_mv(moves)
-
-    full_paths = []
-    for src, dst in moves:
-        old = src.relative_to(DOCS).as_posix()
-        new = dst.relative_to(DOCS).as_posix()
-        # Parents are still the original names here; rewrite the whole chain.
-        old_parts = old.split("/")
-        new_parts = [NAMES.get(part, part) for part in old_parts]
-        full_paths.append(("/".join(old_parts), "/".join(new_parts)))
-    full_paths.sort(key=lambda item: len(item[0]), reverse=True)
 
     path_map_file = None
     changed = 0
@@ -236,29 +433,28 @@ def main():
             continue
         newline = "\r\n" if "\r\n" in text else "\n"
         body = text.replace("\r\n", "\n")
-        updated, tokens = protect(body, keeps)
-        updated = apply_renames(updated, full_paths)
-        updated = basename_pass(updated, safe_basenames)
-        updated = restore(updated, tokens)
+        inside_docs = DOCS in path.parents or path.parent == DOCS
+        if not inside_docs and "docs/" not in body and "docs\\" not in body:
+            continue
+        updated = rewrite_body(body, in_asset_pack(path) if inside_docs else False, docs_prefix_only=not inside_docs)
         if updated != body:
             path.write_bytes(updated.replace("\n", newline).encode("utf-8"))
             changed += 1
-    print(f"rewrote {changed} files")
+    print(f"rewrote {changed} files", flush=True)
 
     if path_map_file and path_map_file.exists():
         data = json.loads(path_map_file.read_text(encoding="utf-8"))
         rewritten = {}
         for key, value in data.items():
             if isinstance(value, str):
-                updated, tokens = protect(value, keeps)
-                updated = apply_renames(updated, full_paths)
-                updated = basename_pass(updated, safe_basenames)
-                value = restore(updated, tokens)
+                value = rewrite_body(value, False, docs_prefix_only=False)
             rewritten[key] = value
-        for old, new in full_paths:
-            rewritten.setdefault("docs/" + old, "docs/" + new)
+            if isinstance(key, str) and key.startswith("docs/"):
+                mapped = rewrite_body(key, False, docs_prefix_only=False)
+                if mapped != key:
+                    rewritten.setdefault(key, mapped)
         path_map_file.write_text(json.dumps(rewritten, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(f"path-map entries {len(rewritten)}")
+        print(f"path-map entries {len(rewritten)}", flush=True)
 
 
 if __name__ == "__main__":

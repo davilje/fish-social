@@ -9,7 +9,7 @@ import { DEFAULT_AVATARS, isDefaultAvatarPath, resolveCatSkinId } from '../../sh
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const art = path.join(root, 'docs/art/cat-skins/sangbiao');
+const art = path.join(root, 'docs/美术/猫咪形象/sangbiao');
 const read = file => JSON.parse(fs.readFileSync(file));
 const hash = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const unity = path.join(root, 'fish-social-unity/Assets');

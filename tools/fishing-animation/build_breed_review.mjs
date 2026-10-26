@@ -3,7 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/art/cat-skins');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/美术/猫咪形象');
 const poseStudy = JSON.parse(fs.readFileSync(path.join(root, 'full-pose-manifest.json')));
 const originals = JSON.parse(fs.readFileSync(path.join(root, 'painted-poses.json'))).poses;
 const byHash = new Map(originals.map(pose => [pose.sourceSha256, pose.id]));

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const art = path.join(root, 'docs/art/fishing-rest');
+const art = path.join(root, 'docs/美术/睡眼');
 const native = path.join(root, 'desktop-overlay/OverlayResources/fishing');
 const mirror = path.join(root, 'fish-social-unity/FishSocialOverlay/OverlayResources/fishing');
 const breeds = ['orange', 'calico', 'silver', 'brown', 'cream', 'blue', 'black', 'white', 'cow', 'dafeiyu'];

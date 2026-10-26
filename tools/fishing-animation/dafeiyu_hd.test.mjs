@@ -73,7 +73,7 @@ function evaluate(file, dependencies) {
 }
 
 test('HD preflight accepts all 16 atlases and 296 body layers without installing or changing its inputs', () => {
-  assert.equal(defaultArtDirectory, path.join(root, 'docs/art/dafeiyu/hd-v2'));
+  assert.equal(defaultArtDirectory, path.join(root, 'docs/美术/大肥鱼/hd-v2'));
   const fixture = sources();
   const before = new Map([...fixture.files].map(([file, bytes]) => [file, Buffer.from(bytes)]));
   const result = fixture.check();

@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-export const defaultArtDirectory = path.join(root, 'docs/art/dafeiyu/hd-v2');
+export const defaultArtDirectory = path.join(root, 'docs/美术/大肥鱼/hd-v2');
 const unity = path.join(root, 'fish-social-unity/Assets');
 const fishingRoots = [path.join(unity, 'StreamingAssets/Fishing'),
   path.join(root, 'desktop-overlay/OverlayResources/fishing')];

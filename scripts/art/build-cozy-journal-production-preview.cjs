@@ -4,7 +4,7 @@ const crypto = require('node:crypto');
 const sharp = require('sharp');
 const root = path.resolve(__dirname, '../..');
 const source = path.join(root, 'fish-social-unity/Library/CozyRedesignPreviews');
-const output = path.join(root, 'docs/art/cozy-journal/production');
+const output = path.join(root, 'docs/美术/手账/production');
 const pages = [
  ['PanelShop','商店'],['PanelWorldMap','世界地图'],['PanelPondSelection','选择鱼塘'],
  ['PanelCatch','背包'],['PanelEquipment','装备'],['PanelAchievements','成就'],

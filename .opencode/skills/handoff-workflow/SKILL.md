@@ -20,10 +20,10 @@ metadata:
 
 ### Phase 1：移交开发
 
-1. **确认 spec 状态**：docs/planning/specs/功能.md 中状态字段设为 **已确认**
+1. **确认 spec 状态**：docs/策划/规格/功能.md 中状态字段设为 **已确认**
 2. **更新计划表**：仓库根目录 项目开发需求计划表.xlsx 登记新版本
-3. **生成开发交接文档**：在 docs/planning/prompts/ 生成分角色 prompt
-4. **更新 manifest**：docs/planning/handoffs/vX.Y.Z.json 登记 pipeline 状态
+3. **生成开发交接文档**：在 docs/策划/提示词/ 生成分角色 prompt
+4. **更新 manifest**：docs/策划/交接/vX.Y.Z.json 登记 pipeline 状态
 5. **运行命令**：
 npm run planning:handoff -- vX.Y.Z [--source 角色ID]
 
@@ -32,12 +32,12 @@ npm run planning:handoff -- vX.Y.Z [--source 角色ID]
 开发 Agent 实现完成后，**必须**执行以下步骤更新计划表和看板：
 
 1. **更新 build 脚本中的状态**：在 scripts/planning/build-master-plan-xlsx.py 中，将该需求条目的状态从 已确认 改为 已实现，并填写完成日期
-2. **更新 spec 文档状态**：在 docs/planning/specs/功能.md 中将状态字段改为 **已实现**
+2. **更新 spec 文档状态**：在 docs/策划/规格/功能.md 中将状态字段改为 **已实现**
 3. **重建计划表与看板**：运行 
 npm run planning:master-xlsx
    - 这会同时更新根目录 项目开发需求计划表.xlsx 和 策划进度看板.html
-   - 同步副本也会写入 docs/planning/
-4. **记录 CHANGELOG**：在 docs/archive/2026-10-26/indexes/planning/CHANGELOG.md 追加实现记录
+   - 同步副本也会写入 docs/策划/
+4. **记录 CHANGELOG**：在 docs/归档/2026-10-26/索引/策划/CHANGELOG.md 追加实现记录
 
 > **注意**：
 npm run planning:master-xlsx 是唯一正确的命令（包含 build-master-plan-xlsx.py 和 build-producer-progress-html.py）。**不要使用** 

@@ -11,7 +11,7 @@ from PIL import Image
 
 
 def export(repo: Path):
-    source = repo / "docs/design/ui/prototype/cozy-journal/assets/room-v4"
+    source = repo / "docs/设计/界面/原型/手账/assets/room-v4"
     target = repo / "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/home-room"
     target.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((source / "manifest.json").read_text())

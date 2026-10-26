@@ -29,7 +29,7 @@ if (!alerts.length) {
 const payload = {
   dateKey: summary.meta?.dateKey,
   rulesVersion: summary.meta?.rulesVersion,
-  reportPath: `docs/analytics/daily/${summary.meta?.dateKey}/report.html`,
+  reportPath: `docs/数据分析/日报/${summary.meta?.dateKey}/report.html`,
   alerts,
   generatedAt: summary.meta?.generatedAt,
 };

@@ -3,7 +3,7 @@
 策划进度看板 HTML — 从 项目开发需求计划表.xlsx 自动生成。
 
 权威数据：xlsx「开发计划」sheet。
-输出：仓库根目录 策划进度看板.html（并同步 docs/planning/ 副本）
+输出：仓库根目录 策划进度看板.html（并同步 docs/策划/ 副本）
 
 与 npm run planning:master-xlsx 绑定：改表后必须重生本页，
 保证策划打开网页即看到「离正式上线 / 千人运营」与「Unity 版本」双页签进度。
@@ -747,9 +747,9 @@ footer {{
   <div class="card-h"><strong>Unity 移植阶梯</strong><span class="muted">{unity_done} / {len(unity_known)} Phase 已实现</span></div>
   {bar_html(unity_pct, "ok" if unity_pct >= 70 else ("mid" if unity_pct > 0 else "low"))}
   <p class="doc-links muted">
-    决策：<a href="docs/planning/architecture/Unity迁移决策记录.md">Unity迁移决策记录</a> ·
-    契约：<a href="docs/planning/architecture/Unity契约冻结清单-v0.md">契约冻结清单 v0</a> ·
-    总表：<a href="docs/planning/specs/desktop/Unity移植-分阶段需求清单.md">分阶段需求清单</a>
+    决策：<a href="docs/策划/架构/Unity迁移决策记录.md">Unity迁移决策记录</a> ·
+    契约：<a href="docs/策划/架构/Unity契约冻结清单-v0.md">契约冻结清单 v0</a> ·
+    总表：<a href="docs/策划/规格/桌面端/Unity移植-分阶段需求清单.md">分阶段需求清单</a>
   </p>
 </div>
 

@@ -10,9 +10,9 @@ alwaysApply: false
 
 ## 开工前（必须）
 
-1. 确认存在 `docs/planning/specs/<功能>.md` 且状态为 **已确认**
+1. 确认存在 `docs/策划/规格/<功能>.md` 且状态为 **已确认**
 2. 精读该 spec 的 §3 功能范围、§4 技术影响、§5 验收标准
-3. 查阅 `docs/planning/product/v0.1.0-功能全景.md` 相关章节
+3. 查阅 `docs/策划/产品/v0.1.0-功能全景.md` 相关章节
 4. 若无已确认 spec，**停止**并提示用户先完成策划
 
 ## 实现中
@@ -26,9 +26,9 @@ alwaysApply: false
 - [ ] 自检 spec §5 全部验收项
 - [ ] 运行 `npm run planning:verify -- vX.Y.Z` 与 `npm run planning:accept -- vX.Y.Z`
 - [ ] 提示用户请 **策划 Agent** 执行 `npm run planning:close -- vX.Y.Z`
-- [ ] 更新 `docs/planning/product/v0.1.0-功能全景.md`（若用户可见行为变化）
+- [ ] 更新 `docs/策划/产品/v0.1.0-功能全景.md`（若用户可见行为变化）
 
-分角色 prompt 见 `docs/planning/prompts/vX.Y.Z-{backend-dev|frontend-dev}.prompt.md`。
+分角色 prompt 见 `docs/策划/提示词/vX.Y.Z-{backend-dev|frontend-dev}.prompt.md`。
 
 ## 禁止
 

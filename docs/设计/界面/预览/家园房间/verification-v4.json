@@ -1,0 +1,664 @@
+{
+  "date": "2026-10-23",
+  "unity": "2021.3.29f1c1",
+  "runtimeEntry": "DesktopAppBootstrap > DesktopShellUi > DesktopShell.prefab",
+  "validationMode": "Unity EditMode, saved prefab native rendering and GraphicRaycaster geometry; offline data",
+  "result": "Passed",
+  "passed": 127,
+  "failed": 0,
+  "roomTests": 9,
+  "existingRegressionTests": 118,
+  "independentArtAssets": 15,
+  "propInstances": 17,
+  "assets": [
+    {
+      "id": "cat-bed",
+      "file": "cat-bed.png",
+      "width": 1586,
+      "height": 657,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "15b67333d7030bb98c11e6bb990c9bb4bb1afb1521422508081e42c3fd3591d9"
+    },
+    {
+      "id": "cat-climber",
+      "file": "cat-climber.png",
+      "width": 1253,
+      "height": 946,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "45d731da4c3a307d3f7f5fcc1bc69f0e1490c2434b27c71e60c775191cedffb5"
+    },
+    {
+      "id": "aquarium",
+      "file": "aquarium.png",
+      "width": 1218,
+      "height": 627,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "9abe0f15c85113c40952aa1db53f8869422bbfaff9d8a2f6b0fb0c0c8a386de1"
+    },
+    {
+      "id": "fishing-rod",
+      "file": "fishing-rod.png",
+      "width": 278,
+      "height": 1455,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "b15617419766d7a597b2ab75c027fc188e52c7667b240702d8e6d1ca2a9fa84c"
+    },
+    {
+      "id": "plant",
+      "file": "plant.png",
+      "width": 970,
+      "height": 1100,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "8aa1d42bed16fbd6699c7906e118df77969340ccd0805025c9f62a32babdac32"
+    },
+    {
+      "id": "rug",
+      "file": "rug.png",
+      "width": 1950,
+      "height": 515,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "b8d718f43f81f0699a7b5534fe33ea0ef45ac5dd3b9d0d3bb24f400e9baa528d"
+    },
+    {
+      "id": "toy-basket",
+      "file": "toy-basket.png",
+      "width": 1383,
+      "height": 584,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "8ca18675956226aca8377b4476987524e8ca56aed7490f1d70bb6e7d9f79ae9f"
+    },
+    {
+      "id": "scratching-post",
+      "file": "scratching-post.png",
+      "width": 765,
+      "height": 1050,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "3a136165ba20dc2b403dbae82aeb097a08b7aa23f84960928aaa87e9c475a070"
+    },
+    {
+      "id": "tackle-rack",
+      "file": "tackle-rack.png",
+      "width": 1376,
+      "height": 693,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "993902495e7a1cf69e0785a32b7dc6e7daac44e2c4a4ae8ee34272c698aec174"
+    },
+    {
+      "id": "aquarium-stand",
+      "file": "aquarium-stand.png",
+      "width": 1909,
+      "height": 511,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "2e961065f80e9e85836822e6d2930696c6342d079e24a6bb5137fe7b56ff337c"
+    },
+    {
+      "id": "food-bowls",
+      "file": "food-bowls.png",
+      "width": 1393,
+      "height": 454,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "6d62ca9e0151e87cbe7dd160f61931e727b511b53243ecc025106c8eed0045b4"
+    },
+    {
+      "id": "fishing-satchel",
+      "file": "fishing-satchel.png",
+      "width": 751,
+      "height": 1267,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "18e91beae1dd10def83735a81eb0514ca65f27a52ad25eced5a67f6ac843e7fe"
+    },
+    {
+      "id": "wall-shelf",
+      "file": "wall-shelf.png",
+      "width": 1549,
+      "height": 583,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "61d406563f047a4458c56b170e30718f8c42e2bc27732670a116c576ee4d8805"
+    },
+    {
+      "id": "wall-picture",
+      "file": "wall-picture.png",
+      "width": 1181,
+      "height": 848,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "ed2c41c87d779653252a48dd34bfffbac6373952044e2459c8098e1950fb293d"
+    },
+    {
+      "id": "mouse-toy",
+      "file": "mouse-toy.png",
+      "width": 1480,
+      "height": 689,
+      "rgba": true,
+      "sourceMatches": true,
+      "sha256": "dbb2d0ba0d73119fd8ba42081441c80769f5288df779a49edaf8ebd253dbfc2a"
+    }
+  ],
+  "tests": [
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.DragRetainsGrabOffsetAndCancelsWhenPageOpens",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.FloorPointerClickMovesTowardBoundedTarget",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.FurnitureButtonsInvokeExistingRouteCallbacksOnce",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.NativeRaycastReachesRoomInsteadOfLegacyHome(835,760,\"Floor\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.NativeRaycastReachesRoomInsteadOfLegacyHome(835,650,\"Companion\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.NativeRaycastReachesRoomInsteadOfLegacyHome(585,705,\"Equipment\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.PagesAndPauseSuspendCompanionWhilePreservingPosition",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.SavedRoomReplacesOutdoorAndBothLegacyCatPresentations",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyHomeRoomTests.TapWakesIdleCatAndReducedMotionDisablesWander",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyJournalLayoutOwnershipTests.DynamicGridGrowsWithoutMovingFixedPageRegions(\"PanelShop\",\"Items/Viewport/Content/",3)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyJournalLayoutOwnershipTests.DynamicGridGrowsWithoutMovingFixedPageRegions(\"PanelEquipment\",\"Items/Viewport/Content/",3)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyJournalLayoutOwnershipTests.DynamicGridGrowsWithoutMovingFixedPageRegions(\"PanelCatch\",\"Grid/Viewport/Slots/",4)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Desktop.Tests.CozyJournalLayoutOwnershipTests.DynamicGridGrowsWithoutMovingFixedPageRegions(\"PanelPondSelection\",\"PondCardScroll/Viewport/Cards/",2)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.AnimationBurstsKeepBoundedJobsAndCancellationRemovesThem",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.BobberCreatesAndReacquiresMissingCanvasGroupInEditor",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.BobberTeardownWithDestroyedCanvasGroupDoesNotRecreateOrRestartLoop",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.CancellingShakeRestoresBaselineRatherThanAnIntermediatePeak",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.CatchSequenceUsesReceiptDurationAndSkipCompletesOnlyOnce",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.CelebrationUsesOriginalPaperShadowAndMultiplyStampMaterial",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.CharacterPauseAndReduceRestorePoseTransform",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.CharacterRequiresExplicitCompleteManifestMapping",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.DragCancelsSmoothMapFocusAtCurrentPosition",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.FinalStickerPoseUsesCssCenterAndSelectedLiftWithFixedHitGeometry",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.HiddenCatchQueueIsBoundedDeduplicatedAndResumes",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.ImportedBobberResourceIsUsedWithoutRuntimeTextureGeneration",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.OneLoopOwnsMotionAndHiddenOwnerRestoresThenYields",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.PauseSettlesPendingToastAndResumesOneLoop",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.PointerOnlyCardsSupportSelectionAndRepeatedTapeWithoutReplayingEntrance",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.PolaroidRevealRetainsStaticTiltAndSettlesWhenReduced",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RapidPageTransitionsDoNotRunStaleCompletion",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RareGlintDefaultsOffAndItsExplicitPreviewHonorsReducedMotion",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.ReadReceiptsAreIsolatedByAccountAndRequireExplicitSelection",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RebindingTheSameCardKeepsEntranceSettledAndSelectionOnlyAnimatesTapeLiftAndShadow",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.ReduceDuringCelebrationImmediatelyRemovesTransformsAndParticles",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.ReduceDuringPageTransitionSettlesLatestPageAndRestoresInput",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.ReduceDuringPressReturnsToRestAndFuturePressDoesNotMove",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RestartEntranceReplaysOnlyFirstEightCardsAndNeverReplaysObservedPonds",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RouterLeavesTheIncomingPageVisibleForItsOwnEntrance",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RouterReducedOpenFadesWithoutMovingTheIncomingPage",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RouterRepeatedCurrentTabCancelsOldFlipWithoutHidingLatestPage",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RouterSettledTabClickDoesNotNotifyAgain",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.RouterSynchronousRedirectWinsOverOuterRoute",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.SoldCardCutsReconstructTheWholeCardWithoutLosingConcaveEdges",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.StickerEntranceDoesNotMoveLayoutOrButtonHitRect",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.StickerPoseComposesWithButtonPressInsteadOfReplacingItsMeshChannel",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.ToastQueuePreservesWebHoldAndPausesWithoutDiscardingCurrentNotice",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalMotionTests.WebEasingUsesBezierXInversionAndPreservesOvershoot",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.AlbumBindsBothPhotosAndDisablesPagingForEmptyAlbum",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.AuthoredReduceMotionToggleIsBoundAndRepeatedBindingDoesNotCloneIt",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.AuthoredShowcaseActionsRespectReadOnlyAndCodexExploreUsesRoute",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.ClosingSharedCommentsRestoresOwnershipBeforeCardCleanup",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.ComposerEntranceMatchesSourceAndImmediateCloseRestoresPaper",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.ComposerSavedPrefabRetainsReferencesAndBindsInputVisibilityAndSubmission",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.ComposerUsesNativeLimitedInputAndCannotDismissAnInFlightPublication",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.IncomingLikeUpdatesTheCardWithoutDiscardingCommentDraft",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.LeaderboardBindingPreservesAuthoredPodiumAndScrollGeometry",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.LikeFailureDoesNotAnimateAndSuccessUsesSourceOutBackScale",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.OpeningAnotherPlayerClearsPreviousEditableProfile",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPageBindingTests.ProfileBiographyDraftUpdatesAuthoredPreviewImmediately",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.FriendRowKeepsRealNameAndActionsAfterRepeatedSaveReloadAndSkin",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.GuardRejectsLegacyDisabledStateOnJournalButton",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.NativeMapMarkerDoesNotAcquireAButtonPlateDuringRepair",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.PersistentPrefabUsesSerializedStateWithoutAPlayModeActiveFlag",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.ProductionShopCardKeepsStickerFamilyAfterRepeatedSaveReloadAndSkin",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.ProductionTackleTabKeepsIndexFamilyAfterRepeatedSaveReloadAndSkin(\"PanelShop\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.ProductionTackleTabKeepsIndexFamilyAfterRepeatedSaveReloadAndSkin(\"PanelEquipment\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.RepairKeepsJournalConfiguredStatesAndInsets(False,True,\"default\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.RepairKeepsJournalConfiguredStatesAndInsets(True,True,\"selected\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyJournalPersistenceTests.RepairKeepsJournalConfiguredStatesAndInsets(True,False,\"disabled\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.AssetMetadataHasValidUniqueGuids",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.AuthoredHomeBackgroundRemainsAnIllustrationThroughSkinTree",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.AvailableCjkThemeFontIsAppliedToAuthoredWhiteButtonLabels",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.CatalogMissingAuthoredPrefabNeverInvokesItsLegacyBuilder",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ConfigureDoesNotFillOrEnableAnAuthoredEmptyIconWithADefaultName",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ConfigureRetainsAnAuthoredIconInsteadOfReplacingItWithTheRequestedDefault",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.DisabledEmptyPrefabIconRemainsDisabledThroughConfigureRepairAndReload",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.EffectiveImageOverrideIsBakedIntoTheSerializedSprite",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ExistingPrefabNodesAndEditedLayoutArePreservedDuringRuntimeBinding",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.FeaturePrefabWithoutRequiredComponentIsNotInstantiated",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.FlatDockShowsOnlyHoverSelectedAndPressedWithoutMovingHitTarget",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ImageModeOnlyRepairFixesVariantOverridesWithoutChangingTheBase",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ImageModeOnlyRepairPersistsSlicedWithoutChangingAssetsOrLayout(Simple)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ImageModeOnlyRepairPersistsSlicedWithoutChangingAssetsOrLayout(Tiled)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ImageModeOnlyRepairPersistsSlicedWithoutChangingAssetsOrLayout(Filled)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"../paper.png/")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"/paper.png\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"icons/../paper.png/")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"icons//bag.png\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"icons/./bag.png/")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"file:paper.png\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.InvalidResourcePathsAreRejected(\"paper.jpg\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.KnownLegacyChromeIsPaperWithoutMovingAuthoredGeometry(\"PanelWorldMap\",0.07f,0.1f,0.14f)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.KnownLegacyChromeIsPaperWithoutMovingAuthoredGeometry(\"Shell\",0.09f,0.12f,0.16f)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.KnownLegacyChromeIsPaperWithoutMovingAuthoredGeometry(\"Tab_资料\",0.1f,0.13f,0.17f)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.KnownLegacyChromeIsPaperWithoutMovingAuthoredGeometry(\"AlbumStage\",0.06f,0.08f,0.1f)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.LegacyBakerDoesNotRebuildPrefabsOnDomainInitialization",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.MissingFeaturePrefabDoesNotCreateAnEntireFallbackPage",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"FeatureModalRoot\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"ProductContextMenu\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"PopupProductMenu\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"ModalPanel\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"Panel\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"Dim\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ModalClickBlockersAreNotSkinnedOrRequiredToHaveButtonPlates(\"MenuPanel\")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.NewPageCatalogEntriesExistAndEmptyShellsFailValidation",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.NormalLoadReturnsTheImportedResourceSpriteNotATransientClone",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.PaperUsesItsImportedBorderAndSlicedImageType",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.RepairPreservesAnExistingImportedNonzeroBorder",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.RepairSaveAndReloadPersistsAllButtonStatesWithoutRebuildingLayout(False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.RepairSaveAndReloadPersistsAllButtonStatesWithoutRebuildingLayout(True)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.RepairScriptIsImportedWithItsMetadataGuid",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ResourcePathRemovesPngAndNormalizesSeparators(\"buttons/plate-default.png/",\"Desktop/Theme/Cozy/buttons/plate-default/")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ResourcePathRemovesPngAndNormalizesSeparators(\"buttons\\\\plate-hover.PNG\",\"Desktop/Theme/Cozy/buttons/plate-hover/")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ResourcePathRemovesPngAndNormalizesSeparators(\"panels/paper/",\"Desktop/Theme/Cozy/panels/paper/")",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SafeSurfaceRepairDoesNotReplaceContentOrFilledImages(\"MapImage\",False,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SafeSurfaceRepairDoesNotReplaceContentOrFilledImages(\"Avatar\",False,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SafeSurfaceRepairDoesNotReplaceContentOrFilledImages(\"Fish\",False,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SafeSurfaceRepairDoesNotReplaceContentOrFilledImages(\"Dim\",False,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SafeSurfaceRepairDoesNotReplaceContentOrFilledImages(\"Photo\",True,False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SafeSurfaceRepairDoesNotReplaceContentOrFilledImages(\"Shell\",False,True)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SerializedHomeMatchesHeroAndMenuCardContract",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SerializedPondMatchesHeroAndFishingControlsContract",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SerializedShellUsesSevenFlatDockButtonsAndAllFifteenRouteSlots",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SynchronousSkinTreeConfiguresAuthoredButtonsAndPreservesLabelColorsAndGeometry(False)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.SynchronousSkinTreeConfiguresAuthoredButtonsAndPreservesLabelColorsAndGeometry(True)",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.ToggleBackgroundAndEmptyPhotoAreSafeLegacySurfaceExceptions",
+      "result": "Passed"
+    },
+    {
+      "name": "FishSocial.Tests.Editor.CozyPrefabPersistenceTests.UnresolvableTransientSpritesAreRejectedBeforeSaving",
+      "result": "Passed"
+    }
+  ],
+  "limits": [
+    "No Windows build or Steam/server session validation",
+    "Room prop and aquarium content uses approved demonstration art; account ownership binding is pending"
+  ]
+}

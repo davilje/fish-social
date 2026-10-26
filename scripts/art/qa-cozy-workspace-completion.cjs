@@ -6,7 +6,7 @@ const fs=require('node:fs');
  try {
   const page=await browser.newPage({viewport:{width:1800,height:1100}}),errors=[],results=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto((process.env.PREVIEW_BASE_URL||'http://127.0.0.1:8769')+'/docs/design/ui/prototype/journal-workspace/index.html#edit');
+  await page.goto((process.env.PREVIEW_BASE_URL||'http://127.0.0.1:8769')+'/docs/设计/界面/原型/手账工作台/index.html#edit');
   await page.waitForSelector('#ws-name');await page.waitForTimeout(750);
   const save=await page.evaluate(async()=>{
    const original=play,jobs=[];
@@ -52,7 +52,7 @@ const fs=require('node:fs');
    results.push({reducedMode,close});
   }
   assert.deepEqual(errors,[]);
-  fs.writeFileSync('docs/art/cozy-journal/production/workspace-motion/web-completion-timing.json',JSON.stringify({result:'PASS',results,errors},null,2)+'\n');
+  fs.writeFileSync('docs/美术/手账/production/workspace-motion/web-completion-timing.json',JSON.stringify({result:'PASS',results,errors},null,2)+'\n');
   console.log('PASS: save confirmation/return, settlement 7-section timeline, early/repeated close, Escape and reduced motion.');
  } finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

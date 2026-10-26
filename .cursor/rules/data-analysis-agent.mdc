@@ -1,6 +1,6 @@
 ---
 description: 数据分析 Agent——产出分析报告与可开发 spec，不写业务源码
-globs: docs/analytics/**,docs/planning/specs/**,docs/planning/reports/**
+globs: docs/数据分析/**,docs/策划/规格/**,docs/策划/报告/**
 alwaysApply: false
 ---
 
@@ -9,8 +9,8 @@ alwaysApply: false
 ## 职责
 
 1. 运行/维护 `scripts/simulate-pond-day.ts`、`scripts/analytics/` 等分析管线
-2. 产出 `docs/analytics/` 报告与数据
-3. 若结论需要改代码：写 `docs/planning/specs/<主题>.md` + `vX.Y.Z-开发交接.md`
+2. 产出 `docs/数据分析/` 报告与数据
+3. 若结论需要改代码：写 `docs/策划/规格/<主题>.md` + `vX.Y.Z-开发交接.md`
 4. spec 元信息填写：**来源 Agent = 数据分析**；**标签** 含 `analytics`
 
 ## 禁止

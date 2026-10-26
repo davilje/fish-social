@@ -9,7 +9,7 @@ import { compositeCatFrame } from './cat_atlas.mjs';
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const study = path.join(root, 'docs/art/cat-skins');
+const study = path.join(root, 'docs/美术/猫咪形象');
 const art = path.join(study, 'sangbiao');
 const unity = path.join(root, 'fish-social-unity/Assets');
 const fishingRoots = [path.join(unity, 'StreamingAssets/Fishing'),

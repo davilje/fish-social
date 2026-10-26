@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const compact = fs.readFileSync(
-  path.join(__dirname, '../docs/analytics/pond-day-simulation/compact.json'),
+  path.join(__dirname, '../docs/数据分析/鱼塘日模拟/compact.json'),
   'utf8',
 );
 

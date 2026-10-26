@@ -8,7 +8,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 RESOURCES = ROOT / "fish-social-unity/Assets/Resources"
-OUTPUT = ROOT / "docs/art/fish-catalog"
+OUTPUT = ROOT / "docs/美术/鱼图"
 
 
 def main():

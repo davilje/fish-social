@@ -1,0 +1,571 @@
+{
+  "version": 3,
+  "method": "4x polyphase true peak. Sum UI + 2 fishing + voice + music maxima bounds every phase alignment at full sliders. Effective RMS uses samples above 2.5% of event peak; this is not perceived loudness.",
+  "uiComparison": [
+    {
+      "path": "sfx/ui_click_01.wav",
+      "effectiveRmsDeltaDb": 4.63,
+      "oldDurationMs": 84.98866213151928,
+      "newDurationMs": 245.01133786848072,
+      "fadeOutMs": 83
+    },
+    {
+      "path": "sfx/ui_click_02.wav",
+      "effectiveRmsDeltaDb": 5.343,
+      "oldDurationMs": 90.0,
+      "newDurationMs": 260.0,
+      "fadeOutMs": 88
+    },
+    {
+      "path": "sfx/ui_open_01.wav",
+      "effectiveRmsDeltaDb": 4.582,
+      "oldDurationMs": 290.0,
+      "newDurationMs": 540.0,
+      "fadeOutMs": 120
+    },
+    {
+      "path": "sfx/ui_open_02.wav",
+      "effectiveRmsDeltaDb": 4.602,
+      "oldDurationMs": 280.0,
+      "newDurationMs": 540.0,
+      "fadeOutMs": 120
+    },
+    {
+      "path": "sfx/ui_close_01.wav",
+      "effectiveRmsDeltaDb": 5.331,
+      "oldDurationMs": 240.0,
+      "newDurationMs": 440.0,
+      "fadeOutMs": 120
+    },
+    {
+      "path": "sfx/ui_close_02.wav",
+      "effectiveRmsDeltaDb": 6.244,
+      "oldDurationMs": 260.0,
+      "newDurationMs": 460.0,
+      "fadeOutMs": 120
+    },
+    {
+      "path": "sfx/ui_toggle_01.wav",
+      "effectiveRmsDeltaDb": 5.861,
+      "oldDurationMs": 130.0,
+      "newDurationMs": 260.0,
+      "fadeOutMs": 88
+    },
+    {
+      "path": "sfx/ui_toggle_02.wav",
+      "effectiveRmsDeltaDb": 5.825,
+      "oldDurationMs": 130.0,
+      "newDurationMs": 280.0,
+      "fadeOutMs": 95
+    },
+    {
+      "path": "sfx/ui_tick.wav",
+      "effectiveRmsDeltaDb": 4.967,
+      "oldDurationMs": 64.98866213151928,
+      "newDurationMs": 144.98866213151928,
+      "fadeOutMs": 49
+    },
+    {
+      "path": "sfx/ui_success.wav",
+      "effectiveRmsDeltaDb": 7.267,
+      "oldDurationMs": 209.97732426303855,
+      "newDurationMs": 370.0,
+      "fadeOutMs": 120
+    },
+    {
+      "path": "sfx/ui_error.wav",
+      "effectiveRmsDeltaDb": 5.106,
+      "oldDurationMs": 190.0,
+      "newDurationMs": 340.0,
+      "fadeOutMs": 116
+    }
+  ],
+  "waterComparison": [
+    {
+      "path": "water/bite_s_01.wav",
+      "oldTruePeakDbTP": -12.218,
+      "newTruePeakDbTP": -18.061,
+      "oldBands": {
+        "below170Hz": 0.01027957329186427,
+        "above3900Hz": 0.36834351352929523
+      },
+      "newBands": {
+        "below170Hz": 1.5985986449879027e-07,
+        "above3900Hz": 0.031786313157178114
+      },
+      "effectiveRmsDeltaDb": -7.881
+    },
+    {
+      "path": "water/bite_s_02.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -18.062,
+      "oldBands": {
+        "below170Hz": 0.07398313099335478,
+        "above3900Hz": 0.022087999641853304
+      },
+      "newBands": {
+        "below170Hz": 6.004046219875464e-08,
+        "above3900Hz": 0.002750724972438078
+      },
+      "effectiveRmsDeltaDb": -7.486
+    },
+    {
+      "path": "water/bite_m_01.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -17.076,
+      "oldBands": {
+        "below170Hz": 0.09512596782036274,
+        "above3900Hz": 0.03944760191065051
+      },
+      "newBands": {
+        "below170Hz": 2.141890038562823e-07,
+        "above3900Hz": 0.021664123127581245
+      },
+      "effectiveRmsDeltaDb": -8.947
+    },
+    {
+      "path": "water/bite_m_02.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -17.077,
+      "oldBands": {
+        "below170Hz": 0.18784808939740874,
+        "above3900Hz": 0.05630820817796849
+      },
+      "newBands": {
+        "below170Hz": 3.4594668598125727e-07,
+        "above3900Hz": 0.0020976798972099143
+      },
+      "effectiveRmsDeltaDb": -2.924
+    },
+    {
+      "path": "water/bite_l_01.wav",
+      "oldTruePeakDbTP": -12.902,
+      "newTruePeakDbTP": -16.193,
+      "oldBands": {
+        "below170Hz": 0.0981263120072625,
+        "above3900Hz": 0.03799033137439956
+      },
+      "newBands": {
+        "below170Hz": 1.0460229574274536e-07,
+        "above3900Hz": 0.03328030515944199
+      },
+      "effectiveRmsDeltaDb": -9.985
+    },
+    {
+      "path": "water/bite_l_02.wav",
+      "oldTruePeakDbTP": -13.346,
+      "newTruePeakDbTP": -16.193,
+      "oldBands": {
+        "below170Hz": 0.10255829735618299,
+        "above3900Hz": 0.030043920524083053
+      },
+      "newBands": {
+        "below170Hz": 3.300164884971386e-07,
+        "above3900Hz": 0.0007398345342076631
+      },
+      "effectiveRmsDeltaDb": -10.086
+    },
+    {
+      "path": "water/bite_xl_01.wav",
+      "oldTruePeakDbTP": -12.351,
+      "newTruePeakDbTP": -15.392,
+      "oldBands": {
+        "below170Hz": 0.19417815134769015,
+        "above3900Hz": 0.07283065681889657
+      },
+      "newBands": {
+        "below170Hz": 6.145607773675081e-08,
+        "above3900Hz": 0.9498663513705747
+      },
+      "effectiveRmsDeltaDb": -9.237
+    },
+    {
+      "path": "water/bite_xl_02.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -15.39,
+      "oldBands": {
+        "below170Hz": 0.0825764855762219,
+        "above3900Hz": 0.027925227916976113
+      },
+      "newBands": {
+        "below170Hz": 5.9290222306375054e-08,
+        "above3900Hz": 0.032048891950264405
+      },
+      "effectiveRmsDeltaDb": -7.482
+    },
+    {
+      "path": "water/water_struggle_s_01.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -18.061,
+      "oldBands": {
+        "below170Hz": 0.005251324341134655,
+        "above3900Hz": 0.448819383296988
+      },
+      "newBands": {
+        "below170Hz": 4.314509862054445e-08,
+        "above3900Hz": 0.02694908981383723
+      },
+      "effectiveRmsDeltaDb": -6.873
+    },
+    {
+      "path": "water/water_struggle_s_02.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -18.061,
+      "oldBands": {
+        "below170Hz": 0.053650986488126974,
+        "above3900Hz": 0.20859516774630918
+      },
+      "newBands": {
+        "below170Hz": 6.598010113726831e-07,
+        "above3900Hz": 0.0018902746124349191
+      },
+      "effectiveRmsDeltaDb": -7.731
+    },
+    {
+      "path": "water/water_struggle_m_01.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -17.077,
+      "oldBands": {
+        "below170Hz": 0.020575172421870645,
+        "above3900Hz": 0.21356999470520416
+      },
+      "newBands": {
+        "below170Hz": 2.6386775479593484e-07,
+        "above3900Hz": 0.0048768032238550455
+      },
+      "effectiveRmsDeltaDb": -2.153
+    },
+    {
+      "path": "water/water_struggle_m_02.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -17.079,
+      "oldBands": {
+        "below170Hz": 0.002774908239136534,
+        "above3900Hz": 0.1310879019925228
+      },
+      "newBands": {
+        "below170Hz": 4.5145826298892244e-07,
+        "above3900Hz": 0.0003827840053912574
+      },
+      "effectiveRmsDeltaDb": -8.3
+    },
+    {
+      "path": "water/water_struggle_l_01.wav",
+      "oldTruePeakDbTP": -13.413,
+      "newTruePeakDbTP": -16.193,
+      "oldBands": {
+        "below170Hz": 0.1458683540833815,
+        "above3900Hz": 0.04440856958650681
+      },
+      "newBands": {
+        "below170Hz": 1.3456661402624105e-07,
+        "above3900Hz": 0.044660372539422066
+      },
+      "effectiveRmsDeltaDb": -9.122
+    },
+    {
+      "path": "water/water_struggle_l_02.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -16.195,
+      "oldBands": {
+        "below170Hz": 0.10205751379442923,
+        "above3900Hz": 0.039576996380233334
+      },
+      "newBands": {
+        "below170Hz": 1.8562843860670013e-07,
+        "above3900Hz": 0.0009368380179705477
+      },
+      "effectiveRmsDeltaDb": -10.181
+    },
+    {
+      "path": "water/water_struggle_xl_01.wav",
+      "oldTruePeakDbTP": -12.394,
+      "newTruePeakDbTP": -15.39,
+      "oldBands": {
+        "below170Hz": 0.13473079261285767,
+        "above3900Hz": 0.04587035781545952
+      },
+      "newBands": {
+        "below170Hz": 2.8363789192123864e-07,
+        "above3900Hz": 0.0032656032956377406
+      },
+      "effectiveRmsDeltaDb": -10.512
+    },
+    {
+      "path": "water/water_struggle_xl_02.wav",
+      "oldTruePeakDbTP": -13.354,
+      "newTruePeakDbTP": -15.392,
+      "oldBands": {
+        "below170Hz": 0.09031293857961295,
+        "above3900Hz": 0.051866825611123026
+      },
+      "newBands": {
+        "below170Hz": 4.550212103943594e-07,
+        "above3900Hz": 0.005076603602647558
+      },
+      "effectiveRmsDeltaDb": -9.525
+    },
+    {
+      "path": "water/water_slap_s_01.wav",
+      "oldTruePeakDbTP": -12.218,
+      "newTruePeakDbTP": -18.062,
+      "oldBands": {
+        "below170Hz": 0.1043094177650006,
+        "above3900Hz": 0.04381301358840912
+      },
+      "newBands": {
+        "below170Hz": 8.50118895397337e-08,
+        "above3900Hz": 3.984383130830308e-05
+      },
+      "effectiveRmsDeltaDb": -7.117
+    },
+    {
+      "path": "water/water_slap_s_02.wav",
+      "oldTruePeakDbTP": -12.218,
+      "newTruePeakDbTP": -18.061,
+      "oldBands": {
+        "below170Hz": 0.13095473777340283,
+        "above3900Hz": 0.08296556012433706
+      },
+      "newBands": {
+        "below170Hz": 5.539335213224647e-08,
+        "above3900Hz": 0.0009117958534870733
+      },
+      "effectiveRmsDeltaDb": -5.075
+    },
+    {
+      "path": "water/water_slap_m_01.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -17.079,
+      "oldBands": {
+        "below170Hz": 0.17209940812781105,
+        "above3900Hz": 0.06664173711036489
+      },
+      "newBands": {
+        "below170Hz": 3.678663897340081e-07,
+        "above3900Hz": 0.007260502301528677
+      },
+      "effectiveRmsDeltaDb": -6.78
+    },
+    {
+      "path": "water/water_slap_m_02.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -17.076,
+      "oldBands": {
+        "below170Hz": 0.01622858188686253,
+        "above3900Hz": 0.06743399270243823
+      },
+      "newBands": {
+        "below170Hz": 1.3683405701738496e-06,
+        "above3900Hz": 0.006702318553534201
+      },
+      "effectiveRmsDeltaDb": -10.958
+    },
+    {
+      "path": "water/water_slap_l_01.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -16.195,
+      "oldBands": {
+        "below170Hz": 0.10311013902437938,
+        "above3900Hz": 0.10070973098219194
+      },
+      "newBands": {
+        "below170Hz": 9.633208718540114e-07,
+        "above3900Hz": 0.0096455405375854
+      },
+      "effectiveRmsDeltaDb": -3.332
+    },
+    {
+      "path": "water/water_slap_l_02.wav",
+      "oldTruePeakDbTP": -12.217,
+      "newTruePeakDbTP": -16.192,
+      "oldBands": {
+        "below170Hz": 0.08480064536765304,
+        "above3900Hz": 0.06511340909034762
+      },
+      "newBands": {
+        "below170Hz": 7.77803311372077e-06,
+        "above3900Hz": 0.003130022640786165
+      },
+      "effectiveRmsDeltaDb": -10.571
+    },
+    {
+      "path": "water/water_slap_xl_01.wav",
+      "oldTruePeakDbTP": -12.216,
+      "newTruePeakDbTP": -15.391,
+      "oldBands": {
+        "below170Hz": 0.11550276565030627,
+        "above3900Hz": 0.04007114337045122
+      },
+      "newBands": {
+        "below170Hz": 0.0012232276512851587,
+        "above3900Hz": 0.010054978442996593
+      },
+      "effectiveRmsDeltaDb": -9.559
+    },
+    {
+      "path": "water/water_slap_xl_02.wav",
+      "oldTruePeakDbTP": -12.607,
+      "newTruePeakDbTP": -15.39,
+      "oldBands": {
+        "below170Hz": 0.11937350431318133,
+        "above3900Hz": 0.055954134760738974
+      },
+      "newBands": {
+        "below170Hz": 0.0004058881429484295,
+        "above3900Hz": 0.022923959423311692
+      },
+      "effectiveRmsDeltaDb": -12.015
+    },
+    {
+      "path": "water/splash_01.wav",
+      "oldTruePeakDbTP": -12.758,
+      "newTruePeakDbTP": -17.077,
+      "oldBands": {
+        "below170Hz": 0.3617159156654706,
+        "above3900Hz": 0.042405139293648655
+      },
+      "newBands": {
+        "below170Hz": 2.1859361564562014e-08,
+        "above3900Hz": 0.004363086748905514
+      },
+      "effectiveRmsDeltaDb": -8.147
+    },
+    {
+      "path": "water/splash_02.wav",
+      "oldTruePeakDbTP": -12.351,
+      "newTruePeakDbTP": -17.077,
+      "oldBands": {
+        "below170Hz": 0.3456582183803527,
+        "above3900Hz": 0.04742063615062079
+      },
+      "newBands": {
+        "below170Hz": 5.316954211796025e-07,
+        "above3900Hz": 0.07444192578300915
+      },
+      "effectiveRmsDeltaDb": -11.34
+    },
+    {
+      "path": "water/groundbait_01.wav",
+      "oldTruePeakDbTP": -12.442,
+      "newTruePeakDbTP": -17.077,
+      "oldBands": {
+        "below170Hz": 0.29685455447605275,
+        "above3900Hz": 0.04775188599294729
+      },
+      "newBands": {
+        "below170Hz": 2.7109288974251784e-07,
+        "above3900Hz": 0.02122252479634913
+      },
+      "effectiveRmsDeltaDb": -12.67
+    },
+    {
+      "path": "water/groundbait_02.wav",
+      "oldTruePeakDbTP": -13.032,
+      "newTruePeakDbTP": -17.078,
+      "oldBands": {
+        "below170Hz": 0.10803926633124525,
+        "above3900Hz": 0.045223652193598925
+      },
+      "newBands": {
+        "below170Hz": 1.2093439017551367e-07,
+        "above3900Hz": 0.003653747840941698
+      },
+      "effectiveRmsDeltaDb": -11.936
+    },
+    {
+      "path": "sfx/escape.wav",
+      "oldTruePeakDbTP": -12.957,
+      "newTruePeakDbTP": -17.079,
+      "oldBands": {
+        "below170Hz": 0.24929290479026345,
+        "above3900Hz": 0.0450537556120019
+      },
+      "newBands": {
+        "below170Hz": 0.000391687291883964,
+        "above3900Hz": 0.006034512112727446
+      },
+      "effectiveRmsDeltaDb": -14.973
+    }
+  ],
+  "groupMaxima": {
+    "ui": 0.19200421394048553,
+    "fishing": 0.1760152942252698,
+    "voice": 0.1818981887973374
+  },
+  "worstCaseFullVolumeDbTP": -1.494,
+  "defaultMixBound": 0.5487566219315466,
+  "decodedShortBytes": 3383056,
+  "music": {
+    "path": "music/pond_daylight.wav",
+    "version": 3,
+    "description": "阳光落在鱼塘：86BPM 尼龙吉他双声部，暖色6/add9和声，32小节有呼吸的原创乐句",
+    "source": [
+      "nylon_StringA_A2",
+      "nylon_StringA_B2",
+      "nylon_StringA_C3",
+      "nylon_StringB_B3",
+      "nylon_StringB_C4",
+      "nylon_StringB_D4",
+      "nylon_StringD_D3",
+      "nylon_StringD_E3",
+      "nylon_StringD_Fs3",
+      "nylon_StringG_A3",
+      "nylon_StringG_G3",
+      "nylon_StringHighE_A4",
+      "nylon_StringHighE_B4",
+      "nylon_StringHighE_C5",
+      "nylon_StringHighE_D5",
+      "nylon_StringHighE_E4",
+      "nylon_StringHighE_E5",
+      "nylon_StringHighE_Fs4",
+      "nylon_StringHighE_G4",
+      "nylon_StringLowE_E2",
+      "nylon_StringLowE_G2"
+    ],
+    "processing": {
+      "composition": "Original Fish Social score: Sunlight on the Pond / 阳光落在鱼塘",
+      "bpm": 86,
+      "timeSignature": "4/4",
+      "bars": 32,
+      "form": "A (8 bars) / B (8) / C (8) / A-prime (8)",
+      "key": "G major",
+      "acousticParts": [
+        "Nylon fingerstyle rhythm guitar",
+        "Nylon fingerstyle lead guitar"
+      ],
+      "piano": false,
+      "syntheticOscillators": false,
+      "scoreFile": "tools/声音/compose_sunlight_v3.py",
+      "guitarPitchShiftSemitones": 0,
+      "humanizationMilliseconds": 11,
+      "naturalStringChoke": true,
+      "guitarBandpassHz": [
+        72,
+        5600
+      ],
+      "roomTapsMilliseconds": [
+        27,
+        61,
+        113,
+        191
+      ],
+      "softClipping": false,
+      "loop": "Circular instrument tails +128 sample boundary correction; exact equal PCM seam samples",
+      "truePeakLimit": 0.12,
+      "renderNormalizationTruePeak": 0.116
+    },
+    "duration": 89.302336,
+    "channels": 2,
+    "sampleRate": 44100,
+    "format": "PCM_16",
+    "peak": 0.115936279296875,
+    "truePeak4x": 0.1160100802848369,
+    "rms": 0.01772599017238192,
+    "effectiveRms": 0.01883036131180649,
+    "seamDifference": 0.0,
+    "sha256": "951c3aa4cd752c87bc278997fc399e659d710dd7b6b94289d3b82b0f96b64746"
+  },
+  "humanListening": "Pending: headphones and ordinary speakers; no automatic aesthetic acceptance",
+  "windowsAvMeasurement": "Not rerun for asset-only revision; previous actual Windows capture acceptance remains pending"
+}

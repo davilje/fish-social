@@ -8,8 +8,8 @@ import { fileURLToPath } from 'url';
 import { computeAnalysis, inferRulesVersion, readJson } from './lib.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const compactPath = process.argv[2] || path.join(__dirname, '../../docs/analytics/pond-day-simulation/compact.json');
-const outPath = process.argv[3] || path.join(__dirname, '../../docs/analytics/pond-day-simulation/report.html');
+const compactPath = process.argv[2] || path.join(__dirname, '../../docs/数据分析/鱼塘日模拟/compact.json');
+const outPath = process.argv[3] || path.join(__dirname, '../../docs/数据分析/鱼塘日模拟/report.html');
 const analysisPath = process.argv[4] || path.join(path.dirname(outPath), 'analysis.json');
 
 const DATA = readJson(compactPath);

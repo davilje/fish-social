@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const studyRoot = path.join(repoRoot, 'docs/art/cat-skins');
+const studyRoot = path.join(repoRoot, 'docs/美术/猫咪形象');
 const unityRoot = path.join(repoRoot, 'fish-social-unity/Assets/StreamingAssets/Fishing');
 const overlayRoot = path.join(repoRoot, 'desktop-overlay/OverlayResources/fishing');
 const sourceManifest = JSON.parse(fs.readFileSync(path.join(unityRoot, 'orange/manifest.json')));

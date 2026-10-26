@@ -9,7 +9,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 FISHING = ROOT / 'desktop-overlay/OverlayResources/fishing'
-RIG = ROOT / 'docs/art/fishing-motion/source-rig.json'
+RIG = ROOT / 'docs/美术/钓鱼动作/source-rig.json'
 CLIPS = ('sit', 'bait', 'cast', 'fishing', 'bite', 'effort', 'hooked', 'reel',
          'reel_empty', 'catch', 'reset_catch', 'reset_empty', 'groundbait', 'leave')
 GROUP_CLIPS = ('sit', 'bait', 'catch', 'reset_catch', 'reset_empty', 'leave')

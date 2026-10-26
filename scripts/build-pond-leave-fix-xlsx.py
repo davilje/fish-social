@@ -7,7 +7,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "docs/planning/reports/切页误离塘修复方案-v0.5.1.xlsx"
+OUT = ROOT / "docs/策划/报告/切页误离塘修复方案-v0.5.1.xlsx"
 
 
 def style_sheet(ws) -> None:
@@ -101,7 +101,7 @@ SHEETS: dict[str, list[tuple[str, str]]] = {
         ("标题", "修订策划文档与自动化验收"),
         ("优先级", "P1"),
         ("修复方案", "1) 更新 排查-挂机断线诊断阶段2-4.md §阶段3：社交不再预期 leave\n2) 更新 verify-afk-diag.ts\n3) 可选新增 verify-pond-navigation.ts：钓鱼→社交→无 leave→回塘 reconnect"),
-        ("涉及文件", "docs/planning/specs/*.md · scripts/verify-afk-diag.ts"),
+        ("涉及文件", "docs/策划/规格/*.md · scripts/verify-afk-diag.ts"),
         ("验收标准", "文档与代码一致；verify 脚本通过。"),
         ("状态", "已实现"),
     ],

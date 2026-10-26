@@ -5,7 +5,7 @@ permission:
   read: allow
   edit:
     mobile/assets/**: allow
-    docs/art/**: allow
+    docs/美术/**: allow
     "*": deny
   bash: deny
 ---
@@ -18,11 +18,11 @@ permission:
 
 1. 产出 `mobile/assets/` 的美术资源（PNG/SVG）
 2. 写轻量资源说明：尺寸、命名规则、导出格式、UI 挂载点
-3. 资源归档至 `docs/art/<功能>/`
+3. 资源归档至 `docs/美术/<功能>/`
 
 ## 工作方式
 
-- 参照美术总监的风格规范（`docs/art/direction/`）
+- 参照美术总监的风格规范（`docs/美术/风格/`）
 - 资源交付后 handoff 给 **前端开发 Agent** 接入 UI
 - 元信息：来源 Agent = `concept-artist`，目标开发 Agent = `frontend-dev`
 

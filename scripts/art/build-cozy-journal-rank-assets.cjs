@@ -11,7 +11,7 @@ const guid = name => crypto.createHash('md5').update('cozy-journal-rank:' + name
   const browser = await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
   try {
     const page = await browser.newPage({viewport:{width:600,height:600},deviceScaleFactor:2});
-    await page.goto('http://127.0.0.1:8769/docs/design/ui/prototype/cozy-journal/index.html');
+    await page.goto('http://127.0.0.1:8769/docs/设计/界面/原型/手账/index.html');
     const css = await page.locator('body').evaluate(() => {
       const sheet = [...document.styleSheets].find(s=>s.href?.endsWith('/pages.css'));
       return [...sheet.cssRules].filter(r=>r.selectorText?.includes('j-podium')).map(r=>r.cssText).join('\n');
@@ -24,7 +24,7 @@ const guid = name => crypto.createHash('md5').update('cozy-journal-rank:' + name
         #host{position:relative;width:${w+pad*2}px;height:${h+pad*2}px}
         #art{position:absolute;left:${pad}px;top:${pad}px;width:${w}px;height:${h}px;transform:none;translate:none;rotate:none;margin:0;padding:0;color:transparent;${badge?'border-radius:8px;':'border-radius:16px;border:0;box-shadow:0 0 0 5px #fff,0 0 0 7px rgba(117,71,46,.07);'}}
         </style><div id="host" class="place-${rank}"><div id="art" class="${badge?'j-podium-label':'j-podium-card place-'+rank}"></div></div>`;
-      const source=path.join(root,'docs/art/cozy-journal/sources/css',name.replaceAll('/','-')+'.html');
+      const source=path.join(root,'docs/美术/手账/sources/css',name.replaceAll('/','-')+'.html');
       fs.writeFileSync(source,html);
       await page.setContent(html);
       const png=path.join(theme,name+'.png');
@@ -32,7 +32,7 @@ const guid = name => crypto.createHash('md5').update('cozy-journal-rank:' + name
       const metaTemplate=fs.readFileSync(path.join(theme,'surfaces/podium-plate.png.meta'),'utf8');
       const assetGuid=guid(name);
       fs.writeFileSync(png+'.meta',metaTemplate.replace(/^guid: .*$/m,'guid: '+assetGuid).replace(/spriteBorder: \{.*\}/,`spriteBorder: {x: ${border[0]}, y: ${border[1]}, z: ${border[2]}, w: ${border[3]}}`).replace(/spriteID: \w+/,'spriteID: '+guid(name+':sprite')));
-      const entry={id:'RANK-'+rank+(badge?'-LABEL':'-PLATE'),name,relativePath:'journal/'+name+'.png',resourcesPath:'Desktop/Theme/Cozy/journal/'+name,width:(w+pad*2)*2,height:(h+pad*2)*2,pixelsPerUnit:200,border,pivot:[.5,.5],wrapMode:'Clamp',imageType:'Sliced',source:path.relative(root,source),guid:assetGuid,status:'reference-aligned',contentInsets:[pad,pad,pad,pad],contentSize:[w,h],visualBasis:{source:'docs/design/ui/prototype/cozy-journal/pages.css',selector:badge?'.place-'+rank+' .j-podium-label':'.j-podium-card.place-'+rank,method:'Original CSS rendered at 2x'},notes:'Keep the exact exported logical size so the sliced vertical gradient retains its original distribution. Hover/selection keeps the same surface.'};
+      const entry={id:'RANK-'+rank+(badge?'-LABEL':'-PLATE'),name,relativePath:'journal/'+name+'.png',resourcesPath:'Desktop/Theme/Cozy/journal/'+name,width:(w+pad*2)*2,height:(h+pad*2)*2,pixelsPerUnit:200,border,pivot:[.5,.5],wrapMode:'Clamp',imageType:'Sliced',source:path.relative(root,source),guid:assetGuid,status:'reference-aligned',contentInsets:[pad,pad,pad,pad],contentSize:[w,h],visualBasis:{source:'docs/设计/界面/原型/手账/pages.css',selector:badge?'.place-'+rank+' .j-podium-label':'.j-podium-card.place-'+rank,method:'Original CSS rendered at 2x'},notes:'Keep the exact exported logical size so the sliced vertical gradient retains its original distribution. Hover/selection keeps the same surface.'};
       const i=manifest.assets.findIndex(a=>a.name===name);if(i<0)manifest.assets.push(entry);else manifest.assets[i]=entry;
     }
     manifest.refinement.aligned=manifest.assets.filter(a=>a.status==='reference-aligned').length;

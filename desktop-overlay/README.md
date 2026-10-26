@@ -7,7 +7,7 @@
 
 角色离场与关窗统一停止定时器、清理引用；动画图层按实际路径共享，64 MiB 像素载荷预算的 LRU 保留热帧，活跃资源受保护。预热先应用正式尺寸，新角色不再清除全场缓存。状态日志新增 actors、activeClips、cachedFrames、cachePixelBytes、layerDecodes。
 
-缓存行为 8/8、静态回归 39/39，正式 WPF 与原生测试交叉编译通过；Windows 原生运行与实际性能待验收。见 [实现与验收](../docs/engineering/performance/2026-10-23-overlay-performance-batch1.md)。
+缓存行为 8/8、静态回归 39/39，正式 WPF 与原生测试交叉编译通过；Windows 原生运行与实际性能待验收。见 [实现与验收](../docs/工程/性能/2026-10-23-overlay-performance-batch1.md)。
 
 ## 手账 Overlay 收口（2026-10-23）
 
@@ -17,7 +17,7 @@
 
 ## 钓鱼动画九层包 v2（2026-10-13）
 
-优先读取 `OverlayResources/fishing/<petId>/manifest.json`，角色四层和公共道具五层按每帧顺序、时长叠加；源画布 640×512，不是下面旧平面回退的 256×256。新增空军与两种复位，`reel_empty` 为新增展示状态。完整说明见 `../docs/art/animations/2026-10-13-fishing-animation-port.md`。旧 EXE 不兼容九层资源，必须重新构建并分发最新资源；其他原有猫种保持平面回退。
+优先读取 `OverlayResources/fishing/<petId>/manifest.json`，角色四层和公共道具五层按每帧顺序、时长叠加；源画布 640×512，不是下面旧平面回退的 256×256。新增空军与两种复位，`reel_empty` 为新增展示状态。完整说明见 `../docs/美术/动画/2026-10-13-fishing-animation-port.md`。旧 EXE 不兼容九层资源，必须重新构建并分发最新资源；其他原有猫种保持平面回退。
 
 ## 启动
 
@@ -44,7 +44,7 @@ FishSocialOverlay.exe --pipe=FishSocialOverlay-<unity-process-id> [--width=960] 
 
 16 个片段与 Unity 使用相同的 640×512 画布、逐帧层级和时长。使用前检查完整九层；缺图时显示当前猫咪头像，不拼接旧动画。
 
-Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay** 可同步当前分层包。资源缓存在内存中，更新后需重启 Overlay。完整路径及资源生产流程见 [猫咪资源调用说明](../docs/art/cat-skins/resource-routing.md)。
+Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay** 可同步当前分层包。资源缓存在内存中，更新后需重启 Overlay。完整路径及资源生产流程见 [猫咪资源调用说明](../docs/美术/猫咪形象/resource-routing.md)。
 
 ## IPC
 

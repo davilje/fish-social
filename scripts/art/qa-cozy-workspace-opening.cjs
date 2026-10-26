@@ -3,10 +3,10 @@ const {chromium}=require('playwright');
 const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
-const output=path.resolve(__dirname,'../../docs/art/cozy-journal/production/workspace-motion/web-opening-timing.json');
+const output=path.resolve(__dirname,'../../docs/美术/手账/production/workspace-motion/web-opening-timing.json');
 (async()=>{const browser=await chromium.launch({channel:'chrome',headless:true});try{
 const page=await browser.newPage({viewport:{width:1800,height:1100}});
-await page.goto((process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:8769')+'/docs/design/ui/prototype/journal-workspace/index.html#profile');
+await page.goto((process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:8769')+'/docs/设计/界面/原型/手账工作台/index.html#profile');
 await page.waitForFunction(()=>document.querySelectorAll('.navtab').length>0);
 await page.waitForTimeout(700);
 const results=[];

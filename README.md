@@ -96,7 +96,7 @@ Web 端在服务端未启动时会自动进入**演示模式**，可预览地图
 
 **关于 8082**：`npm run dev` 只会启动**一个** Web 服务（单端口）。若用 `dev.bat` 却看到两个浏览器标签页，通常是旧版 Expo 自动打开 + 脚本再打开各一次；现已改为仅 `dev.bat` 打开一次浏览器。
 
-详细说明见 [docs/planning/specs/服务器维护-端口占用.md](docs/planning/specs/backend/服务器维护-端口占用.md)。
+详细说明见 [docs/策划/规格/服务器维护-端口占用.md](docs/策划/规格/后端/服务器维护-端口占用.md)。
 
 ## 运营与策划入口（根目录）
 
@@ -109,7 +109,7 @@ Web 端在服务端未启动时会自动进入**演示模式**，可预览地图
 
 玩客户端请用 **`dev.bat`**（server + web）；仅运维可用 `打开运营平台.bat`。**运维入口 ≠ 游戏 Web。** Admin / health **需要游戏服进程在跑**（不必盯着 Terminal：用 bat 最小化启动即可）。纯静态页可直接双击打开。
 
-单实例真人容量见 [`docs/ops/human-capacity.md`](docs/ops/human-capacity.md) / [`docs/planning/specs/架构-单实例容量与真人隔离-R2-3.md`](docs/planning/specs/backend/架构-单实例容量与真人隔离-R2-3.md)（默认 `MAX_HUMAN_SOCKETS=200`）。
+单实例真人容量见 [`docs/运维/human-capacity.md`](docs/运维/human-capacity.md) / [`docs/策划/规格/架构-单实例容量与真人隔离-R2-3.md`](docs/策划/规格/后端/架构-单实例容量与真人隔离-R2-3.md)（默认 `MAX_HUMAN_SOCKETS=200`）。
 
 ## 一键预览工具
 
@@ -135,10 +135,10 @@ Socket 事件：`register_player`、`dm_message`、`friend_request`
 
 ## 策划文档
 
-完整功能策划与工作流见 **[docs/planning/](docs/planning)**：
+完整功能策划与工作流见 **[docs/策划/](docs/策划)**：
 
-- [功能全景 v0.1.0](docs/archive/2026-10-26/versions/planning/product/v0.1.0-功能全景.md)
-- [策划工作流](docs/planning/workflow/WORKFLOW.md)
+- [功能全景 v0.1.0](docs/归档/2026-10-26/版本/策划/产品/v0.1.0-功能全景.md)
+- [策划工作流](docs/策划/流程/WORKFLOW.md)
 
 ## 项目结构
 
@@ -147,5 +147,5 @@ fish-social/
 ├── mobile/        # Expo 客户端（地图、鱼塘、社交中心）
 ├── server/        # REST API + WebSocket + 内存数据
 ├── shared/        # 共享类型、鱼种、售价公式
-└── docs/planning/ # 产品策划文档与工作流
+└── docs/策划/ # 产品策划文档与工作流
 ```

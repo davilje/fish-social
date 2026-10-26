@@ -19,8 +19,8 @@ permission:
 
 ## 开工前
 
-1. 读 `docs/planning/handoffs/vX.Y.Z.json` 确认 `target_agents` 含 `backend-dev`
-2. 精读 `docs/planning/prompts/vX.Y.Z-backend-dev.prompt.md`
+1. 读 `docs/策划/交接/vX.Y.Z.json` 确认 `target_agents` 含 `backend-dev`
+2. 精读 `docs/策划/提示词/vX.Y.Z-backend-dev.prompt.md`
 3. 主 spec 状态须为 **已确认**
 
 ## 范围

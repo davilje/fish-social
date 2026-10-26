@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/art/cat-skins');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/美术/猫咪形象');
 const [skin, id, generatedPath, promptPath] = process.argv.slice(2);
 const breed = JSON.parse(fs.readFileSync(path.join(root, 'breed-definitions.json'))).breeds.find(entry => entry.id === skin);
 const original = JSON.parse(fs.readFileSync(path.join(root, 'painted-poses.json'))).poses.find(entry => entry.id === id);

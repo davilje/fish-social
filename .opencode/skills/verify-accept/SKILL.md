@@ -31,7 +31,7 @@ metadata:
 
 3. **同步计划表进度（必须）** — 以表为准：
    - 更新 `scripts/planning/build-master-plan-xlsx.py` 中对应编号状态 → `已实现`，填写完成时间
-   - 更新 `docs/planning/specs/<功能>.md` 状态 → **已实现**
+   - 更新 `docs/策划/规格/<功能>.md` 状态 → **已实现**
    - 更新 `specs/README.md` / 相关 Kickoff 门禁文案
    - 运行（**同时更新计划表 + 策划进度看板**）：
      ```bash
@@ -55,5 +55,5 @@ metadata:
 ## 可能的问题
 
 - 验证失败 → 修复代码后重新运行 `verify`
-- 验收后发现新问题 → 在 `docs/planning/handoffs/vX.Y.Z.json` 中追加 TODO
+- 验收后发现新问题 → 在 `docs/策划/交接/vX.Y.Z.json` 中追加 TODO
 - 只改了 spec 没重生 xlsx → 计划表与事实不一致；必须跑 `planning:master-xlsx`

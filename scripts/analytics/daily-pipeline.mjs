@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../..');
 const dataDir = path.join(projectRoot, 'data');
 const dbPath = process.env.DB_PATH ?? path.join(dataDir, 'fish-social.db');
-const reportDir = path.join(projectRoot, 'docs/analytics/daily');
+const reportDir = path.join(projectRoot, 'docs/数据分析/日报');
 
 const dateKey = parseDateArg();
 const dateArg = `--date=${dateKey}`;

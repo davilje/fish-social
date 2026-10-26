@@ -14,7 +14,7 @@ const errors = [];
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto(pathToFileURL(path.join(root, 'docs/art/cat-skins/breeds.html')).href);
+  await page.goto(pathToFileURL(path.join(root, 'docs/美术/猫咪形象/breeds.html')).href);
   const skins = ['orange', 'calico', 'silver', 'brown', 'cream', 'blue', 'black', 'white', 'cow'];
   let selectedFrames = 0;
   for (const skin of skins) {
@@ -40,7 +40,7 @@ try {
       }
     }
   }
-  const whaleRoot = path.join(root, 'docs/archive/2026-10-26/superseded/art/whale-maid/template-study-v1');
+  const whaleRoot = path.join(root, 'docs/归档/2026-10-26/替代/美术/whale-maid/template-study-v1');
   const whale = JSON.parse(fs.readFileSync(path.join(whaleRoot, 'manifest.json')));
   await page.goto(pathToFileURL(path.join(whaleRoot, 'index.html')).href);
   for (const frame of whale.frames) {

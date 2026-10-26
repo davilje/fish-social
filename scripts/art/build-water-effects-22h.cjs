@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '../..');
 const out = path.join(root, 'desktop-overlay/OverlayResources/effects/fishing/v2');
 const mirror = path.join(root, 'fish-social-unity/Assets/StreamingAssets/Effects/Fishing/v2');
 const nativeMirror = path.join(root, 'fish-social-unity/FishSocialOverlay/OverlayResources/effects/fishing/v2');
-const doc = path.join(root, 'docs/art/water-effects-22h');
+const doc = path.join(root, 'docs/美术/水面特效');
 const sha = data => crypto.createHash('sha256').update(data).digest('hex');
 const write = (file, data) => { fs.mkdirSync(path.dirname(file), {recursive:true}); fs.writeFileSync(file, data); };
 const json = data => JSON.stringify(data, null, 2) + '\n';

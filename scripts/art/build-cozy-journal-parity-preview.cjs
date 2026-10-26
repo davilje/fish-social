@@ -1,10 +1,10 @@
 // Side-by-side evidence: original browser render vs saved production prefabs rendered by Unity.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright'),sharp=require('sharp');
-const root=path.resolve(__dirname,'../..'),out=path.join(root,'docs/art/cozy-journal/production');
+const root=path.resolve(__dirname,'../..'),out=path.join(root,'docs/美术/手账/production');
 const pages=[['PanelShop','商店','shop',1],['PanelEquipment','装备','equip',0],['PanelCatch','背包','bag',0],['PanelWorldMap','世界地图','map',0],['PanelPondSelection','选择鱼塘','ponds',0],['PanelAchievements','成就','ach',0],['PanelLeaderboard','排行榜','rank',0],['PanelProfileHub','个人资料','profile',0],['PanelProfileEdit','编辑资料','profile',0,'edit'],['PanelProfileHub-展示柜','展示柜','profile',1],['PanelProfileHub-图鉴','图鉴','profile',2],['PanelProfileHub-相册','相册','profile',3],['PanelSocialFeed','钓友动态','feed',0],['PanelSocialFeed-发布','发布鱼获','feed',0,'compose'],['PanelSettings','设置','settings',0]];
 (async()=>{fs.mkdirSync(out,{recursive:true});const browser=await chromium.launch({headless:true,channel:'chrome'}),page=await browser.newPage({viewport:{width:1672,height:941},deviceScaleFactor:2});
-await page.goto('http://127.0.0.1:8769/docs/design/ui/prototype/cozy-journal/index.html');
+await page.goto('http://127.0.0.1:8769/docs/设计/界面/原型/手账/index.html');
 await page.evaluate(async()=>{await document.fonts.ready;document.getAnimations().forEach(a=>a.cancel());play=()=>DONE});
 await page.addStyleTag({content:'#toolbar,#caption{display:none!important}#viewport{inset:0;display:block}#stage{left:0!important;top:0!important;transform:none!important;border-radius:0}#stage *{animation:none!important;transition:none!important}*{caret-color:transparent!important}'});
 const records=[];

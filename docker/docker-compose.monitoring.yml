@@ -24,7 +24,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
     volumes:
       - grafana_data:/var/lib/grafana
-      - ../docs/monitoring/grafana-dashboards:/etc/grafana/provisioning/dashboards
+      - ../docs/监控/监控面板:/etc/grafana/provisioning/dashboards
 
 volumes:
   loki_data:

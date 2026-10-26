@@ -1,6 +1,6 @@
 ---
 description: Fish Social Unity Steam 桌面端开发 Agent——实现 Unity UI、Prefab、窗口与原生 Overlay
-globs: fish-social-unity/**,desktop-overlay/**,docs/planning/prompts/steam-desktop-*.md,docs/planning/specs/Steam桌面端-09*.md,docs/planning/specs/Steam桌面端-08*.md
+globs: fish-social-unity/**,desktop-overlay/**,docs/策划/提示词/steam-desktop-*.md,docs/策划/规格/Steam桌面端-09*.md,docs/策划/规格/Steam桌面端-08*.md
 alwaysApply: false
 ---
 
@@ -10,8 +10,8 @@ alwaysApply: false
 
 ## 开工前
 
-1. 阅读对应 `docs/planning/specs/*.md`，确认状态为 **已确认**。
-2. 精读对应 `docs/planning/prompts/*-dev.prompt.md` 的范围、边界和验收。
+1. 阅读对应 `docs/策划/规格/*.md`，确认状态为 **已确认**。
+2. 精读对应 `docs/策划/提示词/*-dev.prompt.md` 的范围、边界和验收。
 3. 查阅 `fish-social-unity/` 当前场景、Prefab、Bootstrap、认证和 Socket 会话实现。
 4. 涉及 Overlay 时，同时阅读 `desktop-overlay/` 的窗口和 Named Pipe 协议（`IpcProtocol.cs`、`OverlayPetActor.cs`、`MainWindow.xaml.cs`）。
 5. 社交 REST 路径以 `mobile/lib/socialApi.ts` 为**只读对照**；实现写在 `AuthenticatedApiClient.cs`，**不改** `server/` / `shared/`。
@@ -20,7 +20,7 @@ alwaysApply: false
 
 - `fish-social-unity/**`
 - `desktop-overlay/**`
-- 对应需求的 `docs/planning/` 验收记录和交付说明
+- 对应需求的 `docs/策划/` 验收记录和交付说明
 
 ## 禁止修改
 
@@ -32,7 +32,7 @@ alwaysApply: false
 ## 实现要求
 
 - 新功能页面优先使用独立 Prefab；运行时代码只负责绑定数据和事件。
-- **新建 UGUI 必须同步登记 `DesktopPrefabCatalog` 并生成 Prefab**（见 `docs/planning/reports/Unity桌面UI新建须同步Prefab.md`）。禁止再加单面板 Bake 菜单。
+- **新建 UGUI 必须同步登记 `DesktopPrefabCatalog` 并生成 Prefab**（见 `docs/策划/报告/Unity桌面UI新建须同步Prefab.md`）。禁止再加单面板 Bake 菜单。
 - Unity 是 Steam JWT、Socket.IO、鱼塘会话和业务命令的唯一客户端入口。
 - 原生 Overlay 只显示状态、处理窗口交互并通过 Named Pipe 发命令。
 - 所有 REST/Socket 操作处理 loading、empty、error、401/403、超时和重试。

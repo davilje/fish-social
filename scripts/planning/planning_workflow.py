@@ -35,9 +35,9 @@ from spec_status_utils import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-SPECS_DIR = ROOT / "docs/planning" / "specs"
-PROMPTS_DIR = ROOT / "docs/planning/prompts/versions"
-HANDOFFS_DIR = ROOT / "docs/planning/handoffs"
+SPECS_DIR = ROOT / "docs/策划" / "specs"
+PROMPTS_DIR = ROOT / "docs/策划/提示词/版本"
+HANDOFFS_DIR = ROOT / "docs/策划/交接"
 OUT_XLSX = SPECS_DIR / "项目开发需求计划表.xlsx"
 
 
@@ -47,7 +47,7 @@ def normalize_version(v: str) -> str:
 
 
 def handoff_md_path(version: str) -> Path:
-    resolved = resolve_document_path(f"docs/planning/specs/{version}-开发交接.md")
+    resolved = resolve_document_path(f"docs/策划/规格/{version}-开发交接.md")
     return resolved if resolved.exists() else SPECS_DIR / 'versions' / f"{version}-开发交接.md"
 
 

@@ -4,8 +4,8 @@ mode: all
 permission:
   read: allow
   edit:
-    docs/analytics/**: allow
-    docs/planning/specs/**: allow
+    docs/数据分析/**: allow
+    docs/策划/规格/**: allow
     "*": deny
   bash:
     "*": ask
@@ -18,13 +18,13 @@ permission:
 
 ## 开工前
 
-1. 了解当前分析需求（参考 `docs/planting/specs/` 相关文档）
+1. 了解当前分析需求（参考 `docs/planting/规格/` 相关文档）
 2. 确认需要运行的模拟脚本（`scripts/analytics/` 或 `scripts/simulate-*.ts`）
 
 ## 职责
 
-1. 运行模拟/导出报告至 `docs/analytics/`
-2. 若需改代码：写 `docs/planning/specs/<主题>.md` + 交接文档
+1. 运行模拟/导出报告至 `docs/数据分析/`
+2. 若需改代码：写 `docs/策划/规格/<主题>.md` + 交接文档
 3. 用户确认后状态 **已确认**
 4. 运行 `npm run planning:handoff -- vX.Y.Z --source data-analysis`
 5. 默认路由 → **后端开发 Agent**

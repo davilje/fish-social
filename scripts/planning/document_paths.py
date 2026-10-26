@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 @lru_cache(maxsize=1)
 def path_map() -> dict[str, str]:
-    return json.loads((ROOT / 'docs/maintenance/path-map.json').read_text(encoding='utf-8'))
+    return json.loads((ROOT / 'docs/维护/path-map.json').read_text(encoding='utf-8'))
 
 
 def resolve_document_path(relative: str) -> Path:
@@ -33,7 +33,7 @@ def rewrite_document_paths(value: str) -> str:
 
 
 def find_active_spec(filename: str) -> Path | None:
-    matches = [p for p in (ROOT / 'docs/planning/specs').rglob('*.md') if p.name == filename]
+    matches = [p for p in (ROOT / 'docs/策划/规格').rglob('*.md') if p.name == filename]
     if len(matches) > 1:
         raise ValueError(f'Ambiguous spec name: {filename}')
     return matches[0] if matches else None

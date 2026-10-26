@@ -7,8 +7,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-ROUTING_PATH = ROOT / "docs/planning/workflow/agent-routing.json"
-HANDOFFS_DIR = ROOT / "docs/planning/handoffs"
+ROUTING_PATH = ROOT / "docs/策划/流程/agent-routing.json"
+HANDOFFS_DIR = ROOT / "docs/策划/交接"
 
 
 def load_routing() -> dict:
@@ -159,12 +159,12 @@ def write_handoff_manifest(
 
 
 def write_target_prompts(base_prompt: str, version: str, targets: list[str]) -> list[Path]:
-    prompts_dir = ROOT / "docs/planning/prompts/versions"
+    prompts_dir = ROOT / "docs/策划/提示词/版本"
     prompts_dir.mkdir(parents=True, exist_ok=True)
     scope_blocks = {
         "backend-dev": "\n## 角色范围（后端开发 Agent）\n- 仅改 `server/`、`shared/`、`scripts/`\n- 禁止改 `mobile/`\n",
         "frontend-dev": "\n## 角色范围（前端开发 Agent）\n- 仅改 `mobile/`\n- 禁止改 `server/`、`shared/` 业务逻辑（可读类型）\n",
-        "art": "\n## 角色范围（原画 Agent）\n- 产出 `mobile/assets/` 或 `docs/art/`\n- 不写服务端逻辑\n",
+        "art": "\n## 角色范围（原画 Agent）\n- 产出 `mobile/assets/` 或 `docs/美术/`\n- 不写服务端逻辑\n",
     }
     written: list[Path] = []
     for target in targets:

@@ -1,12 +1,12 @@
 const fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),sharp=require('sharp');
-const root=path.resolve(__dirname,'../..'),out=path.join(root,'docs/art/cozy-journal/production'),native=path.join(root,'fish-social-unity/Library/CozyRedesignPreviews');
+const root=path.resolve(__dirname,'../..'),out=path.join(root,'docs/美术/手账/production'),native=path.join(root,'fish-social-unity/Library/CozyRedesignPreviews');
 const cases=[{id:'index',title:'左侧页签选中',page:'shop',times:[0,30,60,100,160,200]},{id:'rank',title:'排行榜选择钓友',page:'rank',times:[0,60,110,180,220]}];
 (async()=>{
  fs.mkdirSync(out,{recursive:true});
  const browser=await chromium.launch({headless:true,channel:'chrome'});
  const page=await browser.newPage({viewport:{width:1672,height:941},deviceScaleFactor:2});
- await page.goto('http://127.0.0.1:8769/docs/design/ui/prototype/cozy-journal/index.html');
+ await page.goto('http://127.0.0.1:8769/docs/设计/界面/原型/手账/index.html');
  await page.evaluate(async()=>{await document.fonts.ready;document.getAnimations().forEach(a=>a.cancel());});
  await page.addStyleTag({content:'#toolbar,#caption{display:none!important}#viewport{inset:0;display:block}#stage{left:0!important;top:0!important;transform:none!important;border-radius:0}*{caret-color:transparent!important}'});
  const evidence=[];

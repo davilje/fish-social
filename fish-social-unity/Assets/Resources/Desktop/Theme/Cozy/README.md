@@ -8,4 +8,4 @@
 
 10页面/11状态的Unity参考prefab位于`Assets/Desktop/JournalSamples/`；12个组合组件位于其`Components/`。这些是独立资源验证与布局参考，没有替换正式游戏页面，也没有接入其业务事件。新角色姿势为补充素材，默认参考仍使用已有orange-ready。
 
-查看`docs/art/cozy-journal/README.md`、`compare.html`和`index.html`获取校正状态、预览与重建步骤。50项共用UI素材已按原版校正；补充素材与跨引擎视觉差异仍需分别验收。
+查看`docs/美术/手账/README.md`、`compare.html`和`index.html`获取校正状态、预览与重建步骤。50项共用UI素材已按原版校正；补充素材与跨引擎视觉差异仍需分别验收。

@@ -1,5 +1,5 @@
 /**
- * 归档一次分析产出到 docs/analytics/runs/<runId>/
+ * 归档一次分析产出到 docs/数据分析/运行记录/<runId>/
  * 用法: node scripts/analytics/archive-run.mjs <type> [runId] [sourceDir]
  */
 import fs from 'fs';

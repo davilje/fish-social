@@ -43,5 +43,5 @@ for(const marker of ['retrieve.start','result.presented','catch.confirm','fish.e
 for(const marker of allowed.keys())assert(effects.cues.some(c=>c.cue===marker||(c.markers||[]).includes(marker)),marker+' policy has no configured effect');
 const sha=s=>crypto.createHash('sha256').update(s).digest('hex');
 const report={artVersion:effects.artVersion,task:'STEAM-DESKTOP-22H',date:'2026-10-24',scope:'Static actual Overlay source/configuration binding consistency; WPF execution and pure policy runtime tests are separate.',policySha256:sha(policy),rendererSha256:sha(renderer),checks,withdrawn:effects.withdrawn,forbiddenMarkersUnbound:true,rendererSizingMatchesAssetMetadata:true,result:'passed'};
-fs.writeFileSync(path.join(root,art==='v4'?'docs/art/water-effects-22h/bindings-verification-v4.json':'docs/art/water-effects-22h/bindings-verification.json'),JSON.stringify(report,null,2)+'\n');
+fs.writeFileSync(path.join(root,art==='v4'?'docs/美术/水面特效/bindings-verification-v4.json':'docs/美术/水面特效/bindings-verification.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report,null,2));

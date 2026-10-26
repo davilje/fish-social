@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const art = path.join(root, 'docs/art/cat-skins/sangbiao');
+const art = path.join(root, 'docs/美术/猫咪形象/sangbiao');
 const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1024 } });
 const failures = [];

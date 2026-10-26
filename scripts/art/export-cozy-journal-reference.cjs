@@ -5,12 +5,12 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const dep='/Users/red/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/';
 let chromium,sharp;try{({chromium}=require('playwright'));sharp=require('sharp')}catch{({chromium}=require(dep+'playwright'));sharp=require(dep+'sharp')}
 const root=path.resolve(__dirname,'../..'),out=path.join(root,'fish-social-unity/Assets/Desktop/JournalSamples/ReferenceAssets');
-const report=path.join(root,'docs/art/cozy-journal/previews'),source=path.join(root,'docs/design/ui/prototype/cozy-journal');
+const report=path.join(root,'docs/美术/手账/previews'),source=path.join(root,'docs/设计/界面/原型/手账');
 fs.mkdirSync(out,{recursive:true});fs.mkdirSync(report,{recursive:true});
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 (async()=>{const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
 const page=await browser.newPage({viewport:{width:1672,height:941},deviceScaleFactor:2});
-await page.goto('http://127.0.0.1:8769/docs/design/ui/prototype/cozy-journal/index.html');await page.evaluate(async()=>{await document.fonts.ready;document.getAnimations().forEach(a=>a.cancel());play=()=>DONE;});
+await page.goto('http://127.0.0.1:8769/docs/设计/界面/原型/手账/index.html');await page.evaluate(async()=>{await document.fonts.ready;document.getAnimations().forEach(a=>a.cancel());play=()=>DONE;});
 await page.addStyleTag({content:`#toolbar,#caption{display:none!important}html,body,#viewport{background:transparent!important}#viewport{inset:0;display:block}#stage{position:absolute;left:0!important;top:0!important;transform:none!important;border-radius:0}#stage *{animation:none!important;transition:none!important}*{caret-color:transparent!important}#motion,#celebrate{display:none!important}`});
 const result={schema:1,designResolution:[1672,941],exportScale:2,sourceFiles:['index.html','style.css','pages.css','app.js','pages.js'].map(f=>({path:path.relative(root,path.join(source,f)),sha256:hash(fs.readFileSync(path.join(source,f)))})),pages:[]};
 for(const [kind,tab] of [['shop',1],['map',0],['settings',0],['settings-notify',1],['bag',0],['equip',0],['ach',0],['rank',0],['profile',0],['feed',0],['ponds',0]]){

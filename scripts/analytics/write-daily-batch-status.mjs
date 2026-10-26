@@ -1,5 +1,5 @@
 /**
- * 写出 docs/analytics/daily-batch-status.json（OPS-UX-1 §5.1）
+ * 写出 docs/数据分析/daily-batch-status.json（OPS-UX-1 §5.1）
  */
 import fs from 'fs';
 import path from 'path';
@@ -39,7 +39,7 @@ export function writeDailyBatchStatus(opts) {
     ...(durationMs != null ? { durationMs } : {}),
     ...(opts.message ? { message: opts.message } : {}),
   };
-  const outDir = path.join(projectRoot, 'docs/analytics');
+  const outDir = path.join(projectRoot, 'docs/数据分析');
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, 'daily-batch-status.json');
   fs.writeFileSync(outPath, JSON.stringify(payload, null, 2), 'utf8');

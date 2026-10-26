@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 let sharp;try{sharp=require('sharp')}catch{sharp=require('/Users/red/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp')}
-const app=fs.readFileSync('docs/design/ui/prototype/cozy-journal/app.js','utf8');
+const app=fs.readFileSync('docs/设计/界面/原型/手账/app.js','utf8');
 const svg=app.match(/function miniFish\(\)\s*\{\s*return `([^`]+)`;/)?.[1];
 if(!svg)throw new Error('Original miniFish SVG missing');
 const source='tools/cozy-journal/inline-mini-fish.svg';fs.writeFileSync(source,svg+'\n');

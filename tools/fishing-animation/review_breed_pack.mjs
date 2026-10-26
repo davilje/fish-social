@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/art/cat-skins');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/美术/猫咪形象');
 const skin = process.argv[2];
 const breed = JSON.parse(fs.readFileSync(path.join(root, 'breed-definitions.json'))).breeds.find(entry => entry.id === skin);
 if (!breed) throw new Error('Unknown breed');

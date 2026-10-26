@@ -8,8 +8,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORTS = ROOT / "docs/planning/reports"
-# 仓库根目录为权威交付物；docs/planning/reports/ 为同步副本（兼容旧链接）
+REPORTS = ROOT / "docs/策划/报告"
+# 仓库根目录为权威交付物；docs/策划/报告/ 为同步副本（兼容旧链接）
 OUT_NAME = "v0.4.4-埋点表清单.xlsx"
 OUT = ROOT / OUT_NAME
 OUT_DOCS = REPORTS / OUT_NAME

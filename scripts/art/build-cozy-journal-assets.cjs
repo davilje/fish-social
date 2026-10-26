@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 let sharp;try{sharp=require('sharp')}catch{sharp=require('/Users/red/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp')}
 const root=path.resolve(__dirname,'../..'),theme=path.join(root,'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy');
-const output=path.join(theme,'journal'),sources=path.join(root,'docs/art/cozy-journal/sources/ui');
+const output=path.join(theme,'journal'),sources=path.join(root,'docs/美术/手账/sources/ui');
 const C={paper:'#fff7e9',shade:'#f3e6cf',line:'#e8d6b6',ink:'#75472e',coral:'#fc923c',deep:'#d46f22',lake:'#5dade2',leaf:'#6bb86b',gold:'#f2bf47',pink:'#f7b6c8',red:'#e2533f'};
 const assets=[];
 function svg(w,h,body,defs=''){return `<svg xmlns="http://www.w3.org/2000/svg" width="${w*2}" height="${h*2}" viewBox="0 0 ${w} ${h}"><defs>${defs}</defs>${body}</svg>`}

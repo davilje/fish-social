@@ -11,9 +11,9 @@ import json
 
 R = Path(__file__).resolve().parents[2]
 A = R / 'fish-social-unity/Assets/StreamingAssets/Audio'
-P = R / 'docs/art/audio-22i/v5/assets'
+P = R / 'docs/美术/声音/v5/assets'
 LOCK = Path(__file__).with_name('accepted-effects.json')
-ADOPTION = R / 'docs/engineering/audio/audio-22i-adoption.json'
+ADOPTION = R / 'docs/工程/声音/audio-22i-adoption.json'
 
 
 def read(path):
@@ -53,7 +53,7 @@ def prepare(current, music, lock, adoption):
     assert full['sha256'] == adoption['music']['sha256'], 'Music requires an explicit new adoption record'
     assert adoption['music']['path'] == 'music/pond_daylight.wav'
     full['path'] = adoption['music']['path']
-    full['processing']['score'] = 'docs/art/audio-22i/v5/assets/score.json'
+    full['processing']['score'] = 'docs/美术/声音/v5/assets/score.json'
     locked_sources = {s['key']: s for s in lock['sources']}
     for source in music['sources']:
         if source['key'] in locked_sources:

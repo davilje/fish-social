@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const study = path.join(root, 'docs/art/cat-skins');
+const study = path.join(root, 'docs/美术/猫咪形象');
 const art = path.join(study, 'sangbiao');
 const poses = JSON.parse(fs.readFileSync(path.join(study, 'painted-poses.json'))).poses;
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -26,7 +26,7 @@ if (command === 'prepare') {
   }
   save(path.join(art, 'source-index.json'), { characterId: 'sangbiao', name: '狸花猫「丧彪」', canvas: [640, 512],
     sourceFrames: 63, uniqueDrawings: poses.length, method: 'imagegen-pose-edit',
-    sources: ['docs/art/cat-skins/full-pose-manifest.json', 'docs/art/cat-skins/reference',
+    sources: ['docs/美术/猫咪形象/full-pose-manifest.json', 'docs/美术/猫咪形象/reference',
       'tools/fishing-animation/build_calico_fishing_pack.mjs', 'tools/fishing-animation/install_breed_identity.mjs'],
     nativeAssets: 'Editable full-canvas RGBA PNG layers and JSON animation manifests; no PSD/KRA/ORA found in existing cat asset directories.',
     poses: poses.map(pose => ({ id: pose.id, source: `reference/${pose.id}/cat.png`, sourceSha256: pose.sourceSha256,

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * 从 *-开发交接.md 提取「交接提示词」代码块，写入 docs/planning/prompts/
+ * 从 *-开发交接.md 提取「交接提示词」代码块，写入 docs/策划/提示词/
  *
  * Usage:
  *   node scripts/planning/generate-handoff-prompt.mjs v0.4.0
- *   node scripts/planning/generate-handoff-prompt.mjs docs/archive/2026-10-26/versions/planning/specs/v0.4.0-开发交接.md
+ *   node scripts/planning/generate-handoff-prompt.mjs docs/归档/2026-10-26/版本/策划/规格/v0.4.0-开发交接.md
  */
 import fs from 'fs';
 import path from 'path';
@@ -12,9 +12,9 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '../..');
-const PROMPTS_DIR = path.join(ROOT, 'docs/planning/prompts/versions');
-const SPECS_DIR = path.join(ROOT, 'docs/planning/specs');
-const DOCUMENT_PATHS = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/maintenance/path-map.json'), 'utf8'));
+const PROMPTS_DIR = path.join(ROOT, 'docs/策划/提示词/版本');
+const SPECS_DIR = path.join(ROOT, 'docs/策划/规格');
+const DOCUMENT_PATHS = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/维护/path-map.json'), 'utf8'));
 
 function resolveHandoffPath(arg) {
   if (!arg) {
@@ -26,7 +26,7 @@ function resolveHandoffPath(arg) {
   }
   const version = arg.replace(/^v/, 'v');
   const v = version.startsWith('v') ? version : `v${version}`;
-  const oldPath = `docs/planning/specs/${v}-开发交接.md`;
+  const oldPath = `docs/策划/规格/${v}-开发交接.md`;
   return DOCUMENT_PATHS[oldPath]
     ? path.join(ROOT, DOCUMENT_PATHS[oldPath])
     : path.join(SPECS_DIR, 'versions', `${v}-开发交接.md`);

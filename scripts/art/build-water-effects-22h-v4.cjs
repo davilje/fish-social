@@ -1,7 +1,7 @@
 /** Package the user-approved raster artwork; no new artwork is drawn here. */
 'use strict';
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),sharp=require('sharp');
-const root=path.resolve(__dirname,'../..'),doc=path.join(root,'docs/art/water-effects-22h');
+const root=path.resolve(__dirname,'../..'),doc=path.join(root,'docs/美术/水面特效');
 const sourceFile='magic-v4/water-soft-atlas.png',source=path.join(doc,sourceFile);
 const out=path.join(root,'desktop-overlay/OverlayResources/effects/fishing/v4');
 const mirror=path.join(root,'fish-social-unity/Assets/StreamingAssets/Effects/Fishing/v4');
@@ -79,7 +79,7 @@ async function main(){
  effects.assets=assets.map(({id,file,kind,sizeTier,variant,layer,anchor,width,height})=>({id,file,kind,...(sizeTier?{sizeTier,variant}:{}),layer,anchor,width,height}));
  write(path.join(out,'effects.json'),json(effects));
  const manifest={schemaVersion:2,version:effects.artVersion,status:'style-approved-runtime-acceptance-pending',styleApproval:{date:'2026-10-24',userStatement:'该风格可以',scope:'Simplified v4 water-magic visual style; Windows acceptance remains separate.'},
-  source:'Built-in OpenAI image_gen edit of v3 using the actual cat-game preview as style reference; original generated alpha retained in source atlas.',license:'AI-generated project artwork; not covered by the v2 SVG CC0 declaration.',sourceScript:'scripts/art/build-water-effects-22h-v4.cjs',prompt:'docs/art/water-effects-22h/magic-v4/prompt.txt',sourceFile,sourceSha256,
+  source:'Built-in OpenAI image_gen edit of v3 using the actual cat-game preview as style reference; original generated alpha retained in source atlas.',license:'AI-generated project artwork; not covered by the v2 SVG CC0 declaration.',sourceScript:'scripts/art/build-water-effects-22h-v4.cjs',prompt:'docs/美术/水面特效/magic-v4/prompt.txt',sourceFile,sourceSha256,
   processing:'Connected-component sprite extraction and removal of unrelated neighbouring fragments; preserve antialias edges; resize to authored tier dimensions and pad to 8px minimum transparent margin.',
   decodedBytes:assets.reduce((n,a)=>n+a.decodedBytes,0),effectsSha256:sha(fs.readFileSync(path.join(out,'effects.json'))),assets};
  write(path.join(out,'manifest.json'),json(manifest));

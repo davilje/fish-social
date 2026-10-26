@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const sourceRoot = '/Users/red/Desktop/fish/output/animation-studio';
 const repoRoot = path.resolve(new URL('.', import.meta.url).pathname, '../..');
-const destinationRoot = path.join(repoRoot, 'docs/art/cat-skins');
+const destinationRoot = path.join(repoRoot, 'docs/美术/猫咪形象');
 const data = JSON.parse(fs.readFileSync(path.join(sourceRoot, 'animation.json'), 'utf8'));
 const phases = data.phaseOrder;
 const frames = [];

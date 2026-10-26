@@ -28,10 +28,10 @@ function observeRenders() {
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(observeRenders);
       if (historical) {
-        const body = execFileSync('git', ['show', `${historical}:docs/design/ui/prototype/cozy-journal/app.js`], { encoding: 'utf8' });
+        const body = execFileSync('git', ['show', `${historical}:docs/设计/界面/原型/手账/app.js`], { encoding: 'utf8' });
         await page.route('**/cozy-journal/app.js', route => route.fulfill({ body, contentType: 'text/javascript' }));
       }
-      await page.goto(`${base}/docs/design/ui/prototype/${preview}/index.html`);
+      await page.goto(`${base}/docs/设计/界面/原型/${preview}/index.html`);
       await page.waitForFunction(() => document.querySelectorAll('.navtab').length > 0);
       await page.waitForTimeout(800);
       assert.equal(await page.evaluate(() => contentRenders), 1, `${preview}: boot renders once`);
@@ -105,7 +105,7 @@ function observeRenders() {
     page.on('pageerror', error => errors.push(error.message));
     for (const mode of ['profile', 'edit', 'compose', 'settlement']) {
       await page.goto('about:blank');
-      await page.goto(`${base}/docs/design/ui/prototype/journal-workspace/index.html#${mode}`);
+      await page.goto(`${base}/docs/设计/界面/原型/手账工作台/index.html#${mode}`);
       await page.waitForFunction(() => document.querySelectorAll('.navtab').length > 0);
       await page.waitForTimeout(750);
       assert.equal(await page.evaluate(() => contentRenders), 1, `${mode}: boot renders once`);

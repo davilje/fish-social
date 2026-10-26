@@ -1,0 +1,496 @@
+{
+  "status": "PASS",
+  "date": "2026-10-24T15:48:16.173Z",
+  "scope": "Narrow v5 browser regression only; not listening acceptance, Unity/WPF IPC or Windows audio hardware",
+  "browser": "156.0.8078.47",
+  "results": [
+    "Three music entries; nine demos and 24 blind water samples retained; default volumes 35/70",
+    "All 46 configured non-music files match accepted v3 hashes; v5 theme/full and archived v4 music match fresh manifest hashes",
+    "Theme/full/old playback switches on one music element; full and old wrap at boundary; stop pauses",
+    "Normal fishing mix: 8 cues, 1/4 maximum short voices, current full music continues",
+    "Independent music/effects gains and saved 23/61 settings verified",
+    "Desktop/mobile screenshots captured; no horizontal overflow"
+  ],
+  "identity": {
+    "versions": {
+      "current": 5,
+      "old": 4,
+      "clips": 5
+    },
+    "effects": [
+      {
+        "path": "sfx/ui_click_01.wav",
+        "accepted": "0e7ad709caa5a6ad74078ea483614d01efc53fe1a64f8e409e8db3e4f9ece705",
+        "manifest": "0e7ad709caa5a6ad74078ea483614d01efc53fe1a64f8e409e8db3e4f9ece705",
+        "actual": "0e7ad709caa5a6ad74078ea483614d01efc53fe1a64f8e409e8db3e4f9ece705",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_click_02.wav",
+        "accepted": "2756c29713e9b62d9e07df7385030d2bc2b70937e1429f7c0e88cb670b28d61f",
+        "manifest": "2756c29713e9b62d9e07df7385030d2bc2b70937e1429f7c0e88cb670b28d61f",
+        "actual": "2756c29713e9b62d9e07df7385030d2bc2b70937e1429f7c0e88cb670b28d61f",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_open_01.wav",
+        "accepted": "48f2a8eb18e9e17b67d06c472b47577bee26eee3f516b3e4b666364f0fdb2441",
+        "manifest": "48f2a8eb18e9e17b67d06c472b47577bee26eee3f516b3e4b666364f0fdb2441",
+        "actual": "48f2a8eb18e9e17b67d06c472b47577bee26eee3f516b3e4b666364f0fdb2441",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_open_02.wav",
+        "accepted": "185184b7240f7fdc712a89d6bcea7cd7aec910950962923550110f2346c2f10d",
+        "manifest": "185184b7240f7fdc712a89d6bcea7cd7aec910950962923550110f2346c2f10d",
+        "actual": "185184b7240f7fdc712a89d6bcea7cd7aec910950962923550110f2346c2f10d",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_close_01.wav",
+        "accepted": "19f01d9771616ae1ef2fb9e52c67f1e33ce479afbda14fb012f2f174c5e97082",
+        "manifest": "19f01d9771616ae1ef2fb9e52c67f1e33ce479afbda14fb012f2f174c5e97082",
+        "actual": "19f01d9771616ae1ef2fb9e52c67f1e33ce479afbda14fb012f2f174c5e97082",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_close_02.wav",
+        "accepted": "fc648390033233f64eb277ca30b35dd64fee506a751fbe93d6408f6d39623e17",
+        "manifest": "fc648390033233f64eb277ca30b35dd64fee506a751fbe93d6408f6d39623e17",
+        "actual": "fc648390033233f64eb277ca30b35dd64fee506a751fbe93d6408f6d39623e17",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_toggle_01.wav",
+        "accepted": "174dd5c2563f1a1e08f214df1b4c96130d7d6ee9bdd5a5713a68d827925e9729",
+        "manifest": "174dd5c2563f1a1e08f214df1b4c96130d7d6ee9bdd5a5713a68d827925e9729",
+        "actual": "174dd5c2563f1a1e08f214df1b4c96130d7d6ee9bdd5a5713a68d827925e9729",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_toggle_02.wav",
+        "accepted": "dc98b1e7cc0c8cb4d4fc3b408053e998942428659c4a435a9d5f5c37804ec538",
+        "manifest": "dc98b1e7cc0c8cb4d4fc3b408053e998942428659c4a435a9d5f5c37804ec538",
+        "actual": "dc98b1e7cc0c8cb4d4fc3b408053e998942428659c4a435a9d5f5c37804ec538",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_tick.wav",
+        "accepted": "527086c8dc01948607074c314eafb0ad0ced57fca1057c985633f772a3cda29e",
+        "manifest": "527086c8dc01948607074c314eafb0ad0ced57fca1057c985633f772a3cda29e",
+        "actual": "527086c8dc01948607074c314eafb0ad0ced57fca1057c985633f772a3cda29e",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_success.wav",
+        "accepted": "4ef7195694175c37f12c85b560e549f0e19026110158dc3f70b90647f718b4c1",
+        "manifest": "4ef7195694175c37f12c85b560e549f0e19026110158dc3f70b90647f718b4c1",
+        "actual": "4ef7195694175c37f12c85b560e549f0e19026110158dc3f70b90647f718b4c1",
+        "version": 3
+      },
+      {
+        "path": "sfx/ui_error.wav",
+        "accepted": "12287f5bba5479d93290c83468a8a4331f140b8dbfe31565d8b35054193373fd",
+        "manifest": "12287f5bba5479d93290c83468a8a4331f140b8dbfe31565d8b35054193373fd",
+        "actual": "12287f5bba5479d93290c83468a8a4331f140b8dbfe31565d8b35054193373fd",
+        "version": 3
+      },
+      {
+        "path": "sfx/catch.wav",
+        "accepted": "80ae70358a40d590d17ae41a8229c430fa33fbd5df8210f60f1aea58d66ccbbc",
+        "manifest": "80ae70358a40d590d17ae41a8229c430fa33fbd5df8210f60f1aea58d66ccbbc",
+        "actual": "80ae70358a40d590d17ae41a8229c430fa33fbd5df8210f60f1aea58d66ccbbc",
+        "version": 3
+      },
+      {
+        "path": "water/bite_s_01.wav",
+        "accepted": "f11e1e6d0b11be52bee2de59f07a2d6b77f9f1898f1be71959c249c06e594aa9",
+        "manifest": "f11e1e6d0b11be52bee2de59f07a2d6b77f9f1898f1be71959c249c06e594aa9",
+        "actual": "f11e1e6d0b11be52bee2de59f07a2d6b77f9f1898f1be71959c249c06e594aa9",
+        "version": 3
+      },
+      {
+        "path": "water/bite_s_02.wav",
+        "accepted": "8b4de57a582e2def5ebe1a792cffe0a1a05de72c2817742529292770cdc1d64c",
+        "manifest": "8b4de57a582e2def5ebe1a792cffe0a1a05de72c2817742529292770cdc1d64c",
+        "actual": "8b4de57a582e2def5ebe1a792cffe0a1a05de72c2817742529292770cdc1d64c",
+        "version": 3
+      },
+      {
+        "path": "water/bite_m_01.wav",
+        "accepted": "217249d4302ee01c9f850cc571c82f68b442f7bfc0eaa9341b70962d89fae509",
+        "manifest": "217249d4302ee01c9f850cc571c82f68b442f7bfc0eaa9341b70962d89fae509",
+        "actual": "217249d4302ee01c9f850cc571c82f68b442f7bfc0eaa9341b70962d89fae509",
+        "version": 3
+      },
+      {
+        "path": "water/bite_m_02.wav",
+        "accepted": "75c8b598e5f818204150eaad00df915e74ada45a20b86295a57f64a377c17426",
+        "manifest": "75c8b598e5f818204150eaad00df915e74ada45a20b86295a57f64a377c17426",
+        "actual": "75c8b598e5f818204150eaad00df915e74ada45a20b86295a57f64a377c17426",
+        "version": 3
+      },
+      {
+        "path": "water/bite_l_01.wav",
+        "accepted": "d22df5dbd7af69fb495df2a0aa5648ce438872c760926084c6b57de737cfa70c",
+        "manifest": "d22df5dbd7af69fb495df2a0aa5648ce438872c760926084c6b57de737cfa70c",
+        "actual": "d22df5dbd7af69fb495df2a0aa5648ce438872c760926084c6b57de737cfa70c",
+        "version": 3
+      },
+      {
+        "path": "water/bite_l_02.wav",
+        "accepted": "54d8efc18b35551b9f361ec9a2a3ca24d91df228cb24607d6bd5d748405320b1",
+        "manifest": "54d8efc18b35551b9f361ec9a2a3ca24d91df228cb24607d6bd5d748405320b1",
+        "actual": "54d8efc18b35551b9f361ec9a2a3ca24d91df228cb24607d6bd5d748405320b1",
+        "version": 3
+      },
+      {
+        "path": "water/bite_xl_01.wav",
+        "accepted": "4c45259854fabb6c951f96b1ea2779e1e887fc332fde40d7308569315863a547",
+        "manifest": "4c45259854fabb6c951f96b1ea2779e1e887fc332fde40d7308569315863a547",
+        "actual": "4c45259854fabb6c951f96b1ea2779e1e887fc332fde40d7308569315863a547",
+        "version": 3
+      },
+      {
+        "path": "water/bite_xl_02.wav",
+        "accepted": "6ba4e6413adf6679eaee00af2b0b2c9411658e2f59470688371de81f6683cf8d",
+        "manifest": "6ba4e6413adf6679eaee00af2b0b2c9411658e2f59470688371de81f6683cf8d",
+        "actual": "6ba4e6413adf6679eaee00af2b0b2c9411658e2f59470688371de81f6683cf8d",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_s_01.wav",
+        "accepted": "c3f6c5f1c56e4bfbecff73240bb48a3fbf8bdf38bec7ee4f07d7fe400523e586",
+        "manifest": "c3f6c5f1c56e4bfbecff73240bb48a3fbf8bdf38bec7ee4f07d7fe400523e586",
+        "actual": "c3f6c5f1c56e4bfbecff73240bb48a3fbf8bdf38bec7ee4f07d7fe400523e586",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_s_02.wav",
+        "accepted": "e2d36f249bf05e04a8975096f6f0c1e8ec2b40341ed27030f6fcdc124ac7309d",
+        "manifest": "e2d36f249bf05e04a8975096f6f0c1e8ec2b40341ed27030f6fcdc124ac7309d",
+        "actual": "e2d36f249bf05e04a8975096f6f0c1e8ec2b40341ed27030f6fcdc124ac7309d",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_m_01.wav",
+        "accepted": "4d6413b198ccddd7489b5815b6f82a781f29ee403babfc807002dbcdbe8be21a",
+        "manifest": "4d6413b198ccddd7489b5815b6f82a781f29ee403babfc807002dbcdbe8be21a",
+        "actual": "4d6413b198ccddd7489b5815b6f82a781f29ee403babfc807002dbcdbe8be21a",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_m_02.wav",
+        "accepted": "881378d50108fdde7094739c544cbc4d3890cbe8abdad54cf7233fbf15bca7f4",
+        "manifest": "881378d50108fdde7094739c544cbc4d3890cbe8abdad54cf7233fbf15bca7f4",
+        "actual": "881378d50108fdde7094739c544cbc4d3890cbe8abdad54cf7233fbf15bca7f4",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_l_01.wav",
+        "accepted": "83e779eab0d2991af565b00a7666c8179d6db787f7a71ada0151d2002c044431",
+        "manifest": "83e779eab0d2991af565b00a7666c8179d6db787f7a71ada0151d2002c044431",
+        "actual": "83e779eab0d2991af565b00a7666c8179d6db787f7a71ada0151d2002c044431",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_l_02.wav",
+        "accepted": "31866593edebd294922bf0575ae5f1d832ba2dbb9bae6bb046a76ebb065d39a2",
+        "manifest": "31866593edebd294922bf0575ae5f1d832ba2dbb9bae6bb046a76ebb065d39a2",
+        "actual": "31866593edebd294922bf0575ae5f1d832ba2dbb9bae6bb046a76ebb065d39a2",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_xl_01.wav",
+        "accepted": "3e3de6a861ac76b9af0576195da792320e35c71278e5cb31289fb9339e5188fd",
+        "manifest": "3e3de6a861ac76b9af0576195da792320e35c71278e5cb31289fb9339e5188fd",
+        "actual": "3e3de6a861ac76b9af0576195da792320e35c71278e5cb31289fb9339e5188fd",
+        "version": 3
+      },
+      {
+        "path": "water/water_struggle_xl_02.wav",
+        "accepted": "4c6735686a64871328001638388f04750454b9f20bbd7b266aef71cdc8f4d282",
+        "manifest": "4c6735686a64871328001638388f04750454b9f20bbd7b266aef71cdc8f4d282",
+        "actual": "4c6735686a64871328001638388f04750454b9f20bbd7b266aef71cdc8f4d282",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_s_01.wav",
+        "accepted": "48de72016962f4f72346d353f0ee0b88c42759e60a9e703fbcc163de927180d0",
+        "manifest": "48de72016962f4f72346d353f0ee0b88c42759e60a9e703fbcc163de927180d0",
+        "actual": "48de72016962f4f72346d353f0ee0b88c42759e60a9e703fbcc163de927180d0",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_s_02.wav",
+        "accepted": "8c459bd686aaf0f58f9ddaf62a08ce2f38b9d6d52586555ad84d3fa0e87d33d8",
+        "manifest": "8c459bd686aaf0f58f9ddaf62a08ce2f38b9d6d52586555ad84d3fa0e87d33d8",
+        "actual": "8c459bd686aaf0f58f9ddaf62a08ce2f38b9d6d52586555ad84d3fa0e87d33d8",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_m_01.wav",
+        "accepted": "f590e1c4caaaafcc50cfa0bc8863816597ef55bd4a9dd136ce0e2df5b8405800",
+        "manifest": "f590e1c4caaaafcc50cfa0bc8863816597ef55bd4a9dd136ce0e2df5b8405800",
+        "actual": "f590e1c4caaaafcc50cfa0bc8863816597ef55bd4a9dd136ce0e2df5b8405800",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_m_02.wav",
+        "accepted": "6dd1766b507b8b0ea036dacd4ed95c157f03e5b64e29a3670dfde45e0f7c25df",
+        "manifest": "6dd1766b507b8b0ea036dacd4ed95c157f03e5b64e29a3670dfde45e0f7c25df",
+        "actual": "6dd1766b507b8b0ea036dacd4ed95c157f03e5b64e29a3670dfde45e0f7c25df",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_l_01.wav",
+        "accepted": "dccd27105a07496051559e0fb1e0db94f9cc89e2a0ff680fd92761f3445db291",
+        "manifest": "dccd27105a07496051559e0fb1e0db94f9cc89e2a0ff680fd92761f3445db291",
+        "actual": "dccd27105a07496051559e0fb1e0db94f9cc89e2a0ff680fd92761f3445db291",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_l_02.wav",
+        "accepted": "6cff6c474e1a365564dd847714ffb1a88297a7e691e1f122d22b012ef438bd89",
+        "manifest": "6cff6c474e1a365564dd847714ffb1a88297a7e691e1f122d22b012ef438bd89",
+        "actual": "6cff6c474e1a365564dd847714ffb1a88297a7e691e1f122d22b012ef438bd89",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_xl_01.wav",
+        "accepted": "e40975ffc72604c4f21db388b0c43a9cfbf6c2ba99af5bee936a638214ec7018",
+        "manifest": "e40975ffc72604c4f21db388b0c43a9cfbf6c2ba99af5bee936a638214ec7018",
+        "actual": "e40975ffc72604c4f21db388b0c43a9cfbf6c2ba99af5bee936a638214ec7018",
+        "version": 3
+      },
+      {
+        "path": "water/water_slap_xl_02.wav",
+        "accepted": "487d4cf2ced1c36d4ad2d4cba647a97839d7145fb1b20032e997550fec150c59",
+        "manifest": "487d4cf2ced1c36d4ad2d4cba647a97839d7145fb1b20032e997550fec150c59",
+        "actual": "487d4cf2ced1c36d4ad2d4cba647a97839d7145fb1b20032e997550fec150c59",
+        "version": 3
+      },
+      {
+        "path": "water/splash_01.wav",
+        "accepted": "babee267d4a5d2fd90bde9fc0c27599ad330c1431ea367a2bf26588822ad86ed",
+        "manifest": "babee267d4a5d2fd90bde9fc0c27599ad330c1431ea367a2bf26588822ad86ed",
+        "actual": "babee267d4a5d2fd90bde9fc0c27599ad330c1431ea367a2bf26588822ad86ed",
+        "version": 3
+      },
+      {
+        "path": "water/splash_02.wav",
+        "accepted": "c4b267780518d562ce6ed561c9e4c46c55d694d0bbf107e1592bdc5453cf3c4b",
+        "manifest": "c4b267780518d562ce6ed561c9e4c46c55d694d0bbf107e1592bdc5453cf3c4b",
+        "actual": "c4b267780518d562ce6ed561c9e4c46c55d694d0bbf107e1592bdc5453cf3c4b",
+        "version": 3
+      },
+      {
+        "path": "water/groundbait_01.wav",
+        "accepted": "2b7d060eddfc5088c9cb127a49124bcf032fd0db5eee957453402e76a9f28cee",
+        "manifest": "2b7d060eddfc5088c9cb127a49124bcf032fd0db5eee957453402e76a9f28cee",
+        "actual": "2b7d060eddfc5088c9cb127a49124bcf032fd0db5eee957453402e76a9f28cee",
+        "version": 3
+      },
+      {
+        "path": "water/groundbait_02.wav",
+        "accepted": "7408116d5a85d3991e8eb353fc03996ce87214680840f16040542cbba8f98980",
+        "manifest": "7408116d5a85d3991e8eb353fc03996ce87214680840f16040542cbba8f98980",
+        "actual": "7408116d5a85d3991e8eb353fc03996ce87214680840f16040542cbba8f98980",
+        "version": 3
+      },
+      {
+        "path": "sfx/escape.wav",
+        "accepted": "a8d2ade95757b8cceb032d52a036f6dfba5a9a55797a9f6496a7704c2cc80d7d",
+        "manifest": "a8d2ade95757b8cceb032d52a036f6dfba5a9a55797a9f6496a7704c2cc80d7d",
+        "actual": "a8d2ade95757b8cceb032d52a036f6dfba5a9a55797a9f6496a7704c2cc80d7d",
+        "version": 3
+      },
+      {
+        "path": "sfx/cast.wav",
+        "accepted": "31180ce5ab8ce66991bdd297a99aafc74ada61e5a0562afe9b58d9c1dc167ab9",
+        "manifest": "31180ce5ab8ce66991bdd297a99aafc74ada61e5a0562afe9b58d9c1dc167ab9",
+        "actual": "31180ce5ab8ce66991bdd297a99aafc74ada61e5a0562afe9b58d9c1dc167ab9",
+        "version": 3
+      },
+      {
+        "path": "sfx/reel.wav",
+        "accepted": "e419afd67729636ae9ee33c10e5cdacdbe73b5cf440aa40aeced13598cf9d39c",
+        "manifest": "e419afd67729636ae9ee33c10e5cdacdbe73b5cf440aa40aeced13598cf9d39c",
+        "actual": "e419afd67729636ae9ee33c10e5cdacdbe73b5cf440aa40aeced13598cf9d39c",
+        "version": 3
+      },
+      {
+        "path": "sfx/meow_01.wav",
+        "accepted": "37d4cfb5f50770644f0a55670ee5d6f1dc1582d4d8842a353476a1c17bb3ea6e",
+        "manifest": "37d4cfb5f50770644f0a55670ee5d6f1dc1582d4d8842a353476a1c17bb3ea6e",
+        "actual": "37d4cfb5f50770644f0a55670ee5d6f1dc1582d4d8842a353476a1c17bb3ea6e",
+        "version": 3
+      },
+      {
+        "path": "sfx/meow_02.wav",
+        "accepted": "3cdb8cfb75261357414e0a8bdc8047815d4c438f651408a6bcaac0daaeed695a",
+        "manifest": "3cdb8cfb75261357414e0a8bdc8047815d4c438f651408a6bcaac0daaeed695a",
+        "actual": "3cdb8cfb75261357414e0a8bdc8047815d4c438f651408a6bcaac0daaeed695a",
+        "version": 3
+      },
+      {
+        "path": "sfx/meow_03.wav",
+        "accepted": "6aa85ae475cfec44ca02b8644f413838d803bc6db895322d9851f18faeb82e08",
+        "manifest": "6aa85ae475cfec44ca02b8644f413838d803bc6db895322d9851f18faeb82e08",
+        "actual": "6aa85ae475cfec44ca02b8644f413838d803bc6db895322d9851f18faeb82e08",
+        "version": 3
+      }
+    ],
+    "music": [
+      {
+        "kind": "theme",
+        "path": "assets/sunlight-theme-preview.wav",
+        "duration": 21.333333,
+        "version": 5,
+        "expected": "2151b63b2af84ebca07e4e1bbfdfce0f806e7b92cc4ed60efe2f0ca86bd72b89",
+        "actual": "2151b63b2af84ebca07e4e1bbfdfce0f806e7b92cc4ed60efe2f0ca86bd72b89"
+      },
+      {
+        "kind": "full",
+        "path": "../../../../fish-social-unity/Assets/StreamingAssets/Audio/music/pond_daylight.wav",
+        "duration": 85.333333,
+        "version": 5,
+        "expected": "383ad0c0c1e9c3b11a4be5710039799ae5db3e40c6bb10d57872599d7375b516",
+        "actual": "383ad0c0c1e9c3b11a4be5710039799ae5db3e40c6bb10d57872599d7375b516"
+      },
+      {
+        "kind": "old",
+        "path": "../baseline-v4/music/pond_daylight.wav",
+        "duration": 87.272721,
+        "version": 4,
+        "expected": "05c40f5cff60aa71cd6933897164a6e433e3bdc4356acc2ca595dc78ec9652ea",
+        "actual": "05c40f5cff60aa71cd6933897164a6e433e3bdc4356acc2ca595dc78ec9652ea"
+      }
+    ],
+    "configuredPaths": [
+      "sfx/ui_click_01.wav",
+      "sfx/ui_click_02.wav",
+      "sfx/ui_open_01.wav",
+      "sfx/ui_open_02.wav",
+      "sfx/ui_close_01.wav",
+      "sfx/ui_close_02.wav",
+      "sfx/ui_toggle_01.wav",
+      "sfx/ui_toggle_02.wav",
+      "sfx/ui_tick.wav",
+      "sfx/ui_success.wav",
+      "sfx/ui_error.wav",
+      "sfx/cast.wav",
+      "sfx/reel.wav",
+      "sfx/escape.wav",
+      "sfx/catch.wav",
+      "water/splash_01.wav",
+      "water/splash_02.wav",
+      "water/groundbait_01.wav",
+      "water/groundbait_02.wav",
+      "water/bite_s_01.wav",
+      "water/bite_s_02.wav",
+      "water/bite_m_01.wav",
+      "water/bite_m_02.wav",
+      "water/bite_l_01.wav",
+      "water/bite_l_02.wav",
+      "water/bite_xl_01.wav",
+      "water/bite_xl_02.wav",
+      "water/water_struggle_s_01.wav",
+      "water/water_struggle_s_02.wav",
+      "water/water_struggle_m_01.wav",
+      "water/water_struggle_m_02.wav",
+      "water/water_struggle_l_01.wav",
+      "water/water_struggle_l_02.wav",
+      "water/water_struggle_xl_01.wav",
+      "water/water_struggle_xl_02.wav",
+      "water/water_slap_s_01.wav",
+      "water/water_slap_s_02.wav",
+      "water/water_slap_m_01.wav",
+      "water/water_slap_m_02.wav",
+      "water/water_slap_l_01.wav",
+      "water/water_slap_l_02.wav",
+      "water/water_slap_xl_01.wav",
+      "water/water_slap_xl_02.wav",
+      "sfx/meow_01.wav",
+      "sfx/meow_02.wav",
+      "sfx/meow_03.wav"
+    ]
+  },
+  "musicPlayback": [
+    {
+      "kind": "theme",
+      "src": "http://127.0.0.1:8891/docs/美术/声音/v5/assets/sunlight-theme-preview.wav",
+      "duration": 21.333333,
+      "loop": false,
+      "same": true
+    },
+    {
+      "kind": "full",
+      "src": "http://127.0.0.1:8891/fish-social-unity/Assets/StreamingAssets/Audio/music/pond_daylight.wav",
+      "duration": 85.333333,
+      "loop": true,
+      "same": true
+    },
+    {
+      "kind": "old",
+      "src": "http://127.0.0.1:8891/docs/美术/声音/baseline-v4/music/pond_daylight.wav",
+      "duration": 87.272721,
+      "loop": true,
+      "same": true
+    }
+  ],
+  "mix": {
+    "played": [
+      {
+        "cue": "ui_click",
+        "id": "demo:ui_click:0",
+        "reason": "v3 已确认 / 变体 1",
+        "time": 0.24533333333333332
+      },
+      {
+        "cue": "cast",
+        "id": "demo:cast:0.4",
+        "reason": "v3 已确认 / 变体 1",
+        "time": 0.6026666666666667
+      },
+      {
+        "cue": "splash",
+        "id": "demo:splash:1",
+        "reason": "v3 已确认 / 变体 2",
+        "time": 1.2053333333333334
+      },
+      {
+        "cue": "bite_m",
+        "id": "fish1",
+        "reason": "v3 已确认 / 变体 2",
+        "time": 2.501333333333333
+      },
+      {
+        "cue": "water_struggle_m",
+        "id": "demo:water_struggle:3.1",
+        "reason": "v3 已确认 / 变体 1",
+        "time": 3.3013333333333335
+      },
+      {
+        "cue": "reel",
+        "id": "demo:reel:4.2",
+        "reason": "v3 已确认 / 变体 1",
+        "time": 4.405333333333333
+      },
+      {
+        "cue": "catch",
+        "id": "fish1",
+        "reason": "v3 已确认 / 变体 1",
+        "time": 5.205333333333333
+      },
+      {
+        "cue": "meow",
+        "id": "fish1",
+        "reason": "v3 已确认 / 变体 2",
+        "time": 5.712
+      }
+    ],
+    "maxVoices": 1,
+    "musicPlaying": true
+  }
+}

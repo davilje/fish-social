@@ -1,0 +1,681 @@
+{
+  "version": 4,
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "lighting": "even ambient; no sunlight patches or scene cast shadows",
+  "background": "room-base.jpg",
+  "assets": {
+    "cat-bed": {
+      "label": "猫窝",
+      "file": "cat-bed.png",
+      "width": 628,
+      "height": 260,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "trimBox": [
+        44,
+        164,
+        1630,
+        821
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-5b6ca22f-f42c-4630-bbae-4e4588743abc.png",
+      "sourceAlphaCoverage": 0.5658,
+      "masterSize": [
+        1586,
+        657
+      ],
+      "runtimeDensity": 2
+    },
+    "cat-climber": {
+      "label": "猫爬架",
+      "file": "cat-climber.png",
+      "width": 610,
+      "height": 460,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1402,
+        1122
+      ],
+      "trimBox": [
+        88,
+        90,
+        1341,
+        1036
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-e2dd4a2a-9f75-4fbe-ab5a-44bf43d60f15.png",
+      "sourceAlphaCoverage": 0.4923,
+      "masterSize": [
+        1253,
+        946
+      ],
+      "runtimeDensity": 2
+    },
+    "aquarium": {
+      "label": "鱼缸",
+      "file": "aquarium.png",
+      "width": 686,
+      "height": 354,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "trimBox": [
+        228,
+        214,
+        1446,
+        841
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-4eee6017-6c20-407f-9ff5-53cd7d55ffa2.png",
+      "sourceAlphaCoverage": 0.4834,
+      "masterSize": [
+        1218,
+        627
+      ],
+      "runtimeDensity": 2
+    },
+    "fishing-rod": {
+      "label": "鱼竿",
+      "file": "fishing-rod.png",
+      "width": 150,
+      "height": 786,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1024,
+        1536
+      ],
+      "trimBox": [
+        370,
+        14,
+        648,
+        1469
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-5b9e6881-5a76-49e5-b73e-856ff0639e7d.png",
+      "sourceAlphaCoverage": 0.0548,
+      "masterSize": [
+        278,
+        1455
+      ],
+      "runtimeDensity": 2
+    },
+    "plant": {
+      "label": "植物",
+      "file": "plant.png",
+      "width": 332,
+      "height": 376,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1414,
+        1113
+      ],
+      "trimBox": [
+        253,
+        6,
+        1223,
+        1106
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-a18c6b07-4c33-4b79-a611-f3ce34622226.png",
+      "sourceAlphaCoverage": 0.3026,
+      "masterSize": [
+        970,
+        1100
+      ],
+      "runtimeDensity": 2
+    },
+    "rug": {
+      "label": "地毯",
+      "file": "rug.png",
+      "width": 1648,
+      "height": 278,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        2038,
+        771
+      ],
+      "trimBox": [
+        44,
+        142,
+        1994,
+        657
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-be7571b9-ae94-49e0-802b-d734be3e76b5.png",
+      "sourceAlphaCoverage": 0.5128,
+      "masterSize": [
+        1950,
+        515
+      ],
+      "runtimeDensity": 2
+    },
+    "toy-basket": {
+      "label": "玩具篮",
+      "file": "toy-basket.png",
+      "width": 300,
+      "height": 127,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1671,
+        941
+      ],
+      "trimBox": [
+        155,
+        240,
+        1538,
+        824
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-ad594055-09ae-40ae-ace6-dd3cee2a9553.png",
+      "sourceAlphaCoverage": 0.4307,
+      "masterSize": [
+        1383,
+        584
+      ],
+      "runtimeDensity": 2
+    },
+    "scratching-post": {
+      "label": "猫抓柱",
+      "file": "scratching-post.png",
+      "width": 240,
+      "height": 330,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1295,
+        1214
+      ],
+      "trimBox": [
+        265,
+        89,
+        1030,
+        1139
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-0be03236-6c1c-4613-9721-e18e7e6138fb.png",
+      "sourceAlphaCoverage": 0.2928,
+      "masterSize": [
+        765,
+        1050
+      ],
+      "runtimeDensity": 2
+    },
+    "tackle-rack": {
+      "label": "钓具收纳架",
+      "file": "tackle-rack.png",
+      "width": 600,
+      "height": 303,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "trimBox": [
+        149,
+        142,
+        1525,
+        835
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-6f8b5b28-3b2d-4bc9-93b7-09ffe98f6a26.png",
+      "sourceAlphaCoverage": 0.4374,
+      "masterSize": [
+        1376,
+        693
+      ],
+      "runtimeDensity": 2
+    },
+    "aquarium-stand": {
+      "label": "鱼缸底架",
+      "file": "aquarium-stand.png",
+      "width": 760,
+      "height": 204,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        2172,
+        724
+      ],
+      "trimBox": [
+        132,
+        121,
+        2041,
+        632
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-e5473155-76b7-4e53-bc12-6729b17db0ee.png",
+      "sourceAlphaCoverage": 0.5617,
+      "masterSize": [
+        1909,
+        511
+      ],
+      "runtimeDensity": 2
+    },
+    "food-bowls": {
+      "label": "食水碗",
+      "file": "food-bowls.png",
+      "width": 270,
+      "height": 88,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "trimBox": [
+        140,
+        272,
+        1533,
+        726
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-27d174d8-44af-4068-87da-ca5c0bdae1ce.png",
+      "sourceAlphaCoverage": 0.3468,
+      "masterSize": [
+        1393,
+        454
+      ],
+      "runtimeDensity": 2
+    },
+    "fishing-satchel": {
+      "label": "钓鱼包与挂钩",
+      "file": "fishing-satchel.png",
+      "width": 180,
+      "height": 304,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1153,
+        1364
+      ],
+      "trimBox": [
+        223,
+        49,
+        974,
+        1316
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-1ad9205f-fd43-4942-a090-ae2a9a1cae88.png",
+      "sourceAlphaCoverage": 0.3881,
+      "masterSize": [
+        751,
+        1267
+      ],
+      "runtimeDensity": 2
+    },
+    "wall-shelf": {
+      "label": "壁架与书",
+      "file": "wall-shelf.png",
+      "width": 400,
+      "height": 151,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1774,
+        887
+      ],
+      "trimBox": [
+        113,
+        164,
+        1662,
+        747
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-20487954-255b-4d1b-9268-cef9c1c961b6.png",
+      "sourceAlphaCoverage": 0.2377,
+      "masterSize": [
+        1549,
+        583
+      ],
+      "runtimeDensity": 2
+    },
+    "wall-picture": {
+      "label": "装饰画",
+      "file": "wall-picture.png",
+      "width": 300,
+      "height": 216,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "trimBox": [
+        178,
+        90,
+        1359,
+        938
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-907f6028-b806-4481-a042-7b045ea4d337.png",
+      "sourceAlphaCoverage": 0.6312,
+      "masterSize": [
+        1181,
+        848
+      ],
+      "runtimeDensity": 2
+    },
+    "mouse-toy": {
+      "label": "老鼠玩具",
+      "file": "mouse-toy.png",
+      "width": 116,
+      "height": 55,
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      },
+      "hasAlpha": true,
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "trimBox": [
+        28,
+        170,
+        1508,
+        859
+      ],
+      "source": "/Users/red/.codex/generated_images/01a167b9-77d0-7190-8abe-56d0b309abf4/exec-3fc59ec8-a38b-48e3-971d-93035be24911.png",
+      "sourceAlphaCoverage": 0.3864,
+      "masterSize": [
+        1480,
+        689
+      ],
+      "runtimeDensity": 2
+    }
+  },
+  "placements": [
+    {
+      "id": "rug",
+      "asset": "rug",
+      "x": 470,
+      "y": 698,
+      "width": 824,
+      "height": 139,
+      "layer": 0,
+      "rotation": 0,
+      "fit": "fill"
+    },
+    {
+      "id": "wall-picture",
+      "asset": "wall-picture",
+      "x": 1022,
+      "y": 195,
+      "width": 150,
+      "height": 120,
+      "layer": 10,
+      "rotation": 0
+    },
+    {
+      "id": "wall-shelf",
+      "asset": "wall-shelf",
+      "x": 1215,
+      "y": 233,
+      "width": 200,
+      "height": 76,
+      "layer": 10,
+      "rotation": 0
+    },
+    {
+      "id": "plant",
+      "asset": "plant",
+      "x": 1258,
+      "y": 178,
+      "width": 170,
+      "height": 188,
+      "layer": 11,
+      "rotation": 0
+    },
+    {
+      "id": "cat-climber",
+      "asset": "cat-climber",
+      "x": 85,
+      "y": 410,
+      "width": 307,
+      "height": 230,
+      "layer": 10,
+      "rotation": 0
+    },
+    {
+      "id": "cat-bed",
+      "asset": "cat-bed",
+      "x": 20,
+      "y": 550,
+      "width": 320,
+      "height": 130,
+      "layer": 20,
+      "rotation": 0
+    },
+    {
+      "id": "scratching-post",
+      "asset": "scratching-post",
+      "x": 370,
+      "y": 505,
+      "width": 120,
+      "height": 165,
+      "layer": 20,
+      "rotation": 0
+    },
+    {
+      "id": "mouse-toy",
+      "asset": "mouse-toy",
+      "x": 330,
+      "y": 655,
+      "width": 58,
+      "height": 30,
+      "layer": 21,
+      "rotation": 0
+    },
+    {
+      "id": "tackle-rack",
+      "asset": "tackle-rack",
+      "x": 480,
+      "y": 480,
+      "width": 300,
+      "height": 170,
+      "layer": 14,
+      "rotation": 0
+    },
+    {
+      "id": "rod-1",
+      "asset": "fishing-rod",
+      "x": 524,
+      "y": 161,
+      "width": 75,
+      "height": 393,
+      "layer": 13,
+      "rotation": 0
+    },
+    {
+      "id": "rod-2",
+      "asset": "fishing-rod",
+      "x": 575,
+      "y": 178,
+      "width": 75,
+      "height": 376,
+      "layer": 13,
+      "rotation": 0
+    },
+    {
+      "id": "rod-3",
+      "asset": "fishing-rod",
+      "x": 625,
+      "y": 190,
+      "width": 75,
+      "height": 364,
+      "layer": 13,
+      "rotation": 0
+    },
+    {
+      "id": "aquarium-stand",
+      "asset": "aquarium-stand",
+      "x": 1038,
+      "y": 530,
+      "width": 380,
+      "height": 122,
+      "layer": 12,
+      "rotation": 0
+    },
+    {
+      "id": "toy-basket",
+      "asset": "toy-basket",
+      "x": 1078,
+      "y": 568,
+      "width": 150,
+      "height": 65,
+      "layer": 13,
+      "rotation": 0
+    },
+    {
+      "id": "aquarium",
+      "asset": "aquarium",
+      "x": 1053,
+      "y": 374,
+      "width": 343,
+      "height": 177,
+      "layer": 14,
+      "rotation": 0
+    },
+    {
+      "id": "fishing-satchel",
+      "asset": "fishing-satchel",
+      "x": 1450,
+      "y": 444,
+      "width": 90,
+      "height": 158,
+      "layer": 10,
+      "rotation": 0
+    },
+    {
+      "id": "food-bowls",
+      "asset": "food-bowls",
+      "x": 1420,
+      "y": 614,
+      "width": 135,
+      "height": 58,
+      "layer": 20,
+      "rotation": 0
+    }
+  ],
+  "runtimeExport": {
+    "density": 2,
+    "masterFolder": "docs/设计/界面/原型/手账/assets/room-v4",
+    "note": "2x maximum layout size; transparent padding trimmed; rug resampled to its existing floor projection"
+  },
+  "sleepPoses": [
+    {
+      "skin": "black",
+      "file": "poses/black-sleep.png",
+      "width": 294,
+      "height": 176,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/black/sleep.png"
+    },
+    {
+      "skin": "blue",
+      "file": "poses/blue-sleep.png",
+      "width": 301,
+      "height": 179,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/blue/sleep.png"
+    },
+    {
+      "skin": "brown",
+      "file": "poses/brown-sleep.png",
+      "width": 299,
+      "height": 177,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/brown/sleep.png"
+    },
+    {
+      "skin": "calico",
+      "file": "poses/calico-sleep.png",
+      "width": 295,
+      "height": 183,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/calico/sleep.png"
+    },
+    {
+      "skin": "cow",
+      "file": "poses/cow-sleep.png",
+      "width": 292,
+      "height": 175,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/cow/sleep.png"
+    },
+    {
+      "skin": "cream",
+      "file": "poses/cream-sleep.png",
+      "width": 301,
+      "height": 182,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/cream/sleep.png"
+    },
+    {
+      "skin": "dafeiyu",
+      "file": "poses/dafeiyu-sleep.png",
+      "width": 273,
+      "height": 189,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/dafeiyu/sleep.png"
+    },
+    {
+      "skin": "orange",
+      "file": "poses/orange-sleep.png",
+      "width": 293,
+      "height": 175,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/orange/sleep.png"
+    },
+    {
+      "skin": "silver",
+      "file": "poses/silver-sleep.png",
+      "width": 285,
+      "height": 174,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/silver/sleep.png"
+    },
+    {
+      "skin": "white",
+      "file": "poses/white-sleep.png",
+      "width": 296,
+      "height": 178,
+      "source": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/characters/white/sleep.png"
+    }
+  ]
+}

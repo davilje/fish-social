@@ -9,7 +9,7 @@ import { maxPopulation, POND_IDS } from './pond-config.mjs';
 import { resolveRulesVersion } from './resolve-rules-version.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ANALYTICS_DAILY = path.join(__dirname, '../../docs/analytics/daily');
+const ANALYTICS_DAILY = path.join(__dirname, '../../docs/数据分析/日报');
 const TARGET_DAILY_CATCH = 100;
 const ECONOMY_NET_ALERT_THRESHOLD = 500;
 const HUMAN_FILTER = "player_id IS NOT NULL AND player_id NOT LIKE 'bot-%'";
@@ -186,7 +186,7 @@ function makeKpi(value, prev, avg7d, status) {
 }
 
 function readSimRef() {
-  const analysisPath = path.join(__dirname, '../../docs/analytics/pond-day-simulation/analysis.json');
+  const analysisPath = path.join(__dirname, '../../docs/数据分析/鱼塘日模拟/analysis.json');
   if (!fs.existsSync(analysisPath)) return null;
   try {
     const analysis = JSON.parse(fs.readFileSync(analysisPath, 'utf8'));

@@ -12,7 +12,7 @@ import { POND_IDS, maxPopulation } from './pond-config.mjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../..');
 const dbPath = process.env.DB_PATH ?? path.join(projectRoot, 'data/fish-social.db');
-const reportDir = path.join(projectRoot, 'docs/analytics/daily');
+const reportDir = path.join(projectRoot, 'docs/数据分析/日报');
 
 const dateKey = parseDateArg();
 const outDir = path.join(reportDir, dateKey);

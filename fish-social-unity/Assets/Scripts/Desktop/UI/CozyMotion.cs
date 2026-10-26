@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace FishSocial.Desktop
 {
     /// <summary>
-    /// Journal motion tokens from docs/design/ui/journal/2026-10-21-cozy-journal-motion.md.
+    /// Journal motion tokens from docs/设计/界面/手账/2026-10-21-cozy-journal-motion.md.
     /// Runs on unscaled time. Reduce-motion keeps fades at most 120ms and drops loops.
     /// </summary>
     public static class CozyMotion

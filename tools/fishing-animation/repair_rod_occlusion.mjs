@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const sharp = require(process.env.SHARP_MODULE || 'sharp');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const study = path.join(root, 'docs/art/cat-skins');
+const study = path.join(root, 'docs/美术/猫咪形象');
 const fishing = path.join(root, 'fish-social-unity/Assets/StreamingAssets/Fishing');
 const overlay = path.join(root, 'desktop-overlay/OverlayResources/fishing');
 const rawRoot = path.join(study, 'rod-source');

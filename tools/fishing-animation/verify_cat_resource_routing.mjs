@@ -172,7 +172,7 @@ for (const file of ['desktop-overlay/OverlayPetActor.cs', 'fish-social-unity/Ass
   const code = read(file).toString();
   assert(!code.includes('"pets"') && !code.includes('"Pet"') && !code.includes('BuildPlaceholder'), file);
 }
-const report = JSON.parse(read('docs/art/cat-skins/resource-cleanup.json'));
+const report = JSON.parse(read('docs/美术/猫咪形象/resource-cleanup.json'));
 for (const removed of report.removed) assert(!fs.existsSync(path.join(root, removed.file)), removed.file);
 console.log(JSON.stringify({ skins: avatars.DEFAULT_AVATARS.length,
   atlases: avatars.DEFAULT_AVATARS.length * Object.keys(catalog.clips).length,

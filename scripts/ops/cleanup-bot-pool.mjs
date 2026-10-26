@@ -1,6 +1,6 @@
 /**
  * FISH-BOT-1：清理历史 bot 账号与明细，重建 100 池。
- * 硬约束：不改写 docs/analytics/**、不 UPDATE daily_* 看板聚合表。
+ * 硬约束：不改写 docs/数据分析/**、不 UPDATE daily_* 看板聚合表。
  *
  * 用法：
  *   node scripts/ops/cleanup-bot-pool.mjs --dry-run

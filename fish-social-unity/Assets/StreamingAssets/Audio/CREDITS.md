@@ -1,6 +1,6 @@
 # Fish Social audio — accepted effects v3 / music v5
 
-Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/engineering/audio/audio-22i-adoption.json; earlier effects approval: docs/engineering/audio/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
+Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/工程/声音/audio-22i-adoption.json; earlier effects approval: docs/工程/声音/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
 
 ## Current music: 日光下的闲谈 / Sunlit Conversation
 
@@ -8,7 +8,7 @@ Original 90 BPM G-major composition, 32 bars A/A-prime/B/varied return, 85.33333
 
 The melody uses nine actual Meta Open Sound Vel02Pick light-picked nylon-guitar recordings; accompaniment uses twelve Vel01Finger recordings. Original pitches, no pitch shifting. Lead attack 1ms; no added delay/reverb, high-frequency shelf, compression or limiter. Gentle high-pass at80Hz for lead/65Hz for comp; comp low-pass6500Hz. Per-recording balancing preserves real string attacks. Accompaniment RMS is12dB below the lead stem. Full-master 4x true peak0.134974.
 
-For G4/B4/D5, the first300ms 2.5–6.2kHz energy fraction in new light-pick source recordings is respectively8.527/11.261/9.450dB above old fingerstyle at the same pitch. This level-independent source comparison establishes a real timbre change, not human listening approval. The source method, fixed Git tree/blob identities and full checks are in docs/art/audio-22i/v5/assets/music-manifest.json.
+For G4/B4/D5, the first300ms 2.5–6.2kHz energy fraction in new light-pick source recordings is respectively8.527/11.261/9.450dB above old fingerstyle at the same pitch. This level-independent source comparison establishes a real timbre change, not human listening approval. The source method, fixed Git tree/blob identities and full checks are in docs/美术/声音/v5/assets/music-manifest.json.
 
 ## Recorded sources — CC0-1.0
 
@@ -70,4 +70,4 @@ Freesound derivatives use public HQ MP3 previews; guitar uses publisher OGG reco
 
 Python dependencies:numpy/scipy/soundfile. Downloads occur only on cache misses and verify pinned identities. The music-only installer checks all46 accepted WAVs, metadata and cue configuration before replacement. Obsolete installers have been removed. The installer checks the complete adoption hash lock before writing; --check-only validates without changes. Accepted effects and source metadata are self-contained in tools/audio/accepted-effects.json.
 
-Latest preview:docs/art/audio-22i/v5/index.html. Superseded v1–v4 WAVs, baseline copies and preview implementations were removed at the user’s request. Old preview URLs redirect to v5. Historical source/credits/manifest records remain in docs/archive/2026-10-26/evidence/engineering/audio-22i-retired/; removed paths and hashes are inventoried in docs/engineering/audio/audio-22i-cleanup.json. Current music is not the old piano or cello candidate. Score/source/PCM/browser checks are distinct from user BGM listening approval and Windows audio-visual latency measurement.
+Latest preview:docs/美术/声音/v5/index.html. Superseded v1–v4 WAVs, baseline copies and preview implementations were removed at the user’s request. Old preview URLs redirect to v5. Historical source/credits/manifest records remain in docs/归档/2026-10-26/证据/工程/audio-22i-retired/; removed paths and hashes are inventoried in docs/工程/声音/audio-22i-cleanup.json. Current music is not the old piano or cello candidate. Score/source/PCM/browser checks are distinct from user BGM listening approval and Windows audio-visual latency measurement.

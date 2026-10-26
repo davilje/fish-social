@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const source = path.join(repo, 'docs/design/ui/prototype/cozy-journal/assets/home-animation-v1');
+const source = path.join(repo, 'docs/设计/界面/原型/手账/assets/home-animation-v1');
 const room = path.join(repo, 'fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/home-room');
 const target = path.join(room, 'animations');
 const sourceManifestBytes = fs.readFileSync(path.join(source, 'manifest.json'));

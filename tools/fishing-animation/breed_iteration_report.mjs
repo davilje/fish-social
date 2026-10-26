@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/art/cat-skins');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/美术/猫咪形象');
 const breeds = JSON.parse(fs.readFileSync(path.join(root, 'breed-definitions.json'))).breeds;
 const summaries = breeds.map(breed => {
   const artwork = JSON.parse(fs.readFileSync(path.join(root, `breeds/${breed.id}/painted-poses.json`)));

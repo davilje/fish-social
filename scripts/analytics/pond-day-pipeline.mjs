@@ -43,5 +43,5 @@ spawnSync(process.execPath, [path.join(__dirname, 'generate-analysis-report.mjs'
 
 console.log('\nPipeline complete.');
 console.log('  compact.json, analysis.json, report.html');
-console.log('  docs/analytics/index.html — 归档索引');
-console.log('  docs/analytics/compare.html — 对比查看');
+console.log('  docs/数据分析/index.html — 归档索引');
+console.log('  docs/数据分析/compare.html — 对比查看');

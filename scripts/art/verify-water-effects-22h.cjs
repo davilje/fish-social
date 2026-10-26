@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),http=require('http'),assert=require('assert/strict');
 const sharp=require('sharp'),{chromium}=require('playwright');
 const art=process.argv.includes('--v2')?'v2':'v4';
-const root=path.resolve(__dirname,'../..'),out=path.join(root,`desktop-overlay/OverlayResources/effects/fishing/${art}`),mirror=path.join(root,`fish-social-unity/Assets/StreamingAssets/Effects/Fishing/${art}`),doc=path.join(root,'docs/art/water-effects-22h');
+const root=path.resolve(__dirname,'../..'),out=path.join(root,`desktop-overlay/OverlayResources/effects/fishing/${art}`),mirror=path.join(root,`fish-social-unity/Assets/StreamingAssets/Effects/Fishing/${art}`),doc=path.join(root,'docs/美术/水面特效');
 const nativeMirror=path.join(root,`fish-social-unity/FishSocialOverlay/OverlayResources/effects/fishing/${art}`);
 const sha=data=>crypto.createHash('sha256').update(data).digest('hex');
 async function main(){
@@ -25,7 +25,7 @@ async function main(){
  try{
   browser=await chromium.launch({headless:true,...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:fs.existsSync('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')?{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:1050},deviceScaleFactor:1});page.on('pageerror',e=>browserErrors.push(e.message));page.on('response',r=>{if(r.status()>=400&&!r.url().endsWith('favicon.ico'))failedRequests.push({url:r.url(),status:r.status()});});
-  await page.goto(`http://127.0.0.1:${server.address().port}/docs/art/water-effects-22h/`);await page.waitForFunction(()=>window.waterPreviewStats);await page.click('#play');
+  await page.goto(`http://127.0.0.1:${server.address().port}/docs/美术/水面特效/`);await page.waitForFunction(()=>window.waterPreviewStats);await page.click('#play');
   async function state(values){const previous=await page.evaluate(()=>window.waterPreviewStats.renderId);await page.evaluate(v=>{for(const [id,value]of Object.entries(v)){const el=document.getElementById(id);el.value=value;el.dispatchEvent(new Event(id==='scrub'?'input':'change'));}},values);await page.waitForFunction(({values,previous})=>{const s=window.waterPreviewStats;return s.renderId>previous&&Object.entries(values).every(([key,value])=>key==='scrub'?Math.abs(s.elapsed-Number(value))<.01:String(s[key])===String(value));},{values,previous});const stats=await page.evaluate(()=>window.waterPreviewStats);assert(stats.instances<=24&&stats.groups<=8);assert.deepEqual(stats.errors,[]);if(stats.quality==='off')assert.equal(stats.instances,0);if(stats.quality==='reduced')assert(stats.instances<=2);checks.push(stats);return stats;}
   const pets=await page.locator('#pet option').evaluateAll(els=>els.map(e=>e.value));assert.equal(pets.length,11);
   for(const pet of pets)for(const slot of ['96','128','192'])for(const quality of ['standard','reduced','off'])for(const water of ['light','dark','reference'])await state({pet,slot,quality,water});

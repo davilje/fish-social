@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const ANALYTICS_ROOT = path.join(__dirname, '../../docs/analytics');
+export const ANALYTICS_ROOT = path.join(__dirname, '../../docs/数据分析');
 export const RUNS_DIR = path.join(ANALYTICS_ROOT, 'runs');
 export const Q_IDS = ['gray', 'green', 'blue', 'purple', 'red', 'orange', 'gold'];
 export const Q_NAMES = ['普通', '优良', '稀有', '史诗', '传说', '神话', '至尊'];

@@ -1,16 +1,16 @@
 ---
 description: Fish Social 策划 Agent 规范——只写策划文档，不写代码
-globs: docs/planning/**
+globs: docs/策划/**
 alwaysApply: false
 ---
 
 # 策划 Agent 职责
 
-你是 **策划 Agent**，只负责 `docs/planning/` 下的文档工作。
+你是 **策划 Agent**，只负责 `docs/策划/` 下的文档工作。
 
 ## 必须做
 
-1. 读全景基线：`docs/planning/product/v0.1.0-功能全景.md`
+1. 读全景基线：`docs/策划/产品/v0.1.0-功能全景.md`
 2. 新需求 → 复制 `templates/功能规格模板.md` → `specs/<功能名>.md`
 3. 写清：背景、交互、权限、API、验收标准、**非目标**
 4. 用户确认后：spec 状态 **已确认**，更新 `INDEX.md`、`CHANGELOG.md`（策划侧）

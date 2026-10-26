@@ -3,10 +3,10 @@ name: planning-progress-sync
 description: >-
   End-to-end Fish Social planning workflow: create requirement specs, register
   rows in 项目开发需求计划表.xlsx, regenerate 策划进度看板.html, then write and hand off
-  a docs/planning/prompts/*-dev.prompt.md for developers; on acceptance flip
+  a docs/策划/提示词/*-dev.prompt.md for developers; on acceptance flip
   status to 已实现 with dates. Use when creating/confirming specs, updating the
   plan table or progress board, user says 验收/已完成/已实现/已确认, after
-  planning:accept, or finishing a prompt in docs/planning/prompts/.
+  planning:accept, or finishing a prompt in docs/策划/提示词/.
 ---
 
 # 策划流程：需求文档 → 计划表 → 进度看板 → 开发提示词 → 完成回写
@@ -15,11 +15,11 @@ description: >-
 
 | 产出 | 路径 | 如何更新 |
 |------|------|----------|
-| 需求规格 | `docs/planning/specs/<名称>.md` | 手写 / 改状态 |
+| 需求规格 | `docs/策划/规格/<名称>.md` | 手写 / 改状态 |
 | 计划表 | 仓库根 `项目开发需求计划表.xlsx` | 改脚本后 `npm run planning:master-xlsx` |
 | 进度看板 | 仓库根 `策划进度看板.html` | 同上（自动跟跑） |
-| 开发提示词 | `docs/planning/prompts/<slug>-dev.prompt.md` | **刷新看板后必写**，并贴给用户 |
-| 同步副本 | `docs/planning/` 同名 xlsx/html | master-xlsx 自动同步 |
+| 开发提示词 | `docs/策划/提示词/<slug>-dev.prompt.md` | **刷新看板后必写**，并贴给用户 |
+| 同步副本 | `docs/策划/` 同名 xlsx/html | master-xlsx 自动同步 |
 
 ## 何时执行（必须读 Skill）
 
@@ -34,7 +34,7 @@ description: >-
 ## 权威数据源（顺序）
 
 1. **`scripts/planning/build-master-plan-xlsx.py`** ← 先改这里的行数据
-2. **`npm run planning:master-xlsx`** → 根目录 xlsx + `策划进度看板.html` + `docs/planning/` 副本
+2. **`npm run planning:master-xlsx`** → 根目录 xlsx + `策划进度看板.html` + `docs/策划/` 副本
 3. 对应 **spec** 元信息「状态」
 4. 辅助：`sync_spec_status.py`、`export_specs_xlsx_refined.py`（维护用，不是主路径）
 
@@ -46,7 +46,7 @@ description: >-
 
 ### A1. 写需求文档
 
-1. 复制模板 [`docs/planning/templates/功能规格模板.md`](../../../docs/planning/templates/功能规格模板.md) → `docs/planning/specs/<功能名>.md`
+1. 复制模板 [`docs/策划/模板/功能规格模板.md`](../../../docs/策划/模板/功能规格模板.md) → `docs/策划/规格/<功能名>.md`
 2. 元信息 **状态** → `已确认`（用户确认范围后）
 3. §验收标准写成可勾选条目；标明非目标
 4. 更新 `specs/README.md`、`CHANGELOG.md` 策划节（开发提示词在 **A4** 写，勿跳过）
@@ -60,7 +60,7 @@ description: >-
 ```python
 # 列序：当前状态, 编号, 类型, 需求名称, 层级, 版本/阶段, 优先级, 说明, 文档路径, 设计时间, 完成时间
 ['已确认', 'XXX-01', '功能', '需求简称', '—', 'hotfix', 'P0',
- '一句话说明', 'docs/planning/specs/<功能名>.md', 'YYYY-MM-DD', ''],
+ '一句话说明', 'docs/策划/规格/<功能名>.md', 'YYYY-MM-DD', ''],
 ```
 
 | 列 | 创建时 |
@@ -89,15 +89,15 @@ npm run planning:handoff -- vX.Y.Z
 
 ### A4. 提供开发用提示词（刷新看板后必做）
 
-1. 写入或更新 `docs/planning/prompts/<slug>-dev.prompt.md`  
+1. 写入或更新 `docs/策划/提示词/<slug>-dev.prompt.md`  
    - 命名：`<短横线 slug>-dev.prompt.md`（例：`ops-catch-inventory-admin-dev.prompt.md`）  
-   - 结构见 [reference.md](reference.md)#开发提示词结构；也可对照 [`templates/开发交接说明.md`](../../../docs/planning/templates/开发交接说明.md)
+   - 结构见 [reference.md](reference.md)#开发提示词结构；也可对照 [`templates/开发交接说明.md`](../../../docs/策划/模板/开发交接说明.md)
 2. 在 `prompts/README.md` 表中登记一行（若该目录有索引表）
 3. **回复用户时必须交付**（缺一不可）：
    - prompt 文件路径
    - 一句派发命令，便于新开开发对话直接 `@`：
      ```text
-     @docs/planning/prompts/<slug>-dev.prompt.md 按此实现 <编号>
+     @docs/策划/提示词/<slug>-dev.prompt.md 按此实现 <编号>
      ```
    - 建议目标角色（`@frontend-dev` / `@backend-dev` / 两者）
 4. 有版本交接文档时：可另跑 `npm run planning:prompt -- vX.Y.Z`，但专项 hotfix 以手写 `*-dev.prompt.md` 为准
@@ -169,7 +169,7 @@ npm run planning:status -- vX.Y.Z
 
 ## 关联
 
-- 流程长文：`docs/planning/workflow/策划到开发工作流.md`、`docs/planning/workflow/多Agent工作流.md`
+- 流程长文：`docs/策划/流程/策划到开发工作流.md`、`docs/策划/流程/多Agent工作流.md`
 - Opencode：`.opencode/skills/handoff-workflow`、`.opencode/skills/verify-accept`
 - 埋点表：`.cursor/skills/metrics-catalog-sync/SKILL.md`
 - 行格式与文件清单细节：[reference.md](reference.md)

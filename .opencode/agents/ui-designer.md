@@ -4,8 +4,8 @@ mode: all
 permission:
   read: allow
   edit:
-    docs/design/ui/**: allow
-    docs/design/prototypes/**: allow
+    docs/设计/界面/**: allow
+    docs/设计/prototypes/**: allow
     "*": deny
   bash: deny
 ---
@@ -18,7 +18,7 @@ permission:
 
 1. 产出 UI 设计规范：组件库、配色、字体、间距、布局网格
 2. 产出交互原型说明：页面流程、状态转换、手势操作
-3. 产出 `docs/design/ui/<功能>/` 设计说明文档
+3. 产出 `docs/设计/界面/<功能>/` 设计说明文档
 
 ## 工作方式
 

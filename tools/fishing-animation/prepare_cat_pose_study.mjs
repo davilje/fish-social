@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const output = path.join(repo, 'docs/art/cat-skins');
+const output = path.join(repo, 'docs/美术/猫咪形象');
 const pack = path.join(repo, 'fish-social-unity/Assets/StreamingAssets/Fishing');
 const manifest = JSON.parse(fs.readFileSync(path.join(pack, 'orange/manifest.json'), 'utf8'));
 const characterLayers = new Set(manifest.bodyLayers);

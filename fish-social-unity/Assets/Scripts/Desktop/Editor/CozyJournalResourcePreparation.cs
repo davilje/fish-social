@@ -16,7 +16,7 @@ namespace FishSocial.Desktop.Editor
     public static class CozyJournalResourcePreparation
     {
         public const string Root = "Assets/Resources/Desktop/Theme/Cozy/journal/";
-        const string Report = "../docs/art/cozy-journal/previews/";
+        const string Report = "../docs/美术/手账/previews/";
 
         // Batch/authoring API retained; historical operation is not a daily menu command.
         public static void Prepare()

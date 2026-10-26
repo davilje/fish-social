@@ -11,7 +11,7 @@ if not exist "package.json" (
 
 if not exist ".env" (
   echo [ERROR] Missing .env in repo root. Copy .env.example and fill production secrets.
-  echo See docs\ops\windows-cloud-deploy.md
+  echo See docs\运维\windows-cloud-deploy.md
   exit /b 1
 )
 

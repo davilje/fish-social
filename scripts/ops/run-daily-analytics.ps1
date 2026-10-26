@@ -19,7 +19,7 @@ function Write-Log([string]$msg) {
 }
 
 function Write-BatchStatus([int]$ExitCode, [string]$Message = '') {
-  $statusDir = Join-Path $RootPath 'docs\analytics'
+  $statusDir = Join-Path $RootPath 'docs\数据分析'
   New-Item -ItemType Directory -Force -Path $statusDir | Out-Null
   $statusPath = Join-Path $statusDir 'daily-batch-status.json'
   $shNow = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId((Get-Date).ToUniversalTime(), 'China Standard Time')
@@ -90,7 +90,7 @@ if ($null -eq $exit) { $exit = 0 }
 
 $shNow = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId((Get-Date).ToUniversalTime(), 'China Standard Time')
 $expectDate = $shNow.AddDays(-1).ToString('yyyy-MM-dd')
-$expectReport = Join-Path $RootPath ("docs\analytics\daily\" + $expectDate + "\report.html")
+$expectReport = Join-Path $RootPath ("docs\数据分析\日报\" + $expectDate + "\report.html")
 if (($exit -eq 0) -and (-not (Test-Path -LiteralPath $expectReport))) {
   Write-Log ("ERROR: pipeline exit 0 but missing " + $expectReport)
   $exit = 2

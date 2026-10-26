@@ -178,14 +178,14 @@ async function main() {
   const required = comfyCfg.requiredNodeClass;
   if (required && !(await client.hasNodeClass(required))) {
     throw new Error(
-      `ComfyUI 未注册节点 ${required}。请安装 ComfyUI-APIimage 并重启 ComfyUI。见 docs/art/direction/comfyui-setup.md`,
+      `ComfyUI 未注册节点 ${required}。请安装 ComfyUI-APIimage 并重启 ComfyUI。见 docs/美术/风格/comfyui-setup.md`,
     );
   }
 
   const day = shanghaiDate();
   const runDir = path.join(
     ROOT,
-    'docs/art/generated',
+    'docs/美术/生成',
     day,
     `${outputSubdir}-${stamp()}`,
   );
@@ -229,7 +229,7 @@ async function main() {
     jobs.push({ promptId, images: images.map((x) => x.filename) });
   }
 
-  const manifestPath = path.join(ROOT, 'docs/art/generated/manifest.json');
+  const manifestPath = path.join(ROOT, 'docs/美术/生成/manifest.json');
   let manifest = { version: 1, entries: [] };
   if (fs.existsSync(manifestPath)) {
     try {

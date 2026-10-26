@@ -4,14 +4,14 @@
 
 | 分类 | 入口 |
 |---|---|
-| 策划与需求 | [需求分类](planning/specs/README.md) · [开发交接](planning/prompts/README.md) · [协作流程](planning/workflow/README.md) |
-| 工程实现 | [性能、声音、水效、场景、动画与交互](engineering/README.md) |
-| 界面设计 | [手账、家园、Overlay、原型](design/ui/README.md) |
-| 现行预览 | [一个页面切换界面、形象、动作、地图、特效和音效](design/ui/current/index.html) |
-| 美术与素材 | [资源与来源](art/README.md) · [场景维护](art/scenes/README.md) |
-| 数据分析 | [模拟、运营日报及历史数据](analytics/README.md) |
-| 运维与监控 | [运维](ops/README.md) · [监控](monitoring/README.md) · [合规](compliance/README.md) |
-| 文档维护 | [整理结果](maintenance/README.md) · [路径迁移表](maintenance/path-map.json) |
-| 历史归档 | [2026-10-26 归档清单](archive/2026-10-26/README.md) |
+| 策划与需求 | [需求分类](策划/规格/README.md) · [开发交接](策划/提示词/README.md) · [协作流程](策划/流程/README.md) |
+| 工程实现 | [性能、声音、水效、场景、动画与交互](工程/README.md) |
+| 界面设计 | [手账、家园、Overlay、原型](设计/界面/README.md) |
+| 现行预览 | [一个页面切换界面、形象、动作、地图、场景、特效和音效](设计/界面/现行/index.html) |
+| 美术与素材 | [资源与来源](美术/README.md) · [场景维护](美术/场景/README.md) |
+| 数据分析 | [模拟、运营日报及历史数据](数据分析/README.md) |
+| 运维与监控 | [运维](运维/README.md) · [监控](监控/README.md) · [合规](合规/README.md) |
+| 文档维护 | [整理结果](维护/README.md) · [路径迁移表](维护/path-map.json) |
+| 历史归档 | [2026-10-26 归档清单](归档/2026-10-26/README.md) |
 
-项目进度读取仓库根目录的主计划表与看板，`planning/` 中为同步副本。历史规格中的数字不自动成为现行数值；实际行为还需核对后续规格与配置。
+项目进度读取仓库根目录的主计划表与看板，`策划/` 中为同步副本。历史规格中的数字不自动成为现行数值；实际行为还需核对后续规格与配置。

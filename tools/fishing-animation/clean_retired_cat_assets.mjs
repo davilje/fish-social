@@ -127,7 +127,7 @@ if (apply) {
     if (fs.existsSync(directory)) prune(directory);
   }
 }
-const reportPath = path.join(root, 'docs/art/cat-skins/resource-cleanup.json');
+const reportPath = path.join(root, 'docs/美术/猫咪形象/resource-cleanup.json');
 const previous = apply && fs.existsSync(reportPath) ? JSON.parse(fs.readFileSync(reportPath)).removed : [];
 const combined = [...new Map([...previous, ...removed].map(file => [file.file, file])).values()];
 const report = { applied: apply, removed: combined, retained, bytesRemoved: combined.reduce((sum, file) => sum + file.bytes, 0) };

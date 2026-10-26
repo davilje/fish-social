@@ -9,7 +9,7 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[2]
-STUDY = ROOT / "docs/art/cat-skins"
+STUDY = ROOT / "docs/美术/猫咪形象"
 FISHING = ROOT / "fish-social-unity/Assets/StreamingAssets/Fishing"
 OVERLAY = ROOT / "desktop-overlay/OverlayResources/fishing"
 SKINS = ("orange", "calico", "silver", "brown", "cream", "blue", "black", "white", "cow")
@@ -92,7 +92,7 @@ def main():
                 checked_frames += 1
     assert checked_frames == 666
     assert gripping_frames > 0 and occluded_pixels > 0 and exposed_pixels > 0
-    trial_root = ROOT / "docs/archive/2026-10-26/superseded/art/whale-maid/template-study-v1"
+    trial_root = ROOT / "docs/归档/2026-10-26/替代/美术/whale-maid/template-study-v1"
     trial = read_json(trial_root / "manifest.json")
     assert trial["rodOcclusionModel"] == MODEL
     for frame in trial["frames"]:

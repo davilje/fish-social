@@ -6,7 +6,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 (async () => {
   const root = path.resolve(__dirname, '..');
-  const folder = path.join(root, 'docs/art/fishing-motion');
+  const folder = path.join(root, 'docs/美术/钓鱼动作');
   const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
   try {
     const page = await browser.newPage({ viewport: { width: 1380, height: 1100 } });
