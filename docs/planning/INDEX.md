@@ -109,6 +109,9 @@
 | [Steam桌面端-09BOverlay悬停状态与钓鱼时长.md](./specs/Steam桌面端-09BOverlay悬停状态与钓鱼时长.md) | **已实现** | STEAM-DESKTOP-09B：悬停仅时长 Tooltip + IPC 字段 |
 | [Steam桌面端-09COverlay鱼塘聊天气泡与输入.md](./specs/Steam桌面端-09COverlay鱼塘聊天气泡与输入.md) | **已实现** | STEAM-DESKTOP-09C：Overlay 公屏聊天气泡+输入 |
 | [Steam桌面端-09DOverlay布局与角色表现优化.md](./specs/Steam桌面端-09DOverlay布局与角色表现优化.md) | **已实现** | STEAM-DESKTOP-09D：960×560、64px、默认状态/圆环、左上收纳菜单 |
+| [猫咪世界观与场景描述.md](./specs/猫咪世界观与场景描述.md) | **已确认** | WORLD-CAT-01：地图和场景叙述改为猫咪世界，pondId 不变 |
+| [钓鱼体长体重步进与公式评判.md](./specs/钓鱼体长体重步进与公式评判.md) | **已确认** | FISH-ATTR-01：体长 0.05 米、体重 0.1 公斤；曲线系数本票不改 |
+| [桌面资源与数值热更.md](./specs/桌面资源与数值热更.md) | **已确认** | OPS-HOT-1：数值包与 Overlay 资源包，不热更 exe |
 
 ## 数据归档
 

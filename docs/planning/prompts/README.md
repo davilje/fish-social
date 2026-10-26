@@ -22,6 +22,9 @@ npm run planning:confirm -- v0.4.0
 | 文件 | 说明 |
 |------|------|
 | [bug-46-achievement-progress-dev.prompt.md](./bug-46-achievement-progress-dev.prompt.md) | BUG-46：成就卡片显示当前/目标 · **已确认** |
+| [world-cat-01-setting-dev.prompt.md](./world-cat-01-setting-dev.prompt.md) | WORLD-CAT-01：猫咪世界观与场景描述 · **已确认** |
+| [fish-attr-01-size-step-dev.prompt.md](./fish-attr-01-size-step-dev.prompt.md) | FISH-ATTR-01：体长 0.05 米、体重展示 0.1 公斤 · **已确认** |
+| [ops-hot-1-desktop-hotupdate-dev.prompt.md](./ops-hot-1-desktop-hotupdate-dev.prompt.md) | OPS-HOT-1：数值包与 Overlay 资源热更 · **已确认** |
 | [bug-47-showcase-fish-detail-rows-dev.prompt.md](./bug-47-showcase-fish-detail-rows-dev.prompt.md) | BUG-47：展示柜点选详情改成分行 · **已实现** |
 | [bug-48-49-overlay-hud-layout-dev.prompt.md](./bug-48-49-overlay-hud-layout-dev.prompt.md) | BUG-48、49：HUD 导出边距统一、布局重排 · **已确认** |
 | [bug-50-overlay-chat-dock-dev.prompt.md](./bug-50-overlay-chat-dock-dev.prompt.md) | BUG-50：聊天栏 10 行、折叠按钮对齐、发送后清空 · **已确认** |
