@@ -41,12 +41,29 @@ static class OverlaySceneMotionNativeTests
             Check(group!=null&&group.Width==64&&group.Height==32&&!group.IsHitTestVisible,"Motion intercepts input or changes design size");
             Check(Canvas.GetLeft(group)==17&&Canvas.GetTop(group)==23&&Panel.GetZIndex(group)==4,"Changed scene geometry/z");
             Check(group.Children.Count==2,"Expected fixed root and moving crown");
-            var fixedRoot=(Image)group.Children[0];var clip=(RectangleGeometry)fixedRoot.Clip;
-            Check(clip.Rect.Top==16&&clip.Rect.Height==16,"Fixed root clip ignores display scale");
+            var fixedRoot=(Image)group.Children[0];var clip=(CombinedGeometry)fixedRoot.Clip;
+            Check(clip.GeometryCombineMode==GeometryCombineMode.Exclude&&((RectangleGeometry)clip.Geometry2).Rect.Height==16,"Fixed root clip ignores display scale");
             motion.SetVisible(true);Check(motion.IsRunning,"Clock did not start");
             motion.SetVisible(false);Check(!motion.IsRunning,"Hidden scene keeps updating");
             motion.SetVisible(true);motion.Dispose();Check(motion.IsDisposed&&!motion.IsRunning,"Disposed scene keeps updating");
             motion.SetVisible(true);Check(!motion.IsRunning,"Disposed scene restarted");
+            var manifest=File.ReadAllText(Path.Combine(root,"motion.json"));
+            manifest=manifest.Replace("\"version\":1","\"version\":2,\"clouds\":[{\"id\":\"cloud\",\"speed\":1.6},{\"id\":\"cloud2\",\"speed\":3.2},{\"id\":\"cloud3\",\"speed\":5.2}]")
+                .Replace("\"left\":0","\"weightTexture\":\"weight2.png\",\"top\":4,\"left\":0");
+            File.Copy(Path.Combine(root,"weight.png"),Path.Combine(root,"weight2.png"));
+            File.WriteAllText(Path.Combine(root,"motion.json"),manifest);
+            images["cloud2"]=new Image{Source=bitmap,Width=64,Height=32};images["cloud3"]=new Image{Source=bitmap,Width=64,Height=32};
+            motion=Await(OverlaySceneMotion.TryCreateAsync(root,"sky.png",images,CancellationToken.None));
+            foreach(var id in new[]{"cloud","cloud2","cloud3"})
+            {
+                var copies=(Canvas)motion.Element(id,images[id]);
+                Check(copies.Children.Count==2&&copies.ClipToBounds&&!copies.IsHitTestVisible,"Cloud tiling container is invalid");
+                var first=(TranslateTransform)((Image)copies.Children[0]).RenderTransform;var second=(TranslateTransform)((Image)copies.Children[1]).RenderTransform;
+                Check(first.X-second.X==64,"Cloud copies do not join at scene width");
+            }
+            group=(Canvas)motion.Element("tree",tree);
+            Check(Canvas.GetTop(group.Children[1])==8,"Middle patch display offset is wrong");
+            motion.Dispose();
             using(var canceled=new CancellationTokenSource())
             {canceled.Cancel();var rejected=false;try{Await(OverlaySceneMotion.TryCreateAsync(root,"sky.png",images,canceled.Token));}catch(OperationCanceledException){rejected=true;}Check(rejected,"Canceled scene load was applied");}
             File.Delete(Path.Combine(root,"motion.json"));

@@ -504,7 +504,8 @@ namespace FishSocial.Desktop.Editor
             return null;
         }
 
-        [Serializable] sealed class SceneMotionResources { public string weightTexture; }
+        [Serializable] sealed class SceneMotionLeafResource { public string weightTexture; }
+        [Serializable] sealed class SceneMotionResources { public string weightTexture; public SceneMotionLeafResource[] leaves; }
 
         static string CopySceneMotion(string backgroundAsset, string backgroundExport)
         {
@@ -513,13 +514,18 @@ namespace FishSocial.Desktop.Editor
             if (!File.Exists(manifest)) return null;
             var destination = Path.GetDirectoryName(backgroundExport);
             var spec = JsonUtility.FromJson<SceneMotionResources>(File.ReadAllText(manifest));
-            if (spec == null || string.IsNullOrWhiteSpace(spec.weightTexture)
-                || Path.GetFileName(spec.weightTexture) != spec.weightTexture)
+            if (spec == null || string.IsNullOrWhiteSpace(spec.weightTexture))
                 return "Invalid scene motion weight resource: " + manifest;
-            var weight = Path.Combine(source, spec.weightTexture);
-            if (!File.Exists(weight)) return "Missing scene motion weight: " + weight;
+            var weights = new HashSet<string> { spec.weightTexture };
+            if (spec.leaves != null) foreach (var leaf in spec.leaves)
+                if (leaf != null && !string.IsNullOrWhiteSpace(leaf.weightTexture)) weights.Add(leaf.weightTexture);
+            foreach (var name in weights)
+            {
+                if (Path.GetFileName(name) != name) return "Invalid scene motion weight resource: " + name;
+                if (!File.Exists(Path.Combine(source, name))) return "Missing scene motion weight: " + name;
+            }
             File.Copy(manifest, Path.Combine(destination, "motion.json"), true);
-            File.Copy(weight, Path.Combine(destination, spec.weightTexture), true);
+            foreach (var name in weights) File.Copy(Path.Combine(source, name), Path.Combine(destination, name), true);
             var layout = Path.Combine(source, "layout.json");
             if (File.Exists(layout)) File.Copy(layout, Path.Combine(destination, "layout.json"), true);
             var preview = Path.Combine(source, "preview.png");
