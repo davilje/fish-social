@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fish Social · 现行预览</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --ink: #1c1917;
+      --muted: #78716c;
+      --card: #fffcf7;
+      --line: #e7e0d5;
+      --accent: #0e7490;
+      --hero: #134e4a;
+      --tab: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .app { display: flex; height: 100%; }
+    aside {
+      width: 268px;
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      background: var(--card);
+      border-right: 1px solid var(--line);
+    }
+    aside header {
+      background: var(--hero);
+      color: #ecfdf5;
+      padding: 1.15rem 1rem 1rem;
+    }
+    aside h1 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+    aside header p { margin: 0.45rem 0 0; font-size: 0.82rem; line-height: 1.45; opacity: 0.88; }
+    nav { overflow: auto; padding: 0.35rem 0.65rem 1.2rem; }
+    h2 {
+      margin: 0.95rem 0.35rem 0.3rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin: 0 0 2px;
+      padding: 0.48rem 0.7rem;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    button:hover { background: var(--bg); }
+    button[aria-current="true"] { background: var(--tab); color: white; }
+    button[aria-current="true"]:hover { background: var(--tab); }
+    button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+    main { flex: 1; min-width: 0; padding: 0.75rem; display: flex; }
+    iframe {
+      flex: 1;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+    }
+    .gate {
+      display: none;
+      min-height: 100%;
+      place-items: center;
+      padding: 1.5rem;
+    }
+    body.is-file .app { display: none; }
+    body.is-file .gate { display: grid; }
+    .gate article {
+      max-width: 32rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .gate header { background: var(--hero); color: #ecfdf5; padding: 1.3rem 1.4rem; }
+    .gate h1 { margin: 0; font-size: 1.35rem; }
+    .gate div { padding: 1.15rem 1.4rem 1.35rem; }
+    .gate p { margin: 0 0 0.7rem; }
+    .gate strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="gate">
+    <article>
+      <header><h1>现行预览</h1></header>
+      <div>
+        <p>这一页需要本地服务才能读到场景、音效和图片。直接双击 html 时，浏览器会拦住这些文件。</p>
+        <p>请关闭本页，回到仓库根目录，双击 <strong>打开现行预览.bat</strong>。</p>
+      </div>
+    </article>
+  </div>
+  <div class="app">
+    <aside>
+      <header>
+        <h1>现行预览</h1>
+        <p>界面、形象、动作、地图、场景、特效和音效都在这一页。点左侧切换。演示数据，声音需要再点播放。</p>
+      </header>
+      <nav>
+        <h2>手账</h2>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=shop" aria-current="true">商店</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=bag">背包</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=equip">装备</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=ach">成就</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=rank">排行榜</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=profile">个人信息</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=feed">钓友动态</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=settings">设置</button>
+        <h2>家园与地图</h2>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?roomView=home">家园</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=map">世界地图</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=ponds">选择鱼塘</button>
+        <h2>资料与收获</h2>
+        <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#profile">个人资料</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#edit">编辑资料</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#compose">分享鱼获</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#settlement">离塘结算</button>
+        <h2>钓友来信</h2>
+        <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#friends">我的钓友</button>
+        <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#requests">好友申请</button>
+        <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#dm">私信</button>
+        <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#pond">鱼塘聊天</button>
+        <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#notifications">消息通知</button>
+        <h2>登录</h2>
+        <button type="button" data-src="docs/美术/登录/cats-v4/index.html">五猫完整窗口</button>
+        <h2>形象</h2>
+        <button type="button" data-src="docs/美术/猫咪形象/breeds.html">九种钓鱼猫咪</button>
+        <button type="button" data-src="docs/美术/猫咪形象/sangbiao/index.html">狸花猫丧彪</button>
+        <button type="button" data-src="docs/美术/猫咪形象/character-study-2026-10-24/index.html">六款形象稿</button>
+        <h2>动作</h2>
+        <button type="button" data-src="docs/美术/钓鱼动作/index.html">塘内钓鱼动作</button>
+        <button type="button" data-src="docs/设计/界面/原型/手账/home-animation-review.html">家园走路进食</button>
+        <h2>场景</h2>
+        <button type="button" data-src="docs/美术/场景/motion.html?v=3">分层、云和树叶</button>
+        <h2>特效</h2>
+        <button type="button" data-src="docs/美术/水面特效/index.html?style=magic">水面特效</button>
+        <h2>音效</h2>
+        <button type="button" data-src="docs/美术/声音/v5/index.html">配乐与音效</button>
+      </nav>
+    </aside>
+    <main>
+      <iframe id="stage" title="现行预览"></iframe>
+    </main>
+  </div>
+  <script>
+    const stage = document.querySelector('#stage');
+    const buttons = [...document.querySelectorAll('button[data-src]')];
+    if (location.protocol === 'file:') {
+      document.body.classList.add('is-file');
+    } else {
+      const saved = buttons.find(button => button.dataset.src === sessionStorage.getItem('preview-src'));
+      const current = saved || buttons[0];
+      buttons.forEach(button => {
+        button.addEventListener('click', () => select(button));
+      });
+      select(current);
+    }
+    function select(button) {
+      buttons.forEach(item => {
+        if (item === button) item.setAttribute('aria-current', 'true');
+        else item.removeAttribute('aria-current');
+      });
+      stage.src = button.dataset.src;
+      sessionStorage.setItem('preview-src', button.dataset.src);
+    }
+  </script>
+</body>
+</html>

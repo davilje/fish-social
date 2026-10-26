@@ -8,17 +8,28 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; }
     body {
-      display: flex; flex-direction: column; gap: 10px;
-      padding: 14px 16px 16px;
-      background: #d7e4ef; color: #243246;
-      font: 15px/1.45 "PingFang SC", "Microsoft YaHei", sans-serif;
+      display: flex; flex-direction: column; gap: 8px;
+      height: 100%; padding: 10px 12px 12px;
+      background: #f6f3ee; color: #1c1917;
+      font: 15px/1.45 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     }
-    header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
-    h1 { margin: 0; font-size: 18px; }
-    label { display: flex; gap: 8px; align-items: center; }
-    select, button { font: inherit; padding: 6px 10px; }
-    p { margin: 0; color: #4d6278; }
-    canvas { width: min(100%, 1100px); height: auto; background: #9eb8cc; border-radius: 8px; }
+    header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; flex: none; }
+    h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    label { display: flex; gap: 8px; align-items: center; color: #78716c; }
+    select, button {
+      font: inherit; color: #1c1917; padding: 6px 10px;
+      background: #fffcf7; border: 1px solid #e7e0d5; border-radius: 8px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: #0e7490; }
+    p { margin: 0; color: #78716c; flex: none; }
+    .stage {
+      flex: 1; min-height: 0; min-width: 0; overflow: auto;
+      display: flex; align-items: center; justify-content: safe center;
+    }
+    canvas {
+      background: #e7e5e4; border: 1px solid #e7e0d5; border-radius: 12px;
+    }
   </style>
 </head>
 <body>
@@ -28,10 +39,11 @@
     <button id="play" type="button">暂停</button>
   </header>
   <p id="status">正在读取场景…</p>
-  <canvas id="view" width="840" height="280"></canvas>
+  <div class="stage"><canvas id="view" width="1680" height="560"></canvas></div>
   <script>
     const root = '../../../fish-social-unity/Assets/Desktop/OverlayArt/Ponds/';
     const view = document.querySelector('#view');
+    const stage = document.querySelector('.stage');
     const ctx = view.getContext('2d');
     const pondSelect = document.querySelector('#pond');
     const status = document.querySelector('#status');
@@ -171,14 +183,27 @@
       draw(scene, seconds());
     }
 
+    function fit() {
+      const bounds = stage.getBoundingClientRect();
+      const aspect = view.width / Math.max(1, view.height);
+      const width = Math.max(bounds.width, bounds.height * aspect);
+      const height = width / aspect;
+      if (width < 8 || height < 8) return;
+      view.style.width = Math.floor(width) + 'px';
+      view.style.height = Math.floor(height) + 'px';
+    }
+
+    window.addEventListener('resize', fit);
+
     async function show(layoutPath, generation) {
       const layout = await (await fetch(root + layoutPath)).json();
       const sceneDir = layoutPath.slice(0, layoutPath.lastIndexOf('/') + 1);
       const motion = await (await fetch(root + sceneDir + (layout.motion || 'motion.json'))).json();
-      const width = 840;
+      const width = 1680;
       const height = Math.round(width * layout.height / layout.width);
       view.width = width;
       view.height = height;
+      fit();
       const scale = width / motion.width;
       const clouds = new Map((motion.clouds || []).map(cloud => [cloud.id, cloud]));
       const leaves = new Map((motion.leaves || []).map(leaf => [leaf.id, leaf]));
@@ -218,6 +243,8 @@
       elapsed = 0;
       runningFrom = performance.now();
       status.textContent = `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · 三层云向右循环 · 树叶按权重轻晃`;
+      fit();
+      requestAnimationFrame(fit);
       cancelAnimationFrame(frame);
       tick(scene, generation);
     }
@@ -237,6 +264,15 @@
       });
     });
 
+    const themeNames = { coast: '海岸', estuary: '河口', pond: '池塘', reservoir: '水库', river: '江河', lake: '湖泊' };
+    const toneNames = { mint: '薄荷', coral: '珊瑚', apricot: '杏黄', mist: '薄雾', moon: '月色' };
+    const unassigned = [
+      'coast-05-moon', 'estuary-02-coral', 'estuary-03-apricot', 'estuary-04-mist',
+      'pond-02-coral', 'pond-03-apricot', 'pond-04-mist', 'pond-05-moon',
+      'reservoir-01-mint', 'reservoir-04-mist', 'reservoir-05-moon',
+      'river-02-coral', 'river-03-apricot', 'river-05-moon'
+    ];
+
     fetch(root + 'catalog.json').then(response => response.json()).then(catalog => {
       const ponds = catalog.bindings.filter(item => item.layerLayout);
       for (const pond of ponds) {
@@ -246,6 +282,16 @@
         if (pond.pondId === 'pond-calm') option.selected = true;
         pondSelect.append(option);
       }
+      const group = document.createElement('optgroup');
+      group.label = '未分配鱼塘';
+      for (const name of unassigned) {
+        const [theme, , tone] = name.split('-');
+        const option = document.createElement('option');
+        option.value = `layered/pastel-scenes-v1/${name}/layout.json`;
+        option.textContent = `${themeNames[theme] || theme} · ${toneNames[tone] || tone}`;
+        group.append(option);
+      }
+      pondSelect.append(group);
       show(pondSelect.value, token).catch(error => {
         status.textContent = '场景没有打开：' + error.message;
       });
