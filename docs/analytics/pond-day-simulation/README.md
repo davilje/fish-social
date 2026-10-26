@@ -16,9 +16,9 @@
 
 **钓鱼人数场景**：0 / 1 / 3 / 5 人/塘（持续钓鱼 24h，不含收杆操作时间——仅统计咬钩→上岸/脱钩）
 
-完整 15 分钟粒度数据见 [`data.json`](./data.json)，分析指标见 [`analysis.json`](./analysis.json)。  
-| [analysis-report.html](./analysis-report.html) | **综合分析报告**（版本演进 + 目标评估） |
-| [report.html](./report.html) | 交互模拟报告（图表 + 场景切换） |
+完整 15 分钟粒度数据见 [`data.json`](data.json)，分析指标见 [`analysis.json`](analysis.json)。  
+| [analysis-report.html](analysis-report.html) | **综合分析报告**（版本演进 + 目标评估） |
+| [report.html](report.html) | 交互模拟报告（图表 + 场景切换） |
 **归档对比**：[`../index.html`](../index.html) · [`../compare.html`](../compare.html)
 
 重新生成：`npm run analytics:pond-day`（模拟 + 报告 + 归档）

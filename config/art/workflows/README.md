@@ -2,8 +2,8 @@
 
 | 文件 | 用途 |
 |------|------|
-| [fish-social-gpt-image-2-t2i.json](./fish-social-gpt-image-2-t2i.json) | **ComfyUI UI 工作流**（拖进画布 / Load） |
-| [gpt-image-2-t2i.api.json](./gpt-image-2-t2i.api.json) | **API Format**，供 `npm run art:generate` 调用 |
+| [fish-social-gpt-image-2-t2i.json](fish-social-gpt-image-2-t2i.json) | **ComfyUI UI 工作流**（拖进画布 / Load） |
+| [gpt-image-2-t2i.api.json](gpt-image-2-t2i.api.json) | **API Format**，供 `npm run art:generate` 调用 |
 
 ## UI 工作流怎么用
 

@@ -1,6 +1,6 @@
 # 阿里云 Windows 对照清单 + 同类 Steam 游戏后端选型说明
 
-配套总手册：[`windows-cloud-deploy.md`](./windows-cloud-deploy.md)  
+配套总手册：[`windows-cloud-deploy.md`](windows-cloud-deploy.md)  
 需求编号：STEAM-DESKTOP-10B
 
 本文两块内容：

@@ -1,6 +1,6 @@
 # 手账资料与收获：交互布局预览
 
-2026-10-22 网页设计预览；2026-10-23 按确认方案迁入正式 Unity 页面，详见 [Unity 实施记录](../../2026-10-23-cozy-journal-workspace-unity.md)。
+2026-10-22 网页设计预览；2026-10-23 按确认方案迁入正式 Unity 页面，详见 [Unity 实施记录](../../journal/2026-10-23-cozy-journal-workspace-unity.md)。
 
 入口：`http://127.0.0.1:8769/docs/design/ui/prototype/journal-workspace/index.html`。
 

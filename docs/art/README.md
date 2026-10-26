@@ -1,32 +1,15 @@
-# 美术资源目录
+# 美术资源与接入
 
-| 子目录 | 负责人 | 内容 |
-|--------|--------|------|
-| `direction/` | 美术总监 (@art-director) | 美术风格规范、视觉指南、ComfyUI 对接说明 |
-| `generated/` | 出图脚本 staging | `npm run art:generate` 输出（PNG 默认不入库，见 `manifest.json`） |
-| `animations/` | 动效师 (@motion-designer) | Lottie/SVG 动效文件及接入说明 |
+| 类别 | 入口 |
+|---|---|
+| 角色与皮肤 | [猫咪绘制与导出](cat-skins/README.md)、[资源路由沿革](cat-skins/resource-routing.md)、[丧彪新增角色](cat-skins/sangbiao/README.md) |
+| 鱼塘场景 | [更新与导出菜单](scenes/overlay-scene-update-and-editor-menus.md)、[当前场景工程记录](../engineering/scenes/README.md) |
+| 水面特效 | [正式采用记录](../engineering/water-effects/2026-10-25-water-effects-22h-adoption.md)、[v4 素材](water-effects-22h/magic-v4/README.md) |
+| 风格与出图 | [视觉规范](direction/style-guide.md)、[ComfyUI 配置](direction/comfyui-setup.md) |
+| 旧方案 | [历史归档](../archive/2026-10-26/README.md) |
 
-项目根目录 `mobile/assets/` / `fish-social-unity/Assets/` 存放正式引用资源，`docs/art/` 存放规范、设计说明与出图 staging。
+正式引用资源位于项目的 `image/`、`mobile/assets/`、`fish-social-unity/Assets/` 和 `desktop-overlay/OverlayResources/`。此处保留设计规范、绘制来源、审核预览和出图 staging；仍被工具或预览引用的素材与清单随文档保留。
 
-## ComfyUI 出图管线
+角色资源以各皮肤的 `Assets/StreamingAssets/Fishing/<skin>/manifest.json` 和 `OverlayResources/fishing/<skin>/manifest.json` 为运行依据。九种猫咪说明记录较早批次；新增角色以各角色说明及运行时清单为准。
 
-1. 本地 ComfyUI（默认 `http://127.0.0.1:8188`）+ `ComfyUI-APIimage` 节点  
-2. 配置见 [direction/comfyui-setup.md](./direction/comfyui-setup.md)  
-3. 风格 / preset：[direction/style-guide.md](./direction/style-guide.md)、[config/art/direction.json](../../config/art/direction.json)
-
-```bash
-npm run art:comfyui:health
-npm run art:generate -- --preset desktop-cat --prompt "orange tabby cat fishing, side view"
-```
-
-## 把图换进 Overlay / 主窗口
-
-按 **猫种 id + 姿势** 投放，塘内每人用自己头像对应的那套（与 Unity 同名）。不要只用一张全局 `cat.png`。
-
-权威目录：[desktop-overlay/OverlayResources/pets/README.md](../../desktop-overlay/OverlayResources/pets/README.md)
-
-```text
-desktop-overlay/OverlayResources/pets/orange/fishing-0.png
-```
-
-Unity 菜单 **Fish Social → 同步宠物美术到 StreamingAssets + Overlay** 后重启。
+ComfyUI 预设见 [config/art/direction.json](../../config/art/direction.json)。运行 `npm run art:comfyui:health` 检查服务，按视觉规范使用 `npm run art:generate` 生成候选素材。

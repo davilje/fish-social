@@ -14,7 +14,7 @@
 - `design-tokens.json`：配色、按钮状态和布局意图；已改为本目录内可解析的相对路径。
 - `SOURCE_README.md`：原网页素材库的来源说明，仅作为来源记录，其旧工程相对路径不用于 Unity。
 
-Unity 接入说明位于仓库 `docs/design/ui/2026-10-13-cozy-unity-port.md`。编辑器菜单 `Fish Social → Cozy UI → 检查最终版素材` 可检查资源完整性。
+Unity 接入说明位于仓库 `docs/archive/2026-10-26/superseded/design/ui/2026-10-13-cozy-unity-port.md`。编辑器菜单 `Fish Social → Cozy UI → 检查最终版素材` 可检查资源完整性。
 
 底板阴影已烘焙进 PNG，不重复叠加 Unity Shadow。按下时换用 `plate-pressed` 并仅下移视觉内容 3 个参考像素，根节点/点击区域不移动。图标和文字分别渲染，文字不烘焙进切图。
 

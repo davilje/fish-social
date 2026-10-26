@@ -13,7 +13,7 @@ R = Path(__file__).resolve().parents[2]
 A = R / 'fish-social-unity/Assets/StreamingAssets/Audio'
 P = R / 'docs/art/audio-22i/v5/assets'
 LOCK = Path(__file__).with_name('accepted-effects.json')
-ADOPTION = R / 'docs/engineering/audio-22i-adoption.json'
+ADOPTION = R / 'docs/engineering/audio/audio-22i-adoption.json'
 
 
 def read(path):

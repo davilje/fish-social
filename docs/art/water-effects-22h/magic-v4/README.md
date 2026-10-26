@@ -20,7 +20,7 @@
 - 随包Overlay：`fish-social-unity/FishSocialOverlay/OverlayResources/effects/fishing/v4/`。
 - 构建：`node scripts/art/build-water-effects-22h-v4.cjs`，确定性切图／缩放／透明留边，无重新生成绘画内容。
 - 正式解码合计557,056 bytes（0.53125MiB），高分辨率生成图集不会被运行时加载。
-- [正式浅水图](production-light.png)、[正式深水图](production-dark-xl.png)、[简化图](production-reduced.png)、[正式资源／213预览组合验证](../verification-v4.json)、[交付记录](../../../engineering/2026-10-24-water-effects-22h-v4.md)。
+- [正式浅水图](production-light.png)、[正式深水图](production-dark-xl.png)、[简化图](production-reduced.png)、[正式资源／213预览组合验证](../verification-v4.json)、[交付记录](../../../engineering/water-effects/2026-10-24-water-effects-22h-v4.md)。
 
 v3保留作为过程记录，其细节密度已被用户否定；v2资源保留以便原版对照。该AI生成候选不沿用v2原创SVG的CC0声明。manifest记录原始图集、提示词、构建脚本、源区域及PNG的hash，并区分风格认可与实机验收。
 
@@ -30,4 +30,4 @@ v3保留作为过程记录，其细节密度已被用户否定；v2资源保留�
 
 ## 2026-10-25 正式采用
 
-用户确认“应用该方案”：保留本版造型，正式采用v8参考鱼塘配色（浅青白水体／奶白高光／深蓝暗部）及放大波纹。调色在预热时缓存，18张原始PNG及透明边缘保持一致；Web、WPF、Unity已同步。[采用记录与新验收包](../../../engineering/2026-10-25-water-effects-22h-adoption.md)。
+用户确认“应用该方案”：保留本版造型，正式采用v8参考鱼塘配色（浅青白水体／奶白高光／深蓝暗部）及放大波纹。调色在预热时缓存，18张原始PNG及透明边缘保持一致；Web、WPF、Unity已同步。[采用记录与新验收包](../../../engineering/water-effects/2026-10-25-water-effects-22h-adoption.md)。

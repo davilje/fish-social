@@ -32,5 +32,5 @@ MAX_HUMAN_SOCKETS=200
 npm run verify:capacity-limit
 ```
 
-规格：`docs/planning/specs/架构-单实例容量与真人隔离-R2-3.md`  
-环境总表：[`server-env.md`](./server-env.md)
+规格：`docs/planning/specs/backend/架构-单实例容量与真人隔离-R2-3.md`  
+环境总表：[`server-env.md`](server-env.md)

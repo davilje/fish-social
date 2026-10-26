@@ -15,8 +15,8 @@ permission:
 
 ## 开工前
 
-1. 读全景基线：`docs/planning/product/v0.1.0-功能全景.md`
-2. 了解当前版本进度：查看 `docs/planning/CHANGELOG.md` 和仓库根目录 `项目开发需求计划表.xlsx`
+1. 读全景基线：`docs/archive/2026-10-26/versions/planning/product/v0.1.0-功能全景.md`
+2. 了解当前版本进度：查看 `docs/archive/2026-10-26/indexes/planning/CHANGELOG.md` 和仓库根目录 `项目开发需求计划表.xlsx`
 
 ## 职责
 

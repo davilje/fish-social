@@ -169,7 +169,7 @@ npm run planning:status -- vX.Y.Z
 
 ## 关联
 
-- 流程长文：`docs/planning/策划到开发工作流.md`、`docs/planning/多Agent工作流.md`
+- 流程长文：`docs/planning/workflow/策划到开发工作流.md`、`docs/planning/workflow/多Agent工作流.md`
 - Opencode：`.opencode/skills/handoff-workflow`、`.opencode/skills/verify-accept`
 - 埋点表：`.cursor/skills/metrics-catalog-sync/SKILL.md`
 - 行格式与文件清单细节：[reference.md](reference.md)

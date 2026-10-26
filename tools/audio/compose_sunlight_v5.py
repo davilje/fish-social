@@ -411,7 +411,7 @@ manifest=dict(version=5,assets=assets,sources=list(source_records.values()),
                          'file':license_path.name,'gitTree':TREE,'license':'CC0-1.0'},
         scoreScript='tools/audio/compose_sunlight_v5.py',scoreScriptSha256=sha(Path(__file__).read_bytes()),
         auditoryReview='Adopted by user for project use on2026-10-24; technical checks do not constitute Windows hardware verification',
-        adoptionRecord='docs/engineering/audio-22i-adoption.json'))
+        adoptionRecord='docs/engineering/audio/audio-22i-adoption.json'))
 (OUT/'music-manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n')
 print(json.dumps(dict(assets=[{k:v for k,v in a.items() if k not in ['source','processing']} for a in assets],
     audit={k:v for k,v in score_audit.items() if k!='ornaments'},sourceCount=len(source_records),

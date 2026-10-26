@@ -48,7 +48,7 @@ def main():
             'Visual rules: ripples below waterline; splash droplets above allowed; actual contact only.\n'
             'Approved presentation: pond palette v8; pale cyan, cream foam, deep blue shading.\n'
             'Waiting ripples 1.7x; other ripples 1.2x; peak playback opacity 0.95.\n'
-            'Source report: docs/engineering/2026-10-25-water-effects-22h-adoption.md\n'
+            'Source report: docs/engineering/water-effects/2026-10-25-water-effects-22h-adoption.md\n'
             'Windows A/B, 10-minute stability and H/I audio capture remain separate acceptance.\n',
             encoding='utf-8')
         source_paths = list((ROOT / 'desktop-overlay').glob('*.cs'))
@@ -73,10 +73,10 @@ def main():
             'scripts/art/build-water-effects-22h-v4.cjs',
             'docs/art/water-effects-22h/preview.js',
             'docs/art/water-effects-22h/index.html',
-            'docs/engineering/water-effects-22h-adoption.json',
+            'docs/engineering/water-effects/water-effects-22h-adoption.json',
             'scripts/desktop/package-water-effects-22h.py',
         ]]
-        adoption = ROOT / 'docs/engineering/water-effects-22h-adoption.json'
+        adoption = ROOT / 'docs/engineering/water-effects/water-effects-22h-adoption.json'
         (bundle / 'ADOPTED-PRESENTATION.json').write_bytes(adoption.read_bytes())
         info = {
             'task': 'STEAM-DESKTOP-22H', 'date': args.date,

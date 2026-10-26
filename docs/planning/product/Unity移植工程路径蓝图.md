@@ -6,11 +6,11 @@
 | 状态 | **已文档化** |
 | 编号 | **REF-UNITY-1** |
 | 设计时间 | **2026-07-26** |
-| 关联 | [`钓鱼世界与鱼塘场景优化策略.md`](./钓鱼世界与鱼塘场景优化策略.md)（**REF-SCENE-1**）· [`../specs/Unity移植-分阶段需求清单.md`](../specs/Unity移植-分阶段需求清单.md)（**UNITY-P0～P5**）· [`../architecture/Unity迁移决策记录.md`](../architecture/Unity迁移决策记录.md) · [`../architecture/Unity契约冻结清单-v0.md`](../architecture/Unity契约冻结清单-v0.md) |
+| 关联 | [`钓鱼世界与鱼塘场景优化策略.md`](钓鱼世界与鱼塘场景优化策略.md)（**REF-SCENE-1**）· [`../specs/Unity移植-分阶段需求清单.md`](../specs/desktop/Unity移植-分阶段需求清单.md)（**UNITY-P0～P5**）· [`../architecture/Unity迁移决策记录.md`](../architecture/Unity迁移决策记录.md) · [`../architecture/Unity契约冻结清单-v0.md`](../architecture/Unity契约冻结清单-v0.md) |
 | 目标形态 | **Unity 2D 客户端 + 现有 Node 权威服务端**（推荐默认） |
 
 > 用途：固定「切什么 / 留什么 / 按什么顺序做」的工程路径。  
-> **可执行拆分**见 [`Unity移植-分阶段需求清单.md`](../specs/Unity移植-分阶段需求清单.md)；各阶段立项后走 `planning-progress-sync`。  
+> **可执行拆分**见 [`Unity移植-分阶段需求清单.md`](../specs/desktop/Unity移植-分阶段需求清单.md)；各阶段立项后走 `planning-progress-sync`。  
 > 本文件本身仍为参考蓝图，不单独派发整包开发。
 
 ---
@@ -276,4 +276,4 @@ Assets/
 | 日期 | 说明 |
 |------|------|
 | 2026-07-26 | 初稿：架构事实 + Unity+Node 目标切线 + Phase 0–5 工程路径；登记 **REF-UNITY-1** |
-| 2026-07-26 | 需求拆分：[`Unity移植-分阶段需求清单.md`](../specs/Unity移植-分阶段需求清单.md)（UNITY-P0～P5） |
+| 2026-07-26 | 需求拆分：[`Unity移植-分阶段需求清单.md`](../specs/desktop/Unity移植-分阶段需求清单.md)（UNITY-P0～P5） |

@@ -1,6 +1,6 @@
 # Windows Overlay 手账 UI 交接
 
-2026-10-23 更新；本文件替代旧 staging 交接说明。完整变更与验证见 [Overlay 桌面手账素材与轻量交互收口](../docs/design/ui/2026-10-23-overlay-journal-refinement.md)。
+2026-10-23 更新；本文件替代旧 staging 交接说明。完整变更与验证见 [Overlay 桌面手账素材与轻量交互收口](../docs/design/ui/overlay/2026-10-23-overlay-journal-refinement.md)。
 
 ## 当前实现
 

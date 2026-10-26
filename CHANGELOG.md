@@ -6,12 +6,12 @@
 ## 2026-10-26 — 22H 上钩浮漂与水花落点
 
 - 上钩阶段复用原版浮漂，在当前鱼线与场景水面交点轻沉／回浮／摆动，循环衔接连续；水花改从同一入水点发射，替换旧水下鱼身中心定位。
-- 全鱼塘、钓位、猫种与源帧／插值几何回归通过；Web预览同步当前咬钩水花及水下鱼隐藏规则，更新Windows随包程序。Windows实机验收仍待执行。见[修复报告](docs/engineering/2026-10-26-hooked-bobber-water-contact.md)。
+- 全鱼塘、钓位、猫种与源帧／插值几何回归通过；Web预览同步当前咬钩水花及水下鱼隐藏规则，更新Windows随包程序。Windows实机验收仍待执行。见[修复报告](docs/engineering/water-effects/2026-10-26-hooked-bobber-water-contact.md)。
 
 ## 2026-10-25 — 全鱼塘粉彩绘本场景
 
 - 从 30 张场景中选用 17 张，替换全部 21 个钓鱼关卡；按水域类型匹配五套配色，新增逐关卡美术引用与岸线配置，原图像素不重新调色。
-- 校准钓位整组高度，保留 420 个钓位及猫咪与木凳接触关系；更新 Overlay 资源、旧路径兼容底图与 21 张选塘照片。Unity 导入渲染和资源同步检查通过。详见[全场景替换记录](docs/art/pond-pastel-series-rollout.md)。
+- 校准钓位整组高度，保留 420 个钓位及猫咪与木凳接触关系；更新 Overlay 资源、旧路径兼容底图与 21 张选塘照片。Unity 导入渲染和资源同步检查通过。详见[全场景替换记录](docs/art/scenes/pond-pastel-series-rollout.md)。
 
 ## 2026-10-26 — 登录场景加入五猫烤鱼
 
@@ -26,17 +26,17 @@
 ## 2026-10-25 — 钓鱼场景原图保色修订
 
 - 城郊练杆塘改用用户截图的七层像素提取；局部修补遮挡，母图 84.55% 像素直接保留，保护区域及图层重组最大像素差值均为 0。宽场景图外部分单独续绘，参考区不再逐层重画。
-- Unity、WPF 源资源及运行目录已同步；角色与交互布局不变，21 关 420 钓位和 3,902 个资源同步校验通过。详见[保色修订记录](docs/art/pond-exact-pastel-overlay.md)。
+- Unity、WPF 源资源及运行目录已同步；角色与交互布局不变，21 关 420 钓位和 3,902 个资源同步校验通过。详见[保色修订记录](docs/archive/2026-10-26/superseded/art/pond-exact-pastel-overlay.md)。
 
 ## 2026-10-25 — 钓鱼池塘柔软粉彩绘本
 
 - 城郊练杆塘的 10 个环境图层采用原版柔软粉彩绘本配色和笔触，更新 Unity、Overlay 源资源与运行目录；完整树组保持树冠和树干连接。
-- 既有切图坐标、Prefab、猫咪与木凳位置保持一致；Unity 渲染、21 关 420 钓位及 3,894 个运行资源一致性检查通过。Windows 实机观感待重启客户端确认。见[替换记录](docs/art/pond-soft-pastel-overlay.md)。
+- 既有切图坐标、Prefab、猫咪与木凳位置保持一致；Unity 渲染、21 关 420 钓位及 3,894 个运行资源一致性检查通过。Windows 实机观感待重启客户端确认。见[替换记录](docs/archive/2026-10-26/superseded/art/pond-soft-pastel-overlay.md)。
 
 ## 2026-10-25 — STEAM-DESKTOP-22H 正式采用
 
 - 用户确认“应用该方案”，采用v4简约水魔法造型＋v8鱼塘配色；WPF、Unity及默认预览同步。等待波纹×1.7、其他波纹×1.2，95%峰值及平滑淡出。
-- 本机验证通过，重新发布当前源码的Windows验收包；状态回写“已实现”、完成日期2026-10-25，Windows性能／点击穿透及H/I实机验收继续待办。见[采用记录](docs/engineering/2026-10-25-water-effects-22h-adoption.md)。
+- 本机验证通过，重新发布当前源码的Windows验收包；状态回写“已实现”、完成日期2026-10-25，Windows性能／点击穿透及H/I实机验收继续待办。见[采用记录](docs/engineering/water-effects/2026-10-25-water-effects-22h-adoption.md)。
 
 ## 2026-10-25 — 22H 水效可见度
 
@@ -50,19 +50,19 @@
 
 - 按用户要求采用 v5 配乐＋46 条已确认的 v3 音效／猫声，正式 47 条音频与采用哈希一致。
 - 移除 169 个旧版音频（101,680,674 字节）、旧试听实现和无效生成工具；旧网址转至 v5，来源／许可清单与历史验证记录留档。
-- 生成、安装及校验改用独立音效锁和采用记录，移除旧基线依赖；当前试听不再加载旧版资源。Windows 画声实测仍待执行。详见 `docs/engineering/2026-10-24-audio-22i-adoption.md`。
+- 生成、安装及校验改用独立音效锁和采用记录，移除旧基线依赖；当前试听不再加载旧版资源。Windows 画声实测仍待执行。详见 `docs/engineering/audio/2026-10-24-audio-22i-adoption.md`。
 
 ## 2026-10-24 — STEAM-DESKTOP-22I BGM v5
 
 - 按「旋律过于简单、吉他不清晰」反馈，只修订BGM：主题变奏、弱起／附点／连接乐句与有准备解决的延留；90 BPM、85.333秒循环，21.333秒主题试听。
 - 主奏替换9条真实轻拨录音，伴奏保留12条柔和指弹；保留拨弦起音，无额外混响／高频搁架／压缩。来源hash、CC0与固定Gitblob已核验。
-- 46条已确认音效、metadata及cue配置保持一致。谱面与PCM技术检查通过，BGM听感及Windows同步仍待验收；报告 `docs/engineering/2026-10-24-audio-22i-v5.md`，试听 `docs/art/audio-22i/v5/`。
+- 46条已确认音效、metadata及cue配置保持一致。谱面与PCM技术检查通过，BGM听感及Windows同步仍待验收；报告 `docs/engineering/audio/2026-10-24-audio-22i-v5.md`，试听 `docs/art/audio-22i/v5/`。
 
 ## 2026-10-24 — STEAM-DESKTOP-22I 音效确认与 BGM v4
 
-- 用户确认其余音效通过应用，锁定46条v3非音乐资源及配置；验收原文与hash写入 `docs/engineering/audio-22i-sfx-acceptance.json`。
+- 用户确认其余音效通过应用，锁定46条v3非音乐资源及配置；验收原文与hash写入 `docs/engineering/audio/audio-22i-sfx-acceptance.json`。
 - 仅BGM重写为88 BPM、G大调、32小节A/A′/B/A，明确八小节主题与固定伴奏；全局单旋律、和声边界止音，保留无钢琴方向。87.273秒完整循环及21.818秒主题试听已接入。
-- 音效字节与metadata保持一致；独立谱面和PCM格式/循环/混音检查通过，BGM听感与Windows同步仍待验收。试听 `docs/art/audio-22i/v4/`，报告 `docs/engineering/2026-10-24-audio-22i-v4.md`。
+- 音效字节与metadata保持一致；独立谱面和PCM格式/循环/混音检查通过，BGM听感与Windows同步仍待验收。试听 `docs/art/audio-22i/v4/`，报告 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v4.md`。
 
 ## 2026-10-24 — STEAM-DESKTOP-22I v3 听感修订
 
@@ -70,17 +70,17 @@
 
 - 水面波纹完整留在水线下，飞溅水滴／水冠单独裁剪并可在线上；咬钩／水下挣扎仅波纹。
 - 抛竿／撒饵按真实触水时机及位置发射，落点固定；新增真实收杆触水，鱼实际出水按可见尺寸产生浪花。
-- WPF／Unity及共享session同步；本机策略／Unity／Web验证通过，Windows实机及H/I采样仍待验收。详见[更新报告](docs/engineering/2026-10-24-water-effects-22h-v4.md)。
+- WPF／Unity及共享session同步；本机策略／Unity／Web验证通过，Windows实机及H/I采样仍待验收。详见[更新报告](docs/engineering/water-effects/2026-10-24-water-effects-22h-v4.md)。
 
 - 按用户反馈延长按钮动作和自然尾声，同 cue 增益有效事件 RMS 提升约 4.6–7.3dB；音乐重写为 86 BPM 无钢琴尼龙吉他双声部，89.302 秒循环，提供暖弦乐候选。
 - 28 条水声和脱钩水声换用轻柔实录，去底噪与低频重击，取消强压缩；旧 v2 全资源冻结供直接对照，沿用既有音频事件接入。
-- 47 资源格式/hash/容量/循环与 4× true-peak 混音检查通过；技术检查不等于听感或 Windows 实机验收。详见 `docs/engineering/2026-10-24-audio-22i-v3.md`。
+- 47 资源格式/hash/容量/循环与 4× true-peak 混音检查通过；技术检查不等于听感或 Windows 实机验收。详见 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v3.md`。
 
 ## 2026-10-24 STEAM-DESKTOP-22H v4风格确认与正式资源
 
 - 用户确认贴合猫咪细节量的v4简约水魔法风格，整理18张正式纹理并接入Overlay／Unity；低饱和色块、少量高光，各档额外水滴最多2颗。
 - 三份资源hash一致、8px透明留边、解码0.53125MiB；213预览组合、1180水效断言、51源／资源保护及208Unity回归通过；Windows自包含测试包已更新。
-- 仅记录H风格确认，不冒充Windows／H-I实机验收，完成日期仍留空。详见 `docs/engineering/2026-10-24-water-effects-22h-v4.md`。
+- 仅记录H风格确认，不冒充Windows／H-I实机验收，完成日期仍留空。详见 `docs/engineering/water-effects/2026-10-24-water-effects-22h-v4.md`。
 
 ## 2026-10-24 STEAM-DESKTOP-22H 开发接入与本机验证
 
@@ -90,7 +90,7 @@
 - 新增纸张／铅笔／印章操作音、28 条独立实录分档水声、保留授权猫叫；68 BPM 柔音采样钢琴循环 84.706 秒，另交付同旋律配器 A/B 和九场景试听，v1 冻结可比较。
 - Unity 四短音＋一音乐受控播放，WPF 实际源帧 marker、共享 owner／session、稳定 catchId 透传、静默快照与事件去重、后台咬钩和独立音量接入。
 - 资源／后端／浏览器／Unity／WPF 工程验证通过；Windows ≥30 事件画声延迟和耳机／扬声器听感未执行，待实机验收。计划只回写 22I 已实现，设计与完成日期 2026-10-24。
-- 完整来源、hash、测量、测试边界：`docs/engineering/2026-10-24-audio-22i-v2.md`；试听 `docs/art/audio-22i/v2/index.html`。
+- 完整来源、hash、测量、测试边界：`docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v2.md`；试听 `docs/art/audio-22i/v2/index.html`。
 
 - 交付猫咪同屏四档预览、18 张原创透明候选及版本／许可／hash，三处随包资源同步；213 个 Web 组合验证通过。
 - 接入权威动作／阶段 ID、源帧发布信封、真实水面锚点、24 实例／8 组池、品质设置与 Unity 兜底；收获／脱钩／收线效果无绑定，无真实破水动作时 FX05 静默。
@@ -108,7 +108,7 @@
 - 默认 30 分钟未照看入睡，可配置；服务器持久化、睡眠咬钩直接逃鱼、本人触碰唤醒。自动续钓／换皮／重连不重置；睡眠开始钓鱼和打窝须先唤醒。
 - 新增狸花猫「丧彪」44 原画、63 源姿势、16 钓鱼动作及角色选择／头像；家园仅新增站立和坐姿。
 - 11 角色闭眼图只修改眼部，统一 3,654 份 Native 资源镜像；Unity 203/203、服务器专项 35/35、运动 24/24、浏览器 616 次检查通过。Windows 联机与视觉待用户验收。
-- 说明：`docs/engineering/2026-10-24-fishing-rest-sangbiao.md`；预览：`docs/art/fishing-motion/index.html`。
+- 说明：`docs/engineering/animation-interaction/2026-10-24-fishing-rest-sangbiao.md`；预览：`docs/art/fishing-motion/index.html`。
 
 ## 2026-10-24 STEAM-DESKTOP-22H／22I／22J 方案设计完善
 
@@ -127,19 +127,19 @@
 
 - 审计现有钓鱼／UI音频，明确重复收获回调、重连快照、音画加载时差与跨 cue 叠音的接入要求。
 - 新增六场景交互试听，四种候选音色；可调整音量、模拟加载延迟、检查重复消息和多人静音。
-- 本轮为方案评审，待用户认可后接入；计划状态保持已确认。见 `docs/engineering/2026-10-24-audio-22i-preview.md`。
+- 本轮为方案评审，待用户认可后接入；计划状态保持已确认。见 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-preview.md`。
 
 ## 2026-10-24 STEAM-DESKTOP-22D / 22F 轨迹补帧与持续打窝
 
 - 抛竿、收杆、空军、打窝新增 13／16／16／18 个分层运动采样；总时长不变，保留猫咪关键姿势与拆分边界，复用既有 PNG 和缓存。中间鱼线按竿尖／末端连接，保持细线。
 - 打窝改为 100ms 起手、720ms 循环到真实 `groundbaiting` 结束、280ms 收手与准备；重复快照、隐藏、换皮和中断均有处理。
-- 十角色对照预览与 160 次浏览器采样检查通过。Windows 原生和视觉待验收，详见 `docs/engineering/2026-10-24-overlay-motion-22df.md`。
+- 十角色对照预览与 160 次浏览器采样检查通过。Windows 原生和视觉待验收，详见 `docs/engineering/animation-interaction/2026-10-24-overlay-motion-22df.md`。
 
 ## 2026-10-24 STEAM-DESKTOP-22E 入塘与离席表现
 
 - 等候区统一按脚底定位；角色平滑到达钓位后坐下，站起完整播放后再移回等候区。座位业务状态继续即时更新。
 - 坐下／站起每帧显示后计时，防止慢解码跳过尾帧；重复快照、离席中重入、预测取消不留下旧目标。
-- 迁移核心 8/8、源／资源 51/51 通过，WPF 编译与 Windows 测试包生成；Windows 实际运行与视觉待验收。详见 `docs/engineering/2026-10-24-overlay-seat-transitions.md`。
+- 迁移核心 8/8、源／资源 51/51 通过，WPF 编译与 Windows 测试包生成；Windows 实际运行与视觉待验收。详见 `docs/engineering/animation-interaction/2026-10-24-overlay-seat-transitions.md`。
 
 ## 2026-10-24 背包、留言与鱼塘表现修复
 
@@ -153,99 +153,99 @@
 - 点击场景鱼竿直达装备页；点击猫窝后猫咪进入当前猫窝休息，复用 10 猫种已有睡姿与窝前沿遮挡。
 - 猫窝、食水碗和猫爬架支持限定区域拖放，按账号在本机保存；移动猫窝时睡着的猫随窝移动。网页预览同步。
 - 15 张摆件从保留母版导出约 2x 展示大小，RGBA 像素预算减少 84.8%；Unity 专项与回归 143/143，网页交互检查通过。
-- 打滚、倒粮、行走和进食帧图按本轮约定先列需求，尚未接入。见 `docs/design/ui/2026-10-23-home-room-animation-requests.md` 与首页接入说明。
+- 打滚、倒粮、行走和进食帧图按本轮约定先列需求，尚未接入。见 `docs/design/ui/home/2026-10-23-home-room-animation-requests.md` 与首页接入说明。
 
 ## 2026-10-23 离塘返回顺序与底边栏同源动效
 
 - 等待 Overlay 进程实际退出后恢复桌面，桌面呈现后再展开结算；拦住提前到达的结算和重复退出，关闭失败不弹结算。
 - 结算与底边栏共用纸页上移淡入实现，遮罩由透明渐显，保留正文分组与减少动效。没有新增整页重载。
-- Unity 专项 75/75；Windows 实际窗口时序待录屏验收。见 `docs/engineering/2026-10-23-overlay-return-sequence.md`。
+- Unity 专项 75/75；Windows 实际窗口时序待录屏验收。见 `docs/engineering/animation-interaction/2026-10-23-overlay-return-sequence.md`。
 
 ## 2026-10-23 Overlay 交互与进出鱼塘回归修复
 
 - 修正聊天输入命中、折叠栏点击展开和底板尺寸；移除右键“当前鱼塘”。
 - 进入鱼塘等待目标背景／装饰和对应快照，取消默认塘及降级场景加载闪屏；离塘先准备首页，再恢复主窗口并播放收杆记录的正常入场。
-- 保存资料后同步个人中心头像缓存，补部分成功与他人资料隔离。Unity 专项 34/34、Overlay 静态 48/48，WPF 编译 0 errors；19 组 Windows 原生测试和实机视觉待验收。见 `docs/engineering/2026-10-23-overlay-return-regressions.md`。
+- 保存资料后同步个人中心头像缓存，补部分成功与他人资料隔离。Unity 专项 34/34、Overlay 静态 48/48，WPF 编译 0 errors；19 组 Windows 原生测试和实机视觉待验收。见 `docs/engineering/animation-interaction/2026-10-23-overlay-return-regressions.md`。
 
 ## 2026-10-23 Overlay 性能优化第三批
 
 - 背景、装饰、座位后台解码与取消，预制原分辨率 alpha 命中数据，移除鼠标路径中的整图像素复制；新增 48 MiB 静态图与 16 MiB 九宫格缓存预算。
 - 相同尺寸／DPI 复用遮罩；提供合并遮罩与渲染采样 A/B 开关，默认保持原双渐变，不宣称未测量的 GPU 收益。
-- 可移植行为 24/24、静态回归 48/48；旧音效基线已核对同步，WPF／18 组原生回归编译 0 errors。Windows 运行、DPI／点击穿透和性能待验收，未替换已安装 EXE。见 `docs/engineering/2026-10-23-overlay-performance-batch3.md`。
+- 可移植行为 24/24、静态回归 48/48；旧音效基线已核对同步，WPF／18 组原生回归编译 0 errors。Windows 运行、DPI／点击穿透和性能待验收，未替换已安装 EXE。见 `docs/engineering/performance/2026-10-23-overlay-performance-batch3.md`。
 
 ## 2026-10-23 Overlay 性能优化第二批
 
 - 分层动画 Manifest／PNG 改后台双 worker、有界任务队列、共享解码与取消，冻结后在 UI 线程提交完整九层，隔离换塘／换猫／销毁后的过期结果。
 - 增量更新角色布局、钓位和聊天，移除强制 UpdateLayout；共用 Stopwatch 时钟，隐藏／离屏暂停并按实际时长恢复。
-- 调度／队列／取消 10/10、缓存 8/8 运行通过；新增 4 项接入检查通过，WPF／11 组原生回归编译通过；全量静态检查有 3 处并行音效基线差异，Windows 运行与 A/B 性能待验收。见 `docs/engineering/2026-10-23-overlay-performance-batch2.md`。
+- 调度／队列／取消 10/10、缓存 8/8 运行通过；新增 4 项接入检查通过，WPF／11 组原生回归编译通过；全量静态检查有 3 处并行音效基线差异，Windows 运行与 A/B 性能待验收。见 `docs/engineering/performance/2026-10-23-overlay-performance-batch2.md`。
 
 ## 2026-10-23 UI、猫咪与钓鱼声音
 
 - 配置按钮、菜单开合、切换、成功／失败与钓鱼音效；点击自己的猫咪及收获鱼获播放随机喵叫，带防叠加冷却。Unity 与 WPF 悬浮窗统一由 Unity 混音。
 - 添加 80 秒原创背景音乐《池畔晴日》无缝循环；设置 → 托盘与其他补音乐、音效与猫叫独立音量，0% 静音并自动保存。
-- 全部 14 个离线 WAV 附来源、CC0 猫叫授权与重建脚本；新增资源完整性校验及 Unity 专项测试。验证详情见 `docs/engineering/2026-10-23-desktop-audio.md`。
+- 全部 14 个离线 WAV 附来源、CC0 猫叫授权与重建脚本；新增资源完整性校验及 Unity 专项测试。验证详情见 `docs/archive/2026-10-26/superseded/engineering/2026-10-23-desktop-audio.md`。
 
 ## 2026-10-23 Overlay 性能优化第一批
 
 - 角色离场、换塘、关窗统一 Dispose，停止并解除全部角色计时器，清理菜单／气泡与贴图引用。
 - 修正跨猫种动作缓存误清除；实际资源路径共享引用，64 MiB 像素预算 LRU 保留热帧，活跃图片受保护；预热匹配正式尺寸，取消全局清缓存。
-- 缓存行为 8/8、静态回归 39/39；正式 WPF 与原生测试交叉编译 0 errors。新增缓存／活跃角色日志；Windows 6 组原生测试及性能验收待运行。详见 `docs/engineering/2026-10-23-overlay-performance-batch1.md`。
+- 缓存行为 8/8、静态回归 39/39；正式 WPF 与原生测试交叉编译 0 errors。新增缓存／活跃角色日志；Windows 6 组原生测试及性能验收待运行。详见 `docs/engineering/performance/2026-10-23-overlay-performance-batch1.md`。
 
 ## 2026-10-23 Overlay 素材与轻量交互优化
 
 - 替换桌面手账同源素材，39 文件可重复同步并逐字节校验；按钮取消放大回弹、按下位移 1 DIP，聊天／提示气泡改为 120ms 淡入淡出。
 - 移除常驻状态栏和钓获／回鱼／脱钩弹窗，Unity 与 WPF 双端处理；角色钓鱼动画、结算和计数继续保留。预制体、导出器和旧配置迁移同步更新。
-- 34 项 Python 检查及 5 项 Unity 事件／预制体完整导出测试通过；修复内置 Arial 跨平台导出失败。Windows EXE 需重建、原生验收待执行。见 `docs/design/ui/2026-10-23-overlay-journal-refinement.md`。
+- 34 项 Python 检查及 5 项 Unity 事件／预制体完整导出测试通过；修复内置 Arial 跨平台导出失败。Windows EXE 需重建、原生验收待执行。见 `docs/design/ui/overlay/2026-10-23-overlay-journal-refinement.md`。
 
 ## 2026-10-23 保存资料与离塘收获动效补全
 
 - 保存资料和展示鱼获均成功后，按钮先显示 240ms 成功反馈，再衔接资料页返回；失败留在原页重试，重复点击与离开页面不会重复跳转。
 - 收获弹窗补统计、鱼获列表、小账本与底部操作的分组入场，以及 140ms 关闭；主窗口隐藏时收到结算，等待窗口恢复后开始入场。
-- 网页方案同步，新增保存返回分帧入口；本轮专项 60/60，之前全套 539 通过／4 既有失败，隐藏窗口补修已专项复验。详情见 `docs/design/ui/2026-10-23-workspace-motion-unity.md`。
+- 网页方案同步，新增保存返回分帧入口；本轮专项 60/60，之前全套 539 通过／4 既有失败，隐藏窗口补修已专项复验。详情见 `docs/design/ui/journal/2026-10-23-workspace-motion-unity.md`。
 
 ## 2026-10-23 个人资料正文与编辑进退动效补全
 
 - 补齐网页预览原先遗漏的正文动效并同步 Unity：资料名片、统计、成长卡依次轻抬淡入，经验条延迟增长；编辑两栏背景、文字和按钮按 40ms 间隔出现。
 - 编辑、取消及保存返回先淡出旧内容 100ms，保持纸张、环扣和页签稳定；局部换头像不重播，异步内容接续时钟，动效中断恢复点击。
-- 最终专项 137/137，全套 528 通过、4 项既有失败；Chrome 交互与时间线通过，42 张实际帧图已更新。Windows/Steam 待验收，详见 `docs/design/ui/2026-10-23-workspace-motion-unity.md`。
+- 最终专项 137/137，全套 528 通过、4 项既有失败；Chrome 交互与时间线通过，42 张实际帧图已更新。Windows/Steam 待验收，详见 `docs/design/ui/journal/2026-10-23-workspace-motion-unity.md`。
 
 ## 2026-10-23 Unity 开页与右栏时序修复
 
 - 修复正式预制体动效区域空引用；补存 12 页绑定，并统一烘焙与运行时映射，使标题、右栏实际按网页时序淡入。
 - 编辑资料两栏同步揭开，取消旧详情栏延迟；资料内编辑／取消使用同页内容刷新，移除多余的跨页退出与横移；照片不再等待父级完全显示后重复入场，异步资料接续当前开页时钟。
-- Chrome 7 个开页及编辑／取消 2 个按钮入口实测通过；Unity 专项 130/130，全套 521 通过、4 项既有失败；正式路由帧图与时序证据见 `docs/design/ui/2026-10-23-workspace-motion-unity.md`。
+- Chrome 7 个开页及编辑／取消 2 个按钮入口实测通过；Unity 专项 130/130，全套 521 通过、4 项既有失败；正式路由帧图与时序证据见 `docs/design/ui/journal/2026-10-23-workspace-motion-unity.md`。
 
 ## 2026-10-23 新版工作区动效同步到 Unity
 
 - 共享页面入口在纸页升起后统一揭开内容，移除重复入场及异步加载后的标题／侧栏闪回；同步排行榜、动态与收藏照片选择的 220ms 原地缩放。
 - 工作区按钮、头像悬停和选择反馈按网页接入；分享、结算与鱼获选择器统一弹窗时序，遮罩保持独立；减少动效保留 120ms 短淡入。
-- 专项回归 111/111；全套回归 498 通过／4 项既有文案与资源断言失败；专项复验及 30 张实际动效帧见 `docs/design/ui/2026-10-23-workspace-motion-unity.md`。
+- 专项回归 111/111；全套回归 498 通过／4 项既有文案与资源断言失败；专项复验及 30 张实际动效帧见 `docs/design/ui/journal/2026-10-23-workspace-motion-unity.md`。
 
 ## 2026-10-23 手账网页预览打开动效修复
 
 - 修复两个 Web 预览底栏打开时内容先露出、再隐藏贴入的闪回；保留原始纸页、活页环和卡片动效参数。
 - 移除工作区启动及编辑入口的重复渲染，并等待工作区脚本就绪后启动。
-- Chrome 导航回归 **22/22** 通过，包含逐帧透明度与脚本加载竞态检查；历史定位与复现方式见 `docs/design/ui/2026-10-23-journal-preview-navigation-fix.md`。
+- Chrome 导航回归 **22/22** 通过，包含逐帧透明度与脚本加载竞态检查；历史定位与复现方式见 `docs/design/ui/journal/2026-10-23-journal-preview-navigation-fix.md`。
 
 ## 2026-10-23 资料与收获四页 Web 方案落地
 
 - 正式 Unity 重写个人资料、编辑资料、分享鱼获与离塘结算；编辑取消／保存保持左卡底部，大头像、八展示位和搜索选择器接入真实数据。
 - 分享保留选填附言和公开／好友范围；结算补真实咬钩、脱钩、有效时长、带图片及尺寸重量时间的鱼获记录、筛选排序与库存分享跳转。
 - 新增 Unity 回归 **12/12**，全套 **476 通过／5 项旧检查失败**；结构守卫 **PASS**。服务端台账 **4/4**，全套 **49 通过／1 项既有失败**。保留未通过项与 Windows/Steam 待验收状态。
-- 24 状态正式截图及六状态 Web/Unity 对照，见 `docs/art/cozy-journal/production/workspace.html`；实施和剩余检查见 `docs/design/ui/2026-10-23-cozy-journal-workspace-unity.md`。
+- 24 状态正式截图及六状态 Web/Unity 对照，见 `docs/art/cozy-journal/production/workspace.html`；实施和剩余检查见 `docs/design/ui/journal/2026-10-23-cozy-journal-workspace-unity.md`。
 
 ## 2026-10-22 手账 UI 八类缺口修复
 
 - 沿用已认可的正式 UI，补前三名渐变底图和名次标签；修正经验进度圆端、动态文字/入场时机、图鉴/展示柜/成就的插画底、标签、描述与红色印章。
 - 好友、好友申请、私信、鱼塘聊天与消息通知分开呈现；保留真实申请/聊天接口，通知按本次登录收件，阅读与接受申请独立。
 - 选塘补分类、水域、费用、准入与鱼种摘要；修正世界地图左栏重叠及入塘按钮图文居中。
-- Unity EditMode **468/468**、预制体守卫 **PASS**；更新 21 个正式页面状态截图、15 组网页对照、11 对动效采样帧。Windows/Steam/DPI 待平台验收。详见 `docs/design/ui/2026-10-22-cozy-journal-detail-refinements.md`。
+- Unity EditMode **468/468**、预制体守卫 **PASS**；更新 21 个正式页面状态截图、15 组网页对照、11 对动效采样帧。Windows/Steam/DPI 待平台验收。详见 `docs/design/ui/journal/2026-10-22-cozy-journal-detail-refinements.md`。
 
 ## 2026-10-22 沿用已认可的手账 UI 修复版
 
 - 用户认可远端 `be6f2bdf` 的逐项对齐效果，正式入口继续使用 `DesktopShellUi` / `PanelRouter`，结束 JournalV2 完整替换推进。
 - 修复自定义图形缺少 CanvasRenderer、页面/发布弹窗 CanvasGroup 初始化、加载后昵称与等级牌排布、鱼塘收费档位底板遮挡；保留已认可的几何与动效参数，正式资源目录无新增修改。
-- 同步过时布局断言及测试夹具，Unity 编辑器全套 EditMode **448/448** 通过，包含预制体构建守卫。Windows/Steam 平台验收仍待完成。详见 `docs/design/ui/2026-10-22-cozy-journal-approved-baseline.md`。
+- 同步过时布局断言及测试夹具，Unity 编辑器全套 EditMode **448/448** 通过，包含预制体构建守卫。Windows/Steam 平台验收仍待完成。详见 `docs/design/ui/journal/2026-10-22-cozy-journal-approved-baseline.md`。
 
 ## 2026-10-21 原版猫咪钓鱼手账正式 UI 替换
 
@@ -253,7 +253,7 @@
 - 地图/选塘共用照片、等级准入、收费档位、重试和入塘状态；修复同塘换档被提前返回、详情与操作区重叠、卡片选中装饰错误。
 - 补真实道具库存、排行榜玩家卡、成就分类、个人中心五子页、动态右栏评论和本人分页；新增预制体发布弹窗与160字鱼获附言接口。
 - 接入卡片贴入、账号隔离NEW、收获序列、操作印章、单循环调度、隐藏暂停与减少动效；修复旧预制体别名保存造成的嵌套引用丢失。
-- Unity EditMode **347/347**、构建守卫 **PASS**、本人动态/发布 HTTP 测试 **8/8**。Windows构建、Steam联机及DPI仍待平台验收。正式截图与实施记录见 `docs/art/cozy-journal/production/` 和 `docs/design/ui/2026-10-21-cozy-journal-unity-implementation.md`。
+- Unity EditMode **347/347**、构建守卫 **PASS**、本人动态/发布 HTTP 测试 **8/8**。Windows构建、Steam联机及DPI仍待平台验收。正式截图与实施记录见 `docs/art/cozy-journal/production/` 和 `docs/design/ui/journal/2026-10-21-cozy-journal-unity-implementation.md`。
 
 ## 2026-10-20 钓鱼场景与座椅美术更新
 
@@ -277,21 +277,21 @@
 - **BUG-55（2026-10-19）**：资料编辑保存银渐层等新猫不再被过期 shared dist 拒绝。服务端 `dev`/`start` 在 `defaultAvatars.ts` 新于 dist 时先编译，听端口前断言九只现行猫；灰猫、暹罗、燕尾仍归一橘猫。已在跑的服务进程需要重启。
 - **BUG-56（2026-10-19）**：Overlay 换阶段不再在点击帧解码整段分层图，预热使用英雄猫真实槽位并每帧只解一张。收杆回到坐下后再次收杆不再重播，直到下一次开始钓鱼。需要重新启动 Debug 桌面端后，P50 与 `frame_stall` 才能复测。
 
-- **九宫格素材尺寸适配（2026-10-14）**：三态底板等比缩小为 64×63/border 10，大面板为 128×125/border 20，新增 64×63/border 10 小面板用于经验条底、等级牌与聊天输入区；统一主题 Sliced Image 的 PPU Multiplier 为 1，保持现有布局、Prefab/Variant 继承和素材 GUID。Unity、StreamingAssets 与 WPF 同步切图和导出边距；新增最小控件切片中心/边角检查。静态与源回归结果见 docs/design/ui/unified/nine-slice-sizing-validation.json；本机无 Unity/Windows，引擎编译、网格测试和实际视觉待验收。
+- **九宫格素材尺寸适配（2026-10-14）**：三态底板等比缩小为 64×63/border 10，大面板为 128×125/border 20，新增 64×63/border 10 小面板用于经验条底、等级牌与聊天输入区；统一主题 Sliced Image 的 PPU Multiplier 为 1，保持现有布局、Prefab/Variant 继承和素材 GUID。Unity、StreamingAssets 与 WPF 同步切图和导出边距；新增最小控件切片中心/边角检查。静态与源回归结果见 docs/archive/2026-10-26/superseded/design/ui/unified/nine-slice-sizing-validation.json；本机无 Unity/Windows，引擎编译、网格测试和实际视觉待验收。
 
 - **CozyVisual Image 模式定点修复（2026-10-14）**：在 UI Prefab 管理中增加“仅修复 Image 的 Sliced 模式”，对实际导入的底板组件写入 m_Type、记录 Variant 覆盖并保存重载验证，不调整 border、PPU 或布局；构建校验明确禁止 CozyVisual 使用 Simple/Tiled/Filled，真正的进度条不受影响。补充三种错误模式和 Variant 保存重载测试；本机尚未执行 Unity Edit Mode，需在用户的 Unity 工程内执行模式修复与验收。
 
 - **登录小窗口与九宫格链路修正（2026-10-14）**：LoginRoot 恢复居中 480×320 布局，不改登录后的 1672×941 主界面；带 border 的非 Filled 背景在主题应用时归一为 Sliced，新增 Sprite 导入约束与实际 border/FullRect 构建检查，保留已有非零 border、进度条 Filled 和图标等比显示；补充登录边界与九宫格网格 Edit Mode 回归测试。本机仅执行静态及源回归检查，Unity 编译与实际运行待验收。
 
-- **全桌面 UI 统一与预制体接线修复（2026-10-14）**：纠正 ScrollRect/布局组件 GUID、重复组件及四个缺失节点；新增 21 个基础控件与 Variant 库，将 41 个界面/卡片/HUD 资源改为真正 Variant 和嵌套组件，按 23 个页面设计精细重排；WPF Overlay 全面同步 73 张同源 PNG、三态按钮、纸底、聊天和菜单，并保护 HUD 的 32 个 id 与 Unity 导出格式。加入 Player 构建前资源检查。静态检查已执行，Unity/Windows 引擎与联机视觉由用户验收；说明见 `docs/design/ui/unified/README.md`。
+- **全桌面 UI 统一与预制体接线修复（2026-10-14）**：纠正 ScrollRect/布局组件 GUID、重复组件及四个缺失节点；新增 21 个基础控件与 Variant 库，将 41 个界面/卡片/HUD 资源改为真正 Variant 和嵌套组件，按 23 个页面设计精细重排；WPF Overlay 全面同步 73 张同源 PNG、三态按钮、纸底、聊天和菜单，并保护 HUD 的 32 个 id 与 Unity 导出格式。加入 Player 构建前资源检查。静态检查已执行，Unity/Windows 引擎与联机视觉由用户验收；说明见 `docs/archive/2026-10-26/superseded/design/ui/unified/README.md`。
 
 - **Unity UI 导入错误修正（2026-10-14）**：修正 `CozyPrefabRepair.cs.meta` 的 33 位无效 GUID，解除修复类被忽略导致的 CS0103；关闭旧 ProfileHub 在脚本导入后的自动 Bake，增加 GUID 唯一性及导入回归测试。递归序列化报错仍需完整 Unity Console 堆栈确认；本机无 Unity，尚未执行 Edit Mode 测试。
 
-- **桌面 UI 全面持久化修复（2026-10-14）**：按确认的樱花鱼塘横版首页恢复七项导航；提供完整首页、钓鱼、选塘、装备、成就与模态窗口 Prefab，主题 PNG 改为真正导入的 Resources Sprite 与 Sliced 九宫格，停止运行时重建布局，保留既有业务与 v18 动画。静态数据/C# 语法检查通过；Unity 编译、运行与联机视觉仍待验收。说明：`docs/design/ui/2026-10-14-cozy-prefab-repair.md`。
+- **桌面 UI 全面持久化修复（2026-10-14）**：按确认的樱花鱼塘横版首页恢复七项导航；提供完整首页、钓鱼、选塘、装备、成就与模态窗口 Prefab，主题 PNG 改为真正导入的 Resources Sprite 与 Sliced 九宫格，停止运行时重建布局，保留既有业务与 v18 动画。静态数据/C# 语法检查通过；Unity 编译、运行与联机视觉仍待验收。说明：`docs/archive/2026-10-26/superseded/design/ui/2026-10-14-cozy-prefab-repair.md`。
 
 - **钓鱼动画 v18 同步（2026-10-13）**：Unity 与 Windows Overlay 接入九层逐帧顺序和时长，新增四帧坐下、六帧空军和两种四帧复位，保留六帧快速收杆、循环发力及待领取保持；加入五种既有配色素材和 Editor 预览。11 项移植像素验证及 23 项源回归通过，C# 构建/联机视觉待验收。说明：`docs/art/animations/2026-10-13-fishing-animation-port.md`。
 
-- **Unity 最终版 UI 移植（2026-10-13）**：接入已确认的奶油纸张/单色雕刻 PNG，重排十一项桌面导航及业务页面，新增真实目录鱼塘选择、复用已有 API 的装备视图，整理切图和 EditMode 测试。保留 Steam、服务端、Socket、Windows Overlay；本机未运行 Unity，视觉/联机验收待执行。接入说明：`docs/design/ui/2026-10-13-cozy-unity-port.md`。
+- **Unity 最终版 UI 移植（2026-10-13）**：接入已确认的奶油纸张/单色雕刻 PNG，重排十一项桌面导航及业务页面，新增真实目录鱼塘选择、复用已有 API 的装备视图，整理切图和 EditMode 测试。保留 Steam、服务端、Socket、Windows Overlay；本机未运行 Unity，视觉/联机验收待执行。接入说明：`docs/archive/2026-10-26/superseded/design/ui/2026-10-13-cozy-unity-port.md`。
 
 - **BUG-26**：用户验收通过。右键菜单稳住直到左键 Overlay；关菜单后悬停用自有开关 + `GetCursorPos` 恢复，不必点座位（完成时间 2026-09-01）。
 - **STEAM-DESKTOP-17**：用户验收通过，占用座位（含机器人）不可点占、不踢该座 bot（完成时间 2026-09-01）。

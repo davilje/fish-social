@@ -10,9 +10,9 @@ scripts/planning/build-master-plan-xlsx.py       # 计划表行权威源（必�
 项目开发需求计划表.xlsx（仓库根）               # master-xlsx 生成
 策划进度看板.html（仓库根）                     # master-xlsx 生成
 docs/planning/ 下同名 xlsx/html                  # 同步副本
-docs/planning/CHANGELOG.md
-docs/planning/specs/README.md
-docs/planning/prompts/README.md                  # 登记新 prompt 一行
+docs/archive/2026-10-26/indexes/planning/CHANGELOG.md
+docs/archive/2026-10-26/indexes/planning/specs/README.md
+docs/archive/2026-10-26/indexes/planning/prompts/README.md                  # 登记新 prompt 一行
 ```
 
 ## 开发提示词结构

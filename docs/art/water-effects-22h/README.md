@@ -60,8 +60,8 @@ node scripts/art/verify-water-effects-bindings-22h.cjs
 
 ## 日系 RPG 水魔法候选（用户反馈迭代）
 
-2026-10-24 新增[水魔法同屏预览](index.html?style=magic)与[AI 生成透明图集／提示词／来源说明](magic-v3/README.md)：青蓝流光、卷曲水冠、晶莹高光，4档各2水冠与2水纹。可随时切回原版；该候选仅进入预览，未替换下文 v2 正式包资源。106个新候选浏览器组合和透明alpha检查通过，见[报告](magic-v3/verification.json)。
+2026-10-24 新增[水魔法同屏预览](index.html?style=magic)与[AI 生成透明图集／提示词／来源说明](../../archive/2026-10-26/superseded/art/water-effects-22h/magic-v3/README.md)：青蓝流光、卷曲水冠、晶莹高光，4档各2水冠与2水纹。可随时切回原版；该候选仅进入预览，未替换下文 v2 正式包资源。106个新候选浏览器组合和透明alpha检查通过，见[报告](../../archive/2026-10-26/superseded/art/water-effects-22h/magic-v3/verification.json)。
 
 2026-10-24 再次按用户“这个风格过头了，贴合游戏本身的细节量”反馈收敛为[v4简约水魔法](magic-v4/README.md)。同屏入口已改用v4：低饱和湖蓝、两三块颜色、少量高光与水滴，移除v3发光和闪光细节。v3文件留作过程参考。
 
-2026-10-24 用户确认“该风格可以”，v4已整理为正式18纹理并接入两端；详见[认可风格的正式接入与验证](../../engineering/2026-10-24-water-effects-22h-v4.md)。
+2026-10-24 用户确认“该风格可以”，v4已整理为正式18纹理并接入两端；详见[认可风格的正式接入与验证](../../engineering/water-effects/2026-10-24-water-effects-22h-v4.md)。

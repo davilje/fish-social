@@ -15,6 +15,7 @@ import argparse
 import json
 import subprocess
 import sys
+from document_paths import resolve_document_path
 from datetime import date
 from pathlib import Path
 
@@ -35,7 +36,7 @@ from spec_status_utils import (
 
 ROOT = Path(__file__).resolve().parents[2]
 SPECS_DIR = ROOT / "docs/planning" / "specs"
-PROMPTS_DIR = ROOT / "docs/planning/prompts"
+PROMPTS_DIR = ROOT / "docs/planning/prompts/versions"
 HANDOFFS_DIR = ROOT / "docs/planning/handoffs"
 OUT_XLSX = SPECS_DIR / "项目开发需求计划表.xlsx"
 
@@ -46,7 +47,8 @@ def normalize_version(v: str) -> str:
 
 
 def handoff_md_path(version: str) -> Path:
-    return SPECS_DIR / f"{version}-开发交接.md"
+    resolved = resolve_document_path(f"docs/planning/specs/{version}-开发交接.md")
+    return resolved if resolved.exists() else SPECS_DIR / 'versions' / f"{version}-开发交接.md"
 
 
 def manifest_path(version: str) -> Path:
@@ -95,6 +97,8 @@ def save_manifest(manifest: dict) -> None:
 
 def _confirm_core(version: str, force: bool) -> tuple[Path | None, Path]:
     handoff = handoff_md_path(version)
+    if 'archive' in handoff.relative_to(ROOT).parts:
+        raise SystemExit('该版本交接已归档；重新开发请建立新的有效规格，不修改历史快照。')
     if not handoff.exists():
         raise SystemExit(f"缺少开发交接文档: {handoff.relative_to(ROOT)}")
 

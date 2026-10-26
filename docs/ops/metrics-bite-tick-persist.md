@@ -18,5 +18,5 @@ METRICS_BITE_TICK_PERSIST=1
 
 ## 相关
 
-- Spec：`docs/planning/specs/埋点优化-咬钩脱钩计数替代tick.md`
+- Spec：`docs/planning/specs/data-ops/埋点优化-咬钩脱钩计数替代tick.md`
 - 日聚合：`hook_count` / `escape_count`；旧列 `bite_tick_hit` 兼容填入上钩数

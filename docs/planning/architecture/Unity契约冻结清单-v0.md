@@ -7,7 +7,7 @@
 | 状态 | **已冻结（P0 出口）** |
 | 完成时间 | **2026-07-26** |
 | 权威源码 | `shared/types.ts` · `server/src/*Routes*.ts` · `createApp.ts` · `shop.ts` · `admin.ts` |
-| 决策 | [`Unity迁移决策记录.md`](./Unity迁移决策记录.md) |
+| 决策 | [`Unity迁移决策记录.md`](Unity迁移决策记录.md) |
 | 用途 | **UNITY-P1** OpenAPI / Socket 目录 / C# DTO 的直接输入 |
 
 > 默认：**不改**下列事件名与路径；破例须升 `protocolVersion` 并改本文件。  

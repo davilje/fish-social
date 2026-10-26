@@ -11,4 +11,4 @@
 - `source-rig.json` 保留原工作台的轨迹坐标；`preview-data.js` 与正式 `motion-samples.json` 同源生成。
 - `browser-verification.json`、六张 comparison 截图为本轮 Web 检查结果；不是 Windows 原生截图。
 
-完整接入、复跑和限制见 [交付说明](../../engineering/2026-10-24-overlay-motion-22df.md)。
+完整接入、复跑和限制见 [交付说明](../../engineering/animation-interaction/2026-10-24-overlay-motion-22df.md)。

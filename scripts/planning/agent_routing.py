@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-ROUTING_PATH = ROOT / "docs/planning/agent-routing.json"
+ROUTING_PATH = ROOT / "docs/planning/workflow/agent-routing.json"
 HANDOFFS_DIR = ROOT / "docs/planning/handoffs"
 
 
@@ -159,7 +159,7 @@ def write_handoff_manifest(
 
 
 def write_target_prompts(base_prompt: str, version: str, targets: list[str]) -> list[Path]:
-    prompts_dir = ROOT / "docs/planning/prompts"
+    prompts_dir = ROOT / "docs/planning/prompts/versions"
     prompts_dir.mkdir(parents=True, exist_ok=True)
     scope_blocks = {
         "backend-dev": "\n## 角色范围（后端开发 Agent）\n- 仅改 `server/`、`shared/`、`scripts/`\n- 禁止改 `mobile/`\n",

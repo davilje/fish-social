@@ -7,7 +7,7 @@
 
 角色离场与关窗统一停止定时器、清理引用；动画图层按实际路径共享，64 MiB 像素载荷预算的 LRU 保留热帧，活跃资源受保护。预热先应用正式尺寸，新角色不再清除全场缓存。状态日志新增 actors、activeClips、cachedFrames、cachePixelBytes、layerDecodes。
 
-缓存行为 8/8、静态回归 39/39，正式 WPF 与原生测试交叉编译通过；Windows 原生运行与实际性能待验收。见 [实现与验收](../docs/engineering/2026-10-23-overlay-performance-batch1.md)。
+缓存行为 8/8、静态回归 39/39，正式 WPF 与原生测试交叉编译通过；Windows 原生运行与实际性能待验收。见 [实现与验收](../docs/engineering/performance/2026-10-23-overlay-performance-batch1.md)。
 
 ## 手账 Overlay 收口（2026-10-23）
 

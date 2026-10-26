@@ -7,7 +7,7 @@
  *   npm run planning:dispatch -- v0.4.0 --dry-run
  *
  * 若无 API Key，请用：
- *   - 新对话 @docs/planning/prompts/v0.4.0-dev.prompt.md
+ *   - 新对话 @docs/planning/prompts/versions/v0.4.0-dev.prompt.md
  *   - 或策划 Agent 内 Task 子代理（见 HANDOFF.md）
  */
 import fs from 'fs';
@@ -27,7 +27,7 @@ if (!version) {
 }
 
 const v = version.startsWith('v') ? version : `v${version}`;
-const promptPath = path.join(ROOT, 'docs/planning/prompts', `${v}-dev.prompt.md`);
+const promptPath = path.join(ROOT, 'docs/planning/prompts/versions', `${v}-dev.prompt.md`);
 
 if (!fs.existsSync(promptPath)) {
   console.error(`Prompt file missing: ${promptPath}`);

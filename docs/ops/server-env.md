@@ -38,7 +38,7 @@
 | `MAX_SOCKET_CONNECTIONS` | `200` | **全部** Socket.IO 连接硬顶（含未鉴权） |
 | `MAX_HUMANS_PER_POND` | 空 | 可选单塘真人上限 |
 
-详见 [`human-capacity.md`](./human-capacity.md)。
+详见 [`human-capacity.md`](human-capacity.md)。
 
 ## 稳定性 / 运维面
 
@@ -70,8 +70,8 @@
 | `SOCKET_TAP_IGNORE_EVENTS` | `session_timer_tick,pond_ecology_updated` | tap 忽略列表 |
 | `SOCKET_TAP_INCLUDE_TIMER` | `0` | `1` = 从忽略列表去掉 `session_timer_tick` |
 
-详见规格：`docs/planning/specs/服务端日志降噪与分层输出.md`。
+详见规格：`docs/planning/specs/backend/服务端日志降噪与分层输出.md`。
 
 ## 探活
 
-停机中 `/health` 与 `/ready` 均为 503 — 见 [`shutdown-health.md`](./shutdown-health.md)。
+停机中 `/health` 与 `/ready` 均为 503 — 见 [`shutdown-health.md`](shutdown-health.md)。

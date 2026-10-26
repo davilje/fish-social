@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 |----|------|
-| 关联规格 | [发版与热更策略.md](../specs/发版与热更策略.md)（**OPS-RELEASE-1**） |
+| 关联规格 | [发版与热更策略.md](../specs/backend/发版与热更策略.md)（**OPS-RELEASE-1**） |
 | 适用拓扑 | **单机** Node + SQLite（`data/fish-social.db`） |
 | 非目标 | 客户端 OTA（Expo Updates / CodePush）· 多机滚动（BE-OPT-E） |
 
@@ -118,7 +118,7 @@
 | 健康检查 | `GET /health`（默认 `:3001`） |
 | Docker（若用） | `npm run docker:build` · `docker:up` · `docker:down` |
 | 配置热更 | Admin 参数面板 · `/api/admin/config/*` · `server/src/gameConfig.ts` |
-| 策略规格 | [发版与热更策略.md](../specs/发版与热更策略.md) |
+| 策略规格 | [发版与热更策略.md](../specs/backend/发版与热更策略.md) |
 
 ---
 

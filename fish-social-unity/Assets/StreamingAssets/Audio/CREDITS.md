@@ -1,6 +1,6 @@
 # Fish Social audio — accepted effects v3 / music v5
 
-Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/engineering/audio-22i-adoption.json; earlier effects approval: docs/engineering/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
+Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/engineering/audio/audio-22i-adoption.json; earlier effects approval: docs/engineering/audio/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
 
 ## Current music: 日光下的闲谈 / Sunlit Conversation
 
@@ -70,4 +70,4 @@ Freesound derivatives use public HQ MP3 previews; guitar uses publisher OGG reco
 
 Python dependencies:numpy/scipy/soundfile. Downloads occur only on cache misses and verify pinned identities. The music-only installer checks all46 accepted WAVs, metadata and cue configuration before replacement. Obsolete installers have been removed. The installer checks the complete adoption hash lock before writing; --check-only validates without changes. Accepted effects and source metadata are self-contained in tools/audio/accepted-effects.json.
 
-Latest preview:docs/art/audio-22i/v5/index.html. Superseded v1–v4 WAVs, baseline copies and preview implementations were removed at the user’s request. Old preview URLs redirect to v5. Historical source/credits/manifest records remain in docs/engineering/audio-22i-retired/; removed paths and hashes are inventoried in docs/engineering/audio-22i-cleanup.json. Current music is not the old piano or cello candidate. Score/source/PCM/browser checks are distinct from user BGM listening approval and Windows audio-visual latency measurement.
+Latest preview:docs/art/audio-22i/v5/index.html. Superseded v1–v4 WAVs, baseline copies and preview implementations were removed at the user’s request. Old preview URLs redirect to v5. Historical source/credits/manifest records remain in docs/archive/2026-10-26/evidence/engineering/audio-22i-retired/; removed paths and hashes are inventoried in docs/engineering/audio/audio-22i-cleanup.json. Current music is not the old piano or cello candidate. Score/source/PCM/browser checks are distinct from user BGM listening approval and Windows audio-visual latency measurement.

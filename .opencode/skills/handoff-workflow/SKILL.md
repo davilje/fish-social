@@ -37,7 +37,7 @@ npm run planning:handoff -- vX.Y.Z [--source 角色ID]
 npm run planning:master-xlsx
    - 这会同时更新根目录 项目开发需求计划表.xlsx 和 策划进度看板.html
    - 同步副本也会写入 docs/planning/
-4. **记录 CHANGELOG**：在 docs/planning/CHANGELOG.md 追加实现记录
+4. **记录 CHANGELOG**：在 docs/archive/2026-10-26/indexes/planning/CHANGELOG.md 追加实现记录
 
 > **注意**：
 npm run planning:master-xlsx 是唯一正确的命令（包含 build-master-plan-xlsx.py 和 build-producer-progress-html.py）。**不要使用** 

@@ -4,7 +4,7 @@
  * 猫咪钓鱼手账 · 可交互原型
  * 布局坐标与游戏一致：画布 1672×941，页面 160,150 1370×650，
  * 三栏 24,112,210,496 / 254,164,710,432 / 984,112,362,496。
- * 动效令牌与 docs/design/ui/2026-10-21-cozy-journal-motion.md 第 4 节一致。
+ * 动效令牌与 docs/design/ui/journal/2026-10-21-cozy-journal-motion.md 第 4 节一致。
  * ================================================================ */
 
 const U = '../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/';

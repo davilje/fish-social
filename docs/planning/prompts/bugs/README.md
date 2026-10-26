@@ -1,0 +1,34 @@
+# 开发交接 · Bug 修复
+
+| 文档 | 记录状态 |
+|---|---|
+| [bug-24-overlay-pet-appearance-restore-dev.prompt](bug-24-overlay-pet-appearance-restore-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-25-overlay-groundbait-bites-label-dev.prompt](bug-25-overlay-groundbait-bites-label-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-26-overlay-hover-context-menu-hit-dev.prompt](bug-26-overlay-hover-context-menu-hit-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-46-achievement-progress-dev.prompt](bug-46-achievement-progress-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-47-showcase-fish-detail-rows-dev.prompt](bug-47-showcase-fish-detail-rows-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-48-49-overlay-hud-layout-dev.prompt](bug-48-49-overlay-hud-layout-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-50-overlay-chat-dock-dev.prompt](bug-50-overlay-chat-dock-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-51-overlay-debug-menu-dev.prompt](bug-51-overlay-debug-menu-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-52-overlay-latency-dev.prompt](bug-52-overlay-latency-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-54-own-fishing-presenter-dev.prompt](bug-54-own-fishing-presenter-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-55-default-avatar-catalog-dev.prompt](bug-55-default-avatar-catalog-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-56-overlay-stall-replay-dev.prompt](bug-56-overlay-stall-replay-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-57-desktop-ui-layout-dev.prompt](bug-57-desktop-ui-layout-dev.prompt.md) | 已确认 |
+| [bug-58-pond-settings-info-dev.prompt](bug-58-pond-settings-info-dev.prompt.md) | 专题说明／实施记录 |
+| [bug-59-journal-labels-motion-dev.prompt](bug-59-journal-labels-motion-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-afk-disconnect-dev.prompt](bugfix-afk-disconnect-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-bi-web-portal-dev.prompt](bugfix-bi-web-portal-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-daily-quota-day-rollover-dev.prompt](bugfix-daily-quota-day-rollover-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-daily-quota-single-source-dev.prompt](bugfix-daily-quota-single-source-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-daily-remaining-refresh-dev.prompt](bugfix-daily-remaining-refresh-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-desktop-exit-process-dev.prompt](bugfix-desktop-exit-process-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-leave-pond-navigation-dev.prompt](bugfix-leave-pond-navigation-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-pond-entry-stale-state-dev.prompt](bugfix-pond-entry-stale-state-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-quota-remaining-display-regression-dev.prompt](bugfix-quota-remaining-display-regression-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-session-settlement-dev.prompt](bugfix-session-settlement-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-session-timer-broadcast-dev.prompt](bugfix-session-timer-broadcast-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-session-timer-zero-flash-dev.prompt](bugfix-session-timer-zero-flash-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-steam-lobby-permission-state-dev.prompt](bugfix-steam-lobby-permission-state-dev.prompt.md) | 专题说明／实施记录 |
+| [bugfix-tsx-watch-hang-dev.prompt](bugfix-tsx-watch-hang-dev.prompt.md) | 专题说明／实施记录 |
+| [diag-afk-phase2-4-dev.prompt](diag-afk-phase2-4-dev.prompt.md) | 专题说明／实施记录 |

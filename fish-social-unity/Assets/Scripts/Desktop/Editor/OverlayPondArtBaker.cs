@@ -340,6 +340,77 @@ namespace FishSocial.Desktop.Editor
             Debug.Log("[PondArt] Installed Qiandao animation layers; saved actor geometry preserved.");
         }
 
+        // Applies only scene sprites for the remaining ponds; saved seats and cat positions stay intact.
+        public static void ApplyRemainingLayeredScenesAndExport()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying pond scenery.");
+            var catalog = ReadCatalog();
+            var selected = catalog.bindings.Where(b => b.pondId != "pond-calm").ToArray();
+            var profiles = selected.Select(b => ResolveProfile(catalog, b)).ToArray();
+            if (selected.Length != 20 || profiles.Any(p => ReadLayerLayout(p).layers.Length != 5))
+                throw new InvalidOperationException("Expected 20 five-layer pond layouts.");
+            foreach (var image in profiles.SelectMany(p => ReadLayerLayout(p).layers).Select(l => l.image).Distinct())
+                ImportSprite(ArtFolder + "/" + image);
+            foreach (var binding in selected)
+            {
+                var profile = ResolveProfile(catalog, binding);
+                var path = OverlayPondLayoutBaker.PrefabPath(binding.pondId);
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
+                        if (item.kind == "sprite" && item.objectId != "pond-bg" && item.transform.parent == root.transform)
+                            Object.DestroyImmediate(item.gameObject);
+                    PlaceSceneLayers(root.transform, profile);
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
+            }
+            AssetDatabase.SaveAssets();
+            foreach (var binding in selected)
+            {
+                var error = OverlayLayoutExporter.ExportPond(binding.pondId);
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+            var resources = Path.GetFullPath(Path.Combine(OverlayLayoutExporter.LayoutOutputDir(), "..", "ponds"));
+            foreach (var layout in profiles.Select(p => p.layerLayout).Distinct())
+            {
+                var target = Path.Combine(resources, layout);
+                Directory.CreateDirectory(Path.GetDirectoryName(target));
+                File.Copy(ArtFolder + "/" + layout, target, true);
+            }
+            Verify();
+            catalog.bindings = selected;
+            RenderPreviews(catalog);
+            OverlayResourceSync.SyncExportedResources();
+            Debug.Log("[PondArt] Installed five depth layers for " + selected.Length + " ponds; saved actor geometry preserved.");
+        }
+
+        public static void ImportUnassignedPastelSceneSprites()
+        {
+            var folder = ArtFolder + "/layered/pastel-scenes-v1";
+            var used = new HashSet<string>(ReadCatalog().bindings
+                .Where(b => b.pondId != "pond-calm")
+                .Select(b => Path.GetFileName(Path.GetDirectoryName(b.image))));
+            var candidates = Directory.GetDirectories(folder)
+                .Where(dir => !used.Contains(Path.GetFileName(dir))).ToArray();
+            if (candidates.Length != 14)
+                throw new InvalidOperationException("Expected 14 unassigned pastel scenes.");
+            foreach (var sceneDir in candidates)
+            {
+                var layoutFile = Path.Combine(sceneDir, "layout.json");
+                var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(layoutFile));
+                if (layout == null || layout.layers == null || layout.layers.Length != 5)
+                    throw new InvalidOperationException("Invalid candidate scene layout: " + layoutFile);
+                foreach (var layer in layout.layers)
+                    ImportSprite(ArtFolder + "/" + layer.image);
+            }
+            AssetDatabase.SaveAssets();
+            Verify();
+            Debug.Log("[PondArt] Imported sprites for 14 unassigned pastel scenes.");
+        }
+
         static LayerLayout ReadLayerLayout(Profile profile)
         {
             if (string.IsNullOrEmpty(profile.layerLayout)) throw new InvalidOperationException("Missing layer layout.");

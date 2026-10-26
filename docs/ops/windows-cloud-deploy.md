@@ -3,9 +3,9 @@
 面向 **Windows Server 云主机** 的 Fish Social 游戏服部署手册。  
 客户端仍通过已实现的 `server.json` / 设置页切换地址，**无需改业务代码重编**。
 
-上位规格：[`Steam桌面端云服务器联调保留.md`](../planning/specs/Steam桌面端云服务器联调保留.md)  
-环境变量权威表：[`server-env.md`](./server-env.md) · 模板：仓库根 [`.env.example`](../../.env.example)  
-**阿里云逐步对照 + 行业选型：** [`windows-cloud-aliyun-checklist.md`](./windows-cloud-aliyun-checklist.md)
+上位规格：[`Steam桌面端云服务器联调保留.md`](../planning/specs/desktop/Steam桌面端云服务器联调保留.md)  
+环境变量权威表：[`server-env.md`](server-env.md) · 模板：仓库根 [`.env.example`](../../.env.example)  
+**阿里云逐步对照 + 行业选型：** [`windows-cloud-aliyun-checklist.md`](windows-cloud-aliyun-checklist.md)
 
 ---
 
@@ -215,7 +215,7 @@ nssm start FishSocialServer
 2. 用「任务计划程序」每日执行 `npm run db:backup`（在仓库根）  
 3. 定期把备份拷出云主机
 
-恢复见 [`db-backup-restore.md`](./db-backup-restore.md)。
+恢复见 [`db-backup-restore.md`](db-backup-restore.md)。
 
 ---
 

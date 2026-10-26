@@ -4,7 +4,7 @@
  *
  * Usage:
  *   node scripts/planning/generate-handoff-prompt.mjs v0.4.0
- *   node scripts/planning/generate-handoff-prompt.mjs docs/planning/specs/v0.4.0-开发交接.md
+ *   node scripts/planning/generate-handoff-prompt.mjs docs/archive/2026-10-26/versions/planning/specs/v0.4.0-开发交接.md
  */
 import fs from 'fs';
 import path from 'path';
@@ -12,8 +12,9 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '../..');
-const PROMPTS_DIR = path.join(ROOT, 'docs/planning/prompts');
+const PROMPTS_DIR = path.join(ROOT, 'docs/planning/prompts/versions');
 const SPECS_DIR = path.join(ROOT, 'docs/planning/specs');
+const DOCUMENT_PATHS = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/maintenance/path-map.json'), 'utf8'));
 
 function resolveHandoffPath(arg) {
   if (!arg) {
@@ -25,7 +26,10 @@ function resolveHandoffPath(arg) {
   }
   const version = arg.replace(/^v/, 'v');
   const v = version.startsWith('v') ? version : `v${version}`;
-  return path.join(SPECS_DIR, `${v}-开发交接.md`);
+  const oldPath = `docs/planning/specs/${v}-开发交接.md`;
+  return DOCUMENT_PATHS[oldPath]
+    ? path.join(ROOT, DOCUMENT_PATHS[oldPath])
+    : path.join(SPECS_DIR, 'versions', `${v}-开发交接.md`);
 }
 
 function extractPromptBlock(markdown) {
@@ -45,6 +49,10 @@ function versionFromHandoffFilename(filePath) {
 }
 
 const handoffPath = resolveHandoffPath(process.argv[2]);
+if (path.relative(ROOT, handoffPath).split(path.sep).includes('archive')) {
+  console.error('This handoff is archived. Create a current spec before generating a new task.');
+  process.exit(1);
+}
 if (!fs.existsSync(handoffPath)) {
   console.error(`Handoff not found: ${handoffPath}`);
   process.exit(1);

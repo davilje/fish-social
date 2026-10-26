@@ -1,6 +1,6 @@
 # 2026-10-26 上钩浮漂／水花对齐证据
 
-[实现与验证报告](../../../../engineering/2026-10-26-hooked-bobber-water-contact.md)。
+[实现与验证报告](../../../../engineering/water-effects/2026-10-26-hooked-bobber-water-contact.md)。
 
 - `water-contact.log`、`motion.log`：可移植核心测试的真实运行stdout。
 - `water-policy.log`：水效事件／预算／配置1386项断言。

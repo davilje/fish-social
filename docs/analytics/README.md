@@ -21,11 +21,11 @@ npm run analytics:daily
 | 页面 | 说明 |
 |------|------|
 | [../ops/运营平台.html](../ops/运营平台.html) | **运营总入口**（日报/运维台/健康检查） |
-| [index.html](./index.html) | 归档索引，勾选多份报告后跳转对比 |
-| [compare.html](./compare.html) | 多版本指标/时间线/结论对比 |
-| [live-vs-sim.html](./live-vs-sim.html) | 线上 vs 模拟对照 |
-| [pond-day-simulation/report.html](./pond-day-simulation/report.html) | 最新 24h 模拟报告 |
-| [pond-ecology-initial/report.html](./pond-ecology-initial/report.html) | 初始生态报告 |
+| [index.html](index.html) | 归档索引，勾选多份报告后跳转对比 |
+| [compare.html](compare.html) | 多版本指标/时间线/结论对比 |
+| [live-vs-sim.html](live-vs-sim.html) | 线上 vs 模拟对照 |
+| [pond-day-simulation/report.html](pond-day-simulation/report.html) | 最新 24h 模拟报告 |
+| [pond-ecology-initial/report.html](pond-ecology-initial/report.html) | 初始生态报告 |
 
 ## 目录结构
 

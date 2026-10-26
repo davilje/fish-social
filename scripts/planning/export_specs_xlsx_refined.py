@@ -51,14 +51,15 @@ CHANGELOG_OVERRIDES: dict[str, str] = {
     "BUG修复-切页误离塘与计时中断.md": "已实现",
     "BUG修复-会话计时广播回归.md": "已实现",
     "BUG修复-tsx-watch启动挂死.md": "已实现",
-    "状态机需求描述.md": "已定稿",
+    "状态机需求描述.md": "已废弃",
+    "C-调优与状态机.md": "已废弃",
 }
 
 # 未实现 / 部分实现项的人工分析（按文档路径）
 GAP_ANALYSIS: dict[str, dict[str, str]] = {
     "C-调优与状态机.md": {
         "gap": "C1~C7 子任务均未完整落地：热更双人审批、Bot 深度适配、金币 Sink 二期、繁衍遗传、图鉴增强、完整状态机动画、灰度周报。",
-        "recommendation": "继续开发（P2 按需）",
+        "recommendation": "已废弃，不再排期",
         "priority": "P2",
         "note": "C3 渔具耐久已有雏形（C3_SINK_ENABLED）；C6 服务端 phase 已较完整，客户端动画仍简陋。",
     },
@@ -352,7 +353,7 @@ def build_gap_rows(items: list[dict]) -> list[dict]:
 
 
 def main() -> None:
-    files = sorted(p for p in SPECS_DIR.glob("*.md") if p.name.lower() != "readme.md")
+    files = sorted(p for p in SPECS_DIR.rglob("*.md") if p.name.lower() != "readme.md")
 
     items: list[dict] = []
     for p in files:

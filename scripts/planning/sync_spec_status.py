@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from document_paths import find_active_spec
 
 ROOT = Path(__file__).resolve().parents[2]
 SPECS_DIR = ROOT / "docs" / "planning" / "specs"
@@ -16,7 +17,7 @@ TARGET_STATUS: dict[str, str] = {
     "A2-Debug面板.md": "已实现",
     "B0-商店基础.md": "已实现",
     "B1-鱼饵偏好.md": "已实现",
-    "C-调优与状态机.md": "已确认",
+    "C-调优与状态机.md": "已废弃",
     "UI体验修复-社交商店图鉴.md": "已实现",
     "BUG修复-四项体验问题.md": "已实现",
     "BUG修复-资料与鱼塘UI.md": "已实现",
@@ -39,7 +40,7 @@ TARGET_STATUS: dict[str, str] = {
     "生态调优-咬钩间隔与鱼群恢复.md": "已实现",
     "钓点鱼群流动性与分区咬钩.md": "已实现",
     "咬钩产量调优-单鱼抽样与脱钩.md": "已实现",
-    "状态机需求描述.md": "已定稿",
+    "状态机需求描述.md": "已废弃",
     "钓鱼系统v2-生态与玩法重构.md": "已废弃",
     "钓鱼系统v2-开发交接.md": "已实现",
     "服务器维护-端口占用.md": "已实现",
@@ -60,9 +61,9 @@ TARGET_STATUS: dict[str, str] = {
 
 STATUS_NOTE: dict[str, str] = {
     "A0-数值重构.md": "§3.2~3.8 由 A0-v2 / v0.3.x 替代",
-    "C-调优与状态机.md": "P2 子任务按需触发",
+    "C-调优与状态机.md": "2026-10-21 整包不再排期",
     "数值重构v2-成长咬钩与文案.md": "§6.3 已于 v0.2.4 落地；数值后续由 v0.3.x 迭代",
-    "状态机需求描述.md": "C6 引用，非独立交付物",
+    "状态机需求描述.md": "2026-10-21 不再作为交付物",
     "钓鱼系统v2-开发交接.md": "交接完成",
 }
 
@@ -171,8 +172,8 @@ def update_file(path: Path, status: str) -> list[str]:
 def main() -> None:
     updated = 0
     for filename, status in sorted(TARGET_STATUS.items()):
-        path = SPECS_DIR / filename
-        if not path.exists():
+        path = find_active_spec(filename)
+        if path is None:
             print(f"SKIP missing: {filename}")
             continue
         changes = update_file(path, status)

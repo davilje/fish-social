@@ -53,7 +53,7 @@ def normalize_brief(s: str) -> str:
 
 def main() -> None:
     files = sorted(
-        p for p in SPECS_DIR.glob("*.md") if p.name.lower() != "readme.md"
+        p for p in SPECS_DIR.rglob("*.md") if p.name.lower() != "readme.md"
     )
 
     enriched: list[dict[str, str | int]] = []

@@ -1,5 +1,9 @@
 {"version":1,"pondId":"pond-frost","canvas":{"width":1680,"height":560,"origin":"top-left"},"pond":{"width":1680,"height":560,"waterlineY":450.055},"objects":[
-    {"id":"pond-bg","kind":"sprite","x":0,"y":0,"w":1680,"h":560,"z":0,"anchor":"top-left","sprite":"ponds/series/pastel-v1/lake-04-mist.png"},
+    {"id":"pond-bg","kind":"sprite","x":0,"y":0,"w":1680,"h":560,"z":0,"anchor":"top-left","sprite":"ponds/layered/pastel-scenes-v1/lake-04-mist/sky.png"},
+    {"id":"scene-far","kind":"sprite","x":0,"y":0,"w":1680,"h":560,"z":1,"anchor":"top-left","sprite":"ponds/layered/pastel-scenes-v1/lake-04-mist/far.png"},
+    {"id":"scene-middle","kind":"sprite","x":0,"y":0,"w":1680,"h":560,"z":2,"anchor":"top-left","sprite":"ponds/layered/pastel-scenes-v1/lake-04-mist/middle.png"},
+    {"id":"scene-shore","kind":"sprite","x":0,"y":0,"w":1680,"h":560,"z":3,"anchor":"top-left","sprite":"ponds/layered/pastel-scenes-v1/lake-04-mist/shore.png"},
+    {"id":"scene-water","kind":"sprite","x":0,"y":0,"w":1680,"h":560,"z":4,"anchor":"top-left","sprite":"ponds/layered/pastel-scenes-v1/lake-04-mist/water.png"},
     {"id":"waiting","kind":"waiting","x":80,"y":338,"w":1520,"h":64,"z":5,"anchor":"top-left"},
     {"id":"cat-size","kind":"pet-size","x":40,"y":584,"w":64,"h":64,"z":20,"anchor":"bottom-center"},
     {"id":"frost-spot-1","kind":"spot","spotId":"frost-spot-1","x":109,"y":421,"w":138,"h":174,"z":10,"anchor":"bottom-center","sprite":"seats/seat-stool-v3.png"},

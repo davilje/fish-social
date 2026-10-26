@@ -6,9 +6,9 @@
 
 | 文件 | 说明 |
 |------|------|
-| [report.html](./report.html) | 完整报告（图标墙 + 图表 + 表格），浏览器直接打开 |
-| [data.json](./data.json) | 原始数据（四塘品质/体长分布 + 成长曲线点） |
-| [charts/](./charts/) | 静态 SVG 图表 |
+| [report.html](report.html) | 完整报告（图标墙 + 图表 + 表格），浏览器直接打开 |
+| [data.json](data.json) | 原始数据（四塘品质/体长分布 + 成长曲线点） |
+| [charts/](charts) | 静态 SVG 图表 |
 
 ## 重新生成
 
