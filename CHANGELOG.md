@@ -16,12 +16,12 @@
 ## 2026-10-26 — 登录场景加入五猫烤鱼
 
 - 以当前黑猫、奶牛猫、狸花猫丧彪、橘猫、三花猫为形象参考，新增岸边围坐分享烤鱼的静态登录背景，并应用到 Unity。
-- 登录控件收拢至上半部，保留 Steam 登录绑定；Unity 两档渲染、登录布局测试 2/2 和 Web 预览检查通过。详见[采用记录](docs/art/login-pastel-2026-10-26/cats-v3/README.md)。
+- 登录控件收拢至上半部，保留 Steam 登录绑定；Unity 两档渲染、登录布局测试 2/2 和 Web 预览检查通过。详见[采用记录](docs/archive/2026-10-26/superseded/art/login-pastel-2026-10-26/cats-v3/README.md)。
 
 ## 2026-10-26 — 登录背景采用粉彩 v2
 
 - 用户确认采用简化粉彩场景，替换 DesktopShell 登录底图；按 3:2 原比例显示，保留原有登录控件与绑定。
-- Unity 导入、Prefab 校验及 480×320／960×640 实际渲染完成；采用记录与对照图见 [登录背景](docs/art/login-pastel-2026-10-26/README.md)。
+- Unity 导入、Prefab 校验及 480×320／960×640 实际渲染完成；采用记录与对照图见 [登录背景](docs/archive/2026-10-26/superseded/art/login-pastel-2026-10-26/README.md)。
 
 ## 2026-10-25 — 钓鱼场景原图保色修订
 
@@ -62,7 +62,7 @@
 
 - 用户确认其余音效通过应用，锁定46条v3非音乐资源及配置；验收原文与hash写入 `docs/engineering/audio/audio-22i-sfx-acceptance.json`。
 - 仅BGM重写为88 BPM、G大调、32小节A/A′/B/A，明确八小节主题与固定伴奏；全局单旋律、和声边界止音，保留无钢琴方向。87.273秒完整循环及21.818秒主题试听已接入。
-- 音效字节与metadata保持一致；独立谱面和PCM格式/循环/混音检查通过，BGM听感与Windows同步仍待验收。试听 `docs/art/audio-22i/v4/`，报告 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v4.md`。
+- 音效字节与metadata保持一致；独立谱面和PCM格式/循环/混音检查通过，BGM听感与Windows同步仍待验收。试听 `docs/archive/2026-10-26/superseded/art/audio-22i/v4/`，报告 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v4.md`。
 
 ## 2026-10-24 — STEAM-DESKTOP-22I v3 听感修订
 
@@ -90,7 +90,7 @@
 - 新增纸张／铅笔／印章操作音、28 条独立实录分档水声、保留授权猫叫；68 BPM 柔音采样钢琴循环 84.706 秒，另交付同旋律配器 A/B 和九场景试听，v1 冻结可比较。
 - Unity 四短音＋一音乐受控播放，WPF 实际源帧 marker、共享 owner／session、稳定 catchId 透传、静默快照与事件去重、后台咬钩和独立音量接入。
 - 资源／后端／浏览器／Unity／WPF 工程验证通过；Windows ≥30 事件画声延迟和耳机／扬声器听感未执行，待实机验收。计划只回写 22I 已实现，设计与完成日期 2026-10-24。
-- 完整来源、hash、测量、测试边界：`docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v2.md`；试听 `docs/art/audio-22i/v2/index.html`。
+- 完整来源、hash、测量、测试边界：`docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v2.md`；试听 `docs/archive/2026-10-26/superseded/art/audio-22i/v2/index.html`。
 
 - 交付猫咪同屏四档预览、18 张原创透明候选及版本／许可／hash，三处随包资源同步；213 个 Web 组合验证通过。
 - 接入权威动作／阶段 ID、源帧发布信封、真实水面锚点、24 实例／8 组池、品质设置与 Unity 兜底；收获／脱钩／收线效果无绑定，无真实破水动作时 FX05 静默。
@@ -225,7 +225,7 @@
 
 - 修复两个 Web 预览底栏打开时内容先露出、再隐藏贴入的闪回；保留原始纸页、活页环和卡片动效参数。
 - 移除工作区启动及编辑入口的重复渲染，并等待工作区脚本就绪后启动。
-- Chrome 导航回归 **22/22** 通过，包含逐帧透明度与脚本加载竞态检查；历史定位与复现方式见 `docs/design/ui/journal/2026-10-23-journal-preview-navigation-fix.md`。
+- Chrome 导航回归 **22/22** 通过，包含逐帧透明度与脚本加载竞态检查；历史定位与复现方式见 `docs/archive/2026-10-26/superseded/design/ui/2026-10-23-journal-preview-navigation-fix.md`。
 
 ## 2026-10-23 资料与收获四页 Web 方案落地
 
@@ -253,7 +253,7 @@
 - 地图/选塘共用照片、等级准入、收费档位、重试和入塘状态；修复同塘换档被提前返回、详情与操作区重叠、卡片选中装饰错误。
 - 补真实道具库存、排行榜玩家卡、成就分类、个人中心五子页、动态右栏评论和本人分页；新增预制体发布弹窗与160字鱼获附言接口。
 - 接入卡片贴入、账号隔离NEW、收获序列、操作印章、单循环调度、隐藏暂停与减少动效；修复旧预制体别名保存造成的嵌套引用丢失。
-- Unity EditMode **347/347**、构建守卫 **PASS**、本人动态/发布 HTTP 测试 **8/8**。Windows构建、Steam联机及DPI仍待平台验收。正式截图与实施记录见 `docs/art/cozy-journal/production/` 和 `docs/design/ui/journal/2026-10-21-cozy-journal-unity-implementation.md`。
+- Unity EditMode **347/347**、构建守卫 **PASS**、本人动态/发布 HTTP 测试 **8/8**。Windows构建、Steam联机及DPI仍待平台验收。正式截图与实施记录见 `docs/art/cozy-journal/production/` 和 `docs/archive/2026-10-26/superseded/design/ui/2026-10-21-cozy-journal-unity-implementation.md`。
 
 ## 2026-10-20 钓鱼场景与座椅美术更新
 

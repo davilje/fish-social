@@ -7,6 +7,7 @@
 | 策划与需求 | [需求分类](planning/specs/README.md) · [开发交接](planning/prompts/README.md) · [协作流程](planning/workflow/README.md) |
 | 工程实现 | [性能、声音、水效、场景、动画与交互](engineering/README.md) |
 | 界面设计 | [手账、家园、Overlay、原型](design/ui/README.md) |
+| 现行预览 | [一个页面切换界面、形象、动作、地图、特效和音效](design/ui/current/index.html) |
 | 美术与素材 | [资源与来源](art/README.md) · [场景维护](art/scenes/README.md) |
 | 数据分析 | [模拟、运营日报及历史数据](analytics/README.md) |
 | 运维与监控 | [运维](ops/README.md) · [监控](monitoring/README.md) · [合规](compliance/README.md) |

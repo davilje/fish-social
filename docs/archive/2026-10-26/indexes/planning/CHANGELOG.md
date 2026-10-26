@@ -24,7 +24,7 @@
 
 - 用户确认其余音效通过应用，锁定46条v3非音乐资源及配置；验收原文与hash写入 `docs/engineering/audio/audio-22i-sfx-acceptance.json`。
 - 仅BGM重写为88 BPM、G大调、32小节A/A′/B/A，明确八小节主题与固定伴奏；全局单旋律、和声边界止音，保留无钢琴方向。87.273秒完整循环及21.818秒主题试听已接入。
-- 音效字节与metadata保持一致；独立谱面和PCM格式/循环/混音检查通过，BGM听感与Windows同步仍待验收。试听 `docs/art/audio-22i/v4/`，报告 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v4.md`。
+- 音效字节与metadata保持一致；独立谱面和PCM格式/循环/混音检查通过，BGM听感与Windows同步仍待验收。试听 `docs/archive/2026-10-26/superseded/art/audio-22i/v4/`，报告 `docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v4.md`。
 
 ## 2026-10-24 — STEAM-DESKTOP-22I v3 听感修订
 
@@ -52,7 +52,7 @@
 - 新增纸张／铅笔／印章操作音、28 条独立实录分档水声、保留授权猫叫；68 BPM 柔音采样钢琴循环 84.706 秒，另交付同旋律配器 A/B 和九场景试听，v1 冻结可比较。
 - Unity 四短音＋一音乐受控播放，WPF 实际源帧 marker、共享 owner／session、稳定 catchId 透传、静默快照与事件去重、后台咬钩和独立音量接入。
 - 资源／后端／浏览器／Unity／WPF 工程验证通过；Windows ≥30 事件画声延迟和耳机／扬声器听感未执行，待实机验收。计划只回写 22I 已实现，设计与完成日期 2026-10-24。
-- 完整来源、hash、测量、测试边界：`docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v2.md`；试听 `docs/art/audio-22i/v2/index.html`。
+- 完整来源、hash、测量、测试边界：`docs/archive/2026-10-26/superseded/engineering/2026-10-24-audio-22i-v2.md`；试听 `docs/archive/2026-10-26/superseded/art/audio-22i/v2/index.html`。
 
 - 交付猫咪同屏四档预览、18 张原创透明候选及版本／许可／hash，三处随包资源同步；213 个 Web 组合验证通过。
 - 接入权威动作／阶段 ID、源帧发布信封、真实水面锚点、24 实例／8 组池、品质设置与 Unity 兜底；收获／脱钩／收线效果无绑定，无真实破水动作时 FX05 静默。
@@ -429,7 +429,7 @@
 - 定稿三条规则：**仅达标鱼回塘**（紫+、体长比≥75%；不达标留包可卖）；**回鱼金 = 卖价×1.5**；**仅收费且 `allowsAutoReturn` 的塘**可回（免票塘 `POND_NO_RETURN`）。
 - 同步修订 `FEAT-RETURN-01` / `FEAT-RETURN-02` 正文与验收项。
 - 自检：`npm run verify:feat-return-01`、`verify:feat-return-01-server`、`verify:feat-return-02`
-- 规格：[回鱼规则调优.md](../../../../planning/specs/gameplay/回鱼规则调优.md)、[回鱼机制.md](../../../../planning/specs/gameplay/回鱼机制.md)、[双价塘与自动回鱼.md](../../../../planning/specs/gameplay/双价塘与自动回鱼.md)
+- 规格：[回鱼规则调优.md](../../superseded/planning/specs/回鱼规则调优.md)、[回鱼机制.md](../../../../planning/specs/gameplay/回鱼机制.md)、[双价塘与自动回鱼.md](../../../../planning/specs/gameplay/双价塘与自动回鱼.md)
 
 ### [steam-desktop-10b-windows-deploy] - 2026-08-24
 

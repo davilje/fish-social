@@ -79,7 +79,7 @@
 | [Steam桌面端-14AOverlay钓位座位图.md](../../../../../planning/specs/desktop/Steam桌面端-14AOverlay钓位座位图.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14A；座位预制体为真相、空位半透明、猫跟 actor-pet |
 | [Steam桌面端-14BOverlay横轴场景平移.md](../../../../../planning/specs/desktop/Steam桌面端-14BOverlay横轴场景平移.md) | hotfix | P1 | **已实现** | STEAM-DESKTOP-14B；左右箭头长按平移宽场景 |
 | [Steam桌面端-14COverlayHUD正式素材与文字对齐.md](../../../../../planning/specs/desktop/Steam桌面端-14COverlayHUD正式素材与文字对齐.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14C；正式图 + 字体/对齐导出 |
-| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](../../../../../planning/specs/desktop/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14D；小图标，圆环套猫，无头顶相位字 |
+| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](../../../superseded/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14D；小图标，圆环套猫，无头顶相位字 |
 | [Steam桌面端-15Overlay钓鱼栏按钮时序.md](../../../../../planning/specs/desktop/Steam桌面端-15Overlay钓鱼栏按钮时序.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-15；主按钮常驻改文案；收杆结束后同时出打窝+离席 |
 | [Steam桌面端-16Overlay窗口视口缩放.md](../../../../../planning/specs/desktop/Steam桌面端-16Overlay窗口视口缩放.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-16；视口 960/800/600，高度切顶，HUD 随宽内收 |
 | [Steam桌面端-17占用座位不可顶机器人.md](../../../../../planning/specs/desktop/Steam桌面端-17占用座位不可顶机器人.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-17；占用座（含 bot）不可点占 |
@@ -92,7 +92,7 @@
 | [BUG修复-默认头像目录与运行白名单不一致.md](../../../../../planning/specs/bugs/BUG修复-默认头像目录与运行白名单不一致.md) | hotfix | P0 | **已实现** | BUG-55：运行中的 shared dist 仍是旧 6 只猫，新猫保存被拒 |
 | [BUG修复-Overlay阶段切换卡帧与收杆重播.md](../../../../../planning/specs/bugs/BUG修复-Overlay阶段切换卡帧与收杆重播.md) | hotfix | P0 | **已实现** | BUG-56：贴图解码卡帧 + 收杆结束后再次收杆重播 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](../../../../../planning/specs/desktop/Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-18；条数 + actor-hint |
-| [Steam桌面端-19咬钩结算弹窗.md](../../../../../planning/specs/desktop/Steam桌面端-19咬钩结算弹窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-19；咬钩弹窗；取消领取；分档入包/回鱼 |
+| [Steam桌面端-19咬钩结算弹窗.md](../../../superseded/planning/specs/Steam桌面端-19咬钩结算弹窗.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-19；咬钩弹窗；取消领取；分档入包/回鱼 |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](../../../../../planning/specs/desktop/Steam桌面端-14EOverlay头顶状态图标与进度环.md) | hotfix | P0 | **已实现** | STEAM-DESKTOP-14E；修订 14D 套猫/等鱼图标 |
 | [Steam桌面端-08A世界地图与鱼塘选择.md](../../../../../planning/specs/desktop/Steam桌面端-08A世界地图与鱼塘选择.md) | v1.0-steam-desktop | P0 | **已实现** | 08A；超大地图 Image、拖动缩放、坐标进入鱼塘 |
 | [Steam桌面端-08B商店与装备.md](../../../../../planning/specs/desktop/Steam桌面端-08B商店与装备.md) | v1.0-steam-desktop | P0 | **已实现** | 08B；鱼饵、渔具、购买与装备 |
@@ -134,7 +134,7 @@
 | [Steam桌面端-Debug鱼塘钓位查看.md](../../../../../planning/specs/desktop/Steam桌面端-Debug鱼塘钓位查看.md) | DEBUG | P1 | **已实现** | STEAM-DESKTOP-12B；Overlay 塘/钓位鱼查看、属性、强制上钩、三列×1.3 |
 | [回鱼机制.md](../../../../../planning/specs/gameplay/回鱼机制.md) | R2 | P0 | **已实现** | FEAT-RETURN-01；回塘增重、紫品准入、金=卖价×1.5 |
 | [双价塘与自动回鱼.md](../../../../../planning/specs/gameplay/双价塘与自动回鱼.md) | R2 | P1 | **已实现** | FEAT-RETURN-02；进塘双价；达标自动回鱼、不达标留包 |
-| [回鱼规则调优.md](../../../../../planning/specs/gameplay/回鱼规则调优.md) | R2+ | P1 | **已实现** | FEAT-RETURN-03；准入统一、金×1.5、仅收费塘 |
+| [回鱼规则调优.md](../../../superseded/planning/specs/回鱼规则调优.md) | R2+ | P1 | **已实现** | FEAT-RETURN-03；准入统一、金×1.5、仅收费塘 |
 | [自动回鱼体验闭环.md](../../../../../planning/specs/gameplay/自动回鱼体验闭环.md) | R2+ | P1 | **已实现** | FEAT-RETURN-04；钓到即回、结算页、Debug 顶层弹窗 |
 | [回鱼体重分档.md](../../../../../planning/specs/gameplay/回鱼体重分档.md) | R2+ | P1 | **已实现** | FEAT-RETURN-05；体重>10斤准入；>100斤×3、>10斤×1.5 |
 | [塘生态数值表驱动.md](../../../../../planning/specs/gameplay/塘生态数值表驱动.md) | R3 | P0 | **已实现** | FEAT-POOL-01；种池仅种；人口列在 ponds；品质=category∩种带 |
@@ -352,7 +352,7 @@ A0 (1w) �?A1 (2~3d) �?A2 (3~5d) �?灰度 1w �?B0 (1w) �?B1 (2~3d) �?
 | 2026-10-22 | **STEAM-DESKTOP-21** 用户认可远端 UI 修复版并沿用；本地回归 **448/448**，结束 JournalV2 替换推进；Windows/Steam 平台待验收 |
 | 2026-10-22 | **STEAM-DESKTOP-21** 补用户新增八类 UI 缺口及独立社交分区；最新回归 **468/468**、预制体守卫 PASS，21 个正式页面状态截图更新；Windows/Steam 平台待验收 |
 | 2026-10-23 | **STEAM-DESKTOP-21** 按 Web 重写资料、编辑、分享和离塘结算；新增回归 12/12，全套 476 通过／5 项旧检查失败，守卫 PASS；24 状态截图与六状态对照；Windows/Steam 待验收 |
-| 2026-10-23 | **STEAM-DESKTOP-21** 两个 Web 预览底栏打开闪回与工作区重复渲染修复，保留原动效参数；历史定位与逐帧回归见 `docs/design/ui/journal/2026-10-23-journal-preview-navigation-fix.md` |
+| 2026-10-23 | **STEAM-DESKTOP-21** 两个 Web 预览底栏打开闪回与工作区重复渲染修复，保留原动效参数；历史定位与逐帧回归见 `docs/archive/2026-10-26/superseded/design/ui/2026-10-23-journal-preview-navigation-fix.md` |
 | 2026-10-23 | **STEAM-DESKTOP-21** 工作区动效同步到正式 Unity；全套 498 通过／4 旧检查失败，专项复验与 30 张动效帧见 `docs/design/ui/journal/2026-10-23-workspace-motion-unity.md` |
 | 2026-10-23 | **STEAM-DESKTOP-21** 修复开页与右栏空绑定、编辑旧侧栏时序和照片二次入场；专项 130/130，全套 521 通过／4 既有失败，7 场景 Web 实测及正式路由帧图已更新。 |
 | 2026-10-23 | **STEAM-DESKTOP-21** 补齐资料正文三组、经验条、编辑两栏及编辑／返回 100ms 退出动效，Web 和 Unity 同步；专项 137/137，全套 528 通过／4 既有失败，42 帧更新；Windows/Steam 待验收。 |
@@ -377,8 +377,8 @@ A0 (1w) �?A1 (2~3d) �?A2 (3~5d) �?灰度 1w �?B0 (1w) �?B1 (2~3d) �?
 |---|---|---|
 | [22H 钓鱼特效](../../../../../planning/specs/desktop/Steam桌面端-22H钓鱼特效设计.md) | 已实现（2026-10-25）；用户正式采用，待Windows/I实机验收 | v4简约造型＋v8鱼塘配色、18纹理与四档；7类效果；咬钩浮漂沉浮及小水花对齐鱼线入水点，收杆真实触水，结果装饰撤销 |
 | [22I 声音体验](../../../../../planning/specs/desktop/Steam桌面端-22I声音体验设计.md) | 已实现；v5配乐与46条音效已采用，Windows待实测 | 当前47条正式资源已应用，旧版资源已清理；保留音频仲裁及九场景试听 |
-| [22J 世界地图](../../../../../planning/specs/desktop/Steam桌面端-22J世界地图设计.md) | 已确认；方案待交互评审，未实现 | 三栏布局、点位标签、筛选、费用确认、数据和失败恢复 |
+| [22J 世界地图](../../../superseded/planning/specs/Steam桌面端-22J世界地图设计.md) | 已归档 | 三栏布局、点位标签、筛选、费用确认、数据和失败恢复 |
 
 此前“G/H/J 只登记”为历史记录；本次 H/J 已升级为完整方案，G 不变。实现完成日期仍留空。
 
-- 2026-10-24：**STEAM-DESKTOP-22I v2 已实现**，设计／完成日期均 2026-10-24；[试听入口](../../../../../art/audio-22i/v2/index.html)、[工程验证及待验收项](../../../superseded/engineering/2026-10-24-audio-22i-v2.md)。此记录取代上方 v1「未接入」历史状态，不代表 Windows 实听已通过。
+- 2026-10-24：**STEAM-DESKTOP-22I v2 已实现**，设计／完成日期均 2026-10-24；[试听入口](../../../superseded/art/audio-22i/v2/index.html)、[工程验证及待验收项](../../../superseded/engineering/2026-10-24-audio-22i-v2.md)。此记录取代上方 v1「未接入」历史状态，不代表 Windows 实听已通过。

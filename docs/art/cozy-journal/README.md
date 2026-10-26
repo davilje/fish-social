@@ -55,4 +55,4 @@
 7. `node scripts/art/build-cozy-journal-preview.cjs` 与 `node scripts/art/build-cozy-journal-comparison.cjs` — 更新素材页和对照页。
 8. `node scripts/art/verify-cozy-journal-assets.cjs` — 检查尺寸、透明通道、GUID、PPU、九宫格边界、源文件及对照图。
 
-正式迁移已实施，详见 `../../design/ui/2026-10-21-cozy-journal-unity-implementation.md`。正式页面重建后可执行 `node scripts/art/build-cozy-journal-production-preview.cjs` 更新17个状态截图。上述步骤4–7仍是参考样板的对照链，不替代正式页面和Windows实机验收。
+正式迁移已实施，历史记录见 `../../archive/2026-10-26/superseded/design/ui/2026-10-21-cozy-journal-unity-implementation.md`。现行说明见 `../../design/ui/journal/README.md`。正式页面重建后可执行 `node scripts/art/build-cozy-journal-production-preview.cjs` 更新17个状态截图。上述步骤4–7仍是参考样板的对照链，不替代正式页面和Windows实机验收。

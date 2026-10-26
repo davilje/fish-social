@@ -404,7 +404,11 @@ function installJournalPages() {
   document.body.classList.toggle('j-reduced', reduced);
   $('#reduce').textContent = `减少动效：${reduced ? '开' : '关'}`; $('#reduce').classList.toggle('on', reduced);
   const requested = new URLSearchParams(location.search).get('page');
-  if (NAV.some(p => p.id === requested)) { S.page = requested; bobIdx = NAV.findIndex(p => p.id === requested); }
+  if (requested && PAGES[requested]) {
+    S.page = requested;
+    const navIdx = NAV.findIndex(p => p.id === requested);
+    if (navIdx >= 0) bobIdx = navIdx;
+  }
   jSyncPlayer();
   [...AVATARS.map(([id]) => jAvatar(id)), ...journalFish.map(f => `assets/fish/${f.id}.png`)].forEach(src => { const img = new Image(); img.src = src; img.decode?.().catch(() => {}); });
 }

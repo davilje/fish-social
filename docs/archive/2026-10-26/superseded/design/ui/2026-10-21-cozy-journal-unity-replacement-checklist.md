@@ -2,7 +2,7 @@
 
 更新日期：2026-10-21。实施基线为 Git HEAD `d57a7dd0` 与本工作区的原版预览、共享资源和现有业务。本轮已将正式 Unity 页面、组件及业务接入手账主题。
 
-**当前状态：正式页面替换已实施，Unity 自动化与渲染证据见[实施记录](../../../../../design/ui/journal/2026-10-21-cozy-journal-unity-implementation.md)。Windows 发布包、Steam 真账号联机、DPI 与最终美术效果仍需平台验收。** 下文保留原始全量验收要求；`[x]` 表示本轮已有实现和检查依据，`[ ]` 表示整项尚未完成验收，不能把已有资源或截图自动等同业务通过。
+**当前状态：正式页面替换已实施，Unity 自动化与渲染证据见[实施记录](2026-10-21-cozy-journal-unity-implementation.md)。Windows 发布包、Steam 真账号联机、DPI 与最终美术效果仍需平台验收。** 下文保留原始全量验收要求；`[x]` 表示本轮已有实现和检查依据，`[ ]` 表示整项尚未完成验收，不能把已有资源或截图自动等同业务通过。
 
 ### 本轮正式接入
 
@@ -273,7 +273,7 @@ P0 为会影响整体可用性或数据正确性的前置工作；P1 为达到�
 
 ### 5.2 美术资源现状与逐组工作
 
-[独立美术规格](../../../../../design/ui/journal/2026-10-21-cozy-journal-art-replacement.md)保留 A01–A30 的制作要求；[早期盘点](../../../../../design/ui/2026-10-21-cozy-journal-art-inventory.json)只记录原有 137 张资源。当前资源是否存在、导入参数与校正状态，以第 1 节的 manifest 和 coverage 为准。根目录 asset-manifest 已按实际 AssetDatabase 重建。
+[独立美术规格](2026-10-21-cozy-journal-art-replacement.md)保留 A01–A30 的制作要求；[早期盘点](../../../../../design/ui/2026-10-21-cozy-journal-art-inventory.json)只记录原有 137 张资源。当前资源是否存在、导入参数与校正状态，以第 1 节的 manifest 和 coverage 为准。根目录 asset-manifest 已按实际 AssetDatabase 重建。
 
 下表“已校正”只统计按原版几何/样式生成或校正的 UI 条目，不表示整个组件已获视觉认可或正式接入。本轮已接入正式主题；具体引用与仍作为备用的补充资源见 coverage.json，下面保留各组原定检查要求。
 

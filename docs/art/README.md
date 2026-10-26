@@ -5,6 +5,7 @@
 | 角色与皮肤 | [猫咪绘制与导出](cat-skins/README.md)、[资源路由沿革](cat-skins/resource-routing.md)、[丧彪新增角色](cat-skins/sangbiao/README.md) |
 | 鱼塘场景 | [更新与导出菜单](scenes/overlay-scene-update-and-editor-menus.md)、[当前场景工程记录](../engineering/scenes/README.md) |
 | 水面特效 | [正式采用记录](../engineering/water-effects/2026-10-25-water-effects-22h-adoption.md)、[v4 素材](water-effects-22h/magic-v4/README.md) |
+| 登录 | [五猫完整窗口 v4](login-pastel-2026-10-26/README.md) |
 | 风格与出图 | [视觉规范](direction/style-guide.md)、[ComfyUI 配置](direction/comfyui-setup.md) |
 | 旧方案 | [历史归档](../archive/2026-10-26/README.md) |
 

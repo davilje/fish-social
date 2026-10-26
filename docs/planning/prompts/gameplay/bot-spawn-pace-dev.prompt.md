@@ -6,7 +6,7 @@
 ## 必读（按序）
 
 1. `docs/planning/specs/gameplay/机器人进塘节奏与初始时长.md`
-2. `docs/planning/specs/gameplay/机器人进塘节奏与初始时长-开发交接.md`
+2. `docs/archive/2026-10-26/superseded/planning/specs/机器人进塘节奏与初始时长-开发交接.md`（交接已退出现行目录，规则以第 1 份为准）
 3. `server/src/bots.ts`（`tickSpawn` / `startBotLoop` / `tickBots`）
 4. `server/src/pondUserManager.ts` → `startBotFishing`
 5. `server/src/gameConfig.ts`

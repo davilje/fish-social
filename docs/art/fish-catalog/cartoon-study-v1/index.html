@@ -19,7 +19,7 @@ for(const [id,name,note] of samples){
  const pair=document.createElement('div');pair.className='pair';
  for(const fresh of [false,true]){
   const column=document.createElement('div');column.className=fresh?'new':'old';const label=document.createElement('div');label.className='label';label.textContent=fresh?'轻 Q 版 · 新样稿':'现有版本';const art=document.createElement('div');art.className='art';const img=new Image();img.alt=name+(fresh?'轻 Q 版':'现有版本');
-  if(!fresh&&id==='koi'){const crop=document.createElement('div');crop.className='crop';const scale=.42;crop.style.width=497*scale+'px';crop.style.height=303*scale+'px';img.className='atlas';img.src='../realistic-v1/fish-atlas.png';img.style.width=1536*scale+'px';img.style.height=1024*scale+'px';img.style.left=-521*scale+'px';img.style.top=-140*scale+'px';crop.append(img);art.append(crop)}else{img.src=fresh?'assets/'+id+'.png':'../realistic-v1/'+id+'.png';art.append(img)}
+  if(!fresh&&id==='koi'){const crop=document.createElement('div');crop.className='crop';const scale=.42;crop.style.width=497*scale+'px';crop.style.height=303*scale+'px';img.className='atlas';img.src='../../../archive/2026-10-26/superseded/art/fish-catalog/realistic-v1/fish-atlas.png';img.style.width=1536*scale+'px';img.style.height=1024*scale+'px';img.style.left=-521*scale+'px';img.style.top=-140*scale+'px';crop.append(img);art.append(crop)}else{img.src=fresh?'assets/'+id+'.png':'../../../archive/2026-10-26/superseded/art/fish-catalog/realistic-v1/'+id+'.png';art.append(img)}
   column.append(label,art);pair.append(column);
  }
  const description=document.createElement('p');description.className='note';description.textContent=note;card.append(title,pair,description);document.getElementById('grid').append(card);

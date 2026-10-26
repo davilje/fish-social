@@ -8,9 +8,9 @@
 
 - [22H 猫咪风格水面特效（v2）](steam-desktop-22h-water-effects-dev.prompt.md)
 - [22I 钓鱼手记声音体验（v2）](steam-desktop-22i-audio-dev.prompt.md)
-- [22J 世界地图（v1）](steam-desktop-22j-world-map-dev.prompt.md)
+- [22J 世界地图（v1）](../../../archive/2026-10-26/superseded/planning/prompts/steam-desktop-22j-world-map-dev.prompt.md)（已归档，不再实现）
 
-H/I 共享事件与尺寸档位，先核验已有公共实现；J 可独立推进。各提示词只回写对应编号的完成状态。
+H/I 共享事件与尺寸档位，先核验已有公共实现。22J 已归档，下面涉及 J 的步骤和验收不再执行。各提示词只回写对应编号的完成状态。
 
 ## 必读
 
@@ -18,7 +18,7 @@ H/I 共享事件与尺寸档位，先核验已有公共实现；J 可独立推�
 2. `docs/design/ui/steam-desktop-22hij/presentation-contract.md`。
 3. `docs/planning/specs/desktop/Steam桌面端-22H钓鱼特效设计.md`。
 4. `docs/planning/specs/desktop/Steam桌面端-22I声音体验设计.md`，已有 `docs/art/audio-22i/index.html` 与 `policy.json`。
-5. `docs/planning/specs/desktop/Steam桌面端-22J世界地图设计.md`。
+5. `docs/archive/2026-10-26/superseded/planning/specs/Steam桌面端-22J世界地图设计.md`（已归档，不要实现）。
 6. A–F 实现说明、当前工作区并行改动；保留最近用户认可版本，不重建整套 UI。
 
 ## 实施顺序

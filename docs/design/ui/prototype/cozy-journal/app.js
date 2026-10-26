@@ -1494,8 +1494,12 @@ function boot() {
   applyHeader(S.page);
   render(S.page);
   requestAnimationFrame(() => {
-    $('#bobber').style.translate = `${tabCenter(bobIdx)}px 0`;
-    startBobFloat();
+    if (NAV.some(n => n.id === S.page)) {
+      $('#bobber').style.translate = `${tabCenter(bobIdx)}px 0`;
+      startBobFloat();
+    } else {
+      $('#bobber').style.opacity = '0';
+    }
     applyHeader(S.page);
   });
   entrance($('.content'));

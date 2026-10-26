@@ -1,5 +1,7 @@
 # 需求规格 · 桌面客户端
 
+现行头顶状态看 [14E](Steam桌面端-14EOverlay头顶状态图标与进度环.md)。现行世界地图只看 [08A](Steam桌面端-08A世界地图与鱼塘选择.md) 与 [08A2](Steam桌面端-08A2世界地图分区与进塘扣费.md)，预览是手账「探索世界」。22J 已归档：[世界地图迭代方案](../../../archive/2026-10-26/superseded/planning/specs/Steam桌面端-22J世界地图设计.md)。14D 的套猫圆环、等鱼常驻图标，以及 19 的单次咬钩结算卡，已移出本目录：[14D](../../../archive/2026-10-26/superseded/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md)、[19](../../../archive/2026-10-26/superseded/planning/specs/Steam桌面端-19咬钩结算弹窗.md)。正常鱼塘钓获自动入包或回鱼，离塘总结见手账资料四页。
+
 | 文档 | 记录状态 |
 |---|---|
 | [Steam原生桌面宠物Overlay](Steam原生桌面宠物Overlay.md) | 已实现 |
@@ -29,19 +31,16 @@
 | [Steam桌面端-14AOverlay钓位座位图](Steam桌面端-14AOverlay钓位座位图.md) | 已实现 |
 | [Steam桌面端-14BOverlay横轴场景平移](Steam桌面端-14BOverlay横轴场景平移.md) | 已实现 |
 | [Steam桌面端-14COverlayHUD正式素材与文字对齐](Steam桌面端-14COverlayHUD正式素材与文字对齐.md) | 已实现 |
-| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环](Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | 已实现 |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环](Steam桌面端-14EOverlay头顶状态图标与进度环.md) | 已实现 |
 | [Steam桌面端-14Overlay透明点击穿透回归](Steam桌面端-14Overlay透明点击穿透回归.md) | 已实现 |
 | [Steam桌面端-15Overlay钓鱼栏按钮时序](Steam桌面端-15Overlay钓鱼栏按钮时序.md) | 已实现 |
 | [Steam桌面端-16Overlay窗口视口缩放](Steam桌面端-16Overlay窗口视口缩放.md) | 已实现 |
 | [Steam桌面端-17占用座位不可顶机器人](Steam桌面端-17占用座位不可顶机器人.md) | 已实现 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位](Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | 已实现 |
-| [Steam桌面端-19咬钩结算弹窗](Steam桌面端-19咬钩结算弹窗.md) | 已实现 |
 | [Steam桌面端-20主窗口固定分辨率](Steam桌面端-20主窗口固定分辨率.md) | 已验收 |
 | [Steam桌面端-21猫咪钓鱼手账动效](Steam桌面端-21猫咪钓鱼手账动效.md) | 已实现 |
 | [Steam桌面端-22H钓鱼特效设计](Steam桌面端-22H钓鱼特效设计.md) | 已实现；2026-10-25用户正式采用v4造型与v8鱼塘配色，资源与正式代码已接入；待Windows实机及H/I联测 |
 | [Steam桌面端-22I声音体验设计](Steam桌面端-22I声音体验设计.md) | 已实现；v5 配乐与 46 条 v3 音效／猫声已采用，旧版资源已清理；Windows 画声延迟待实测 |
-| [Steam桌面端-22J世界地图设计](Steam桌面端-22J世界地图设计.md) | 需求已确认；方案 v1 已编写，待交互／视觉评审；未实现 |
 | [Steam桌面端-22KLM呼吸瞌睡与狸花猫](Steam桌面端-22KLM呼吸瞌睡与狸花猫.md) | 已实现（2026-10-24）；Windows 联机与视觉由用户验收 |
 | [Steam桌面端-22鱼塘表现修复与后续迭代](Steam桌面端-22鱼塘表现修复与后续迭代.md) | A–I、K–M 与 G 已实现（Windows 实机仍待验收）；J 方案 v1 未实现 |
 | [Steam桌面端-Debug鱼塘钓位查看](Steam桌面端-Debug鱼塘钓位查看.md) | 已实现 |

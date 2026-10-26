@@ -74,6 +74,24 @@
 | `design/ui/2026-10-14-cozy-prefab-repair.md` | [2026-10-14-cozy-prefab-repair.md](superseded/design/ui/2026-10-14-cozy-prefab-repair.md) | 旧UI阶段设计或终止的完整替换清单；验收与实现历史保留 |
 | `design/ui/2026-10-14-wpf-overlay-layout-refinement.md` | [2026-10-14-wpf-overlay-layout-refinement.md](superseded/design/ui/2026-10-14-wpf-overlay-layout-refinement.md) | 旧UI阶段设计或终止的完整替换清单；验收与实现历史保留 |
 | `design/ui/2026-10-21-cozy-journal-unity-replacement-checklist.md` | [2026-10-21-cozy-journal-unity-replacement-checklist.md](superseded/design/ui/2026-10-21-cozy-journal-unity-replacement-checklist.md) | 旧UI阶段设计或终止的完整替换清单；验收与实现历史保留 |
+| `design/ui/journal/2026-10-18-cells-profile-map.md` | [2026-10-18-cells-profile-map.md](superseded/design/ui/2026-10-18-cells-profile-map.md) | 格子与头像资源记录，效果已进入后续手账 |
+| `design/ui/journal/2026-10-21-cozy-journal-art-replacement.md` | [2026-10-21-cozy-journal-art-replacement.md](superseded/design/ui/2026-10-21-cozy-journal-art-replacement.md) | 美术替换清单，正式资源已接入 |
+| `design/ui/journal/2026-10-21-cozy-journal-unity-implementation.md` | [2026-10-21-cozy-journal-unity-implementation.md](superseded/design/ui/2026-10-21-cozy-journal-unity-implementation.md) | JournalV2 整包替换已终止 |
+| `design/ui/journal/2026-10-23-journal-preview-navigation-fix.md` | [2026-10-23-journal-preview-navigation-fix.md](superseded/design/ui/2026-10-23-journal-preview-navigation-fix.md) | 网页预览打开方式修补，效果已在预览页 |
+| `planning/specs/gameplay/钓鱼系统v2-开发交接.md` | [钓鱼系统v2-开发交接.md](superseded/planning/specs/钓鱼系统v2-开发交接.md) | 批量交接仍指向已废弃 A0，退出开发入口 |
+| `planning/specs/gameplay/机器人进塘节奏与初始时长-开发交接.md` | [机器人进塘节奏与初始时长-开发交接.md](superseded/planning/specs/机器人进塘节奏与初始时长-开发交接.md) | 交接稿；现行规则留在玩法规格 |
+| `planning/specs/gameplay/回鱼规则调优.md` | [回鱼规则调优.md](superseded/planning/specs/回鱼规则调优.md) | 紫品/体长 75% 准入已由回鱼体重分档取代 |
+| `art/login-pastel-2026-10-26/` 的 v1、v2 与 `cats-v3/` | [登录旧稿](superseded/art/login-pastel-2026-10-26/README.md) | 小窗登录方案；现行全窗口见五猫 v4 |
+| `planning/specs/desktop/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md` | [14D](superseded/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | 套猫圆环与等鱼常驻图标已由 14E 取代 |
+| `planning/prompts/desktop/steam-desktop-14d-pet-status-icon-dev.prompt.md` | [14D 交接](superseded/planning/prompts/steam-desktop-14d-pet-status-icon-dev.prompt.md) | 不再派发 |
+| `planning/specs/desktop/Steam桌面端-19咬钩结算弹窗.md` | [19](superseded/planning/specs/Steam桌面端-19咬钩结算弹窗.md) | 正常鱼塘单次结算卡已取消 |
+| `planning/prompts/desktop/steam-desktop-19-hook-settle-prompt-dev.prompt.md` | [19 交接](superseded/planning/prompts/steam-desktop-19-hook-settle-prompt-dev.prompt.md) | 不再派发 |
+| `planning/specs/desktop/Steam桌面端-22J世界地图设计.md` | [22J](superseded/planning/specs/Steam桌面端-22J世界地图设计.md) | 地图迭代方案已归档；现行地图是 08A／08A2 |
+| `planning/prompts/desktop/steam-desktop-22j-world-map-dev.prompt.md` | [22J 交接](superseded/planning/prompts/steam-desktop-22j-world-map-dev.prompt.md) | 不再派发 |
+| `art/dafeiyu/full-v1/` | [full-v1](superseded/art/dafeiyu/full-v1/README.md) | 大肥鱼低清全动作包；现行是 hd-v2 |
+| `art/whale-maid/` | [whale-maid](superseded/art/whale-maid/template-study-v1/README.md) | 六姿势试绘，角色已改名大肥鱼 |
+| `art/fish-catalog/realistic-v1/` | [realistic-v1](superseded/art/fish-catalog/realistic-v1/) | 被轻 Q 版替换的写实鱼图 |
+| `art/audio-22i/v2/`、`v3/`、`v4/` | [v2](superseded/art/audio-22i/v2/index.html) | 只剩跳到 v5 的页面，旧音频已删除 |
 | `design/ui/unified/2026-10-14-layout-refinement.md` | [2026-10-14-layout-refinement.md](superseded/design/ui/unified/2026-10-14-layout-refinement.md) | 旧UI阶段设计或终止的完整替换清单；验收与实现历史保留 |
 | `design/ui/unified/README.md` | [README.md](superseded/design/ui/unified/README.md) | 旧UI阶段设计或终止的完整替换清单；验收与实现历史保留 |
 | `design/ui/unified/component-library.json` | [component-library.json](superseded/design/ui/unified/component-library.json) | 旧UI阶段设计或终止的完整替换清单；验收与实现历史保留 |

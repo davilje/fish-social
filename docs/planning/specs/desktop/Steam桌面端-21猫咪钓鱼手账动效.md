@@ -55,7 +55,7 @@
 | 2026-10-21 | 用户确认手账动效方案。规格记为已确认，开始按原型接入桌面端。 |
 | 2026-10-22 | 用户认可远端逐项对齐后的修复版，结束 JournalV2 替换推进；正式入口沿用 DesktopShellUi / PanelRouter。Windows/Steam 平台验收仍待完成。 |
 | 2026-10-22 | 按新增八类缺口补排行榜渐变资源、经验条、动态排版与入场、收藏/成就标签与印章；分离好友申请、私信、塘聊及通知，修正选塘和地图排布。详见缺口修复记录。 |
-| 2026-10-23 | 两套 Web 预览修复底栏打开闪回，工作区去除启动及编辑重复渲染；保留原动效参数。见 [定位与回归](../../../design/ui/journal/2026-10-23-journal-preview-navigation-fix.md)。 |
+| 2026-10-23 | 两套 Web 预览修复底栏打开闪回，工作区去除启动及编辑重复渲染；保留原动效参数。见 [定位与回归](../../../archive/2026-10-26/superseded/design/ui/2026-10-23-journal-preview-navigation-fix.md)。 |
 | 2026-10-23 | 新版工作区动效同步到正式 Unity 共享页面及弹窗；按钮、头像、详情选择和减少动效补齐。全套 498 通过／4 旧检查失败，另有专项复验及 30 张帧图。见 [实施与证据](../../../design/ui/journal/2026-10-23-workspace-motion-unity.md)。 |
 | 2026-10-23 | 补修开页与右栏：12 页保存真实动效区域绑定，编辑两栏同步、异步资料接续当前时钟；Chrome 7 场景、专项 130/130，全套 521 通过／4 项既有失败。正式路由帧图已更新，Windows/Steam 待验收。 |
 | 2026-10-23 | 补齐资料正文三组、经验条、编辑两栏及编辑／返回 100ms 退出动效，Web 和 Unity 同步；专项 137/137，全套 528 通过／4 既有失败，42 帧更新；Windows/Steam 待验收。 |
@@ -65,7 +65,7 @@
 
 2026-10-21：正式页面替换、共享主题、真实业务、原生发布弹窗和动效生命周期已接入。Unity EditMode 347/347、预制体构建守卫 PASS、服务端 HTTP/SQLite 8/8；17 个正式页面/子状态使用实际预制体渲染。状态“已实现”不表示用户视觉验收或 Windows/Steam 平台验收已通过。
 
-详见 [UI 实施记录](../../../design/ui/journal/2026-10-21-cozy-journal-unity-implementation.md) 与 [正式页面截图](../../../art/cozy-journal/production/index.html)。
+详见 [UI 实施记录](../../../archive/2026-10-26/superseded/design/ui/2026-10-21-cozy-journal-unity-implementation.md) 与 [正式页面截图](../../../art/cozy-journal/production/index.html)。
 
 2026-10-22：用户认可远端 `be6f2bdf` 修复版，沿用现有正式入口，结束 JournalV2 替换推进。本地补充组件初始化、档位遮挡顺序与昵称排布健壮性修复，Unity EditMode 全套 **448/448** 通过。范围及证据见 [已认可基线记录](../../../design/ui/journal/2026-10-22-cozy-journal-approved-baseline.md)；Windows/Steam 平台待办继续保留。
 

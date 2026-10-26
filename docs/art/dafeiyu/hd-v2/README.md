@@ -51,4 +51,4 @@ Sharp 不在标准模块路径时设置 `SHARP_MODULE`；测试还使用 `TYPESC
 
 `browser-verification.json` 记录 63 帧逐层加载、自然像素尺寸和显示矩形检查；`browser-review.png` 为新旧对照截图。浏览器测试覆盖逐帧和两种完整流程的启动，不等同于 Windows Overlay 的实机动画验收。Unity 隔离工程结果与其他实际运行结果见 `verification.md`。
 
-旧版 `../full-v1/` 保留为对照来源，当前安装器默认使用本目录；不要重新运行旧版构建/安装流程覆盖高清资源。
+旧版对照在 `docs/archive/2026-10-26/superseded/art/dafeiyu/full-v1/`。当前安装器默认使用本目录；不要重新运行旧版构建或安装流程覆盖高清资源。

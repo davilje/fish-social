@@ -22,8 +22,8 @@ python3 tools/fishing-animation/recover_complete_rods.py --authoring-root /path/
 node tools/fishing-animation/repair_rod_occlusion.mjs --source-animation /path/to/fish/output/animation-studio/animation.json
 node tools/fishing-animation/export_cat_client_assets.mjs
 node tools/fishing-animation/build_breed_review.mjs
-node docs/art/whale-maid/template-study-v1/prepare.mjs
-node docs/art/whale-maid/template-study-v1/build.mjs
+node docs/archive/2026-10-26/superseded/art/whale-maid/template-study-v1/prepare.mjs
+node docs/archive/2026-10-26/superseded/art/whale-maid/template-study-v1/build.mjs
 python3 tools/fishing-animation/verify_rod_occlusion.py
 node tools/fishing-animation/verify_cat_resource_routing.mjs
 node tools/fishing-animation/verify_breed_packs.mjs

@@ -12,7 +12,7 @@ const folder = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(folder, '../../../..');
 const catRoot = path.join(root, 'docs/art/cat-skins');
 const fishing = path.join(root, 'fish-social-unity/Assets/StreamingAssets/Fishing');
-const plan = JSON.parse(fs.readFileSync(path.join(folder, '../full-v1/plan.json')));
+const plan = JSON.parse(fs.readFileSync(path.join(folder, '../../../archive/2026-10-26/superseded/art/dafeiyu/full-v1/plan.json')));
 const sourceRegions = JSON.parse(fs.readFileSync(path.join(folder, 'layer-regions.json')));
 const partial = process.argv.includes('--partial');
 const bodyLayers = ['body', 'head', 'far_hand', 'hands'];
@@ -53,7 +53,7 @@ const manifest = { version: 2, characterId: 'dafeiyu', name: '大肥鱼', status
   uniqueDrawings: drawings.size, sourceFrameCount: plan.frames.length,
   installed: fs.existsSync(path.join(folder, 'installation.json')), frames: [] };
 fs.mkdirSync(path.join(folder, 'shared'), { recursive: true });
-fs.copyFileSync(path.join(folder, '../full-v1', manifest.seat.file), path.join(folder, manifest.seat.file));
+fs.copyFileSync(path.join(folder, '../../../archive/2026-10-26/superseded/art/dafeiyu/full-v1', manifest.seat.file), path.join(folder, manifest.seat.file));
 const bench = await sharp(path.join(folder, manifest.seat.file)).resize(560, 340, { fit: 'fill' }).png().toBuffer();
 for (const frame of plan.frames) {
   if (!drawings.has(frame.drawing)) continue;

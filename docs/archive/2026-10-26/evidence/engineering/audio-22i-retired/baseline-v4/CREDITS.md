@@ -70,4 +70,4 @@ Identical to v2 (peak .30); earlier provenance remains in baseline-v1 and baseli
 3. `python tools/audio/verify_desktop_audio.py`
 4. `python tools/audio/verify_music_v4.py`
 
-Requires numpy, scipy and soundfile. Downloads only on cache misses and verifies hashes. Frozen v2/v3 assets are in docs/art/audio-22i/baseline-v2 and baseline-v3. Old v1/v2/v3 generators refuse to overwrite newer production. The music-only installer verifies every approved effect and never rebuilds those files. Preview: docs/art/audio-22i/v4/index.html. Signal verification does not imply headphone/speaker sound-quality approval or Windows synchronization acceptance.
+Requires numpy, scipy and soundfile. Downloads only on cache misses and verifies hashes. Frozen v2/v3 assets are in docs/art/audio-22i/baseline-v2 and baseline-v3. Old v1/v2/v3 generators refuse to overwrite newer production. The music-only installer verifies every approved effect and never rebuilds those files. Preview: docs/archive/2026-10-26/superseded/art/audio-22i/v4/index.html. Signal verification does not imply headphone/speaker sound-quality approval or Windows synchronization acceptance.

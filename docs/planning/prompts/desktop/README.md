@@ -1,5 +1,7 @@
 # 开发交接 · 桌面客户端
 
+14D、19 与 22J 的交接已退出本目录，不再派发。现行头顶状态看 [14E 规格](../../specs/desktop/Steam桌面端-14EOverlay头顶状态图标与进度环.md)。现行世界地图是 08A 与 08A2。
+
 | 文档 | 记录状态 |
 |---|---|
 | [pond-overlay-backpack-social-dev.prompt](pond-overlay-backpack-social-dev.prompt.md) | 专题说明／实施记录 |
@@ -36,20 +38,17 @@
 | [steam-desktop-14a-seat-markers-dev.prompt](steam-desktop-14a-seat-markers-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-14b-scene-pan-dev.prompt](steam-desktop-14b-scene-pan-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-14c-hud-art-text-dev.prompt](steam-desktop-14c-hud-art-text-dev.prompt.md) | 专题说明／实施记录 |
-| [steam-desktop-14d-pet-status-icon-dev.prompt](steam-desktop-14d-pet-status-icon-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-14e-overhead-status-ring-dev.prompt](steam-desktop-14e-overhead-status-ring-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-15-fishing-dock-timing-dev.prompt](steam-desktop-15-fishing-dock-timing-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-16-overlay-viewport-dev.prompt](steam-desktop-16-overlay-viewport-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-17-occupied-seat-no-evict-dev.prompt](steam-desktop-17-occupied-seat-no-evict-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-18-hover-catch-hint-dev.prompt](steam-desktop-18-hover-catch-hint-dev.prompt.md) | 专题说明／实施记录 |
-| [steam-desktop-19-hook-settle-prompt-dev.prompt](steam-desktop-19-hook-settle-prompt-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-20-window-presets-dev.prompt](steam-desktop-20-window-presets-dev.prompt.md) | 已确认 |
 | [steam-desktop-21-journal-motion-dev.prompt](steam-desktop-21-journal-motion-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22-followups-dev.prompt](steam-desktop-22-followups-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22h-water-effects-dev.prompt](steam-desktop-22h-water-effects-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22hij-design-dev.prompt](steam-desktop-22hij-design-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22i-audio-dev.prompt](steam-desktop-22i-audio-dev.prompt.md) | 专题说明／实施记录 |
-| [steam-desktop-22j-world-map-dev.prompt](steam-desktop-22j-world-map-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22klm-dev.prompt](steam-desktop-22klm-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-account-auth-dev.prompt](steam-desktop-account-auth-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt](steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | 专题说明／实施记录 |

@@ -34,7 +34,7 @@
 
 ### 专项策划（`specs/`）
 
-钓鱼 v2 分阶段文档索引见 [specs/README.md](specs/README.md)，开发交接见 [钓鱼系统v2-开发交接.md](../../../../planning/specs/gameplay/钓鱼系统v2-开发交接.md)。
+钓鱼 v2 分阶段文档索引见 [specs/README.md](specs/README.md)，开发交接见 [钓鱼系统v2-开发交接.md](../../superseded/planning/specs/钓鱼系统v2-开发交接.md)。
 
 | 文档 | 状态 | 说明 |
 |------|------|------|
@@ -86,7 +86,7 @@
 | [Steam桌面端-14AOverlay钓位座位图.md](../../../../planning/specs/desktop/Steam桌面端-14AOverlay钓位座位图.md) | **已实现** | STEAM-DESKTOP-14A：座位预制体、空位半透明、猫跟 actor-pet |
 | [Steam桌面端-14BOverlay横轴场景平移.md](../../../../planning/specs/desktop/Steam桌面端-14BOverlay横轴场景平移.md) | **已实现** | STEAM-DESKTOP-14B：横轴场景左右长按平移 |
 | [Steam桌面端-14COverlayHUD正式素材与文字对齐.md](../../../../planning/specs/desktop/Steam桌面端-14COverlayHUD正式素材与文字对齐.md) | **已实现** | STEAM-DESKTOP-14C：HUD 正式图与字体/对齐导出 |
-| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](../../../../planning/specs/desktop/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | **已实现** | STEAM-DESKTOP-14D：状态小图标 + 套猫圆环 |
+| [Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md](../../superseded/planning/specs/Steam桌面端-14DOverlay宠物状态图标与上钩圆环.md) | **已实现** | STEAM-DESKTOP-14D：状态小图标 + 套猫圆环 |
 | [Steam桌面端-15Overlay钓鱼栏按钮时序.md](../../../../planning/specs/desktop/Steam桌面端-15Overlay钓鱼栏按钮时序.md) | **已实现** | STEAM-DESKTOP-15：中央钓鱼栏开始/收杆/打窝/离席时序 |
 | [Steam桌面端-16Overlay窗口视口缩放.md](../../../../planning/specs/desktop/Steam桌面端-16Overlay窗口视口缩放.md) | **已实现** | STEAM-DESKTOP-16：右键切换视口裁切，禁止比例缩放 |
 | [Steam桌面端-17占用座位不可顶机器人.md](../../../../planning/specs/desktop/Steam桌面端-17占用座位不可顶机器人.md) | **已实现** | STEAM-DESKTOP-17：占用座（含 bot）不可点占 |
@@ -100,7 +100,7 @@
 | [BUG修复-默认头像目录与运行白名单不一致.md](../../../../planning/specs/bugs/BUG修复-默认头像目录与运行白名单不一致.md) | **已实现** | BUG-55：资料编辑新猫头像被过期 dist 拒绝 |
 | [BUG修复-Overlay阶段切换卡帧与收杆重播.md](../../../../planning/specs/bugs/BUG修复-Overlay阶段切换卡帧与收杆重播.md) | **已实现** | BUG-56：换阶段主线程卡 2～6 秒；收杆后再点重播 |
 | [Steam桌面端-18Overlay悬停浮窗条数与hint定位.md](../../../../planning/specs/desktop/Steam桌面端-18Overlay悬停浮窗条数与hint定位.md) | **已实现** | STEAM-DESKTOP-18：浮窗条数 + actor-hint |
-| [Steam桌面端-19咬钩结算弹窗.md](../../../../planning/specs/desktop/Steam桌面端-19咬钩结算弹窗.md) | **已实现** | STEAM-DESKTOP-19：咬钩结束弹窗；取消领取；分档入包/回鱼 |
+| [Steam桌面端-19咬钩结算弹窗.md](../../superseded/planning/specs/Steam桌面端-19咬钩结算弹窗.md) | **已实现** | STEAM-DESKTOP-19：咬钩结束弹窗；取消领取；分档入包/回鱼 |
 | [Steam桌面端-20主窗口固定分辨率.md](../../../../planning/specs/desktop/Steam桌面端-20主窗口固定分辨率.md) | **已验收** | STEAM-DESKTOP-20：默认 1920×1080；设置只切四档固定分辨率 |
 | [BUG修复-桌面设置世界首页与装备图.md](../../../../planning/specs/bugs/BUG修复-桌面设置世界首页与装备图.md) | **已验收** | BUG-57：设置重叠、世界/鱼塘页尺寸、首页全身猫、装备图按 id |
 | [Steam桌面端-14EOverlay头顶状态图标与进度环.md](../../../../planning/specs/desktop/Steam桌面端-14EOverlay头顶状态图标与进度环.md) | **已实现** | STEAM-DESKTOP-14E：头顶 icon/环，修订 14D |

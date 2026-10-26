@@ -33,7 +33,7 @@ async function render() {
     if (control('seat').checked && current.showSeat !== false) appendImage(stage, data.seat.file, 'bench');
     for (const layer of current.renderLayerOrder) {
       if (!visible.has(layer)) continue;
-      appendImage(stage, id === 'stage' ? `${current.layerFolder}/${layer}.png` : (control('comparison-mode').value === 'old' ? `../full-v1/frames/${current.id}/${layer}.png` : `../../cat-skins/reference/${current.id}/${layer}.png`), 'layer');
+      appendImage(stage, id === 'stage' ? `${current.layerFolder}/${layer}.png` : (control('comparison-mode').value === 'old' ? `../../../archive/2026-10-26/superseded/art/dafeiyu/full-v1/frames/${current.id}/${layer}.png` : `../../cat-skins/reference/${current.id}/${layer}.png`), 'layer');
     }
   }
   control('character-link').href = current.character; control('composite-link').href = current.composite;

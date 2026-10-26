@@ -9,7 +9,7 @@
 - 图鉴、背包、展示柜、选鱼界面统一经 `CozyItemArt.Fish(speciesId)` 读取；不修改鱼种 ID、数值和解锁记录。
 - 历史名称 bass/perch/largemouth_bass 等继续使用现有兼容映射。
 - 已确认的六张直接沿用；其余 44 张使用内置 image_gen，以已确认鱼图为共同风格参考生成。完整提示词见 `cartoon-production-prompts.json`。
-- 旧写实图片保存至 `realistic-v1/`；六张样稿对照页继续引用归档旧版，不会出现新旧相同的问题。
+- 旧写实图片在 [realistic-v1](../../archive/2026-10-26/superseded/art/fish-catalog/realistic-v1/)；六张样稿对照页继续引用这份归档，不会出现新旧相同的问题。
 
 ## 浏览和检查
 

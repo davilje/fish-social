@@ -3,8 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = path.dirname(fileURLToPath(import.meta.url));
-const plan = JSON.parse(fs.readFileSync(path.join(folder, '../full-v1/plan.json')));
-const studies = JSON.parse(fs.readFileSync(path.join(folder, '../../whale-maid/template-study-v1/templates.json')));
+const plan = JSON.parse(fs.readFileSync(path.join(folder, '../../../archive/2026-10-26/superseded/art/dafeiyu/full-v1/plan.json')));
+const studies = JSON.parse(fs.readFileSync(path.join(folder, '../../../archive/2026-10-26/superseded/art/whale-maid/template-study-v1/templates.json')));
 const poses = [...new Set(plan.frames.map(frame => frame.drawing))];
 fs.mkdirSync(path.join(folder, 'prompts'), { recursive: true });
 const jobs = [];
@@ -24,7 +24,7 @@ The hand placement is dictated by an existing fishing animation. In a logical 64
 One entire character only, large on the canvas to preserve detail, fully within frame including hair tip/tail/shoes, with 5% transparent margin on every side. 1280x1024 transparent canvas, no clipping. Use the same orthographic 3/4 view facing RIGHT as the master, never mirror the outfit. NO fishing rod, fish, fishing line, bait, bench, environment, shadow, text, watermark, frame or second pose. The existing game will add all props as separate layers. Preserve genuinely transparent alpha background.`;
   fs.writeFileSync(path.join(folder, 'prompts', id + '.txt'), prompt + '\n');
   jobs.push({ id, prompt: 'prompts/' + id + '.txt', near, far, pose: frame.label,
-    reference: '../full-v1/painted/' + id + '.png' });
+    reference: '../../../archive/2026-10-26/superseded/art/dafeiyu/full-v1/painted/' + id + '.png' });
 }
 fs.writeFileSync(path.join(folder, 'jobs.json'), JSON.stringify(jobs, null, 2) + '\n');
 console.log(JSON.stringify({ jobs: jobs.length }));

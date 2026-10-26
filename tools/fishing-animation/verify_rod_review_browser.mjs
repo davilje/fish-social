@@ -40,7 +40,7 @@ try {
       }
     }
   }
-  const whaleRoot = path.join(root, 'docs/art/whale-maid/template-study-v1');
+  const whaleRoot = path.join(root, 'docs/archive/2026-10-26/superseded/art/whale-maid/template-study-v1');
   const whale = JSON.parse(fs.readFileSync(path.join(whaleRoot, 'manifest.json')));
   await page.goto(pathToFileURL(path.join(whaleRoot, 'index.html')).href);
   for (const frame of whale.frames) {
