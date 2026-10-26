@@ -5,7 +5,7 @@
   "groundY": 402.431,
   "coordinateOrigin": "top-left",
   "sourceImage": "series/pastel-v1/pond-01-mint.png",
-  "animationStatus": "Five exact static depth layers; animation requires separate cloud and foliage repairs.",
+  "animationStatus": "Three seamless rightward cloud layers and weighted foliage wind.",
   "layers": [
     {
       "id": "pond-bg",
@@ -17,13 +17,40 @@
       "z": 0
     },
     {
+      "id": "scene-cloud-far",
+      "image": "layered/pastel-scenes-v1/pond-01-mint/cloud-far.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": 1
+    },
+    {
+      "id": "scene-cloud-middle",
+      "image": "layered/pastel-scenes-v1/pond-01-mint/cloud-middle.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": 2
+    },
+    {
+      "id": "scene-cloud-near",
+      "image": "layered/pastel-scenes-v1/pond-01-mint/cloud-near.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": 3
+    },
+    {
       "id": "scene-far",
       "image": "layered/pastel-scenes-v1/pond-01-mint/far.png",
       "x": 0,
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 1
+      "z": 4
     },
     {
       "id": "scene-middle",
@@ -32,7 +59,16 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 2
+      "z": 5
+    },
+    {
+      "id": "scene-foliage",
+      "image": "layered/pastel-scenes-v1/pond-01-mint/foliage.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": 6
     },
     {
       "id": "scene-shore",
@@ -41,7 +77,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 3
+      "z": 7
     },
     {
       "id": "scene-water",
@@ -50,7 +86,8 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 4
+      "z": 8
     }
-  ]
+  ],
+  "motion": "motion.json"
 }

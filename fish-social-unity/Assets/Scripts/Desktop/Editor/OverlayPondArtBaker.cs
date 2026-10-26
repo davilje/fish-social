@@ -340,7 +340,7 @@ namespace FishSocial.Desktop.Editor
             Debug.Log("[PondArt] Installed Qiandao animation layers; saved actor geometry preserved.");
         }
 
-        // Applies only scene sprites for the remaining ponds; saved seats and cat positions stay intact.
+        // Applies only scenery sprites for the remaining ponds; saved seats and cat positions stay intact.
         public static void ApplyRemainingLayeredScenesAndExport()
         {
             if (PrefabStageUtility.GetCurrentPrefabStage() != null)
@@ -348,8 +348,8 @@ namespace FishSocial.Desktop.Editor
             var catalog = ReadCatalog();
             var selected = catalog.bindings.Where(b => b.pondId != "pond-calm").ToArray();
             var profiles = selected.Select(b => ResolveProfile(catalog, b)).ToArray();
-            if (selected.Length != 20 || profiles.Any(p => ReadLayerLayout(p).layers.Length != 5))
-                throw new InvalidOperationException("Expected 20 five-layer pond layouts.");
+            if (selected.Length != 20 || profiles.Any(p => ReadLayerLayout(p).layers.Length != 9))
+                throw new InvalidOperationException("Expected 20 animated nine-layer pond layouts.");
             foreach (var image in profiles.SelectMany(p => ReadLayerLayout(p).layers).Select(l => l.image).Distinct())
                 ImportSprite(ArtFolder + "/" + image);
             foreach (var binding in selected)
@@ -384,7 +384,7 @@ namespace FishSocial.Desktop.Editor
             catalog.bindings = selected;
             RenderPreviews(catalog);
             OverlayResourceSync.SyncExportedResources();
-            Debug.Log("[PondArt] Installed five depth layers for " + selected.Length + " ponds; saved actor geometry preserved.");
+            Debug.Log("[PondArt] Installed animated scenery for " + selected.Length + " ponds; saved actor geometry preserved.");
         }
 
         public static void ImportUnassignedPastelSceneSprites()
@@ -401,7 +401,7 @@ namespace FishSocial.Desktop.Editor
             {
                 var layoutFile = Path.Combine(sceneDir, "layout.json");
                 var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(layoutFile));
-                if (layout == null || layout.layers == null || layout.layers.Length != 5)
+                if (layout == null || layout.layers == null || layout.layers.Length != 9)
                     throw new InvalidOperationException("Invalid candidate scene layout: " + layoutFile);
                 foreach (var layer in layout.layers)
                     ImportSprite(ArtFolder + "/" + layer.image);
