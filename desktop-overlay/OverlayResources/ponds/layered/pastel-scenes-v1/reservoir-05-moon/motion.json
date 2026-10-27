@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "width": 2172,
   "height": 724,
   "weightTexture": "leaf-wind-weight.png",
@@ -11,28 +11,82 @@
   "clouds": [
     {
       "id": "scene-cloud-far",
-      "speed": 1.6,
-      "phase": 0
+      "sprites": [
+        {
+          "image": "cloud-far-sprite-001.png",
+          "left": 92,
+          "top": 4,
+          "width": 1995,
+          "height": 420,
+          "velocityX": 0.18,
+          "velocityY": 0,
+          "kind": "large-horizontal",
+          "paintedAngle": 1.69,
+          "elongation": 5.43,
+          "clipped": false,
+          "paintedPixels": 336530
+        }
+      ]
     },
     {
       "id": "scene-cloud-middle",
-      "speed": 3.2,
-      "phase": 0
+      "sprites": [
+        {
+          "image": "cloud-middle-sprite-001.png",
+          "left": 1640,
+          "top": 100,
+          "width": 451,
+          "height": 335,
+          "velocityX": 0,
+          "velocityY": 0,
+          "kind": "tilted-static",
+          "paintedAngle": -16.16,
+          "elongation": 3.67,
+          "clipped": false,
+          "paintedPixels": 27084
+        }
+      ]
     },
     {
       "id": "scene-cloud-near",
-      "speed": 5.2,
-      "phase": 0
+      "sprites": [
+        {
+          "image": "cloud-near-sprite-001.png",
+          "left": 1294,
+          "top": 3,
+          "width": 494,
+          "height": 414,
+          "velocityX": 0,
+          "velocityY": 0,
+          "kind": "tilted-static",
+          "paintedAngle": -18.23,
+          "elongation": 3.32,
+          "clipped": false,
+          "paintedPixels": 19486
+        }
+      ]
     }
   ],
   "leaves": [
     {
-      "id": "scene-foliage",
+      "id": "scene-foliage-mid",
+      "weightTexture": "foliage-mid-weight.png",
+      "left": 0,
+      "top": 306,
+      "width": 2172,
+      "height": 172,
+      "phase": 1.3,
+      "primaryPeriod": 6.8
+    },
+    {
+      "id": "scene-foliage-near",
+      "weightTexture": "foliage-near-weight.png",
       "left": 0,
       "top": 10,
       "width": 2172,
-      "height": 468,
-      "phase": 0
+      "height": 428,
+      "phase": 0,
+      "primaryPeriod": 7.5
     }
   ]
 }

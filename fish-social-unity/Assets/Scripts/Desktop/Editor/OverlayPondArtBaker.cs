@@ -341,6 +341,43 @@ namespace FishSocial.Desktop.Editor
         }
 
         // Applies only scenery sprites for the remaining ponds; saved seats and cat positions stay intact.
+        public static void ApplyRepairedPastelScenesAndExport()
+        {
+            ApplyRemainingLayeredScenesAndExport();
+            ImportUnassignedPastelSceneSprites();
+            SyncPastelSceneBundles();
+        }
+
+        public static void RefreshPastelCloudMotionAndSync()
+        {
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            SyncPastelSceneBundles();
+        }
+
+        static void SyncPastelSceneBundles()
+        {
+            // Candidate scenes already shipped in the resource pack must be refreshed too.
+            var resources = Path.GetFullPath(Path.Combine(OverlayLayoutExporter.LayoutOutputDir(), "..", "ponds"));
+            var sceneDirs = Directory.GetDirectories(ArtFolder + "/layered/pastel-scenes-v1");
+            if (sceneDirs.Length != 30) throw new InvalidOperationException("Expected all 30 pastel scene bundles.");
+            foreach (var sceneDir in sceneDirs)
+            {
+                var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(Path.Combine(sceneDir, "layout.json")));
+                ValidateRepairedPastelLayers(layout, sceneDir);
+                foreach (var layer in layout.layers)
+                {
+                    var destination = Path.Combine(resources, layer.image);
+                    Directory.CreateDirectory(Path.GetDirectoryName(destination));
+                    File.Copy(ArtFolder + "/" + layer.image, destination, true);
+                }
+                var sky = layout.layers.Single(layer => layer.id == "pond-bg").image;
+                var error = OverlayLayoutExporter.CopySceneMotion(ArtFolder + "/" + sky, Path.Combine(resources, sky));
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+            OverlayResourceSync.SyncExportedResources();
+            Debug.Log("[PondArt] Refreshed all 30 repaired scene bundles, including 14 unassigned candidates.");
+        }
+
         public static void ApplyRemainingLayeredScenesAndExport()
         {
             if (PrefabStageUtility.GetCurrentPrefabStage() != null)
@@ -348,8 +385,10 @@ namespace FishSocial.Desktop.Editor
             var catalog = ReadCatalog();
             var selected = catalog.bindings.Where(b => b.pondId != "pond-calm").ToArray();
             var profiles = selected.Select(b => ResolveProfile(catalog, b)).ToArray();
-            if (selected.Length != 20 || profiles.Any(p => ReadLayerLayout(p).layers.Length != 9))
-                throw new InvalidOperationException("Expected 20 animated nine-layer pond layouts.");
+            if (selected.Length != 20)
+                throw new InvalidOperationException("Expected 20 pastel pond layouts.");
+            foreach (var profile in profiles)
+                ValidateRepairedPastelLayers(ReadLayerLayout(profile), profile.layerLayout);
             foreach (var image in profiles.SelectMany(p => ReadLayerLayout(p).layers).Select(l => l.image).Distinct())
                 ImportSprite(ArtFolder + "/" + image);
             foreach (var binding in selected)
@@ -401,14 +440,26 @@ namespace FishSocial.Desktop.Editor
             {
                 var layoutFile = Path.Combine(sceneDir, "layout.json");
                 var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(layoutFile));
-                if (layout == null || layout.layers == null || layout.layers.Length != 9)
-                    throw new InvalidOperationException("Invalid candidate scene layout: " + layoutFile);
+                ValidateRepairedPastelLayers(layout, layoutFile);
                 foreach (var layer in layout.layers)
                     ImportSprite(ArtFolder + "/" + layer.image);
             }
             AssetDatabase.SaveAssets();
             Verify();
             Debug.Log("[PondArt] Imported sprites for 14 unassigned pastel scenes.");
+        }
+
+        static void ValidateRepairedPastelLayers(LayerLayout layout, string source)
+        {
+            var expected = new[] { "pond-bg", "scene-celestial", "scene-cloud-far", "scene-cloud-middle",
+                "scene-cloud-near", "scene-far", "scene-middle", "scene-foliage-mid", "scene-foliage-near",
+                "scene-shore", "scene-water" };
+            if (layout == null || layout.layers == null || layout.layers.Any(layer => layer == null)
+                || !layout.layers.OrderBy(layer => layer.z).Select(layer => layer.id).SequenceEqual(expected))
+                throw new InvalidOperationException("Expected repaired sky, fixed celestial, three clouds and separate foliage layers: " + source);
+            foreach (var layer in layout.layers)
+                if (!File.Exists(ArtFolder + "/" + layer.image))
+                    throw new FileNotFoundException("Missing repaired scene layer", layer.image);
         }
 
         static LayerLayout ReadLayerLayout(Profile profile)

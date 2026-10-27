@@ -39,6 +39,43 @@ static class OverlaySceneMotionTests
             var after=OverlaySceneMotionMath.CloudTravel(cycle+.001,speed,2172);
             Check(Math.Abs((after+2172-before)-.002*speed)<1e-8,"Cloud copies are discontinuous at wrap");
         }
+        // At a sloped wrap, the preceding image becomes the main image at the same X and Y.
+        foreach(var slope in new[]{-.05,0,.05})foreach(var speed in new[]{.025,.22,.8})
+        {
+            const double phase=100,epsilon=.001;
+            var boundary=(2172-phase)/speed;
+            OverlaySceneMotionMath.CloudPlacement(boundary-epsilon,speed,2172,phase,slope,-1,out var bx,out var by);
+            OverlaySceneMotionMath.CloudPlacement(boundary+epsilon,speed,2172,phase,slope,0,out var ax,out var ay);
+            Check(Math.Abs(ax-bx-2*epsilon*speed)<1e-8,"Sloped cloud jumped horizontally");
+            Check(Math.Abs(ay-by-2*epsilon*speed*slope)<1e-8,"Sloped cloud jumped vertically");
+            OverlaySceneMotionMath.CloudPlacement(60,speed,2172,0,slope,0,out ax,out ay);
+            OverlaySceneMotionMath.CloudPlacement(60,speed,2172,0,slope,-1,out bx,out by);
+            Check(Math.Abs(ax-bx-2172)<1e-8 && Math.Abs(ay-by-2172*slope)<1e-8,"Cloud copies follow different paths");
+            Check(slope!=0 || (ay==0 && by==0),"Legacy horizontal cloud moved vertically");
+        }
+        var invalidSlope=false;
+        try{OverlaySceneMotionMath.CloudPlacement(0,1,2172,0,double.NaN,0,out _,out _);}catch(ArgumentException){invalidSlope=true;}
+        Check(invalidSlope,"Invalid sloped cloud accepted");
+        // Independent clouds can travel in all four diagonal directions. Broad clouds stay horizontal.
+        foreach(var vx in new[]{-1.2,1.2})foreach(var vy in new[]{-.5,0,.5})
+        {
+            OverlaySceneMotionMath.CloudSpritePlacement(0,vx,vy,2172,724,200,80,500,200,out var x0,out var y0);
+            OverlaySceneMotionMath.CloudSpritePlacement(60,vx,vy,2172,724,200,80,500,200,out var x1,out var y1);
+            Check(Math.Abs(x1-x0-vx*60)<1e-8 && Math.Abs(y1-y0-vy*60)<1e-8,"Independent cloud direction changed");
+            Check(vy!=0 || y1==y0,"Large horizontal cloud moved vertically");
+            foreach(var axis in new[]{0,1})
+            {
+                var v=axis==0?vx:vy;if(v==0)continue;
+                double extent=axis==0?2172:724,size=axis==0?200:80,initial=axis==0?500:200;
+                var boundary=(v>0?extent+2-initial:-size-2-initial)/v;
+                OverlaySceneMotionMath.CloudSpritePlacement(boundary-.001,vx,vy,2172,724,200,80,500,200,out var bx,out var by);
+                OverlaySceneMotionMath.CloudSpritePlacement(boundary+.001,vx,vy,2172,724,200,80,500,200,out var ax,out var ay);
+                var before=axis==0?bx:by;var after=axis==0?ax:ay;
+                Check((before+size<0||before>extent)&&(after+size<0||after>extent),"Independent cloud wrapped while visible");
+            }
+        }
+        Console.WriteLine("PASS: independent cloud directions; stationary horizontal height; both-axis resets fully outside viewport");
+        Console.WriteLine("PASS: slow/sloped cloud copies remain continuous in both axes, including legacy horizontal motion");
         Console.WriteLine("PASS: legacy motion; offset middle patches; fixed roots; transparent edges; three forward cloud speeds and wrap continuity");
         if(args.Length==2 && args[0]=="--scene")
         {

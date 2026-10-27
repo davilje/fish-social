@@ -60,6 +60,25 @@ namespace FishSocialOverlay
 
     internal static class OverlaySceneMotionMath
     {
+        static double CloudAxis(double seconds, double velocity, double extent, double size, double initial)
+        {
+            if (double.IsNaN(seconds) || double.IsInfinity(seconds) || double.IsNaN(velocity) || double.IsInfinity(velocity)
+                || double.IsNaN(initial) || double.IsInfinity(initial) || extent <= 0 || size <= 0)
+                throw new ArgumentException("Invalid independent cloud path");
+            if (velocity == 0) return initial;
+            // Reset only beyond both viewport edges, where the entire painted sprite is invisible.
+            const double margin = 2;
+            var period = extent + size + 2 * margin;
+            var distance = initial + size + margin + seconds * velocity;
+            return distance - Math.Floor(distance / period) * period - size - margin;
+        }
+        public static void CloudSpritePlacement(double seconds, double velocityX, double velocityY,
+            double viewportWidth, double viewportHeight, double spriteWidth, double spriteHeight,
+            double left, double top, out double x, out double y)
+        {
+            x = CloudAxis(seconds, velocityX, viewportWidth, spriteWidth, left);
+            y = CloudAxis(seconds, velocityY, viewportHeight, spriteHeight, top);
+        }
         public static double CloudOffset(double seconds, double amplitude, double period, double scale)
             => amplitude * Math.Sin(seconds * Math.PI * 2 / period) * scale;
         public static double CloudTravel(double seconds, double speed, double width, double phase = 0)
@@ -67,6 +86,15 @@ namespace FishSocialOverlay
             if (width <= 0 || speed <= 0) throw new ArgumentException("Invalid cloud cycle");
             var distance = seconds * speed + phase;
             return distance - Math.Floor(distance / width) * width;
+        }
+        public static void CloudPlacement(double seconds, double speed, double width, double phase,
+            double verticalSlope, int copy, out double x, out double y)
+        {
+            if (double.IsNaN(verticalSlope) || double.IsInfinity(verticalSlope) || Math.Abs(verticalSlope) > .15
+                || (copy != 0 && copy != -1)) throw new ArgumentException("Invalid cloud direction or copy");
+            x = CloudTravel(seconds, speed, width, phase) + copy * width;
+            // Both copies follow one sloped path; they exchange positions continuously at wrap.
+            y = x * verticalSlope;
         }
     }
 }

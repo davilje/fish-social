@@ -5,7 +5,7 @@
   "groundY": 393.149,
   "coordinateOrigin": "top-left",
   "sourceImage": "series/pastel-v1/coast-03-apricot.png",
-  "animationStatus": "Three seamless rightward cloud layers and weighted foliage wind.",
+  "animationStatus": "Complete painted sky and hidden scenery; fixed celestial layer; whole cloud silhouettes; separate middle and near foliage.",
   "layers": [
     {
       "id": "pond-bg",
@@ -17,13 +17,22 @@
       "z": 0
     },
     {
+      "id": "scene-celestial",
+      "image": "layered/pastel-scenes-v1/coast-03-apricot/celestial.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": 1
+    },
+    {
       "id": "scene-cloud-far",
       "image": "layered/pastel-scenes-v1/coast-03-apricot/cloud-far.png",
       "x": 0,
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 1
+      "z": 2
     },
     {
       "id": "scene-cloud-middle",
@@ -32,7 +41,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 2
+      "z": 3
     },
     {
       "id": "scene-cloud-near",
@@ -41,7 +50,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 3
+      "z": 4
     },
     {
       "id": "scene-far",
@@ -50,7 +59,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 4
+      "z": 5
     },
     {
       "id": "scene-middle",
@@ -59,16 +68,25 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 5
+      "z": 6
     },
     {
-      "id": "scene-foliage",
-      "image": "layered/pastel-scenes-v1/coast-03-apricot/foliage.png",
+      "id": "scene-foliage-mid",
+      "image": "layered/pastel-scenes-v1/coast-03-apricot/foliage-mid.png",
       "x": 0,
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 6
+      "z": 7
+    },
+    {
+      "id": "scene-foliage-near",
+      "image": "layered/pastel-scenes-v1/coast-03-apricot/foliage-near.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": 8
     },
     {
       "id": "scene-shore",
@@ -77,7 +95,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 7
+      "z": 9
     },
     {
       "id": "scene-water",
@@ -86,7 +104,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 8
+      "z": 10
     }
   ],
   "motion": "motion.json"

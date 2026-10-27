@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "width": 2172,
   "height": 724,
   "weightTexture": "leaf-wind-weight.png",
@@ -11,28 +11,124 @@
   "clouds": [
     {
       "id": "scene-cloud-far",
-      "speed": 1.6,
-      "phase": 0
+      "sprites": [
+        {
+          "image": "cloud-far-sprite-001.png",
+          "left": 1236,
+          "top": 226,
+          "width": 862,
+          "height": 275,
+          "velocityX": 0,
+          "velocityY": 0,
+          "kind": "tilted-static",
+          "paintedAngle": -9.65,
+          "elongation": 3.81,
+          "clipped": false,
+          "paintedPixels": 110970
+        },
+        {
+          "image": "cloud-far-sprite-002.png",
+          "left": 187,
+          "top": 219,
+          "width": 1036,
+          "height": 270,
+          "velocityX": 0.205,
+          "velocityY": 0,
+          "kind": "large-horizontal",
+          "paintedAngle": 1.24,
+          "elongation": 5.86,
+          "clipped": false,
+          "paintedPixels": 90181
+        }
+      ]
     },
     {
       "id": "scene-cloud-middle",
-      "speed": 3.2,
-      "phase": 0
+      "sprites": [
+        {
+          "image": "cloud-middle-sprite-001.png",
+          "left": 76,
+          "top": 168,
+          "width": 566,
+          "height": 284,
+          "velocityX": 0.18,
+          "velocityY": 0,
+          "kind": "large-horizontal",
+          "paintedAngle": 3.93,
+          "elongation": 3.02,
+          "clipped": false,
+          "paintedPixels": 54658
+        },
+        {
+          "image": "cloud-middle-sprite-002.png",
+          "left": 1423,
+          "top": 64,
+          "width": 656,
+          "height": 285,
+          "velocityX": 0,
+          "velocityY": 0,
+          "kind": "tilted-static",
+          "paintedAngle": -18.44,
+          "elongation": 10.69,
+          "clipped": false,
+          "paintedPixels": 27484
+        }
+      ]
     },
     {
       "id": "scene-cloud-near",
-      "speed": 5.2,
-      "phase": 0
+      "sprites": [
+        {
+          "image": "cloud-near-sprite-001.png",
+          "left": 947,
+          "top": 69,
+          "width": 499,
+          "height": 419,
+          "velocityX": 0,
+          "velocityY": 0,
+          "kind": "tilted-static",
+          "paintedAngle": -19.02,
+          "elongation": 2.89,
+          "clipped": false,
+          "paintedPixels": 42005
+        },
+        {
+          "image": "cloud-near-sprite-002.png",
+          "left": 798,
+          "top": 70,
+          "width": 484,
+          "height": 304,
+          "velocityX": 0,
+          "velocityY": 0,
+          "kind": "tilted-static",
+          "paintedAngle": -22.1,
+          "elongation": 8.9,
+          "clipped": false,
+          "paintedPixels": 17614
+        }
+      ]
     }
   ],
   "leaves": [
     {
-      "id": "scene-foliage",
-      "left": 76,
+      "id": "scene-foliage-mid",
+      "weightTexture": "foliage-mid-weight.png",
+      "left": 308,
+      "top": 185,
+      "width": 1864,
+      "height": 254,
+      "phase": 1.3,
+      "primaryPeriod": 6.8
+    },
+    {
+      "id": "scene-foliage-near",
+      "weightTexture": "foliage-near-weight.png",
+      "left": 117,
       "top": 0,
-      "width": 2096,
+      "width": 1801,
       "height": 441,
-      "phase": 0
+      "phase": 0,
+      "primaryPeriod": 7.5
     }
   ]
 }

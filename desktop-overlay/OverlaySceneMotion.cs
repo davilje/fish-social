@@ -24,13 +24,25 @@ namespace FishSocialOverlay
             [DataMember] public CloudSettings[] clouds;
         }
         [DataContract] internal sealed class CloudSettings
-        { [DataMember] public string id; [DataMember] public double speed, phase; }
+        { [DataMember] public string id; [DataMember] public double speed, phase, verticalSlope; [DataMember] public CloudSpriteSettings[] sprites; }
+        [DataContract] internal sealed class CloudSpriteSettings
+        {
+            [DataMember] public string image;
+            [DataMember] public int width, height;
+            [DataMember] public double left, top, velocityX, velocityY;
+        }
+        sealed class CloudSprite
+        {
+            public CloudSpriteSettings Settings;
+            public double Scale, VerticalScale;
+            public TranslateTransform Transform = new TranslateTransform();
+        }
         [DataContract] internal sealed class LeafSettings
         { [DataMember] public string id, weightTexture; [DataMember] public int left, top, width, height; [DataMember] public double phase, primaryPeriod; }
         sealed class Cloud
         {
             public CloudSettings Settings;
-            public double Scale, Width;
+            public double Scale, VerticalScale, Width;
             public TranslateTransform First = new TranslateTransform(), Second = new TranslateTransform();
         }
         sealed class Leaf
@@ -42,6 +54,7 @@ namespace FishSocialOverlay
         readonly Settings _settings;
         readonly List<Leaf> _leaves = new List<Leaf>();
         readonly List<Cloud> _clouds = new List<Cloud>();
+        readonly List<CloudSprite> _cloudSprites = new List<CloudSprite>();
         readonly OverlayAnimationSchedule.Subscription _clock;
         readonly TranslateTransform _cloudTransform = new TranslateTransform();
         readonly double _cloudScale;
@@ -74,21 +87,42 @@ namespace FishSocialOverlay
                     return (Settings)new DataContractJsonSerializer(typeof(Settings)).ReadObject(stream);
             }, token);
             if (settings == null) return null;
-            if ((settings.version != 1 && settings.version != 2) || settings.width < 1 || settings.height < 1 ||
+            if ((settings.version != 1 && settings.version != 2 && settings.version != 3) || settings.width < 1 || settings.height < 1 ||
                 settings.leafAmplitude < 0 || settings.leafAmplitude > 24 ||
                 settings.leaves == null || settings.leaves.Length > 16)
                 throw new InvalidDataException("Invalid scene motion settings");
             if (settings.version == 1 && (settings.cloudPeriod <= 0 || settings.cloudAmplitude < 0 ||
                 settings.cloudAmplitude > 64 || string.IsNullOrEmpty(settings.cloudId) || !images.ContainsKey(settings.cloudId)))
                 throw new InvalidDataException("Invalid legacy cloud settings");
-            if (settings.version == 2)
+            var cloudArt = new Dictionary<string, BitmapSource>();
+            if (settings.version >= 2)
             {
                 if (settings.clouds == null || settings.clouds.Length != 3) throw new InvalidDataException("Expected three cloud layers");
                 var cloudIds = new HashSet<string>();
                 foreach (var cloud in settings.clouds)
+                {
                     if (cloud == null || string.IsNullOrEmpty(cloud.id) || !cloudIds.Add(cloud.id) || !images.ContainsKey(cloud.id) ||
-                        double.IsNaN(cloud.speed) || cloud.speed <= 0 || cloud.speed > 100 || double.IsNaN(cloud.phase) || double.IsInfinity(cloud.phase))
+                        (settings.version == 2 && (double.IsNaN(cloud.speed) || cloud.speed <= 0 || cloud.speed > 100)) || double.IsNaN(cloud.phase) || double.IsInfinity(cloud.phase)
+                        || double.IsNaN(cloud.verticalSlope) || double.IsInfinity(cloud.verticalSlope) || Math.Abs(cloud.verticalSlope) > .15)
                         throw new InvalidDataException("Invalid repeating cloud layer");
+                    if (settings.version != 3) continue;
+                    if (cloud.sprites == null || cloud.sprites.Length < 1 || cloud.sprites.Length > 256)
+                        throw new InvalidDataException("Invalid independent cloud count");
+                    foreach (var sprite in cloud.sprites)
+                    {
+                        if (sprite == null || string.IsNullOrWhiteSpace(sprite.image) || cloudArt.ContainsKey(sprite.image)
+                            || sprite.width < 1 || sprite.height < 1 || sprite.width > settings.width || sprite.height > settings.height
+                            || !Finite(sprite.left) || !Finite(sprite.top) || !Finite(sprite.velocityX) || !Finite(sprite.velocityY)
+                            || Math.Abs(sprite.velocityX) > 5 || Math.Abs(sprite.velocityY) > 5
+                            || sprite.left < -sprite.width || sprite.left > settings.width || sprite.top < 0 || sprite.top + sprite.height > settings.height)
+                            throw new InvalidDataException("Invalid independent cloud sprite");
+                        var art = await OverlayStaticArt.LoadAsync(Inside(directory, sprite.image), false, token);
+                        token.ThrowIfCancellationRequested();
+                        if (art?.Bitmap == null || art.Bitmap.PixelWidth != sprite.width || art.Bitmap.PixelHeight != sprite.height)
+                            throw new InvalidDataException("Cloud sprite size mismatch");
+                        cloudArt.Add(sprite.image, art.Bitmap);
+                    }
+                }
             }
             var weights = new Dictionary<string, byte[]>();
             var prepared = new List<Tuple<LeafSettings, OverlayLeafWarp>>();
@@ -118,9 +152,11 @@ namespace FishSocialOverlay
                 prepared.Add(Tuple.Create(spec, warp));
             }
             token.ThrowIfCancellationRequested();
-            return new OverlaySceneMotion(settings, images, prepared);
+            return new OverlaySceneMotion(settings, images, prepared, cloudArt);
         }
-        OverlaySceneMotion(Settings settings, Dictionary<string, Image> images, List<Tuple<LeafSettings, OverlayLeafWarp>> prepared)
+        static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);
+        OverlaySceneMotion(Settings settings, Dictionary<string, Image> images, List<Tuple<LeafSettings, OverlayLeafWarp>> prepared,
+            Dictionary<string, BitmapSource> cloudArt)
         {
             _settings = settings;
             if (settings.version == 1)
@@ -133,7 +169,20 @@ namespace FishSocialOverlay
                 var source = images[spec.id];
                 var group = new Canvas { Width = source.Width, Height = source.Height, ClipToBounds = true, IsHitTestVisible = false };
                 Canvas.SetLeft(group, Canvas.GetLeft(source)); Canvas.SetTop(group, Canvas.GetTop(source)); Panel.SetZIndex(group, Panel.GetZIndex(source));
-                var cloud = new Cloud { Settings = spec, Width = source.Width, Scale = source.Width / settings.width };
+                if (settings.version == 3)
+                {
+                    foreach (var sprite in spec.sprites)
+                    {
+                        var item = new CloudSprite { Settings = sprite, Scale = source.Width / settings.width, VerticalScale = source.Height / settings.height };
+                        group.Children.Add(new Image { Source = cloudArt[sprite.image], Width = sprite.width * item.Scale,
+                            Height = sprite.height * item.VerticalScale, Stretch = Stretch.Fill, IsHitTestVisible = false, RenderTransform = item.Transform });
+                        if (sprite.velocityX != 0 || sprite.velocityY != 0) _cloudSprites.Add(item);
+                        PlaceCloudSprite(item, 0);
+                    }
+                    _elements[spec.id] = group; continue;
+                }
+                var cloud = new Cloud { Settings = spec, Width = source.Width, Scale = source.Width / settings.width,
+                    VerticalScale = source.Height / settings.height };
                 foreach (var transform in new[] { cloud.First, cloud.Second })
                     group.Children.Add(new Image { Source = source.Source, Width = source.Width, Height = source.Height,
                         Stretch = Stretch.Fill, IsHitTestVisible = false, RenderTransform = transform });
@@ -162,10 +211,21 @@ namespace FishSocialOverlay
             _clock = OverlayAnimationClock.Create(1000.0 / 24); _clock.Tick += Tick;
         }
         static void Publish(Leaf leaf) => leaf.Bitmap.WritePixels(new Int32Rect(0, 0, leaf.Warp.Width, leaf.Warp.Height), leaf.Output, leaf.Warp.Width * 4, 0);
+        void PlaceCloudSprite(CloudSprite sprite, double seconds)
+        {
+            var spec = sprite.Settings;
+            OverlaySceneMotionMath.CloudSpritePlacement(seconds, spec.velocityX, spec.velocityY, _settings.width, _settings.height,
+                spec.width, spec.height, spec.left, spec.top, out var x, out var y);
+            sprite.Transform.X = x * sprite.Scale; sprite.Transform.Y = y * sprite.VerticalScale;
+        }
         void PlaceCloud(Cloud cloud, double seconds)
         {
-            cloud.First.X = OverlaySceneMotionMath.CloudTravel(seconds, cloud.Settings.speed, _settings.width, cloud.Settings.phase) * cloud.Scale;
-            cloud.Second.X = cloud.First.X - cloud.Width;
+            OverlaySceneMotionMath.CloudPlacement(seconds, cloud.Settings.speed, _settings.width,
+                cloud.Settings.phase, cloud.Settings.verticalSlope, 0, out var x, out var y);
+            cloud.First.X = x * cloud.Scale; cloud.First.Y = y * cloud.VerticalScale;
+            OverlaySceneMotionMath.CloudPlacement(seconds, cloud.Settings.speed, _settings.width,
+                cloud.Settings.phase, cloud.Settings.verticalSlope, -1, out x, out y);
+            cloud.Second.X = x * cloud.Scale; cloud.Second.Y = y * cloud.VerticalScale;
         }
         public void SetVisible(bool visible)
         {
@@ -181,6 +241,7 @@ namespace FishSocialOverlay
             var seconds = (_elapsed + OverlayAnimationClock.Now - _resumedAt) / 1000;
             if (_settings.version == 1) _cloudTransform.X = OverlaySceneMotionMath.CloudOffset(seconds, _settings.cloudAmplitude, _settings.cloudPeriod, _cloudScale);
             else foreach (var cloud in _clouds) PlaceCloud(cloud, seconds);
+            foreach (var sprite in _cloudSprites) PlaceCloudSprite(sprite, seconds);
             if (_rendering) return; // At most one worker, no frame queue and no per-frame pixel allocations.
             _rendering = true;
             try

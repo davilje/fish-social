@@ -505,9 +505,11 @@ namespace FishSocial.Desktop.Editor
         }
 
         [Serializable] sealed class SceneMotionLeafResource { public string weightTexture; }
-        [Serializable] sealed class SceneMotionResources { public string weightTexture; public SceneMotionLeafResource[] leaves; }
+        [Serializable] sealed class SceneMotionCloudSpriteResource { public string image; }
+        [Serializable] sealed class SceneMotionCloudResource { public SceneMotionCloudSpriteResource[] sprites; }
+        [Serializable] sealed class SceneMotionResources { public string weightTexture; public SceneMotionLeafResource[] leaves; public SceneMotionCloudResource[] clouds; }
 
-        static string CopySceneMotion(string backgroundAsset, string backgroundExport)
+        internal static string CopySceneMotion(string backgroundAsset, string backgroundExport)
         {
             var source = Path.GetDirectoryName(backgroundAsset);
             var manifest = Path.Combine(source, "motion.json");
@@ -519,6 +521,9 @@ namespace FishSocial.Desktop.Editor
             var weights = new HashSet<string> { spec.weightTexture };
             if (spec.leaves != null) foreach (var leaf in spec.leaves)
                 if (leaf != null && !string.IsNullOrWhiteSpace(leaf.weightTexture)) weights.Add(leaf.weightTexture);
+            if (spec.clouds != null) foreach (var cloud in spec.clouds)
+                if (cloud != null && cloud.sprites != null) foreach (var sprite in cloud.sprites)
+                    if (sprite != null && !string.IsNullOrWhiteSpace(sprite.image)) weights.Add(sprite.image);
             foreach (var name in weights)
             {
                 if (Path.GetFileName(name) != name) return "Invalid scene motion weight resource: " + name;
