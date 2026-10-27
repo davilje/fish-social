@@ -364,18 +364,27 @@ namespace FishSocial.Desktop.Editor
             {
                 var layout = JsonUtility.FromJson<LayerLayout>(File.ReadAllText(Path.Combine(sceneDir, "layout.json")));
                 ValidateRepairedPastelLayers(layout, sceneDir);
-                foreach (var layer in layout.layers)
-                {
-                    var destination = Path.Combine(resources, layer.image);
-                    Directory.CreateDirectory(Path.GetDirectoryName(destination));
-                    File.Copy(ArtFolder + "/" + layer.image, destination, true);
-                }
-                var sky = layout.layers.Single(layer => layer.id == "pond-bg").image;
-                var error = OverlayLayoutExporter.CopySceneMotion(ArtFolder + "/" + sky, Path.Combine(resources, sky));
-                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+                SyncSceneBundle(layout, resources);
             }
+            // The original Qiandao scene has its own 16-layer layout and shares the current cloud assets.
+            var qiandaoLayout = ArtFolder + "/layered/qiandao-wind-v3/layout.json";
+            if (File.Exists(qiandaoLayout))
+                SyncSceneBundle(JsonUtility.FromJson<LayerLayout>(File.ReadAllText(qiandaoLayout)), resources);
             OverlayResourceSync.SyncExportedResources();
-            Debug.Log("[PondArt] Refreshed all 30 repaired scene bundles, including 14 unassigned candidates.");
+            Debug.Log("[PondArt] Refreshed all 30 pastel scene bundles and the original Qiandao scene.");
+        }
+
+        static void SyncSceneBundle(LayerLayout layout, string resources)
+        {
+            foreach (var layer in layout.layers)
+            {
+                var destination = Path.Combine(resources, layer.image);
+                Directory.CreateDirectory(Path.GetDirectoryName(destination));
+                File.Copy(ArtFolder + "/" + layer.image, destination, true);
+            }
+            var sky = layout.layers.Single(layer => layer.id == "pond-bg").image;
+            var error = OverlayLayoutExporter.CopySceneMotion(ArtFolder + "/" + sky, Path.Combine(resources, sky));
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
         }
 
         public static void ApplyRemainingLayeredScenesAndExport()

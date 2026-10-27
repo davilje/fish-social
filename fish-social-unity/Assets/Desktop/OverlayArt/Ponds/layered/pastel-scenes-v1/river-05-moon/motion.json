@@ -13,46 +13,17 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-sprite-001.png",
-          "left": 472,
-          "top": 197,
-          "width": 1090,
-          "height": 285,
-          "velocityX": 0.18,
+          "image": "cloud-far-horizontal-1.png",
+          "left": 217,
+          "top": 53,
+          "width": 656,
+          "height": 91,
+          "velocityX": 0.099,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": 1.42,
-          "elongation": 4.22,
-          "clipped": false,
-          "paintedPixels": 131009
-        },
-        {
-          "image": "cloud-far-sprite-002.png",
-          "left": 1550,
-          "top": 213,
-          "width": 544,
-          "height": 285,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -20.79,
-          "elongation": 2.11,
-          "clipped": false,
-          "paintedPixels": 71123
-        },
-        {
-          "image": "cloud-far-sprite-003.png",
-          "left": 500,
-          "top": 15,
-          "width": 1027,
-          "height": 237,
-          "velocityX": 0.23,
-          "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": -6.91,
-          "elongation": 7.29,
-          "clipped": false,
-          "paintedPixels": 54571
+          "kind": "horizontal",
+          "cloudType": "veil",
+          "sourceAtlas": "moon",
+          "sourceSprite": 4
         }
       ]
     },
@@ -60,32 +31,17 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-sprite-001.png",
-          "left": 85,
-          "top": 215,
-          "width": 610,
-          "height": 242,
-          "velocityX": 0,
+          "image": "cloud-middle-horizontal-1.png",
+          "left": 550,
+          "top": 150,
+          "width": 820,
+          "height": 114,
+          "velocityX": 0.187,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": 19.35,
-          "elongation": 2.99,
-          "clipped": false,
-          "paintedPixels": 58315
-        },
-        {
-          "image": "cloud-middle-sprite-002.png",
-          "left": 1334,
-          "top": 14,
-          "width": 707,
-          "height": 325,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -17.91,
-          "elongation": 8.21,
-          "clipped": false,
-          "paintedPixels": 35501
+          "kind": "horizontal",
+          "cloudType": "veil",
+          "sourceAtlas": "moon",
+          "sourceSprite": 4
         }
       ]
     },
@@ -93,32 +49,17 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-sprite-001.png",
-          "left": 128,
-          "top": 46,
-          "width": 620,
-          "height": 269,
-          "velocityX": 0,
+          "image": "cloud-near-horizontal-1.png",
+          "left": 487,
+          "top": 257,
+          "width": 1004,
+          "height": 140,
+          "velocityX": 0.286,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": 19.11,
-          "elongation": 6.38,
-          "clipped": false,
-          "paintedPixels": 40496
-        },
-        {
-          "image": "cloud-near-sprite-002.png",
-          "left": 1312,
-          "top": 33,
-          "width": 387,
-          "height": 449,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -18.18,
-          "elongation": 4.97,
-          "clipped": false,
-          "paintedPixels": 10714
+          "kind": "horizontal",
+          "cloudType": "veil",
+          "sourceAtlas": "moon",
+          "sourceSprite": 4
         }
       ]
     }
@@ -144,5 +85,10 @@
       "phase": 0,
       "primaryPeriod": 7.5
     }
-  ]
+  ],
+  "weather": {
+    "id": "moon",
+    "label": "月夜薄云带",
+    "palette": "moon"
+  }
 }

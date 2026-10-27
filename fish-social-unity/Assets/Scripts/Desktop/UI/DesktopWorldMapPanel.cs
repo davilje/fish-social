@@ -11,8 +11,8 @@ namespace FishSocial.Desktop
     public sealed class DesktopWorldMapPanel : MonoBehaviour,
         IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
     {
-        const float MapWidth = 1050f;
-        const float MapHeight = 700f;
+        float MapWidth => _content != null ? _content.rect.width : 1050f;
+        float MapHeight => _content != null ? _content.rect.height : 700f;
         const float MinZoom = 0.65f;
         const float MaxZoom = 1.8f;
 
@@ -199,6 +199,8 @@ namespace FishSocial.Desktop
             {
                 backdrop.overrideSprite = null;
                 backdrop.sprite = sprite;
+                // Keep the map and normalized marker layer in the artwork's native aspect ratio.
+                _content.sizeDelta = new Vector2(700f * sprite.rect.width / sprite.rect.height, 700f);
             }
             DesktopModalUi.StyleButton(_enter, "pond.png", true);
             DesktopModalUi.StyleButton(_reset, "map.png");

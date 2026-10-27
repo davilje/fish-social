@@ -1,24 +1,184 @@
 {
   "ponds": [
-    { "pondId": "pond-calm", "displayName": "千岛湖", "regionId": "region-calm", "theme": "湖畔", "x": 0.10, "y": 0.15, "capacity": 20 },
-    { "pondId": "pond-mist", "displayName": "太湖", "regionId": "region-mist", "theme": "云雾", "x": 0.30, "y": 0.15, "capacity": 20 },
-    { "pondId": "pond-sunset", "displayName": "洪泽湖", "regionId": "region-sunset", "theme": "夕阳", "x": 0.50, "y": 0.15, "capacity": 20 },
-    { "pondId": "pond-bamboo", "displayName": "鄱阳湖", "regionId": "region-bamboo", "theme": "竹林", "x": 0.70, "y": 0.15, "capacity": 20 },
-    { "pondId": "pond-reed", "displayName": "洞庭湖", "regionId": "region-reed", "theme": "芦苇", "x": 0.90, "y": 0.15, "capacity": 20 },
-    { "pondId": "pond-crystal", "displayName": "滇池", "regionId": "region-crystal", "theme": "晶石", "x": 0.10, "y": 0.38, "capacity": 20 },
-    { "pondId": "pond-lotus", "displayName": "洱海", "regionId": "region-lotus", "theme": "荷花", "x": 0.30, "y": 0.38, "capacity": 20 },
-    { "pondId": "pond-mirror", "displayName": "镜泊湖", "regionId": "region-mirror", "theme": "镜湖", "x": 0.50, "y": 0.38, "capacity": 20 },
-    { "pondId": "pond-willow", "displayName": "查干湖", "regionId": "region-willow", "theme": "柳荫", "x": 0.70, "y": 0.38, "capacity": 20 },
-    { "pondId": "pond-stone", "displayName": "万绿湖", "regionId": "region-stone", "theme": "叠石", "x": 0.90, "y": 0.38, "capacity": 20 },
-    { "pondId": "pond-spring", "displayName": "北江", "regionId": "region-spring", "theme": "清泉", "x": 0.10, "y": 0.62, "capacity": 20 },
-    { "pondId": "pond-dusk", "displayName": "丹江口水库", "regionId": "region-dusk", "theme": "暮色", "x": 0.30, "y": 0.62, "capacity": 20 },
-    { "pondId": "pond-pine", "displayName": "清江", "regionId": "region-pine", "theme": "松林", "x": 0.50, "y": 0.62, "capacity": 20 },
-    { "pondId": "pond-coral", "displayName": "舟山近海", "regionId": "region-coral", "theme": "珊瑚", "x": 0.70, "y": 0.62, "capacity": 20 },
-    { "pondId": "pond-moon", "displayName": "厦门湾", "regionId": "region-moon", "theme": "月影", "x": 0.90, "y": 0.62, "capacity": 20 },
-    { "pondId": "pond-fern", "displayName": "南澳近海", "regionId": "region-fern", "theme": "蕨泽", "x": 0.10, "y": 0.85, "capacity": 20 },
-    { "pondId": "pond-ridge", "displayName": "长江故道野塘", "regionId": "region-ridge", "theme": "山谷", "x": 0.30, "y": 0.85, "capacity": 20 },
-    { "pondId": "pond-harbor", "displayName": "青岛近海", "regionId": "region-harbor", "theme": "港湾", "x": 0.50, "y": 0.85, "capacity": 20 },
-    { "pondId": "pond-orchid", "displayName": "涠洲近海", "regionId": "region-orchid", "theme": "兰花", "x": 0.70, "y": 0.85, "capacity": 20 },
-    { "pondId": "pond-frost", "displayName": "兴凯湖", "regionId": "region-frost", "theme": "冰霜", "x": 0.90, "y": 0.85, "capacity": 20 }
+    {
+      "pondId": "pond-calm",
+      "displayName": "千岛湖",
+      "regionId": "region-calm",
+      "theme": "湖畔",
+      "x": 0.303,
+      "y": 0.156,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-mist",
+      "displayName": "太湖",
+      "regionId": "region-mist",
+      "theme": "云雾",
+      "x": 0.695,
+      "y": 0.208,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-sunset",
+      "displayName": "洪泽湖",
+      "regionId": "region-sunset",
+      "theme": "夕阳",
+      "x": 0.631,
+      "y": 0.195,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-bamboo",
+      "displayName": "鄱阳湖",
+      "regionId": "region-bamboo",
+      "theme": "竹林",
+      "x": 0.655,
+      "y": 0.252,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-reed",
+      "displayName": "洞庭湖",
+      "regionId": "region-reed",
+      "theme": "芦苇",
+      "x": 0.708,
+      "y": 0.259,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-crystal",
+      "displayName": "滇池",
+      "regionId": "region-crystal",
+      "theme": "晶石",
+      "x": 0.203,
+      "y": 0.463,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-lotus",
+      "displayName": "洱海",
+      "regionId": "region-lotus",
+      "theme": "荷花",
+      "x": 0.266,
+      "y": 0.532,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-mirror",
+      "displayName": "镜泊湖",
+      "regionId": "region-mirror",
+      "theme": "镜湖",
+      "x": 0.607,
+      "y": 0.116,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-willow",
+      "displayName": "查干湖",
+      "regionId": "region-willow",
+      "theme": "柳荫",
+      "x": 0.535,
+      "y": 0.222,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-stone",
+      "displayName": "万绿湖",
+      "regionId": "region-stone",
+      "theme": "叠石",
+      "x": 0.257,
+      "y": 0.257,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-spring",
+      "displayName": "北江",
+      "regionId": "region-spring",
+      "theme": "清泉",
+      "x": 0.593,
+      "y": 0.55,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-dusk",
+      "displayName": "丹江口水库",
+      "regionId": "region-dusk",
+      "theme": "暮色",
+      "x": 0.132,
+      "y": 0.129,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-pine",
+      "displayName": "清江",
+      "regionId": "region-pine",
+      "theme": "松林",
+      "x": 0.35,
+      "y": 0.515,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-coral",
+      "displayName": "舟山近海",
+      "regionId": "region-coral",
+      "theme": "珊瑚",
+      "x": 0.881,
+      "y": 0.472,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-moon",
+      "displayName": "厦门湾",
+      "regionId": "region-moon",
+      "theme": "月影",
+      "x": 0.788,
+      "y": 0.676,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-fern",
+      "displayName": "南澳近海",
+      "regionId": "region-fern",
+      "theme": "蕨泽",
+      "x": 0.901,
+      "y": 0.617,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-ridge",
+      "displayName": "长江故道野塘",
+      "regionId": "region-ridge",
+      "theme": "山谷",
+      "x": 0.66,
+      "y": 0.642,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-harbor",
+      "displayName": "青岛近海",
+      "regionId": "region-harbor",
+      "theme": "港湾",
+      "x": 0.867,
+      "y": 0.219,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-orchid",
+      "displayName": "涠洲近海",
+      "regionId": "region-orchid",
+      "theme": "兰花",
+      "x": 0.859,
+      "y": 0.791,
+      "capacity": 20
+    },
+    {
+      "pondId": "pond-frost",
+      "displayName": "兴凯湖",
+      "regionId": "region-frost",
+      "theme": "冰霜",
+      "x": 0.505,
+      "y": 0.157,
+      "capacity": 20
+    }
   ]
 }

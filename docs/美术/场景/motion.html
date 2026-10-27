@@ -24,10 +24,11 @@
     button:hover { border-color: #0e7490; }
     p { margin: 0; color: #78716c; flex: none; }
     .stage {
-      flex: 1; min-height: 0; min-width: 0; overflow: auto;
-      display: flex; align-items: center; justify-content: safe center;
+      flex: 1; min-height: 0; min-width: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
     }
     canvas {
+      display: block; flex: none;
       background: #e7e5e4; border: 1px solid #e7e0d5; border-radius: 12px;
     }
   </style>
@@ -37,6 +38,7 @@
     <h1>场景分层</h1>
     <label>鱼塘 <select id="pond"></select></label>
     <button id="play" type="button">暂停</button>
+    <label>速度 <select id="rate"><option value="1">1×</option><option value="10">10×</option><option value="30">30×</option></select></label>
   </header>
   <p id="status">正在读取场景…</p>
   <div class="stage"><canvas id="view" width="1680" height="560"></canvas></div>
@@ -53,9 +55,18 @@
     let frame = 0;
     let elapsed = 0;
     let runningFrom = 0;
+    let playbackRate = 1;
+    let currentScene = null;
 
     function seconds() {
-      return (elapsed + (playing ? performance.now() - runningFrom : 0)) / 1000;
+      return (elapsed + (playing ? (performance.now() - runningFrom) * playbackRate : 0)) / 1000;
+    }
+
+    function cloudAxis(time, velocity, extent, size, initial) {
+      if (velocity === 0) return initial;
+      const period = extent + size + 4;
+      const distance = initial + size + 2 + time * velocity;
+      return distance - Math.floor(distance / period) * period - size - 2;
     }
 
     function cloudTravel(seconds, speed, width, phase) {
@@ -68,7 +79,7 @@
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = () => reject(new Error(url));
-        image.src = url;
+        image.src = url + '?v=weather-clouds-v8';
       });
     }
 
@@ -160,13 +171,28 @@
       ctx.clearRect(0, 0, view.width, view.height);
       for (const layer of scene.layers) {
         if (layer.cloud) {
+          if (layer.sprites) {
+            for (const sprite of layer.sprites) {
+              const spec = sprite.spec;
+              const x = cloudAxis(seconds, spec.velocityX, scene.motion.width, spec.width, spec.left);
+              const y = cloudAxis(seconds, spec.velocityY, scene.motion.height, spec.height, spec.top);
+              ctx.drawImage(sprite.image, x * scene.scale, y * scene.scale, spec.width * scene.scale, spec.height * scene.scale);
+            }
+            continue;
+          }
+          if (scene.motion.version === 1) {
+            const x = scene.motion.cloudAmplitude * Math.sin(seconds * Math.PI * 2 / scene.motion.cloudPeriod) * scene.scale;
+            ctx.drawImage(layer.canvas, x, 0);
+            continue;
+          }
           const travel = cloudTravel(seconds, layer.cloud.speed, scene.motion.width, layer.cloud.phase) * scene.scale;
           ctx.save();
           ctx.beginPath();
           ctx.rect(0, 0, view.width, view.height);
           ctx.clip();
-          ctx.drawImage(layer.canvas, travel, 0);
-          ctx.drawImage(layer.canvas, travel - view.width, 0);
+          const slope = layer.cloud.verticalSlope || 0;
+          ctx.drawImage(layer.canvas, travel, travel * slope);
+          ctx.drawImage(layer.canvas, travel - view.width, (travel - view.width) * slope);
           ctx.restore();
         } else if (layer.leaf) {
           warp(layer, seconds, scene.scale);
@@ -186,7 +212,7 @@
     function fit() {
       const bounds = stage.getBoundingClientRect();
       const aspect = view.width / Math.max(1, view.height);
-      const width = Math.max(bounds.width, bounds.height * aspect);
+      const width = Math.min(bounds.width, bounds.height * aspect);
       const height = width / aspect;
       if (width < 8 || height < 8) return;
       view.style.width = Math.floor(width) + 'px';
@@ -194,11 +220,14 @@
     }
 
     window.addEventListener('resize', fit);
+    new ResizeObserver(fit).observe(stage);
 
     async function show(layoutPath, generation) {
-      const layout = await (await fetch(root + layoutPath)).json();
+      currentScene = null;
+      cancelAnimationFrame(frame);
+      const layout = await (await fetch(root + layoutPath, { cache: 'no-store' })).json();
       const sceneDir = layoutPath.slice(0, layoutPath.lastIndexOf('/') + 1);
-      const motion = await (await fetch(root + sceneDir + (layout.motion || 'motion.json'))).json();
+      const motion = await (await fetch(root + sceneDir + (layout.motion || 'motion.json'), { cache: 'no-store' })).json();
       const width = 1680;
       const height = Math.round(width * layout.height / layout.width);
       view.width = width;
@@ -206,6 +235,7 @@
       fit();
       const scale = width / motion.width;
       const clouds = new Map((motion.clouds || []).map(cloud => [cloud.id, cloud]));
+      if (motion.version === 1) clouds.set(motion.cloudId, {});
       const leaves = new Map((motion.leaves || []).map(leaf => [leaf.id, leaf]));
       const weights = new Map();
       const layers = [];
@@ -215,7 +245,12 @@
         const item = { canvas };
         const cloud = clouds.get(layer.id);
         const leaf = leaves.get(layer.id);
-        if (cloud) item.cloud = cloud;
+        if (cloud) {
+          item.cloud = cloud;
+          if (motion.version === 3) item.sprites = await Promise.all(cloud.sprites.map(async spec => ({
+            spec, image: await loadImage(root + sceneDir + spec.image)
+          })));
+        }
         if (leaf) {
           const weightName = leaf.weightTexture || motion.weightTexture;
           if (!weights.has(weightName)) {
@@ -240,20 +275,28 @@
         if (generation !== token) return;
       }
       const scene = { layers, motion, scale };
+      currentScene = scene;
       elapsed = 0;
       runningFrom = performance.now();
-      status.textContent = `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · 三层云向右循环 · 树叶按权重轻晃`;
+      status.textContent = `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · ${motion.weather?.label ? motion.weather.label + ' · ' : ''}${motion.version === 3 ? '三层水平云循环 · 大云缓慢平移' : '千岛湖原有云动效'} · 树叶按权重轻晃`;
       fit();
       requestAnimationFrame(fit);
       cancelAnimationFrame(frame);
+      draw(scene, 0);
       tick(scene, generation);
     }
 
     playButton.addEventListener('click', () => {
-      if (playing) elapsed += performance.now() - runningFrom;
+      if (playing) elapsed += (performance.now() - runningFrom) * playbackRate;
       playing = !playing;
       playButton.textContent = playing ? '暂停' : '播放';
       if (playing) runningFrom = performance.now();
+    });
+
+    document.querySelector('#rate').addEventListener('change', event => {
+      if (playing) elapsed += (performance.now() - runningFrom) * playbackRate;
+      runningFrom = performance.now();
+      playbackRate = Number(event.target.value);
     });
 
     pondSelect.addEventListener('change', () => {
@@ -273,7 +316,7 @@
       'river-02-coral', 'river-03-apricot', 'river-05-moon'
     ];
 
-    fetch(root + 'catalog.json').then(response => response.json()).then(catalog => {
+    fetch(root + 'catalog.json', { cache: 'no-store' }).then(response => response.json()).then(catalog => {
       const ponds = catalog.bindings.filter(item => item.layerLayout);
       for (const pond of ponds) {
         const option = document.createElement('option');

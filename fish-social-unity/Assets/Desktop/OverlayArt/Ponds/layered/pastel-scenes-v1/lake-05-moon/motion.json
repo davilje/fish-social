@@ -13,18 +13,17 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-sprite-001.png",
-          "left": 115,
-          "top": 4,
-          "width": 1287,
-          "height": 453,
-          "velocityX": 0,
+          "image": "cloud-far-horizontal-1.png",
+          "left": 123,
+          "top": 58,
+          "width": 624,
+          "height": 87,
+          "velocityX": 0.099,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -9.93,
-          "elongation": 3.96,
-          "clipped": false,
-          "paintedPixels": 164872
+          "kind": "horizontal",
+          "cloudType": "veil",
+          "sourceAtlas": "moon",
+          "sourceSprite": 4
         }
       ]
     },
@@ -32,18 +31,17 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-sprite-001.png",
-          "left": 783,
-          "top": 0,
-          "width": 1318,
-          "height": 520,
-          "velocityX": 0.18,
+          "image": "cloud-middle-horizontal-1.png",
+          "left": 550,
+          "top": 155,
+          "width": 780,
+          "height": 109,
+          "velocityX": 0.187,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": -5.05,
-          "elongation": 3.82,
-          "clipped": true,
-          "paintedPixels": 217860
+          "kind": "horizontal",
+          "cloudType": "veil",
+          "sourceAtlas": "moon",
+          "sourceSprite": 4
         }
       ]
     },
@@ -51,18 +49,17 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-sprite-001.png",
-          "left": 111,
-          "top": 112,
-          "width": 617,
-          "height": 228,
-          "velocityX": 0.62,
+          "image": "cloud-near-horizontal-1.png",
+          "left": 393,
+          "top": 262,
+          "width": 956,
+          "height": 133,
+          "velocityX": 0.286,
           "velocityY": 0,
-          "kind": "small-horizontal",
-          "paintedAngle": 2.8,
-          "elongation": 5.19,
-          "clipped": false,
-          "paintedPixels": 10551
+          "kind": "horizontal",
+          "cloudType": "veil",
+          "sourceAtlas": "moon",
+          "sourceSprite": 4
         }
       ]
     }
@@ -88,5 +85,10 @@
       "phase": 0,
       "primaryPeriod": 7.5
     }
-  ]
+  ],
+  "weather": {
+    "id": "moon",
+    "label": "月夜薄云带",
+    "palette": "moon"
+  }
 }

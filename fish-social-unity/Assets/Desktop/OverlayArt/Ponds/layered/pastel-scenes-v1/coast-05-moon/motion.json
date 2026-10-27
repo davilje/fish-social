@@ -13,46 +13,17 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-sprite-001.png",
-          "left": 1016,
-          "top": 59,
-          "width": 1090,
-          "height": 391,
-          "velocityX": 0.18,
+          "image": "cloud-far-horizontal-1.png",
+          "left": 214,
+          "top": 71,
+          "width": 651,
+          "height": 79,
+          "velocityX": 0.108,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": -2.92,
-          "elongation": 6.8,
-          "clipped": false,
-          "paintedPixels": 117164
-        },
-        {
-          "image": "cloud-far-sprite-002.png",
-          "left": 63,
-          "top": 50,
-          "width": 683,
-          "height": 338,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": 23.01,
-          "elongation": 2.19,
-          "clipped": false,
-          "paintedPixels": 109583
-        },
-        {
-          "image": "cloud-far-sprite-003.png",
-          "left": 1443,
-          "top": 51,
-          "width": 666,
-          "height": 384,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -20.03,
-          "elongation": 7.99,
-          "clipped": false,
-          "paintedPixels": 35814
+          "kind": "horizontal",
+          "cloudType": "stratus",
+          "sourceAtlas": "moon",
+          "sourceSprite": 1
         }
       ]
     },
@@ -60,46 +31,17 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-sprite-001.png",
-          "left": 466,
-          "top": 0,
-          "width": 741,
-          "height": 175,
-          "velocityX": 0,
+          "image": "cloud-middle-horizontal-1.png",
+          "left": 550,
+          "top": 168,
+          "width": 851,
+          "height": 104,
+          "velocityX": 0.204,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -16.02,
-          "elongation": 11.03,
-          "clipped": true,
-          "paintedPixels": 30396
-        },
-        {
-          "image": "cloud-middle-sprite-002.png",
-          "left": 979,
-          "top": 0,
-          "width": 589,
-          "height": 320,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -17.83,
-          "elongation": 7.15,
-          "clipped": true,
-          "paintedPixels": 22504
-        },
-        {
-          "image": "cloud-middle-sprite-003.png",
-          "left": 503,
-          "top": 54,
-          "width": 392,
-          "height": 334,
-          "velocityX": -0.82,
-          "velocityY": 0,
-          "kind": "small-horizontal",
-          "paintedAngle": 6.91,
-          "elongation": 3.73,
-          "clipped": false,
-          "paintedPixels": 20283
+          "kind": "horizontal",
+          "cloudType": "stratus",
+          "sourceAtlas": "moon",
+          "sourceSprite": 1
         }
       ]
     },
@@ -107,46 +49,17 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-sprite-001.png",
-          "left": 782,
-          "top": 246,
-          "width": 326,
-          "height": 173,
-          "velocityX": 0,
+          "image": "cloud-near-horizontal-1.png",
+          "left": 744,
+          "top": 254,
+          "width": 1050,
+          "height": 128,
+          "velocityX": 0.312,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": 8.67,
-          "elongation": 4.26,
-          "clipped": false,
-          "paintedPixels": 12793
-        },
-        {
-          "image": "cloud-near-sprite-002.png",
-          "left": 757,
-          "top": 114,
-          "width": 355,
-          "height": 153,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -12.66,
-          "elongation": 6.58,
-          "clipped": false,
-          "paintedPixels": 11320
-        },
-        {
-          "image": "cloud-near-sprite-003.png",
-          "left": 1051,
-          "top": 134,
-          "width": 306,
-          "height": 301,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -11.65,
-          "elongation": 3.89,
-          "clipped": false,
-          "paintedPixels": 7241
+          "kind": "horizontal",
+          "cloudType": "stratus",
+          "sourceAtlas": "moon",
+          "sourceSprite": 1
         }
       ]
     }
@@ -172,5 +85,10 @@
       "phase": 0,
       "primaryPeriod": 7.5
     }
-  ]
+  ],
+  "weather": {
+    "id": "moonMarine",
+    "label": "月夜层云",
+    "palette": "moon"
+  }
 }

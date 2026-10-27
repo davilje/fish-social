@@ -13,32 +13,17 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-sprite-001.png",
-          "left": 73,
-          "top": 7,
-          "width": 1843,
-          "height": 438,
-          "velocityX": 0.18,
+          "image": "cloud-far-horizontal-1.png",
+          "left": 271,
+          "top": 58,
+          "width": 667,
+          "height": 125,
+          "velocityX": 0.112,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": 5.98,
-          "elongation": 6.21,
-          "clipped": false,
-          "paintedPixels": 343764
-        },
-        {
-          "image": "cloud-far-sprite-002.png",
-          "left": 1552,
-          "top": 74,
-          "width": 545,
-          "height": 250,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -20.94,
-          "elongation": 3.41,
-          "clipped": false,
-          "paintedPixels": 27040
+          "kind": "horizontal",
+          "cloudType": "marine-bank",
+          "sourceAtlas": "mist",
+          "sourceSprite": 3
         }
       ]
     },
@@ -46,18 +31,17 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-sprite-001.png",
-          "left": 1552,
-          "top": 281,
-          "width": 544,
-          "height": 149,
-          "velocityX": 0,
+          "image": "cloud-middle-horizontal-1.png",
+          "left": 1173,
+          "top": 135,
+          "width": 935,
+          "height": 176,
+          "velocityX": 0.212,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -10.14,
-          "elongation": 2.36,
-          "clipped": false,
-          "paintedPixels": 18501
+          "kind": "horizontal",
+          "cloudType": "marine-bank",
+          "sourceAtlas": "mist",
+          "sourceSprite": 3
         }
       ]
     },
@@ -65,18 +49,17 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-sprite-001.png",
-          "left": 1007,
-          "top": 15,
-          "width": 547,
-          "height": 433,
-          "velocityX": 0.18,
+          "image": "cloud-near-horizontal-1.png",
+          "left": 641,
+          "top": 242,
+          "width": 1161,
+          "height": 218,
+          "velocityX": 0.324,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": 24.61,
-          "elongation": 1.3,
-          "clipped": false,
-          "paintedPixels": 6451
+          "kind": "horizontal",
+          "cloudType": "marine-bank",
+          "sourceAtlas": "mist",
+          "sourceSprite": 3
         }
       ]
     }
@@ -102,5 +85,10 @@
       "phase": 0,
       "primaryPeriod": 7.5
     }
-  ]
+  ],
+  "weather": {
+    "id": "overcast",
+    "label": "低层云幕",
+    "palette": "mist"
+  }
 }

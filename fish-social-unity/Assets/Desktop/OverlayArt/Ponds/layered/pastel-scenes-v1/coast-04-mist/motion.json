@@ -13,46 +13,17 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-sprite-001.png",
-          "left": 1404,
-          "top": 66,
-          "width": 623,
-          "height": 223,
-          "velocityX": 0,
+          "image": "cloud-far-horizontal-1.png",
+          "left": 224,
+          "top": 76,
+          "width": 651,
+          "height": 122,
+          "velocityX": 0.112,
           "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -10.3,
-          "elongation": 2.88,
-          "clipped": false,
-          "paintedPixels": 66842
-        },
-        {
-          "image": "cloud-far-sprite-002.png",
-          "left": 122,
-          "top": 80,
-          "width": 565,
-          "height": 180,
-          "velocityX": -0.72,
-          "velocityY": 0,
-          "kind": "small-horizontal",
-          "paintedAngle": -6.06,
-          "elongation": 3.48,
-          "clipped": false,
-          "paintedPixels": 45653
-        },
-        {
-          "image": "cloud-far-sprite-003.png",
-          "left": 768,
-          "top": 69,
-          "width": 487,
-          "height": 193,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -20.54,
-          "elongation": 3.73,
-          "clipped": false,
-          "paintedPixels": 34928
+          "kind": "horizontal",
+          "cloudType": "marine-bank",
+          "sourceAtlas": "mist",
+          "sourceSprite": 3
         }
       ]
     },
@@ -60,32 +31,17 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-sprite-001.png",
-          "left": 89,
-          "top": 109,
-          "width": 635,
-          "height": 264,
-          "velocityX": 0.18,
+          "image": "cloud-middle-horizontal-1.png",
+          "left": 1194,
+          "top": 153,
+          "width": 914,
+          "height": 172,
+          "velocityX": 0.212,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": -3.72,
-          "elongation": 1.88,
-          "clipped": false,
-          "paintedPixels": 69283
-        },
-        {
-          "image": "cloud-middle-sprite-002.png",
-          "left": 999,
-          "top": 69,
-          "width": 455,
-          "height": 306,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "tilted-static",
-          "paintedAngle": -20.96,
-          "elongation": 5.35,
-          "clipped": false,
-          "paintedPixels": 15501
+          "kind": "horizontal",
+          "cloudType": "marine-bank",
+          "sourceAtlas": "mist",
+          "sourceSprite": 3
         }
       ]
     },
@@ -93,32 +49,17 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-sprite-001.png",
-          "left": 688,
-          "top": 91,
-          "width": 731,
-          "height": 296,
-          "velocityX": 0.18,
+          "image": "cloud-near-horizontal-1.png",
+          "left": 594,
+          "top": 229,
+          "width": 1134,
+          "height": 213,
+          "velocityX": 0.324,
           "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": -1.11,
-          "elongation": 2.36,
-          "clipped": false,
-          "paintedPixels": 119739
-        },
-        {
-          "image": "cloud-near-sprite-002.png",
-          "left": 1404,
-          "top": 141,
-          "width": 680,
-          "height": 246,
-          "velocityX": 0.205,
-          "velocityY": 0,
-          "kind": "large-horizontal",
-          "paintedAngle": 0.72,
-          "elongation": 2.38,
-          "clipped": false,
-          "paintedPixels": 77643
+          "kind": "horizontal",
+          "cloudType": "marine-bank",
+          "sourceAtlas": "mist",
+          "sourceSprite": 3
         }
       ]
     }
@@ -144,5 +85,10 @@
       "phase": 0,
       "primaryPeriod": 7.5
     }
-  ]
+  ],
+  "weather": {
+    "id": "overcast",
+    "label": "低层云幕",
+    "palette": "mist"
+  }
 }

@@ -136,7 +136,9 @@ namespace FishSocial.Desktop.Editor
             stencil.enabled = true; stencil.showMaskGraphic = false;
             (frameRoot.GetComponent<CozyPondArtworkPose>() ?? frameRoot.gameObject.AddComponent<CozyPondArtworkPose>())
                 .ConfigureGroup(.6f, viewport, frame);
-            var content = Place(root, "Viewport/MapContent", -180, -140, 1050, 700);
+            var mapSprite = CatTheme.LoadCozy("scenes/world-map.png", Vector4.zero);
+            var mapWidth = mapSprite != null ? 700f * mapSprite.rect.width / mapSprite.rect.height : 1050f;
+            var content = Place(root, "Viewport/MapContent", -180, -140, mapWidth, 700);
             content.anchoredPosition = new Vector2(-180, 140);
             Stretch(root.Find("Viewport/MapContent/MarkerLayer") as RectTransform);
             Stretch(root.Find("Viewport/MapContent/MapImage") as RectTransform);
