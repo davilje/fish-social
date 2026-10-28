@@ -29,13 +29,13 @@ namespace FishSocial.Desktop
 
         static readonly Dictionary<string, string> QualityNames = new Dictionary<string, string>
         {
-            { "gray", "普通" },
-            { "green", "优良" },
-            { "blue", "稀有" },
-            { "purple", "史诗" },
-            { "red", "传说" },
-            { "orange", "神话" },
-            { "gold", "至尊" },
+            { "gray", DesktopLocalization.Text("game.codex.quality.common.name", "普通") },
+            { "green", DesktopLocalization.Text("game.codex.quality.uncommon.name", "优良") },
+            { "blue", DesktopLocalization.Text("game.codex.quality.rare.name", "稀有") },
+            { "purple", DesktopLocalization.Text("game.codex.quality.epic.name", "史诗") },
+            { "red", DesktopLocalization.Text("game.codex.quality.legendary.name", "传说") },
+            { "orange", DesktopLocalization.Text("game.codex.quality.mythic.name", "神话") },
+            { "gold", DesktopLocalization.Text("game.codex.quality.supreme.name", "至尊") },
         };
 
         static readonly Dictionary<string, int> QualityBaseCoins = new Dictionary<string, int>
@@ -51,9 +51,9 @@ namespace FishSocial.Desktop
 
         public static readonly SpeciesInfo[] LegacySpeciesFallback =
         {
-            S("crucian", "鲫鱼", "herbivore", 0.12f, 0.08f),
-            S("carp", "鲤鱼", "herbivore", 0.1f, 0.1f),
-            S("loach", "泥鳅", "omnivore", 0.1f, 0.1f),
+            S("crucian", DesktopLocalization.Text("game.codex.fish_fallback.crucian.name", "鲫鱼"), "herbivore", 0.12f, 0.08f),
+            S("carp", DesktopLocalization.Text("game.codex.fish_fallback.carp.name", "鲤鱼"), "herbivore", 0.1f, 0.1f),
+            S("loach", DesktopLocalization.Text("game.codex.fish_fallback.loach.name", "泥鳅"), "omnivore", 0.1f, 0.1f),
         };
 
         static SpeciesInfo[] _speciesFromGameData;
@@ -112,7 +112,7 @@ namespace FishSocial.Desktop
         public static string QualityName(string quality)
         {
             if (string.IsNullOrEmpty(quality))
-                return "未知";
+                return DesktopLocalization.Text("game.codex.quality.unknown.name", "未知");
             string name;
             return QualityNames.TryGetValue(quality, out name) ? name : quality;
         }
@@ -168,9 +168,9 @@ namespace FishSocial.Desktop
         {
             switch (diet)
             {
-                case "herbivore": return "草食";
-                case "carnivore": return "肉食";
-                default: return "杂食";
+                case "herbivore": return DesktopLocalization.Text("game.codex.diet.herbivore.name", "草食");
+                case "carnivore": return DesktopLocalization.Text("game.codex.diet.carnivore.name", "肉食");
+                default: return DesktopLocalization.Text("game.codex.diet.omnivore.name", "杂食");
             }
         }
 

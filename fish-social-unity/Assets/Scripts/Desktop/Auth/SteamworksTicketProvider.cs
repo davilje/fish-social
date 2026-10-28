@@ -70,15 +70,15 @@ namespace FishSocial.Desktop.Auth
             if (!IsSteamRunning)
             {
                 var detail = string.IsNullOrWhiteSpace(_initializationError)
-                    ? "请确认 Steam 客户端已启动，并从 Steam 或带有 steam_appid.txt 的 Development Build 启动。"
+                    ? DesktopLocalization.Text("ui.auth.steam_ticket.hint.launch_from_steam", "请确认 Steam 客户端已启动，并从 Steam 或带有 steam_appid.txt 的 Development Build 启动。")
                     : _initializationError;
-                onFailure?.Invoke("Steam 初始化失败：" + detail);
+                onFailure?.Invoke(DesktopLocalization.Format("ui.auth.steam_ticket.error.initialization_failed", (object)(detail)));
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(identity))
             {
-                onFailure?.Invoke("Steam 登录 identity 未配置。");
+                onFailure?.Invoke(DesktopLocalization.Text("ui.auth.steam_ticket.error.identity_missing", "Steam 登录 identity 未配置。"));
                 return;
             }
 
@@ -86,7 +86,7 @@ namespace FishSocial.Desktop.Auth
             _onFailure = onFailure;
             _activeTicket = SteamUser.GetAuthTicketForWebApi(identity);
 #else
-            onFailure?.Invoke("请在 Windows Standalone 构建中运行 Steam 登录。");
+            onFailure?.Invoke(DesktopLocalization.Text("ui.auth.steam_ticket.error.windows_required", "请在 Windows Standalone 构建中运行 Steam 登录。"));
 #endif
         }
 
@@ -97,13 +97,13 @@ namespace FishSocial.Desktop.Auth
                       " bytes=" + response.m_cubTicket);
             if (response.m_eResult != EResult.k_EResultOK)
             {
-                CompleteFailure("Steam 返回登录票据失败: " + response.m_eResult);
+                CompleteFailure(DesktopLocalization.Format("ui.auth.steam_ticket.error.ticket_result_failed", (object)(response.m_eResult)));
                 return;
             }
 
             if (response.m_rgubTicket == null || response.m_cubTicket <= 0)
             {
-                CompleteFailure("Steam 返回了空登录票据。");
+                CompleteFailure(DesktopLocalization.Text("ui.auth.steam_ticket.error.ticket_empty", "Steam 返回了空登录票据。"));
                 return;
             }
 

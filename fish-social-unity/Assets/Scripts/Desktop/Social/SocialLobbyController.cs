@@ -86,7 +86,7 @@ namespace FishSocial.Desktop.Social
         {
             if (!EnsureAuthenticated())
                 return;
-            SetState(SocialLobbyState.LoadingFriends, "正在加载 Steam 好友。");
+            SetState(SocialLobbyState.LoadingFriends, DesktopLocalization.Text("ui.social.lobby.status.loading_steam_friends", "正在加载 Steam 好友。"));
             _adapter.RefreshFriends();
         }
 
@@ -96,11 +96,11 @@ namespace FishSocial.Desktop.Social
                 return;
             if (string.IsNullOrWhiteSpace(pondId))
             {
-                Fail("请先选择鱼塘。");
+                Fail(DesktopLocalization.Text("ui.social.lobby.error.pond_required", "请先选择鱼塘。"));
                 return;
             }
             _pendingPondId = pondId;
-            SetState(SocialLobbyState.Creating, "正在创建 Lobby。");
+            SetState(SocialLobbyState.Creating, DesktopLocalization.Text("ui.social.lobby.status.creating", "正在创建 Lobby。"));
             _adapter.CreateLobby(pondId, GameVersion, ProtocolVersion);
         }
 
@@ -110,11 +110,11 @@ namespace FishSocial.Desktop.Social
                 return;
             if (string.IsNullOrWhiteSpace(lobbyId))
             {
-                Fail("Lobby ID 为空。");
+                Fail(DesktopLocalization.Text("ui.social.lobby.error.lobby_id_required", "Lobby ID 为空。"));
                 return;
             }
             _pendingLobbyId = lobbyId;
-            SetState(SocialLobbyState.Joining, "正在加入 Lobby。");
+            SetState(SocialLobbyState.Joining, DesktopLocalization.Text("ui.social.lobby.status.joining", "正在加入 Lobby。"));
             _adapter.JoinLobby(lobbyId);
         }
 
@@ -124,7 +124,7 @@ namespace FishSocial.Desktop.Social
                 return;
             if (string.IsNullOrWhiteSpace(CurrentLobbyId))
             {
-                Fail("请先创建 Lobby。");
+                Fail(DesktopLocalization.Text("ui.social.lobby.error.create_before_inviting", "请先创建 Lobby。"));
                 return;
             }
             StartCoroutine(_api.Invite(CurrentLobbyId, friendSteamId64, (ok, tokenOrMessage) =>
@@ -153,7 +153,7 @@ namespace FishSocial.Desktop.Social
                             string.IsNullOrWhiteSpace(CurrentPondId)
                                 ? SocialLobbyState.Ready
                                 : SocialLobbyState.InPond,
-                            message + " 当前鱼塘不会关闭。");
+                            DesktopLocalization.Format("ui.social.lobby.status.closed_pond_preserved", (object)(message)));
                 }
                 else
                     Fail(message);
@@ -174,7 +174,7 @@ namespace FishSocial.Desktop.Social
                 string.IsNullOrWhiteSpace(CurrentPondId)
                     ? SocialLobbyState.Ready
                     : SocialLobbyState.InPond,
-                "已离开 Lobby；当前鱼塘数据仍由服务端持续维护。");
+                DesktopLocalization.Text("ui.social.lobby.status.left_pond_preserved", "已离开 Lobby；当前鱼塘数据仍由服务端持续维护。"));
         }
 
         void OnFriendsChanged(IReadOnlyList<SteamFriendInfo> friends)
@@ -182,7 +182,7 @@ namespace FishSocial.Desktop.Social
             Friends = friends ?? new List<SteamFriendInfo>();
             SteamFriendsLoaded = true;
             FriendsChanged?.Invoke(Friends);
-            SetState(SocialLobbyState.Ready, "好友列表已更新。");
+            SetState(SocialLobbyState.Ready, DesktopLocalization.Text("ui.social.lobby.status.friends_updated", "好友列表已更新。"));
         }
 
         void OnLobbyCreated(string lobbyId, string pondId)
@@ -203,7 +203,7 @@ namespace FishSocial.Desktop.Social
                     }
                     if (lobby == null)
                     {
-                        RollbackPendingLobby("服务端返回了无效的 Lobby 状态。");
+                        RollbackPendingLobby(DesktopLocalization.Text("ui.social.lobby.error.invalid_created_state", "服务端返回了无效的 Lobby 状态。"));
                         return;
                     }
                     CurrentLobbyId = lobby.lobbyId;
@@ -211,7 +211,7 @@ namespace FishSocial.Desktop.Social
                     _pendingLobbyId = null;
                     _pendingPondId = null;
                     RefreshLobbyMembers();
-                    SetState(SocialLobbyState.LobbyJoined, "Lobby 已创建，等待好友加入。");
+                    SetState(SocialLobbyState.LobbyJoined, DesktopLocalization.Text("ui.social.lobby.status.created", "Lobby 已创建，等待好友加入。"));
                 }));
         }
 
@@ -233,7 +233,7 @@ namespace FishSocial.Desktop.Social
                     out var protocolVersion,
                     out var inviteToken))
             {
-                RollbackPendingLobby("Lobby 元数据缺失或已失效。");
+                RollbackPendingLobby(DesktopLocalization.Text("ui.social.lobby.error.invalid_metadata", "Lobby 元数据缺失或已失效。"));
                 return;
             }
             StartCoroutine(_api.Join(
@@ -250,7 +250,7 @@ namespace FishSocial.Desktop.Social
                     }
                     if (lobby == null)
                     {
-                        RollbackPendingLobby("服务端返回了无效的 Lobby 状态。");
+                        RollbackPendingLobby(DesktopLocalization.Text("ui.social.lobby.error.invalid_created_state", "服务端返回了无效的 Lobby 状态。"));
                         return;
                     }
                     CurrentLobbyId = lobby.lobbyId;
@@ -265,9 +265,9 @@ namespace FishSocial.Desktop.Social
         void OnLobbyInviteReceived(string lobbyId)
         {
             DesktopNotificationService.Instance?.Publish(new DesktopNotification(
-                NotificationKind.FriendInvite, "好友邀请", "收到 Steam Lobby 进塘邀请。"));
+                NotificationKind.FriendInvite, DesktopLocalization.Text("ui.social.lobby.title.friend_invite", "好友邀请"), DesktopLocalization.Text("ui.social.lobby.status.pond_invite_received", "收到 Steam Lobby 进塘邀请。")));
             _pendingLobbyId = lobbyId;
-            SetState(SocialLobbyState.WaitingForInvite, "收到 Steam Lobby 邀请。");
+            SetState(SocialLobbyState.WaitingForInvite, DesktopLocalization.Text("ui.social.lobby.status.lobby_invite_received", "收到 Steam Lobby 邀请。"));
             JoinLobby(lobbyId);
         }
 
@@ -275,10 +275,10 @@ namespace FishSocial.Desktop.Social
         {
             if (_pondSession == null)
             {
-                Fail("鱼塘会话控制器不可用。");
+                Fail(DesktopLocalization.Text("ui.social.lobby.error.pond_session_unavailable", "鱼塘会话控制器不可用。"));
                 return;
             }
-            SetState(SocialLobbyState.EnteringPond, "正在进入鱼塘 " + pondId + "。");
+            SetState(SocialLobbyState.EnteringPond, DesktopLocalization.Format("ui.social.lobby.status.entering_pond", (object)(pondId)));
             _pondSession.ConnectAndJoin(pondId);
         }
 
@@ -286,7 +286,7 @@ namespace FishSocial.Desktop.Social
         {
             if (snapshot?.pond == null || snapshot.pond.id != CurrentPondId)
                 return;
-            SetState(SocialLobbyState.InPond, "已进入鱼塘 " + CurrentPondId + "。");
+            SetState(SocialLobbyState.InPond, DesktopLocalization.Format("ui.social.lobby.status.entered_pond", (object)(CurrentPondId)));
         }
 
         void OnPondError(string message)
@@ -307,8 +307,8 @@ namespace FishSocial.Desktop.Social
             if (_auth != null && _auth.IsAuthenticated && _adapter != null && _adapter.IsAvailable)
                 return true;
             Fail(_adapter == null || !_adapter.IsAvailable
-                ? "Steam 客户端未运行。"
-                : "请先完成 Steam 登录。");
+                ? DesktopLocalization.Text("ui.social.lobby.error.steam_client_unavailable", "Steam 客户端未运行。")
+                : DesktopLocalization.Text("ui.social.lobby_api.error.steam_login_required", "请先完成 Steam 登录。"));
             return false;
         }
 

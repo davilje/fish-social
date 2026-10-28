@@ -300,6 +300,9 @@ namespace FishSocialOverlay
         [DataMember(Name = "fishingEffectsQuality")]
         public string FishingEffectsQuality { get; set; }
 
+        [DataMember(Name = "language")]
+        public string Language { get; set; }
+
         [DataMember(Name = "loginState")]
         public string LoginState { get; set; }
 

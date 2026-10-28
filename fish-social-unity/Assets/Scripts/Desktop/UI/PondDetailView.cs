@@ -24,25 +24,25 @@ namespace FishSocial.Desktop
                 photo.raycastTarget = false;
                 photo.preserveAspect = false;
             }
-            if (name != null) name.text = pond == null ? "鱼塘详情" : pond.displayName;
+            if (name != null) name.text = pond == null ? DesktopLocalization.Text("ui.map.pond_detail.title", "鱼塘详情") : pond.displayName;
             var feeText = FeeSummary(state);
             if (fee != null) fee.text = feeText;
             if (facts != null)
             {
-                facts.text = pond == null ? "点选鱼塘，查看真实场景和入塘条件。" : ShortFacts(pond);
+                facts.text = pond == null ? DesktopLocalization.Text("ui.map.pond_detail.hint.select_pond", "点选鱼塘，查看真实场景和入塘条件。") : ShortFacts(pond);
             }
             var status = DesktopModalUi.FindComponent<Text>(root, "StatusText");
             if (status != null)
-                status.text = state.Busy ? "正在连接鱼塘…" : state.EntryFailed ? "进入失败，详情中可查看原因" :
-                    state.ProgressLoading ? "正在核对入塘条件…" : state.Progress == null ? "等级信息未就绪，可重试" :
-                    state.CanEnter(pond) ? "已准备好入塘" : "请查看入塘条件";
+                status.text = state.Busy ? DesktopLocalization.Text("ui.map.pond_detail.status.connecting", "正在连接鱼塘…") : state.EntryFailed ? DesktopLocalization.Text("ui.map.pond_detail.status.entry_failed", "进入失败，详情中可查看原因") :
+                    state.ProgressLoading ? DesktopLocalization.Text("ui.map.pond_detail.status.checking_access", "正在核对入塘条件…") : state.Progress == null ? DesktopLocalization.Text("ui.map.pond_detail.status.level_not_ready", "等级信息未就绪，可重试") :
+                    state.CanEnter(pond) ? DesktopLocalization.Text("ui.map.pond_detail.status.ready", "已准备好入塘") : DesktopLocalization.Text("ui.map.pond_detail.hint.check_requirements", "请查看入塘条件");
             var retry = DesktopModalUi.FindComponent<Button>(root, "Retry");
             if (retry != null)
             {
                 retry.gameObject.SetActive(!state.Busy && !state.ProgressLoading && (state.EntryFailed || state.Progress == null));
                 retry.interactable = !state.Busy && !state.ProgressLoading;
                 var label = retry.GetComponentInChildren<Text>(true);
-                if (label != null) label.text = state.EntryFailed && state.Progress != null ? "重试进入" : "重新加载";
+                if (label != null) label.text = state.EntryFailed && state.Progress != null ? DesktopLocalization.Text("ui.map.pond_detail.button.retry_entry", "重试进入") : DesktopLocalization.Text("ui.map.pond_detail.button.reload", "重新加载");
             }
             var track = root.Find("FeeTrack");
             if (track != null)
@@ -55,9 +55,9 @@ namespace FishSocial.Desktop
                     if (track.GetSiblingIndex() > first) track.SetSiblingIndex(first);
                 }
             }
-            RefreshMode(root, "ModeSell", "出售档", pond != null ? pond.feePer2hSellOnly : 0,
+            RefreshMode(root, "ModeSell", DesktopLocalization.Text("ui.map.pond_detail.mode.sell", "出售档"), pond != null ? pond.feePer2hSellOnly : 0,
                 state, "sell_only");
-            RefreshMode(root, "ModeAuto", "回鱼档", pond != null ? pond.feePer2hAutoReturn : 0,
+            RefreshMode(root, "ModeAuto", DesktopLocalization.Text("ui.map.pond_detail.mode.release", "回鱼档"), pond != null ? pond.feePer2hAutoReturn : 0,
                 state, "auto_return");
         }
 
@@ -88,7 +88,7 @@ namespace FishSocial.Desktop
             var text = button.GetComponentInChildren<Text>(true);
             if (text != null)
             {
-                text.text = mode == "sell_only" ? "回鱼出售" : "自动回鱼";
+                text.text = mode == "sell_only" ? DesktopLocalization.Text("ui.map.pond_detail.button.keep_to_sell", "回鱼出售") : DesktopLocalization.Text("ui.map.pond_detail.button.auto_release", "自动回鱼");
                 text.color = state.ReturnFeeMode == mode ? Color.white : CatTheme.Ink;
             }
             button.GetComponent<CozyButtonVisual>()?.SetSelected(state.ReturnFeeMode == mode);
@@ -98,10 +98,10 @@ namespace FishSocial.Desktop
         {
             if (state.Selected == null) return string.Empty;
             var fee = state.ActiveFee(state.Selected);
-            if (fee <= 0) return "免费入塘";
+            if (fee <= 0) return DesktopLocalization.Text("ui.map.pond_detail.fee.free", "免费入塘");
             var count = state.Progress != null ? state.Progress.todayFeeCharges.ToString() : "—";
             var cap = state.Selected.maxFeeChargesPerDay > 0 ? state.Selected.maxFeeChargesPerDay : 4;
-            return fee + " 金币 / 2 小时 · 今日 " + count + "/" + cap + " 次";
+            return DesktopLocalization.Format("ui.map.pond_detail.fee.daily_usage", (object)(fee), (object)(count), (object)(cap));
         }
 
         static string ShortFacts(WorldMapPondView pond)
@@ -116,7 +116,7 @@ namespace FishSocial.Desktop
             }
             var species = DesktopGameData.PondSpeciesSummary(pond.pondId, 3);
             if (!string.IsNullOrEmpty(species))
-                line += "\n可遇鱼种：" + species;
+                line += DesktopLocalization.Format("ui.map.pond_detail.summary.available_species", (object)(species));
             return line;
         }
     }

@@ -66,7 +66,7 @@ namespace FishSocial.Desktop
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
 
-            var title = DesktopModalUi.Label(panel.transform, "Title", "离塘结算", 22, TextAnchor.MiddleLeft);
+            var title = DesktopModalUi.Label(panel.transform, "Title", DesktopLocalization.Text("ui.catch.settlement.title.fallback", "离塘结算"), 22, TextAnchor.MiddleLeft);
             var titleRt = title.rectTransform;
             titleRt.anchorMin = new Vector2(0f, 1f);
             titleRt.anchorMax = new Vector2(1f, 1f);
@@ -123,7 +123,7 @@ namespace FishSocial.Desktop
             scroll.horizontal = false;
             scroll.vertical = true;
 
-            DesktopModalUi.MakeButton(panel.transform, "Close", "知道了", null);
+            DesktopModalUi.MakeButton(panel.transform, "Close", DesktopLocalization.Text("ui.catch.settlement.button.dismiss", "知道了"), null);
             var close = DesktopModalUi.FindComponent<Button>(panel.transform, "Close");
             if (close != null)
             {
@@ -164,17 +164,17 @@ namespace FishSocial.Desktop
                 BindButton("Panel/ChoiceLayer/SortMenu/Option" + i, () => SetSort(option));
             }
             CloseChoices();
-            Set("Panel/Title", "收竿啦，带上今天的湖畔记忆");
-            Set("Panel/Summary", data.pondName + " · " + Timestamp(data.joinedAt, "yyyy 年 M 月 d 日 · HH:mm") + " — " + Timestamp(data.leftAt,"HH:mm") + " · " + (data.returnFeeMode == "auto_return" ? "自动回鱼" : "留鱼出售"));
-            Set("Panel/Stats/Bites/Value", data.biteCount + " 次");
-            Set("Panel/Stats/Escapes/Value", data.escapeCount + " 次");
+            Set("Panel/Title", DesktopLocalization.Text("ui.catch.settlement.title.main", "收竿啦，带上今天的湖畔记忆"));
+            Set("Panel/Summary", data.pondName + " · " + Timestamp(data.joinedAt, DesktopLocalization.Text("ui.catch.settlement.format.date_time", "yyyy 年 M 月 d 日 · HH:mm")) + " — " + Timestamp(data.leftAt,"HH:mm") + " · " + (data.returnFeeMode == "auto_return" ? DesktopLocalization.Text("ui.catch.settlement.mode.auto_release", "自动回鱼") : DesktopLocalization.Text("ui.catch.settlement.mode.keep_to_sell", "留鱼出售")));
+            Set("Panel/Stats/Bites/Value", DesktopLocalization.Format("ui.catch.settlement.format.bite_count", (object)(data.biteCount)));
+            Set("Panel/Stats/Escapes/Value", DesktopLocalization.Format("ui.catch.settlement.format.bite_count", (object)(data.escapeCount)));
             Set("Panel/Stats/Duration/Value", Duration(data.fishingDurationMs));
-            Set("Panel/Stats/Catches/Value", (data.catches?.Length ?? 0) + " 条");
-            Set("Panel/Account/Income", "+" + data.totalReturnGold + " 金币");
-            Set("Panel/Account/Fees", "−" + data.feesPaid + " 金币");
+            Set("Panel/Stats/Catches/Value", DesktopLocalization.Format("ui.catch.settlement.format.fish_count", (object)((data.catches?.Length ?? 0))));
+            Set("Panel/Account/Income", DesktopLocalization.Format("ui.catch.settlement.format.income", (object)(data.totalReturnGold)));
+            Set("Panel/Account/Fees", DesktopLocalization.Format("ui.catch.settlement.format.expense", (object)(data.feesPaid)));
             Set("Panel/Account/PlayerXp", "+" + (data.totalCatchPlayerXp + data.totalReturnPlayerXp));
             Set("Panel/Account/PondXp", "+" + (data.totalCatchPondXp + data.totalReturnPondXp));
-            Set("Panel/Account/Net", (data.netProfit >= 0 ? "+" : "") + data.netProfit + " 金币");
+            Set("Panel/Account/Net", DesktopLocalization.Format("ui.catch.settlement.format.net_coins", (object)((data.netProfit >= 0 ? "+" : "")), (object)(data.netProfit)));
             RefreshRecords();
         }
 
@@ -185,8 +185,8 @@ namespace FishSocial.Desktop
         public static string Duration(long milliseconds)
         {
             var seconds = Math.Max(0, milliseconds) / 1000;
-            return seconds >= 3600 ? seconds / 3600 + " 时 " + (seconds % 3600) / 60 + " 分"
-                : seconds >= 60 ? seconds / 60 + " 分 " + seconds % 60 + " 秒" : seconds + " 秒";
+            return seconds >= 3600 ? DesktopLocalization.Format("ui.catch.settlement.format.hours_minutes", (object)(seconds / 3600), (object)((seconds % 3600) / 60))
+                : seconds >= 60 ? DesktopLocalization.Format("ui.catch.settlement.format.minutes_seconds", (object)(seconds / 60), (object)(seconds % 60)) : DesktopLocalization.Format("ui.catch.settlement.format.seconds", (object)(seconds));
         }
         static string Timestamp(long value, string format)
         {
@@ -210,9 +210,9 @@ namespace FishSocial.Desktop
                 if (entry != null && (_filter == 0 || entry.outcome == (_filter == 1 ? "kept" : "returned"))) rows.Add(entry);
             rows.Sort((a, b) => _sort == 1 ? b.sizeM.CompareTo(a.sizeM) : _sort == 2 ? b.weightKg.CompareTo(a.weightKg) : b.caughtAt.CompareTo(a.caughtAt));
             VisibleRecordCount = rows.Count;
-            Set("Panel/RecordCount", "本次鱼获  " + rows.Count + " 条");
-            Set("Panel/Filter/Label", new[] { "全部鱼获 ▾", "只看入包 ▾", "只看回塘 ▾" }[_filter]);
-            Set("Panel/Sort/Label", new[] { "最近钓获优先 ▾", "体长从大到小 ▾", "体重从大到小 ▾" }[_sort]);
+            Set("Panel/RecordCount", DesktopLocalization.Format("ui.catch.settlement.title.catch_count", (object)(rows.Count)));
+            Set("Panel/Filter/Label", new[] { DesktopLocalization.Text("ui.catch.settlement.dropdown.all_catches", "全部鱼获 ▾"), DesktopLocalization.Text("ui.catch.settlement.dropdown.kept", "只看入包 ▾"), DesktopLocalization.Text("ui.catch.settlement.dropdown.released", "只看回塘 ▾") }[_filter]);
+            Set("Panel/Sort/Label", new[] { DesktopLocalization.Text("ui.catch.settlement.dropdown.newest_first", "最近钓获优先 ▾"), DesktopLocalization.Text("ui.catch.settlement.dropdown.length_descending", "体长从大到小 ▾"), DesktopLocalization.Text("ui.catch.settlement.dropdown.weight_descending", "体重从大到小 ▾") }[_sort]);
             var empty = transform.Find("Panel/Empty"); if (empty != null) empty.gameObject.SetActive(rows.Count == 0);
             for (var i = 0; i < rows.Count; i++)
             {
@@ -221,13 +221,13 @@ namespace FishSocial.Desktop
                 var rect = (RectTransform)row.transform; rect.anchoredPosition = new Vector2(0, -i * 106f);
                 SetAt(row.transform, "Name", DesktopFishCatalog.SpeciesName(entry.speciesId));
                 SetAt(row.transform, "Time", Timestamp(entry.caughtAt, "MM.dd · HH:mm:ss"));
-                SetAt(row.transform, "Quality", DesktopFishCatalog.QualityName(entry.quality) + " · " + (entry.outcome == "returned" ? "已回塘" : "已入包"));
+                SetAt(row.transform, "Quality", DesktopFishCatalog.QualityName(entry.quality) + " · " + (entry.outcome == "returned" ? DesktopLocalization.Text("ui.catch.settlement.status.released", "已回塘") : DesktopLocalization.Text("ui.catch.settlement.status.kept", "已入包")));
                 SetAt(row.transform, "Size", entry.sizeM.ToString("0.00") + " m");
                 SetAt(row.transform, "Weight", entry.weightKg > 0 ? entry.weightKg.ToString("0.00") + " kg" : "—");
                 var art = row.transform.Find("FishArt").GetComponent<Image>(); art.sprite = CozyItemArt.Fish(entry.speciesId); art.enabled = art.sprite != null;
                 var share = row.transform.Find("Share").GetComponent<Button>(); share.interactable = CanShare(entry);
                 CozyWorkspaceInteraction.Bind(share);
-                SetAt(share.transform, "Label", CanShare(entry) ? "分享" : entry.outcome == "returned" ? "已回塘" : "未留存");
+                SetAt(share.transform, "Label", CanShare(entry) ? DesktopLocalization.Text("ui.catch.settlement.button.share", "分享") : entry.outcome == "returned" ? DesktopLocalization.Text("ui.catch.settlement.status.released", "已回塘") : DesktopLocalization.Text("ui.catch.settlement.status.not_kept", "未留存"));
                 share.onClick.RemoveAllListeners(); share.onClick.AddListener(() => { _composerWasOpen = true; ShareRequested?.Invoke(entry.inventoryItemId); });
             }
             content.sizeDelta = new Vector2(0, Mathf.Max(318, rows.Count * 106f - 10));

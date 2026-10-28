@@ -58,7 +58,7 @@ namespace FishSocial.Desktop
             _openProfile = openProfile;
             _openProfileTab = openProfileTab;
             EnsureUi();
-            SetStatus("打开后将加载当前服务端资料。");
+            SetStatus(DesktopLocalization.Text("ui.profile.edit.hint.load_on_open", "打开后将加载当前服务端资料。"));
         }
 
         public void OnOpened()
@@ -144,7 +144,7 @@ namespace FishSocial.Desktop
             _nickname.onValueChanged.AddListener(UpdateJournalPreview);
             _bio.onValueChanged.RemoveListener(UpdateJournalBio);
             _bio.onValueChanged.AddListener(UpdateJournalBio);
-            var tabLabels = new[] { "资料", "展示柜", "图鉴", "相册", "成就" };
+            var tabLabels = new[] { DesktopLocalization.Text("ui.profile.edit.tab.profile", "资料"), DesktopLocalization.Text("ui.profile.edit.tab.showcase", "展示柜"), DesktopLocalization.Text("ui.profile.edit.tab.fish_guide", "图鉴"), DesktopLocalization.Text("ui.profile.edit.tab.album", "相册"), DesktopLocalization.Text("ui.profile.edit.tab.achievements", "成就") };
             for (var i = 0; i < tabLabels.Length; i++)
             {
                 var target = (DesktopProfileHubPanel.HubTab)i;
@@ -204,12 +204,12 @@ namespace FishSocial.Desktop
             _ready = false;
             if (_api == null || !_api.CanUse)
             {
-                SetStatus("当前没有有效的 Steam 会话，请重新登录。");
+                SetStatus(DesktopLocalization.Text("ui.profile.edit.error.login_required", "当前没有有效的 Steam 会话，请重新登录。"));
                 _loadRoutine = null;
                 yield break;
             }
 
-            SetStatus("正在加载可编辑资料…");
+            SetStatus(DesktopLocalization.Text("ui.profile.edit.status.loading_profile", "正在加载可编辑资料…"));
             ApplyProfile(DesktopProfileCache.Latest);
 
             var profileDone = false;
@@ -243,14 +243,14 @@ namespace FishSocial.Desktop
             if (!profileOk || profile == null)
             {
                 _loadRoutine = null;
-                SetStatus(profileError ?? "资料加载失败，请点击重试。");
+                SetStatus(profileError ?? DesktopLocalization.Text("ui.profile.edit.error.profile_load_failed", "资料加载失败，请点击重试。"));
                 yield break;
             }
 
             if (!inventoryOk)
             {
                 _loadRoutine = null;
-                SetStatus(profileError ?? "背包数据加载失败，请点击重试。");
+                SetStatus(profileError ?? DesktopLocalization.Text("ui.profile.edit.error.inventory_load_failed", "背包数据加载失败，请点击重试。"));
                 yield break;
             }
 
@@ -285,7 +285,7 @@ namespace FishSocial.Desktop
 
         void UpdateJournalPreview(string value)
         {
-            CozyItemArt.Text(transform, "JournalPreview/Name", string.IsNullOrWhiteSpace(value) ? "钓友" : value);
+            CozyItemArt.Text(transform, "JournalPreview/Name", string.IsNullOrWhiteSpace(value) ? DesktopLocalization.Text("ui.profile.preview.name.default_angler", "钓友") : value);
             CozyItemArt.Set(transform, "JournalPreview/Avatar", DesktopDefaultAvatars.Portrait(_avatarUrl));
             UpdateJournalBio(_bio != null ? _bio.text : "");
         }
@@ -331,7 +331,7 @@ namespace FishSocial.Desktop
                 var card = _avatars != null ? _avatars.Find("Avatar_" + entry.Id) : null;
                 if (card != null) StyleChoice(card.gameObject, entry.Path == _avatarUrl);
             }
-            SetStatus("已选择角色：" + DesktopDefaultAvatars.LabelFor(_avatarUrl) + "，保存后生效。");
+            SetStatus(DesktopLocalization.Format("ui.profile.edit.status.avatar_selected", (object)(DesktopDefaultAvatars.LabelFor(_avatarUrl))));
         }
 
         void RenderShowcase()
@@ -351,9 +351,9 @@ namespace FishSocial.Desktop
                 var labelNode = DesktopUiPrefabFactory.Child(slot, "Label");
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
-                    label.text = fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : "留给下一次惊喜";
+                    label.text = fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜");
                 CozyItemArt.Text(slot.transform, "WorkspaceSlot", (i + 1).ToString("00"));
-                CozyItemArt.Text(slot.transform, "WorkspaceMeta", fish != null ? fish.sizeM.ToString("0.00") + " m · 点击更换" : "点击选择鱼获");
+                CozyItemArt.Text(slot.transform, "WorkspaceMeta", fish != null ? DesktopLocalization.Format("ui.profile.edit.showcase.label.replace_length", (object)(fish.sizeM.ToString("0.00"))) : DesktopLocalization.Text("ui.profile.edit.showcase.hint.choose_catch", "点击选择鱼获"));
                 var empty = slot.transform.Find("WorkspaceEmpty"); if (empty != null) empty.gameObject.SetActive(fish == null);
                 StyleChoice(slot);
                 var button = slot.GetComponent<Button>();
@@ -372,7 +372,7 @@ namespace FishSocial.Desktop
             _pickingSlot = index;
             _pendingFishId = index >= 0 && index < _slots.Length ? _slots[index] : null;
             if (_search != null) _search.SetTextWithoutNotify("");
-            CozyItemArt.Text(transform, "Picker/Title", "整理展示位 " + (index + 1));
+            CozyItemArt.Text(transform, "Picker/Title", DesktopLocalization.Format("ui.profile.edit.picker.title.organize_slot", (object)((index + 1))));
             if (_picker != null)
             {
                 _picker.SetActive(true);
@@ -409,7 +409,7 @@ namespace FishSocial.Desktop
             _slots[_pickingSlot] = string.Empty;
             RenderShowcase();
             HidePicker();
-            SetStatus("已清空展示格，保存后才会同步到服务端。");
+            SetStatus(DesktopLocalization.Text("ui.profile.edit.status.slot_cleared", "已清空展示格，保存后才会同步到服务端。"));
         }
 
         void RenderPicker()
@@ -428,7 +428,7 @@ namespace FishSocial.Desktop
                 row.name = "Fish_" + item.id;
                 count++;
                 CozyItemArt.Text(row.transform, "Label", name);
-                CozyItemArt.Text(row.transform, "WorkspaceMeta", item.sizeM.ToString("0.00") + " m · 估算 " + DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)));
+                CozyItemArt.Text(row.transform, "WorkspaceMeta", DesktopLocalization.Format("ui.profile.edit.picker.label.length_weight", (object)(item.sizeM.ToString("0.00")), (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)))));
                 CozyItemArt.Text(row.transform, "WorkspaceRecord", RecordTime(item.caughtAt) + " · " + PondName(item.pondId));
                 CozyItemArt.Set(row.transform, "DesignItemArt", CozyItemArt.Fish(item.speciesId));
                 StyleChoice(row, item.id == _pendingFishId);
@@ -445,11 +445,11 @@ namespace FishSocial.Desktop
                 if (empty != null)
                 {
                     var text = empty.GetComponentInChildren<Text>(true);
-                    if (text != null) text.text = query.Length == 0 ? "背包没有可展示的鱼获。" : "没有找到这种鱼，换个名字试试。";
+                    if (text != null) text.text = query.Length == 0 ? DesktopLocalization.Text("ui.profile.edit.picker.empty.inventory", "背包没有可展示的鱼获。") : DesktopLocalization.Text("ui.profile.edit.picker.empty.search", "没有找到这种鱼，换个名字试试。");
                 }
             }
             var selected = FindFish(_pendingFishId);
-            CozyItemArt.Text(transform, "Picker/Selection", selected != null ? "已选：" + DesktopFishCatalog.SpeciesName(selected.speciesId) : "选择一条鱼获");
+            CozyItemArt.Text(transform, "Picker/Selection", selected != null ? DesktopLocalization.Format("ui.profile.edit.picker.label.selected", (object)(DesktopFishCatalog.SpeciesName(selected.speciesId))) : DesktopLocalization.Text("ui.profile.edit.picker.title.choose_catch", "选择一条鱼获"));
             if (_confirmPicker != null) _confirmPicker.interactable = selected != null;
         }
 
@@ -468,7 +468,7 @@ namespace FishSocial.Desktop
             if (item == null || _pickingSlot < 0 || _pickingSlot >= _slots.Length) return;
             _slots[_pickingSlot] = item.id;
             RenderShowcase(); HidePicker();
-            SetStatus("已选择展示鱼获，保存后生效。");
+            SetStatus(DesktopLocalization.Text("ui.profile.edit.status.showcase_selected", "已选择展示鱼获，保存后生效。"));
         }
 
         void BindWorkspaceButton(string path, UnityEngine.Events.UnityAction action)
@@ -486,7 +486,7 @@ namespace FishSocial.Desktop
             if (_showcase != null) _showcase.parent.parent.gameObject.SetActive(showcase);
             Find<Button>("WorkspaceAvatarTab")?.GetComponent<CozyButtonVisual>()?.SetSelected(!showcase);
             Find<Button>("WorkspaceShowcaseTab")?.GetComponent<CozyButtonVisual>()?.SetSelected(showcase);
-            CozyItemArt.Text(transform,"WorkspaceTabHint",showcase ? "8 个展示位 · 点击整张卡片更换" : DesktopDefaultAvatars.All.Length + " 个模样，选你喜欢的");
+            CozyItemArt.Text(transform,"WorkspaceTabHint",showcase ? DesktopLocalization.Text("ui.profile.edit.hint.showcase_slots", "8 个展示位 · 点击整张卡片更换") : DesktopLocalization.Format("ui.profile.edit.hint.avatar_count", (object)(DesktopDefaultAvatars.All.Length)));
         }
 
         GameObject WorkspaceChoice(string templateName, string fallback, Transform parent)
@@ -528,13 +528,13 @@ namespace FishSocial.Desktop
 
         static string RecordTime(long time)
         {
-            if (time <= 0) return "时间未记录";
+            if (time <= 0) return DesktopLocalization.Text("ui.profile.record.label.unknown_time", "时间未记录");
             try { return System.DateTimeOffset.FromUnixTimeMilliseconds(time).ToLocalTime().ToString("MM.dd HH:mm"); }
-            catch (System.ArgumentOutOfRangeException) { return "时间未记录"; }
+            catch (System.ArgumentOutOfRangeException) { return DesktopLocalization.Text("ui.profile.record.label.unknown_time", "时间未记录"); }
         }
 
         static string PondName(string id)
-        { return DesktopGameData.GetPond(id)?.name ?? (string.IsNullOrEmpty(id) ? "水域未记录" : id); }
+        { return DesktopGameData.GetPond(id)?.name ?? (string.IsNullOrEmpty(id) ? DesktopLocalization.Text("ui.profile.record.label.unknown_pond", "水域未记录") : id); }
 
         /// <summary>Use the same editor bindings for API snapshots and editor preview fixtures.</summary>
         public void PresentSnapshot(PlayerProfileDto profile, FishInventoryItemDto[] inventory, bool showcase = false, int pickingSlot = -1)
@@ -565,18 +565,18 @@ namespace FishSocial.Desktop
                 return;
             if (!_ready)
             {
-                SetStatus("资料尚未加载完成，请稍后或点击重试。");
+                SetStatus(DesktopLocalization.Text("ui.profile.edit.error.load_incomplete", "资料尚未加载完成，请稍后或点击重试。"));
                 return;
             }
             var nickname = _nickname != null ? _nickname.text.Trim() : string.Empty;
             if (string.IsNullOrEmpty(nickname))
             {
-                SetStatus("昵称不能为空。");
+                SetStatus(DesktopLocalization.Text("ui.profile.edit.error.nickname_empty", "昵称不能为空。"));
                 return;
             }
             if (nickname.Length > NicknameLimit)
             {
-                SetStatus("昵称不能超过 " + NicknameLimit + " 个字符。");
+                SetStatus(DesktopLocalization.Format("ui.profile.edit.error.nickname_too_long", (object)(NicknameLimit)));
                 return;
             }
 
@@ -588,13 +588,13 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                SetStatus("当前会话已失效，请重新登录。");
+                SetStatus(DesktopLocalization.Text("ui.profile.save.error.session_expired", "当前会话已失效，请重新登录。"));
                 yield break;
             }
 
             _busy = true;
             _lastSaveFailed = false;
-            SetStatus("正在保存资料…");
+            SetStatus(DesktopLocalization.Text("ui.profile.save.status.saving", "正在保存资料…"));
             var bio = _bio != null ? _bio.text : string.Empty;
             if (bio != null && bio.Length > BioLimit)
                 bio = bio.Substring(0, BioLimit);
@@ -619,7 +619,7 @@ namespace FishSocial.Desktop
                 _busy = false;
                 _lastSaveFailed = true;
                 _saveRoutine = null;
-                SetStatus(error ?? "保存失败，资料未修改。可点击重试。");
+                SetStatus(error ?? DesktopLocalization.Text("ui.profile.save.error.failed", "保存失败，资料未修改。可点击重试。"));
                 yield break;
             }
 
@@ -633,7 +633,7 @@ namespace FishSocial.Desktop
             ProfileSaved?.Invoke(profile);
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
 
-            SetStatus("资料已保存，正在同步展示鱼获…");
+            SetStatus(DesktopLocalization.Text("ui.profile.save.status.syncing_showcase", "资料已保存，正在同步展示鱼获…"));
             var showcaseDone = false;
             var showcaseOk = false;
             yield return _api.SetShowcase(_slots, (ok, loaded, message) =>
@@ -653,7 +653,7 @@ namespace FishSocial.Desktop
             if (!showcaseOk)
             {
                 _lastSaveFailed = true;
-                SetStatus(error ?? "展示鱼获保存失败，可点击重试。昵称和简介已保存。");
+                SetStatus(error ?? DesktopLocalization.Text("ui.profile.save.error.showcase_failed", "展示鱼获保存失败，可点击重试。昵称和简介已保存。"));
                 yield break;
             }
 
@@ -662,7 +662,7 @@ namespace FishSocial.Desktop
             ProfileSaved?.Invoke(profile);
             ApplyProfile(profile);
             _busy = true;
-            SetStatus("保存成功。");
+            SetStatus(DesktopLocalization.Text("ui.profile.save.message.success", "保存成功。"));
             CozyProfileSaveFeedback.Play(_save, () =>
             {
                 _busy = false;
@@ -710,26 +710,26 @@ namespace FishSocial.Desktop
         void BuildFallbackUi()
         {
             var header = EnsureRect("Header", transform);
-            EnsureText(header, "Title", "编辑资料", 22);
-            _back = Find<Button>("Header/Back") ?? CreateButton(header, "Back", "返回资料");
+            EnsureText(header, "Title", DesktopLocalization.Text("ui.profile.fallback_edit.title.page", "编辑资料"), 22);
+            _back = Find<Button>("Header/Back") ?? CreateButton(header, "Back", DesktopLocalization.Text("ui.profile.fallback_edit.button.back", "返回资料"));
             var form = EnsureRect("Form", transform);
-            EnsureText(form, "NicknameLabel", "游戏昵称", 17);
-            EnsureText(form, "BioLabel", "个人简介", 17);
-            _nickname = Find<InputField>("Form/Nickname") ?? CreateInput(form, "Nickname", "请输入游戏昵称", NicknameLimit);
-            _bio = Find<InputField>("Form/Bio") ?? CreateInput(form, "Bio", "介绍一下自己吧", BioLimit);
+            EnsureText(form, "NicknameLabel", DesktopLocalization.Text("ui.profile.fallback_edit.label.nickname", "游戏昵称"), 17);
+            EnsureText(form, "BioLabel", DesktopLocalization.Text("ui.profile.fallback_edit.label.bio", "个人简介"), 17);
+            _nickname = Find<InputField>("Form/Nickname") ?? CreateInput(form, "Nickname", DesktopLocalization.Text("ui.profile.fallback_edit.placeholder.nickname", "请输入游戏昵称"), NicknameLimit);
+            _bio = Find<InputField>("Form/Bio") ?? CreateInput(form, "Bio", DesktopLocalization.Text("ui.profile.fallback_edit.placeholder.bio", "介绍一下自己吧"), BioLimit);
             _status = Find<Text>("Status") ?? EnsureText(transform, "Status", string.Empty, 16);
             var actions = EnsureRect("Actions", transform);
-            _save = Find<Button>("Actions/Save") ?? CreateButton(actions, "Save", "保存资料");
-            _retry = Find<Button>("Actions/Retry") ?? CreateButton(actions, "Retry", "重试");
-            EnsureText(transform, "AvatarsTitle", "选择角色 / 头像", 17);
-            EnsureText(transform, "ShowcaseTitle", "展示鱼获 · 点击格子选择", 17);
+            _save = Find<Button>("Actions/Save") ?? CreateButton(actions, "Save", DesktopLocalization.Text("ui.profile.fallback_edit.button.save", "保存资料"));
+            _retry = Find<Button>("Actions/Retry") ?? CreateButton(actions, "Retry", DesktopLocalization.Text("ui.profile.fallback_edit.button.retry", "重试"));
+            EnsureText(transform, "AvatarsTitle", DesktopLocalization.Text("ui.profile.fallback_edit.title.avatar", "选择角色 / 头像"), 17);
+            EnsureText(transform, "ShowcaseTitle", DesktopLocalization.Text("ui.profile.fallback_edit.title.showcase", "展示鱼获 · 点击格子选择"), 17);
             _avatars = EnsureScroll("Avatars", transform, 3, 38f);
             _showcase = EnsureScroll("Showcase", transform, 4, 64f);
             _pickerContent = EnsureScroll("Picker", transform, 3, 68f);
             _picker = transform.Find("Picker").gameObject;
-            EnsureText(_picker.transform, "Title", "选择背包鱼获", 20);
-            _clearSlot = Find<Button>("Picker/Clear") ?? CreateButton(_picker.transform, "Clear", "清空展示格");
-            _closePicker = Find<Button>("Picker/Close") ?? CreateButton(_picker.transform, "Close", "关闭");
+            EnsureText(_picker.transform, "Title", DesktopLocalization.Text("ui.profile.fallback_edit.title.choose_catch", "选择背包鱼获"), 20);
+            _clearSlot = Find<Button>("Picker/Clear") ?? CreateButton(_picker.transform, "Clear", DesktopLocalization.Text("ui.profile.fallback_edit.button.clear_slot", "清空展示格"));
+            _closePicker = Find<Button>("Picker/Close") ?? CreateButton(_picker.transform, "Close", DesktopLocalization.Text("ui.profile.fallback_edit.button.close", "关闭"));
         }
 
         void ApplyCozyStyle()

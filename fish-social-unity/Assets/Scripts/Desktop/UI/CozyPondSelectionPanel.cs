@@ -141,7 +141,7 @@ namespace FishSocial.Desktop
                 var message = empty != null ? DesktopModalUi.FindComponent<Text>(empty.transform, "Message") : null;
                 if (message != null)
                 {
-                    message.text = "没有找到这片水域。\n试试其他名称，或清除筛选。";
+                    message.text = DesktopLocalization.Text("ui.map.pond_list.empty.no_matches", "没有找到这片水域。\n试试其他名称，或清除筛选。");
                     var layout = empty.GetComponent<LayoutElement>() ?? empty.AddComponent<LayoutElement>();
                     layout.ignoreLayout = true;
                     var rect = (RectTransform)empty.transform;
@@ -164,7 +164,7 @@ namespace FishSocial.Desktop
                     var message = DesktopModalUi.FindComponent<Text>(footer.transform, "Message");
                     if (message != null)
                     {
-                        message.text = "到底了，愿你今天满载而归。"; message.fontSize = 16;
+                        message.text = DesktopLocalization.Text("ui.map.pond_list.footer.good_luck", "到底了，愿你今天满载而归。"); message.fontSize = 16;
                         message.alignment = TextAnchor.MiddleCenter; message.color = new Color32(175,139,105,255);
                         message.rectTransform.anchorMin = Vector2.zero; message.rectTransform.anchorMax = Vector2.one;
                         message.rectTransform.offsetMin = message.rectTransform.offsetMax = Vector2.zero;
@@ -174,7 +174,7 @@ namespace FishSocial.Desktop
             _scroll.StopMovement();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_cards);
             _scroll.verticalNormalizedPosition = 1f;
-            if (_resultCount != null) _resultCount.text = cardCount + " 个鱼塘";
+            if (_resultCount != null) _resultCount.text = DesktopLocalization.Format("ui.map.pond_list.count", (object)(cardCount));
             var grid = _cards != null ? _cards.GetComponent<GridLayoutGroup>() : null;
             if (grid != null && grid.padding.top < 28)
                 grid.padding = new RectOffset(grid.padding.left, grid.padding.right, 28, grid.padding.bottom);
@@ -300,7 +300,7 @@ namespace FishSocial.Desktop
             {
                 _enter.interactable = allowed && !busy && _enterPond != null;
                 var label = _enter.GetComponentInChildren<Text>(true);
-                if (label != null) label.text = busy ? "正在进入…" : allowed ? "进入鱼塘" : "暂不可进入";
+                if (label != null) label.text = busy ? DesktopLocalization.Text("ui.map.pond_entry.button.entering", "正在进入…") : allowed ? DesktopLocalization.Text("ui.map.pond_entry.button.enter", "进入鱼塘") : DesktopLocalization.Text("ui.map.pond_entry.button.unavailable", "暂不可进入");
                 _enter.GetComponent<CozyJournalInlineContent>()?.Reflow();
             }
             if (_locate != null) _locate.interactable = !busy && !string.IsNullOrEmpty(_selectedId) && _focusPond != null;

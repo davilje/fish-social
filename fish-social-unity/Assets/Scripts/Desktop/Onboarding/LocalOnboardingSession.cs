@@ -10,7 +10,7 @@ namespace FishSocial.Desktop.Onboarding
     public sealed class LocalOnboardingSession
     {
         public const string PondId = DesktopOnboardingController.NovicePondId;
-        public const string PondName = "新手练习塘";
+        public static readonly string PondName = DesktopLocalization.Text("ui.onboarding.pond.practice_name", "新手练习塘");
         public const int BaitingMs = 800;
         public const int CastingMs = 600;
         public const int WaitBiteMs = 5000;
@@ -96,10 +96,10 @@ namespace FishSocial.Desktop.Onboarding
         public void ShowCatchPrompt(long nowMs)
         {
             OverlayPromptKind = PromptCatch;
-            OverlayPromptTitle = "🎣 鱼上钩了！";
+            OverlayPromptTitle = DesktopLocalization.Text("ui.onboarding.catch_prompt.title", "🎣 鱼上钩了！");
             OverlayPromptBody =
-                "鲫鱼\n【灰色】\n尺寸：0.18 米\n已自动收入背包";
-            OverlayPromptButton = "获得";
+                DesktopLocalization.Text("ui.onboarding.catch_prompt.body", "鲫鱼\n【灰色】\n尺寸：0.18 米\n已自动收入背包");
+            OverlayPromptButton = DesktopLocalization.Text("ui.onboarding.catch_prompt.button.claim", "获得");
             OverlayPromptDeadlineMs = nowMs + CatchPromptMs;
             LastError = string.Empty;
         }
@@ -138,11 +138,11 @@ namespace FishSocial.Desktop.Onboarding
                 case "confirm_overlay_prompt":
                     return true;
                 case "exit_pond":
-                    error = "新手引导不可跳过。";
+                    error = DesktopLocalization.Text("ui.onboarding.error.cannot_skip", "新手引导不可跳过。");
                     LastError = error;
                     return false;
                 case "send_pond_chat":
-                    error = "教学关暂不支持聊天。";
+                    error = DesktopLocalization.Text("ui.onboarding.error.chat_unavailable", "教学关暂不支持聊天。");
                     LastError = error;
                     return false;
                 default:
@@ -167,7 +167,7 @@ namespace FishSocial.Desktop.Onboarding
             dto.fishingPhase = Phase;
             dto.petVisualState = PetStateController.ToWire(
                 PetStateController.FromFishingPhase(Phase));
-            dto.ownNickname = string.IsNullOrEmpty(nickname) ? "新钓手" : nickname;
+            dto.ownNickname = string.IsNullOrEmpty(nickname) ? DesktopLocalization.Text("ui.onboarding.player.default_nickname", "新钓手") : nickname;
             dto.ownPlayerId = playerId ?? string.Empty;
             dto.ownUserId = "local-onboarding";
             dto.ownPetId = DesktopDefaultAvatars.ResolvePetId(
@@ -213,9 +213,9 @@ namespace FishSocial.Desktop.Onboarding
         void ShowCompletePrompt()
         {
             OverlayPromptKind = PromptComplete;
-            OverlayPromptTitle = "新手引导已完成";
-            OverlayPromptBody = "教学关结束。点击确认后将离开练习塘，可以选择开放鱼塘。";
-            OverlayPromptButton = "确认";
+            OverlayPromptTitle = DesktopLocalization.Text("ui.onboarding.completion_prompt.title", "新手引导已完成");
+            OverlayPromptBody = DesktopLocalization.Text("ui.onboarding.completion_prompt.body", "教学关结束。点击确认后将离开练习塘，可以选择开放鱼塘。");
+            OverlayPromptButton = DesktopLocalization.Text("ui.onboarding.completion_prompt.button.confirm", "确认");
             OverlayPromptDeadlineMs = 0;
             LastError = string.Empty;
         }
@@ -279,19 +279,19 @@ namespace FishSocial.Desktop.Onboarding
             error = null;
             if (IsBusy)
             {
-                error = "请先关闭当前提示。";
+                error = DesktopLocalization.Text("ui.onboarding.error.close_prompt_first", "请先关闭当前提示。");
                 LastError = error;
                 return false;
             }
             if (IsFishing)
             {
-                error = "请先结束当前这一杆。";
+                error = DesktopLocalization.Text("ui.onboarding.error.finish_current_cast", "请先结束当前这一杆。");
                 LastError = error;
                 return false;
             }
             if (string.IsNullOrEmpty(spotId) || !IsKnownSpot(spotId))
             {
-                error = "请点击岸边空钓位坐下。";
+                error = DesktopLocalization.Text("ui.onboarding.hint.choose_empty_spot", "请点击岸边空钓位坐下。");
                 LastError = error;
                 return false;
             }
@@ -307,7 +307,7 @@ namespace FishSocial.Desktop.Onboarding
                 return true;
             if (HasPrompt || NeedsCatchGrant || IsFishing)
             {
-                error = "请先结束当前这一杆。";
+                error = DesktopLocalization.Text("ui.onboarding.error.finish_current_cast", "请先结束当前这一杆。");
                 LastError = error;
                 return false;
             }
@@ -321,19 +321,19 @@ namespace FishSocial.Desktop.Onboarding
             error = null;
             if (IsBusy)
             {
-                error = "请先关闭当前提示。";
+                error = DesktopLocalization.Text("ui.onboarding.error.close_prompt_first", "请先关闭当前提示。");
                 LastError = error;
                 return false;
             }
             if (!HasSpot)
             {
-                error = "请先选择钓位。";
+                error = DesktopLocalization.Text("ui.onboarding.error.spot_required", "请先选择钓位。");
                 LastError = error;
                 return false;
             }
             if (IsFishing)
             {
-                error = "已经在钓鱼。";
+                error = DesktopLocalization.Text("ui.onboarding.error.already_fishing", "已经在钓鱼。");
                 LastError = error;
                 return false;
             }
@@ -353,7 +353,7 @@ namespace FishSocial.Desktop.Onboarding
                 HookDeadlineMs = 0;
                 PhaseEndsAtMs = 0;
                 FishingStartedAt = 0;
-                error = "收杆会跑鱼。请等圆圈走完，鱼获会自动入包。";
+                error = DesktopLocalization.Text("ui.onboarding.hint.wait_for_auto_catch", "收杆会跑鱼。请等圆圈走完，鱼获会自动入包。");
                 LastError = error;
                 return true;
             }
@@ -366,7 +366,7 @@ namespace FishSocial.Desktop.Onboarding
                 FishingStartedAt = 0;
                 return true;
             }
-            error = "当前未在钓鱼。";
+            error = DesktopLocalization.Text("ui.onboarding.error.not_fishing", "当前未在钓鱼。");
             LastError = error;
             return false;
         }
@@ -410,23 +410,23 @@ namespace FishSocial.Desktop.Onboarding
             if (HasPrompt)
                 return string.Empty;
             if (NeedsCatchGrant)
-                return "⑤ 正在收入背包…";
+                return DesktopLocalization.Text("ui.onboarding.guide.adding_to_bag", "⑤ 正在收入背包…");
             if (!HasSpot)
-                return "① 左键点击空钓位坐下（岸边圆点）。";
+                return DesktopLocalization.Text("ui.onboarding.guide.choose_spot", "① 左键点击空钓位坐下（岸边圆点）。");
             if (string.Equals(Phase, "seated", System.StringComparison.Ordinal) ||
                 string.Equals(Phase, "idle", System.StringComparison.Ordinal))
-                return "② 点右下角「开始钓鱼」。";
+                return DesktopLocalization.Text("ui.onboarding.guide.start_fishing", "② 点右下角「开始钓鱼」。");
             if (string.Equals(Phase, "baiting", System.StringComparison.Ordinal))
-                return "③ 正在装饵…";
+                return DesktopLocalization.Text("ui.onboarding.guide.baiting", "③ 正在装饵…");
             if (string.Equals(Phase, "casting", System.StringComparison.Ordinal))
-                return "③ 正在抛竿…";
+                return DesktopLocalization.Text("ui.onboarding.guide.casting", "③ 正在抛竿…");
             if (string.Equals(Phase, "waiting", System.StringComparison.Ordinal))
-                return "③ 等待约 5 秒——教学关必上钩。";
+                return DesktopLocalization.Text("ui.onboarding.guide.waiting_for_bite", "③ 等待约 5 秒——教学关必上钩。");
             if (string.Equals(Phase, "hooked", System.StringComparison.Ordinal))
-                return "④ 上钩了！等约 5 秒圆圈走完，不要点「收杆」（收杆会跑鱼）。";
+                return DesktopLocalization.Text("ui.onboarding.guide.waiting_for_reel_in", "④ 上钩了！等约 5 秒圆圈走完，不要点「收杆」（收杆会跑鱼）。");
             if (string.Equals(Phase, "resolving", System.StringComparison.Ordinal))
-                return "⑤ 正在收鱼，马上自动入包。";
-            return "新手引导进行中：按提示操作，不可跳过。";
+                return DesktopLocalization.Text("ui.onboarding.guide.landing_catch", "⑤ 正在收鱼，马上自动入包。");
+            return DesktopLocalization.Text("ui.onboarding.guide.follow_steps", "新手引导进行中：按提示操作，不可跳过。");
         }
 
         long ResolveSessionFishingMs()

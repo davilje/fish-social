@@ -10,7 +10,7 @@ namespace FishSocial.Desktop
         public const string Preference = "FishSocial.FishingEffectsQuality";
         readonly Button[] choices = new Button[3];
         static readonly string[] Values = { "standard", "reduced", "off" };
-        static readonly string[] Labels = { "标准", "简化", "关闭" };
+        static readonly string[] Labels = { DesktopLocalization.Text("ui.settings.effects.option.standard", "标准"), DesktopLocalization.Text("ui.settings.effects.option.simplified", "简化"), DesktopLocalization.Text("ui.settings.effects.option.off", "关闭") };
         public static string Quality
         {
             get
@@ -26,8 +26,8 @@ namespace FishSocial.Desktop
             if (parent == null || parent.Find("FishingEffectsSettings") != null) return;
             var root = JournalV2Nodes.Rect(parent, "FishingEffectsSettings", 18, y, width, 112);
             var view = root.gameObject.AddComponent<DesktopFishingEffectsSettingsView>();
-            JournalV2Nodes.Text(root, "Label", "钓鱼水面特效", 4, 0, width, 30, 21);
-            JournalV2Nodes.Text(root, "Hint", "简化保留入水、咬钩和真实拍水的水纹", 4, 76, width, 28, 16);
+            JournalV2Nodes.Text(root, "Label", DesktopLocalization.Text("ui.settings.effects.label.water", "钓鱼水面特效"), 4, 0, width, 30, 21);
+            JournalV2Nodes.Text(root, "Hint", DesktopLocalization.Text("ui.settings.effects.description.simplified", "简化保留入水、咬钩和真实拍水的水纹"), 4, 76, width, 28, 16);
             for (var i = 0; i < Values.Length; i++)
             {
                 var value = Values[i];

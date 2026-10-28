@@ -192,19 +192,19 @@ namespace FishSocial.Desktop
         {
             _loading = true;
             _loadFailed = false;
-            _status.text = "正在读取背包鱼获…";
+            _status.text = DesktopLocalization.Text("ui.social.composer.status.loading_inventory", "正在读取背包鱼获…");
             _fishIds.Clear();
             _inventory.Clear();
             ClearCards();
             RefreshCatchPreview();
             _fishChoice.ClearOptions();
-            _fishChoice.AddOptions(new List<string> { "正在读取背包鱼获…" });
+            _fishChoice.AddOptions(new List<string> { DesktopLocalization.Text("ui.social.composer.status.loading_inventory", "正在读取背包鱼获…") });
             RefreshControls();
             if (_api == null || !_api.CanUse)
             {
                 _loading = false;
                 _loadFailed = true;
-                _status.text = "当前会话已失效，请重新登录。";
+                _status.text = DesktopLocalization.Text("ui.social.composer.error.session_expired", "当前会话已失效，请重新登录。");
                 RefreshControls();
                 yield break;
             }
@@ -216,7 +216,7 @@ namespace FishSocial.Desktop
             if (!ok)
             {
                 _loadFailed = true;
-                _status.text = error ?? "背包加载失败，请重试。";
+                _status.text = error ?? DesktopLocalization.Text("ui.social.composer.error.inventory_load_failed", "背包加载失败，请重试。");
                 RefreshControls();
                 yield break;
             }
@@ -239,10 +239,10 @@ namespace FishSocial.Desktop
             var selected = Mathf.Max(0, requestedIndex);
             _fishId = !missingRequested && _fishIds.Count > 0 ? _fishIds[selected] : null;
             _fishChoice.ClearOptions();
-            if (choices.Count == 0) choices.Add(new Dropdown.OptionData("背包还没有鱼获"));
+            if (choices.Count == 0) choices.Add(new Dropdown.OptionData(DesktopLocalization.Text("ui.social.composer.empty.inventory", "背包还没有鱼获")));
             _fishChoice.AddOptions(choices); _fishChoice.SetValueWithoutNotify(selected); _fishChoice.RefreshShownValue();
             _loading = _loadFailed = false;
-            _status.text = missingRequested ? "这条鱼获已不在背包中，请重新选择要分享的鱼获。" : _fishIds.Count == 0 ? "背包还没有鱼获，先去湖边钓一条吧。" : "";
+            _status.text = missingRequested ? DesktopLocalization.Text("ui.social.composer.error.catch_no_longer_owned", "这条鱼获已不在背包中，请重新选择要分享的鱼获。") : _fishIds.Count == 0 ? DesktopLocalization.Text("ui.social.composer.hint.go_fishing", "背包还没有鱼获，先去湖边钓一条吧。") : "";
             if (_cardTemplate != null)
             {
                 for (var i = 0; i < _inventory.Count; i++)
@@ -291,7 +291,7 @@ namespace FishSocial.Desktop
         void PresentAuthor(string nickname, string avatarId)
         {
             if (_paper == null) return;
-            SetText("AuthorName", string.IsNullOrEmpty(nickname) ? "我的钓鱼手账" : nickname);
+            SetText("AuthorName", string.IsNullOrEmpty(nickname) ? DesktopLocalization.Text("ui.social.composer.title.author", "我的钓鱼手账") : nickname);
             var avatar = _paper.Find("AuthorAvatar")?.GetComponent<Image>();
             if (avatar != null) { avatar.sprite = DesktopDefaultAvatars.Portrait(avatarId); avatar.enabled = avatar.sprite != null; }
         }
@@ -302,17 +302,17 @@ namespace FishSocial.Desktop
             var item = index >= 0 && index < _inventory.Count ? _inventory[index] : null;
             var art = _paper?.Find("CatchPreview/FishArt")?.GetComponent<Image>();
             if (art != null) { art.sprite = item == null ? null : CozyItemArt.Fish(item.speciesId); art.enabled = art.sprite != null; }
-            SetText("CatchPreview/FishName", item == null ? "挑一条今天的鱼获" : DesktopFishCatalog.SpeciesName(item.speciesId));
+            SetText("CatchPreview/FishName", item == null ? DesktopLocalization.Text("ui.social.composer.title.choose_catch", "挑一条今天的鱼获") : DesktopFishCatalog.SpeciesName(item.speciesId));
             SetText("CatchPreview/Size", item == null ? "—" : item.sizeM.ToString("0.00") + " m");
             SetText("CatchPreview/Weight", item == null ? "—" : DesktopGameData.CalcWeightKg(item.sizeM).ToString("0.00") + " kg");
-            var timestamp = "记录时间未知";
+            var timestamp = DesktopLocalization.Text("ui.social.composer.label.unknown_catch_time", "记录时间未知");
             if (item != null && item.caughtAt > 0)
             {
                 try { timestamp = DateTimeOffset.FromUnixTimeMilliseconds(item.caughtAt).LocalDateTime.ToString("yyyy.MM.dd HH:mm:ss"); }
                 catch (ArgumentOutOfRangeException) { }
             }
             var pond = item == null ? null : DesktopGameData.GetPond(item.pondId)?.name;
-            SetText("CatchPreview/CaughtAt", item == null ? "选择后查看记录时间与水域" : timestamp + " · " + (pond ?? "未知水域"));
+            SetText("CatchPreview/CaughtAt", item == null ? DesktopLocalization.Text("ui.social.composer.hint.catch_metadata", "选择后查看记录时间与水域") : timestamp + " · " + (pond ?? DesktopLocalization.Text("ui.social.composer.label.unknown_water", "未知水域")));
             for (var i = 0; i < _cards.Count; i++) _cards[i].GetComponent<CozyButtonVisual>()?.SetSelected(i == index);
         }
 
@@ -337,7 +337,7 @@ namespace FishSocial.Desktop
         {
             if (_busy) return;
             _visibility = visibility;
-            SetText("VisibilityHint", visibility == "friends" ? "只出现在好友动态里，与熟悉的钓友分享。" : "出现在公开动态里，和更多钓友分享快乐。");
+            SetText("VisibilityHint", visibility == "friends" ? DesktopLocalization.Text("ui.social.composer.hint.friends_visibility", "只出现在好友动态里，与熟悉的钓友分享。") : DesktopLocalization.Text("ui.social.composer.hint.public_visibility", "出现在公开动态里，和更多钓友分享快乐。"));
             _visibilityPublic?.GetComponent<CozyButtonVisual>()?.SetSelected(visibility == "public");
             _visibilityFriends?.GetComponent<CozyButtonVisual>()?.SetSelected(visibility == "friends");
             RefreshControls();
@@ -354,7 +354,7 @@ namespace FishSocial.Desktop
             _visibilityChoice.interactable = !_busy;
             _fishChoice.interactable = !_busy && !_loading && _fishIds.Count > 0;
             _publish.interactable = !_busy && !_loading && (_loadFailed || !string.IsNullOrEmpty(_fishId));
-            DesktopModalUi.SetButtonLabel(_publish, _busy ? "正在发布…" : _loading ? "正在读取鱼获…" : _loadFailed ? "重试加载" : "发布动态");
+            DesktopModalUi.SetButtonLabel(_publish, _busy ? DesktopLocalization.Text("ui.social.composer.status.publishing", "正在发布…") : _loading ? DesktopLocalization.Text("ui.social.composer.button.loading_catches", "正在读取鱼获…") : _loadFailed ? DesktopLocalization.Text("ui.social.composer.button.retry_loading", "重试加载") : DesktopLocalization.Text("ui.social.composer.button.publish", "发布动态"));
         }
 
         void Submit()
@@ -363,7 +363,7 @@ namespace FishSocial.Desktop
             if (_loadFailed) { _fishId = null; StartCoroutine(LoadFish()); return; }
             if (string.IsNullOrEmpty(_fishId) || _api == null || !_api.CanUse)
             {
-                _status.text = "请选择鱼获，并确认已登录。";
+                _status.text = DesktopLocalization.Text("ui.social.composer.error.catch_and_login_required", "请选择鱼获，并确认已登录。");
                 return;
             }
             StartCoroutine(Publish());
@@ -372,7 +372,7 @@ namespace FishSocial.Desktop
         IEnumerator Publish()
         {
             _busy = true;
-            _status.text = "正在把鱼获故事贴进手账…";
+            _status.text = DesktopLocalization.Text("ui.social.composer.status.publishing_story", "正在把鱼获故事贴进手账…");
             RefreshControls();
             var ok = false;
             string error = null;
@@ -381,7 +381,7 @@ namespace FishSocial.Desktop
             _busy = false;
             if (!ok)
             {
-                _status.text = error ?? "发布失败，请重试。";
+                _status.text = error ?? DesktopLocalization.Text("ui.social.composer.error.publish_failed", "发布失败，请重试。");
                 RefreshControls();
                 EventSystem.current?.SetSelectedGameObject(_publish.gameObject);
                 yield break;

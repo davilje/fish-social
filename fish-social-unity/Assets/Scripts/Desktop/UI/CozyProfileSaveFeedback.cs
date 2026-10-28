@@ -23,7 +23,7 @@ namespace FishSocial.Desktop
             label = GetComponentInChildren<Text>();
             if (label == null) { completed?.Invoke(); return; }
             original = label.text;
-            label.text = "✓ 已保存";
+            label.text = DesktopLocalization.Text("ui.profile.save_feedback.status.saved", "✓ 已保存");
             alpha = label.GetComponent<CanvasGroup>();
             if (alpha == null) alpha = label.gameObject.AddComponent<CanvasGroup>();
             playing = true;

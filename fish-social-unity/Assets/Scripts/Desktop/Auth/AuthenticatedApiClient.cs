@@ -85,7 +85,7 @@ namespace FishSocial.Desktop.Auth
     public sealed class AuthenticatedApiClient : IAuthenticatedApiClient
     {
         const int TimeoutSeconds = 15;
-        const string ProtocolError = "服务端响应格式错误，请重试。";
+        static readonly string ProtocolError = DesktopLocalization.Text("ui.auth.api.error.invalid_response", "服务端响应格式错误，请重试。");
         readonly SteamAuthController _auth;
         readonly string _baseUrl;
 
@@ -331,7 +331,7 @@ namespace FishSocial.Desktop.Auth
                     nickname = nickname,
                     fishId = fishId,
                 }),
-                (ok, _, message) => onCompleted?.Invoke(ok, ok ? "已分享到动态。" : message));
+                (ok, _, message) => onCompleted?.Invoke(ok, ok ? DesktopLocalization.Text("ui.social.api.status.catch_shared", "已分享到动态。") : message));
         }
 
         public IEnumerator ShareFish(string fishId, string nickname, string visibility, string text, Action<bool, string> onCompleted)
@@ -345,7 +345,7 @@ namespace FishSocial.Desktop.Auth
                     visibility = visibility,
                     text = text,
                 }),
-                (ok, _, message) => onCompleted?.Invoke(ok, ok ? "鱼获故事已贴进手账。" : message));
+                (ok, _, message) => onCompleted?.Invoke(ok, ok ? DesktopLocalization.Text("ui.social.api.status.story_published", "鱼获故事已贴进手账。") : message));
         }
 
         public IEnumerator GetShopCatalog(
@@ -549,7 +549,7 @@ namespace FishSocial.Desktop.Auth
                 if (string.IsNullOrEmpty(pondId))
                 {
                     onCompleted?.Invoke(false, new LeaderboardEntryDto[0], null,
-                        "请先进入鱼塘后再查看鱼塘榜。");
+                        DesktopLocalization.Text("ui.leaderboard.api.error.pond_required", "请先进入鱼塘后再查看鱼塘榜。"));
                     yield break;
                 }
                 path = "/api/leaderboard/pond/" + Uri.EscapeDataString(pondId) +
@@ -557,7 +557,7 @@ namespace FishSocial.Desktop.Auth
             }
             else
             {
-                onCompleted?.Invoke(false, new LeaderboardEntryDto[0], null, "未知榜单类型。");
+                onCompleted?.Invoke(false, new LeaderboardEntryDto[0], null, DesktopLocalization.Text("ui.leaderboard.api.error.unknown_board_type", "未知榜单类型。"));
                 yield break;
             }
 
@@ -1022,7 +1022,7 @@ namespace FishSocial.Desktop.Auth
             var body = JsonUtility.ToJson(new FriendRequestPayload
             {
                 fromPlayerId = PlayerId,
-                fromNickname = fromNickname ?? "钓友",
+                fromNickname = fromNickname ?? DesktopLocalization.Text("ui.social.api.default_nickname", "钓友"),
                 toPlayerId = toPlayerId,
             });
             yield return PostJson("/api/friends/request", body,
@@ -1116,7 +1116,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (!CanUse)
             {
-                onCompleted?.Invoke(false, null, "当前没有有效的 Steam 会话。");
+                onCompleted?.Invoke(false, null, DesktopLocalization.Text("ui.auth.api.error.session_required", "当前没有有效的 Steam 会话。"));
                 yield break;
             }
 
@@ -1133,7 +1133,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (!CanUse)
             {
-                onCompleted?.Invoke(false, null, "当前没有有效的 Steam 会话。");
+                onCompleted?.Invoke(false, null, DesktopLocalization.Text("ui.auth.api.error.session_required", "当前没有有效的 Steam 会话。"));
                 yield break;
             }
 
@@ -1153,7 +1153,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (!CanUse)
             {
-                onCompleted?.Invoke(false, null, "当前没有有效的 Steam 会话。");
+                onCompleted?.Invoke(false, null, DesktopLocalization.Text("ui.auth.api.error.session_required", "当前没有有效的 Steam 会话。"));
                 yield break;
             }
 
@@ -1173,7 +1173,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (!CanUse)
             {
-                onCompleted?.Invoke(false, null, "当前没有有效的 Steam 会话。");
+                onCompleted?.Invoke(false, null, DesktopLocalization.Text("ui.auth.api.error.session_required", "当前没有有效的 Steam 会话。"));
                 yield break;
             }
 
@@ -1196,7 +1196,7 @@ namespace FishSocial.Desktop.Auth
             if (request.result == UnityWebRequest.Result.Success &&
                 request.responseCode >= 200 && request.responseCode < 300)
             {
-                onCompleted?.Invoke(true, request.downloadHandler != null ? request.downloadHandler.text : "{}", "成功");
+                onCompleted?.Invoke(true, request.downloadHandler != null ? request.downloadHandler.text : "{}", DesktopLocalization.Text("ui.auth.api.status.success", "成功"));
                 return;
             }
 
@@ -1219,16 +1219,16 @@ namespace FishSocial.Desktop.Auth
                 return parsed.error;
 
             if (request.responseCode == 404)
-                return "服务端没有该接口（HTTP 404）。请重启 Node 服务后再试。";
+                return DesktopLocalization.Text("ui.auth.api.error.endpoint_missing", "服务端没有该接口（HTTP 404）。请重启 Node 服务后再试。");
             if (request.responseCode == 401 || request.responseCode == 403)
-                return "服务端拒绝当前会话（" + request.responseCode + "），请重新登录。";
+                return DesktopLocalization.Format("ui.auth.api.error.session_rejected", (object)(request.responseCode));
             if (request.result == UnityWebRequest.Result.ConnectionError ||
                 request.result == UnityWebRequest.Result.DataProcessingError)
-                return "无法连接 Fish Social 服务，请检查网络后重试。";
+                return DesktopLocalization.Text("ui.auth.api.error.connection_failed", "无法连接 Fish Social 服务，请检查网络后重试。");
             if (request.responseCode == 0)
-                return "请求超时或服务不可达，请稍后重试。";
+                return DesktopLocalization.Text("ui.auth.api.error.timeout", "请求超时或服务不可达，请稍后重试。");
 
-            return "请求失败（HTTP " + request.responseCode + "）。";
+            return DesktopLocalization.Format("ui.auth.api.error.http_failed", (object)(request.responseCode));
         }
 
         static bool TryParseResponse<T>(

@@ -30,17 +30,17 @@ namespace FishSocial.Desktop
 
         public static readonly Entry[] All =
         {
-            new Entry("calico", "cat_avatar_calico.png", "三花猫"),
-            new Entry("orange", "cat_avatar_orange.png", "橘猫"),
-            new Entry("white", "cat_avatar_white.png", "白猫"),
-            new Entry("silver", "cat_avatar_silver.png", "银渐层"),
-            new Entry("brown", "cat_avatar_brown.png", "棕虎斑"),
-            new Entry("cream", "cat_avatar_cream.png", "奶油猫"),
-            new Entry("blue", "cat_avatar_blue.png", "英短蓝猫"),
-            new Entry("black", "cat_avatar_black.png", "黑猫"),
-            new Entry("cow", "cat_avatar_cow.png", "奶牛猫"),
-            new Entry("dafeiyu", "cat_avatar_dafeiyu.png", "大肥鱼"),
-            new Entry("sangbiao", "cat_avatar_sangbiao.png", "狸花猫「丧彪」"),
+            new Entry("calico", "cat_avatar_calico.png", DesktopLocalization.Text("ui.profile.avatar.name.calico", "三花猫")),
+            new Entry("orange", "cat_avatar_orange.png", DesktopLocalization.Text("ui.profile.avatar.name.orange", "橘猫")),
+            new Entry("white", "cat_avatar_white.png", DesktopLocalization.Text("ui.profile.avatar.name.white", "白猫")),
+            new Entry("silver", "cat_avatar_silver.png", DesktopLocalization.Text("ui.profile.avatar.name.silver_shaded", "银渐层")),
+            new Entry("brown", "cat_avatar_brown.png", DesktopLocalization.Text("ui.profile.avatar.name.brown_tabby", "棕虎斑")),
+            new Entry("cream", "cat_avatar_cream.png", DesktopLocalization.Text("ui.profile.avatar.name.cream", "奶油猫")),
+            new Entry("blue", "cat_avatar_blue.png", DesktopLocalization.Text("ui.profile.avatar.name.british_shorthair_blue", "英短蓝猫")),
+            new Entry("black", "cat_avatar_black.png", DesktopLocalization.Text("ui.profile.avatar.name.black", "黑猫")),
+            new Entry("cow", "cat_avatar_cow.png", DesktopLocalization.Text("ui.profile.avatar.name.tuxedo", "奶牛猫")),
+            new Entry("dafeiyu", "cat_avatar_dafeiyu.png", DesktopLocalization.Text("ui.profile.avatar.name.big_fish", "大肥鱼")),
+            new Entry("sangbiao", "cat_avatar_sangbiao.png", DesktopLocalization.Text("ui.profile.avatar.name.sangbiao", "狸花猫「丧彪」")),
         };
 
         public static bool IsDefaultPath(string url)
@@ -68,13 +68,13 @@ namespace FishSocial.Desktop
         {
             url = NormalizeAssetPath(url);
             if (string.IsNullOrEmpty(url))
-                return "默认头像";
+                return DesktopLocalization.Text("ui.profile.avatar.label.default", "默认头像");
             for (var i = 0; i < All.Length; i++)
             {
                 if (All[i].Path == url)
                     return All[i].Label;
             }
-            return url.StartsWith("data:image/") ? "自定义头像" : "头像";
+            return url.StartsWith("data:image/") ? DesktopLocalization.Text("ui.profile.avatar.label.custom", "自定义头像") : DesktopLocalization.Text("ui.profile.avatar.label.generic", "头像");
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace FishSocial.Desktop
         {
             var nickname = profile != null ? profile.nickname : null;
             if (string.IsNullOrEmpty(nickname))
-                return "钓";
+                return DesktopLocalization.Text("ui.profile.avatar.initial.fishing", "钓");
             return nickname.Substring(0, 1);
         }
 
@@ -196,7 +196,7 @@ namespace FishSocial.Desktop
         public static string FishLabel(FishInventoryItemDto item)
         {
             if (item == null)
-                return "空";
+                return DesktopLocalization.Text("ui.profile.avatar.label.empty_fish", "空");
             return DesktopFishCatalog.SpeciesName(item.speciesId) + "\n" +
                    DesktopFishCatalog.QualityName(item.quality);
         }
@@ -204,15 +204,15 @@ namespace FishSocial.Desktop
         public static string OnlineLabel(SocialPondSessionController pond, bool authenticated)
         {
             if (!authenticated)
-                return "离线";
+                return DesktopLocalization.Text("ui.profile.avatar.status.offline", "离线");
             if (pond != null && pond.State == SocialSocketState.Connected)
             {
                 var pondName = pond.LatestSnapshot != null && pond.LatestSnapshot.pond != null
                     ? pond.LatestSnapshot.pond.name
                     : pond.CurrentPondId;
-                return string.IsNullOrEmpty(pondName) ? "在线" : "在线 · " + pondName;
+                return string.IsNullOrEmpty(pondName) ? DesktopLocalization.Text("ui.profile.avatar.status.online", "在线") : DesktopLocalization.Format("ui.profile.avatar.status.online_pond", (object)(pondName));
             }
-            return "在线";
+            return DesktopLocalization.Text("ui.profile.avatar.status.online", "在线");
         }
     }
 }

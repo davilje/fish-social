@@ -1173,7 +1173,7 @@ namespace FishSocialOverlay
                         IsHitTestVisible = false,
                     }
                     : (object)string.Empty;
-                button.ToolTip = expanded ? "收起聊天" : "展开聊天";
+                button.ToolTip = expanded ? OverlayLocalization.Text("ui.fishing.hud_layout.tooltip.collapse_chat", "收起聊天") : OverlayLocalization.Text("ui.fishing.hud_layout.tooltip.expand_chat", "展开聊天");
             }
         }
 
@@ -1222,9 +1222,9 @@ namespace FishSocialOverlay
                         widget.verticalAlign = "center";
                     }
                     if (widget.id == "btn_pan_left")
-                        widget.label = "向左";
+                        widget.label = OverlayLocalization.Text("ui.fishing.hud_layout.button.pan_left", "向左");
                     else if (widget.id == "btn_pan_right")
-                        widget.label = "向右";
+                        widget.label = OverlayLocalization.Text("ui.fishing.hud_layout.button.pan_right", "向右");
                 }
                 if (widget.id == "dock_chat" || widget.id == "chat_input")
                 {
@@ -1304,7 +1304,7 @@ namespace FishSocialOverlay
             if (!byId.TryGetValue("btn_exit_pond", out var exit))
                 return;
             exit.parentId = null;
-            StyleBottomButton(exit, 88, "退出鱼塘");
+            StyleBottomButton(exit, 88, OverlayLocalization.Text("ui.fishing.hud_layout.button.exit_pond", "退出鱼塘"));
             exit.x = CanvasWidth - margin - exit.w;
             exit.y = BottomBaseline - exit.h;
             var top = exit.y;

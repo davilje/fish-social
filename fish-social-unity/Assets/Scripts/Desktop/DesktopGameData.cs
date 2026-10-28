@@ -296,14 +296,14 @@ namespace FishSocial.Desktop
         {
             switch (regionId)
             {
-                case "east_plain_lake": return "东部平原湖区";
-                case "north_bohai": return "渤海湾";
-                case "northeast_cold": return "东北冷水";
-                case "south_reservoir": return "南方水库";
-                case "south_sea": return "南海";
-                case "southeast_coast": return "东南沿海";
-                case "southwest_plateau": return "西南高原";
-                case "yangtze_mid": return "长江中游";
+                case "east_plain_lake": return DesktopLocalization.Text("ui.common.region.eastern_lakes", "东部平原湖区");
+                case "north_bohai": return DesktopLocalization.Text("ui.common.region.bohai_bay", "渤海湾");
+                case "northeast_cold": return DesktopLocalization.Text("ui.common.region.northeast_coldwater", "东北冷水");
+                case "south_reservoir": return DesktopLocalization.Text("ui.common.region.southern_reservoirs", "南方水库");
+                case "south_sea": return DesktopLocalization.Text("ui.common.region.south_china_sea", "南海");
+                case "southeast_coast": return DesktopLocalization.Text("ui.common.region.southeast_coast", "东南沿海");
+                case "southwest_plateau": return DesktopLocalization.Text("ui.common.region.southwest_plateau", "西南高原");
+                case "yangtze_mid": return DesktopLocalization.Text("ui.common.region.middle_yangtze", "长江中游");
                 default: return string.IsNullOrEmpty(regionId) ? "" : regionId;
             }
         }
@@ -312,12 +312,12 @@ namespace FishSocial.Desktop
         {
             switch (waterType)
             {
-                case "coastal": return "近海";
-                case "estuary": return "河口";
-                case "lake": return "湖泊";
-                case "pond": return "池塘";
-                case "reservoir": return "水库";
-                case "river": return "河流";
+                case "coastal": return DesktopLocalization.Text("ui.common.water.coastal", "近海");
+                case "estuary": return DesktopLocalization.Text("ui.common.water.estuary", "河口");
+                case "lake": return DesktopLocalization.Text("ui.common.water.lake", "湖泊");
+                case "pond": return DesktopLocalization.Text("ui.common.water.pond", "池塘");
+                case "reservoir": return DesktopLocalization.Text("ui.common.water.reservoir", "水库");
+                case "river": return DesktopLocalization.Text("ui.common.water.river", "河流");
                 default: return string.IsNullOrEmpty(waterType) ? "" : waterType;
             }
         }
@@ -326,7 +326,7 @@ namespace FishSocial.Desktop
         {
             EnsureLoaded();
             if (string.IsNullOrEmpty(pondId) || maxNames <= 0)
-                return "暂无鱼种数据";
+                return DesktopLocalization.Text("ui.common.pond_species.empty.data", "暂无鱼种数据");
             var names = new List<string>();
             var total = 0;
             for (var i = 0; i < _pondFish.Length; i++)
@@ -342,10 +342,10 @@ namespace FishSocial.Desktop
                     names.Add(name);
             }
             if (names.Count == 0)
-                return "暂无鱼种数据";
+                return DesktopLocalization.Text("ui.common.pond_species.empty.data", "暂无鱼种数据");
             var summary = string.Join("、", names.ToArray());
             if (total > names.Count)
-                summary += " 等 " + total + " 种";
+                summary += DesktopLocalization.Format("ui.common.pond_species.label.additional_count", (object)(total));
             return summary;
         }
 
@@ -353,14 +353,14 @@ namespace FishSocial.Desktop
         {
             switch (category)
             {
-                case "novice": return "新手塘";
-                case "advanced": return "高级塘";
-                case "veteran": return "老手塘";
-                case "wilderness": return "野外塘";
-                case "reservoir": return "水库塘";
-                case "forbidden": return "禁止钓鱼塘";
-                case "giant": return "巨物塘";
-                default: return string.IsNullOrEmpty(category) ? "未分类" : category;
+                case "novice": return DesktopLocalization.Text("ui.common.pond_category.beginner", "新手塘");
+                case "advanced": return DesktopLocalization.Text("ui.common.pond_category.advanced", "高级塘");
+                case "veteran": return DesktopLocalization.Text("ui.common.pond_category.veteran", "老手塘");
+                case "wilderness": return DesktopLocalization.Text("ui.common.pond_category.wild", "野外塘");
+                case "reservoir": return DesktopLocalization.Text("ui.common.pond_category.reservoir", "水库塘");
+                case "forbidden": return DesktopLocalization.Text("ui.common.pond_category.forbidden", "禁止钓鱼塘");
+                case "giant": return DesktopLocalization.Text("ui.common.pond_category.big_game", "巨物塘");
+                default: return string.IsNullOrEmpty(category) ? DesktopLocalization.Text("ui.common.pond_category.uncategorized", "未分类") : category;
             }
         }
 
@@ -453,13 +453,13 @@ namespace FishSocial.Desktop
         {
             switch (rank)
             {
-                case 1: return "普通";
-                case 2: return "优良";
-                case 3: return "稀有";
-                case 4: return "史诗";
-                case 5: return "传说";
-                case 6: return "神话";
-                case 7: return "至尊";
+                case 1: return DesktopLocalization.Text("ui.common.quality.common", "普通");
+                case 2: return DesktopLocalization.Text("ui.common.quality.uncommon", "优良");
+                case 3: return DesktopLocalization.Text("ui.common.quality.rare", "稀有");
+                case 4: return DesktopLocalization.Text("ui.common.quality.epic", "史诗");
+                case 5: return DesktopLocalization.Text("ui.common.quality.legendary", "传说");
+                case 6: return DesktopLocalization.Text("ui.common.quality.mythic", "神话");
+                case 7: return DesktopLocalization.Text("ui.common.quality.supreme", "至尊");
                 default: return "—";
             }
         }
@@ -536,11 +536,11 @@ namespace FishSocial.Desktop
         {
             switch (diet)
             {
-                case "any": return "通用";
-                case "herbivore": return "草食";
-                case "omnivore": return "杂食";
-                case "carnivore": return "肉食";
-                default: return string.IsNullOrEmpty(diet) ? "未标注" : diet;
+                case "any": return DesktopLocalization.Text("ui.common.diet.general", "通用");
+                case "herbivore": return DesktopLocalization.Text("ui.common.diet.herbivore", "草食");
+                case "omnivore": return DesktopLocalization.Text("ui.common.diet.omnivore", "杂食");
+                case "carnivore": return DesktopLocalization.Text("ui.common.diet.carnivore", "肉食");
+                default: return string.IsNullOrEmpty(diet) ? DesktopLocalization.Text("ui.common.diet.unknown", "未标注") : diet;
             }
         }
 
@@ -548,12 +548,12 @@ namespace FishSocial.Desktop
         {
             switch (group)
             {
-                case "still_bait": return "静水底钓";
-                case "stream_light": return "溪流轻口";
-                case "lure_predator": return "路亚掠食";
-                case "cast_heavy": return "重抛";
-                case "giant_game": return "巨物";
-                default: return string.IsNullOrEmpty(group) ? "未标注" : group;
+                case "still_bait": return DesktopLocalization.Text("ui.common.catch_group.bottom", "静水底钓");
+                case "stream_light": return DesktopLocalization.Text("ui.common.catch_group.stream", "溪流轻口");
+                case "lure_predator": return DesktopLocalization.Text("ui.common.catch_group.lure", "路亚掠食");
+                case "cast_heavy": return DesktopLocalization.Text("ui.common.catch_group.heavy_cast", "重抛");
+                case "giant_game": return DesktopLocalization.Text("ui.common.catch_group.big_game", "巨物");
+                default: return string.IsNullOrEmpty(group) ? DesktopLocalization.Text("ui.common.diet.unknown", "未标注") : group;
             }
         }
 
@@ -561,11 +561,11 @@ namespace FishSocial.Desktop
         {
             switch (tier)
             {
-                case "common": return "常见";
-                case "uncommon": return "少见";
-                case "rare": return "稀有";
-                case "legendary": return "传说";
-                default: return string.IsNullOrEmpty(tier) ? "未标注" : tier;
+                case "common": return DesktopLocalization.Text("ui.common.rarity.common", "常见");
+                case "uncommon": return DesktopLocalization.Text("ui.common.rarity.uncommon", "少见");
+                case "rare": return DesktopLocalization.Text("ui.common.quality.rare", "稀有");
+                case "legendary": return DesktopLocalization.Text("ui.common.quality.legendary", "传说");
+                default: return string.IsNullOrEmpty(tier) ? DesktopLocalization.Text("ui.common.diet.unknown", "未标注") : tier;
             }
         }
 

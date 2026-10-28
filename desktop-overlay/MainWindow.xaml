@@ -117,7 +117,7 @@
                         Visibility="Collapsed"
                         Background="Transparent"
                         Foreground="{StaticResource CozyInk}"
-                        BorderThickness="0" />
+                        BorderThickness="0"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.pan_left" />
                 <Button x:Name="BtnPanRight" Padding="0"
                         Canvas.Left="916"
                         Canvas.Top="248"
@@ -129,7 +129,7 @@
                         Visibility="Collapsed"
                         Background="Transparent"
                         Foreground="{StaticResource CozyInk}"
-                        BorderThickness="0" />
+                        BorderThickness="0"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.pan_right" />
                 <!-- Z110: unused (guide lives on ChatBubbleLayer above the pet) -->
                 <Border x:Name="GuideTipChrome"
                         Canvas.Left="120"
@@ -198,7 +198,7 @@
                             Visibility="Collapsed"
                             Background="{StaticResource CozyCoral}"
                             Foreground="{StaticResource CozyInk}"
-                            Click="PoliceDebug_OnClick" />
+                            Click="PoliceDebug_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.summon_patrol" />
                     <Button x:Name="GameplayDebugButton" local:CozyTheme.Icon="cozy/icons-light/settings.png"
                             Content="Debug"
                             Width="88"
@@ -222,7 +222,7 @@
                                 FontSize="13"
                                 Width="88"
                                 Height="36"
-                                Click="ExitPond_OnClick" />
+                                Click="ExitPond_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.exit_pond" />
                     </StackPanel>
                 </StackPanel>
                 <!-- Z100: 底部居中 — 打窝 / 开始钓鱼 / 离席 -->
@@ -238,7 +238,7 @@
                             FontSize="13"
                             Margin="0,0,8,0"
                             Visibility="Collapsed"
-                            Click="Groundbait_OnClick" />
+                            Click="Groundbait_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.groundbait" />
                     <TextBlock x:Name="GroundbaitStatusText"
                                Width="100"
                                TextWrapping="Wrap"
@@ -252,13 +252,13 @@
                             Height="36"
                             FontSize="13"
                             Margin="0,0,8,0"
-                            Click="FishingToggle_OnClick" />
+                            Click="FishingToggle_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.start_fishing" />
                     <Button x:Name="CatchLeaveButton" local:CozyTheme.Icon="cozy/icons-light/gift.png"
                             Content="离席"
                             Width="88"
                             Height="36"
                             FontSize="13"
-                            Click="CatchLeave_OnClick" />
+                            Click="CatchLeave_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.leave_seat" />
                 </StackPanel>
                 <!-- Z100: 可收缩公屏聊天窗（合并预览 + 输入） -->
                 <Border x:Name="ChatDockChrome"
@@ -282,14 +282,14 @@
                                        FontSize="12"
                                        VerticalAlignment="Center"
                                        Margin="0"
-                                       TextTrimming="CharacterEllipsis" />
+                                       TextTrimming="CharacterEllipsis"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.empty.public_messages" />
                             <Button x:Name="ChatDockToggle" local:CozyTheme.Icon="cozy/icons-light/social.png"
                                     Grid.Column="1"
                                     Content="" ToolTip="展开聊天"
                                     Width="28"
                                     Height="24"
                                     Padding="0"
-                                    Click="ChatDockToggle_OnClick" />
+                                    Click="ChatDockToggle_OnClick"  local:OverlayLocalization.ToolTipKey="ui.fishing.overlay.fallback.tooltip.expand_chat" />
                         </Grid>
                         <ScrollViewer x:Name="ChatLogScroll"
                                       Height="96"
@@ -335,7 +335,7 @@
                                            IsHitTestVisible="False"
                                            FontSize="12"
                                            VerticalAlignment="Center"
-                                           Margin="8,0" />
+                                           Margin="8,0"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.placeholder.chat_message" />
                             </Grid>
                             <Button x:Name="ChatSendButton" local:CozyTheme.Icon="cozy/icons-light/check.png"
                                     Grid.Column="1"
@@ -344,7 +344,7 @@
                                     Height="36"
                                     Margin="6,0,0,0"
                                     IsEnabled="False"
-                                    Click="ChatSend_OnClick" />
+                                    Click="ChatSend_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.send_chat" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -385,7 +385,7 @@
                         Content="确认"
                         Height="40"
                         Margin="40,16,40,0"
-                        Click="OverlayPromptConfirm_OnClick" />
+                        Click="OverlayPromptConfirm_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.confirm_prompt" />
             </StackPanel>
         </Border>
         <!-- Z500: 玩法 Debug 顶层模态弹窗（盖住场景与其它提示）STEAM-DESKTOP-12B -->

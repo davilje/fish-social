@@ -230,6 +230,7 @@ namespace FishSocial.Desktop
             }
 
             var instance = Instantiate(prefab, transform, false);
+            DesktopLocalization.BindPrefab(instance, "Desktop/Prefabs/DesktopShell");
             instance.name = "ShellCanvas";
             NormalizeShellCanvasScale(instance);
             _scaler = instance.GetComponent<CanvasScaler>();
@@ -381,7 +382,7 @@ namespace FishSocial.Desktop
                         _headerLevel.text = "Lv." + hub.progress.level;
                     var required = RequiredLevelXp(hub.progress.level);
                     if (_headerXp != null)
-                        _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : "满级";
+                        _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : DesktopLocalization.Text("ui.common.header.label.max_level", "满级");
                     if (_headerXpFill != null)
                         DesktopModalUi.SetXpFill(_headerXpFill, required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f);
                 }
@@ -893,7 +894,7 @@ namespace FishSocial.Desktop
         {
             if (_pondSession == null)
             {
-                ShowToast("鱼塘会话尚未初始化。");
+                ShowToast(DesktopLocalization.Text("ui.common.pond.error.session_missing", "鱼塘会话尚未初始化。"));
                 return;
             }
 
@@ -905,15 +906,15 @@ namespace FishSocial.Desktop
                 _pondSession.State == SocialSocketState.Reconnecting)
             {
                 ShowToast(_pondSession.State == SocialSocketState.Connected
-                    ? "已恢复当前鱼塘，主窗口已隐藏。"
-                    : "鱼塘会话正在连接，主窗口已隐藏。");
+                    ? DesktopLocalization.Text("ui.common.pond.message.resumed_window_hidden", "已恢复当前鱼塘，主窗口已隐藏。")
+                    : DesktopLocalization.Text("ui.common.pond.status.connecting_window_hidden", "鱼塘会话正在连接，主窗口已隐藏。"));
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
             return;
             }
 
             _pondSession.ConnectAndJoin();
-            ShowToast("正在进入鱼塘。");
+            ShowToast(DesktopLocalization.Text("ui.common.pond.status.entering", "正在进入鱼塘。"));
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
@@ -961,7 +962,7 @@ namespace FishSocial.Desktop
             if (_steamAuth == null)
             {
                 Debug.LogWarning("[SteamAuth] Login click ignored: SteamAuthController is null.");
-                ShowToast("Steam 登录组件尚未初始化。");
+                ShowToast(DesktopLocalization.Text("ui.common.auth.error.component_missing", "Steam 登录组件尚未初始化。"));
                 return;
             }
             _steamAuth.BeginLogin();
@@ -971,7 +972,7 @@ namespace FishSocial.Desktop
         {
             if (_authenticatedApi == null || !_authenticatedApi.CanUse)
             {
-                ShowToast("请先完成 Steam 登录。");
+                ShowToast(DesktopLocalization.Text("ui.common.auth.error.login_required", "请先完成 Steam 登录。"));
                 return;
             }
             StartCoroutine(_authenticatedApi.GetInventory((ok, message) =>
@@ -988,21 +989,21 @@ namespace FishSocial.Desktop
             switch (state)
             {
                 case SteamLoginState.Initializing:
-                    label = "登录：初始化 Steam";
+                    label = DesktopLocalization.Text("ui.common.auth.status.initializing_steam", "登录：初始化 Steam");
                     break;
                 case SteamLoginState.RequestingTicket:
-                    label = "登录：获取 Steam Ticket";
+                    label = DesktopLocalization.Text("ui.common.auth.status.requesting_ticket", "登录：获取 Steam Ticket");
                     break;
                 case SteamLoginState.Authenticating:
-                    label = "登录：服务端验证中";
+                    label = DesktopLocalization.Text("ui.common.auth.status.verifying", "登录：服务端验证中");
                     break;
                 case SteamLoginState.Authenticated:
-                    label = "登录：Steam 已连接";
+                    label = DesktopLocalization.Text("ui.common.auth.status.connected", "登录：Steam 已连接");
                     EnterMainShell();
-                    ShowToast("Steam 登录成功");
+                    ShowToast(DesktopLocalization.Text("ui.common.auth.message.login_success", "Steam 登录成功"));
                     break;
                 case SteamLoginState.Failed:
-                    label = "登录：失败";
+                    label = DesktopLocalization.Text("ui.common.auth.status.failed", "登录：失败");
                     break;
                 default:
                     label = "登录：未登录";
@@ -1022,7 +1023,7 @@ namespace FishSocial.Desktop
             }
 
             if (_loginStatus != null)
-                _loginStatus.text = state == SteamLoginState.SignedOut ? "请使用 Steam 登录" : label;
+                _loginStatus.text = state == SteamLoginState.SignedOut ? DesktopLocalization.Text("ui.common.auth.hint.use_steam", "请使用 Steam 登录") : label;
             if (_statusLogin != null)
                 _statusLogin.text = label;
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
@@ -1032,7 +1033,7 @@ namespace FishSocial.Desktop
         void OnSteamError(string message)
         {
             if (_loginStatus != null)
-                _loginStatus.text = "登录：失败";
+                _loginStatus.text = DesktopLocalization.Text("ui.common.auth.status.failed", "登录：失败");
             if (_statusLogin != null)
                 _statusLogin.text = "登录：失败";
             ShowToast(message);
@@ -1045,16 +1046,16 @@ namespace FishSocial.Desktop
             string label;
             switch (state)
             {
-                case SocialSocketState.Connecting: label = "连接中"; break;
-                case SocialSocketState.Connected: label = "在线"; break;
-                case SocialSocketState.Reconnecting: label = "重连中"; break;
-                case SocialSocketState.Failed: label = "连接失败"; break;
-                default: label = "断开"; break;
+                case SocialSocketState.Connecting: label = DesktopLocalization.Text("ui.common.connection.status.connecting", "连接中"); break;
+                case SocialSocketState.Connected: label = DesktopLocalization.Text("ui.common.connection.status.online", "在线"); break;
+                case SocialSocketState.Reconnecting: label = DesktopLocalization.Text("ui.common.connection.status.reconnecting", "重连中"); break;
+                case SocialSocketState.Failed: label = DesktopLocalization.Text("ui.common.connection.status.failed", "连接失败"); break;
+                default: label = DesktopLocalization.Text("ui.common.connection.status.disconnected", "断开"); break;
             }
             if (_statusConnection != null)
                 _statusConnection.text = "连接：" + label;
             if (_pondStatus != null && !string.IsNullOrEmpty(message))
-                _pondStatus.text = "连接：" + label + "\n" + message;
+                _pondStatus.text = DesktopLocalization.Format("ui.common.connection.message.details", (object)(label), (object)(message));
             // Bootstrap owns overlay publish + deferred pet refresh on pond state.
         }
 
@@ -1063,9 +1064,7 @@ namespace FishSocial.Desktop
             if (_pondStatus != null)
             {
                 var count = snapshot?.users?.Length ?? 0;
-                _pondStatus.text = "连接：在线 · 鱼塘用户：" + count +
-                                   "\n当前 phase：" + (_pondSession?.CurrentPhase ?? "idle") +
-                                   FormatOtherPlayers();
+                _pondStatus.text = DesktopLocalization.Format("ui.common.connection.message.pond_snapshot", (object)(count), (object)((_pondSession?.CurrentPhase ?? "idle")), (object)(FormatOtherPlayers()));
             }
             // Overlay publish is owned by DesktopAppBootstrap; only refresh the
             // in-window hero cat after IPC work (RequestPetVisualRefresh).
@@ -1077,9 +1076,7 @@ namespace FishSocial.Desktop
             var own = _pondSession?.CurrentUser;
             var isOwn = user != null && own != null && user.id == own.id;
             if (isOwn && _pondStatus != null)
-                _pondStatus.text = "连接：在线 · 当前 phase：" + (user?.fishingPhase ?? "idle") +
-                                   "\n当前钓位：" + (user?.spotId ?? "未选择") +
-                                   FormatOtherPlayers();
+                _pondStatus.text = DesktopLocalization.Format("ui.common.connection.message.user_snapshot", (object)((user?.fishingPhase ?? "idle")), (object)((user?.spotId ?? DesktopLocalization.Text("ui.common.connection.label.spot_unselected", "未选择"))), (object)(FormatOtherPlayers()));
             if (isOwn)
                 DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
         }
@@ -1093,8 +1090,8 @@ namespace FishSocial.Desktop
         {
             var others = _pondSession?.VisibleOthers;
             if (others == null || others.Length == 0)
-                return "\n同塘玩家：无";
-            var text = "\n同塘玩家：";
+                return DesktopLocalization.Text("ui.common.connection.message.no_other_players", "\n同塘玩家：无");
+            var text = DesktopLocalization.Text("ui.common.connection.label.other_players", "\n同塘玩家：");
             var shown = Mathf.Min(others.Length, 6);
             for (var i = 0; i < shown; i++)
             {
@@ -1105,7 +1102,7 @@ namespace FishSocial.Desktop
             }
 
             if (others.Length > shown)
-                text += "\n· …共 " + others.Length + " 人";
+                text += DesktopLocalization.Format("ui.common.connection.label.additional_player_count", (object)(others.Length));
             return text;
         }
 
@@ -1114,10 +1111,10 @@ namespace FishSocial.Desktop
             _journalPendingCatch = fishCatch;
             if (_mainRoot != null) CozyMotion.SetCornerPose(_mainRoot.transform, CozyCornerCharacter.Pose.LookUp);
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
-            var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : "鱼";
+            var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : DesktopLocalization.Text("ui.common.bite.label.default_fish", "鱼");
             DesktopNotificationService.Instance?.Publish(new DesktopNotification(
-                NotificationKind.FishBite, "鱼咬钩", "有" + species + "上钩。"));
-            ShowToast("有" + species + "上钩了！");
+                NotificationKind.FishBite, DesktopLocalization.Text("ui.common.bite.title.notification", "鱼咬钩"), DesktopLocalization.Format("ui.common.bite.message.notification", (object)(species))));
+            ShowToast(DesktopLocalization.Format("ui.common.bite.message.toast", (object)(species)));
         }
 
         void OnPondFishCatchSettled(FishCatchSettledDto settled)
@@ -1129,7 +1126,7 @@ namespace FishSocial.Desktop
             if (settled != null && pending != null && pending.speciesId == settled.speciesId && _mainRoot != null)
             {
                 var detail = DesktopFishCatalog.QualityName(settled.quality) + " · " + settled.sizeM.ToString("0.00") + " m";
-                if (settled.autoReturned) detail += "\n已回塘 · +" + settled.gold + " 金币";
+                if (settled.autoReturned) detail += DesktopLocalization.Format("ui.common.settlement.label.release_income", (object)(settled.gold));
                 var celebration = CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
                     DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail, settled.sizeM);
                 celebration.CoinsTarget = _mainRoot.transform.Find("Header/FishCoins/Icon") as RectTransform;
@@ -1138,7 +1135,7 @@ namespace FishSocial.Desktop
             if (settled != null && !string.IsNullOrEmpty(settled.message))
                 ShowToast(settled.message);
             else if (settled != null && settled.autoReturned)
-                ShowToast("已自动回塘 +" + settled.gold + " 金币");
+                ShowToast(DesktopLocalization.Format("ui.common.settlement.message.auto_release", (object)(settled.gold)));
         }
 
         void OnPondSessionSummary(PondSessionSummaryDto summary)
@@ -1186,12 +1183,12 @@ namespace FishSocial.Desktop
                 if (_settlementComposer == null)
                     _settlementComposer = DesktopSocialComposeModal.Create(_settlementCanvas);
                 if (_settlementComposer == null) return;
-                _settlementComposer.Open(_authenticatedApi, _pondSession != null ? _pondSession.Nickname : "钓友", () =>
+                _settlementComposer.Open(_authenticatedApi, _pondSession != null ? _pondSession.Nickname : DesktopLocalization.Text("ui.common.session.label.default_angler", "钓友"), () =>
                 {
                     if (view != null) view.Close();
                     ShowMainPanel(ShellPanelId.SocialFeed);
                     _socialFeedPanel?.RefreshMyFeed();
-                    ShowToast("鱼获故事已发布。");
+                    ShowToast(DesktopLocalization.Text("ui.common.session.message.story_published", "鱼获故事已发布。"));
                 }, DesktopProfileCache.Latest?.avatarUrl, fishId);
             };
         }
@@ -1210,13 +1207,13 @@ namespace FishSocial.Desktop
                 _suppressInventoryToast = false;
                 return;
             }
-            ShowToast("背包已更新：" + (items != null ? items.Length : 0) + " 条鱼获");
+            ShowToast(DesktopLocalization.Format("ui.common.inventory.message.updated", (object)((items != null ? items.Length : 0))));
         }
 
         void OnFriendRequestNotify(FriendRequestDto request)
         {
             // The social inbox classifies this socket event once and routes it to Requests.
-            ShowToast((request != null ? request.fromNickname : "钓友") + " 想添加你为好友。");
+            ShowToast(DesktopLocalization.Format("ui.common.friend_request.message.received", (object)((request != null ? request.fromNickname : DesktopLocalization.Text("ui.common.session.label.default_angler", "钓友")))));
         }
 
         void OnPondError(string message)

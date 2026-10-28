@@ -152,7 +152,7 @@ namespace FishSocialOverlay
                 return;
             }
 
-            var trimmed = text.Trim();
+            var trimmed = OverlayLocalization.Message(text.Trim());
             if (string.Equals(_guideText, trimmed, StringComparison.Ordinal) &&
                 ReferenceEquals(_guideActor, actor) &&
                 _activeByPlayer.ContainsKey(GuideKey))
@@ -189,6 +189,7 @@ namespace FishSocialOverlay
                 TextAlignment = TextAlignment.Center,
                 MaxWidth = 200,
             };
+            OverlayLocalization.SetText(label, trimmed);
 
             var bubble = new Border
             {
@@ -304,9 +305,7 @@ namespace FishSocialOverlay
         {
             ClearObservation();
 
-            var text = string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim();
-            if (text.Length > 80)
-                text = text.Substring(0, 77) + "…";
+            var text = OverlayLocalization.Message(string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim());
 
             if (actor is OverlayPetActor pet)
             {
@@ -325,6 +324,7 @@ namespace FishSocialOverlay
                 TextAlignment = TextAlignment.Center,
                 MaxWidth = BubbleMaxWidth,
             };
+            OverlayLocalization.SetText(label, text);
 
             var bubble = new Border
             {

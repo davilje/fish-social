@@ -154,7 +154,7 @@ namespace FishSocial.Desktop
             if (!ready)
             {
                 ClearGrid();
-                ShowMessage("正在加载鱼获…");
+                ShowMessage(DesktopLocalization.Text("ui.catch.bag.status.loading_catches", "正在加载鱼获…"));
                 Refresh();
                 motion?.PlayEntrance(0);
             }
@@ -184,10 +184,10 @@ namespace FishSocial.Desktop
             transform.Find("BagItemsEmpty")?.gameObject.SetActive(_itemsTab);
             DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "DesignCategoryFish")?.SetSelected(!_itemsTab);
             DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "DesignCategoryItems")?.SetSelected(_itemsTab);
-            CozyItemArt.Text(transform, "Reflow_BagHeading", _itemsTab ? "我的道具" : "我的鱼获");
-            CozyItemArt.Text(transform, "DesignDetailHeading", _itemsTab ? "道具详情" : "鱼获详情");
+            CozyItemArt.Text(transform, "Reflow_BagHeading", _itemsTab ? DesktopLocalization.Text("ui.catch.bag.title.items", "我的道具") : DesktopLocalization.Text("ui.catch.bag.title.catches", "我的鱼获"));
+            CozyItemArt.Text(transform, "DesignDetailHeading", _itemsTab ? DesktopLocalization.Text("ui.catch.bag.title.item_details", "道具详情") : DesktopLocalization.Text("ui.catch.bag.title.catch_details", "鱼获详情"));
             CozyItemArt.Text(transform, "DesignBagNote", _itemsTab
-                ? "钓竿、鱼饵和船具\n请在装备页查看和使用" : "背包内展示真实鱼获\n选中后可出售、回鱼或分享");
+                ? DesktopLocalization.Text("ui.catch.bag.hint.equipment_location", "钓竿、鱼饵和船具\n请在装备页查看和使用") : DesktopLocalization.Text("ui.catch.bag.hint.catch_actions", "背包内展示真实鱼获\n选中后可出售、回鱼或分享"));
         }
 
         void RestoreCategoryDetail()
@@ -196,13 +196,13 @@ namespace FishSocial.Desktop
             if (_itemsTab)
             {
                 ShowMessage(string.Empty);
-                _status.text = "暂无道具。钓竿、鱼饵和船具请在装备页查看。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.empty.items", "暂无道具。钓竿、鱼饵和船具请在装备页查看。");
                 RefreshReturnButton();
                 return;
             }
-            _status.text = "已占用 " + _items.Length + " / " + Mathf.Max(MinSlots, _items.Length);
+            _status.text = DesktopLocalization.Format("ui.catch.bag.label.capacity", (object)(_items.Length), (object)(Mathf.Max(MinSlots, _items.Length)));
             if (SelectedItem() != null) Select(SelectedItem(), false);
-            else ShowMessage("背包是空的。钓到鱼并领取后会显示在这里。");
+            else ShowMessage(DesktopLocalization.Text("ui.catch.bag.empty.catches", "背包是空的。钓到鱼并领取后会显示在这里。"));
             RefreshReturnButton();
         }
 
@@ -236,7 +236,7 @@ namespace FishSocial.Desktop
                 _returnButton.interactable = false;
                 var label = _returnButton.GetComponentInChildren<Text>();
                 if (label != null)
-                    label.text = "回鱼";
+                    label.text = DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼");
                 return;
             }
             if (mode == "auto_return")
@@ -245,13 +245,13 @@ namespace FishSocial.Desktop
                 _returnButton.interactable = false;
                 var label = _returnButton.GetComponentInChildren<Text>();
                 if (label != null)
-                    label.text = "回鱼";
+                    label.text = DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼");
                 return;
             }
             _returnButton.gameObject.SetActive(true);
             var defaultLabel = _returnButton.GetComponentInChildren<Text>();
             if (defaultLabel != null && defaultLabel.text != "回鱼")
-                defaultLabel.text = "回鱼";
+                defaultLabel.text = DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼");
             _returnButton.interactable = available && CanReturnHere() &&
                 DesktopGameData.IsReturnEligible(selected.quality, selected.sizeM);
         }
@@ -283,10 +283,10 @@ namespace FishSocial.Desktop
                 yield break;
             if (_api == null || !_api.CanUse)
             {
-                _status.text = "请先完成 Steam 登录。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.login_required", "请先完成 Steam 登录。");
                 yield break;
             }
-            _status.text = "正在加载背包…";
+            _status.text = DesktopLocalization.Text("ui.catch.bag.status.loading_inventory", "正在加载背包…");
             var itemsOk = false;
             var coinsOk = false;
             string error = null;
@@ -306,15 +306,15 @@ namespace FishSocial.Desktop
             if (!itemsOk)
             {
                 if (_retry != null) _retry.gameObject.SetActive(true);
-                _status.text = error ?? "背包加载失败。";
-                _detail.text = _status.text + "\n点击重试以重新加载。";
+                _status.text = error ?? DesktopLocalization.Text("ui.catch.bag.error.inventory_load_failed", "背包加载失败。");
+                _detail.text = DesktopLocalization.Format("ui.catch.bag.hint.retry_loading", (object)(_status.text));
                 yield break;
             }
             if (coinsOk)
-                _coins.text = "金币：" + _coinsValue;
+                _coins.text = DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue));
             else
-                _coins.text = "金币：暂不可用";
-            _status.text = itemsOk ? "已占用 " + _items.Length + " / " + Mathf.Max(MinSlots, _items.Length) : error;
+                _coins.text = DesktopLocalization.Text("ui.catch.bag.label.coins_unavailable", "金币：暂不可用");
+            _status.text = itemsOk ? DesktopLocalization.Format("ui.catch.bag.label.capacity", (object)(_items.Length), (object)(Mathf.Max(MinSlots, _items.Length))) : error;
             RefreshReturnButton();
             if (itemsOk)
                 _fishReady = true;
@@ -348,7 +348,7 @@ namespace FishSocial.Desktop
             ClearGrid();
             var count = _items != null ? _items.Length : 0;
             if (_items == null || _items.Length == 0)
-                ShowMessage("背包是空的。钓到鱼并领取后会显示在这里。");
+                ShowMessage(DesktopLocalization.Text("ui.catch.bag.empty.catches", "背包是空的。钓到鱼并领取后会显示在这里。"));
             else if (SelectedItem() != null)
                 Select(SelectedItem(), false);
             var rareOrder = 0;
@@ -422,7 +422,7 @@ namespace FishSocial.Desktop
             label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
             label.font = CatTheme.Font;
             label.fontSize = 12;
-            label.text = "NEW";
+            label.text = DesktopLocalization.Text("ui.catch.bag.badge.new", "NEW");
             label.alignment = TextAnchor.MiddleCenter;
             label.color = Color.white;
             label.raycastTarget = false;
@@ -447,48 +447,40 @@ namespace FishSocial.Desktop
             var returnMul = eligible ? DesktopGameData.ResolveReturnGoldMul(item.sizeM) : 0f;
             var returnGold = Mathf.FloorToInt(sell * returnMul);
             var seatHint = CanReturnHere()
-                ? "可回当前塘（约增重 0.02~0.05m；需回鱼档）"
-                : "回鱼需在当前鱼塘钓位且选择回鱼档";
+                ? DesktopLocalization.Text("ui.catch.bag.hint.release_growth", "可回当前塘（约增重 0.02~0.05m；需回鱼档）")
+                : DesktopLocalization.Text("ui.catch.bag.hint.release_requirements", "回鱼需在当前鱼塘钓位且选择回鱼档");
             string returnHint;
             string returnValue;
             if (!eligible)
             {
                 var needsWeight = DesktopGameData.ResolveReturnGoldMul(item.sizeM) <= 0f;
                 returnHint = needsWeight
-                    ? "回鱼约得：不可回（需达到 " + DesktopGameData.MinReturnWeightJin().ToString("0") + " 斤，且紫品及以上）"
-                    : "回鱼约得：不可回（需紫品及以上）";
+                    ? DesktopLocalization.Format("ui.catch.bag.hint.release_weight_and_quality", (object)(DesktopGameData.MinReturnWeightJin().ToString("0")))
+                    : DesktopLocalization.Text("ui.catch.bag.hint.release_quality", "回鱼约得：不可回（需紫品及以上）");
                 returnValue = needsWeight
-                    ? "不可回（需 " + DesktopGameData.MinReturnWeightJin().ToString("0") + " 斤+紫品）"
-                    : "不可回（需紫品+）";
+                    ? DesktopLocalization.Format("ui.catch.bag.label.release_weight_and_quality", (object)(DesktopGameData.MinReturnWeightJin().ToString("0")))
+                    : DesktopLocalization.Text("ui.catch.bag.label.release_quality", "不可回（需紫品+）");
             }
             else
             {
-                returnHint = "回鱼约得：" + returnGold + " 金币（卖价×" + (returnMul * 100f).ToString("0") + "%，" +
-                             (jin > DesktopGameData.HeavyReturnWeightJin() ? ">100斤档" : "≥10斤档") + "）";
-                returnValue = "约 " + returnGold + " 金币" + (CanReturnHere() ? "" : " · 需钓位");
+                returnHint = DesktopLocalization.Format("ui.catch.bag.label.estimated_release_reward", (object)(returnGold), (object)((returnMul * 100f).ToString("0")), (object)((jin > DesktopGameData.HeavyReturnWeightJin() ? DesktopLocalization.Text("ui.catch.bag.label.large_fish_tier", ">100斤档") : DesktopLocalization.Text("ui.catch.bag.label.standard_fish_tier", "≥10斤档"))));
+                returnValue = DesktopLocalization.Format("ui.catch.bag.format.estimated_reward", (object)(returnGold), (object)((CanReturnHere() ? "" : DesktopLocalization.Text("ui.catch.bag.fragment.seat_required", " · 需钓位"))));
             }
             var mode = _pond?.CurrentUser?.returnFeeMode;
-            if (mode == "sell_only") returnValue = "本局出售档 · 不可回鱼";
-            else if (mode == "auto_return") returnValue = "本局自动回鱼";
+            if (mode == "sell_only") returnValue = DesktopLocalization.Text("ui.catch.bag.status.sell_mode", "本局出售档 · 不可回鱼");
+            else if (mode == "auto_return") returnValue = DesktopLocalization.Text("ui.catch.bag.status.auto_release_mode", "本局自动回鱼");
             var size = item.sizeM.ToString("0.00") + " m";
-            var weight = DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)) +
-                         "（约 " + jin.ToString("0.##") + " 斤）";
+            var weight = DesktopLocalization.Format("ui.catch.bag.format.approximate_weight", (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM))), (object)(jin.ToString("0.##")));
             CozyItemArt.Text(transform, "DesignName", species);
             if (CozyItemArt.Rows(transform, "DetailRows",
-                    "star", "品质", quality,
-                    "hook", "体长", size,
-                    "fish", "重量", weight,
-                    "coin", "参考售价", sell + " 金币",
-                    "pond", "回鱼", returnValue))
+                    "star", DesktopLocalization.Text("ui.catch.bag.label.quality", "品质"), quality,
+                    "hook", DesktopLocalization.Text("ui.catch.bag.label.length", "体长"), size,
+                    "fish", DesktopLocalization.Text("ui.catch.bag.label.weight", "重量"), weight,
+                    "coin", DesktopLocalization.Text("ui.catch.bag.label.reference_price", "参考售价"), DesktopLocalization.Format("ui.catch.bag.format.coins", (object)(sell)),
+                    "pond", DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼"), returnValue))
                 _detail.text = string.Empty;
             else
-                _detail.text = "鱼种：" + species +
-                               "\n品质：" + quality +
-                               "\n体长：" + size +
-                               "\n重量：" + weight +
-                               "\n参考售价：" + sell + " 金币" +
-                               "\n" + returnHint +
-                               "\n" + seatHint;
+                _detail.text = DesktopLocalization.Format("ui.catch.bag.label.catch_summary", (object)(species), (object)(quality), (object)(size), (object)(weight), (object)(sell), (object)(returnHint), (object)(seatHint));
             if (rebuild && _grid != null)
             {
                 for (var i=0;i<_grid.childCount;i++)
@@ -524,17 +516,17 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                _status.text = "当前会话已失效，请重新登录。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。");
                 return;
             }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
-                _status.text = "请先选中一条鱼获。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。");
                 return;
             }
             _busy = true;
             RefreshReturnButton();
-            _status.text = "正在出售…";
+            _status.text = DesktopLocalization.Text("ui.catch.bag.status.selling", "正在出售…");
             StartCoroutine(_api.SellFish(_selectedId, (ok, earned, total, items, message) =>
             {
                 _busy = false;
@@ -555,9 +547,9 @@ namespace FishSocial.Desktop
                 CozyActionFeedback.CoinsFly(soldCard, coinTarget, layer);
                 _items = items ?? new FishInventoryItemDto[0];
                 _coinsValue = total;
-                _coins.text = "金币：" + _coinsValue;
+                _coins.text = DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue));
                 _selectedId = null;
-                _status.text = "出售成功，获得 " + earned + " 金币。";
+                _status.text = DesktopLocalization.Format("ui.catch.bag.status.sold", (object)(earned));
                 ShowMessage(_status.text);
                 RenderGrid();
                 Canvas.ForceUpdateCanvases();
@@ -582,22 +574,22 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                _status.text = "当前会话已失效，请重新登录。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。");
                 return;
             }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
-                _status.text = "请先选中一条鱼获。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。");
                 return;
             }
             if (!CanReturnHere())
             {
-                _status.text = "需在当前鱼塘钓位才能回鱼。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.release_seat_required", "需在当前鱼塘钓位才能回鱼。");
                 return;
             }
             _busy = true;
             RefreshReturnButton();
-            _status.text = "正在回鱼…";
+            _status.text = DesktopLocalization.Text("ui.catch.bag.status.releasing", "正在回鱼…");
             StartCoroutine(_api.ReturnFishToPond(_selectedId,
                 (ok, gold, playerXp, pondXp, newSizeM, sizeGainM, totalCoins, items, message) =>
                 {
@@ -605,7 +597,7 @@ namespace FishSocial.Desktop
                     RefreshReturnButton();
                     if (!ok)
                     {
-                        _status.text = message ?? "回鱼失败。";
+                        _status.text = message ?? DesktopLocalization.Text("ui.catch.bag.error.release_failed", "回鱼失败。");
                         CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
                         return;
                     }
@@ -613,16 +605,13 @@ namespace FishSocial.Desktop
                     if (totalCoins > 0 || gold > 0)
                     {
                         _coinsValue = totalCoins;
-                        _coins.text = "金币：" + _coinsValue;
+                        _coins.text = DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue));
                     }
                     _selectedId = null;
-                    _status.text = "回鱼成功：+" + gold + " 金，玩家XP +" + playerXp +
-                                   "，塘XP +" + pondXp +
-                                   "，塘内增重约 " + sizeGainM.ToString("0.00") + "m" +
-                                   "（现 " + newSizeM.ToString("0.00") + "m）。";
+                    _status.text = DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(sizeGainM.ToString("0.00")), (object)(newSizeM.ToString("0.00")));
                     ShowMessage(_status.text);
                     RenderGrid();
-                    CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, "已回鱼");
+                    CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, DesktopLocalization.Text("ui.catch.bag.badge.released", "已回鱼"));
                 }));
         }
 
@@ -630,24 +619,24 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                _status.text = "当前会话已失效，请重新登录。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。");
                 return;
             }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
-                _status.text = "请先选中一条鱼获。";
+                _status.text = DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。");
                 return;
             }
             _busy = true;
             RefreshReturnButton();
-            _status.text = "正在分享…";
+            _status.text = DesktopLocalization.Text("ui.catch.bag.status.sharing", "正在分享…");
             var nickname = _pond != null ? _pond.Nickname : "Steam玩家";
             StartCoroutine(_api.ShareFish(_selectedId, nickname, (ok, message) =>
             {
                 _busy = false;
                 RefreshReturnButton();
                 _status.text = message;
-                CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, ok, ok ? "已分享" : "请重试");
+                CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, ok, ok ? DesktopLocalization.Text("ui.catch.bag.status.shared", "已分享") : "请重试");
             }));
         }
     }

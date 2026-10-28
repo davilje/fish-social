@@ -117,7 +117,7 @@ namespace FishSocial.Desktop.Social
             EnsureSteamCallbacks();
             if (!IsAvailable)
             {
-                Error?.Invoke("Steam 客户端未运行。");
+                Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.client_unavailable", "Steam 客户端未运行。"));
                 return;
             }
             var friends = new List<SteamFriendInfo>();
@@ -136,7 +136,7 @@ namespace FishSocial.Desktop.Social
             Debug.Log("[SteamSocial] RefreshFriends count=" + friends.Count);
             FriendsChanged?.Invoke(friends);
 #else
-            Error?.Invoke("Steam 好友功能仅支持 Windows Standalone。");
+            Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.friends_windows_required", "Steam 好友功能仅支持 Windows Standalone。"));
 #endif
         }
 
@@ -145,7 +145,7 @@ namespace FishSocial.Desktop.Social
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (!IsAvailable)
             {
-                Error?.Invoke("Steam 客户端未运行。");
+                Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.client_unavailable", "Steam 客户端未运行。"));
                 return;
             }
             _pondId = pondId;
@@ -153,7 +153,7 @@ namespace FishSocial.Desktop.Social
             _protocolVersion = protocolVersion;
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 8);
 #else
-            Error?.Invoke("Steam Lobby 仅支持 Windows Standalone。");
+            Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.lobby_windows_required", "Steam Lobby 仅支持 Windows Standalone。"));
 #endif
         }
 
@@ -162,12 +162,12 @@ namespace FishSocial.Desktop.Social
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (!IsAvailable || !ulong.TryParse(lobbyId, out var rawId))
             {
-                Error?.Invoke("Lobby ID 无效或 Steam 未运行。");
+                Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.invalid_join_context", "Lobby ID 无效或 Steam 未运行。"));
                 return;
             }
             SteamMatchmaking.JoinLobby(new CSteamID(rawId));
 #else
-            Error?.Invoke("Steam Lobby 仅支持 Windows Standalone。");
+            Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.lobby_windows_required", "Steam Lobby 仅支持 Windows Standalone。"));
 #endif
         }
 
@@ -176,13 +176,13 @@ namespace FishSocial.Desktop.Social
 #if UNITY_STANDALONE_WIN || STEAMWORKS_WIN
             if (_currentLobby.m_SteamID == 0 || !ulong.TryParse(friendSteamId64, out var rawId))
             {
-                Error?.Invoke("请先创建或加入 Lobby。");
+                Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.lobby_membership_required", "请先创建或加入 Lobby。"));
                 return;
             }
             if (!SteamMatchmaking.InviteUserToLobby(_currentLobby, new CSteamID(rawId)))
-                Error?.Invoke("Steam 邀请发送失败。");
+                Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.invite_failed", "Steam 邀请发送失败。"));
 #else
-            Error?.Invoke("Steam Lobby 仅支持 Windows Standalone。");
+            Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.lobby_windows_required", "Steam Lobby 仅支持 Windows Standalone。"));
 #endif
         }
 
@@ -273,7 +273,7 @@ namespace FishSocial.Desktop.Social
         {
             if (callback.m_eResult != EResult.k_EResultOK)
             {
-                Error?.Invoke("Lobby 创建失败：" + callback.m_eResult);
+                Error?.Invoke(DesktopLocalization.Format("ui.social.steam_adapter.error.lobby_creation_failed", (object)(callback.m_eResult)));
                 return;
             }
             _currentLobby = new CSteamID(callback.m_ulSteamIDLobby);
@@ -289,7 +289,7 @@ namespace FishSocial.Desktop.Social
             _currentLobby = new CSteamID(callback.m_ulSteamIDLobby);
             if (callback.m_EChatRoomEnterResponse != (uint)EChatRoomEnterResponse.k_EChatRoomEnterResponseSuccess)
             {
-                Error?.Invoke("加入 Lobby 失败。");
+                Error?.Invoke(DesktopLocalization.Text("ui.social.steam_adapter.error.lobby_join_failed", "加入 Lobby 失败。"));
                 return;
             }
             LobbyEntered?.Invoke(_currentLobby.m_SteamID.ToString());

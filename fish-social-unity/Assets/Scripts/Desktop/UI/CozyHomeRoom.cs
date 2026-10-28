@@ -102,8 +102,8 @@ namespace FishSocial.Desktop
             room.actor = Rect(root, "Companion", 749, 496, 172, 246);
             room.artwork = room.actor.gameObject.AddComponent<RawImage>();
             room.actor.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = true;
-            room.equipment = ActionButton(root, "Equipment", "我的钓具", 500, 683);
-            room.aquarium = ActionButton(root, "Aquarium", "鱼缸 · 展示柜", 1200, 683);
+            room.equipment = ActionButton(root, "Equipment", DesktopLocalization.Text("ui.home.room.button.equipment", "我的钓具"), 500, 683);
+            room.aquarium = ActionButton(root, "Aquarium", DesktopLocalization.Text("ui.home.room.button.showcase", "鱼缸 · 展示柜"), 1200, 683);
             var note = Rect(root, "Feedback", 715, 436, 240, 42);
             var paper = note.gameObject.AddComponent<Image>();
             CozyJournalTheme.ApplySurface(paper, "surfaces/toast-note");paper.raycastTarget = false;
@@ -301,7 +301,7 @@ namespace FishSocial.Desktop
             CancelAnimation();
             DesktopAudioService.PlayMeow();
             if (activity != Activity.Free) { activity=Activity.Free; target=ClampFeet(feet); }
-            inactive=wander=0;sitting=false;feedback=1.6f;bubble.text="喵～一起待一会儿";
+            inactive=wander=0;sitting=false;feedback=1.6f;bubble.text=DesktopLocalization.Text("ui.home.room.message.companion", "喵～一起待一会儿");
             var roll = CozyHomeAnimation.Find(skin, "pet-roll");
             if (!CozyMotion.Reduced && roll != null) { activity = Activity.Rolling; target = feet; PlayAnimation(roll); }
             bubble.transform.parent.gameObject.SetActive(true);Present();

@@ -37,7 +37,7 @@ namespace FishSocial.Desktop.Social
 
     public sealed class SocialLobbyApiClient
     {
-        const string ProtocolError = "服务端响应格式错误，请重试。";
+        static readonly string ProtocolError = DesktopLocalization.Text("ui.social.lobby_api.error.invalid_response", "服务端响应格式错误，请重试。");
         readonly SteamAuthController _auth;
         readonly string _baseUrl;
 
@@ -90,7 +90,7 @@ namespace FishSocial.Desktop.Social
         {
             if (!CanUse)
             {
-                completed?.Invoke(false, "请先完成 Steam 登录。");
+                completed?.Invoke(false, DesktopLocalization.Text("ui.social.lobby_api.error.steam_login_required", "请先完成 Steam 登录。"));
                 yield break;
             }
             var body = JsonUtility.ToJson(new LobbyInvitePayload
@@ -119,7 +119,7 @@ namespace FishSocial.Desktop.Social
         {
             if (!CanUse)
             {
-                completed?.Invoke(false, "请先完成 Steam 登录。");
+                completed?.Invoke(false, DesktopLocalization.Text("ui.social.lobby_api.error.steam_login_required", "请先完成 Steam 登录。"));
                 yield break;
             }
             var body = JsonUtility.ToJson(new LobbyClosePayload { lobbyId = lobbyId });
@@ -127,7 +127,7 @@ namespace FishSocial.Desktop.Social
             {
                 yield return request.SendWebRequest();
                 if (IsSuccess(request))
-                    completed?.Invoke(true, "Lobby 已关闭。");
+                    completed?.Invoke(true, DesktopLocalization.Text("ui.social.lobby_api.status.closed", "Lobby 已关闭。"));
                 else
                     completed?.Invoke(false, ReadError(request));
             }
@@ -144,7 +144,7 @@ namespace FishSocial.Desktop.Social
         {
             if (!CanUse)
             {
-                completed?.Invoke(false, null, "请先完成 Steam 登录。");
+                completed?.Invoke(false, null, DesktopLocalization.Text("ui.social.lobby_api.error.steam_login_required", "请先完成 Steam 登录。"));
                 yield break;
             }
             var body = JsonUtility.ToJson(new LobbyPayload
@@ -220,29 +220,29 @@ namespace FishSocial.Desktop.Social
             switch (code)
             {
                 case "LOBBY_STEAM_BINDING_REQUIRED":
-                    return "当前 Steam 账号尚未完成服务端绑定，请重新登录 Steam。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.steam_binding_required", "当前 Steam 账号尚未完成服务端绑定，请重新登录 Steam。");
                 case "LOBBY_ID_INVALID":
-                    return "Steam Lobby ID 无效，请重新创建 Lobby。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.invalid_lobby_id", "Steam Lobby ID 无效，请重新创建 Lobby。");
                 case "POND_NOT_FOUND":
-                    return "选择的鱼塘不存在，请重新选择。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.pond_missing", "选择的鱼塘不存在，请重新选择。");
                 case "LOBBY_GAME_VERSION_MISMATCH":
                 case "LOBBY_PROTOCOL_VERSION_MISMATCH":
-                    return "Lobby 版本不兼容，请更新客户端后重试。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.version_mismatch", "Lobby 版本不兼容，请更新客户端后重试。");
                 case "LOBBY_OWNER_REQUIRED":
-                    return "只有 Lobby 创建者可以执行此操作。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.owner_required", "只有 Lobby 创建者可以执行此操作。");
                 case "LOBBY_CACHE_MISSING":
-                    return "Lobby 已失效，请重新创建；鱼塘仍可通过其他入口进入。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.lobby_expired", "Lobby 已失效，请重新创建；鱼塘仍可通过其他入口进入。");
                 case "LOBBY_INVITE_INVALID":
-                    return "Lobby 邀请无效或已过期，请重新邀请。";
+                    return DesktopLocalization.Text("ui.social.lobby_api.error.invite_expired", "Lobby 邀请无效或已过期，请重新邀请。");
             }
 
             if (request.responseCode == 401 || request.responseCode == 403)
-                return "服务端拒绝当前 Lobby 操作，请重新登录后重试。";
+                return DesktopLocalization.Text("ui.social.lobby_api.error.permission_denied", "服务端拒绝当前 Lobby 操作，请重新登录后重试。");
             if (request.responseCode == 404)
-                return "Lobby 或鱼塘不存在，请重新创建。";
+                return DesktopLocalization.Text("ui.social.lobby_api.error.resource_missing", "Lobby 或鱼塘不存在，请重新创建。");
             if (request.responseCode == 409)
-                return "Lobby 版本不兼容，请更新客户端后重试。";
-            return "无法连接 Lobby 权限服务。";
+                return DesktopLocalization.Text("ui.social.lobby_api.error.version_mismatch", "Lobby 版本不兼容，请更新客户端后重试。");
+            return DesktopLocalization.Text("ui.social.lobby_api.error.connection_failed", "无法连接 Lobby 权限服务。");
         }
 
         static bool TryParseResponse<T>(

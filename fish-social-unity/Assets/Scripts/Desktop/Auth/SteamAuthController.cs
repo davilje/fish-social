@@ -139,12 +139,12 @@ namespace FishSocial.Desktop.Auth
             if (_ticketProvider == null || !_ticketProvider.IsSteamRunning)
             {
                 Debug.LogWarning("[SteamAuth] LoginRoutine stopped: Steam provider is unavailable.");
-                Fail(SteamLoginError.SteamNotRunning, "请先启动 Steam 客户端。");
+                Fail(SteamLoginError.SteamNotRunning, DesktopLocalization.Text("ui.auth.steam_login.error.launch_steam_required", "请先启动 Steam 客户端。"));
                 yield break;
             }
             if (string.IsNullOrWhiteSpace(steamAppId))
             {
-                Fail(SteamLoginError.InvalidAppId, "游戏尚未配置 Steam App ID。");
+                Fail(SteamLoginError.InvalidAppId, DesktopLocalization.Text("ui.auth.steam_login.error.app_id_missing", "游戏尚未配置 Steam App ID。"));
                 yield break;
             }
 
@@ -163,7 +163,7 @@ namespace FishSocial.Desktop.Auth
             {
                 if (Time.unscaledTime >= ticketDeadline)
                 {
-                    Fail(SteamLoginError.InvalidTicket, "Steam 登录票据获取超时，请确认 Steam 客户端已启动。");
+                    Fail(SteamLoginError.InvalidTicket, DesktopLocalization.Text("ui.auth.steam_login.error.ticket_timeout", "Steam 登录票据获取超时，请确认 Steam 客户端已启动。"));
                     yield break;
                 }
                 yield return null;
@@ -172,7 +172,7 @@ namespace FishSocial.Desktop.Auth
             {
                 Debug.LogWarning("[SteamAuth] Steam ticket request failed: " + ticketError);
                 Fail(SteamLoginError.MissingTicket, string.IsNullOrEmpty(ticketError)
-                    ? "无法从 Steam 获取登录票据。"
+                    ? DesktopLocalization.Text("ui.auth.steam_login.error.ticket_unavailable", "无法从 Steam 获取登录票据。")
                     : ticketError);
                 yield break;
             }
@@ -197,7 +197,7 @@ namespace FishSocial.Desktop.Auth
                 if (request.result == UnityWebRequest.Result.ConnectionError)
                 {
                     Debug.LogWarning("[SteamAuth] Authentication request connection error: " + request.error);
-                    Fail(SteamLoginError.ServerUnavailable, "无法连接 Fish Social 服务，请稍后重试。");
+                    Fail(SteamLoginError.ServerUnavailable, DesktopLocalization.Text("ui.auth.steam_login.error.service_unreachable", "无法连接 Fish Social 服务，请稍后重试。"));
                     yield break;
                 }
 
@@ -208,7 +208,7 @@ namespace FishSocial.Desktop.Auth
                 }
                 catch
                 {
-                    Fail(SteamLoginError.Unknown, "服务器返回了无法识别的登录结果。");
+                    Fail(SteamLoginError.Unknown, DesktopLocalization.Text("ui.auth.steam_login.error.unknown_result", "服务器返回了无法识别的登录结果。"));
                     yield break;
                 }
                 if (request.result == UnityWebRequest.Result.ProtocolError)
@@ -217,7 +217,7 @@ namespace FishSocial.Desktop.Auth
                                      (response == null ? "null" : response.code));
                     Fail(MapError(response == null ? null : response.code),
                         UserMessage(response == null ? null : response.code,
-                            response == null ? "服务器拒绝了 Steam 登录。" : response.error));
+                            response == null ? DesktopLocalization.Text("ui.auth.steam_login.error.server_rejected", "服务器拒绝了 Steam 登录。") : response.error));
                     yield break;
                 }
                 if (response == null || !response.ok || string.IsNullOrEmpty(response.accessToken))
@@ -272,12 +272,12 @@ namespace FishSocial.Desktop.Auth
         {
             switch (code)
             {
-                case "STEAM_AUTH_DISABLED": return "Steam 登录服务当前未启用。";
-                case "STEAM_INVALID_APP_ID": return "游戏版本与 Steam App ID 不匹配。";
-                case "STEAM_INVALID_IDENTITY": return "Steam 登录配置不匹配，请更新客户端。";
-                case "STEAM_TICKET_INVALID": return "Steam 登录票据已失效，请重试。";
-                case "STEAM_RATE_LIMITED": return "登录请求过于频繁，请稍后再试。";
-                default: return string.IsNullOrEmpty(fallback) ? "Steam 登录被服务器拒绝。" : fallback;
+                case "STEAM_AUTH_DISABLED": return DesktopLocalization.Text("ui.auth.steam_login.error.login_disabled", "Steam 登录服务当前未启用。");
+                case "STEAM_INVALID_APP_ID": return DesktopLocalization.Text("ui.auth.steam_login.error.app_id_mismatch", "游戏版本与 Steam App ID 不匹配。");
+                case "STEAM_INVALID_IDENTITY": return DesktopLocalization.Text("ui.auth.steam_login.error.identity_mismatch", "Steam 登录配置不匹配，请更新客户端。");
+                case "STEAM_TICKET_INVALID": return DesktopLocalization.Text("ui.auth.steam_login.error.ticket_invalid", "Steam 登录票据已失效，请重试。");
+                case "STEAM_RATE_LIMITED": return DesktopLocalization.Text("ui.auth.steam_login.error.rate_limited", "登录请求过于频繁，请稍后再试。");
+                default: return string.IsNullOrEmpty(fallback) ? DesktopLocalization.Text("ui.auth.steam_login.error.authentication_rejected", "Steam 登录被服务器拒绝。") : fallback;
             }
         }
 

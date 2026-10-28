@@ -59,7 +59,7 @@ namespace FishSocial.Desktop.Onboarding
         {
             if (dto == null || !IsOnboardingActive)
                 return;
-            var nickname = _pond != null ? _pond.Nickname : "新钓手";
+            var nickname = _pond != null ? _pond.Nickname : DesktopLocalization.Text("ui.onboarding.player.default_nickname", "新钓手");
             var playerId = _steamAuth != null ? _steamAuth.AuthenticatedPlayerId : string.Empty;
             _session.FillOverlayState(dto, nickname, playerId);
         }
@@ -83,7 +83,7 @@ namespace FishSocial.Desktop.Onboarding
             if (string.Equals(command, "open_main", System.StringComparison.Ordinal) ||
                 IsLockedMenuCommand(command))
             {
-                const string locked = "请先完成新手引导。";
+                 string locked = DesktopLocalization.Text("ui.onboarding.error.completion_required", "请先完成新手引导。");
                 ok = false;
                 detail = locked;
                 _session.SetError(locked);
@@ -104,7 +104,7 @@ namespace FishSocial.Desktop.Onboarding
             if (_grantRoutine != null)
             {
                 ok = false;
-                detail = "正在收入教学鱼获…";
+                detail = DesktopLocalization.Text("ui.onboarding.status.granting_catch", "正在收入教学鱼获…");
                 return true;
             }
 
@@ -234,12 +234,12 @@ namespace FishSocial.Desktop.Onboarding
         {
             if (_resetRoutine != null)
             {
-                _shellUi?.SetStatusMessage("正在重置新手引导，请稍候。");
+                _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.onboarding.status.reset_requested", "正在重置新手引导，请稍候。"));
                 return;
             }
             if (_api == null || !_api.CanUse)
             {
-                _shellUi?.SetStatusMessage("请先登录后再重置新手引导。");
+                _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.onboarding.error.sign_in_to_reset", "请先登录后再重置新手引导。"));
                 return;
             }
             _resetRoutine = StartCoroutine(ResetAndRestartRoutine());
@@ -247,7 +247,7 @@ namespace FishSocial.Desktop.Onboarding
 
         IEnumerator ResetAndRestartRoutine()
         {
-            _shellUi?.SetStatusMessage("正在重置新手引导…");
+            _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.onboarding.status.resetting", "正在重置新手引导…"));
             var ok = false;
             string error = null;
             yield return _api.ResetOnboarding((success, _, message) =>
@@ -259,20 +259,20 @@ namespace FishSocial.Desktop.Onboarding
             if (!ok)
             {
                 _resetRoutine = null;
-                _shellUi?.SetStatusMessage(error ?? "重置新手引导失败。请确认服务端已重启。");
+                _shellUi?.SetStatusMessage(error ?? DesktopLocalization.Text("ui.onboarding.error.reset_failed", "重置新手引导失败。请确认服务端已重启。"));
                 yield break;
             }
 
             AbortOnboardingLocal();
             EnterOnboarding();
-            _shellUi?.SetStatusMessage("新手引导已重置，正在进入教学关。");
+            _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.onboarding.status.reset_complete", "新手引导已重置，正在进入教学关。"));
             Debug.Log("[Onboarding] reset and restarted local tutorial.");
             _resetRoutine = null;
         }
 
         IEnumerator GrantCatchThenPrompt()
         {
-            _shellUi?.SetStatusMessage("正在收入教学鱼获…");
+            _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.onboarding.status.granting_catch", "正在收入教学鱼获…"));
             var ok = false;
             string error = null;
             yield return _api.CompleteOnboarding((success, _, message) =>
@@ -283,7 +283,7 @@ namespace FishSocial.Desktop.Onboarding
             _grantRoutine = null;
             if (!ok)
             {
-                _shellUi?.SetStatusMessage(error ?? "鱼获入包失败，将自动重试。");
+                _shellUi?.SetStatusMessage(error ?? DesktopLocalization.Text("ui.onboarding.error.catch_grant_retry", "鱼获入包失败，将自动重试。"));
                 PublishOverlay();
                 yield return new WaitForSeconds(2f);
                 _session.RestoreNeedsCatchGrant();
@@ -307,7 +307,7 @@ namespace FishSocial.Desktop.Onboarding
             var bootstrap = DesktopAppBootstrap.Instance;
             bootstrap?.CloseNativeOverlay();
             bootstrap?.RaiseMainWindow(ShellPanelId.WorldMap);
-            _shellUi?.SetStatusMessage("新手引导已完成，请选择开放鱼塘。");
+            _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.onboarding.status.completed_choose_pond", "新手引导已完成，请选择开放鱼塘。"));
             Debug.Log("[Onboarding] local tutorial completed; Overlay closed.");
         }
 

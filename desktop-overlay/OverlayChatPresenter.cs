@@ -90,7 +90,7 @@ namespace FishSocialOverlay
 
             if (chats == null || chats.Length == 0)
             {
-                _preview.Text = "暂无公屏消息";
+                _preview.Text = OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息");
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace FishSocialOverlay
 
             if (latest == null)
             {
-                _preview.Text = "暂无公屏消息";
+                _preview.Text = OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息");
                 return;
             }
 
@@ -126,7 +126,7 @@ namespace FishSocialOverlay
             if (chats != null)
                 foreach (var chat in chats)
                     if (chat != null && !string.IsNullOrWhiteSpace(chat.Text)) lines.Add(FormatLine(chat));
-            if (lines.Count == 0) lines.Add("暂无公屏消息");
+            if (lines.Count == 0) lines.Add(OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息"));
 
             // Keep the longest retained suffix when the server's 20-message window
             // advances. Existing TextBlocks survive appends and unchanged snapshots.
@@ -179,8 +179,13 @@ namespace FishSocialOverlay
 
         static string FormatLine(OverlayChatDto chat)
         {
-            var nick = string.IsNullOrWhiteSpace(chat.Nickname) ? "钓友" : chat.Nickname.Trim();
-            return nick + "：" + (chat.Text ?? string.Empty).Trim();
+            var announcement = string.Equals(chat.UserId, "system", StringComparison.Ordinal);
+            var nick = announcement
+                ? OverlayLocalization.Text("server.social.pond_chat.system_sender", chat.Nickname)
+                : string.IsNullOrWhiteSpace(chat.Nickname) ? OverlayLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友") : chat.Nickname.Trim();
+            var text = (chat.Text ?? string.Empty).Trim();
+            // Only server announcements carry application copy. Player chat remains verbatim.
+            return nick + "：" + (announcement ? OverlayLocalization.Message(text) : text);
         }
 
         public static bool ContainsText(OverlayChatDto[] chats, string text)

@@ -218,12 +218,12 @@ namespace FishSocial.Desktop
         void ShowContextMenu(IntPtr hWnd)
         {
             var menu = CreatePopupMenu();
-            AppendMenu(menu, 0, 1, "显示窗口");
-            AppendMenu(menu, 0, 2, "隐藏窗口");
-            AppendMenu(menu, 0, 4, "显示 Overlay");
-            AppendMenu(menu, 0, 5, "退出 Overlay");
+            AppendMenu(menu, 0, 1, DesktopLocalization.Text("ui.common.tray.button.show_window", "显示窗口"));
+            AppendMenu(menu, 0, 2, DesktopLocalization.Text("ui.common.tray.button.hide_window", "隐藏窗口"));
+            AppendMenu(menu, 0, 4, DesktopLocalization.Text("ui.common.tray.button.show_overlay", "显示 Overlay"));
+            AppendMenu(menu, 0, 5, DesktopLocalization.Text("ui.common.tray.button.exit_overlay", "退出 Overlay"));
             AppendMenu(menu, 0x0800 /* MF_SEPARATOR */, 0, null);
-            AppendMenu(menu, 0, 3, "退出游戏");
+            AppendMenu(menu, 0, 3, DesktopLocalization.Text("ui.common.tray.button.quit", "退出游戏"));
 
             GetCursorPos(out var pt);
             SetForegroundWindow(hWnd);

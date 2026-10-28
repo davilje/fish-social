@@ -10,7 +10,7 @@ namespace FishSocial.Desktop
     /// </summary>
     public static class SpotObservationController
     {
-        const string Nickname = "观察";
+        static readonly string Nickname = DesktopLocalization.Text("ui.common.observation.title.action", "观察");
 
         static string _pondId = string.Empty;
         static string _spotId = string.Empty;

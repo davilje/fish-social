@@ -157,19 +157,19 @@ namespace FishSocial.Desktop.Pet
         {
             switch (state)
             {
-                case PetVisualState.Sit: return "坐下";
-                case PetVisualState.Sleep: return "睡着了";
-                case PetVisualState.Groundbait: return "打窝";
-                case PetVisualState.Bait: return "挂饵";
-                case PetVisualState.Cast: return "抛竿";
-                case PetVisualState.Fishing: return "钓鱼";
-                case PetVisualState.Hooked: return "咬钩";
-                case PetVisualState.Reel: return "收杆";
-                case PetVisualState.EmptyReel: return "空杆收回";
-                case PetVisualState.Catching: return "钓到鱼";
-                case PetVisualState.Dragging: return "拖动";
-                case PetVisualState.Offline: return "离线";
-                default: return "待机";
+                case PetVisualState.Sit: return DesktopLocalization.Text("ui.home.pet_state.sitting", "坐下");
+                case PetVisualState.Sleep: return DesktopLocalization.Text("ui.home.pet_state.sleeping", "睡着了");
+                case PetVisualState.Groundbait: return DesktopLocalization.Text("ui.home.pet_state.groundbaiting", "打窝");
+                case PetVisualState.Bait: return DesktopLocalization.Text("ui.home.pet_state.baiting", "挂饵");
+                case PetVisualState.Cast: return DesktopLocalization.Text("ui.home.pet_state.casting", "抛竿");
+                case PetVisualState.Fishing: return DesktopLocalization.Text("ui.home.pet_state.fishing", "钓鱼");
+                case PetVisualState.Hooked: return DesktopLocalization.Text("ui.home.pet_state.bite", "咬钩");
+                case PetVisualState.Reel: return DesktopLocalization.Text("ui.home.pet_state.reeling", "收杆");
+                case PetVisualState.EmptyReel: return DesktopLocalization.Text("ui.home.pet_state.reeling_empty", "空杆收回");
+                case PetVisualState.Catching: return DesktopLocalization.Text("ui.home.pet_state.caught", "钓到鱼");
+                case PetVisualState.Dragging: return DesktopLocalization.Text("ui.home.pet_state.dragging", "拖动");
+                case PetVisualState.Offline: return DesktopLocalization.Text("ui.home.pet_state.offline", "离线");
+                default: return DesktopLocalization.Text("ui.home.pet_state.idle", "待机");
             }
         }
     }

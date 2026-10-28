@@ -115,7 +115,7 @@ namespace FishSocial.Desktop.Auth
             if (string.IsNullOrWhiteSpace(accessToken))
             {
                 Debug.LogWarning("[Pond] Socket connect rejected: access token is empty.");
-                Complete(false, "缺少 JWT，无法连接 Socket。", onCompleted);
+                Complete(false, DesktopLocalization.Text("ui.auth.realtime.error.jwt_required", "缺少 JWT，无法连接 Socket。"), onCompleted);
                 return;
             }
             if (IsConnected)
@@ -126,7 +126,7 @@ namespace FishSocial.Desktop.Auth
 
             _accessToken = accessToken;
             _reconnectRequested = true;
-            SetState(SocialSocketState.Connecting, "正在连接实时服务。");
+            SetState(SocialSocketState.Connecting, DesktopLocalization.Text("ui.fishing.realtime.status.connecting", "正在连接实时服务。"));
             _cancel?.Cancel();
             _cancel = new CancellationTokenSource();
             // Off the UnitySynchronizationContext: otherwise every ReceiveAsync
@@ -217,7 +217,7 @@ namespace FishSocial.Desktop.Auth
                     try { socket.Dispose(); } catch { }
                 });
             }
-            SetState(SocialSocketState.Disconnected, "实时服务已断开。");
+            SetState(SocialSocketState.Disconnected, DesktopLocalization.Text("ui.fishing.realtime.status.disconnected", "实时服务已断开。"));
         }
 
         public void Pump()
@@ -256,7 +256,7 @@ namespace FishSocial.Desktop.Auth
                 await ReadLoop(onCompleted, token);
                 if (_reconnectRequested && !token.IsCancellationRequested)
                 {
-                    Enqueue(() => SetState(SocialSocketState.Reconnecting, "实时服务正在重连。"));
+                    Enqueue(() => SetState(SocialSocketState.Reconnecting, DesktopLocalization.Text("ui.fishing.realtime.status.reconnecting", "实时服务正在重连。")));
                     await Task.Delay(1000, token);
                     await ConnectLoop(null, token);
                 }
@@ -270,13 +270,13 @@ namespace FishSocial.Desktop.Auth
                 Debug.LogWarning("[Pond] Socket.IO connection failed: " + error.Message);
                 Enqueue(() =>
                 {
-                    SetState(SocialSocketState.Failed, "实时服务连接失败。");
-                    ErrorReceived?.Invoke("实时服务连接失败：" + error.Message);
-                    onCompleted?.Invoke(false, "实时服务连接失败。");
+                    SetState(SocialSocketState.Failed, DesktopLocalization.Text("ui.fishing.realtime.error.connection_failed", "实时服务连接失败。"));
+                    ErrorReceived?.Invoke(DesktopLocalization.Format("ui.fishing.realtime.error.connection_failed_detail", (object)(error.Message)));
+                    onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.connection_failed", "实时服务连接失败。"));
                 });
                 if (_reconnectRequested && !token.IsCancellationRequested)
                 {
-                    Enqueue(() => SetState(SocialSocketState.Reconnecting, "实时服务正在重连。"));
+                    Enqueue(() => SetState(SocialSocketState.Reconnecting, DesktopLocalization.Text("ui.fishing.realtime.status.reconnecting", "实时服务正在重连。")));
                     await Task.Delay(1000, token);
                     await ConnectLoop(null, token);
                 }
@@ -345,14 +345,14 @@ namespace FishSocial.Desktop.Auth
         {
             if (packet.StartsWith("40", StringComparison.Ordinal))
             {
-                SetState(SocialSocketState.Connected, "实时服务已连接。");
+                SetState(SocialSocketState.Connected, DesktopLocalization.Text("ui.fishing.realtime.status.transport_connected", "实时服务已连接。"));
                 onCompleted?.Invoke(true, "Socket 连接成功。");
                 return;
             }
             if (packet.StartsWith("41", StringComparison.Ordinal))
             {
-                SetState(SocialSocketState.Disconnected, "Socket 被服务端断开。");
-                ErrorReceived?.Invoke("Socket 被服务端断开。");
+                SetState(SocialSocketState.Disconnected, DesktopLocalization.Text("ui.fishing.realtime.error.server_disconnected", "Socket 被服务端断开。"));
+                ErrorReceived?.Invoke(DesktopLocalization.Text("ui.fishing.realtime.error.server_disconnected", "Socket 被服务端断开。"));
                 return;
             }
             if (packet.StartsWith("42", StringComparison.Ordinal))
@@ -367,8 +367,8 @@ namespace FishSocial.Desktop.Auth
             }
             if (packet.StartsWith("44", StringComparison.Ordinal))
             {
-                ErrorReceived?.Invoke("Socket 连接被拒绝。");
-                CompletePending(false, "Socket 连接被拒绝。");
+                ErrorReceived?.Invoke(DesktopLocalization.Text("ui.fishing.realtime.error.connection_rejected", "Socket 连接被拒绝。"));
+                CompletePending(false, DesktopLocalization.Text("ui.fishing.realtime.error.connection_rejected", "Socket 连接被拒绝。"));
             }
         }
 
@@ -383,7 +383,7 @@ namespace FishSocial.Desktop.Auth
             catch (Exception error)
             {
                 Debug.LogWarning("[Pond] Socket event '" + eventName + "' failed: " + error);
-                ErrorReceived?.Invoke("Socket 事件处理失败：" + eventName);
+                ErrorReceived?.Invoke(DesktopLocalization.Format("ui.fishing.realtime.error.event_handler_failed", (object)(eventName)));
             }
         }
 
@@ -485,18 +485,16 @@ namespace FishSocial.Desktop.Auth
                 return result.error;
             if (result.autoReturned && result.gold > 0)
             {
-                return "自动回塘 +" + result.gold + " 金币" +
-                       (result.playerXp > 0 ? "，玩家XP +" + result.playerXp : "") +
-                       (result.pondXp > 0 ? "，塘XP +" + result.pondXp : "");
+                return DesktopLocalization.Format("ui.catch.realtime.message.auto_release_reward", (object)(result.gold), (object)((result.playerXp > 0 ? DesktopLocalization.Format("ui.catch.realtime.fragment.player_experience", (object)(result.playerXp)) : "")), (object)((result.pondXp > 0 ? DesktopLocalization.Format("ui.catch.realtime.fragment.pond_experience", (object)(result.pondXp)) : "")));
             }
-            return "操作成功。";
+            return DesktopLocalization.Text("ui.fishing.realtime.status.success", "操作成功。");
         }
 
         void SendEventWithAck(string name, string payload, Action<bool, string> onCompleted)
         {
             if (!IsConnected)
             {
-                Complete(false, "Socket 尚未连接。", onCompleted);
+                Complete(false, DesktopLocalization.Text("ui.fishing.realtime.error.not_connected", "Socket 尚未连接。"), onCompleted);
                 return;
             }
             var id = Interlocked.Increment(ref _nextAckId);
@@ -523,7 +521,7 @@ namespace FishSocial.Desktop.Auth
                         " event=" + name +
                         " atMs=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
                     EnqueuePriority(() => callback(false,
-                        "服务器未返回 " + name + " 操作结果，请检查服务端日志。"));
+                        DesktopLocalization.Format("ui.fishing.realtime.error.acknowledgement_missing", (object)(name))));
                 }
             });
         }
@@ -711,28 +709,28 @@ namespace FishSocial.Desktop.Auth
         public event Action<string> ErrorReceived;
 
         public void Connect(string accessToken, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void RegisterPlayer(string playerId) { }
         public void JoinPond(JoinPondPayload payload, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void LeaveSpot(string pondId, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void LeavePond(string pondId, string reason, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void TakeSpot(TakeSpotPayload payload, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void StartFishing(StartFishingPayload payload, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void StartGroundbait(GroundbaitStartPayload payload, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void StopFishing(string pondId, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void FishingAttention(Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void AcceptCatch(string catchId, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void SendChat(SendChatPayload payload, Action<bool, string> onCompleted)
-            => onCompleted?.Invoke(false, "Unity Socket.IO 客户端尚未接入。");
+            => onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.realtime.error.unity_socket_unavailable", "Unity Socket.IO 客户端尚未接入。"));
         public void Pump() { }
         public void Disconnect() { }
     }

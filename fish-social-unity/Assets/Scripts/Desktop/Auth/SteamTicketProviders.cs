@@ -13,7 +13,7 @@ namespace FishSocial.Desktop.Auth
 
         public void RequestTicket(string identity, Action<byte[]> onSuccess, Action<string> onFailure)
         {
-            onFailure?.Invoke("Steamworks 尚未安装或 Steam 未启动。");
+            onFailure?.Invoke(DesktopLocalization.Text("ui.auth.steam_ticket.error.sdk_or_client_unavailable", "Steamworks 尚未安装或 Steam 未启动。"));
         }
     }
 

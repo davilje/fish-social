@@ -7,6 +7,7 @@ namespace FishSocial.Desktop
     {
         public AudioPresentationDto audioPresentation;
         public string type = "state";
+        public string language = "zh-CN";
         public int version = 1;
         public long sequence;
         public FishingPresentationEnvelope presentation;

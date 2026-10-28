@@ -25,13 +25,13 @@ namespace FishSocialOverlay
         }
 
         public static readonly OverlayViewportPreset Standard =
-            new OverlayViewportPreset("960x560", "标准 960×560", 960, 560);
+            new OverlayViewportPreset("960x560", OverlayLocalization.Text("ui.fishing.overlay.window_size.standard", "标准 960×560"), 960, 560);
 
         public static readonly OverlayViewportPreset Medium =
-            new OverlayViewportPreset("800x400", "中 800×400", 800, 400);
+            new OverlayViewportPreset("800x400", OverlayLocalization.Text("ui.fishing.overlay.window_size.medium", "中 800×400"), 800, 400);
 
         public static readonly OverlayViewportPreset Small =
-            new OverlayViewportPreset("600x300", "小 600×300", 600, 300);
+            new OverlayViewportPreset("600x300", OverlayLocalization.Text("ui.fishing.overlay.window_size.small", "小 600×300"), 600, 300);
 
         public static readonly OverlayViewportPreset[] All =
         {

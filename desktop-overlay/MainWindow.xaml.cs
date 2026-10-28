@@ -242,6 +242,7 @@ namespace FishSocialOverlay
 
         public MainWindow()
         {
+            OverlayLocalization.EnsureInitialized();
             InitializeComponent();
             LocationChanged += (_, __) => _petClickGesture.WindowMoved();
             ContextMenuService.SetIsEnabled(this, false);
@@ -479,7 +480,7 @@ namespace FishSocialOverlay
 
             if (string.IsNullOrWhiteSpace(_pipeName))
             {
-                ShowTransientStatus("缺少主进程连接，请从游戏内进入鱼塘。");
+                ShowTransientStatus(OverlayLocalization.Text("ui.fishing.overlay.hint.main_session_required", "缺少主进程连接，请从游戏内进入鱼塘。"));
                 return;
             }
 
@@ -589,7 +590,7 @@ namespace FishSocialOverlay
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         _scene?.CancelOwnAudioPresentation();
-                        if (!_stopping) ShowTransientStatus("连接已断开，正在等待主界面重连。");
+                        if (!_stopping) ShowTransientStatus(OverlayLocalization.Text("ui.fishing.overlay.status.main_connection_lost", "连接已断开，正在等待主界面重连。"));
                     }));
                 }
                 finally
@@ -651,6 +652,7 @@ namespace FishSocialOverlay
             {
                 if (message.Sequence <= _latestSequence)
                     return;
+                OverlayLocalization.SetLanguage(message.Language);
                 var startedAt = System.Diagnostics.Stopwatch.GetTimestamp();
                 _latestSequence = message.Sequence;
 
@@ -810,7 +812,7 @@ namespace FishSocialOverlay
 
         void PoliceDebug_OnClick(object sender, RoutedEventArgs e)
         {
-            ShowTransientStatus("正在请求服务端出警…");
+            ShowTransientStatus(OverlayLocalization.Text("ui.fishing.overlay.status.requesting_patrol", "正在请求服务端出警…"));
             SetGameplayDebugStatus("正在请求服务端出警…");
             _pendingDebugCommandId = SendCommand("debug_police_raid");
         }
@@ -1420,17 +1422,17 @@ namespace FishSocialOverlay
                 FishingToggleButton.Visibility = Visibility.Visible;
                 if (reelPhase)
                 {
-                    FishingToggleButton.Content = "收杆";
+                    FishingToggleButton.Content = OverlayLocalization.Text("ui.fishing.overlay.button.stop_fishing", "收杆");
                     FishingToggleButton.IsEnabled = _canStopFishing && !busyStop;
                 }
                 else if (quotaBlocked)
                 {
-                    FishingToggleButton.Content = "今日已满";
+                    FishingToggleButton.Content = OverlayLocalization.Text("ui.fishing.overlay.button.daily_time_exhausted", "今日已满");
                     FishingToggleButton.IsEnabled = false;
                 }
                 else
                 {
-                    FishingToggleButton.Content = "开始钓鱼";
+                    FishingToggleButton.Content = OverlayLocalization.Text("ui.fishing.overlay.button.start_fishing", "开始钓鱼");
                     FishingToggleButton.IsEnabled = _canStartFishing && !busyStart && !busyLeave;
                 }
             }
@@ -1447,7 +1449,7 @@ namespace FishSocialOverlay
 
             if (showDock && idleSeatPhase)
             {
-                CatchLeaveButton.Content = "离席";
+                CatchLeaveButton.Content = OverlayLocalization.Text("ui.fishing.overlay.button.leave_seat", "离席");
                 CatchLeaveButton.IsEnabled = _canLeaveSpot && !busyLeave &&
                                             _pendingActionName != "start_fishing" &&
                                             _pendingActionName != "groundbait_start";
@@ -1469,7 +1471,7 @@ namespace FishSocialOverlay
 
             var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
             var stack = Math.Max(0, message.GroundbaitStack);
-            var label = "打窝" + stack + "/" + max;
+            var label = OverlayLocalization.Format("ui.fishing.overlay.button.groundbait_progress", (object)(stack), (object)(max));
             GroundbaitButton.Content = label;
             GroundbaitButton.FontSize = 11;
             GroundbaitButton.Padding = new Thickness(0);
@@ -1755,22 +1757,22 @@ namespace FishSocialOverlay
             var menu = new ContextMenu { StaysOpen = true };
             menu.Opened += OnProductMenuOpened;
             menu.Closed += OnProductMenuClosed;
-            menu.Items.Add(CreateProductMenuItem("打开主界面", OpenMain_OnClick));
-            menu.Items.Add(CreateProductMenuItem("世界地图", MenuMap_OnClick));
-            menu.Items.Add(CreateProductMenuItem("商店与装备", MenuShop_OnClick));
-            menu.Items.Add(CreateProductMenuItem("好友与聊天", MenuFriends_OnClick));
-            menu.Items.Add(CreateProductMenuItem("鱼获/背包", MenuCatch_OnClick));
-            menu.Items.Add(CreateProductMenuItem("图鉴", MenuGallery_OnClick));
-            menu.Items.Add(CreateProductMenuItem("个人中心", MenuProfile_OnClick));
-            menu.Items.Add(CreateProductMenuItem("动态墙", MenuFeed_OnClick));
-            menu.Items.Add(CreateProductMenuItem("排行榜", MenuLeaderboard_OnClick));
-            menu.Items.Add(CreateProductMenuItem("设置", MenuSettings_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.open_main_window", "打开主界面"), OpenMain_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.world_map", "世界地图"), MenuMap_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.equipment", "商店与装备"), MenuShop_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.social", "好友与聊天"), MenuFriends_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.catch_bag", "鱼获/背包"), MenuCatch_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.fish_codex", "图鉴"), MenuGallery_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.profile", "个人中心"), MenuProfile_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.feed", "动态墙"), MenuFeed_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.leaderboard", "排行榜"), MenuLeaderboard_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.settings", "设置"), MenuSettings_OnClick));
             menu.Items.Add(CreateProductMenuItem("导出 HUD JSON", ExportHudJson_OnClick));
             menu.Items.Add(new Separator());
             menu.Items.Add(BuildViewportSizeMenu());
             menu.Items.Add(new Separator());
-            menu.Items.Add(CreateProductMenuItem("隐藏到托盘", HideToTray_OnClick));
-            menu.Items.Add(CreateProductMenuItem("退出", QuitApp_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.hide_to_tray", "隐藏到托盘"), HideToTray_OnClick));
+            menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.exit", "退出"), QuitApp_OnClick));
             return menu;
         }
 
@@ -1788,7 +1790,7 @@ namespace FishSocialOverlay
 
         MenuItem BuildViewportSizeMenu()
         {
-            var root = new MenuItem { Header = "窗口大小" };
+            var root = new MenuItem { Header = OverlayLocalization.Text("ui.fishing.overlay.menu.window_size", "窗口大小") };
             CozyTheme.SetIcon(root, CozyTheme.IconPath("settings"));
             var presets = OverlayViewportPreset.All;
             _viewportMenuItems = new MenuItem[presets.Length];
@@ -2465,11 +2467,11 @@ namespace FishSocialOverlay
 
         void ShowStatusText(string text)
         {
-            text = text ?? string.Empty;
+            text = OverlayLocalization.Message(text ?? string.Empty);
             if (string.IsNullOrEmpty(_hudLoadWarning))
-                ErrorText.Text = text;
+                OverlayLocalization.SetText(ErrorText, text);
             else
-                ErrorText.Text = string.IsNullOrEmpty(text) ? _hudLoadWarning : _hudLoadWarning + "\n" + text;
+                OverlayLocalization.SetText(ErrorText, string.IsNullOrEmpty(text) ? _hudLoadWarning : _hudLoadWarning + "\n" + text);
         }
 
         string ApplyCommandAcks(IpcMessage message)
@@ -2499,7 +2501,7 @@ namespace FishSocialOverlay
                 _pendingChatCommandId = 0;
                 FinishChatAck(ack.Ok);
                 if (!ack.Ok)
-                    ShowTransientStatus(string.IsNullOrWhiteSpace(ack.Message) ? "发送失败，请重试。" : ack.Message);
+                    ShowTransientStatus(string.IsNullOrWhiteSpace(ack.Message) ? OverlayLocalization.Text("ui.fishing.overlay.error.chat_send_failed", "发送失败，请重试。") : ack.Message);
             }
             if (ack.CommandId == _pendingSeatCommandId)
             {
@@ -2613,7 +2615,7 @@ namespace FishSocialOverlay
             if (!_socketConnected)
             {
                 PlayInteractionAudio("ui_error");
-                ShowTransientStatus("实时服务未连接，请进入鱼塘后重试。");
+                ShowTransientStatus(OverlayLocalization.Text("ui.fishing.overlay.error.chat_disconnected", "实时服务未连接，请进入鱼塘后重试。"));
                 return;
             }
 
@@ -2726,11 +2728,11 @@ namespace FishSocialOverlay
                 return;
             }
 
-            OverlayPromptTitle.Text = message.OverlayPromptTitle ?? string.Empty;
-            OverlayPromptBody.Text = message.OverlayPromptBody ?? string.Empty;
-            OverlayPromptButton.Content = string.IsNullOrWhiteSpace(message.OverlayPromptButton)
+            OverlayLocalization.SetText(OverlayPromptTitle, OverlayLocalization.Message(message.OverlayPromptTitle ?? string.Empty));
+            OverlayLocalization.SetText(OverlayPromptBody, OverlayLocalization.Message(message.OverlayPromptBody ?? string.Empty));
+            OverlayLocalization.SetContent(OverlayPromptButton, OverlayLocalization.Message(string.IsNullOrWhiteSpace(message.OverlayPromptButton)
                 ? "知道了"
-                : message.OverlayPromptButton;
+                : message.OverlayPromptButton));
             _promptDeadlineMs = message.OverlayPromptDeadlineMs;
             if (!string.Equals(_promptKind, kind, StringComparison.Ordinal) ||
                 OverlayPromptChrome.Visibility != Visibility.Visible)
@@ -2759,7 +2761,7 @@ namespace FishSocialOverlay
 
             var leftMs = _promptDeadlineMs - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var leftSec = Math.Max(0, (int)Math.Ceiling(leftMs / 1000.0));
-            OverlayPromptCountdown.Text = leftSec + " 秒后自动关闭";
+            OverlayPromptCountdown.Text = OverlayLocalization.Format("ui.fishing.overlay.label.prompt_close_countdown", (object)(leftSec));
             if (leftSec <= 0 &&
                 !_promptAutoClosed &&
                 IsHookSettlePrompt(_promptKind))
@@ -2786,7 +2788,7 @@ namespace FishSocialOverlay
             if (!_awaitingChatAck)
                 return;
             FinishChatAck(false);
-            ShowTransientStatus("发送超时，请重试。");
+            ShowTransientStatus(OverlayLocalization.Text("ui.fishing.overlay.error.chat_ack_timeout", "发送超时，请重试。"));
         }
 
         void FinishChatAck(bool success)

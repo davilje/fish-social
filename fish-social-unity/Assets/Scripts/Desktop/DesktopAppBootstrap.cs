@@ -95,6 +95,8 @@ namespace FishSocial.Desktop
             }
 
             Instance = this;
+            DesktopLocalization.EnsureInitialized();
+            DesktopLocalization.Changed += OnLanguageChanged;
             CozyMotion.ReducedChanged += OnReducedMotionChanged;
             DontDestroyOnLoad(gameObject);
             Application.wantsToQuit += OnWantsToQuit;
@@ -422,7 +424,7 @@ namespace FishSocial.Desktop
                     dto.observation = new NativeOverlayChatDto
                     {
                         messageId = "gb-tip-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                        nickname = "打窝",
+                        nickname = DesktopLocalization.Text("ui.common.overlay.button.groundbait", "打窝"),
                         text = _pendingGroundbaitBubble,
                         sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                     };
@@ -471,7 +473,7 @@ namespace FishSocial.Desktop
                 _onboarding.IsOnboardingActive &&
                 id != ShellPanelId.Settings)
             {
-                _shellUi?.SetStatusMessage("请先完成新手引导。");
+                _shellUi?.SetStatusMessage(DesktopLocalization.Text("ui.common.onboarding.error.completion_required", "请先完成新手引导。"));
                 PublishNativeOverlayState();
                 return;
             }
@@ -703,6 +705,7 @@ namespace FishSocial.Desktop
                 _nativeOverlay.LifecycleState == NativeOverlayLifecycleState.Running);
             dto.presentation = _fishingPresentation.Envelope(dto.ownUserId, dto.fishingPhase, dto.ownSpotId);
             dto.fishingEffectsQuality = DesktopFishingEffectsSettingsView.Quality;
+            dto.language = DesktopLocalization.Language;
             foreach (var actor in dto.users)
                 if (actor != null) actor.presentation = _fishingPresentation.Envelope(
                     actor.userId, actor.fishingPhase, actor.spotId);
@@ -785,7 +788,7 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
             if (raid == null)
                 return;
-            var title = raid.status == "warning" ? "巡警来了" : "巡警事件";
+            var title = raid.status == "warning" ? DesktopLocalization.Text("ui.common.police.title.incoming", "巡警来了") : DesktopLocalization.Text("ui.common.police.title.event", "巡警事件");
             var body = !string.IsNullOrEmpty(raid.message)
                 ? raid.message
                 : (!string.IsNullOrEmpty(raid.text) ? raid.text : PoliceRaidDto.WarningText);
@@ -800,7 +803,7 @@ namespace FishSocial.Desktop
         void OnPondError(string message)
         {
             DesktopAudioService.Play("ui_error");
-            _nativeOverlayError = message ?? "鱼塘操作失败。";
+            _nativeOverlayError = message ?? DesktopLocalization.Text("ui.common.pond.error.operation_failed", "鱼塘操作失败。");
             if (!string.IsNullOrEmpty(message) && message.IndexOf("金币不足") >= 0)
                 _shellUi?.SetStatusMessage(message);
             PublishNativeOverlayState();
@@ -932,7 +935,7 @@ namespace FishSocial.Desktop
             var api = _shellUi != null ? _shellUi.AuthenticatedApi : null;
             if (api == null || !api.CanUse)
             {
-                _nativeOverlayError = "需先登录后再一键出警。";
+                _nativeOverlayError = DesktopLocalization.Text("ui.common.police.error.login_required", "需先登录后再一键出警。");
                 CompleteOverlayAck(commandId, "debug_police_raid", false, _nativeOverlayError);
                 return;
             }
@@ -1208,17 +1211,17 @@ namespace FishSocial.Desktop
 
         IEnumerator TriggerPoliceRaidRoutine(IAuthenticatedApiClient api, long commandId)
         {
-            _nativeOverlayError = "正在请求服务端出警…";
+            _nativeOverlayError = DesktopLocalization.Text("ui.common.police.status.requesting", "正在请求服务端出警…");
             PublishNativeOverlayState();
             var succeeded = false;
             yield return api.TriggerDebugPoliceRaid((ok, message) =>
             {
                 succeeded = ok;
-                _nativeOverlayError = ok ? string.Empty : (message ?? "出警失败。");
+                _nativeOverlayError = ok ? string.Empty : (message ?? DesktopLocalization.Text("ui.common.police.error.dispatch_failed", "出警失败。"));
             });
             _policeRaidRoutine = null;
             CompleteOverlayAck(commandId, "debug_police_raid", succeeded,
-                succeeded ? "已请求服务端出警" : _nativeOverlayError);
+                succeeded ? DesktopLocalization.Text("ui.common.police.status.dispatch_requested", "已请求服务端出警") : _nativeOverlayError);
             PublishNativeOverlayState();
         }
 
@@ -1230,7 +1233,7 @@ namespace FishSocial.Desktop
             var commandName = command != null ? command.command : string.Empty;
             if (_pondSession == null)
             {
-                _nativeOverlayError = "鱼塘会话尚未初始化。";
+                _nativeOverlayError = DesktopLocalization.Text("ui.common.pond.error.session_missing", "鱼塘会话尚未初始化。");
                 CompleteOverlayAck(commandId, commandName, false, _nativeOverlayError);
                 PublishNativeOverlayState();
                 return;
@@ -1240,7 +1243,7 @@ namespace FishSocial.Desktop
             PublishNativeOverlayState();
             operation((ok, message) =>
             {
-                _nativeOverlayError = ok ? string.Empty : (message ?? "操作失败。");
+                _nativeOverlayError = ok ? string.Empty : (message ?? DesktopLocalization.Text("ui.common.overlay.error.operation_failed", "操作失败。"));
                 CompleteOverlayAck(commandId, commandName, ok, ok ? string.Empty : _nativeOverlayError);
                 PublishNativeOverlayState();
             });
@@ -1250,7 +1253,7 @@ namespace FishSocial.Desktop
         {
             if (_pondSession == null)
             {
-                _nativeOverlayError = "鱼塘会话尚未初始化。";
+                _nativeOverlayError = DesktopLocalization.Text("ui.common.pond.error.session_missing", "鱼塘会话尚未初始化。");
                 CompleteOverlayAck(commandId, "groundbait_start", false, _nativeOverlayError);
                 PublishNativeOverlayState();
                 return;
@@ -1258,7 +1261,7 @@ namespace FishSocial.Desktop
             var id = ResolveGroundbaitId(preferredId);
             if (string.IsNullOrEmpty(id))
             {
-                _nativeOverlayError = "尚未解锁任何窝料（需钓鱼等级 3）";
+                _nativeOverlayError = DesktopLocalization.Text("ui.common.groundbait.error.level_required", "尚未解锁任何窝料（需钓鱼等级 3）");
                 CompleteOverlayAck(commandId, "groundbait_start", false, _nativeOverlayError);
                 PublishNativeOverlayState();
                 return;
@@ -1268,8 +1271,8 @@ namespace FishSocial.Desktop
             _pondSession.StartGroundbait(id, (ok, message) =>
             {
                 _nativeOverlayError = ok
-                    ? "打窝成功，希望鱼儿能快快长大"
-                    : (message ?? "打窝失败。");
+                    ? DesktopLocalization.Text("ui.common.groundbait.message.success", "打窝成功，希望鱼儿能快快长大")
+                    : (message ?? DesktopLocalization.Text("ui.common.groundbait.error.failed", "打窝失败。"));
                 // Gold / cap errors surface as Overlay bubble via observation-style tip
                 if (!ok && !string.IsNullOrEmpty(message) &&
                     (message.Contains("金币") || message.Contains("上限")))
@@ -1307,18 +1310,18 @@ namespace FishSocial.Desktop
             if (_overlayExitPending) return;
             if (_pondSession == null)
             {
-                _nativeOverlayError = "鱼塘会话尚未初始化。";
+                _nativeOverlayError = DesktopLocalization.Text("ui.common.pond.error.session_missing", "鱼塘会话尚未初始化。");
                 PublishNativeOverlayState();
                 return;
             }
             _overlayExitPending = true;
             _shellUi?.SetOverlayReturnPending(true);
             _ownFishing?.ClearRound();
-            _nativeOverlayError = "正在退出鱼塘…";
+            _nativeOverlayError = DesktopLocalization.Text("ui.common.pond.status.leaving", "正在退出鱼塘…");
             PublishNativeOverlayState();
             _pondSession.ExitPond((ok, message) =>
             {
-                _nativeOverlayError = ok ? string.Empty : (message ?? "退出鱼塘失败。");
+                _nativeOverlayError = ok ? string.Empty : (message ?? DesktopLocalization.Text("ui.common.pond.error.leave_failed", "退出鱼塘失败。"));
                 if (ok)
                 {
                     _ownFishing?.ClearRound();
@@ -1331,7 +1334,7 @@ namespace FishSocial.Desktop
                         {
                             _overlayExitPending = false;
                             Debug.LogError("[NativeOverlay] Return interrupted: " + error);
-                            _nativeOverlayError = "悬浮窗未能关闭，请重试退出鱼塘。";
+                            _nativeOverlayError = DesktopLocalization.Text("ui.common.overlay.error.close_failed", "悬浮窗未能关闭，请重试退出鱼塘。");
                             // Recover access to the desktop UI, but do not open
                             // the receipt over an overlay that failed to exit.
                             RaiseMainWindow(ShellPanelId.Home);
@@ -1361,8 +1364,11 @@ namespace FishSocial.Desktop
 
         void OnReducedMotionChanged(bool _) { PublishNativeOverlayState(true); }
 
+        void OnLanguageChanged() { PublishNativeOverlayState(true); }
+
         void OnDestroy()
         {
+            DesktopLocalization.Changed -= OnLanguageChanged;
             CozyMotion.ReducedChanged -= OnReducedMotionChanged;
             Debug.Log("[Shutdown] DesktopAppBootstrap.OnDestroy begin.");
             if (_steamAuth != null)

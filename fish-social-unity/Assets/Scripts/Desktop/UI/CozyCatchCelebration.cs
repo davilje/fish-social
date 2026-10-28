@@ -47,7 +47,7 @@ namespace FishSocial.Desktop
                 while (seenOrder.Count > 64) seen.Remove(seenOrder.Dequeue());
             }
             while (queue.Count >= QueueLimit) queue.Dequeue();
-            queue.Enqueue(new Receipt { Id = catchId, Name = fishName ?? "鱼获", Fish = fishSprite,
+            queue.Enqueue(new Receipt { Id = catchId, Name = fishName ?? DesktopLocalization.Text("ui.catch.celebration.fallback.fish_name", "鱼获"), Fish = fishSprite,
                 IsNew = isCodexNew, Detail = detailText ?? string.Empty, Size = sizeM });
             StartNext(); return true;
         }
@@ -232,9 +232,9 @@ namespace FishSocial.Desktop
             title = Label("Title", panel, 0, 268, 500, 54, 36); detail = Label("Size", panel, 0, 318, 500, 40, 24); detail.color = new Color(117f / 255, 71f / 255, 46f / 255, .68f);
             stamp = Shape("NewStamp", panel, 418, -30, 108, 108, CozyCssGraphic.Shape.Stamp, new Color(205f / 255, 64f / 255, 46f / 255, .9f)); stamp.GetComponent<CozyCssGraphic>().border = 5;
             stamp.GetComponent<CozyCssGraphic>().material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply");
-            var stampText = Label("Caption", stamp, 0, 0, 108, 108, 34); stampText.text = "新"; stampText.material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply"); stampText.color = new Color(205f / 255, 64f / 255, 46f / 255, .92f);
+            var stampText = Label("Caption", stamp, 0, 0, 108, 108, 34); stampText.text = DesktopLocalization.Text("ui.catch.celebration.badge.new", "新"); stampText.material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply"); stampText.color = new Color(205f / 255, 64f / 255, 46f / 255, .92f);
             fish = Picture("Fish", stage, 686, 520, 300, 200, null); fishImage = fish.GetComponent<Image>();
-            var hint = Label("Skip", stage, 586, 879, 500, 28, 18); hint.text = "点击任意位置跳过"; hint.color = new Color(1, 246f / 255, 230f / 255, .8f);
+            var hint = Label("Skip", stage, 586, 879, 500, 28, 18); hint.text = DesktopLocalization.Text("ui.catch.celebration.hint.skip", "点击任意位置跳过"); hint.color = new Color(1, 246f / 255, 230f / 255, .8f);
             for (var i = 0; i < 14; i++) drops.Add(Shape("Drop" + i, stage, 829, 612, 14, 14, CozyCssGraphic.Shape.Circle, new Color(191f / 255, 230f / 255, 251f / 255)));
             var coinSprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/icons/coin");
             for (var i = 0; i < 8; i++) coins.Add(Picture("Coin" + i, stage, 819, 363, 34, 34, coinSprite));

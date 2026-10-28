@@ -9,6 +9,7 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\fish-social-unity\Assets\Scripts\Desktop\Localization\LocalizationCatalog.cs" Link="Localization\LocalizationCatalog.cs" />
     <Compile Remove="tests\**\*.cs" />
     <None Include="OverlayResources\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

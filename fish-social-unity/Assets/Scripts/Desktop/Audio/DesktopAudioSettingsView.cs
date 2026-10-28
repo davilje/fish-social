@@ -16,8 +16,8 @@ namespace FishSocial.Desktop
             if (parent == null || parent.Find("AudioSettings") != null) return;
             var root = JournalV2Nodes.Rect(parent, "AudioSettings", 18, y, width, 180);
             var view = root.gameObject.AddComponent<DesktopAudioSettingsView>();
-            view.music = view.Row(root, "MusicVolume", "背景音乐", 0, width, out view.musicLabel);
-            view.effects = view.Row(root, "EffectsVolume", "音效与猫叫", 64, width, out view.effectsLabel);
+            view.music = view.Row(root, "MusicVolume", DesktopLocalization.Text("ui.settings.audio.label.music_volume", "背景音乐"), 0, width, out view.musicLabel);
+            view.effects = view.Row(root, "EffectsVolume", DesktopLocalization.Text("ui.settings.audio.label.sound_volume", "音效与猫叫"), 64, width, out view.effectsLabel);
             var toggleRoot = JournalV2Nodes.Rect(root, "BackgroundBite", 4, 132, width - 8, 40);
             var hit = toggleRoot.gameObject.AddComponent<Image>(); hit.color = Color.clear;
             view.backgroundBite = toggleRoot.gameObject.AddComponent<Toggle>();
@@ -26,7 +26,7 @@ namespace FishSocial.Desktop
             var check = JournalV2Nodes.Text(toggleRoot, "Check", "✓", 0, 4, 28, 32, 23, TextAnchor.MiddleCenter);
             check.color = JournalV2Theme.Green;
             view.backgroundBite.targetGraphic = box; view.backgroundBite.graphic = check;
-            JournalV2Nodes.Text(toggleRoot, "Label", "后台咬钩提示", 42, 0, width - 50, 40, 20);
+            JournalV2Nodes.Text(toggleRoot, "Label", DesktopLocalization.Text("ui.settings.audio.toggle.background_bite", "后台咬钩提示"), 42, 0, width - 50, 40, 20);
             view.backgroundBite.onValueChanged.AddListener(DesktopAudioService.SetBackgroundBite);
             view.Refresh();
             view.music.onValueChanged.AddListener(value => {

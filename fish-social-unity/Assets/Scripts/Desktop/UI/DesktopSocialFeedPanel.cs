@@ -78,7 +78,7 @@ namespace FishSocial.Desktop
             {
                 share.onClick.RemoveAllListeners();
                 share.onClick.AddListener(OpenComposer);
-                DesktopModalUi.SetButtonLabel(share, "分享鱼获");
+                DesktopModalUi.SetButtonLabel(share, DesktopLocalization.Text("ui.social.feed.button.share_catch", "分享鱼获"));
             }
             EnsureFeedSlots();
             var slot = CurrentFeed;
@@ -150,8 +150,8 @@ namespace FishSocial.Desktop
                 if (canvas == null) return;
                 _composer = DesktopSocialComposeModal.Create(canvas.rootCanvas.transform);
             }
-            if (_composer == null) { SetStatus("发布界面资源缺失，请重新导入手账 UI。"); return; }
-            _composer.Open(_api, _pond != null ? _pond.Nickname : "钓友", () =>
+            if (_composer == null) { SetStatus(DesktopLocalization.Text("ui.social.feed.error.composer_unavailable", "发布界面资源缺失，请重新导入手账 UI。")); return; }
+            _composer.Open(_api, _pond != null ? _pond.Nickname : DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"), () =>
             {
                 EnsureFeedSlots();
                 if (_mineFeed != null)
@@ -160,7 +160,7 @@ namespace FishSocial.Desktop
                     ClearRoot(_mineFeed.root);
                 }
                 SelectFeed(false, true);
-                SetStatus("鱼获故事已发布，正在刷新我的动态…");
+                SetStatus(DesktopLocalization.Text("ui.social.feed.status.post_published", "鱼获故事已发布，正在刷新我的动态…"));
             }, DesktopProfileCache.Latest?.avatarUrl);
         }
 
@@ -297,9 +297,9 @@ namespace FishSocial.Desktop
 
         void RestyleTabs()
         {
-            CozyItemArt.Text(transform, "JournalFeedHeading", _mineOnly ? "我的动态" : _friendsOnly ? "好友动态" : "公开动态");
+            CozyItemArt.Text(transform, "JournalFeedHeading", _mineOnly ? DesktopLocalization.Text("ui.social.feed.tab.mine", "我的动态") : _friendsOnly ? DesktopLocalization.Text("ui.social.feed.tab.friends", "好友动态") : DesktopLocalization.Text("ui.social.feed.tab.public", "公开动态"));
             var tabs = new[] { _publicTab, _friendsTab, _myTab };
-            var names = new[] { "公开动态", "好友动态", "我的动态" };
+            var names = new[] { DesktopLocalization.Text("ui.social.feed.tab.public", "公开动态"), DesktopLocalization.Text("ui.social.feed.tab.friends", "好友动态"), DesktopLocalization.Text("ui.social.feed.tab.mine", "我的动态") };
             var icons = new[] { "social", "user", "fish" };
             for (var index = 0; index < tabs.Length; index++)
             {
@@ -368,10 +368,10 @@ namespace FishSocial.Desktop
             var root = slot != null ? slot.root : _content;
             var hasContent = root != null && root.childCount > 0;
             if (!append && !hasContent)
-                SetStatus("正在加载动态…");
+                SetStatus(DesktopLocalization.Text("ui.social.feed.status.loading", "正在加载动态…"));
             if (_api == null || !_api.CanUse)
             {
-                SetStatus("当前没有有效的 Steam 会话。");
+                SetStatus(DesktopLocalization.Text("ui.social.feed.error.session_required", "当前没有有效的 Steam 会话。"));
                 _loadRoutine = null;
                 _loadingMore = false;
                 yield break;
@@ -406,7 +406,7 @@ namespace FishSocial.Desktop
             if (!ok)
             {
                 GetComponent<CozyJournalPageMotion>()?.Finish();
-                SetStatus(error ?? "动态加载失败，请稍后重新打开页面。");
+                SetStatus(error ?? DesktopLocalization.Text("ui.social.feed.error.load_failed", "动态加载失败，请稍后重新打开页面。"));
                 CreateRetry();
                 _loadRoutine = null;
                 _loadingMore = false;
@@ -418,7 +418,7 @@ namespace FishSocial.Desktop
                 {
                     ClearRoot(root);
                     GetComponent<CozyJournalPageMotion>()?.Finish();
-                    SetStatus(mineOnly ? "还没有分享鱼获。" : friendsOnly ? "暂无好友动态。" : "暂无公开动态。");
+                    SetStatus(mineOnly ? DesktopLocalization.Text("ui.social.feed.empty.mine", "还没有分享鱼获。") : friendsOnly ? DesktopLocalization.Text("ui.social.feed.empty.friends", "暂无好友动态。") : DesktopLocalization.Text("ui.social.feed.empty.public", "暂无公开动态。"));
                 }
                 RememberFeed(slot, true, false, offset);
                 _loadRoutine = null;
@@ -485,7 +485,7 @@ namespace FishSocial.Desktop
             }
             binder.Bind(post, _api);
             if (_commentsHost != null) binder.ConfigureCommentsHost(_commentsHost, SelectCommentCard);
-            binder.CommentCountChanged += count => { if (_selectedComments == binder) CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",count+" 条评论"); };
+            binder.CommentCountChanged += count => { if (_selectedComments == binder) CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",DesktopLocalization.Format("ui.social.feed.label.comment_count", (object)(count))); };
             if (_commentsHost != null && _selectedComments == null) binder.SelectComments();
         }
 
@@ -502,17 +502,17 @@ namespace FishSocial.Desktop
             var empty = transform.Find("DesignFeedInfo/CommentEmpty"); if(empty != null) empty.gameObject.SetActive(false);
             if (_commentsTitle != null)
                 _commentsTitle.text = transform.Find("JournalDetailParity") != null
-                    ? (post.fish != null ? DesktopFishCatalog.SpeciesName(post.fish.speciesId) : "鱼获故事")
-                    : (post.nickname ?? "钓友") + "的动态\n评论与留言";
+                    ? (post.fish != null ? DesktopFishCatalog.SpeciesName(post.fish.speciesId) : DesktopLocalization.Text("ui.social.feed.title.selected_story", "鱼获故事"))
+                    : DesktopLocalization.Format("ui.social.feed.hint.comment_on_story", (object)((post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"))));
             if (transform.Find("JournalDetailParity") != null)
             {
-                CozyItemArt.Text(transform, "DesignFeedInfo/Heading", "给 " + (post.nickname ?? "钓友") + " 的留言");
+                CozyItemArt.Text(transform, "DesignFeedInfo/Heading", DesktopLocalization.Format("ui.social.feed.placeholder.comment_on_author", (object)((post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))));
                 CozyItemArt.Set(transform, "DesignFeedInfo/JournalSummaryArt", post.fish != null ? CozyItemArt.Fish(post.fish.speciesId) : null);
             }
             var pondName = post.fish != null ? DesktopGameData.GetPond(post.fish.pondId) : null;
             var pondLabel = pondName != null && !string.IsNullOrEmpty(pondName.name) ? pondName.name : "";
             CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount",
-                (string.IsNullOrEmpty(pondLabel) ? "" : pondLabel + " · ") + selectedCard.CommentCount + " 条评论");
+                DesktopLocalization.Format("ui.social.feed.label.author_comment_count", (object)((string.IsNullOrEmpty(pondLabel) ? "" : pondLabel + " · ")), (object)(selectedCard.CommentCount)));
             StyleCommentColumn();
             RevealCommentAside();
             RaiseSelectedTape(selectedCard);
@@ -570,7 +570,7 @@ namespace FishSocial.Desktop
             EnsureUi();
             card.ConfigureCommentsHost(_commentsHost,SelectCommentCard);
             card.PresentComments(comments,totalCount);
-            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",card.CommentCount+" 条评论");
+            CozyItemArt.Text(transform,"DesignFeedInfo/CommentCount",DesktopLocalization.Format("ui.social.feed.label.comment_count", (object)(card.CommentCount)));
         }
 
         void OnPostLiked(PostLikedDto message)
@@ -637,7 +637,7 @@ namespace FishSocial.Desktop
                 var empty = transform.Find("DesignFeedInfo/CommentEmpty");
                 if (empty != null) empty.gameObject.SetActive(true);
                 CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount", "");
-                if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
+                if (_commentsTitle != null) _commentsTitle.text = DesktopLocalization.Text("ui.social.feed.hint.select_story", "选择一条动态\n在这里查看和发送评论");
             }
         }
 
@@ -696,7 +696,7 @@ namespace FishSocial.Desktop
                 var empty = transform.Find("DesignFeedInfo/CommentEmpty");
                 if (empty != null) empty.gameObject.SetActive(true);
                 CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount", "");
-                if (_commentsTitle != null) _commentsTitle.text = "选择一条动态\n在这里查看和发送评论";
+                if (_commentsTitle != null) _commentsTitle.text = DesktopLocalization.Text("ui.social.feed.hint.select_story", "选择一条动态\n在这里查看和发送评论");
             }
             if (root == null)
                 return;
@@ -743,7 +743,7 @@ namespace FishSocial.Desktop
 
         static string FormatTime(long timestamp)
         {
-            return timestamp <= 0 ? "刚刚" :
+            return timestamp <= 0 ? DesktopLocalization.Text("ui.social.feed.label.just_now", "刚刚") :
                 DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime.ToString("yyyy-MM-dd HH:mm");
         }
 

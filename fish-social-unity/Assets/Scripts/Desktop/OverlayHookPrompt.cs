@@ -10,7 +10,7 @@ namespace FishSocial.Desktop.Auth
         public string Kind = string.Empty;
         public string Title = string.Empty;
         public string Body = string.Empty;
-        public string Button = "知道了";
+        public string Button = DesktopLocalization.Text("ui.fishing.overlay.button.dismiss_prompt", "知道了");
         public long DeadlineMs;
 
         public bool IsVisible(long nowMs)
@@ -32,21 +32,21 @@ namespace FishSocial.Desktop.Auth
 
         public static OverlayHookPromptState Keep(float sizeM, long nowMs)
         {
-            return Create(KindKeep, "钓到了！", SizeWeightLines(sizeM) + "\n已放入背包", nowMs);
+            return Create(KindKeep, DesktopLocalization.Text("ui.fishing.hook_prompt.title.catch_kept", "钓到了！"), DesktopLocalization.Format("ui.fishing.hook_prompt.message.catch_kept", (object)(SizeWeightLines(sizeM))), nowMs);
         }
 
         public static OverlayHookPromptState Return(float sizeM, int gold, long nowMs)
         {
             return Create(
                 KindReturn,
-                "钓到了！",
-                SizeWeightLines(sizeM) + "\n回鱼价格：" + Math.Max(0, gold) + " 金币",
+                DesktopLocalization.Text("ui.fishing.hook_prompt.title.catch_kept", "钓到了！"),
+                DesktopLocalization.Format("ui.fishing.hook_prompt.message.catch_released", (object)(SizeWeightLines(sizeM)), (object)(Math.Max(0, gold))),
                 nowMs);
         }
 
         public static OverlayHookPromptState Escape(long nowMs)
         {
-            return Create(KindEscape, "脱钩了！", "鱼儿挣脱了鱼钩，溜走了", nowMs);
+            return Create(KindEscape, DesktopLocalization.Text("ui.fishing.hook_prompt.title.catch_escaped", "脱钩了！"), DesktopLocalization.Text("ui.fishing.hook_prompt.message.catch_escaped", "鱼儿挣脱了鱼钩，溜走了"), nowMs);
         }
 
         static OverlayHookPromptState Create(string kind, string title, string body, long nowMs)
@@ -56,7 +56,7 @@ namespace FishSocial.Desktop.Auth
                 Kind = kind,
                 Title = title,
                 Body = body,
-                Button = "知道了",
+                Button = DesktopLocalization.Text("ui.fishing.overlay.button.dismiss_prompt", "知道了"),
                 DeadlineMs = nowMs + AutoCloseMs,
             };
         }
@@ -64,7 +64,7 @@ namespace FishSocial.Desktop.Auth
         static string SizeWeightLines(float sizeM)
         {
             var weight = DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(sizeM));
-            return "尺寸：" + sizeM.ToString("0.00") + "m\n体重：" + weight;
+            return DesktopLocalization.Format("ui.fishing.hook_prompt.label.size_and_weight", (object)(sizeM.ToString("0.00")), (object)(weight));
         }
     }
 }

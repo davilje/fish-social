@@ -9,13 +9,13 @@ namespace FishSocial.Desktop
     public sealed class DesktopSettingsModalView : MonoBehaviour
     {
         public static readonly string[] TabNames = { "Window", "Notify", "Server", "Other" };
-        public static readonly string[] TabTitles = { "窗口显示", "通知偏好", "服务器连接", "托盘与其他" };
+        public static readonly string[] TabTitles = { DesktopLocalization.Text("ui.settings.navigation.label.window", "窗口显示"), DesktopLocalization.Text("ui.settings.navigation.label.notifications", "通知偏好"), "服务器连接", DesktopLocalization.Text("ui.settings.navigation.label.other", "托盘与其他") };
         public static readonly string[][] TabNodes =
         {
             new[] { "窗口模式", "1280×720", "1600×900", "1920×1080", "2560×1440", "DesignDisplayHeading", "无边框", "全屏" },
             new[] { "通知", "启用通知", "免打扰", "鱼咬钩通知", "好友邀请通知", "连接错误通知", "模拟连接错误" },
             new[] { "服务器", "当前服务器", "服务器地址输入", "保存服务器地址", "测试服务器连接", "服务器连接状态" },
-            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效", "AudioSettings", "FishingEffectsSettings" },
+            new[] { "托盘", "关闭窗口时隐藏到托盘", "立即隐藏到托盘", "重置新手引导", "退出游戏", "减少动效", "AudioSettings", "FishingEffectsSettings", "LanguageSettings" },
         };
 
         NotificationSettings _draft;
@@ -112,6 +112,7 @@ namespace FishSocial.Desktop
             var audioParent = transform.Find("SettingsViewport/SettingsContent");
             if (audioParent != null) DesktopAudioSettingsView.Ensure(audioParent, 374);
             DesktopFishingEffectsSettingsView.Ensure(audioParent);
+            DesktopLanguageSettingsView.Ensure(audioParent);
             ShowTab(_tab);
         }
 
@@ -140,7 +141,7 @@ namespace FishSocial.Desktop
             if (label == null)
                 label = copy.GetComponentInChildren<Text>();
             if (label != null)
-                label.text = "减少动效";
+                label.text = DesktopLocalization.Text("ui.settings.motion.toggle.reduce", "减少动效");
             var toggle = copy.GetComponent<Toggle>();
             if (toggle == null)
                 toggle = copy.GetComponentInChildren<Toggle>();
@@ -203,10 +204,10 @@ namespace FishSocial.Desktop
             var note = DesktopModalUi.FindDescendantComponent<Text>(transform, "DesignSettingsNote");
             if (note == null || window == null)
                 return;
-            var current = window.Mode == WindowDisplayMode.Fullscreen ? "全屏"
-                : window.Mode == WindowDisplayMode.Borderless ? "无边框"
+            var current = window.Mode == WindowDisplayMode.Fullscreen ? DesktopLocalization.Text("ui.settings.display.option.fullscreen", "全屏")
+                : window.Mode == WindowDisplayMode.Borderless ? DesktopLocalization.Text("ui.settings.display.option.borderless", "无边框")
                 : window.Width + "×" + window.Height;
-            note.text = "当前 " + current + "\n切换后立即保存";
+            note.text = DesktopLocalization.Format("ui.settings.display.status.current", (object)(current));
         }
 
         Coroutine _tabMotion;
@@ -242,7 +243,7 @@ namespace FishSocial.Desktop
                     ?.SetSelected(i == _tab);
             if (_tabHeading != null)
                 _tabHeading.text = transform.Find("JournalDetailParity") != null
-                    ? new[] { "窗口尺寸", "提醒开关", "服务器地址", "系统托盘" }[_tab] : TabTitles[_tab];
+                    ? new[] { DesktopLocalization.Text("ui.settings.page_heading.window_size", "窗口尺寸"), DesktopLocalization.Text("ui.settings.page_heading.notifications", "提醒开关"), "服务器地址", DesktopLocalization.Text("ui.settings.page_heading.tray", "系统托盘") }[_tab] : TabTitles[_tab];
             var hint = DesktopModalUi.FindDescendant(transform, "DesignSettingsHint");
             if (hint != null)
                 hint.gameObject.SetActive(_tab == 0);
@@ -258,7 +259,7 @@ namespace FishSocial.Desktop
                 }
                 var content = transform.Find("SettingsViewport/SettingsContent") as RectTransform;
                 if (content != null) content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-                    _tab == 3 ? 700 : _tab == 1 && Debug.isDebugBuild ? 480 : 440);
+                    _tab == 3 ? 850 : _tab == 1 && Debug.isDebugBuild ? 480 : 440);
                 var scroll = GetComponent<ScrollRect>(); if (scroll != null) scroll.verticalNormalizedPosition = 1;
             }
             SyncServerPlaceholder();
@@ -274,19 +275,18 @@ namespace FishSocial.Desktop
             {
                 case 0:
                     var window = WindowManager.Instance != null ? WindowManager.Instance.Settings : null;
-                    var current = window == null ? "—" : window.Mode == WindowDisplayMode.Fullscreen ? "全屏"
-                        : window.Mode == WindowDisplayMode.Borderless ? "无边框" : window.Width + "×" + window.Height + " 窗口";
-                    _tabInfo.text = "当前：" + current +
-                        "\n\n选择分辨率后窗口立即调整，仅支持四种常用尺寸。\n\n无边框与全屏可随时切换。\n\n点击「保存窗口设置」，下次启动沿用当前选择。";
+                    var current = window == null ? "—" : window.Mode == WindowDisplayMode.Fullscreen ? DesktopLocalization.Text("ui.settings.display.option.fullscreen", "全屏")
+                        : window.Mode == WindowDisplayMode.Borderless ? DesktopLocalization.Text("ui.settings.display.option.borderless", "无边框") : DesktopLocalization.Format("ui.settings.display.label.window_dimensions", (object)(window.Width), (object)(window.Height));
+                    _tabInfo.text = DesktopLocalization.Format("ui.settings.description.window_settings", (object)(current));
                     break;
                 case 1:
-                    _tabInfo.text = "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。\n\n「模拟连接错误」用于检查提醒是否正常。";
+                    _tabInfo.text = DesktopLocalization.Text("ui.settings.description.notifications", "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。\n\n「模拟连接错误」用于检查提醒是否正常。");
                     break;
                 case 2:
                     _tabInfo.text = "填写服务器地址并保存，重启客户端后生效。\n\n保存前可先「测试服务器连接」，检查 /health 是否可达。";
                     break;
                 default:
-                    _tabInfo.text = "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n背景音乐和音效音量可分别调整，设为 0 即可静音。改动会自动保存。\n\n「重置新手引导」会重新播放一次教学。";
+                    _tabInfo.text = DesktopLocalization.Text("ui.settings.description.tray", "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n背景音乐和音效音量可分别调整，设为 0 即可静音。改动会自动保存。\n\n「重置新手引导」会重新播放一次教学。");
                     break;
             }
         }

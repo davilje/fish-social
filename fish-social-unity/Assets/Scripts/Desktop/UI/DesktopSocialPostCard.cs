@@ -71,7 +71,7 @@ namespace FishSocial.Desktop
             if (hint != null)
             {
                 var mine = _api != null && _post.playerId == _api.PlayerId;
-                hint.text = mine ? "我的鱼获故事" : "点击卡片，看看钓友来信";
+                hint.text = mine ? DesktopLocalization.Text("ui.social.post_card.title.my_story", "我的鱼获故事") : DesktopLocalization.Text("ui.social.post_card.hint.open_comments", "点击卡片，看看钓友来信");
                 hint.fontSize = 12;
                 hint.alignment = TextAnchor.MiddleRight;
                 hint.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -304,15 +304,15 @@ namespace FishSocial.Desktop
 
             var journal = transform.Find("JournalCatch") != null;
             if (_authorText != null)
-                _authorText.text = (_post.nickname ?? "钓友") + (journal ? "" : " · " + FormatTime(_post.createdAt));
+                _authorText.text = (_post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")) + (journal ? "" : " · " + FormatTime(_post.createdAt));
             if (journal)
             {
                 CozyItemArt.Set(transform, "Header/JournalAvatar", DesktopDefaultAvatars.Portrait(_post.authorAvatarUrl, _post.playerId));
                 CozyItemArt.Text(transform, "Header/JournalTime", FormatTime(_post.createdAt));
-                StyleVisibility(_post.visibility == "private" ? "仅自己" : _post.visibility == "friends" ? "仅好友" : "公开");
+                StyleVisibility(_post.visibility == "private" ? DesktopLocalization.Text("ui.social.post_card.visibility.private", "仅自己") : _post.visibility == "friends" ? DesktopLocalization.Text("ui.social.post_card.visibility.friends", "仅好友") : DesktopLocalization.Text("ui.social.post_card.visibility.public", "公开"));
                 StyleCatchPlate();
                 CozyItemArt.Set(transform, "JournalCatch/Art", _post.fish != null ? CozyItemArt.Fish(_post.fish.speciesId) : null);
-                CozyItemArt.Text(transform, "JournalCatch/Name", _post.fish != null ? DesktopFishCatalog.SpeciesName(_post.fish.speciesId) : "鱼获记录");
+                CozyItemArt.Text(transform, "JournalCatch/Name", _post.fish != null ? DesktopFishCatalog.SpeciesName(_post.fish.speciesId) : DesktopLocalization.Text("ui.social.post_card.label.catch_record", "鱼获记录"));
                 var catchName = transform.Find("JournalCatch/Name")?.GetComponent<Text>();
                 if (catchName != null) catchName.fontSize = 20;
                 CozyItemArt.Text(transform, "JournalCatch/Pond", PondLabel(_post.fish != null ? _post.fish.pondId : null));
@@ -332,19 +332,14 @@ namespace FishSocial.Desktop
             if (_bodyText != null)
             {
                 _bodyText.supportRichText = false;
-                _bodyText.text = _post.text ?? "分享了一条鱼获";
+                _bodyText.text = _post.text ?? DesktopLocalization.Text("ui.social.post_card.fallback.story", "分享了一条鱼获");
             }
             if (_fishInfoText != null)
             {
                 var fish = _post.fish;
-                _fishInfoText.text = "鱼获：" + (fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : "未知") +
-                    "  品质：" + (fish != null ? DesktopFishCatalog.QualityName(fish.quality) : "未知") +
-                    "  体长：" + (fish != null ? fish.sizeM.ToString("0.00") : "-") +
-                    "m  重量：" + (fish != null
+                _fishInfoText.text = DesktopLocalization.Format("ui.social.post_card.label.catch_summary", (object)((fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? DesktopFishCatalog.QualityName(fish.quality) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? fish.sizeM.ToString("0.00") : "-")), (object)((fish != null
                         ? DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(fish.sizeM))
-                        : "-") +
-                    "  可见范围：" +
-                    (_post.visibility == "friends" ? "仅好友" : "所有人");
+                        : "-")), (object)((_post.visibility == "friends" ? DesktopLocalization.Text("ui.social.post_card.visibility.friends", "仅好友") : DesktopLocalization.Text("ui.social.post_card.visibility.everyone", "所有人"))));
             }
             if (journal && _fishInfoText != null)
             {
@@ -359,9 +354,9 @@ namespace FishSocial.Desktop
             StyleQuiet(_commentsButton, false);
             if (_likeButton != null)
                 SetButtonText(_likeButton,
-                    (_post.likedByMe ? "♥ 已赞 " : "♡ 点赞 ") + _post.likeCount);
+                    (_post.likedByMe ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 ")) + _post.likeCount);
             if (_commentsButton != null)
-                SetButtonText(_commentsButton, "评论 " + _post.commentCount);
+                SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(_post.commentCount)));
             CommentCountChanged?.Invoke(_post.commentCount);
             if (_commentsPanel != null)
                 _commentsPanel.SetActive(false);
@@ -402,7 +397,7 @@ namespace FishSocial.Desktop
             DesktopModalUi.StyleButton(_likeButton, "heart");
             DesktopModalUi.StyleButton(_commentsButton, "social");
             DesktopModalUi.StyleButton(_sendCommentButton, "check", true);
-            SetButtonText(_sendCommentButton, transform.Find("JournalCatch") != null ? "留下鼓励" : "发送评论");
+            SetButtonText(_sendCommentButton, transform.Find("JournalCatch") != null ? DesktopLocalization.Text("ui.social.post_card.placeholder.encouragement", "留下鼓励") : DesktopLocalization.Text("ui.social.post_card.button.send_comment", "发送评论"));
             RefreshLikeColor();
         }
 
@@ -482,7 +477,7 @@ namespace FishSocial.Desktop
             if (!ok) { CozyActionFeedback.Play(_likeButton.transform,false,"点赞失败"); return; }
             _post.likedByMe = liked;
             _post.likeCount = count;
-            SetButtonText(_likeButton, (liked ? "♥ 已赞 " : "♡ 点赞 ") + count);
+            SetButtonText(_likeButton, (liked ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 ")) + count);
             RefreshLikeColor();
             var rect = _likeButton.transform as RectTransform;
             CozyMotion.Cancel(rect);
@@ -532,7 +527,7 @@ namespace FishSocial.Desktop
             if (_post == null || message == null || message.postId != _post.id) return;
             _post.likeCount = message.likeCount;
             if (_api != null && message.playerId == _api.PlayerId) _post.likedByMe = message.liked;
-            SetButtonText(_likeButton, (_post.likedByMe ? "♥ 已赞 " : "♡ 点赞 ") + _post.likeCount);
+            SetButtonText(_likeButton, (_post.likedByMe ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 ")) + _post.likeCount);
         }
 
         public void ApplyCommented(PostCommentedDto message)
@@ -541,7 +536,7 @@ namespace FishSocial.Desktop
             if (!_socketComments.Add(message.comment.id ?? string.Empty)) return;
             if (!_commentRows.ContainsKey(message.comment.id ?? string.Empty))
                 _post.commentCount++;
-            SetButtonText(_commentsButton, "评论 " + _post.commentCount);
+            SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(_post.commentCount)));
             CommentCountChanged?.Invoke(_post.commentCount);
             if (_commentsPanel != null && _commentsPanel.activeSelf) AddCommentRow(message.comment);
         }
@@ -550,7 +545,7 @@ namespace FishSocial.Desktop
         {
             if (_post == null || message == null || message.postId != _post.id) return;
             _post.commentCount = message.commentCount;
-            SetButtonText(_commentsButton, "评论 " + _post.commentCount);
+            SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(_post.commentCount)));
             CommentCountChanged?.Invoke(_post.commentCount);
             if (message.commentId != null && _commentRows.TryGetValue(message.commentId, out var row))
             {
@@ -621,7 +616,7 @@ namespace FishSocial.Desktop
             ClearComments();
             _commentsPanel.SetActive(true);
             RevealComments();
-            CommentStatus("正在加载留言…");
+            CommentStatus(DesktopLocalization.Text("ui.social.post_card.status.loading_comments", "正在加载留言…"));
             RefreshCardLayout();
             StartCoroutine(_api.GetPostComments(_post.id,
                 (ok, comments, count, message) =>
@@ -632,8 +627,8 @@ namespace FishSocial.Desktop
                     if (!ok)
                     {
                         _commentsLoadFailed = true;
-                        CommentStatus("留言加载失败，点击卡片重试。");
-                        SetButtonText(_commentsButton, "评论加载失败 · 重试");
+                        CommentStatus(DesktopLocalization.Text("ui.social.post_card.error.comment_load_failed", "留言加载失败，点击卡片重试。"));
+                        SetButtonText(_commentsButton, DesktopLocalization.Text("ui.social.post_card.button.retry_comments", "评论加载失败 · 重试"));
                         return;
                     }
                     PresentComments(comments, count, false);
@@ -649,8 +644,8 @@ namespace FishSocial.Desktop
             _commentsLoadFailed=false;ClearComments();_commentsPanel.SetActive(true);
             RevealComments();
             _post.commentCount=totalCount;CommentCountChanged?.Invoke(totalCount);
-            SetButtonText(_commentsButton,"评论 "+totalCount);
-            CommentStatus(comments==null||comments.Length==0?"还没有留言\n给钓友留一句鼓励吧":"");
+            SetButtonText(_commentsButton,DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(totalCount)));
+            CommentStatus(comments==null||comments.Length==0?DesktopLocalization.Text("ui.social.post_card.empty.comments", "还没有留言\n给钓友留一句鼓励吧"):"");
             for(var i=0;comments!=null&&i<comments.Length;i++)AddCommentRow(comments[i]);
             RefreshCardLayout();
         }
@@ -789,8 +784,8 @@ namespace FishSocial.Desktop
             {
                 label.supportRichText = false;
                 var author = row.transform.Find("Author")?.GetComponent<Text>();
-                if(author != null) { author.supportRichText=false;author.text=comment.nickname??"钓友";label.text=comment.text??""; }
-                else label.text = (comment.nickname ?? "钓友") + "：" + comment.text;
+                if(author != null) { author.supportRichText=false;author.text=comment.nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");label.text=comment.text??""; }
+                else label.text = (comment.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")) + "：" + comment.text;
                 var width = _commentsContent.rect.width > 32f ? _commentsContent.rect.width - 24f : 298f;
                 bodyHeight = CozySocialText.Apply(label, 15, 24, width);
                 var layout=row.GetComponent<LayoutElement>();if(layout!=null)layout.preferredHeight=Mathf.Max(64f,bodyHeight+49f);
@@ -889,7 +884,7 @@ namespace FishSocial.Desktop
                 deleteRect.sizeDelta = new Vector2(42f, 24f);
                 var deleteLayout = delete.GetComponent<LayoutElement>();
                 if (deleteLayout != null) deleteLayout.ignoreLayout = true;
-                SetButtonText(delete, "删除");
+                SetButtonText(delete, DesktopLocalization.Text("ui.social.post_card.button.delete_comment", "删除"));
             }
         }
 
@@ -909,7 +904,7 @@ namespace FishSocial.Desktop
                     }
                     _post.commentCount = count;
                     CommentCountChanged?.Invoke(count);
-                    SetButtonText(_commentsButton, "评论 " + count);
+                    SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(count)));
                     if (!string.IsNullOrEmpty(comment.id)) _commentRows.Remove(comment.id);
                     if (row != null)
                     {
@@ -925,20 +920,20 @@ namespace FishSocial.Desktop
                 _sendCommentButton == null)
                 return;
             var value = (_commentInput.text ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(value) || value.Length > 200) { CommentStatus("请输入 1–200 字的留言。"); return; }
+            if (string.IsNullOrEmpty(value) || value.Length > 200) { CommentStatus(DesktopLocalization.Text("ui.social.post_card.error.comment_length", "请输入 1–200 字的留言。")); return; }
             _sendCommentButton.interactable = false;
             StartCoroutine(_api.AddPostComment(_post.id, value,
                 (ok, comment, count, message) =>
                 {
                     if (this == null || _sendCommentButton == null) return;
                     _sendCommentButton.interactable = true;
-                    SetButtonText(_sendCommentButton, ok ? "留下鼓励" : "发送失败 · 重试");
-                    CommentStatus(ok ? "" : "发送失败，留言文字已保留。");
+                    SetButtonText(_sendCommentButton, ok ? DesktopLocalization.Text("ui.social.post_card.placeholder.encouragement", "留下鼓励") : DesktopLocalization.Text("ui.social.post_card.error.comment_send_retry", "发送失败 · 重试"));
+                    CommentStatus(ok ? "" : DesktopLocalization.Text("ui.social.post_card.error.comment_send_preserved", "发送失败，留言文字已保留。"));
                     if (!ok)
                         return;
                     _post.commentCount = count;
                     CommentCountChanged?.Invoke(count);
-                    SetButtonText(_commentsButton, "评论 " + count);
+                    SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(count)));
                     if(_commentInput.text.Trim()==value) _commentInput.text = string.Empty;
                     AddCommentRow(comment);
                 }));
@@ -1016,7 +1011,7 @@ namespace FishSocial.Desktop
 
         static string FormatTime(long timestamp)
         {
-            return timestamp <= 0 ? "刚刚" :
+            return timestamp <= 0 ? DesktopLocalization.Text("ui.social.feed.label.just_now", "刚刚") :
                 DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime
                     .ToString("yyyy-MM-dd HH:mm");
         }

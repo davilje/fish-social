@@ -15,7 +15,7 @@ namespace FishSocial.Desktop
         {
             if(title!=null){title.text=name??"";title.supportRichText=false;}
             if(metadata!=null){metadata.supportRichText=true;metadata.text=detail??"";}
-            if(ribbon!=null){ribbon.text=slot>0?"展示 "+slot:"";ribbon.transform.parent.gameObject.SetActive(slot>0);}
+            if(ribbon!=null){ribbon.text=slot>0?DesktopLocalization.Format("ui.profile.collection.label.slot", (object)(slot)):"";ribbon.transform.parent.gameObject.SetActive(slot>0);}
             if(empty!=null)empty.gameObject.SetActive(sprite==null&&slot>0);
             if(art!=null){art.sprite=sprite;art.enabled=sprite!=null;art.color=locked?new Color(.3f,.25f,.2f,.45f):Color.white;}
             if(stamp!=null)stamp.SetActive(collected);

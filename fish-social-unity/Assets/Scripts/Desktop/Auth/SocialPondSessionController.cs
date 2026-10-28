@@ -35,7 +35,7 @@ namespace FishSocial.Desktop.Auth
         public bool IsFishingAsleep => CurrentUser != null && CurrentUser.fishingAsleep;
         public bool HasPendingCatch => !IsFishingAsleep && _latestCatch != null;
         public string LastFishingOutcome { get; private set; } = string.Empty;
-        public const string DailyQuotaExhaustedMessage = "今日钓鱼时长已用完";
+        public static readonly string DailyQuotaExhaustedMessage = DesktopLocalization.Text("ui.fishing.session.error.daily_time_exhausted", "今日钓鱼时长已用完");
         public bool CanStartFishing =>
             CurrentUser == null ||
             CurrentPhase == "idle" ||
@@ -176,13 +176,13 @@ namespace FishSocial.Desktop.Auth
             Debug.Log("[Pond] ConnectAndJoin requested. pondId=" + pondId);
             if (_transitionBusy)
             {
-                ErrorReceived?.Invoke("鱼塘操作正在进行，请稍候。");
+                ErrorReceived?.Invoke(DesktopLocalization.Text("ui.fishing.session.error.operation_pending", "鱼塘操作正在进行，请稍候。"));
                 return;
             }
             if (_auth == null || !_auth.IsAuthenticated)
             {
                 Debug.LogWarning("[Pond] ConnectAndJoin rejected: Steam session is not authenticated.");
-                ErrorReceived?.Invoke("请先完成 Steam 登录。");
+                ErrorReceived?.Invoke(DesktopLocalization.Text("ui.auth.pond_session.error.steam_login_required", "请先完成 Steam 登录。"));
                 return;
             }
 
@@ -237,7 +237,7 @@ namespace FishSocial.Desktop.Auth
             }
             if (CurrentUser != null && CurrentPhase != "seated" && CurrentPhase != "idle")
             {
-                onCompleted?.Invoke(false, "当前 phase 为 " + CurrentPhase + "，请等收杆完成后再开始。");
+                onCompleted?.Invoke(false, DesktopLocalization.Format("ui.fishing.session.error.finish_current_phase", (object)(CurrentPhase)));
                 return;
             }
             _socket?.StartFishing(new StartFishingPayload
@@ -252,14 +252,14 @@ namespace FishSocial.Desktop.Auth
             if (!CanGroundbait)
             {
                 if (IsGroundbaitStackFull)
-                    onCompleted?.Invoke(false, "已达打窝上限");
+                    onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.groundbait_limit", "已达打窝上限"));
                 else
-                    onCompleted?.Invoke(false, "请先坐席后再打窝");
+                    onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.seat_required", "请先坐席后再打窝"));
                 return;
             }
             if (string.IsNullOrEmpty(groundbaitId))
             {
-                onCompleted?.Invoke(false, "请选择窝料");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.groundbait_required", "请选择窝料"));
                 return;
             }
             _socket?.StartGroundbait(new GroundbaitStartPayload
@@ -278,7 +278,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (_socket == null || !_socket.IsConnected || CurrentUser == null)
             {
-                onCompleted?.Invoke(false, "鱼塘会话尚未连接。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.attention_disconnected", "鱼塘会话尚未连接。"));
                 return;
             }
             _socket.FishingAttention(onCompleted);
@@ -288,7 +288,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (!CanStopFishing)
             {
-                onCompleted?.Invoke(false, "当前没有正在进行的钓鱼。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.not_fishing", "当前没有正在进行的钓鱼。"));
                 return;
             }
             _socket?.StopFishing(CurrentPondId, onCompleted);
@@ -299,9 +299,9 @@ namespace FishSocial.Desktop.Auth
             if (_latestCatch == null)
             {
                 if (CurrentPhase == "hooked")
-                    onCompleted?.Invoke(false, "鱼已咬钩，正在结算，请等待鱼获事件。");
+                    onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.status.catch_settling", "鱼已咬钩，正在结算，请等待鱼获事件。"));
                 else
-                    onCompleted?.Invoke(false, "当前没有待领取的鱼获。");
+                    onCompleted?.Invoke(false, DesktopLocalization.Text("ui.catch.pond_session.error.no_pending_catch", "当前没有待领取的鱼获。"));
                 return;
             }
             _socket?.AcceptCatch(_latestCatch.catchId, (ok, message) =>
@@ -337,7 +337,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (!HasSpot)
             {
-                onCompleted?.Invoke(true, "当前没有占用钓位。");
+                onCompleted?.Invoke(true, DesktopLocalization.Text("ui.fishing.session.error.seat_not_occupied", "当前没有占用钓位。"));
                 return;
             }
             _socket?.LeaveSpot(CurrentPondId, onCompleted);
@@ -347,7 +347,7 @@ namespace FishSocial.Desktop.Auth
         {
             if (_transitionBusy)
             {
-                onCompleted?.Invoke(false, "鱼塘操作正在进行，请稍候。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.operation_pending", "鱼塘操作正在进行，请稍候。"));
                 return;
             }
             _transitionBusy = true;
@@ -404,7 +404,7 @@ namespace FishSocial.Desktop.Auth
                 if (_socket == null || !_socket.IsConnected)
                 {
                     ClearLocalPondState();
-                    FinishTransition(true, "已退出鱼塘。", onCompleted);
+                    FinishTransition(true, DesktopLocalization.Text("ui.fishing.session.status.pond_exited", "已退出鱼塘。"), onCompleted);
                     return;
                 }
                 _socket.LeavePond(CurrentPondId, "user_explicit", (left, leaveMessage) =>
@@ -418,7 +418,7 @@ namespace FishSocial.Desktop.Auth
                     if (!_switchingPond)
                         _socket.Disconnect();
                     ClearLocalPondState();
-                    FinishTransition(true, "已退出鱼塘。", onCompleted);
+                    FinishTransition(true, DesktopLocalization.Text("ui.fishing.session.status.pond_exited", "已退出鱼塘。"), onCompleted);
                 });
             });
         }
@@ -429,12 +429,12 @@ namespace FishSocial.Desktop.Auth
                 SetPendingReturnFeeMode(returnFeeMode);
             if (string.IsNullOrWhiteSpace(pondId))
             {
-                onCompleted?.Invoke(false, "目标鱼塘无效。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.invalid_target_pond", "目标鱼塘无效。"));
                 return;
             }
             if (_transitionBusy)
             {
-                onCompleted?.Invoke(false, "鱼塘切换正在进行，请稍候。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.status.switching_pond", "鱼塘切换正在进行，请稍候。"));
                 return;
             }
             string reject;
@@ -450,7 +450,7 @@ namespace FishSocial.Desktop.Auth
                 _socket != null && _socket.IsConnected && CurrentUser != null &&
                 SameReturnFeeMode(CurrentUser.returnFeeMode, _pendingReturnFeeMode))
             {
-                onCompleted?.Invoke(true, "已在目标鱼塘。");
+                onCompleted?.Invoke(true, DesktopLocalization.Text("ui.fishing.session.status.already_in_pond", "已在目标鱼塘。"));
                 return;
             }
 
@@ -480,7 +480,7 @@ namespace FishSocial.Desktop.Auth
             _joinRequested = true;
             if (_socket == null || !_socket.IsConnected)
             {
-                FinishTransition(false, "实时服务已断开，请重新进入鱼塘。", onCompleted);
+                FinishTransition(false, DesktopLocalization.Text("ui.fishing.session.error.realtime_disconnected", "实时服务已断开，请重新进入鱼塘。"), onCompleted);
                 return;
             }
             _socket.RegisterPlayer(_auth.AuthenticatedPlayerId);
@@ -497,7 +497,7 @@ namespace FishSocial.Desktop.Auth
                     FinishTransition(false, message, onCompleted);
                     return;
                 }
-                FinishTransition(true, "已进入新鱼塘。", onCompleted);
+                FinishTransition(true, DesktopLocalization.Text("ui.fishing.session.status.pond_entered", "已进入新鱼塘。"), onCompleted);
             });
         }
 
@@ -516,7 +516,7 @@ namespace FishSocial.Desktop.Auth
                 return false;
             if (string.Equals(pondId, AllowedPondIdOnly, StringComparison.Ordinal))
                 return false;
-            message = "新手引导进行中，请先完成新手塘流程（不可跳过）。";
+            message = DesktopLocalization.Text("ui.fishing.session.error.tutorial_required", "新手引导进行中，请先完成新手塘流程（不可跳过）。");
             return true;
         }
 
@@ -547,17 +547,17 @@ namespace FishSocial.Desktop.Auth
             var value = text == null ? string.Empty : text.Trim();
             if (string.IsNullOrEmpty(value))
             {
-                onCompleted?.Invoke(false, "不能发送空消息。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.empty_chat_message", "不能发送空消息。"));
                 return;
             }
             if (value.Length > 200)
             {
-                onCompleted?.Invoke(false, "鱼塘聊天最多 200 字。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.chat_message_too_long", "鱼塘聊天最多 200 字。"));
                 return;
             }
             if (_socket == null || !_socket.IsConnected)
             {
-                onCompleted?.Invoke(false, "实时服务未连接，请进入鱼塘后重试。");
+                onCompleted?.Invoke(false, DesktopLocalization.Text("ui.fishing.session.error.chat_disconnected", "实时服务未连接，请进入鱼塘后重试。"));
                 return;
             }
             _socket.SendChat(new SendChatPayload

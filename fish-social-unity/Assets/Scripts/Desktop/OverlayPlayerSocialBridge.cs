@@ -36,7 +36,7 @@ namespace FishSocial.Desktop
         {
             if (message == null || string.IsNullOrWhiteSpace(message.playerId))
             {
-                _setError?.Invoke("缺少目标玩家。");
+                _setError?.Invoke(DesktopLocalization.Text("ui.social.player_actions.error.target_required", "缺少目标玩家。"));
                 _publishState?.Invoke();
                 return;
             }
@@ -64,19 +64,19 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                Fail("当前没有有效的 Steam 会话，请重新登录。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.session_required", "当前没有有效的 Steam 会话，请重新登录。"));
                 yield break;
             }
 
             if (IsBot(playerId))
             {
-                Fail("暂不支持向机器人发送好友请求。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.bot_friend_request", "暂不支持向机器人发送好友请求。"));
                 yield break;
             }
 
             if (playerId == _api.PlayerId)
             {
-                Fail("不能添加自己为好友。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.self_friend_request", "不能添加自己为好友。"));
                 yield break;
             }
 
@@ -94,7 +94,7 @@ namespace FishSocial.Desktop
 
             if (friendsOk && ContainsFriend(friends, playerId))
             {
-                Fail("你们已经是好友了。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.already_friends", "你们已经是好友了。"));
                 yield break;
             }
 
@@ -112,7 +112,7 @@ namespace FishSocial.Desktop
 
             if (requestsOk && HasOutgoingRequest(outgoing, playerId))
             {
-                Fail("好友请求已发送，请等待对方确认。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.status.request_pending", "好友请求已发送，请等待对方确认。"));
                 yield break;
             }
 
@@ -121,7 +121,7 @@ namespace FishSocial.Desktop
             string error = null;
             yield return _api.SendFriendRequest(
                 playerId,
-                _pond != null ? _pond.Nickname : "钓友",
+                _pond != null ? _pond.Nickname : DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"),
                 (ok, message) =>
                 {
                     requestOk = ok;
@@ -133,24 +133,24 @@ namespace FishSocial.Desktop
 
             if (!requestOk)
             {
-                Fail(error ?? "好友请求发送失败。");
+                Fail(error ?? DesktopLocalization.Text("ui.social.player_actions.error.friend_request_failed", "好友请求发送失败。"));
                 yield break;
             }
 
-            Succeed("好友请求已发送。");
+            Succeed(DesktopLocalization.Text("ui.social.player_actions.status.friend_request_sent", "好友请求已发送。"));
         }
 
         IEnumerator OpenDmRoutine(string playerId)
         {
             if (_api == null || !_api.CanUse)
             {
-                Fail("当前没有有效的 Steam 会话，请重新登录。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.session_required", "当前没有有效的 Steam 会话，请重新登录。"));
                 yield break;
             }
 
             if (IsBot(playerId))
             {
-                Fail("暂不支持与机器人私聊。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.bot_direct_message", "暂不支持与机器人私聊。"));
                 yield break;
             }
 
@@ -168,7 +168,7 @@ namespace FishSocial.Desktop
 
             if (!friendsOk || !ContainsFriend(friends, playerId))
             {
-                Fail("请先添加好友后再私聊。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.friendship_required", "请先添加好友后再私聊。"));
                 yield break;
             }
 
@@ -182,7 +182,7 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                Fail("当前没有有效的 Steam 会话，请重新登录。");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.error.session_required", "当前没有有效的 Steam 会话，请重新登录。"));
                 yield break;
             }
 
@@ -202,7 +202,7 @@ namespace FishSocial.Desktop
 
             if (!viewOk || view == null || view.posts == null || view.posts.Length == 0)
             {
-                Fail(viewOk ? "暂无动态" : (error ?? "动态加载失败。"));
+                Fail(viewOk ? DesktopLocalization.Text("ui.social.player_actions.empty.posts", "暂无动态") : (error ?? DesktopLocalization.Text("ui.social.player_actions.error.feed_load_failed", "动态加载失败。")));
                 yield break;
             }
 
@@ -219,7 +219,7 @@ namespace FishSocial.Desktop
 
             if (target == null)
             {
-                Fail("暂无动态");
+                Fail(DesktopLocalization.Text("ui.social.player_actions.empty.posts", "暂无动态"));
                 yield break;
             }
 
@@ -238,17 +238,17 @@ namespace FishSocial.Desktop
 
             if (!likeOk)
             {
-                Fail(error ?? "点赞失败。");
+                Fail(error ?? DesktopLocalization.Text("ui.social.player_actions.error.like_failed", "点赞失败。"));
                 yield break;
             }
 
-            Succeed(liked ? "已点赞。" : "已取消点赞。");
+            Succeed(liked ? DesktopLocalization.Text("ui.social.player_actions.status.liked", "已点赞。") : DesktopLocalization.Text("ui.social.player_actions.status.like_removed", "已取消点赞。"));
         }
 
         void Fail(string message)
         {
             DesktopAudioService.Play("ui_error");
-            _setError?.Invoke(message ?? "操作失败。");
+            _setError?.Invoke(message ?? DesktopLocalization.Text("ui.social.player_actions.error.operation_failed", "操作失败。"));
             _publishState?.Invoke();
         }
 
@@ -310,11 +310,11 @@ namespace FishSocial.Desktop
                 for (var i = 0; i < friends.Length; i++)
                 {
                     if (friends[i] != null && friends[i].playerId == playerId)
-                        return friends[i].nickname ?? "钓友";
+                        return friends[i].nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");
                 }
             }
 
-            return "钓友";
+            return DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");
         }
     }
 }

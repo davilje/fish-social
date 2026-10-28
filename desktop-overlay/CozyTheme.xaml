@@ -136,7 +136,7 @@
                             <local:CozyIcon x:Name="MenuIcon" Width="18" Height="18" Sprite="{Binding Path=(local:CozyTheme.Icon), RelativeSource={RelativeSource TemplatedParent}}" />
                             <local:CozyIcon x:Name="Check" Width="18" Height="18" Sprite="cozy/icons-light/check.png" Visibility="Collapsed" />
                             <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" Margin="3,0,8,0" />
-                            <TextBlock x:Name="SubmenuHint" Grid.Column="2" Text="更多" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" />
+                            <TextBlock x:Name="SubmenuHint" Grid.Column="2" Text="更多" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed"  local:OverlayLocalization.Key="ui.common.submenu.hint.more" />
                         </Grid>
                     </Grid>
                     <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" Placement="Right"

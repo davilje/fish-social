@@ -369,6 +369,7 @@ namespace FishSocialOverlay
             _refreshTimer.Tick += OnRefreshTick;
             OverlayAnimationClock.AfterTick += RenderLatestFrame;
             ActiveActorCount++;
+            OverlayLocalization.LanguageChanged += OnLanguageChanged;
         }
 
         public void ConfigurePlayerMenu(string playerId, bool isBot, IOverlayPlayerMenuHost menuHost)
@@ -519,13 +520,13 @@ namespace FishSocialOverlay
             if (_socialMenu == null)
                 return;
             _socialMenu.Items.Clear();
-            _socialMenu.Items.Add(CreateMenuItem("查看资料", true, () =>
+            _socialMenu.Items.Add(CreateMenuItem(OverlayLocalization.Text("ui.home.pet_menu.button.profile", "查看资料"), true, () =>
                 _menuHost.SendPlayerCommand("player_open_profile", _playerId)));
-            _socialMenu.Items.Add(CreateMenuItem("添加好友", !_isBot, () =>
+            _socialMenu.Items.Add(CreateMenuItem(OverlayLocalization.Text("ui.home.pet_menu.button.add_friend", "添加好友"), !_isBot, () =>
                 _menuHost.SendPlayerCommand("player_add_friend", _playerId)));
-            _socialMenu.Items.Add(CreateMenuItem("私聊", !_isBot, () =>
+            _socialMenu.Items.Add(CreateMenuItem(OverlayLocalization.Text("ui.home.pet_menu.button.private_chat", "私聊"), !_isBot, () =>
                 _menuHost.SendPlayerCommand("player_open_dm", _playerId)));
-            _socialMenu.Items.Add(CreateMenuItem("点赞互动", true, () =>
+            _socialMenu.Items.Add(CreateMenuItem(OverlayLocalization.Text("ui.home.pet_menu.button.like", "点赞互动"), true, () =>
                 _menuHost.SendPlayerCommand("player_like_recent", _playerId)));
         }
 
@@ -558,7 +559,7 @@ namespace FishSocialOverlay
             bool fishingAsleep = false)
         {
             if (_disposed) return;
-            var nextName = string.IsNullOrWhiteSpace(nickname) ? "玩家" : nickname;
+            var nextName = string.IsNullOrWhiteSpace(nickname) ? OverlayLocalization.Text("ui.home.pet_actor.name.default", "玩家") : nickname;
             var layoutChanged = nextName != _nickname.Text;
             if (layoutChanged) _nickname.Text = nextName;
             var oldPhase = _fishingPhase;
@@ -809,6 +810,7 @@ namespace FishSocialOverlay
             AudioMarkerPublished = null;
             if (_disposed) return;
             _disposed = true;
+            OverlayLocalization.LanguageChanged -= OnLanguageChanged;
             _waterEffects.Dispose();
             _stateVersion++;
             _renderVersion++;
@@ -1519,10 +1521,10 @@ namespace FishSocialOverlay
         string BuildHoverText()
         {
             if (_fishingAsleep)
-                return "睡着了 · 咬钩会脱钩\n" + (ActorKey == "__own__" ? "点击猫咪，唤醒继续钓鱼" : "等待主人点击唤醒");
+                return OverlayLocalization.Format("ui.home.pet_hover.status.sleeping", (object)((ActorKey == "__own__" ? OverlayLocalization.Text("ui.home.pet_hover.hint.wake", "点击猫咪，唤醒继续钓鱼") : OverlayLocalization.Text("ui.home.pet_hover.status.waiting_owner", "等待主人点击唤醒"))));
             var catchLine = _sessionCatchCount > 0
-                ? "钓到" + _sessionCatchCount + "条!"
-                : "空军";
+                ? OverlayLocalization.Format("ui.home.pet_hover.label.catch_count", (object)(_sessionCatchCount))
+                : OverlayLocalization.Text("ui.home.pet_hover.label.no_catch", "空军");
             var durationLine = BuildHoverDurationLine();
             if (string.IsNullOrEmpty(durationLine))
                 return catchLine;
@@ -1535,16 +1537,16 @@ namespace FishSocialOverlay
             {
                 var remaining = Math.Max(0, _hookDeadlineMs - NowMs());
                 if (remaining > 0)
-                    return (IsGroundbaitPhase(_fishingPhase) ? "打窝 " : "收杆 ") + FormatDuration(remaining);
+                    return (IsGroundbaitPhase(_fishingPhase) ? OverlayLocalization.Text("ui.home.pet_hover.label.groundbait_duration", "打窝 ") : OverlayLocalization.Text("ui.home.pet_hover.label.reel_duration", "收杆 ")) + FormatDuration(remaining);
             }
 
             if (IsFishingPhase(_fishingPhase) ||
                 IsHookedPhase(_fishingPhase) ||
                 IsGroundbaitPhase(_fishingPhase))
-                return "本局 " + FormatDuration(CurrentSessionFishingMs());
+                return OverlayLocalization.Format("ui.home.pet_hover.label.session_duration", (object)(FormatDuration(CurrentSessionFishingMs())));
 
             if (_sessionAnchorMs > 0)
-                return "本局 " + FormatDuration(CurrentSessionFishingMs());
+                return OverlayLocalization.Format("ui.home.pet_hover.label.session_duration", (object)(FormatDuration(CurrentSessionFishingMs())));
 
             return string.Empty;
         }
@@ -2293,6 +2295,17 @@ namespace FishSocialOverlay
             Place(_centerX, _centerY);
         }
 
+        void OnLanguageChanged()
+        {
+            if (_disposed) return;
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(OnLanguageChanged));
+                return;
+            }
+            RelayoutAndPlace();
+        }
+
         static double SlotWidth(OverlayLayoutObjectDto part, double fallback)
         {
             return part != null && part.w > 0 ? part.w : fallback;
@@ -2336,10 +2349,10 @@ namespace FishSocialOverlay
 
         static void ApplyBubbleText(TextBlock label, string text, int maxChars)
         {
-            var value = string.IsNullOrWhiteSpace(text) ? "…" : text.Trim();
-            if (value.Length > maxChars)
-                value = value.Substring(0, maxChars - 3) + "…";
-            label.Text = value;
+            // Chat is clipped before reaching this method. Application hints keep
+            // their complete translation and render plan as English can be longer.
+            var value = string.IsNullOrWhiteSpace(text) ? "…" : text;
+            OverlayLocalization.SetText(label, value);
         }
 
         static TextBlock CreateBubbleLabel(double fontSize)

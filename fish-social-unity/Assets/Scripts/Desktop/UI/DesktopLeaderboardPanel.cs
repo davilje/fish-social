@@ -360,13 +360,13 @@ namespace FishSocial.Desktop
 
         void RestyleTabs()
         {
-            CozyItemArt.Text(transform, "JournalBoardHeading", _boardType == BoardWeekly ? "每周钓王" : _boardType == BoardPond ? "当前鱼塘" : _boardType == BoardRare ? "稀有鱼获" : "今日大鱼");
+            CozyItemArt.Text(transform, "JournalBoardHeading", _boardType == BoardWeekly ? DesktopLocalization.Text("ui.leaderboard.panel.title.weekly", "每周钓王") : _boardType == BoardPond ? DesktopLocalization.Text("ui.leaderboard.panel.title.pond", "当前鱼塘") : _boardType == BoardRare ? DesktopLocalization.Text("ui.leaderboard.panel.title.rare", "稀有鱼获") : DesktopLocalization.Text("ui.leaderboard.panel.title.daily", "今日大鱼"));
             if (!_leaderTabsStyled)
             {
-                StyleAction(_dailyTab, "fish", "今日大鱼");
-                StyleAction(_weeklyTab, "trophy", "每周钓王");
-                StyleAction(_pondTab, "pond", "当前鱼塘");
-                StyleAction(_rareTab, "star", "稀有鱼获");
+                StyleAction(_dailyTab, "fish", DesktopLocalization.Text("ui.leaderboard.panel.title.daily", "今日大鱼"));
+                StyleAction(_weeklyTab, "trophy", DesktopLocalization.Text("ui.leaderboard.panel.title.weekly", "每周钓王"));
+                StyleAction(_pondTab, "pond", DesktopLocalization.Text("ui.leaderboard.panel.title.pond", "当前鱼塘"));
+                StyleAction(_rareTab, "star", DesktopLocalization.Text("ui.leaderboard.panel.title.rare", "稀有鱼获"));
                 _leaderTabsStyled = true;
             }
             var tabs = new[] { _dailyTab, _weeklyTab, _pondTab, _rareTab };
@@ -386,7 +386,7 @@ namespace FishSocial.Desktop
             var position = FindIn<Text>(slot.root.transform, "Rank") ?? FindIn<Text>(slot.root.transform, "Position");
             if (position != null)
             {
-                position.text = "第 " + rank + " 名";
+                position.text = DesktopLocalization.Format("ui.leaderboard.panel.label.podium_rank", (object)(rank));
                 var place = position.rectTransform;
                 place.anchorMin = place.anchorMax = new Vector2(0f, 1f);
                 place.pivot = new Vector2(0f, 1f);
@@ -513,7 +513,7 @@ namespace FishSocial.Desktop
             }
             var label = rect.GetComponent<Text>();
             if (label == null) return;
-            label.text = rank == 1 ? "第一名" : rank == 2 ? "第二名" : "第三名";
+            label.text = rank == 1 ? DesktopLocalization.Text("ui.leaderboard.panel.label.first_place", "第一名") : rank == 2 ? DesktopLocalization.Text("ui.leaderboard.panel.label.second_place", "第二名") : DesktopLocalization.Text("ui.leaderboard.panel.label.third_place", "第三名");
             label.fontSize = 13;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = rank == 1
@@ -670,7 +670,7 @@ namespace FishSocial.Desktop
                 RenderPodium(FindRank(cached.entries, 1), FindRank(cached.entries, 2), FindRank(cached.entries, 3), boardType);
                 if (cached.hasMyRank)
                     SetMyRank(cached.myRank, boardType);
-                SetStatus(cached.entries != null && cached.entries.Length > 0 ? string.Empty : "当前榜单暂无数据。");
+                SetStatus(cached.entries != null && cached.entries.Length > 0 ? string.Empty : DesktopLocalization.Text("ui.leaderboard.panel.empty.board", "当前榜单暂无数据。"));
                 ReplayBoardMotion();
                 return;
             }
@@ -898,7 +898,7 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                SetStatus("当前没有有效的 Steam 会话。");
+                SetStatus(DesktopLocalization.Text("ui.leaderboard.panel.error.session_required", "当前没有有效的 Steam 会话。"));
                 HideAllRows();
                 RenderPodium(null, null, null, _boardType);
                 SetMyRank(null, _boardType);
@@ -909,7 +909,7 @@ namespace FishSocial.Desktop
             var pondId = _pond != null ? _pond.CurrentPondId : null;
             if (boardType == BoardPond && string.IsNullOrEmpty(pondId))
             {
-                SetStatus("请先进入鱼塘后再查看鱼塘榜。");
+                SetStatus(DesktopLocalization.Text("ui.leaderboard.panel.error.pond_required", "请先进入鱼塘后再查看鱼塘榜。"));
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);
@@ -931,7 +931,7 @@ namespace FishSocial.Desktop
                 yield break;
             }
 
-            SetStatus("正在加载排行榜…");
+            SetStatus(DesktopLocalization.Text("ui.leaderboard.panel.status.loading", "正在加载排行榜…"));
 
             var boardDone = false;
             var boardOk = false;
@@ -958,7 +958,7 @@ namespace FishSocial.Desktop
 
             if (!boardOk)
             {
-                SetStatus(boardError ?? "排行榜加载失败，请稍后重新打开页面。");
+                SetStatus(boardError ?? DesktopLocalization.Text("ui.leaderboard.panel.error.load_failed", "排行榜加载失败，请稍后重新打开页面。"));
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);
@@ -968,7 +968,7 @@ namespace FishSocial.Desktop
             if (entries == null || entries.Length == 0)
             {
                 StoreCache(cacheKey, new LeaderboardEntryDto[0], false, null);
-                SetStatus("当前榜单暂无数据。");
+                SetStatus(DesktopLocalization.Text("ui.leaderboard.panel.empty.board", "当前榜单暂无数据。"));
                 HideAllRows();
                 RenderPodium(null, null, null, boardType);
                 SetMyRank(null, boardType);
@@ -982,7 +982,7 @@ namespace FishSocial.Desktop
                     string.IsNullOrEmpty(entries[i].playerId) ||
                     entries[i].rank <= 0)
                 {
-                    SetStatus("服务端响应缺少排行榜字段，请重试。");
+                    SetStatus(DesktopLocalization.Text("ui.leaderboard.panel.error.missing_response_data", "服务端响应缺少排行榜字段，请重试。"));
                     HideAllRows();
                     RenderPodium(null, null, null, boardType);
                     SetMyRank(null, boardType);
@@ -1055,7 +1055,7 @@ namespace FishSocial.Desktop
             if (request != null)
                 yield return request;
             if (!completed)
-                onCompleted?.Invoke(false, null, "排行榜请求已取消。");
+                onCompleted?.Invoke(false, null, DesktopLocalization.Text("ui.leaderboard.panel.status.request_cancelled", "排行榜请求已取消。"));
         }
 
         IEnumerator RunBoardRequestPrefetch(
@@ -1075,7 +1075,7 @@ namespace FishSocial.Desktop
             if (request != null)
                 yield return request;
             if (!completed)
-                onCompleted?.Invoke(false, null, "排行榜请求已取消。");
+                onCompleted?.Invoke(false, null, DesktopLocalization.Text("ui.leaderboard.panel.status.request_cancelled", "排行榜请求已取消。"));
         }
 
         IEnumerator RunMyRankRequest(
@@ -1242,7 +1242,7 @@ namespace FishSocial.Desktop
                 return;
             _cardPlayers[row] = entry.playerId;
             SetChildText(row, "Rank", row.transform.Find("JournalDetailParity") != null ? entry.rank.ToString("00") : "#" + entry.rank);
-            SetChildText(row, "Nickname", entry.nickname ?? "钓友");
+            SetChildText(row, "Nickname", entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
             SetChildText(row, "Value", FormatValue(entry, boardType));
             var valueLabel = row.transform.Find("Value")?.GetComponent<Text>();
             if (valueLabel != null)
@@ -1306,9 +1306,9 @@ namespace FishSocial.Desktop
             LeaderboardEntryDto third,
             string boardType)
         {
-            BindPodium(_podium1, first, "虚位以待", boardType);
-            BindPodium(_podium2, second, "虚位以待", boardType);
-            BindPodium(_podium3, third, "虚位以待", boardType);
+            BindPodium(_podium1, first, DesktopLocalization.Text("ui.leaderboard.panel.empty.podium", "虚位以待"), boardType);
+            BindPodium(_podium2, second, DesktopLocalization.Text("ui.leaderboard.panel.empty.podium", "虚位以待"), boardType);
+            BindPodium(_podium3, third, DesktopLocalization.Text("ui.leaderboard.panel.empty.podium", "虚位以待"), boardType);
             if (first == null && second == null && third == null) ClearSelectedPlayer();
             else if (string.IsNullOrEmpty(_selectedPlayerId)) SelectPlayer(first ?? second ?? third, boardType);
         }
@@ -1344,7 +1344,7 @@ namespace FishSocial.Desktop
             var sticker = CozyStickerMotion.Bind(slot.root, "podium:" + boardType + ":" + entry.playerId, order,
                 _scroll != null ? _scroll.viewport : null, entry.playerId);
             if (!Application.isPlaying) sticker.ApplyFinalPose();
-            slot.nickname.text = entry.nickname ?? "钓友";
+            slot.nickname.text = entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友");
             slot.value.text = FormatValue(entry, boardType);
             if (slot.avatar != null)
             {
@@ -1362,9 +1362,9 @@ namespace FishSocial.Desktop
             if (_playerRoutine != null) StopCoroutine(_playerRoutine);
             _playerRoutine = null;
             _selectedPlayerId = null;
-            CozyItemArt.Text(transform, "DesignPlayerCard/Name", "选择一位钓友");
+            CozyItemArt.Text(transform, "DesignPlayerCard/Name", DesktopLocalization.Text("ui.leaderboard.panel.title.select_angler", "选择一位钓友"));
             CozyItemArt.Text(transform, "DesignPlayerCard/Value", "");
-            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "点击榜单查看钓友资料。");
+            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.panel.hint.select_profile", "点击榜单查看钓友资料。"));
             CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", null);
             var open = Find<Button>("DesignPlayerCard/OpenProfile");
             if (open != null) open.interactable = false;
@@ -1381,9 +1381,9 @@ namespace FishSocial.Desktop
             foreach(var pair in _cardPlayers)
                 if(pair.Key!=null && pair.Value==entry.playerId) pair.Key.GetComponent<CozyStickerMotion>()?.ReplayTape();
             transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
-            CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? "钓友");
-            CozyItemArt.Text(transform, "DesignPlayerCard/Value", "第 " + entry.rank + " 名 · " + FormatValue(entry, boardType));
-            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "正在加载资料…");
+            CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Value", DesktopLocalization.Format("ui.leaderboard.panel.label.selected_rank", (object)(entry.rank), (object)(FormatValue(entry, boardType))));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.panel.status.loading_profile", "正在加载资料…"));
             CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait(entry.avatarUrl, entry.playerId));
             var open = Find<Button>("DesignPlayerCard/OpenProfile");
             if (open != null)
@@ -1391,11 +1391,11 @@ namespace FishSocial.Desktop
                 open.onClick.RemoveAllListeners();
                 open.onClick.AddListener(() => _openPlayer?.Invoke(entry.playerId));
                 open.interactable = _openPlayer != null;
-                DesktopModalUi.SetButtonLabel(open, "查看钓友资料");
+                DesktopModalUi.SetButtonLabel(open, DesktopLocalization.Text("ui.leaderboard.panel.button.view_profile", "查看钓友资料"));
             }
             if (_api != null && _api.CanUse)
                 _playerRoutine = StartCoroutine(LoadPlayer(entry.playerId, _playerGeneration));
-            else CozyItemArt.Text(transform, "DesignPlayerCard/Bio", "登录后可查看钓友资料。");
+            else CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.panel.hint.login_required", "登录后可查看钓友资料。"));
         }
 
         /// <summary>Bind a complete real-shaped snapshot through the same card handlers as network loads; useful for deterministic Editor rendering.</summary>
@@ -1442,11 +1442,11 @@ namespace FishSocial.Desktop
                 if (this == null || generation != _playerGeneration || playerId != _selectedPlayerId) return;
                 if (!ok || view == null || view.profile == null)
                 {
-                    CozyItemArt.Text(transform, "DesignPlayerCard/Bio", message ?? "资料暂不可用。");
+                    CozyItemArt.Text(transform, "DesignPlayerCard/Bio", message ?? DesktopLocalization.Text("ui.leaderboard.panel.error.profile_unavailable", "资料暂不可用。"));
                     return;
                 }
-                CozyItemArt.Text(transform, "DesignPlayerCard/Name", view.profile.nickname ?? "钓友");
-                CozyItemArt.Text(transform, "DesignPlayerCard/Bio", string.IsNullOrEmpty(view.profile.bio) ? "这位钓友还没有填写简介。" : view.profile.bio);
+                CozyItemArt.Text(transform, "DesignPlayerCard/Name", view.profile.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
+                CozyItemArt.Text(transform, "DesignPlayerCard/Bio", string.IsNullOrEmpty(view.profile.bio) ? DesktopLocalization.Text("ui.leaderboard.panel.empty.biography", "这位钓友还没有填写简介。") : view.profile.bio);
                 CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait(view.profile.avatarUrl, playerId));
             });
             if (generation == _playerGeneration) _playerRoutine = null;
@@ -1470,8 +1470,8 @@ namespace FishSocial.Desktop
                 return DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(size));
             }
             if (boardType == BoardPond)
-                return Mathf.RoundToInt(entry.value) + " 条";
-            return Mathf.RoundToInt(entry.value) + " 条";
+                return DesktopLocalization.Format("ui.leaderboard.panel.format.fish_count", (object)(Mathf.RoundToInt(entry.value)));
+            return DesktopLocalization.Format("ui.leaderboard.panel.format.fish_count", (object)(Mathf.RoundToInt(entry.value)));
         }
 
         void EnsureRankScrollbar()
@@ -1538,15 +1538,14 @@ namespace FishSocial.Desktop
                 return;
             if (myRank == null || !myRank.hasRank)
             {
-                _myRank.text = "我的排名：未上榜";
+                _myRank.text = DesktopLocalization.Text("ui.leaderboard.panel.label.my_rank_unlisted", "我的排名：未上榜");
                 return;
             }
-            _myRank.text = "我的排名：#" + myRank.rank + " · " +
-                           FormatValue(myRank.entry ?? new LeaderboardEntryDto
+            _myRank.text = DesktopLocalization.Format("ui.leaderboard.panel.label.my_rank", (object)(myRank.rank), (object)(FormatValue(myRank.entry ?? new LeaderboardEntryDto
                            {
                                value = myRank.value,
                                extra = myRank.entry != null ? myRank.entry.extra : null,
-                           }, boardType);
+                           }, boardType)));
         }
 
         void SetStatus(string value)

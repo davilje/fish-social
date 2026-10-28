@@ -158,7 +158,7 @@ namespace FishSocial.Desktop.Auth
     [Serializable]
     public sealed class PoliceRaidDto
     {
-        public const string WarningText = "巡警来了！快跑！";
+        public static readonly string WarningText = DesktopLocalization.Text("ui.fishing.network.message.patrol_arrived", "巡警来了！快跑！");
         public string status;
         public string raidId;
         public string pondId;

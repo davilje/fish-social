@@ -71,7 +71,7 @@ namespace FishSocial.Desktop
             }
             BuildMarkers();
             SelectById(_pond != null ? _pond.CurrentPondId : null);
-            SetStatus(_pond == null ? "请先完成 Steam 登录。" : "点选地图上的鱼塘。");
+            SetStatus(_pond == null ? DesktopLocalization.Text("ui.map.world_map.error.sign_in_required", "请先完成 Steam 登录。") : DesktopLocalization.Text("ui.map.world_map.hint.select_pond", "点选地图上的鱼塘。"));
             ClampContent();
         }
 
@@ -91,7 +91,7 @@ namespace FishSocial.Desktop
             WorldMapPondView pond;
             if (!_byId.TryGetValue(pondId, out pond))
             {
-                SetStatus("未找到对应鱼塘，请重新选择。");
+                SetStatus(DesktopLocalization.Text("ui.map.world_map.error.pond_not_found", "未找到对应鱼塘，请重新选择。"));
                 return;
             }
             if (SelectionState.Busy) return;
@@ -106,7 +106,7 @@ namespace FishSocial.Desktop
             WorldMapPondView selectedPond;
             if (string.IsNullOrEmpty(pondId) || !_byId.TryGetValue(pondId, out selectedPond))
             {
-                SetStatus("未找到对应鱼塘，请重新选择。");
+                SetStatus(DesktopLocalization.Text("ui.map.world_map.error.pond_not_found", "未找到对应鱼塘，请重新选择。"));
                 return;
             }
             var sameSelection = _selected != null && _selected.pondId == selectedPond.pondId;
@@ -295,11 +295,11 @@ namespace FishSocial.Desktop
             RefreshMarkerSelection();
             PondDetailView.Refresh(transform.Find("Details"), SelectionState, "DetailsText");
             if (_selected == null)
-                SetEnterLabel("请选择鱼塘", false);
+                SetEnterLabel(DesktopLocalization.Text("ui.map.world_map.hint.pond_required", "请选择鱼塘"), false);
             else if (SelectionState.Busy)
-                SetEnterLabel("正在进入…", false);
+                SetEnterLabel(DesktopLocalization.Text("ui.map.pond_entry.button.entering", "正在进入…"), false);
             else
-                SetEnterLabel(IsLocked(_selected) ? "暂不可进入" : "进入鱼塘", !IsLocked(_selected));
+                SetEnterLabel(IsLocked(_selected) ? DesktopLocalization.Text("ui.map.pond_entry.button.unavailable", "暂不可进入") : DesktopLocalization.Text("ui.map.pond_entry.button.enter", "进入鱼塘"), !IsLocked(_selected));
         }
 
         void EnterSelectedPond()
@@ -308,12 +308,12 @@ namespace FishSocial.Desktop
             if (DesktopOnboardingController.Instance != null &&
                 DesktopOnboardingController.Instance.IsOnboardingActive)
             {
-                SetStatus("请先完成新手引导。");
+                SetStatus(DesktopLocalization.Text("ui.map.world_map.error.tutorial_required", "请先完成新手引导。"));
                 return;
             }
             if (_selected == null || _pond == null)
             {
-                SetStatus("请选择有效鱼塘，或等待会话初始化。");
+                SetStatus(DesktopLocalization.Text("ui.map.world_map.error.selection_not_ready", "请选择有效鱼塘，或等待会话初始化。"));
                 return;
             }
             if (IsLocked(_selected))
@@ -324,7 +324,7 @@ namespace FishSocial.Desktop
             _pond.SetPendingReturnFeeMode(SelectionState.ReturnFeeMode);
             _enteringPondId = _selected.pondId;
             _waitingEnter = true;
-            SelectionState.SetEntryStatus(true, "正在进入 " + _selected.displayName + "…");
+            SelectionState.SetEntryStatus(true, DesktopLocalization.Format("ui.map.world_map.status.entering_named_pond", (object)(_selected.displayName)));
             if (_pond.State == SocialSocketState.Connected)
             {
                 _pond.SwitchPond(_enteringPondId, (ok, message) =>
@@ -351,7 +351,7 @@ namespace FishSocial.Desktop
             if (_pond.CurrentUser == null)
                 return;
             _waitingEnter = false;
-            SelectionState.SetEntryStatus(false, "已进入鱼塘。");
+            SelectionState.SetEntryStatus(false, DesktopLocalization.Text("ui.map.world_map.status.entered", "已进入鱼塘。"));
             OpenOverlay();
         }
 
@@ -389,17 +389,17 @@ namespace FishSocial.Desktop
             {
                 var failedEntry = _waitingEnter;
                 _waitingEnter = false;
-                SelectionState.SetEntryStatus(false, string.IsNullOrEmpty(message) ? "鱼塘连接失败，可重试。" : message, failedEntry);
+                SelectionState.SetEntryStatus(false, string.IsNullOrEmpty(message) ? DesktopLocalization.Text("ui.map.world_map.error.connection_failed", "鱼塘连接失败，可重试。") : message, failedEntry);
             }
             else if (_waitingEnter)
-                SetStatus(string.IsNullOrEmpty(message) ? "正在等待鱼塘确认…" : message);
+                SetStatus(string.IsNullOrEmpty(message) ? DesktopLocalization.Text("ui.map.world_map.status.awaiting_confirmation", "正在等待鱼塘确认…") : message);
             RefreshSelection();
         }
 
         void OnPondError(string message)
         {
             _waitingEnter = false;
-            SelectionState.SetEntryStatus(false, string.IsNullOrEmpty(message) ? "进入失败，可重试。" : message, true);
+            SelectionState.SetEntryStatus(false, string.IsNullOrEmpty(message) ? DesktopLocalization.Text("ui.map.world_map.error.entry_failed", "进入失败，可重试。") : message, true);
         }
 
         void SetStatus(string message)
