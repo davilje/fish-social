@@ -36,5 +36,29 @@
     }
   ],
   "motion": "motion.json",
-  "composition": "original-with-moving-foliage"
+  "composition": "original-with-moving-foliage",
+  "previewLayers": [
+    {
+      "id": "preview-sky",
+      "image": "layered/pastel-scenes-v1/coast-01-mint/sky.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": -2,
+      "previewOnly": true,
+      "defaultVisible": false
+    },
+    {
+      "id": "preview-cloud-complete",
+      "image": "layered/pastel-scenes-v1/coast-01-mint/cloud-complete.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": -1,
+      "previewOnly": true,
+      "defaultVisible": false
+    }
+  ]
 }

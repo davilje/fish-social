@@ -90,6 +90,8 @@
     const layerInfo = document.querySelector('#layer-info');
     const layerNames = {
       'pond-bg': '原始完整场景', 'scene-celestial': '太阳／月亮',
+      'preview-sky': '无云天空（恢复备选）',
+      'preview-cloud-complete': '完整云景补绘（含天空，恢复备选）',
       'scene-cloud-complete': '完整云景补绘底层（含天空）',
       'scene-foliage-back': '后层树叶（固定防穿帮）',
       'scene-bush-back': '中景灌木后层（固定防穿帮）',
@@ -118,7 +120,7 @@
       visibleLayers.clear();
       layerButtons.replaceChildren();
       for (const layer of scene.layers.filter(layer => !layer.empty)) {
-        visibleLayers.add(layer.id);
+        if (layer.defaultVisible !== false) visibleLayers.add(layer.id);
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'layer-toggle';
@@ -174,7 +176,7 @@
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = () => reject(new Error(url));
-        image.src = url + '?v=original-backdrop-leaves-v20';
+        image.src = url + '?v=restored-sky-clouds-v21';
       });
     }
 
@@ -335,13 +337,14 @@
       const leaves = new Map((motion.leaves || []).map(leaf => [leaf.id, leaf]));
       const weights = new Map();
       const layers = [];
-      for (const layer of [...layout.layers].sort((a, b) => a.z - b.z)) {
+      for (const layer of [...(layout.previewLayers || []), ...layout.layers].sort((a, b) => a.z - b.z)) {
         const image = await loadImage(root + layer.image);
         const canvas = paint(image, width, height);
         const pixels = canvas.getContext('2d').getImageData(0, 0, width, height);
         let empty = true;
         for (let p = 3; p < pixels.data.length; p += 4) if (pixels.data[p]) { empty = false; break; }
-        const item = { canvas, id: layer.id, file: layer.image.split('/').pop(), z: layer.z, empty };
+        const item = { canvas, id: layer.id, file: layer.image.split('/').pop(), z: layer.z, empty,
+          defaultVisible: layer.defaultVisible };
         const cloud = clouds.get(layer.id);
         const leaf = leaves.get(layer.id);
         if (cloud) {
@@ -386,7 +389,7 @@
       populateLayerButtons(scene);
       elapsed = 0;
       runningFrom = performance.now();
-      status.textContent = `${pondSelect.selectedOptions[0].textContent} · 勾选图层叠加查看，透明区域显示为棋盘格`;
+      status.textContent = `${pondSelect.selectedOptions[0].textContent} · 勾选图层叠加查看；单独查看恢复的天空／云景，请先全部隐藏`;
       fit();
       requestAnimationFrame(fit);
       cancelAnimationFrame(frame);

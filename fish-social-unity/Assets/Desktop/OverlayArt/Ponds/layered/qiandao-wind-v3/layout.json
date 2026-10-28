@@ -88,5 +88,29 @@
     }
   ],
   "animationStatus": "Unmodified original panorama with source-colored front foliage; original serves as the fixed backing.",
-  "composition": "original-with-moving-foliage"
+  "composition": "original-with-moving-foliage",
+  "previewLayers": [
+    {
+      "id": "preview-sky",
+      "image": "layered/qiandao-wind-v3/sky.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": -2,
+      "previewOnly": true,
+      "defaultVisible": false
+    },
+    {
+      "id": "preview-cloud-complete",
+      "image": "layered/qiandao-wind-v3/cloud-complete.png",
+      "x": 0,
+      "y": 0,
+      "w": 1680,
+      "h": 560,
+      "z": -1,
+      "previewOnly": true,
+      "defaultVisible": false
+    }
+  ]
 }
