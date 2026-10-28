@@ -354,6 +354,46 @@ namespace FishSocial.Desktop.Editor
             SyncPastelSceneBundles();
         }
 
+        // Replace scenery only; saved actor, arrival and water-contact geometry is retained.
+        public static void ApplyOriginalBackdropsAndExport()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying scenery.");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            var catalog = ReadCatalog();
+            foreach (var binding in catalog.bindings)
+            {
+                var layout = ReadLayerLayout(ResolveProfile(catalog, binding));
+                if (layout.layers[0].id != "pond-bg" || !layout.layers[0].image.EndsWith("/background.png"))
+                    throw new InvalidOperationException("Expected original complete backdrop: " + binding.pondId);
+                foreach (var layer in layout.layers) ImportSprite(ArtFolder + "/" + layer.image);
+                var path = OverlayPondLayoutBaker.PrefabPath(binding.pondId);
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
+                        if (item.kind == "sprite" && item.objectId != "pond-bg" && item.transform.parent == root.transform)
+                            Object.DestroyImmediate(item.gameObject);
+                    PlaceSceneLayerSprites(root.transform, layout);
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
+            }
+            AssetDatabase.SaveAssets();
+            foreach (var binding in catalog.bindings)
+            {
+                var error = OverlayLayoutExporter.ExportPond(binding.pondId);
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+            ImportUnassignedPastelSceneSprites();
+            SyncPastelSceneBundles();
+            Verify();
+            RenderPreviews(catalog);
+            CozyJournalResourcePreparation.RefreshPondPreviews();
+            OverlayResourceSync.SyncExportedResources();
+            Debug.Log("[PondArt] Original complete backdrops and moving foliage applied; gameplay geometry preserved.");
+        }
+
         // Update scenery layers only. Do not re-place the waiting lane, seats or water contact line.
         public static void ApplyOcclusionRepairAndExport()
         {
@@ -406,7 +446,7 @@ namespace FishSocial.Desktop.Editor
                 ValidateRepairedPastelLayers(layout, sceneDir);
                 SyncSceneBundle(layout, resources);
             }
-            // The original Qiandao scene has its own 19-layer layout, including the occlusion repair backings.
+            // The original Qiandao scene retains its own foliage regions.
             var qiandaoLayout = ArtFolder + "/layered/qiandao-wind-v3/layout.json";
             if (File.Exists(qiandaoLayout))
                 SyncSceneBundle(JsonUtility.FromJson<LayerLayout>(File.ReadAllText(qiandaoLayout)), resources);
@@ -500,11 +540,16 @@ namespace FishSocial.Desktop.Editor
 
         static void ValidateRepairedPastelLayers(LayerLayout layout, string source)
         {
+            var originalWithLeaves = layout != null && layout.layers != null && layout.layers.Length == 3
+                && layout.layers.All(layer => layer != null)
+                && layout.layers.OrderBy(layer => layer.z).Select(layer => layer.id)
+                    .SequenceEqual(new[] { "pond-bg", "scene-foliage-mid", "scene-foliage-near" })
+                && layout.layers.Single(layer => layer.id == "pond-bg").image.EndsWith("/background.png");
             var expected = new[] { "pond-bg", "scene-cloud-complete", "scene-celestial", "scene-cloud-far", "scene-cloud-middle",
                 "scene-cloud-near", "scene-far", "scene-middle", "scene-foliage-back", "scene-foliage-mid", "scene-foliage-near",
                 "scene-shore", "scene-water" };
             if (layout == null || layout.layers == null || layout.layers.Any(layer => layer == null)
-                || !layout.layers.OrderBy(layer => layer.z).Select(layer => layer.id).SequenceEqual(expected))
+                || (!originalWithLeaves && !layout.layers.OrderBy(layer => layer.z).Select(layer => layer.id).SequenceEqual(expected)))
                 throw new InvalidOperationException("Expected repaired sky, fixed celestial, three clouds and separate foliage layers: " + source);
             foreach (var layer in layout.layers)
                 if (!File.Exists(ArtFolder + "/" + layer.image))

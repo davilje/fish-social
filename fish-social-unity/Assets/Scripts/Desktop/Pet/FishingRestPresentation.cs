@@ -36,7 +36,7 @@ namespace FishSocial.Desktop.Pet
             badgeHost.transform.SetParent(host, false);
             _badge = badgeHost.GetComponent<Text>();
             _badge.font = DesktopModalUi.Font;
-            _badge.text = "Zzz";
+            DesktopLocalization.SetText(_badge, "Zzz");
             _badge.alignment = TextAnchor.MiddleCenter;
             _badge.raycastTarget = false;
             _badge.maskable = false;

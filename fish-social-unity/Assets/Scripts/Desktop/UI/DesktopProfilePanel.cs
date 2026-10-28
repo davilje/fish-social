@@ -216,7 +216,7 @@ namespace FishSocial.Desktop
             _inventory = view.showcaseFish ?? new FishInventoryItemDto[0];
             RenderOtherPlayer(profile);
             RenderShowcase(profile);
-            SetStatus("已加载 " + profile.nickname + " 的资料摘要。");
+            SetStatus(DesktopLocalization.Concat(DesktopLocalization.Concat("已加载 ", profile.nickname), " 的资料摘要。"));
         }
 
         static PlayerProfileDto MapPublicProfile(PublicPlayerProfileDto source)
@@ -238,9 +238,9 @@ namespace FishSocial.Desktop
             if (_edit != null)
                 _edit.gameObject.SetActive(false);
             if (_coins != null)
-                _coins.text = "他人资料";
+                DesktopLocalization.SetText(_coins, "他人资料");
             if (_online != null)
-                _online.text = "同塘玩家";
+                DesktopLocalization.SetText(_online, "同塘玩家");
         }
 
         void Render(PlayerProfileDto profile)
@@ -250,17 +250,17 @@ namespace FishSocial.Desktop
             if (profile == null)
                 return;
             if (_nickname != null)
-                _nickname.text = string.IsNullOrEmpty(profile.nickname) ? "钓友" : profile.nickname;
+                DesktopLocalization.SetText(_nickname, string.IsNullOrEmpty(profile.nickname) ? "钓友" : profile.nickname);
             if (_playerId != null)
-                _playerId.text = "玩家 ID：" + (profile.playerId ?? "");
+                DesktopLocalization.SetText(_playerId, DesktopLocalization.Concat("玩家 ID：", (profile.playerId ?? "")));
             if (_online != null)
-                _online.text = DesktopProfileCache.OnlineLabel(_pond, _api != null && _api.CanUse);
+                DesktopLocalization.SetText(_online, DesktopProfileCache.OnlineLabel(_pond, _api != null && _api.CanUse));
             if (_bio != null)
-                _bio.text = string.IsNullOrEmpty(profile.bio)
+                DesktopLocalization.SetText(_bio, string.IsNullOrEmpty(profile.bio)
                     ? "这个人很懒，还没有写简介…"
-                    : profile.bio;
+                    : profile.bio);
             if (_coins != null)
-                _coins.text = "金币：" + profile.coins;
+                DesktopLocalization.SetText(_coins, DesktopLocalization.Concat("金币：", profile.coins));
             RenderAvatar(profile);
             RenderShowcase(profile);
         }
@@ -269,9 +269,9 @@ namespace FishSocial.Desktop
         {
             if (_avatarLabel != null)
             {
-                _avatarLabel.text = string.IsNullOrEmpty(profile.avatarUrl)
+                DesktopLocalization.SetText(_avatarLabel, string.IsNullOrEmpty(profile.avatarUrl)
                     ? DesktopDefaultAvatars.InitialFor(profile)
-                    : DesktopDefaultAvatars.LabelFor(profile.avatarUrl);
+                    : DesktopDefaultAvatars.LabelFor(profile.avatarUrl));
             }
             if (_avatarRoutine != null)
                 StopCoroutine(_avatarRoutine);
@@ -292,7 +292,7 @@ namespace FishSocial.Desktop
                 _avatar.sprite = DesktopDefaultAvatars.Portrait(url, profile?.playerId);
                 _avatar.color = Color.white;
                 _avatar.preserveAspect = true;
-                if (_avatarLabel != null) _avatarLabel.text = string.Empty;
+                if (_avatarLabel != null) DesktopLocalization.SetText(_avatarLabel, string.Empty);
                 yield break;
             }
             if (string.IsNullOrEmpty(url))
@@ -324,7 +324,7 @@ namespace FishSocial.Desktop
                     new Vector2(0.5f, 0.5f));
                 _avatar.color = Color.white;
                 if (_avatarLabel != null)
-                    _avatarLabel.text = string.Empty;
+                    DesktopLocalization.SetText(_avatarLabel, string.Empty);
             }
         }
 
@@ -345,7 +345,7 @@ namespace FishSocial.Desktop
                     new Vector2(0.5f, 0.5f));
                 _avatar.color = Color.white;
                 if (_avatarLabel != null)
-                    _avatarLabel.text = string.Empty;
+                    DesktopLocalization.SetText(_avatarLabel, string.Empty);
             }
             catch
             {
@@ -369,11 +369,11 @@ namespace FishSocial.Desktop
                 var slot = DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", _showcase);
                 if (slot == null)
                     continue;
-                slot.name = "Slot" + i;
+                slot.name = DesktopLocalization.Concat("Slot", i);
                 var labelNode = DesktopUiPrefabFactory.Child(slot, "Label");
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
-                    label.text = fish != null ? DesktopProfileCache.FishLabel(fish) : "空";
+                    DesktopLocalization.SetText(label, fish != null ? DesktopProfileCache.FishLabel(fish) : "空");
                 DesktopModalUi.StyleTree(slot.transform);
             }
         }
@@ -391,9 +391,9 @@ namespace FishSocial.Desktop
         }
 
         void SetStatus(string message)
-        {
+        { message = DesktopLocalization.Message(message);
             if (_status != null)
-                _status.text = message ?? string.Empty;
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(message ?? string.Empty));
         }
 
         void StopLoad()
@@ -433,7 +433,7 @@ namespace FishSocial.Desktop
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
             var label = go.GetComponent<Text>();
-            label.text = text;
+            DesktopLocalization.SetText(label, text);
             label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = size;
             label.color = CatTheme.Ink;

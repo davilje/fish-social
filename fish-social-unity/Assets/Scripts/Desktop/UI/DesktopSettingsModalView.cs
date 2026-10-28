@@ -141,7 +141,7 @@ namespace FishSocial.Desktop
             if (label == null)
                 label = copy.GetComponentInChildren<Text>();
             if (label != null)
-                label.text = DesktopLocalization.Text("ui.settings.motion.toggle.reduce", "减少动效");
+                DesktopLocalization.SetText(label, DesktopLocalization.Text("ui.settings.motion.toggle.reduce", "减少动效"));
             var toggle = copy.GetComponent<Toggle>();
             if (toggle == null)
                 toggle = copy.GetComponentInChildren<Toggle>();
@@ -170,8 +170,8 @@ namespace FishSocial.Desktop
             for (var i = 0; i < TabNames.Length; i++)
             {
                 var index = i;
-                if (!DesktopModalUi.BindButton(transform, "SettingsTabs/" + TabNames[i], () => ChangeTab(index)))
-                    Debug.LogError("[DesktopUI] PanelSettings requires Button: SettingsTabs/" + TabNames[i], this);
+                if (!DesktopModalUi.BindButton(transform, DesktopLocalization.Concat("SettingsTabs/", TabNames[i]), () => ChangeTab(index)))
+                    Debug.LogError(DesktopLocalization.Concat("[DesktopUI] PanelSettings requires Button: SettingsTabs/", TabNames[i]), this);
             }
             if (!Debug.isDebugBuild)
             {
@@ -206,8 +206,8 @@ namespace FishSocial.Desktop
                 return;
             var current = window.Mode == WindowDisplayMode.Fullscreen ? DesktopLocalization.Text("ui.settings.display.option.fullscreen", "全屏")
                 : window.Mode == WindowDisplayMode.Borderless ? DesktopLocalization.Text("ui.settings.display.option.borderless", "无边框")
-                : window.Width + "×" + window.Height;
-            note.text = DesktopLocalization.Format("ui.settings.display.status.current", (object)(current));
+                : DesktopLocalization.Concat(DesktopLocalization.Concat(window.Width, "×"), window.Height);
+            DesktopLocalization.SetText(note, DesktopLocalization.Format("ui.settings.display.status.current", (object)(current)));
         }
 
         Coroutine _tabMotion;
@@ -216,7 +216,7 @@ namespace FishSocial.Desktop
             if(tab==_tab) return;
             if(_tabMotion!=null) StopCoroutine(_tabMotion);
             for(var i=0;i<TabNames.Length;i++)
-                DesktopModalUi.FindComponent<CozyButtonVisual>(transform,"SettingsTabs/"+TabNames[i])?.SetSelected(i==tab);
+                DesktopModalUi.FindComponent<CozyButtonVisual>(transform,DesktopLocalization.Concat("SettingsTabs/", TabNames[i]))?.SetSelected(i==tab);
             _tabMotion=StartCoroutine(ChangeTabRoutine(tab));
         }
         IEnumerator ChangeTabRoutine(int tab)
@@ -239,11 +239,11 @@ namespace FishSocial.Desktop
                         node.gameObject.SetActive(i == _tab);
                 }
             for (var i = 0; i < TabNames.Length; i++)
-                DesktopModalUi.FindComponent<CozyButtonVisual>(transform, "SettingsTabs/" + TabNames[i])
+                DesktopModalUi.FindComponent<CozyButtonVisual>(transform, DesktopLocalization.Concat("SettingsTabs/", TabNames[i]))
                     ?.SetSelected(i == _tab);
             if (_tabHeading != null)
-                _tabHeading.text = transform.Find("JournalDetailParity") != null
-                    ? new[] { DesktopLocalization.Text("ui.settings.page_heading.window_size", "窗口尺寸"), DesktopLocalization.Text("ui.settings.page_heading.notifications", "提醒开关"), "服务器地址", DesktopLocalization.Text("ui.settings.page_heading.tray", "系统托盘") }[_tab] : TabTitles[_tab];
+                DesktopLocalization.SetText(_tabHeading, transform.Find("JournalDetailParity") != null
+                    ? new[] { DesktopLocalization.Text("ui.settings.page_heading.window_size", "窗口尺寸"), DesktopLocalization.Text("ui.settings.page_heading.notifications", "提醒开关"), "服务器地址", DesktopLocalization.Text("ui.settings.page_heading.tray", "系统托盘") }[_tab] : TabTitles[_tab]);
             var hint = DesktopModalUi.FindDescendant(transform, "DesignSettingsHint");
             if (hint != null)
                 hint.gameObject.SetActive(_tab == 0);
@@ -277,16 +277,16 @@ namespace FishSocial.Desktop
                     var window = WindowManager.Instance != null ? WindowManager.Instance.Settings : null;
                     var current = window == null ? "—" : window.Mode == WindowDisplayMode.Fullscreen ? DesktopLocalization.Text("ui.settings.display.option.fullscreen", "全屏")
                         : window.Mode == WindowDisplayMode.Borderless ? DesktopLocalization.Text("ui.settings.display.option.borderless", "无边框") : DesktopLocalization.Format("ui.settings.display.label.window_dimensions", (object)(window.Width), (object)(window.Height));
-                    _tabInfo.text = DesktopLocalization.Format("ui.settings.description.window_settings", (object)(current));
+                    DesktopLocalization.SetText(_tabInfo, DesktopLocalization.Format("ui.settings.description.window_settings", (object)(current)));
                     break;
                 case 1:
-                    _tabInfo.text = DesktopLocalization.Text("ui.settings.description.notifications", "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。\n\n「模拟连接错误」用于检查提醒是否正常。");
+                    DesktopLocalization.SetText(_tabInfo, DesktopLocalization.Text("ui.settings.description.notifications", "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。\n\n「模拟连接错误」用于检查提醒是否正常。"));
                     break;
                 case 2:
-                    _tabInfo.text = "填写服务器地址并保存，重启客户端后生效。\n\n保存前可先「测试服务器连接」，检查 /health 是否可达。";
+                    DesktopLocalization.SetText(_tabInfo, "填写服务器地址并保存，重启客户端后生效。\n\n保存前可先「测试服务器连接」，检查 /health 是否可达。");
                     break;
                 default:
-                    _tabInfo.text = DesktopLocalization.Text("ui.settings.description.tray", "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n背景音乐和音效音量可分别调整，设为 0 即可静音。改动会自动保存。\n\n「重置新手引导」会重新播放一次教学。");
+                    DesktopLocalization.SetText(_tabInfo, DesktopLocalization.Text("ui.settings.description.tray", "开启「关闭窗口时隐藏到托盘」后，关闭窗口不会退出游戏，猫咪会继续钓鱼。\n\n背景音乐和音效音量可分别调整，设为 0 即可静音。改动会自动保存。\n\n「重置新手引导」会重新播放一次教学。"));
                     break;
             }
         }
@@ -332,12 +332,12 @@ namespace FishSocial.Desktop
                 ? DesktopAppBootstrap.Instance.ServerBaseUrl
                 : DesktopServerConfig.DefaultServerBaseUrl;
             if (_serverUrlText != null)
-                _serverUrlText.text = "当前服务器：" + url;
+                DesktopLocalization.SetText(_serverUrlText, DesktopLocalization.Concat("当前服务器：", url));
             if (_serverUrlInput != null)
-                _serverUrlInput.text = url;
+                DesktopLocalization.SetText(_serverUrlInput, url);
             SyncServerPlaceholder();
             if (_serverStatusText != null && string.IsNullOrEmpty(_serverStatusText.text))
-                _serverStatusText.text = "保存后请重启客户端；可用「测试服务器连接」检查 /health。";
+                DesktopLocalization.SetText(_serverStatusText, "保存后请重启客户端；可用「测试服务器连接」检查 /health。");
         }
 
         void LateUpdate()
@@ -368,7 +368,7 @@ namespace FishSocial.Desktop
             if (_serverUrlHintText == null)
                 _serverUrlHintText = _serverUrlHint.text ?? string.Empty;
             var showHint = string.IsNullOrEmpty(_serverUrlInput.text);
-            _serverUrlHint.text = showHint ? _serverUrlHintText : string.Empty;
+            DesktopLocalization.SetText(_serverUrlHint, showHint ? _serverUrlHintText : string.Empty);
             if (_serverUrlHint.gameObject.activeSelf != showHint)
                 _serverUrlHint.gameObject.SetActive(showHint);
         }
@@ -383,11 +383,11 @@ namespace FishSocial.Desktop
             }
 
             if (_serverUrlInput != null)
-                _serverUrlInput.text = normalized;
+                DesktopLocalization.SetText(_serverUrlInput, normalized);
             SetServerStatus(
-                "已写入 server.json（" + normalized + "）。请重启客户端后生效。",
+                DesktopLocalization.Concat(DesktopLocalization.Concat("已写入 server.json（", normalized), "）。请重启客户端后生效。"),
                 true);
-            Debug.Log("[DesktopShell] server.json updated to " + normalized);
+            Debug.Log(DesktopLocalization.Concat("[DesktopShell] server.json updated to ", normalized));
         }
 
         void TestServerUrl()
@@ -406,8 +406,8 @@ namespace FishSocial.Desktop
 
         IEnumerator HealthCheckRoutine(string serverBaseUrl)
         {
-            SetServerStatus("正在测试 " + serverBaseUrl + "/health …", true);
-            var url = serverBaseUrl.TrimEnd('/') + "/health";
+            SetServerStatus(DesktopLocalization.Concat(DesktopLocalization.Concat("正在测试 ", serverBaseUrl), "/health …"), true);
+            var url = DesktopLocalization.Concat(serverBaseUrl.TrimEnd('/'), "/health");
             using (var request = UnityWebRequest.Get(url))
             {
                 request.timeout = 8;
@@ -421,8 +421,8 @@ namespace FishSocial.Desktop
                 {
                     var detail = request.error;
                     if (string.IsNullOrEmpty(detail))
-                        detail = "HTTP " + request.responseCode;
-                    SetServerStatus("连接失败：" + detail, false);
+                        detail = DesktopLocalization.Concat("HTTP ", request.responseCode);
+                    SetServerStatus(DesktopLocalization.Concat("连接失败：", detail), false);
                 }
             }
 
@@ -430,10 +430,10 @@ namespace FishSocial.Desktop
         }
 
         void SetServerStatus(string message, bool ok)
-        {
+        { message = DesktopLocalization.Message(message);
             if (_serverStatusText == null)
                 return;
-            _serverStatusText.text = message ?? string.Empty;
+            DesktopLocalization.SetText(_serverStatusText, DesktopLocalization.Message(message ?? string.Empty));
             _serverStatusText.color = ok
                 ? CatTheme.Ink
                 : new Color(0.65f, 0.29f, 0.18f, 1f);
@@ -448,7 +448,7 @@ namespace FishSocial.Desktop
                 template = DesktopModalUi.FindDescendant(transform, presets[0].Label);
             if (template == null)
             {
-                Debug.LogError("[DesktopUI] PanelSettings requires Button: " + legacyName, this);
+                Debug.LogError(DesktopLocalization.Concat("[DesktopUI] PanelSettings requires Button: ", legacyName), this);
                 return;
             }
 
@@ -493,7 +493,7 @@ namespace FishSocial.Desktop
                 var text = node.GetComponentInChildren<Text>(true);
                 if (text != null)
                 {
-                    text.text = label;
+                    DesktopLocalization.SetText(text, label);
                     text.alignment = TextAnchor.MiddleCenter;
                     var journal = transform.Find("JournalDetailParity") != null;
                     text.resizeTextForBestFit = !journal;
@@ -547,7 +547,7 @@ namespace FishSocial.Desktop
                 if (name == "模拟连接错误" && !Debug.isDebugBuild)
                     continue;
                 if (DesktopModalUi.FindDescendantComponent<Button>(transform, name) == null)
-                    Debug.LogError("[DesktopUI] PanelSettings requires Button: " + name, this);
+                    Debug.LogError(DesktopLocalization.Concat("[DesktopUI] PanelSettings requires Button: ", name), this);
             }
             if (_hideToTrayToggle == null ||
                 _enableNotificationsToggle == null ||

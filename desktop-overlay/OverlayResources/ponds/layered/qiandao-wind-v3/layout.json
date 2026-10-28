@@ -7,75 +7,12 @@
   "layers": [
     {
       "id": "pond-bg",
-      "image": "layered/qiandao-wind-v3/sky.png",
+      "image": "layered/qiandao-wind-v3/background.png",
       "x": 0,
       "y": 0,
       "w": 1680,
       "h": 560,
       "z": 0
-    },
-    {
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "id": "scene-cloud-complete",
-      "image": "layered/qiandao-wind-v3/cloud-complete.png",
-      "z": 1
-    },
-    {
-      "id": "scene-cloud-far",
-      "image": "layered/qiandao-wind-v3/cloud-far.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 2
-    },
-    {
-      "id": "scene-cloud-middle",
-      "image": "layered/qiandao-wind-v3/cloud-middle.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 3
-    },
-    {
-      "id": "scene-cloud-near",
-      "image": "layered/qiandao-wind-v3/cloud-near.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 4
-    },
-    {
-      "id": "scene-far-dam",
-      "image": "layered/qiandao-wind-v3/far-dam.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 5
-    },
-    {
-      "id": "scene-middle-slope",
-      "image": "layered/qiandao-wind-v3/middle-slope.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 6
-    },
-    {
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "id": "scene-bush-back",
-      "image": "layered/qiandao-wind-v3/bush-back.png",
-      "z": 7
     },
     {
       "id": "scene-bush-1",
@@ -84,7 +21,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 8
+      "z": 1
     },
     {
       "id": "scene-bush-2",
@@ -93,7 +30,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 9
+      "z": 2
     },
     {
       "id": "scene-bush-3",
@@ -102,7 +39,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 10
+      "z": 3
     },
     {
       "id": "scene-bush-4",
@@ -111,7 +48,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 11
+      "z": 4
     },
     {
       "id": "scene-bush-5",
@@ -120,7 +57,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 12
+      "z": 5
     },
     {
       "id": "scene-bush-6",
@@ -129,16 +66,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 13
-    },
-    {
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "id": "scene-foliage-back",
-      "image": "layered/qiandao-wind-v3/foliage-back.png",
-      "z": 14
+      "z": 6
     },
     {
       "id": "scene-tree-left",
@@ -147,7 +75,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 15
+      "z": 7
     },
     {
       "id": "scene-tree-right",
@@ -156,26 +84,9 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 16
-    },
-    {
-      "id": "scene-front-bank",
-      "image": "layered/qiandao-wind-v3/front-bank.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 17
-    },
-    {
-      "id": "scene-water",
-      "image": "layered/qiandao-wind-v3/water.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 18
+      "z": 8
     }
   ],
-  "animationStatus": "Static completed cloud-sky backing plus original visible paint; fixed original-color rear foliage beneath wind-animated front foliage."
+  "animationStatus": "Unmodified original panorama with source-colored front foliage; original serves as the fixed backing.",
+  "composition": "original-with-moving-foliage"
 }

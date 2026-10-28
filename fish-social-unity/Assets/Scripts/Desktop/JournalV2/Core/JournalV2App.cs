@@ -31,7 +31,7 @@ namespace FishSocial.Desktop.JournalV2
             if(!preview) DesktopCatAudioFeedback.Bind(Stage.Find("CornerCat"));
             foreach(var route in new[]{"bag","equip","shop","ach","rank","profile","feed"})
             {
-                var captured=route;BindButton("Stage/Nav/"+route,()=>Navigate(captured));
+                var captured=route;BindButton(DesktopLocalization.Concat("Stage/Nav/", route),()=>Navigate(captured));
             }
             BindButton("Stage/Header/Profile",()=>Navigate("profile"));
             BindButton("Stage/Header/Coins",()=>Navigate("shop"));
@@ -55,7 +55,7 @@ namespace FishSocial.Desktop.JournalV2
             var logged=auth!=null&&auth.IsAuthenticated;
             Stage.Find("Login").gameObject.SetActive(!logged);SetMainVisible(logged);
             var status=Stage.Find("Login/Status").GetComponent<Text>();
-            status.text=state==SteamLoginState.Failed?"登录失败，请检查 Steam 后重试。":logged?"":"通过 Steam 登录，继续你的钓鱼手账。";
+            DesktopLocalization.SetText(status, state==SteamLoginState.Failed?"登录失败，请检查 Steam 后重试。":logged?"":"通过 Steam 登录，继续你的钓鱼手账。");
             if(logged){WindowManager.Instance?.ApplyMainShell();RefreshHeader();}
         }
         void SetMainVisible(bool value)
@@ -86,7 +86,7 @@ namespace FishSocial.Desktop.JournalV2
                 RouteChanged?.Invoke(id);return;
             }
             var next=GetPage(id,Stage.Find("PageHost"));
-            if(next==null){Toast("页面资源尚未就绪："+id);return;}
+            if(next==null){Toast(DesktopLocalization.Concat("页面资源尚未就绪：", id));return;}
             if(next==current && next.gameObject.activeSelf)
             {
                 next.GetComponent<JournalV2Controller>()?.Open(tab,targetId);return;
@@ -129,7 +129,7 @@ namespace FishSocial.Desktop.JournalV2
             if(modal!=null&&!modal.GetComponent<JournalV2Controller>().CanClose)return;
             CloseModal();var host=Stage.Find("ModalHost");host.gameObject.SetActive(true);
             modal=GetPage(id,host);
-            if(modal==null){host.gameObject.SetActive(false);Toast("弹窗资源尚未就绪："+id);return;}
+            if(modal==null){host.gameObject.SetActive(false);Toast(DesktopLocalization.Concat("弹窗资源尚未就绪：", id));return;}
             modal.gameObject.SetActive(true);modal.CloseButton?.onClick.RemoveAllListeners();modal.CloseButton?.onClick.AddListener(CloseModal);
             modal.GetComponent<JournalV2Controller>()?.Open(tab,targetId);
             modal.GetComponent<JournalV2PageAnimator>()?.Enter(true);
@@ -145,7 +145,7 @@ namespace FishSocial.Desktop.JournalV2
         {
             foreach(Transform item in Stage.Find("Nav"))item.GetComponent<JournalV2Button>()?.SetSelected(item.name==CurrentPage);
             var bobber=Stage.Find("Nav/Bobber")?.GetComponent<JournalV2Bobber>();
-            var nav=Stage.Find("Nav/"+CurrentPage) as RectTransform;
+            var nav=Stage.Find(DesktopLocalization.Concat("Nav/", CurrentPage)) as RectTransform;
             if(nav==null)bobber?.Hide();else bobber?.MoveTo(new Vector2(nav.anchoredPosition.x+nav.rect.width/2-20,0),nav.Find("Visual/Icon") as RectTransform);
         }
         public void RefreshHeader()
@@ -167,22 +167,22 @@ namespace FishSocial.Desktop.JournalV2
             yield return Api.GetFishingProgress((ok,progress,error)=>
             {
                 if(!ok||progress==null)return;
-                SetHeader("Profile/Visual/Level","Lv."+progress.level);
+                SetHeader("Profile/Visual/Level",DesktopLocalization.Concat("Lv.", progress.level));
                 SetExperience(progress.xp,RequiredLevelXp(progress.level));
                 PondSelection.ApplyProgress(progress);
             });
             yield return Api.GetInventoryItems((ok,items,error)=>{if(ok)SetHeader("Catch/Visual/Label",(items?.Length??0).ToString());});
             headerRoutine=null;
         }
-        void SetHeader(string path,string value) {var label=Stage.Find("Header/"+path)?.GetComponent<Text>();if(label!=null)label.text=value;}
+        void SetHeader(string path,string value) {var label=Stage.Find(DesktopLocalization.Concat("Header/", path))?.GetComponent<Text>();if(label!=null)DesktopLocalization.SetText(label, value);}
         public void PresentHeaderSnapshot(string nickname,int level,int xp,int required,int coins,int count,string avatar)
         {
-            Nickname=nickname;SetHeader("Profile/Visual/Name",nickname);SetHeader("Profile/Visual/Level","Lv."+level);SetHeader("Coins/Visual/Label",coins.ToString("N0"));SetHeader("Catch/Visual/Label",count.ToString());
+            Nickname=nickname;SetHeader("Profile/Visual/Name",nickname);SetHeader("Profile/Visual/Level",DesktopLocalization.Concat("Lv.", level));SetHeader("Coins/Visual/Label",coins.ToString("N0"));SetHeader("Catch/Visual/Label",count.ToString());
             Stage.Find("Header/Profile/Visual/Avatar").GetComponent<Image>().sprite=JournalV2Theme.Sprite(avatar);SetExperience(xp,required);LayoutProfileName();
         }
         void SetExperience(int xp,int required)
         {
-            SetHeader("Profile/Visual/ExperienceLabel",required>0?xp+" / "+required:"满级");
+            SetHeader("Profile/Visual/ExperienceLabel",required>0?DesktopLocalization.Concat(DesktopLocalization.Concat(xp, " / "), required):"满级");
             var fill=Stage.Find("Header/Profile/Visual/ExperienceFill") as RectTransform;
             if(fill!=null)fill.sizeDelta=new Vector2(285*(required>0?Mathf.Clamp01((float)xp/required):1),18);
             LayoutProfileName();
@@ -198,11 +198,11 @@ namespace FishSocial.Desktop.JournalV2
         static int RequiredLevelXp(int level)
         {
             var asset=Resources.Load<TextAsset>("Desktop/Theme/Cozy/data/player-levels");if(asset==null)return 0;
-            var table=JsonUtility.FromJson<LevelTable>("{\"rows\":"+asset.text+"}");
+            var table=JsonUtility.FromJson<LevelTable>(DesktopLocalization.Concat(DesktopLocalization.Concat("{\"rows\":", asset.text), "}"));
             if(table?.rows!=null)foreach(var row in table.rows)if(row.level==level)return row.xpToNext;return 0;
         }
         public void Toast(string message)
-        {
+        { message = DesktopLocalization.Message(message);
             if(string.IsNullOrEmpty(message))return;
             Stage.Find("Toast")?.GetComponent<JournalV2Toast>()?.Show(message);
         }

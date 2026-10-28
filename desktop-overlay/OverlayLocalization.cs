@@ -78,6 +78,38 @@ namespace FishSocialOverlay
             return LocalizationCatalog.Format(key, arguments);
         }
 
+        public static string Concat(params object[] values)
+        {
+            return LocalizationCatalog.Concat(values);
+        }
+
+        public static string Join(string separator, IEnumerable<string> values)
+        {
+            return LocalizationCatalog.Join(separator, values);
+        }
+
+        public static string Trim(string value)
+        {
+            return LocalizationCatalog.Trim(value);
+        }
+
+        public static string Transform(string value, Func<string, string> transformation)
+        {
+            return LocalizationCatalog.Transform(value, transformation);
+        }
+
+        public static string FormatDate(string key, DateTime value)
+        {
+            EnsureInitialized();
+            return LocalizationCatalog.FormatDate(key, value);
+        }
+
+        public static string FormatDate(string key, DateTimeOffset value)
+        {
+            EnsureInitialized();
+            return LocalizationCatalog.FormatDate(key, value);
+        }
+
         /// <summary>Use only for server errors, system announcements and private observation hints.</summary>
         public static string Message(string value)
         {
@@ -257,7 +289,12 @@ namespace FishSocialOverlay
             if (target is FrameworkElement element) element.Loaded += OnKeyTargetLoaded;
         }
 
-        static void OnKeyTargetLoaded(object sender, RoutedEventArgs args) { ApplyKey((DependencyObject)sender); }
+        static void OnKeyTargetLoaded(object sender, RoutedEventArgs args)
+        {
+            var target = (FrameworkElement)sender;
+            target.Loaded -= OnKeyTargetLoaded;
+            ApplyKey(target);
+        }
 
         static void ApplyKey(DependencyObject target)
         {
@@ -281,6 +318,7 @@ namespace FishSocialOverlay
         static void OnToolTipTargetLoaded(object sender, RoutedEventArgs args)
         {
             var target = (FrameworkElement)sender;
+            target.Loaded -= OnToolTipTargetLoaded;
             SetToolTip(target, Text(GetToolTipKey(target), target.ToolTip as string));
         }
     }

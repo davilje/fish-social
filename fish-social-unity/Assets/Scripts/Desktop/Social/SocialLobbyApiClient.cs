@@ -282,8 +282,7 @@ namespace FishSocial.Desktop.Social
                 var field = requiredFields[i];
                 if (!System.Text.RegularExpressions.Regex.IsMatch(
                     json,
-                    "\"" + System.Text.RegularExpressions.Regex.Escape(field) +
-                    "\"\\s*:"))
+                    (("\"" + System.Text.RegularExpressions.Regex.Escape(field)) + "\"\\s*:")))
                 {
                     Debug.LogWarning("[SocialLobby] Missing response field: " + field);
                     parsed = null;

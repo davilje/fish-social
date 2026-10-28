@@ -187,7 +187,7 @@ namespace FishSocial.Desktop.Auth
                 identity = steamAuthIdentity
             };
             byte[] body = Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload));
-            using (var request = new UnityWebRequest(serverBaseUrl.TrimEnd('/') + "/api/auth/steam", "POST"))
+            using (var request = new UnityWebRequest((serverBaseUrl.TrimEnd('/') + "/api/auth/steam"), "POST"))
             {
                 request.uploadHandler = new UploadHandlerRaw(body);
                 request.downloadHandler = new DownloadHandlerBuffer();

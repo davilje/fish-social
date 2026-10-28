@@ -23,6 +23,18 @@
     button { cursor: pointer; }
     button:hover { border-color: #0e7490; }
     p { margin: 0; color: #78716c; flex: none; }
+    .workspace { display: flex; flex: 1; gap: 12px; min-height: 0; min-width: 0; }
+    .layers-panel { width: 260px; flex: none; display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid #e7e0d5; border-radius: 12px; background: #fffcf7; }
+    .layers-heading, .layers-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .layers-heading h2 { margin: 0; font-size: 15px; }
+    #layer-info { font-size: 13px; color: #78716c; }
+    .layers-actions button { flex: 1; font-size: 13px; }
+    #layer-buttons { overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+    .layer-toggle { display: flex; align-items: center; gap: 8px; text-align: left; padding: 9px 10px; font-size: 13px; }
+    .layer-toggle::before { content: ''; width: 16px; height: 16px; flex: none; border: 1px solid #c4bbae; border-radius: 4px; background: #fff; }
+    .layer-toggle[aria-pressed="true"] { background: #e9f1ed; border-color: #a1b9ac; color: #284d3c; }
+    .layer-toggle[aria-pressed="true"]::before { content: '✓'; color: #fff; background: #47755e; border-color: #47755e; text-align: center; line-height: 15px; }
+    button:focus-visible { outline: 2px solid #47755e; outline-offset: 2px; }
     .stage {
       flex: 1; min-height: 0; min-width: 0; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
@@ -36,22 +48,35 @@
       background-image: conic-gradient(#e5e7eb 25%, transparent 0 50%, #e5e7eb 0 75%, transparent 0);
       background-size: 20px 20px;
     }
-    #layer-info { font-size: 13px; overflow-wrap: anywhere; }
     select { max-width: min(100%, 360px); }
+    @media (max-width: 760px) {
+      body { padding: 8px; }
+      header { gap: 8px; }
+      .workspace { flex-direction: column-reverse; gap: 8px; }
+      .layers-panel { width: 100%; max-height: 36%; padding: 8px; gap: 6px; }
+      #layer-buttons { flex-direction: row; flex-wrap: wrap; }
+      .layers-actions { justify-content: flex-end; }
+      .layers-actions button { flex: none; }
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>场景分层</h1>
     <label>鱼塘 <select id="pond"></select></label>
-    <label>查看 <select id="layer-view"><option value="all">完整场景</option><option value="sky">无云天空</option><option value="back">后景与静态云</option><option value="middle">中景</option><option value="front">前景</option><option value="leaves">树叶与植被</option></select></label>
     <button id="play" type="button">暂停</button>
     <button id="rest" type="button">归位检查对齐</button>
     <label>速度 <select id="rate"><option value="1">1×</option><option value="10">10×</option><option value="30">30×</option></select></label>
   </header>
   <p id="status">正在读取场景…</p>
-  <p id="layer-info" aria-live="polite">可在“查看”中选择单个图层，透明区域以棋盘格显示。</p>
-  <div class="stage"><canvas id="view" width="1680" height="560"></canvas></div>
+  <div class="workspace">
+    <div class="stage"><canvas id="view" width="1680" height="560" aria-label="已勾选图层的叠加预览"></canvas></div>
+    <aside class="layers-panel" aria-label="图层显示设置">
+      <div class="layers-heading"><h2>显示图层</h2><span id="layer-info" aria-live="polite"></span></div>
+      <div class="layers-actions"><button id="select-all" type="button">全选</button><button id="select-none" type="button">全部隐藏</button></div>
+      <div id="layer-buttons" role="group" aria-label="勾选需要显示的图层"></div>
+    </aside>
+  </div>
   <script>
     const root = '../../../fish-social-unity/Assets/Desktop/OverlayArt/Ponds/';
     const view = document.querySelector('#view');
@@ -60,10 +85,11 @@
     const pondSelect = document.querySelector('#pond');
     const status = document.querySelector('#status');
     const playButton = document.querySelector('#play');
-    const layerView = document.querySelector('#layer-view');
+    const layerButtons = document.querySelector('#layer-buttons');
+    const visibleLayers = new Set();
     const layerInfo = document.querySelector('#layer-info');
     const layerNames = {
-      'pond-bg': '无云天空', 'scene-celestial': '太阳／月亮',
+      'pond-bg': '原始完整场景', 'scene-celestial': '太阳／月亮',
       'scene-cloud-complete': '完整云景补绘底层（含天空）',
       'scene-foliage-back': '后层树叶（固定防穿帮）',
       'scene-bush-back': '中景灌木后层（固定防穿帮）',
@@ -80,25 +106,45 @@
         ? '中景灌木 ' + layer.id.split('-').pop() : layer.id);
     }
     function updateLayerInfo() {
-      const layer = currentScene?.layers.find(item => 'layer:' + item.id === layerView.value);
-      view.classList.toggle('isolated', layerView.value !== 'all');
-      layerInfo.textContent = layer
-        ? `${layerLabel(layer)} · ${layer.id} · ${layer.file}${layer.empty ? ' · 此通道为空透明占位' : ''}${layer.leaf ? ' · 保留风动，可暂停查看静态' : ''}`
-        : '可在“单独图层”列表中逐层查看；棋盘格表示透明区域。';
-    }
-    function populateLayerOptions(scene) {
-      const previous = layerView.value;
-      layerView.replaceChildren(new Option('完整场景', 'all'));
-      const single = document.createElement('optgroup'); single.label = '单独图层';
-      for (const layer of scene.layers) {
-        single.append(new Option(`${layer.z + 1}. ${layerLabel(layer)}${layer.empty ? '（透明占位）' : ''}`, 'layer:' + layer.id));
+      const available = currentScene?.layers.filter(layer => !layer.empty) || [];
+      const count = available.filter(layer => visibleLayers.has(layer.id)).length;
+      view.classList.toggle('isolated', count < available.length);
+      layerInfo.textContent = `${count} / ${available.length} 层`;
+      for (const button of layerButtons.querySelectorAll('button')) {
+        button.setAttribute('aria-pressed', String(visibleLayers.has(button.dataset.layer)));
       }
-      const groups = document.createElement('optgroup'); groups.label = '按景别组合';
-      for (const [value, label] of [['sky', '无云天空'], ['back', '后景与静态云'], ['middle', '中景'], ['front', '前景'], ['leaves', '树叶与植被']]) groups.append(new Option(label, value));
-      layerView.append(single, groups);
-      layerView.value = [...layerView.options].some(option => option.value === previous) ? previous : 'all';
+    }
+    function populateLayerButtons(scene) {
+      visibleLayers.clear();
+      layerButtons.replaceChildren();
+      for (const layer of scene.layers.filter(layer => !layer.empty)) {
+        visibleLayers.add(layer.id);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'layer-toggle';
+        button.dataset.layer = layer.id;
+        button.textContent = layerLabel(layer);
+        button.addEventListener('click', () => {
+          if (visibleLayers.has(layer.id)) visibleLayers.delete(layer.id);
+          else visibleLayers.add(layer.id);
+          refreshSelection();
+        });
+        layerButtons.append(button);
+      }
       updateLayerInfo();
     }
+    function refreshSelection() {
+      updateLayerInfo();
+      if (currentScene) draw(currentScene, seconds());
+    }
+    document.querySelector('#select-all').addEventListener('click', () => {
+      for (const layer of currentScene?.layers || []) if (!layer.empty) visibleLayers.add(layer.id);
+      refreshSelection();
+    });
+    document.querySelector('#select-none').addEventListener('click', () => {
+      visibleLayers.clear();
+      refreshSelection();
+    });
     let playing = true;
     let token = 0;
     let frame = 0;
@@ -128,7 +174,7 @@
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = () => reject(new Error(url));
-        image.src = url + '?v=qiandao-bush-contact-v18';
+        image.src = url + '?v=original-backdrop-leaves-v20';
       });
     }
 
@@ -219,17 +265,7 @@
     function draw(scene, seconds) {
       ctx.clearRect(0, 0, view.width, view.height);
       for (const layer of scene.layers) {
-        const mode = layerView.value;
-        if (mode.startsWith('layer:') && mode !== 'layer:' + layer.id) continue;
-        if (mode.startsWith('layer:') && !layer.leaf) {
-          ctx.drawImage(layer.canvas, 0, 0);
-          continue;
-        }
-        if (mode === 'sky' && layer.id !== 'pond-bg') continue;
-        if (mode === 'back' && !['pond-bg', 'scene-cloud-complete', 'scene-celestial', 'scene-cloud-far', 'scene-cloud-middle', 'scene-cloud-near', 'scene-far', 'scene-far-dam'].includes(layer.id)) continue;
-        if (mode === 'middle' && !['scene-middle', 'scene-middle-slope', 'scene-bush-back', 'scene-foliage-back'].includes(layer.id) && !layer.leaf) continue;
-        if (mode === 'front' && !['scene-shore', 'scene-front-bank', 'scene-water'].includes(layer.id)) continue;
-        if (mode === 'leaves' && !layer.leaf && !['scene-foliage-back', 'scene-bush-back'].includes(layer.id)) continue;
+        if (!visibleLayers.has(layer.id)) continue;
         if (layer.cloud) {
           if (layer.sprites) {
             for (const sprite of layer.sprites) {
@@ -261,12 +297,6 @@
         }
       }
     }
-
-    layerView.addEventListener('change', () => {
-      updateLayerInfo();
-      if (currentScene) draw(currentScene, seconds());
-      fit();
-    });
 
     function tick(scene, generation) {
       if (generation !== token) return;
@@ -319,6 +349,14 @@
           if (motion.version === 3) item.sprites = await Promise.all(cloud.sprites.map(async spec => ({
             spec, image: await loadImage(root + sceneDir + spec.image)
           })));
+          if (item.sprites) {
+            item.empty = !item.sprites.some(sprite => {
+              const spriteCanvas = paint(sprite.image, sprite.image.naturalWidth, sprite.image.naturalHeight);
+              const data = spriteCanvas.getContext('2d').getImageData(0, 0, spriteCanvas.width, spriteCanvas.height).data;
+              for (let p = 3; p < data.length; p += 4) if (data[p]) return true;
+              return false;
+            });
+          }
         }
         if (leaf) {
           const weightName = leaf.weightTexture || motion.weightTexture;
@@ -345,12 +383,10 @@
       }
       const scene = { layers, motion, scale };
       currentScene = scene;
-      populateLayerOptions(scene);
+      populateLayerButtons(scene);
       elapsed = 0;
       runningFrom = performance.now();
-      status.textContent = motion.cloudMode === 'original-static'
-        ? `${pondSelect.selectedOptions[0].textContent} · 前中后景分层 · 独立无云天空 · 完整静态云景 · 后层树叶固定／前层风动`
-        : `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · ${motion.weather?.label ? motion.weather.label + ' · ' : ''}${motion.clouds?.flatMap(c => c.sprites || []).length || 0} 个云形 · ${motion.version === 3 ? '三层水平云循环 · 大云缓慢平移' : '千岛湖原有云动效'} · 树叶按权重轻晃`;
+      status.textContent = `${pondSelect.selectedOptions[0].textContent} · 勾选图层叠加查看，透明区域显示为棋盘格`;
       fit();
       requestAnimationFrame(fit);
       cancelAnimationFrame(frame);
@@ -379,6 +415,8 @@
 
     pondSelect.addEventListener('change', () => {
       token += 1;
+      layerButtons.replaceChildren();
+      layerInfo.textContent = '';
       status.textContent = '正在读取场景…';
       show(pondSelect.value, token).catch(error => {
         status.textContent = '场景没有打开：' + error.message;

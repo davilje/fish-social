@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using FishSocial.Localization;
 
@@ -36,6 +38,13 @@ static class LocalizationCatalogTests
             E("ui.common.english_missing", "仍用中文", ""),
             E("ui.common.malformed_translation", "数量 {0}", "Count {1}"),
             E("ui.common.escaped", "数值 {{{0}}}", "Value {{{0}}}"),
+            E("ui.common.date", "M月d日", "MMM d"),
+            E("ui.common.date_offset", "M月d日 HH:mm zzz", "MMM d, yyyy HH:mm zzz"),
+            E("ui.common.date_standard", "D", "D"),
+            E("ui.common.separator", "、", ", "),
+            E("ui.common.padded_clue", "  你好\n", "\tHello \r\n"),
+            E("ui.common.detail_lines", "鲫鱼\n中文描述", "Crucian Carp\nEnglish details"),
+            E("ui.common.bait_list", "饵、另一种饵", "Very Long Bait Name、Other Bait"),
         };
     }
     static int Main()
@@ -95,6 +104,9 @@ static class LocalizationCatalogTests
         Check(rejected, "Duplicate catalog keys must fail.");
         Equal("你好", LocalizationCatalog.Render(beforeFailure));
         Equal("你好", LocalizationCatalog.Text("ui.common.greeting"));
+        CompositionAndDateTests();
+        BuilderAndTrimTests();
+        TransformTests();
         LocalizationCatalog.SetLanguage("en-US");
         Parallel.For(0, 250, i => {
             var output = LocalizationCatalog.Format("ui.common.catch", "User " + i, LocalizationCatalog.BySource("鲫鱼"));
@@ -104,5 +116,134 @@ static class LocalizationCatalogTests
         LocalizationCatalog.LanguageChanged -= changed;
         Console.WriteLine("PASS: " + assertions + " localization assertions and 250 concurrent renders.");
         return 0;
+    }
+
+    static void CompositionAndDateTests()
+    {
+        var date = new DateTime(2026, 10, 29, 15, 4, 0, DateTimeKind.Unspecified);
+        var offsetDate = new DateTimeOffset(date, TimeSpan.FromHours(8));
+        var shortDate = LocalizationCatalog.FormatDate("ui.common.date", date);
+        var dateWithOffset = LocalizationCatalog.FormatDate("ui.common.date_offset", offsetDate);
+        var standardDate = LocalizationCatalog.FormatDate("ui.common.date_standard", date);
+        var nickname = new string(new[] { '你', '好' });
+        var values = new List<string> { LocalizationCatalog.BySource("鲫鱼"), nickname, null, shortDate };
+        var list = LocalizationCatalog.Join(LocalizationCatalog.Text("ui.common.separator"), values);
+        values[0] = "Changed after joining";
+        var parts = new object[] { nickname, " / ", LocalizationCatalog.Concat("[", list, "]"), " #", 7, null };
+        var combined = LocalizationCatalog.Concat(parts);
+        parts[0] = "Changed after concatenating";
+        var nestedFormat = LocalizationCatalog.Format("ui.common.catch", nickname, combined);
+
+        Equal("10月29日", shortDate);
+        Equal("10月29日 15:04 +08:00", dateWithOffset);
+        Equal(date.ToString("D", CultureInfo.GetCultureInfo("zh-CN")), standardDate);
+        Equal("鲫鱼、你好、、10月29日", list);
+        Equal("你好 / [鲫鱼、你好、、10月29日] #7", combined);
+        Equal("你好钓到了你好 / [鲫鱼、你好、、10月29日] #7！", nestedFormat);
+        Check(LocalizationCatalog.IsLocalized(combined), "Concatenation must retain its nested render plans.");
+
+        LocalizationCatalog.SetLanguage("en-US");
+        Equal("Oct 29", LocalizationCatalog.Render(shortDate));
+        Equal("Oct 29, 2026 15:04 +08:00", LocalizationCatalog.Render(dateWithOffset));
+        Equal(date.ToString("D", CultureInfo.GetCultureInfo("en-US")), LocalizationCatalog.Render(standardDate));
+        Equal("Crucian Carp, 你好, , Oct 29", LocalizationCatalog.Render(list));
+        Equal("你好 / [Crucian Carp, 你好, , Oct 29] #7", LocalizationCatalog.Render(combined));
+        Equal("你好 caught 你好 / [Crucian Carp, 你好, , Oct 29] #7!", LocalizationCatalog.Render(nestedFormat));
+        Equal("你好", LocalizationCatalog.Render(nickname));
+
+        LocalizationCatalog.SetLanguage("zh-CN");
+        Equal("你好 / [鲫鱼、你好、、10月29日] #7", LocalizationCatalog.Render(combined));
+        Equal("10月29日 15:04 +08:00", LocalizationCatalog.Render(dateWithOffset));
+        Equal("", LocalizationCatalog.Join(null, new string[0]));
+        Equal("ab", LocalizationCatalog.Join(null, new[] { "a", null, "b" }));
+        Equal("", LocalizationCatalog.Concat((object[])null));
+        var cacheKey = "cache";
+        for (var i = 0; i < 64; i++) cacheKey = LocalizationCatalog.Concat(cacheKey, ":", i);
+        Check(cacheKey.StartsWith("cache:0:1:2", StringComparison.Ordinal) && cacheKey.EndsWith(":63", StringComparison.Ordinal),
+            "Plain cache keys and logs must preserve arbitrarily long concatenations.");
+        Check(!LocalizationCatalog.IsLocalized(cacheKey), "Plain infrastructure strings must not acquire localization plans.");
+        Check(!LocalizationCatalog.IsLocalized(LocalizationCatalog.Join("/", new[] { "path", "file" })),
+            "Joining plain paths must not acquire localization plans.");
+        var longDisplay = LocalizationCatalog.Text("ui.common.greeting");
+        for (var i = 0; i < 64; i++) longDisplay = LocalizationCatalog.Concat(longDisplay, "/", i);
+        LocalizationCatalog.SetLanguage("en-US");
+        Check(LocalizationCatalog.Render(longDisplay).StartsWith("Hello/0/1/2", StringComparison.Ordinal) &&
+            LocalizationCatalog.Render(longDisplay).EndsWith("/63", StringComparison.Ordinal),
+            "Long localized concatenations must retain every fragment when re-rendered.");
+        LocalizationCatalog.SetLanguage("zh-CN");
+    }
+
+    static void BuilderAndTrimTests()
+    {
+        var nickname = new string(new[] { '你', '好' });
+        var mutable = new System.Text.StringBuilder("item");
+        var builder = new LocalizedStringBuilder(LocalizationCatalog.Text("ui.common.greeting"))
+            .Append(':').Append(nickname).Append(" / ").Append(LocalizationCatalog.BySource("鲫鱼"))
+            .Append(' ').Append(7).AppendLine().Append(mutable);
+        var first = builder.ToString();
+        mutable.Append(" changed");
+        builder.AppendLine().AppendLine(LocalizationCatalog.Text("ui.common.greeting"));
+        var second = builder.ToString();
+        builder.Clear().Append("replacement");
+        var chinese = "你好:你好 / 鲫鱼 7" + Environment.NewLine + "item";
+        Equal(chinese, first);
+        Equal(chinese + Environment.NewLine + "你好" + Environment.NewLine, second);
+        Equal("replacement", builder.ToString());
+        var clue = LocalizationCatalog.Trim(LocalizationCatalog.Text("ui.common.padded_clue"));
+        Equal("你好", clue);
+        Check(LocalizationCatalog.IsLocalized(clue), "Trimming display clues must retain their translation plan.");
+        var plainNickname = LocalizationCatalog.Trim(" \t你好  ");
+        Check(!LocalizationCatalog.IsLocalized(plainNickname), "Trimming ordinary user text must not register a translation plan.");
+        Equal(null, LocalizationCatalog.Trim(null));
+        LocalizationCatalog.SetLanguage("en-US");
+        var english = "Hello:你好 / Crucian Carp 7" + Environment.NewLine + "item";
+        Equal(english, LocalizationCatalog.Render(first));
+        Equal(english + Environment.NewLine + "Hello" + Environment.NewLine, LocalizationCatalog.Render(second));
+        Equal("Hello", LocalizationCatalog.Render(clue));
+        Equal("你好", LocalizationCatalog.Render(plainNickname));
+        LocalizationCatalog.SetLanguage("zh-CN");
+        Equal(chinese, LocalizationCatalog.Render(first));
+        Equal("你好", LocalizationCatalog.Render(clue));
+    }
+
+    static void TransformTests()
+    {
+        var label = LocalizationCatalog.Text("ui.common.detail_lines");
+        var title = LocalizationCatalog.Transform(label, current =>
+        {
+            var split = current.IndexOf('\n');
+            return split >= 0 ? current.Substring(0, split) : current;
+        });
+        var description = LocalizationCatalog.Transform(label, current =>
+        {
+            var split = current.IndexOf('\n');
+            return split >= 0 ? current.Substring(split + 1) : "";
+        });
+        var rich = LocalizationCatalog.Transform(label, current =>
+        {
+            var split = current.IndexOf('\n');
+            return split > 0 ? "<b>" + current.Substring(0, split) + "</b>" + current.Substring(split) : current;
+        });
+        var bait = LocalizationCatalog.Transform(LocalizationCatalog.Text("ui.common.bait_list"), current =>
+        {
+            var split = current.IndexOf('、');
+            return split > 0 ? current.Substring(0, split) : current;
+        });
+        Equal("鲫鱼", title);
+        Equal("中文描述", description);
+        Equal("饵", bait);
+        LocalizationCatalog.SetLanguage("en-US");
+        Equal("Crucian Carp", LocalizationCatalog.Render(title));
+        Equal("English details", LocalizationCatalog.Render(description));
+        Equal("<b>Crucian Carp</b>\nEnglish details", LocalizationCatalog.Render(rich));
+        Equal("Very Long Bait Name", LocalizationCatalog.Render(bait));
+        var nickname = LocalizationCatalog.Transform("你好", current => current.Substring(0, 1));
+        Equal("你", nickname);
+        Check(!LocalizationCatalog.IsLocalized(nickname), "Ordinary substring results must not acquire translation plans.");
+        LocalizationCatalog.SetLanguage("zh-CN");
+        Equal("鲫鱼", LocalizationCatalog.Render(title));
+        Equal("中文描述", LocalizationCatalog.Render(description));
+        Equal("<b>鲫鱼</b>\n中文描述", LocalizationCatalog.Render(rich));
+        Equal("饵", LocalizationCatalog.Render(bait));
     }
 }

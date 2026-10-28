@@ -90,7 +90,7 @@ namespace FishSocialOverlay
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("[OverlayViewport] Load failed: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat("[OverlayViewport] Load failed: ", ex.Message));
                 return OverlayViewportPreset.Standard;
             }
         }
@@ -113,7 +113,7 @@ namespace FishSocialOverlay
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("[OverlayViewport] Save failed: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat("[OverlayViewport] Save failed: ", ex.Message));
             }
         }
 

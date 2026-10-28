@@ -423,7 +423,7 @@ namespace FishSocial.Desktop
                 {
                     dto.observation = new NativeOverlayChatDto
                     {
-                        messageId = "gb-tip-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        messageId = ("gb-tip-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
                         nickname = DesktopLocalization.Text("ui.common.overlay.button.groundbait", "打窝"),
                         text = _pendingGroundbaitBubble,
                         sentAtMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),

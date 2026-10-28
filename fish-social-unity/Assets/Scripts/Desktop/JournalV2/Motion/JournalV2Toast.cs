@@ -26,14 +26,14 @@ namespace FishSocial.Desktop.JournalV2
         }
         public void Show(string text, bool error = false)
         {
-            queue.Enqueue(new Notice { Text = text, Error = error });
+            queue.Enqueue(new Notice { Text = DesktopLocalization.Message(text), Error = error });
             if (!active && !JournalV2MotionState.Paused) Next();
         }
         void Next()
         {
             if (queue.Count == 0) { active = false; if (group != null) group.alpha = 0; return; }
             var next = queue.Dequeue(); active = true; error = next.Error; elapsed = 0;
-            if (label != null) label.text = next.Text;
+            if (label != null) DesktopLocalization.SetText(label, next.Text);
             if (fish != null) fish.gameObject.SetActive(!error);
             if (cat != null) cat.gameObject.SetActive(error);
             Render();

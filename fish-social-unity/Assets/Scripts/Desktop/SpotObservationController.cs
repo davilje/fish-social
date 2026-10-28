@@ -62,7 +62,7 @@ namespace FishSocial.Desktop
             _lastClueId = picked.clueId ?? string.Empty;
             _messageId = "obs-" + _lastClueId + "-" +
                          DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            _text = picked.clueText != null ? picked.clueText.Trim() : string.Empty;
+            _text = picked.clueText != null ? DesktopLocalization.Trim(picked.clueText) : string.Empty;
             if (string.IsNullOrEmpty(_text))
             {
                 Clear();

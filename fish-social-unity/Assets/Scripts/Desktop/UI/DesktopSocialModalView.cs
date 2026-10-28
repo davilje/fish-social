@@ -111,7 +111,7 @@ namespace FishSocial.Desktop
             _onlineContent=Content("PondPage/OnlinePage/Scroll");_chatContent=Content("PondPage/ChatPage/Scroll");
             _chatInput=Find<InputField>("PondPage/ChatPage/ChatInput");_sendChat=Find<Button>("PondPage/ChatPage/SendChat");
             var sections=new[]{SocialSection.Friends,SocialSection.Requests,SocialSection.DirectMessages,SocialSection.PondChat,SocialSection.Notifications};
-            for(var i=0;i<sections.Length;i++){var section=sections[i];DesktopModalUi.BindButton(transform,"SocialRail/Tab"+i,()=>OpenSection(section));}
+            for(var i=0;i<sections.Length;i++){var section=sections[i];DesktopModalUi.BindButton(transform,DesktopLocalization.Concat("SocialRail/Tab", i),()=>OpenSection(section));}
             DesktopModalUi.BindButton(transform,"Tabs/T0",()=>OpenSection(SocialSection.PondChat));DesktopModalUi.BindButton(transform,"Tabs/T1",()=>OpenSection(SocialSection.Friends));
             DesktopModalUi.BindButton(transform,"Retry",ForceRefresh);
             DesktopModalUi.BindButton(transform,"NotificationsPage/ReadAll",()=>_inbox.MarkAllRead());
@@ -137,8 +137,8 @@ namespace FishSocial.Desktop
             SetPage("NotificationsPage",section==SocialSection.Notifications);
             var titles=new[]{DesktopLocalization.Text("ui.social.hub.title.friends", "我的钓友"),DesktopLocalization.Text("ui.social.hub.title.friend_requests", "好友申请"),DesktopLocalization.Text("ui.social.hub.title.direct_messages", "私信"),DesktopLocalization.Text("ui.social.hub.title.pond_chat", "鱼塘聊天"),DesktopLocalization.Text("ui.social.hub.title.notifications", "消息通知")};
             var hints=new[]{DesktopLocalization.Text("ui.social.hub.hint.friend_actions", "从钓友名片发起私聊；Steam 邀请只用于一起进塘。"),DesktopLocalization.Text("ui.social.hub.hint.request_actions", "收到的申请需要明确接受或忽略；不会自动打开聊天。"),DesktopLocalization.Text("ui.social.hub.hint.direct_message_privacy", "只与你选择的钓友对话，消息不会发送到鱼塘。"),DesktopLocalization.Text("ui.social.hub.hint.pond_chat_access", "当前鱼塘的公共聊天；离塘后仍可查看好友与私信。"),DesktopLocalization.Text("ui.social.hub.hint.session_notifications", "只保留这次登录的提醒。申请和私信可以点进去处理，进塘邀请会去选鱼塘。")};
-            if(_title!=null)_title.text=titles[(int)section];if(_hint!=null)_hint.text=hints[(int)section];
-            for(var i=0;i<titles.Length;i++)Find<CozyButtonVisual>("SocialRail/Tab"+i)?.SetSelected(i==(int)section);
+            if(_title!=null)DesktopLocalization.SetText(_title, titles[(int)section]);if(_hint!=null)DesktopLocalization.SetText(_hint, hints[(int)section]);
+            for(var i=0;i<titles.Length;i++)Find<CozyButtonVisual>(DesktopLocalization.Concat("SocialRail/Tab", i))?.SetSelected(i==(int)section);
             SectionChanged?.Invoke(section);RefreshAll();UpdateSendState();
         }
         void SetPage(string path,bool active)
@@ -213,8 +213,8 @@ namespace FishSocial.Desktop
         void OnInboxChanged(){UnreadChanged?.Invoke(UnreadCount);if(_open&&_section==SocialSection.Notifications)RenderNotifications();RefreshBadges();}
         void RefreshBadges()
         {
-            var requests=Find<Text>("SocialRail/RequestCount");if(requests!=null)requests.text=_incoming.Length>0?_incoming.Length.ToString():"";
-            var notifications=Find<Text>("SocialRail/NotificationCount");if(notifications!=null)notifications.text=UnreadCount>0?UnreadCount.ToString():"";
+            var requests=Find<Text>("SocialRail/RequestCount");if(requests!=null)DesktopLocalization.SetText(requests, _incoming.Length>0?_incoming.Length.ToString():"");
+            var notifications=Find<Text>("SocialRail/NotificationCount");if(notifications!=null)DesktopLocalization.SetText(notifications, UnreadCount>0?UnreadCount.ToString():"");
         }
         void OnNotification(DesktopNotification notice)
         {
@@ -224,7 +224,7 @@ namespace FishSocial.Desktop
         void OnFriendPush(FriendRequestDto request)
         {
             if(request==null)return;
-            _inbox.Add(new DesktopSocialInbox.Entry {Id="request:"+request.id,Kind=SocialNoticeKind.FriendRequest,Title=DesktopLocalization.Text("ui.social.hub.notice.friend_request", "新的好友申请"),Body=DesktopLocalization.Format("ui.social.hub.notice.friend_request_body", (object)((request.fromNickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))),PlayerId=request.fromPlayerId,Nickname=request.fromNickname,CreatedAt=request.createdAt});
+            _inbox.Add(new DesktopSocialInbox.Entry {Id=DesktopLocalization.Concat("request:", request.id),Kind=SocialNoticeKind.FriendRequest,Title=DesktopLocalization.Text("ui.social.hub.notice.friend_request", "新的好友申请"),Body=DesktopLocalization.Format("ui.social.hub.notice.friend_request_body", (object)((request.fromNickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))),PlayerId=request.fromPlayerId,Nickname=request.fromNickname,CreatedAt=request.createdAt});
             _socialReady=false;CancelSocialBuilds();
             if(_open&&(_section==SocialSection.Requests||_section==SocialSection.Friends))StartCoroutine(LoadFriends());
         }
@@ -232,7 +232,7 @@ namespace FishSocial.Desktop
         {
             if(message==null||message.fromPlayerId==_api?.PlayerId)return;
             var reading=_open&&_section==SocialSection.DirectMessages&&message.fromPlayerId==_dmFriendId;
-            _inbox.Add(new DesktopSocialInbox.Entry {Id="dm:"+message.id,Kind=SocialNoticeKind.DirectMessage,Title=DesktopLocalization.Format("ui.social.hub.notice.direct_message", (object)((message.fromNickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))),Body=message.text,PlayerId=message.fromPlayerId,Nickname=message.fromNickname,CreatedAt=message.createdAt,Read=reading});
+            _inbox.Add(new DesktopSocialInbox.Entry {Id=DesktopLocalization.Concat("dm:", message.id),Kind=SocialNoticeKind.DirectMessage,Title=DesktopLocalization.Format("ui.social.hub.notice.direct_message", (object)((message.fromNickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))),Body=message.text,PlayerId=message.fromPlayerId,Nickname=message.fromNickname,CreatedAt=message.createdAt,Read=reading});
             if(_open&&_section==SocialSection.DirectMessages){StartCoroutine(LoadConversations());if(reading)StartCoroutine(LoadMessages(_dmFriendId,_dmFriendName));}
         }
         void OnUsersChanged(){if(_open&&_section==SocialSection.PondChat)RenderOnline();}
@@ -245,7 +245,7 @@ namespace FishSocial.Desktop
         void OnLobbyError(string message){if(_open)SetStatus(message);}
         void OnSocketState(SocialSocketState state,string reason){if(_open&&_section==SocialSection.PondChat){SetStatus(SocketHint());UpdateSendState();}}
         string SocketHint()=>_pond!=null&&_pond.State==SocialSocketState.Connected?DesktopLocalization.Text("ui.social.hub.chat.hint.message_limit", "鱼塘公共聊天 · 最多 200 字"):_pond!=null&&(_pond.State==SocialSocketState.Connecting||_pond.State==SocialSocketState.Reconnecting)?DesktopLocalization.Text("ui.social.hub.chat.status.connecting", "正在连接鱼塘聊天…"):DesktopLocalization.Text("ui.social.hub.chat.hint.pond_required", "尚未进入鱼塘。选择鱼塘后，才能发送塘内聊天。");
-        void SetStatus(string text){if(_status!=null){_status.supportRichText=false;_status.text=text??"";}}
+        void SetStatus(string text){ text = DesktopLocalization.Message(text);if(_status!=null){_status.supportRichText=false;DesktopLocalization.SetText(_status, text??"");}}
         void UpdateSendState()
         {
             if(_sendDm!=null)_sendDm.interactable=!_sendingDm&&!string.IsNullOrEmpty(_dmFriendId)&&_api!=null&&_api.CanUse;
@@ -358,7 +358,7 @@ namespace FishSocial.Desktop
             yield return accept?_api.AcceptFriendRequest(request.id,done):_api.RejectFriendRequest(request.id,done);
             _pendingRequests.Remove(request.id);SetButtons(row,true);
             if(!success){SetStatus(error??DesktopLocalization.Text("ui.social.hub.error.request_response_failed", "申请处理失败，请重试。"));CozyActionFeedback.Play(row!=null?row.transform:transform,false,"处理失败");yield break;}
-            _inbox.MarkRead("request:"+request.id);
+            _inbox.MarkRead(DesktopLocalization.Concat("request:", request.id));
             var remaining=new List<FriendRequestDto>(_incoming);remaining.RemoveAll(x=>x.id==request.id);_incoming=remaining.ToArray();
             _requestsBuilt=false;RenderRequests();RefreshBadges();
             SetStatus(accept?DesktopLocalization.Text("ui.social.hub.status.request_accepted", "已接受好友申请，可在「我的钓友」发起私聊。"):DesktopLocalization.Text("ui.social.hub.status.request_ignored", "已忽略这条申请。"));
@@ -401,7 +401,7 @@ namespace FishSocial.Desktop
         IEnumerator LoadMessages(string playerId,string nickname)
         {
             if(_api==null||string.IsNullOrEmpty(playerId))yield break;var generation=++_dmGeneration;
-            _dmFriendId=playerId;_dmFriendName=nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");if(_dmTitle!=null)_dmTitle.text=DesktopLocalization.Format("ui.social.hub.title.conversation", (object)(_dmFriendName));UpdateSendState();
+            _dmFriendId=playerId;_dmFriendName=nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");if(_dmTitle!=null)DesktopLocalization.SetText(_dmTitle, DesktopLocalization.Format("ui.social.hub.title.conversation", (object)(_dmFriendName)));UpdateSendState();
             bool success=false;string error=null;DirectMessageDto[] messages=null;
             yield return _api.GetDirectMessages(playerId,(ok,list,message)=>{success=ok;messages=list;error=message;});
             if(!_open||_section!=SocialSection.DirectMessages||generation!=_dmGeneration||playerId!=_dmFriendId)yield break;
@@ -412,7 +412,7 @@ namespace FishSocial.Desktop
             else foreach(var message in messages)MessageRow(_messageContent,"DirectMessageRow",message.fromPlayerId==_api.PlayerId?DesktopLocalization.Text("ui.social.hub.label.self", "我"):message.fromNickname,message.text,message.createdAt,message.fromPlayerId==_api.PlayerId);
             SetStatus(DesktopLocalization.Format("ui.social.hub.hint.conversation_limit", (object)(_dmFriendName)));
         }
-        void RenderEmptyMessages(){Clear(_messageContent);if(_dmTitle!=null)_dmTitle.text=DesktopLocalization.Text("ui.social.hub.title.select_conversation", "选择一段私信");TextRow(_messageContent,"DirectMessageRow",DesktopLocalization.Text("ui.social.hub.hint.choose_conversation", "在左侧选择会话，或从好友名片发起私聊。"));UpdateSendState();}
+        void RenderEmptyMessages(){Clear(_messageContent);if(_dmTitle!=null)DesktopLocalization.SetText(_dmTitle, DesktopLocalization.Text("ui.social.hub.title.select_conversation", "选择一段私信"));TextRow(_messageContent,"DirectMessageRow",DesktopLocalization.Text("ui.social.hub.hint.choose_conversation", "在左侧选择会话，或从好友名片发起私聊。"));UpdateSendState();}
         void RenderNotifications()
         {
             Clear(_notificationsContent);if(_notificationsContent==null)return;
@@ -422,8 +422,8 @@ namespace FishSocial.Desktop
             foreach(var notice in ordered)
             {
                 var row=Row("FriendRequestRow",_notificationsContent,!Application.isPlaying);if(row==null)continue;
-                var when=notice.CreatedAt>0?DateTimeOffset.FromUnixTimeMilliseconds(notice.CreatedAt).ToLocalTime().ToString("HH:mm")+"  ":"";
-                Label(row,"Name",(notice.Read?"":"● ")+NoticeKind(notice.Kind)+"  "+notice.Title);
+                var when=notice.CreatedAt>0?DesktopLocalization.Concat(DateTimeOffset.FromUnixTimeMilliseconds(notice.CreatedAt).ToLocalTime().ToString("HH:mm"), "  "):"";
+                Label(row,"Name",DesktopLocalization.Concat(DesktopLocalization.Concat((notice.Read?"":"● ")+NoticeKind(notice.Kind), "  "), notice.Title));
                 Label(row,"Detail",when+(notice.Body??""));
                 var open=DesktopModalUi.FindComponent<Button>(row.transform,"Accept");
                 var read=DesktopModalUi.FindComponent<Button>(row.transform,"Reject");
@@ -456,7 +456,7 @@ namespace FishSocial.Desktop
         {
             Clear(_onlineContent);var others=_pond?.VisibleOthers;
             if(others==null||others.Length==0){TextRow(_onlineContent,"OnlinePlayerRow",DesktopLocalization.Text("ui.social.hub.empty.online_anglers", "当前鱼塘暂无其他在线钓友。"));return;}
-            foreach(var user in others)TextRow(_onlineContent,"OnlinePlayerRow",(user.nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"))+"\n"+PetStateController.ToChinese(PetStateController.FromFishingPhase(user.fishingPhase)));
+            foreach(var user in others)TextRow(_onlineContent,"OnlinePlayerRow",DesktopLocalization.Concat(DesktopLocalization.Concat((user.nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")), "\n"), PetStateController.ToChinese(PetStateController.FromFishingPhase(user.fishingPhase))));
         }
         void RenderChat()
         {
@@ -507,7 +507,7 @@ namespace FishSocial.Desktop
             {
                 if(this==null)return;_sendingDm=false;UpdateSendState();
                 if(!ok){SetStatus(error??DesktopLocalization.Text("ui.social.hub.error.direct_message_send_failed", "私信发送失败，文字已保留。"));return;}
-                if(_dmFriendId==recipient&&_dmInput!=null&&_dmInput.text.Trim()==text)_dmInput.text="";
+                if(_dmFriendId==recipient&&_dmInput!=null&&_dmInput.text.Trim()==text)DesktopLocalization.SetText(_dmInput, "");
                 if(_open&&_section==SocialSection.DirectMessages&&_dmFriendId==recipient)StartCoroutine(LoadMessages(recipient,nickname));
             }));
         }
@@ -515,7 +515,7 @@ namespace FishSocial.Desktop
         {
             if(_sendingChat||_pond==null||_pond.State!=SocialSocketState.Connected){SetStatus(SocketHint());return;}
             var text=(_chatInput?.text??"").Trim();if(text.Length==0||text.Length>200){SetStatus(DesktopLocalization.Text("ui.social.hub.error.pond_message_length", "请输入 1–200 字的鱼塘消息。"));return;}
-            _sendingChat=true;UpdateSendState();_pond.SendChat(text,(ok,error)=>{if(this==null)return;_sendingChat=false;UpdateSendState();if(ok){if(_chatInput!=null&&_chatInput.text.Trim()==text)_chatInput.text="";RenderChat();}else SetStatus(error??DesktopLocalization.Text("ui.social.hub.error.pond_message_send_failed", "鱼塘消息发送失败，文字已保留。"));});
+            _sendingChat=true;UpdateSendState();_pond.SendChat(text,(ok,error)=>{if(this==null)return;_sendingChat=false;UpdateSendState();if(ok){if(_chatInput!=null&&_chatInput.text.Trim()==text)DesktopLocalization.SetText(_chatInput, "");RenderChat();}else SetStatus(error??DesktopLocalization.Text("ui.social.hub.error.pond_message_send_failed", "鱼塘消息发送失败，文字已保留。"));});
         }
         IEnumerator InviteSteamRoutine(string steamId)
         {
@@ -531,7 +531,7 @@ namespace FishSocial.Desktop
         public void PresentDirectMessages(string playerId,string nickname,DirectMessageDto[] messages)
         {
             _dmFriendId=playerId;_dmFriendName=nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");
-            if(_dmTitle!=null)_dmTitle.text=DesktopLocalization.Format("ui.social.hub.title.conversation", (object)(_dmFriendName));
+            if(_dmTitle!=null)DesktopLocalization.SetText(_dmTitle, DesktopLocalization.Format("ui.social.hub.title.conversation", (object)(_dmFriendName)));
             Clear(_messageContent);
             if(messages==null||messages.Length==0)TextRow(_messageContent,"DirectMessageRow",DesktopLocalization.Text("ui.social.hub.empty.messages", "还没有消息，给钓友打个招呼吧。"));
             else foreach(var message in messages)MessageRow(_messageContent,"DirectMessageRow",message.fromPlayerId==_api?.PlayerId?DesktopLocalization.Text("ui.social.hub.label.self", "我"):message.fromNickname,message.text,message.createdAt,message.fromPlayerId==_api?.PlayerId);
@@ -605,17 +605,17 @@ namespace FishSocial.Desktop
             var skin=row.GetComponent<CozyPanelSkin>()??row.AddComponent<CozyPanelSkin>();
             skin.MarkSkinned();skin.RememberChildren();
         }
-        static void Label(GameObject row,string path,string value){if(row==null)return;var text=DesktopModalUi.FindComponent<Text>(row.transform,path);if(text!=null){text.supportRichText=false;text.text=value??"";}}
+        static void Label(GameObject row,string path,string value){if(row==null)return;var text=DesktopModalUi.FindComponent<Text>(row.transform,path);if(text!=null){text.supportRichText=false;DesktopLocalization.SetText(text, value??"");}}
         static void Bind(GameObject row,string path,UnityEngine.Events.UnityAction action){if(row==null)return;var button=DesktopModalUi.FindComponent<Button>(row.transform,path);if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
         static void SetButtons(GameObject row,bool enabled){if(row!=null)foreach(var button in row.GetComponentsInChildren<Button>(true))button.interactable=enabled;}
-        static void TextRow(Transform parent,string prefab,string value){var row=Row(prefab,parent);if(row==null)return;var label=row.transform.Find("Name")??row.transform.Find("Message");if(label!=null){var text=label.GetComponent<Text>();if(text!=null){text.supportRichText=false;text.text=value??"";}}}
+        static void TextRow(Transform parent,string prefab,string value){var row=Row(prefab,parent);if(row==null)return;var label=row.transform.Find("Name")??row.transform.Find("Message");if(label!=null){var text=label.GetComponent<Text>();if(text!=null){text.supportRichText=false;DesktopLocalization.SetText(text, value??"");}}}
         static void MessageRow(Transform parent,string prefab,string sender,string body,long at,bool own)
         {
-            var row=Row(prefab,parent);if(row==null)return;Label(row,"Sender",(sender??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"))+" · "+Date(at));Label(row,"Message",body);
+            var row=Row(prefab,parent);if(row==null)return;Label(row,"Sender",DesktopLocalization.Concat(DesktopLocalization.Concat((sender??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")), " · "), Date(at)));Label(row,"Message",body);
             var text=DesktopModalUi.FindComponent<Text>(row.transform,"Message");if(text!=null){text.alignment=TextAnchor.UpperLeft;var layout=row.GetComponent<LayoutElement>();if(layout!=null)layout.preferredHeight=Mathf.Max(88,text.preferredHeight+50);}
             var mine=row.transform.Find("Mine");if(mine!=null)mine.gameObject.SetActive(own);
             var paper=DesktopModalUi.FindComponent<Image>(row.transform,"SocialPaper/JournalPaper");if(paper!=null)paper.color=own?(Color)new Color32(255,240,217,255):Color.white;
         }
-        static string Date(long timestamp){if(timestamp<=0)returnDesktopLocalization.Text("ui.social.feed.label.just_now", "刚刚");try{return DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime.ToString("MM-dd HH:mm");}catch(ArgumentOutOfRangeException){returnDesktopLocalization.Text("ui.social.feed.label.just_now", "刚刚");}}
+        static string Date(long timestamp){if(timestamp<=0)return DesktopLocalization.Text("ui.social.feed.label.just_now", "刚刚");try{return DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime.ToString("MM-dd HH:mm");}catch(ArgumentOutOfRangeException){return DesktopLocalization.Text("ui.social.feed.label.just_now", "刚刚");}}
     }
 }

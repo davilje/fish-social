@@ -143,12 +143,12 @@ namespace FishSocial.Desktop
 
         public static string StarRich(string quality)
         {
-            return "<color=#c98a12>" + Stars(quality) + "</color>";
+            return DesktopLocalization.Concat(DesktopLocalization.Concat("<color=#c98a12>", Stars(quality)), "</color>");
         }
 
         public static string StarRich(int qualityRank)
         {
-            return "<color=#c98a12>" + Stars(qualityRank) + "</color>";
+            return DesktopLocalization.Concat(DesktopLocalization.Concat("<color=#c98a12>", Stars(qualityRank)), "</color>");
         }
 
         public static int EstimateSellPrice(string quality, float sizeM, string speciesId = null)
@@ -179,7 +179,7 @@ namespace FishSocial.Desktop
             if (species == null)
                 return "—";
             var rate = species.BiteWeight * 0.2f;
-            return (rate * 100f).ToString("0.00") + "% / tick";
+            return DesktopLocalization.Concat((rate * 100f).ToString("0.00"), "% / tick");
         }
 
         public static string TopBaits(SpeciesInfo species)
@@ -203,13 +203,10 @@ namespace FishSocial.Desktop
                 return "—";
             ranked.Sort((a, b) => b.Key.CompareTo(a.Key));
             var count = Math.Min(3, ranked.Count);
-            var text = string.Empty;
+            var names = new string[count];
             for (var i = 0; i < count; i++)
-            {
-                if (i > 0) text += "、";
-                text += ranked[i].Value;
-            }
-            return text;
+                names[i] = ranked[i].Value;
+            return DesktopLocalization.Join("、", names);
         }
 
         static float ScoreBaitForDiet(DesktopGameData.BaitDef bait, string diet)
@@ -236,16 +233,10 @@ namespace FishSocial.Desktop
             if (species == null)
                 return "未知鱼种。";
             var size = species.TypicalMinM > 0f || species.TypicalMaxM > 0f
-                ? species.TypicalMinM.ToString("0.00") + "–" + species.TypicalMaxM.ToString("0.00") + "m"
+                ? DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(species.TypicalMinM.ToString("0.00"), "–"), species.TypicalMaxM.ToString("0.00")), "m")
                 : "—";
             var qMax = DesktopGameData.QualityRankLabel(species.QualityMax > 0 ? species.QualityMax : 7);
-            return species.Name + "（" + species.Id + "）\n" +
-                   "食性：" + species.DietLabel + "\n" +
-                   "钓组：" + (string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel) + "\n" +
-                   "稀有度：" + (string.IsNullOrEmpty(species.RarityLabel) ? "—" : species.RarityLabel) + "\n" +
-                   "品质上限：" + qMax + "\n" +
-                   "体型参考：" + size + "（图鉴）\n" +
-                   "推荐鱼饵：" + TopBaits(species);
+            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(species.Name, "（"), species.Id), "）\n"), "食性："), species.DietLabel), "\n"), "钓组："), (string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel)), "\n"), "稀有度："), (string.IsNullOrEmpty(species.RarityLabel) ? "—" : species.RarityLabel)), "\n"), "品质上限："), qMax), "\n"), "体型参考："), size), "（图鉴）\n"), "推荐鱼饵："), TopBaits(species));
         }
 
         static SpeciesInfo FromGameDef(DesktopGameData.SpeciesDef d)

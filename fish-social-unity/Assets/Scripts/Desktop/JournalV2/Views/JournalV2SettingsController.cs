@@ -33,10 +33,10 @@ namespace FishSocial.Desktop.JournalV2
             panels[0].Find("Modes").GetComponent<JournalV2Segment>().Select((int)window.Mode);
             for(var i=0;i<notify.Length;i++)notify[i].GetComponent<JournalV2Toggle>().SetValue(Value(i),Application.isPlaying,false);
             tray.GetComponent<JournalV2Toggle>().SetValue(window.HideToTrayOnClose,Application.isPlaying,false);
-            Page.Heading.text=new[]{"窗口尺寸","提醒开关","系统托盘"}[tab];heading.text="当前设置";
-            photo.Find("Resolution").GetComponent<Text>().text=window.Width+"×"+window.Height;
+            DesktopLocalization.SetText(Page.Heading, new[]{"窗口尺寸","提醒开关","系统托盘"}[tab]);DesktopLocalization.SetText(heading, "当前设置");
+            DesktopLocalization.SetText(photo.Find("Resolution").GetComponent<Text>(), DesktopLocalization.Concat(DesktopLocalization.Concat(window.Width, "×"), window.Height));
             var count=0;for(var i=0;i<5;i++)if(Value(i))count++;
-            photo.Find("Mode").GetComponent<Text>().text=new[]{"窗口","无边框","全屏"}[(int)window.Mode]+" · 提醒 "+count+" 项";
+            DesktopLocalization.SetText(photo.Find("Mode").GetComponent<Text>(), DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(new[]{"窗口","无边框","全屏"}[(int)window.Mode], " · 提醒 "), count), " 项"));
         }
     }
 }

@@ -33,7 +33,7 @@ namespace FishSocial.Desktop
         {
             if (canvas == null || data == null) return null;
             var prefab = Resources.Load<GameObject>(PrefabPath);
-            if (prefab == null) { Debug.LogError("Missing settlement prefab: " + PrefabPath); return null; }
+            if (prefab == null) { Debug.LogError(DesktopLocalization.Concat("Missing settlement prefab: ", PrefabPath)); return null; }
             var go = Instantiate(prefab, canvas, false);
             var view = go.GetComponent<DesktopPondSettlementModalView>();
             if (view == null || go.transform.Find("Panel/RecordTemplate") == null)
@@ -160,20 +160,20 @@ namespace FishSocial.Desktop
             for (var i = 0; i < 3; i++)
             {
                 var option = i;
-                BindButton("Panel/ChoiceLayer/FilterMenu/Option" + i, () => SetFilter(option));
-                BindButton("Panel/ChoiceLayer/SortMenu/Option" + i, () => SetSort(option));
+                BindButton(DesktopLocalization.Concat("Panel/ChoiceLayer/FilterMenu/Option", i), () => SetFilter(option));
+                BindButton(DesktopLocalization.Concat("Panel/ChoiceLayer/SortMenu/Option", i), () => SetSort(option));
             }
             CloseChoices();
             Set("Panel/Title", DesktopLocalization.Text("ui.catch.settlement.title.main", "收竿啦，带上今天的湖畔记忆"));
-            Set("Panel/Summary", data.pondName + " · " + Timestamp(data.joinedAt, DesktopLocalization.Text("ui.catch.settlement.format.date_time", "yyyy 年 M 月 d 日 · HH:mm")) + " — " + Timestamp(data.leftAt,"HH:mm") + " · " + (data.returnFeeMode == "auto_return" ? DesktopLocalization.Text("ui.catch.settlement.mode.auto_release", "自动回鱼") : DesktopLocalization.Text("ui.catch.settlement.mode.keep_to_sell", "留鱼出售")));
+            Set("Panel/Summary", DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Data(data.pondName), " · "), Timestamp(data.joinedAt, DesktopLocalization.Text("ui.catch.settlement.format.date_time", "yyyy 年 M 月 d 日 · HH:mm"))), " — "), Timestamp(data.leftAt,"HH:mm")), " · "), (data.returnFeeMode == "auto_return" ? DesktopLocalization.Text("ui.catch.settlement.mode.auto_release", "自动回鱼") : DesktopLocalization.Text("ui.catch.settlement.mode.keep_to_sell", "留鱼出售"))));
             Set("Panel/Stats/Bites/Value", DesktopLocalization.Format("ui.catch.settlement.format.bite_count", (object)(data.biteCount)));
             Set("Panel/Stats/Escapes/Value", DesktopLocalization.Format("ui.catch.settlement.format.bite_count", (object)(data.escapeCount)));
             Set("Panel/Stats/Duration/Value", Duration(data.fishingDurationMs));
             Set("Panel/Stats/Catches/Value", DesktopLocalization.Format("ui.catch.settlement.format.fish_count", (object)((data.catches?.Length ?? 0))));
             Set("Panel/Account/Income", DesktopLocalization.Format("ui.catch.settlement.format.income", (object)(data.totalReturnGold)));
             Set("Panel/Account/Fees", DesktopLocalization.Format("ui.catch.settlement.format.expense", (object)(data.feesPaid)));
-            Set("Panel/Account/PlayerXp", "+" + (data.totalCatchPlayerXp + data.totalReturnPlayerXp));
-            Set("Panel/Account/PondXp", "+" + (data.totalCatchPondXp + data.totalReturnPondXp));
+            Set("Panel/Account/PlayerXp", DesktopLocalization.Concat("+", (data.totalCatchPlayerXp + data.totalReturnPlayerXp)));
+            Set("Panel/Account/PondXp", DesktopLocalization.Concat("+", (data.totalCatchPondXp + data.totalReturnPondXp)));
             Set("Panel/Account/Net", DesktopLocalization.Format("ui.catch.settlement.format.net_coins", (object)((data.netProfit >= 0 ? "+" : "")), (object)(data.netProfit)));
             RefreshRecords();
         }
@@ -217,13 +217,13 @@ namespace FishSocial.Desktop
             for (var i = 0; i < rows.Count; i++)
             {
                 var entry = rows[i];
-                var row = Instantiate(template.gameObject, content, false); row.name = "CatchRecord" + i; row.SetActive(true);
+                var row = Instantiate(template.gameObject, content, false); row.name = DesktopLocalization.Concat("CatchRecord", i); row.SetActive(true);
                 var rect = (RectTransform)row.transform; rect.anchoredPosition = new Vector2(0, -i * 106f);
                 SetAt(row.transform, "Name", DesktopFishCatalog.SpeciesName(entry.speciesId));
                 SetAt(row.transform, "Time", Timestamp(entry.caughtAt, "MM.dd · HH:mm:ss"));
-                SetAt(row.transform, "Quality", DesktopFishCatalog.QualityName(entry.quality) + " · " + (entry.outcome == "returned" ? DesktopLocalization.Text("ui.catch.settlement.status.released", "已回塘") : DesktopLocalization.Text("ui.catch.settlement.status.kept", "已入包")));
-                SetAt(row.transform, "Size", entry.sizeM.ToString("0.00") + " m");
-                SetAt(row.transform, "Weight", entry.weightKg > 0 ? entry.weightKg.ToString("0.00") + " kg" : "—");
+                SetAt(row.transform, "Quality", DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.QualityName(entry.quality), " · "), (entry.outcome == "returned" ? DesktopLocalization.Text("ui.catch.settlement.status.released", "已回塘") : DesktopLocalization.Text("ui.catch.settlement.status.kept", "已入包"))));
+                SetAt(row.transform, "Size", DesktopLocalization.Concat(entry.sizeM.ToString("0.00"), " m"));
+                SetAt(row.transform, "Weight", entry.weightKg > 0 ? DesktopLocalization.Concat(entry.weightKg.ToString("0.00"), " kg") : "—");
                 var art = row.transform.Find("FishArt").GetComponent<Image>(); art.sprite = CozyItemArt.Fish(entry.speciesId); art.enabled = art.sprite != null;
                 var share = row.transform.Find("Share").GetComponent<Button>(); share.interactable = CanShare(entry);
                 CozyWorkspaceInteraction.Bind(share);
@@ -241,7 +241,7 @@ namespace FishSocial.Desktop
         }
         void Set(string path, string value) { SetAt(transform, path, value); }
         static void SetAt(Transform parent, string path, string value)
-        { var label = parent.Find(path)?.GetComponent<Text>(); if (label != null) label.text = value; }
+        { var label = parent.Find(path)?.GetComponent<Text>(); if (label != null) DesktopLocalization.SetText(label, value); }
         public void OpenChoices(bool sorting)
         {
             var layer = transform.Find("Panel/ChoiceLayer"); if (layer == null) return;

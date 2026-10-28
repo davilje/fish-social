@@ -23,7 +23,7 @@ namespace FishSocial.Desktop
             if (host == null || string.IsNullOrEmpty(text)) return null;
             var presenter = host.GetComponent<CozyJournalToast>();
             if (presenter == null) presenter = host.gameObject.AddComponent<CozyJournalToast>();
-            presenter.queue.Enqueue(new Notice { Text = text, Error = error });
+            presenter.queue.Enqueue(new Notice { Text = DesktopLocalization.Message(text), Error = error });
             presenter.Next();
             return presenter;
         }
@@ -51,7 +51,7 @@ namespace FishSocial.Desktop
             plate.borderColor = error ? new Color(163f / 255f, 57f / 255f, 43f / 255f, 1f) : new Color(0.91f, 0.82f, 0.67f, 1f);
             plate.raycastTarget = false;
             var label = Node("Text", note, new Vector2(324, 42)).gameObject.AddComponent<Text>();
-            label.font = CatTheme.Font; label.fontSize = 20; label.text = notice.Text;
+            label.font = CatTheme.Font; label.fontSize = 20; DesktopLocalization.SetText(label, notice.Text);
             label.supportRichText = false; label.raycastTarget = false;
             label.color = error ? new Color(163f / 255, 57f / 255, 43f / 255) : CatTheme.Ink;
             label.alignment = TextAnchor.MiddleLeft; label.horizontalOverflow = HorizontalWrapMode.Wrap;

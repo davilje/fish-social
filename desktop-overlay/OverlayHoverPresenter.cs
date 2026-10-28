@@ -33,7 +33,7 @@ namespace FishSocialOverlay
         {
             _layer = layer;
             _layer.Children.Clear();
-            _text = new TextBlock
+            _text = OverlayLocalization.Track(new TextBlock
             {
                 Foreground = CozyTheme.Ink,
                 FontSize = 10,
@@ -41,7 +41,7 @@ namespace FishSocialOverlay
                 TextWrapping = TextWrapping.Wrap,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-            };
+            });
             _card = new Border
             {
                 MinWidth = CardMinWidth,
@@ -65,7 +65,7 @@ namespace FishSocialOverlay
             _visibleActorKey = actorKey;
             _cluster = cluster;
             _hintSlot = hintSlot;
-            _text.Text = text;
+            OverlayLocalization.SetText(_text, text);
             _card.Visibility = Visibility.Visible;
             PositionAtHint();
         }
@@ -80,7 +80,7 @@ namespace FishSocialOverlay
                 return;
             }
 
-            _text.Text = text;
+            OverlayLocalization.SetText(_text, text);
             PositionAtHint();
         }
 

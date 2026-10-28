@@ -226,7 +226,7 @@ namespace FishSocial.Desktop
                 var instance = DesktopUiPrefabFactory.Instantiate("WorldMapPondMarker", _markerLayer);
                 if (instance == null)
                     continue;
-                instance.name = "Pond_" + item.pondId;
+                instance.name = DesktopLocalization.Concat("Pond_", item.pondId);
                 var marker = instance.GetComponent<RectTransform>();
                 var button = instance.GetComponent<Button>();
                 var label = DesktopModalUi.FindComponent<Text>(instance.transform, "Label");
@@ -377,7 +377,7 @@ namespace FishSocial.Desktop
             var text = _enter.GetComponentInChildren<Text>();
             if (text != null)
             {
-                text.text = label;
+                DesktopLocalization.SetText(text, label);
                 text.color = enabled ? CatTheme.Cream : CatTheme.Ink;
                 _enter.GetComponent<CozyJournalInlineContent>()?.Reflow();
             }
@@ -403,7 +403,7 @@ namespace FishSocial.Desktop
         }
 
         void SetStatus(string message)
-        {
+        { message = DesktopLocalization.Message(message);
             SelectionState.SetEntryStatus(SelectionState.Busy, message);
         }
 

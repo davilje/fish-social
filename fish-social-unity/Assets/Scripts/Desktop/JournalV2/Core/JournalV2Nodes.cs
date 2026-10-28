@@ -26,7 +26,7 @@ namespace FishSocial.Desktop.JournalV2
         public static Text Text(Transform parent,string name,string value,float x,float y,float w,float h,int size,TextAnchor align=TextAnchor.MiddleLeft)
         {
             var r=Rect(parent,name,x,y,w,h);var t=r.gameObject.AddComponent<Text>();
-            t.font=JournalV2Theme.Font;t.text=value??"";t.fontSize=size;t.fontStyle=FontStyle.Normal;t.color=JournalV2Theme.Ink;
+            t.font=JournalV2Theme.Font;DesktopLocalization.SetText(t, value??"");t.fontSize=size;t.fontStyle=FontStyle.Normal;t.color=JournalV2Theme.Ink;
             t.alignment=align;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Truncate;t.raycastTarget=false;return t;
         }
         public static Button Button(Transform parent,string name,string label,string iconKey,float x,float y,float w,float h,JournalV2ButtonKind kind=JournalV2ButtonKind.Plain)
@@ -51,7 +51,7 @@ namespace FishSocial.Desktop.JournalV2
             icon.gameObject.SetActive(!string.IsNullOrEmpty(iconKey));
             if(kind==JournalV2ButtonKind.Index)
             {
-                var light=Image(visual,"LightIcon",JournalV2Theme.Sprite("icons-light/"+iconKey),30,(h-iconSize)/2,iconSize,iconSize);
+                var light=Image(visual,"LightIcon",JournalV2Theme.Sprite(DesktopLocalization.Concat("icons-light/", iconKey)),30,(h-iconSize)/2,iconSize,iconSize);
                 light.color=new Color(1,1,1,0);
             }
             var left=kind==JournalV2ButtonKind.Index?74:!string.IsNullOrEmpty(iconKey)?54:8;
@@ -86,7 +86,7 @@ namespace FishSocial.Desktop.JournalV2
             var field=r.gameObject.AddComponent<InputField>();field.targetGraphic=bg;field.transition=Selectable.Transition.None;
             field.textComponent=Text(r,"Text",value,12,4,w-24,h-8,fontSize,multiline?TextAnchor.UpperLeft:TextAnchor.MiddleLeft);
             var placeholder=Text(r,"Placeholder","",12,4,w-24,h-8,fontSize,multiline?TextAnchor.UpperLeft:TextAnchor.MiddleLeft);placeholder.color=JournalV2Theme.Soft;field.placeholder=placeholder;
-            field.lineType=multiline?InputField.LineType.MultiLineNewline:InputField.LineType.SingleLine;field.text=value??"";return field;
+            field.lineType=multiline?InputField.LineType.MultiLineNewline:InputField.LineType.SingleLine;DesktopLocalization.SetText(field, value??"");return field;
         }
         public static RectTransform Polaroid(Transform parent,string name,Sprite sprite,string caption,float x,float y,float w=302,float h=236,float cssAngle=-2)
         {

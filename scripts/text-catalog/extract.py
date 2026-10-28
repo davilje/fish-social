@@ -1,4 +1,4 @@
-"""Inventory Unity/Overlay copy without changing runtime sources.
+"""Refresh Unity/Overlay localization sources and preserve reviewed translations.
 
 Install requirements.txt into a venv, then run this file from any directory.
 The JSON zhCN overrides survive regeneration when the source key is unchanged.
@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from copy import deepcopy
+from functools import lru_cache
 from datetime import datetime
 import hashlib
 import json
@@ -45,6 +47,25 @@ skipped = Counter()
 parse_errors = []
 excluded_debug = Counter()
 excluded_debug_locations = {}
+localized_prototypes = {}
+reviewed_live_sources = set()
+
+
+@lru_cache(None)
+def reviewed_expression_hashes():
+    """Legacy expression identities for syntax-only Concat migrations."""
+    result={}
+    def register(key,source):
+        identity=(key,source['file'],source['kind'],source['location'])
+        result.setdefault(identity,set()).add(source['expressionSha256'])
+    directory=Path(__file__).resolve().parent
+    inactive=json.loads((directory/'inactive-sources.json').read_text())
+    for group in inactive['groups']:
+        for entry in group['entries']:
+            for source in entry['sources']:register(entry['key'],source)
+    localization=json.loads((directory/'localization-sources.json').read_text())
+    for source in localization['excludedSources']:register(source['key'],source)
+    return result
 
 
 def source_identity(source):
@@ -64,12 +85,24 @@ def walk(node):
 def context(node):
     current = node
     for _ in range(6):
-        if current.parent is None:
-            break
+        if current.parent is None:break
         current = current.parent
         if current.type in {"expression_statement", "return_statement", "field_declaration", "local_declaration_statement", "pair", "lexical_declaration"}:
             break
-    return text(current)
+    # A nearby localization call must not make a protocol ID or hierarchy path
+    # look like UI copy merely because its API/key contains "Text" or "label".
+    value=text(current)
+    calls=[]
+    end=-1
+    for child in walk(current):
+        if child.start_byte<end:continue
+        function=child.child_by_field_name('function') if child.type=='invocation_expression' else None
+        if function is not None and re.fullmatch(r'(?:[\w]+\.)*(?:DesktopLocalization|OverlayLocalization)\.(?:Text|Format|FormatDate)',text(function)):
+            calls.append((child.start_byte-current.start_byte,child.end_byte-current.start_byte))
+            end=child.end_byte
+    encoded=value.encode('utf-8')
+    for start,end in reversed(calls):encoded=encoded[:start]+b'localizedValue'+encoded[end:]
+    return encoded.decode('utf-8')
 
 
 def module(path):
@@ -155,6 +188,16 @@ def add(path, line, column, value, kind, ctx="", location="", variables=None, fo
         source["variables"] = variables
     if raw:
         source["expression"] = raw
+        if re.search(r'(?:DesktopLocalization|OverlayLocalization)\.Concat\(',raw) or (kind=='拼接模板' and raw.startswith('(')):
+            identity=(key,str(path),kind,location)
+            reviewed=reviewed_expression_hashes().get(identity,set())
+            # Require the exact template/kind/file/method and no reviewed live
+            # occurrence of that identity. Several excluded variable variants
+            # are equivalent here; do not accidentally exclude a shared live use.
+            # Preserve that identity for review filters while recording the
+            # real current expression and argument locations above.
+            if reviewed and identity not in reviewed_live_sources:
+                source['reviewExpressionSha256']=sorted(reviewed)[0]
     if key not in entries:
         entries[key] = {
             "key": key, "module": mod, "category": cat, "sourceText": value,
@@ -189,7 +232,40 @@ def literal(node):
 
 
 def plus(node):
-    return node.type == "binary_expression" and any(c.type == "+" for c in node.children)
+    if node is None:return False
+    node=unwrap_parentheses(node)
+    if node.type == "binary_expression":return any(c.type == "+" for c in node.children)
+    function=node.child_by_field_name('function') if node.type=='invocation_expression' else None
+    return function is not None and bool(re.fullmatch(r'(?:[\w]+\.)*(?:DesktopLocalization|OverlayLocalization)\.Concat',text(function)))
+
+
+def plus_operands(node):
+    node=unwrap_parentheses(node)
+    if node.type=='binary_expression':return node.child_by_field_name('left'),node.child_by_field_name('right')
+    args=node.child_by_field_name('arguments').named_children
+    return tuple(arg.named_children[-1] for arg in args)
+
+
+def unwrap_parentheses(node):
+    while node.type=='parenthesized_expression' and len(node.named_children)==1:node=node.named_children[0]
+    return node
+
+
+def node_is_debug(node,member,filename):
+    if code_node_is_debug(node,member,filename,text):return True
+    ancestor=node.parent
+    while ancestor is not None:
+        function=ancestor.child_by_field_name('function') if ancestor.type=='invocation_expression' else None
+        if function is not None and re.search(r'(?:^|\.)(?:Debug\.(?:Log|LogError|LogWarning|Write|WriteLine)|LatencyTrace\.Write|Trace\.(?:Write|WriteLine)|console\.(?:log|warn|error)|logger\.\w+)$',text(function)):
+            return True
+        ancestor=ancestor.parent
+    return False
+
+
+def parent_plus(node):
+    parent=node.parent
+    while parent is not None and parent.type in {'argument','argument_list'}:parent=parent.parent
+    return plus(parent)
 
 
 def make_template(node):
@@ -217,12 +293,60 @@ def make_template(node):
                         fragments.append(var(expressions[0], suffix))
             return "".join(fragments)
         if plus(n) and any(x.type in {"string_literal", "verbatim_string_literal", "raw_string_literal", "string", "interpolated_string_expression", "template_string"} for x in walk(n)):
-            return piece(n.child_by_field_name("left")) + piece(n.child_by_field_name("right"))
+            left,right=plus_operands(n)
+            return piece(left)+piece(right)
         return var(n)
     value = piece(node)
     if not params and plus(node):
         value = value.replace("{{", "{").replace("}}", "}")
     return value, params
+
+
+def member_name(node):
+    ancestor=node.parent
+    while ancestor:
+        if ancestor.type in {"method_declaration", "constructor_declaration", "property_declaration", "function_declaration"}:
+            name=ancestor.child_by_field_name("name")
+            return text(name) if name else ""
+        ancestor=ancestor.parent
+    return ""
+
+
+def localized_call(node,relative,lines,covered):
+    """Bind explicit runtime keys to their reviewed entry instead of literals."""
+    if node.type!='invocation_expression':return
+    function=node.child_by_field_name('function')
+    if function is None:return
+    match=re.fullmatch(r'(?:[\w]+\.)*(DesktopLocalization|OverlayLocalization)\.(Text|Format|FormatDate)',text(function))
+    if not match:return
+    arguments=node.child_by_field_name('arguments')
+    args=arguments.named_children if arguments else []
+    if not args:return
+    key_nodes=args[0].named_children
+    if len(key_nodes)!=1 or key_nodes[0].type not in {'string_literal','verbatim_string_literal','raw_string_literal'}:return
+    key=literal(key_nodes[0])
+    if key not in localized_prototypes:
+        raise ValueError(f'本地化调用的Key未登记于现有文本表: {relative}:{node.start_point.row+1}: {key}')
+    prototype=localized_prototypes[key]
+    # Key/fallback are implementation details of one call, never new copy.
+    for arg in args[:2] if match[2]=='Text' else args[:1]:
+        covered.update(n.id for n in walk(arg))
+    kind=prototype['sources'][0]['kind']
+    member=member_name(node)
+    reason=excluded_source(relative,prototype['sourceText'],context(node),member,
+                           node_is_debug(node,member,Path(relative).name))
+    if reason:
+        excluded_debug[reason]+=1
+        return
+    source=dict(file=str(relative),line=node.start_point.row+1,
+                column=len(lines[node.start_point.row][:node.start_point.column].decode('utf-8'))+1,
+                location=member,kind=kind,expression=text(node))
+    if match[2] in {'Format','FormatDate'}:
+        source['variables']=[dict(index=i,expression=text(arg)) for i,arg in enumerate(args[1:])]
+    if prototype['key'] not in entries:
+        entries[prototype['key']]={**deepcopy(prototype),'sources':[]}
+    entry=entries[prototype['key']]
+    if source not in entry['sources']:entry['sources'].append(source)
 
 
 def code_file(path, relative):
@@ -233,12 +357,14 @@ def code_file(path, relative):
         parse_errors.append(str(relative))
     nodes = list(walk(tree.root_node))
     covered = set()
+    for node in nodes:
+        localized_call(node,relative,lines,covered)
     string_types = {"string_literal", "verbatim_string_literal", "raw_string_literal", "interpolated_string_expression", "string", "template_string"}
     for n in nodes:
         if n.id in covered:
             continue
         kind = None
-        if plus(n) and any(x.type in string_types for x in walk(n)) and not (n.parent and plus(n.parent)):
+        if plus(n) and any(x.type in string_types for x in walk(n)) and not parent_plus(n):
             # A large expression containing a conditional is retained as a parameter;
             # nested branch strings are inventoried independently below.
             value, variables = make_template(n)
@@ -250,7 +376,20 @@ def code_file(path, relative):
             value, variables, kind = literal(n), [], "代码常量"
         else:
             continue
+        if (kind=='代码常量' and n.parent is not None and n.parent.type=='binary_expression' and
+                any(c.type in {'==','!=','===','!=='} for c in n.parent.children)):
+            skipped['比较与匹配常量']+=1
+            continue
         ctx = context(n)
+        if (kind=='拼接模板' and n.type=='invocation_expression' and plus(n) and
+                n.parent is not None and n.parent.type=='assignment_expression'):
+            left,right=plus_operands(n)
+            assigned=n.parent.child_by_field_name('left')
+            if assigned is not None and text(assigned)==text(left):
+                candidate,candidate_variables=make_template(right)
+                candidate_key='txt_'+hashlib.sha256((module(relative)+'\0'+category(relative,ctx,kind,candidate)+'\0'+kind+'\0'+candidate).encode()).hexdigest()[:16]
+                identity=(candidate_key,str(relative),kind,member_name(n))
+                if identity in reviewed_expression_hashes():value,variables=candidate,candidate_variables
         ancestor = n.parent
         attribute_literal = False
         module_import = False
@@ -270,8 +409,7 @@ def code_file(path, relative):
                 covered.add(x.id)
                 return
             if plus(x):
-                consumed(x.child_by_field_name("left"))
-                consumed(x.child_by_field_name("right"))
+                for operand in plus_operands(x):consumed(operand)
         if kind == "拼接模板":
             consumed(n)
         elif kind == "插值模板":
@@ -279,19 +417,11 @@ def code_file(path, relative):
             pass
         if attribute_literal:
             ctx = "attribute " + ctx
-        member = ""
-        ancestor = n.parent
-        while ancestor:
-            if ancestor.type in {"method_declaration", "constructor_declaration", "property_declaration", "function_declaration"}:
-                name = ancestor.child_by_field_name("name")
-                if name:
-                    member = text(name)
-                break
-            ancestor = ancestor.parent
+        member = member_name(n)
         character_column = len(lines[n.start_point.row][:n.start_point.column].decode("utf-8")) + 1
         add(relative, n.start_point.row + 1, character_column, value, kind, ctx, member, variables,
             raw=text(n) if kind != "代码常量" else "",
-            node_debug=code_node_is_debug(n, member, path.name, text))
+            node_debug=node_is_debug(n, member, path.name))
 
 
 def json_file(path, relative):
@@ -309,6 +439,11 @@ def json_file(path, relative):
                 visit(item, pointer + "/" + str(i), owner, node_debug)
         elif isinstance(value, str):
             field = pointer.rsplit("/", 1)[-1]
+            if ('/ponds/layered/' in str(relative).replace('\\','/').lower() and
+                    ((path.name=='layout.json' and pointer=='/animationStatus') or
+                     (path.name=='motion.json' and pointer=='/weather/label'))):
+                skipped['美术动画制作元数据']+=1
+                return
             force = bool(re.fullmatch(r"label|text|title|content|tooltip|placeholder|caption|displayName|nameZh|descriptionZh|clueText", field, re.I))
             # YAML's scanner also parses JSON and supplies exact marks; pointers are authoritative.
             add(relative, 0, 0, value, "JSON字段", field, pointer + (" [" + owner + "]" if owner else ""), force=force, node_debug=node_debug)
@@ -384,6 +519,7 @@ def xaml_file(path, relative):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--previous", type=Path, help="复用此JSON的已审查Key/翻译；新输出路径默认复用根目录文本表")
     filters = parser.add_mutually_exclusive_group()
     filters.add_argument("--filter-debug-only", action="store_true", help="仅过滤现有清单，不添加源码中新增的无关文本")
     filters.add_argument("--filter-inactive-only", action="store_true", help="仅剔除已审查的不生效/非显示来源，不重新扫描或新增文本")
@@ -406,6 +542,20 @@ def main():
         args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"output": str(args.output), **result["stats"]}, ensure_ascii=False))
         return
+    previous = {}
+    retired = {}
+    previous_data = None
+    previous_public = None
+    previous_path=args.previous or (args.output if args.output.exists() else OUTPUT)
+    if previous_path.exists():
+        previous_public=json.loads(previous_path.read_text())
+        previous_data=restore_source_keys(previous_public)
+        previous={e['key']:e for e in previous_data['entries']}
+        retired={e['key']:e for e in previous_data.get('retiredEntries',[])}
+        localized_prototypes.update({public['key']:restored
+                                     for public,restored in zip(previous_public['entries'],previous_data['entries'])})
+        reviewed_live_sources.update((e['key'],s['file'],s['kind'],s['location'])
+                                     for e in previous_data['entries'] for s in e['sources'])
     roots = [ROOT / "fish-social-unity/Assets", ROOT / "fish-social-unity/FishSocialOverlay", ROOT / "desktop-overlay", ROOT / "shared"]
     source_files = set()
     for base in roots:
@@ -414,6 +564,9 @@ def main():
             if not p.is_file() or any(x in SKIP_DIRS for x in relative.parts) or p.suffix not in {".cs", ".ts", ".json", ".xaml", ".uxml", ".prefab", ".unity", ".asset"}:
                 continue
             if p.name in {"package.json", "package-lock.json", "tsconfig.json"} or p.name.endswith(".d.ts"):
+                continue
+            if (p.suffix=='.json' and 'Localization' in relative.parts) or p.name in {
+                'LocalizationCatalog.cs','DesktopLocalization.cs','OverlayLocalization.cs','OverlayLocalizationCatalogLoader.cs'}:
                 continue
             source_files.add(p)
     # Client-visible responses are included as associated text, excluding ops/admin endpoints.
@@ -433,15 +586,6 @@ def main():
             unity_file(path, relative)
         scanned.append({"file": str(relative), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                         "occurrences": sum(len(e["sources"]) for e in entries.values()) - before})
-    previous = {}
-    retired = {}
-    previous_data = None
-    previous_public = None
-    if args.output.exists():
-        previous_public = json.loads(args.output.read_text())
-        previous_data = restore_source_keys(previous_public)
-        previous = {e["key"]: e for e in previous_data["entries"]}
-        retired = {e["key"]: e for e in previous_data.get("retiredEntries", [])}
     # Correct old heuristic categories without invalidating assigned Keys or edits.
     old_shared = {(e["module"], e["sourceText"], e["sources"][0]["kind"]): e
                   for e in previous.values() if e["category"] == "玩法调试"}
@@ -452,7 +596,13 @@ def main():
         assigned = existing_aliases.get((entry["module"], entry["category"], entry["sourceText"], entry["sources"][0]["kind"]))
         if assigned or old:
             entry["key"] = assigned or old["key"]
-    entries_by_key = {entry["key"]: entry for entry in entries.values()}
+    entries_by_key = {}
+    for entry in entries.values():
+        if entry['key'] not in entries_by_key:
+            entries_by_key[entry['key']]=entry
+        else:
+            existing=entries_by_key[entry['key']]
+            existing['sources'].extend(s for s in entry['sources'] if s not in existing['sources'])
     entries.clear()
     entries.update(entries_by_key)
     ordered = sorted(entries.values(), key=lambda e: (e["category"], e["module"], e["sources"][0]["file"], e["sources"][0]["line"], e["key"]))
@@ -472,7 +622,7 @@ def main():
         "schemaVersion": 1, "project": "Fish Social Unity + Desktop Overlay", "locale": "zh-CN",
         "supportedLocales": {"zh-CN": "zhCN", "en-US": "enUS"},
         "generatedAt": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
-        "runtimeBinding": "inventory-only: 当前工程尚未通过 key 读取此表；修改表格不会自动修改运行时界面。",
+        "runtimeBinding": "Unity 与 Overlay 通过 Key 读取导出的 Localization/text-catalog.json；设置界面切换中英文即时生效。修改根文本表后运行 export-runtime.py 更新运行时资源。",
         "keyPolicy": KEY_POLICY,
         "debugTextPolicy": {
             "excludeDevelopmentTools": True,
@@ -542,6 +692,17 @@ def main():
             "debugExclusionReasons": dict(total_reasons),
         }
     result = apply_semantic_keys(filter_localization(filter_catalog(result)), previous_public)
+    if previous_public:
+        # These describe the reviewed baseline and runtime contract, rather than
+        # one scan's transient count of excluded source occurrences.
+        for field in ['debugFilter','englishLocalization','supplementalLocalizationReview','languageSettings']:
+            if field in previous_public:result[field]=deepcopy(previous_public[field])
+        for field in ['inactiveTextFilter','localizationFilter']:
+            if (field in previous_public and
+                    previous_public[field].get('rulesSha256')==result.get(field,{}).get('rulesSha256')):
+                result[field]=deepcopy(previous_public[field])
+        if previous_public.get('runtimeBinding') and not str(previous_public['runtimeBinding']).startswith('inventory-only:'):
+            result['runtimeBinding']=previous_public['runtimeBinding']
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"output": str(args.output), **result["stats"], "parseWarnings": parse_errors}, ensure_ascii=False))

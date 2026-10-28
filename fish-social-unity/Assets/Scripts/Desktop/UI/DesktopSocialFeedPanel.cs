@@ -179,9 +179,7 @@ namespace FishSocial.Desktop
                 _content == null || _scroll == null)
             {
                 Debug.LogError(
-                    "[DesktopUI] PanelSocialFeed Prefab 缺少必需控件。" +
-                    "请在 Unity Prefab Manager 中执行“初始化”，" +
-                    "运行时不会再重建或覆盖手动布局。");
+                    DesktopLocalization.Concat(DesktopLocalization.Concat("[DesktopUI] PanelSocialFeed Prefab 缺少必需控件。", "请在 Unity Prefab Manager 中执行“初始化”，"), "运行时不会再重建或覆盖手动布局。"));
                 return;
             }
 
@@ -501,9 +499,9 @@ namespace FishSocial.Desktop
             selectedCard.GetComponent<CozyStickerMotion>()?.ReplayTape();
             var empty = transform.Find("DesignFeedInfo/CommentEmpty"); if(empty != null) empty.gameObject.SetActive(false);
             if (_commentsTitle != null)
-                _commentsTitle.text = transform.Find("JournalDetailParity") != null
+                DesktopLocalization.SetText(_commentsTitle, transform.Find("JournalDetailParity") != null
                     ? (post.fish != null ? DesktopFishCatalog.SpeciesName(post.fish.speciesId) : DesktopLocalization.Text("ui.social.feed.title.selected_story", "鱼获故事"))
-                    : DesktopLocalization.Format("ui.social.feed.hint.comment_on_story", (object)((post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"))));
+                    : DesktopLocalization.Format("ui.social.feed.hint.comment_on_story", (object)((post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))));
             if (transform.Find("JournalDetailParity") != null)
             {
                 CozyItemArt.Text(transform, "DesignFeedInfo/Heading", DesktopLocalization.Format("ui.social.feed.placeholder.comment_on_author", (object)((post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")))));
@@ -512,7 +510,7 @@ namespace FishSocial.Desktop
             var pondName = post.fish != null ? DesktopGameData.GetPond(post.fish.pondId) : null;
             var pondLabel = pondName != null && !string.IsNullOrEmpty(pondName.name) ? pondName.name : "";
             CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount",
-                DesktopLocalization.Format("ui.social.feed.label.author_comment_count", (object)((string.IsNullOrEmpty(pondLabel) ? "" : pondLabel + " · ")), (object)(selectedCard.CommentCount)));
+                DesktopLocalization.Format("ui.social.feed.label.author_comment_count", (object)((string.IsNullOrEmpty(pondLabel) ? "" : DesktopLocalization.Concat(pondLabel, " · "))), (object)(selectedCard.CommentCount)));
             StyleCommentColumn();
             RevealCommentAside();
             RaiseSelectedTape(selectedCard);
@@ -637,7 +635,7 @@ namespace FishSocial.Desktop
                 var empty = transform.Find("DesignFeedInfo/CommentEmpty");
                 if (empty != null) empty.gameObject.SetActive(true);
                 CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount", "");
-                if (_commentsTitle != null) _commentsTitle.text = DesktopLocalization.Text("ui.social.feed.hint.select_story", "选择一条动态\n在这里查看和发送评论");
+                if (_commentsTitle != null) DesktopLocalization.SetText(_commentsTitle, DesktopLocalization.Text("ui.social.feed.hint.select_story", "选择一条动态\n在这里查看和发送评论"));
             }
         }
 
@@ -696,7 +694,7 @@ namespace FishSocial.Desktop
                 var empty = transform.Find("DesignFeedInfo/CommentEmpty");
                 if (empty != null) empty.gameObject.SetActive(true);
                 CozyItemArt.Text(transform, "DesignFeedInfo/CommentCount", "");
-                if (_commentsTitle != null) _commentsTitle.text = DesktopLocalization.Text("ui.social.feed.hint.select_story", "选择一条动态\n在这里查看和发送评论");
+                if (_commentsTitle != null) DesktopLocalization.SetText(_commentsTitle, DesktopLocalization.Text("ui.social.feed.hint.select_story", "选择一条动态\n在这里查看和发送评论"));
             }
             if (root == null)
                 return;
@@ -730,9 +728,9 @@ namespace FishSocial.Desktop
         }
 
         void SetStatus(string value)
-        {
+        { value = DesktopLocalization.Message(value);
             if (_status != null)
-                _status.text = value ?? string.Empty;
+                DesktopLocalization.SetText(_status, value ?? string.Empty);
         }
 
         T Find<T>(string path) where T : Component
@@ -752,7 +750,7 @@ namespace FishSocial.Desktop
             var go = new GameObject("Text", typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
-            text.text = value ?? string.Empty;
+            DesktopLocalization.SetText(text, value ?? string.Empty);
             text.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             text.fontSize = size;
             text.color = CatTheme.Ink;

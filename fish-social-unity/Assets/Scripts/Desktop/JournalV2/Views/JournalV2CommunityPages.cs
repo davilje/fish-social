@@ -25,18 +25,18 @@ namespace FishSocial.Desktop.JournalV2
         {
             id = DesktopGameData.ResolveSpeciesId(id);
             if (id == "largemouth_bass") id = "black_bass";
-            return JournalV2Theme.Sprite("illustrations/fish/" + id);
+            return JournalV2Theme.Sprite(DesktopLocalization.Concat("illustrations/fish/", id));
         }
         internal static Sprite CommunityAvatar(string path, string playerId = null)
         {
             var id = DesktopDefaultAvatars.ResolvePetId(path, playerId);
-            return JournalV2Theme.Sprite("characters/avatars/" + id + ".png");
+            return JournalV2Theme.Sprite(DesktopLocalization.Concat(DesktopLocalization.Concat("characters/avatars/", id), ".png"));
         }
         internal static Transform CommunityVisual(Button button) => button.transform.Find("Visual") ?? button.transform;
         internal static void CommunityLabel(Button button, string value)
         {
             var label = CommunityVisual(button).Find("Label")?.GetComponent<Text>();
-            if (label != null) label.text = value;
+            if (label != null) DesktopLocalization.SetText(label, value);
         }
         internal static void CommunityClear(Transform parent)
         {
@@ -50,14 +50,14 @@ namespace FishSocial.Desktop.JournalV2
         internal static Button[] CommunityTabs(JournalV2Page page, string[] labels, string[] icons)
         {
             var tabs = new Button[labels.Length];
-            for (var i = 0; i < tabs.Length; i++) tabs[i] = JournalV2Nodes.Button(page.Rail, "Tab" + i, labels[i], icons[i], 10, 12 + i * 88, 190, 76, JournalV2ButtonKind.Index);
+            for (var i = 0; i < tabs.Length; i++) tabs[i] = JournalV2Nodes.Button(page.Rail, DesktopLocalization.Concat("Tab", i), labels[i], icons[i], 10, 12 + i * 88, 190, 76, JournalV2ButtonKind.Index);
             return tabs;
         }
         internal static void CommunityPhoto(RectTransform photo, Sprite art, string caption)
         {
             var image = photo.Find("Visual/Art")?.GetComponent<Image>();
             if (image != null) { image.sprite = art; image.enabled = art != null; }
-            var text = photo.Find("Visual/Caption")?.GetComponent<Text>(); if (text != null) text.text = caption;
+            var text = photo.Find("Visual/Caption")?.GetComponent<Text>(); if (text != null) DesktopLocalization.SetText(text, caption);
         }
         internal static Dropdown CommunityChoice(Transform parent, string name, float x, float y, float w, string[] options)
         {
@@ -106,7 +106,7 @@ namespace FishSocial.Desktop.JournalV2
             var stats = new Text[3];
             for (var i = 0; i < 3; i++)
             {
-                var box = JournalV2Nodes.Image(overview, "Stat"+i, JournalV2Theme.Sprite("surfaces/input-default"), 15+i*230,179,220,76);
+                var box = JournalV2Nodes.Image(overview, DesktopLocalization.Concat("Stat", i), JournalV2Theme.Sprite("surfaces/input-default"), 15+i*230,179,220,76);
                 stats[i] = JournalV2Nodes.Text(box.transform, "Value", "", 16, 8, 190, 60, 18);
             }
             var progress = JournalV2Nodes.Image(overview, "Progress", JournalV2Theme.Sprite("surfaces/input-default"),15,269,680,98);
@@ -137,7 +137,7 @@ namespace FishSocial.Desktop.JournalV2
         static JournalV2Page BuildEdit(Transform parent)
         {
             var page = Frame(parent,"edit","个人中心","记录属于你的钓鱼时光","user",JournalV2Theme.Coral);
-            page.Heading.text="编辑资料";
+            DesktopLocalization.SetText(page.Heading, "编辑资料");
             JournalV2Nodes.Text(page.Middle,"NameLabel","游戏昵称 · 1–12 个字",18,6,674,26,18);
             var nickname=JournalV2Nodes.Input(page.Middle,"Nickname","游戏昵称",18,40,674,44);
             JournalV2Nodes.Text(page.Middle,"BioLabel","个人简介 · 最多 120 个字",18,98,674,26,18);
@@ -147,8 +147,8 @@ namespace FishSocial.Desktop.JournalV2
             var avatars=new Button[6]; var ids=new[]{"orange","white","black","calico","silver","blue"};
             for(var i=0;i<avatars.Length;i++)
             {
-                avatars[i]=JournalV2Nodes.Button(avatarHost,"Avatar"+i,new[]{"橘猫","白猫","黑猫","三花","银渐层","蓝猫"}[i],null,i*112,0,87,90);
-                JournalV2Nodes.Image(CommunityVisual(avatars[i]),"Portrait",JournalV2Theme.Sprite("characters/avatars/"+ids[i]+".png"),13,5,60,54);
+                avatars[i]=JournalV2Nodes.Button(avatarHost,DesktopLocalization.Concat("Avatar", i),new[]{"橘猫","白猫","黑猫","三花","银渐层","蓝猫"}[i],null,i*112,0,87,90);
+                JournalV2Nodes.Image(CommunityVisual(avatars[i]),"Portrait",JournalV2Theme.Sprite(DesktopLocalization.Concat(DesktopLocalization.Concat("characters/avatars/", ids[i]), ".png")),13,5,60,54);
                 var label=CommunityVisual(avatars[i]).Find("Label") as RectTransform; if(label!=null){label.anchorMin=label.anchorMax=Vector2.up;label.pivot=Vector2.up;label.anchoredPosition=new Vector2(5,-63);label.sizeDelta=new Vector2(77,20);}
             }
             var save=JournalV2Nodes.Button(page.Middle,"Save","保存资料",null,18,388,210,45,JournalV2ButtonKind.Primary);

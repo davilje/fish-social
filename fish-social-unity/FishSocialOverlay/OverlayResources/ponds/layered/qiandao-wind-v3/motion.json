@@ -8,59 +8,7 @@
   "primaryPeriod": 7.5,
   "secondaryPeriod": 4.2,
   "verticalPeriod": 9.3,
-  "clouds": [
-    {
-      "id": "scene-cloud-far",
-      "sprites": [
-        {
-          "image": "cloud-far-original-static.png",
-          "left": 0,
-          "top": 0,
-          "width": 2172,
-          "height": 724,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "static",
-          "cloudType": "original-static",
-          "sourceVariant": "qiandao-original-far"
-        }
-      ]
-    },
-    {
-      "id": "scene-cloud-middle",
-      "sprites": [
-        {
-          "image": "cloud-middle-original-static.png",
-          "left": 0,
-          "top": 0,
-          "width": 2172,
-          "height": 724,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "static",
-          "cloudType": "original-static",
-          "sourceVariant": "qiandao-original-middle"
-        }
-      ]
-    },
-    {
-      "id": "scene-cloud-near",
-      "sprites": [
-        {
-          "image": "cloud-near-original-static.png",
-          "left": 0,
-          "top": 0,
-          "width": 2172,
-          "height": 724,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "static",
-          "cloudType": "original-static",
-          "sourceVariant": "qiandao-original-near"
-        }
-      ]
-    }
-  ],
+  "clouds": [],
   "leaves": [
     {
       "id": "scene-tree-left",
@@ -141,39 +89,5 @@
       "primaryPeriod": 6.9
     }
   ],
-  "weather": {
-    "id": "original-static",
-    "label": "原图静态云",
-    "palette": "original"
-  },
-  "cloudMode": "original-static",
-  "occlusionRepair": {
-    "version": 2,
-    "foliageBackLayer": "scene-foliage-back",
-    "cloudCompletionLayer": "scene-cloud-complete",
-    "cloudCompletionContainsSky": true,
-    "originalVisiblePaintPreserved": true,
-    "bushBackLayer": "scene-bush-back",
-    "backingSource": "current foliage cutouts at native coordinates",
-    "depthGroups": [
-      {
-        "back": "scene-bush-back",
-        "front": [
-          "scene-bush-1",
-          "scene-bush-2",
-          "scene-bush-3",
-          "scene-bush-4",
-          "scene-bush-5",
-          "scene-bush-6"
-        ]
-      },
-      {
-        "back": "scene-foliage-back",
-        "front": [
-          "scene-tree-left",
-          "scene-tree-right"
-        ]
-      }
-    ]
-  }
+  "cloudMode": "baked-into-original"
 }

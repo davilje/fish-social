@@ -81,7 +81,7 @@ namespace FishSocial.Desktop
             var room = root.gameObject.AddComponent<CozyHomeRoom>();
             Picture(root, "RoomBase", "room-base", 0, 0, 1672, 941).preserveAspect = false;
             var props = Rect(root, "Props", 0, 0, 1672, 941);
-            var manifest = Resources.Load<TextAsset>(ResourceRoot + "manifest");
+            var manifest = Resources.Load<TextAsset>(DesktopLocalization.Concat(ResourceRoot, "manifest"));
             if (manifest == null) throw new InvalidOperationException("Missing home-room manifest");
             var placements = JsonUtility.FromJson<Manifest>(manifest.text).placements;
             // Stable layer ordering, including three independently replaceable rod instances.
@@ -90,7 +90,7 @@ namespace FishSocial.Desktop
                 {
                     if (p.layer != layer) continue;
                     var sprite = Resources.Load<Sprite>(ResourceRoot + p.asset);
-                    if (sprite == null) throw new InvalidOperationException("Missing room prop: " + p.asset);
+                    if (sprite == null) throw new InvalidOperationException(DesktopLocalization.Concat("Missing room prop: ", p.asset));
                     var w = p.width; var h = p.height;
                     if (p.fit != "fill") { var scale = Mathf.Min(w / sprite.rect.width, h / sprite.rect.height); w = sprite.rect.width * scale; h = sprite.rect.height * scale; }
                     var image = Picture(props, p.id, p.asset, p.x + (p.width-w)/2, p.y+p.height-h, w, h);
@@ -138,12 +138,12 @@ namespace FishSocial.Desktop
                 bedFront = rect.gameObject.AddComponent<RawImage>();
                 bedFront.raycastTarget = false;
             }
-            bedFront.texture = Resources.Load<Texture2D>(ResourceRoot + "cat-bed");
+            bedFront.texture = Resources.Load<Texture2D>(DesktopLocalization.Concat(ResourceRoot, "cat-bed"));
             bedFront.gameObject.SetActive(IsSleeping && !pageOpen);
             EnsureAnimationLayers();
         }
         public CozyRoomProp Prop(string id)
-        { return transform.Find("Props/" + id)?.GetComponent<CozyRoomProp>(); }
+        { return transform.Find(DesktopLocalization.Concat("Props/", id))?.GetComponent<CozyRoomProp>(); }
         public void ActivateProp(string id)
         {
             if (!CanInteract) return;
@@ -183,7 +183,7 @@ namespace FishSocial.Desktop
             if (layoutOwner == owner) return;
             CancelAnimation();
             CancelPropDrags(); layoutOwner = owner; activity = Activity.Free; feet = target = new Vector2(835, 742);
-            var data = Resources.Load<TextAsset>(ResourceRoot + "manifest");
+            var data = Resources.Load<TextAsset>(DesktopLocalization.Concat(ResourceRoot, "manifest"));
             foreach (var p in JsonUtility.FromJson<Manifest>(data.text).placements)
             {
                 var prop = Prop(p.id); if (prop == null || !prop.CanDrag) continue;
@@ -206,7 +206,7 @@ namespace FishSocial.Desktop
             Present();
         }
         static bool Finite(Vector2 value) => !float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsInfinity(value.x) && !float.IsInfinity(value.y);
-        public static string LayoutKey(string owner) => "FishSocial.HomeRoom.Layout.v1." + Uri.EscapeDataString(owner ?? "");
+        public static string LayoutKey(string owner) => DesktopLocalization.Concat("FishSocial.HomeRoom.Layout.v1.", Uri.EscapeDataString(owner ?? ""));
         public void SaveLayout()
         {
             if (string.IsNullOrEmpty(layoutOwner)) return;
@@ -233,7 +233,7 @@ namespace FishSocial.Desktop
             var button = EnsureQuietButton(Rect(parent, name, x, y, 170, 46).gameObject.AddComponent<Button>());
             var text = Rect(button.transform, "Label", 0, 0, 170, 46).gameObject.AddComponent<Text>();
             text.font = CatTheme.Font; text.fontSize = 20; text.color = CatTheme.Ink;
-            text.alignment = TextAnchor.MiddleCenter; text.text = label; text.raycastTarget = false;
+            text.alignment = TextAnchor.MiddleCenter; DesktopLocalization.SetText(text, label); text.raycastTarget = false;
             return button;
         }
 
@@ -282,10 +282,10 @@ namespace FishSocial.Desktop
         void RefreshSkin()
         {
             var id=PetArtLoader.CurrentOwnPetId();if(id==skin)return;CancelAnimation();skin=id;
-            sleepingPose = Resources.Load<Sprite>(ResourceRoot + "poses/" + id + "-sleep");
-            standing=Resources.Load<Texture2D>(ResourceRoot+"cat-standing");seated=Resources.Load<Texture2D>(ResourceRoot+"cat-sitting");
-            mappedRest=id=="orange"?null:Resources.Load<Sprite>(CozyJournalTheme.ResourceRoot+"characters/"+id+"/rest");
-            mappedSit=id=="orange"?null:Resources.Load<Sprite>(CozyJournalTheme.ResourceRoot+"characters/"+id+"/sleep");
+            sleepingPose = Resources.Load<Sprite>(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(ResourceRoot, "poses/"), id), "-sleep"));
+            standing=Resources.Load<Texture2D>(DesktopLocalization.Concat(ResourceRoot, "cat-standing"));seated=Resources.Load<Texture2D>(DesktopLocalization.Concat(ResourceRoot, "cat-sitting"));
+            mappedRest=id=="orange"?null:Resources.Load<Sprite>(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "characters/"), id), "/rest"));
+            mappedSit=id=="orange"?null:Resources.Load<Sprite>(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "characters/"), id), "/sleep"));
         }
         public void MoveTo(Vector2 position, bool immediate=false)
         {
@@ -301,7 +301,7 @@ namespace FishSocial.Desktop
             CancelAnimation();
             DesktopAudioService.PlayMeow();
             if (activity != Activity.Free) { activity=Activity.Free; target=ClampFeet(feet); }
-            inactive=wander=0;sitting=false;feedback=1.6f;bubble.text=DesktopLocalization.Text("ui.home.room.message.companion", "喵～一起待一会儿");
+            inactive=wander=0;sitting=false;feedback=1.6f;DesktopLocalization.SetText(bubble, DesktopLocalization.Text("ui.home.room.message.companion", "喵～一起待一会儿"));
             var roll = CozyHomeAnimation.Find(skin, "pet-roll");
             if (!CozyMotion.Reduced && roll != null) { activity = Activity.Rolling; target = feet; PlayAnimation(roll); }
             bubble.transform.parent.gameObject.SetActive(true);Present();

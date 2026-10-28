@@ -343,9 +343,9 @@ namespace FishSocial.Desktop
             }
             if (names.Count == 0)
                 return DesktopLocalization.Text("ui.common.pond_species.empty.data", "暂无鱼种数据");
-            var summary = string.Join("、", names.ToArray());
+            var summary = DesktopLocalization.Join("、", names.ToArray());
             if (total > names.Count)
-                summary += DesktopLocalization.Format("ui.common.pond_species.label.additional_count", (object)(total));
+                summary = DesktopLocalization.Concat(summary, DesktopLocalization.Format("ui.common.pond_species.label.additional_count", (object)(total)));
             return summary;
         }
 
@@ -395,9 +395,9 @@ namespace FishSocial.Desktop
 
         public static string FormatWeightKg(float weightKg)
         {
-            if (weightKg >= 100f) return weightKg.ToString("0") + "kg";
-            if (weightKg >= 10f) return weightKg.ToString("0.0") + "kg";
-            return weightKg.ToString("0.00") + "kg";
+            if (weightKg >= 100f) return DesktopLocalization.Concat(weightKg.ToString("0"), "kg");
+            if (weightKg >= 10f) return DesktopLocalization.Concat(weightKg.ToString("0.0"), "kg");
+            return DesktopLocalization.Concat(weightKg.ToString("0.00"), "kg");
         }
 
         /// <summary>回鱼金倍率（&gt;100 斤×3；≥10 斤×1.5；否则 0）</summary>
@@ -585,13 +585,13 @@ namespace FishSocial.Desktop
 
         public static string FormatMul(float value)
         {
-            return "×" + value.ToString("0.00");
+            return DesktopLocalization.Concat("×", value.ToString("0.00"));
         }
 
         public static string FormatPct(float value)
         {
             var pct = value * 100f;
-            return (pct >= 0f ? "+" : "") + pct.ToString("0.#") + "%";
+            return DesktopLocalization.Concat(DesktopLocalization.Concat((pct >= 0f ? "+" : ""), pct.ToString("0.#")), "%");
         }
 
         static readonly Dictionary<string, string> LegacySpeciesIds = new Dictionary<string, string>
@@ -670,7 +670,7 @@ namespace FishSocial.Desktop
             if (_species.Length == 0)
                 Debug.LogWarning("[GameData] fish_species.json missing or failed to parse; 图鉴 will be empty.");
             else
-                Debug.Log("[GameData] fish_species loaded " + _species.Length + " rows.");
+                Debug.Log(DesktopLocalization.Concat(DesktopLocalization.Concat("[GameData] fish_species loaded ", _species.Length), " rows."));
             _qualityStats = ParseArray<QualityStatsArray, QualityStatsRow>(
                 Resources.Load<TextAsset>("GameData/fish_quality_stats"),
                 wrap => wrap != null ? wrap.items : null);
@@ -715,16 +715,17 @@ namespace FishSocial.Desktop
                 return new TItem[0];
             var json = asset.text.Trim();
             if (json.StartsWith("["))
-                json = "{\"items\":" + json + "}";
+                json = DesktopLocalization.Concat(DesktopLocalization.Concat("{\"items\":", json), "}");
             try
             {
                 var wrap = JsonUtility.FromJson<TWrap>(json);
                 var items = pick(wrap);
+                DesktopLocalization.BindData(items);
                 return items ?? new TItem[0];
             }
             catch (Exception error)
             {
-                Debug.LogWarning("[GameData] Failed to parse " + asset.name + ": " + error.Message);
+                Debug.LogWarning(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("[GameData] Failed to parse ", asset.name), ": "), error.Message));
                 return new TItem[0];
             }
         }

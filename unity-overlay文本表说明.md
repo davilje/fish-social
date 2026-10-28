@@ -1,8 +1,8 @@
 # Unity / Overlay 本地化文本表
 
-整理日期：2026-10-28。当前保留 **1,879 条配置、2,623 处来源**，英文全部已配置。本轮在上一版 2,427 条配置、3,779 处来源基础上，追加移除 **548 条配置、1,156 处来源**。
+更新日期：2026-10-29。当前保留 **1,882 条配置、2,632 处来源**，英文全部已配置，已接入 Unity / Overlay 运行时。新增 4 条语言设置文案，并剔除 1 条好友请求身份昵称兜底。此前清理在 2,427 条配置、3,779 处来源基础上，追加移除 **548 条配置、1,156 处来源**。
 
-Excel 保留「文本配置」「来源映射」「使用说明」三张表；黄色 zhCN、enUS 和备注列可编辑。JSON 保存原文、翻译、参数和逐处来源。目前运行时尚未通过这些 Key 读取翻译，修改表格不会自动更改游戏界面。
+Excel 保留「文本配置」「来源映射」「使用说明」三张表；黄色 zhCN、enUS 和备注列可编辑。JSON 保存原文、翻译、参数和逐处来源。运行时通过语义 Key 读取导出的文本资源。设置 → 托盘与其他 → 界面语言，可选择简体中文或 English，立即刷新已打开和隐藏界面的对应文本，并将选择保存至 FishSocial.Language。Unity 通过 IPC 的 language 字段同步 Overlay。
 
 ## 当前保留范围
 
@@ -10,12 +10,12 @@ Excel 保留「文本配置」「来源映射」「使用说明」三张表；�
 
 | 类型 | 配置数 |
 |---|---:|
-| 运行时界面文本 | 1,051 |
+| 运行时界面文本 | 1,054 |
 | 游戏数据文案 | 388 |
 | 预制体与场景初始文本 | 301 |
 | 关联服务端提示 | 136 |
 | HUD 配置 | 3 |
-| 合计 | **1,879** |
+| 合计 | **1,882** |
 
 ## 本轮追加清理
 
@@ -49,11 +49,11 @@ Excel 保留「文本配置」「来源映射」「使用说明」三张表；�
 
 规则按内部身份 Key、文件、提取方式、位置及表达式指纹匹配。Unity GameObject 来源忽略文档序号变化。同方法同文不同用途时加行内容指纹和参数列号，避免误删显示来源。改写、启用旧功能或调整数据排序/摘要上限后须复审；未命中规则不代表已经审查通过。
 
-历史清理：调试阶段移除 255 条/308 处；不生效阶段移除 1,275 条/2,187 处；本地化阶段从 4,215 条/7,144 处累计清理至当前规模，共移除 2,336 条/4,521 处。JSON supplementalLocalizationReview 记录本次增量，localizationFilter 记录累计结果。
+历史清理：调试阶段移除 255 条/308 处；不生效阶段移除 1,275 条/2,187 处；本地化阶段从 4,215 条/7,144 处累计清理至当前规模，共移除 2,336 条/4,521 处。JSON supplementalLocalizationReview 记录清理增量，localizationFilter 记录累计结果。历史清理规模不含本次新增的 4 条语言设置文案及追加剔除的 1 条好友请求身份昵称兜底。
 
 ## Key 与翻译
 
-现行 1,879 个 Key 全部为小写英文、点号分层、段内 snake_case，例如：
+现行 1,882 个 Key 全部为小写英文、点号分层、段内 snake_case，例如：
 
 - ui.fishing.overlay.button.start_fishing
 - game.shop.rod.bamboo.name
@@ -63,7 +63,7 @@ Excel 保留「文本配置」「来源映射」「使用说明」三张表；�
 
 注册表保留旧哈希 Key 到语义 Key 的映射，已删除的条目不会因此恢复。旧工作簿只有在条目集合匹配现行清单时才可导入：已删除的 Key、重复行、缺行均会拒绝，不能直接导入清理前的旧表。新增未审查来源使用 unreviewed.* 及内部 sourceKey；审查后登记正式名称，运行 extract.py --normalize-keys-only。不要在 Excel 手改 Key。
 
-当前 1,879 条 enUS 全部非空，对应 1,598 个唯一中文文本。supportedLocales 为 zh-CN → zhCN、en-US → enUS。保留占位符编号、格式和次数，以及原数值、换行和富文本标签。变量数值和单位不换算，jin 为市斤（500g）。修改中文后复核对应英文。
+当前 1,882 条 enUS 全部非空。supportedLocales 为 zh-CN → zhCN、en-US → enUS。保留占位符编号、格式和次数，以及原数值、换行和富文本标签。变量数值和单位不换算，jin 为市斤（500g）。修改中文后复核对应英文。
 
 ## 使用命令
 
@@ -73,11 +73,19 @@ Excel 保留「文本配置」「来源映射」「使用说明」三张表；�
 node scripts/text-catalog/build.mjs --validate-xlsx
 ```
 
-导入中英文/备注并刷新工作簿：
+导入中英文/备注、同步运行时资源并刷新工作簿：
 
 ```sh
-node scripts/text-catalog/build.mjs --import-xlsx
+TEXT_CATALOG_PYTHON=python3 node scripts/text-catalog/build.mjs --import-xlsx
 ```
+
+直接编辑 JSON 后，导出 Unity 和 Overlay 资源，再按正常流程构建客户端：
+
+```sh
+python3 scripts/text-catalog/export-runtime.py
+```
+
+导出生成 Assets/Resources/Localization/text-catalog.json、prefab-bindings.json，以及两份 OverlayResources/Localization/text-catalog.json。发布构建会携带这些资源；Excel 文件不会被游戏直接读取。
 
 只清理现有清单，不新增来源：
 
@@ -91,6 +99,7 @@ node scripts/text-catalog/build.mjs
 ```sh
 python3 -m pip install -r scripts/text-catalog/requirements.txt
 python3 scripts/text-catalog/extract.py
+python3 scripts/text-catalog/export-runtime.py
 node scripts/text-catalog/build.mjs
 ```
 
@@ -106,3 +115,11 @@ build.mjs 使用 Codex 随附的 @oai/artifact-tool；其他环境可用 TEXT_CA
 - Excel 全部配置及 2,623 处来源与 JSON 对齐，保留三张表、列宽、冻结设置及样式，并渲染检查。
 - 原扫描记录 921 个文件及指纹，保留 5 个语法恢复提示。本轮是静态文案审查，不是全部文字同时可见的计数。未包含图片内嵌文字 OCR、第三方插件或未连接读取的数据库/运营配置。
 - 未修改游戏运行逻辑，未执行 Unity 或 Windows WPF 编译/玩法测试。
+
+## 运行时绑定与验证
+
+C# 固定文案使用 Text(key)，模板使用 Format(key, args)，日期格式使用 FormatDate。文本赋值通过 SetText / SetContent / SetHeader / SetToolTip 保留刷新绑定；Concat、Join、LocalizedStringBuilder 和 Transform 保留组合文本的翻译计划。Prefab 按资源路径和完整控件路径绑定，XAML 使用显式 Key。游戏主数据、商店目录、地图和成就显示字段单独绑定，服务错误和系统提示在显示边界翻译。
+
+不按任意字符串做全局替换。玩家昵称、机器人昵称、输入框内容、签名、聊天、动态和评论保持原文；模板中的昵称参数也保持原文。编辑器与日志仍不进入玩家文本表。
+
+已验证：共享目录的模板、参数、组合、日期与昵称保护回归；Unity 整工程编译、实际 headless 中英切换/偏好保存，以及 27 个 Prefab 的 341 条绑定；Overlay 使用真实 Windows WPF 引用完成交叉编译。Windows 实际窗口的布局仍需在 Windows 检查。

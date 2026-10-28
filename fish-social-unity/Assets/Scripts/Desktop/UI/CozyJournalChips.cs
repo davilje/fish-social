@@ -73,7 +73,7 @@ namespace FishSocial.Desktop
                     text.alignment = TextAnchor.MiddleCenter;
                     text.supportRichText = false;
                     text.raycastTarget = false;
-                    text.text = label;
+                    DesktopLocalization.SetText(text, label);
                     var width = Mathf.Clamp(text.preferredWidth + 24f, 64f, 200f);
                     chip.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 26f);
                     var element = chip.GetComponent<LayoutElement>();

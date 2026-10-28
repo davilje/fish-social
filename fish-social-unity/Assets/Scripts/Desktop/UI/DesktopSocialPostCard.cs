@@ -62,7 +62,7 @@ namespace FishSocial.Desktop
                 StylePostPaper();
                 StylePostTape(_api != null && _post.playerId == _api.PlayerId);
                 var scroll = GetComponentInParent<ScrollRect>();
-                var motion = CozyStickerMotion.Bind(gameObject, "post:" + (_post?.id ?? name), transform.GetSiblingIndex(),
+                var motion = CozyStickerMotion.Bind(gameObject, DesktopLocalization.Concat("post:", (_post?.id ?? name)), transform.GetSiblingIndex(),
                     scroll != null ? scroll.viewport : null, _post?.id, 0);
                 motion?.RememberTape();
                 if (!Application.isPlaying) motion.ApplyFinalPose();
@@ -71,7 +71,7 @@ namespace FishSocial.Desktop
             if (hint != null)
             {
                 var mine = _api != null && _post.playerId == _api.PlayerId;
-                hint.text = mine ? DesktopLocalization.Text("ui.social.post_card.title.my_story", "我的鱼获故事") : DesktopLocalization.Text("ui.social.post_card.hint.open_comments", "点击卡片，看看钓友来信");
+                DesktopLocalization.SetText(hint, mine ? DesktopLocalization.Text("ui.social.post_card.title.my_story", "我的鱼获故事") : DesktopLocalization.Text("ui.social.post_card.hint.open_comments", "点击卡片，看看钓友来信"));
                 hint.fontSize = 12;
                 hint.alignment = TextAnchor.MiddleRight;
                 hint.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -137,7 +137,7 @@ namespace FishSocial.Desktop
             var text = transform.Find("Header/JournalVisibility")?.GetComponent<Text>();
             if (text == null)
                 return;
-            text.text = label;
+            DesktopLocalization.SetText(text, label);
             text.fontSize = 12;
             text.alignment = TextAnchor.MiddleCenter;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -304,7 +304,7 @@ namespace FishSocial.Desktop
 
             var journal = transform.Find("JournalCatch") != null;
             if (_authorText != null)
-                _authorText.text = (_post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")) + (journal ? "" : " · " + FormatTime(_post.createdAt));
+                DesktopLocalization.SetText(_authorText, (_post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")) + (journal ? "" : DesktopLocalization.Concat(" · ", FormatTime(_post.createdAt))));
             if (journal)
             {
                 CozyItemArt.Set(transform, "Header/JournalAvatar", DesktopDefaultAvatars.Portrait(_post.authorAvatarUrl, _post.playerId));
@@ -332,23 +332,23 @@ namespace FishSocial.Desktop
             if (_bodyText != null)
             {
                 _bodyText.supportRichText = false;
-                _bodyText.text = _post.text ?? DesktopLocalization.Text("ui.social.post_card.fallback.story", "分享了一条鱼获");
+                DesktopLocalization.SetText(_bodyText, _post.text ?? DesktopLocalization.Text("ui.social.post_card.fallback.story", "分享了一条鱼获"));
             }
             if (_fishInfoText != null)
             {
                 var fish = _post.fish;
-                _fishInfoText.text = DesktopLocalization.Format("ui.social.post_card.label.catch_summary", (object)((fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? DesktopFishCatalog.QualityName(fish.quality) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? fish.sizeM.ToString("0.00") : "-")), (object)((fish != null
+                DesktopLocalization.SetText(_fishInfoText, DesktopLocalization.Format("ui.social.post_card.label.catch_summary", (object)((fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? DesktopFishCatalog.QualityName(fish.quality) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? fish.sizeM.ToString("0.00") : "-")), (object)((fish != null
                         ? DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(fish.sizeM))
-                        : "-")), (object)((_post.visibility == "friends" ? DesktopLocalization.Text("ui.social.post_card.visibility.friends", "仅好友") : DesktopLocalization.Text("ui.social.post_card.visibility.everyone", "所有人"))));
+                        : "-")), (object)((_post.visibility == "friends" ? DesktopLocalization.Text("ui.social.post_card.visibility.friends", "仅好友") : DesktopLocalization.Text("ui.social.post_card.visibility.everyone", "所有人")))));
             }
             if (journal && _fishInfoText != null)
             {
                 _fishInfoText.supportRichText = true;
                 _fishInfoText.fontSize = 15;
                 _fishInfoText.color = new Color(0.55f, 0.45f, 0.35f, 1f);
-                _fishInfoText.text = _post.fish != null
-                    ? _post.fish.sizeM.ToString("0.00") + " m · " + DesktopFishCatalog.StarRich(_post.fish.quality)
-                    : "";
+                DesktopLocalization.SetText(_fishInfoText, _post.fish != null
+                    ? DesktopLocalization.Concat(DesktopLocalization.Concat(_post.fish.sizeM.ToString("0.00"), " m · "), DesktopFishCatalog.StarRich(_post.fish.quality))
+                    : "");
             }
             StyleQuiet(_likeButton, false);
             StyleQuiet(_commentsButton, false);
@@ -504,7 +504,7 @@ namespace FishSocial.Desktop
             var text = _commentsPanel.transform.Find("CommentStatus")?.GetComponent<Text>();
             if (text != null)
             {
-                text.text = value ?? "";
+                DesktopLocalization.SetText(text, value ?? "");
                 text.fontSize = 15;
                 text.alignment = TextAnchor.MiddleCenter;
                 var status = text.rectTransform;
@@ -784,8 +784,8 @@ namespace FishSocial.Desktop
             {
                 label.supportRichText = false;
                 var author = row.transform.Find("Author")?.GetComponent<Text>();
-                if(author != null) { author.supportRichText=false;author.text=comment.nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友");label.text=comment.text??""; }
-                else label.text = (comment.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")) + "：" + comment.text;
+                if(author != null) { author.supportRichText=false;DesktopLocalization.SetText(author, comment.nickname??DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"));DesktopLocalization.SetText(label, comment.text??""); }
+                else DesktopLocalization.SetText(label, DesktopLocalization.Concat(DesktopLocalization.Concat((comment.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")), "："), comment.text));
                 var width = _commentsContent.rect.width > 32f ? _commentsContent.rect.width - 24f : 298f;
                 bodyHeight = CozySocialText.Apply(label, 15, 24, width);
                 var layout=row.GetComponent<LayoutElement>();if(layout!=null)layout.preferredHeight=Mathf.Max(64f,bodyHeight+49f);
@@ -934,7 +934,7 @@ namespace FishSocial.Desktop
                     _post.commentCount = count;
                     CommentCountChanged?.Invoke(count);
                     SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(count)));
-                    if(_commentInput.text.Trim()==value) _commentInput.text = string.Empty;
+                    if(_commentInput.text.Trim()==value) DesktopLocalization.SetText(_commentInput, string.Empty);
                     AddCommentRow(comment);
                 }));
         }
@@ -1006,7 +1006,7 @@ namespace FishSocial.Desktop
         {
             var text = button != null ? button.GetComponentInChildren<Text>() : null;
             if (text != null)
-                text.text = value ?? string.Empty;
+                DesktopLocalization.SetText(text, value ?? string.Empty);
         }
 
         static string FormatTime(long timestamp)

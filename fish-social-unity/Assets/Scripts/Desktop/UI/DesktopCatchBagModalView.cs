@@ -196,11 +196,11 @@ namespace FishSocial.Desktop
             if (_itemsTab)
             {
                 ShowMessage(string.Empty);
-                _status.text = DesktopLocalization.Text("ui.catch.bag.empty.items", "暂无道具。钓竿、鱼饵和船具请在装备页查看。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.catch.bag.empty.items", "暂无道具。钓竿、鱼饵和船具请在装备页查看。"));
                 RefreshReturnButton();
                 return;
             }
-            _status.text = DesktopLocalization.Format("ui.catch.bag.label.capacity", (object)(_items.Length), (object)(Mathf.Max(MinSlots, _items.Length)));
+            DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.catch.bag.label.capacity", (object)(_items.Length), (object)(Mathf.Max(MinSlots, _items.Length))));
             if (SelectedItem() != null) Select(SelectedItem(), false);
             else ShowMessage(DesktopLocalization.Text("ui.catch.bag.empty.catches", "背包是空的。钓到鱼并领取后会显示在这里。"));
             RefreshReturnButton();
@@ -236,7 +236,7 @@ namespace FishSocial.Desktop
                 _returnButton.interactable = false;
                 var label = _returnButton.GetComponentInChildren<Text>();
                 if (label != null)
-                    label.text = DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼");
+                    DesktopLocalization.SetText(label, DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼"));
                 return;
             }
             if (mode == "auto_return")
@@ -245,13 +245,13 @@ namespace FishSocial.Desktop
                 _returnButton.interactable = false;
                 var label = _returnButton.GetComponentInChildren<Text>();
                 if (label != null)
-                    label.text = DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼");
+                    DesktopLocalization.SetText(label, DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼"));
                 return;
             }
             _returnButton.gameObject.SetActive(true);
             var defaultLabel = _returnButton.GetComponentInChildren<Text>();
             if (defaultLabel != null && defaultLabel.text != "回鱼")
-                defaultLabel.text = DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼");
+                DesktopLocalization.SetText(defaultLabel, DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼"));
             _returnButton.interactable = available && CanReturnHere() &&
                 DesktopGameData.IsReturnEligible(selected.quality, selected.sizeM);
         }
@@ -283,10 +283,10 @@ namespace FishSocial.Desktop
                 yield break;
             if (_api == null || !_api.CanUse)
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.login_required", "请先完成 Steam 登录。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.login_required", "请先完成 Steam 登录。")));
                 yield break;
             }
-            _status.text = DesktopLocalization.Text("ui.catch.bag.status.loading_inventory", "正在加载背包…");
+            DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.catch.bag.status.loading_inventory", "正在加载背包…"));
             var itemsOk = false;
             var coinsOk = false;
             string error = null;
@@ -306,15 +306,15 @@ namespace FishSocial.Desktop
             if (!itemsOk)
             {
                 if (_retry != null) _retry.gameObject.SetActive(true);
-                _status.text = error ?? DesktopLocalization.Text("ui.catch.bag.error.inventory_load_failed", "背包加载失败。");
-                _detail.text = DesktopLocalization.Format("ui.catch.bag.hint.retry_loading", (object)(_status.text));
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(error ?? DesktopLocalization.Text("ui.catch.bag.error.inventory_load_failed", "背包加载失败。")));
+                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.catch.bag.hint.retry_loading", (object)(_status.text)));
                 yield break;
             }
             if (coinsOk)
-                _coins.text = DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue));
+                DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue)));
             else
-                _coins.text = DesktopLocalization.Text("ui.catch.bag.label.coins_unavailable", "金币：暂不可用");
-            _status.text = itemsOk ? DesktopLocalization.Format("ui.catch.bag.label.capacity", (object)(_items.Length), (object)(Mathf.Max(MinSlots, _items.Length))) : error;
+                DesktopLocalization.SetText(_coins, DesktopLocalization.Text("ui.catch.bag.label.coins_unavailable", "金币：暂不可用"));
+            DesktopLocalization.SetText(_status, DesktopLocalization.Message(itemsOk ? DesktopLocalization.Format("ui.catch.bag.label.capacity", (object)(_items.Length), (object)(Mathf.Max(MinSlots, _items.Length))) : error));
             RefreshReturnButton();
             if (itemsOk)
                 _fishReady = true;
@@ -358,7 +358,7 @@ namespace FishSocial.Desktop
                 var slot = DesktopUiPrefabFactory.Instantiate("CatchSlot", _grid);
                 if (slot == null)
                     continue;
-                slot.name = "Slot" + i;
+                slot.name = DesktopLocalization.Concat("Slot", i);
                 CozyItemArt.Set(slot.transform, "DesignItemArt", item != null ? CozyItemArt.Fish(item.speciesId) : null);
                 var backing = slot.transform.Find("DesignArtBacking");
                 if (backing != null)
@@ -380,8 +380,8 @@ namespace FishSocial.Desktop
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
                 {
-                    labelText.text = label;
-                    CozyItemArt.Text(slot.transform, "Meta", item == null ? "" : item.sizeM.ToString("0.00") + " m");
+                    DesktopLocalization.SetText(labelText, label);
+                    CozyItemArt.Text(slot.transform, "Meta", item == null ? "" : DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m"));
                 }
                 DesktopModalUi.StyleTree(slot.transform);
                 if (slotButton != null)
@@ -389,7 +389,7 @@ namespace FishSocial.Desktop
                 if (item != null)
                 {
                     AddUnreadBadge(slot, CozyJournalReadState.IsUnread(_api?.PlayerId, item.id));
-                    CozyStickerMotion.Bind(slot, "catch:" + (_api?.PlayerId ?? "") + ":" + item.id, i,
+                    CozyStickerMotion.Bind(slot, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("catch:", (_api?.PlayerId ?? "")), ":"), item.id), i,
                         _grid.parent as RectTransform, sourceId: item.speciesId);
                     var tier = DesktopFishCatalog.GetSpecies(item.speciesId)?.RarityTier;
                     if (tier == "rare" || tier == "legendary") CozyRareGlint.Bind(slot, rareOrder++);
@@ -422,7 +422,7 @@ namespace FishSocial.Desktop
             label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
             label.font = CatTheme.Font;
             label.fontSize = 12;
-            label.text = DesktopLocalization.Text("ui.catch.bag.badge.new", "NEW");
+            DesktopLocalization.SetText(label, DesktopLocalization.Text("ui.catch.bag.badge.new", "NEW"));
             label.alignment = TextAnchor.MiddleCenter;
             label.color = Color.white;
             label.raycastTarget = false;
@@ -469,7 +469,7 @@ namespace FishSocial.Desktop
             var mode = _pond?.CurrentUser?.returnFeeMode;
             if (mode == "sell_only") returnValue = DesktopLocalization.Text("ui.catch.bag.status.sell_mode", "本局出售档 · 不可回鱼");
             else if (mode == "auto_return") returnValue = DesktopLocalization.Text("ui.catch.bag.status.auto_release_mode", "本局自动回鱼");
-            var size = item.sizeM.ToString("0.00") + " m";
+            var size = DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m");
             var weight = DesktopLocalization.Format("ui.catch.bag.format.approximate_weight", (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM))), (object)(jin.ToString("0.##")));
             CozyItemArt.Text(transform, "DesignName", species);
             if (CozyItemArt.Rows(transform, "DetailRows",
@@ -478,9 +478,9 @@ namespace FishSocial.Desktop
                     "fish", DesktopLocalization.Text("ui.catch.bag.label.weight", "重量"), weight,
                     "coin", DesktopLocalization.Text("ui.catch.bag.label.reference_price", "参考售价"), DesktopLocalization.Format("ui.catch.bag.format.coins", (object)(sell)),
                     "pond", DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼"), returnValue))
-                _detail.text = string.Empty;
+                DesktopLocalization.SetText(_detail, string.Empty);
             else
-                _detail.text = DesktopLocalization.Format("ui.catch.bag.label.catch_summary", (object)(species), (object)(quality), (object)(size), (object)(weight), (object)(sell), (object)(returnHint), (object)(seatHint));
+                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.catch.bag.label.catch_summary", (object)(species), (object)(quality), (object)(size), (object)(weight), (object)(sell), (object)(returnHint), (object)(seatHint)));
             if (rebuild && _grid != null)
             {
                 for (var i=0;i<_grid.childCount;i++)
@@ -505,41 +505,41 @@ namespace FishSocial.Desktop
         }
 
         void ShowMessage(string message)
-        {
+        { message = DesktopLocalization.Message(message);
             CozyItemArt.Set(transform, "DesignArt", null);
             CozyItemArt.Text(transform, "DesignName", string.Empty);
             CozyItemArt.Rows(transform, "DetailRows");
-            _detail.text = message;
+            DesktopLocalization.SetText(_detail, message);
         }
 
         void SellSelected()
         {
             if (_api == null || !_api.CanUse)
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。")));
                 return;
             }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。")));
                 return;
             }
             _busy = true;
             RefreshReturnButton();
-            _status.text = DesktopLocalization.Text("ui.catch.bag.status.selling", "正在出售…");
+            DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.catch.bag.status.selling", "正在出售…"));
             StartCoroutine(_api.SellFish(_selectedId, (ok, earned, total, items, message) =>
             {
                 _busy = false;
                 RefreshReturnButton();
                 if (!ok)
                 {
-                    _status.text = message;
+                    DesktopLocalization.SetText(_status, DesktopLocalization.Message(message));
                     CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
                     return;
                 }
                 var before = CaptureGridPositions();
                 var soldIndex = Array.FindIndex(_items, value => value != null && value.id == _selectedId);
-                var soldCard = soldIndex >= 0 ? _grid.Find("Slot" + soldIndex) as RectTransform : null;
+                var soldCard = soldIndex >= 0 ? _grid.Find(DesktopLocalization.Concat("Slot", soldIndex)) as RectTransform : null;
                 var canvas = GetComponentInParent<Canvas>();
                 var layer = canvas != null ? canvas.transform.Find("MainRoot") as RectTransform : null;
                 var coinTarget = layer != null ? layer.Find("Header/FishCoins/Icon") as RectTransform : null;
@@ -547,15 +547,15 @@ namespace FishSocial.Desktop
                 CozyActionFeedback.CoinsFly(soldCard, coinTarget, layer);
                 _items = items ?? new FishInventoryItemDto[0];
                 _coinsValue = total;
-                _coins.text = DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue));
+                DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue)));
                 _selectedId = null;
-                _status.text = DesktopLocalization.Format("ui.catch.bag.status.sold", (object)(earned));
+                DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.catch.bag.status.sold", (object)(earned)));
                 ShowMessage(_status.text);
                 RenderGrid();
                 Canvas.ForceUpdateCanvases();
                 for (var i = 0; i < _items.Length; i++)
                     if (_items[i] != null && before.TryGetValue(_items[i].id, out var previous))
-                        _grid.Find("Slot" + i)?.GetComponent<CozyStickerMotion>()?.ApplyReflow(previous);
+                        _grid.Find(DesktopLocalization.Concat("Slot", i))?.GetComponent<CozyStickerMotion>()?.ApplyReflow(previous);
             }));
         }
 
@@ -564,7 +564,7 @@ namespace FishSocial.Desktop
             var positions = new Dictionary<string, Vector3>();
             for (var i = 0; i < _items.Length; i++)
             {
-                var slot = _grid.Find("Slot" + i);
+                var slot = _grid.Find(DesktopLocalization.Concat("Slot", i));
                 if (slot != null && _items[i] != null) positions[_items[i].id] = slot.position;
             }
             return positions;
@@ -574,22 +574,22 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。")));
                 return;
             }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。")));
                 return;
             }
             if (!CanReturnHere())
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.release_seat_required", "需在当前鱼塘钓位才能回鱼。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.release_seat_required", "需在当前鱼塘钓位才能回鱼。")));
                 return;
             }
             _busy = true;
             RefreshReturnButton();
-            _status.text = DesktopLocalization.Text("ui.catch.bag.status.releasing", "正在回鱼…");
+            DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.catch.bag.status.releasing", "正在回鱼…"));
             StartCoroutine(_api.ReturnFishToPond(_selectedId,
                 (ok, gold, playerXp, pondXp, newSizeM, sizeGainM, totalCoins, items, message) =>
                 {
@@ -597,7 +597,7 @@ namespace FishSocial.Desktop
                     RefreshReturnButton();
                     if (!ok)
                     {
-                        _status.text = message ?? DesktopLocalization.Text("ui.catch.bag.error.release_failed", "回鱼失败。");
+                        DesktopLocalization.SetText(_status, DesktopLocalization.Message(message ?? DesktopLocalization.Text("ui.catch.bag.error.release_failed", "回鱼失败。")));
                         CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, false, "请重试");
                         return;
                     }
@@ -605,10 +605,10 @@ namespace FishSocial.Desktop
                     if (totalCoins > 0 || gold > 0)
                     {
                         _coinsValue = totalCoins;
-                        _coins.text = DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue));
+                        DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue)));
                     }
                     _selectedId = null;
-                    _status.text = DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(sizeGainM.ToString("0.00")), (object)(newSizeM.ToString("0.00")));
+                    DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(sizeGainM.ToString("0.00")), (object)(newSizeM.ToString("0.00"))));
                     ShowMessage(_status.text);
                     RenderGrid();
                     CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, DesktopLocalization.Text("ui.catch.bag.badge.released", "已回鱼"));
@@ -619,23 +619,23 @@ namespace FishSocial.Desktop
         {
             if (_api == null || !_api.CanUse)
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.session_expired", "当前会话已失效，请重新登录。")));
                 return;
             }
             if (_busy || string.IsNullOrEmpty(_selectedId))
             {
-                _status.text = DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。");
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.catch.bag.error.catch_required", "请先选中一条鱼获。")));
                 return;
             }
             _busy = true;
             RefreshReturnButton();
-            _status.text = DesktopLocalization.Text("ui.catch.bag.status.sharing", "正在分享…");
+            DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.catch.bag.status.sharing", "正在分享…"));
             var nickname = _pond != null ? _pond.Nickname : "Steam玩家";
             StartCoroutine(_api.ShareFish(_selectedId, nickname, (ok, message) =>
             {
                 _busy = false;
                 RefreshReturnButton();
-                _status.text = message;
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(message));
                 CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, ok, ok ? DesktopLocalization.Text("ui.catch.bag.status.shared", "已分享") : "请重试");
             }));
         }

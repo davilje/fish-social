@@ -197,7 +197,7 @@ namespace FishSocial.Desktop
                 zzz = go.GetComponent<Text>();
                 zzz.font = CatTheme.Font;
                 zzz.fontSize = 26;
-                zzz.text = "Zzz";
+                DesktopLocalization.SetText(zzz, "Zzz");
                 zzz.raycastTarget = false;
                 zzz.rectTransform.anchorMin = zzz.rectTransform.anchorMax = new Vector2(0, 1);
                 zzz.rectTransform.pivot = new Vector2(0, 1);

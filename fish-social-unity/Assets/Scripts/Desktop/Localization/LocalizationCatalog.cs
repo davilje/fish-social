@@ -7,6 +7,39 @@ using System.Text.RegularExpressions;
 
 namespace FishSocial.Localization
 {
+    /// <summary>Build display copy while retaining each appended translation plan.</summary>
+    public sealed class LocalizedStringBuilder
+    {
+        readonly List<object> parts = new List<object>();
+
+        public LocalizedStringBuilder() { }
+        public LocalizedStringBuilder(string value) { Append(value); }
+
+        public LocalizedStringBuilder Append(string value)
+        {
+            if (value != null) parts.Add(value);
+            return this;
+        }
+
+        public LocalizedStringBuilder Append(char value)
+        {
+            parts.Add(value);
+            return this;
+        }
+
+        public LocalizedStringBuilder Append(object value)
+        {
+            // StringBuilder snapshots object.ToString() at append time. Strings
+            // themselves retain the weak translation metadata associated with them.
+            return Append(value == null ? null : value.ToString());
+        }
+
+        public LocalizedStringBuilder AppendLine() { return Append(Environment.NewLine); }
+        public LocalizedStringBuilder AppendLine(string value) { return Append(value).AppendLine(); }
+        public LocalizedStringBuilder Clear() { parts.Clear(); return this; }
+        public override string ToString() { return LocalizationCatalog.Concat(parts.ToArray()); }
+    }
+
     [Serializable]
     public sealed class LocalizationEntry
     {
@@ -88,6 +121,69 @@ namespace FishSocial.Localization
         public static string Format(string key, params object[] arguments)
         {
             return Remember(new RenderPlan { Key = key, Arguments = arguments == null ? new object[0] : (object[])arguments.Clone() });
+        }
+
+        /// <summary>Compose display copy without losing nested translation plans.</summary>
+        public static string Concat(params object[] values)
+        {
+            if (values == null) return string.Empty;
+            var localized = false;
+            foreach (var value in values)
+                if (IsLocalized(value as string)) { localized = true; break; }
+            if (!localized) return string.Concat(values);
+            // Flatten chained '+' migrations so long display lines do not consume
+            // one recursion level per appended fragment.
+            var parts = new List<object>();
+            foreach (var value in values)
+            {
+                RenderPlan nested;
+                var text = value as string;
+                if (text != null && Plans.TryGetValue(text, out nested) && nested.Kind == PlanKind.Concat)
+                    parts.AddRange(nested.Arguments);
+                else parts.Add(value);
+            }
+            return Remember(new RenderPlan { Kind = PlanKind.Concat, Arguments = parts.ToArray() });
+        }
+
+        public static string Join(string separator, IEnumerable<string> values)
+        {
+            if (values == null) throw new ArgumentNullException("values");
+            var snapshot = new List<object>();
+            var localized = IsLocalized(separator);
+            foreach (var value in values)
+            {
+                snapshot.Add(value);
+                localized |= IsLocalized(value);
+            }
+            if (!localized) return string.Join(separator, snapshot);
+            return Remember(new RenderPlan { Kind = PlanKind.Join,
+                Separator = separator, Arguments = snapshot.ToArray() });
+        }
+
+        public static string Trim(string value)
+        {
+            if (value == null) return null;
+            return Transform(value, text => text.Trim());
+        }
+
+        /// <summary>Apply a pure display transformation again after each language render.</summary>
+        public static string Transform(string value, Func<string, string> transformation)
+        {
+            if (transformation == null) throw new ArgumentNullException("transformation");
+            if (!IsLocalized(value)) return transformation(value);
+            return Remember(new RenderPlan { Kind = PlanKind.Transform,
+                Arguments = new object[] { value }, Transformation = transformation });
+        }
+
+        /// <summary>The catalog entry contains a DateTime custom or standard format.</summary>
+        public static string FormatDate(string key, DateTime value)
+        {
+            return Remember(new RenderPlan { Kind = PlanKind.Date, Key = key, Date = value });
+        }
+
+        public static string FormatDate(string key, DateTimeOffset value)
+        {
+            return Remember(new RenderPlan { Kind = PlanKind.Date, Key = key, Date = value });
         }
 
         /// <summary>Re-renders only strings created by this catalog.</summary>
@@ -175,24 +271,38 @@ namespace FishSocial.Localization
         static string RenderPlanText(RenderPlan plan, Catalog snapshot, string locale, int depth)
         {
             if (depth > 24) return plan.Fallback ?? plan.Key ?? "";
+            if (plan.Kind == PlanKind.Transform)
+                return plan.Transformation((string)RenderArgument(plan.Arguments[0], snapshot, locale, depth)) ?? string.Empty;
+            if (plan.Kind == PlanKind.Concat || plan.Kind == PlanKind.Join)
+            {
+                var output = new StringBuilder();
+                var separator = plan.Kind == PlanKind.Join
+                    ? RenderArgument(plan.Separator, snapshot, locale, depth) as string : null;
+                for (var i = 0; i < plan.Arguments.Length; i++)
+                {
+                    if (i > 0 && separator != null) output.Append(separator);
+                    output.Append(RenderArgument(plan.Arguments[i], snapshot, locale, depth));
+                }
+                return output.ToString();
+            }
             LocalizationEntry entry = null;
             if (plan.Key != null) snapshot.Entries.TryGetValue(plan.Key, out entry);
             var source = entry == null ? plan.Fallback ?? plan.Key ?? "" : Select(entry, locale);
+            if (plan.Kind == PlanKind.Date)
+            {
+                var culture = CultureInfo.GetCultureInfo(locale);
+                var date = (IFormattable)plan.Date;
+                try { return date.ToString(source, culture); }
+                catch (FormatException)
+                {
+                    try { return date.ToString(entry == null ? null : entry.sourceText, culture); }
+                    catch (FormatException) { return date.ToString(null, culture); }
+                }
+            }
             if (plan.Arguments == null) return source;
             var arguments = new object[plan.Arguments.Length];
             for (var i = 0; i < arguments.Length; i++)
-            {
-                var value = plan.Arguments[i];
-                var text = value as string;
-                RenderPlan nested;
-                if (text != null && Plans.TryGetValue(text, out nested))
-                    arguments[i] = RenderPlanText(nested, snapshot, locale, depth + 1);
-                else
-                {
-                    var captured = value as CapturedArgument;
-                    arguments[i] = captured == null ? value : captured.ForLanguage(snapshot, locale);
-                }
-            }
+                arguments[i] = RenderArgument(plan.Arguments[i], snapshot, locale, depth);
             try { return string.Format(CultureInfo.InvariantCulture, source, arguments); }
             catch (FormatException)
             {
@@ -200,6 +310,16 @@ namespace FishSocial.Localization
                 try { return string.Format(CultureInfo.InvariantCulture, fallback, arguments); }
                 catch (FormatException) { return fallback; }
             }
+        }
+
+        static object RenderArgument(object value, Catalog snapshot, string locale, int depth)
+        {
+            var text = value as string;
+            RenderPlan nested;
+            if (text != null && Plans.TryGetValue(text, out nested))
+                return RenderPlanText(nested, snapshot, locale, depth + 1);
+            var captured = value as CapturedArgument;
+            return captured == null ? value : captured.ForLanguage(snapshot, locale);
         }
 
         static string Select(LocalizationEntry entry, string locale)
@@ -242,11 +362,17 @@ namespace FishSocial.Localization
             }
         }
 
+        enum PlanKind { Text, Concat, Join, Date, Transform }
+
         sealed class RenderPlan
         {
+            public PlanKind Kind;
             public string Key;
             public string Fallback;
             public object[] Arguments;
+            public string Separator;
+            public object Date;
+            public Func<string, string> Transformation;
         }
 
         sealed class CapturedArgument : IFormattable

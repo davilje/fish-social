@@ -55,7 +55,7 @@ namespace FishSocial.Desktop
         {
             if (current != null || queue.Count == 0 || CozyMotion.Paused || !isActiveAndEnabled) return;
             Build(); current = queue.Dequeue(); elapsed = 0; jumped = false;
-            title.text = current.Name; detail.text = current.Detail;
+            DesktopLocalization.SetText(title, current.Name); DesktopLocalization.SetText(detail, current.Detail);
             fishImage.sprite = current.Fish; fishImage.enabled = current.Fish != null;
             var fishHeight = current.Fish != null ? 300 * current.Fish.rect.height / current.Fish.rect.width : 200;
             Place(fish, 686, 520, 300, fishHeight);
@@ -164,7 +164,7 @@ namespace FishSocial.Desktop
             if (current.Size.HasValue)
             {
                 var t = reduced ? 1 : Mathf.Clamp01((time - .9f) / .36f);
-                detail.text = (current.Size.Value * (1 - Mathf.Pow(1 - t, 3))).ToString("0.00") + " m";
+                DesktopLocalization.SetText(detail, DesktopLocalization.Concat((current.Size.Value * (1 - Mathf.Pow(1 - t, 3))).ToString("0.00"), " m"));
             }
             for (var i = 0; i < drops.Count; i++)
             {
@@ -222,7 +222,7 @@ namespace FishSocial.Desktop
             water = Shape("Water", stage, 536, 600, 600, 120, CozyCssGraphic.Shape.Water, Color.white);
             for (var i = 0; i < 2; i++)
             {
-                var ripple = Shape("Ripple" + i, stage, 756, 617, 160, 46, CozyCssGraphic.Shape.Ring, new Color(1, 1, 1, .85f));
+                var ripple = Shape(DesktopLocalization.Concat("Ripple", i), stage, 756, 617, 160, 46, CozyCssGraphic.Shape.Ring, new Color(1, 1, 1, .85f));
                 ripple.GetComponent<CozyCssGraphic>().border = 2;
                 ripples.Add(ripple);
             }
@@ -231,13 +231,13 @@ namespace FishSocial.Desktop
             Picture("OriginalPaperAndShadow", panel, -80, -80, 660, 540, CozyJournalTheme.Sprite("motion/celebration-paper"));
             title = Label("Title", panel, 0, 268, 500, 54, 36); detail = Label("Size", panel, 0, 318, 500, 40, 24); detail.color = new Color(117f / 255, 71f / 255, 46f / 255, .68f);
             stamp = Shape("NewStamp", panel, 418, -30, 108, 108, CozyCssGraphic.Shape.Stamp, new Color(205f / 255, 64f / 255, 46f / 255, .9f)); stamp.GetComponent<CozyCssGraphic>().border = 5;
-            stamp.GetComponent<CozyCssGraphic>().material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply");
-            var stampText = Label("Caption", stamp, 0, 0, 108, 108, 34); stampText.text = DesktopLocalization.Text("ui.catch.celebration.badge.new", "新"); stampText.material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply"); stampText.color = new Color(205f / 255, 64f / 255, 46f / 255, .92f);
+            stamp.GetComponent<CozyCssGraphic>().material = Resources.Load<Material>(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "materials/PaperMultiply"));
+            var stampText = Label("Caption", stamp, 0, 0, 108, 108, 34); DesktopLocalization.SetText(stampText, DesktopLocalization.Text("ui.catch.celebration.badge.new", "新")); stampText.material = Resources.Load<Material>(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "materials/PaperMultiply")); stampText.color = new Color(205f / 255, 64f / 255, 46f / 255, .92f);
             fish = Picture("Fish", stage, 686, 520, 300, 200, null); fishImage = fish.GetComponent<Image>();
-            var hint = Label("Skip", stage, 586, 879, 500, 28, 18); hint.text = DesktopLocalization.Text("ui.catch.celebration.hint.skip", "点击任意位置跳过"); hint.color = new Color(1, 246f / 255, 230f / 255, .8f);
-            for (var i = 0; i < 14; i++) drops.Add(Shape("Drop" + i, stage, 829, 612, 14, 14, CozyCssGraphic.Shape.Circle, new Color(191f / 255, 230f / 255, 251f / 255)));
+            var hint = Label("Skip", stage, 586, 879, 500, 28, 18); DesktopLocalization.SetText(hint, DesktopLocalization.Text("ui.catch.celebration.hint.skip", "点击任意位置跳过")); hint.color = new Color(1, 246f / 255, 230f / 255, .8f);
+            for (var i = 0; i < 14; i++) drops.Add(Shape(DesktopLocalization.Concat("Drop", i), stage, 829, 612, 14, 14, CozyCssGraphic.Shape.Circle, new Color(191f / 255, 230f / 255, 251f / 255)));
             var coinSprite = Resources.Load<Sprite>("Desktop/Theme/Cozy/icons/coin");
-            for (var i = 0; i < 8; i++) coins.Add(Picture("Coin" + i, stage, 819, 363, 34, 34, coinSprite));
+            for (var i = 0; i < 8; i++) coins.Add(Picture(DesktopLocalization.Concat("Coin", i), stage, 819, 363, 34, 34, coinSprite));
         }
         static Vector2 Center(float x, float y, float width, float height) { return new Vector2(x + width / 2, -y - height / 2); }
         static RectTransform Node(string name, Transform parent)

@@ -179,7 +179,7 @@ namespace FishSocialOverlay
                 return;
             }
 
-            var label = new TextBlock
+            var label = OverlayLocalization.Track(new TextBlock
             {
                 Text = trimmed,
                 Foreground = CozyTheme.Ink,
@@ -188,7 +188,7 @@ namespace FishSocialOverlay
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 MaxWidth = 200,
-            };
+            });
             OverlayLocalization.SetText(label, trimmed);
 
             var bubble = new Border
@@ -315,7 +315,7 @@ namespace FishSocialOverlay
                 return;
             }
 
-            var label = new TextBlock
+            var label = OverlayLocalization.Track(new TextBlock
             {
                 Text = text,
                 Foreground = CozyTheme.Ink,
@@ -323,7 +323,7 @@ namespace FishSocialOverlay
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 MaxWidth = BubbleMaxWidth,
-            };
+            });
             OverlayLocalization.SetText(label, text);
 
             var bubble = new Border
@@ -391,7 +391,7 @@ namespace FishSocialOverlay
 
             var text = string.IsNullOrWhiteSpace(chat.Text) ? "…" : chat.Text.Trim();
             if (text.Length > 80)
-                text = text.Substring(0, 77) + "…";
+                text = OverlayLocalization.Concat(text.Substring(0, 77), "…");
 
             if (actor is OverlayPetActor pet)
             {
@@ -400,7 +400,7 @@ namespace FishSocialOverlay
                 return;
             }
 
-            var label = new TextBlock
+            var label = OverlayLocalization.Track(new TextBlock
             {
                 Text = text,
                 Foreground = CozyTheme.Ink,
@@ -408,7 +408,7 @@ namespace FishSocialOverlay
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 MaxWidth = BubbleMaxWidth,
-            };
+            });
 
             var bubble = new Border
             {

@@ -35189,6 +35189,14 @@
       "location": "GetInventory",
       "expressionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "reason": "GetInventory仅由DesktopShellUi.ValidateCurrentSession调用；ValidateCurrentSession全仓无调用点，属于未接入的会话验证流程。"
+    },
+    {
+      "key": "txt_92df1b6c9eb43c5b",
+      "file": "fish-social-unity/Assets/Scripts/Desktop/Auth/AuthenticatedApiClient.cs",
+      "kind": "代码常量",
+      "location": "SendFriendRequest",
+      "expressionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "SendFriendRequest 的 fromNickname 兜底写入 FriendRequestPayload 身份数据；保持原昵称“钓友”，不随界面语言修改。"
     }
   ],
   "categoryOverrides": {
@@ -35980,6 +35988,15 @@
       },
       "policy": "排除昵称身份数据、全部Unity编辑器来源、开发导出、Debug/Log、固定格式和未显示的重复数据。",
       "reviewedSourceCount": 1156
+    },
+    {
+      "reviewDate": "2026-10-29",
+      "baseline": {
+        "entries": 1883,
+        "sourceOccurrences": 2633
+      },
+      "policy": "好友请求的发送者默认昵称属于身份数据，排除该来源；本地教程新钓手显示兜底保留。",
+      "reviewedSourceCount": 1
     }
   ]
 }

@@ -24,7 +24,7 @@ namespace FishSocial.Desktop
                 Id = id;
                 Filename = filename;
                 Label = label;
-                Path = Directory + "/" + filename;
+                Path = DesktopLocalization.Concat(DesktopLocalization.Concat(Directory, "/"), filename);
             }
         }
 
@@ -46,7 +46,7 @@ namespace FishSocial.Desktop
         public static bool IsDefaultPath(string url)
         {
             url = NormalizeAssetPath(url);
-            if (string.IsNullOrEmpty(url) || !url.StartsWith(Directory + "/"))
+            if (string.IsNullOrEmpty(url) || !url.StartsWith(DesktopLocalization.Concat(Directory, "/")))
                 return false;
             var filename = url.Substring(Directory.Length + 1);
             for (var i = 0; i < All.Length; i++)
@@ -60,7 +60,7 @@ namespace FishSocial.Desktop
         public static UnityEngine.Sprite Portrait(string avatarUrl, string playerId = null)
         {
             var id = ResolvePetId(avatarUrl, playerId);
-            return CatTheme.LoadCozy("characters/avatars/" + id + ".png", UnityEngine.Vector4.zero)
+            return CatTheme.LoadCozy(DesktopLocalization.Concat(DesktopLocalization.Concat("characters/avatars/", id), ".png"), UnityEngine.Vector4.zero)
                 ?? CatTheme.LoadCozy("characters/avatars/orange.png", UnityEngine.Vector4.zero);
         }
 
@@ -114,7 +114,7 @@ namespace FishSocial.Desktop
                 return KnownPetId(id);
             }
 
-            if (url.StartsWith(Directory + "/"))
+            if (url.StartsWith(DesktopLocalization.Concat(Directory, "/")))
             {
                 var filename = url.Substring(Directory.Length + 1);
                 for (var i = 0; i < All.Length; i++)
@@ -148,9 +148,9 @@ namespace FishSocial.Desktop
         {
             foreach (var id in new[] { "gray", "siamese", "tuxedo" })
             {
-                if (url == Directory + "/cat_avatar_" + id + ".png")
-                    return Directory + "/cat_avatar_orange.png";
-                if (url == "/image/fishing_photos/cat_fishing_" + id + ".png")
+                if (url == DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(Directory, "/cat_avatar_"), id), ".png"))
+                    return DesktopLocalization.Concat(Directory, "/cat_avatar_orange.png");
+                if (url == DesktopLocalization.Concat(DesktopLocalization.Concat("/image/fishing_photos/cat_fishing_", id), ".png"))
                     return "/image/fishing_photos/cat_fishing_orange.png";
             }
             return url;
@@ -170,9 +170,9 @@ namespace FishSocial.Desktop
         public static string ResolveFishingPhotoPath(string avatarUrl, string playerId)
         {
             const string photoDir = "/image/fishing_photos";
-            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith(photoDir + "/"))
+            if (!string.IsNullOrEmpty(avatarUrl) && avatarUrl.StartsWith(DesktopLocalization.Concat(photoDir, "/")))
                 return NormalizeAssetPath(avatarUrl);
-            return photoDir + "/cat_fishing_" + ResolvePetId(avatarUrl, playerId) + ".png";
+            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(photoDir, "/cat_fishing_"), ResolvePetId(avatarUrl, playerId)), ".png");
         }
     }
 
@@ -197,8 +197,7 @@ namespace FishSocial.Desktop
         {
             if (item == null)
                 return DesktopLocalization.Text("ui.profile.avatar.label.empty_fish", "空");
-            return DesktopFishCatalog.SpeciesName(item.speciesId) + "\n" +
-                   DesktopFishCatalog.QualityName(item.quality);
+            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(item.speciesId), "\n"), DesktopFishCatalog.QualityName(item.quality));
         }
 
         public static string OnlineLabel(SocialPondSessionController pond, bool authenticated)

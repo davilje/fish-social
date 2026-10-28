@@ -51,13 +51,13 @@ namespace FishSocial.Desktop
 
         public static Sprite Get(string name)
         {
-            var original = CozyJournalTheme.Sprite("illustrations/items/" + name);
+            var original = CozyJournalTheme.Sprite(DesktopLocalization.Concat("illustrations/items/", name));
             if (original != null) return original;
             if (!loaded)
             {
                 loaded = true;
                 foreach (var atlas in new[] { "items-atlas", "fish-atlas" })
-                    foreach (var sprite in Resources.LoadAll<Sprite>("Desktop/Theme/Cozy/items/" + atlas))
+                    foreach (var sprite in Resources.LoadAll<Sprite>(DesktopLocalization.Concat("Desktop/Theme/Cozy/items/", atlas)))
                         Sprites[sprite.name] = sprite;
             }
             return !string.IsNullOrEmpty(name) && Sprites.TryGetValue(name, out var result) ? result : null;
@@ -68,7 +68,7 @@ namespace FishSocial.Desktop
             var id = DesktopGameData.ResolveSpeciesId(speciesId);
             if (id == "largemouth_bass") id = "black_bass";
             if (string.IsNullOrEmpty(id)) return null;
-            var original = CozyJournalTheme.Sprite("illustrations/fish/" + id);
+            var original = CozyJournalTheme.Sprite(DesktopLocalization.Concat("illustrations/fish/", id));
             if (original != null) return original;
             if (FishSprites.TryGetValue(id, out var cached)) return cached;
             foreach (var entry in FishCatalog)
@@ -92,7 +92,7 @@ namespace FishSocial.Desktop
                 return Get(RodSprite(id));
             if (category == 0)
                 return Get(BaitSprite(id));
-            var name = (id ?? "") + " " + (displayName ?? "");
+            var name = DesktopLocalization.Concat(DesktopLocalization.Concat((id ?? ""), " "), (displayName ?? ""));
             return Get(name.Contains("木") || name.Contains("wood") ? "boat-wood" : "boat-blue");
         }
 
@@ -137,7 +137,7 @@ namespace FishSocial.Desktop
         public static void Text(Transform root, string path, string value)
         {
             var label = root != null ? root.Find(path)?.GetComponent<UnityEngine.UI.Text>() : null;
-            if (label != null) label.text = value ?? string.Empty;
+            if (label != null) DesktopLocalization.SetText(label, value ?? string.Empty);
         }
 
         public static bool Rows(Transform root, string path, params string[] cells)
@@ -156,7 +156,7 @@ namespace FishSocial.Desktop
                 if (icon != null)
                 {
                     icon.sprite = string.IsNullOrEmpty(cells[index * 3]) ? null
-                        : CatTheme.LoadCozy("icons/" + cells[index * 3] + ".png", Vector4.zero);
+                        : CatTheme.LoadCozy(DesktopLocalization.Concat(DesktopLocalization.Concat("icons/", cells[index * 3]), ".png"), Vector4.zero);
                     icon.enabled = icon.sprite != null;
                     icon.preserveAspect = true;
                 }

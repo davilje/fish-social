@@ -62,7 +62,7 @@ namespace FishSocial.Desktop
         void OnUnlocked(CodexUnlockDto unlock)
         {
             if (unlock != null)
-                _status.text = DesktopLocalization.Format("ui.codex.gallery.toast.species_unlocked", (object)(unlock.speciesName));
+                DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.codex.gallery.toast.species_unlocked", (object)(DesktopLocalization.Data(unlock.speciesName))));
             StartCoroutine(Load());
         }
 
@@ -71,12 +71,12 @@ namespace FishSocial.Desktop
             if (_loading) yield break;
             if (_api == null || !_api.CanUse)
             {
-                _status.text = DesktopLocalization.Text("ui.codex.gallery.error.player_missing", "没有玩家身份，无法加载图鉴。");
-                _detail.text = _status.text;
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.codex.gallery.error.player_missing", "没有玩家身份，无法加载图鉴。")));
+                DesktopLocalization.SetText(_detail, _status.text);
                 yield break;
             }
             _loading = true;
-            _status.text = DesktopLocalization.Text("ui.codex.gallery.status.loading", "正在加载图鉴…");
+            DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.codex.gallery.status.loading", "正在加载图鉴…"));
             var ok = false;
             string error = null;
             yield return _api.GetCodex((success, entries, message) =>
@@ -88,8 +88,8 @@ namespace FishSocial.Desktop
             _loading = false;
             if (!ok)
             {
-                _status.text = error ?? DesktopLocalization.Text("ui.codex.gallery.error.load_failed", "图鉴加载失败。");
-                _detail.text = DesktopLocalization.Format("ui.codex.gallery.error.retry_hint", (object)(_status.text));
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(error ?? DesktopLocalization.Text("ui.codex.gallery.error.load_failed", "图鉴加载失败。")));
+                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.codex.gallery.error.retry_hint", (object)(_status.text)));
                 yield break;
             }
             PresentEntries(_entries);
@@ -103,7 +103,7 @@ namespace FishSocial.Desktop
             var catalog = DesktopGameData.Species;
             if (catalog == null || catalog.Length == 0)
             {
-                _status.text = DesktopLocalization.Text("ui.codex.gallery.empty.no_species_data", "暂时没有鱼种资料。"); _detail.text = _status.text; return;
+                DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.codex.gallery.empty.no_species_data", "暂时没有鱼种资料。")); DesktopLocalization.SetText(_detail, _status.text); return;
             }
             var unlocked = 0;
             foreach (var definition in catalog)
@@ -112,7 +112,7 @@ namespace FishSocial.Desktop
                 var entry = FindEntry(definition.speciesId);
                 if (entry != null && entry.totalCaught > 0) unlocked++;
             }
-            _status.text = DesktopLocalization.Format("ui.codex.gallery.progress.unlocked_count", (object)(unlocked), (object)(catalog.Length));
+            DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.codex.gallery.progress.unlocked_count", (object)(unlocked), (object)(catalog.Length)));
             if (string.IsNullOrEmpty(_selectedId) || DesktopFishCatalog.GetSpecies(_selectedId) == null)
             {
                 _selectedId = null;
@@ -155,7 +155,7 @@ namespace FishSocial.Desktop
                 var text = DesktopUiPrefabFactory.Child(slot, "Label");
                 var labelText = text != null ? text.GetComponent<Text>() : null;
                 if (labelText != null)
-                    labelText.text = label;
+                    DesktopLocalization.SetText(labelText, label);
                 DesktopModalUi.StyleTree(slot.transform);
                 var art = DesktopModalUi.FindComponent<Image>(slot.transform, "FishArt");
                 if (art != null)
@@ -165,7 +165,7 @@ namespace FishSocial.Desktop
                     art.color = unlocked ? Color.white : new Color(0, 0, 0, .26f);
                 }
                 var rarity = DesktopModalUi.FindComponent<Text>(slot.transform, "Rarity");
-                if (rarity != null) rarity.text = unlocked ? DesktopGameData.RarityLabel(def.rarityTier) : DesktopLocalization.Text("ui.codex.gallery.status.locked", "未解锁");
+                if (rarity != null) DesktopLocalization.SetText(rarity, unlocked ? DesktopGameData.RarityLabel(def.rarityTier) : DesktopLocalization.Text("ui.codex.gallery.status.locked", "未解锁"));
                 var collection=slot.GetComponent<CozyProfileCollectionCard>();
                 if(collection!=null) collection.Bind(unlocked?DesktopGameData.SpeciesName(def.speciesId):DesktopLocalization.Text("ui.codex.gallery.status.undiscovered", "尚未发现"),unlocked?DesktopLocalization.Format("ui.codex.gallery.stat.total_catches", (object)(entry.totalCaught)):DesktopLocalization.Text("ui.codex.gallery.hint.catch_to_unlock", "捕获后解锁"),CozyItemArt.Fish(def.speciesId),!unlocked,unlocked);
                 var captured = def.speciesId;
@@ -178,7 +178,7 @@ namespace FishSocial.Desktop
                     if (visual != null)
                         visual.SetSelected(def.speciesId == _selectedId);
                 }
-                CozyStickerMotion.Bind(slot, "codex:" + (_api?.PlayerId ?? "") + ":" + def.speciesId, i,
+                CozyStickerMotion.Bind(slot, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("codex:", (_api?.PlayerId ?? "")), ":"), def.speciesId), i,
                     _grid.parent as RectTransform, sourceId: def.speciesId);
             }
         }
@@ -215,10 +215,10 @@ namespace FishSocial.Desktop
             var locked = transform.Find("GalleryAside/LockedHint"); if (locked != null) locked.gameObject.SetActive(!unlocked);
             var scroll = transform.Find("Detail")?.GetComponent<ScrollRect>();
             if (scroll != null) scroll.verticalNormalizedPosition = 1;
-            if (species == null) { _detail.text = DesktopLocalization.Text("ui.codex.gallery.error.unknown_species", "未知鱼种。"); return; }
+            if (species == null) { DesktopLocalization.SetText(_detail, DesktopLocalization.Text("ui.codex.gallery.error.unknown_species", "未知鱼种。")); return; }
             if (!unlocked)
             {
-                _detail.text = DesktopLocalization.Text("ui.codex.gallery.hint.locked_species_details", "尚未解锁\n捕获后，记录它的名字、食性、体型与推荐鱼饵。");
+                DesktopLocalization.SetText(_detail, DesktopLocalization.Text("ui.codex.gallery.hint.locked_species_details", "尚未解锁\n捕获后，记录它的名字、食性、体型与推荐鱼饵。"));
                 return;
             }
             var first = "—";
@@ -227,7 +227,7 @@ namespace FishSocial.Desktop
                 try { first = DateTimeOffset.FromUnixTimeMilliseconds(entry.firstCaughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm"); }
                 catch (ArgumentOutOfRangeException) { }
             }
-            _detail.text = DesktopLocalization.Format("ui.codex.gallery.details.species_summary", (object)(species.RarityLabel), (object)(species.DietLabel), (object)((string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel)), (object)(species.TypicalMinM.ToString("0.00")), (object)(species.TypicalMaxM.ToString("0.00")), (object)(DesktopFishCatalog.TopBaits(species)), (object)(entry.totalCaught), (object)(entry.maxSizeM.ToString("0.00")), (object)(first));
+            DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.codex.gallery.details.species_summary", (object)(species.RarityLabel), (object)(species.DietLabel), (object)((string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel)), (object)(species.TypicalMinM.ToString("0.00")), (object)(species.TypicalMaxM.ToString("0.00")), (object)(DesktopFishCatalog.TopBaits(species)), (object)(entry.totalCaught), (object)(entry.maxSizeM.ToString("0.00")), (object)(first)));
         }
     }
 }

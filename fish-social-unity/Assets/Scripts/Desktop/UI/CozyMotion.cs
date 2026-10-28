@@ -232,7 +232,7 @@ namespace FishSocial.Desktop
                     break;
                 case Channel.Number:
                     if (job.Label != null)
-                        job.Label.text = Mathf.RoundToInt(Mathf.Lerp(job.FromF, job.ToF, eased)).ToString("N0");
+                        DesktopLocalization.SetText(job.Label, Mathf.RoundToInt(Mathf.Lerp(job.FromF, job.ToF, eased)).ToString("N0"));
                     break;
             }
         }
@@ -420,7 +420,7 @@ namespace FishSocial.Desktop
             ReplaceLabel(label);
             if (Reduced || from == to)
             {
-                label.text = to.ToString("N0");
+                DesktopLocalization.SetText(label, to.ToString("N0"));
                 return;
             }
             ReplaceLabel(label);
@@ -695,7 +695,7 @@ namespace FishSocial.Desktop
         static RectTransform FindRing(Transform page, int index)
         {
             if (page == null) return null;
-            var name = "JournalRing" + index;
+            var name = DesktopLocalization.Concat("JournalRing", index);
             var direct = page.Find(name) as RectTransform;
             if (direct != null) return direct;
             foreach (var rect in page.GetComponentsInChildren<RectTransform>(true))

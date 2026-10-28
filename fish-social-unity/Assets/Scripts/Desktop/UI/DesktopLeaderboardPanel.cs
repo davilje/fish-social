@@ -217,7 +217,7 @@ namespace FishSocial.Desktop
 
         void PlaceCompactSlot(int rank, float x, float y, float height)
         {
-            var slot = transform.Find("Podium/Slot" + rank) as RectTransform;
+            var slot = transform.Find(DesktopLocalization.Concat("Podium/Slot", rank)) as RectTransform;
             if (slot == null)
                 return;
             var element = slot.GetComponent<LayoutElement>() ?? slot.gameObject.AddComponent<LayoutElement>();
@@ -386,7 +386,7 @@ namespace FishSocial.Desktop
             var position = FindIn<Text>(slot.root.transform, "Rank") ?? FindIn<Text>(slot.root.transform, "Position");
             if (position != null)
             {
-                position.text = DesktopLocalization.Format("ui.leaderboard.panel.label.podium_rank", (object)(rank));
+                DesktopLocalization.SetText(position, DesktopLocalization.Format("ui.leaderboard.panel.label.podium_rank", (object)(rank)));
                 var place = position.rectTransform;
                 place.anchorMin = place.anchorMax = new Vector2(0f, 1f);
                 place.pivot = new Vector2(0f, 1f);
@@ -446,7 +446,7 @@ namespace FishSocial.Desktop
             }
             for (var rank = 1; rank <= 3; rank++)
             {
-                var card = podium.Find("Slot" + rank);
+                var card = podium.Find(DesktopLocalization.Concat("Slot", rank));
                 if (card == null) continue;
                 HangPodiumLabel(card.Find("JournalRankBacking") as RectTransform, rank);
                 HangPodiumLabel(card.Find("JournalRankLabel") as RectTransform, rank);
@@ -513,7 +513,7 @@ namespace FishSocial.Desktop
             }
             var label = rect.GetComponent<Text>();
             if (label == null) return;
-            label.text = rank == 1 ? DesktopLocalization.Text("ui.leaderboard.panel.label.first_place", "第一名") : rank == 2 ? DesktopLocalization.Text("ui.leaderboard.panel.label.second_place", "第二名") : DesktopLocalization.Text("ui.leaderboard.panel.label.third_place", "第三名");
+            DesktopLocalization.SetText(label, rank == 1 ? DesktopLocalization.Text("ui.leaderboard.panel.label.first_place", "第一名") : rank == 2 ? DesktopLocalization.Text("ui.leaderboard.panel.label.second_place", "第二名") : DesktopLocalization.Text("ui.leaderboard.panel.label.third_place", "第三名"));
             label.fontSize = 13;
             label.alignment = TextAnchor.MiddleCenter;
             label.color = rank == 1
@@ -576,7 +576,7 @@ namespace FishSocial.Desktop
             var label = button.GetComponentInChildren<Text>(true);
             if (label != null)
             {
-                label.text = title;
+                DesktopLocalization.SetText(label, title);
             }
             DesktopModalUi.StyleButton(button, icon);
         }
@@ -731,7 +731,7 @@ namespace FishSocial.Desktop
                 _boardPools[boardType] = _rowPool;
                 return;
             }
-            var root = CozyKeptPage.DuplicateList(_content, "Board_" + boardType);
+            var root = CozyKeptPage.DuplicateList(_content, DesktopLocalization.Concat("Board_", boardType));
             _boardRoots[boardType] = root;
             _boardPools[boardType] = new List<GameObject>(48);
         }
@@ -1120,7 +1120,7 @@ namespace FishSocial.Desktop
 
         static string BuildCacheKey(string boardType, string pondId)
         {
-            return boardType + "|" + (pondId ?? string.Empty);
+            return DesktopLocalization.Concat(DesktopLocalization.Concat(boardType, "|"), (pondId ?? string.Empty));
         }
 
         void StoreCache(
@@ -1241,7 +1241,7 @@ namespace FishSocial.Desktop
             if (row == null || entry == null)
                 return;
             _cardPlayers[row] = entry.playerId;
-            SetChildText(row, "Rank", row.transform.Find("JournalDetailParity") != null ? entry.rank.ToString("00") : "#" + entry.rank);
+            SetChildText(row, "Rank", row.transform.Find("JournalDetailParity") != null ? entry.rank.ToString("00") : DesktopLocalization.Concat("#", entry.rank));
             SetChildText(row, "Nickname", entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
             SetChildText(row, "Value", FormatValue(entry, boardType));
             var valueLabel = row.transform.Find("Value")?.GetComponent<Text>();
@@ -1276,7 +1276,7 @@ namespace FishSocial.Desktop
                 button.interactable = !string.IsNullOrEmpty(entry.playerId);
                 button.GetComponent<CozyButtonVisual>()?.SetSelected(entry.playerId == _selectedPlayerId);
             }
-            var sticker = CozyStickerMotion.Bind(row, "rank:" + boardType + ":" + entry.playerId, row.transform.GetSiblingIndex() + 2,
+            var sticker = CozyStickerMotion.Bind(row, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("rank:", boardType), ":"), entry.playerId), row.transform.GetSiblingIndex() + 2,
                 _scroll != null ? _scroll.viewport : null, entry.playerId, 0);
             if (!Application.isPlaying) sticker.ApplyFinalPose();
         }
@@ -1328,8 +1328,8 @@ namespace FishSocial.Desktop
             }
             if (entry == null)
             {
-                slot.nickname.text = emptyLabel;
-                slot.value.text = "—";
+                DesktopLocalization.SetText(slot.nickname, emptyLabel);
+                DesktopLocalization.SetText(slot.value, "—");
                 if (slot.avatar != null)
                 {
                     slot.avatar.sprite = null;
@@ -1341,11 +1341,11 @@ namespace FishSocial.Desktop
             var staticPose = slot.root.GetComponent<CozyJournalStaticPose>();
             if (staticPose != null) staticPose.enabled = false;
             var order = entry.rank == 2 ? 0 : entry.rank == 1 ? 1 : 2;
-            var sticker = CozyStickerMotion.Bind(slot.root, "podium:" + boardType + ":" + entry.playerId, order,
+            var sticker = CozyStickerMotion.Bind(slot.root, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("podium:", boardType), ":"), entry.playerId), order,
                 _scroll != null ? _scroll.viewport : null, entry.playerId);
             if (!Application.isPlaying) sticker.ApplyFinalPose();
-            slot.nickname.text = entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友");
-            slot.value.text = FormatValue(entry, boardType);
+            DesktopLocalization.SetText(slot.nickname, entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
+            DesktopLocalization.SetText(slot.value, FormatValue(entry, boardType));
             if (slot.avatar != null)
             {
                 slot.avatar.sprite = DesktopDefaultAvatars.Portrait(entry.avatarUrl, entry.playerId);
@@ -1460,7 +1460,7 @@ namespace FishSocial.Desktop
             if (boardType == BoardDaily)
             {
                 var size = extra != null && extra.sizeM > 0 ? extra.sizeM : entry.value;
-                return size.ToString("0.00") + " m";
+                return DesktopLocalization.Concat(size.ToString("0.00"), " m");
             }
             if (boardType == BoardWeekly)
             {
@@ -1538,25 +1538,25 @@ namespace FishSocial.Desktop
                 return;
             if (myRank == null || !myRank.hasRank)
             {
-                _myRank.text = DesktopLocalization.Text("ui.leaderboard.panel.label.my_rank_unlisted", "我的排名：未上榜");
+                DesktopLocalization.SetText(_myRank, DesktopLocalization.Text("ui.leaderboard.panel.label.my_rank_unlisted", "我的排名：未上榜"));
                 return;
             }
-            _myRank.text = DesktopLocalization.Format("ui.leaderboard.panel.label.my_rank", (object)(myRank.rank), (object)(FormatValue(myRank.entry ?? new LeaderboardEntryDto
+            DesktopLocalization.SetText(_myRank, DesktopLocalization.Format("ui.leaderboard.panel.label.my_rank", (object)(myRank.rank), (object)(FormatValue(myRank.entry ?? new LeaderboardEntryDto
                            {
                                value = myRank.value,
                                extra = myRank.entry != null ? myRank.entry.extra : null,
-                           }, boardType)));
+                           }, boardType))));
         }
 
         void SetStatus(string value)
-        {
+        { value = DesktopLocalization.Message(value);
             if (_status != null)
-                _status.text = value ?? string.Empty;
+                DesktopLocalization.SetText(_status, value ?? string.Empty);
         }
 
         PodiumSlot ResolvePodium(string path)
         {
-            var root = transform.Find(path) ?? transform.Find("Scroll/Viewport/Content/" + path);
+            var root = transform.Find(path) ?? transform.Find(DesktopLocalization.Concat("Scroll/Viewport/Content/", path));
             if (root == null)
                 return default;
             return new PodiumSlot
@@ -1570,7 +1570,7 @@ namespace FishSocial.Desktop
 
         T Find<T>(string path) where T : Component
         {
-            var node = transform.Find(path) ?? (path.StartsWith("Podium") ? transform.Find("Scroll/Viewport/Content/" + path) : null);
+            var node = transform.Find(path) ?? (path.StartsWith("Podium") ? transform.Find(DesktopLocalization.Concat("Scroll/Viewport/Content/", path)) : null);
             return node != null ? node.GetComponent<T>() : null;
         }
 
@@ -1599,7 +1599,7 @@ namespace FishSocial.Desktop
             var node = root.transform.Find(name);
             var text = node != null ? node.GetComponent<Text>() : null;
             if (text != null)
-                text.text = value ?? string.Empty;
+                DesktopLocalization.SetText(text, value ?? string.Empty);
         }
 
         static Text CreateText(Transform parent, string name, string value, float width)
@@ -1615,7 +1615,7 @@ namespace FishSocial.Desktop
             text.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             text.fontSize = 16;
             text.color = CatTheme.Ink;
-            text.text = value ?? string.Empty;
+            DesktopLocalization.SetText(text, value ?? string.Empty);
             text.alignment = TextAnchor.MiddleLeft;
             text.raycastTarget = false;
             return text;

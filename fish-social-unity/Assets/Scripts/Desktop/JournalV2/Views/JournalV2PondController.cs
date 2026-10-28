@@ -50,8 +50,8 @@ namespace FishSocial.Desktop.JournalV2
             var categories=new[]{"novice","wilderness","reservoir","advanced","veteran","giant","forbidden"};
             for(var i=0;i<categories.Length;i++)
             {
-                var dot=JournalV2Nodes.Plate(page.Rail,"Dot"+i,18,32+i*34,14,14,CategoryColor(categories[i]),7,2);dot.BorderColor=Color.white;dot.ShadowColor=Color.clear;
-                JournalV2Nodes.Text(page.Rail,"Category"+i,DesktopGameData.CategoryLabel(categories[i]),42,22+i*34,150,34,17);
+                var dot=JournalV2Nodes.Plate(page.Rail,DesktopLocalization.Concat("Dot", i),18,32+i*34,14,14,CategoryColor(categories[i]),7,2);dot.BorderColor=Color.white;dot.ShadowColor=Color.clear;
+                JournalV2Nodes.Text(page.Rail,DesktopLocalization.Concat("Category", i),DesktopGameData.CategoryLabel(categories[i]),42,22+i*34,150,34,17);
             }
             JournalV2Nodes.Text(page.Rail,"Note","拖动地图寻找水域\n滚轮缩放，点浮标看详情",18,330,174,74,16);
             var reset=JournalV2Nodes.Button(page.Rail,"Reset","回到全图",null,18,430,174,40);
@@ -71,9 +71,9 @@ namespace FishSocial.Desktop.JournalV2
         void BuildList(JournalV2Page page)
         {
             filters=new Button[3];var names=new[]{"全部鱼塘","可进入","免费鱼塘"};
-            for(var i=0;i<3;i++)filters[i]=JournalV2Nodes.Button(page.Rail,"Filter"+i,names[i],i==2?"coin":"pond",10,12+i*88,190,76,JournalV2ButtonKind.Index);
+            for(var i=0;i<3;i++)filters[i]=JournalV2Nodes.Button(page.Rail,DesktopLocalization.Concat("Filter", i),names[i],i==2?"coin":"pond",10,12+i*88,190,76,JournalV2ButtonKind.Index);
             search=JournalV2Nodes.Input(page.Rail,"Search","",18,330,174,36,16);
-            var hint=search.placeholder as Text;if(hint!=null)hint.text="寻找鱼塘…";
+            var hint=search.placeholder as Text;if(hint!=null)DesktopLocalization.SetText(hint, "寻找鱼塘…");
             JournalV2Nodes.Text(page.Rail,"Note","选好档位，再去水边。",18,412,174,56,16);
             grid=JournalV2Nodes.GridScroll(page.Middle,"Ponds",0,0,710,440,2,new Vector2(329,220),new Vector2(18,18));
         }
@@ -128,7 +128,7 @@ namespace FishSocial.Desktop.JournalV2
                 }
                 else
                 {
-                    button=JournalV2CatalogUi.Card(parent,pond.pondId,pond.displayName,DesktopGameData.CategoryLabel(pond.pondCategory)+" · "+state.AccessReason(pond),JournalV2Theme.Sprite("journal/ponds/"+pond.pondId),new Vector2(329,220),ordinal++,true);
+                    button=JournalV2CatalogUi.Card(parent,pond.pondId,pond.displayName,DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopGameData.CategoryLabel(pond.pondCategory), " · "), state.AccessReason(pond)),JournalV2Theme.Sprite(DesktopLocalization.Concat("journal/ponds/", pond.pondId)),new Vector2(329,220),ordinal++,true);
                     JournalV2CatalogUi.Visual(button).Find("Artwork").GetComponent<Image>().preserveAspect=false;
                 }
                 var captured=pond;button.onClick.AddListener(()=>Select(captured));buttons[pond.pondId]=button;
@@ -144,7 +144,7 @@ namespace FishSocial.Desktop.JournalV2
                 { var motion=marker.GetComponent<JournalV2MapMarker>();if(!state.CanEnter(pond))motion?.Shake();else if(same)motion?.Stamp(); }
                 cameraView.Focus(pond.x,pond.y);
             }
-            if(same)JournalV2CatalogUi.Photo(photo,JournalV2Theme.Sprite("journal/ponds/"+pond.pondId),pond.displayName,true);
+            if(same)JournalV2CatalogUi.Photo(photo,JournalV2Theme.Sprite(DesktopLocalization.Concat("journal/ponds/", pond.pondId)),pond.displayName,true);
         }
         void Refresh()
         {
@@ -157,18 +157,18 @@ namespace FishSocial.Desktop.JournalV2
                 { pair.Value.GetComponent<JournalV2MapMarker>()?.SetState(selected,!allowed,CategoryColor(pond.pondCategory)); }
             }
             var chosen=state.Selected;var changed=shownId!=chosen?.pondId;shownId=chosen?.pondId;
-            JournalV2CatalogUi.Photo(photo,chosen==null?null:JournalV2Theme.Sprite("journal/ponds/"+chosen.pondId),chosen?.displayName??"选择一处鱼塘",changed);
+            JournalV2CatalogUi.Photo(photo,chosen==null?null:JournalV2Theme.Sprite(DesktopLocalization.Concat("journal/ponds/", chosen.pondId)),chosen?.displayName??"选择一处鱼塘",changed);
             var art=photo.Find("Visual/Art")?.GetComponent<Image>();if(art!=null)art.preserveAspect=false;
-            if(chosen==null)facts.text="点选鱼塘，查看场景和入塘条件。";
+            if(chosen==null)DesktopLocalization.SetText(facts, "点选鱼塘，查看场景和入塘条件。");
             else
             {
                 var definition=DesktopGameData.GetPond(chosen.pondId);var text=new StringBuilder(DesktopGameData.CategoryLabel(chosen.pondCategory));
                 if(definition!=null)text.Append(" · ").Append(DesktopGameData.WaterLabel(definition.waterType)).Append("\n").Append(definition.realWorldRef);
                 text.Append("\n鱼种：").Append(DesktopGameData.PondSpeciesSummary(chosen.pondId,4)).Append("\n").Append(state.AccessReason(chosen));
                 if(PondSelectionState.HasDualFee(chosen))text.Append("\n出售档 ").Append(chosen.feePer2hSellOnly).Append(" 金币 / 2小时；回鱼档 ").Append(chosen.feePer2hAutoReturn).Append(" 金币 / 2小时");
-                if(!string.IsNullOrEmpty(state.Status))text.Append("\n").Append(state.Status);facts.text=text.ToString();
+                if(!string.IsNullOrEmpty(state.Status))text.Append("\n").Append(state.Status);DesktopLocalization.SetText(facts, text.ToString());
             }
-            var amount=state.ActiveFee(chosen);fee.text=chosen==null?"":amount==0?"免费入塘":amount+" 金币 / 2小时 · 今日 "+(state.Progress?.todayFeeCharges.ToString()??"—")+"/"+(chosen.maxFeeChargesPerDay>0?chosen.maxFeeChargesPerDay:4)+" 次";
+            var amount=state.ActiveFee(chosen);DesktopLocalization.SetText(fee, chosen==null?"":amount==0?"免费入塘":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(amount, " 金币 / 2小时 · 今日 "), (state.Progress?.todayFeeCharges.ToString()??"—")), "/"), (chosen.maxFeeChargesPerDay>0?chosen.maxFeeChargesPerDay:4)), " 次"));
             feeRoot.gameObject.SetActive(PondSelectionState.HasDualFee(chosen));var auto=state.ReturnFeeMode=="auto_return";segment.Select(auto?1:0);
             modeSell.GetComponent<JournalV2Button>()?.SetSelected(!auto);modeAuto.GetComponent<JournalV2Button>()?.SetSelected(auto);
             JournalV2CatalogUi.Enabled(modeSell,!state.Busy);JournalV2CatalogUi.Enabled(modeAuto,!state.Busy);
@@ -177,7 +177,7 @@ namespace FishSocial.Desktop.JournalV2
             JournalV2CatalogUi.Enabled(alternate,!state.Busy);
             retry.gameObject.SetActive(!state.Busy&&!state.ProgressLoading&&(state.EntryFailed||state.Progress==null));
             JournalV2CatalogUi.Label(retry,state.EntryFailed?"重试进入":"重新加载");
-            if(Page!=null){Page.Heading.text=(map?"世界地图":"寻一处好水")+"    "+buttons.Count+" 处";Page.Status.text=state.Busy?"正在连接鱼塘…":state.EntryFailed?"进入失败，右侧详情可查看原因":state.ProgressLoading?"正在核对入塘条件…":state.AccessReason(chosen);}
+            if(Page!=null){DesktopLocalization.SetText(Page.Heading, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat((map?"世界地图":"寻一处好水"), "    "), buttons.Count), " 处"));DesktopLocalization.SetText(Page.Status, state.Busy?"正在连接鱼塘…":state.EntryFailed?"进入失败，右侧详情可查看原因":state.ProgressLoading?"正在核对入塘条件…":state.AccessReason(chosen));}
             if(filters!=null)for(var i=0;i<filters.Length;i++){filters[i].GetComponent<JournalV2Button>()?.SetSelected(i==filter);JournalV2CatalogUi.Enabled(filters[i],!state.Busy);}
         }
         void Enter()

@@ -23,7 +23,7 @@ namespace FishSocial.Desktop
             label = GetComponentInChildren<Text>();
             if (label == null) { completed?.Invoke(); return; }
             original = label.text;
-            label.text = DesktopLocalization.Text("ui.profile.save_feedback.status.saved", "✓ 已保存");
+            DesktopLocalization.SetText(label, DesktopLocalization.Text("ui.profile.save_feedback.status.saved", "✓ 已保存"));
             alpha = label.GetComponent<CanvasGroup>();
             if (alpha == null) alpha = label.gameObject.AddComponent<CanvasGroup>();
             playing = true;
@@ -39,7 +39,7 @@ namespace FishSocial.Desktop
         void Restore()
         {
             playing = false;
-            if (label != null) label.text = original;
+            if (label != null) DesktopLocalization.SetText(label, original);
             Sample(1);
         }
         public void CancelFeedback() { CozyMotion.Cancel((RectTransform)transform); Restore(); }

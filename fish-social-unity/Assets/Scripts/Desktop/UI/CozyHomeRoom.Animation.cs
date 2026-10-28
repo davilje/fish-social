@@ -71,7 +71,7 @@ namespace FishSocial.Desktop
             RefreshSkin();
             if (!HasFeedingAnimation)
             {
-                feedback = 2; bubble.text = DesktopLocalization.Text("ui.home.feeding.status.animation_pending", "这位伙伴的进食动作正在准备中");
+                feedback = 2; DesktopLocalization.SetText(bubble, DesktopLocalization.Text("ui.home.feeding.status.animation_pending", "这位伙伴的进食动作正在准备中"));
                 bubble.transform.parent.gameObject.SetActive(true);
                 return;
             }

@@ -26,7 +26,7 @@ namespace FishSocial.Desktop.Social
                 return;
             if (friends == null || friends.Count == 0)
             {
-                _content.text = "好友列表为空，或 Steam 尚未返回好友。\n请点击“刷新好友”。";
+                DesktopLocalization.SetText(_content, "好友列表为空，或 Steam 尚未返回好友。\n请点击“刷新好友”。");
                 return;
             }
             var text = "Steam 好友：" + friends.Count;
@@ -36,7 +36,7 @@ namespace FishSocial.Desktop.Social
                 text += "\n" + (i + 1) + ". " + friend.name + " · " +
                         (friend.online ? "在线" : "离线");
             }
-            _content.text = text;
+            DesktopLocalization.SetText(_content, text);
         }
 
         void OnDestroy()

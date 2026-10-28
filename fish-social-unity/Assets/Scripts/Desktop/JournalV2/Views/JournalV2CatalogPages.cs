@@ -28,7 +28,7 @@ namespace FishSocial.Desktop.JournalV2
             { var child=parent.GetChild(i).gameObject;child.SetActive(false);child.transform.SetParent(null,false);if(Application.isPlaying)UnityEngine.Object.Destroy(child);else UnityEngine.Object.DestroyImmediate(child); }
         }
         public static void Label(Button button,string text)
-        { var label=Visual(button)?.Find("Label")?.GetComponent<Text>();if(label!=null)label.text=text??""; }
+        { var label=Visual(button)?.Find("Label")?.GetComponent<Text>();if(label!=null)DesktopLocalization.SetText(label, text??""); }
         public static void Enabled(Button button,bool enabled)
         { if(button==null)return;button.interactable=enabled;button.GetComponent<JournalV2Button>()?.SetInteractable(enabled); }
         public static Text Facts(Transform parent,string name,float x,float y,float w,float h)
@@ -56,7 +56,7 @@ namespace FishSocial.Desktop.JournalV2
         public static Sprite Fish(string id)
         {
             id=DesktopGameData.ResolveSpeciesId(id);if(id=="largemouth_bass")id="black_bass";
-            return JournalV2Theme.Sprite("journal/illustrations/fish/"+id);
+            return JournalV2Theme.Sprite(DesktopLocalization.Concat("journal/illustrations/fish/", id));
         }
         public static Sprite Product(string kind,string id)
         {
@@ -64,12 +64,12 @@ namespace FishSocial.Desktop.JournalV2
             if(kind=="rod")switch(id){case "rod-bamboo":art="rod-bamboo";break;case "rod-tai":case "rod-stream":art="rod-light";break;case "rod-iso":case "rod-surf":case "rod-giant":art="rod-long";break;case "rod-lure":case "rod-heavy":art="rod-wood";break;}
             else if(kind=="bait")switch(id){case "bait-basic":art="bait-basic";break;case "bait-veg":art="bait-wheat";break;case "bait-mix":art="bait-mixed";break;case "bait-meat":art="bait-shrimp";break;}
             else art=id=="vessel-raft"||(id??"").Contains("wood")?"boat-wood":"boat-blue";
-            return art==null?null:JournalV2Theme.Sprite("journal/illustrations/items/"+art);
+            return art==null?null:JournalV2Theme.Sprite(DesktopLocalization.Concat("journal/illustrations/items/", art));
         }
         public static void Photo(RectTransform photo,Sprite art,string title,bool reveal)
         {
             var image=photo.Find("Visual/Art")?.GetComponent<Image>();if(image!=null){image.sprite=art;image.enabled=art!=null;image.preserveAspect=true;}
-            var caption=photo.Find("Visual/Caption")?.GetComponent<Text>();if(caption!=null)caption.text=title??"";
+            var caption=photo.Find("Visual/Caption")?.GetComponent<Text>();if(caption!=null)DesktopLocalization.SetText(caption, title??"");
             if(reveal)photo.GetComponent<JournalV2Polaroid>()?.PlayReveal(new Vector2(24,0),.26f,.3f);
         }
         public static bool Has(string[] values,string id) => values!=null && Array.IndexOf(values,id)>=0;

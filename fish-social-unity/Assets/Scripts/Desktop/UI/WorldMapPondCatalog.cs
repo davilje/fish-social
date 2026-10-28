@@ -85,7 +85,9 @@ namespace FishSocial.Desktop
                 });
             }
 
-            return list.ToArray();
+            var views = list.ToArray();
+            DesktopLocalization.BindData(views);
+            return views;
         }
 
         public static WorldMapPondDefinition[] Load()
@@ -105,6 +107,7 @@ namespace FishSocial.Desktop
                     Debug.LogError("[WorldMap] Pond catalog is missing the ponds array.");
                     return new WorldMapPondDefinition[0];
                 }
+                DesktopLocalization.BindData(document.ponds);
                 return document.ponds;
             }
             catch (Exception error)

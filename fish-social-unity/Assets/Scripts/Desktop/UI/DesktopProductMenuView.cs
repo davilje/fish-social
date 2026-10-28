@@ -151,11 +151,11 @@ namespace FishSocial.Desktop
                 var label = button != null ? DesktopModalUi.FindComponent<Text>(button.transform, "Label") : null;
                 if (button == null || label == null)
                 {
-                    Debug.LogError("[DesktopUI] ProductContextMenu requires MenuPanel/" + entry.Action + " Button/Label Text.", instance);
+                    Debug.LogError(DesktopLocalization.Concat(DesktopLocalization.Concat("[DesktopUI] ProductContextMenu requires MenuPanel/", entry.Action), " Button/Label Text."), instance);
                     valid = false;
                     continue;
                 }
-                label.text = entry.Label;
+                DesktopLocalization.SetText(label, entry.Label);
                 button.onClick.RemoveAllListeners();
                 var action = entry.Action;
                 button.onClick.AddListener(() => OnItemClicked(action));

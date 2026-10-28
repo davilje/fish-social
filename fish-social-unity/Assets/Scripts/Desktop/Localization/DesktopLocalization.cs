@@ -15,6 +15,7 @@ namespace FishSocial.Desktop
     {
         public const string Preference = "FishSocial.Language";
         static bool initialized;
+        static bool loading;
         static bool quitting;
         static DesktopLocalizationRuntime runtime;
         static readonly Dictionary<string, List<PrefabBinding>> prefabBindings = new Dictionary<string, List<PrefabBinding>>(StringComparer.Ordinal);
@@ -23,7 +24,7 @@ namespace FishSocial.Desktop
         static readonly List<DataFieldBinding> dataBindings = new List<DataFieldBinding>();
         static ConditionalWeakTable<object, HashSet<string>> boundDataFields = new ConditionalWeakTable<object, HashSet<string>>();
         static readonly HashSet<string> DataFields = new HashSet<string>(StringComparer.Ordinal)
-        { "name", "speciesName", "clueText", "title", "description", "desc", "realWorldRef", "subType" };
+        { "name", "displayName", "speciesName", "clueText", "title", "description", "desc", "realWorldRef", "subType", "theme" };
         public static event Action Changed;
 
         [Serializable] sealed class CatalogDocument { public LocalizationEntry[] entries; }
@@ -47,6 +48,7 @@ namespace FishSocial.Desktop
         {
             LocalizationCatalog.LanguageChanged -= OnLanguageChanged;
             initialized = false;
+            loading = false;
             quitting = false;
             runtime = null;
             prefabBindings.Clear();
@@ -62,30 +64,41 @@ namespace FishSocial.Desktop
 
         public static void EnsureInitialized()
         {
-            if (initialized) return;
-            initialized = true;
-            var asset = Resources.Load<TextAsset>("Localization/text-catalog");
-            var document = asset != null ? JsonUtility.FromJson<CatalogDocument>(asset.text) : null;
-            LocalizationCatalog.Load(document != null && document.entries != null ? document.entries : Array.Empty<LocalizationEntry>());
-            foreach (var entry in document != null && document.entries != null ? document.entries : Array.Empty<LocalizationEntry>())
-                catalogEntries[entry.key] = entry;
-            var bindings = Resources.Load<TextAsset>("Localization/prefab-bindings");
-            var bindingDocument = bindings != null ? JsonUtility.FromJson<BindingDocument>(bindings.text) : null;
-            foreach (var binding in bindingDocument != null && bindingDocument.prefabs != null ? bindingDocument.prefabs : Array.Empty<PrefabBinding>())
+            if (initialized || loading) return;
+            loading = true;
+            try
             {
-                if (binding == null || string.IsNullOrEmpty(binding.resource) || string.IsNullOrEmpty(binding.key)) continue;
-                if (!prefabBindings.TryGetValue(binding.resource, out var list))
-                    prefabBindings.Add(binding.resource, list = new List<PrefabBinding>());
-                list.Add(binding);
+                var asset = Resources.Load<TextAsset>("Localization/text-catalog");
+                var document = asset != null ? JsonUtility.FromJson<CatalogDocument>(asset.text) : null;
+                if (document == null || document.entries == null)
+                    throw new InvalidDataException("Resources/Localization/text-catalog.json is missing or invalid.");
+                var bindings = Resources.Load<TextAsset>("Localization/prefab-bindings");
+                var bindingDocument = bindings != null ? JsonUtility.FromJson<BindingDocument>(bindings.text) : null;
+                if (bindingDocument == null || bindingDocument.prefabs == null)
+                    throw new InvalidDataException("Resources/Localization/prefab-bindings.json is missing or invalid.");
+                LocalizationCatalog.Load(document.entries);
+                catalogEntries.Clear();
+                prefabBindings.Clear();
+                foreach (var entry in document.entries) catalogEntries[entry.key] = entry;
+                foreach (var binding in bindingDocument.prefabs)
+                {
+                    if (binding == null || string.IsNullOrEmpty(binding.resource) || string.IsNullOrEmpty(binding.key)) continue;
+                    if (!prefabBindings.TryGetValue(binding.resource, out var list))
+                        prefabBindings.Add(binding.resource, list = new List<PrefabBinding>());
+                    list.Add(binding);
+                }
+                LocalizationCatalog.LanguageChanged -= OnLanguageChanged;
+                LocalizationCatalog.SetLanguage(PlayerPrefs.GetString(Preference, "zh-CN"));
+                if (Application.isPlaying && !quitting && runtime == null)
+                {
+                    var root = new GameObject("DesktopLocalization");
+                    UnityEngine.Object.DontDestroyOnLoad(root);
+                    runtime = root.AddComponent<DesktopLocalizationRuntime>();
+                }
+                LocalizationCatalog.LanguageChanged += OnLanguageChanged;
+                initialized = true;
             }
-            LocalizationCatalog.SetLanguage(PlayerPrefs.GetString(Preference, "zh-CN"));
-            LocalizationCatalog.LanguageChanged += OnLanguageChanged;
-            if (Application.isPlaying && !quitting)
-            {
-                var root = new GameObject("DesktopLocalization");
-                UnityEngine.Object.DontDestroyOnLoad(root);
-                runtime = root.AddComponent<DesktopLocalizationRuntime>();
-            }
+            finally { loading = false; }
         }
 
         public static string Language { get { EnsureInitialized(); return LocalizationCatalog.Language; } }
@@ -98,8 +111,16 @@ namespace FishSocial.Desktop
             LocalizationCatalog.SetLanguage(normalized);
         }
 
-        public static string Text(string key, string fallback = null) { EnsureInitialized(); return LocalizationCatalog.Text(key, fallback); }
-        public static string Format(string key, params object[] args) { EnsureInitialized(); return LocalizationCatalog.Format(key, args); }
+        // Render plans may be created by MonoBehaviour field initializers during asset
+        // import. Unity APIs are deferred until BeforeSceneLoad or an explicit display bind.
+        public static string Text(string key, string fallback = null) { return LocalizationCatalog.Text(key, fallback); }
+        public static string Format(string key, params object[] args) { return LocalizationCatalog.Format(key, args); }
+        public static string Concat(params object[] values) { return LocalizationCatalog.Concat(values); }
+        public static string Join(string separator, IEnumerable<string> values) { return LocalizationCatalog.Join(separator, values); }
+        public static string Trim(string value) { return LocalizationCatalog.Trim(value); }
+        public static string Transform(string value, Func<string, string> transformation) { return LocalizationCatalog.Transform(value, transformation); }
+        public static string FormatDate(string key, DateTime value) { return LocalizationCatalog.FormatDate(key, value); }
+        public static string FormatDate(string key, DateTimeOffset value) { return LocalizationCatalog.FormatDate(key, value); }
         public static string Message(string raw) { EnsureInitialized(); return LocalizationCatalog.TranslateMessage(raw); }
         public static string Data(string raw) { EnsureInitialized(); return LocalizationCatalog.BySource(raw); }
 
@@ -152,6 +173,9 @@ namespace FishSocial.Desktop
                 if (binding == null) binding = target.gameObject.AddComponent<DesktopLocalizedText>();
                 textBindings[target] = binding;
             }
+            // UI authoring helpers also run in the editor. This runtime helper must
+            // never become a serialized component of their saved scene/prefab assets.
+            binding.hideFlags |= HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
             binding.Bind(target, value);
             return value;
         }

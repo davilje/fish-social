@@ -78,7 +78,7 @@ namespace FishSocialOverlay
         }
         void WaterDiagnostic(string reason)
         {
-            if (_waterDiagnostics.Add(reason)) LatencyTrace.Write("waterFx actor=" + ActorKey + " skip=" + reason);
+            if (_waterDiagnostics.Add(reason)) LatencyTrace.Write(OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat("waterFx actor=", ActorKey), " skip="), reason));
         }
         readonly Rectangle _hitCatcher;
         readonly TextBlock _sleepLabel;
@@ -211,7 +211,7 @@ namespace FishSocialOverlay
                 Stroke = null,
                 IsHitTestVisible = true,
             };
-            _nickname = new TextBlock
+            _nickname = OverlayLocalization.Track(new TextBlock
             {
                 Foreground = CozyTheme.Ink,
                 FontSize = 11,
@@ -220,7 +220,7 @@ namespace FishSocialOverlay
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-            };
+            });
             _nameBadge = CreateTextBadge(_nickname, new Thickness(0, 2, 0, 0));
             _nameBadge.IsHitTestVisible = false;
             _speechLabel = CreateBubbleLabel(11);
@@ -314,7 +314,7 @@ namespace FishSocialOverlay
             _waterEffects = new OverlayWaterEffects(_waterBack, _waterFront);
             _waterEffects.MarkerPublished += (cue, occurrence, key) => WaterMarkerPublished?.Invoke(this, cue, occurrence, key,
                 OverlayWaterEffectsPolicy.Tier(_waterEffects.Policy.Envelope?.WaterSizeTier));
-            _sleepLabel = new TextBlock
+            _sleepLabel = OverlayLocalization.Track(new TextBlock
             {
                 Text = "Z z z",
                 FontSize = 18,
@@ -324,7 +324,7 @@ namespace FishSocialOverlay
                 VerticalAlignment = VerticalAlignment.Top,
                 IsHitTestVisible = false,
                 Visibility = Visibility.Collapsed
-            };
+            });
             _body.Children.Add(_sleepLabel);
 
             _stage = new Grid
@@ -532,7 +532,7 @@ namespace FishSocialOverlay
 
         MenuItem CreateMenuItem(string header, bool enabled, Action action)
         {
-            var item = new MenuItem { Header = header, IsEnabled = enabled };
+            var item = OverlayLocalization.Track(new MenuItem { Header = header, IsEnabled = enabled });
             if (header == "查看资料" || header == "私聊") OverlayUiAudio.SetCue(item, "none");
             CozyTheme.SetIcon(item, CozyTheme.IconPath(CozyTheme.IconFor(header)));
             if (enabled)
@@ -561,7 +561,7 @@ namespace FishSocialOverlay
             if (_disposed) return;
             var nextName = string.IsNullOrWhiteSpace(nickname) ? OverlayLocalization.Text("ui.home.pet_actor.name.default", "玩家") : nickname;
             var layoutChanged = nextName != _nickname.Text;
-            if (layoutChanged) _nickname.Text = nextName;
+            if (layoutChanged) OverlayLocalization.SetText(_nickname, nextName);
             var oldPhase = _fishingPhase;
             var sleepChanged = _fishingAsleep != fishingAsleep;
             _fishingAsleep = fishingAsleep;
@@ -1528,7 +1528,7 @@ namespace FishSocialOverlay
             var durationLine = BuildHoverDurationLine();
             if (string.IsNullOrEmpty(durationLine))
                 return catchLine;
-            return durationLine + "\n" + catchLine;
+            return OverlayLocalization.Concat(OverlayLocalization.Concat(durationLine, "\n"), catchLine);
         }
 
         string BuildHoverDurationLine()
@@ -1738,7 +1738,7 @@ namespace FishSocialOverlay
             if (resources?.Source?.Frames == null) { WaterDiagnostic("resources-not-ready-no-replay"); return; }
             if (_waterEffects.Policy.Envelope == null) { WaterDiagnostic("old-ipc-no-envelope"); return; }
             var source = clip.SourceIndex(frame);
-            if (!resources.Source.Frames.TryGetValue(_layeredClip + "/" + source, out var layers)) return;
+            if (!resources.Source.Frames.TryGetValue(OverlayLocalization.Concat(OverlayLocalization.Concat(_layeredClip, "/"), source), out var layers)) return;
             var surface = WaterSurfaceY;
             _waterEffects.SetSurface(surface);
             var slotScale = _body.Width / 128.0; // logical DIP; Windows DPI is not multiplied again
@@ -1798,21 +1798,21 @@ namespace FishSocialOverlay
                 bool touching;
                 if (submerged)
                 {
-                    if (!_hookedBobberContact.HasValue) { WaterDiagnostic(cue + ":no-line-water-contact"); return false; }
+                    if (!_hookedBobberContact.HasValue) { WaterDiagnostic(OverlayLocalization.Concat(cue, ":no-line-water-contact")); return false; }
                     anchor = _hookedBobberContact.Value;
                     touching = true;
                     _waterEffects.Policy.Envelope.WaterSizeTier = "S";
                 }
                 else
                 {
-                    if (!Bounds(layer, out var bounds)) { WaterDiagnostic(cue + ":missing-source-bounds"); return false; }
+                    if (!Bounds(layer, out var bounds)) { WaterDiagnostic(OverlayLocalization.Concat(cue, ":missing-source-bounds")); return false; }
                     touching = Contact(layer, bounds, out anchor);
                     if (layer == "fish" && slotScale > 0)
                         _waterEffects.Policy.Envelope.WaterSizeTier = OverlayWaterEffectsPolicy.VisibleTier(bounds.Width / slotScale);
                 }
                 var emitted = _waterEffects.Publish(cue, _fishingPhase, occurrence, anchor, slotScale, touching);
                 if (!emitted && _waterEffects.Policy.LastRejection != null)
-                    WaterDiagnostic(cue + ":" + _waterEffects.Policy.LastRejection);
+                    WaterDiagnostic(OverlayLocalization.Concat(OverlayLocalization.Concat(cue, ":"), _waterEffects.Policy.LastRejection));
                 return emitted;
             }
             if ((_layeredClip == "hooked" || _layeredClip == "bite" || _layeredClip == "effort") &&
@@ -1907,7 +1907,7 @@ namespace FishSocialOverlay
             }
             var source = _layered?.SourceIndex(frame) ?? frame;
             if (_waterSourceGeometry?.Frames == null ||
-                !_waterSourceGeometry.Frames.TryGetValue(_layeredClip + "/" + source, out var layers) ||
+                !_waterSourceGeometry.Frames.TryGetValue(OverlayLocalization.Concat(OverlayLocalization.Concat(_layeredClip, "/"), source), out var layers) ||
                 !layers.TryGetValue("line", out var data) || data.RowCenters == null) return false;
             Point? previous = null;
             foreach (var row in data.RowCenters)
@@ -2194,7 +2194,7 @@ namespace FishSocialOverlay
             var totalSeconds = Math.Max(0, ms) / 1000;
             var minutes = totalSeconds / 60;
             var seconds = totalSeconds % 60;
-            return minutes + ":" + seconds.ToString("00");
+            return OverlayLocalization.Concat(OverlayLocalization.Concat(minutes, ":"), seconds.ToString("00"));
         }
 
         public static Color StateColor(string visualState)
@@ -2253,7 +2253,7 @@ namespace FishSocialOverlay
             _speechBadge.BeginAnimation(UIElement.OpacityProperty, null);
             _speechBadge.Opacity = 1;
             _speechBadge.Visibility = Visibility.Collapsed;
-            _speechLabel.Text = string.Empty;
+            OverlayLocalization.SetText(_speechLabel, string.Empty);
             RelayoutAndPlace();
         }
 
@@ -2262,7 +2262,7 @@ namespace FishSocialOverlay
             _hintBadge.BeginAnimation(UIElement.OpacityProperty, null);
             _hintBadge.Opacity = 1;
             _hintBadge.Visibility = Visibility.Collapsed;
-            _hintLabel.Text = string.Empty;
+            OverlayLocalization.SetText(_hintLabel, string.Empty);
             RelayoutAndPlace();
         }
 
@@ -2357,7 +2357,7 @@ namespace FishSocialOverlay
 
         static TextBlock CreateBubbleLabel(double fontSize)
         {
-            return new TextBlock
+            return OverlayLocalization.Track(new TextBlock
             {
                 Foreground = CozyTheme.Ink,
                 FontSize = fontSize,
@@ -2366,7 +2366,7 @@ namespace FishSocialOverlay
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-            };
+            });
         }
 
         static Border CreateSpeechBadge(TextBlock label)
@@ -2441,7 +2441,7 @@ namespace FishSocialOverlay
         {
             var state = NormalizeClip(visualState);
             var id = petId ?? string.Empty;
-            var key = id + "|" + state;
+            var key = OverlayLocalization.Concat(OverlayLocalization.Concat(id, "|"), state);
             if (Cache.TryGetValue(key, out var frames))
                 return frames;
 
@@ -2461,7 +2461,7 @@ namespace FishSocialOverlay
             var id = NormalizePetId(petId);
             var directory = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                 "OverlayResources", "hud", "cozy", "characters", "avatars");
-            var filename = System.IO.Path.Combine(directory, id + ".png");
+            var filename = System.IO.Path.Combine(directory, OverlayLocalization.Concat(id, ".png"));
             if (!File.Exists(filename))
                 filename = System.IO.Path.Combine(directory, "orange.png");
             if (!File.Exists(filename))

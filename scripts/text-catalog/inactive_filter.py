@@ -18,7 +18,7 @@ RULES_PATH = Path(__file__).with_name('inactive-sources.json')
 
 def source_signature(key, source):
     return (legacy_key(key), source['file'], source['kind'], source['location'],
-            hashlib.sha256(source.get('expression', '').encode('utf-8')).hexdigest())
+            source.get('reviewExpressionSha256') or hashlib.sha256(source.get('expression', '').encode('utf-8')).hexdigest())
 
 
 def filter_catalog(catalog):

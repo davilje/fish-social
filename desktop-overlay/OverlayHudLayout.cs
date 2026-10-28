@@ -197,8 +197,8 @@ namespace FishSocialOverlay
             }
             catch (Exception ex)
             {
-                LastLoadError = "JSON 解析失败：" + ex.Message;
-                System.Diagnostics.Debug.WriteLine("[OverlayHud] Parse failed: " + ex.Message);
+                LastLoadError = OverlayLocalization.Concat("JSON 解析失败：", ex.Message);
+                System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat("[OverlayHud] Parse failed: ", ex.Message));
                 return false;
             }
 
@@ -214,8 +214,7 @@ namespace FishSocialOverlay
             {
                 LastLoadError = "画布尺寸必须是 960×560";
                 System.Diagnostics.Debug.WriteLine(
-                    "[OverlayHud] Canvas size must be 960x560, got " +
-                    document.width + "x" + document.height + ".");
+                    OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat("[OverlayHud] Canvas size must be 960x560, got ", document.width), "x"), document.height), "."));
                 return false;
             }
 
@@ -226,8 +225,8 @@ namespace FishSocialOverlay
                     continue;
                 if (byId.ContainsKey(widget.id))
                 {
-                    LastLoadError = "重复的 widget id：" + widget.id;
-                    System.Diagnostics.Debug.WriteLine("[OverlayHud] Duplicate widget id: " + widget.id);
+                    LastLoadError = OverlayLocalization.Concat("重复的 widget id：", widget.id);
+                    System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat("[OverlayHud] Duplicate widget id: ", widget.id));
                     return false;
                 }
                 byId[widget.id] = widget;
@@ -237,8 +236,8 @@ namespace FishSocialOverlay
             {
                 if (!byId.ContainsKey(required))
                 {
-                    LastLoadError = "缺少必需控件：" + required;
-                    System.Diagnostics.Debug.WriteLine("[OverlayHud] Missing required widget: " + required);
+                    LastLoadError = OverlayLocalization.Concat("缺少必需控件：", required);
+                    System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat("[OverlayHud] Missing required widget: ", required));
                     return false;
                 }
             }
@@ -249,9 +248,9 @@ namespace FishSocialOverlay
                     continue;
                 if (!byId.ContainsKey(widget.parentId))
                 {
-                    LastLoadError = widget.id + " 的 parentId 无效：" + widget.parentId;
+                    LastLoadError = OverlayLocalization.Concat(OverlayLocalization.Concat(widget.id, " 的 parentId 无效："), widget.parentId);
                     System.Diagnostics.Debug.WriteLine(
-                        "[OverlayHud] Unknown parentId " + widget.parentId + " for " + widget.id);
+                        OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat("[OverlayHud] Unknown parentId ", widget.parentId), " for "), widget.id));
                     return false;
                 }
             }
@@ -284,9 +283,9 @@ namespace FishSocialOverlay
             {
                 if (widget.w <= 0 || widget.h <= 0)
                 {
-                    LastLoadError = widget.id + " 尺寸无效：" + widget.w + "×" + widget.h;
+                    LastLoadError = OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat(widget.id, " 尺寸无效："), widget.w), "×"), widget.h);
                     System.Diagnostics.Debug.WriteLine(
-                        "[OverlayHud] Invalid size for " + widget.id + ": " + widget.w + "x" + widget.h);
+                        OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat("[OverlayHud] Invalid size for ", widget.id), ": "), widget.w), "x"), widget.h));
                     return false;
                 }
 
@@ -372,13 +371,13 @@ namespace FishSocialOverlay
             window.ConfigureHudChatDockMetrics(ChatDockMetrics);
             window.ConfigureHudLayoutMode(true);
             IsActive = true;
-            System.Diagnostics.Debug.WriteLine("[OverlayHud] Applied " + applied + " widgets (chat nested).");
+            System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat(OverlayLocalization.Concat("[OverlayHud] Applied ", applied), " widgets (chat nested)."));
             return true;
             }
             catch (Exception ex)
             {
-                LastLoadError = "HUD 应用失败：" + ex.Message;
-                System.Diagnostics.Debug.WriteLine("[OverlayHud] Apply failed: " + ex);
+                LastLoadError = OverlayLocalization.Concat("HUD 应用失败：", ex.Message);
+                System.Diagnostics.Debug.WriteLine(OverlayLocalization.Concat("[OverlayHud] Apply failed: ", ex));
                 IsActive = false;
                 return false;
             }
@@ -903,7 +902,7 @@ namespace FishSocialOverlay
             else if (element.Parent is Decorator decorator && decorator.Child == element)
                 decorator.Child = null;
             else if (element.Parent is ContentControl content && content.Content == element)
-                content.Content = null;
+                OverlayLocalization.SetContent(content, null);
         }
 
         static void NormalizeForCanvas(FrameworkElement element)
@@ -936,7 +935,19 @@ namespace FishSocialOverlay
             if (!(element is Button button))
                 return;
 
-            button.Content = widget.label;
+            // Bind the three authored HUD labels by control identity. Runtime
+            // status labels already carry their own translation plan.
+            var label = widget.label;
+            if (!FishSocial.Localization.LocalizationCatalog.IsLocalized(label))
+            {
+                switch (widget.id)
+                {
+                    case "btn_groundbait": label = OverlayLocalization.Text("ui.fishing.hud.config_button.groundbait", label); break;
+                    case "btn_fishing_toggle": label = OverlayLocalization.Text("ui.fishing.hud.config_button.start_fishing", label); break;
+                    case "btn_catch_leave": label = OverlayLocalization.Text("ui.fishing.hud.config_button.leave_seat", label); break;
+                }
+            }
+            OverlayLocalization.SetContent(button, label);
         }
 
         static void ApplyStaticTextLabel(FrameworkElement element, OverlayHudWidgetDto widget)
@@ -948,7 +959,7 @@ namespace FishSocialOverlay
             if (!(element is TextBlock textBlock))
                 return;
 
-            textBlock.Text = widget.label;
+            OverlayLocalization.SetText(textBlock, widget.label);
         }
 
         void ApplyChatInputChrome(
@@ -1157,7 +1168,7 @@ namespace FishSocialOverlay
             {
                 CozyTheme.SetIconAngle(button, 0);
                 CozyTheme.SetIcon(button, expanded ? null : CozyTheme.IconPath("social"));
-                button.Content = expanded
+                OverlayLocalization.SetContent(button, expanded
                     ? new System.Windows.Shapes.Path
                     {
                         Data = Geometry.Parse("M0,0 L5,5 L10,0"),
@@ -1172,8 +1183,8 @@ namespace FishSocialOverlay
                         VerticalAlignment = VerticalAlignment.Center,
                         IsHitTestVisible = false,
                     }
-                    : (object)string.Empty;
-                button.ToolTip = expanded ? OverlayLocalization.Text("ui.fishing.hud_layout.tooltip.collapse_chat", "收起聊天") : OverlayLocalization.Text("ui.fishing.hud_layout.tooltip.expand_chat", "展开聊天");
+                    : (object)string.Empty);
+                OverlayLocalization.SetToolTip(button, expanded ? OverlayLocalization.Text("ui.fishing.hud_layout.tooltip.collapse_chat", "收起聊天") : OverlayLocalization.Text("ui.fishing.hud_layout.tooltip.expand_chat", "展开聊天"));
             }
         }
 
@@ -1576,7 +1587,7 @@ namespace FishSocialOverlay
             if (!File.Exists(fontPath))
             {
                 System.Diagnostics.Debug.WriteLine(
-                    "[OverlayHud] Missing font for " + widgetId + ": " + fontPath + " (using system font)");
+                    OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat("[OverlayHud] Missing font for ", widgetId), ": "), fontPath), " (using system font)"));
                 return null;
             }
 
@@ -1584,14 +1595,14 @@ namespace FishSocialOverlay
             {
                 var uri = new Uri(Path.GetFullPath(fontPath), UriKind.Absolute);
                 var familyName = Path.GetFileNameWithoutExtension(fontFile);
-                var family = new FontFamily(uri, "./#" + familyName);
+                var family = new FontFamily(uri, OverlayLocalization.Concat("./#", familyName));
                 _fontCache[fontPath] = family;
                 return family;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(
-                    "[OverlayHud] Font load failed for " + widgetId + ": " + ex.Message);
+                    OverlayLocalization.Concat(OverlayLocalization.Concat(OverlayLocalization.Concat("[OverlayHud] Font load failed for ", widgetId), ": "), ex.Message));
                 return null;
             }
         }

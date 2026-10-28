@@ -30,7 +30,7 @@ namespace FishSocial.Desktop.Social
                        "\n鱼塘：" + (_controller.CurrentPondId ?? "—");
             if (!string.IsNullOrEmpty(message))
                 text += "\n" + message;
-            _content.text = text;
+            DesktopLocalization.SetText(_content, text);
         }
 
         void OnMembersChanged(IReadOnlyList<string> members)

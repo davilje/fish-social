@@ -22,7 +22,7 @@ namespace FishSocial.Desktop.JournalV2
         public virtual void Bind(JournalV2App app,JournalV2Page page) {App=app;Page=page;}
         public virtual void Open(int tab=0,string targetId=null) {++Generation;}
         public virtual void Close() {++Generation;StopAllCoroutines();}
-        protected void Error(string message) {if(Page!=null && Page.Status!=null)Page.Status.text=message??"暂时无法加载，请重试。";}
+        protected void Error(string message) {if(Page!=null && Page.Status!=null)DesktopLocalization.SetText(Page.Status, DesktopLocalization.Message(message??"暂时无法加载，请重试。"));}
     }
 
     public static partial class JournalV2Pages
@@ -36,7 +36,7 @@ namespace FishSocial.Desktop.JournalV2
             var dots=JournalV2Nodes.Image(root,"Dots",JournalV2Theme.Sprite("textures/paper-dots"),24,24,1322,602);dots.type=Image.Type.Tiled;dots.preserveAspect=false;
             JournalV2Nodes.Image(root,"Stitch",JournalV2Theme.Sprite("decor/page-stitch"),10,10,1350,630);
             var header=JournalV2Nodes.Rect(root,"Header",0,0,1370,96);
-            JournalV2Nodes.Image(header,"Icon",JournalV2Theme.Sprite("icons/"+icon),34,26,44,44);
+            JournalV2Nodes.Image(header,"Icon",JournalV2Theme.Sprite(DesktopLocalization.Concat("icons/", icon)),34,26,44,44);
             var underline=JournalV2Nodes.Plate(header,"Underline",92,53,Mathf.Max(68,title.Length*34)+16,15,new Color(accent.r,accent.g,accent.b,.45f),3,0);underline.ShadowColor=Color.clear;
             page.HeaderTitle=JournalV2Nodes.Text(header,"Title",title,92,22,310,50,34);
             JournalV2Nodes.Text(header,"Subtitle",subtitle,380,36,850,26,18).color=JournalV2Theme.Soft;
@@ -50,7 +50,7 @@ namespace FishSocial.Desktop.JournalV2
             var aside=JournalV2Nodes.Plate(page.Aside,"Paper",0,0,362,496,new Color(255/255f,253/255f,247/255f,.92f),16,2);aside.BorderColor=new Color32(239,223,196,255);aside.ShadowColor=Color.clear;
             page.Heading=JournalV2Nodes.Text(page.Body,"Heading",title,254,114,710,40,24);
             page.Status=JournalV2Nodes.Text(page.Body,"Status","",254,610,1068,26,16);page.Status.color=JournalV2Theme.Soft;
-            for(var i=0;i<3;i++)JournalV2Nodes.Image(root,"Ring"+i,JournalV2Theme.Sprite("decor/binder-ring"),-34,140+160*i,74,44);
+            for(var i=0;i<3;i++)JournalV2Nodes.Image(root,DesktopLocalization.Concat("Ring", i),JournalV2Theme.Sprite("decor/binder-ring"),-34,140+160*i,74,44);
             header.SetAsLastSibling();
             var animator=root.gameObject.AddComponent<JournalV2PageAnimator>();animator.Configure(page.Body,page.HeaderTitle.rectTransform,page.Rail,page.Middle,page.Aside);
             return page;

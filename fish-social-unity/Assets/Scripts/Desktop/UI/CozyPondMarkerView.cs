@@ -44,7 +44,7 @@ namespace FishSocial.Desktop
             _pill = transform.Find("LabelPill")?.gameObject;
             if (_label != null)
             {
-                _label.text = name; _label.raycastTarget = false;
+                DesktopLocalization.SetText(_label, name); _label.raycastTarget = false;
                 _label.horizontalOverflow = HorizontalWrapMode.Overflow;
                 _label.verticalOverflow = VerticalWrapMode.Truncate;
                 _label.resizeTextForBestFit = false;

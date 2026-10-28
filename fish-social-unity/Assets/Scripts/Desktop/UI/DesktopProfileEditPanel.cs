@@ -148,7 +148,7 @@ namespace FishSocial.Desktop
             for (var i = 0; i < tabLabels.Length; i++)
             {
                 var target = (DesktopProfileHubPanel.HubTab)i;
-                BindWorkspaceButton("JournalEditRail/Tab_" + tabLabels[i], () => NavigateProfileTab(target));
+                BindWorkspaceButton(DesktopLocalization.Concat("JournalEditRail/Tab_", tabLabels[i]), () => NavigateProfileTab(target));
             }
             BindWorkspaceButton("WorkspaceAvatarTab", () => SelectWorkspaceTab(false));
             BindWorkspaceButton("WorkspaceShowcaseTab", () => SelectWorkspaceTab(true));
@@ -268,9 +268,9 @@ namespace FishSocial.Desktop
             if (profile == null)
                 return;
             if (_nickname != null)
-                _nickname.text = profile.nickname ?? "";
+                DesktopLocalization.SetText(_nickname, profile.nickname ?? "");
             if (_bio != null)
-                _bio.text = profile.bio ?? "";
+                DesktopLocalization.SetText(_bio, profile.bio ?? "");
             _avatarUrl = DesktopDefaultAvatars.NormalizeAssetPath(profile.avatarUrl) ?? "";
             _slots = DesktopProfileCache.Slots(profile);
             RenderAvatars();
@@ -280,7 +280,7 @@ namespace FishSocial.Desktop
         void UpdateJournalBio(string value)
         {
             CozyItemArt.Text(transform, "JournalPreview/Bio", value);
-            CozyItemArt.Text(transform, "Form/BioCount", (value ?? "").Length + " / " + BioLimit);
+            CozyItemArt.Text(transform, "Form/BioCount", DesktopLocalization.Concat(DesktopLocalization.Concat((value ?? "").Length, " / "), BioLimit));
         }
 
         void UpdateJournalPreview(string value)
@@ -303,12 +303,12 @@ namespace FishSocial.Desktop
                 var go = WorkspaceChoice("WorkspaceAvatarTemplate", "AvatarChoice", _avatars);
                 if (go == null)
                     continue;
-                go.name = "Avatar_" + entry.Id;
+                go.name = DesktopLocalization.Concat("Avatar_", entry.Id);
                 CozyItemArt.Set(go.transform, "DesignItemArt", DesktopDefaultAvatars.Portrait(entry.Path));
                 var labelNode = DesktopUiPrefabFactory.Child(go, "Label");
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
-                    label.text = entry.Label;
+                    DesktopLocalization.SetText(label, entry.Label);
                 StyleChoice(go, entry.Path == _avatarUrl);
                 var button = go.GetComponent<Button>();
                 CozyWorkspaceInteraction.Bind(button, CozyWorkspaceInteraction.Kind.Avatar, go.transform.Find("DesignItemArt")?.GetComponent<Graphic>());
@@ -328,7 +328,7 @@ namespace FishSocial.Desktop
             UpdateJournalPreview(_nickname != null ? _nickname.text : "");
             foreach (var entry in DesktopDefaultAvatars.All)
             {
-                var card = _avatars != null ? _avatars.Find("Avatar_" + entry.Id) : null;
+                var card = _avatars != null ? _avatars.Find(DesktopLocalization.Concat("Avatar_", entry.Id)) : null;
                 if (card != null) StyleChoice(card.gameObject, entry.Path == _avatarUrl);
             }
             SetStatus(DesktopLocalization.Format("ui.profile.edit.status.avatar_selected", (object)(DesktopDefaultAvatars.LabelFor(_avatarUrl))));
@@ -346,12 +346,12 @@ namespace FishSocial.Desktop
                 var slot = WorkspaceChoice("WorkspaceSlotTemplate", "ShowcaseSlot", _showcase);
                 if (slot == null)
                     continue;
-                slot.name = "Slot" + i;
+                slot.name = DesktopLocalization.Concat("Slot", i);
                 CozyItemArt.Set(slot.transform, "DesignItemArt", fish != null ? CozyItemArt.Fish(fish.speciesId) : null);
                 var labelNode = DesktopUiPrefabFactory.Child(slot, "Label");
                 var label = labelNode != null ? labelNode.GetComponent<Text>() : null;
                 if (label != null)
-                    label.text = fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜");
+                    DesktopLocalization.SetText(label, fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜"));
                 CozyItemArt.Text(slot.transform, "WorkspaceSlot", (i + 1).ToString("00"));
                 CozyItemArt.Text(slot.transform, "WorkspaceMeta", fish != null ? DesktopLocalization.Format("ui.profile.edit.showcase.label.replace_length", (object)(fish.sizeM.ToString("0.00"))) : DesktopLocalization.Text("ui.profile.edit.showcase.hint.choose_catch", "点击选择鱼获"));
                 var empty = slot.transform.Find("WorkspaceEmpty"); if (empty != null) empty.gameObject.SetActive(fish == null);
@@ -425,11 +425,11 @@ namespace FishSocial.Desktop
                 if (query.Length > 0 && name.IndexOf(query, System.StringComparison.OrdinalIgnoreCase) < 0) continue;
                 var row = WorkspaceChoice("WorkspacePickerTemplate", "ShowcaseSlot", _pickerContent);
                 if (row == null) continue;
-                row.name = "Fish_" + item.id;
+                row.name = DesktopLocalization.Concat("Fish_", item.id);
                 count++;
                 CozyItemArt.Text(row.transform, "Label", name);
                 CozyItemArt.Text(row.transform, "WorkspaceMeta", DesktopLocalization.Format("ui.profile.edit.picker.label.length_weight", (object)(item.sizeM.ToString("0.00")), (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)))));
-                CozyItemArt.Text(row.transform, "WorkspaceRecord", RecordTime(item.caughtAt) + " · " + PondName(item.pondId));
+                CozyItemArt.Text(row.transform, "WorkspaceRecord", DesktopLocalization.Concat(DesktopLocalization.Concat(RecordTime(item.caughtAt), " · "), PondName(item.pondId)));
                 CozyItemArt.Set(row.transform, "DesignItemArt", CozyItemArt.Fish(item.speciesId));
                 StyleChoice(row, item.id == _pendingFishId);
                 var button = row.GetComponent<Button>();
@@ -445,7 +445,7 @@ namespace FishSocial.Desktop
                 if (empty != null)
                 {
                     var text = empty.GetComponentInChildren<Text>(true);
-                    if (text != null) text.text = query.Length == 0 ? DesktopLocalization.Text("ui.profile.edit.picker.empty.inventory", "背包没有可展示的鱼获。") : DesktopLocalization.Text("ui.profile.edit.picker.empty.search", "没有找到这种鱼，换个名字试试。");
+                    if (text != null) DesktopLocalization.SetText(text, query.Length == 0 ? DesktopLocalization.Text("ui.profile.edit.picker.empty.inventory", "背包没有可展示的鱼获。") : DesktopLocalization.Text("ui.profile.edit.picker.empty.search", "没有找到这种鱼，换个名字试试。"));
                 }
             }
             var selected = FindFish(_pendingFishId);
@@ -671,8 +671,8 @@ namespace FishSocial.Desktop
         }
 
         void SetStatus(string message)
-        {
-            if (_status != null) _status.text = message ?? string.Empty;
+        { message = DesktopLocalization.Message(message);
+            if (_status != null) DesktopLocalization.SetText(_status, DesktopLocalization.Message(message ?? string.Empty));
             if (_retry != null) _retry.gameObject.SetActive(_lastSaveFailed || (!_ready && _loadRoutine == null && !string.IsNullOrEmpty(message)));
             if (_save != null) _save.interactable = !_busy && _ready;
             if (_back != null) _back.interactable = !_busy;
@@ -873,7 +873,7 @@ namespace FishSocial.Desktop
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
             var label = go.GetComponent<Text>();
-            label.text = text;
+            DesktopLocalization.SetText(label, text);
             label.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = size;
             label.color = CatTheme.Ink;

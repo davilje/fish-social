@@ -56,19 +56,19 @@ namespace FishSocial.Desktop
             switch (id)
             {
                 case DesktopModalId.Social:
-                    _title.text = "好友与聊天";
+                    DesktopLocalization.SetText(_title, "好友与聊天");
                     _social.OnOpened();
                     break;
                 case DesktopModalId.CatchBag:
-                    _title.text = "鱼获 / 背包";
+                    DesktopLocalization.SetText(_title, "鱼获 / 背包");
                     _catchBag.OnOpened();
                     break;
                 case DesktopModalId.Gallery:
-                    _title.text = "图鉴";
+                    DesktopLocalization.SetText(_title, "图鉴");
                     _gallery.OnOpened();
                     break;
                 case DesktopModalId.Settings:
-                    _title.text = "设置";
+                    DesktopLocalization.SetText(_title, "设置");
                     _settings.OnOpened();
                     break;
             }

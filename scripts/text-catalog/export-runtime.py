@@ -43,15 +43,28 @@ class Prefab:
         """Resolve an asset reference, including references inherited by a variant."""
         guid=reference.get('guid',self.guid)
         oid=file_id(reference)
-        if guid==self.guid:
+        if guid==self.guid and oid in self.objects:
             return self.node_chain(oid)
+        if guid==self.guid:
+            # Unity omits unmodified inherited objects from YAML. Their local
+            # IDs are the source ID XOR the containing PrefabInstance ID; a
+            # later prefab can still override such an omitted GameObject.
+            candidates=[]
+            for instance,(kind,data) in self.objects.items():
+                if kind!='PrefabInstance':continue
+                base_guid=data['m_SourcePrefab']['guid']
+                original=str(int(oid)^int(instance))
+                try:chain=self.instance_chain(instance,{'guid':base_guid,'fileID':original})
+                except KeyError:continue
+                candidates.append(chain)
+            if len(candidates)==1:return candidates[0]
+            raise KeyError(f'Implicit asset reference {guid}:{oid} has {len(candidates)} resolutions in {self.path}')
         # A variant's inherited objects can still be addressed in the base asset.
         # Follow its root instance instead of guessing from names or matching IDs
         # belonging to a different asset.
         candidates=[]
         for instance,(kind,data) in self.objects.items():
             if kind!='PrefabInstance' or file_id(data['m_Modification'].get('m_TransformParent'))!='0':continue
-            base=prefab(guid_paths()[data['m_SourcePrefab']['guid']])
             try:
                 chain=self.instance_chain(instance,reference)
             except KeyError:
@@ -73,7 +86,10 @@ class Prefab:
             # Preserve identities through every inheritance layer. Overrides can
             # target a stripped GameObject in an intermediate variant, whose
             # local file ID need not equal the original object's file ID.
-            aliases=aliases|frozenset(local for source,local in self.instance_aliases.get(oid,[]) if source in aliases)
+            local=frozenset(local for source,local in self.instance_aliases.get(oid,[]) if source in aliases)
+            if not local:
+                local=frozenset((self.guid,str(int(source)^int(oid))) for guid,source in aliases if guid==base.guid)
+            aliases=aliases|local
             for target,value in renames:
                 if target in aliases:name=value
             result.append((name,aliases))
@@ -132,7 +148,7 @@ def main():
             for v in s.get('variables',[]):
                 if re.search(r'(species|qualityInfo|pond|speciesName|qualityName|pondName)',v['expression'],re.I)and not re.search(r'nickname|player|user',v['expression'],re.I):data_args.add(v['index'])
         if data_args:item['dataArguments']=sorted(data_args)
-        if any(s['location']in {'QualityRankLabel','DietLabel','CatchGroupLabel','RarityLabel'}or('DesktopFishCatalog.cs'in s['file']and e['sourceText']in {'普通','优良','稀有','史诗','传说','神话','至尊'})for s in e['sources']):item['dataText']=True
+        if any(s['location']in {'QualityRankLabel','DietLabel','CatchGroupLabel','RarityLabel'}or s['file'].endswith(('WorldMapPonds.json','ProfileHubAchievements.json'))or('DesktopFishCatalog.cs'in s['file']and e['sourceText']in {'普通','优良','稀有','史诗','传说','神话','至尊'})for s in e['sources']):item['dataText']=True
         if not item['enUS'].strip():raise ValueError('Missing English: '+e['key'])
         entries.append(item)
         for source in e['sources']:

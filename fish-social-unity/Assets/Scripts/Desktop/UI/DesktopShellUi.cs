@@ -77,13 +77,13 @@ namespace FishSocial.Desktop
         public IAuthenticatedApiClient AuthenticatedApi => _authenticatedApi;
 
         public void SetStatusMessage(string message)
-        {
+        { message = DesktopLocalization.Message(message);
             if (string.IsNullOrEmpty(message))
                 return;
             if (_statusPond != null)
-                _statusPond.text = message;
+                DesktopLocalization.SetText(_statusPond, DesktopLocalization.Message(message));
             else if (_statusConnection != null)
-                _statusConnection.text = message;
+                DesktopLocalization.SetText(_statusConnection, DesktopLocalization.Message(message));
             ShowToast(message);
         }
 
@@ -146,7 +146,7 @@ namespace FishSocial.Desktop
         void RefreshSocialUnread(int count)
         {
             if (_headerUnreadBadge != null) _headerUnreadBadge.SetActive(count > 0);
-            if (_headerUnread != null) _headerUnread.text = count > 99 ? "99+" : count.ToString();
+            if (_headerUnread != null) DesktopLocalization.SetText(_headerUnread, count > 99 ? "99+" : count.ToString());
         }
 
         public void Build(PanelRouter router)
@@ -224,8 +224,7 @@ namespace FishSocial.Desktop
             var prefab = Resources.Load<GameObject>("Desktop/Prefabs/DesktopShell");
             if (prefab == null)
             {
-                Debug.LogWarning("[DesktopShell] Required DesktopShell.prefab missing; runtime layout generation is disabled. " +
-                                 "Open Fish Social → UI Prefab 管理 → 补齐全部.");
+                Debug.LogWarning(DesktopLocalization.Concat("[DesktopShell] Required DesktopShell.prefab missing; runtime layout generation is disabled. ", "Open Fish Social → UI Prefab 管理 → 补齐全部."));
                 return null;
             }
 
@@ -364,7 +363,7 @@ namespace FishSocial.Desktop
                 if (ok && _headerCoins != null)
                 {
                     if (_shownCoins == int.MinValue)
-                        _headerCoins.text = coins.ToString("N0");
+                        DesktopLocalization.SetText(_headerCoins, coins.ToString("N0"));
                     else
                         CozyMotion.Roll(_headerCoins, _shownCoins, coins);
                     _shownCoins = coins;
@@ -375,14 +374,14 @@ namespace FishSocial.Desktop
                 if (!ok || hub == null)
                     return;
                 if (_headerName != null && hub.profile != null)
-                    _headerName.text = hub.profile.nickname;
+                    DesktopLocalization.SetText(_headerName, hub.profile.nickname);
                 if (hub.progress != null)
                 {
                     if (_headerLevel != null)
-                        _headerLevel.text = "Lv." + hub.progress.level;
+                        DesktopLocalization.SetText(_headerLevel, DesktopLocalization.Concat("Lv.", hub.progress.level));
                     var required = RequiredLevelXp(hub.progress.level);
                     if (_headerXp != null)
-                        _headerXp.text = required > 0 ? hub.progress.xp + " / " + required : DesktopLocalization.Text("ui.common.header.label.max_level", "满级");
+                        DesktopLocalization.SetText(_headerXp, required > 0 ? DesktopLocalization.Concat(DesktopLocalization.Concat(hub.progress.xp, " / "), required) : DesktopLocalization.Text("ui.common.header.label.max_level", "满级"));
                     if (_headerXpFill != null)
                         DesktopModalUi.SetXpFill(_headerXpFill, required > 0 ? Mathf.Clamp01((float)hub.progress.xp / required) : 1f);
                 }
@@ -409,7 +408,7 @@ namespace FishSocial.Desktop
             var asset = Resources.Load<TextAsset>("Desktop/Theme/Cozy/data/player-levels");
             if (asset == null)
                 return 0;
-            var table = JsonUtility.FromJson<HudLevelTable>("{\"rows\":" + asset.text + "}");
+            var table = JsonUtility.FromJson<HudLevelTable>(DesktopLocalization.Concat(DesktopLocalization.Concat("{\"rows\":", asset.text), "}"));
             if (table == null || table.rows == null)
                 return 0;
             foreach (var row in table.rows)
@@ -595,7 +594,7 @@ namespace FishSocial.Desktop
             }
             var header = _mainRoot != null ? _mainRoot.transform.Find("Header") : null;
             var page = _mainRoot != null && _mainRoot.transform.Find("Content") != null
-                ? _mainRoot.transform.Find("Content/" + id)
+                ? _mainRoot.transform.Find(DesktopLocalization.Concat("Content/", id))
                 : null;
             var view = page != null && page.childCount > 0 ? page.GetChild(0) : null;
             var authored = CozyItemArt.IsAuthored(view);
@@ -791,7 +790,7 @@ namespace FishSocial.Desktop
         }
 
         void ShowToast(string msg, bool error = false)
-        {
+        { msg = DesktopLocalization.Message(msg);
             if (string.IsNullOrEmpty(msg)) return;
             if (_toastRoot != null) _toastRoot.SetActive(false);
             else if (_toast != null) _toast.gameObject.SetActive(false);
@@ -804,7 +803,7 @@ namespace FishSocial.Desktop
             var slot = parent != null ? parent.Find(id.ToString()) : null;
             if (slot == null)
             {
-                Debug.LogError("[DesktopUI] Serialized page slot is missing: " + id);
+                Debug.LogError(DesktopLocalization.Concat("[DesktopUI] Serialized page slot is missing: ", id));
                 return;
             }
             if (id == ShellPanelId.ProfileEdit)
@@ -922,8 +921,8 @@ namespace FishSocial.Desktop
         void RefreshPetPresentation()
         {
             if (_headerCatchCount != null)
-                _headerCatchCount.text = (_pondSession != null && _pondSession.CurrentInventory != null
-                    ? _pondSession.CurrentInventory.Length : 0).ToString();
+                DesktopLocalization.SetText(_headerCatchCount, (_pondSession != null && _pondSession.CurrentInventory != null
+                    ? _pondSession.CurrentInventory.Length : 0).ToString());
             if (_petState != null)
                 _petState.RefreshFromApp();
             ApplyPetLabels(_petState != null ? _petState.Current : PetVisualState.Offline);
@@ -936,11 +935,11 @@ namespace FishSocial.Desktop
 
         void ApplyPetLabels(PetVisualState state)
         {
-            var label = "宠物：" + PetStateController.ToChinese(state);
+            var label = DesktopLocalization.Concat("宠物：", PetStateController.ToChinese(state));
             if (_statusPet != null)
-                _statusPet.text = label;
+                DesktopLocalization.SetText(_statusPet, label);
             if (_petStateLabel != null)
-                _petStateLabel.text = "宠物状态：" + PetStateController.ToChinese(state);
+                DesktopLocalization.SetText(_petStateLabel, DesktopLocalization.Concat("宠物状态：", PetStateController.ToChinese(state)));
             if (_petPond != null || _statusPond != null)
             {
                 var inPond = _pondSession != null &&
@@ -948,11 +947,11 @@ namespace FishSocial.Desktop
                 var pondName = inPond
                     ? (_pondSession.LatestSnapshot?.pond?.name ?? _pondSession.CurrentPondId)
                     : null;
-                var pondLabel = "鱼塘：" + (string.IsNullOrEmpty(pondName) ? "未进入" : pondName);
+                var pondLabel = DesktopLocalization.Concat("鱼塘：", (string.IsNullOrEmpty(pondName) ? "未进入" : pondName));
                 if (_statusPond != null)
-                    _statusPond.text = pondLabel;
+                    DesktopLocalization.SetText(_statusPond, pondLabel);
                 if (_petPond != null)
-                    _petPond.text = "当前" + pondLabel;
+                    DesktopLocalization.SetText(_petPond, DesktopLocalization.Concat("当前", pondLabel));
             }
         }
 
@@ -978,7 +977,7 @@ namespace FishSocial.Desktop
             StartCoroutine(_authenticatedApi.GetInventory((ok, message) =>
             {
                 if (ok && _statusLogin != null)
-                    _statusLogin.text = "登录：会话验证成功";
+                    DesktopLocalization.SetText(_statusLogin, "登录：会话验证成功");
                 ShowToast(message);
             }));
         }
@@ -1023,9 +1022,9 @@ namespace FishSocial.Desktop
             }
 
             if (_loginStatus != null)
-                _loginStatus.text = state == SteamLoginState.SignedOut ? DesktopLocalization.Text("ui.common.auth.hint.use_steam", "请使用 Steam 登录") : label;
+                DesktopLocalization.SetText(_loginStatus, state == SteamLoginState.SignedOut ? DesktopLocalization.Text("ui.common.auth.hint.use_steam", "请使用 Steam 登录") : label);
             if (_statusLogin != null)
-                _statusLogin.text = label;
+                DesktopLocalization.SetText(_statusLogin, label);
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
         }
@@ -1033,9 +1032,9 @@ namespace FishSocial.Desktop
         void OnSteamError(string message)
         {
             if (_loginStatus != null)
-                _loginStatus.text = DesktopLocalization.Text("ui.common.auth.status.failed", "登录：失败");
+                DesktopLocalization.SetText(_loginStatus, DesktopLocalization.Text("ui.common.auth.status.failed", "登录：失败"));
             if (_statusLogin != null)
-                _statusLogin.text = "登录：失败";
+                DesktopLocalization.SetText(_statusLogin, "登录：失败");
             ShowToast(message);
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             DesktopAppBootstrap.Instance?.PublishNativeOverlayState();
@@ -1053,9 +1052,9 @@ namespace FishSocial.Desktop
                 default: label = DesktopLocalization.Text("ui.common.connection.status.disconnected", "断开"); break;
             }
             if (_statusConnection != null)
-                _statusConnection.text = "连接：" + label;
+                DesktopLocalization.SetText(_statusConnection, DesktopLocalization.Concat("连接：", label));
             if (_pondStatus != null && !string.IsNullOrEmpty(message))
-                _pondStatus.text = DesktopLocalization.Format("ui.common.connection.message.details", (object)(label), (object)(message));
+                DesktopLocalization.SetText(_pondStatus, DesktopLocalization.Format("ui.common.connection.message.details", (object)(label), (object)(message)));
             // Bootstrap owns overlay publish + deferred pet refresh on pond state.
         }
 
@@ -1064,7 +1063,7 @@ namespace FishSocial.Desktop
             if (_pondStatus != null)
             {
                 var count = snapshot?.users?.Length ?? 0;
-                _pondStatus.text = DesktopLocalization.Format("ui.common.connection.message.pond_snapshot", (object)(count), (object)((_pondSession?.CurrentPhase ?? "idle")), (object)(FormatOtherPlayers()));
+                DesktopLocalization.SetText(_pondStatus, DesktopLocalization.Format("ui.common.connection.message.pond_snapshot", (object)(count), (object)((_pondSession?.CurrentPhase ?? "idle")), (object)(FormatOtherPlayers())));
             }
             // Overlay publish is owned by DesktopAppBootstrap; only refresh the
             // in-window hero cat after IPC work (RequestPetVisualRefresh).
@@ -1076,7 +1075,7 @@ namespace FishSocial.Desktop
             var own = _pondSession?.CurrentUser;
             var isOwn = user != null && own != null && user.id == own.id;
             if (isOwn && _pondStatus != null)
-                _pondStatus.text = DesktopLocalization.Format("ui.common.connection.message.user_snapshot", (object)((user?.fishingPhase ?? "idle")), (object)((user?.spotId ?? DesktopLocalization.Text("ui.common.connection.label.spot_unselected", "未选择"))), (object)(FormatOtherPlayers()));
+                DesktopLocalization.SetText(_pondStatus, DesktopLocalization.Format("ui.common.connection.message.user_snapshot", (object)((user?.fishingPhase ?? "idle")), (object)((user?.spotId ?? DesktopLocalization.Text("ui.common.connection.label.spot_unselected", "未选择"))), (object)(FormatOtherPlayers())));
             if (isOwn)
                 DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
         }
@@ -1096,13 +1095,12 @@ namespace FishSocial.Desktop
             for (var i = 0; i < shown; i++)
             {
                 var user = others[i];
-                text += "\n· " + (string.IsNullOrEmpty(user.nickname) ? user.playerId : user.nickname) +
-                        " · " + PetStateController.ToChinese(
-                            PetStateController.FromFishingPhase(user.fishingPhase));
+                text = DesktopLocalization.Concat(text, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("\n· ", (string.IsNullOrEmpty(user.nickname) ? user.playerId : user.nickname)), " · "), PetStateController.ToChinese(
+                            PetStateController.FromFishingPhase(user.fishingPhase))));
             }
 
             if (others.Length > shown)
-                text += DesktopLocalization.Format("ui.common.connection.label.additional_player_count", (object)(others.Length));
+                text = DesktopLocalization.Concat(text, DesktopLocalization.Format("ui.common.connection.label.additional_player_count", (object)(others.Length)));
             return text;
         }
 
@@ -1125,8 +1123,8 @@ namespace FishSocial.Desktop
             _journalPendingCatch = null;
             if (settled != null && pending != null && pending.speciesId == settled.speciesId && _mainRoot != null)
             {
-                var detail = DesktopFishCatalog.QualityName(settled.quality) + " · " + settled.sizeM.ToString("0.00") + " m";
-                if (settled.autoReturned) detail += DesktopLocalization.Format("ui.common.settlement.label.release_income", (object)(settled.gold));
+                var detail = DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.QualityName(settled.quality), " · "), settled.sizeM.ToString("0.00")), " m");
+                if (settled.autoReturned) detail = DesktopLocalization.Concat(detail, DesktopLocalization.Format("ui.common.settlement.label.release_income", (object)(settled.gold)));
                 var celebration = CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
                     DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail, settled.sizeM);
                 celebration.CoinsTarget = _mainRoot.transform.Find("Header/FishCoins/Icon") as RectTransform;

@@ -6,6 +6,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const modules = process.env.TEXT_CATALOG_NODE_MODULES || path.join(os.homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules');
@@ -14,6 +15,8 @@ const { Workbook, SpreadsheetFile, FileBlob } = await import(pathToFileURL(requi
 const jsonPath = process.env.TEXT_CATALOG_JSON || path.join(root, 'unity-overlay文本表.json');
 const outputPath = process.env.TEXT_CATALOG_XLSX || path.join(root, 'unity-overlay文本表.xlsx');
 const previewDir = process.env.TEXT_CATALOG_PREVIEW_DIR || path.join(os.tmpdir(), 'unity-overlay-text-audit');
+const exportRuntime = process.argv.includes('--import-xlsx') || process.argv.includes('--export-runtime');
+if (exportRuntime && path.resolve(jsonPath) !== path.join(root, 'unity-overlay文本表.json')) throw new Error('运行时导出须使用仓库根目录正式文本表。');
 const data = JSON.parse(await fs.readFile(jsonPath, 'utf8'));
 const editable = new Map(data.entries.map(e => [e.key, e]));
 const keyRegistry = JSON.parse(await fs.readFile(path.join(root, 'scripts/text-catalog/key-registry.json'), 'utf8'));
@@ -56,7 +59,13 @@ if (process.argv.includes('--import-xlsx') || process.argv.includes('--validate-
   // Commit only after validating every row.
   for (const [entry, value, english, note] of edits) { entry.zhCN = value; entry.enUS = english; entry.note = note; }
   await fs.writeFile(jsonPath, JSON.stringify(data, null, 2) + '\n');
-  console.log(`已导入 ${edits.length} 条配置；未修改运行时源码。`);
+  console.log(`已导入 ${edits.length} 条配置，准备更新 Unity / Overlay 本地化资源。`);
+}
+
+if (exportRuntime) {
+  const result = spawnSync(process.env.TEXT_CATALOG_PYTHON || 'python3', [path.join(root, 'scripts/text-catalog/export-runtime.py')], { cwd: root, stdio: 'inherit' });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error('本地化运行时资源导出失败，请检查 Python 环境与文本来源。');
 }
 
 const workbook = Workbook.create();
@@ -133,16 +142,17 @@ for (let start = 0; start < sourceRows.length; start += 1000) {
 
 const notes = [
   ['覆盖范围', 'fish-social-unity/Assets、FishSocialOverlay、desktop-overlay；补充 shared 游戏数据和关联 server/src 提示。'],
-  ['配置状态', '当前是文本清单和配置底表。现有运行时尚未通过 Key 读取此表，修改本表不会自动更改游戏界面。'],
+  ['配置状态', 'Unity / Overlay 已通过 Key 读取 Localization/text-catalog.json；设置界面可切换中文或英文，即时刷新对应界面文本并保存选择。'],
   ['编辑方式', '只修改“文本配置”的 zhCN、enUS 和备注列。Key、原始文本、来源映射用于追踪，请保持不变。'],
   ['Key 命名', '全小写英文点分层，段内用下划线：ui.fishing.button.start_fishing；game为游戏数据，server为服务端提示。名称按用途固定，不随翻译改名。'],
   ['旧 Key 兼容', 'key-registry.json 保留旧名映射；工作簿条目集合须匹配现行清单。已删除Key、重复行或缺行会拒绝导入，清理前旧表不能直接覆盖现行表。'],
   ['新 Key 登记', '新增未审查文本使用unreviewed命名空间；确认显示用途后在key-registry.json登记正式名称，再执行extract.py --normalize-keys-only。'],
   ['英文配置', 'enUS 对应 en-US；已翻译当前玩家文案。变量数值/单位不换算，jin 为市斤（500g）。原文规则保持不变。'],
-  ['导入 JSON', '在仓库根目录使用 Codex Node 运行 scripts/text-catalog/build.mjs --import-xlsx，将编辑值写入 JSON 并刷新工作簿。'],
-  ['重新抽取', '安装 scripts/text-catalog/requirements.txt 后运行 extract.py，再运行 build.mjs。相同 Key 的 JSON zhCN、enUS 和备注保留；新条目英文留空待译。'],
+  ['导入 JSON', '在仓库根目录运行 build.mjs --import-xlsx，将编辑值写入正式 JSON、导出 Unity / Overlay 运行时资源并刷新工作簿。TEXT_CATALOG_PYTHON 可指定已安装 requirements.txt 的 Python。'],
+  ['运行时导出', '直接编辑根 JSON 后运行 python scripts/text-catalog/export-runtime.py，或 build.mjs --export-runtime；生成三份 text-catalog.json 及 Unity prefab-bindings.json。随后使用正常客户端构建流程。'],
+  ['重新抽取', '安装 scripts/text-catalog/requirements.txt 后运行 extract.py，再运行 build.mjs。显式 Text/Format/FormatDate 按 Key 保留原文与翻译，刷新实际调用位置和参数；新条目英文留空待译。'],
   ['占位符', '完整保留 {0}、{1}、{0:N0} 等占位符（含格式和重复次数）。参数表达式见来源映射。'],
-  ['模板说明', '拼接和插值统一为编号模板；分支中的文本另行收录。普通格式串保留源格式。接入时按来源逐项迁移。'],
+  ['模板说明', '拼接和插值统一为编号模板；分支文本使用各自 Key。Format 保留参数及数值格式；FormatDate 按所选语言使用表中日期格式。'],
   ['去重口径', '同模块、同类型、同提取方式、同原文合并 Key，所有使用位置保留；不同使用类型不会混成一条。'],
   ['初始与现行', '保留正式界面的有效Prefab初始文本及可动态打开的状态；移除Unity编辑器脚本、固定关闭、预览、示意及被无条件覆盖的来源。'],
   ['昵称数据', '机器人预设/自动昵称及写入账号的默认昵称属于身份数据，保持原值；界面的昵称标签、输入提示、校验错误和空昵称显示兜底按实际用途保留。'],
@@ -175,7 +185,7 @@ const notes = [
   ] : []),
   ...order.filter(category => data.stats.categories[category]).map(category => [category, data.stats.categories[category]]),
 ];
-table(guide, '文本表使用说明', '本次整理保留原文，不修改业务行为。', ['项目', '说明 / 数量'], notes, [180, 1000], 'CatalogGuide');
+table(guide, '文本表使用说明', '中英文运行时本地化已接入；编辑后导出资源，再按正常流程构建客户端。', ['项目', '说明 / 数量'], notes, [180, 1000], 'CatalogGuide');
 guide.getRange(`B5:B${notes.length + 4}`).format.wrapText = true;
 guide.getRange(`A5:B${notes.length + 4}`).format.rowHeight = 38;
 guide.freezePanes.unfreeze();

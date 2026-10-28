@@ -11,7 +11,7 @@ namespace FishSocial.Desktop
         CanvasGroup group;
         Text label;
         float time;
-        public static void Play(Transform target, bool succeeded, string caption)
+        public static void Play(Transform target, bool succeeded, string caption, bool purchaseAnimation = false)
         {
             if (target == null || !target.gameObject.activeInHierarchy) return;
             DesktopAudioService.Play(succeeded ? "ui_success" : "ui_error");
@@ -22,7 +22,7 @@ namespace FishSocial.Desktop
             }
             var canvas = target.GetComponentInParent<Canvas>();
             var host = canvas != null ? canvas.transform.Find("MainRoot") : null;
-            if (caption == "已购买" && host != null)
+            if (purchaseAnimation && host != null)
             {
                 var source = target.Find("DesignArt")?.GetComponent<Image>();
                 var destination = host.Find("Nav/Equipment/Icon") as RectTransform;
@@ -105,17 +105,17 @@ namespace FishSocial.Desktop
                 stamp.anchorMin = stamp.anchorMax = new Vector2(1, 1); stamp.pivot = new Vector2(.5f, .5f);
                 stamp.sizeDelta = new Vector2(74, 74); stamp.anchoredPosition = new Vector2(-23, -19);
                 var ring = go.GetComponent<CozyCssGraphic>(); ring.shape = CozyCssGraphic.Shape.Stamp; ring.border = 4;
-                ring.material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply");
+                ring.material = Resources.Load<Material>(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "materials/PaperMultiply"));
                 ring.color = new Color(205f / 255, 64f / 255, 46f / 255, .9f); ring.raycastTarget = false;
                 group = go.GetComponent<CanvasGroup>(); group.blocksRaycasts = false; group.interactable = false;
                 var textGo = new GameObject("Caption", typeof(RectTransform), typeof(Text)); textGo.transform.SetParent(stamp, false);
                 label = textGo.GetComponent<Text>(); label.rectTransform.anchorMin = Vector2.zero; label.rectTransform.anchorMax = Vector2.one;
                 label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
-                label.material = Resources.Load<Material>(CozyJournalTheme.ResourceRoot + "materials/PaperMultiply");
+                label.material = Resources.Load<Material>(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "materials/PaperMultiply"));
                 label.font = CatTheme.Font; label.fontSize = 18; label.alignment = TextAnchor.MiddleCenter;
                 label.color = new Color(205f / 255, 64f / 255, 46f / 255, .92f); label.raycastTarget = false; label.supportRichText = false;
             }
-            time = 0; label.text = caption; stamp.gameObject.SetActive(!CozyMotion.Paused); stamp.SetAsLastSibling(); Render();
+            time = 0; DesktopLocalization.SetText(label, caption); stamp.gameObject.SetActive(!CozyMotion.Paused); stamp.SetAsLastSibling(); Render();
         }
         public void Advance(float delta)
         {

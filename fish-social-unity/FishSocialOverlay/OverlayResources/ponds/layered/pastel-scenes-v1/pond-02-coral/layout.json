@@ -5,88 +5,16 @@
   "groundY": 399.337,
   "coordinateOrigin": "top-left",
   "sourceImage": "layered/pastel-scenes-v1/pond-02-coral/source.png",
-  "animationStatus": "Static completed cloud-sky backing plus original visible paint; fixed original-color rear foliage beneath wind-animated front foliage.",
+  "animationStatus": "Unmodified original panorama with source-colored front foliage; original serves as the fixed backing.",
   "layers": [
     {
       "id": "pond-bg",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/sky.png",
+      "image": "layered/pastel-scenes-v1/pond-02-coral/background.png",
       "x": 0,
       "y": 0,
       "w": 1680,
       "h": 560,
       "z": 0
-    },
-    {
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "id": "scene-cloud-complete",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/cloud-complete.png",
-      "z": 1
-    },
-    {
-      "id": "scene-celestial",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/celestial.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 2
-    },
-    {
-      "id": "scene-cloud-far",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/cloud-far.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 3
-    },
-    {
-      "id": "scene-cloud-middle",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/cloud-middle.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 4
-    },
-    {
-      "id": "scene-cloud-near",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/cloud-near.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 5
-    },
-    {
-      "id": "scene-far",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/far.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 6
-    },
-    {
-      "id": "scene-middle",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/middle.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 7
-    },
-    {
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "id": "scene-foliage-back",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/foliage-back.png",
-      "z": 8
     },
     {
       "id": "scene-foliage-mid",
@@ -95,7 +23,7 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 9
+      "z": 1
     },
     {
       "id": "scene-foliage-near",
@@ -104,26 +32,9 @@
       "y": 0,
       "w": 1680,
       "h": 560,
-      "z": 10
-    },
-    {
-      "id": "scene-shore",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/shore.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 11
-    },
-    {
-      "id": "scene-water",
-      "image": "layered/pastel-scenes-v1/pond-02-coral/water.png",
-      "x": 0,
-      "y": 0,
-      "w": 1680,
-      "h": 560,
-      "z": 12
+      "z": 2
     }
   ],
-  "motion": "motion.json"
+  "motion": "motion.json",
+  "composition": "original-with-moving-foliage"
 }

@@ -164,7 +164,7 @@ namespace FishSocial.Desktop
         {
             _heading = Find<Text>("Header/Title");
             if (_heading != null)
-                _heading.text = _equipmentMode ? DesktopLocalization.Text("ui.shop.title.my_equipment", "我的装备") : DesktopLocalization.Text("ui.shop.title.fishing_shop", "钓鱼商店");
+                DesktopLocalization.SetText(_heading, _equipmentMode ? DesktopLocalization.Text("ui.shop.title.my_equipment", "我的装备") : DesktopLocalization.Text("ui.shop.title.fishing_shop", "钓鱼商店"));
             DesktopModalUi.StyleTree(transform);
             DesktopModalUi.StyleButton(_baitTab, "leaf");
             DesktopModalUi.StyleButton(_tackleTab, "rod");
@@ -358,7 +358,7 @@ namespace FishSocial.Desktop
                         _gear = gear;
                         _coinBalance = coins;
                         SetStatus(DesktopLocalization.Text("ui.shop.status.bait_purchase_success", "购买成功，装备状态已由服务端刷新。"));
-                        CozyActionFeedback.Play(transform.Find("Details"), true, DesktopLocalization.Text("ui.shop.feedback.purchased", "已购买"));
+                        CozyActionFeedback.Play(transform.Find("Details"), true, DesktopLocalization.Text("ui.shop.feedback.purchased", "已购买"), purchaseAnimation: true);
                     }
                     else
                     {
@@ -384,7 +384,7 @@ namespace FishSocial.Desktop
                         _gear = gear;
                         _coinBalance = coins;
                         SetStatus(DesktopLocalization.Text("ui.shop.status.tackle_purchase_success", "购买成功，金币和装备状态已由服务端刷新。"));
-                        CozyActionFeedback.Play(transform.Find("Details"), true, DesktopLocalization.Text("ui.shop.feedback.purchased", "已购买"));
+                        CozyActionFeedback.Play(transform.Find("Details"), true, DesktopLocalization.Text("ui.shop.feedback.purchased", "已购买"), purchaseAnimation: true);
                     }
                     else
                     {
@@ -410,7 +410,7 @@ namespace FishSocial.Desktop
                         _gear = gear;
                         _coinBalance = coins;
                         SetStatus(DesktopLocalization.Text("ui.shop.status.vessel_purchased_unavailable", "已购买。船具暂不可使用（即将开放）。"));
-                        CozyActionFeedback.Play(transform.Find("Details"), true, DesktopLocalization.Text("ui.shop.feedback.purchased", "已购买"));
+                        CozyActionFeedback.Play(transform.Find("Details"), true, DesktopLocalization.Text("ui.shop.feedback.purchased", "已购买"), purchaseAnimation: true);
                     }
                     else
                     {
@@ -523,7 +523,7 @@ namespace FishSocial.Desktop
             if (_tabRoots[_tab] == null)
             {
                 var any = _tabRoots[0] != null || _tabRoots[1] != null || _tabRoots[2] != null;
-                _tabRoots[_tab] = any ? CozyKeptPage.DuplicateList(_content, "ShopTab" + _tab) : _content;
+                _tabRoots[_tab] = any ? CozyKeptPage.DuplicateList(_content, DesktopLocalization.Concat("ShopTab", _tab)) : _content;
             }
             var root = _tabRoots[_tab];
             _content = root;
@@ -544,10 +544,10 @@ namespace FishSocial.Desktop
         {
             if (_coins == null || _equipped == null || _details == null || _content == null)
                 return;
-            _coins.text = DesktopLocalization.Format("ui.shop.balance.coins", (object)(_coinBalance));
-            _equipped.text = _equipmentMode
+            DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.shop.balance.coins", (object)(_coinBalance)));
+            DesktopLocalization.SetText(_equipped, _equipmentMode
                 ? DesktopLocalization.Format("ui.shop.summary.equipped_rod_and_bait", (object)(EquippedRodName()), (object)(EquippedBaitName()), (object)(Math.Max(1, _gear.playerLevel)))
-                : DesktopLocalization.Format("ui.shop.summary.equipped_rod", (object)(EquippedRodName()), (object)(Math.Max(1, _gear.playerLevel)));
+                : DesktopLocalization.Format("ui.shop.summary.equipped_rod", (object)(EquippedRodName()), (object)(Math.Max(1, _gear.playerLevel))));
             TintTab(_baitTab, _tab == 0);
             TintTab(_tackleTab, _tab == 1);
             if (_vesselTab != null)
@@ -614,7 +614,7 @@ namespace FishSocial.Desktop
                 foreach (Transform child in _content)
                 {
                     var visual = child.GetComponent<CozyButtonVisual>();
-                    if (visual != null) visual.SetSelected(child.name == "Item_" + _selectedIndex);
+                    if (visual != null) visual.SetSelected(child.name == DesktopLocalization.Concat("Item_", _selectedIndex));
                 }
             }
 
@@ -666,7 +666,7 @@ namespace FishSocial.Desktop
 
         void RevealDetail()
         {
-            var key = _equipmentMode + ":" + _tab + ":" + _selectedIndex;
+            var key = DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(_equipmentMode, ":"), _tab), ":"), _selectedIndex);
             if (key == _detailMotionKey)
                 return;
             _detailMotionKey = key;
@@ -682,11 +682,15 @@ namespace FishSocial.Desktop
             var nameLabel = Find<Text>("Details/DesignName");
             if (nameLabel != null)
             {
-                nameLabel.text = name ?? string.Empty;
-                if (!string.IsNullOrEmpty(name) && text.StartsWith(name + "\n", StringComparison.Ordinal))
-                    text = text.Substring(name.Length + 1);
+                DesktopLocalization.SetText(nameLabel, name ?? string.Empty);
+                if (!string.IsNullOrEmpty(name) && text.StartsWith(DesktopLocalization.Concat(name, "\n"), StringComparison.Ordinal))
+                    text = DesktopLocalization.Transform(text, current =>
+                    {
+                        var firstLine = current.IndexOf('\n');
+                        return firstLine >= 0 ? current.Substring(firstLine + 1) : current;
+                    });
             }
-            _details.text = text;
+            DesktopLocalization.SetText(_details, text);
         }
 
         void SetActionButtons(bool showBuy, bool buyEnabled, bool equipEnabled)
@@ -807,7 +811,7 @@ namespace FishSocial.Desktop
             var omni = def != null ? def.biteBonusOmnivore : bait.biteBonusOmnivore;
             var carn = def != null ? def.biteBonusCarnivore : bait.biteBonusCarnivore;
             var unlocked = BaitUnlocked(bait);
-            var text = new StringBuilder();
+            var text = new FishSocial.Localization.LocalizedStringBuilder();
             text.Append(bait.name).Append('\n');
             text.Append(DesktopLocalization.Text("ui.shop.bait_details.diet", "对口食性：")).Append(DesktopGameData.DietLabel(diet));
             if (diet == "herbivore")
@@ -858,7 +862,7 @@ namespace FishSocial.Desktop
                 return def != null ? fromDef : fromDto;
             }
 
-            var text = new StringBuilder();
+            var text = new FishSocial.Localization.LocalizedStringBuilder();
             text.Append(rod.name).Append('\n');
             text.Append(DesktopLocalization.Text("ui.shop.rod_details.type", "类型：")).Append(subType).Append('\n');
             if (!_equipmentMode)
@@ -901,7 +905,7 @@ namespace FishSocial.Desktop
             var price = def != null ? def.priceGold : vessel.priceGold;
             var level = def != null ? def.unlockPlayerLevel : vessel.unlockPlayerLevel;
             var placeholder = def != null ? def.placeholderCatchCount : vessel.placeholderCatchCount;
-            var text = new StringBuilder();
+            var text = new FishSocial.Localization.LocalizedStringBuilder();
             text.Append(vessel.name).Append('\n');
             text.Append(DesktopLocalization.Text("ui.shop.bait_details.unlock_level", "解锁等级：钓鱼 Lv.")).Append(level).Append('\n');
             text.Append(DesktopLocalization.Text("ui.shop.rod_details.price", "价格：")).Append(price).Append(DesktopLocalization.Text("ui.shop.vessel_details.coins_suffix", " 金\n"));
@@ -927,13 +931,13 @@ namespace FishSocial.Desktop
             var card = DesktopUiPrefabFactory.Instantiate("ShopItemCard", _content);
             if (card == null)
                 return;
-            card.name = "Item_" + index;
+            card.name = DesktopLocalization.Concat("Item_", index);
             var productArt=CozyItemArt.Product(_tab, itemId, name);
             CozyItemArt.Set(card.transform, "DesignItemArt", productArt);
             if(_equipmentMode && _tab==1 && !OwnsRod(itemId))
             {
                 var picture=card.transform.Find("DesignItemArt")?.GetComponent<Image>();
-                if(picture!=null) { picture.material=Resources.Load<Material>(CozyJournalTheme.ResourceRoot+"materials/Grayscale"); picture.color=new Color(1,1,1,.45f); }
+                if(picture!=null) { picture.material=Resources.Load<Material>(DesktopLocalization.Concat(CozyJournalTheme.ResourceRoot, "materials/Grayscale")); picture.color=new Color(1,1,1,.45f); }
             }
             var label = DesktopModalUi.FindComponent<Text>(card.transform, "Label");
             var metadata = DesktopModalUi.FindComponent<Text>(card.transform, "Meta");
@@ -946,8 +950,8 @@ namespace FishSocial.Desktop
                 Destroy(card);
                 return;
             }
-            label.text = name;
-            metadata.text = meta;
+            DesktopLocalization.SetText(label, name);
+            DesktopLocalization.SetText(metadata, meta);
             icon.overrideSprite = null;
             icon.sprite = CatTheme.LoadCozy(iconPath, Vector4.zero);
             icon.enabled = icon.sprite != null;
@@ -962,7 +966,7 @@ namespace FishSocial.Desktop
             var visual = button.GetComponent<CozyButtonVisual>();
             if (visual != null)
                 visual.SetSelected(index == _selectedIndex);
-            CozyStickerMotion.Bind(card, "shop:" + _equipmentMode + ":" + _tab + ":" + itemId, index,
+            CozyStickerMotion.Bind(card, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("shop:", _equipmentMode), ":"), _tab), ":"), itemId), index,
                 _content.parent as RectTransform,sourceId:productArt!=null?productArt.name:itemId);
             button.onClick.RemoveAllListeners();
             var captured = index;
@@ -998,9 +1002,9 @@ namespace FishSocial.Desktop
         }
 
         void SetStatus(string message)
-        {
+        { message = DesktopLocalization.Message(message);
             if (_status != null)
-                _status.text = message ?? string.Empty;
+                DesktopLocalization.SetText(_status, DesktopLocalization.Message(message ?? string.Empty));
         }
 
         T Find<T>(string path) where T : Component
@@ -1033,7 +1037,7 @@ namespace FishSocial.Desktop
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
             var label = go.GetComponent<Text>();
-            label.text = text;
+            DesktopLocalization.SetText(label, text);
             label.font = CatTheme.Font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
             label.fontSize = size;
             label.color = CatTheme.Ink;

@@ -110,7 +110,7 @@ namespace FishSocial.Desktop.Auth
             InventoryItemsResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/inventory/" + Uri.EscapeDataString(PlayerId ?? ""),
+            yield return GetJson(("/api/inventory/" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -126,7 +126,7 @@ namespace FishSocial.Desktop.Auth
             GearResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/player/gear?playerId=" + Uri.EscapeDataString(PlayerId ?? ""),
+            yield return GetJson(("/api/player/gear?playerId=" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -142,7 +142,7 @@ namespace FishSocial.Desktop.Auth
             CodexResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/player/codex?playerId=" + Uri.EscapeDataString(PlayerId ?? ""),
+            yield return GetJson(("/api/player/codex?playerId=" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -158,7 +158,7 @@ namespace FishSocial.Desktop.Auth
             FriendsResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/friends/" + Uri.EscapeDataString(PlayerId ?? ""),
+            yield return GetJson(("/api/friends/" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -174,7 +174,7 @@ namespace FishSocial.Desktop.Auth
             FriendRequestsResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/friends/" + Uri.EscapeDataString(PlayerId ?? "") + "/requests",
+            yield return GetJson((("/api/friends/" + Uri.EscapeDataString(PlayerId ?? "")) + "/requests"),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -215,7 +215,7 @@ namespace FishSocial.Desktop.Auth
             ConversationsResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/dm/conversations/" + Uri.EscapeDataString(PlayerId ?? ""),
+            yield return GetJson(("/api/dm/conversations/" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -232,7 +232,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return GetJson(
-                "/api/dm/" + Uri.EscapeDataString(PlayerId ?? "") + "/" + Uri.EscapeDataString(friendPlayerId ?? ""),
+                ((("/api/dm/" + Uri.EscapeDataString(PlayerId ?? "")) + "/") + Uri.EscapeDataString(friendPlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -399,6 +399,9 @@ namespace FishSocial.Desktop.Auth
                         ? parsed.vessels : new ShopVesselDto[0];
                 });
             }
+            DesktopLocalization.BindData(baits);
+            DesktopLocalization.BindData(tackles);
+            DesktopLocalization.BindData(vessels);
             onCompleted?.Invoke(ok, baits, tackles, vessels, error);
         }
 
@@ -432,8 +435,7 @@ namespace FishSocial.Desktop.Auth
             SocialPostsResponse parsed = null;
             string error = null;
             var ok = false;
-            yield return GetJson("/api/posts/mine/" + Uri.EscapeDataString(PlayerId ?? "") +
-                "?limit=" + Mathf.Clamp(limit, 1, 50) + "&offset=" + Mathf.Max(0, offset),
+            yield return GetJson(((((("/api/posts/mine/" + Uri.EscapeDataString(PlayerId ?? "")) + "?limit=") + Mathf.Clamp(limit, 1, 50)) + "&offset=") + Mathf.Max(0, offset)),
                 (success, json, message) =>
                 {
                     ok = success; error = message;
@@ -449,7 +451,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return GetJson(
-                "/api/posts/" + Uri.EscapeDataString(postId ?? "") + "/comments",
+                (("/api/posts/" + Uri.EscapeDataString(postId ?? "")) + "/comments"),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -473,7 +475,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return PostJson(
-                "/api/posts/" + Uri.EscapeDataString(postId ?? "") + "/like",
+                (("/api/posts/" + Uri.EscapeDataString(postId ?? "")) + "/like"),
                 "{}",
                 (success, json, message) =>
                 {
@@ -495,7 +497,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return PostJson(
-                "/api/posts/" + Uri.EscapeDataString(postId ?? "") + "/comments",
+                (("/api/posts/" + Uri.EscapeDataString(postId ?? "")) + "/comments"),
                 JsonUtility.ToJson(new CommentPayload { text = text ?? "" }),
                 (success, json, message) =>
                 {
@@ -516,8 +518,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return DeleteJson(
-                "/api/posts/" + Uri.EscapeDataString(postId ?? "") +
-                "/comments/" + Uri.EscapeDataString(commentId ?? ""),
+                ((("/api/posts/" + Uri.EscapeDataString(postId ?? "")) + "/comments/") + Uri.EscapeDataString(commentId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -722,7 +723,7 @@ namespace FishSocial.Desktop.Auth
             var ok = false;
             var q = string.IsNullOrEmpty(scope) ? "pond" : scope;
             yield return GetJson(
-                "/api/debug/gameplay/pond-fish?scope=" + Uri.EscapeDataString(q),
+                ("/api/debug/gameplay/pond-fish?scope=" + Uri.EscapeDataString(q)),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -848,7 +849,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return GetJson(
-                "/api/player/gear?playerId=" + Uri.EscapeDataString(PlayerId ?? ""),
+                ("/api/player/gear?playerId=" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -940,7 +941,7 @@ namespace FishSocial.Desktop.Auth
             string error = null;
             var ok = false;
             yield return GetJson(
-                "/api/players/" + Uri.EscapeDataString(PlayerId ?? ""),
+                ("/api/players/" + Uri.EscapeDataString(PlayerId ?? "")),
                 (success, json, message) =>
                 {
                     ok = success;
@@ -983,7 +984,7 @@ namespace FishSocial.Desktop.Auth
                        ",\"candidateId\":" + Quote(candidateOrPinId ?? "") +
                        ",\"pinId\":" + Quote(candidateOrPinId ?? "") + "}";
             yield return PutJson(
-                "/api/players/" + Uri.EscapeDataString(PlayerId ?? "") + "/album/pins",
+                (("/api/players/" + Uri.EscapeDataString(PlayerId ?? "")) + "/album/pins"),
                 body,
                 (success, json, message) =>
                 {
@@ -1022,7 +1023,7 @@ namespace FishSocial.Desktop.Auth
             var body = JsonUtility.ToJson(new FriendRequestPayload
             {
                 fromPlayerId = PlayerId,
-                fromNickname = fromNickname ?? DesktopLocalization.Text("ui.social.api.default_nickname", "钓友"),
+                fromNickname = fromNickname ?? "钓友",
                 toPlayerId = toPlayerId,
             });
             yield return PostJson("/api/friends/request", body,
@@ -1039,7 +1040,7 @@ namespace FishSocial.Desktop.Auth
                 body += ",\"avatarUrl\":" + Quote(avatarUrl);
             body += "}";
             yield return MutateProfile(
-                "/api/players/" + Uri.EscapeDataString(PlayerId ?? "") + "/profile",
+                (("/api/players/" + Uri.EscapeDataString(PlayerId ?? "")) + "/profile"),
                 body, onCompleted);
         }
 
@@ -1047,7 +1048,7 @@ namespace FishSocial.Desktop.Auth
             string[] slots, Action<bool, PlayerProfileDto, string> onCompleted)
         {
             yield return MutateProfile(
-                "/api/players/" + Uri.EscapeDataString(PlayerId ?? "") + "/showcase",
+                (("/api/players/" + Uri.EscapeDataString(PlayerId ?? "")) + "/showcase"),
                 BuildShowcaseBody(slots), onCompleted);
         }
 
@@ -1271,8 +1272,7 @@ namespace FishSocial.Desktop.Auth
                 if (string.IsNullOrEmpty(field) ||
                     !System.Text.RegularExpressions.Regex.IsMatch(
                         json,
-                        "\"" + System.Text.RegularExpressions.Regex.Escape(field) +
-                        "\"\\s*:"))
+                        (("\"" + System.Text.RegularExpressions.Regex.Escape(field)) + "\"\\s*:")))
                 {
                     Debug.LogWarning("[AuthenticatedApi] Missing response field: " + field);
                     parsed = null;
@@ -1340,6 +1340,7 @@ namespace FishSocial.Desktop.Auth
                 hub.albumCandidates = new AlbumCardDto[0];
             if (hub.achievements == null)
                 hub.achievements = new AchievementViewDto[0];
+            DesktopLocalization.BindData(hub.achievements);
             if (hub.profile.showcaseFishIds == null)
                 hub.profile.showcaseFishIds = new string[0];
             if (hub.profile.avatarUrl == null)

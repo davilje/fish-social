@@ -8,59 +8,7 @@
   "primaryPeriod": 7.5,
   "secondaryPeriod": 4.2,
   "verticalPeriod": 9.3,
-  "clouds": [
-    {
-      "id": "scene-cloud-far",
-      "sprites": [
-        {
-          "image": "cloud-far-original-static.png",
-          "left": 0,
-          "top": 0,
-          "width": 2172,
-          "height": 724,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "static",
-          "cloudType": "original-static",
-          "sourceVariant": "river-03-apricot-original-far"
-        }
-      ]
-    },
-    {
-      "id": "scene-cloud-middle",
-      "sprites": [
-        {
-          "image": "cloud-middle-original-static.png",
-          "left": 0,
-          "top": 0,
-          "width": 2172,
-          "height": 724,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "static",
-          "cloudType": "original-static",
-          "sourceVariant": "river-03-apricot-original-middle"
-        }
-      ]
-    },
-    {
-      "id": "scene-cloud-near",
-      "sprites": [
-        {
-          "image": "cloud-near-original-static.png",
-          "left": 0,
-          "top": 0,
-          "width": 2172,
-          "height": 724,
-          "velocityX": 0,
-          "velocityY": 0,
-          "kind": "static",
-          "cloudType": "original-static",
-          "sourceVariant": "river-03-apricot-original-near"
-        }
-      ]
-    }
-  ],
+  "clouds": [],
   "leaves": [
     {
       "id": "scene-foliage-mid",
@@ -83,17 +31,5 @@
       "primaryPeriod": 7.5
     }
   ],
-  "weather": {
-    "id": "original-static",
-    "label": "原图静态云",
-    "palette": "apricot"
-  },
-  "cloudMode": "original-static",
-  "occlusionRepair": {
-    "version": 1,
-    "foliageBackLayer": "scene-foliage-back",
-    "cloudCompletionLayer": "scene-cloud-complete",
-    "cloudCompletionContainsSky": true,
-    "originalVisiblePaintPreserved": true
-  }
+  "cloudMode": "baked-into-original"
 }

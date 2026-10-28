@@ -97,7 +97,8 @@ namespace FishSocialOverlay
             var cloudArt = new Dictionary<string, BitmapSource>();
             if (settings.version >= 2)
             {
-                if (settings.clouds == null || settings.clouds.Length != 3) throw new InvalidDataException("Expected three cloud layers");
+                if (settings.clouds == null || (settings.clouds.Length != 0 && settings.clouds.Length != 3))
+                    throw new InvalidDataException("Expected no cloud layers or three cloud layers");
                 var cloudIds = new HashSet<string>();
                 foreach (var cloud in settings.clouds)
                 {

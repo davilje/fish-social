@@ -63,7 +63,7 @@ namespace FishSocial.Desktop
             slider.handleRect = handle.rectTransform; slider.targetGraphic = handle; slider.transition = Selectable.Transition.None;
             return slider;
         }
-        void Label(Text label, float value) { if (label != null) label.text = Mathf.RoundToInt(value * 100) + "%"; }
+        void Label(Text label, float value) { if (label != null) DesktopLocalization.SetText(label, (Mathf.RoundToInt(value * 100) + "%")); }
         void Refresh()
         {
             if (music == null || effects == null) return;

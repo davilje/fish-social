@@ -31,7 +31,7 @@ namespace FishSocial.Desktop.JournalV2
         {
             Begin();this.tab=Mathf.Clamp(tab,0,3);selected=null;
             for(var i=0;i<tabs.Length;i++)Select(tabs[i],i==this.tab);
-            Page.Heading.text=titles[this.tab];
+            DesktopLocalization.SetText(Page.Heading, titles[this.tab]);
             Interactable(open,false);
             if(!Ready){Status("登录后查看排行榜。");return;}
             StartCoroutine(Load(Epoch));
@@ -49,30 +49,30 @@ namespace FishSocial.Desktop.JournalV2
             });
             if(epoch!=Epoch)yield break;
             yield return App.Api.GetMyLeaderboardRank(board,pond,(ok,mine,error)=>
-            {if(epoch!=Epoch)return;if(ok)Status(mine!=null&&mine.hasRank?"我的排名 #"+mine.rank+" · "+Format(mine.entry??new LeaderboardEntryDto{value=mine.value}):"尚未上榜，每一次抛竿都在刷新自己的纪录。");});
+            {if(epoch!=Epoch)return;if(ok)Status(mine!=null&&mine.hasRank?DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("我的排名 #", mine.rank), " · "), Format(mine.entry??new LeaderboardEntryDto{value=mine.value})):"尚未上榜，每一次抛竿都在刷新自己的纪录。");});
         }
         public void PresentSnapshot(LeaderboardEntryDto[] snapshot,int board=0)
         {
             tab=Mathf.Clamp(board,0,3);entries=snapshot??Array.Empty<LeaderboardEntryDto>();cards.Clear();
-            JournalV2Pages.CommunityClear(scroll.content);Page.Heading.text=titles[tab];
+            JournalV2Pages.CommunityClear(scroll.content);DesktopLocalization.SetText(Page.Heading, titles[tab]);
             var podium=JournalV2Nodes.Rect(scroll.content,"Podium",0,0,680,220);Height(podium.gameObject,220);
             var order=new[]{2,1,3};
             for(var i=0;i<3;i++)
             {
                 var rank=order[i];var item=Array.Find(entries,e=>e!=null&&e.rank==rank);if(item==null)continue;
-                var first=rank==1;var card=JournalV2Nodes.Button(podium,"Place"+rank,"",null,7+i*229,first?12:39,208,first?192:165,JournalV2ButtonKind.Podium);
+                var first=rank==1;var card=JournalV2Nodes.Button(podium,DesktopLocalization.Concat("Place", rank),"",null,7+i*229,first?12:39,208,first?192:165,JournalV2ButtonKind.Podium);
                 var visual=JournalV2Pages.CommunityVisual(card);
                 JournalV2Nodes.Text(visual,"Rank",rank==1?"♕":rank.ToString(),14,10,34,34,27,TextAnchor.MiddleCenter);
                 JournalV2Nodes.Image(visual,"Avatar",JournalV2Pages.CommunityAvatar(item.avatarUrl,item.playerId),first?66:72,11,first?76:65,first?76:65);
                 JournalV2Nodes.Text(visual,"Name",item.nickname,12,first?94:83,184,31,22,TextAnchor.MiddleCenter);
                 JournalV2Nodes.Text(visual,"Value",Format(item),12,first?127:116,184,26,18,TextAnchor.MiddleCenter);
-                JournalV2Nodes.Text(visual,"PlaceLabel","第"+rank+"名",34,first?172:145,140,30,13,TextAnchor.MiddleCenter);
+                JournalV2Nodes.Text(visual,"PlaceLabel",DesktopLocalization.Concat(DesktopLocalization.Concat("第", rank), "名"),34,first?172:145,140,30,13,TextAnchor.MiddleCenter);
                 Register(card,item,i,JournalV2ButtonKind.Podium);
             }
             for(var i=0;i<entries.Length;i++)
             {
                 var item=entries[i];if(item==null)continue;
-                var card=JournalV2Nodes.Button(scroll.content,"Player"+i,"",null,0,0,668,75,JournalV2ButtonKind.RankRow);Height(card.gameObject,75);
+                var card=JournalV2Nodes.Button(scroll.content,DesktopLocalization.Concat("Player", i),"",null,0,0,668,75,JournalV2ButtonKind.RankRow);Height(card.gameObject,75);
                 var visual=JournalV2Pages.CommunityVisual(card);
                 JournalV2Nodes.Text(visual,"Rank",item.rank.ToString("00"),18,7,38,61,25,TextAnchor.MiddleCenter);
                 JournalV2Nodes.Image(visual,"Avatar",JournalV2Pages.CommunityAvatar(item.avatarUrl,item.playerId),72,13,48,48);
@@ -80,7 +80,7 @@ namespace FishSocial.Desktop.JournalV2
                 JournalV2Nodes.Text(visual,"Value",Format(item),462,7,188,61,20,TextAnchor.MiddleRight);
                 Register(card,item,i+3,JournalV2ButtonKind.RankRow);
             }
-            if(entries.Length>0)SelectPlayer(entries[0]);else{JournalV2Pages.CommunityPhoto(photo,null,"虚位以待");bio.text="当前榜单暂无数据。";score.text="";}
+            if(entries.Length>0)SelectPlayer(entries[0]);else{JournalV2Pages.CommunityPhoto(photo,null,"虚位以待");DesktopLocalization.SetText(bio, "当前榜单暂无数据。");DesktopLocalization.SetText(score, "");}
             Status(entries.Length==0?"当前榜单暂无数据。":"");scroll.verticalNormalizedPosition=1;
         }
         void Register(Button card,LeaderboardEntryDto entry,int ordinal,JournalV2ButtonKind kind)
@@ -89,14 +89,14 @@ namespace FishSocial.Desktop.JournalV2
         {
             if(entry==null)return;selected=entry.playerId;
             foreach(var pair in cards)Select(pair.Key,pair.Value.playerId==selected);
-            heading.text="钓友名片  #"+entry.rank;
+            DesktopLocalization.SetText(heading, DesktopLocalization.Concat("钓友名片  #", entry.rank));
             JournalV2Pages.CommunityPhoto(photo,JournalV2Pages.CommunityAvatar(entry.avatarUrl,selected),entry.nickname);
-            score.text=titles[tab]+" · "+Format(entry);bio.text="正在读取钓友资料…";Interactable(open,App!=null);
-            if(Ready)StartCoroutine(LoadPlayer(selected,Epoch));else bio.text="";
+            DesktopLocalization.SetText(score, DesktopLocalization.Concat(DesktopLocalization.Concat(titles[tab], " · "), Format(entry)));DesktopLocalization.SetText(bio, "正在读取钓友资料…");Interactable(open,App!=null);
+            if(Ready)StartCoroutine(LoadPlayer(selected,Epoch));else DesktopLocalization.SetText(bio, "");
         }
         IEnumerator LoadPlayer(string player,int epoch)
-        {yield return App.Api.GetPublicPlayerView(player,1,(ok,data,error)=>{if(epoch!=Epoch||selected!=player)return;bio.text=ok&&data?.profile!=null?data.profile.bio??"这位钓友还没有填写简介。":error??"资料暂不可用。";});}
+        {yield return App.Api.GetPublicPlayerView(player,1,(ok,data,error)=>{if(epoch!=Epoch||selected!=player)return;DesktopLocalization.SetText(bio, ok&&data?.profile!=null?data.profile.bio??"这位钓友还没有填写简介。":error??"资料暂不可用。");});}
         string Format(LeaderboardEntryDto entry)
-        {if(entry==null)return"—";if(tab==0)return(entry.extra!=null&&entry.extra.sizeM>0?entry.extra.sizeM:entry.value).ToString("0.00")+" m";if(tab==1)return Mathf.RoundToInt(entry.value)+" 金币";return Mathf.RoundToInt(entry.value)+(tab==2?" 条":" 条史诗+");}
+        {if(entry==null)return"—";if(tab==0)return DesktopLocalization.Concat((entry.extra!=null&&entry.extra.sizeM>0?entry.extra.sizeM:entry.value).ToString("0.00"), " m");if(tab==1)return DesktopLocalization.Concat(Mathf.RoundToInt(entry.value), " 金币");return Mathf.RoundToInt(entry.value)+(tab==2?" 条":" 条史诗+");}
     }
 }

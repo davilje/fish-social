@@ -142,7 +142,7 @@ namespace FishSocial.Desktop
                 return;
             if (FindComponent<Image>(button.transform, "CozyVisual") == null)
             {
-                Debug.LogError("[DesktopUI] Button requires its serialized CozyVisual Image: " + button.name, button);
+                Debug.LogError(DesktopLocalization.Concat("[DesktopUI] Button requires its serialized CozyVisual Image: ", button.name), button);
                 return;
             }
             visual.Configure(button, null, primary);
@@ -161,7 +161,7 @@ namespace FishSocial.Desktop
             foreach (var label in button.GetComponentsInChildren<Text>(true))
             {
                 if (label.text == "按钮")
-                    label.text = string.Empty;
+                    DesktopLocalization.SetText(label, string.Empty);
                 if (target == null && (label.name == "Label" || label.name == "Text"))
                 {
                     target = label;
@@ -171,10 +171,10 @@ namespace FishSocial.Desktop
             }
             if (target != null)
             {
-                target.text = value ?? string.Empty;
+                DesktopLocalization.SetText(target, value ?? string.Empty);
                 foreach (var duplicate in button.GetComponentsInChildren<Text>(true))
                     if (duplicate != target && (duplicate.name == "Label" || duplicate.name == "Text"))
-                        duplicate.text = string.Empty;
+                        DesktopLocalization.SetText(duplicate, string.Empty);
             }
             foreach (var label in button.GetComponentsInChildren<Text>(true))
             {
@@ -417,8 +417,7 @@ namespace FishSocial.Desktop
             {
                 if (FindChild(root, path) != null)
                     continue;
-                Debug.LogError("[DesktopUI] Required prefab node is missing: Desktop/Prefabs/" +
-                               prefab + "/" + path, root);
+                Debug.LogError(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("[DesktopUI] Required prefab node is missing: Desktop/Prefabs/", prefab), "/"), path), root);
                 valid = false;
             }
             return valid;
@@ -430,7 +429,7 @@ namespace FishSocial.Desktop
             go.transform.SetParent(parent, false);
             var label = go.GetComponent<Text>();
             label.font = Font;
-            label.text = text;
+            DesktopLocalization.SetText(label, text);
             label.fontSize = size;
             label.color = CatTheme.Ink;
             label.alignment = align;

@@ -90,7 +90,7 @@ namespace FishSocialOverlay
 
             if (chats == null || chats.Length == 0)
             {
-                _preview.Text = OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息");
+                OverlayLocalization.SetText(_preview, OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息"));
                 return;
             }
 
@@ -106,11 +106,11 @@ namespace FishSocialOverlay
 
             if (latest == null)
             {
-                _preview.Text = OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息");
+                OverlayLocalization.SetText(_preview, OverlayLocalization.Text("ui.social.overlay_chat.empty.public_messages", "暂无公屏消息"));
                 return;
             }
 
-            _preview.Text = FormatLine(latest);
+            OverlayLocalization.SetText(_preview, FormatLine(latest));
         }
 
         void UpdateLog(OverlayChatDto[] chats, bool forceScrollToEnd)
@@ -150,7 +150,7 @@ namespace FishSocialOverlay
             {
                 if (i == _logList.Children.Count) _logList.Children.Add(CreateLogLine(lines[i]));
                 else if (((TextBlock)_logList.Children[i]).Text != lines[i])
-                    ((TextBlock)_logList.Children[i]).Text = lines[i];
+                    OverlayLocalization.SetText(((TextBlock)_logList.Children[i]), lines[i]);
             }
 
             if (_logScroll == null) return;
@@ -166,7 +166,7 @@ namespace FishSocialOverlay
 
         TextBlock CreateLogLine(string text)
         {
-            return new TextBlock
+            return OverlayLocalization.Track(new TextBlock
             {
                 Text = text,
                 TextWrapping = TextWrapping.Wrap,
@@ -174,7 +174,7 @@ namespace FishSocialOverlay
                 FontFamily = _logFontFamily,
                 FontSize = _logFontSize,
                 Foreground = _logForeground,
-            };
+            });
         }
 
         static string FormatLine(OverlayChatDto chat)
@@ -185,7 +185,7 @@ namespace FishSocialOverlay
                 : string.IsNullOrWhiteSpace(chat.Nickname) ? OverlayLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友") : chat.Nickname.Trim();
             var text = (chat.Text ?? string.Empty).Trim();
             // Only server announcements carry application copy. Player chat remains verbatim.
-            return nick + "：" + (announcement ? OverlayLocalization.Message(text) : text);
+            return OverlayLocalization.Concat(OverlayLocalization.Concat(nick, "："), (announcement ? OverlayLocalization.Message(text) : text));
         }
 
         public static bool ContainsText(OverlayChatDto[] chats, string text)

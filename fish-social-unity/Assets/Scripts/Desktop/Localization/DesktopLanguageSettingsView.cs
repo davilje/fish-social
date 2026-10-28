@@ -8,8 +8,6 @@ namespace FishSocial.Desktop
     {
         readonly Button[] choices = new Button[2];
         static readonly string[] Languages = { "zh-CN", "en-US" };
-        static readonly string[] Keys = { "ui.settings.language.option.chinese", "ui.settings.language.option.english" };
-        static readonly string[] Fallbacks = { "简体中文", "English" };
 
         public static void Ensure(Transform parent, float y = 700, float width = 674)
         {
@@ -39,7 +37,9 @@ namespace FishSocial.Desktop
                 var button = choices[i];
                 if (button == null) continue;
                 var label = button.GetComponentInChildren<Text>();
-                DesktopLocalization.SetText(label, DesktopLocalization.Text(Keys[i], Fallbacks[i]));
+                DesktopLocalization.SetText(label, i == 0
+                    ? DesktopLocalization.Text("ui.settings.language.option.chinese", "简体中文")
+                    : DesktopLocalization.Text("ui.settings.language.option.english", "English"));
                 button.interactable = language != Languages[i];
             }
         }

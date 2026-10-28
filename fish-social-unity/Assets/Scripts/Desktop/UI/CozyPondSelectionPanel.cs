@@ -141,7 +141,7 @@ namespace FishSocial.Desktop
                 var message = empty != null ? DesktopModalUi.FindComponent<Text>(empty.transform, "Message") : null;
                 if (message != null)
                 {
-                    message.text = DesktopLocalization.Text("ui.map.pond_list.empty.no_matches", "没有找到这片水域。\n试试其他名称，或清除筛选。");
+                    DesktopLocalization.SetText(message, DesktopLocalization.Text("ui.map.pond_list.empty.no_matches", "没有找到这片水域。\n试试其他名称，或清除筛选。"));
                     var layout = empty.GetComponent<LayoutElement>() ?? empty.AddComponent<LayoutElement>();
                     layout.ignoreLayout = true;
                     var rect = (RectTransform)empty.transform;
@@ -164,7 +164,7 @@ namespace FishSocial.Desktop
                     var message = DesktopModalUi.FindComponent<Text>(footer.transform, "Message");
                     if (message != null)
                     {
-                        message.text = DesktopLocalization.Text("ui.map.pond_list.footer.good_luck", "到底了，愿你今天满载而归。"); message.fontSize = 16;
+                        DesktopLocalization.SetText(message, DesktopLocalization.Text("ui.map.pond_list.footer.good_luck", "到底了，愿你今天满载而归。")); message.fontSize = 16;
                         message.alignment = TextAnchor.MiddleCenter; message.color = new Color32(175,139,105,255);
                         message.rectTransform.anchorMin = Vector2.zero; message.rectTransform.anchorMax = Vector2.one;
                         message.rectTransform.offsetMin = message.rectTransform.offsetMax = Vector2.zero;
@@ -174,7 +174,7 @@ namespace FishSocial.Desktop
             _scroll.StopMovement();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_cards);
             _scroll.verticalNormalizedPosition = 1f;
-            if (_resultCount != null) _resultCount.text = DesktopLocalization.Format("ui.map.pond_list.count", (object)(cardCount));
+            if (_resultCount != null) DesktopLocalization.SetText(_resultCount, DesktopLocalization.Format("ui.map.pond_list.count", (object)(cardCount)));
             var grid = _cards != null ? _cards.GetComponent<GridLayoutGroup>() : null;
             if (grid != null && grid.padding.top < 28)
                 grid.padding = new RectOffset(grid.padding.left, grid.padding.right, 28, grid.padding.bottom);
@@ -190,7 +190,7 @@ namespace FishSocial.Desktop
             var card = DesktopUiPrefabFactory.Instantiate("PondSelectionCard", _cards);
             if (card == null)
                 return;
-            card.name = "PondCard_" + pond.pondId;
+            card.name = DesktopLocalization.Concat("PondCard_", pond.pondId);
             var name = DesktopModalUi.FindComponent<Text>(card.transform, "Name");
             var description = DesktopModalUi.FindComponent<Text>(card.transform, "Description");
             var fee = DesktopModalUi.FindComponent<Text>(card.transform, "Fee");
@@ -225,7 +225,7 @@ namespace FishSocial.Desktop
             select.onClick.RemoveAllListeners();
             select.onClick.AddListener(() => SelectPond(pondId));
             icon.color = CozyPondMarkerView.CategoryColor(pond.pondCategory);
-            CozyStickerMotion.Bind(card, "pond:" + pondId, index, _scroll.viewport, pondId, pondObserver: true);
+            CozyStickerMotion.Bind(card, DesktopLocalization.Concat("pond:", pondId), index, _scroll.viewport, pondId, pondObserver: true);
         }
 
         static void EnableScrollHit(ScrollRect scroll)
@@ -264,7 +264,7 @@ namespace FishSocial.Desktop
             {
                 var card = _cards.GetChild(i);
                 if (!card.gameObject.activeSelf) continue;
-                var selected = card.name == "PondCard_" + _selectedId;
+                var selected = card.name == DesktopLocalization.Concat("PondCard_", _selectedId);
                 card.GetComponent<CozyButtonVisual>()?.SetSelected(selected);
                 var tape = card.Find("PondTape");
                 if (tape != null)
@@ -278,7 +278,7 @@ namespace FishSocial.Desktop
                 if (accessLabel != null) accessLabel.SetAsLastSibling();
                 var access = DesktopModalUi.FindComponent<Text>(card, "Access");
                 foreach (var pond in ponds)
-                    if (pond != null && card.name == "PondCard_" + pond.pondId)
+                    if (pond != null && card.name == DesktopLocalization.Concat("PondCard_", pond.pondId))
                     {
                         card.GetComponent<CozyPondCardContent>()?.Bind(pond,DesktopGameData.GetPond(pond.pondId),_selection);
                         var icon = DesktopModalUi.FindComponent<Image>(card, "PondIcon");
@@ -300,7 +300,7 @@ namespace FishSocial.Desktop
             {
                 _enter.interactable = allowed && !busy && _enterPond != null;
                 var label = _enter.GetComponentInChildren<Text>(true);
-                if (label != null) label.text = busy ? DesktopLocalization.Text("ui.map.pond_entry.button.entering", "正在进入…") : allowed ? DesktopLocalization.Text("ui.map.pond_entry.button.enter", "进入鱼塘") : DesktopLocalization.Text("ui.map.pond_entry.button.unavailable", "暂不可进入");
+                if (label != null) DesktopLocalization.SetText(label, busy ? DesktopLocalization.Text("ui.map.pond_entry.button.entering", "正在进入…") : allowed ? DesktopLocalization.Text("ui.map.pond_entry.button.enter", "进入鱼塘") : DesktopLocalization.Text("ui.map.pond_entry.button.unavailable", "暂不可进入"));
                 _enter.GetComponent<CozyJournalInlineContent>()?.Reflow();
             }
             if (_locate != null) _locate.interactable = !busy && !string.IsNullOrEmpty(_selectedId) && _focusPond != null;
@@ -355,7 +355,7 @@ namespace FishSocial.Desktop
             if (_filter == 2 && !PondSelectionState.IsFree(pond)) return false;
             var query = _search != null ? _search.text.Trim() : string.Empty;
             if (query.Length == 0) return true;
-            var haystack = pond.displayName + " " + pond.pondId + " " + Describe(pond, definition);
+            var haystack = DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(pond.displayName, " "), pond.pondId), " "), Describe(pond, definition));
             return haystack.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
@@ -390,7 +390,7 @@ namespace FishSocial.Desktop
 
         static string Describe(WorldMapPondView pond, DesktopGameData.PondDef definition)
         {
-            var description = new StringBuilder(DesktopGameData.CategoryLabel(pond.pondCategory));
+            var description = new FishSocial.Localization.LocalizedStringBuilder(DesktopGameData.CategoryLabel(pond.pondCategory));
             if (definition != null)
             {
                 if (!string.IsNullOrEmpty(definition.waterType))
