@@ -304,7 +304,7 @@ namespace FishSocial.Desktop
 
             var journal = transform.Find("JournalCatch") != null;
             if (_authorText != null)
-                DesktopLocalization.SetText(_authorText, (_post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友")) + (journal ? "" : DesktopLocalization.Concat(" · ", FormatTime(_post.createdAt))));
+                DesktopLocalization.SetText(_authorText, DesktopLocalization.Concat(_post.nickname ?? DesktopLocalization.Text("ui.social.overlay_chat.default_nickname", "钓友"), journal ? "" : DesktopLocalization.Concat(" · ", FormatTime(_post.createdAt))));
             if (journal)
             {
                 CozyItemArt.Set(transform, "Header/JournalAvatar", DesktopDefaultAvatars.Portrait(_post.authorAvatarUrl, _post.playerId));
@@ -354,7 +354,7 @@ namespace FishSocial.Desktop
             StyleQuiet(_commentsButton, false);
             if (_likeButton != null)
                 SetButtonText(_likeButton,
-                    (_post.likedByMe ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 ")) + _post.likeCount);
+                    DesktopLocalization.Concat(_post.likedByMe ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 "), _post.likeCount));
             if (_commentsButton != null)
                 SetButtonText(_commentsButton, DesktopLocalization.Format("ui.social.post_card.button.comment_count", (object)(_post.commentCount)));
             CommentCountChanged?.Invoke(_post.commentCount);
@@ -477,7 +477,7 @@ namespace FishSocial.Desktop
             if (!ok) { CozyActionFeedback.Play(_likeButton.transform,false,"点赞失败"); return; }
             _post.likedByMe = liked;
             _post.likeCount = count;
-            SetButtonText(_likeButton, (liked ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 ")) + count);
+            SetButtonText(_likeButton, DesktopLocalization.Concat(liked ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 "), count));
             RefreshLikeColor();
             var rect = _likeButton.transform as RectTransform;
             CozyMotion.Cancel(rect);
@@ -527,7 +527,7 @@ namespace FishSocial.Desktop
             if (_post == null || message == null || message.postId != _post.id) return;
             _post.likeCount = message.likeCount;
             if (_api != null && message.playerId == _api.PlayerId) _post.likedByMe = message.liked;
-            SetButtonText(_likeButton, (_post.likedByMe ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 ")) + _post.likeCount);
+            SetButtonText(_likeButton, DesktopLocalization.Concat(_post.likedByMe ? DesktopLocalization.Text("ui.social.post_card.button.liked", "♥ 已赞 ") : DesktopLocalization.Text("ui.social.post_card.button.like", "♡ 点赞 "), _post.likeCount));
         }
 
         public void ApplyCommented(PostCommentedDto message)

@@ -114,6 +114,7 @@ static class LocalizationCatalogTests
         });
         LocalizationCatalog.SetLanguage("zh-CN");
         LocalizationCatalog.LanguageChanged -= changed;
+        GarbageCollectionIdentityTests();
         Console.WriteLine("PASS: " + assertions + " localization assertions and 250 concurrent renders.");
         return 0;
     }
@@ -204,6 +205,37 @@ static class LocalizationCatalogTests
         LocalizationCatalog.SetLanguage("zh-CN");
         Equal(chinese, LocalizationCatalog.Render(first));
         Equal("你好", LocalizationCatalog.Render(clue));
+    }
+
+    static void GarbageCollectionIdentityTests()
+    {
+        var entries = new LocalizationEntry[512];
+        var labels = new string[entries.Length];
+        var userLabels = new string[entries.Length];
+        for (var i = 0; i < entries.Length; i++)
+            entries[i] = E("ui.gc.label_" + i, "相同中文", "Label " + i);
+        LocalizationCatalog.Load(entries);
+        LocalizationCatalog.SetLanguage("zh-CN");
+        for (var i = 0; i < entries.Length; i++)
+        {
+            labels[i] = LocalizationCatalog.Concat(LocalizationCatalog.Text(entries[i].key), "!");
+            userLabels[i] = new string("相同中文!".ToCharArray());
+        }
+        for (var pass = 0; pass < 8; pass++)
+        {
+            Parallel.For(0, 1024, i => LocalizationCatalog.Text(entries[i % entries.Length].key));
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            var english = pass % 2 == 0;
+            LocalizationCatalog.SetLanguage(english ? "en-US" : "zh-CN");
+            for (var i = 0; i < entries.Length; i++)
+            {
+                Equal(english ? "Label " + i + "!" : "相同中文!", LocalizationCatalog.Render(labels[i]));
+                Equal("相同中文!", LocalizationCatalog.Render(userLabels[i]));
+                Check(!LocalizationCatalog.IsLocalized(userLabels[i]), "GC must not transfer a plan to equal player text.");
+            }
+        }
     }
 
     static void TransformTests()

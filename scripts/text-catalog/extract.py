@@ -251,6 +251,22 @@ def unwrap_parentheses(node):
     return node
 
 
+def node_is_technical_identity(node):
+    # These declarations hold stable hierarchy identities, not visible labels.
+    # Inspect the owning declarator rather than nearby text so a display string
+    # in the same statement or a later UI call is not accidentally excluded.
+    ancestor = node.parent
+    while ancestor is not None:
+        if ancestor.type == "variable_declarator":
+            name = ancestor.child_by_field_name("name")
+            return name is not None and bool(re.search(
+                r"(?:NodeNames?|NodePaths?|HierarchyPaths?|PrefabPaths?)$", text(name), re.I))
+        if ancestor.type in {"expression_statement", "return_statement", "method_declaration"}:
+            break
+        ancestor = ancestor.parent
+    return False
+
+
 def node_is_debug(node,member,filename):
     if code_node_is_debug(node,member,filename,text):return True
     ancestor=node.parent
@@ -268,7 +284,7 @@ def parent_plus(node):
     return plus(parent)
 
 
-def make_template(node):
+def make_template(node, operands=None):
     """Collapse only string additions; numeric/expression operands remain intact."""
     params = []
     def var(n, suffix=""):
@@ -293,10 +309,9 @@ def make_template(node):
                         fragments.append(var(expressions[0], suffix))
             return "".join(fragments)
         if plus(n) and any(x.type in {"string_literal", "verbatim_string_literal", "raw_string_literal", "string", "interpolated_string_expression", "template_string"} for x in walk(n)):
-            left,right=plus_operands(n)
-            return piece(left)+piece(right)
+            return "".join(piece(operand) for operand in plus_operands(n))
         return var(n)
-    value = piece(node)
+    value = piece(node) if operands is None else "".join(piece(operand) for operand in operands)
     if not params and plus(node):
         value = value.replace("{{", "{").replace("}}", "}")
     return value, params
@@ -376,6 +391,9 @@ def code_file(path, relative):
             value, variables, kind = literal(n), [], "代码常量"
         else:
             continue
+        if node_is_technical_identity(n):
+            skipped["层级节点标识"] += 1
+            continue
         if (kind=='代码常量' and n.parent is not None and n.parent.type=='binary_expression' and
                 any(c.type in {'==','!=','===','!=='} for c in n.parent.children)):
             skipped['比较与匹配常量']+=1
@@ -383,10 +401,10 @@ def code_file(path, relative):
         ctx = context(n)
         if (kind=='拼接模板' and n.type=='invocation_expression' and plus(n) and
                 n.parent is not None and n.parent.type=='assignment_expression'):
-            left,right=plus_operands(n)
+            operands=plus_operands(n)
             assigned=n.parent.child_by_field_name('left')
-            if assigned is not None and text(assigned)==text(left):
-                candidate,candidate_variables=make_template(right)
+            if len(operands) > 1 and assigned is not None and text(assigned)==text(operands[0]):
+                candidate,candidate_variables=make_template(n, operands=operands[1:])
                 candidate_key='txt_'+hashlib.sha256((module(relative)+'\0'+category(relative,ctx,kind,candidate)+'\0'+kind+'\0'+candidate).encode()).hexdigest()[:16]
                 identity=(candidate_key,str(relative),kind,member_name(n))
                 if identity in reviewed_expression_hashes():value,variables=candidate,candidate_variables

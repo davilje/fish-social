@@ -83,12 +83,59 @@ class LocalizedExtractionTests(unittest.TestCase):
         parenthesized=list(EXTRACT.entries.values())[0]
         self.assertEqual(original['sourceText'],parenthesized['sourceText'])
 
+    def test_variadic_concat_preserves_every_operand_and_template_identity(self):
+        self.scan('var label="数量：" + count + " 条；等级：" + level;')
+        original=list(EXTRACT.entries.values())[0]
+        EXTRACT.entries.clear()
+        self.scan('var label=DesktopLocalization.Concat("数量：", count, " 条；等级：", level);')
+        migrated=list(EXTRACT.entries.values())[0]
+        self.assertEqual((original['key'],original['sourceText']),(migrated['key'],migrated['sourceText']))
+        self.assertEqual('数量：{0} 条；等级：{1}',migrated['sourceText'])
+        self.assertEqual(original['sources'][0]['variables'],migrated['sources'][0]['variables'])
+
+    def test_variadic_concat_preserves_numeric_addition_as_one_argument(self):
+        self.scan('var label=DesktopLocalization.Concat(count + bonus, " 条 / ", (level + 1), " 级");')
+        entry=list(EXTRACT.entries.values())[0]
+        self.assertEqual('{0} 条 / {1} 级',entry['sourceText'])
+        self.assertEqual(['count + bonus','(level + 1)'],[v['expression'] for v in entry['sources'][0]['variables']])
+        EXTRACT.entries.clear()
+        self.scan('var label=count + bonus + " 条 / " + (level + 1) + " 级";')
+        original=list(EXTRACT.entries.values())[0]
+        self.assertEqual(entry['key'],original['key'])
+        self.assertEqual(entry['sources'][0]['variables'],original['sources'][0]['variables'])
+
+    def test_variadic_assignment_keeps_reviewed_append_identity(self):
+        self.scan('label += "新增：" + count + " 条";')
+        original=list(EXTRACT.entries.values())[0]
+        identity=(original['key'],'desktop-overlay/View.cs','拼接模板','Draw')
+        EXTRACT.entries.clear()
+        with patch.object(EXTRACT,'reviewed_expression_hashes',return_value={identity:{'b'*64}}):
+            self.scan('label = DesktopLocalization.Concat(label, "新增：", count, " 条");')
+        migrated=list(EXTRACT.entries.values())[0]
+        self.assertEqual(original['key'],migrated['key'])
+        self.assertEqual('新增：{0} 条',migrated['sourceText'])
+        self.assertEqual(original['sources'][0]['variables'],migrated['sources'][0]['variables'])
+        EXTRACT.entries.clear()
+        self.scan('label = DesktopLocalization.Concat("短标签");')
+        self.assertEqual(['短标签'],[e['sourceText'] for e in EXTRACT.entries.values()])
+
     def test_nearby_localization_does_not_turn_protocol_id_into_copy(self):
         key=self.prototype('ui.test.preset','标准')
         self.scan('var preset=new Preset("960x560", OverlayLocalization.Text("ui.test.preset", "标准"));')
         self.assertEqual([key],list(EXTRACT.entries))
         self.scan('if (content == "取消") Play("ui_close");')
         self.assertEqual([key],list(EXTRACT.entries))
+
+    def test_hierarchy_identity_fields_are_excluded_without_hiding_labels(self):
+        path=Path(self.temp.name)/'View.cs'
+        path.write_text('class View { static readonly string[] TabNodeNames = { "Tab_资料", "Tab_展示柜", "Tab_图鉴", "Tab_相册", "Tab_成就" }; '
+                        'static readonly string[] TabLabels = { "资料", "展示柜" }; '
+                        'void Draw() { var nodePath="Shell/Tab_资料"; Label("Tab_资料"); } }')
+        EXTRACT.code_file(path,Path('desktop-overlay/View.cs'))
+        self.assertEqual({'资料','展示柜','Tab_资料'},{e['sourceText'] for e in EXTRACT.entries.values()})
+        entry=next(e for e in EXTRACT.entries.values() if e['sourceText']=='Tab_资料')
+        self.assertEqual(['Draw'],[source['location'] for source in entry['sources']])
+        self.assertEqual(6,EXTRACT.skipped['层级节点标识'])
 
     def test_deep_concat_inside_log_is_excluded(self):
         expression='"日志："'

@@ -1395,8 +1395,8 @@ namespace FishSocialOverlay
                                  string.Equals(phase, "groundbaiting", StringComparison.Ordinal);
             var busyLeave = _pendingActionName == "leave_spot";
 
-            var quotaBlocked = string.Equals(
-                message.ErrorMessage, "今日钓鱼时长已用完", StringComparison.Ordinal);
+            var quotaBlocked = OverlayLocalization.IsMessage(
+                message.ErrorMessage, "ui.fishing.session.error.daily_time_exhausted");
             if (showDock)
             {
                 FishingToggleButton.Visibility = Visibility.Visible;

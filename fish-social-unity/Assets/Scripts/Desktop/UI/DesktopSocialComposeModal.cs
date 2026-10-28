@@ -51,6 +51,7 @@ namespace FishSocial.Desktop
             }
             var root = Instantiate(prefab, canvas, false);
             root.name = "JournalComposeModal";
+            DesktopLocalization.BindPrefab(root, ResourcePath);
             root.SetActive(false);
             var modal = root.GetComponent<DesktopSocialComposeModal>();
             if (modal != null && modal.BindControls()) return modal;
@@ -249,6 +250,7 @@ namespace FishSocial.Desktop
                 {
                     var index = i; var item = _inventory[i];
                     var card = Instantiate(_cardTemplate, _cardContent, false);
+                    DesktopLocalization.CopyBindings(_cardTemplate.gameObject, card.gameObject);
                     card.name = DesktopLocalization.Concat("FishCard_", i); card.gameObject.SetActive(true);
                     CozyWorkspaceInteraction.Bind(card, CozyWorkspaceInteraction.Kind.Choice);
                     var name = card.transform.Find("Name")?.GetComponent<Text>();

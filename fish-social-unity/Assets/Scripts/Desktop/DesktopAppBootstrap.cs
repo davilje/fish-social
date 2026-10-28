@@ -1275,7 +1275,7 @@ namespace FishSocial.Desktop
                     : (message ?? DesktopLocalization.Text("ui.common.groundbait.error.failed", "打窝失败。"));
                 // Gold / cap errors surface as Overlay bubble via observation-style tip
                 if (!ok && !string.IsNullOrEmpty(message) &&
-                    (message.Contains("金币") || message.Contains("上限")))
+                    (_pondSession.IsGroundbaitStackFull || message.Contains("金币") || message.Contains("上限")))
                     QueueGroundbaitBubble(message);
                 CompleteOverlayAck(commandId, "groundbait_start", ok, _nativeOverlayError);
                 PublishNativeOverlayState();

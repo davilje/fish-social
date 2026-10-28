@@ -1537,7 +1537,9 @@ namespace FishSocialOverlay
             {
                 var remaining = Math.Max(0, _hookDeadlineMs - NowMs());
                 if (remaining > 0)
-                    return (IsGroundbaitPhase(_fishingPhase) ? OverlayLocalization.Text("ui.home.pet_hover.label.groundbait_duration", "打窝 ") : OverlayLocalization.Text("ui.home.pet_hover.label.reel_duration", "收杆 ")) + FormatDuration(remaining);
+                    return OverlayLocalization.Concat(
+                        IsGroundbaitPhase(_fishingPhase) ? OverlayLocalization.Text("ui.home.pet_hover.label.groundbait_duration", "打窝 ") : OverlayLocalization.Text("ui.home.pet_hover.label.reel_duration", "收杆 "),
+                        FormatDuration(remaining));
             }
 
             if (IsFishingPhase(_fishingPhase) ||
@@ -2304,6 +2306,7 @@ namespace FishSocialOverlay
                 return;
             }
             RelayoutAndPlace();
+            RefreshOpenHover();
         }
 
         static double SlotWidth(OverlayLayoutObjectDto part, double fallback)

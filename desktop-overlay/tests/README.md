@@ -48,3 +48,9 @@ Windows 项目引用正式 Overlay 程序并复制 OverlayResources；缓存测�
 - WPF 新增四组运动采样／源 PNG 缓存／细线绘制／窗口尺寸测试，以及三组打窝阶段、中断和换皮测试；连同 22E 共 28 组，仅在 Windows 实际运行后才能标记原生通过。
 - 原生运动组已扩展十四动作、脚底固定整体微转、手持鱼、等待／发力循环及窗口尺寸下撒料偏移。当前跨平台行为合计 63 项通过，Web 560 次采样通过；原生组仅编译，未在 macOS 运行。
 - [22D / 22F 实现与验收](../../docs/工程/动画交互/2026-10-24-overlay-motion-22df.md)。
+
+## Localization display and IPC regression
+
+Run `dotnet run --project desktop-overlay/tests/FishSocialOverlay.LocalizationDisplayTests.csproj` from the repository root. The test compiles the production localization binding, catalog loader, IPC DTO and chat presenter against a small WPF dependency-property/Loaded/dispatcher model, using the packaged production catalog. It checks dynamic content surviving initial Loaded, obsolete bindings, Chinese/English quota status, system announcements, player text preservation, retained chat across language changes, deferred chat logs and tutorial/patrol copy.
+
+This portable test validates text/state behavior, not real WPF visual measurement. Also build `desktop-overlay/FishSocialOverlay.csproj` with `-p:EnableWindowsTargeting=true`; Windows visual checks remain necessary for rendered layout.

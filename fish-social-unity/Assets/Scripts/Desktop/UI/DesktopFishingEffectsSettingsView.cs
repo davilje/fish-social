@@ -58,7 +58,7 @@ namespace FishSocial.Desktop
             {
                 if (choices[i] == null) continue;
                 var label = choices[i].GetComponentInChildren<Text>();
-                if (label != null) DesktopLocalization.SetText(label, (quality == Values[i] ? "✓ " : "") + Labels[i]);
+                if (label != null) DesktopLocalization.SetText(label, DesktopLocalization.Concat(quality == Values[i] ? "✓ " : "", Labels[i]));
             }
         }
         void OnReducedChanged(bool reduced) { Refresh(); }

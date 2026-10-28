@@ -423,8 +423,8 @@ namespace FishSocial.Desktop
             {
                 var row=Row("FriendRequestRow",_notificationsContent,!Application.isPlaying);if(row==null)continue;
                 var when=notice.CreatedAt>0?DesktopLocalization.Concat(DateTimeOffset.FromUnixTimeMilliseconds(notice.CreatedAt).ToLocalTime().ToString("HH:mm"), "  "):"";
-                Label(row,"Name",DesktopLocalization.Concat(DesktopLocalization.Concat((notice.Read?"":"● ")+NoticeKind(notice.Kind), "  "), notice.Title));
-                Label(row,"Detail",when+(notice.Body??""));
+                Label(row,"Name",DesktopLocalization.Concat(notice.Read ? "" : "● ", NoticeKind(notice.Kind), "  ", notice.Title));
+                Label(row,"Detail",DesktopLocalization.Concat(when, notice.Body ?? ""));
                 var open=DesktopModalUi.FindComponent<Button>(row.transform,"Accept");
                 var read=DesktopModalUi.FindComponent<Button>(row.transform,"Reject");
                 if(open!=null)DesktopModalUi.SetButtonLabel(open,NoticeAction(notice.Kind));

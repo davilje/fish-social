@@ -62,7 +62,7 @@ namespace FishSocial.Localization
         public const string Chinese = "zh-CN";
         public const string English = "en-US";
         static readonly object Gate = new object();
-        static readonly ConditionalWeakTable<string, RenderPlan> Plans = new ConditionalWeakTable<string, RenderPlan>();
+        static readonly WeakRenderPlans Plans = new WeakRenderPlans();
         static readonly Regex Placeholder = new Regex(@"\{(?<index>\d+)(?:,-?\d+)?(?::(?<format>[^{}]*))?\}", RegexOptions.CultureInvariant);
         static Catalog catalog = new Catalog();
         static string language = Chinese;
@@ -363,6 +363,63 @@ namespace FishSocial.Localization
         }
 
         enum PlanKind { Text, Concat, Join, Date, Transform }
+
+        // Unity 2021's Mono ephemeron table can return an invalid TValue after GC
+        // (observed during Settings.Bind). Keep weak string keys with explicit
+        // reference identity instead. Equal player text must never inherit a plan.
+        sealed class WeakRenderPlans
+        {
+            sealed class Item
+            {
+                public WeakReference Key;
+                public RenderPlan Plan;
+            }
+
+            readonly object gate = new object();
+            readonly Dictionary<int, List<Item>> buckets = new Dictionary<int, List<Item>>();
+            int additions;
+
+            public bool TryGetValue(string key, out RenderPlan plan)
+            {
+                lock (gate)
+                {
+                    List<Item> items;
+                    if (buckets.TryGetValue(RuntimeHelpers.GetHashCode(key), out items))
+                        foreach (var item in items)
+                            if (ReferenceEquals(item.Key.Target, key))
+                            {
+                                plan = item.Plan;
+                                return true;
+                            }
+                }
+                plan = null;
+                return false;
+            }
+
+            public void Add(string key, RenderPlan plan)
+            {
+                lock (gate)
+                {
+                    if (++additions % 256 == 0) RemoveCollected();
+                    var hash = RuntimeHelpers.GetHashCode(key);
+                    List<Item> items;
+                    if (!buckets.TryGetValue(hash, out items))
+                        buckets.Add(hash, items = new List<Item>());
+                    items.Add(new Item { Key = new WeakReference(key), Plan = plan });
+                }
+            }
+
+            void RemoveCollected()
+            {
+                var empty = new List<int>();
+                foreach (var pair in buckets)
+                {
+                    pair.Value.RemoveAll(item => !item.Key.IsAlive);
+                    if (pair.Value.Count == 0) empty.Add(pair.Key);
+                }
+                foreach (var hash in empty) buckets.Remove(hash);
+            }
+        }
 
         sealed class RenderPlan
         {

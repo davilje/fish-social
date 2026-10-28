@@ -128,6 +128,7 @@ namespace FishSocial.Desktop
                 if (source == null)
                     return;
                 copy = Instantiate(source.gameObject, source.parent);
+                DesktopLocalization.CopyBindings(source.gameObject, copy);
                 copy.name = "减少动效";
                 var rect = copy.GetComponent<RectTransform>();
                 var exit = DesktopModalUi.FindDescendant(transform, "退出游戏") as RectTransform;
@@ -280,7 +281,7 @@ namespace FishSocial.Desktop
                     DesktopLocalization.SetText(_tabInfo, DesktopLocalization.Format("ui.settings.description.window_settings", (object)(current)));
                     break;
                 case 1:
-                    DesktopLocalization.SetText(_tabInfo, DesktopLocalization.Text("ui.settings.description.notifications", "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。\n\n「模拟连接错误」用于检查提醒是否正常。"));
+                    DesktopLocalization.SetText(_tabInfo, DesktopLocalization.Text("ui.settings.description.notifications", "关闭「启用通知」后，所有桌面提醒都会静音。\n\n免打扰期间仍会记录消息，但不会弹出提示。"));
                     break;
                 case 2:
                     DesktopLocalization.SetText(_tabInfo, "填写服务器地址并保存，重启客户端后生效。\n\n保存前可先「测试服务器连接」，检查 /health 是否可达。");
@@ -478,6 +479,7 @@ namespace FishSocial.Desktop
                     else
                     {
                         var clone = Instantiate(template.gameObject, template.parent);
+                        DesktopLocalization.CopyBindings(template.gameObject, clone);
                         clone.name = label;
                         node = clone.transform;
                     }

@@ -26,6 +26,15 @@ def instance(guid,parent,renames):
 
 
 class PrefabBindingTests(unittest.TestCase):
+    def test_catch_announcement_quality_and_species_are_data_but_nickname_is_not(self):
+        for quality in ('quality.name', 'qualityInfo.name'):
+            sources=[{'variables':[
+                {'index':0,'expression':'player.nickname'},
+                {'index':1,'expression':quality},
+                {'index':2,'expression':'species.name'},
+            ]}]
+            self.assertEqual([1,2],EXPORT.data_argument_indices(sources))
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
         self.paths={}

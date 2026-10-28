@@ -22,6 +22,7 @@ namespace FishSocialOverlay
             public DependencyProperty Property;
             public string Original;
             public object LastApplied;
+            public string AttachedKey;
         }
 
         static bool initialized;
@@ -115,6 +116,13 @@ namespace FishSocialOverlay
         {
             EnsureInitialized();
             return LocalizationCatalog.TranslateMessage(value);
+        }
+
+        /// <summary>Compare trusted IPC status copy in either supported language.</summary>
+        public static bool IsMessage(string value, string key)
+        {
+            return !string.IsNullOrEmpty(value) &&
+                string.Equals(Message(value), Text(key), StringComparison.Ordinal);
         }
 
         public static string Data(string value)
@@ -227,6 +235,9 @@ namespace FishSocialOverlay
                 if (liveBindings.Count > 2048) RemoveDeadBindings();
             }
             binding.Original = value;
+            // An explicit runtime assignment supersedes a XAML default, including
+            // assignments made before the element's first Loaded event.
+            binding.AttachedKey = null;
             var rendered = LocalizationCatalog.Render(value);
             target.SetValue(property, rendered);
             binding.LastApplied = target.GetValue(property);
@@ -263,6 +274,9 @@ namespace FishSocialOverlay
         static void Refresh(ValueBinding binding)
         {
             if (!binding.Target.TryGetTarget(out var target)) return;
+            if (!bindings.TryGetValue(target, out var current) ||
+                !current.TryGetValue(binding.Property, out var active) ||
+                !ReferenceEquals(active, binding)) return;
             // A direct user/external assignment supersedes an older localization binding.
             if (!Equals(target.GetValue(binding.Property), binding.LastApplied))
             {
@@ -293,7 +307,31 @@ namespace FishSocialOverlay
         {
             var target = (FrameworkElement)sender;
             target.Loaded -= OnKeyTargetLoaded;
-            ApplyKey(target);
+            var property = TextProperty(target);
+            if (IsAttachedBinding(target, property, GetKey(target))) ApplyKey(target);
+        }
+
+        static DependencyProperty TextProperty(DependencyObject target)
+        {
+            if (target is TextBlock) return TextBlock.TextProperty;
+            if (target is HeaderedItemsControl) return HeaderedItemsControl.HeaderProperty;
+            if (target is HeaderedContentControl) return HeaderedContentControl.HeaderProperty;
+            if (target is ContentControl) return ContentControl.ContentProperty;
+            return null;
+        }
+
+        static bool IsAttachedBinding(DependencyObject target, DependencyProperty property, string key)
+        {
+            return property != null && !string.IsNullOrEmpty(key) &&
+                bindings.TryGetValue(target, out var values) &&
+                values.TryGetValue(property, out var binding) && binding.AttachedKey == key &&
+                Equals(target.GetValue(property), binding.LastApplied);
+        }
+
+        static void MarkAttachedBinding(DependencyObject target, DependencyProperty property, string key)
+        {
+            if (property != null && bindings.TryGetValue(target, out var values) &&
+                values.TryGetValue(property, out var binding)) binding.AttachedKey = key;
         }
 
         static void ApplyKey(DependencyObject target)
@@ -304,6 +342,7 @@ namespace FishSocialOverlay
             else if (target is HeaderedItemsControl header) SetHeader(header, Text(key, header.Header as string));
             else if (target is HeaderedContentControl headerContent) SetHeader(headerContent, Text(key, headerContent.Header as string));
             else if (target is ContentControl content) SetContent(content, Text(key, content.Content as string));
+            MarkAttachedBinding(target, TextProperty(target), key);
         }
 
         static void OnToolTipKeyChanged(DependencyObject target, DependencyPropertyChangedEventArgs args)
@@ -311,6 +350,7 @@ namespace FishSocialOverlay
             if (target is FrameworkElement element)
             {
                 SetToolTip(element, Text((string)args.NewValue, element.ToolTip as string));
+                MarkAttachedBinding(element, FrameworkElement.ToolTipProperty, (string)args.NewValue);
                 element.Loaded += OnToolTipTargetLoaded;
             }
         }
@@ -319,7 +359,10 @@ namespace FishSocialOverlay
         {
             var target = (FrameworkElement)sender;
             target.Loaded -= OnToolTipTargetLoaded;
-            SetToolTip(target, Text(GetToolTipKey(target), target.ToolTip as string));
+            var key = GetToolTipKey(target);
+            if (!IsAttachedBinding(target, FrameworkElement.ToolTipProperty, key)) return;
+            SetToolTip(target, Text(key, target.ToolTip as string));
+            MarkAttachedBinding(target, FrameworkElement.ToolTipProperty, key);
         }
     }
 }

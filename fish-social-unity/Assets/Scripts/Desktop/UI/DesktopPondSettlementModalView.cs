@@ -35,6 +35,7 @@ namespace FishSocial.Desktop
             var prefab = Resources.Load<GameObject>(PrefabPath);
             if (prefab == null) { Debug.LogError(DesktopLocalization.Concat("Missing settlement prefab: ", PrefabPath)); return null; }
             var go = Instantiate(prefab, canvas, false);
+            DesktopLocalization.BindPrefab(go, PrefabPath);
             var view = go.GetComponent<DesktopPondSettlementModalView>();
             if (view == null || go.transform.Find("Panel/RecordTemplate") == null)
             { Debug.LogError("Settlement requires the authored journal workspace layout.", go); Destroy(go); return null; }
@@ -191,7 +192,11 @@ namespace FishSocial.Desktop
         static string Timestamp(long value, string format)
         {
             if (value <= 0) return "—";
-            try { return DateTimeOffset.FromUnixTimeMilliseconds(value).LocalDateTime.ToString(format); }
+            try
+            {
+                var date = DateTimeOffset.FromUnixTimeMilliseconds(value).LocalDateTime;
+                return DesktopLocalization.Transform(format, pattern => date.ToString(pattern));
+            }
             catch (ArgumentOutOfRangeException) { return "—"; }
         }
         void RefreshRecords()
@@ -218,6 +223,7 @@ namespace FishSocial.Desktop
             {
                 var entry = rows[i];
                 var row = Instantiate(template.gameObject, content, false); row.name = DesktopLocalization.Concat("CatchRecord", i); row.SetActive(true);
+                DesktopLocalization.CopyBindings(template.gameObject, row);
                 var rect = (RectTransform)row.transform; rect.anchoredPosition = new Vector2(0, -i * 106f);
                 SetAt(row.transform, "Name", DesktopFishCatalog.SpeciesName(entry.speciesId));
                 SetAt(row.transform, "Time", Timestamp(entry.caughtAt, "MM.dd · HH:mm:ss"));

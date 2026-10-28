@@ -163,8 +163,11 @@ namespace FishSocial.Desktop
         void RestyleUi()
         {
             _heading = Find<Text>("Header/Title");
+            var title = _equipmentMode ? DesktopLocalization.Text("ui.shop.title.my_equipment", "我的装备")
+                : DesktopLocalization.Text("ui.shop.title.fishing_shop", "钓鱼商店");
             if (_heading != null)
-                DesktopLocalization.SetText(_heading, _equipmentMode ? DesktopLocalization.Text("ui.shop.title.my_equipment", "我的装备") : DesktopLocalization.Text("ui.shop.title.fishing_shop", "钓鱼商店"));
+                DesktopLocalization.SetText(_heading, title);
+            DesktopLocalization.SetText(Find<Text>("DesignHeader/Title"), title);
             DesktopModalUi.StyleTree(transform);
             DesktopModalUi.StyleButton(_baitTab, "leaf");
             DesktopModalUi.StyleButton(_tackleTab, "rod");
@@ -554,6 +557,11 @@ namespace FishSocial.Desktop
                 TintTab(_vesselTab, _tab == 2);
             _shopTabsStyled = true;
 
+            var total = _tab == 0 ? _baits.Length : _tab == 1 ? _tackles.Length : _vessels.Length;
+            CozyItemArt.Text(transform, "DesignItemsHeading", DesktopLocalization.Format("ui.shop.category.item_count",
+                (object)(_tab == 0 ? DesktopLocalization.Text("ui.shop.section.bait", "垂钓补给")
+                    : _tab == 1 ? DesktopLocalization.Text("ui.shop.section.rods", "顺手的竿")
+                    : DesktopLocalization.Text("ui.shop.section.vessels", "出海装备")), (object)total));
             var visibleCount = _content.childCount;
             if (rebuildCards)
             {
@@ -564,9 +572,7 @@ namespace FishSocial.Desktop
                 Destroy(_content.GetChild(i).gameObject);
             }
 
-            var total=_tab==0?_baits.Length:_tab==1?_tackles.Length:_vessels.Length;
             if(_selectedIndex<0 && total>0) _selectedIndex=0;
-            CozyItemArt.Text(transform,"DesignItemsHeading",DesktopLocalization.Format("ui.shop.category.item_count", (object)((_tab==0?DesktopLocalization.Text("ui.shop.section.bait", "垂钓补给"):_tab==1?DesktopLocalization.Text("ui.shop.section.rods", "顺手的竿"):DesktopLocalization.Text("ui.shop.section.vessels", "出海装备"))), (object)(total)));
             if (_tab == 0)
             {
                 for (var i = 0; i < _baits.Length; i++)
@@ -577,8 +583,8 @@ namespace FishSocial.Desktop
                     var cost = BaitCost(_baits[i]);
                     CreateCard(i, _baits[i].id, _baits[i].name, "icons/leaf.png",
                         unlocked
-                            ? (_equipmentMode && IsEquippedBait(_baits[i].id) ? DesktopLocalization.Text("ui.shop.badge.equipped", "使用中 · ") : DesktopLocalization.Text("ui.shop.badge.unlocked", "已解锁 · ")) +
-                              (cost <= 0 ? DesktopLocalization.Text("ui.shop.badge.unlimited_free", "无限 · 不扣金") : DesktopLocalization.Format("ui.shop.price.per_use", (object)(cost)))
+                            ? DesktopLocalization.Concat(_equipmentMode && IsEquippedBait(_baits[i].id) ? DesktopLocalization.Text("ui.shop.badge.equipped", "使用中 · ") : DesktopLocalization.Text("ui.shop.badge.unlocked", "已解锁 · "),
+                              cost <= 0 ? DesktopLocalization.Text("ui.shop.badge.unlimited_free", "无限 · 不扣金") : DesktopLocalization.Format("ui.shop.price.per_use", (object)(cost)))
                             : DesktopLocalization.Format("ui.shop.requirement.unlock_level", (object)(BaitUnlockLevel(_baits[i]))));
                     visibleCount++;
                 }

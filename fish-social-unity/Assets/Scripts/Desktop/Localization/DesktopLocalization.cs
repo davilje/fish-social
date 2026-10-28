@@ -22,7 +22,6 @@ namespace FishSocial.Desktop
         static readonly Dictionary<Text, DesktopLocalizedText> textBindings = new Dictionary<Text, DesktopLocalizedText>();
         static readonly Dictionary<string, LocalizationEntry> catalogEntries = new Dictionary<string, LocalizationEntry>(StringComparer.Ordinal);
         static readonly List<DataFieldBinding> dataBindings = new List<DataFieldBinding>();
-        static ConditionalWeakTable<object, HashSet<string>> boundDataFields = new ConditionalWeakTable<object, HashSet<string>>();
         static readonly HashSet<string> DataFields = new HashSet<string>(StringComparer.Ordinal)
         { "name", "displayName", "speciesName", "clueText", "title", "description", "desc", "realWorldRef", "subType", "theme" };
         public static event Action Changed;
@@ -55,7 +54,6 @@ namespace FishSocial.Desktop
             textBindings.Clear();
             catalogEntries.Clear();
             dataBindings.Clear();
-            boundDataFields = new ConditionalWeakTable<object, HashSet<string>>();
             Changed = null;
         }
 
@@ -152,8 +150,9 @@ namespace FishSocial.Desktop
                     continue;
                 }
                 if (!DataFields.Contains(field.Name)) continue;
-                var fields = boundDataFields.GetOrCreateValue(value);
-                if (!fields.Add(field.Name)) continue;
+                // Use the existing weak registrations instead of Mono's conditional
+                // weak table, whose stale handles can return unrelated values after GC.
+                if (dataBindings.Exists(binding => ReferenceEquals(binding.target.Target, value) && binding.field == field)) continue;
                 var localized = Data(original as string);
                 if (!LocalizationCatalog.IsLocalized(localized)) continue;
                 var rendered = LocalizationCatalog.Render(localized);
@@ -208,6 +207,24 @@ namespace FishSocial.Desktop
             }
         }
 
+        /// <summary>Preserves render plans when a live UI template is cloned.</summary>
+        public static void CopyBindings(GameObject template, GameObject instance)
+        {
+            if (template == null || instance == null) return;
+            CopyBindings(template.transform, instance.transform);
+        }
+
+        static void CopyBindings(Transform template, Transform instance)
+        {
+            var source = template.GetComponent<Text>();
+            var target = instance.GetComponent<Text>();
+            if (source != null && target != null && textBindings.TryGetValue(source, out var binding) && binding != null)
+                binding.CopyTo(target);
+            // Sibling indices preserve identity even when templates contain duplicate names.
+            for (var i = 0; i < Math.Min(template.childCount, instance.childCount); i++)
+                CopyBindings(template.GetChild(i), instance.GetChild(i));
+        }
+
         internal static void DiscoverScenePrefabs()
         {
             EnsureInitialized();
@@ -224,6 +241,38 @@ namespace FishSocial.Desktop
                     BindPrefab(root.gameObject, pair.Key);
                 }
             }
+        }
+
+        internal static void FitButtonLabel(Text label)
+        {
+            if (label == null || label.alignment != TextAnchor.MiddleCenter ||
+                (label.name != "Label" && label.name != "L" && label.name != "Text")) return;
+            var button = label.GetComponentInParent<Button>(true);
+            if (button == null) return;
+            var parent = label.transform.parent;
+            if (parent != button.transform && !(parent != null && parent.name == "Visual" && parent.parent == button.transform)) return;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = Math.Min(10, label.fontSize);
+            label.resizeTextMaxSize = label.fontSize;
+            // Old two-character buttons reserve excessive side padding. Reclaim that
+            // space for translated labels, while preserving icon buttons and body text.
+            var buttonRect = button.transform as RectTransform;
+            var iconNode = button.transform.Find("Icon") ?? button.transform.Find("Visual/Icon");
+            var icon = iconNode != null ? iconNode.GetComponent<Image>() : null;
+            if (buttonRect != null && (icon == null || !icon.enabled || icon.sprite == null || !icon.gameObject.activeSelf))
+            {
+                var width = buttonRect.rect.width - 8f;
+                if (width > label.rectTransform.rect.width && label.preferredWidth > label.rectTransform.rect.width)
+                    label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+            }
+            // Unity's best-fit ignores horizontal bounds with Overflow enabled.
+            // Fit the one-line label explicitly instead of allowing a clipped word.
+            var available = label.rectTransform.rect.width;
+            while (available > 0 && label.fontSize > label.resizeTextMinSize && label.preferredWidth > available)
+                label.fontSize--;
+            label.resizeTextMaxSize = label.fontSize;
         }
 
         static void OnLanguageChanged()
@@ -279,9 +328,12 @@ namespace FishSocial.Desktop
         string source;
         string rendered;
         bool configured;
+        int authoredFontSize;
+        int fittedFontSize;
 
         internal void Bind(Text text, string value)
         {
+            if (!configured || text.fontSize != fittedFontSize) authoredFontSize = text.fontSize;
             target = text;
             source = value ?? string.Empty;
             configured = true;
@@ -291,8 +343,12 @@ namespace FishSocial.Desktop
         void Apply()
         {
             if (!configured || target == null) return;
+            if (fittedFontSize > 0 && target.fontSize != fittedFontSize) authoredFontSize = target.fontSize;
             rendered = LocalizationCatalog.Render(source) ?? string.Empty;
             target.text = rendered;
+            target.fontSize = authoredFontSize;
+            DesktopLocalization.FitButtonLabel(target);
+            fittedFontSize = target.fontSize;
         }
 
         internal void Refresh()
@@ -306,6 +362,15 @@ namespace FishSocial.Desktop
                 return;
             }
             Apply();
+        }
+
+        internal void CopyTo(Text clone)
+        {
+            if (configured && target != null && string.Equals(target.text, rendered, StringComparison.Ordinal))
+            {
+                clone.fontSize = authoredFontSize;
+                DesktopLocalization.SetText(clone, source);
+            }
         }
 
         void OnEnable() { if (configured) Refresh(); }

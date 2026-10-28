@@ -148,7 +148,9 @@ namespace FishSocial.Desktop
             for (var i = 0; i < tabLabels.Length; i++)
             {
                 var target = (DesktopProfileHubPanel.HubTab)i;
-                BindWorkspaceButton(DesktopLocalization.Concat("JournalEditRail/Tab_", tabLabels[i]), () => NavigateProfileTab(target));
+                var path = "JournalEditRail/" + DesktopProfileHubPanel.TabNodeName(target);
+                BindWorkspaceButton(path, () => NavigateProfileTab(target));
+                DesktopModalUi.SetButtonLabel(Find<Button>(path), tabLabels[i]);
             }
             BindWorkspaceButton("WorkspaceAvatarTab", () => SelectWorkspaceTab(false));
             BindWorkspaceButton("WorkspaceShowcaseTab", () => SelectWorkspaceTab(true));
@@ -493,6 +495,7 @@ namespace FishSocial.Desktop
         {
             var template = transform.Find(templateName);
             var item = template != null ? Instantiate(template.gameObject, parent, false) : DesktopUiPrefabFactory.Instantiate(fallback, parent);
+            if (template != null) DesktopLocalization.CopyBindings(template.gameObject, item);
             if (item != null)
             {
                 item.SetActive(true);

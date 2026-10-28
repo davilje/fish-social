@@ -138,16 +138,22 @@ class Prefab:
 @lru_cache(None)
 def prefab(path):return Prefab(path)
 
+def data_argument_indices(sources):
+    result=set()
+    for source in sources:
+        for variable in source.get('variables',[]):
+            expression=variable['expression']
+            if re.search(r'(species|qualityInfo|pond|speciesName|qualityName|pondName|\bquality\s*\.)',expression,re.I)and not re.search(r'nickname|player|user',expression,re.I):
+                result.add(variable['index'])
+    return sorted(result)
+
 def main():
     data=json.loads(CATALOG.read_text())
     entries=[];bindings=[];errors=[]
     for e in data['entries']:
         item={k:e[k]for k in ['key','sourceText','zhCN','enUS']}
-        data_args=set()
-        for s in e['sources']:
-            for v in s.get('variables',[]):
-                if re.search(r'(species|qualityInfo|pond|speciesName|qualityName|pondName)',v['expression'],re.I)and not re.search(r'nickname|player|user',v['expression'],re.I):data_args.add(v['index'])
-        if data_args:item['dataArguments']=sorted(data_args)
+        data_args=data_argument_indices(e['sources'])
+        if data_args:item['dataArguments']=data_args
         if any(s['location']in {'QualityRankLabel','DietLabel','CatchGroupLabel','RarityLabel'}or s['file'].endswith(('WorldMapPonds.json','ProfileHubAchievements.json'))or('DesktopFishCatalog.cs'in s['file']and e['sourceText']in {'普通','优良','稀有','史诗','传说','神话','至尊'})for s in e['sources']):item['dataText']=True
         if not item['enUS'].strip():raise ValueError('Missing English: '+e['key'])
         entries.append(item)

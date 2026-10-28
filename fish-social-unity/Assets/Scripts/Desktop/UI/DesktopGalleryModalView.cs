@@ -71,8 +71,9 @@ namespace FishSocial.Desktop
             if (_loading) yield break;
             if (_api == null || !_api.CanUse)
             {
-                DesktopLocalization.SetText(_status, DesktopLocalization.Message(DesktopLocalization.Text("ui.codex.gallery.error.player_missing", "没有玩家身份，无法加载图鉴。")));
-                DesktopLocalization.SetText(_detail, _status.text);
+                var status = DesktopLocalization.Text("ui.codex.gallery.error.player_missing", "没有玩家身份，无法加载图鉴。");
+                DesktopLocalization.SetText(_status, status);
+                DesktopLocalization.SetText(_detail, status);
                 yield break;
             }
             _loading = true;
@@ -88,8 +89,9 @@ namespace FishSocial.Desktop
             _loading = false;
             if (!ok)
             {
-                DesktopLocalization.SetText(_status, DesktopLocalization.Message(error ?? DesktopLocalization.Text("ui.codex.gallery.error.load_failed", "图鉴加载失败。")));
-                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.codex.gallery.error.retry_hint", (object)(_status.text)));
+                var status = DesktopLocalization.Message(error ?? DesktopLocalization.Text("ui.codex.gallery.error.load_failed", "图鉴加载失败。"));
+                DesktopLocalization.SetText(_status, status);
+                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.codex.gallery.error.retry_hint", (object)status));
                 yield break;
             }
             PresentEntries(_entries);
@@ -103,7 +105,8 @@ namespace FishSocial.Desktop
             var catalog = DesktopGameData.Species;
             if (catalog == null || catalog.Length == 0)
             {
-                DesktopLocalization.SetText(_status, DesktopLocalization.Text("ui.codex.gallery.empty.no_species_data", "暂时没有鱼种资料。")); DesktopLocalization.SetText(_detail, _status.text); return;
+                var status = DesktopLocalization.Text("ui.codex.gallery.empty.no_species_data", "暂时没有鱼种资料。");
+                DesktopLocalization.SetText(_status, status); DesktopLocalization.SetText(_detail, status); return;
             }
             var unlocked = 0;
             foreach (var definition in catalog)

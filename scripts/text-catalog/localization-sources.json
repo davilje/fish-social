@@ -35197,6 +35197,14 @@
       "location": "SendFriendRequest",
       "expressionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "reason": "SendFriendRequest 的 fromNickname 兜底写入 FriendRequestPayload 身份数据；保持原昵称“钓友”，不随界面语言修改。"
+    },
+    {
+      "key": "txt_270e3e766180aec2",
+      "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelEquipment.prefab",
+      "kind": "Unity序列化",
+      "location": "document[264]/PrefabInstance/m_Modification/m_Modifications/47/value [propertyPath=m_Text]",
+      "expressionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "装备页面可见标题在 DesktopShopPanel.RestyleUi 中按页面身份无条件重写；使用页面标题 Key，不复用“装备”动作按钮的译文。"
     }
   ],
   "categoryOverrides": {

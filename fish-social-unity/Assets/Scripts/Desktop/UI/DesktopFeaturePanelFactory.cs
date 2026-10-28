@@ -21,6 +21,7 @@ namespace FishSocial.Desktop
             }
             var instance = Object.Instantiate(prefab, parent, false);
             instance.name = name;
+            DesktopLocalization.BindPrefab(instance, "Desktop/Prefabs/" + name);
             return BindExisting(instance, bind);
         }
 
@@ -32,6 +33,8 @@ namespace FishSocial.Desktop
                 Debug.LogError("[DesktopUI] Required serialized panel/component is missing: " + typeof(T).Name);
                 return null;
             }
+            // Embedded authored panels also pass through this path without Mount.
+            DesktopLocalization.BindPrefab(root, "Desktop/Prefabs/" + root.name.Replace("(Clone)", string.Empty));
             bind?.Invoke(view);
             return view;
         }

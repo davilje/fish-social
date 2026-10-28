@@ -25,6 +25,10 @@ namespace FishSocial.Desktop
 
         const int AlbumPinsPerPage = 2;
 
+        // Prefab identities are stable across languages; only their visible labels are translated.
+        static readonly string[] TabNodeNames = { "Tab_资料", "Tab_展示柜", "Tab_图鉴", "Tab_相册", "Tab_成就" };
+        internal static string TabNodeName(HubTab tab) => TabNodeNames[(int)tab];
+
         static readonly string[] TabLabels = { DesktopLocalization.Text("ui.profile.edit.tab.profile", "资料"), DesktopLocalization.Text("ui.profile.edit.tab.showcase", "展示柜"), DesktopLocalization.Text("ui.profile.edit.tab.fish_guide", "图鉴"), DesktopLocalization.Text("ui.profile.edit.tab.album", "相册"), DesktopLocalization.Text("ui.profile.edit.tab.achievements", "成就") };
 
         IAuthenticatedApiClient _api;
@@ -266,8 +270,8 @@ namespace FishSocial.Desktop
                 "Shell/Content/Tab_相册/Prev", "Shell/Content/Tab_相册/Next", "Shell/Content/Tab_相册/Page",
                 "Shell/Content/Tab_成就/Achievements/Viewport/Content"))
                 return;
-            foreach (var label in TabLabels)
-                if (!DesktopModalUi.RequireNodes(transform, "PanelProfileHub", DesktopLocalization.Concat("Shell/Sidebar/Tab_", label)))
+            foreach (var nodeName in TabNodeNames)
+                if (!DesktopModalUi.RequireNodes(transform, "PanelProfileHub", "Shell/Sidebar/" + nodeName))
                     return;
             WireFromPrefab();
             if (_title == null || _status == null || _editButton == null ||
@@ -474,11 +478,12 @@ namespace FishSocial.Desktop
                 Button btn = null;
                 if (_sidebar != null)
                 {
-                    var btnTf = _sidebar.Find(DesktopLocalization.Concat("Tab_", label));
+                    var btnTf = _sidebar.Find(TabNodeName(tab));
                     btn = btnTf != null ? btnTf.GetComponent<Button>() : null;
                 }
                 if (btn != null)
                 {
+                    DesktopModalUi.SetButtonLabel(btn, label);
                     btn.onClick.RemoveAllListeners();
                     var captured = tab;
                     btn.onClick.AddListener(() => { if(captured == HubTab.Achievements && !IsAchievementsPage()) _openAchievements?.Invoke(); else SelectTab(captured); });
@@ -489,7 +494,7 @@ namespace FishSocial.Desktop
 
                 Transform page = null;
                 if (content != null)
-                    page = content.Find(DesktopLocalization.Concat("Tab_", label));
+                    page = content.Find(TabNodeName(tab));
                 _tabContents.Add(page != null ? page.gameObject : null);
             }
 
@@ -718,10 +723,10 @@ namespace FishSocial.Desktop
             for (var i = 0; i < TabLabels.Length; i++)
             {
                 var tab = (HubTab)i;
-                var btn = CreateNavTab(_sidebar, TabLabels[i], () => SelectTab(tab));
+                var btn = CreateNavTab(_sidebar, TabNodeName(tab), TabLabels[i], () => SelectTab(tab));
                 _tabButtons.Add(btn);
 
-                var page = CreatePanel(DesktopLocalization.Concat("Tab_", TabLabels[i]), contentHost.transform,
+                var page = CreatePanel(TabNodeName(tab), contentHost.transform,
                     Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero,
                     CatTheme.Cream);
                 page.SetActive(false);
@@ -2211,9 +2216,9 @@ namespace FishSocial.Desktop
             return btn;
         }
 
-        static Button CreateNavTab(Transform parent, string label, Action onClick)
+        static Button CreateNavTab(Transform parent, string nodeName, string label, Action onClick)
         {
-            var go = new GameObject(DesktopLocalization.Concat("Tab_", label), typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            var go = new GameObject(nodeName, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
             go.GetComponent<LayoutElement>().preferredHeight = 40;
             go.GetComponent<Image>().color = CatTheme.Cream;
@@ -2313,6 +2318,7 @@ namespace FishSocial.Desktop
             var scroll = parent != null ? parent.GetComponentInParent<ScrollRect>() : null;
             var template = scroll != null ? scroll.transform.parent.Find("JournalCardTemplate") : null;
             var go = template != null ? Instantiate(template.gameObject, parent, false) : DesktopUiPrefabFactory.Instantiate("ShowcaseSlot", parent);
+            if (template != null) DesktopLocalization.CopyBindings(template.gameObject, go);
             if (go != null) go.SetActive(true);
             if (go == null)
                 return;

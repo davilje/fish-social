@@ -306,8 +306,9 @@ namespace FishSocial.Desktop
             if (!itemsOk)
             {
                 if (_retry != null) _retry.gameObject.SetActive(true);
-                DesktopLocalization.SetText(_status, DesktopLocalization.Message(error ?? DesktopLocalization.Text("ui.catch.bag.error.inventory_load_failed", "背包加载失败。")));
-                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.catch.bag.hint.retry_loading", (object)(_status.text)));
+                var status = DesktopLocalization.Message(error ?? DesktopLocalization.Text("ui.catch.bag.error.inventory_load_failed", "背包加载失败。"));
+                DesktopLocalization.SetText(_status, status);
+                DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.catch.bag.hint.retry_loading", (object)status));
                 yield break;
             }
             if (coinsOk)
@@ -549,8 +550,9 @@ namespace FishSocial.Desktop
                 _coinsValue = total;
                 DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue)));
                 _selectedId = null;
-                DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.catch.bag.status.sold", (object)(earned)));
-                ShowMessage(_status.text);
+                var status = DesktopLocalization.Format("ui.catch.bag.status.sold", (object)(earned));
+                DesktopLocalization.SetText(_status, status);
+                ShowMessage(status);
                 RenderGrid();
                 Canvas.ForceUpdateCanvases();
                 for (var i = 0; i < _items.Length; i++)
@@ -608,8 +610,9 @@ namespace FishSocial.Desktop
                         DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue)));
                     }
                     _selectedId = null;
-                    DesktopLocalization.SetText(_status, DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(sizeGainM.ToString("0.00")), (object)(newSizeM.ToString("0.00"))));
-                    ShowMessage(_status.text);
+                    var status = DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(sizeGainM.ToString("0.00")), (object)(newSizeM.ToString("0.00")));
+                    DesktopLocalization.SetText(_status, status);
+                    ShowMessage(status);
                     RenderGrid();
                     CozyActionFeedback.Play(transform.Find("DesignArt") ?? transform, true, DesktopLocalization.Text("ui.catch.bag.badge.released", "已回鱼"));
                 }));

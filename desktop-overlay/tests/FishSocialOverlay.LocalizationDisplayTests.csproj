@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../fish-social-unity/Assets/Scripts/Desktop/Localization/LocalizationCatalog.cs" />
+    <Compile Include="../OverlayLocalization.cs" />
+    <Compile Include="../OverlayLocalizationCatalogLoader.cs" />
+    <Compile Include="../OverlayChatPresenter.cs" />
+    <Compile Include="../IpcProtocol.cs" />
+    <Compile Include="../OverlayAudioPresentation.cs" />
+    <Compile Include="OverlayLocalizationDisplayStubs.cs" />
+    <Compile Include="OverlayLocalizationDisplayTests.cs" />
+    <None Include="../OverlayResources/Localization/text-catalog.json" Link="OverlayResources/Localization/text-catalog.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
