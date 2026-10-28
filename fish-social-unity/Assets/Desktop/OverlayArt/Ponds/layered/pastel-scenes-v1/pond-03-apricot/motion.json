@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 86,
-          "top": 55,
-          "width": 456,
-          "height": 112,
-          "velocityX": 0.14,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratocumulus",
-          "sourceAtlas": "apricot",
-          "sourceSprite": 5
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "pond-03-apricot-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 1076,
-          "top": 127,
-          "width": 589,
-          "height": 145,
-          "velocityX": 0.265,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratocumulus",
-          "sourceAtlas": "apricot",
-          "sourceSprite": 5
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "pond-03-apricot-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 516,
-          "top": 224,
-          "width": 722,
-          "height": 178,
-          "velocityX": 0.406,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratocumulus",
-          "sourceAtlas": "apricot",
-          "sourceSprite": 5
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "pond-03-apricot-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "fair",
-    "label": "晴间层积云",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "apricot"
-  }
+  },
+  "cloudMode": "original-static"
 }

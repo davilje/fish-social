@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>场景分层 · 云和树叶</title>
+  <title>场景分层 · 静态背景与树叶</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; }
@@ -37,6 +37,7 @@
   <header>
     <h1>场景分层</h1>
     <label>鱼塘 <select id="pond"></select></label>
+    <label>查看 <select id="layer-view"><option value="all">完整场景</option><option value="sky">无云天空</option><option value="back">后景与静态云</option><option value="middle">中景</option><option value="front">前景</option><option value="leaves">树叶与植被</option></select></label>
     <button id="play" type="button">暂停</button>
     <label>速度 <select id="rate"><option value="1">1×</option><option value="10">10×</option><option value="30">30×</option></select></label>
   </header>
@@ -50,6 +51,7 @@
     const pondSelect = document.querySelector('#pond');
     const status = document.querySelector('#status');
     const playButton = document.querySelector('#play');
+    const layerView = document.querySelector('#layer-view');
     let playing = true;
     let token = 0;
     let frame = 0;
@@ -79,7 +81,7 @@
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = () => reject(new Error(url));
-        image.src = url + '?v=weather-clouds-v8';
+        image.src = url + '?v=original-static-clouds-v11';
       });
     }
 
@@ -170,6 +172,12 @@
     function draw(scene, seconds) {
       ctx.clearRect(0, 0, view.width, view.height);
       for (const layer of scene.layers) {
+        const mode = layerView.value;
+        if (mode === 'sky' && layer.id !== 'pond-bg') continue;
+        if (mode === 'back' && !['pond-bg', 'scene-celestial', 'scene-cloud-far', 'scene-cloud-middle', 'scene-cloud-near', 'scene-far', 'scene-far-dam'].includes(layer.id)) continue;
+        if (mode === 'middle' && !['scene-middle', 'scene-middle-slope'].includes(layer.id) && !layer.leaf) continue;
+        if (mode === 'front' && !['scene-shore', 'scene-front-bank', 'scene-water'].includes(layer.id)) continue;
+        if (mode === 'leaves' && !layer.leaf) continue;
         if (layer.cloud) {
           if (layer.sprites) {
             for (const sprite of layer.sprites) {
@@ -201,6 +209,10 @@
         }
       }
     }
+
+    layerView.addEventListener('change', () => {
+      if (currentScene) draw(currentScene, seconds());
+    });
 
     function tick(scene, generation) {
       if (generation !== token) return;
@@ -242,7 +254,7 @@
       for (const layer of [...layout.layers].sort((a, b) => a.z - b.z)) {
         const image = await loadImage(root + layer.image);
         const canvas = paint(image, width, height);
-        const item = { canvas };
+        const item = { canvas, id: layer.id };
         const cloud = clouds.get(layer.id);
         const leaf = leaves.get(layer.id);
         if (cloud) {
@@ -278,7 +290,9 @@
       currentScene = scene;
       elapsed = 0;
       runningFrom = performance.now();
-      status.textContent = `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · ${motion.weather?.label ? motion.weather.label + ' · ' : ''}${motion.version === 3 ? '三层水平云循环 · 大云缓慢平移' : '千岛湖原有云动效'} · 树叶按权重轻晃`;
+      status.textContent = motion.cloudMode === 'original-static'
+        ? `${pondSelect.selectedOptions[0].textContent} · 前中后景分层 · 独立无云天空 · 原图静态云 · 树叶随风轻晃`
+        : `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · ${motion.weather?.label ? motion.weather.label + ' · ' : ''}${motion.clouds?.flatMap(c => c.sprites || []).length || 0} 个云形 · ${motion.version === 3 ? '三层水平云循环 · 大云缓慢平移' : '千岛湖原有云动效'} · 树叶按权重轻晃`;
       fit();
       requestAnimationFrame(fit);
       cancelAnimationFrame(frame);

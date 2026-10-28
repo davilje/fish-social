@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 271,
-          "top": 58,
-          "width": 667,
-          "height": 125,
-          "velocityX": 0.112,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "marine-bank",
-          "sourceAtlas": "mist",
-          "sourceSprite": 3
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-04-mist-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 1173,
-          "top": 135,
-          "width": 935,
-          "height": 176,
-          "velocityX": 0.212,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "marine-bank",
-          "sourceAtlas": "mist",
-          "sourceSprite": 3
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-04-mist-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 641,
-          "top": 242,
-          "width": 1161,
-          "height": 218,
-          "velocityX": 0.324,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "marine-bank",
-          "sourceAtlas": "mist",
-          "sourceSprite": 3
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-04-mist-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "overcast",
-    "label": "低层云幕",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "mist"
-  }
+  },
+  "cloudMode": "original-static"
 }

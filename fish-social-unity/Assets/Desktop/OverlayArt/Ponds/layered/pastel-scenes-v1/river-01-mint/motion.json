@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 1167,
-          "top": 63,
-          "width": 256,
-          "height": 111,
-          "velocityX": 0.162,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "cumulus",
-          "sourceAtlas": "mint",
-          "sourceSprite": 0
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "river-01-mint-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 487,
-          "top": 130,
-          "width": 359,
-          "height": 155,
-          "velocityX": 0.306,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "cumulus",
-          "sourceAtlas": "mint",
-          "sourceSprite": 0
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "river-01-mint-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 1577,
-          "top": 207,
-          "width": 451,
-          "height": 195,
-          "velocityX": 0.468,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "cumulus",
-          "sourceAtlas": "mint",
-          "sourceSprite": 0
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "river-01-mint-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "clear",
-    "label": "晴朗积云",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "mint"
-  }
+  },
+  "cloudMode": "original-static"
 }

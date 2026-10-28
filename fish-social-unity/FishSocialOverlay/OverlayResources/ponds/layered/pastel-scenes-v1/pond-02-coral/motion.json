@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 64,
-          "top": 55,
-          "width": 399,
-          "height": 85,
-          "velocityX": 0.144,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "cloudlets",
-          "sourceAtlas": "coral",
-          "sourceSprite": 2
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "pond-02-coral-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 1096,
-          "top": 142,
-          "width": 551,
-          "height": 117,
-          "velocityX": 0.272,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "cloudlets",
-          "sourceAtlas": "coral",
-          "sourceSprite": 2
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "pond-02-coral-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 506,
-          "top": 234,
-          "width": 684,
-          "height": 145,
-          "velocityX": 0.416,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "cloudlets",
-          "sourceAtlas": "coral",
-          "sourceSprite": 2
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "pond-02-coral-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "sunsetBroken",
-    "label": "晚霞碎积云",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "coral"
-  }
+  },
+  "cloudMode": "original-static"
 }

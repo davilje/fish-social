@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 261,
-          "top": 53,
-          "width": 667,
-          "height": 81,
-          "velocityX": 0.108,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratus",
-          "sourceAtlas": "moon",
-          "sourceSprite": 1
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-05-moon-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 550,
-          "top": 150,
-          "width": 871,
-          "height": 106,
-          "velocityX": 0.204,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratus",
-          "sourceAtlas": "moon",
-          "sourceSprite": 1
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-05-moon-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 791,
-          "top": 267,
-          "width": 1075,
-          "height": 131,
-          "velocityX": 0.312,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratus",
-          "sourceAtlas": "moon",
-          "sourceSprite": 1
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-05-moon-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "moonMarine",
-    "label": "月夜层云",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "moon"
-  }
+  },
+  "cloudMode": "original-static"
 }

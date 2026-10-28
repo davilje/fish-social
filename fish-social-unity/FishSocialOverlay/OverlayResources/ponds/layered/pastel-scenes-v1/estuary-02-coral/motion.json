@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 291,
-          "top": 48,
-          "width": 656,
-          "height": 78,
-          "velocityX": 0.126,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratus",
-          "sourceAtlas": "coral",
-          "sourceSprite": 1
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-02-coral-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 1248,
-          "top": 135,
-          "width": 860,
-          "height": 103,
-          "velocityX": 0.238,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratus",
-          "sourceAtlas": "coral",
-          "sourceSprite": 1
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-02-coral-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 280,
-          "top": 242,
-          "width": 1086,
-          "height": 130,
-          "velocityX": 0.364,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "stratus",
-          "sourceAtlas": "coral",
-          "sourceSprite": 1
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "estuary-02-coral-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "sunset",
-    "label": "晚霞层云",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "coral"
-  }
+  },
+  "cloudMode": "original-static"
 }

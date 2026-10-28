@@ -1,0 +1,1549 @@
+{
+  "types": [
+    {
+      "id": "cumulus",
+      "label": "小团积云"
+    },
+    {
+      "id": "stratus",
+      "label": "扁平层云"
+    },
+    {
+      "id": "cloudlets",
+      "label": "碎片云群"
+    },
+    {
+      "id": "marine-bank",
+      "label": "低层云带"
+    },
+    {
+      "id": "veil",
+      "label": "轻薄纱云"
+    },
+    {
+      "id": "stratocumulus",
+      "label": "厚层积云"
+    }
+  ],
+  "recipes": {
+    "clear": {
+      "label": "晴朗积云",
+      "speed": 0.9,
+      "items": [
+        [
+          0,
+          0,
+          250,
+          1120,
+          55
+        ],
+        [
+          1,
+          0,
+          350,
+          440,
+          115
+        ],
+        [
+          2,
+          0,
+          440,
+          1530,
+          185
+        ]
+      ]
+    },
+    "fair": {
+      "label": "晴间层积云",
+      "speed": 1,
+      "items": [
+        [
+          0,
+          5,
+          480,
+          180,
+          55
+        ],
+        [
+          1,
+          5,
+          620,
+          1170,
+          120
+        ],
+        [
+          2,
+          5,
+          760,
+          610,
+          210
+        ]
+      ]
+    },
+    "breeze": {
+      "label": "海风碎积云",
+      "speed": 1.15,
+      "items": [
+        [
+          0,
+          2,
+          420,
+          1510,
+          45
+        ],
+        [
+          1,
+          2,
+          580,
+          820,
+          130
+        ],
+        [
+          2,
+          2,
+          720,
+          140,
+          215
+        ]
+      ]
+    },
+    "haze": {
+      "label": "晨雾薄云带",
+      "speed": 0.65,
+      "items": [
+        [
+          0,
+          4,
+          680,
+          1090,
+          45
+        ],
+        [
+          1,
+          4,
+          850,
+          180,
+          130
+        ],
+        [
+          2,
+          4,
+          970,
+          1060,
+          235
+        ]
+      ]
+    },
+    "overcast": {
+      "label": "低层云幕",
+      "speed": 0.8,
+      "items": [
+        [
+          0,
+          3,
+          620,
+          130,
+          55
+        ],
+        [
+          1,
+          3,
+          870,
+          1160,
+          125
+        ],
+        [
+          2,
+          3,
+          1080,
+          500,
+          225
+        ]
+      ]
+    },
+    "sunset": {
+      "label": "晚霞层云",
+      "speed": 0.7,
+      "items": [
+        [
+          0,
+          1,
+          610,
+          150,
+          45
+        ],
+        [
+          1,
+          1,
+          800,
+          1260,
+          125
+        ],
+        [
+          2,
+          1,
+          1010,
+          510,
+          225
+        ]
+      ]
+    },
+    "sunsetBroken": {
+      "label": "晚霞碎积云",
+      "speed": 0.8,
+      "items": [
+        [
+          0,
+          2,
+          420,
+          120,
+          55
+        ],
+        [
+          1,
+          2,
+          580,
+          1190,
+          135
+        ],
+        [
+          2,
+          2,
+          720,
+          600,
+          220
+        ]
+      ]
+    },
+    "moon": {
+      "label": "月夜薄云带",
+      "speed": 0.55,
+      "items": [
+        [
+          0,
+          4,
+          640,
+          170,
+          45
+        ],
+        [
+          1,
+          4,
+          800,
+          1110,
+          135
+        ],
+        [
+          2,
+          4,
+          980,
+          440,
+          235
+        ]
+      ]
+    },
+    "moonMarine": {
+      "label": "月夜层云",
+      "speed": 0.6,
+      "items": [
+        [
+          0,
+          1,
+          620,
+          120,
+          50
+        ],
+        [
+          1,
+          1,
+          810,
+          1230,
+          140
+        ],
+        [
+          2,
+          1,
+          1000,
+          650,
+          250
+        ]
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "name": "pond-01-mint",
+      "weather": "clear",
+      "label": "晴朗积云",
+      "tone": "mint",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cumulus",
+          "variant": 0,
+          "width": 238,
+          "height": 114,
+          "left": 1026,
+          "top": 55
+        },
+        {
+          "depth": "middle",
+          "type": "cumulus",
+          "variant": 1,
+          "width": 333,
+          "height": 106,
+          "left": 346,
+          "top": 122
+        },
+        {
+          "depth": "near",
+          "type": "cumulus",
+          "variant": 2,
+          "width": 418,
+          "height": 202,
+          "left": 1436,
+          "top": 199
+        }
+      ]
+    },
+    {
+      "name": "pond-02-coral",
+      "weather": "sunsetBroken",
+      "label": "晚霞碎积云",
+      "tone": "coral",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 0,
+          "width": 399,
+          "height": 162,
+          "left": 64,
+          "top": 55
+        },
+        {
+          "depth": "middle",
+          "type": "cloudlets",
+          "variant": 1,
+          "width": 551,
+          "height": 152,
+          "left": 850,
+          "top": 142
+        },
+        {
+          "depth": "near",
+          "type": "cloudlets",
+          "variant": 2,
+          "width": 684,
+          "height": 260,
+          "left": 506,
+          "top": 234
+        }
+      ]
+    },
+    {
+      "name": "pond-03-apricot",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 456,
+          "height": 156,
+          "left": 86,
+          "top": 55
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 589,
+          "height": 129,
+          "left": 1076,
+          "top": 127
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 2,
+          "width": 722,
+          "height": 259,
+          "left": 516,
+          "top": 224
+        }
+      ]
+    },
+    {
+      "name": "pond-04-mist",
+      "weather": "haze",
+      "label": "晨雾薄云带",
+      "tone": "mist",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 0,
+          "width": 646,
+          "height": 158,
+          "left": 996,
+          "top": 45
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 1,
+          "width": 808,
+          "height": 142,
+          "left": 86,
+          "top": 137
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 2,
+          "width": 922,
+          "height": 234,
+          "left": 966,
+          "top": 249
+        }
+      ]
+    },
+    {
+      "name": "pond-05-moon",
+      "weather": "moon",
+      "label": "月夜薄云带",
+      "tone": "moon",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 0,
+          "width": 608,
+          "height": 153,
+          "left": 76,
+          "top": 45
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 1,
+          "width": 760,
+          "height": 136,
+          "left": 550,
+          "top": 142
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 2,
+          "width": 931,
+          "height": 233,
+          "left": 346,
+          "top": 249
+        }
+      ]
+    },
+    {
+      "name": "lake-01-mint",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "mint",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 468,
+          "height": 104,
+          "left": 133,
+          "top": 68
+        },
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 2,
+          "width": 351,
+          "height": 118,
+          "left": 1593,
+          "top": 113
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 3,
+          "width": 605,
+          "height": 174,
+          "left": 1123,
+          "top": 140
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 741,
+          "height": 256,
+          "left": 563,
+          "top": 237
+        }
+      ]
+    },
+    {
+      "name": "lake-02-coral",
+      "weather": "sunset",
+      "label": "晚霞层云",
+      "tone": "coral",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 1,
+          "width": 595,
+          "height": 83,
+          "left": 103,
+          "top": 58
+        },
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 2,
+          "width": 447,
+          "height": 91,
+          "left": 1593,
+          "top": 113
+        },
+        {
+          "depth": "middle",
+          "type": "stratus",
+          "variant": 3,
+          "width": 780,
+          "height": 130,
+          "left": 1213,
+          "top": 145
+        },
+        {
+          "depth": "near",
+          "type": "stratus",
+          "variant": 0,
+          "width": 985,
+          "height": 199,
+          "left": 280,
+          "top": 252
+        }
+      ]
+    },
+    {
+      "name": "lake-03-apricot",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 468,
+          "height": 103,
+          "left": 133,
+          "top": 68
+        },
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 2,
+          "width": 351,
+          "height": 126,
+          "left": 1593,
+          "top": 113
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 3,
+          "width": 605,
+          "height": 170,
+          "left": 1123,
+          "top": 140
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 741,
+          "height": 253,
+          "left": 563,
+          "top": 237
+        }
+      ]
+    },
+    {
+      "name": "lake-04-mist",
+      "weather": "haze",
+      "label": "晨雾薄云带",
+      "tone": "mist",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 1,
+          "width": 663,
+          "height": 116,
+          "left": 1043,
+          "top": 58
+        },
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 2,
+          "width": 497,
+          "height": 126,
+          "left": 193,
+          "top": 113
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 3,
+          "width": 829,
+          "height": 154,
+          "left": 133,
+          "top": 150
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 0,
+          "width": 946,
+          "height": 231,
+          "left": 1013,
+          "top": 262
+        }
+      ]
+    },
+    {
+      "name": "lake-05-moon",
+      "weather": "moon",
+      "label": "月夜薄云带",
+      "tone": "moon",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 1,
+          "width": 624,
+          "height": 112,
+          "left": 123,
+          "top": 58
+        },
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 2,
+          "width": 468,
+          "height": 117,
+          "left": 850,
+          "top": 113
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 3,
+          "width": 780,
+          "height": 151,
+          "left": 550,
+          "top": 155
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 0,
+          "width": 956,
+          "height": 241,
+          "left": 393,
+          "top": 262
+        }
+      ]
+    },
+    {
+      "name": "reservoir-01-mint",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "mint",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 2,
+          "width": 480,
+          "height": 162,
+          "left": 180,
+          "top": 81
+        },
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 3,
+          "width": 360,
+          "height": 104,
+          "left": 1640,
+          "top": 126
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 620,
+          "height": 214,
+          "left": 1170,
+          "top": 122
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 760,
+          "height": 168,
+          "left": 610,
+          "top": 219
+        }
+      ]
+    },
+    {
+      "name": "reservoir-02-coral",
+      "weather": "sunset",
+      "label": "晚霞层云",
+      "tone": "coral",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 2,
+          "width": 610,
+          "height": 124,
+          "left": 150,
+          "top": 71
+        },
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 3,
+          "width": 458,
+          "height": 76,
+          "left": 1640,
+          "top": 126
+        },
+        {
+          "depth": "middle",
+          "type": "stratus",
+          "variant": 0,
+          "width": 800,
+          "height": 162,
+          "left": 1260,
+          "top": 127
+        },
+        {
+          "depth": "near",
+          "type": "stratus",
+          "variant": 1,
+          "width": 1010,
+          "height": 140,
+          "left": 850,
+          "top": 234
+        }
+      ]
+    },
+    {
+      "name": "reservoir-03-apricot",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 2,
+          "width": 480,
+          "height": 172,
+          "left": 180,
+          "top": 81
+        },
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 3,
+          "width": 360,
+          "height": 101,
+          "left": 1640,
+          "top": 126
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 620,
+          "height": 212,
+          "left": 1170,
+          "top": 122
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 760,
+          "height": 166,
+          "left": 610,
+          "top": 219
+        }
+      ]
+    },
+    {
+      "name": "reservoir-04-mist",
+      "weather": "overcast",
+      "label": "低层云幕",
+      "tone": "mist",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "marine-bank",
+          "variant": 2,
+          "width": 620,
+          "height": 162,
+          "left": 130,
+          "top": 81
+        },
+        {
+          "depth": "far",
+          "type": "marine-bank",
+          "variant": 3,
+          "width": 465,
+          "height": 98,
+          "left": 1640,
+          "top": 126
+        },
+        {
+          "depth": "middle",
+          "type": "marine-bank",
+          "variant": 0,
+          "width": 870,
+          "height": 227,
+          "left": 1160,
+          "top": 127
+        },
+        {
+          "depth": "near",
+          "type": "marine-bank",
+          "variant": 1,
+          "width": 1080,
+          "height": 168,
+          "left": 500,
+          "top": 234
+        }
+      ]
+    },
+    {
+      "name": "reservoir-05-moon",
+      "weather": "moon",
+      "label": "月夜薄云带",
+      "tone": "moon",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 2,
+          "width": 640,
+          "height": 160,
+          "left": 170,
+          "top": 71
+        },
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 3,
+          "width": 480,
+          "height": 93,
+          "left": 850,
+          "top": 126
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 0,
+          "width": 800,
+          "height": 202,
+          "left": 550,
+          "top": 137
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 1,
+          "width": 980,
+          "height": 176,
+          "left": 440,
+          "top": 244
+        }
+      ]
+    },
+    {
+      "name": "river-01-mint",
+      "weather": "clear",
+      "label": "晴朗积云",
+      "tone": "mint",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cumulus",
+          "variant": 3,
+          "width": 256,
+          "height": 106,
+          "left": 1167,
+          "top": 63
+        },
+        {
+          "depth": "middle",
+          "type": "cumulus",
+          "variant": 0,
+          "width": 359,
+          "height": 171,
+          "left": 487,
+          "top": 130
+        },
+        {
+          "depth": "near",
+          "type": "cumulus",
+          "variant": 1,
+          "width": 451,
+          "height": 143,
+          "left": 1577,
+          "top": 207
+        }
+      ]
+    },
+    {
+      "name": "river-02-coral",
+      "weather": "sunsetBroken",
+      "label": "晚霞碎积云",
+      "tone": "coral",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 3,
+          "width": 430,
+          "height": 168,
+          "left": 167,
+          "top": 63
+        },
+        {
+          "depth": "middle",
+          "type": "cloudlets",
+          "variant": 0,
+          "width": 595,
+          "height": 241,
+          "left": 1513,
+          "top": 150
+        },
+        {
+          "depth": "near",
+          "type": "cloudlets",
+          "variant": 1,
+          "width": 738,
+          "height": 203,
+          "left": 550,
+          "top": 242
+        }
+      ]
+    },
+    {
+      "name": "river-03-apricot",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 3,
+          "width": 492,
+          "height": 138,
+          "left": 227,
+          "top": 63
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 636,
+          "height": 217,
+          "left": 1217,
+          "top": 135
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 779,
+          "height": 171,
+          "left": 657,
+          "top": 232
+        }
+      ]
+    },
+    {
+      "name": "river-04-mist",
+      "weather": "haze",
+      "label": "晨雾薄云带",
+      "tone": "mist",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 3,
+          "width": 697,
+          "height": 130,
+          "left": 1137,
+          "top": 53
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 0,
+          "width": 871,
+          "height": 213,
+          "left": 227,
+          "top": 145
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 1,
+          "width": 994,
+          "height": 175,
+          "left": 1107,
+          "top": 257
+        }
+      ]
+    },
+    {
+      "name": "river-05-moon",
+      "weather": "moon",
+      "label": "月夜薄云带",
+      "tone": "moon",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "veil",
+          "variant": 3,
+          "width": 656,
+          "height": 127,
+          "left": 217,
+          "top": 53
+        },
+        {
+          "depth": "middle",
+          "type": "veil",
+          "variant": 0,
+          "width": 820,
+          "height": 207,
+          "left": 550,
+          "top": 150
+        },
+        {
+          "depth": "near",
+          "type": "veil",
+          "variant": 1,
+          "width": 1004,
+          "height": 180,
+          "left": 487,
+          "top": 257
+        }
+      ]
+    },
+    {
+      "name": "coast-01-mint",
+      "weather": "breeze",
+      "label": "海风碎积云",
+      "tone": "mint",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 0,
+          "width": 441,
+          "height": 161,
+          "left": 1604,
+          "top": 66
+        },
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 1,
+          "width": 331,
+          "height": 91,
+          "left": 334,
+          "top": 121
+        },
+        {
+          "depth": "middle",
+          "type": "cloudlets",
+          "variant": 2,
+          "width": 609,
+          "height": 237,
+          "left": 914,
+          "top": 158
+        },
+        {
+          "depth": "near",
+          "type": "cloudlets",
+          "variant": 3,
+          "width": 756,
+          "height": 212,
+          "left": 234,
+          "top": 219
+        }
+      ]
+    },
+    {
+      "name": "coast-02-coral",
+      "weather": "sunset",
+      "label": "晚霞层云",
+      "tone": "coral",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 0,
+          "width": 641,
+          "height": 130,
+          "left": 244,
+          "top": 66
+        },
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 1,
+          "width": 481,
+          "height": 67,
+          "left": 1627,
+          "top": 121
+        },
+        {
+          "depth": "middle",
+          "type": "stratus",
+          "variant": 2,
+          "width": 840,
+          "height": 171,
+          "left": 1268,
+          "top": 153
+        },
+        {
+          "depth": "near",
+          "type": "stratus",
+          "variant": 3,
+          "width": 1061,
+          "height": 176,
+          "left": 280,
+          "top": 229
+        }
+      ]
+    },
+    {
+      "name": "coast-03-apricot",
+      "weather": "breeze",
+      "label": "海风碎积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 0,
+          "width": 441,
+          "height": 154,
+          "left": 1604,
+          "top": 66
+        },
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 1,
+          "width": 331,
+          "height": 75,
+          "left": 334,
+          "top": 121
+        },
+        {
+          "depth": "middle",
+          "type": "cloudlets",
+          "variant": 2,
+          "width": 609,
+          "height": 214,
+          "left": 914,
+          "top": 158
+        },
+        {
+          "depth": "near",
+          "type": "cloudlets",
+          "variant": 3,
+          "width": 756,
+          "height": 224,
+          "left": 234,
+          "top": 219
+        }
+      ]
+    },
+    {
+      "name": "coast-04-mist",
+      "weather": "overcast",
+      "label": "低层云幕",
+      "tone": "mist",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "marine-bank",
+          "variant": 0,
+          "width": 651,
+          "height": 170,
+          "left": 224,
+          "top": 76
+        },
+        {
+          "depth": "far",
+          "type": "marine-bank",
+          "variant": 1,
+          "width": 488,
+          "height": 76,
+          "left": 1620,
+          "top": 121
+        },
+        {
+          "depth": "middle",
+          "type": "marine-bank",
+          "variant": 2,
+          "width": 914,
+          "height": 239,
+          "left": 1194,
+          "top": 153
+        },
+        {
+          "depth": "near",
+          "type": "marine-bank",
+          "variant": 3,
+          "width": 1134,
+          "height": 240,
+          "left": 594,
+          "top": 229
+        }
+      ]
+    },
+    {
+      "name": "coast-05-moon",
+      "weather": "moonMarine",
+      "label": "月夜层云",
+      "tone": "moon",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 0,
+          "width": 651,
+          "height": 131,
+          "left": 214,
+          "top": 71
+        },
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 1,
+          "width": 488,
+          "height": 67,
+          "left": 850,
+          "top": 121
+        },
+        {
+          "depth": "middle",
+          "type": "stratus",
+          "variant": 2,
+          "width": 851,
+          "height": 157,
+          "left": 550,
+          "top": 168
+        },
+        {
+          "depth": "near",
+          "type": "stratus",
+          "variant": 3,
+          "width": 1050,
+          "height": 158,
+          "left": 744,
+          "top": 254
+        }
+      ]
+    },
+    {
+      "name": "estuary-01-mint",
+      "weather": "breeze",
+      "label": "海风碎积云",
+      "tone": "mint",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 1,
+          "width": 452,
+          "height": 125,
+          "left": 1651,
+          "top": 48
+        },
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 2,
+          "width": 339,
+          "height": 132,
+          "left": 381,
+          "top": 103
+        },
+        {
+          "depth": "middle",
+          "type": "cloudlets",
+          "variant": 3,
+          "width": 624,
+          "height": 175,
+          "left": 961,
+          "top": 140
+        },
+        {
+          "depth": "near",
+          "type": "cloudlets",
+          "variant": 0,
+          "width": 774,
+          "height": 283,
+          "left": 281,
+          "top": 232
+        }
+      ]
+    },
+    {
+      "name": "estuary-02-coral",
+      "weather": "sunset",
+      "label": "晚霞层云",
+      "tone": "coral",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 1,
+          "width": 656,
+          "height": 91,
+          "left": 291,
+          "top": 48
+        },
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 2,
+          "width": 492,
+          "height": 100,
+          "left": 1616,
+          "top": 103
+        },
+        {
+          "depth": "middle",
+          "type": "stratus",
+          "variant": 3,
+          "width": 860,
+          "height": 143,
+          "left": 1248,
+          "top": 135
+        },
+        {
+          "depth": "near",
+          "type": "stratus",
+          "variant": 0,
+          "width": 1086,
+          "height": 220,
+          "left": 280,
+          "top": 242
+        }
+      ]
+    },
+    {
+      "name": "estuary-03-apricot",
+      "weather": "breeze",
+      "label": "海风碎积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 1,
+          "width": 452,
+          "height": 103,
+          "left": 1651,
+          "top": 48
+        },
+        {
+          "depth": "far",
+          "type": "cloudlets",
+          "variant": 2,
+          "width": 339,
+          "height": 119,
+          "left": 381,
+          "top": 103
+        },
+        {
+          "depth": "middle",
+          "type": "cloudlets",
+          "variant": 3,
+          "width": 624,
+          "height": 185,
+          "left": 961,
+          "top": 140
+        },
+        {
+          "depth": "near",
+          "type": "cloudlets",
+          "variant": 0,
+          "width": 774,
+          "height": 271,
+          "left": 281,
+          "top": 232
+        }
+      ]
+    },
+    {
+      "name": "estuary-04-mist",
+      "weather": "overcast",
+      "label": "低层云幕",
+      "tone": "mist",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "marine-bank",
+          "variant": 1,
+          "width": 667,
+          "height": 103,
+          "left": 271,
+          "top": 58
+        },
+        {
+          "depth": "far",
+          "type": "marine-bank",
+          "variant": 2,
+          "width": 500,
+          "height": 131,
+          "left": 1608,
+          "top": 103
+        },
+        {
+          "depth": "middle",
+          "type": "marine-bank",
+          "variant": 3,
+          "width": 935,
+          "height": 198,
+          "left": 1173,
+          "top": 135
+        },
+        {
+          "depth": "near",
+          "type": "marine-bank",
+          "variant": 0,
+          "width": 1161,
+          "height": 302,
+          "left": 641,
+          "top": 242
+        }
+      ]
+    },
+    {
+      "name": "estuary-05-moon",
+      "weather": "moonMarine",
+      "label": "月夜层云",
+      "tone": "moon",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 1,
+          "width": 667,
+          "height": 91,
+          "left": 261,
+          "top": 53
+        },
+        {
+          "depth": "far",
+          "type": "stratus",
+          "variant": 2,
+          "width": 500,
+          "height": 92,
+          "left": 1150,
+          "top": 103
+        },
+        {
+          "depth": "middle",
+          "type": "stratus",
+          "variant": 3,
+          "width": 871,
+          "height": 131,
+          "left": 550,
+          "top": 150
+        },
+        {
+          "depth": "near",
+          "type": "stratus",
+          "variant": 0,
+          "width": 1075,
+          "height": 216,
+          "left": 791,
+          "top": 267
+        }
+      ]
+    },
+    {
+      "name": "qiandao",
+      "weather": "fair",
+      "label": "晴间层积云",
+      "tone": "apricot",
+      "placements": [
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 2,
+          "width": 480,
+          "height": 172,
+          "left": 180,
+          "top": 81
+        },
+        {
+          "depth": "far",
+          "type": "stratocumulus",
+          "variant": 3,
+          "width": 360,
+          "height": 101,
+          "left": 1640,
+          "top": 126
+        },
+        {
+          "depth": "middle",
+          "type": "stratocumulus",
+          "variant": 0,
+          "width": 620,
+          "height": 212,
+          "left": 1170,
+          "top": 122
+        },
+        {
+          "depth": "near",
+          "type": "stratocumulus",
+          "variant": 1,
+          "width": 760,
+          "height": 166,
+          "left": 610,
+          "top": 219
+        }
+      ]
+    }
+  ]
+}

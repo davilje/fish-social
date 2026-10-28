@@ -9,4 +9,4 @@
 | [overlay-scene-update-and-editor-menus](overlay-scene-update-and-editor-menus.md) | 专题说明／实施记录 |
 | [pond-pastel-series-rollout](pond-pastel-series-rollout.md) | 专题说明／实施记录 |
 
-天气云 v7：新增六类云型、五色系素材库，31 套场景采用九套天气配置；v8 修正为每场景一种云型，三层共 3 个实例。预览状态栏显示当前天气。配置及素材见 `fish-social-unity/Assets/Desktop/OverlayArt/Ponds/CloudLibrary/WeatherV7/`；完整产出见 `/Users/red/Desktop/fish/output/scene-revision/weather-clouds-v8/README.md`。
+天气云 v7：新增六类云型、五色系素材库，31 套场景采用九套天气配置；v9 为每场景一种云型、3～4 个不同轮廓。预览状态栏显示当前天气。配置及素材见 `fish-social-unity/Assets/Desktop/OverlayArt/Ponds/CloudLibrary/WeatherV9/`；完整产出见 `/Users/red/Desktop/fish/output/scene-revision/weather-clouds-v9/README.md`。

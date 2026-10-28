@@ -13,17 +13,16 @@
       "id": "scene-cloud-far",
       "sprites": [
         {
-          "image": "cloud-far-horizontal-1.png",
-          "left": 1043,
-          "top": 58,
-          "width": 663,
-          "height": 105,
-          "velocityX": 0.117,
+          "image": "cloud-far-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "veil",
-          "sourceAtlas": "mist",
-          "sourceSprite": 4
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "lake-04-mist-original-far"
         }
       ]
     },
@@ -31,17 +30,16 @@
       "id": "scene-cloud-middle",
       "sprites": [
         {
-          "image": "cloud-middle-horizontal-1.png",
-          "left": 133,
-          "top": 150,
-          "width": 829,
-          "height": 131,
-          "velocityX": 0.221,
+          "image": "cloud-middle-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "veil",
-          "sourceAtlas": "mist",
-          "sourceSprite": 4
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "lake-04-mist-original-middle"
         }
       ]
     },
@@ -49,17 +47,16 @@
       "id": "scene-cloud-near",
       "sprites": [
         {
-          "image": "cloud-near-horizontal-1.png",
-          "left": 1013,
-          "top": 262,
-          "width": 946,
-          "height": 149,
-          "velocityX": 0.338,
+          "image": "cloud-near-original-static.png",
+          "left": 0,
+          "top": 0,
+          "width": 2172,
+          "height": 724,
+          "velocityX": 0,
           "velocityY": 0,
-          "kind": "horizontal",
-          "cloudType": "veil",
-          "sourceAtlas": "mist",
-          "sourceSprite": 4
+          "kind": "static",
+          "cloudType": "original-static",
+          "sourceVariant": "lake-04-mist-original-near"
         }
       ]
     }
@@ -87,8 +84,9 @@
     }
   ],
   "weather": {
-    "id": "haze",
-    "label": "晨雾薄云带",
+    "id": "original-static",
+    "label": "原图静态云",
     "palette": "mist"
-  }
+  },
+  "cloudMode": "original-static"
 }
