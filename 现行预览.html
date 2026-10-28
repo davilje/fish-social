@@ -144,7 +144,7 @@
         <button type="button" data-src="docs/美术/钓鱼动作/index.html">塘内钓鱼动作</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/home-animation-review.html">家园走路进食</button>
         <h2>场景</h2>
-        <button type="button" data-src="docs/美术/场景/motion.html?v=13-single-layer">前中后景与树叶动效</button>
+        <button type="button" data-src="docs/美术/场景/motion.html?v=18-bush-contact&amp;pond=pond-calm">完整云景与前中后景分层</button>
         <h2>特效</h2>
         <button type="button" data-src="docs/美术/水面特效/index.html?style=magic">水面特效</button>
         <h2>音效</h2>
@@ -162,7 +162,8 @@
       document.body.classList.add('is-file');
     } else {
       const saved = buttons.find(button => button.dataset.src === sessionStorage.getItem('preview-src'));
-      const requested = location.hash === '#scene' ? buttons.find(button => button.dataset.src.startsWith('docs/美术/场景/motion.html')) : null;
+      const requestedPath = location.hash === '#scene' ? 'docs/美术/场景/motion.html' : null;
+      const requested = requestedPath ? buttons.find(button => button.dataset.src.startsWith(requestedPath)) : null;
       const current = requested || saved || buttons[0];
       buttons.forEach(button => {
         button.addEventListener('click', () => select(button));

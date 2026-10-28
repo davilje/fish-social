@@ -21,6 +21,12 @@ from tree_sitter import Language, Parser
 import tree_sitter_c_sharp
 import tree_sitter_typescript
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from debug_filter import excluded_source, code_node_is_debug, debug_control, SETTINGS_CONTROL_NAMES, unity_debug_documents
+from inactive_filter import filter_catalog
+from localization_filter import filter_localization, reviewed_category_origins
+from key_registry import apply_semantic_keys, restore_source_keys, KEY_POLICY
+
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "unity-overlay文本表.json"
 HAN = re.compile(r"[\u3400-\u9fff]")
@@ -37,6 +43,12 @@ entries = {}
 scanned = []
 skipped = Counter()
 parse_errors = []
+excluded_debug = Counter()
+excluded_debug_locations = {}
+
+
+def source_identity(source):
+    return (source["file"], source["line"], source["column"], source["kind"], source["location"])
 
 
 def text(node):
@@ -88,8 +100,6 @@ def category(path, ctx, kind, value):
         return "编辑器与界面构建"
     if "/JournalSamples/" in p or "/ReferenceAssets/" in p:
         return "界面预览样例"
-    if re.search(r"Debug|Inspect|debug|玩法调试", p + " " + ctx[:400]):
-        return "玩法调试"
     if re.search(r"Debug\.(?:Log|LogError|LogWarning)|console\.(?:log|warn|error)|(?:throw|new)\s+\w*Exception|logger\.|LatencyTrace\.Write|Trace\.Write", ctx):
         return "日志与诊断"
     if kind == "Unity序列化":
@@ -107,7 +117,7 @@ def category(path, ctx, kind, value):
     return "运行时界面文本"
 
 
-def add(path, line, column, value, kind, ctx="", location="", variables=None, force=False, raw=""):
+def add(path, line, column, value, kind, ctx="", location="", variables=None, force=False, raw="", node_debug=False):
     if not value or not value.strip():
         skipped["空文本"] += 1
         return
@@ -132,6 +142,11 @@ def add(path, line, column, value, kind, ctx="", location="", variables=None, fo
         if not ((DISPLAY.search(ctx) or value in ENGLISH_UI) and plausible and not re.search(r"\.(?:Find|ToString|GetComponent|SetActive|Load|GetSprite)\s*\([^)]*$", ctx[:ctx.find(raw or '"' + value + '"')] if (raw or '"' + value + '"') in ctx else "")):
             skipped["非显示技术字串"] += 1
             return
+    debug_reason = excluded_source(path, value, ctx, location, node_debug)
+    if debug_reason:
+        excluded_debug[debug_reason] += 1
+        excluded_debug_locations[(str(path), line, column, kind, location)] = debug_reason
+        return
     cat = category(path, ctx, kind, value)
     mod = module(path)
     key = "txt_" + hashlib.sha256((mod + "\0" + cat + "\0" + kind + "\0" + value).encode()).hexdigest()[:16]
@@ -275,25 +290,28 @@ def code_file(path, relative):
             ancestor = ancestor.parent
         character_column = len(lines[n.start_point.row][:n.start_point.column].decode("utf-8")) + 1
         add(relative, n.start_point.row + 1, character_column, value, kind, ctx, member, variables,
-            raw=text(n) if kind != "代码常量" else "")
+            raw=text(n) if kind != "代码常量" else "",
+            node_debug=code_node_is_debug(n, member, path.name, text))
 
 
 def json_file(path, relative):
     data = path.read_text(encoding="utf-8-sig")
     root = json.loads(data)
-    def visit(value, pointer="", owner=""):
+    def visit(value, pointer="", owner="", node_debug=False):
         if isinstance(value, dict):
             owner = str(next((value[k] for k in ["speciesId", "pondId", "itemId", "achievementId", "rodId", "baitId", "vesselId", "tagId", "clueId", "id"] if k in value), owner))
+            control = str(value.get("name", value.get("id", "")))
+            node_debug = node_debug or debug_control(control) or control in SETTINGS_CONTROL_NAMES or control == "Server"
             for k, v in value.items():
-                visit(v, pointer + "/" + str(k).replace("~", "~0").replace("/", "~1"), owner)
+                visit(v, pointer + "/" + str(k).replace("~", "~0").replace("/", "~1"), owner, node_debug)
         elif isinstance(value, list):
             for i, item in enumerate(value):
-                visit(item, pointer + "/" + str(i), owner)
+                visit(item, pointer + "/" + str(i), owner, node_debug)
         elif isinstance(value, str):
             field = pointer.rsplit("/", 1)[-1]
             force = bool(re.fullmatch(r"label|text|title|content|tooltip|placeholder|caption|displayName|nameZh|descriptionZh|clueText", field, re.I))
             # YAML's scanner also parses JSON and supplies exact marks; pointers are authoritative.
-            add(relative, 0, 0, value, "JSON字段", field, pointer + (" [" + owner + "]" if owner else ""), force=force)
+            add(relative, 0, 0, value, "JSON字段", field, pointer + (" [" + owner + "]" if owner else ""), force=force, node_debug=node_debug)
     visit(root)
     # Bind line and column to the corresponding JSON pointer rather than a text search.
     marks = {}
@@ -318,7 +336,10 @@ def unity_file(path, relative):
     # Removing the Unity tags keeps every original line in place for source marks.
     data = re.sub(r"^%.*$", "", original, flags=re.M)
     data = re.sub(r"^--- !u!\d+ &(-?\d+).*$", r"--- # fileID=\1", data, flags=re.M)
-    def visit(node, prefix="", object_id=""):
+    documents = list(yaml.compose_all(data, Loader=yaml.CSafeLoader))
+    object_ids = re.findall(r"^--- !u!\d+ &(-?\d+).*$", original, flags=re.M)
+    debug_documents = unity_debug_documents(documents, object_ids)
+    def visit(node, prefix="", object_id="", node_debug=False):
         if isinstance(node, yaml.MappingNode):
             mapping = {k.value: v for k, v in node.value}
             overridden_field = mapping.get("propertyPath")
@@ -330,15 +351,15 @@ def unity_file(path, relative):
             for k, v in node.value:
                 if isinstance(v, yaml.ScalarNode) and (k.value in {"m_Text", "m_text", "m_Title", "m_Label", "m_Placeholder", "m_Tooltip", "m_ToolTip"} or (text_override and k.value == "value") or (v.tag.endswith(":str") and DISPLAY.fullmatch(k.value)) or (HAN.search(v.value) and k.value != "m_Name")):
                     add(relative, v.start_mark.line + 1, v.start_mark.column + 1, v.value,
-                        "Unity序列化", k.value, prefix + "/" + k.value + (" [propertyPath=" + overridden_field.value + "]" if text_override else "") + (" GameObject=" + object_id if object_id else ""), force=True)
+                        "Unity序列化", k.value, prefix + "/" + k.value + (" [propertyPath=" + overridden_field.value + "]" if text_override else "") + (" GameObject=" + object_id if object_id else ""), force=True, node_debug=node_debug)
                 else:
-                    visit(v, prefix + "/" + k.value, object_id)
+                    visit(v, prefix + "/" + k.value, object_id, node_debug)
         elif isinstance(node, yaml.SequenceNode):
             for i, v in enumerate(node.value):
-                visit(v, prefix + "/" + str(i), object_id)
-    for index, node in enumerate(yaml.compose_all(data, Loader=yaml.CSafeLoader)):
+                visit(v, prefix + "/" + str(i), object_id, node_debug)
+    for index, node in enumerate(documents):
         if node:
-            visit(node, "document[" + str(index) + "]")
+            visit(node, "document[" + str(index) + "]", node_debug=index in debug_documents)
 
 
 def xaml_file(path, relative):
@@ -363,7 +384,28 @@ def xaml_file(path, relative):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    filters = parser.add_mutually_exclusive_group()
+    filters.add_argument("--filter-debug-only", action="store_true", help="仅过滤现有清单，不添加源码中新增的无关文本")
+    filters.add_argument("--filter-inactive-only", action="store_true", help="仅剔除已审查的不生效/非显示来源，不重新扫描或新增文本")
+    filters.add_argument("--filter-localization-only", action="store_true", help="仅保留已审查的玩家本地化文本，不重新扫描或新增文本")
+    filters.add_argument("--normalize-keys-only", action="store_true", help="仅将现有清单迁移为已登记的语义Key，不重新抽取或修改文案")
     args = parser.parse_args()
+    if args.normalize_keys_only:
+        if not args.output.exists():
+            raise ValueError("Key迁移需要已有JSON清单")
+        original = json.loads(args.output.read_text(encoding="utf-8"))
+        result = apply_semantic_keys(original, original)
+        args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps({"output": str(args.output), **result['keyMigration']}, ensure_ascii=False))
+        return
+    if args.filter_inactive_only or args.filter_localization_only:
+        if not args.output.exists():
+            raise ValueError("清理模式需要已有 JSON 清单")
+        original = json.loads(args.output.read_text(encoding="utf-8"))
+        result = apply_semantic_keys(filter_localization(filter_catalog(original)), original)
+        args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps({"output": str(args.output), **result["stats"]}, ensure_ascii=False))
+        return
     roots = [ROOT / "fish-social-unity/Assets", ROOT / "fish-social-unity/FishSocialOverlay", ROOT / "desktop-overlay", ROOT / "shared"]
     source_files = set()
     for base in roots:
@@ -393,24 +435,53 @@ def main():
                         "occurrences": sum(len(e["sources"]) for e in entries.values()) - before})
     previous = {}
     retired = {}
+    previous_data = None
+    previous_public = None
     if args.output.exists():
-        previous_data = json.loads(args.output.read_text())
+        previous_public = json.loads(args.output.read_text())
+        previous_data = restore_source_keys(previous_public)
         previous = {e["key"]: e for e in previous_data["entries"]}
         retired = {e["key"]: e for e in previous_data.get("retiredEntries", [])}
+    # Correct old heuristic categories without invalidating assigned Keys or edits.
+    old_shared = {(e["module"], e["sourceText"], e["sources"][0]["kind"]): e
+                  for e in previous.values() if e["category"] == "玩法调试"}
+    category_origins = reviewed_category_origins()
+    existing_aliases = {(e["module"], category_origins.get(e["key"], e["category"]), e["sourceText"], e["sources"][0]["kind"]): e["key"] for e in previous.values()}
+    for entry in entries.values():
+        old = old_shared.get((entry["module"], entry["sourceText"], entry["sources"][0]["kind"]))
+        assigned = existing_aliases.get((entry["module"], entry["category"], entry["sourceText"], entry["sources"][0]["kind"]))
+        if assigned or old:
+            entry["key"] = assigned or old["key"]
+    entries_by_key = {entry["key"]: entry for entry in entries.values()}
+    entries.clear()
+    entries.update(entries_by_key)
     ordered = sorted(entries.values(), key=lambda e: (e["category"], e["module"], e["sources"][0]["file"], e["sources"][0]["line"], e["key"]))
     for e in ordered:
         if e["key"] in previous:
             e["zhCN"] = previous[e["key"]].get("zhCN", e["sourceText"])
+            e["enUS"] = previous[e["key"]].get("enUS", "")
             e["note"] = previous[e["key"]].get("note", e["note"])
+        else:
+            e["enUS"] = ""
         if Counter(PLACEHOLDER.findall(e["sourceText"])) != Counter(PLACEHOLDER.findall(e["zhCN"])):
             raise ValueError("占位符不一致: " + e["key"])
+        if e["enUS"] and Counter(PLACEHOLDER.findall(e["sourceText"])) != Counter(PLACEHOLDER.findall(e["enUS"])):
+            raise ValueError("英文占位符不一致: " + e["key"])
         assert e["sources"] and all(s["line"] > 0 for s in e["sources"])
     result = {
         "schemaVersion": 1, "project": "Fish Social Unity + Desktop Overlay", "locale": "zh-CN",
+        "supportedLocales": {"zh-CN": "zhCN", "en-US": "enUS"},
         "generatedAt": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
         "runtimeBinding": "inventory-only: 当前工程尚未通过 key 读取此表；修改表格不会自动修改运行时界面。",
-        "keyPolicy": "txt_ + SHA256(module + NUL + category + NUL + kind + NUL + sourceText)前16位；不依赖行号。",
+        "keyPolicy": KEY_POLICY,
+        "debugTextPolicy": {
+            "excludeDevelopmentTools": True,
+            "rules": "Debug构建专用设置页和模拟通知、玩法调试入口/窗口/数据报告/服务端响应；按来源剔除。Release经显式调试开关启用的玩法工具同样排除。",
+            "preserveSharedReleaseSources": True,
+            "independentPoliceButton": "禁钓塘独立一键出警入口未受Debug构建门控，保留其来源；移除玩法调试弹窗中的同名来源。",
+        },
         "stats": {"filesScanned": len(scanned), "entries": len(ordered), "sourceOccurrences": sum(len(e["sources"]) for e in ordered),
+                  "excludedDebugSources": sum(excluded_debug.values()), "debugExclusionReasons": dict(excluded_debug),
                   "categories": dict(Counter(e["category"] for e in ordered)), "skipped": dict(skipped)},
         "parseWarnings": parse_errors,
         "externalText": [
@@ -422,8 +493,55 @@ def main():
             {"location": "Overlay HUD btn_catch_leave", "values": ["离开座位", "离席"], "note": "HUD JSON 初始配置与 XAML/运行时代码存在差异，分别保留来源。"}
         ],
         "files": scanned, "entries": ordered,
-        "retiredEntries": [e for k, e in {**retired, **previous}.items() if k not in entries and e.get("zhCN") != e.get("sourceText")],
+        "retiredEntries": [e for k, e in {**retired, **previous}.items() if k not in entries and e.get("zhCN") != e.get("sourceText") and not all(source_identity(s) in excluded_debug_locations or excluded_source(s["file"], e["sourceText"], "", s["location"]) for s in e["sources"])],
     }
+    if args.filter_debug_only:
+        if previous_data is None:
+            raise ValueError("--filter-debug-only 需要已有 JSON 清单")
+        kept = []
+        removed_sources = Counter()
+        removed_keys = set()
+        for entry in previous_data["entries"]:
+            kept_sources = []
+            for source in entry["sources"]:
+                reason = excluded_debug_locations.get(source_identity(source)) or excluded_source(
+                    source["file"], entry["sourceText"], "", source["location"])
+                if reason:
+                    removed_sources[reason] += 1
+                else:
+                    kept_sources.append(source)
+            if kept_sources:
+                current = entries.get(entry["key"])
+                kept.append({**entry, "sources": kept_sources,
+                             "category": current["category"] if entry["category"] == "玩法调试" and current else entry["category"]})
+            else:
+                removed_keys.add(entry["key"])
+        prior_filter = previous_data.get("debugFilter", {})
+        total_reasons = Counter(prior_filter.get("reasons", {})) + removed_sources
+        result = {
+            **previous_data,
+            "keyPolicy": result["keyPolicy"],
+            "debugTextPolicy": result["debugTextPolicy"],
+            "debugFilter": {
+                "filteredAt": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
+                "previousEntries": prior_filter.get("previousEntries", len(previous_data["entries"])),
+                "removedEntries": prior_filter.get("removedEntries", 0) + len(removed_keys),
+                "removedSources": sum(total_reasons.values()),
+                "reasons": dict(total_reasons),
+            },
+            "entries": kept,
+            "retiredEntries": [e for e in previous_data.get("retiredEntries", []) if e["key"] not in removed_keys and not all(excluded_source(s["file"], e["sourceText"], "", s["location"]) for s in e["sources"])],
+        }
+        per_file = Counter(s["file"] for e in kept for s in e["sources"])
+        result["files"] = [{**f, "occurrences": per_file[f["file"]]} for f in previous_data["files"]]
+        result["stats"] = {
+            **previous_data["stats"], "entries": len(kept),
+            "sourceOccurrences": sum(len(e["sources"]) for e in kept),
+            "categories": dict(Counter(e["category"] for e in kept)),
+            "excludedDebugSources": sum(total_reasons.values()),
+            "debugExclusionReasons": dict(total_reasons),
+        }
+    result = apply_semantic_keys(filter_localization(filter_catalog(result)), previous_public)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"output": str(args.output), **result["stats"], "parseWarnings": parse_errors}, ensure_ascii=False))

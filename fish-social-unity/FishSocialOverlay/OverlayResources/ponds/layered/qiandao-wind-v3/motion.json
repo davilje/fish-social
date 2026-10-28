@@ -106,7 +106,8 @@
       "width": 417,
       "height": 211,
       "phase": 2.2,
-      "primaryPeriod": 8
+      "primaryPeriod": 8,
+      "amplitude": 2.2
     },
     {
       "id": "scene-bush-4",
@@ -116,7 +117,8 @@
       "width": 333,
       "height": 135,
       "phase": 3.0000000000000004,
-      "primaryPeriod": 8.8
+      "primaryPeriod": 8.8,
+      "amplitude": 2.2
     },
     {
       "id": "scene-bush-5",
@@ -144,5 +146,34 @@
     "label": "原图静态云",
     "palette": "original"
   },
-  "cloudMode": "original-static"
+  "cloudMode": "original-static",
+  "occlusionRepair": {
+    "version": 2,
+    "foliageBackLayer": "scene-foliage-back",
+    "cloudCompletionLayer": "scene-cloud-complete",
+    "cloudCompletionContainsSky": true,
+    "originalVisiblePaintPreserved": true,
+    "bushBackLayer": "scene-bush-back",
+    "backingSource": "current foliage cutouts at native coordinates",
+    "depthGroups": [
+      {
+        "back": "scene-bush-back",
+        "front": [
+          "scene-bush-1",
+          "scene-bush-2",
+          "scene-bush-3",
+          "scene-bush-4",
+          "scene-bush-5",
+          "scene-bush-6"
+        ]
+      },
+      {
+        "back": "scene-foliage-back",
+        "front": [
+          "scene-tree-left",
+          "scene-tree-right"
+        ]
+      }
+    ]
+  }
 }

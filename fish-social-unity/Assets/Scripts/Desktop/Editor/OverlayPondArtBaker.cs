@@ -354,6 +354,46 @@ namespace FishSocial.Desktop.Editor
             SyncPastelSceneBundles();
         }
 
+        // Update scenery layers only. Do not re-place the waiting lane, seats or water contact line.
+        public static void ApplyOcclusionRepairAndExport()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying scenery.");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            var catalog = ReadCatalog();
+            foreach (var binding in catalog.bindings)
+            {
+                var profile = ResolveProfile(catalog, binding);
+                var layout = ReadLayerLayout(profile);
+                if (layout.layers.Count(l => l.id == "scene-foliage-back") != 1
+                    || layout.layers.Count(l => l.id == "scene-cloud-complete") != 1)
+                    throw new InvalidOperationException("Missing occlusion repair layers: " + binding.pondId);
+                foreach (var layer in layout.layers) ImportSprite(ArtFolder + "/" + layer.image);
+                var prefab = OverlayPondLayoutBaker.PrefabPath(binding.pondId);
+                var root = PrefabUtility.LoadPrefabContents(prefab);
+                try
+                {
+                    foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
+                        if (item.kind == "sprite" && item.objectId != "pond-bg" && item.transform.parent == root.transform)
+                            Object.DestroyImmediate(item.gameObject);
+                    PlaceSceneLayerSprites(root.transform, layout);
+                    PrefabUtility.SaveAsPrefabAsset(root, prefab);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
+            }
+            AssetDatabase.SaveAssets();
+            foreach (var binding in catalog.bindings)
+            {
+                var error = OverlayLayoutExporter.ExportPond(binding.pondId);
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            }
+            ImportUnassignedPastelSceneSprites();
+            SyncPastelSceneBundles();
+            Verify();
+            RenderPreviews(catalog);
+            Debug.Log("[PondArt] Occlusion repair exported for all ponds; gameplay geometry preserved.");
+        }
+
         static void SyncPastelSceneBundles()
         {
             // Candidate scenes already shipped in the resource pack must be refreshed too.
@@ -366,7 +406,7 @@ namespace FishSocial.Desktop.Editor
                 ValidateRepairedPastelLayers(layout, sceneDir);
                 SyncSceneBundle(layout, resources);
             }
-            // The original Qiandao scene has its own 16-layer layout and shares the current cloud assets.
+            // The original Qiandao scene has its own 19-layer layout, including the occlusion repair backings.
             var qiandaoLayout = ArtFolder + "/layered/qiandao-wind-v3/layout.json";
             if (File.Exists(qiandaoLayout))
                 SyncSceneBundle(JsonUtility.FromJson<LayerLayout>(File.ReadAllText(qiandaoLayout)), resources);
@@ -460,8 +500,8 @@ namespace FishSocial.Desktop.Editor
 
         static void ValidateRepairedPastelLayers(LayerLayout layout, string source)
         {
-            var expected = new[] { "pond-bg", "scene-celestial", "scene-cloud-far", "scene-cloud-middle",
-                "scene-cloud-near", "scene-far", "scene-middle", "scene-foliage-mid", "scene-foliage-near",
+            var expected = new[] { "pond-bg", "scene-cloud-complete", "scene-celestial", "scene-cloud-far", "scene-cloud-middle",
+                "scene-cloud-near", "scene-far", "scene-middle", "scene-foliage-back", "scene-foliage-mid", "scene-foliage-near",
                 "scene-shore", "scene-water" };
             if (layout == null || layout.layers == null || layout.layers.Any(layer => layer == null)
                 || !layout.layers.OrderBy(layer => layer.z).Select(layer => layer.id).SequenceEqual(expected))
@@ -490,6 +530,11 @@ namespace FishSocial.Desktop.Editor
             // Water contact is independent of the seat landing line on dry ground.
             root.GetComponent<DesktopOverlayPondLayoutView>().waterlineY = profile.shoreY + 20;
             PlaceArrivalLane(root, layout.groundY);
+            PlaceSceneLayerSprites(root, layout);
+        }
+
+        static void PlaceSceneLayerSprites(Transform root, LayerLayout layout)
+        {
             var sibling = 0;
             foreach (var layer in layout.layers.OrderBy(l => l.z))
             {

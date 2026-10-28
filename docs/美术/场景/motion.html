@@ -46,6 +46,7 @@
     <label>鱼塘 <select id="pond"></select></label>
     <label>查看 <select id="layer-view"><option value="all">完整场景</option><option value="sky">无云天空</option><option value="back">后景与静态云</option><option value="middle">中景</option><option value="front">前景</option><option value="leaves">树叶与植被</option></select></label>
     <button id="play" type="button">暂停</button>
+    <button id="rest" type="button">归位检查对齐</button>
     <label>速度 <select id="rate"><option value="1">1×</option><option value="10">10×</option><option value="30">30×</option></select></label>
   </header>
   <p id="status">正在读取场景…</p>
@@ -63,7 +64,10 @@
     const layerInfo = document.querySelector('#layer-info');
     const layerNames = {
       'pond-bg': '无云天空', 'scene-celestial': '太阳／月亮',
-      'scene-cloud-far': '原图静态云与天空纹理',
+      'scene-cloud-complete': '完整云景补绘底层（含天空）',
+      'scene-foliage-back': '后层树叶（固定防穿帮）',
+      'scene-bush-back': '中景灌木后层（固定防穿帮）',
+      'scene-cloud-far': '云景原图细节保留层',
       'scene-cloud-middle': '云通道二', 'scene-cloud-near': '云通道三',
       'scene-far': '远景', 'scene-far-dam': '远林与水坝',
       'scene-middle': '中景与固定树干', 'scene-middle-slope': '坡地与中景',
@@ -124,7 +128,7 @@
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = () => reject(new Error(url));
-        image.src = url + '?v=original-static-clouds-v11';
+        image.src = url + '?v=qiandao-bush-contact-v18';
       });
     }
 
@@ -222,10 +226,10 @@
           continue;
         }
         if (mode === 'sky' && layer.id !== 'pond-bg') continue;
-        if (mode === 'back' && !['pond-bg', 'scene-celestial', 'scene-cloud-far', 'scene-cloud-middle', 'scene-cloud-near', 'scene-far', 'scene-far-dam'].includes(layer.id)) continue;
-        if (mode === 'middle' && !['scene-middle', 'scene-middle-slope'].includes(layer.id) && !layer.leaf) continue;
+        if (mode === 'back' && !['pond-bg', 'scene-cloud-complete', 'scene-celestial', 'scene-cloud-far', 'scene-cloud-middle', 'scene-cloud-near', 'scene-far', 'scene-far-dam'].includes(layer.id)) continue;
+        if (mode === 'middle' && !['scene-middle', 'scene-middle-slope', 'scene-bush-back', 'scene-foliage-back'].includes(layer.id) && !layer.leaf) continue;
         if (mode === 'front' && !['scene-shore', 'scene-front-bank', 'scene-water'].includes(layer.id)) continue;
-        if (mode === 'leaves' && !layer.leaf) continue;
+        if (mode === 'leaves' && !layer.leaf && !['scene-foliage-back', 'scene-bush-back'].includes(layer.id)) continue;
         if (layer.cloud) {
           if (layer.sprites) {
             for (const sprite of layer.sprites) {
@@ -331,7 +335,7 @@
             verticalRatio: motion.verticalRatio,
             verticalPeriod: motion.verticalPeriod
           };
-          item.amplitude = motion.leafAmplitude;
+          item.amplitude = leaf.amplitude ?? motion.leafAmplitude;
           item.pixels = pixels;
           item.weightPixels = weights.get(weightName);
           item.plate = document.createElement('canvas');
@@ -345,7 +349,7 @@
       elapsed = 0;
       runningFrom = performance.now();
       status.textContent = motion.cloudMode === 'original-static'
-        ? `${pondSelect.selectedOptions[0].textContent} · 前中后景分层 · 独立无云天空 · 原图静态云 · 树叶随风轻晃`
+        ? `${pondSelect.selectedOptions[0].textContent} · 前中后景分层 · 独立无云天空 · 完整静态云景 · 后层树叶固定／前层风动`
         : `${pondSelect.selectedOptions[0].textContent} · ${layout.layers.length} 层 · ${motion.weather?.label ? motion.weather.label + ' · ' : ''}${motion.clouds?.flatMap(c => c.sprites || []).length || 0} 个云形 · ${motion.version === 3 ? '三层水平云循环 · 大云缓慢平移' : '千岛湖原有云动效'} · 树叶按权重轻晃`;
       fit();
       requestAnimationFrame(fit);
@@ -353,6 +357,12 @@
       draw(scene, 0);
       tick(scene, generation);
     }
+
+    document.querySelector('#rest').addEventListener('click', () => {
+      playing = false; elapsed = 0; runningFrom = performance.now();
+      playButton.textContent = '播放';
+      if (currentScene) draw(currentScene, 0);
+    });
 
     playButton.addEventListener('click', () => {
       if (playing) elapsed += (performance.now() - runningFrom) * playbackRate;
@@ -386,11 +396,12 @@
 
     fetch(root + 'catalog.json', { cache: 'no-store' }).then(response => response.json()).then(catalog => {
       const ponds = catalog.bindings.filter(item => item.layerLayout);
+      const requestedPondId = new URLSearchParams(location.search).get('pond');
       for (const pond of ponds) {
         const option = document.createElement('option');
         option.value = pond.layerLayout;
         option.textContent = pond.displayName;
-        if (pond.pondId === 'pond-calm') option.selected = true;
+        if (pond.pondId === (requestedPondId || 'pond-calm')) option.selected = true;
         pondSelect.append(option);
       }
       const group = document.createElement('optgroup');

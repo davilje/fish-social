@@ -38,7 +38,7 @@ namespace FishSocialOverlay
             public TranslateTransform Transform = new TranslateTransform();
         }
         [DataContract] internal sealed class LeafSettings
-        { [DataMember] public string id, weightTexture; [DataMember] public int left, top, width, height; [DataMember] public double phase, primaryPeriod; }
+        { [DataMember] public string id, weightTexture; [DataMember] public int left, top, width, height; [DataMember] public double phase, primaryPeriod; [DataMember] public double? amplitude; }
         sealed class Cloud
         {
             public CloudSettings Settings;
@@ -129,6 +129,8 @@ namespace FishSocialOverlay
             foreach (var spec in settings.leaves)
             {
                 if (spec == null || string.IsNullOrWhiteSpace(spec.id)) throw new InvalidDataException("Invalid foliage layer");
+                if (spec.amplitude.HasValue && (!Finite(spec.amplitude.Value) || spec.amplitude.Value < 0 || spec.amplitude.Value > 24))
+                    throw new InvalidDataException("Invalid foliage amplitude");
                 var weightFile = string.IsNullOrEmpty(spec.weightTexture) ? settings.weightTexture : spec.weightTexture;
                 if (string.IsNullOrWhiteSpace(weightFile)) throw new InvalidDataException("Missing foliage weight");
                 if (!weights.TryGetValue(weightFile, out var weight))
@@ -147,7 +149,7 @@ namespace FishSocialOverlay
                 var converted = new FormatConvertedBitmap(bitmap, PixelFormats.Pbgra32, null, 0); converted.Freeze();
                 var pixels = new byte[settings.width * settings.height * 4]; converted.CopyPixels(pixels, settings.width * 4, 0);
                 var warp = new OverlayLeafWarp(pixels, weight, settings.width, settings.height, spec.left, spec.width, spec.height,
-                    spec.phase, settings.leafAmplitude, settings.verticalRatio, spec.primaryPeriod > 0 ? spec.primaryPeriod : settings.primaryPeriod,
+                    spec.phase, spec.amplitude ?? settings.leafAmplitude, settings.verticalRatio, spec.primaryPeriod > 0 ? spec.primaryPeriod : settings.primaryPeriod,
                     settings.secondaryPeriod, settings.verticalPeriod, spec.top);
                 prepared.Add(Tuple.Create(spec, warp));
             }

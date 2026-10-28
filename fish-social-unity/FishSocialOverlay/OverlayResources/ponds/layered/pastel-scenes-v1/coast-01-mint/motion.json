@@ -88,5 +88,12 @@
     "label": "原图静态云",
     "palette": "mint"
   },
-  "cloudMode": "original-static"
+  "cloudMode": "original-static",
+  "occlusionRepair": {
+    "version": 1,
+    "foliageBackLayer": "scene-foliage-back",
+    "cloudCompletionLayer": "scene-cloud-complete",
+    "cloudCompletionContainsSky": true,
+    "originalVisiblePaintPreserved": true
+  }
 }
