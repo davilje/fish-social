@@ -31,6 +31,13 @@
       display: block; flex: none;
       background: #e7e5e4; border: 1px solid #e7e0d5; border-radius: 12px;
     }
+    canvas.isolated {
+      background-color: #fff;
+      background-image: conic-gradient(#e5e7eb 25%, transparent 0 50%, #e5e7eb 0 75%, transparent 0);
+      background-size: 20px 20px;
+    }
+    #layer-info { font-size: 13px; overflow-wrap: anywhere; }
+    select { max-width: min(100%, 360px); }
   </style>
 </head>
 <body>
@@ -42,6 +49,7 @@
     <label>速度 <select id="rate"><option value="1">1×</option><option value="10">10×</option><option value="30">30×</option></select></label>
   </header>
   <p id="status">正在读取场景…</p>
+  <p id="layer-info" aria-live="polite">可在“查看”中选择单个图层，透明区域以棋盘格显示。</p>
   <div class="stage"><canvas id="view" width="1680" height="560"></canvas></div>
   <script>
     const root = '../../../fish-social-unity/Assets/Desktop/OverlayArt/Ponds/';
@@ -52,6 +60,41 @@
     const status = document.querySelector('#status');
     const playButton = document.querySelector('#play');
     const layerView = document.querySelector('#layer-view');
+    const layerInfo = document.querySelector('#layer-info');
+    const layerNames = {
+      'pond-bg': '无云天空', 'scene-celestial': '太阳／月亮',
+      'scene-cloud-far': '原图静态云与天空纹理',
+      'scene-cloud-middle': '云通道二', 'scene-cloud-near': '云通道三',
+      'scene-far': '远景', 'scene-far-dam': '远林与水坝',
+      'scene-middle': '中景与固定树干', 'scene-middle-slope': '坡地与中景',
+      'scene-foliage-mid': '中景树叶与灌木', 'scene-foliage-near': '近景树冠',
+      'scene-tree-left': '左侧树群', 'scene-tree-right': '右侧树群',
+      'scene-shore': '岸边', 'scene-front-bank': '前景草地与岸边', 'scene-water': '水面'
+    };
+    function layerLabel(layer) {
+      return layerNames[layer.id] || (/^scene-bush-\d+$/.test(layer.id)
+        ? '中景灌木 ' + layer.id.split('-').pop() : layer.id);
+    }
+    function updateLayerInfo() {
+      const layer = currentScene?.layers.find(item => 'layer:' + item.id === layerView.value);
+      view.classList.toggle('isolated', layerView.value !== 'all');
+      layerInfo.textContent = layer
+        ? `${layerLabel(layer)} · ${layer.id} · ${layer.file}${layer.empty ? ' · 此通道为空透明占位' : ''}${layer.leaf ? ' · 保留风动，可暂停查看静态' : ''}`
+        : '可在“单独图层”列表中逐层查看；棋盘格表示透明区域。';
+    }
+    function populateLayerOptions(scene) {
+      const previous = layerView.value;
+      layerView.replaceChildren(new Option('完整场景', 'all'));
+      const single = document.createElement('optgroup'); single.label = '单独图层';
+      for (const layer of scene.layers) {
+        single.append(new Option(`${layer.z + 1}. ${layerLabel(layer)}${layer.empty ? '（透明占位）' : ''}`, 'layer:' + layer.id));
+      }
+      const groups = document.createElement('optgroup'); groups.label = '按景别组合';
+      for (const [value, label] of [['sky', '无云天空'], ['back', '后景与静态云'], ['middle', '中景'], ['front', '前景'], ['leaves', '树叶与植被']]) groups.append(new Option(label, value));
+      layerView.append(single, groups);
+      layerView.value = [...layerView.options].some(option => option.value === previous) ? previous : 'all';
+      updateLayerInfo();
+    }
     let playing = true;
     let token = 0;
     let frame = 0;
@@ -173,6 +216,11 @@
       ctx.clearRect(0, 0, view.width, view.height);
       for (const layer of scene.layers) {
         const mode = layerView.value;
+        if (mode.startsWith('layer:') && mode !== 'layer:' + layer.id) continue;
+        if (mode.startsWith('layer:') && !layer.leaf) {
+          ctx.drawImage(layer.canvas, 0, 0);
+          continue;
+        }
         if (mode === 'sky' && layer.id !== 'pond-bg') continue;
         if (mode === 'back' && !['pond-bg', 'scene-celestial', 'scene-cloud-far', 'scene-cloud-middle', 'scene-cloud-near', 'scene-far', 'scene-far-dam'].includes(layer.id)) continue;
         if (mode === 'middle' && !['scene-middle', 'scene-middle-slope'].includes(layer.id) && !layer.leaf) continue;
@@ -211,7 +259,9 @@
     }
 
     layerView.addEventListener('change', () => {
+      updateLayerInfo();
       if (currentScene) draw(currentScene, seconds());
+      fit();
     });
 
     function tick(scene, generation) {
@@ -254,7 +304,10 @@
       for (const layer of [...layout.layers].sort((a, b) => a.z - b.z)) {
         const image = await loadImage(root + layer.image);
         const canvas = paint(image, width, height);
-        const item = { canvas, id: layer.id };
+        const pixels = canvas.getContext('2d').getImageData(0, 0, width, height);
+        let empty = true;
+        for (let p = 3; p < pixels.data.length; p += 4) if (pixels.data[p]) { empty = false; break; }
+        const item = { canvas, id: layer.id, file: layer.image.split('/').pop(), z: layer.z, empty };
         const cloud = clouds.get(layer.id);
         const leaf = leaves.get(layer.id);
         if (cloud) {
@@ -279,7 +332,7 @@
             verticalPeriod: motion.verticalPeriod
           };
           item.amplitude = motion.leafAmplitude;
-          item.pixels = canvas.getContext('2d').getImageData(0, 0, width, height);
+          item.pixels = pixels;
           item.weightPixels = weights.get(weightName);
           item.plate = document.createElement('canvas');
         }
@@ -288,6 +341,7 @@
       }
       const scene = { layers, motion, scale };
       currentScene = scene;
+      populateLayerOptions(scene);
       elapsed = 0;
       runningFrom = performance.now();
       status.textContent = motion.cloudMode === 'original-static'
