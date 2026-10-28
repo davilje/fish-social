@@ -17,6 +17,12 @@ namespace FishSocialOverlay
         /// </summary>
         public static bool MenuSuppressesHover { get; private set; }
 
+        /// <summary>
+        /// Right-click captures the pond until button-up so the menu still opens
+        /// when the previous popup closes. That capture must survive menu Closed.
+        /// </summary>
+        public static bool PreserveMouseCapture { get; set; }
+
         public static event Action MenuHoverSuppressEnded;
 
         public static bool MenuBlocksHover()
@@ -33,7 +39,7 @@ namespace FishSocialOverlay
         {
             var wasSuppressed = MenuSuppressesHover;
             MenuSuppressesHover = false;
-            if (Mouse.Captured != null)
+            if (!PreserveMouseCapture && Mouse.Captured != null)
                 Mouse.Capture(null);
             if (wasSuppressed)
                 MenuHoverSuppressEnded?.Invoke();

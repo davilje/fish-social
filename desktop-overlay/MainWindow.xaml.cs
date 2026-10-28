@@ -12,6 +12,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 
@@ -84,9 +85,17 @@ namespace FishSocialOverlay
         OverlayViewportPreset _viewportPreset = OverlayViewportPreset.Standard;
         MenuItem[] _viewportMenuItems;
         bool _openedContextMenuThisGesture;
+        bool _acceptingRightButtonUp;
         OverlayPetActor _pendingPetMenu;
         bool _pendingProductMenu;
         bool _ignoreNextSceneDrag;
+        readonly Dictionary<FrameworkElement, double> _chromeRestingOpacity =
+            new Dictionary<FrameworkElement, double>();
+        DispatcherTimer _chromeIdleTimer;
+        bool _leftClickRevealsChrome;
+        bool _actionChromeRevealed = true;
+        const int ActionChromeIdleMs = 2800;
+        const int ActionChromeLeaveMs = 700;
         readonly DispatcherTimer _hoverPollTimer;
         Point _hoverProbePoint;
         int _hoverProbeTick;
@@ -302,6 +311,7 @@ namespace FishSocialOverlay
             DpiChanged += (sender, args) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded,
                 new Action(() => _edgeVignette?.ApplySize(_scenePan.ViewportWidth, _scenePan.ViewportHeight)));
             _scenePan.AttachButtons(BtnPanLeft, BtnPanRight);
+            RegisterActionChrome();
             ApplyInitialViewport();
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
             _safeWindow = string.Equals(
@@ -505,7 +515,8 @@ namespace FishSocialOverlay
             var screenY = (short)((lParam.ToInt64() >> 16) & 0xffff);
             var local = PointFromScreen(new Point(screenX, screenY));
             var tick = Environment.TickCount;
-            if (_hitProbeResult != int.MinValue && unchecked(tick - _hitProbeTick) < 24
+            if (_hitProbeResult != int.MinValue && _hitProbeResult != HTTRANSPARENT
+                && unchecked(tick - _hitProbeTick) < 24
                 && Math.Abs(local.X - _hitProbePoint.X) <= 4
                 && Math.Abs(local.Y - _hitProbePoint.Y) <= 4)
             {
@@ -514,9 +525,18 @@ namespace FishSocialOverlay
             }
 
             var result = OverlayClickThrough.IsClientHit(this, local) ? HTCLIENT : HTTRANSPARENT;
-            _hitProbePoint = local;
-            _hitProbeTick = tick;
-            _hitProbeResult = result;
+            // A cached miss stays wrong when the pointer steps onto a pet or button,
+            // which drops the right-click before WPF ever sees it.
+            if (result == HTTRANSPARENT)
+            {
+                _hitProbeResult = int.MinValue;
+            }
+            else
+            {
+                _hitProbePoint = local;
+                _hitProbeTick = tick;
+                _hitProbeResult = result;
+            }
             handled = true;
             return new IntPtr(result);
         }
@@ -1581,6 +1601,12 @@ namespace FishSocialOverlay
         {
             if (e.ChangedButton != MouseButton.Left)
                 return;
+            if (_leftClickRevealsChrome)
+            {
+                _leftClickRevealsChrome = false;
+                e.Handled = true;
+                return;
+            }
             if (TryDismissMenusFromLeftClick())
             {
                 _ignoreNextSceneDrag = IsUnderElement(e.OriginalSource as DependencyObject, PondScene);
@@ -1597,32 +1623,37 @@ namespace FishSocialOverlay
 
         void PondScene_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            NoteOverlayActivity();
+            // Closing the previous menu fires Closed, which would drop this capture.
+            OverlayInteractionState.PreserveMouseCapture = true;
             CloseAllContextMenus();
             OverlayInteractionState.EndMenuHoverSuppress();
             _scene?.CancelAllHovers();
             _pendingPetMenu = null;
             _pendingProductMenu = false;
+            _openedContextMenuThisGesture = false;
+
+            var source = e.OriginalSource as DependencyObject;
+            if (IsTextInput(source))
+            {
+                OverlayInteractionState.PreserveMouseCapture = false;
+                return;
+            }
 
             var pondPos = e.GetPosition(PondScene);
-            var actor = FindSocialPetFromSource(e.OriginalSource as DependencyObject) ??
-                        FindSocialPetAt(pondPos);
+            var actor = FindSocialPetFromSource(source) ?? FindSocialPetAt(pondPos);
             if (actor != null && actor.HasPlayerContextMenu)
-            {
                 _pendingPetMenu = actor;
-                _openedContextMenuThisGesture = true;
-                e.Handled = true;
-                return;
-            }
-            if (ShouldSkipSceneDrag(e.OriginalSource as DependencyObject))
+            else if (ShouldOpenProductMenu(source, pondPos, e.GetPosition(this)))
+                _pendingProductMenu = true;
+            else
             {
-                e.Handled = true;
+                OverlayInteractionState.PreserveMouseCapture = false;
                 return;
             }
-            if (!OverlayClickThrough.HitsPondArt(this, e.GetPosition(this)))
-                return;
 
-            _pendingProductMenu = true;
             _openedContextMenuThisGesture = true;
+            Mouse.Capture(PondScene, CaptureMode.SubTree);
             e.Handled = true;
         }
 
@@ -1630,20 +1661,93 @@ namespace FishSocialOverlay
         {
             if (!_openedContextMenuThisGesture)
                 return;
-            _openedContextMenuThisGesture = false;
-            e.Handled = true;
+            _acceptingRightButtonUp = true;
+            try
+            {
+                _openedContextMenuThisGesture = false;
+                e.Handled = true;
+                var pet = _pendingPetMenu;
+                var product = _pendingProductMenu;
+                _pendingPetMenu = null;
+                _pendingProductMenu = false;
+                OverlayInteractionState.PreserveMouseCapture = false;
+                if (Mouse.Captured == PondScene)
+                    Mouse.Capture(null);
 
-            var pet = _pendingPetMenu;
-            var product = _pendingProductMenu;
+                if (pet != null)
+                    pet.TryOpenPlayerContextMenu();
+                else if (product)
+                    OpenProductContextMenu();
+            }
+            finally
+            {
+                _acceptingRightButtonUp = false;
+            }
+        }
+
+        void PondScene_OnLostMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (_acceptingRightButtonUp || !_openedContextMenuThisGesture)
+                return;
+            _openedContextMenuThisGesture = false;
             _pendingPetMenu = null;
             _pendingProductMenu = false;
+            OverlayInteractionState.PreserveMouseCapture = false;
+        }
 
-            if (pet != null)
+        bool ShouldOpenProductMenu(DependencyObject source, Point pondLocal, Point windowLocal)
+        {
+            if (FindAnyPetFromSource(source) != null || FindPetArtAt(pondLocal) != null)
+                return true;
+            if (IsSeatArtHit(source))
+                return true;
+            if (ShouldSkipSceneDrag(source))
+                return true;
+            return OverlayClickThrough.HitsPondArt(this, windowLocal);
+        }
+
+        static bool IsTextInput(DependencyObject source)
+        {
+            while (source != null)
             {
-                pet.TryOpenPlayerContextMenu();
+                if (source is TextBox || source is PasswordBox)
+                    return true;
+                source = NextParent(source);
             }
-            else if (product)
-                OpenProductContextMenu();
+
+            return false;
+        }
+
+        static OverlayPetActor FindAnyPetFromSource(DependencyObject source)
+        {
+            while (source != null)
+            {
+                if (source is OverlayPetActor actor)
+                    return actor;
+                source = NextParent(source);
+            }
+
+            return null;
+        }
+
+        bool IsSeatArtHit(DependencyObject source)
+        {
+            var leaf = source;
+            while (source != null)
+            {
+                if (source is OverlaySpotMarker spot)
+                    return spot.IsSeatArtSource(leaf);
+                source = NextParent(source);
+            }
+
+            return false;
+        }
+
+        static DependencyObject NextParent(DependencyObject source)
+        {
+            if (source is Visual || source is Visual3D)
+                return VisualTreeHelper.GetParent(source);
+            return LogicalTreeHelper.GetParent(source);
         }
 
         ContextMenu BuildProductContextMenu()
@@ -1826,6 +1930,204 @@ namespace FishSocialOverlay
 
         void Window_OnMouseLeave(object sender, MouseEventArgs e)
         {
+            RestartChromeIdleTimer(ActionChromeLeaveMs);
+        }
+
+        void RegisterActionChrome()
+        {
+            var elements = new FrameworkElement[]
+            {
+                FishingToggleButton,
+                GroundbaitButton,
+                CatchLeaveButton,
+                ExitPondButton,
+                PoliceDebugButton,
+                GameplayDebugButton,
+                OpenMainButton,
+                BtnPanLeft,
+                BtnPanRight,
+                ChatDockChrome,
+                MenuToggleButton,
+                MenuMapButton,
+                MenuShopButton,
+                MenuFriendsButton,
+                MenuCatchButton,
+                MenuLeaderboardButton,
+                MenuSettingsButton,
+            };
+            foreach (var element in elements)
+            {
+                if (element == null || _chromeRestingOpacity.ContainsKey(element))
+                    continue;
+                var opacity = element.Opacity;
+                _chromeRestingOpacity[element] = opacity <= 0.01 ? 1 : opacity;
+                element.IsVisibleChanged += ActionChromeElement_OnVisibleChanged;
+            }
+
+            _chromeIdleTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(ActionChromeIdleMs) };
+            _chromeIdleTimer.Tick += ChromeIdleTimer_OnTick;
+            IsVisibleChanged += (_, __) =>
+            {
+                if (!IsVisible)
+                {
+                    _chromeIdleTimer.Stop();
+                    return;
+                }
+
+                ShowDefaultActionChrome(animate: false);
+                RestartChromeIdleTimer(ActionChromeIdleMs);
+            };
+            Activated += (_, __) => NoteOverlayActivity();
+            PreviewMouseDown += (_, e) =>
+            {
+                if (e.ChangedButton == MouseButton.Left &&
+                    !_actionChromeRevealed &&
+                    !IsSeatArtHit(e.OriginalSource as DependencyObject))
+                    _leftClickRevealsChrome = true;
+                NoteOverlayActivity();
+            };
+            PreviewKeyDown += (_, __) => NoteOverlayActivity();
+            PondScene.LostMouseCapture += PondScene_OnLostMouseCapture;
+        }
+
+        void NoteOverlayActivity()
+        {
+            if (!IsVisible)
+                return;
+            ShowDefaultActionChrome(animate: true);
+            RestartChromeIdleTimer(ActionChromeIdleMs);
+        }
+
+        void ShowDefaultActionChrome(bool animate)
+        {
+            if (_actionChromeRevealed)
+                return;
+            if (_chatDockExpanded)
+                ChatDockToggle_OnClick(ChatDockToggle, new RoutedEventArgs());
+            _actionChromeRevealed = true;
+            ApplyActionChrome(animate);
+        }
+
+        void RestartChromeIdleTimer(int delayMs)
+        {
+            if (_chromeIdleTimer == null || !IsVisible)
+                return;
+            _chromeIdleTimer.Interval = TimeSpan.FromMilliseconds(delayMs);
+            _chromeIdleTimer.Stop();
+            _chromeIdleTimer.Start();
+        }
+
+        void ChromeIdleTimer_OnTick(object sender, EventArgs e)
+        {
+            _chromeIdleTimer.Stop();
+            if (!IsVisible || _stopping)
+                return;
+            if (HoldActionChrome() || PointerOverActionChrome())
+            {
+                RestartChromeIdleTimer(ActionChromeIdleMs);
+                return;
+            }
+
+            if (!_actionChromeRevealed)
+                return;
+            _actionChromeRevealed = false;
+            ApplyActionChrome(animate: true);
+        }
+
+        bool HoldActionChrome()
+        {
+            if (OverlayInteractionState.SceneDragging)
+                return true;
+            if (OverlayInteractionState.MenuSuppressesHover || AnyContextMenuIsOpen())
+                return true;
+            if (Mouse.LeftButton == MouseButtonState.Pressed ||
+                Mouse.RightButton == MouseButtonState.Pressed)
+                return true;
+            if (ChatInputBox != null && (ChatInputBox.IsKeyboardFocused || ChatInputBox.IsFocused))
+                return true;
+            if (GameplayDebugModal != null && GameplayDebugModal.Visibility == Visibility.Visible)
+                return true;
+            if (OverlayPromptChrome != null && OverlayPromptChrome.Visibility == Visibility.Visible)
+                return true;
+            return false;
+        }
+
+        bool PointerOverActionChrome()
+        {
+            try
+            {
+                if (!GetCursorPos(out var point))
+                    return false;
+                var hit = InputHitTest(PointFromScreen(new Point(point.X, point.Y))) as DependencyObject;
+                return IsActionChromeSource(hit);
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+        }
+
+        bool IsActionChromeSource(DependencyObject source)
+        {
+            while (source != null)
+            {
+                if (source is FrameworkElement element && _chromeRestingOpacity.ContainsKey(element))
+                    return true;
+                source = NextParent(source);
+            }
+
+            return false;
+        }
+
+        void ActionChromeElement_OnVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is FrameworkElement element)
+                ApplyActionChromeVisual(element, animate: false);
+        }
+
+        void ApplyActionChrome(bool animate)
+        {
+            foreach (var element in _chromeRestingOpacity.Keys)
+                ApplyActionChromeVisual(element, animate);
+        }
+
+        void ApplyActionChromeVisual(FrameworkElement element, bool animate)
+        {
+            if (element == null || !_chromeRestingOpacity.TryGetValue(element, out var resting))
+                return;
+            var show = _actionChromeRevealed && element.IsVisible;
+            element.IsHitTestVisible = show;
+            SetChromeOpacity(element, show ? resting : 0, animate);
+        }
+
+        readonly Dictionary<FrameworkElement, int> _chromeOpacityEpoch =
+            new Dictionary<FrameworkElement, int>();
+
+        void SetChromeOpacity(FrameworkElement element, double target, bool animate)
+        {
+            var epoch = 1;
+            if (_chromeOpacityEpoch.TryGetValue(element, out var previous))
+                epoch = previous + 1;
+            _chromeOpacityEpoch[element] = epoch;
+            element.BeginAnimation(OpacityProperty, null);
+            if (!animate || Math.Abs(element.Opacity - target) < 0.02)
+            {
+                element.Opacity = target;
+                return;
+            }
+
+            var animation = new DoubleAnimation(element.Opacity, target, TimeSpan.FromMilliseconds(140))
+            {
+                FillBehavior = FillBehavior.Stop,
+            };
+            animation.Completed += (_, __) =>
+            {
+                if (!_chromeOpacityEpoch.TryGetValue(element, out var current) || current != epoch)
+                    return;
+                element.Opacity = target;
+                element.BeginAnimation(OpacityProperty, null);
+            };
+            element.BeginAnimation(OpacityProperty, animation);
         }
 
         static OverlayPetActor FindSocialPetFromSource(DependencyObject source)
@@ -1970,6 +2272,7 @@ namespace FishSocialOverlay
 
         void Window_PreviewMouseMove(object sender, MouseEventArgs e)
         {
+            NoteOverlayActivity();
             if (OverlayInteractionState.SceneDragging ||
                 OverlayInteractionState.MenuSuppressesHover)
                 return;
@@ -2691,8 +2994,10 @@ namespace FishSocialOverlay
         void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             OverlayInteractionState.MenuHoverSuppressEnded -= OnMenuHoverSuppressEnded;
+            OverlayInteractionState.PreserveMouseCapture = false;
             OverlayInteractionState.EndMenuHoverSuppress();
             _hoverPollTimer.Stop();
+            _chromeIdleTimer?.Stop();
             _stopping = true;
             _promptTimer?.Stop();
             _chatAckTimer?.Stop();
