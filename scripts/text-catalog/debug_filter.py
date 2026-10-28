@@ -37,6 +37,8 @@ def debug_control(name):
 def excluded_source(path, value, ctx="", location="", node_debug=False):
     p = str(path)
     filename = p.rsplit("/", 1)[-1]
+    if re.match(r'\s*(?:(?:System\.Diagnostics|UnityEngine)\.)?(?:Debug\.(?:Log(?:Warning|Error|Exception|Assertion)?(?:Format)?|WriteLine)|console\.(?:log|warn|error|debug|info|trace)|Console\.Write(?:Line)?|logger\.(?:log|warn|error|debug|info|trace)|LatencyTrace\.Write|Trace\.Write(?:Line)?)\s*\(', ctx):
+        return 'Debug与日志输出'
     if filename in DEBUG_FILES:
         return "调试专用文件"
     if node_debug:

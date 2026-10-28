@@ -136,7 +136,7 @@ const notes = [
   ['配置状态', '当前是文本清单和配置底表。现有运行时尚未通过 Key 读取此表，修改本表不会自动更改游戏界面。'],
   ['编辑方式', '只修改“文本配置”的 zhCN、enUS 和备注列。Key、原始文本、来源映射用于追踪，请保持不变。'],
   ['Key 命名', '全小写英文点分层，段内用下划线：ui.fishing.button.start_fishing；game为游戏数据，server为服务端提示。名称按用途固定，不随翻译改名。'],
-  ['旧 Key 兼容', 'key-registry.json 保留旧Key到语义Key的一对一映射；旧版工作簿仍可导入。同一条配置同时出现新旧Key会被判为重复并拒绝导入。'],
+  ['旧 Key 兼容', 'key-registry.json 保留旧名映射；工作簿条目集合须匹配现行清单。已删除Key、重复行或缺行会拒绝导入，清理前旧表不能直接覆盖现行表。'],
   ['新 Key 登记', '新增未审查文本使用unreviewed命名空间；确认显示用途后在key-registry.json登记正式名称，再执行extract.py --normalize-keys-only。'],
   ['英文配置', 'enUS 对应 en-US；已翻译当前玩家文案。变量数值/单位不换算，jin 为市斤（500g）。原文规则保持不变。'],
   ['导入 JSON', '在仓库根目录使用 Codex Node 运行 scripts/text-catalog/build.mjs --import-xlsx，将编辑值写入 JSON 并刷新工作簿。'],
@@ -144,7 +144,9 @@ const notes = [
   ['占位符', '完整保留 {0}、{1}、{0:N0} 等占位符（含格式和重复次数）。参数表达式见来源映射。'],
   ['模板说明', '拼接和插值统一为编号模板；分支中的文本另行收录。普通格式串保留源格式。接入时按来源逐项迁移。'],
   ['去重口径', '同模块、同类型、同提取方式、同原文合并 Key，所有使用位置保留；不同使用类型不会混成一条。'],
-  ['初始与现行', '保留正式界面的有效初始文本及可动态打开的状态；移除废弃、固定关闭、预览、示意及被无条件覆盖的来源。'],
+  ['初始与现行', '保留正式界面的有效Prefab初始文本及可动态打开的状态；移除Unity编辑器脚本、固定关闭、预览、示意及被无条件覆盖的来源。'],
+  ['昵称数据', '机器人预设/自动昵称及写入账号的默认昵称属于身份数据，保持原值；界面的昵称标签、输入提示、校验错误和空昵称显示兜底按实际用途保留。'],
+  ['开发与日志', '不收录Debug/Log输出、仅供日志的成功回调、HUD JSON导出、布局结构校验、资源制作与UNITY_EDITOR菜单。玩家实际操作失败提示保留。'],
   ['调试文本过滤', '已剔除玩法调试窗口、测试鱼、模拟通知和 Debug 专用服务器设置页；共用文案只删除调试来源。'],
   ['不生效来源过滤', '已剔除未挂载的 JournalV2 页面、旧资料页、隐藏菜单/首页、美术样例、制作/埋点说明、诊断及内部标识；仅移除审查确认的具体来源。'],
   ['重新生成规则', 'extract.py 自动应用调试、不生效及 localization-sources.json 规则；只清理现有清单用 --filter-localization-only。新增/改写来源须重审。'],
@@ -183,7 +185,7 @@ console.log((await workbook.inspect({ kind: 'table', range: '文本配置!A4:H8'
 const errors = await workbook.inspect({ kind: 'match', searchTerm: '#REF!|#DIV/0!|#VALUE!|#NAME\\?|#NUM!|#SPILL!|#CALC!', options: { useRegex: true, maxResults: 10 }, summary: '文本表公式错误检查', maxChars: 1000 });
 console.log(errors.ndjson);
 await fs.mkdir(previewDir, { recursive: true });
-for (const [sheetName, range, file] of [['文本配置', 'A2:F12', 'config-preview.png'], ['来源映射', 'A2:F10', 'sources-preview.png'], ['使用说明', 'A2:B17', 'guide-preview.png']]) {
+for (const [sheetName, range, file] of [['文本配置', 'A2:F12', 'config-preview.png'], ['来源映射', 'A2:F10', 'sources-preview.png'], ['使用说明', 'A2:B20', 'guide-preview.png']]) {
   const image = await workbook.render({ sheetName, range, scale: 1.25, format: 'png' });
   await fs.writeFile(path.join(previewDir, file), new Uint8Array(await image.arrayBuffer()));
 }

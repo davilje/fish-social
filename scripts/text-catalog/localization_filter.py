@@ -50,7 +50,12 @@ def filter_localization(catalog):
                      rule['location'], rule['expressionSha256'])
         rules.setdefault(signature, []).append(rule)
 
-    def exclusion(key, source):
+    def exclusion(key, source, category=None):
+        if '/Editor/' in source['file']:
+            return 'Unity编辑器来源不进入玩家本地化表（含界面烘焙脚本）；实际显示文本保留运行时与Prefab来源。'
+        reviewed_category = manifest['categoryOverrides'].get(legacy_key(key), category)
+        if reviewed_category in {'编辑器与界面构建', '日志与诊断'}:
+            return 'Unity编辑器属性、日志及开发诊断不进入玩家本地化表；已确认的玩家提示按审查分类保留。'
         for rule in rules.get(localization_signature(key, source), []):
             if 'lineContextSha256' in rule:
                 if (source['column'] != rule['column']
@@ -66,7 +71,7 @@ def filter_localization(catalog):
     for entry in result['entries']:
         sources = []
         for source in entry['sources']:
-            reason = exclusion(entry.get('sourceKey') or entry['key'], source)
+            reason = exclusion(entry.get('sourceKey') or entry['key'], source, entry['category'])
             if reason:
                 removed[reason] += 1
             else:
@@ -84,7 +89,7 @@ def filter_localization(catalog):
     retired = []
     for entry in result.get('retiredEntries', []):
         entry['sources'] = [s for s in entry['sources']
-                            if not exclusion(entry.get('sourceKey') or entry['key'], s)]
+                            if not exclusion(entry.get('sourceKey') or entry['key'], s, entry['category'])]
         if entry['sources']:
             retired.append(entry)
     result['retiredEntries'] = retired
