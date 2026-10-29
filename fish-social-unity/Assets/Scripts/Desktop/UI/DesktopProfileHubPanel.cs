@@ -100,7 +100,6 @@ namespace FishSocial.Desktop
         Coroutine _albumPhotoRoutine;
         int _albumPhotoLoadVersion;
 
-        Action _openAchievements;
 
         public void Bind(
             IAuthenticatedApiClient api,
@@ -114,7 +113,6 @@ namespace FishSocial.Desktop
             _pond = pond;
             _openEdit = openEdit;
             _openWorldMap = openWorldMap;
-            _openAchievements = openAchievements;
             _toast = toast;
             EnsureUi();
         }
@@ -141,9 +139,15 @@ namespace FishSocial.Desktop
 
         public void ShowOtherPlayer(string playerId, HubTab tab = HubTab.Profile)
         {
+            if (string.IsNullOrEmpty(playerId)) return;
+            if (_api != null && playerId == _api.PlayerId)
+            {
+                ShowSelf(tab);
+                return;
+            }
             if (_viewingOtherPlayerId != playerId) ResetViewedProfile();
-            _viewingOtherPlayerId = playerId ?? string.Empty;
-            _tab = tab;
+            _viewingOtherPlayerId = playerId;
+            _tab = IsTabAvailable(tab) ? tab : HubTab.Profile;
             UpdateHeaderForTab();
             ApplyTabVisibility();
             if (isActiveAndEnabled)
@@ -153,6 +157,8 @@ namespace FishSocial.Desktop
         void ResetViewedProfile()
         {
             StopLoad();
+            if (_tabMotionRoutine != null) StopCoroutine(_tabMotionRoutine);
+            _tabMotionRoutine = null;
             _targetGeneration++;
             _showcaseBusy = false;
             CloseShowcasePicker();
@@ -486,7 +492,7 @@ namespace FishSocial.Desktop
                     DesktopModalUi.SetButtonLabel(btn, label);
                     btn.onClick.RemoveAllListeners();
                     var captured = tab;
-                    btn.onClick.AddListener(() => { if(captured == HubTab.Achievements && !IsAchievementsPage()) _openAchievements?.Invoke(); else SelectTab(captured); });
+                    btn.onClick.AddListener(() => { if (IsTabAvailable(captured)) SelectTab(captured); });
                     _tabButtons.Add(btn);
                 }
                 else
@@ -940,7 +946,7 @@ namespace FishSocial.Desktop
 
         void SelectTab(HubTab tab)
         {
-            if (_showcaseBusy || _tab==tab) return;
+            if (_showcaseBusy || _tab==tab || !IsTabAvailable(tab)) return;
             if(!Application.isPlaying) { ApplySelectedTab(tab); return; }
             if(_tabMotionRoutine!=null) StopCoroutine(_tabMotionRoutine);
             for(var i=0;i<_tabButtons.Count;i++) _tabButtons[i]?.GetComponent<CozyButtonVisual>()?.SetSelected(i==(int)tab);
@@ -973,7 +979,7 @@ namespace FishSocial.Desktop
         }
         void ApplySelectedTab(HubTab tab)
         {
-            if (_showcaseBusy) return;
+            if (_showcaseBusy || !IsTabAvailable(tab)) return;
             CloseShowcasePicker();
             if (tab == HubTab.Album)
             {
@@ -1002,35 +1008,46 @@ namespace FishSocial.Desktop
             _codexRoutine = null;
         }
 
+        bool IsOtherProfile => _hub != null ? !_hub.isSelf :
+            !string.IsNullOrEmpty(_viewingOtherPlayerId);
+
+        bool IsTabAvailable(HubTab tab)
+        {
+            if (IsAchievementsPage()) return tab == HubTab.Achievements;
+            if (tab == HubTab.Achievements) return false;
+            return !IsOtherProfile || tab == HubTab.Profile || tab == HubTab.Showcase || tab == HubTab.Album;
+        }
+
         void ApplyTabVisibility()
         {
-            if (!IsAchievementsPage() && _tab == HubTab.Achievements)
-                _tab = HubTab.Profile;
+            if (!IsTabAvailable(_tab))
+                _tab = IsAchievementsPage() ? HubTab.Achievements : HubTab.Profile;
+            var visibleIndex = 0;
             for (var tabIndex = 0; tabIndex < _tabContents.Count; tabIndex++)
             {
-                var show = tabIndex == (int)_tab && (!Application.isPlaying || _hub != null);
+                var available = IsTabAvailable((HubTab)tabIndex);
+                var show = available && tabIndex == (int)_tab && (!Application.isPlaying || _hub != null);
                 if (_tabContents[tabIndex] != null && _tabContents[tabIndex].activeSelf != show)
                     _tabContents[tabIndex].SetActive(show);
                 if (tabIndex < _tabButtons.Count && _tabButtons[tabIndex] != null)
                 {
                     var button = _tabButtons[tabIndex];
-                    if (!IsAchievementsPage() && tabIndex == (int)HubTab.Achievements)
+                    button.gameObject.SetActive(available);
+                    if (!available) continue;
+                    if (CozyItemArt.IsAuthored(transform) && !IsAchievementsPage())
                     {
-                        button.gameObject.SetActive(transform.Find("Shell/Content/Tab_资料/WorkspaceKicker") != null);
-                        if (_tabContents[tabIndex] != null)
-                            _tabContents[tabIndex].SetActive(false);
-                        continue;
+                        var rect = button.GetComponent<RectTransform>();
+                        rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, -12f - visibleIndex * 88f);
                     }
+                    visibleIndex++;
                     if (!_hubTabsStyled)
                         DesktopModalUi.StyleButton(button);
-                    var visual = button.GetComponent<CozyButtonVisual>();
-                    if (visual != null)
-                        visual.SetSelected(tabIndex == (int)_tab);
+                    button.GetComponent<CozyButtonVisual>()?.SetSelected(tabIndex == (int)_tab);
                 }
             }
             _hubTabsStyled = true;
             if (_editButton != null)
-                _editButton.gameObject.SetActive(_tab == HubTab.Profile &&
+                _editButton.gameObject.SetActive(_tab == HubTab.Profile && !IsOtherProfile &&
                     (_hub != null && _hub.canEdit && _hub.isSelf) && !IsAchievementsPage());
         }
 
@@ -1277,6 +1294,14 @@ namespace FishSocial.Desktop
                 catch (ArgumentOutOfRangeException) { }
             }
             CozyItemArt.Text(profile, "WorkspaceSince", since);
+            CozyItemArt.Text(profile, "JournalHeading", _hub.isSelf
+                ? DesktopLocalization.Text("ui.profile.hub_initial.title.fishing_time", "我的钓鱼时光")
+                : DesktopLocalization.Text("ui.profile.public.title.journal", "钓友的钓鱼时光"));
+            CozyItemArt.Text(profile, "DesignShowcase/Heading", _hub.isSelf
+                ? DesktopLocalization.Text("ui.profile.hub_initial.title.treasures", "我的珍藏")
+                : DesktopLocalization.Text("ui.profile.public.title.collection", "钓友的珍藏"));
+            var journey = profile.Find("JournalProgress");
+            if (journey != null) journey.gameObject.SetActive(_hub.isSelf);
             var caught = 0;
             FishCodexEntryDto latest = null;
             foreach (var entry in _codexEntries ?? Array.Empty<FishCodexEntryDto>())
@@ -1291,6 +1316,21 @@ namespace FishSocial.Desktop
             var labels = new[] { DesktopLocalization.Text("ui.profile.workspace.label.total_catches", "累计钓获"), DesktopLocalization.Text("ui.profile.workspace.label.species_count", "已收录鱼种"), DesktopLocalization.Text("ui.profile.workspace.label.achievement_count", "已解锁成就") };
             var caughtLabel = _hub.isSelf ? (_codexEntries.Length == 0 && _hub.codexSummary != null && _hub.codexSummary.unlockedCount > 0 ? DesktopLocalization.Text("ui.profile.workspace.state.not_loaded", "暂未加载") : DesktopLocalization.Format("ui.profile.workspace.label.catch_count", (object)(caught))) : DesktopLocalization.Text("ui.profile.workspace.state.private", "未公开");
             var values = new[] { caughtLabel, DesktopLocalization.Format("ui.profile.workspace.label.species_total", (object)((_hub.codexSummary != null ? _hub.codexSummary.unlockedCount.ToString() : "0"))), DesktopLocalization.Format("ui.profile.workspace.label.achievement_total", (object)(unlocked)) };
+            if (!_hub.isSelf)
+            {
+                labels = new[]
+                {
+                    DesktopLocalization.Text("ui.profile.profile_summary.label.fishing_level", "钓鱼等级"),
+                    DesktopLocalization.Text("ui.profile.edit.tab.showcase", "展示柜"),
+                    DesktopLocalization.Text("ui.profile.edit.tab.album", "相册"),
+                };
+                values = new[]
+                {
+                    DesktopLocalization.Concat("Lv.", level),
+                    Array.FindAll(_hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>(), fish => fish != null).Length.ToString(),
+                    (_hub.albumPins ?? Array.Empty<AlbumCardDto>()).Length.ToString(),
+                };
+            }
             for (var i = 0; i < labels.Length; i++)
             {
                 CozyItemArt.Text(profile, DesktopLocalization.Concat(DesktopLocalization.Concat("DesignStatCards/Card", i), "/Label"), labels[i]);
@@ -1306,7 +1346,9 @@ namespace FishSocial.Desktop
             var facts = treasured != null ? new[] { DesktopLocalization.Concat(treasured.sizeM.ToString("0.00"), " m"), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(treasured.sizeM)), WorkspaceTime(treasured.caughtAt), PondLabel(treasured.pondId) } : new[] { "—", "—", "—", "—" };
             CozyItemArt.Text(profile, "DesignShowcase/WorkspaceCaption", treasured != null ? DesktopLocalization.Format("ui.profile.workspace.label.showcase_slot", (object)(slot)) : DesktopLocalization.Text("ui.profile.workspace.empty.showcase_slot", "留一个位置，给下一次惊喜"));
             for (var i = 0; i < facts.Length; i++) CozyItemArt.Text(profile, DesktopLocalization.Concat(DesktopLocalization.Concat("DesignShowcase/WorkspaceFact", i), "/Value"), facts[i]);
-            CozyItemArt.Text(profile, "DesignShowcase/WorkspaceNote", treasured != null ? DesktopLocalization.Text("ui.profile.workspace.description.memories", "那些耐心等待的时刻，\n都在手账里留下了印记。") : DesktopLocalization.Text("ui.profile.workspace.hint.choose_showcase", "从左侧展示柜或编辑资料，\n选一条喜欢的鱼获珍藏吧。"));
+            CozyItemArt.Text(profile, "DesignShowcase/WorkspaceNote", !_hub.isSelf
+                ? DesktopLocalization.Text("ui.profile.public.description.showcase", "这里展示钓友公开珍藏的鱼获。")
+                : treasured != null ? DesktopLocalization.Text("ui.profile.workspace.description.memories", "那些耐心等待的时刻，\n都在手账里留下了印记。") : DesktopLocalization.Text("ui.profile.workspace.hint.choose_showcase", "从左侧展示柜或编辑资料，\n选一条喜欢的鱼获珍藏吧。"));
         }
 
         static string WorkspaceTime(long timestamp)
@@ -1532,6 +1574,10 @@ namespace FishSocial.Desktop
             if (_showcaseGrid == null)
                 return;
             FitGrid(_showcaseGrid, 3);
+            var showcaseRoot = transform.Find("Shell/Content/Tab_展示柜");
+            CozyItemArt.Text(showcaseRoot, "DesignGridHeading", _hub.isSelf
+                ? DesktopLocalization.Text("ui.profile.hub_initial.title.showcase", "我的展示柜")
+                : DesktopLocalization.Text("ui.profile.edit.tab.showcase", "展示柜"));
             ClearChildren(_showcaseGrid);
             var fish = _hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>();
             for (var i = 0; i < 8; i++)
@@ -1541,14 +1587,14 @@ namespace FishSocial.Desktop
                 var index = i;
                 if (item == null)
                 {
-                    CreateCard(_showcaseGrid, DesktopLocalization.Concat("Slot", i), DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜"), () => SelectShowcase(index), null, 16, null, false, DesktopLocalization.Text("ui.profile.showcase.hint.choose_fish", "点击选择一条鱼"), false, slot);
+                    CreateCard(_showcaseGrid, DesktopLocalization.Concat("Slot", i), _hub.isSelf ? DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜") : DesktopLocalization.Text("ui.profile.profile_summary.empty.showcase", "暂无展示鱼获"), () => SelectShowcase(index), null, 16, null, false, _hub.isSelf ? DesktopLocalization.Text("ui.profile.showcase.hint.choose_fish", "点击选择一条鱼") : "", false, slot);
                     continue;
                 }
                 var captured = item;
                 var name = DesktopFishCatalog.SpeciesName(item.speciesId);
                 if (string.IsNullOrEmpty(name) && item.sizeM <= 0.001f)
                 {
-                    CreateCard(_showcaseGrid, DesktopLocalization.Concat("Slot", i), DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜"), () => SelectShowcase(index), null, 16, null, false, DesktopLocalization.Text("ui.profile.showcase.hint.choose_fish", "点击选择一条鱼"), false, slot);
+                    CreateCard(_showcaseGrid, DesktopLocalization.Concat("Slot", i), _hub.isSelf ? DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜") : DesktopLocalization.Text("ui.profile.profile_summary.empty.showcase", "暂无展示鱼获"), () => SelectShowcase(index), null, 16, null, false, _hub.isSelf ? DesktopLocalization.Text("ui.profile.showcase.hint.choose_fish", "点击选择一条鱼") : "", false, slot);
                     continue;
                 }
                 name = name ?? item.speciesId ?? DesktopLocalization.Text("ui.profile.showcase.label.catch", "鱼获");
@@ -1557,6 +1603,9 @@ namespace FishSocial.Desktop
                     () => SelectShowcase(index),
                     CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId), false, DesktopLocalization.Concat(DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m · "), DesktopFishCatalog.StarRich(item.quality)), false, slot);
             }
+            if (!_hub.isSelf)
+                foreach (Transform slot in _showcaseGrid)
+                    slot.Find("JournalEmpty")?.gameObject.SetActive(false);
             SelectShowcase(Mathf.Clamp(_showcaseSelection, 0, 7));
             ReplayCenter(_showcaseGrid);
         }
@@ -1576,7 +1625,7 @@ namespace FishSocial.Desktop
             {
                 var button = root?.Find(name)?.GetComponent<Button>();
                 if (button == null) continue;
-                button.gameObject.SetActive(_hub.canEdit);
+                button.gameObject.SetActive(_hub.isSelf && _hub.canEdit);
                 button.interactable = name == "JournalReplace" || item != null;
                 if (name == "JournalReplace") DesktopModalUi.SetButtonLabel(button, item != null ? DesktopLocalization.Text("ui.profile.showcase.button.replace", "更换鱼获") : DesktopLocalization.Text("ui.profile.showcase.button.choose", "选择鱼获"));
             }
@@ -1584,7 +1633,7 @@ namespace FishSocial.Desktop
 
         void OpenShowcasePicker()
         {
-            if (_showcaseBusy || _hub == null || !_hub.canEdit || _api == null || !_api.CanUse) return;
+            if (_showcaseBusy || _hub == null || !_hub.isSelf || !_hub.canEdit || _api == null || !_api.CanUse) return;
             var picker = transform.Find("JournalShowcasePicker");
             if (picker == null) { SetStatus(DesktopLocalization.Text("ui.profile.showcase_picker.error.asset_missing", "展示鱼获选择器资源缺失，请重新导入 UI。")); return; }
             picker.gameObject.SetActive(true); picker.SetAsLastSibling();
@@ -1626,7 +1675,7 @@ namespace FishSocial.Desktop
 
         void SaveShowcaseSelection(string fishId)
         {
-            if (_showcaseBusy || _hub == null || !_hub.canEdit || _api == null || !_api.CanUse) return;
+            if (_showcaseBusy || _hub == null || !_hub.isSelf || !_hub.canEdit || _api == null || !_api.CanUse) return;
             var slots = new string[PlayerProfileDto.ShowcaseSlotCount];
             var existing = _hub.profile?.showcaseFishIds;
             if (existing != null) Array.Copy(existing, slots, Math.Min(existing.Length, slots.Length));
@@ -1661,7 +1710,7 @@ namespace FishSocial.Desktop
             CozyItemArt.Set(_showcaseDetail.transform.parent, "DesignDetailArt", null);
             CozyItemArt.Text(_showcaseDetail.transform.parent, "JournalPhotoCaption", DesktopLocalization.Text("ui.profile.showcase_note.empty.catch", "还没有摆上鱼获"));
             CozyItemArt.Text(_showcaseDetail.transform.parent, "DesignDetailHeading", DesktopLocalization.Format("ui.profile.showcase_note.title.slot", (object)((_showcaseSelection+1))));
-            DesktopLocalization.SetText(_showcaseDetail, DesktopLocalization.Text("ui.profile.showcase_note.description.choose_catch", "从背包里选一条最喜欢的鱼，贴进这一个展示格。"));
+            DesktopLocalization.SetText(_showcaseDetail, _hub.isSelf ? DesktopLocalization.Text("ui.profile.showcase_note.description.choose_catch", "从背包里选一条最喜欢的鱼，贴进这一个展示格。") : DesktopLocalization.Text("ui.profile.profile_summary.empty.showcase", "暂无展示鱼获"));
             CozyJournalChips.Show(_showcaseDetail);
         }
 
@@ -1680,7 +1729,9 @@ namespace FishSocial.Desktop
                 if (rows != null) rows.gameObject.SetActive(false);
                 target.supportRichText = true;
                 DesktopLocalization.SetText(target, DesktopLocalization.Concat(DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m · "), DesktopFishCatalog.StarRich(item.quality)));
-                CozyJournalChips.Show(target, PondLabel(item.pondId), DesktopLocalization.Text("ui.profile.fish_details.state.showcased", "已珍藏在展示柜"));
+                CozyJournalChips.Show(target, PondLabel(item.pondId), _hub.isSelf
+                    ? DesktopLocalization.Text("ui.profile.fish_details.state.showcased", "已珍藏在展示柜")
+                    : DesktopLocalization.Text("ui.profile.edit.tab.showcase", "展示柜"));
                 CozyJournalStaticPose.RevealAside(root, true);
                 return;
             }

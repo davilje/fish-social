@@ -18,7 +18,7 @@ namespace FishSocial.Desktop.Editor
         {
             var tab = root.Find("Shell/Content/Tab_资料");
             if (tab == null) return;
-            root.Find("Shell/Sidebar/Tab_成就")?.gameObject.SetActive(true);
+            root.Find("Shell/Sidebar/Tab_成就")?.gameObject.SetActive(false);
             Hide(tab, "JournalShowcaseLink", "JournalAlbumLink", "DesignStats", "DesignPrivacy", "DesignId");
             DpText(tab, "JournalHeading", 0, 2, 500, 40, 24, value:"我的钓鱼时光");
             WorkspaceAction(root, "Shell/Header/Edit", 854, 112.5f, 102, 43, 16, "编辑资料");

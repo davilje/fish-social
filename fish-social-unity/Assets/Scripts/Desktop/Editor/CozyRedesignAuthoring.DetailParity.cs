@@ -392,10 +392,10 @@ namespace FishSocial.Desktop.Editor
             }
             DpText(root, "MyRank", 254, 610, 1068, 26, 17, true);
             var aside = root.Find("DesignPlayerCard");
-            DpText(aside, "Heading", 24, 16, 314, 30, 22, value: "钓友名片");
+            DpText(aside, "Heading", 24, 16, 314, 30, 22, value: "鱼获详情");
             DpPhoto(aside, "JournalPhoto", "Avatar", "Name");
-            DpText(aside, "Bio", 24, 316, 314, 62, 16, true, TextAnchor.UpperLeft);
-            DpText(aside, "Value", 24, 382, 314, 28, 15);
+            DpText(aside, "Bio", 24, 302, 314, 90, 16, true, TextAnchor.UpperLeft).lineSpacing = 1.15f;
+            DpText(aside, "Value", 24, 394, 314, 24, 15);
             DpButton(aside, "OpenProfile", 18, 420, 326, 58, 23, "看看钓友的收藏", true);
             var motion = root.GetComponent<CozyJournalPageMotion>() ?? root.gameObject.AddComponent<CozyJournalPageMotion>();
             motion.Configure(root.Find("JournalBoardHeading"), aside, root.Find("MyRank"), root.Find("Scroll"));

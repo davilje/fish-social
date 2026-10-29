@@ -12,9 +12,9 @@ namespace FishSocial.Desktop.Editor
     /// <summary>Applies the full-window login art and previews the complete shell at desktop sizes.</summary>
     public static class CozyLoginSceneAuthoring
     {
-        public const string ArtPath = "Assets/Resources/Desktop/Theme/Cozy/scenes/login-background-cats-v4.png";
+        public const string ArtPath = "Assets/Resources/Desktop/Theme/Cozy/scenes/login-background-cats-selected.png";
         const string ShellPath = "Assets/Resources/Desktop/Prefabs/DesktopShell.prefab";
-        const string Output = "../docs/美术/登录/cats-v4/";
+        const string Output = "../docs/美术/登录/cats-selected-2026-10-29/";
 
         public static void ApplyAndRender()
         {

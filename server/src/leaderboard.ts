@@ -237,23 +237,21 @@ function computePondBoard(
   const catches = loadCatches(startMs, endMs, pondId);
   const agg = new Map<
     string,
-    { catchCount: number; maxSize: number; firstAt: number; maxSizeAt: number }
+    { catchCount: number; firstAt: number; best: ParsedCatch }
   >();
   for (const c of catches) {
     const prev = agg.get(c.playerId);
     if (!prev) {
       agg.set(c.playerId, {
         catchCount: 1,
-        maxSize: c.sizeM,
         firstAt: c.createdAt,
-        maxSizeAt: c.createdAt,
+        best: c,
       });
     } else {
       prev.catchCount += 1;
       if (c.createdAt < prev.firstAt) prev.firstAt = c.createdAt;
-      if (c.sizeM > prev.maxSize || (c.sizeM === prev.maxSize && c.createdAt < prev.maxSizeAt)) {
-        prev.maxSize = c.sizeM;
-        prev.maxSizeAt = c.createdAt;
+      if (c.sizeM > prev.best.sizeM || (c.sizeM === prev.best.sizeM && c.createdAt < prev.best.createdAt)) {
+        prev.best = c;
       }
     }
   }
@@ -264,9 +262,11 @@ function computePondBoard(
   });
   return sorted.slice(0, limit).map(([playerId, v], i) =>
     toEntry(i + 1, playerId, v.catchCount, {
-      pondId,
       catchCount: v.catchCount,
-      sizeM: v.maxSize,
+      sizeM: v.best.sizeM,
+      speciesId: v.best.speciesId,
+      pondId: v.best.pondId ?? undefined,
+      caughtAt: v.best.createdAt,
     }),
   );
 }
@@ -276,23 +276,21 @@ function computeRareBoard(startMs: number, endMs: number, limit: number): Leader
   const catches = loadCatches(startMs, endMs).filter((c) => qualityIndex(c.quality) >= purpleIdx);
   const agg = new Map<
     string,
-    { catchCount: number; maxSize: number; firstAt: number; maxSizeAt: number }
+    { catchCount: number; firstAt: number; best: ParsedCatch }
   >();
   for (const c of catches) {
     const prev = agg.get(c.playerId);
     if (!prev) {
       agg.set(c.playerId, {
         catchCount: 1,
-        maxSize: c.sizeM,
         firstAt: c.createdAt,
-        maxSizeAt: c.createdAt,
+        best: c,
       });
     } else {
       prev.catchCount += 1;
       if (c.createdAt < prev.firstAt) prev.firstAt = c.createdAt;
-      if (c.sizeM > prev.maxSize || (c.sizeM === prev.maxSize && c.createdAt < prev.maxSizeAt)) {
-        prev.maxSize = c.sizeM;
-        prev.maxSizeAt = c.createdAt;
+      if (c.sizeM > prev.best.sizeM || (c.sizeM === prev.best.sizeM && c.createdAt < prev.best.createdAt)) {
+        prev.best = c;
       }
     }
   }
@@ -304,7 +302,10 @@ function computeRareBoard(startMs: number, endMs: number, limit: number): Leader
   return sorted.slice(0, limit).map(([playerId, v], i) =>
     toEntry(i + 1, playerId, v.catchCount, {
       catchCount: v.catchCount,
-      sizeM: v.maxSize,
+      sizeM: v.best.sizeM,
+      speciesId: v.best.speciesId,
+      pondId: v.best.pondId ?? undefined,
+      caughtAt: v.best.createdAt,
     }),
   );
 }
@@ -421,10 +422,16 @@ function playerValueOnBoard(
     const pondId = period.pondId;
     if (!pondId) return { value: 0 };
     const mine = loadCatches(startMs, endMs, pondId).filter((c) => c.playerId === playerId);
-    const maxSize = mine.reduce((m, c) => Math.max(m, c.sizeM), 0);
+    const best = pickBestPerPlayer(mine)[0];
     return {
       value: mine.length,
-      extra: { pondId, catchCount: mine.length, sizeM: maxSize },
+      extra: {
+        pondId,
+        catchCount: mine.length,
+        sizeM: best?.sizeM ?? 0,
+        speciesId: best?.speciesId,
+        caughtAt: best?.createdAt,
+      },
     };
   }
 
@@ -433,8 +440,17 @@ function playerValueOnBoard(
   const mine = loadCatches(startMs, endMs).filter(
     (c) => c.playerId === playerId && qualityIndex(c.quality) >= purpleIdx,
   );
-  const maxSize = mine.reduce((m, c) => Math.max(m, c.sizeM), 0);
-  return { value: mine.length, extra: { catchCount: mine.length, sizeM: maxSize } };
+  const best = pickBestPerPlayer(mine)[0];
+  return {
+    value: mine.length,
+    extra: {
+      catchCount: mine.length,
+      sizeM: best?.sizeM ?? 0,
+      speciesId: best?.speciesId,
+      pondId: best?.pondId ?? undefined,
+      caughtAt: best?.createdAt,
+    },
+  };
 }
 
 export function getMyLeaderboardRank(

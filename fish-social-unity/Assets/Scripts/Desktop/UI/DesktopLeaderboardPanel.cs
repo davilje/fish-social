@@ -26,8 +26,6 @@ namespace FishSocial.Desktop
         SocialPondSessionController _pond;
         System.Action<string> _openPlayer;
         string _selectedPlayerId;
-        Coroutine _playerRoutine;
-        int _playerGeneration;
         CozyJournalPageMotion _pageMotion;
         Coroutine _boardTransition;
         string _pendingBoard;
@@ -88,8 +86,13 @@ namespace FishSocial.Desktop
             if (!_uiReady)
                 return;
             ShowBoard(_boardType);
-            if (_builtBoards.Contains(_boardType))
+            var pondId = _pond != null ? _pond.CurrentPondId : null;
+            if (_builtBoards.Contains(_boardType) && TryGetFreshCache(BuildCacheKey(_boardType, pondId), out var cached))
+            {
+                RenderPodium(FindRank(cached.entries, 1), FindRank(cached.entries, 2), FindRank(cached.entries, 3), _boardType);
+                SyncPlayerSelection();
                 return;
+            }
             RefreshNow();
             StartPrefetchOthers(_boardType);
         }
@@ -160,6 +163,18 @@ namespace FishSocial.Desktop
             EnsureRankScrollbar();
             AlignJournalPodium();
             RestyleUi();
+            // Four catch facts fit above the fixed profile action on the authored card.
+            var details = Find<Text>("DesignPlayerCard/Bio");
+            if (details != null)
+            {
+                PlaceTopLeft(details.rectTransform, 24f, 302f, 314f, 90f);
+                details.fontSize = 16;
+                details.lineSpacing = 1.15f;
+                details.horizontalOverflow = HorizontalWrapMode.Wrap;
+                details.verticalOverflow = VerticalWrapMode.Truncate;
+            }
+            PlaceTopLeft(Find<Text>("DesignPlayerCard/Value")?.rectTransform, 24f, 394f, 314f, 24f);
+            CozyItemArt.Text(transform, "DesignPlayerCard/Heading", DesktopLocalization.Text("ui.leaderboard.catch.title.details", "鱼获详情"));
 
             BindTab(_dailyTab, BoardDaily);
             BindTab(_weeklyTab, BoardWeekly);
@@ -675,6 +690,7 @@ namespace FishSocial.Desktop
         void ApplyBoardSwitch(string boardType)
         {
             _boardType = boardType;
+            ClearSelectedPlayer();
             RestyleTabs();
             ShowBoard(boardType);
             var pondId = _pond != null ? _pond.CurrentPondId : null;
@@ -1179,6 +1195,8 @@ namespace FishSocial.Desktop
                 yield break;
             if (myRank != null)
                 SetMyRank(myRank, boardType);
+            var selected = System.Array.Find(entries, entry => entry != null && entry.playerId == _selectedPlayerId);
+            SelectPlayer(selected ?? first ?? second ?? third, boardType);
             SyncPlayerSelection();
             MarkBoardBuilt(boardType);
             _pageMotion?.ContentReady(entries.Length + 3);
@@ -1372,33 +1390,39 @@ namespace FishSocial.Desktop
 
         void ClearSelectedPlayer()
         {
-            _playerGeneration++;
-            if (_playerRoutine != null) StopCoroutine(_playerRoutine);
-            _playerRoutine = null;
             _selectedPlayerId = null;
-            CozyItemArt.Text(transform, "DesignPlayerCard/Name", DesktopLocalization.Text("ui.leaderboard.panel.title.select_angler", "选择一位钓友"));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Name", DesktopLocalization.Text("ui.leaderboard.catch.title.select", "选择一条鱼获"));
             CozyItemArt.Text(transform, "DesignPlayerCard/Value", "");
-            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.panel.hint.select_profile", "点击榜单查看钓友资料。"));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.catch.hint.select", "点击榜单查看上榜鱼获。"));
             CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", null);
             var open = Find<Button>("DesignPlayerCard/OpenProfile");
-            if (open != null) open.interactable = false;
+            if (open != null)
+            {
+                open.onClick.RemoveAllListeners();
+                open.interactable = false;
+            }
         }
 
         public void SelectPlayer(LeaderboardEntryDto entry, string boardType = null)
         {
             if (entry == null || string.IsNullOrEmpty(entry.playerId)) return;
             boardType = boardType ?? _boardType;
-            _playerGeneration++;
-            if (_playerRoutine != null) StopCoroutine(_playerRoutine);
             _selectedPlayerId = entry.playerId;
             SyncPlayerSelection();
             foreach(var pair in _cardPlayers)
                 if(pair.Key!=null && pair.Value==entry.playerId) pair.Key.GetComponent<CozyStickerMotion>()?.ReplayTape();
             transform.Find("DesignPlayerCard/JournalPhoto")?.GetComponent<CozyJournalStaticPose>()?.PlayReveal(Vector2.zero, CozyMotion.Snap, .3f);
-            CozyItemArt.Text(transform, "DesignPlayerCard/Name", entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
+            var extra = entry.extra;
+            var speciesId = extra != null ? extra.speciesId : null;
+            CozyItemArt.Text(transform, "DesignPlayerCard/Heading", boardType == BoardPond || boardType == BoardRare
+                ? DesktopLocalization.Text("ui.profile.codex.label.maximum_length", "最大体长")
+                : DesktopLocalization.Text("ui.leaderboard.catch.title.details", "鱼获详情"));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Name", !string.IsNullOrEmpty(speciesId)
+                ? DesktopFishCatalog.SpeciesName(speciesId)
+                : DesktopLocalization.Text("ui.leaderboard.catch.empty.record", "鱼获记录未提供"));
             CozyItemArt.Text(transform, "DesignPlayerCard/Value", DesktopLocalization.Format("ui.leaderboard.panel.label.selected_rank", (object)(entry.rank), (object)(FormatValue(entry, boardType))));
-            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.panel.status.loading_profile", "正在加载资料…"));
-            CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait(entry.avatarUrl, entry.playerId));
+            CozyItemArt.Text(transform, "DesignPlayerCard/Bio", FormatCatchDetails(entry, boardType));
+            CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", !string.IsNullOrEmpty(speciesId) ? CozyItemArt.Fish(speciesId) : null);
             var open = Find<Button>("DesignPlayerCard/OpenProfile");
             if (open != null)
             {
@@ -1407,9 +1431,6 @@ namespace FishSocial.Desktop
                 open.interactable = _openPlayer != null;
                 DesktopModalUi.SetButtonLabel(open, DesktopLocalization.Text("ui.leaderboard.panel.button.view_profile", "查看钓友资料"));
             }
-            if (_api != null && _api.CanUse)
-                _playerRoutine = StartCoroutine(LoadPlayer(entry.playerId, _playerGeneration));
-            else CozyItemArt.Text(transform, "DesignPlayerCard/Bio", DesktopLocalization.Text("ui.leaderboard.panel.hint.login_required", "登录后可查看钓友资料。"));
         }
 
         /// <summary>Bind a complete real-shaped snapshot through the same card handlers as network loads; useful for deterministic Editor rendering.</summary>
@@ -1449,21 +1470,29 @@ namespace FishSocial.Desktop
                     pair.Key.GetComponent<CozyButtonVisual>()?.SetSelected(!string.IsNullOrEmpty(_selectedPlayerId) && pair.Value == _selectedPlayerId);
         }
 
-        IEnumerator LoadPlayer(string playerId, int generation)
+        static string FormatCatchDetails(LeaderboardEntryDto entry, string boardType)
         {
-            yield return _api.GetPublicPlayerView(playerId, 1, (ok, view, message) =>
+            var extra = entry.extra;
+            var size = extra != null && extra.sizeM > 0 ? extra.sizeM
+                : boardType == BoardDaily || boardType == BoardWeekly ? entry.value : 0f;
+            var measurements = size > 0
+                ? DesktopLocalization.Format("ui.leaderboard.catch.label.measurements", size.ToString("0.00"), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(size)))
+                : DesktopLocalization.Text("ui.leaderboard.catch.empty.record", "鱼获记录未提供");
+            var pond = extra != null && !string.IsNullOrEmpty(extra.pondId) ? DesktopGameData.GetPond(extra.pondId) : null;
+            var pondName = pond != null ? pond.name : DesktopLocalization.Text("ui.leaderboard.catch.empty.pond", "水域未记录");
+            var caughtAt = DesktopLocalization.Text("ui.profile.record.label.unknown_time", "时间未记录");
+            if (extra != null && extra.caughtAt > 0)
             {
-                if (this == null || generation != _playerGeneration || playerId != _selectedPlayerId) return;
-                if (!ok || view == null || view.profile == null)
-                {
-                    CozyItemArt.Text(transform, "DesignPlayerCard/Bio", message ?? DesktopLocalization.Text("ui.leaderboard.panel.error.profile_unavailable", "资料暂不可用。"));
-                    return;
-                }
-                CozyItemArt.Text(transform, "DesignPlayerCard/Name", view.profile.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友"));
-                CozyItemArt.Text(transform, "DesignPlayerCard/Bio", string.IsNullOrEmpty(view.profile.bio) ? DesktopLocalization.Text("ui.leaderboard.panel.empty.biography", "这位钓友还没有填写简介。") : view.profile.bio);
-                CozyItemArt.Set(transform, "DesignPlayerCard/Avatar", DesktopDefaultAvatars.Portrait(view.profile.avatarUrl, playerId));
+                try { caughtAt = System.DateTimeOffset.FromUnixTimeMilliseconds(extra.caughtAt).ToLocalTime().ToString("yyyy.MM.dd HH:mm"); }
+                catch (System.ArgumentOutOfRangeException) { }
+            }
+            return DesktopLocalization.Join("\n", new[]
+            {
+                DesktopLocalization.Format("ui.leaderboard.catch.label.angler", entry.nickname ?? DesktopLocalization.Text("ui.leaderboard.panel.default_nickname", "钓友")),
+                measurements,
+                pondName,
+                caughtAt,
             });
-            if (generation == _playerGeneration) _playerRoutine = null;
         }
 
         static string FormatValue(LeaderboardEntryDto entry, string boardType)

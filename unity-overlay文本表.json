@@ -6,7 +6,7 @@
     "zh-CN": "zhCN",
     "en-US": "enUS"
   },
-  "generatedAt": "2026-10-29T12:52:27+08:00",
+  "generatedAt": "2026-10-29T16:29:13+08:00",
   "runtimeBinding": "Unity/WPF通过语义Key读取运行时目录；设置即时切换zh-CN/en-US，保存FishSocial.Language，IPC同步Overlay。编辑JSON或导入Excel后运行export-runtime.py刷新发布资源。",
   "keyPolicy": "全小写英文点分层、段内snake_case：ui|game|server.模块.页面或实体.用途。正式Key由key-registry.json登记，独立于中英文措辞与行号；旧Key仅作迁移别名。新增未命名来源使用unreviewed命名空间，审查后登记正式Key。",
   "debugTextPolicy": {
@@ -17,8 +17,8 @@
   },
   "stats": {
     "filesScanned": 911,
-    "entries": 1883,
-    "sourceOccurrences": 2633,
+    "entries": 1890,
+    "sourceOccurrences": 2645,
     "excludedDebugSources": 370,
     "debugExclusionReasons": {
       "Debug与日志输出": 61,
@@ -39,8 +39,8 @@
       "HUD配置": 3,
       "关联服务端提示": 136,
       "游戏数据文案": 388,
-      "运行时界面文本": 1055,
-      "预制体与场景初始文本": 301
+      "运行时界面文本": 1065,
+      "预制体与场景初始文本": 298
     },
     "skipped": {
       "非显示技术字串": 124047,
@@ -46041,44 +46041,6 @@
       "enUS": "Leaderboard"
     },
     {
-      "key": "ui.leaderboard.panel.initial.title.select_angler",
-      "module": "排行榜",
-      "category": "预制体与场景初始文本",
-      "sourceText": "选择一位钓友",
-      "zhCN": "选择一位钓友",
-      "placeholders": [],
-      "note": "",
-      "sources": [
-        {
-          "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelLeaderboard.prefab",
-          "line": 2410,
-          "column": 11,
-          "location": "document[123]/MonoBehaviour/m_Text GameObject=1465332790568742299",
-          "kind": "Unity序列化"
-        }
-      ],
-      "enUS": "Choose an Angler"
-    },
-    {
-      "key": "ui.leaderboard.panel.initial.title.profile",
-      "module": "排行榜",
-      "category": "预制体与场景初始文本",
-      "sourceText": "钓友名片",
-      "zhCN": "钓友名片",
-      "placeholders": [],
-      "note": "",
-      "sources": [
-        {
-          "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelLeaderboard.prefab",
-          "line": 2777,
-          "column": 11,
-          "location": "document[143]/MonoBehaviour/m_Text GameObject=2299759138918209101",
-          "kind": "Unity序列化"
-        }
-      ],
-      "enUS": "Angler Card"
-    },
-    {
       "key": "ui.leaderboard.panel.initial.label.first_place",
       "module": "排行榜",
       "category": "预制体与场景初始文本",
@@ -46134,25 +46096,6 @@
         }
       ],
       "enUS": "Today's Biggest Fish"
-    },
-    {
-      "key": "ui.leaderboard.panel.initial.hint.select_profile",
-      "module": "排行榜",
-      "category": "预制体与场景初始文本",
-      "sourceText": "查看榜单上的钓友与收获",
-      "zhCN": "查看榜单上的钓友与收获",
-      "placeholders": [],
-      "note": "",
-      "sources": [
-        {
-          "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelLeaderboard.prefab",
-          "line": 6245,
-          "column": 11,
-          "location": "document[327]/MonoBehaviour/m_Text GameObject=6896501159316164638",
-          "kind": "Unity序列化"
-        }
-      ],
-      "enUS": "Explore the anglers and catches on the leaderboard"
     },
     {
       "key": "ui.leaderboard.panel.initial.label.second_place",
@@ -48815,9 +48758,285 @@
         }
       ],
       "enUS": "This Trip's Ledger"
+    },
+    {
+      "key": "ui.leaderboard.catch.title.details",
+      "sourceText": "鱼获详情",
+      "zhCN": "鱼获详情",
+      "enUS": "Catch Details",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelLeaderboard.prefab",
+          "line": 2777,
+          "column": 11,
+          "location": "document[143]/MonoBehaviour/m_Text GameObject=2299759138918209101",
+          "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 177,
+          "column": 69,
+          "location": "EnsureUi",
+          "kind": "代码常量",
+          "expression": "CozyItemArt.Text(transform, \"DesignPlayerCard/Heading\", DesktopLocalization.Text(\"ui.leaderboard.catch.title.details\", \"鱼获详情\"));"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1419,
+          "column": 19,
+          "location": "SelectPlayer",
+          "kind": "代码常量",
+          "expression": ": DesktopLocalization.Text(\"ui.leaderboard.catch.title.details\", \"鱼获详情\"));"
+        }
+      ]
+    },
+    {
+      "key": "ui.leaderboard.catch.title.select",
+      "sourceText": "选择一条鱼获",
+      "zhCN": "选择一条鱼获",
+      "enUS": "Select a Catch",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelLeaderboard.prefab",
+          "line": 2410,
+          "column": 11,
+          "location": "document[123]/MonoBehaviour/m_Text GameObject=1465332790568742299",
+          "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1394,
+          "column": 66,
+          "location": "ClearSelectedPlayer",
+          "kind": "代码常量",
+          "expression": "CozyItemArt.Text(transform, \"DesignPlayerCard/Name\", DesktopLocalization.Text(\"ui.leaderboard.catch.title.select\", \"选择一条鱼获\"));"
+        }
+      ]
+    },
+    {
+      "key": "ui.leaderboard.catch.hint.select",
+      "sourceText": "点击榜单查看上榜鱼获。",
+      "zhCN": "点击榜单查看上榜鱼获。",
+      "enUS": "Select an entry to view its catch.",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/PanelLeaderboard.prefab",
+          "line": 6245,
+          "column": 11,
+          "location": "document[327]/MonoBehaviour/m_Text GameObject=6896501159316164638",
+          "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1396,
+          "column": 65,
+          "location": "ClearSelectedPlayer",
+          "kind": "代码常量",
+          "expression": "CozyItemArt.Text(transform, \"DesignPlayerCard/Bio\", DesktopLocalization.Text(\"ui.leaderboard.catch.hint.select\", \"点击榜单查看上榜鱼获。\"));"
+        }
+      ]
+    },
+    {
+      "key": "ui.leaderboard.catch.empty.record",
+      "sourceText": "鱼获记录未提供",
+      "zhCN": "鱼获记录未提供",
+      "enUS": "Catch record unavailable",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1422,
+          "column": 19,
+          "location": "SelectPlayer",
+          "kind": "代码常量",
+          "expression": ": DesktopLocalization.Text(\"ui.leaderboard.catch.empty.record\", \"鱼获记录未提供\"));"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1480,
+          "column": 19,
+          "location": "FormatCatchDetails",
+          "kind": "代码常量",
+          "expression": ": DesktopLocalization.Text(\"ui.leaderboard.catch.empty.record\", \"鱼获记录未提供\");"
+        }
+      ]
+    },
+    {
+      "key": "ui.leaderboard.catch.empty.pond",
+      "sourceText": "水域未记录",
+      "zhCN": "水域未记录",
+      "enUS": "Pond not recorded",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1482,
+          "column": 55,
+          "location": "FormatCatchDetails",
+          "kind": "代码常量",
+          "expression": "var pondName = pond != null ? pond.name : DesktopLocalization.Text(\"ui.leaderboard.catch.empty.pond\", \"水域未记录\");"
+        }
+      ]
+    },
+    {
+      "key": "ui.leaderboard.catch.label.measurements",
+      "sourceText": "{0} m · 估重 {1}",
+      "zhCN": "{0} m · 估重 {1}",
+      "enUS": "{0} m · Est. {1}",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [
+        "{0}",
+        "{1}"
+      ],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1479,
+          "column": 19,
+          "location": "FormatCatchDetails",
+          "kind": "代码常量",
+          "expression": "? DesktopLocalization.Format(\"ui.leaderboard.catch.label.measurements\", size.ToString(\"0.00\"), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(size)))"
+        }
+      ]
+    },
+    {
+      "key": "ui.leaderboard.catch.label.angler",
+      "sourceText": "钓友：{0}",
+      "zhCN": "钓友：{0}",
+      "enUS": "Angler: {0}",
+      "module": "排行榜",
+      "category": "运行时界面文本",
+      "placeholders": [
+        "{0}"
+      ],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 1491,
+          "column": 17,
+          "location": "FormatCatchDetails",
+          "kind": "代码常量",
+          "expression": "DesktopLocalization.Format(\"ui.leaderboard.catch.label.angler\", entry.nickname ?? DesktopLocalization.Text(\"ui.leaderboard.panel.default_nickname\", \"钓友\")),"
+        }
+      ]
+    },
+    {
+      "key": "ui.profile.public.title.journal",
+      "sourceText": "钓友的钓鱼时光",
+      "zhCN": "钓友的钓鱼时光",
+      "enUS": "Angler’s Fishing Journal",
+      "module": "个人中心",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopProfileHubPanel.cs",
+          "line": 1299,
+          "column": 19,
+          "location": "RenderWorkspaceProfile",
+          "kind": "代码常量",
+          "expression": ": DesktopLocalization.Text(\"ui.profile.public.title.journal\", \"钓友的钓鱼时光\"));"
+        }
+      ]
+    },
+    {
+      "key": "ui.profile.public.title.collection",
+      "sourceText": "钓友的珍藏",
+      "zhCN": "钓友的珍藏",
+      "enUS": "Angler’s Collection",
+      "module": "个人中心",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopProfileHubPanel.cs",
+          "line": 1302,
+          "column": 19,
+          "location": "RenderWorkspaceProfile",
+          "kind": "代码常量",
+          "expression": ": DesktopLocalization.Text(\"ui.profile.public.title.collection\", \"钓友的珍藏\"));"
+        }
+      ]
+    },
+    {
+      "key": "ui.profile.public.description.showcase",
+      "sourceText": "这里展示钓友公开珍藏的鱼获。",
+      "zhCN": "这里展示钓友公开珍藏的鱼获。",
+      "enUS": "This angler’s publicly shared catches.",
+      "module": "个人中心",
+      "category": "运行时界面文本",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopProfileHubPanel.cs",
+          "line": 1350,
+          "column": 19,
+          "location": "RenderWorkspaceProfile",
+          "kind": "代码常量",
+          "expression": "? DesktopLocalization.Text(\"ui.profile.public.description.showcase\", \"这里展示钓友公开珍藏的鱼获。\")"
+        }
+      ]
     }
   ],
-  "retiredEntries": [],
+  "retiredEntries": [
+    {
+      "key": "ui.leaderboard.panel.initial.title.select_angler",
+      "module": "排行榜",
+      "category": "预制体与场景初始文本",
+      "sourceText": "选择一位钓友",
+      "zhCN": "选择一位钓友",
+      "placeholders": [],
+      "note": "原始排行榜名片文案已由鱼获详情文案替代。",
+      "sources": [],
+      "enUS": "Choose an Angler"
+    },
+    {
+      "key": "ui.leaderboard.panel.initial.title.profile",
+      "module": "排行榜",
+      "category": "预制体与场景初始文本",
+      "sourceText": "钓友名片",
+      "zhCN": "钓友名片",
+      "placeholders": [],
+      "note": "原始排行榜名片文案已由鱼获详情文案替代。",
+      "sources": [],
+      "enUS": "Angler Card"
+    },
+    {
+      "key": "ui.leaderboard.panel.initial.hint.select_profile",
+      "module": "排行榜",
+      "category": "预制体与场景初始文本",
+      "sourceText": "查看榜单上的钓友与收获",
+      "zhCN": "查看榜单上的钓友与收获",
+      "placeholders": [],
+      "note": "原始排行榜名片文案已由鱼获详情文案替代。",
+      "sources": [],
+      "enUS": "Explore the anglers and catches on the leaderboard"
+    }
+  ],
   "inactiveTextFilter": {
     "filteredAt": "2026-10-28T17:32:10+08:00",
     "rulesFile": "scripts/text-catalog/inactive-sources.json",
