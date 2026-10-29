@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "date": "2026-10-30",
+  "selection": {
+    "cue": "ui_close",
+    "paths": [
+      "sfx/ui_close_01.wav"
+    ],
+    "inactivePaths": [
+      "sfx/ui_close_02.wav"
+    ],
+    "onlyClosePathsChanged": true
+  },
+  "unity": {
+    "id": "2",
+    "testcasecount": "36",
+    "result": "Passed",
+    "total": "36",
+    "passed": "36",
+    "failed": "0",
+    "inconclusive": "0",
+    "skipped": "0",
+    "asserts": "0",
+    "engine-version": "3.5.0.0",
+    "clr-version": "4.0.30319.42000",
+    "start-time": "2026-10-29 18:11:16Z",
+    "end-time": "2026-10-29 18:11:16Z",
+    "duration": "0.2946026"
+  },
+  "browser": {
+    "status": "PASS",
+    "results": [
+      "Current pond-ASMR page, nine scenarios, no BGM/button audition controls, no autoplay",
+      "Three project ambience layers have exact hashes, manifest gains/durations and source credits; accepted46 effects unchanged",
+      "Three independent real media elements overlap without reset; all three streamed loops seek and wrap",
+      "Individual stop and zero-level affect only their layer; independent0–100 levels and replay reuse exactly3 media sources",
+      "Global zero/mute pauses every layer immediately; hidden/show and rapid restoration invalidate stale fade timers; global fade pauses all",
+      "Pond buttons stay silent; fishing plays7 action/cat cues over ambience with max1/4 short voices and no BGM",
+      "Stop-all cancels short and all pending media; delayed play races lose to stop/mute/hide; three saved levels survive reload without autoplay",
+      "Desktop/mobile layouts fit; zero BGM requests, HTTP errors or JS errors"
+    ],
+    "configuredClosePaths": [
+      "sfx/ui_close_01.wav"
+    ],
+    "errors": []
+  },
+  "assets": {
+    "status": "PASS",
+    "original47WavHashesUnchanged": true,
+    "cueConfigChanges": "Only ui_close selects the approved page-close variant; all other cue settings match adoption"
+  },
+  "windowsBuild": "Not rebuilt"
+}

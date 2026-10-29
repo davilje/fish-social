@@ -4,6 +4,7 @@ using UnityEngine.UI;
 namespace FishSocial.Desktop
 {
     /// <summary>Small outline icons that stay sharp on compact actions.</summary>
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CozyActionIcon : MaskableGraphic
     {
         public bool destructive;

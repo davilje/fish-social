@@ -1,6 +1,7 @@
 """Verify shipped audio structure/hashes/budget; no third-party dependencies."""
 from pathlib import Path
 import array,hashlib,json,math,sys,wave
+from cue_config_selection import verify_selection
 root=Path(__file__).resolve().parents[2]/'fish-social-unity/Assets/StreamingAssets/Audio'
 manifest=json.loads((root/'manifest.json').read_text());config=json.loads((root/'cue-config.json').read_text())
 ambience=json.loads((root/'ambience-manifest.json').read_text())
@@ -12,6 +13,8 @@ ambient_paths={a['path'] for a in ambience['assets']}
 assert len(ambient_paths)==3 and ambient_paths=={t['path'] for t in ambience['loops']}
 assets=manifest['assets']+ambience['assets']
 expected={p for c in config['cues'] for p in c['paths']}|{'music/pond_daylight.wav'}
+adoption=json.loads((root.parents[3]/'docs/工程/声音/audio-22i-adoption.json').read_text())
+expected|=verify_selection((root/'cue-config.json').read_bytes(),adoption['cueConfigSha256'])
 assert expected=={a['path'] for a in manifest['assets']}
 expected|=ambient_paths
 assert len([p for p in expected if p.startswith('water/')])>=28

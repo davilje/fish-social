@@ -498,7 +498,14 @@ namespace FishSocial.Desktop
                 var actionIcon = transform.Find("ActionIcon")?.GetComponent<CozyActionIcon>();
                 if (actionIcon != null) actionIcon.color = foreground;
                 var caption = transform.Find("Label")?.GetComponent<Text>();
-                if (caption != null) { caption.color = foreground; caption.fontStyle = FontStyle.Normal; }
+                if (caption != null)
+                {
+                    caption.color = foreground;
+                    caption.fontStyle = FontStyle.Normal;
+                    caption.alignment = TextAnchor.MiddleCenter;
+                    caption.horizontalOverflow = HorizontalWrapMode.Wrap;
+                    caption.resizeTextForBestFit = false;
+                }
             }
             else if (flatComment)
             {
@@ -536,7 +543,7 @@ namespace FishSocial.Desktop
             var displacement = (CozyMotion.Reduced ? Vector2.zero : motionOffset) + Vector2.right * pose.X;
             var scale = IsIndex ? pose.Scale : motionScale;
             if (IsIndex) RefreshIndexGraphic(pose, interactable);
-            if (IsIndex || IsPrimary || IsNavigation)
+            if (compactAction == 0 && (IsIndex || IsPrimary || IsNavigation))
             {
                 var lightIcon = !IsNavigation && (IsPrimary || selected);
                 var foreground = lightIcon ? Color.white : IsNavigation && selected

@@ -28,14 +28,16 @@ try {
   const identity=await page.evaluate(async()=>{
     const json=path=>fetch(path,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(path+' '+r.status);return r.json();});
     const sha=async path=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await fetch(path,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(path+' '+r.status);return r.arrayBuffer();}))),x=>x.toString(16).padStart(2,'0')).join('');
-    const [current,adoption]=await Promise.all([json(AudioLab.ROOT+'manifest.json'),json('../../../工程/声音/audio-22i-adoption.json')]);
+    const [current,adoption,selection]=await Promise.all([json(AudioLab.ROOT+'manifest.json'),json('../../../工程/声音/audio-22i-adoption.json'),json('../../../工程/声音/2026-10-30-close-cue-selection.json')]);
     const effects=await Promise.all(current.assets.filter(a=>!a.path.startsWith('music/')).map(async a=>({path:a.path,manifest:a.sha256,adopted:adoption.assets.find(x=>x.path===a.path)?.sha256,actual:await sha(AudioLab.ROOT+a.path)})));
     const tracks=await Promise.all(AudioLab.ambience.assets.map(async a=>({...a,actualSha256:await sha(AudioLab.ROOT+a.path)})));
-    return {effects,cueConfigHash:await sha(AudioLab.ROOT+'cue-config.json'),adoptedCueConfigHash:adoption.cueConfigSha256,
+    return {effects,cueConfigHash:await sha(AudioLab.ROOT+'cue-config.json'),adoptedCueConfigHash:adoption.cueConfigSha256,selection,closePaths:AudioLab.config.cues.find(c=>c.cue==='ui_close').paths,
       ambience:tracks,loops:AudioLab.ambience.loops};
   });
   assert.equal(identity.effects.length,46);assert.ok(identity.effects.every(x=>x.actual===x.manifest&&x.actual===x.adopted));
-  assert.equal(identity.cueConfigHash,identity.adoptedCueConfigHash);
+  assert.equal(identity.cueConfigHash,identity.selection.cueConfigSha256);
+  assert.equal(identity.adoptedCueConfigHash,identity.selection.baselineCueConfigSha256);
+  assert.deepEqual(identity.closePaths,['sfx/ui_close_01.wav']);
   assert.equal(identity.ambience.length,3);assert.ok(identity.ambience.every(a=>a.actualSha256===a.sha256&&a.channels===2&&a.duration>0));
   assert.deepEqual(identity.loops.map(({id,path,gain,fadeSeconds})=>({id,path,gain,fadeSeconds})),[{id:'water',path:'ambience/pond_shore.wav',gain:.65,fadeSeconds:2},{id:'wind',path:'ambience/pond_wind.wav',gain:.45,fadeSeconds:2},{id:'leaves',path:'ambience/pond_leaves.wav',gain:.4,fadeSeconds:2}]);
   await page.waitForFunction(()=>['pond_shore.wav','pond_wind.wav','pond_leaves.wav'].every(path=>document.querySelector('#assets').textContent.includes(path)));

@@ -31,7 +31,7 @@ namespace FishSocial.Desktop.Editor
             if (root == null || (root.name != "PanelShop" && root.name != "PanelEquipment" && root.name != "PanelCatch"))
                 return;
             var page = root.transform;
-            var entry = ButtonAt(page, "ItemDetails", "详情", null, 1218, 308, 84, 32);
+            var entry = ButtonAt(page, "ItemDetails", "详情", null, 1206, 308, 96, 32);
             CompactAction(entry, false);
             entry.navigation = new Navigation { mode = Navigation.Mode.None };
 

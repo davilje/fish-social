@@ -2,6 +2,10 @@
 
 Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/工程/声音/audio-22i-adoption.json; earlier effects approval: docs/工程/声音/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
 
+## Page-close selection — updated 2026-10-30
+
+The user requested only the soft book/page close sound. `ui_close` now selects only `sfx/ui_close_01.wav`; the abrupt `ui_close_02.wav` is inactive and is not loaded or played. The built-in fallback matches this selection. Existing WAV bytes and historical adoption records are preserved. Only this cue's path list changes; the pinned selection and reversible baseline verification are recorded in `docs/工程/声音/2026-10-30-close-cue-selection.json`.
+
 ## Pond scene ASMR — updated 2026-10-30
 
 The fishing scene now disables BGM and all button/UI cues. Existing action effects and cat calls remain available. Three independent streamed ambience tracks add shore water, gentle wind and leaf rustling, each with its own saved mix level. All follow the saved effects volume, with a2-second scene fade. Music remains available outside the fishing scene; the historical47-WAV adoption lock below is unchanged.

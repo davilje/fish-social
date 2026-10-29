@@ -8,6 +8,7 @@ import argparse
 import copy
 import hashlib
 import json
+from cue_config_selection import verify_selection
 
 R = Path(__file__).resolve().parents[2]
 A = R / 'fish-social-unity/Assets/StreamingAssets/Audio'
@@ -31,7 +32,8 @@ def prepare(current, music, lock, adoption):
     shorts = [a for a in current['assets'] if not a['path'].startswith('music/')]
     assert len(approved) == len(shorts) == 46
     assert {a['path'] for a in shorts} == set(approved)
-    assert sha(A / 'cue-config.json') == lock['cueConfigSha256'] == adoption['cueConfigSha256']
+    assert lock['cueConfigSha256'] == adoption['cueConfigSha256']
+    verify_selection((A/'cue-config.json').read_bytes(),lock['cueConfigSha256'])
     for asset in shorts:
         assert asset == approved[asset['path']], ('Approved effect metadata changed', asset['path'])
         assert sha(A / asset['path']) == asset['sha256'], asset['path']
@@ -80,7 +82,7 @@ def main():
         (A/'manifest.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
         (P/'manifest.json').write_text(json.dumps(music, ensure_ascii=False, indent=2)+'\n')
     print(('Validated' if args.check_only else 'Applied') +
-        ' adopted music v5; all 47 approved WAV hashes, 46 effect metadata records and cue configuration unchanged.')
+        ' adopted music v5; all 47 approved WAV hashes and 46 effect metadata records retained; user close-cue selection verified.')
 
 
 if __name__ == '__main__':

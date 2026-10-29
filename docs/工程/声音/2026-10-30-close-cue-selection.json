@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-30",
+  "reason": "User requests only the book/page close sound; disable the abrupt close variant.",
+  "cue": "ui_close",
+  "previousPaths": [
+    "sfx/ui_close_01.wav",
+    "sfx/ui_close_02.wav"
+  ],
+  "paths": [
+    "sfx/ui_close_01.wav"
+  ],
+  "inactivePaths": [
+    "sfx/ui_close_02.wav"
+  ],
+  "baselineCueConfigSha256": "5696aab62ebecaee21818ff88d4d1aff9bd4b6fc054ac08be00aacf6c0bc209c",
+  "cueConfigSha256": "00c6a78af5595871900e333985adc7d0815625ce8a8b95d361a1ad8cc6f3756d",
+  "scope": "Only ui_close.paths changes. Existing WAV files and historical adoption records are preserved; inactive variant is not loaded or selected.",
+  "verification": "docs/工程/声音/close-cue-2026-10-30/verification.json"
+}

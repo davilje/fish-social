@@ -41,7 +41,7 @@ def verify():
         if 'preview' in item['path']:
             assert 20 <= len(data)/rate <= 30
     return dict(version=5, status='adopted', acceptedEffectsUnchanged=len(lock['assets']),
-        approvedAssetHashesUnchanged=len(adoption['assets']), cueConfigUnchanged=True,
+        approvedAssetHashesUnchanged=len(adoption['assets']), cueConfigChanges='Only user-selected ui_close variant',
         durationSeconds=len(full)/rate, musicTruePeak4x=peaks['music/pond_daylight.wav'],
         loopSeamDifference=0, fullVolumeMixUpperBoundDbTP=db,
         method='4x polyphase oversampling; sum max UI +2 fishing +voice +music, full sliders without duck',

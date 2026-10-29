@@ -141,7 +141,8 @@ namespace FishSocial.Desktop
         {
             var cues = new List<AudioCueDefinition>();
             Action<string,string,int,float,string[]> add = (cue,group,priority,gain,paths) => cues.Add(new AudioCueDefinition { cue=cue,group=group,priority=priority,gain=gain,paths=paths });
-            foreach (var cue in new[] { "ui_click", "ui_open", "ui_close", "ui_toggle" }) add(cue,"ui",1,cue=="ui_open"? .6f:cue=="ui_close"? .55f:.5f,new[]{"sfx/"+cue+"_01.wav","sfx/"+cue+"_02.wav"});
+            foreach (var cue in new[] { "ui_click", "ui_open", "ui_close", "ui_toggle" }) add(cue,"ui",1,cue=="ui_open"? .6f:cue=="ui_close"? .55f:.5f,
+                cue=="ui_close"?new[]{"sfx/ui_close_01.wav"}:new[]{"sfx/"+cue+"_01.wav","sfx/"+cue+"_02.wav"});
             foreach (var cue in new[] { "ui_tick", "ui_success", "ui_error" }) add(cue,"ui",cue=="ui_tick"?0:2,cue=="ui_tick"? .35f:cue=="ui_error"? .5f:.55f,new[]{"sfx/"+cue+".wav"});
             foreach (var cue in new[] { "cast", "reel", "escape", "catch" }) add(cue,"fishing",cue=="escape"||cue=="catch"?2:1,cue=="cast"? .65f:cue=="escape"? .75f:.55f,new[]{"sfx/"+cue+".wav"});
             foreach (var cue in new[] { "splash", "groundbait" }) add(cue,"fishing",cue=="groundbait"?0:1,cue=="splash"? .85f:.75f,new[]{"water/"+cue+"_01.wav","water/"+cue+"_02.wav"});

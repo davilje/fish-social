@@ -11,6 +11,7 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import resample_poly
 from build_pond_ambience import metrics
+from cue_config_selection import verify_selection
 
 ROOT=Path(__file__).resolve().parents[2]
 AUDIO=ROOT/'fish-social-unity/Assets/StreamingAssets/Audio'
@@ -29,7 +30,7 @@ def verify():
     bank=read(AUDIO/'manifest.json')
     ambience=read(AUDIO/'ambience-manifest.json')
     adoption=read(ROOT/'docs/工程/声音/audio-22i-adoption.json')
-    assert sha(AUDIO/'cue-config.json')==adoption['cueConfigSha256']
+    verify_selection((AUDIO/'cue-config.json').read_bytes(),adoption['cueConfigSha256'])
     assert len(adoption['assets'])==47
     for asset in adoption['assets']:
         assert sha(AUDIO/asset['path'])==asset['sha256'],asset['path']
@@ -66,7 +67,7 @@ def verify():
     db=float(20*np.log10(bound))
     assert db<=-1,'Pond ambience plus all action/cat voices exceeds mix headroom'
     return dict(status='PASS',date='2026-10-30',original47WavHashesUnchanged=True,
-        cueConfigUnchanged=True,ambience=measured,pondMusicEnabled=False,pondButtonsEnabled=False,
+        cueConfigChanges='Only ui_close selects the approved page-close variant; all other cue settings match adoption',ambience=measured,pondMusicEnabled=False,pondButtonsEnabled=False,
         runtime=runtime,pondFullVolumeMixUpperBoundDbTP=db,
         method='4x oversampling; sum2 max fishing voices+max cat+all3 ambience tracks at full per-track and effects sliders; no BGM/UI in pond',
         runtimeBehaviourEvidence='Unity EditMode DesktopAudioTests; see accompanying report',
