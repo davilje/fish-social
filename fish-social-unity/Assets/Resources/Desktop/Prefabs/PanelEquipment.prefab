@@ -3758,7 +3758,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &726013821955196952
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5392,7 +5392,7 @@ MonoBehaviour:
   row: {fileID: 600930906562756839}
   label: {fileID: 946899330349016334}
   icon: {fileID: 443353129348547959}
-  prefix: {fileID: 7515196699881221005}
+  prefix: {fileID: 0}
   badgeLabel: {fileID: 0}
   iconOverride: {fileID: 0}
   iconSize: {x: 28, y: 28}
@@ -8012,6 +8012,18 @@ PrefabInstance:
     - target: {fileID: 977486110714304166, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
       propertyPath: m_FontData.m_HorizontalOverflow
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1117139962512746021, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 224c3408043d3e19d21406aba9395a79, type: 3}
+    - target: {fileID: 812134655006317958, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 812134655006317958, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 64
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c1984093e745ac88614ffa728c36f4b, type: 3}

@@ -239,9 +239,9 @@ namespace FishSocial.Desktop.Editor
             DetailRows(t,"DetailRows",1008,418,314,5,28);
             foreach(var label in t.Find("DetailRows").GetComponentsInChildren<Text>(true)) label.fontSize=16;
             WebText(t,"Detail",1008,418,314,84,16,TextAnchor.UpperLeft);
-            Place(t,"Sell",1008,540,164,42); Place(t,"Return",1182,540,64,42);Place(t,"Share",1256,540,64,42);
+            Place(t,"Sell",1056,540,218,42); Place(t,"Return",1182,540,64,42);Place(t,"Share",1256,540,64,42);
             Place(t,"Sell/Icon",16,9,24,24);
-            WebText(t,"Sell/Label",40,0,116,42,18,TextAnchor.MiddleCenter);
+            WebText(t,"Sell/Label",44,0,164,42,18,TextAnchor.MiddleCenter);
             foreach(var name in new[]{"Return","Share"}) WebText(t,name+"/Label",0,0,64,42,16,TextAnchor.MiddleCenter);
             Hide(t,"Return/Icon","Share/Icon");
             ApplyItemDetails(t.gameObject);

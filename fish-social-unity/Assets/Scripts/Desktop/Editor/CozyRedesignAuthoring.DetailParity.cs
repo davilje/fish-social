@@ -250,7 +250,7 @@ namespace FishSocial.Desktop.Editor
             }
             if (name == "图鉴")
             {
-                DpButton(tab, "JournalExplore", 748, 420, 326, 43, 18, "去探索新的水域", true);
+                DpButton(tab, "JournalExplore", 802, 428, 218, 42, 18, "去探索新的水域", true);
                 tab.Find("JournalExplore").gameObject.SetActive(false);
             }
             var template = Place(tab, "JournalCardTemplate", 0, 0, w, h);
@@ -396,7 +396,7 @@ namespace FishSocial.Desktop.Editor
             DpPhoto(aside, "JournalPhoto", "Avatar", "Name");
             DpText(aside, "Bio", 24, 302, 314, 90, 16, true, TextAnchor.UpperLeft).lineSpacing = 1.15f;
             DpText(aside, "Value", 24, 394, 314, 24, 15);
-            DpButton(aside, "OpenProfile", 18, 420, 326, 58, 23, "看看钓友的收藏", true);
+            DpButton(aside, "OpenProfile", 72, 428, 218, 42, 18, "看看钓友的收藏", true);
             var motion = root.GetComponent<CozyJournalPageMotion>() ?? root.gameObject.AddComponent<CozyJournalPageMotion>();
             motion.Configure(root.Find("JournalBoardHeading"), aside, root.Find("MyRank"), root.Find("Scroll"));
         }

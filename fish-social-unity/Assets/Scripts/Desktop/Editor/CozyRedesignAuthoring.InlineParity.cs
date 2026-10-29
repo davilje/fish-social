@@ -55,16 +55,19 @@ namespace FishSocial.Desktop.Editor
             foreach (var group in button.GetComponents<LayoutGroup>()) UnityEngine.Object.DestroyImmediate(group);
             foreach (var fitter in button.GetComponents<ContentSizeFitter>()) UnityEngine.Object.DestroyImmediate(fitter);
             var icon = button.Find("Icon")?.GetComponent<Image>() ?? button.Find("CozyIcon")?.GetComponent<Image>();
-            Image prefix = null;
             var miniFish = CozyJournalTheme.Sprite("motion/inline-mini-fish");
             if (purchase)
-                prefix = Picture(button,"InlineFish",miniFish,0,0,30,22);
+            {
+                // Buy already carries the coin icon. A second mini-fish reads as two icons on the same button.
+                var extraFish = button.Find("InlineFish");
+                if (extraFish != null) extraFish.gameObject.SetActive(false);
+            }
             if (fish && icon == null)
                 icon = Picture(button,"Icon",miniFish,0,0,30,22);
             var size = fish ? new Vector2(30,22) : new Vector2(28,28);
             var component = button.GetComponent<CozyJournalInlineContent>() ?? button.gameObject.AddComponent<CozyJournalInlineContent>();
             var inset = root.name == "PanelCatch" && (path == "Return" || path == "Share") ? 4 : 12;
-            component.ConfigureCentered(button,label,icon,size,10,inset,prefix,fish ? miniFish : null);
+            component.ConfigureCentered(button,label,icon,size,10,inset,null,fish ? miniFish : null);
         }
     }
 }

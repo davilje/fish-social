@@ -396,6 +396,15 @@ namespace FishSocial.Desktop.Editor
                 && AssetDatabase.GetAssetPath(sprite).StartsWith(ThemeFolder + "/", StringComparison.Ordinal);
         }
 
+        static bool IsCompactPlate(Image image)
+        {
+            var button = image != null ? image.GetComponentInParent<Button>(true) : null;
+            var visual = button != null ? button.GetComponent<CozyButtonVisual>() : null;
+            if (visual == null)
+                return false;
+            return new SerializedObject(visual).FindProperty("compactAction").intValue != 0;
+        }
+
         static bool IsThemeButton(Button button)
         {
             if (button == null || button.GetComponent<CozyPondMarkerView>() != null || button.name == "WorldMapPondMarker")
@@ -411,6 +420,10 @@ namespace FishSocial.Desktop.Editor
                 case "MenuPanel":
                     return false;
             }
+            // These buttons only intercept or dismiss clicks. Keep the authored modal surfaces.
+            if (button.name == "DetailsDialog" ||
+                (button.name == "Content" && button.transform.parent != null && button.transform.parent.name == "DetailsDialog"))
+                return false;
             var image = button.GetComponent<Image>();
             return button.GetComponentInParent<InputField>(true) == null && button.GetComponent<Mask>() == null
                 && button.GetComponent<RectMask2D>() == null && button.GetComponent<ScrollRect>() == null
@@ -455,7 +468,7 @@ namespace FishSocial.Desktop.Editor
             {
                 ValidateSprite(image.sprite, image.name + ".sprite", errors);
                 ValidateSprite(image.overrideSprite, image.name + ".overrideSprite", errors);
-                if (image.name == "CozyVisual" && (image.type != Image.Type.Sliced || image.preserveAspect))
+                if (image.name == "CozyVisual" && !IsCompactPlate(image) && (image.type != Image.Type.Sliced || image.preserveAspect))
                     errors.Add(image.name + " Image component must persist Type = Sliced and Preserve Aspect = false; Sprite border alone is insufficient.");
                 var activeSprite = image.overrideSprite != null ? image.overrideSprite : image.sprite;
                 if (IsSlicedCozy(activeSprite) && image.type != Image.Type.Sliced && image.type != Image.Type.Filled)
@@ -517,7 +530,8 @@ namespace FishSocial.Desktop.Editor
                                 errors.Add(button.name + "." + parts[0] + " must match its configured journal surface path.");
                         }
                         var state = PersistedState(button, serialized);
-                        if (plate != null && (plate.sprite != JournalStateSprite(serialized, state) || plate.type != Image.Type.Sliced))
+                        var compact = serialized.FindProperty("compactAction").intValue != 0;
+                        if (!compact && plate != null && (plate.sprite != JournalStateSprite(serialized, state) || plate.type != Image.Type.Sliced))
                             errors.Add(button.name + " must persist its " + state + " journal surface and Sliced type.");
                         var states = button.spriteState;
                         if (states.highlightedSprite != JournalStateSprite(serialized, "hover") ||
@@ -525,7 +539,7 @@ namespace FishSocial.Desktop.Editor
                             states.pressedSprite != JournalStateSprite(serialized, "pressed") ||
                             states.disabledSprite != JournalStateSprite(serialized, "disabled"))
                             errors.Add(button.name + " must persist all four configured journal SpriteState references.");
-                        if (plate != null)
+                        if (!compact && plate != null)
                         {
                             if (!Mathf.Approximately(plate.pixelsPerUnitMultiplier, 1f))
                                 errors.Add(button.name + " must use the journal sprite's imported PPU without a legacy multiplier.");

@@ -552,7 +552,7 @@ namespace FishSocial.Desktop.Editor
             Label(node, "DesignPlayerCard/Name", "选择一位钓友", 24, 220, 314, 38, 24, true).alignment = TextAnchor.MiddleCenter;
             Label(node, "DesignPlayerCard/Value", "", 24, 266, 314, 32, 21).alignment = TextAnchor.MiddleCenter;
             Label(node, "DesignPlayerCard/Bio", "查看榜单上的钓友与收获", 24, 314, 314, 104, 18);
-            ButtonAt(node, "DesignPlayerCard/OpenProfile", "查看资料", "user", 24, 438, 314, 42, true);
+            ButtonAt(node, "DesignPlayerCard/OpenProfile", "查看资料", "user", 72, 428, 218, 42, true);
         }
 
         static void JournalFriendRow(GameObject root)
