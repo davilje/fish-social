@@ -363,10 +363,10 @@ namespace FishSocial.Desktop
             CozyItemArt.Text(transform, "JournalBoardHeading", _boardType == BoardWeekly ? DesktopLocalization.Text("ui.leaderboard.panel.title.weekly", "每周钓王") : _boardType == BoardPond ? DesktopLocalization.Text("ui.leaderboard.panel.title.pond", "当前鱼塘") : _boardType == BoardRare ? DesktopLocalization.Text("ui.leaderboard.panel.title.rare", "稀有鱼获") : DesktopLocalization.Text("ui.leaderboard.panel.title.daily", "今日大鱼"));
             if (!_leaderTabsStyled)
             {
-                StyleAction(_dailyTab, "fish", DesktopLocalization.Text("ui.leaderboard.panel.title.daily", "今日大鱼"));
-                StyleAction(_weeklyTab, "trophy", DesktopLocalization.Text("ui.leaderboard.panel.title.weekly", "每周钓王"));
-                StyleAction(_pondTab, "pond", DesktopLocalization.Text("ui.leaderboard.panel.title.pond", "当前鱼塘"));
-                StyleAction(_rareTab, "star", DesktopLocalization.Text("ui.leaderboard.panel.title.rare", "稀有鱼获"));
+                StyleAction(_dailyTab, "fish", DesktopLocalization.Text("ui.leaderboard.panel.initial.tab.daily", "今日榜"));
+                StyleAction(_weeklyTab, "trophy", DesktopLocalization.Text("ui.leaderboard.panel.initial.tab.weekly", "本周榜"));
+                StyleAction(_pondTab, "pond", DesktopLocalization.Text("ui.leaderboard.panel.initial.tab.pond", "鱼塘榜"));
+                StyleAction(_rareTab, "star", DesktopLocalization.Text("ui.leaderboard.panel.initial.tab.rare", "稀有鱼榜"));
                 _leaderTabsStyled = true;
             }
             var tabs = new[] { _dailyTab, _weeklyTab, _pondTab, _rareTab };
@@ -579,6 +579,20 @@ namespace FishSocial.Desktop
                 DesktopLocalization.SetText(label, title);
             }
             DesktopModalUi.StyleButton(button, icon);
+            if (label != null)
+            {
+                var rect = label.rectTransform;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = new Vector2(64f, 0f);
+                rect.offsetMax = new Vector2(-12f, 0f);
+                label.alignment = TextAnchor.MiddleLeft;
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                label.verticalOverflow = VerticalWrapMode.Truncate;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 18;
+                label.resizeTextMaxSize = 22;
+            }
         }
 
         static void StyleText(Text label, int size)

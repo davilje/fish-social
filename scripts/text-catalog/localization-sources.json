@@ -21334,7 +21334,7 @@
       "kind": "Unity序列化",
       "location": "document[396]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
       "expressionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "reason": "旧 Header/Leaderboard 按钮由 DesktopShellUi:281 调用 CozySurplus.Park，当前 CozySurplus.Visible=false；底部大赛入口独立保留。"
+      "reason": "MainRoot/Nav/Leaderboard 是正式可见导航；初始标签由 DesktopShellUi.BindCozyNav 无条件写入 ui.common.shell_navigation.label.leaderboard，翻译运行时赋值来源即可。"
     },
     {
       "key": "txt_bd669e2733a9ca37",

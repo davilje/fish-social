@@ -3,6 +3,9 @@ using FishSocial.Desktop;
 using FishSocial.Desktop.Auth;
 using FishSocial.Desktop.Editor;
 using NUnit.Framework;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -22,6 +25,22 @@ namespace FishSocial.Tests.Editor
             return instance.transform;
         }
         static RectTransform Rect(Transform root, string path) => (RectTransform)root.Find(path);
+
+        [Test]
+        public void EveryWorldPondPhotoContainsSceneArtAndResolvesAtRuntime()
+        {
+            CozyJournalResourcePreparation.ValidatePondPreviews();
+            var manifest = JObject.Parse(File.ReadAllText(CozyJournalResourcePreparation.Root + "pond-manifest.json"));
+            var distinctImages = new HashSet<string>();
+            foreach (var row in manifest["ponds"])
+            {
+                var path = "Assets/Resources/" + (string)row["resourcesPath"] + ".png";
+                Assert.IsTrue(File.Exists((string)row["sourceImage"]), "Complete painting missing for " + row["pondId"]);
+                distinctImages.Add(System.Convert.ToBase64String(File.ReadAllBytes(path)));
+                Assert.NotNull(Resources.Load<Sprite>((string)row["resourcesPath"]), "Unresolved pond photo " + row["pondId"]);
+            }
+            Assert.GreaterOrEqual(distinctImages.Count, 16, "Pond selection must not show the same blank image for every pond.");
+        }
 
         [TestCase("PanelPondSelection", "DesignPondAside", "Body", "Enter")]
         [TestCase("PanelWorldMap", "Details", "DetailsText", "EnterPond")]

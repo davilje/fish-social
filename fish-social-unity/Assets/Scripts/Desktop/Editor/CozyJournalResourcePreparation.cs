@@ -48,6 +48,9 @@ namespace FishSocial.Desktop.Editor
                 importer.SaveAndReimport();
             }
             AssetDatabase.SaveAssets();
+            ValidatePondPreviews();
+            WriteThemeManifest();
+            Debug.Log("[PondPhotos] Refreshed and validated 21 pond photos from complete scene paintings without GPU rendering.");
         }
 
         public static bool Configure(TextureImporter importer)
@@ -108,42 +111,89 @@ namespace FishSocial.Desktop.Editor
         static void ExportPonds()
         {
             Directory.CreateDirectory(Root + "ponds");
+            const string artRoot = "Assets/Desktop/OverlayArt/Ponds/";
+            var catalog = JObject.Parse(File.ReadAllText(artRoot + "catalog.json"));
+            var pending = new System.Collections.Generic.Dictionary<string, byte[]>();
             var rows = new JArray();
-            foreach (var file in Directory.GetFiles("Assets/Desktop/OverlayLayouts", "pond-*.prefab").OrderBy(p => p))
+            foreach (var binding in catalog["bindings"].OrderBy(item => (string)item["pondId"]))
             {
-                var id = Path.GetFileNameWithoutExtension(file);
-                var scene = EditorSceneManager.NewPreviewScene();
-                var target = new RenderTexture(1024, 640, 24);
-                var previous = RenderTexture.active;
+                var id = (string)binding["pondId"];
+                var sourcePath = artRoot + (string)binding["image"];
+                var source = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                var photo = new Texture2D(1024, 640, TextureFormat.RGBA32, false);
                 try
                 {
-                    var camera = CreateCamera(scene, target, new Color(.92f, .95f, .90f, 1));
-                    // A real central 896x560 viewport, no vertical stretching of the 1680x560 scene.
-                    camera.orthographicSize = 280;
-                    camera.transform.position = new Vector3(840, 280, -100);
-                    var root = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(file.Replace('\\','/')));
-                    SceneManager.MoveGameObjectToScene(root, scene);
-                    root.transform.position = Vector3.zero;
-                    foreach (var item in root.GetComponentsInChildren<DesktopOverlayLayoutObject>(true))
+                    if (!source.LoadImage(File.ReadAllBytes(sourcePath), false))
+                        throw new InvalidDataException("Cannot decode complete pond painting: " + sourcePath);
+                    // Read original pixels on the CPU: Camera.Render returns blank images with -nographics.
+                    // Retain the existing central 896x560 view and 1024x640 photo proportions.
+                    var pixels = source.GetPixels32();
+                    var output = new Color32[1024 * 640];
+                    var cropWidth = Math.Min(source.width, source.height * (1024f / 640));
+                    var cropHeight = cropWidth * (640f / 1024);
+                    for (var y = 0; y < 640; y++)
                     {
-                        // Keep physical seats and scene art; remove sample cats, labels and status HUD.
-                        if (item.kind == "waiting" || item.kind == "pet-size" ||
-                            (item.kind.StartsWith("actor-", StringComparison.Ordinal) && item.kind != "actor-seat"))
-                            item.gameObject.SetActive(false);
+                        var sy = Mathf.Clamp((source.height - cropHeight) * .5f + (y + .5f) * cropHeight / 640 - .5f, 0, source.height - 1);
+                        var y0 = Mathf.FloorToInt(sy);
+                        var y1 = Math.Min(y0 + 1, source.height - 1);
+                        for (var x = 0; x < 1024; x++)
+                        {
+                            var sx = Mathf.Clamp((source.width - cropWidth) * .5f + (x + .5f) * cropWidth / 1024 - .5f, 0, source.width - 1);
+                            var x0 = Mathf.FloorToInt(sx);
+                            var x1 = Math.Min(x0 + 1, source.width - 1);
+                            output[y * 1024 + x] = Color32.Lerp(
+                                Color32.Lerp(pixels[y0 * source.width + x0], pixels[y0 * source.width + x1], sx - x0),
+                                Color32.Lerp(pixels[y1 * source.width + x0], pixels[y1 * source.width + x1], sx - x0), sy - y0);
+                        }
                     }
-                    foreach (var text in root.GetComponentsInChildren<Text>(true)) text.gameObject.SetActive(false);
-                    Canvas.ForceUpdateCanvases();
-                    camera.Render();
-                    SavePixels(target, Root + "ponds/" + id + ".png");
-                    rows.Add(new JObject { ["pondId"] = id, ["sourcePrefab"] = file.Replace('\\','/'),
-                        ["sourceDependencyHash"] = AssetDatabase.GetAssetDependencyHash(file.Replace('\\','/')).ToString(),
+                    RequirePhotoDetail(output, id);
+                    photo.SetPixels32(output);
+                    photo.Apply(false);
+                    pending.Add(Root + "ponds/" + id + ".png", photo.EncodeToPNG());
+                    rows.Add(new JObject { ["pondId"] = id, ["sourceImage"] = sourcePath,
+                        ["sourceDependencyHash"] = AssetDatabase.GetAssetDependencyHash(sourcePath).ToString(),
                         ["resourcesPath"] = "Desktop/Theme/Cozy/journal/ponds/" + id,
                         ["width"] = 1024, ["height"] = 640, ["cropCenter"] = new JArray(.5, .5),
-                        ["sourceViewport"] = new JArray(392,0,896,560), ["kind"] = "actual-scene-render-no-players" });
+                        ["sourceViewport"] = new JArray(392,0,896,560), ["kind"] = "complete-scene-cpu-crop-no-players" });
                 }
-                finally { RenderTexture.active = previous; target.Release(); Object.DestroyImmediate(target); EditorSceneManager.ClosePreviewScene(scene); }
+                finally { Object.DestroyImmediate(source); Object.DestroyImmediate(photo); }
             }
+            if (pending.Count != 21) throw new InvalidDataException("Expected 21 complete pond photos, got " + pending.Count);
+            // Validate the whole batch before replacing any existing photo. Keep all .meta GUIDs.
+            foreach (var entry in pending) File.WriteAllBytes(entry.Key, entry.Value);
             File.WriteAllText(Root + "pond-manifest.json", new JObject { ["schema"] = 1, ["ponds"] = rows }.ToString());
+        }
+
+        static void RequirePhotoDetail(Color32[] pixels, string id)
+        {
+            var colors = new System.Collections.Generic.HashSet<int>();
+            for (var i = 0; i < pixels.Length; i += 97)
+            {
+                var p = pixels[i];
+                if (p.a > 0) colors.Add((p.r << 16) | (p.g << 8) | p.b);
+                if (colors.Count >= 32) return;
+            }
+            throw new InvalidDataException("Pond photo is blank or lacks scene detail: " + id);
+        }
+
+        public static void ValidatePondPreviews()
+        {
+            var rows = JObject.Parse(File.ReadAllText(Root + "pond-manifest.json"))["ponds"];
+            if (rows.Count() != 21) throw new InvalidDataException("Expected 21 pond photos.");
+            foreach (var row in rows)
+            {
+                var path = "Assets/Resources/" + (string)row["resourcesPath"] + ".png";
+                if (Resources.Load<Sprite>((string)row["resourcesPath"]) == null)
+                    throw new InvalidDataException("Unresolved pond photo: " + path);
+                var image = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                try
+                {
+                    if (!image.LoadImage(File.ReadAllBytes(path), false) || image.width != 1024 || image.height != 640)
+                        throw new InvalidDataException("Invalid pond photo: " + path);
+                    RequirePhotoDetail(image.GetPixels32(), (string)row["pondId"]);
+                }
+                finally { Object.DestroyImmediate(image); }
+            }
         }
 
         static Camera CreateCamera(Scene scene, RenderTexture target, Color color)

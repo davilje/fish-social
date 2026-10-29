@@ -333,6 +333,8 @@ namespace FishSocial.Desktop
             var button = DesktopModalUi.FindComponent<Button>(nav, id.ToString());
             if (button == null)
                 return;
+            if (id == ShellPanelId.Leaderboard)
+                DesktopModalUi.SetButtonLabel(button, DesktopLocalization.Text("ui.common.shell_navigation.label.leaderboard", "排行榜"));
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(action);
             _tabs[id] = button;

@@ -6,7 +6,7 @@
     "zh-CN": "zhCN",
     "en-US": "enUS"
   },
-  "generatedAt": "2026-10-29T02:14:11+08:00",
+  "generatedAt": "2026-10-29T12:52:27+08:00",
   "runtimeBinding": "Unity/WPF通过语义Key读取运行时目录；设置即时切换zh-CN/en-US，保存FishSocial.Language，IPC同步Overlay。编辑JSON或导入Excel后运行export-runtime.py刷新发布资源。",
   "keyPolicy": "全小写英文点分层、段内snake_case：ui|game|server.模块.页面或实体.用途。正式Key由key-registry.json登记，独立于中英文措辞与行号；旧Key仅作迁移别名。新增未命名来源使用unreviewed命名空间，审查后登记正式Key。",
   "debugTextPolicy": {
@@ -17,8 +17,8 @@
   },
   "stats": {
     "filesScanned": 911,
-    "entries": 1882,
-    "sourceOccurrences": 2631,
+    "entries": 1883,
+    "sourceOccurrences": 2633,
     "excludedDebugSources": 370,
     "debugExclusionReasons": {
       "Debug与日志输出": 61,
@@ -39,13 +39,13 @@
       "HUD配置": 3,
       "关联服务端提示": 136,
       "游戏数据文案": 388,
-      "运行时界面文本": 1054,
+      "运行时界面文本": 1055,
       "预制体与场景初始文本": 301
     },
     "skipped": {
-      "非显示技术字串": 123276,
-      "路径与技术标识": 13529,
-      "比较与匹配常量": 1759,
+      "非显示技术字串": 124047,
+      "路径与技术标识": 13531,
+      "比较与匹配常量": 1756,
       "空文本": 811,
       "正则与序列化字串": 26,
       "美术动画制作元数据": 93,
@@ -72,7 +72,7 @@
       "overlay_dead_status_formatters": 21,
       "animation_authoring_metadata": 450
     },
-    "excludedNonLocalizableSources": 4300
+    "excludedNonLocalizableSources": 4303
   },
   "parseWarnings": [
     "fish-social-unity/Assets/Scripts/Desktop/Editor/CozyRedesignAuthoring.cs",
@@ -1938,7 +1938,7 @@
     },
     {
       "file": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/asset-manifest.json",
-      "sha256": "c9c57513c72208fd97e1df833f1d1bfa14e30f82498fae490ba63635a58ff244",
+      "sha256": "9ce5efce173ace8ad8ca575b0d50dc6f7018833ec8c21068ba44c7d54a11fa4d",
       "occurrences": 0
     },
     {
@@ -1978,7 +1978,7 @@
     },
     {
       "file": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/pond-manifest.json",
-      "sha256": "687a1205a689a19e55a3a5d2a7284ce172327dc633bca6e55d594c52192d4dde",
+      "sha256": "58a3825d343ce795842f6206567085d2d7d47dfd92e502b32871451dfd169c5f",
       "occurrences": 0
     },
     {
@@ -2243,7 +2243,7 @@
     },
     {
       "file": "fish-social-unity/Assets/Scripts/Desktop/Editor/CozyJournalResourcePreparation.cs",
-      "sha256": "49eb3961dad36c737d0c5595a9afba8c3e1fbfc69e676a1f22f4f19abd87c2b8",
+      "sha256": "0f49df366f2cbb0cf9c951c34b108a898779d41d7f4f04bc5f2756457dacbc8a",
       "occurrences": 0
     },
     {
@@ -3058,8 +3058,8 @@
     },
     {
       "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-      "sha256": "fefb83f7b7ee56e26cc8c05118f563a433056d418bb346069f103dafba5150ec",
-      "occurrences": 60
+      "sha256": "eea3e3a2a1e502ec006dea6ddbb2c8823eff03f18fbb253bac02b26514fd0d91",
+      "occurrences": 61
     },
     {
       "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopDefaultAvatars.cs",
@@ -3088,7 +3088,7 @@
     },
     {
       "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-      "sha256": "cb71f84e4310bada2617d532aba86b29c4847d7efbdcc3c77d7e8bf7a979363b",
+      "sha256": "475e52459c325ec73c5d56ff267d0b6fbb215debacb99d6c9706ff9a99cd19a9",
       "occurrences": 40
     },
     {
@@ -3138,8 +3138,8 @@
     },
     {
       "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-      "sha256": "7860d04cadc57210932e966a8eb5195ce681b55e263174dcca90b885d6ebfa93",
-      "occurrences": 39
+      "sha256": "be00ed9ae2b656ef4163f6257fc89707e2b3bb9245e8fbbdb352ff1a4e11cf6c",
+      "occurrences": 40
     },
     {
       "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShopPanel.cs",
@@ -18242,6 +18242,26 @@
       "enUS": "Choppy waves suddenly appear at the foot of the hard bank, then settle."
     },
     {
+      "key": "ui.common.shell_navigation.label.leaderboard",
+      "module": "通用界面",
+      "category": "运行时界面文本",
+      "sourceText": "排行榜",
+      "zhCN": "排行榜",
+      "placeholders": [],
+      "note": "主界面底部导航的正式排行榜入口。",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
+          "line": 337,
+          "column": 55,
+          "location": "BindCozyNav",
+          "kind": "代码常量",
+          "expression": "DesktopLocalization.Text(\"ui.common.shell_navigation.label.leaderboard\", \"排行榜\")"
+        }
+      ],
+      "enUS": "Leaderboards"
+    },
+    {
       "key": "game.fishing.pond.qiandao.name",
       "module": "钓鱼与悬浮窗",
       "category": "游戏数据文案",
@@ -30973,14 +30993,6 @@
           "location": "RestyleTabs",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.weekly\", \"每周钓王\")"
-        },
-        {
-          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 367,
-          "column": 51,
-          "location": "RestyleTabs",
-          "kind": "代码常量",
-          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.weekly\", \"每周钓王\")"
         }
       ],
       "enUS": "Weekly Fishing Champion"
@@ -30998,14 +31010,6 @@
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
           "line": 363,
           "column": 356,
-          "location": "RestyleTabs",
-          "kind": "代码常量",
-          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.daily\", \"今日大鱼\")"
-        },
-        {
-          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 366,
-          "column": 48,
           "location": "RestyleTabs",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.daily\", \"今日大鱼\")"
@@ -31029,14 +31033,6 @@
           "location": "RestyleTabs",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.pond\", \"当前鱼塘\")"
-        },
-        {
-          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 368,
-          "column": 47,
-          "location": "RestyleTabs",
-          "kind": "代码常量",
-          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.pond\", \"当前鱼塘\")"
         }
       ],
       "enUS": "Current Pond"
@@ -31057,14 +31053,6 @@
           "location": "RestyleTabs",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.rare\", \"稀有鱼获\")"
-        },
-        {
-          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 369,
-          "column": 47,
-          "location": "RestyleTabs",
-          "kind": "代码常量",
-          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.title.rare\", \"稀有鱼获\")"
         }
       ],
       "enUS": "Rare Catches"
@@ -31080,7 +31068,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1309,
+          "line": 1323,
           "column": 41,
           "location": "RenderPodium",
           "kind": "代码常量",
@@ -31088,7 +31076,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1310,
+          "line": 1324,
           "column": 42,
           "location": "RenderPodium",
           "kind": "代码常量",
@@ -31096,7 +31084,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1311,
+          "line": 1325,
           "column": 41,
           "location": "RenderPodium",
           "kind": "代码常量",
@@ -31116,7 +31104,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 673,
+          "line": 687,
           "column": 96,
           "location": "ApplyBoardSwitch",
           "kind": "代码常量",
@@ -31124,7 +31112,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 971,
+          "line": 985,
           "column": 27,
           "location": "LoadRoutineBody",
           "kind": "代码常量",
@@ -31144,7 +31132,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1445,
+          "line": 1459,
           "column": 84,
           "location": "LoadPlayer",
           "kind": "代码常量",
@@ -31164,7 +31152,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1449,
+          "line": 1463,
           "column": 110,
           "location": "LoadPlayer",
           "kind": "代码常量",
@@ -31272,7 +31260,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 901,
+          "line": 915,
           "column": 27,
           "location": "LoadRoutineBody",
           "kind": "代码常量",
@@ -31292,7 +31280,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 912,
+          "line": 926,
           "column": 27,
           "location": "LoadRoutineBody",
           "kind": "代码常量",
@@ -31312,7 +31300,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 934,
+          "line": 948,
           "column": 23,
           "location": "LoadRoutineBody",
           "kind": "代码常量",
@@ -31332,7 +31320,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 961,
+          "line": 975,
           "column": 41,
           "location": "LoadRoutineBody",
           "kind": "代码常量",
@@ -31352,7 +31340,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 985,
+          "line": 999,
           "column": 31,
           "location": "LoadRoutineBody",
           "kind": "代码常量",
@@ -31372,7 +31360,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1058,
+          "line": 1072,
           "column": 50,
           "location": "RunBoardRequest",
           "kind": "代码常量",
@@ -31380,7 +31368,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1078,
+          "line": 1092,
           "column": 50,
           "location": "RunBoardRequestPrefetch",
           "kind": "代码常量",
@@ -31400,7 +31388,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1245,
+          "line": 1259,
           "column": 61,
           "location": "BindRow",
           "kind": "代码常量",
@@ -31408,7 +31396,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1347,
+          "line": 1361,
           "column": 74,
           "location": "BindPodium",
           "kind": "代码常量",
@@ -31416,7 +31404,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1384,
+          "line": 1398,
           "column": 84,
           "location": "SelectPlayer",
           "kind": "代码常量",
@@ -31424,7 +31412,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1448,
+          "line": 1462,
           "column": 95,
           "location": "LoadPlayer",
           "kind": "代码常量",
@@ -31444,7 +31432,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1365,
+          "line": 1379,
           "column": 66,
           "location": "ClearSelectedPlayer",
           "kind": "代码常量",
@@ -31464,7 +31452,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1367,
+          "line": 1381,
           "column": 65,
           "location": "ClearSelectedPlayer",
           "kind": "代码常量",
@@ -31487,7 +31475,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1385,
+          "line": 1399,
           "column": 67,
           "location": "SelectPlayer",
           "kind": "拼接模板",
@@ -31517,7 +31505,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1386,
+          "line": 1400,
           "column": 65,
           "location": "SelectPlayer",
           "kind": "代码常量",
@@ -31537,7 +31525,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1394,
+          "line": 1408,
           "column": 53,
           "location": "SelectPlayer",
           "kind": "代码常量",
@@ -31557,7 +31545,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1398,
+          "line": 1412,
           "column": 70,
           "location": "SelectPlayer",
           "kind": "代码常量",
@@ -31579,7 +31567,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1473,
+          "line": 1487,
           "column": 24,
           "location": "FormatValue",
           "kind": "拼接模板",
@@ -31593,7 +31581,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1474,
+          "line": 1488,
           "column": 20,
           "location": "FormatValue",
           "kind": "拼接模板",
@@ -31619,7 +31607,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1541,
+          "line": 1555,
           "column": 54,
           "location": "SetMyRank",
           "kind": "代码常量",
@@ -31642,7 +31630,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
-          "line": 1544,
+          "line": 1558,
           "column": 50,
           "location": "SetMyRank",
           "kind": "拼接模板",
@@ -35114,7 +35102,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 896,
+          "line": 898,
           "column": 27,
           "location": "OpenPond",
           "kind": "代码常量",
@@ -36182,7 +36170,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1184,
+          "line": 1186,
           "column": 108,
           "location": "PresentPondSessionSummary",
           "kind": "代码常量",
@@ -36190,7 +36178,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1214,
+          "line": 1216,
           "column": 146,
           "location": "OnFriendRequestNotify",
           "kind": "代码常量",
@@ -36210,7 +36198,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 384,
+          "line": 386,
           "column": 170,
           "location": "RefreshHeaderBalance",
           "kind": "代码常量",
@@ -36415,6 +36403,14 @@
           "location": "PageTitle",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.common.page_title.bag\", \"我的背包\")"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
+          "line": 37,
+          "column": 17,
+          "location": "Bind",
+          "kind": "代码常量",
+          "expression": "DesktopLocalization.Text(\"ui.common.page_title.bag\", \"我的背包\")"
         }
       ],
       "enUS": "My Bag"
@@ -36610,7 +36606,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 908,
+          "line": 910,
           "column": 23,
           "location": "OpenPond",
           "kind": "代码常量",
@@ -36630,7 +36626,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 909,
+          "line": 911,
           "column": 23,
           "location": "OpenPond",
           "kind": "代码常量",
@@ -36650,7 +36646,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 916,
+          "line": 918,
           "column": 23,
           "location": "OpenPond",
           "kind": "代码常量",
@@ -36670,7 +36666,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 964,
+          "line": 966,
           "column": 27,
           "location": "BeginSteamLogin",
           "kind": "代码常量",
@@ -36690,7 +36686,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 974,
+          "line": 976,
           "column": 27,
           "location": "ValidateCurrentSession",
           "kind": "代码常量",
@@ -36710,7 +36706,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 991,
+          "line": 993,
           "column": 29,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36730,7 +36726,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 994,
+          "line": 996,
           "column": 29,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36750,7 +36746,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 997,
+          "line": 999,
           "column": 29,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36770,7 +36766,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1000,
+          "line": 1002,
           "column": 29,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36790,7 +36786,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1002,
+          "line": 1004,
           "column": 31,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36810,7 +36806,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1005,
+          "line": 1007,
           "column": 29,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36818,7 +36814,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1035,
+          "line": 1037,
           "column": 59,
           "location": "OnSteamError",
           "kind": "代码常量",
@@ -36826,7 +36822,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1037,
+          "line": 1039,
           "column": 59,
           "location": "OnSteamError",
           "kind": "代码常量"
@@ -36845,7 +36841,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1025,
+          "line": 1027,
           "column": 96,
           "location": "OnSteamStateChanged",
           "kind": "代码常量",
@@ -36865,7 +36861,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1048,
+          "line": 1050,
           "column": 60,
           "location": "OnPondStateChanged",
           "kind": "代码常量",
@@ -36885,7 +36881,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1049,
+          "line": 1051,
           "column": 59,
           "location": "OnPondStateChanged",
           "kind": "代码常量",
@@ -36905,7 +36901,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1050,
+          "line": 1052,
           "column": 62,
           "location": "OnPondStateChanged",
           "kind": "代码常量",
@@ -36925,7 +36921,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1051,
+          "line": 1053,
           "column": 56,
           "location": "OnPondStateChanged",
           "kind": "代码常量",
@@ -36945,7 +36941,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1052,
+          "line": 1054,
           "column": 34,
           "location": "OnPondStateChanged",
           "kind": "代码常量",
@@ -36968,7 +36964,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1057,
+          "line": 1059,
           "column": 58,
           "location": "OnPondStateChanged",
           "kind": "拼接模板",
@@ -37002,7 +36998,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1066,
+          "line": 1068,
           "column": 58,
           "location": "OnPondSnapshot",
           "kind": "拼接模板",
@@ -37040,7 +37036,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1078,
+          "line": 1080,
           "column": 58,
           "location": "OnPondUserUpdated",
           "kind": "拼接模板",
@@ -37074,7 +37070,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1078,
+          "line": 1080,
           "column": 199,
           "location": "OnPondUserUpdated",
           "kind": "代码常量",
@@ -37094,7 +37090,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1092,
+          "line": 1094,
           "column": 24,
           "location": "FormatOtherPlayers",
           "kind": "代码常量",
@@ -37114,7 +37110,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1093,
+          "line": 1095,
           "column": 24,
           "location": "FormatOtherPlayers",
           "kind": "代码常量",
@@ -37136,7 +37132,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1103,
+          "line": 1105,
           "column": 57,
           "location": "FormatOtherPlayers",
           "kind": "拼接模板",
@@ -37162,7 +37158,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1112,
+          "line": 1114,
           "column": 101,
           "location": "OnPondFishBite",
           "kind": "代码常量",
@@ -37182,7 +37178,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1114,
+          "line": 1116,
           "column": 44,
           "location": "OnPondFishBite",
           "kind": "代码常量",
@@ -37204,7 +37200,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1114,
+          "line": 1116,
           "column": 114,
           "location": "OnPondFishBite",
           "kind": "拼接模板",
@@ -37232,7 +37228,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1115,
+          "line": 1117,
           "column": 23,
           "location": "OnPondFishBite",
           "kind": "拼接模板",
@@ -37260,7 +37256,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1127,
+          "line": 1129,
           "column": 87,
           "location": "OnPondFishCatchSettled",
           "kind": "拼接模板",
@@ -37288,7 +37284,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1136,
+          "line": 1138,
           "column": 27,
           "location": "OnPondFishCatchSettled",
           "kind": "拼接模板",
@@ -37314,7 +37310,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1189,
+          "line": 1191,
           "column": 31,
           "location": "PresentPondSessionSummary",
           "kind": "代码常量",
@@ -37336,7 +37332,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1208,
+          "line": 1210,
           "column": 23,
           "location": "OnInventoryUpdated",
           "kind": "拼接模板",
@@ -37364,7 +37360,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopShellUi.cs",
-          "line": 1214,
+          "line": 1216,
           "column": 23,
           "location": "OnFriendRequestNotify",
           "kind": "拼接模板",
@@ -37557,7 +37553,7 @@
           "kind": "XAML属性"
         }
       ],
-      "enUS": "Leave Pond"
+      "enUS": "Exit"
     },
     {
       "key": "ui.fishing.overlay.fallback.button.groundbait",
@@ -38372,7 +38368,7 @@
           "expression": "OverlayLocalization.Text(\"ui.fishing.hud_layout.button.exit_pond\", \"退出鱼塘\")"
         }
       ],
-      "enUS": "Leave Pond"
+      "enUS": "Exit"
     },
     {
       "key": "ui.fishing.overlay.window_size.standard",
@@ -40899,7 +40895,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 157,
+          "line": 159,
           "column": 29,
           "location": "SwitchBag",
           "kind": "代码常量",
@@ -40919,7 +40915,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 187,
+          "line": 189,
           "column": 74,
           "location": "ApplyCategoryState",
           "kind": "代码常量",
@@ -40939,7 +40935,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 187,
+          "line": 189,
           "column": 137,
           "location": "ApplyCategoryState",
           "kind": "代码常量",
@@ -40959,7 +40955,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 188,
+          "line": 190,
           "column": 146,
           "location": "ApplyCategoryState",
           "kind": "代码常量",
@@ -40979,7 +40975,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 188,
+          "line": 190,
           "column": 76,
           "location": "ApplyCategoryState",
           "kind": "代码常量",
@@ -40999,7 +40995,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 190,
+          "line": 192,
           "column": 19,
           "location": "ApplyCategoryState",
           "kind": "代码常量",
@@ -41019,7 +41015,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 190,
+          "line": 192,
           "column": 110,
           "location": "ApplyCategoryState",
           "kind": "代码常量",
@@ -41039,7 +41035,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 199,
+          "line": 201,
           "column": 54,
           "location": "RestoreCategoryDetail",
           "kind": "代码常量",
@@ -41062,7 +41058,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 203,
+          "line": 205,
           "column": 50,
           "location": "RestoreCategoryDetail",
           "kind": "拼接模板",
@@ -41080,7 +41076,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 318,
+          "line": 320,
           "column": 88,
           "location": "Load",
           "kind": "拼接模板",
@@ -41110,7 +41106,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 205,
+          "line": 207,
           "column": 30,
           "location": "RestoreCategoryDetail",
           "kind": "代码常量",
@@ -41118,7 +41114,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 352,
+          "line": 354,
           "column": 29,
           "location": "RenderGrid",
           "kind": "代码常量",
@@ -41138,7 +41134,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 239,
+          "line": 241,
           "column": 56,
           "location": "RefreshReturnButton",
           "kind": "代码常量",
@@ -41146,7 +41142,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 248,
+          "line": 250,
           "column": 56,
           "location": "RefreshReturnButton",
           "kind": "代码常量",
@@ -41154,7 +41150,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 254,
+          "line": 256,
           "column": 59,
           "location": "RefreshReturnButton",
           "kind": "代码常量",
@@ -41162,7 +41158,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 481,
+          "line": 483,
           "column": 29,
           "location": "Select",
           "kind": "代码常量",
@@ -41182,7 +41178,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 286,
+          "line": 288,
           "column": 82,
           "location": "Load",
           "kind": "代码常量",
@@ -41202,7 +41198,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 289,
+          "line": 291,
           "column": 50,
           "location": "Load",
           "kind": "代码常量",
@@ -41222,7 +41218,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 309,
+          "line": 311,
           "column": 67,
           "location": "Load",
           "kind": "代码常量",
@@ -41244,7 +41240,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 311,
+          "line": 313,
           "column": 54,
           "location": "Load",
           "kind": "拼接模板",
@@ -41272,7 +41268,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 315,
+          "line": 317,
           "column": 53,
           "location": "Load",
           "kind": "拼接模板",
@@ -41286,7 +41282,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 551,
+          "line": 553,
           "column": 53,
           "location": "SellSelected",
           "kind": "拼接模板",
@@ -41300,7 +41296,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 610,
+          "line": 612,
           "column": 61,
           "location": "ReturnSelected",
           "kind": "拼接模板",
@@ -41326,7 +41322,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 317,
+          "line": 319,
           "column": 53,
           "location": "Load",
           "kind": "代码常量",
@@ -41346,7 +41342,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 426,
+          "line": 428,
           "column": 48,
           "location": "AddUnreadBadge",
           "kind": "代码常量",
@@ -41366,7 +41362,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 451,
+          "line": 453,
           "column": 19,
           "location": "Select",
           "kind": "代码常量",
@@ -41386,7 +41382,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 452,
+          "line": 454,
           "column": 19,
           "location": "Select",
           "kind": "代码常量",
@@ -41408,7 +41404,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 459,
+          "line": 461,
           "column": 23,
           "location": "Select",
           "kind": "拼接模板",
@@ -41434,7 +41430,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 460,
+          "line": 462,
           "column": 23,
           "location": "Select",
           "kind": "代码常量",
@@ -41456,7 +41452,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 462,
+          "line": 464,
           "column": 23,
           "location": "Select",
           "kind": "拼接模板",
@@ -41482,7 +41478,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 463,
+          "line": 465,
           "column": 23,
           "location": "Select",
           "kind": "代码常量",
@@ -41502,7 +41498,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 467,
+          "line": 469,
           "column": 227,
           "location": "Select",
           "kind": "代码常量",
@@ -41522,7 +41518,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 467,
+          "line": 469,
           "column": 302,
           "location": "Select",
           "kind": "代码常量",
@@ -41546,7 +41542,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 467,
+          "line": 469,
           "column": 30,
           "location": "Select",
           "kind": "拼接模板",
@@ -41583,7 +41579,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 468,
+          "line": 470,
           "column": 31,
           "location": "Select",
           "kind": "拼接模板",
@@ -41613,7 +41609,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 468,
+          "line": 470,
           "column": 153,
           "location": "Select",
           "kind": "代码常量",
@@ -41633,7 +41629,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 471,
+          "line": 473,
           "column": 52,
           "location": "Select",
           "kind": "代码常量",
@@ -41653,7 +41649,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 472,
+          "line": 474,
           "column": 59,
           "location": "Select",
           "kind": "代码常量",
@@ -41676,7 +41672,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 474,
+          "line": 476,
           "column": 26,
           "location": "Select",
           "kind": "拼接模板",
@@ -41706,7 +41702,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 477,
+          "line": 479,
           "column": 29,
           "location": "Select",
           "kind": "代码常量",
@@ -41726,7 +41722,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 478,
+          "line": 480,
           "column": 29,
           "location": "Select",
           "kind": "代码常量",
@@ -41746,7 +41742,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 479,
+          "line": 481,
           "column": 29,
           "location": "Select",
           "kind": "代码常量",
@@ -41766,7 +41762,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 480,
+          "line": 482,
           "column": 29,
           "location": "Select",
           "kind": "代码常量",
@@ -41788,7 +41784,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 480,
+          "line": 482,
           "column": 101,
           "location": "Select",
           "kind": "拼接模板",
@@ -41822,7 +41818,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 484,
+          "line": 486,
           "column": 54,
           "location": "Select",
           "kind": "拼接模板",
@@ -41872,7 +41868,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 520,
+          "line": 522,
           "column": 82,
           "location": "SellSelected",
           "kind": "代码常量",
@@ -41880,7 +41876,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 579,
+          "line": 581,
           "column": 82,
           "location": "ReturnSelected",
           "kind": "代码常量",
@@ -41888,7 +41884,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 625,
+          "line": 627,
           "column": 82,
           "location": "ShareSelected",
           "kind": "代码常量",
@@ -41908,7 +41904,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 525,
+          "line": 527,
           "column": 82,
           "location": "SellSelected",
           "kind": "代码常量",
@@ -41916,7 +41912,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 584,
+          "line": 586,
           "column": 82,
           "location": "ReturnSelected",
           "kind": "代码常量",
@@ -41924,7 +41920,7 @@
         },
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 630,
+          "line": 632,
           "column": 82,
           "location": "ShareSelected",
           "kind": "代码常量",
@@ -41944,7 +41940,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 530,
+          "line": 532,
           "column": 50,
           "location": "SellSelected",
           "kind": "代码常量",
@@ -41966,7 +41962,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 553,
+          "line": 555,
           "column": 30,
           "location": "SellSelected",
           "kind": "拼接模板",
@@ -41992,7 +41988,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 589,
+          "line": 591,
           "column": 82,
           "location": "ReturnSelected",
           "kind": "代码常量",
@@ -42012,7 +42008,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 594,
+          "line": 596,
           "column": 50,
           "location": "ReturnSelected",
           "kind": "代码常量",
@@ -42032,7 +42028,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 602,
+          "line": 604,
           "column": 101,
           "location": "ReturnSelected",
           "kind": "代码常量",
@@ -42058,7 +42054,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 613,
+          "line": 615,
           "column": 34,
           "location": "ReturnSelected",
           "kind": "拼接模板",
@@ -42100,7 +42096,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 617,
+          "line": 619,
           "column": 93,
           "location": "ReturnSelected",
           "kind": "代码常量",
@@ -42120,7 +42116,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 635,
+          "line": 637,
           "column": 50,
           "location": "ShareSelected",
           "kind": "代码常量",
@@ -42140,7 +42136,7 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopCatchBagModalView.cs",
-          "line": 642,
+          "line": 644,
           "column": 92,
           "location": "ShareSelected",
           "kind": "代码常量",
@@ -46042,7 +46038,7 @@
           "kind": "Unity序列化"
         }
       ],
-      "enUS": "Angler Leaderboard"
+      "enUS": "Leaderboard"
     },
     {
       "key": "ui.leaderboard.panel.initial.title.select_angler",
@@ -46192,6 +46188,14 @@
           "column": 14,
           "location": "document[394]/PrefabInstance/m_Modification/m_Modifications/43/value [propertyPath=m_Text]",
           "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 366,
+          "column": 48,
+          "location": "RestyleTabs",
+          "kind": "Unity序列化",
+          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.initial.tab.daily\", \"今日榜\")"
         }
       ],
       "enUS": "Today"
@@ -46211,6 +46215,14 @@
           "column": 14,
           "location": "document[407]/PrefabInstance/m_Modification/m_Modifications/46/value [propertyPath=m_Text]",
           "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 368,
+          "column": 47,
+          "location": "RestyleTabs",
+          "kind": "Unity序列化",
+          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.initial.tab.pond\", \"鱼塘榜\")"
         }
       ],
       "enUS": "Ponds"
@@ -46268,6 +46280,14 @@
           "column": 14,
           "location": "document[445]/PrefabInstance/m_Modification/m_Modifications/46/value [propertyPath=m_Text]",
           "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 367,
+          "column": 51,
+          "location": "RestyleTabs",
+          "kind": "Unity序列化",
+          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.initial.tab.weekly\", \"本周榜\")"
         }
       ],
       "enUS": "This Week"
@@ -46287,6 +46307,14 @@
           "column": 14,
           "location": "document[462]/PrefabInstance/m_Modification/m_Modifications/46/value [propertyPath=m_Text]",
           "kind": "Unity序列化"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/DesktopLeaderboardPanel.cs",
+          "line": 369,
+          "column": 47,
+          "location": "RestyleTabs",
+          "kind": "Unity序列化",
+          "expression": "DesktopLocalization.Text(\"ui.leaderboard.panel.initial.tab.rare\", \"稀有鱼榜\")"
         }
       ],
       "enUS": "Rare Fish"
@@ -48827,18 +48855,18 @@
     }
   },
   "localizationFilter": {
-    "filteredAt": "2026-10-29T02:14:11+08:00",
+    "filteredAt": "2026-10-29T12:52:28+08:00",
     "rulesFile": "scripts/text-catalog/localization-sources.json",
-    "rulesSha256": "46dbf0af8feec309ae51df3d52dc7f8ddab58a97b6ee9b754e42c4420363424f",
+    "rulesSha256": "d11058a29abde2e9c521da3d0d32ea70760c731f458ee9b5d01d73dfa581cfff",
     "reviewDate": "2026-10-28",
     "baseline": {
       "entries": 4215,
       "sourceOccurrences": 7144
     },
-    "removedEntries": 2258,
-    "removedSources": 4300,
-    "partiallyRetainedKeys": 49,
-    "recategorizedEntries": 20,
+    "removedEntries": 2260,
+    "removedSources": 4303,
+    "partiallyRetainedKeys": 50,
+    "recategorizedEntries": 21,
     "reasons": {
       "布局 JSON 中的平移按钮 label 被 OverlayHudLayout.ApplyCozyTheme:1224-1227 无条件重写；翻译运行时赋值来源即可。": 4,
       "旧鱼饵购买接口提示；Unity商店不再发起购买鱼饵请求": 1,
@@ -48862,7 +48890,7 @@
       "speciesName 为经验表重复注释；运行时 XP 查询按 speciesId/quality/playerXp/pondXp，没有显示此字段。": 700,
       "种池摘要仅展示每塘前三个有效条目的鱼名；此处为未显示的重复数据字段": 602,
       "nameZh/descriptionZh 是钓点标签定义说明；Unity未加载该表，共享侧只有类型声明，线索展示取 spot_clue_texts.clueText。": 88,
-      "Unity编辑器来源不进入玩家本地化表（含界面烘焙脚本）；实际显示文本保留运行时与Prefab来源。": 1233,
+      "Unity编辑器来源不进入玩家本地化表（含界面烘焙脚本）；实际显示文本保留运行时与Prefab来源。": 1236,
       "独立占位横线/顿号属于无翻译语义的格式符号；无需进入玩家本地化词条。": 4,
       "FormatCodexProfile 仅被未挂载的 JournalV2ProfileController 调用；当前 DesktopProfileHubPanel 直接生成详情，没有显示此旧整段模板。": 5,
       "家园美术 manifest 的 label/路径元信息；CozyHomeRoom 只反序列化 placements 布局，不读取 assets.label 或 runtimeExport 制作路径。": 16,
@@ -49020,7 +49048,7 @@
       "Header/ProfileCard/Level 初始等级数据，运行时使用账号等级格式化显示，非翻译文案。": 1,
       "仅符号、计数或分辨率 '↗'；属于图标/数值展示，不需要翻译。": 1,
       "旧 Header/Home 按钮由 DesktopShellUi:280 调用 CozySurplus.Park，当前 CozySurplus.Visible=false。": 1,
-      "旧 Header/Leaderboard 按钮由 DesktopShellUi:281 调用 CozySurplus.Park，当前 CozySurplus.Visible=false；底部大赛入口独立保留。": 1,
+      "MainRoot/Nav/Leaderboard 是正式可见导航；初始标签由 DesktopShellUi.BindCozyNav 无条件写入 ui.common.shell_navigation.label.leaderboard，翻译运行时赋值来源即可。": 1,
       "仅符号、计数或分辨率 '+'；属于图标/数值展示，不需要翻译。": 1,
       "旧 FeatureModalRoot 无运行入口：唯一加载类 DesktopModalHost 明确标注 STEAM-DESKTOP-07E 后停用，当前功能页已迁移主窗口 Tab。": 62,
       "OverlayLayouts 美术编辑布局中的 'bamboo-spot-16' 标记；OverlayLayoutExporter 只导出对象 ID/几何/美术资源，不读取 Text.m_Text，此值不进入玩家 UI。": 1,
@@ -49489,7 +49517,7 @@
   "keyMigration": {
     "registryFile": "scripts/text-catalog/key-registry.json",
     "registryVersion": 1,
-    "registeredEntries": 1882,
+    "registeredEntries": 1883,
     "legacyAliasesSupported": true,
     "unreviewedKeys": []
   },

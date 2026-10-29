@@ -33,6 +33,8 @@ namespace FishSocial.Desktop
         {
             _api = api;
             _pond = pond;
+            DesktopLocalization.SetText(DesktopModalUi.FindComponent<Text>(transform, "DesignHeader/Title"),
+                DesktopLocalization.Text("ui.common.page_title.bag", "我的背包"));
             _coins = DesktopModalUi.FindComponent<Text>(transform, "Coins");
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
