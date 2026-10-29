@@ -69,6 +69,6 @@
 | [steam-ui-04-context-menu-dev.prompt](steam-ui-04-context-menu-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-ui-art-track-dev.prompt](steam-ui-art-track-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-ui-program-track-dev.prompt](steam-ui-program-track-dev.prompt.md) | 专题说明／实施记录 |
-| [unity-epic-phase-roadmap-dev.prompt](unity-epic-phase-roadmap-dev.prompt.md) | 专题说明／实施记录 |
+| [unity-epic-phase-roadmap-dev.prompt](unity-epic-phase-roadmap-dev.prompt.md) | 已废弃，不要派发 UNITY-EPIC / UNITY-P3 |
 | [unity-p0-decision-contract-dev.prompt](unity-p0-decision-contract-dev.prompt.md) | 专题说明／实施记录 |
 | [unity-p1-p2-network-thin-client-dev.prompt](unity-p1-p2-network-thin-client-dev.prompt.md) | 专题说明／实施记录 |

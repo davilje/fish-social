@@ -35,6 +35,7 @@ namespace FishSocialOverlay
         readonly Dictionary<string, OverlayPetActor> _others =
             new Dictionary<string, OverlayPetActor>();
         OverlayPetActor _ownActor;
+        bool _otherNameplatesShown = true;
         const long PredictedSeatTimeoutMs = 3000;
         IpcMessage _lastMessage;
         string _predictedSpotId;
@@ -166,6 +167,13 @@ namespace FishSocialOverlay
             _grass.Visibility = _shore.Visibility = _water.Visibility = Visibility.Collapsed;
             _backgroundImage.Source = null;
             _backgroundImage.Visibility = Visibility.Collapsed;
+        }
+
+        public void SetOtherNameplatesShown(bool shown)
+        {
+            _otherNameplatesShown = shown;
+            foreach (var actor in _others.Values)
+                actor.SetNameplateShown(shown);
         }
 
         public void CancelAllHovers()
@@ -665,6 +673,7 @@ namespace FishSocialOverlay
                         _menuHost);
                     _actorLayer.Children.Add(actor);
                     _others[key] = actor;
+                    actor.SetNameplateShown(_otherNameplatesShown);
                 }
                 else
                 {

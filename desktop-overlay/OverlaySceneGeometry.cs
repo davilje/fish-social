@@ -4,10 +4,14 @@ namespace FishSocialOverlay
 {
     internal static class OverlaySceneGeometry
     {
+        // Small window only. 72 = the earlier 24px rise plus another 48px,
+        // so the seated cat sits lower in the 600×300 frame.
+        const double SmallWindowLift = 72;
+
         public static double CropTop(double sceneHeight, double viewportHeight)
         {
             var crop = Math.Max(0, sceneHeight - viewportHeight);
-            return Math.Max(0, crop - (viewportHeight <= 300.5 ? 24 : 0));
+            return Math.Max(0, crop - (viewportHeight <= 300.5 ? SmallWindowLift : 0));
         }
 
         // Quarter-pixel depth bands keep fractional export noise from changing

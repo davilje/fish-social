@@ -471,7 +471,7 @@ public static class OverlayPerformanceTests
         Require(pan.OffsetX == -1210 && changed > 0, "right clamp or viewport notification lost");
         pan.TryCenterOnWorldX(-10000, true); Require(pan.OffsetX == 0, "left clamp lost");
         pan.SetSceneSize(1680,560,true); pan.SetViewportSize(600,300);
-        Require(pan.CropTop==236 && content.RenderTransform.Transform(new Point(0,236)).Y==0,
+        Require(pan.CropTop==188 && content.RenderTransform.Transform(new Point(0,188)).Y==0,
             "small camera and world-to-screen transform disagree");
         pan.SetViewportSize(960,560);
         Require(pan.CropTop==0 && content.RenderTransform.Transform(new Point(0,0)).Y==0,"camera lift leaked into large window");

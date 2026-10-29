@@ -10,12 +10,12 @@ static class OverlaySeatMotionTests
     {
         Run("small camera shows more bank while standard and medium keep their framing", () =>
         {
-            Check(OverlaySceneGeometry.CropTop(560,300)==236,"small camera did not rise 24 units");
+            Check(OverlaySceneGeometry.CropTop(560,300)==188,"small camera did not rise 72 units");
             Check(OverlaySceneGeometry.CropTop(560,400)==160,"medium camera unexpectedly changed");
             Check(OverlaySceneGeometry.CropTop(560,560)==0,"standard camera unexpectedly changed");
             Check(OverlaySceneGeometry.CropTop(200,300)==0,"camera exposed negative scene coordinates");
             var waterScreenY=459.337-OverlaySceneGeometry.CropTop(560,300);
-            Check(waterScreenY>200 && waterScreenY<240,"water contact is hidden by small-window bottom controls");
+            Check(waterScreenY>250 && waterScreenY<290,"small-window water contact left the lower band");
         });
         Run("actor ordering follows ground depth and horizontal position, not entry order", () =>
         {
