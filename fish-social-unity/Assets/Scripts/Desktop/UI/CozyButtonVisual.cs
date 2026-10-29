@@ -44,6 +44,7 @@ namespace FishSocial.Desktop
         [SerializeField] bool selected;
         [SerializeField] bool stackedIcon;
         [SerializeField] bool flat;
+        [SerializeField] int compactAction; // 0: standard, 1: details, 2: comment deletion.
         bool generatedPlate;
         bool expandSurfaceInsets;
         bool generatedIcon;
@@ -127,6 +128,15 @@ namespace FishSocial.Desktop
         {
             flat = value;
             RefreshState();
+        }
+
+        public void SetCompactAction(bool destructive)
+        {
+            compactAction = destructive ? 2 : 1;
+            primarySurface = false;
+            flat = false;
+            expandSurfaceInsets = false;
+            if (initialized) RefreshState();
         }
 
         public void SetTint(Color value)
@@ -463,7 +473,34 @@ namespace FishSocial.Desktop
                 color.a = 0f;
             var state = !interactable ? "disabled" : IsIndex ? selected ? "selected" : "default"
                 : depressed ? "pressed" : selected ? "selected" : highlighted ? "hover" : "default";
-            if (flatComment)
+            if (compactAction != 0)
+            {
+                expandSurfaceInsets = false;
+                var plateRect = plate.rectTransform;
+                plateRect.anchorMin = Vector2.zero;
+                plateRect.anchorMax = Vector2.one;
+                plateRect.offsetMin = new Vector2(1f, 1f);
+                plateRect.offsetMax = new Vector2(-1f, -1f);
+                var danger = compactAction == 2;
+                Color foreground = danger ? new Color32(164, 102, 85, 255) : new Color32(117, 71, 46, 255);
+                var fill = danger ? Color.clear : new Color(1f, .985f, .95f, 1f);
+                var stroke = danger ? Color.clear : (Color)new Color32(219, 195, 157, 255);
+                if (highlighted || depressed)
+                {
+                    foreground = danger ? new Color32(174, 70, 54, 255) : new Color32(110, 64, 35, 255);
+                    fill = danger ? new Color32(253, 235, 229, 255) : new Color32(255, 236, 208, 255);
+                    stroke = danger ? new Color32(236, 195, 183, 255) : new Color32(202, 155, 99, 255);
+                    if (depressed) fill = danger ? new Color32(246, 215, 204, 255) : new Color32(246, 218, 177, 255);
+                }
+                if (dimmed) { foreground.a = .4f; fill.a *= .5f; stroke.a *= .4f; }
+                CozyCssGraphic.EnsureWash(plate.transform, "ButtonWash", fill, danger ? 7f : 14f, 1f, stroke);
+                if (icon != null) icon.enabled = false;
+                var actionIcon = transform.Find("ActionIcon")?.GetComponent<CozyActionIcon>();
+                if (actionIcon != null) actionIcon.color = foreground;
+                var caption = transform.Find("Label")?.GetComponent<Text>();
+                if (caption != null) { caption.color = foreground; caption.fontStyle = FontStyle.Normal; }
+            }
+            else if (flatComment)
             {
                 expandSurfaceInsets = false;
                 var plateRect = plate.rectTransform;

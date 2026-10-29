@@ -17,7 +17,7 @@
 | [obs-log-noise-reduction-dev.prompt](obs-log-noise-reduction-dev.prompt.md) | 专题说明／实施记录 |
 | [ops-catch-inventory-human-bot-dev.prompt](ops-catch-inventory-human-bot-dev.prompt.md) | 专题说明／实施记录 |
 | [ops-growth-kpi-dashboard-dev.prompt](ops-growth-kpi-dashboard-dev.prompt.md) | 专题说明／实施记录 |
-| [ops-hot-1-desktop-hotupdate-dev.prompt](ops-hot-1-desktop-hotupdate-dev.prompt.md) | 专题说明／实施记录 |
+| [ops-hot-1-desktop-hotupdate-dev.prompt](ops-hot-1-desktop-hotupdate-dev.prompt.md) | 已废弃，不要派发 |
 | [ops-portal-ux-dev.prompt](ops-portal-ux-dev.prompt.md) | 专题说明／实施记录 |
 | [ops-release-hotupdate-dev.prompt](ops-release-hotupdate-dev.prompt.md) | 专题说明／实施记录 |
 | [server-observability-v0.4.4-dev.prompt](server-observability-v0.4.4-dev.prompt.md) | 专题说明／实施记录 |

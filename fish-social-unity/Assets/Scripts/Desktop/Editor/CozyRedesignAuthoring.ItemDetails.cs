@@ -31,12 +31,8 @@ namespace FishSocial.Desktop.Editor
             if (root == null || (root.name != "PanelShop" && root.name != "PanelEquipment" && root.name != "PanelCatch"))
                 return;
             var page = root.transform;
-            var entry = ButtonAt(page, "ItemDetails", "详情", null, 1242, 310, 68, 30);
-            var entryLabel = entry.transform.Find("Label").GetComponent<Text>();
-            Place(entry.transform, "Label", 4, 0, 60, 30);
-            entryLabel.fontSize = 16;
-            entryLabel.resizeTextForBestFit = false;
-            entryLabel.alignment = TextAnchor.MiddleCenter;
+            var entry = ButtonAt(page, "ItemDetails", "详情", null, 1218, 308, 84, 32);
+            CompactAction(entry, false);
             entry.navigation = new Navigation { mode = Navigation.Mode.None };
 
             var overlay = Node(page, "DetailsDialog");

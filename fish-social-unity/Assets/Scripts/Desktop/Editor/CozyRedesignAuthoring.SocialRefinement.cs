@@ -190,7 +190,7 @@ namespace FishSocial.Desktop.Editor
             SocialRefinementBaseRow(root,304,92);
             DpText(root,"Author",12,10,250,22,15,true);
             var body=DpText(root,root.Find("Text")!=null?"Text":"CommentText",12,38,280,42,15,false,TextAnchor.UpperLeft);body.lineSpacing=1.6f;
-            var delete=root.Find("Delete") as RectTransform;if(delete!=null){Place(root,"Delete",250,8,42,24);foreach(var text in delete.GetComponentsInChildren<Text>(true))text.fontSize=12;}
+            CompactComment(root);
         }
     }
 }

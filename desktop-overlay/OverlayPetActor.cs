@@ -176,6 +176,13 @@ namespace FishSocialOverlay
         public string ActorKey { get; }
         internal static int ActiveActorCount { get; private set; }
 
+        public void SetNameplateShown(bool shown)
+        {
+            if (_disposed || _nameBadge == null)
+                return;
+            _nameBadge.Visibility = shown ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         public bool HasPlayerContextMenu =>
             !string.IsNullOrEmpty(_playerId) && _menuHost != null;
 

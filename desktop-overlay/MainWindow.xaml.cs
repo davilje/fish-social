@@ -1747,7 +1747,6 @@ namespace FishSocialOverlay
             menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.feed", "动态墙"), MenuFeed_OnClick));
             menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.leaderboard", "排行榜"), MenuLeaderboard_OnClick));
             menu.Items.Add(CreateProductMenuItem(OverlayLocalization.Text("ui.fishing.overlay.menu.settings", "设置"), MenuSettings_OnClick));
-            menu.Items.Add(CreateProductMenuItem("导出 HUD JSON", ExportHudJson_OnClick));
             menu.Items.Add(new Separator());
             menu.Items.Add(BuildViewportSizeMenu());
             menu.Items.Add(new Separator());
@@ -2071,6 +2070,7 @@ namespace FishSocialOverlay
         {
             foreach (var element in _chromeRestingOpacity.Keys)
                 ApplyActionChromeVisual(element, animate);
+            _scene?.SetOtherNameplatesShown(_actionChromeRevealed);
         }
 
         void ApplyActionChromeVisual(FrameworkElement element, bool animate)

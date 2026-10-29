@@ -854,7 +854,7 @@ namespace FishSocial.Desktop
                 author.anchorMax = new Vector2(1f, 1f);
                 author.pivot = new Vector2(0f, 1f);
                 author.offsetMin = new Vector2(12f, -32f);
-                author.offsetMax = new Vector2(-56f, -11f);
+                author.offsetMax = new Vector2(-92f, -11f);
                 var authorText = author.GetComponent<Text>();
                 if (authorText != null)
                 {
@@ -880,8 +880,8 @@ namespace FishSocial.Desktop
                 var deleteRect = delete.transform as RectTransform;
                 deleteRect.anchorMin = deleteRect.anchorMax = new Vector2(1f, 1f);
                 deleteRect.pivot = new Vector2(1f, 1f);
-                deleteRect.anchoredPosition = new Vector2(-8f, -8f);
-                deleteRect.sizeDelta = new Vector2(42f, 24f);
+                deleteRect.anchoredPosition = new Vector2(-8f, -6f);
+                deleteRect.sizeDelta = new Vector2(76f, 30f);
                 var deleteLayout = delete.GetComponent<LayoutElement>();
                 if (deleteLayout != null) deleteLayout.ignoreLayout = true;
                 SetButtonText(delete, DesktopLocalization.Text("ui.social.post_card.button.delete_comment", "删除"));
