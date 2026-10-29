@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>猫咪钓鱼手账 · UI 预览</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5efe5;color:#654b39;font:15px/1.6 system-ui,"PingFang SC",sans-serif}button,select,a{font:inherit}button,select{border:1px solid #d9c8b4;background:#fffaf2;color:#654b39;border-radius:9px;padding:8px 13px}button,a{cursor:pointer}button:hover{background:#f9e3c8}button[aria-pressed=true]{background:#754f35;border-color:#754f35;color:#fff8ec}button:disabled{opacity:.4;cursor:default}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #c88436;outline-offset:3px}header,.controls,.status,.viewer-head,.gallery,.references{max-width:1520px;margin:auto;padding:18px 28px}header{padding-top:30px;padding-bottom:8px}h1{margin:0;font-size:27px;font-weight:650}header p{margin:5px 0;color:#8d7763}.controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}.controls label{display:grid;gap:4px;font-size:12px;color:#8d7763}select{min-width:130px}.status{padding-top:0;padding-bottom:9px;font-size:13px;color:#8d7763}.viewer-head{display:flex;gap:12px;align-items:center;justify-content:space-between;padding-top:5px;padding-bottom:10px}.viewer-head h2{font-size:17px;margin:0}.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.tools a{color:#805a38;padding:6px}.viewer{margin:0 auto;max-width:1520px;padding:0 18px;overflow:auto}.viewer img{display:block;width:100%;height:auto;background:#fffaf2;border-radius:12px}.original .viewer img{width:var(--image-width,1440px);max-width:none}.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding-top:22px}.card{padding:6px;text-align:left;border-radius:12px;overflow:hidden}.card img{display:block;width:100%;height:auto;aspect-ratio:1.6;object-fit:contain;border-radius:7px;background:#fff8ed}.card span{display:block;padding:8px 5px 1px;font-size:13px}.card small{display:block;padding:0 5px 5px;opacity:.75;font-size:11px}.references{padding-top:12px;padding-bottom:35px}.references h2{font-size:18px;margin:0 0 10px}.references p{font-size:13px;color:#8d7763}.references label{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.references iframe{display:block;width:100%;height:800px;border:1px solid #d9c8b4;border-radius:12px;margin-top:14px;background:#fffaf2}[hidden]{display:none!important}.empty{padding:50px;text-align:center}.note{color:#8d7763;font-size:13px}@media(max-width:650px){header,.controls,.status,.viewer-head,.gallery,.references{padding-left:14px;padding-right:14px}h1{font-size:23px}.viewer-head{align-items:start;flex-direction:column}.viewer{padding:0 8px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.card span{font-size:12px}.references iframe{height:680px}select{min-width:105px;max-width:100%}}
+</style>
+</head>
+<body>
+<header><h1>猫咪钓鱼手账 · UI 预览</h1><p>背包、装备、商店、排行榜、个人资料与钓友动态，统一在这里查看。</p></header>
+<section class="controls" aria-label="预览筛选">
+<label>预览内容<select id="group"><option value="all">全部截图</option></select></label>
+<label>语言<select id="language"><option value="all">全部语言</option><option value="zh-CN">中文</option><option value="en-US">English</option></select></label>
+<label>显示状态<select id="state"><option value="all">全部状态</option></select></label>
+<button id="reset">查看全部</button>
+</section>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+<main>
+<section id="screenshots" aria-label="截图预览">
+<div class="viewer-head"><div><h2 id="caption"></h2><div class="note" id="note"></div></div><div class="tools"><button id="previous" aria-label="上一张">← 上一张</button><button id="next" aria-label="下一张">下一张 →</button><button id="fit" aria-pressed="false">原尺寸查看</button><a id="original" target="_blank" rel="noopener">打开原图 ↗</a></div></div>
+<div class="viewer"><img id="preview" alt=""></div>
+<div class="empty" id="empty" hidden>当前筛选没有截图，请调整语言或状态。</div>
+<div class="gallery" id="gallery" aria-label="全部匹配截图"></div>
+</section>
+<section class="references" aria-label="交互与动效预览">
+<h2>设计对照与动效</h2>
+<label>在本页打开<select id="reference"><option value="">选择预览</option><option value="workspace.html">资料与收获对照</option><option value="parity.html">原方案对照</option><option value="motion.html">动效逐帧对照</option><option value="workspace-motion/index.html">资料与收获动效</option><option value="../../../设计/界面/原型/手账/index.html">手账交互</option><option value="../../../设计/界面/原型/钓友来信/index.html">社交交互</option><option value="../../../设计/界面/原型/手账工作台/index.html">资料与收获交互</option></select></label>
+<iframe id="reference-frame" title="设计对照与动效预览" hidden></iframe>
+<p>截图来自 Unity 实际运行画面，内容使用示例数据。截图内按钮不可操作；交互方案可在上方选择后体验。左右方向键可切换截图。</p>
+</section>
+</main>
+<script>
+/* PREVIEW_DATA */
+const {records,groups,languages,states}=previewData;
+const $=id=>document.getElementById(id);
+let visible=[],selected=null;
+for(const [value,title] of groups)$('group').add(new Option(title,value));
+for(const [value,title] of Object.entries(states))$('state').add(new Option(title,value));
+const labels=record=>(languages[record.language]||record.language)+' · '+(states[record.state]||record.state);
+function show(record){
+  if(!record)return;
+  selected=record;
+  $('preview').src=record.file;
+  $('preview').alt=record.title+' · '+labels(record);
+  $('caption').textContent=record.title;
+  $('note').textContent=labels(record)+(record.group==='details'?' · 详情弹窗轮次截图；最新按钮见“按钮与间距”':'');
+  $('original').href=record.file;
+  document.querySelectorAll('.card').forEach(button=>button.setAttribute('aria-pressed',button.dataset.id===record.id));
+  history.replaceState(null,'','#'+encodeURIComponent(record.id));
+}
+$('preview').addEventListener('load',()=>document.documentElement.style.setProperty('--image-width',$('preview').naturalWidth+'px'));
+function filter(preferred){
+  const group=$('group').value,language=$('language').value,state=$('state').value;
+  visible=records.filter(record=>(group==='all'||record.group===group)&&(language==='all'||record.language===language||record.language==='shared')&&(state==='all'||record.state===state));
+  $('gallery').replaceChildren(...visible.map(record=>{
+    const button=document.createElement('button');button.className='card';button.dataset.id=record.id;button.setAttribute('aria-pressed','false');
+    const image=document.createElement('img');image.src=record.file;image.alt=record.title;image.loading='lazy';image.width=288;image.height=180;
+    const title=document.createElement('span');title.textContent=record.title;
+    const subtitle=document.createElement('small');subtitle.textContent=labels(record);
+    button.append(image,title,subtitle);button.onclick=()=>show(record);return button;
+  }));
+  $('status').textContent='共 '+records.length+' 张预览 · 当前显示 '+visible.length+' 张';
+  $('empty').hidden=visible.length>0;
+  document.querySelector('.viewer').hidden=visible.length===0;
+  document.querySelector('.viewer-head').hidden=visible.length===0;
+  $('previous').disabled=$('next').disabled=visible.length<2;
+  show(visible.find(record=>record.id===(preferred||selected?.id))||visible[0]);
+}
+for(const id of ['group','language','state'])$(id).onchange=()=>filter();
+$('reset').onclick=()=>{for(const id of ['group','language','state'])$(id).value='all';filter();};
+function move(direction){if(!visible.length)return;show(visible[(visible.findIndex(record=>record.id===selected?.id)+direction+visible.length)%visible.length]);}
+$('previous').onclick=()=>move(-1);$('next').onclick=()=>move(1);
+$('fit').onclick=()=>{const original=document.body.classList.toggle('original');$('fit').textContent=original?'适应窗口':'原尺寸查看';$('fit').setAttribute('aria-pressed',original);};
+document.addEventListener('keydown',event=>{if(/^(SELECT|INPUT|TEXTAREA|BUTTON)$/.test(event.target.tagName))return;if(event.key==='ArrowRight')move(1);if(event.key==='ArrowLeft')move(-1);});
+$('reference').onchange=()=>{const src=$('reference').value;$('reference-frame').hidden=!src;if(src)$('reference-frame').src=src;else $('reference-frame').removeAttribute('src');};
+function openHash(){
+  let initial='';try{initial=decodeURIComponent(location.hash.slice(1));}catch{}
+  const record=records.find(record=>record.id===initial);
+  $('group').value=record?.group||'actions';$('language').value=record?.language==='shared'?'all':record?.language||'zh-CN';$('state').value='all';
+  filter(record?.id||'actions-PanelShop-zh-CN-default');
+}
+window.addEventListener('hashchange',openHash);
+openHash();
+</script>
+</body>
+</html>
