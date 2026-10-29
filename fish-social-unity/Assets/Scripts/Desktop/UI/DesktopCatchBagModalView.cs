@@ -16,6 +16,11 @@ namespace FishSocial.Desktop
         Text _status;
         Text _coins;
         Text _detail;
+        CozyItemDetailsDialog _detailsDialog;
+        Button _itemDetails;
+        string _detailsTitle;
+        string _detailsBody;
+        Sprite _detailsArt;
         Transform _grid;
         bool _fishReady;
         Button _returnButton;
@@ -38,6 +43,15 @@ namespace FishSocial.Desktop
             _coins = DesktopModalUi.FindComponent<Text>(transform, "Coins");
             _status = DesktopModalUi.FindComponent<Text>(transform, "Status");
             _detail = DesktopModalUi.FindComponent<Text>(transform, "Detail");
+            _detailsDialog = CozyItemDetailsDialog.Bind(transform);
+            _itemDetails = DesktopModalUi.FindComponent<Button>(transform, "ItemDetails");
+            if (_itemDetails != null)
+            {
+                DesktopModalUi.SetButtonLabel(_itemDetails, DesktopLocalization.Text("ui.common.button.details", "详情"));
+                _itemDetails.onClick.RemoveAllListeners();
+                _itemDetails.onClick.AddListener(() => _detailsDialog?.Show(_detailsTitle, _detailsBody, _detailsArt));
+                _itemDetails.gameObject.SetActive(false);
+            }
             _grid = (transform.Find("Grid/Viewport/Slots") ?? DesktopModalUi.FindChild(transform, "Grid/Slots"));
 
             _retry = DesktopModalUi.FindComponent<Button>(transform, "Retry");
@@ -91,6 +105,7 @@ namespace FishSocial.Desktop
 
         public void OnClosed()
         {
+            _detailsDialog?.Close();
             StopAllCoroutines();
             _loadRoutine = null;
             _busy = false;
@@ -176,6 +191,8 @@ namespace FishSocial.Desktop
 
         void ApplyCategoryState()
         {
+            _detailsDialog?.Close();
+            if (_itemDetails != null) _itemDetails.gameObject.SetActive(!_itemsTab && SelectedItem() != null);
             if (_sellButton != null) _sellButton.gameObject.SetActive(!_itemsTab);
             if (_shareButton != null) _shareButton.gameObject.SetActive(!_itemsTab);
             if (_returnButton != null) _returnButton.gameObject.SetActive(!_itemsTab);
@@ -475,12 +492,22 @@ namespace FishSocial.Desktop
             var size = DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m");
             var weight = DesktopLocalization.Format("ui.catch.bag.format.approximate_weight", (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM))), (object)(jin.ToString("0.##")));
             CozyItemArt.Text(transform, "DesignName", species);
+            _detailsDialog?.Close();
+            _detailsTitle = species;
+            _detailsArt = CozyItemArt.Fish(item.speciesId);
+            _detailsBody = DesktopLocalization.Format("ui.catch.bag.label.catch_summary", (object)species, (object)quality,
+                (object)size, (object)weight, (object)sell, (object)returnHint, (object)seatHint);
+            if (mode == "sell_only" || mode == "auto_return")
+                _detailsBody = DesktopLocalization.Concat(_detailsBody, "\n", returnValue);
+            if (_itemDetails != null)
+            {
+                _itemDetails.gameObject.SetActive(true);
+                _itemDetails.transform.SetAsLastSibling();
+            }
             if (CozyItemArt.Rows(transform, "DetailRows",
                     "star", DesktopLocalization.Text("ui.catch.bag.label.quality", "品质"), quality,
                     "hook", DesktopLocalization.Text("ui.catch.bag.label.length", "体长"), size,
-                    "fish", DesktopLocalization.Text("ui.catch.bag.label.weight", "重量"), weight,
-                    "coin", DesktopLocalization.Text("ui.catch.bag.label.reference_price", "参考售价"), DesktopLocalization.Format("ui.catch.bag.format.coins", (object)(sell)),
-                    "pond", DesktopLocalization.Text("ui.catch.bag.button.release", "回鱼"), returnValue))
+                    "coin", DesktopLocalization.Text("ui.catch.bag.label.reference_price", "参考售价"), DesktopLocalization.Format("ui.catch.bag.format.coins", (object)(sell))))
                 DesktopLocalization.SetText(_detail, string.Empty);
             else
                 DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.catch.bag.label.catch_summary", (object)(species), (object)(quality), (object)(size), (object)(weight), (object)(sell), (object)(returnHint), (object)(seatHint)));
@@ -509,6 +536,8 @@ namespace FishSocial.Desktop
 
         void ShowMessage(string message)
         { message = DesktopLocalization.Message(message);
+            _detailsDialog?.Close();
+            if (_itemDetails != null) _itemDetails.gameObject.SetActive(false);
             CozyItemArt.Set(transform, "DesignArt", null);
             CozyItemArt.Text(transform, "DesignName", string.Empty);
             CozyItemArt.Rows(transform, "DetailRows");

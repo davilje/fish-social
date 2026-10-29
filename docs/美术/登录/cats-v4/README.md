@@ -2,7 +2,7 @@
 
 2026-10-26。针对用户截图中的“旧场景铺满窗口、新背景缩在中央卡片”修复，并重绘五只猫围坐吃烤鱼的场景。已接入 Unity 项目；尚未重打 Windows 客户端或完成 Windows 实机验收。
 
-[查看对照预览](index.html) · [1920×1080 Unity 渲染](unity-login-1920x1080.png) · [背景原图](login-background-cats-v4.png)
+[查看对照预览](../../../../现行预览.html#login) · [1920×1080 Unity 渲染](unity-login-1920x1080.png) · [背景原图](login-background-cats-v4.png)
 
 ## 原因与修复
 

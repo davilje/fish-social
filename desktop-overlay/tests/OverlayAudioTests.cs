@@ -148,20 +148,20 @@ static class OverlayAudioTests
     static void SourceWindow()
     {
         var release=Array.Find(OverlayAudioSourceMarkers.Metadata.Markers,m=>m.Marker=="cast.release");
-        Check(release.SourceIndex==2&&release.SourceMs==280,"release source contract drift");
+        Check(release.SourceIndex==2&&release.SourceMs==210,"release source contract drift");
         Check(OverlayAudioSourceMarkers.InWindow(release,"cast",2.75),"interpolated source window lost");
         Check(!OverlayAudioSourceMarkers.InWindow(release,"cast",3)&&!OverlayAudioSourceMarkers.InWindow(release,"fishing",2),"skipped marker replayed");
     }
     static void FloatContact()
     {
-        var frame=OverlayFishingWaterContact.Frame("cast",3);
+        var frame=OverlayFishingWaterContact.Frame("cast",5);
         foreach(var scale in new[]{.125,.25,.5})
         {
             var origin=-20d;var surface=500*scale;
             var pose=OverlayFishingWaterContact.Solve(frame,scale,origin,surface,1);
-            Check(OverlayAudioSourceMarkers.Contact("bobber","cast",3,null,frame,pose,scale,origin,surface),"published float missed water");
-            Check(!OverlayAudioSourceMarkers.Contact("fish","cast",3,null,frame,pose,scale,origin,surface),"empty fish claimed contact");
-            Check(!OverlayAudioSourceMarkers.Contact("bobber","cast",3,null,null,pose,scale,origin,surface),"missing solver became contact");
+            Check(OverlayAudioSourceMarkers.Contact("bobber","cast",5,null,frame,pose,scale,origin,surface),"published float missed water");
+            Check(!OverlayAudioSourceMarkers.Contact("fish","cast",5,null,frame,pose,scale,origin,surface),"empty fish claimed contact");
+            Check(!OverlayAudioSourceMarkers.Contact("bobber","cast",5,null,null,pose,scale,origin,surface),"missing solver became contact");
         }
     }
     static void SubmergedFish()

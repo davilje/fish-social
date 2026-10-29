@@ -523,7 +523,7 @@ namespace FishSocial.Desktop.Pet
             }
             if (!Matches(clips, "idle", 1, "hold") || !Matches(clips, "sit", 4, "once", "ready") ||
                 !Matches(clips, "ready", 1, "hold") || !Matches(clips, "bait", 4, "once") ||
-                !Matches(clips, "cast", 4, "once") || !Matches(clips, "fishing", 1, "hold") ||
+                !Matches(clips, "cast", 6, "once") || !Matches(clips, "fishing", 1, "hold") ||
                 !Matches(clips, "bite", 4, "once", "effort") ||
                 !Matches(clips, "effort", 6, "intro-loop", null, 0) ||
                 !Matches(clips, "hooked", 10, "intro-loop", null, 4) ||

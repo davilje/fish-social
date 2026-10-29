@@ -2,6 +2,22 @@
 
 Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/工程/声音/audio-22i-adoption.json; earlier effects approval: docs/工程/声音/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
 
+## Pond scene ASMR — updated 2026-10-30
+
+The fishing scene now disables BGM and all button/UI cues. Existing action effects and cat calls remain available. Three independent streamed ambience tracks add shore water, gentle wind and leaf rustling, each with its own saved mix level. All follow the saved effects volume, with a2-second scene fade. Music remains available outside the fishing scene; the historical47-WAV adoption lock below is unchanged.
+
+- Asset: `ambience/pond_shore.wav`,48seconds,PCM16stereo44100Hz.
+- Recording: **Water_Lapping_River.wav**, **ceich93**, Hudson River pebbly shore, recorded with Tascam DR-05. Original creator page: https://freesound.org/people/ceich93/sounds/318064/ . License: **CC0-1.0**, https://creativecommons.org/publicdomain/zero/1.0/ . Input uses the publisher’s public HQ MP3 preview, not a claimed lossless master.
+- Processing: one continuous56-second excerpt, gentle80–2600Hz filtering,8-second complementary overlap for a48-second loop, constant linear gain. Original stereo retained; no generated noise, music, added voices/birds, pitch shifting, compressor or limiter. Source/output SHA256 and processing are in `ambience-manifest.json`.
+- Rebuild: `python tools/audio/build_pond_ambience.py --sources <cache>`; check: `python tools/audio/verify_desktop_audio.py` and `python tools/audio/verify_pond_ambience.py`.
+
+### Independent wind and leaf layers — 2026-10-30
+
+- `ambience/pond_wind.wav`:56seconds,44100HzPCM16 twochannel, **a gentle breeze, wind 1** by **mario1298**, https://freesound.org/people/mario1298/sounds/181250/ . CC0-1.0. The official HQ preview has identical channels (dual-mono); it is preserved without artificial stereo widening. Source excerpt84–148s,110–2300Hz gentle bandpass,8s loop overlap, constant gain.
+- `ambience/pond_leaves.wav`:48seconds,44100HzPCM16 distinct stereo, **Wind and Leaves.wav** by **ecfike**, https://freesound.org/people/ecfike/sounds/183496/ . CC0-1.0. Broad-leaf trees in a breeze; the leaves recording includes its own natural light wind and is not an isolated dry stem. Source excerpt128–184s,240–3800Hz gentle bandpass,8s overlap, constant gain.
+- Both use the creators' public HQ MP3 previews with pinned hashes. No synthetic noise, channel widening, compressor, limiter or added birds/voices. File boundaries use natural quantization-equal adjacent samples. Individual runtime gains:water0.65,wind0.45,leaves0.40, each multiplied by its saved0–1 mix level and the effects volume.
+- Rebuild: `python tools/audio/build_pond_wind_leaves.py --sources <cache>`. Both builders merge only their own tracks into version2 `ambience-manifest.json`, preserving the other ambience files and source records. The preview offers separate play/stop/volume controls and a combined mix.
+
 ## Current music: 日光下的闲谈 / Sunlit Conversation
 
 Original 90 BPM G-major composition, 32 bars A/A-prime/B/varied return, 85.333333 seconds. The first eight bars, 21.333333 seconds, are an exact PCM prefix with the same master gain. Upbeats, dotted rhythms, stepwise links, neighbours and three prepared suspensions develop a recurring motif. All decorations are explicitly annotated in score.json; theoretical checks do not certify taste or perceived quality.

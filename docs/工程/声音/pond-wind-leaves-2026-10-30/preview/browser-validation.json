@@ -1,0 +1,595 @@
+{
+  "status": "PASS",
+  "date": "2026-10-30",
+  "scope": "Browser preview of three independent pond ambience layers; no Windows hardware claim",
+  "browser": "156.0.8078.48",
+  "results": [
+    "Current pond-ASMR page, nine scenarios, no BGM/button audition controls, no autoplay",
+    "Three project ambience layers have exact hashes, manifest gains/durations and source credits; accepted46 effects unchanged",
+    "Three independent real media elements overlap without reset; all three streamed loops seek and wrap",
+    "Individual stop and zero-level affect only their layer; independent0–100 levels and replay reuse exactly3 media sources",
+    "Global zero/mute pauses every layer immediately; hidden/show and rapid restoration invalidate stale fade timers; global fade pauses all",
+    "Pond buttons stay silent; fishing plays7 action/cat cues over ambience with max1/4 short voices and no BGM",
+    "Stop-all cancels short and all pending media; delayed play races lose to stop/mute/hide; three saved levels survive reload without autoplay",
+    "Desktop/mobile layouts fit; zero BGM requests, HTTP errors or JS errors"
+  ],
+  "identity": {
+    "effects": [
+      {
+        "path": "sfx/ui_click_01.wav",
+        "manifest": "0e7ad709caa5a6ad74078ea483614d01efc53fe1a64f8e409e8db3e4f9ece705",
+        "adopted": "0e7ad709caa5a6ad74078ea483614d01efc53fe1a64f8e409e8db3e4f9ece705",
+        "actual": "0e7ad709caa5a6ad74078ea483614d01efc53fe1a64f8e409e8db3e4f9ece705"
+      },
+      {
+        "path": "sfx/ui_click_02.wav",
+        "manifest": "2756c29713e9b62d9e07df7385030d2bc2b70937e1429f7c0e88cb670b28d61f",
+        "adopted": "2756c29713e9b62d9e07df7385030d2bc2b70937e1429f7c0e88cb670b28d61f",
+        "actual": "2756c29713e9b62d9e07df7385030d2bc2b70937e1429f7c0e88cb670b28d61f"
+      },
+      {
+        "path": "sfx/ui_open_01.wav",
+        "manifest": "48f2a8eb18e9e17b67d06c472b47577bee26eee3f516b3e4b666364f0fdb2441",
+        "adopted": "48f2a8eb18e9e17b67d06c472b47577bee26eee3f516b3e4b666364f0fdb2441",
+        "actual": "48f2a8eb18e9e17b67d06c472b47577bee26eee3f516b3e4b666364f0fdb2441"
+      },
+      {
+        "path": "sfx/ui_open_02.wav",
+        "manifest": "185184b7240f7fdc712a89d6bcea7cd7aec910950962923550110f2346c2f10d",
+        "adopted": "185184b7240f7fdc712a89d6bcea7cd7aec910950962923550110f2346c2f10d",
+        "actual": "185184b7240f7fdc712a89d6bcea7cd7aec910950962923550110f2346c2f10d"
+      },
+      {
+        "path": "sfx/ui_close_01.wav",
+        "manifest": "19f01d9771616ae1ef2fb9e52c67f1e33ce479afbda14fb012f2f174c5e97082",
+        "adopted": "19f01d9771616ae1ef2fb9e52c67f1e33ce479afbda14fb012f2f174c5e97082",
+        "actual": "19f01d9771616ae1ef2fb9e52c67f1e33ce479afbda14fb012f2f174c5e97082"
+      },
+      {
+        "path": "sfx/ui_close_02.wav",
+        "manifest": "fc648390033233f64eb277ca30b35dd64fee506a751fbe93d6408f6d39623e17",
+        "adopted": "fc648390033233f64eb277ca30b35dd64fee506a751fbe93d6408f6d39623e17",
+        "actual": "fc648390033233f64eb277ca30b35dd64fee506a751fbe93d6408f6d39623e17"
+      },
+      {
+        "path": "sfx/ui_toggle_01.wav",
+        "manifest": "174dd5c2563f1a1e08f214df1b4c96130d7d6ee9bdd5a5713a68d827925e9729",
+        "adopted": "174dd5c2563f1a1e08f214df1b4c96130d7d6ee9bdd5a5713a68d827925e9729",
+        "actual": "174dd5c2563f1a1e08f214df1b4c96130d7d6ee9bdd5a5713a68d827925e9729"
+      },
+      {
+        "path": "sfx/ui_toggle_02.wav",
+        "manifest": "dc98b1e7cc0c8cb4d4fc3b408053e998942428659c4a435a9d5f5c37804ec538",
+        "adopted": "dc98b1e7cc0c8cb4d4fc3b408053e998942428659c4a435a9d5f5c37804ec538",
+        "actual": "dc98b1e7cc0c8cb4d4fc3b408053e998942428659c4a435a9d5f5c37804ec538"
+      },
+      {
+        "path": "sfx/ui_tick.wav",
+        "manifest": "527086c8dc01948607074c314eafb0ad0ced57fca1057c985633f772a3cda29e",
+        "adopted": "527086c8dc01948607074c314eafb0ad0ced57fca1057c985633f772a3cda29e",
+        "actual": "527086c8dc01948607074c314eafb0ad0ced57fca1057c985633f772a3cda29e"
+      },
+      {
+        "path": "sfx/ui_success.wav",
+        "manifest": "4ef7195694175c37f12c85b560e549f0e19026110158dc3f70b90647f718b4c1",
+        "adopted": "4ef7195694175c37f12c85b560e549f0e19026110158dc3f70b90647f718b4c1",
+        "actual": "4ef7195694175c37f12c85b560e549f0e19026110158dc3f70b90647f718b4c1"
+      },
+      {
+        "path": "sfx/ui_error.wav",
+        "manifest": "12287f5bba5479d93290c83468a8a4331f140b8dbfe31565d8b35054193373fd",
+        "adopted": "12287f5bba5479d93290c83468a8a4331f140b8dbfe31565d8b35054193373fd",
+        "actual": "12287f5bba5479d93290c83468a8a4331f140b8dbfe31565d8b35054193373fd"
+      },
+      {
+        "path": "sfx/catch.wav",
+        "manifest": "80ae70358a40d590d17ae41a8229c430fa33fbd5df8210f60f1aea58d66ccbbc",
+        "adopted": "80ae70358a40d590d17ae41a8229c430fa33fbd5df8210f60f1aea58d66ccbbc",
+        "actual": "80ae70358a40d590d17ae41a8229c430fa33fbd5df8210f60f1aea58d66ccbbc"
+      },
+      {
+        "path": "water/bite_s_01.wav",
+        "manifest": "f11e1e6d0b11be52bee2de59f07a2d6b77f9f1898f1be71959c249c06e594aa9",
+        "adopted": "f11e1e6d0b11be52bee2de59f07a2d6b77f9f1898f1be71959c249c06e594aa9",
+        "actual": "f11e1e6d0b11be52bee2de59f07a2d6b77f9f1898f1be71959c249c06e594aa9"
+      },
+      {
+        "path": "water/bite_s_02.wav",
+        "manifest": "8b4de57a582e2def5ebe1a792cffe0a1a05de72c2817742529292770cdc1d64c",
+        "adopted": "8b4de57a582e2def5ebe1a792cffe0a1a05de72c2817742529292770cdc1d64c",
+        "actual": "8b4de57a582e2def5ebe1a792cffe0a1a05de72c2817742529292770cdc1d64c"
+      },
+      {
+        "path": "water/bite_m_01.wav",
+        "manifest": "217249d4302ee01c9f850cc571c82f68b442f7bfc0eaa9341b70962d89fae509",
+        "adopted": "217249d4302ee01c9f850cc571c82f68b442f7bfc0eaa9341b70962d89fae509",
+        "actual": "217249d4302ee01c9f850cc571c82f68b442f7bfc0eaa9341b70962d89fae509"
+      },
+      {
+        "path": "water/bite_m_02.wav",
+        "manifest": "75c8b598e5f818204150eaad00df915e74ada45a20b86295a57f64a377c17426",
+        "adopted": "75c8b598e5f818204150eaad00df915e74ada45a20b86295a57f64a377c17426",
+        "actual": "75c8b598e5f818204150eaad00df915e74ada45a20b86295a57f64a377c17426"
+      },
+      {
+        "path": "water/bite_l_01.wav",
+        "manifest": "d22df5dbd7af69fb495df2a0aa5648ce438872c760926084c6b57de737cfa70c",
+        "adopted": "d22df5dbd7af69fb495df2a0aa5648ce438872c760926084c6b57de737cfa70c",
+        "actual": "d22df5dbd7af69fb495df2a0aa5648ce438872c760926084c6b57de737cfa70c"
+      },
+      {
+        "path": "water/bite_l_02.wav",
+        "manifest": "54d8efc18b35551b9f361ec9a2a3ca24d91df228cb24607d6bd5d748405320b1",
+        "adopted": "54d8efc18b35551b9f361ec9a2a3ca24d91df228cb24607d6bd5d748405320b1",
+        "actual": "54d8efc18b35551b9f361ec9a2a3ca24d91df228cb24607d6bd5d748405320b1"
+      },
+      {
+        "path": "water/bite_xl_01.wav",
+        "manifest": "4c45259854fabb6c951f96b1ea2779e1e887fc332fde40d7308569315863a547",
+        "adopted": "4c45259854fabb6c951f96b1ea2779e1e887fc332fde40d7308569315863a547",
+        "actual": "4c45259854fabb6c951f96b1ea2779e1e887fc332fde40d7308569315863a547"
+      },
+      {
+        "path": "water/bite_xl_02.wav",
+        "manifest": "6ba4e6413adf6679eaee00af2b0b2c9411658e2f59470688371de81f6683cf8d",
+        "adopted": "6ba4e6413adf6679eaee00af2b0b2c9411658e2f59470688371de81f6683cf8d",
+        "actual": "6ba4e6413adf6679eaee00af2b0b2c9411658e2f59470688371de81f6683cf8d"
+      },
+      {
+        "path": "water/water_struggle_s_01.wav",
+        "manifest": "c3f6c5f1c56e4bfbecff73240bb48a3fbf8bdf38bec7ee4f07d7fe400523e586",
+        "adopted": "c3f6c5f1c56e4bfbecff73240bb48a3fbf8bdf38bec7ee4f07d7fe400523e586",
+        "actual": "c3f6c5f1c56e4bfbecff73240bb48a3fbf8bdf38bec7ee4f07d7fe400523e586"
+      },
+      {
+        "path": "water/water_struggle_s_02.wav",
+        "manifest": "e2d36f249bf05e04a8975096f6f0c1e8ec2b40341ed27030f6fcdc124ac7309d",
+        "adopted": "e2d36f249bf05e04a8975096f6f0c1e8ec2b40341ed27030f6fcdc124ac7309d",
+        "actual": "e2d36f249bf05e04a8975096f6f0c1e8ec2b40341ed27030f6fcdc124ac7309d"
+      },
+      {
+        "path": "water/water_struggle_m_01.wav",
+        "manifest": "4d6413b198ccddd7489b5815b6f82a781f29ee403babfc807002dbcdbe8be21a",
+        "adopted": "4d6413b198ccddd7489b5815b6f82a781f29ee403babfc807002dbcdbe8be21a",
+        "actual": "4d6413b198ccddd7489b5815b6f82a781f29ee403babfc807002dbcdbe8be21a"
+      },
+      {
+        "path": "water/water_struggle_m_02.wav",
+        "manifest": "881378d50108fdde7094739c544cbc4d3890cbe8abdad54cf7233fbf15bca7f4",
+        "adopted": "881378d50108fdde7094739c544cbc4d3890cbe8abdad54cf7233fbf15bca7f4",
+        "actual": "881378d50108fdde7094739c544cbc4d3890cbe8abdad54cf7233fbf15bca7f4"
+      },
+      {
+        "path": "water/water_struggle_l_01.wav",
+        "manifest": "83e779eab0d2991af565b00a7666c8179d6db787f7a71ada0151d2002c044431",
+        "adopted": "83e779eab0d2991af565b00a7666c8179d6db787f7a71ada0151d2002c044431",
+        "actual": "83e779eab0d2991af565b00a7666c8179d6db787f7a71ada0151d2002c044431"
+      },
+      {
+        "path": "water/water_struggle_l_02.wav",
+        "manifest": "31866593edebd294922bf0575ae5f1d832ba2dbb9bae6bb046a76ebb065d39a2",
+        "adopted": "31866593edebd294922bf0575ae5f1d832ba2dbb9bae6bb046a76ebb065d39a2",
+        "actual": "31866593edebd294922bf0575ae5f1d832ba2dbb9bae6bb046a76ebb065d39a2"
+      },
+      {
+        "path": "water/water_struggle_xl_01.wav",
+        "manifest": "3e3de6a861ac76b9af0576195da792320e35c71278e5cb31289fb9339e5188fd",
+        "adopted": "3e3de6a861ac76b9af0576195da792320e35c71278e5cb31289fb9339e5188fd",
+        "actual": "3e3de6a861ac76b9af0576195da792320e35c71278e5cb31289fb9339e5188fd"
+      },
+      {
+        "path": "water/water_struggle_xl_02.wav",
+        "manifest": "4c6735686a64871328001638388f04750454b9f20bbd7b266aef71cdc8f4d282",
+        "adopted": "4c6735686a64871328001638388f04750454b9f20bbd7b266aef71cdc8f4d282",
+        "actual": "4c6735686a64871328001638388f04750454b9f20bbd7b266aef71cdc8f4d282"
+      },
+      {
+        "path": "water/water_slap_s_01.wav",
+        "manifest": "48de72016962f4f72346d353f0ee0b88c42759e60a9e703fbcc163de927180d0",
+        "adopted": "48de72016962f4f72346d353f0ee0b88c42759e60a9e703fbcc163de927180d0",
+        "actual": "48de72016962f4f72346d353f0ee0b88c42759e60a9e703fbcc163de927180d0"
+      },
+      {
+        "path": "water/water_slap_s_02.wav",
+        "manifest": "8c459bd686aaf0f58f9ddaf62a08ce2f38b9d6d52586555ad84d3fa0e87d33d8",
+        "adopted": "8c459bd686aaf0f58f9ddaf62a08ce2f38b9d6d52586555ad84d3fa0e87d33d8",
+        "actual": "8c459bd686aaf0f58f9ddaf62a08ce2f38b9d6d52586555ad84d3fa0e87d33d8"
+      },
+      {
+        "path": "water/water_slap_m_01.wav",
+        "manifest": "f590e1c4caaaafcc50cfa0bc8863816597ef55bd4a9dd136ce0e2df5b8405800",
+        "adopted": "f590e1c4caaaafcc50cfa0bc8863816597ef55bd4a9dd136ce0e2df5b8405800",
+        "actual": "f590e1c4caaaafcc50cfa0bc8863816597ef55bd4a9dd136ce0e2df5b8405800"
+      },
+      {
+        "path": "water/water_slap_m_02.wav",
+        "manifest": "6dd1766b507b8b0ea036dacd4ed95c157f03e5b64e29a3670dfde45e0f7c25df",
+        "adopted": "6dd1766b507b8b0ea036dacd4ed95c157f03e5b64e29a3670dfde45e0f7c25df",
+        "actual": "6dd1766b507b8b0ea036dacd4ed95c157f03e5b64e29a3670dfde45e0f7c25df"
+      },
+      {
+        "path": "water/water_slap_l_01.wav",
+        "manifest": "dccd27105a07496051559e0fb1e0db94f9cc89e2a0ff680fd92761f3445db291",
+        "adopted": "dccd27105a07496051559e0fb1e0db94f9cc89e2a0ff680fd92761f3445db291",
+        "actual": "dccd27105a07496051559e0fb1e0db94f9cc89e2a0ff680fd92761f3445db291"
+      },
+      {
+        "path": "water/water_slap_l_02.wav",
+        "manifest": "6cff6c474e1a365564dd847714ffb1a88297a7e691e1f122d22b012ef438bd89",
+        "adopted": "6cff6c474e1a365564dd847714ffb1a88297a7e691e1f122d22b012ef438bd89",
+        "actual": "6cff6c474e1a365564dd847714ffb1a88297a7e691e1f122d22b012ef438bd89"
+      },
+      {
+        "path": "water/water_slap_xl_01.wav",
+        "manifest": "e40975ffc72604c4f21db388b0c43a9cfbf6c2ba99af5bee936a638214ec7018",
+        "adopted": "e40975ffc72604c4f21db388b0c43a9cfbf6c2ba99af5bee936a638214ec7018",
+        "actual": "e40975ffc72604c4f21db388b0c43a9cfbf6c2ba99af5bee936a638214ec7018"
+      },
+      {
+        "path": "water/water_slap_xl_02.wav",
+        "manifest": "487d4cf2ced1c36d4ad2d4cba647a97839d7145fb1b20032e997550fec150c59",
+        "adopted": "487d4cf2ced1c36d4ad2d4cba647a97839d7145fb1b20032e997550fec150c59",
+        "actual": "487d4cf2ced1c36d4ad2d4cba647a97839d7145fb1b20032e997550fec150c59"
+      },
+      {
+        "path": "water/splash_01.wav",
+        "manifest": "babee267d4a5d2fd90bde9fc0c27599ad330c1431ea367a2bf26588822ad86ed",
+        "adopted": "babee267d4a5d2fd90bde9fc0c27599ad330c1431ea367a2bf26588822ad86ed",
+        "actual": "babee267d4a5d2fd90bde9fc0c27599ad330c1431ea367a2bf26588822ad86ed"
+      },
+      {
+        "path": "water/splash_02.wav",
+        "manifest": "c4b267780518d562ce6ed561c9e4c46c55d694d0bbf107e1592bdc5453cf3c4b",
+        "adopted": "c4b267780518d562ce6ed561c9e4c46c55d694d0bbf107e1592bdc5453cf3c4b",
+        "actual": "c4b267780518d562ce6ed561c9e4c46c55d694d0bbf107e1592bdc5453cf3c4b"
+      },
+      {
+        "path": "water/groundbait_01.wav",
+        "manifest": "2b7d060eddfc5088c9cb127a49124bcf032fd0db5eee957453402e76a9f28cee",
+        "adopted": "2b7d060eddfc5088c9cb127a49124bcf032fd0db5eee957453402e76a9f28cee",
+        "actual": "2b7d060eddfc5088c9cb127a49124bcf032fd0db5eee957453402e76a9f28cee"
+      },
+      {
+        "path": "water/groundbait_02.wav",
+        "manifest": "7408116d5a85d3991e8eb353fc03996ce87214680840f16040542cbba8f98980",
+        "adopted": "7408116d5a85d3991e8eb353fc03996ce87214680840f16040542cbba8f98980",
+        "actual": "7408116d5a85d3991e8eb353fc03996ce87214680840f16040542cbba8f98980"
+      },
+      {
+        "path": "sfx/escape.wav",
+        "manifest": "a8d2ade95757b8cceb032d52a036f6dfba5a9a55797a9f6496a7704c2cc80d7d",
+        "adopted": "a8d2ade95757b8cceb032d52a036f6dfba5a9a55797a9f6496a7704c2cc80d7d",
+        "actual": "a8d2ade95757b8cceb032d52a036f6dfba5a9a55797a9f6496a7704c2cc80d7d"
+      },
+      {
+        "path": "sfx/cast.wav",
+        "manifest": "31180ce5ab8ce66991bdd297a99aafc74ada61e5a0562afe9b58d9c1dc167ab9",
+        "adopted": "31180ce5ab8ce66991bdd297a99aafc74ada61e5a0562afe9b58d9c1dc167ab9",
+        "actual": "31180ce5ab8ce66991bdd297a99aafc74ada61e5a0562afe9b58d9c1dc167ab9"
+      },
+      {
+        "path": "sfx/reel.wav",
+        "manifest": "e419afd67729636ae9ee33c10e5cdacdbe73b5cf440aa40aeced13598cf9d39c",
+        "adopted": "e419afd67729636ae9ee33c10e5cdacdbe73b5cf440aa40aeced13598cf9d39c",
+        "actual": "e419afd67729636ae9ee33c10e5cdacdbe73b5cf440aa40aeced13598cf9d39c"
+      },
+      {
+        "path": "sfx/meow_01.wav",
+        "manifest": "37d4cfb5f50770644f0a55670ee5d6f1dc1582d4d8842a353476a1c17bb3ea6e",
+        "adopted": "37d4cfb5f50770644f0a55670ee5d6f1dc1582d4d8842a353476a1c17bb3ea6e",
+        "actual": "37d4cfb5f50770644f0a55670ee5d6f1dc1582d4d8842a353476a1c17bb3ea6e"
+      },
+      {
+        "path": "sfx/meow_02.wav",
+        "manifest": "3cdb8cfb75261357414e0a8bdc8047815d4c438f651408a6bcaac0daaeed695a",
+        "adopted": "3cdb8cfb75261357414e0a8bdc8047815d4c438f651408a6bcaac0daaeed695a",
+        "actual": "3cdb8cfb75261357414e0a8bdc8047815d4c438f651408a6bcaac0daaeed695a"
+      },
+      {
+        "path": "sfx/meow_03.wav",
+        "manifest": "6aa85ae475cfec44ca02b8644f413838d803bc6db895322d9851f18faeb82e08",
+        "adopted": "6aa85ae475cfec44ca02b8644f413838d803bc6db895322d9851f18faeb82e08",
+        "actual": "6aa85ae475cfec44ca02b8644f413838d803bc6db895322d9851f18faeb82e08"
+      }
+    ],
+    "cueConfigHash": "5696aab62ebecaee21818ff88d4d1aff9bd4b6fc054ac08be00aacf6c0bc209c",
+    "adoptedCueConfigHash": "5696aab62ebecaee21818ff88d4d1aff9bd4b6fc054ac08be00aacf6c0bc209c",
+    "ambience": [
+      {
+        "path": "ambience/pond_shore.wav",
+        "version": 1,
+        "duration": 48,
+        "frames": 2116800,
+        "channels": 2,
+        "sampleRate": 44100,
+        "format": "PCM_16",
+        "peak": 0.25982666015625,
+        "truePeak4x": 0.259992056737326,
+        "rms": 0.015797646836945414,
+        "rmsDbfs": -36.028151984759766,
+        "crestDb": 24.321826202387765,
+        "seamDifference": 0,
+        "seamAdjacentStep": 0.000030517578125,
+        "naturalInteriorStep99Percentile": 0.01031494140625,
+        "halfSecondRmsPercentiles": {
+          "5": 0.005780052004190939,
+          "50": 0.013161689711906625,
+          "95": 0.027887764208614173,
+          "100": 0.03405508906357018
+        },
+        "lowFrequencyEnergyBelow80Hz": 0.0000026572442074190116,
+        "highFrequencyEnergyAbove6000Hz": 0.000012291852659413793,
+        "stereoCorrelation": 0.8070075047514683,
+        "sha256": "89127aa0c8235f7913fa5c6c0f25f4fd731ccb2ca1b20085a8666604db633289",
+        "description": "柔和河岸近水实录底床；保持自然轻拍与原始立体声，单条连续水景，无音乐或合成噪声",
+        "source": [
+          "hudson_shore_ceich93_318064"
+        ],
+        "processing": {
+          "sourceStartSeconds": 1.5,
+          "sourceDurationSeconds": 56,
+          "highPassHz": 80,
+          "lowPassHz": 2600,
+          "filter": "2nd-order Butterworth bandpass forward/backward (zero phase)",
+          "loopOverlapSeconds": 8,
+          "loopMethod": "8second complementary sin-squared tail-to-head overlap; circular rotation only",
+          "seamMethod": "Select existing adjacent stereo PCM16 vectors with exactly equal values; no sample rewrite or silence",
+          "circularRotationFrames": 1319587,
+          "equalStereoSeamCandidates": 278,
+          "normalization": "One constant linear gain on the entire48second loop",
+          "masterGain": 0.7979033072524673,
+          "targetTruePeak4x": 0.26,
+          "compression": false,
+          "limiting": false,
+          "saturation": false,
+          "syntheticNoise": false,
+          "music": false,
+          "addedVoices": false,
+          "addedBirds": false,
+          "pitchShiftSemitones": 0,
+          "timeStretch": false,
+          "layeredRecordings": 1
+        },
+        "actualSha256": "89127aa0c8235f7913fa5c6c0f25f4fd731ccb2ca1b20085a8666604db633289"
+      },
+      {
+        "path": "ambience/pond_wind.wav",
+        "version": 1,
+        "duration": 56,
+        "frames": 2469600,
+        "channels": 2,
+        "sampleRate": 44100,
+        "format": "PCM_16",
+        "peak": 0.11492919921875,
+        "truePeak4x": 0.11500235913469223,
+        "rms": 0.01618182540205097,
+        "rmsDbfs": -35.81944978139425,
+        "crestDb": 17.02805739581281,
+        "seamDifference": 0,
+        "seamAdjacentStep": 0,
+        "halfSecondRmsPercentiles": {
+          "5": 0.005667823936748061,
+          "50": 0.015452071790450701,
+          "95": 0.024265551971290357,
+          "100": 0.02691632200466951
+        },
+        "lowFrequencyEnergyBelow80Hz": 0.001713492613065454,
+        "highFrequencyEnergyAbove6000Hz": 2.3830751894281699e-7,
+        "stereoCorrelation": 0.9999999999999998,
+        "sha256": "a613e1dea9c37a68f946f252033f25b0e1484d3a3b397376b4cb3af747619b16",
+        "description": "轻柔自然微风实录；保留缓慢起伏，削减爆风低频与尖锐高频",
+        "source": [
+          "wind_mario1298_181250"
+        ],
+        "processing": {
+          "sourceStartSeconds": 84,
+          "sourceDurationSeconds": 64,
+          "sourceExcerptPeak": 0.06020667403936386,
+          "sourceExcerptRms": 0.007404236429869385,
+          "sourceChannels": 2,
+          "sourceSampleRate": 48000,
+          "resampleTo": 44100,
+          "sourceSpatialMode": "dual-mono (source channels identical)",
+          "sourceChannelsIdentical": true,
+          "syntheticStereo": false,
+          "highPassHz": 110,
+          "lowPassHz": 2300,
+          "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
+          "overlapSeconds": 8,
+          "loopMethod": "Complementary sin-squared tail-to-head overlap",
+          "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
+          "circularRotationFrames": 38395,
+          "equalStereoSeamCandidates": 36591,
+          "normalization": "One constant linear gain per complete loop",
+          "masterGain": 2.731536550026525,
+          "targetTruePeak4x": 0.115,
+          "compression": false,
+          "limiting": false,
+          "saturation": false,
+          "syntheticNoise": false,
+          "music": false,
+          "addedVoices": false,
+          "addedBirds": false,
+          "pitchShiftSemitones": 0,
+          "timeStretch": false,
+          "layeredRecordings": 1
+        },
+        "actualSha256": "a613e1dea9c37a68f946f252033f25b0e1484d3a3b397376b4cb3af747619b16"
+      },
+      {
+        "path": "ambience/pond_leaves.wav",
+        "version": 1,
+        "duration": 48,
+        "frames": 2116800,
+        "channels": 2,
+        "sampleRate": 44100,
+        "format": "PCM_16",
+        "peak": 0.11407470703125,
+        "truePeak4x": 0.11499021013661849,
+        "rms": 0.011308930665228317,
+        "rmsDbfs": -38.931569171422474,
+        "crestDb": 20.07535641308438,
+        "seamDifference": 0,
+        "seamAdjacentStep": 0.000213623046875,
+        "halfSecondRmsPercentiles": {
+          "5": 0.007902527752955139,
+          "50": 0.010923741563899334,
+          "95": 0.014806957267254311,
+          "100": 0.016089949913467284
+        },
+        "lowFrequencyEnergyBelow80Hz": 0.00010231899146915601,
+        "highFrequencyEnergyAbove6000Hz": 0.0009038108154922046,
+        "stereoCorrelation": 0.4676767930012249,
+        "sha256": "c30a53999fa3761274c5a9984ee3aa1ee317161cb5d5f01c293eadce549d2ae6",
+        "description": "独立阔叶树叶响实录；保留细碎沙沙与现场轻微风，不是同一风轨的滤波副本",
+        "source": [
+          "leaves_ecfike_183496"
+        ],
+        "processing": {
+          "sourceStartSeconds": 128,
+          "sourceDurationSeconds": 56,
+          "sourceExcerptPeak": 0.17808443307876587,
+          "sourceExcerptRms": 0.013443232982604249,
+          "sourceChannels": 2,
+          "sourceSampleRate": 44100,
+          "resampleTo": 44100,
+          "sourceSpatialMode": "original distinct stereo channels",
+          "sourceChannelsIdentical": false,
+          "syntheticStereo": false,
+          "highPassHz": 240,
+          "lowPassHz": 3800,
+          "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
+          "overlapSeconds": 8,
+          "loopMethod": "Complementary sin-squared tail-to-head overlap",
+          "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
+          "circularRotationFrames": 865281,
+          "equalStereoSeamCandidates": 48,
+          "normalization": "One constant linear gain per complete loop",
+          "masterGain": 18.23335920399929,
+          "targetTruePeak4x": 0.115,
+          "compression": false,
+          "limiting": false,
+          "saturation": false,
+          "syntheticNoise": false,
+          "music": false,
+          "addedVoices": false,
+          "addedBirds": false,
+          "pitchShiftSemitones": 0,
+          "timeStretch": false,
+          "layeredRecordings": 1
+        },
+        "actualSha256": "c30a53999fa3761274c5a9984ee3aa1ee317161cb5d5f01c293eadce549d2ae6"
+      }
+    ],
+    "loops": [
+      {
+        "id": "water",
+        "path": "ambience/pond_shore.wav",
+        "gain": 0.65,
+        "fadeSeconds": 2
+      },
+      {
+        "id": "wind",
+        "path": "ambience/pond_wind.wav",
+        "gain": 0.45,
+        "fadeSeconds": 2,
+        "defaultMix": 1
+      },
+      {
+        "id": "leaves",
+        "path": "ambience/pond_leaves.wav",
+        "gain": 0.4,
+        "fadeSeconds": 2,
+        "defaultMix": 1
+      }
+    ]
+  },
+  "environment": [
+    {
+      "id": "water",
+      "src": "http://127.0.0.1:8891/fish-social-unity/Assets/StreamingAssets/Audio/ambience/pond_shore.wav",
+      "duration": 48,
+      "loop": true,
+      "fade": 1,
+      "level": 0.6499999761581421,
+      "master": 0.699999988079071
+    },
+    {
+      "id": "wind",
+      "src": "http://127.0.0.1:8891/fish-social-unity/Assets/StreamingAssets/Audio/ambience/pond_wind.wav",
+      "duration": 56,
+      "loop": true,
+      "fade": 1,
+      "level": 0.44999998807907104,
+      "master": 0.699999988079071
+    },
+    {
+      "id": "leaves",
+      "src": "http://127.0.0.1:8891/fish-social-unity/Assets/StreamingAssets/Audio/ambience/pond_leaves.wav",
+      "duration": 48,
+      "loop": true,
+      "fade": 1,
+      "level": 0.4000000059604645,
+      "master": 0.699999988079071
+    }
+  ],
+  "mix": {
+    "played": [
+      {
+        "cue": "cast",
+        "id": "demo:cast:0.4",
+        "reason": "已采用音效 / 变体 1",
+        "time": 21.653333333333332
+      },
+      {
+        "cue": "splash",
+        "id": "demo:splash:1",
+        "reason": "已采用音效 / 变体 2",
+        "time": 22.250666666666667
+      },
+      {
+        "cue": "bite_m",
+        "id": "fish1",
+        "reason": "已采用音效 / 变体 2",
+        "time": 23.552
+      },
+      {
+        "cue": "water_struggle_m",
+        "id": "demo:water_struggle:3.1",
+        "reason": "已采用音效 / 变体 1",
+        "time": 24.352
+      },
+      {
+        "cue": "reel",
+        "id": "demo:reel:4.2",
+        "reason": "已采用音效 / 变体 1",
+        "time": 25.456
+      },
+      {
+        "cue": "catch",
+        "id": "fish1",
+        "reason": "已采用音效 / 变体 1",
+        "time": 26.250666666666667
+      },
+      {
+        "cue": "meow",
+        "id": "fish1",
+        "reason": "已采用音效 / 变体 2",
+        "time": 26.762666666666668
+      }
+    ],
+    "skipped": [
+      {
+        "cue": "ui_click",
+        "id": "demo:ui_click:0",
+        "reason": "钓鱼场景按钮音关闭",
+        "time": 21.253333333333334
+      }
+    ],
+    "maxVoices": 1,
+    "ambiencePlaying": true
+  },
+  "musicRequests": [],
+  "failedResponses": [],
+  "errors": []
+}

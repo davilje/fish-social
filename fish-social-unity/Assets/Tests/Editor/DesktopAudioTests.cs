@@ -20,12 +20,16 @@ namespace FishSocial.Tests.Editor
         bool hadMusic, hadEffects, hadBackground;
         float oldMusic, oldEffects;
         int oldBackground;
+        readonly Dictionary<string,float?> savedAmbience=new Dictionary<string,float?>();
+        static readonly string[] AmbienceIds={"water","wind","leaves"};
+        static readonly string[] AmbienceKeys={DesktopAudioService.WaterPreference,DesktopAudioService.WindPreference,DesktopAudioService.LeavesPreference};
         GameObject root;
         static readonly BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         static void Invoke(object target,string method,params object[] args) => target.GetType().GetMethod(method,Private).Invoke(target,args);
         static object Field(object target,string name) => target.GetType().GetField(name,Private).GetValue(target);
         [SetUp] public void SetUp()
         {
+            savedAmbience.Clear();foreach(var key in AmbienceKeys){savedAmbience[key]=PlayerPrefs.HasKey(key)?PlayerPrefs.GetFloat(key):(float?)null;PlayerPrefs.DeleteKey(key);}
             hadMusic=PlayerPrefs.HasKey(DesktopAudioService.MusicPreference);hadEffects=PlayerPrefs.HasKey(DesktopAudioService.EffectsPreference);
             hadBackground=PlayerPrefs.HasKey(DesktopAudioService.BackgroundBitePreference);
             oldMusic=DesktopAudioService.MusicVolume;oldEffects=DesktopAudioService.EffectsVolume;
@@ -39,6 +43,7 @@ namespace FishSocial.Tests.Editor
             if(hadMusic)PlayerPrefs.SetFloat(DesktopAudioService.MusicPreference,oldMusic);else PlayerPrefs.DeleteKey(DesktopAudioService.MusicPreference);
             if(hadEffects)PlayerPrefs.SetFloat(DesktopAudioService.EffectsPreference,oldEffects);else PlayerPrefs.DeleteKey(DesktopAudioService.EffectsPreference);
             if(hadBackground)PlayerPrefs.SetInt(DesktopAudioService.BackgroundBitePreference,oldBackground);else PlayerPrefs.DeleteKey(DesktopAudioService.BackgroundBitePreference);
+            foreach(var pair in savedAmbience){if(pair.Value.HasValue)PlayerPrefs.SetFloat(pair.Key,pair.Value.Value);else PlayerPrefs.DeleteKey(pair.Key);}
             BackgroundRenderGate.SetAudioWork(false);BackgroundRenderGate.SetHidden(false);
             PlayerPrefs.Save();
         }
@@ -72,14 +77,124 @@ namespace FishSocial.Tests.Editor
             DesktopAudioService.SetMusicVolume(float.NaN);DesktopAudioService.SetEffectsVolume(float.PositiveInfinity);
             Assert.AreEqual(.35f,DesktopAudioService.MusicVolume);Assert.AreEqual(.7f,DesktopAudioService.EffectsVolume);
         }
-        [Test] public void ExactlyFiveIndependentNonSpatialSourcesAndMusicLoops()
+        [Test] public void FourIndependentLoopsAndFourBoundedNonSpatialShortSources()
         {
-            var service=Service();var sources=root.GetComponentsInChildren<AudioSource>();Assert.AreEqual(5,sources.Length);
-            Assert.AreEqual(1,sources.Count(s=>s.loop));Assert.IsTrue(sources.Single(s=>s.name=="BackgroundMusic").loop);
-            CollectionAssert.AreEquivalent(new[]{"BackgroundMusic","InterfaceSounds","FishingSoundsA","FishingSoundsB","CatVoice"},sources.Select(s=>s.name));
+            var service=Service();var sources=root.GetComponentsInChildren<AudioSource>();Assert.AreEqual(8,sources.Length);
+            Assert.AreEqual(4,sources.Count(s=>s.loop));Assert.IsTrue(sources.Single(s=>s.name=="BackgroundMusic").loop);
+            CollectionAssert.AreEquivalent(new[]{"BackgroundMusic","PondAmbience_water","PondAmbience_wind","PondAmbience_leaves","InterfaceSounds","FishingSoundsA","FishingSoundsB","CatVoice"},sources.Select(s=>s.name));
             foreach(var source in sources){Assert.AreEqual(0,source.spatialBlend);Assert.IsFalse(source.playOnAwake);Assert.IsTrue(source.ignoreListenerPause);}
-            DesktopAudioService.SetMusicVolume(.12f);Assert.AreEqual(.12f,sources.Single(s=>s.loop).volume);
+            DesktopAudioService.SetMusicVolume(.12f);Assert.AreEqual(.12f,sources.Single(s=>s.name=="BackgroundMusic").volume);
+            Assert.AreEqual(0,sources.Single(s=>s.name=="PondAmbience_water").volume);
             Assert.AreEqual(0,service.ActiveShortVoices);
+        }
+        [Test] public void PondMembershipMutesMusicBeforeFishingStartsAndKeepsUserPreference()
+        {
+            var s=Service();var music=(AudioSource)Field(s,"music");
+            AddClip(s,"music/pond_daylight.wav");music.clip=((Dictionary<string,AudioClip>)Field(s,"clips"))["music/pond_daylight.wav"];
+            Invoke(s,"SyncSceneLoops");Assert.IsTrue(music.isPlaying);
+            var user=new PondUserDto{id="own",fishingPhase="idle"};
+            s.UpdateContext("pond",user,true,"overlay",false,true);
+            Assert.IsTrue(s.IsFishingScene);Assert.IsFalse(music.isPlaying);Assert.AreEqual(0,music.volume);
+            DesktopAudioService.SetMusicVolume(.8f);Invoke(s,"Update");
+            Assert.IsFalse(music.isPlaying);Assert.AreEqual(0,music.volume);Assert.AreEqual(.8f,DesktopAudioService.MusicVolume);
+            s.UpdateContext("pond",user,false,"overlay",false,true);
+            Assert.IsTrue(s.IsFishingScene,"Reconnect must not leak music back into the pond");
+            s.UpdateContext("pond",null,false,"unity",false);
+            Assert.IsFalse(s.IsFishingScene);Assert.IsTrue(music.isPlaying);Assert.AreEqual(.8f,music.volume);
+            Assert.AreEqual(.7f,DesktopAudioService.EffectsVolume);
+        }
+        [Test] public void ColdLoadedMusicCannotAutoplayInsidePondAndDefaultPondIdIsNotMembership()
+        {
+            var s=Service();s.UpdateContext("pond-calm",null,true,"unity",false,true);
+            Assert.IsFalse(s.IsFishingScene);
+            s.UpdateContext("pond-calm",new PondUserDto{id="own",fishingPhase="seated"},true,"unity",false,true);
+            AddClip(s,"music/pond_daylight.wav");var music=(AudioSource)Field(s,"music");
+            music.clip=((Dictionary<string,AudioClip>)Field(s,"clips"))["music/pond_daylight.wav"];
+            Invoke(s,"SyncSceneLoops");Assert.IsFalse(music.isPlaying);Assert.AreEqual(0,music.volume);
+        }
+        [Test] public void PondSilencesUnityAndNativeButtonsClearsPendingUiAndRetainsActionAndCatSounds()
+        {
+            var s=Service();foreach(var path in DesktopAudioService.DefaultConfiguration().cues.SelectMany(c=>c.paths))AddClip(s,path);
+            Invoke(s,"Request","ui_click","before-entry");
+            var ui=root.GetComponentsInChildren<AudioSource>().Single(x=>x.name=="InterfaceSounds");Assert.IsTrue(ui.isPlaying);
+            // Queue a replacement just before entry: neither old nor pending UI may leak in.
+            Invoke(s,"Request","ui_open","pending-entry");
+            s.UpdateContext("pond",new PondUserDto{id="own",fishingPhase="seated"},true,"overlay",false,true);
+            Assert.IsFalse(ui.isPlaying);var slot=((Array)Field(s,"slots")).GetValue(0);Assert.IsNull(slot.GetType().GetField("nextClip").GetValue(slot));
+            foreach(var cue in new[]{"ui_click","ui_open","ui_close","ui_toggle","ui_tick","ui_success","ui_error"})
+            {
+                DesktopAudioService.PlayResult(cue,"unity-"+cue);
+                s.HandleNativeUi(new NativeOverlayCommandDto{text=cue,actionId="native-"+cue});
+                Invoke(s,"Request",cue,"direct-"+cue);
+                Assert.IsFalse(ui.isPlaying,cue);
+            }
+            Invoke(s,"Request","cast","cast");DesktopAudioService.PlayMeow();
+            Assert.AreEqual(2,s.ActiveShortVoices,"Only buttons and BGM are suppressed");
+        }
+        AudioSource EnvironmentSource(string id) => root.GetComponentsInChildren<AudioSource>().Single(x=>x.name=="PondAmbience_"+id);
+        void AddEnvironmentClips(DesktopAudioService service)
+        {
+            foreach(var id in AmbienceIds){var path="ambience/pond_"+(id=="water"?"shore":id)+".wav";AddClip(service,path,4);EnvironmentSource(id).clip=((Dictionary<string,AudioClip>)Field(service,"clips"))[path];}
+        }
+        void FinishEnvironmentFade(DesktopAudioService service)
+        {
+            foreach(DictionaryEntry pair in (IDictionary)Field(service,"ambienceTracks"))
+                pair.Value.GetType().GetField("changedAt").SetValue(pair.Value,Time.realtimeSinceStartupAsDouble-6);
+            Invoke(service,"Update");
+        }
+        [Test] public void IndependentAmbienceLevelsPersistClampAndDoNotChangeOtherBuses()
+        {
+            foreach(var id in AmbienceIds)Assert.AreEqual(1,DesktopAudioService.GetAmbienceLevel(id));
+            DesktopAudioService.SetAmbienceLevel("water",.2f);DesktopAudioService.SetAmbienceLevel("wind",.35f);DesktopAudioService.SetAmbienceLevel("leaves",0);
+            PlayerPrefs.Save();
+            Assert.AreEqual(.2f,PlayerPrefs.GetFloat(DesktopAudioService.WaterPreference));
+            Assert.AreEqual(.35f,PlayerPrefs.GetFloat(DesktopAudioService.WindPreference));Assert.AreEqual(0,PlayerPrefs.GetFloat(DesktopAudioService.LeavesPreference));
+            var service=Service();UnityEngine.Object.DestroyImmediate(root);service=Service();
+            Assert.AreEqual(.2f,DesktopAudioService.GetAmbienceLevel("water"));Assert.AreEqual(.35f,DesktopAudioService.GetAmbienceLevel("wind"));Assert.AreEqual(0,DesktopAudioService.GetAmbienceLevel("leaves"));
+            DesktopAudioService.SetAmbienceLevel("wind",-1);DesktopAudioService.SetAmbienceLevel("leaves",3);
+            Assert.AreEqual(0,DesktopAudioService.GetAmbienceLevel("wind"));Assert.AreEqual(1,DesktopAudioService.GetAmbienceLevel("leaves"));
+            DesktopAudioService.SetAmbienceLevel("wind",float.NaN);PlayerPrefs.SetFloat(DesktopAudioService.LeavesPreference,float.PositiveInfinity);
+            Assert.AreEqual(1,DesktopAudioService.GetAmbienceLevel("wind"));Assert.AreEqual(1,DesktopAudioService.GetAmbienceLevel("leaves"));
+            Assert.Throws<ArgumentException>(()=>DesktopAudioService.SetAmbienceLevel("unknown",.5f));
+            Assert.AreEqual(.35f,DesktopAudioService.MusicVolume);Assert.AreEqual(.7f,DesktopAudioService.EffectsVolume);
+        }
+        [Test] public void ThreeAmbiencesFadeAcrossVisibilitySceneAndDisableAndMuteIndependently()
+        {
+            var s=Service();var user=new PondUserDto{id="own",fishingPhase="waiting"};
+            s.UpdateContext("pond",user,true,"overlay",false,true);
+            foreach(var id in AmbienceIds)Assert.IsFalse(EnvironmentSource(id).isPlaying);
+            AddEnvironmentClips(s);Invoke(s,"SyncSceneLoops");
+            foreach(var id in AmbienceIds){Assert.IsTrue(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume,.001);}
+            FinishEnvironmentFade(s);
+            Assert.AreEqual(.7f*.65f,EnvironmentSource("water").volume,.001);Assert.AreEqual(.7f*.45f,EnvironmentSource("wind").volume,.001);Assert.AreEqual(.7f*.4f,EnvironmentSource("leaves").volume,.001);
+            DesktopAudioService.SetAmbienceLevel("wind",.3f);Assert.AreEqual(.7f*.45f*.3f,EnvironmentSource("wind").volume,.001);
+            DesktopAudioService.SetAmbienceLevel("water",0);Assert.IsFalse(EnvironmentSource("water").isPlaying);Assert.AreEqual(0,EnvironmentSource("water").volume);
+            Assert.IsTrue(EnvironmentSource("wind").isPlaying);Assert.IsTrue(EnvironmentSource("leaves").isPlaying);
+            DesktopAudioService.SetMusicVolume(0);Assert.AreEqual(.7f*.4f,EnvironmentSource("leaves").volume,.001);
+            DesktopAudioService.SetEffectsVolume(0);foreach(var id in AmbienceIds){Assert.IsFalse(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume);}
+            DesktopAudioService.SetEffectsVolume(.5f);FinishEnvironmentFade(s);Assert.IsFalse(EnvironmentSource("water").isPlaying);
+            Assert.AreEqual(.5f*.45f*.3f,EnvironmentSource("wind").volume,.001);Assert.AreEqual(.5f*.4f,EnvironmentSource("leaves").volume,.001);
+            DesktopAudioService.SetAmbienceLevel("water",.8f);FinishEnvironmentFade(s);Assert.AreEqual(.5f*.65f*.8f,EnvironmentSource("water").volume,.001);
+            s.UpdateContext("pond",user,true,"overlay",true);FinishEnvironmentFade(s);foreach(var id in AmbienceIds)Assert.IsFalse(EnvironmentSource(id).isPlaying);
+            s.UpdateContext("pond",user,true,"overlay",false);FinishEnvironmentFade(s);foreach(var id in AmbienceIds)Assert.IsTrue(EnvironmentSource(id).isPlaying);
+            s.enabled=false;Invoke(s,"OnDisable");foreach(var id in AmbienceIds){Assert.IsFalse(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume);}
+            s.enabled=true;Invoke(s,"OnEnable");FinishEnvironmentFade(s);foreach(var id in AmbienceIds)Assert.IsTrue(EnvironmentSource(id).isPlaying);
+            s.UpdateContext("pond",null,false,"unity",false);FinishEnvironmentFade(s);foreach(var id in AmbienceIds){Assert.IsFalse(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume);}
+            Assert.AreEqual(.8f,DesktopAudioService.GetAmbienceLevel("water"));Assert.AreEqual(.3f,DesktopAudioService.GetAmbienceLevel("wind"));
+            Assert.AreEqual(8,root.GetComponentsInChildren<AudioSource>().Length);
+        }
+        [Test] public void AmbienceManifestUsesIdsNotOrderAndSupportsLegacyWaterOnly()
+        {
+            var s=Service();
+            var v2=JsonUtility.FromJson<DesktopAmbienceConfiguration>("{\"version\":2,\"loops\":[{\"id\":\"leaves\",\"path\":\"ambience/pond_leaves.wav\",\"gain\":0.2},{\"id\":\"water\",\"path\":\"ambience/pond_shore.wav\",\"gain\":0.3},{\"id\":\"wind\",\"path\":\"ambience/pond_wind.wav\",\"gain\":0.4}]}");
+            var configure=s.GetType().GetMethod("ConfigureAmbience",Private);Assert.AreEqual(true,configure.Invoke(s,new object[]{v2}));
+            AddEnvironmentClips(s);s.UpdateContext("pond",new PondUserDto{id="own"},true,"unity",false,true);FinishEnvironmentFade(s);
+            Assert.AreEqual(.7f*.2f,EnvironmentSource("leaves").volume,.001);Assert.AreEqual(.7f*.3f,EnvironmentSource("water").volume,.001);
+            v2.loops[0].id="wind";Assert.AreEqual(false,configure.Invoke(s,new object[]{v2}),"duplicate identity cannot replace valid config");
+            var legacy=JsonUtility.FromJson<DesktopAmbienceConfiguration>("{\"version\":1,\"runtime\":{\"path\":\"ambience/pond_shore.wav\",\"gain\":0.5,\"fadeSeconds\":2}}");
+            Assert.AreEqual(true,configure.Invoke(s,new object[]{legacy}));Invoke(s,"SyncSceneLoops");FinishEnvironmentFade(s);
+            Assert.IsTrue(EnvironmentSource("water").isPlaying);Assert.AreEqual(.7f*.5f,EnvironmentSource("water").volume,.001);
+            Assert.IsFalse(EnvironmentSource("wind").isPlaying);Assert.IsFalse(EnvironmentSource("leaves").isPlaying);
         }
         [Test] public void SettingsFitLegacyContentAndRefreshWithoutWritingPreferences()
         {
@@ -242,7 +357,7 @@ namespace FishSocial.Tests.Editor
         [UnityTest] public IEnumerator ActualSourceReplacementUsesAnchoredFortyMsFadeAndBoundedPool()
         {
             var s=Service();AddClip(s,"sfx/catch.wav");AddClip(s,"water/bite_s_01.wav");AddClip(s,"water/bite_s_02.wav");
-            var user=new PondUserDto{id="own",spotId="spot",fishingPhase="seated"};s.UpdateContext("pond",user,true,"unity",false,true);
+            var user=new PondUserDto{id="own",spotId="spot",fishingPhase="seated"};
             AddClip(s,"sfx/ui_click_01.wav");AddClip(s,"sfx/ui_click_02.wav");AddClip(s,"sfx/meow_01.wav");AddClip(s,"sfx/meow_02.wav");AddClip(s,"sfx/meow_03.wav");
             Invoke(s,"Request","bite_s","bite");Invoke(s,"Request","catch","result-A");
             Invoke(s,"Request","ui_click","ui");Invoke(s,"Request","meow","cat");
@@ -253,7 +368,7 @@ namespace FishSocial.Tests.Editor
             Invoke(s,"Request","catch","result-C");Assert.AreEqual(anchored,replacing.GetType().GetField("fadingAt").GetValue(replacing));
             var until=UnityEditor.EditorApplication.timeSinceStartup+.06;while(UnityEditor.EditorApplication.timeSinceStartup<until)yield return null;
             Invoke(s,"Update");Assert.AreEqual("result-C",replacing.GetType().GetField("identity").GetValue(replacing));
-            Assert.AreEqual(5,root.GetComponentsInChildren<AudioSource>().Length);
+            Assert.AreEqual(8,root.GetComponentsInChildren<AudioSource>().Length);
             s.UpdateContext("pond",user,true,"unity",true);Assert.AreEqual(-1d,Field(s,"automaticVoiceAt"));
             until=UnityEditor.EditorApplication.timeSinceStartup+.06;while(UnityEditor.EditorApplication.timeSinceStartup<until)yield return null;
             Invoke(s,"Update");Assert.AreEqual(0,s.ActiveShortVoices);
@@ -271,17 +386,20 @@ namespace FishSocial.Tests.Editor
         {
             var dir=Path.Combine(Application.streamingAssetsPath,"Audio");var config=JsonUtility.FromJson<DesktopAudioConfiguration>(File.ReadAllText(Path.Combine(dir,"cue-config.json")));
             Assert.AreEqual(2,config.version);var paths=config.cues.SelectMany(c=>c.paths).Distinct().ToList();Assert.Greater(paths.Count,40);
-            paths.Add("music/pond_daylight.wav");long shortBytes=0;
+            paths.Add("music/pond_daylight.wav");
+            var ambience=JsonUtility.FromJson<DesktopAmbienceConfiguration>(File.ReadAllText(Path.Combine(dir,"ambience-manifest.json")));
+            Assert.AreEqual(2,ambience.version);CollectionAssert.AreEquivalent(AmbienceIds,ambience.loops.Select(x=>x.id));
+            paths.AddRange(ambience.loops.Select(x=>x.path));long shortBytes=0;
             foreach(var relative in paths)
             {
-                Assert.IsTrue(DesktopAudioService.SafeAudioPath(relative));var streaming=relative.StartsWith("music/",StringComparison.Ordinal);
+                Assert.IsTrue(DesktopAudioService.SafeAudioPath(relative));var streaming=relative.StartsWith("music/",StringComparison.Ordinal)||relative.StartsWith("ambience/",StringComparison.Ordinal);
                 using(var request=UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.Combine(dir,relative)).AbsoluteUri,AudioType.WAV))
                 {
                     ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio=streaming;var op=request.SendWebRequest();var deadline=UnityEditor.EditorApplication.timeSinceStartup+20;
                     while(!op.isDone&&UnityEditor.EditorApplication.timeSinceStartup<deadline)yield return null;
                     Assert.IsTrue(op.isDone,relative+" timed out");Assert.AreEqual(UnityWebRequest.Result.Success,request.result,relative+": "+request.error);
                     var clip=DownloadHandlerAudioClip.GetContent(request);Assert.IsNotNull(clip,relative);Assert.Greater(clip.samples,0);Assert.AreEqual(44100,clip.frequency);
-                    if(streaming){Assert.AreEqual(2,clip.channels);Assert.That(clip.length,Is.InRange(60f,90f));}else shortBytes+=(long)clip.samples*clip.channels*sizeof(float);
+                    if(streaming){Assert.AreEqual(2,clip.channels);Assert.That(clip.length,Is.InRange(40f,90f));}else shortBytes+=(long)clip.samples*clip.channels*sizeof(float);
                     UnityEngine.Object.DestroyImmediate(clip);
                 }
             }

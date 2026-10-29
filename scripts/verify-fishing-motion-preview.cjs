@@ -86,7 +86,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       assert.match(await page.locator('#rest-status').textContent(),/重新计时 30/);
     }
     assert.deepEqual(errors, []);
-    const result = { date: '2026-10-24', pets, clips, sampledRenders: checked, restPets, restAndWake:'passed', errors, depthAndDrop: 'passed', groundbaitFinishAndStepControls: 'passed', nativeWindows: 'not-run' };
+    const result = { date: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' }), pets, clips, sampledRenders: checked, restPets, restAndWake:'passed', errors, depthAndDrop: 'passed', groundbaitFinishAndStepControls: 'passed', nativeWindows: 'not-run' };
     fs.writeFileSync(path.join(folder, 'browser-verification.json'), JSON.stringify(result, null, 2) + '\n');
     console.log(JSON.stringify(result));
   } finally { await browser.close(); }

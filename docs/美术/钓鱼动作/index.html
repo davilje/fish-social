@@ -8,11 +8,12 @@
 </style>
 <main>
 <header><h1>钓鱼动作 · 呼吸与瞌睡预览</h1>
+<p>10 月 30 日更新：抛竿由 4 帧扩为 6 帧，在原第 2、3 帧之间补入“过顶”和“向前甩出”两张道具关键帧。鱼线与浮标沿空中轨迹过渡，总时长仍为 600 ms；入水补偿只在最后落点阶段生效。选择抛竿并以 0.25× 播放，可检查新增第 3、4 帧。</p>
 <p><a href="../猫咪形象/character-study-2026-10-24/index.html">查看六款新猫咪形象稿：耄耋、美短、布偶、方师傅、狗子、大开门</a></p>
 <p>覆盖 14 种动作，保持原关键姿势、遮挡顺序与单段时长。等待时加入脚底固定的呼吸；30 分钟未触碰照看后打瞌睡，点击本人角色唤醒。睡着时咬钩直接脱钩。</p>
 <div class="controls"><label>角色<select id="pet"></select></label><label>动作<select id="clip"></select></label><label>速度<select id="speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label><label>打窝秒数<input id="duration" type="number" min="0.1" max="120" step="0.1" value="5"></label><label>水面高度<input id="surface" type="number" min="464" max="620" step="10" value="572"></label><button id="play" class="primary">暂停</button><button id="restart">重新播放</button><button id="finish">结束打窝</button></div></header>
 <section><div class="controls"><label><input id="breathing" type="checkbox" checked>等待呼吸</label><button id="sleep">模拟 30 分钟后睡着</button><button id="wake">触碰唤醒</button><button id="bite-test">模拟咬钩</button></div><p id="rest-status">这里是交互演示；正式程序由服务器判断入睡、脱钩和唤醒。可点击右侧角色照看。</p></section>
-<section class="views"><article><h2>原关键帧 / 原水下深度</h2><canvas id="before" width="640" height="740"></canvas><output id="before-info"></output></article><article><h2>新增采样 / 呼吸与瞌睡</h2><canvas id="after" width="640" height="740"></canvas><output id="after-info"></output></article></section>
+<section class="views"><article><h2>关键帧播放（抛竿已更新为 6 帧）</h2><canvas id="before" width="640" height="740"></canvas><output id="before-info"></output></article><article><h2>连续轨迹采样 / 呼吸与瞌睡</h2><canvas id="after" width="640" height="740"></canvas><output id="after-info"></output></article></section>
 <section><div class="controls"><button id="previous">上一帧</button><input id="scrub" type="range" min="0" max="1000" value="0"><button id="next">下一帧</button></div><p class="note" id="summary"></p><p class="note">此处读取正式 Overlay 的图层与采样数据，并模拟相同的水面修正。水面高度是画布坐标，实际 Overlay 按座位位置计算。打窝时长模拟服务器阶段，正式程序以 groundbaiting 退出为准。预览范围向水下扩展，不改变角色原图尺寸；不能替代 Windows 实机验收。</p></section>
 </main><script src="preview-data.js"></script><script src="preview.js"></script>
 </html>

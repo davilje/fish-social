@@ -1,0 +1,285 @@
+{
+  "version": 2,
+  "loops": [
+    {
+      "id": "water",
+      "path": "ambience/pond_shore.wav",
+      "gain": 0.65,
+      "fadeSeconds": 2.0
+    },
+    {
+      "id": "wind",
+      "path": "ambience/pond_wind.wav",
+      "gain": 0.45,
+      "fadeSeconds": 2.0,
+      "defaultMix": 1.0
+    },
+    {
+      "id": "leaves",
+      "path": "ambience/pond_leaves.wav",
+      "gain": 0.4,
+      "fadeSeconds": 2.0,
+      "defaultMix": 1.0
+    }
+  ],
+  "sources": [
+    {
+      "key": "hudson_shore_ceich93_318064",
+      "title": "Water_Lapping_River.wav",
+      "author": "ceich93",
+      "page": "https://freesound.org/people/ceich93/sounds/318064/",
+      "url": "https://cdn.freesound.org/previews/318/318064_4457609-hq.mp3",
+      "file": "shore-318064.mp3",
+      "sha256": "633f65aa915de7c83aca9d6100cb6a497000f4e39c36b6bef9cdefed06612313",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/ceich93/sounds/318064/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "af00105b8876ec1890366d904542d1a68e55264bbde811302f487394165012fe"
+      },
+      "sourceDescription": "Hudson River water lapping a pebbly shore at night; Tascam DR-05 with Rode windscreen.",
+      "downloadFormat": "Official public high-quality MP3 preview; decoded44100Hz stereo. Original upload WAV44100Hz16bit stereo."
+    },
+    {
+      "key": "wind_mario1298_181250",
+      "title": "a gentle breeze, wind 1",
+      "author": "mario1298",
+      "page": "https://freesound.org/people/mario1298/sounds/181250/",
+      "url": "https://cdn.freesound.org/previews/181/181250_499617-hq.mp3",
+      "file": "source-181250.mp3",
+      "sha256": "374de47c58d371a7c8a34558adb9845c596277759019336cce53a050bac7088d",
+      "sourceDescription": "A gentle breeze/wind; creator upload reports stereo48000Hz32bit WAV. The downloaded HQ preview has two identical channels (dual-mono); preserved honestly without synthetic widening.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/mario1298/sounds/181250/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "eb46c75019ad45ebf0c280cdb8f7784023f046c0726dd2d8659f9c4631a3bfd3"
+      },
+      "downloadFormat": "Official public HQ MP3 preview; decoded48000Hz twochannel dual-mono"
+    },
+    {
+      "key": "leaves_ecfike_183496",
+      "title": "Wind and Leaves.wav",
+      "author": "ecfike",
+      "page": "https://freesound.org/people/ecfike/sounds/183496/",
+      "url": "https://cdn.freesound.org/previews/183/183496_2337290-hq.mp3",
+      "file": "source-183496.mp3",
+      "sha256": "a804e75f0c57acd77488a63b8452d8de8593a7f8ed1c0a5b546d0b41d770b8fa",
+      "sourceDescription": "Wind in a small clump of broad-leaf trees; original stereo44100Hz16bit WAV field recording. The leaves track retains this recording's own light breeze; it is not an artificially isolated dry stem.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/ecfike/sounds/183496/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "21569182632d445e8f958e497c8f26f83580b9b9fb38df2316cafeb0464caabd"
+      },
+      "downloadFormat": "Official public HQ MP3 preview; decoded44100Hz stereo"
+    }
+  ],
+  "assets": [
+    {
+      "path": "ambience/pond_shore.wav",
+      "version": 1,
+      "duration": 48.0,
+      "frames": 2116800,
+      "channels": 2,
+      "sampleRate": 44100,
+      "format": "PCM_16",
+      "peak": 0.25982666015625,
+      "truePeak4x": 0.259992056737326,
+      "rms": 0.015797646836945414,
+      "rmsDbfs": -36.028151984759766,
+      "crestDb": 24.321826202387765,
+      "seamDifference": 0.0,
+      "seamAdjacentStep": 3.0517578125e-05,
+      "naturalInteriorStep99Percentile": 0.01031494140625,
+      "halfSecondRmsPercentiles": {
+        "5": 0.005780052004190939,
+        "50": 0.013161689711906625,
+        "95": 0.027887764208614173,
+        "100": 0.03405508906357018
+      },
+      "lowFrequencyEnergyBelow80Hz": 2.6572442074190116e-06,
+      "highFrequencyEnergyAbove6000Hz": 1.2291852659413793e-05,
+      "stereoCorrelation": 0.8070075047514683,
+      "sha256": "89127aa0c8235f7913fa5c6c0f25f4fd731ccb2ca1b20085a8666604db633289",
+      "description": "柔和河岸近水实录底床；保持自然轻拍与原始立体声，单条连续水景，无音乐或合成噪声",
+      "source": [
+        "hudson_shore_ceich93_318064"
+      ],
+      "processing": {
+        "sourceStartSeconds": 1.5,
+        "sourceDurationSeconds": 56,
+        "highPassHz": 80,
+        "lowPassHz": 2600,
+        "filter": "2nd-order Butterworth bandpass forward/backward (zero phase)",
+        "loopOverlapSeconds": 8,
+        "loopMethod": "8second complementary sin-squared tail-to-head overlap; circular rotation only",
+        "seamMethod": "Select existing adjacent stereo PCM16 vectors with exactly equal values; no sample rewrite or silence",
+        "circularRotationFrames": 1319587,
+        "equalStereoSeamCandidates": 278,
+        "normalization": "One constant linear gain on the entire48second loop",
+        "masterGain": 0.7979033072524673,
+        "targetTruePeak4x": 0.26,
+        "compression": false,
+        "limiting": false,
+        "saturation": false,
+        "syntheticNoise": false,
+        "music": false,
+        "addedVoices": false,
+        "addedBirds": false,
+        "pitchShiftSemitones": 0,
+        "timeStretch": false,
+        "layeredRecordings": 1
+      }
+    },
+    {
+      "path": "ambience/pond_wind.wav",
+      "version": 1,
+      "duration": 56.0,
+      "frames": 2469600,
+      "channels": 2,
+      "sampleRate": 44100,
+      "format": "PCM_16",
+      "peak": 0.11492919921875,
+      "truePeak4x": 0.11500235913469223,
+      "rms": 0.01618182540205097,
+      "rmsDbfs": -35.81944978139425,
+      "crestDb": 17.02805739581281,
+      "seamDifference": 0.0,
+      "seamAdjacentStep": 0.0,
+      "halfSecondRmsPercentiles": {
+        "5": 0.005667823936748061,
+        "50": 0.015452071790450701,
+        "95": 0.024265551971290357,
+        "100": 0.02691632200466951
+      },
+      "lowFrequencyEnergyBelow80Hz": 0.001713492613065454,
+      "highFrequencyEnergyAbove6000Hz": 2.3830751894281699e-07,
+      "stereoCorrelation": 0.9999999999999998,
+      "sha256": "a613e1dea9c37a68f946f252033f25b0e1484d3a3b397376b4cb3af747619b16",
+      "description": "轻柔自然微风实录；保留缓慢起伏，削减爆风低频与尖锐高频",
+      "source": [
+        "wind_mario1298_181250"
+      ],
+      "processing": {
+        "sourceStartSeconds": 84,
+        "sourceDurationSeconds": 64,
+        "sourceExcerptPeak": 0.06020667403936386,
+        "sourceExcerptRms": 0.007404236429869385,
+        "sourceChannels": 2,
+        "sourceSampleRate": 48000,
+        "resampleTo": 44100,
+        "sourceSpatialMode": "dual-mono (source channels identical)",
+        "sourceChannelsIdentical": true,
+        "syntheticStereo": false,
+        "highPassHz": 110,
+        "lowPassHz": 2300,
+        "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
+        "overlapSeconds": 8,
+        "loopMethod": "Complementary sin-squared tail-to-head overlap",
+        "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
+        "circularRotationFrames": 38395,
+        "equalStereoSeamCandidates": 36591,
+        "normalization": "One constant linear gain per complete loop",
+        "masterGain": 2.731536550026525,
+        "targetTruePeak4x": 0.115,
+        "compression": false,
+        "limiting": false,
+        "saturation": false,
+        "syntheticNoise": false,
+        "music": false,
+        "addedVoices": false,
+        "addedBirds": false,
+        "pitchShiftSemitones": 0,
+        "timeStretch": false,
+        "layeredRecordings": 1
+      }
+    },
+    {
+      "path": "ambience/pond_leaves.wav",
+      "version": 1,
+      "duration": 48.0,
+      "frames": 2116800,
+      "channels": 2,
+      "sampleRate": 44100,
+      "format": "PCM_16",
+      "peak": 0.11407470703125,
+      "truePeak4x": 0.11499021013661849,
+      "rms": 0.011308930665228317,
+      "rmsDbfs": -38.931569171422474,
+      "crestDb": 20.07535641308438,
+      "seamDifference": 0.0,
+      "seamAdjacentStep": 0.000213623046875,
+      "halfSecondRmsPercentiles": {
+        "5": 0.007902527752955139,
+        "50": 0.010923741563899334,
+        "95": 0.014806957267254311,
+        "100": 0.016089949913467284
+      },
+      "lowFrequencyEnergyBelow80Hz": 0.00010231899146915601,
+      "highFrequencyEnergyAbove6000Hz": 0.0009038108154922046,
+      "stereoCorrelation": 0.4676767930012249,
+      "sha256": "c30a53999fa3761274c5a9984ee3aa1ee317161cb5d5f01c293eadce549d2ae6",
+      "description": "独立阔叶树叶响实录；保留细碎沙沙与现场轻微风，不是同一风轨的滤波副本",
+      "source": [
+        "leaves_ecfike_183496"
+      ],
+      "processing": {
+        "sourceStartSeconds": 128,
+        "sourceDurationSeconds": 56,
+        "sourceExcerptPeak": 0.17808443307876587,
+        "sourceExcerptRms": 0.013443232982604249,
+        "sourceChannels": 2,
+        "sourceSampleRate": 44100,
+        "resampleTo": 44100,
+        "sourceSpatialMode": "original distinct stereo channels",
+        "sourceChannelsIdentical": false,
+        "syntheticStereo": false,
+        "highPassHz": 240,
+        "lowPassHz": 3800,
+        "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
+        "overlapSeconds": 8,
+        "loopMethod": "Complementary sin-squared tail-to-head overlap",
+        "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
+        "circularRotationFrames": 865281,
+        "equalStereoSeamCandidates": 48,
+        "normalization": "One constant linear gain per complete loop",
+        "masterGain": 18.23335920399929,
+        "targetTruePeak4x": 0.115,
+        "compression": false,
+        "limiting": false,
+        "saturation": false,
+        "syntheticNoise": false,
+        "music": false,
+        "addedVoices": false,
+        "addedBirds": false,
+        "pitchShiftSemitones": 0,
+        "timeStretch": false,
+        "layeredRecordings": 1
+      }
+    }
+  ],
+  "provenance": {
+    "builders": [
+      {
+        "script": "tools/audio/build_pond_ambience.py",
+        "scriptSha256": "b4dfcdfced54d7d37d70bd8f1fd7d336760b5dc7bf7fb22ba5947b6535078868",
+        "reproduction": "python tools/audio/build_pond_ambience.py --sources <cache>",
+        "scope": "Independent ambience only; main manifest/cue config/music/effect adoption hashes unchanged"
+      },
+      {
+        "script": "tools/audio/build_pond_wind_leaves.py",
+        "scriptSha256": "71ea04472d741f347701ddc14946664ac60352932474b0f8e875443a1104ae6f",
+        "reproduction": "python tools/audio/build_pond_wind_leaves.py --sources <cache>",
+        "independentRecordedSources": true,
+        "scope": "Only wind/leaves WAVs and report; merge only owned wind/leaves metadata into runtime bank, preserving water."
+      }
+    ]
+  }
+}

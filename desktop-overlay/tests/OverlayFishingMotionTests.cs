@@ -21,6 +21,8 @@ public static class OverlayFishingMotionTests
         Run("invalid roots and foot-fixed rotations beyond six degrees fall back", InvalidRoots);
         Run("preview water constants agree with runtime depth and groundbait drop", WaterConfiguration);
         Run("body layers stay fixed and rod grips and line tips stay connected", Rig);
+        Run("airborne retrieval stops water correction from the third pose", AirborneRetrieval);
+        Run("six-key cast keeps overhead float airborne until final approach", AirborneCast);
         Run("malformed JSON and unsupported documents fall back", BadJson);
         Run("missing required motion fields fall back", MissingFields);
         Run("NaN and infinity cannot reach drawing transforms", NonFinite);
@@ -40,6 +42,17 @@ public static class OverlayFishingMotionTests
     {
         try { test(); _passed++; Console.WriteLine("PASS " + name); }
         catch (Exception error) { _failed++; Console.Error.WriteLine("FAIL " + name + ": " + error.Message); }
+    }
+    static void AirborneCast()
+    {
+        var cast = Data.Motion()["cast"];
+        Data.Check(cast.DurationsMs.Length == 6, "cast is missing overhead keys");
+        foreach (var sample in cast.Frames)
+        {
+            var weight = OverlayFishingWaterContact.Weight("cast", sample.Position, 6);
+            if (sample.Position <= 4) Data.Check(weight == 0, "water correction drags airborne float down");
+            if (sample.Source == 5) Data.Check(weight == 1, "float never settles on water");
+        }
     }
     static void AllPets()
     {
@@ -178,13 +191,30 @@ public static class OverlayFishingMotionTests
             Data.CheckRig(name, clip);
         }
     }
+    static void AirborneRetrieval()
+    {
+        foreach (var name in new[] { "reel", "reel_empty" })
+        {
+            Data.Check(OverlayFishingWaterContact.Weight(name, 0, 6) == 1, "water entry changed");
+            Data.Check(OverlayFishingWaterContact.Weight(name, 1.5, 6) > 0, "water release is abrupt");
+            foreach (var sample in Data.Motion()[name].Frames)
+                if (sample.Source >= 2)
+                {
+                    Data.Check(OverlayFishingWaterContact.Weight(name, sample.Position, 6) == 0, "airborne tackle is pulled back toward water");
+                    Data.Check(sample.Line != null, "key/sample line switches back to old geometry");
+                    if (name == "reel_empty")
+                        Data.Check(sample.Transforms[7][4] == sample.Transforms[8][4] && sample.Transforms[7][5] == sample.Transforms[8][5],
+                            "hook is left behind by float");
+                }
+        }
+    }
     static void Fallback(FishingMotionClip motion)
     {
         var clip = Data.Original("orange", "cast");
         var orders = clip.Orders; var durations = clip.DurationsMs; var next = clip.NextClip;
         clip.ApplyMotion(motion);
         Data.Check(clip.Motion == null && ReferenceEquals(clip.Orders, orders) && ReferenceEquals(clip.DurationsMs, durations)
-            && clip.NextClip == next && clip.FrameCount == 4, "invalid motion partially mutated original clip");
+            && clip.NextClip == next && clip.FrameCount == 6, "invalid motion partially mutated original clip");
         for (var index = 0; index < clip.FrameCount; index++)
             Data.Check(clip.SourceIndex(index) == index && clip.SourcePosition(index) == index && clip.IndexAtSource(index) == index,
                 "fallback left virtual frame indices");

@@ -3,7 +3,8 @@ const element = id => document.getElementById(id);
 const names = {orange:'橘猫',black:'黑猫',white:'白猫',cow:'奶牛猫',calico:'三花猫',blue:'蓝猫',brown:'棕猫',cream:'奶油猫',silver:'银渐层',dafeiyu:'大肥鱼',sangbiao:'狸花猫 · 丧彪'};
 const clips = {sit:'站立到入座',bait:'挂饵',cast:'抛竿',fishing:'等待',bite:'咬钩后仰',effort:'持续发力',hooked:'咬钩 → 循环发力',reel:'收杆出水',reel_empty:'空军收杆',catch:'展示收获',reset_catch:'收获后复位',reset_empty:'空军后复位',groundbait:'持续打窝',leave:'离席'};
 Object.keys(data.motion.Clips).forEach(id => element('clip').add(new Option(clips[id] || id, id)));
-element('clip').value='fishing';
+const requestedClip = new URLSearchParams(location.search).get('clip');
+element('clip').value=Object.hasOwn(data.motion.Clips,requestedClip)?requestedClip:'fishing';
 Object.keys(data.pets).forEach(id => element('pet').add(new Option(names[id] || id, id)));
 element('pet').value = 'orange';
 const images = new Map();
@@ -58,10 +59,11 @@ function timeline(time, current) {
 }
 function contactPose(current,sample,sourceIndex,updated,rest) {
   const position=sample?.Position??sourceIndex,count=current.source.frames.length;
-  const frame=sample && sample.Position!==sample.Source?sample.Contact:data.contact[current.clip][sourceIndex];
+  const frame=sample && (sample.Line || sample.Position!==sample.Source)?sample.Contact:data.contact[current.clip][sourceIndex];
   const settings=data.motion.WaterContact,surface=Number(element('surface').value),reference=settings.ReferenceSurfaceY;
   const progress=count>1?Math.max(0,Math.min(1,position/(count-1))):1;
-  const weight=['fishing','hooked','bite','effort'].includes(current.clip)?1:current.clip==='cast'?progress**2:['reel','reel_empty'].includes(current.clip)?(1-progress)**2:0;
+  const landing=count>=6?Math.max(0,Math.min(1,position-(count-2))):progress;
+  const weight=['fishing','hooked','bite','effort'].includes(current.clip)?1:current.clip==='cast'?landing**2:['reel','reel_empty'].includes(current.clip)?(1-progress)**2*Math.max(0,Math.min(1,2-position)):0;
   const delta=Math.max(0,surface-reference),bobber=Math.max(0,surface-(frame.BobberY>=0?frame.BobberY:reference))*weight;
   const fish=(frame.FishTop>=0?Math.max(delta,surface+(updated?settings.FishDepth:14)-frame.FishTop):delta)*weight;
   let lineRest=null,lineTop=frame.LineTop;
@@ -73,14 +75,15 @@ function contactPose(current,sample,sourceIndex,updated,rest) {
   }
   const length=frame.LineBottom-lineTop;
   const lineScale=length>1?1+(frame.FishTop>=0?fish:bobber)/length:1;
-  const bait=current.clip==='groundbait' && updated && position>=3 && position<6
+  const bait=current.clip==='reel_empty' && position>=2?bobber:current.clip==='groundbait' && updated && position>=3 && position<6
     ?(delta+settings.GroundbaitDrop)*((position-3)/3)**2:delta*weight;
   return {lineScale,linePivot:lineTop,lineRest,bobber,fish,bait,surface};
 }
 async function draw(canvas, current, sample, sourceIndex, version) {
   const order=current.source.frames[sourceIndex];
   const rest=restingPose(current,sample);
-  const assets=await Promise.all(current.manifest.layers.map(layer => image('../../../desktop-overlay/OverlayResources/fishing/'+
+  const assets=await Promise.all(current.manifest.layers.map(layer => !sample && ['reel','reel_empty'].includes(current.clip) && sourceIndex>=2 && ['line','bait'].includes(layer)
+    ?image(`line-review/original/${current.clip}/${sourceIndex}/${layer}.png`):image('../../../desktop-overlay/OverlayResources/fishing/'+
     (current.manifest.bodyLayers.includes(layer)?`${current.pet}/body/`:'shared/')+`${current.clip}/${sourceIndex}/${layer==='head' && rest && asleep && data.sleepHeads?.includes(current.pet)?'head-sleep':layer}.png`)));
   if(version!==renderVersion)return;
   const context=canvas.getContext('2d');context.clearRect(0,0,canvas.width,canvas.height);
@@ -109,7 +112,7 @@ async function render() {
   const time=timeline(elapsed,current), index=atFrame(current.samples.map(frame=>frame.DurationMs),time),sample=current.samples[index];
   await Promise.all([draw(element('before'),current,null,original,version),draw(element('after'),current,sample,sample.Source,version)]);
   if(version!==renderVersion)return;
-  element('before-info').textContent=`原关键帧 ${original+1}/${current.source.frames.length} · ${Math.round(elapsed)} ms`;
+  element('before-info').textContent=`关键帧 ${original+1}/${current.source.frames.length} · ${Math.round(elapsed)} ms`;
   element('after-info').textContent=`采样 ${index+1}/${current.samples.length} · 源姿势 ${sample.Source+1} · `+
     (current.clip==='groundbait'?(elapsed>=current.end?'收尾 / 准备':elapsed<100?'起手':'循环打窝'):current.source.playback==='intro-loop'||data.motion.Clips[current.clip].Loop?'循环衔接':'总时长不变');
   element('summary').textContent=`${current.source.frames.length} 张关键姿势 → ${current.samples.length} 个运动采样，单段 ${duration} ms。轨迹复用原画，闭眼使用独立眼部替换图；等待呼吸固定脚底，醒着幅度不超过 ±0.6%，睡着不超过 ±0.9%，不会逐渐变大。`;

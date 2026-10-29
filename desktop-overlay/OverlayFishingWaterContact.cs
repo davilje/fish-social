@@ -107,8 +107,15 @@ namespace FishSocialOverlay
         {
             if (clip == "fishing" || clip == "hooked" || clip == "bite" || clip == "effort") return 1;
             var t = count > 1 ? Math.Max(0, Math.Min(1, index / (double)(count - 1))) : 1;
-            if (clip == "cast") return t * t;
-            if (clip == "reel" || clip == "reel_empty") return Math.Pow(1 - t, 2);
+            if (clip == "cast")
+            {
+                // The overhead/release keys are airborne. Water correction starts
+                // only on the final approach, never while the float is above the head.
+                var landing = count >= 6 ? Math.Max(0, Math.Min(1, index - (count - 2))) : t;
+                return landing * landing;
+            }
+            if (clip == "reel" || clip == "reel_empty")
+                return Math.Pow(1 - t, 2) * Math.Max(0, Math.Min(1, 2 - index));
             return 0;
         }
 

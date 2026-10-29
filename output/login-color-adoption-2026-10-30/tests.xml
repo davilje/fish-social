@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="8" result="Passed" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.1937226">
+  <test-suite type="TestSuite" id="1872" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="730" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.193723" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2733" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="730" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.186172" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26177" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2734" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="730" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.183408" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2735" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="671" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.182118" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="2736" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="671" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.179859" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="2040" name="CozyLoginSceneTests" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.172093" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2041" name="AuthTransitionsNeverShowTheHomeBackdropBehindLogin" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.AuthTransitionsNeverShowTheHomeBackdropBehindLogin" methodname="AuthTransitionsNeverShowTheHomeBackdropBehindLogin" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="60922634" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.088594" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="2049" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.078464" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="2042" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,720)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,720)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="328700964" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.036279" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2043" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1600,900)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1600,900)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1031963039" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.005795" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2044" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1920,1080)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1920,1080)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1698063570" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.007921" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2045" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1440)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1440)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1494894018" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.005711" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2046" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,800)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1280,800)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1343978367" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.005445" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2047" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1024,768)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(1024,768)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="1328656637" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.006898" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="2048" name="FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1080)" fullname="FishSocial.Tests.Editor.CozyLoginSceneTests.FullWindowSceneCoversViewportAndKeepsControlsAboveCats(2560,1080)" methodname="FullWindowSceneCoversViewportAndKeepsControlsAboveCats" classname="FishSocial.Tests.Editor.CozyLoginSceneTests" runstate="Runnable" seed="240400250" result="Passed" start-time="2026-10-29 16:53:01Z" end-time="2026-10-29 16:53:01Z" duration="0.007450" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

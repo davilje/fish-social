@@ -59,5 +59,7 @@ payload = {
     'notes': 'Bite is authoritative onset on first published hooked/bite/effort frame. Bite/effort fish remain submerged. Reel source0 has fish.surface only when the actual published fish alpha bounds reach the water plane; no fish.slap markers.',
     'frames': frames,
 }
-(ART / 'source-water-markers.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n')
+for target in (ART, ROOT / 'fish-social-unity/FishSocialOverlay/OverlayResources/fishing',
+               ROOT / 'fish-social-unity/Assets/StreamingAssets/Fishing'):
+    (target / 'source-water-markers.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n')
 print(f'Exported {len(frames)} source-frame records; {len(markers)} water markers (2 canonical one-shots + 3 continuous + 2 water-only retrieve contacts + 1 real reel fish exit); 0 fish.slap markers.')

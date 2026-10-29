@@ -2,8 +2,12 @@
 
 2026-10-29 已采用用户指定的五猫湖畔版本（原生成文件 exec-3bcbc624），替换 Unity 登录资源。
 
-- [当前完整窗口预览](cats-selected-2026-10-29/index.html)
+- [当前完整窗口预览](../../../现行预览.html#login)
 - [采用与验证记录](cats-selected-2026-10-29/README.md)
-- 历史设计：[v4](cats-v4/index.html)、[v5](cats-v5/index.html)、[v6](cats-v6/index.html)。
+- 历史设计记录：[v4](cats-v4/README.md)、[v5](cats-v5/README.md)、[v6](cats-v6/README.md)。旧独立预览网址统一跳转到现行预览的登录项。
 
 v1、v2 和小窗五猫 v3 见[登录旧稿](../../归档/2026-10-26/替代/美术/登录/README.md)。
+
+2026-10-30：柔和调色版已正式替换 Unity 登录背景；统一预览默认展示调色后的 Unity 渲染，可与调色前原画对照。
+
+2026-10-30：已修复烤鱼重复头眼、头尾与鱼鳍细节，正式资源和统一预览同步。

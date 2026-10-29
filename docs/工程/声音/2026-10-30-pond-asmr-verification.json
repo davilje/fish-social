@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "date": "2026-10-30",
+  "original47WavHashesUnchanged": true,
+  "cueConfigUnchanged": true,
+  "ambience": {
+    "path": "ambience/pond_shore.wav",
+    "version": 1,
+    "duration": 48.0,
+    "frames": 2116800,
+    "channels": 2,
+    "sampleRate": 44100,
+    "format": "PCM_16",
+    "peak": 0.25982666015625,
+    "truePeak4x": 0.259992056737326,
+    "rms": 0.015797646836945414,
+    "rmsDbfs": -36.028151984759766,
+    "crestDb": 24.321826202387765,
+    "seamDifference": 0.0,
+    "seamAdjacentStep": 3.0517578125e-05,
+    "naturalInteriorStep99Percentile": 0.01031494140625,
+    "halfSecondRmsPercentiles": {
+      "5": 0.005780052004190939,
+      "50": 0.013161689711906625,
+      "95": 0.027887764208614173,
+      "100": 0.03405508906357018
+    },
+    "lowFrequencyEnergyBelow80Hz": 2.6572442074190116e-06,
+    "highFrequencyEnergyAbove6000Hz": 1.2291852659413793e-05,
+    "stereoCorrelation": 0.8070075047514683,
+    "sha256": "89127aa0c8235f7913fa5c6c0f25f4fd731ccb2ca1b20085a8666604db633289"
+  },
+  "pondMusicEnabled": false,
+  "pondButtonsEnabled": false,
+  "runtime": {
+    "path": "ambience/pond_shore.wav",
+    "gain": 0.65,
+    "fadeSeconds": 2.0
+  },
+  "pondFullVolumeMixUpperBoundDbTP": -3.0618373336149354,
+  "method": "4x oversampling; sum2 max fishing voices+max cat+ambience at full effects slider; no BGM/UI in pond",
+  "runtimeBehaviourEvidence": "Unity EditMode DesktopAudioTests; see accompanying report",
+  "windowsHardwareMeasurement": "Not run"
+}

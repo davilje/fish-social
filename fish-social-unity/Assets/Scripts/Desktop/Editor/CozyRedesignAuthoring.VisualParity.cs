@@ -154,17 +154,29 @@ namespace FishSocial.Desktop.Editor
             }
             WebText(t,"DesignItemsHeading",254,114,710,40,24);
             WebText(t,"Details/DesignHeading",22,16,318,32,22);
-            if(equipment) ButtonAt(t,"Details/BrowseShop","去商店看看","shop",18,420,326,58,true).gameObject.SetActive(false);
+            if(equipment) ButtonAt(t,"Details/BrowseShop","去商店看看","shop",72,428,218,42,true).gameObject.SetActive(false);
             WebPhoto(t.Find("Details"),"DesignArtBacking","DesignArt","DesignName",equipment?"blue-stripe":"gold-dots");
-            Place(t,"Details/DescriptionScroll",24,316,314,94);
+            Place(t,"Details/DescriptionScroll",24,316,314,90);
             var description=t.Find("Details/DescriptionScroll/Description")?.GetComponent<Text>();
-            if(description!=null) { description.fontSize=16; description.color=WebSoft; description.lineSpacing=1.65f; description.resizeTextForBestFit=false; }
-            foreach(var name in new[]{"Buy","Equip"})
+            if(description!=null)
             {
-                Place(t,"Details/"+name,18,420,326,58);
-                WebText(t,"Details/"+name+"/Label",54,0,250,58,23,TextAnchor.MiddleCenter);
+                Place(t,"Details/DescriptionScroll/Description",0,0,314,90);
+                description.fontSize=16; description.color=WebSoft; description.lineSpacing=1.4f;
+                description.resizeTextForBestFit=false;
+                description.horizontalOverflow=HorizontalWrapMode.Overflow;
+                description.verticalOverflow=VerticalWrapMode.Truncate;
+            }
+            var summaryScroll=t.Find("Details/DescriptionScroll").GetComponent<ScrollRect>();
+            if(summaryScroll!=null) summaryScroll.enabled=false;
+            foreach(var name in new[]{"Buy","Equip","BrowseShop"})
+            {
+                if(t.Find("Details/"+name)==null)continue;
+                Place(t,"Details/"+name,72,428,218,42);
+                Place(t,"Details/"+name+"/Icon",16,9,24,24);
+                WebText(t,"Details/"+name+"/Label",44,0,164,42,18,TextAnchor.MiddleCenter);
                 t.Find("Details/"+name).GetComponent<CozyButtonVisual>().SetTint(Color.white);
             }
+            ApplyItemDetails(t.gameObject);
         }
 
         static void WebPhoto(Transform t,string backingPath,string artPath,string namePath,string tape)
@@ -224,13 +236,15 @@ namespace FishSocial.Desktop.Editor
             frame.transform.SetSiblingIndex(t.Find("Reflow_CatchDetails").GetSiblingIndex()+1);
             back.transform.SetSiblingIndex(frame.transform.GetSiblingIndex()+1);
             t.Find("DesignArt").SetAsLastSibling();t.Find("DesignName").SetAsLastSibling();strip.transform.SetAsLastSibling();
-            DetailRows(t,"DetailRows",1008,418,314,5,20);
-            foreach(var label in t.Find("DetailRows").GetComponentsInChildren<Text>(true)) label.fontSize=14;
-            WebText(t,"Detail",1008,418,314,100,16,TextAnchor.UpperLeft);
-            // Keep the web primary action's 204 x 58 silhouette. Extra native actions fit beside it.
-            Place(t,"Sell",1002,532,204,58); Place(t,"Return",1216,532,51,58);Place(t,"Share",1277,532,51,58);
-            foreach(var name in new[]{"Sell","Return","Share"}) WebText(t,name+"/Label",0,0,name=="Sell"?204:51,58,name=="Sell"?23:18,TextAnchor.MiddleCenter);
+            DetailRows(t,"DetailRows",1008,418,314,5,28);
+            foreach(var label in t.Find("DetailRows").GetComponentsInChildren<Text>(true)) label.fontSize=16;
+            WebText(t,"Detail",1008,418,314,84,16,TextAnchor.UpperLeft);
+            Place(t,"Sell",1008,540,164,42); Place(t,"Return",1182,540,64,42);Place(t,"Share",1256,540,64,42);
+            Place(t,"Sell/Icon",16,9,24,24);
+            WebText(t,"Sell/Label",40,0,116,42,18,TextAnchor.MiddleCenter);
+            foreach(var name in new[]{"Return","Share"}) WebText(t,name+"/Label",0,0,64,42,16,TextAnchor.MiddleCenter);
             Hide(t,"Return/Icon","Share/Icon");
+            ApplyItemDetails(t.gameObject);
         }
 
         static void WebCard(GameObject root)

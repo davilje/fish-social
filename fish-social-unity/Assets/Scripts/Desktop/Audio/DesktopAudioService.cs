@@ -6,16 +6,32 @@ using FishSocial.Desktop.Auth;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using FishSocial.Desktop.Auth;
 
 namespace FishSocial.Desktop
 {
-    /// <summary>Unity owns five bounded sources: music, one UI, two fishing, one cat voice.</summary>
+    [Serializable]
+    public sealed class DesktopAmbienceLoop
+    {
+        public string id = "water", path = "ambience/pond_shore.wav";
+        public float gain = .65f, fadeSeconds = 2;
+    }
+    [Serializable]
+    public sealed class DesktopAmbienceConfiguration
+    {
+        public int version = 1;
+        public DesktopAmbienceLoop runtime = new DesktopAmbienceLoop();
+        public DesktopAmbienceLoop[] loops;
+    }
+
+    /// <summary>Unity owns four streaming loops and four bounded short-sound sources.</summary>
     public sealed class DesktopAudioService : MonoBehaviour
     {
         public const string MusicPreference = "FishSocial.Audio.MusicVolume";
         public const string EffectsPreference = "FishSocial.Audio.EffectsVolume";
         public const string BackgroundBitePreference = "FishSocial.Audio.BackgroundBite";
+        public const string WaterPreference = "FishSocial.Audio.Ambience.Water";
+        public const string WindPreference = "FishSocial.Audio.Ambience.Wind";
+        public const string LeavesPreference = "FishSocial.Audio.Ambience.Leaves";
         public const float DefaultMusicVolume = .35f, DefaultEffectsVolume = .7f;
         // Fixed bus headroom; individual gains stay relative to the user's SFX slider.
         public const float MixHeadroom = 1f;
@@ -36,7 +52,16 @@ namespace FishSocial.Desktop
         readonly Slot[] slots = new Slot[4];
         readonly HashSet<string> authoritativeEvents = new HashSet<string>(StringComparer.Ordinal);
         readonly Queue<string> authorityOrder = new Queue<string>();
+        sealed class AmbienceTrack
+        {
+            public AudioSource source;
+            public DesktopAmbienceLoop definition;
+            public float level, from, target;
+            public double changedAt;
+        }
         AudioSource music;
+        readonly Dictionary<string, AmbienceTrack> ambienceTracks = new Dictionary<string, AmbienceTrack>(StringComparer.Ordinal);
+        bool fishingScene;
         DesktopAudioPolicy policy;
         AudioPresentationDto context = new AudioPresentationDto();
         string phase = "idle", lastPond, lastActor;
@@ -50,6 +75,7 @@ namespace FishSocial.Desktop
         public static DesktopAudioService Instance { get; private set; }
         public DesktopAudioPolicy Policy => policy;
         public AudioPresentationDto Presentation => context;
+        public bool IsFishingScene => fishingScene;
         public int ActiveShortVoices { get { var count = 0; foreach (var slot in slots) if (slot != null && slot.source.isPlaying) count++; return count; } }
         public static float MusicVolume => ReadVolume(MusicPreference, DefaultMusicVolume);
         public static float EffectsVolume => ReadVolume(EffectsPreference, DefaultEffectsVolume);
@@ -69,6 +95,22 @@ namespace FishSocial.Desktop
             PlayerPrefs.SetFloat(EffectsPreference, NormalizeVolume(value, DefaultEffectsVolume));
             if (Instance != null) { Instance.ApplyVolumes(); Instance.SaveSoon(); if (EffectsVolume == 0) Instance.MuteEffects(); } else PlayerPrefs.Save();
         }
+        static string AmbiencePreference(string id)
+        {
+            switch(id) { case "water": return WaterPreference; case "wind": return WindPreference; case "leaves": return LeavesPreference;
+                default: throw new ArgumentException("Unknown ambience track", nameof(id)); }
+        }
+        public static float GetAmbienceLevel(string id) => ReadVolume(AmbiencePreference(id), 1);
+        public static void SetAmbienceLevel(string id, float value)
+        {
+            PlayerPrefs.SetFloat(AmbiencePreference(id), NormalizeVolume(value, 1));
+            if(Instance!=null){Instance.SyncSceneLoops();Instance.SaveSoon();}else PlayerPrefs.Save();
+        }
+        static DesktopAmbienceLoop[] DefaultAmbienceLoops() => new[] {
+            new DesktopAmbienceLoop { id="water", path="ambience/pond_shore.wav", gain=.65f },
+            new DesktopAmbienceLoop { id="wind", path="ambience/pond_wind.wav", gain=.45f },
+            new DesktopAmbienceLoop { id="leaves", path="ambience/pond_leaves.wav", gain=.4f }
+        };
         public static void SetBackgroundBite(bool value)
         {
             PlayerPrefs.SetInt(BackgroundBitePreference, value ? 1 : 0);
@@ -80,6 +122,11 @@ namespace FishSocial.Desktop
             if (Instance != null && Instance != this) { Destroy(this); return; }
             Instance = this;
             music = Source("BackgroundMusic"); music.loop = true;
+            foreach(var definition in DefaultAmbienceLoops())
+            {
+                var source=Source("PondAmbience_"+definition.id);source.loop=true;source.volume=0;
+                ambienceTracks.Add(definition.id,new AmbienceTrack{source=source,definition=definition});
+            }
             var names = new[] { "InterfaceSounds", "FishingSoundsA", "FishingSoundsB", "CatVoice" };
             for (var i = 0; i < slots.Length; i++) slots[i] = new Slot { source = Source(names[i]), group = i == 0 ? "ui" : i == 3 ? "voice" : "fishing" };
             Configure(DefaultConfiguration()); ApplyVolumes();
@@ -127,6 +174,7 @@ namespace FishSocial.Desktop
                 if(parsed!=null)Configure(parsed);
             }
             StartCoroutine(LoadMusic());
+            StartCoroutine(LoadAmbience());
             var loaded=new HashSet<string>();
             foreach(var definition in definitions.Values)foreach(var path in definition.paths)
                 if(loaded.Add(path))yield return Load(path,false);
@@ -135,7 +183,87 @@ namespace FishSocial.Desktop
         {
             const string path="music/pond_daylight.wav";
             yield return Load(path,true);
-            if(clips.TryGetValue(path,out var clip)){music.clip=clip;music.Play();}
+            if(clips.TryGetValue(path,out var clip)){music.clip=clip;SyncSceneLoops();}
+        }
+        IEnumerator LoadAmbience()
+        {
+            var configPath=Path.Combine(Application.streamingAssetsPath,"Audio","ambience-manifest.json");
+            if(File.Exists(configPath))
+            {
+                try
+                {
+                    var config=JsonUtility.FromJson<DesktopAmbienceConfiguration>(File.ReadAllText(configPath));
+                    if(!ConfigureAmbience(config))Diagnose("ambience-config","invalid environment loop configuration");
+                }
+                catch(Exception e){Diagnose("ambience-config",e.Message);}
+            }
+            foreach(var track in ambienceTracks.Values)
+            {
+                if(track.definition==null)continue;
+                var path=track.definition.path;
+                yield return Load(path,true);
+                if(clips.TryGetValue(path,out var clip)){track.source.clip=clip;SyncSceneLoops();}
+            }
+        }
+        bool ConfigureAmbience(DesktopAmbienceConfiguration config)
+        {
+            var loops=config?.version==1?new[]{config.runtime}:config?.version==2?config.loops:null;
+            if(loops==null||loops.Length!=(config.version==1?1:3))return false;
+            var seen=new HashSet<string>(StringComparer.Ordinal);
+            foreach(var loop in loops)
+            {
+                if(loop==null)return false;
+                var id=config.version==1?"water":loop.id;
+                if(id==null||!ambienceTracks.ContainsKey(id)||!seen.Add(id)||!SafeAudioPath(loop.path)||
+                    !loop.path.StartsWith("ambience/",StringComparison.Ordinal)||float.IsNaN(loop.gain)||float.IsInfinity(loop.gain)||
+                    float.IsNaN(loop.fadeSeconds)||float.IsInfinity(loop.fadeSeconds))return false;
+            }
+            foreach(var track in ambienceTracks.Values)track.definition=null;
+            foreach(var loop in loops)
+            {
+                var id=config.version==1?"water":loop.id;
+                ambienceTracks[id].definition=new DesktopAmbienceLoop{id=id,path=loop.path,gain=Mathf.Clamp01(loop.gain),fadeSeconds=Mathf.Clamp(loop.fadeSeconds,.1f,5)};
+            }
+            return true;
+        }
+        // Membership survives short reconnects; a default pond ID alone is not a fishing scene.
+        void SetFishingScene(bool value)
+        {
+            if(fishingScene!=value)
+            {
+                fishingScene=value;
+                if(value)
+                {
+                    var ui=slots[0];ui.source.Stop();ui.nextClip=null;ui.nextDefinition=null;ui.fadingAt=-1;
+                }
+            }
+            SyncSceneLoops();
+        }
+        void SyncSceneLoops()
+        {
+            if(music==null)return;
+            var musicAllowed=isActiveAndEnabled&&!fishingScene;
+            music.volume=musicAllowed?MusicVolume*musicDuck*MixHeadroom:0;
+            if(musicAllowed&&music.clip!=null&&MusicVolume>0){if(!music.isPlaying)music.UnPause();if(!music.isPlaying)music.Play();}
+            else if(music.isPlaying)music.Pause();
+            foreach(var pair in ambienceTracks)
+            {
+                var track=pair.Value;var definition=track.definition;var source=track.source;
+                var userLevel=GetAmbienceLevel(pair.Key);
+                var target=isActiveAndEnabled&&fishingScene&&!allHidden&&EffectsVolume>0&&userLevel>0&&definition!=null&&source.clip!=null?1f:0f;
+                if(target!=track.target){track.from=track.level;track.target=target;track.changedAt=Now;}
+                // Either mute is immediate; scene and visibility changes retain their individual fades.
+                if(EffectsVolume<=0||userLevel<=0||!isActiveAndEnabled||definition==null)
+                {track.level=track.from=track.target=0;source.Stop();}
+                else
+                {
+                    var t=Mathf.Clamp01((float)((Now-track.changedAt)/definition.fadeSeconds));
+                    track.level=Mathf.Lerp(track.from,track.target,t*t*(3-2*t));
+                    if(track.target>0&&source.clip!=null&&!source.isPlaying)source.Play();
+                    if(track.target==0&&track.level<=0&&source.isPlaying)source.Stop();
+                }
+                source.volume=EffectsVolume*(definition?.gain??0)*userLevel*track.level*MixHeadroom;
+            }
         }
         IEnumerator Load(string relativePath,bool streaming)
         {
@@ -160,7 +288,7 @@ namespace FishSocial.Desktop
             if(cue=="meow"||cue=="manual_meow"){ManualMeow();return;}
             if(cue=="ui_click" && navigationFrame==Time.frameCount)return;
             if(cue=="ui_open"||cue=="ui_close")navigationFrame=Time.frameCount;
-            if(policy.TryUi(cue,operationId,Now,!allHidden&&EffectsVolume>0))Request(cue,operationId??Guid.NewGuid().ToString("N"));
+            if(policy.TryUi(cue,operationId,Now,!fishingScene&&!allHidden&&EffectsVolume>0))Request(cue,operationId??Guid.NewGuid().ToString("N"));
         }
         public void HandleNativeUi(NativeOverlayCommandDto message)
         {
@@ -182,6 +310,7 @@ namespace FishSocial.Desktop
         void RefreshAudioClock()
         {
             var now=Now;var transition=policy.DuckUntil>0&&now<policy.DuckUntil+.25;
+            foreach(var track in ambienceTracks.Values)transition|=track.level!=track.target;
             foreach(var slot in slots)transition|=slot!=null&&slot.fadingAt>=0;
             BackgroundRenderGate.SetAudioWork(transition || context.enabled && phase=="hooked" && context.eventDeadlineMs>UtcMs);
         }
@@ -196,6 +325,7 @@ namespace FishSocial.Desktop
             if(hidden&&!allHidden){CancelAutomaticVoice();foreach(var slot in slots)if(slot!=null)Fade(slot);}
             allHidden=hidden;
             var actor=user?.id??"";
+            SetFishingScene(!string.IsNullOrEmpty(pondId)&&!string.IsNullOrEmpty(actor));
             var changed=connected!=isConnected||lastPond!=pondId||lastActor!=actor;
             if(changed)
             {
@@ -309,6 +439,7 @@ namespace FishSocial.Desktop
         void Request(string cue,string identity)
         {
             if(!definitions.TryGetValue(cue,out var definition)){Diagnose(cue,"missing cue definition");return;}
+            if(fishingScene&&definition.group=="ui")return;
             var index=policy.Variant(cue,identity,definition.paths.Length);
             if(!clips.TryGetValue(definition.paths[index],out var clip)){Diagnose(definition.paths[index],"audio unavailable; event consumed");return;}
             var candidates=new AudioVoiceCandidate[slots.Length];
@@ -350,7 +481,7 @@ namespace FishSocial.Desktop
         void CancelActions(){CancelAutomaticVoice();FadeActions();}
         void ApplyVolumes()
         {
-            if(music!=null)music.volume=MusicVolume*musicDuck*MixHeadroom;
+            SyncSceneLoops();
             foreach(var slot in slots)if(slot!=null)slot.source.volume=EffectsVolume*slot.gain*MixHeadroom;
         }
         void BindControls()
@@ -367,7 +498,7 @@ namespace FishSocial.Desktop
             var target=policy.DuckTarget(now);
             if (Mathf.Abs(target-duckTarget)>.0001f) { duckFrom=musicDuck; duckTarget=target; duckChangedAt=now; }
             musicDuck=Mathf.Lerp(duckFrom,duckTarget,Mathf.Clamp01((float)((now-duckChangedAt)/(duckTarget<duckFrom? .08:.25))));
-            if(music!=null)music.volume=MusicVolume*musicDuck*MixHeadroom;
+            SyncSceneLoops();
             foreach(var slot in slots)if(slot.fadingAt>=0)
             {
                 var t=(float)((now-slot.fadingAt)/.04);slot.source.volume=EffectsVolume*slot.gain*MixHeadroom*Mathf.Clamp01(1-t);
@@ -382,6 +513,13 @@ namespace FishSocial.Desktop
             }
         }
         void OnApplicationQuit(){PlayerPrefs.Save();}
+        void OnEnable(){SyncSceneLoops();}
+        void OnDisable()
+        {
+            SyncSceneLoops();
+            if(policy!=null)MuteEffects();
+            BackgroundRenderGate.SetAudioWork(false);
+        }
         void OnDestroy()
         {
             if(Instance!=this)return;Instance=null;BackgroundRenderGate.SetAudioWork(false);if(saveAt>=0)PlayerPrefs.Save();

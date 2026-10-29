@@ -21,6 +21,11 @@ namespace FishSocial.Desktop
         Text _equipped;
         Text _status;
         Text _details;
+        Button _itemDetails;
+        CozyItemDetailsDialog _detailsDialog;
+        string _detailsTitle;
+        string _detailsBody;
+        Sprite _detailsArt;
         Button _buy;
         Button _equip;
         Button _retry;
@@ -97,6 +102,7 @@ namespace FishSocial.Desktop
 
         public void OnClosed()
         {
+            _detailsDialog?.Close();
             StopAllCoroutines();
             _refreshRoutine = null;
             _busy = false;
@@ -110,6 +116,14 @@ namespace FishSocial.Desktop
             _equipped = Find<Text>("Header/Equipped");
             _status = Find<Text>("Status");
             _details = Find<Text>("Details/DescriptionScroll/Description") ?? Find<Text>("Details/Description");
+            _detailsDialog = CozyItemDetailsDialog.Bind(transform);
+            _itemDetails = Find<Button>("ItemDetails");
+            if (_itemDetails != null)
+            {
+                DesktopModalUi.SetButtonLabel(_itemDetails, DesktopLocalization.Text("ui.common.button.details", "详情"));
+                _itemDetails.onClick.RemoveAllListeners();
+                _itemDetails.onClick.AddListener(() => _detailsDialog?.Show(_detailsTitle, _detailsBody, _detailsArt));
+            }
             _buy = Find<Button>("Details/Buy");
             _equip = Find<Button>("Details/Equip");
             _retry = Find<Button>("Details/Retry");
@@ -636,14 +650,14 @@ namespace FishSocial.Desktop
             var selectedVessel = SelectedVessel();
             if (_tab == 0 && selectedBait != null)
             {
-                ShowDetails(selectedBait.name, BuildBaitDetails(selectedBait));
+                ShowDetails(selectedBait.name, BuildBaitDetails(selectedBait), BuildBaitSummary(selectedBait));
                 SetActionButtons(false, false, _equipmentMode && BaitUnlocked(selectedBait) &&
                     !IsEquippedBait(selectedBait.id));
             }
             else if (_tab == 1 && selectedTackle != null)
             {
                 var owned = OwnsRod(selectedTackle.id);
-                ShowDetails(selectedTackle.name, BuildRodDetails(selectedTackle, owned));
+                ShowDetails(selectedTackle.name, BuildRodDetails(selectedTackle, owned), BuildRodSummary(selectedTackle));
                 SetActionButtons(true, !owned && RodPrice(selectedTackle) > 0,
                     owned && !IsEquippedRod(selectedTackle.id));
             }
@@ -651,7 +665,7 @@ namespace FishSocial.Desktop
             {
                 var owned = Contains(_gear.ownedVessels, selectedVessel.vesselId);
                 var levelOk = _gear.playerLevel >= selectedVessel.unlockPlayerLevel;
-                ShowDetails(selectedVessel.name, BuildVesselDetails(selectedVessel, owned));
+                ShowDetails(selectedVessel.name, BuildVesselDetails(selectedVessel, owned), BuildVesselSummary(selectedVessel, owned));
                 SetActionButtons(true, !owned && levelOk, false);
             }
             else
@@ -683,7 +697,7 @@ namespace FishSocial.Desktop
                 CozyJournalStaticPose.RevealAside(transform.Find("Details"));
         }
 
-        void ShowDetails(string name, string text)
+        void ShowDetails(string name, string text, string summary = null)
         {
             var nameLabel = Find<Text>("Details/DesignName");
             if (nameLabel != null)
@@ -696,7 +710,41 @@ namespace FishSocial.Desktop
                         return firstLine >= 0 ? current.Substring(firstLine + 1) : current;
                     });
             }
-            DesktopLocalization.SetText(_details, text);
+            _detailsDialog?.Close();
+            _detailsTitle = name;
+            _detailsBody = text;
+            _detailsArt = Find<Image>("Details/DesignArt")?.sprite;
+            if (_itemDetails != null) _itemDetails.gameObject.SetActive(!string.IsNullOrEmpty(name));
+            DesktopLocalization.SetText(_details, summary ?? text);
+        }
+
+        string BuildBaitSummary(ShopBaitDto bait)
+        {
+            var def = DesktopGameData.GetBait(bait.id);
+            return DesktopLocalization.Join("\n", new[] {
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.bait_details.diet", "对口食性："), DesktopGameData.DietLabel(def != null ? def.diet : bait.diet)),
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.bait_details.unlock_level", "解锁等级：钓鱼 Lv."), BaitUnlockLevel(bait)),
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.bait_details.cost_per_use", "每次消耗："), BaitCost(bait) <= 0
+                    ? DesktopLocalization.Text("ui.shop.bait_details.no_coin_cost", "不扣金")
+                    : DesktopLocalization.Format("ui.shop.bait_details.coin_cost", (object)BaitCost(bait))) });
+        }
+
+        string BuildRodSummary(ShopTackleDto rod)
+        {
+            var def = DesktopGameData.GetRod(rod.id);
+            return DesktopLocalization.Join("\n", new[] {
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.rod_details.type", "类型："), RodSubType(rod)),
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.rod_details.bite_bonus", "咬钩加成："), DesktopGameData.FormatPct(def != null ? def.biteBonus : rod.biteBonus)),
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.rod_details.escape_reduction", "防脱："), DesktopGameData.FormatPct(def != null ? def.escapeReduction : rod.escapeReduction)) });
+        }
+
+        string BuildVesselSummary(ShopVesselDto vessel, bool owned)
+        {
+            var def = DesktopGameData.GetVessel(vessel.vesselId);
+            return DesktopLocalization.Join("\n", new[] {
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.bait_details.unlock_level", "解锁等级：钓鱼 Lv."), def != null ? def.unlockPlayerLevel : vessel.unlockPlayerLevel),
+                DesktopLocalization.Concat(DesktopLocalization.Text("ui.shop.rod_details.price", "价格："), DesktopLocalization.Format("ui.shop.bait_details.coin_cost", (object)(def != null ? def.priceGold : vessel.priceGold))),
+                owned ? DesktopLocalization.Text("ui.shop.badge.owned_unavailable", "已拥有 · 暂不可用") : DesktopLocalization.Text("ui.shop.rod_details.not_owned", "当前状态：未拥有。") });
         }
 
         void SetActionButtons(bool showBuy, bool buyEnabled, bool equipEnabled)

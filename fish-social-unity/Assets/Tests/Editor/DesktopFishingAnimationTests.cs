@@ -17,7 +17,7 @@ namespace FishSocial.Tests.Editor
 {
     public sealed class DesktopFishingAnimationTests
     {
-        static readonly int[] Counts = { 1, 4, 1, 4, 4, 1, 4, 6, 10, 6, 7, 4, 6, 4, 8, 4 };
+        static readonly int[] Counts = { 1, 4, 1, 4, 6, 1, 4, 6, 10, 6, 7, 4, 6, 4, 8, 4 };
         static readonly string[] Playback =
         {
             "hold", "once", "hold", "once", "once", "hold", "once", "intro-loop",

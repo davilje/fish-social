@@ -6,6 +6,7 @@ import math
 from pathlib import Path
 
 from PIL import Image
+from fishing_line_geometry import SWING_CLIPS, swing_line
 
 ROOT = Path(__file__).resolve().parents[1]
 FISHING = ROOT / 'desktop-overlay/OverlayResources/fishing'
@@ -25,6 +26,30 @@ def write_json(path, data):
 
 def mix(first, second, amount):
     return [left + (right - left) * amount for left, right in zip(first, second)]
+
+
+def cast_endpoint(records, durations, index, following, amount):
+    """Monotone cubic path: continuous velocity at keys, no overshoot off canvas."""
+    if index == following:
+        return records[index]['end'][:]
+    result = []
+    for axis in range(2):
+        values = [record['end'][axis] for record in records]
+        slopes = [(values[i+1]-values[i])/durations[i] for i in range(len(values)-1)]
+        def tangent(i):
+            if i == 0:
+                return slopes[0]
+            if i == len(values)-1:
+                return 0
+            before, after = slopes[i-1], slopes[i]
+            if before * after <= 0:
+                return 0
+            a, b = 2*durations[i]+durations[i-1], durations[i]+2*durations[i-1]
+            return (a+b)/(a/before+b/after)
+        t = amount
+        result.append((2*t**3-3*t*t+1)*values[index] + (t**3-2*t*t+t)*durations[index]*tangent(index)
+                      + (-2*t**3+3*t*t)*values[following] + (t**3-t*t)*durations[index]*tangent(following))
+    return result
 
 
 def rotate(pivot, degrees, target=None):
@@ -82,7 +107,7 @@ def import_rig(studio, manifest):
 
 
 def build(manifest, rig):
-    result = {'Version': 1, 'Method': 'layer-trajectory-samples-v2',
+    result = {'Version': 1, 'Method': 'layer-trajectory-samples-v4-six-key-cast',
               'WaterContact': {'ReferenceSurfaceY': 463.5, 'FishDepth': 64, 'GroundbaitDrop': 90}, 'Clips': {}}
     for clip in CLIPS:
         original = manifest['clips'][clip]
@@ -130,11 +155,18 @@ def build(manifest, rig):
                     transforms['bobber'][4] = target_end[0] - first['end'][0]
                 elif amount and clip != 'bait' and not first['fishHeld'] and first['end'] and second['end']:
                     target_end = mix(first['end'], second['end'], amount)
+                    if clip == 'cast':
+                        target_end = cast_endpoint(records, original['durationsMs'], index, following, amount)
                     transforms['bobber'][4:] = [target_end[axis] - first['end'][axis] for axis in range(2)]
                     transforms['fish'] = rotate(first['end'], (second['fishAngle'] - first['fishAngle']) * amount, target_end)
                 if amount and geometry[index]['line'] and target_tip and target_end:
                     line_path = [*target_tip, (target_tip[0] + target_end[0]) / 2,
                                  min(target_tip[1], target_end[1]) - (24 if clip == 'cast' else 0), *target_end]
+                if clip in SWING_CLIPS and (index >= 2 or clip == 'cast' and index == 1 and amount) and target_tip and target_end:
+                    line_path = swing_line(clip, records, original['durationsMs'], index,
+                                           following, amount, target_tip, target_end)
+                    if clip == 'reel_empty':
+                        transforms['bait'][4:] = transforms['bobber'][4:]
                 if amount and clip == 'groundbait':
                     before, after = geometry[index]['bait'], geometry[following]['bait']
                     if before and after:

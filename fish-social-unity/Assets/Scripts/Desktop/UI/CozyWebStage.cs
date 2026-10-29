@@ -51,10 +51,6 @@ namespace FishSocial.Desktop
             var sell = Find(page, "Sell") as RectTransform;
             if (sell == null)
                 return;
-            sell.sizeDelta = new Vector2(204f, 58f);
-            var label = sell.Find("Label") as RectTransform;
-            if (label != null)
-                label.sizeDelta = new Vector2(204f, 58f);
             CozySurplus.Park(Find(page, "Return")?.gameObject);
             CozySurplus.Park(Find(page, "Share")?.gameObject);
         }

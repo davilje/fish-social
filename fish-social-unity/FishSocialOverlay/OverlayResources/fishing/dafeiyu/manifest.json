@@ -310,12 +310,36 @@
           "head",
           "hands",
           "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "far_hand",
+          "rod",
+          "head",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "far_hand",
+          "rod",
+          "head",
+          "hands",
+          "fish"
         ]
       ],
       "durationsMs": [
         140,
-        140,
-        140,
+        70,
+        70,
+        70,
+        70,
         180
       ],
       "sourceFrames": [
@@ -328,6 +352,18 @@
           "clip": "cast",
           "index": 1,
           "atlasIndex": 10
+        },
+        {
+          "clip": "cast",
+          "index": 1,
+          "atlasIndex": 10,
+          "propKey": "overhead"
+        },
+        {
+          "clip": "cast",
+          "index": 2,
+          "atlasIndex": 11,
+          "propKey": "forward-release"
         },
         {
           "clip": "cast",
@@ -345,7 +381,8 @@
         true,
         true,
         true
-      ]
+      ],
+      "keyRevision": "six-keys-overhead-v1"
     },
     "fishing": {
       "playback": "hold",
@@ -1596,5 +1633,6 @@
   "rodSourceManifestSha256": "a0b5789d160385569fd981174082ece49f4ec1b8e3cbdef5b67b1d509c8858ec",
   "bodyTextureScale": 2,
   "reviewStatus": "art-review",
-  "characterArtworkManifestSha256": "bac169ad91197207af5fb98113ba8682b1e0eaa3d62b9534bda34fc00caca67c"
+  "characterArtworkManifestSha256": "bac169ad91197207af5fb98113ba8682b1e0eaa3d62b9534bda34fc00caca67c",
+  "additionalPropKeyCount": 2
 }

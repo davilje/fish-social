@@ -292,12 +292,36 @@
           "head",
           "hands",
           "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "far_hand",
+          "rod",
+          "head",
+          "hands",
+          "fish"
+        ],
+        [
+          "line",
+          "bobber",
+          "bait",
+          "body",
+          "far_hand",
+          "rod",
+          "head",
+          "hands",
+          "fish"
         ]
       ],
       "durationsMs": [
         140,
-        140,
-        140,
+        70,
+        70,
+        70,
+        70,
         180
       ],
       "sourceFrames": [
@@ -313,6 +337,18 @@
         },
         {
           "clip": "cast",
+          "index": 1,
+          "atlasIndex": 10,
+          "propKey": "overhead"
+        },
+        {
+          "clip": "cast",
+          "index": 2,
+          "atlasIndex": 11,
+          "propKey": "forward-release"
+        },
+        {
+          "clip": "cast",
           "index": 2,
           "atlasIndex": 11
         },
@@ -321,7 +357,8 @@
           "index": 3,
           "atlasIndex": 12
         }
-      ]
+      ],
+      "keyRevision": "six-keys-overhead-v1"
     },
     "fishing": {
       "playback": "hold",
@@ -1488,5 +1525,6 @@
   "skinKind": "painted-pose-assets-v4",
   "artworkManifestSha256": "83689122eaa2c7e296cab58ea6a593798277fc32ba843de3296daa17abde96a4",
   "rodOcclusionModel": "head-layer-order-v1",
-  "rodSourceManifestSha256": "a0b5789d160385569fd981174082ece49f4ec1b8e3cbdef5b67b1d509c8858ec"
+  "rodSourceManifestSha256": "a0b5789d160385569fd981174082ece49f4ec1b8e3cbdef5b67b1d509c8858ec",
+  "additionalPropKeyCount": 2
 }

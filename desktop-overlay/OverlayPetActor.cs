@@ -1849,7 +1849,7 @@ namespace FishSocialOverlay
                 ? OverlayAudioSourceMarkers.GroundbaitOccurrence(clip, OverlayAnimationClock.Now - _groundbaitStartedAt)
                 : _audioOccurrence;
             var sample = clip.Motion == null ? null : clip.Motion[index];
-            var contact = sample == null || sample.Position == sample.Source
+            var contact = sample == null || sample.Position == sample.Source && sample.Line == null
                 ? OverlayFishingWaterContact.Frame(clipName, clip.SourceIndex(index)) : sample.Contact;
             var scale = _layerDrawH / (double)OverlayFishingLayers.CanvasHeight;
             var origin = _layerImages[0].Margin.Top;
@@ -1858,6 +1858,8 @@ namespace FishSocialOverlay
                 OverlayFishingWaterContact.Weight(clipName, position, clip.SourceFrameCount));
             if (clipName == "groundbait")
                 pose.BaitOffset = OverlayFishingWaterContact.GroundbaitOffset(position, scale, origin, surface);
+            if (clipName == "reel_empty" && position >= 2)
+                pose.BaitOffset = pose.BobberOffset;
 
             foreach (var definition in OverlayAudioSourceMarkers.Metadata.Markers)
             {
@@ -1937,7 +1939,7 @@ namespace FishSocialOverlay
             var surface = WaterSurfaceY;
             var sample = _layered?.Motion == null ? null : _layered.Motion[frame];
             var sourceFrame = _layered?.SourceIndex(frame) ?? frame;
-            var contact = sample == null || sample.Position == sample.Source
+            var contact = sample == null || sample.Position == sample.Source && sample.Line == null
                 ? OverlayFishingWaterContact.Frame(_layeredClip, sourceFrame) : sample.Contact;
             var resting = _layeredClip == "fishing" && (_fishingPhase == "waiting" || _fishingAsleep && IsSleepFishingPhase(_fishingPhase));
             var rest = _restMotion.Update(OverlayAnimationClock.Now, resting, _fishingAsleep);
@@ -1962,6 +1964,8 @@ namespace FishSocialOverlay
             if (_layeredClip == "groundbait")
                 pose.BaitOffset = OverlayFishingWaterContact.GroundbaitOffset(
                     _layered?.SourcePosition(frame) ?? frame, scale, origin, surface);
+            if (_layeredClip == "reel_empty" && sourceFrame >= 2)
+                pose.BaitOffset = pose.BobberOffset;
             for (var i = 0; i < _layerImages.Length; i++)
             {
                 var layer = OverlayFishingLayers.LayerNames[i];

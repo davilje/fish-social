@@ -265,6 +265,10 @@ namespace FishSocial.Desktop
             if (button.name == "FeatureModalRoot" || button.name == "ProductContextMenu" || button.name == "PopupProductMenu"
                 || button.name == "ModalPanel" || button.name == "Panel" || button.name == "Dim" || button.name == "MenuPanel")
                 return;
+            // These buttons only intercept/dismiss clicks; preserve the authored modal surfaces.
+            if (button.name == "DetailsDialog" ||
+                (button.name == "Content" && button.transform.parent != null && button.transform.parent.name == "DetailsDialog"))
+                return;
             var background = button.GetComponent<Image>();
             if (background != null && background.type == Image.Type.Filled)
                 return;
