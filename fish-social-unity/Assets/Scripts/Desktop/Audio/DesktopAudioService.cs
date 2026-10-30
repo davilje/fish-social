@@ -12,18 +12,63 @@ namespace FishSocial.Desktop
     [Serializable]
     public sealed class DesktopAmbienceLoop
     {
-        public string id = "water", path = "ambience/pond_shore.wav";
-        public float gain = .65f, fadeSeconds = 2;
+        public string id = "water", label, path = "ambience/pond_lake_calm.wav";
+        public float gain = .6f, fadeSeconds = 2;
     }
+    [Serializable] public sealed class DesktopAmbienceScene { public string pondId, waterProfile; }
     [Serializable]
     public sealed class DesktopAmbienceConfiguration
     {
-        public int version = 1;
-        public DesktopAmbienceLoop runtime = new DesktopAmbienceLoop();
-        public DesktopAmbienceLoop[] loops;
+        public int version = 4;
+        public DesktopAmbienceLoop[] loops, waterProfiles, assets;
+        public string defaultWaterProfile="calm";
+        public DesktopAmbienceScene[] scenes;
+        public DesktopWeatherConfiguration weather=new DesktopWeatherConfiguration();
+    }
+    /// <summary>Immutable DSP envelope, evaluated by the audio thread without a render-frame lease.</summary>
+    public sealed class DesktopAudioEnvelope
+    {
+        public readonly double start,end;
+        public readonly float from,to,attack,release;
+        public readonly bool pulse;
+        public DesktopAudioEnvelope(double start,double end,float from,float to)
+        {this.start=start;this.end=end;this.from=from;this.to=to;}
+        public DesktopAudioEnvelope(double start,double end,float attack,float release,bool pulse)
+        {this.start=start;this.end=end;this.attack=attack;this.release=release;this.pulse=pulse;}
+        static float Smooth(double value){var t=Math.Max(0,Math.Min(1,value));return (float)(t*t*(3-2*t));}
+        public float Evaluate(double time)
+        {
+            if(!pulse)return Mathf.Lerp(from,to,Smooth((time-start)/Math.Max(.001,end-start)));
+            if(time<=start||time>=end)return 0;
+            return Math.Min(Smooth((time-start)/Math.Max(.001,attack)),Smooth((end-time)/Math.Max(.001,release)));
+        }
+    }
+    // Attached only to the four fixed environmental sources; volume still belongs to AudioSource.
+    public sealed class DesktopAmbienceEnvelopeFilter : MonoBehaviour
+    {
+        public volatile DesktopAudioEnvelope envelope;
+        public volatile DesktopWeatherPlayback weather;
+        public bool leaves;
+        public void Process(float[] data,int channels,double time,int rate)
+        {
+            var current=envelope;var shared=weather;var timeline=shared?.window;
+            if(current==null||rate<=0){Array.Clear(data,0,data.Length);return;}
+            for(var i=0;i<data.Length;i+=channels)
+            {
+                var at=time+(double)(i/channels)/rate;var gain=current.Evaluate(at);
+                if(timeline!=null)gain*=(float)timeline.Evaluate(at-shared.origin,leaves);
+                for(var c=0;c<channels;c++)data[i+c]*=gain;
+            }
+        }
+        int sampleRate;
+        void Awake(){sampleRate=AudioSettings.outputSampleRate;}
+        void OnAudioFilterRead(float[] data,int channels)
+        {
+            Process(data,channels,AudioSettings.dspTime,sampleRate);
+        }
     }
 
-    /// <summary>Unity owns four streaming loops and four bounded short-sound sources.</summary>
+    /// <summary>Unity owns nine fixed sources: music, two water loops, two weather loops and four short sounds.</summary>
     public sealed class DesktopAudioService : MonoBehaviour
     {
         public const string MusicPreference = "FishSocial.Audio.MusicVolume";
@@ -52,15 +97,24 @@ namespace FishSocial.Desktop
         readonly Slot[] slots = new Slot[4];
         readonly HashSet<string> authoritativeEvents = new HashSet<string>(StringComparer.Ordinal);
         readonly Queue<string> authorityOrder = new Queue<string>();
-        sealed class AmbienceTrack
+        sealed class EnvironmentVoice
         {
             public AudioSource source;
+            public DesktopAmbienceEnvelopeFilter filter;
             public DesktopAmbienceLoop definition;
-            public float level, from, target;
-            public double changedAt;
         }
         AudioSource music;
-        readonly Dictionary<string, AmbienceTrack> ambienceTracks = new Dictionary<string, AmbienceTrack>(StringComparer.Ordinal);
+        readonly EnvironmentVoice[] waterVoices=new EnvironmentVoice[2];
+        EnvironmentVoice windVoice, leavesVoice;
+        readonly Dictionary<string,DesktopAmbienceLoop> waterProfiles=new Dictionary<string,DesktopAmbienceLoop>(StringComparer.Ordinal);
+        readonly Dictionary<string,string> sceneProfiles=new Dictionary<string,string>(StringComparer.Ordinal);
+        string defaultWaterProfile="calm", scenePond="";
+        DesktopWeatherConfiguration weatherConfig=new DesktopWeatherConfiguration();
+        DesktopWeatherPlayback weatherPlayback;
+        bool weatherExiting;
+        double weatherExitAt;
+        Func<double> ambienceClock;
+        double AmbienceNow => ambienceClock!=null?ambienceClock():AudioSettings.dspTime;
         bool fishingScene;
         DesktopAudioPolicy policy;
         AudioPresentationDto context = new AudioPresentationDto();
@@ -106,10 +160,10 @@ namespace FishSocial.Desktop
             PlayerPrefs.SetFloat(AmbiencePreference(id), NormalizeVolume(value, 1));
             if(Instance!=null){Instance.SyncSceneLoops();Instance.SaveSoon();}else PlayerPrefs.Save();
         }
-        static DesktopAmbienceLoop[] DefaultAmbienceLoops() => new[] {
-            new DesktopAmbienceLoop { id="water", path="ambience/pond_shore.wav", gain=.65f },
-            new DesktopAmbienceLoop { id="wind", path="ambience/pond_wind.wav", gain=.45f },
-            new DesktopAmbienceLoop { id="leaves", path="ambience/pond_leaves.wav", gain=.4f }
+        static DesktopAmbienceLoop[] DefaultWaterProfiles() => new[] {
+            new DesktopAmbienceLoop { id="calm", path="ambience/pond_lake_calm.wav", gain=.6f },
+            new DesktopAmbienceLoop { id="ripples", path="ambience/pond_lake_ripples.wav", gain=.65f },
+            new DesktopAmbienceLoop { id="shore", path="ambience/pond_shore.wav", gain=.45f }
         };
         public static void SetBackgroundBite(bool value)
         {
@@ -122,11 +176,12 @@ namespace FishSocial.Desktop
             if (Instance != null && Instance != this) { Destroy(this); return; }
             Instance = this;
             music = Source("BackgroundMusic"); music.loop = true;
-            foreach(var definition in DefaultAmbienceLoops())
-            {
-                var source=Source("PondAmbience_"+definition.id);source.loop=true;source.volume=0;
-                ambienceTracks.Add(definition.id,new AmbienceTrack{source=source,definition=definition});
-            }
+            waterVoices[0]=EnvironmentSource("PondWaterA",true);waterVoices[1]=EnvironmentSource("PondWaterB",true);
+            windVoice=EnvironmentSource("PondWind",true);leavesVoice=EnvironmentSource("PondLeaves",true);
+            windVoice.definition=new DesktopAmbienceLoop{id="wind",path="ambience/pond_wind_open_loop.wav",gain=.18f};
+            leavesVoice.definition=new DesktopAmbienceLoop{id="leaves",path="ambience/pond_leaves.wav",gain=.65f};
+            foreach(var profile in DefaultWaterProfiles())waterProfiles.Add(profile.id,profile);
+            leavesVoice.filter.leaves=true;
             var names = new[] { "InterfaceSounds", "FishingSoundsA", "FishingSoundsB", "CatVoice" };
             for (var i = 0; i < slots.Length; i++) slots[i] = new Slot { source = Source(names[i]), group = i == 0 ? "ui" : i == 3 ? "voice" : "fishing" };
             Configure(DefaultConfiguration()); ApplyVolumes();
@@ -136,6 +191,11 @@ namespace FishSocial.Desktop
             var node = new GameObject(label); node.transform.SetParent(transform, false);
             var source = node.AddComponent<AudioSource>(); source.playOnAwake = false;
             source.spatialBlend = 0; source.ignoreListenerPause = true; return source;
+        }
+        EnvironmentVoice EnvironmentSource(string label,bool loop)
+        {
+            var source=Source(label);source.loop=loop;source.volume=0;
+            return new EnvironmentVoice{source=source,filter=source.gameObject.AddComponent<DesktopAmbienceEnvelopeFilter>()};
         }
         public static DesktopAudioConfiguration DefaultConfiguration()
         {
@@ -198,38 +258,50 @@ namespace FishSocial.Desktop
                 }
                 catch(Exception e){Diagnose("ambience-config",e.Message);}
             }
-            foreach(var track in ambienceTracks.Values)
-            {
-                if(track.definition==null)continue;
-                var path=track.definition.path;
-                yield return Load(path,true);
-                if(clips.TryGetValue(path,out var clip)){track.source.clip=clip;SyncSceneLoops();}
-            }
+            var paths=new HashSet<string>(StringComparer.Ordinal);
+            foreach(var profile in waterProfiles.Values)paths.Add(profile.path);
+            if(windVoice.definition!=null)paths.Add(windVoice.definition.path);
+            if(leavesVoice.definition!=null)paths.Add(leavesVoice.definition.path);
+            foreach(var path in paths){yield return Load(path,true);SyncSceneLoops();}
         }
+        static bool Finite(float value)=>!float.IsNaN(value)&&!float.IsInfinity(value);
+        static bool ValidEnvironment(DesktopAmbienceLoop loop)=>loop!=null&&SafeAudioPath(loop.path)&&loop.path.StartsWith("ambience/",StringComparison.Ordinal)&&Finite(loop.gain)&&Finite(loop.fadeSeconds);
+        static DesktopAmbienceLoop CopyEnvironment(DesktopAmbienceLoop loop,string id=null)=>new DesktopAmbienceLoop{id=id??loop.id,label=loop.label,path=loop.path,gain=Mathf.Clamp01(loop.gain),fadeSeconds=Mathf.Clamp(loop.fadeSeconds,.1f,5)};
         bool ConfigureAmbience(DesktopAmbienceConfiguration config)
         {
-            var loops=config?.version==1?new[]{config.runtime}:config?.version==2?config.loops:null;
-            if(loops==null||loops.Length!=(config.version==1?1:3))return false;
-            var seen=new HashSet<string>(StringComparer.Ordinal);
+            if(config==null||config.version!=4||config.weather==null||!config.weather.IsValid())return false;
+            var loops=config.loops;
+            if(loops==null||loops.Length!=3)return false;
+            var parsed=new Dictionary<string,DesktopAmbienceLoop>(StringComparer.Ordinal);
             foreach(var loop in loops)
             {
-                if(loop==null)return false;
-                var id=config.version==1?"water":loop.id;
-                if(id==null||!ambienceTracks.ContainsKey(id)||!seen.Add(id)||!SafeAudioPath(loop.path)||
-                    !loop.path.StartsWith("ambience/",StringComparison.Ordinal)||float.IsNaN(loop.gain)||float.IsInfinity(loop.gain)||
-                    float.IsNaN(loop.fadeSeconds)||float.IsInfinity(loop.fadeSeconds))return false;
+                if(!ValidEnvironment(loop))return false;
+                var id=loop.id;
+                if(id!="water"&&id!="wind"&&id!="leaves"||parsed.ContainsKey(id))return false;
+                parsed.Add(id,CopyEnvironment(loop,id));
             }
-            foreach(var track in ambienceTracks.Values)track.definition=null;
-            foreach(var loop in loops)
+            var profiles=new Dictionary<string,DesktopAmbienceLoop>(StringComparer.Ordinal);
+            var scenes=new Dictionary<string,string>(StringComparer.Ordinal);
+            var defaultId=config.defaultWaterProfile;
             {
-                var id=config.version==1?"water":loop.id;
-                ambienceTracks[id].definition=new DesktopAmbienceLoop{id=id,path=loop.path,gain=Mathf.Clamp01(loop.gain),fadeSeconds=Mathf.Clamp(loop.fadeSeconds,.1f,5)};
+                if(config.waterProfiles==null||config.waterProfiles.Length==0)return false;
+                foreach(var profile in config.waterProfiles)
+                {if(!ValidEnvironment(profile)||string.IsNullOrEmpty(profile.id)||profiles.ContainsKey(profile.id))return false;profiles.Add(profile.id,CopyEnvironment(profile));}
+                if(string.IsNullOrEmpty(defaultId)||!profiles.ContainsKey(defaultId))return false;
+                foreach(var scene in config.scenes??Array.Empty<DesktopAmbienceScene>())
+                {if(scene==null||string.IsNullOrEmpty(scene.pondId)||!profiles.ContainsKey(scene.waterProfile??"")||scenes.ContainsKey(scene.pondId))return false;scenes.Add(scene.pondId,scene.waterProfile);}
             }
-            return true;
+            CancelWeather();foreach(var voice in waterVoices)StopEnvironment(voice);
+            waterProfiles.Clear();foreach(var pair in profiles)waterProfiles.Add(pair.Key,pair.Value);
+            sceneProfiles.Clear();foreach(var pair in scenes)sceneProfiles.Add(pair.Key,pair.Value);
+            defaultWaterProfile=defaultId;windVoice.definition=parsed.ContainsKey("wind")?parsed["wind"]:null;leavesVoice.definition=parsed.ContainsKey("leaves")?parsed["leaves"]:null;
+            weatherConfig=JsonUtility.FromJson<DesktopWeatherConfiguration>(JsonUtility.ToJson(config.weather));return true;
         }
+        public string WaterProfileForPond(string pondId)=>sceneProfiles.TryGetValue(pondId??"",out var id)?id:defaultWaterProfile;
         // Membership survives short reconnects; a default pond ID alone is not a fishing scene.
-        void SetFishingScene(bool value)
+        void SetFishingScene(bool value,string pondId)
         {
+            if(scenePond!=(pondId??"")){scenePond=pondId??"";BeginWeatherExit(AmbienceNow);}
             if(fishingScene!=value)
             {
                 fishingScene=value;
@@ -247,24 +319,97 @@ namespace FishSocial.Desktop
             music.volume=musicAllowed?MusicVolume*musicDuck*MixHeadroom:0;
             if(musicAllowed&&music.clip!=null&&MusicVolume>0){if(!music.isPlaying)music.UnPause();if(!music.isPlaying)music.Play();}
             else if(music.isPlaying)music.Pause();
-            foreach(var pair in ambienceTracks)
+            var now=AmbienceNow;
+            var allowed=isActiveAndEnabled&&fishingScene&&!allHidden&&EffectsVolume>0;
+            SyncWater(allowed,now);
+            SyncWeather(allowed,now);
+        }
+        static float EnvelopeLevel(EnvironmentVoice voice,double now)=>voice.filter.envelope?.Evaluate(now)??0;
+        static void StopEnvironment(EnvironmentVoice voice)
+        {if(voice==null)return;voice.source.Stop();voice.source.volume=0;voice.filter.envelope=null;voice.filter.weather=null;}
+        void FadeWater(EnvironmentVoice voice,float target,double now)
+        {
+            var old=voice.filter.envelope;
+            if(old!=null&&!old.pulse&&old.to==target)return;
+            voice.filter.envelope=new DesktopAudioEnvelope(now,now+(voice.definition?.fadeSeconds??2),EnvelopeLevel(voice,now),target);
+        }
+        void SyncWater(bool allowed,double now)
+        {
+            if(!isActiveAndEnabled||allHidden||EffectsVolume<=0||GetAmbienceLevel("water")<=0)
+            {foreach(var voice in waterVoices)StopEnvironment(voice);return;}
+            var definition=waterProfiles[WaterProfileForPond(scenePond)];
+            var ready=clips.TryGetValue(definition.path,out var clip);
+            if(allowed&&ready)
             {
-                var track=pair.Value;var definition=track.definition;var source=track.source;
-                var userLevel=GetAmbienceLevel(pair.Key);
-                var target=isActiveAndEnabled&&fishingScene&&!allHidden&&EffectsVolume>0&&userLevel>0&&definition!=null&&source.clip!=null?1f:0f;
-                if(target!=track.target){track.from=track.level;track.target=target;track.changedAt=Now;}
-                // Either mute is immediate; scene and visibility changes retain their individual fades.
-                if(EffectsVolume<=0||userLevel<=0||!isActiveAndEnabled||definition==null)
-                {track.level=track.from=track.target=0;source.Stop();}
-                else
+                EnvironmentVoice selected=null;
+                foreach(var voice in waterVoices)if(voice.source.clip==clip&&voice.source.isPlaying)selected=voice;
+                if(selected==null)
                 {
-                    var t=Mathf.Clamp01((float)((Now-track.changedAt)/definition.fadeSeconds));
-                    track.level=Mathf.Lerp(track.from,track.target,t*t*(3-2*t));
-                    if(track.target>0&&source.clip!=null&&!source.isPlaying)source.Play();
-                    if(track.target==0&&track.level<=0&&source.isPlaying)source.Stop();
+                    selected=EnvelopeLevel(waterVoices[0],now)<=EnvelopeLevel(waterVoices[1],now)?waterVoices[0]:waterVoices[1];
+                    StopEnvironment(selected);selected.source.clip=clip;selected.definition=definition;
+                    selected.source.time=(float)(weatherConfig.waterOffsetSeconds%clip.length);
+                    FadeWater(selected,1,now);selected.source.Play();
                 }
-                source.volume=EffectsVolume*(definition?.gain??0)*userLevel*track.level*MixHeadroom;
+                selected.definition=definition;FadeWater(selected,1,now);
+                foreach(var voice in waterVoices)if(voice!=selected)FadeWater(voice,0,now);
             }
+            else {foreach(var voice in waterVoices)FadeWater(voice,0,now);}
+            foreach(var voice in waterVoices)
+            {
+                voice.source.volume=voice.filter.envelope==null?0:EffectsVolume*GetAmbienceLevel("water")*(voice.definition?.gain??0)*MixHeadroom;
+                var envelope=voice.filter.envelope;
+                if(envelope!=null&&envelope.to==0&&now>=envelope.end)StopEnvironment(voice);
+            }
+        }
+        void CancelWeather()
+        {
+            weatherPlayback=null;weatherExiting=false;
+            StopEnvironment(windVoice);StopEnvironment(leavesVoice);
+        }
+        void BeginWeatherExit(double now)
+        {
+            if(weatherPlayback==null||weatherExiting)return;
+            weatherExiting=true;weatherExitAt=now+weatherConfig.fadeOutSeconds;
+            FadeWeatherVoice(windVoice,0,now,weatherConfig.fadeOutSeconds);FadeWeatherVoice(leavesVoice,0,now,weatherConfig.fadeOutSeconds);
+        }
+        void FadeWeatherVoice(EnvironmentVoice voice,float target,double now,double duration)
+        {if(voice.filter.envelope!=null)voice.filter.envelope=new DesktopAudioEnvelope(now,now+duration,EnvelopeLevel(voice,now),target);}
+        void SyncWeather(bool allowed,double now)
+        {
+            if(!isActiveAndEnabled||allHidden||EffectsVolume<=0){CancelWeather();return;}
+            if(!allowed)BeginWeatherExit(now);
+            if(weatherExiting)
+            {
+                if(now<weatherExitAt)
+                {
+                    weatherPlayback.Prepare(now);UpdateWeatherVolume(windVoice,"wind");UpdateWeatherVolume(leavesVoice,"leaves");return;
+                }
+                CancelWeather();
+            }
+            if(!allowed)return;
+            if(windVoice.definition==null||leavesVoice.definition==null||!clips.ContainsKey(windVoice.definition.path)||!clips.ContainsKey(leavesVoice.definition.path))return;
+            if(weatherPlayback==null)weatherPlayback=new DesktopWeatherPlayback(weatherConfig,now);
+            weatherPlayback.Prepare(now);
+            SyncWeatherVoice(windVoice,"wind",weatherConfig.windOffsetSeconds,now);
+            SyncWeatherVoice(leavesVoice,"leaves",weatherConfig.leavesOffsetSeconds,now);
+        }
+        void UpdateWeatherVolume(EnvironmentVoice voice,string id)
+        {
+            if(GetAmbienceLevel(id)<=0){StopEnvironment(voice);return;}
+            voice.source.volume=voice.filter.envelope==null?0:EffectsVolume*GetAmbienceLevel(id)*voice.definition.gain*MixHeadroom;
+        }
+        void SyncWeatherVoice(EnvironmentVoice voice,string id,double offset,double now)
+        {
+            if(GetAmbienceLevel(id)<=0){StopEnvironment(voice);return;}
+            if(voice.filter.weather!=weatherPlayback||!voice.source.isPlaying)
+            {
+                var clip=clips[voice.definition.path];voice.source.clip=clip;
+                voice.source.time=(float)((offset+Math.Max(0,now-weatherPlayback.origin))%clip.length);
+                voice.filter.weather=weatherPlayback;
+                voice.filter.envelope=new DesktopAudioEnvelope(now,now+weatherConfig.fadeInSeconds,0,1);
+                voice.source.Play();
+            }
+            UpdateWeatherVolume(voice,id);
         }
         IEnumerator Load(string relativePath,bool streaming)
         {
@@ -311,7 +456,7 @@ namespace FishSocial.Desktop
         void RefreshAudioClock()
         {
             var now=Now;var transition=policy.DuckUntil>0&&now<policy.DuckUntil+.25;
-            foreach(var track in ambienceTracks.Values)transition|=track.level!=track.target;
+            // Environmental envelopes and shared weather interpolation run on DSP without a rendering lease.
             foreach(var slot in slots)transition|=slot!=null&&slot.fadingAt>=0;
             BackgroundRenderGate.SetAudioWork(transition || context.enabled && phase=="hooked" && context.eventDeadlineMs>UtcMs);
         }
@@ -326,7 +471,7 @@ namespace FishSocial.Desktop
             if(hidden&&!allHidden){CancelAutomaticVoice();foreach(var slot in slots)if(slot!=null)Fade(slot);}
             allHidden=hidden;
             var actor=user?.id??"";
-            SetFishingScene(!string.IsNullOrEmpty(pondId)&&!string.IsNullOrEmpty(actor));
+            SetFishingScene(!string.IsNullOrEmpty(pondId)&&!string.IsNullOrEmpty(actor),pondId);
             var changed=connected!=isConnected||lastPond!=pondId||lastActor!=actor;
             if(changed)
             {

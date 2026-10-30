@@ -83,6 +83,7 @@ namespace FishSocialOverlay
         readonly Rectangle _hitCatcher;
         readonly TextBlock _sleepLabel;
         readonly OverlayFishingRestMotion _restMotion = new OverlayFishingRestMotion();
+        readonly ImageSource[] _restSourceImages = new ImageSource[9];
         bool _fishingAsleep;
         readonly Image _statusIcon;
         readonly TextBlock _nickname;
@@ -1716,6 +1717,7 @@ namespace FishSocialOverlay
                     var source = OverlayFishingLayers.LayerNames[i] == "line" && clip.Motion != null
                         ? OverlayFishingMotionDrawing.Line(clip.Motion[index]) ?? images[i] : images[i];
                     if (!ReferenceEquals(_layerImages[i].Source, source)) _layerImages[i].Source = source;
+                    _restSourceImages[i] = source;
                 }
                 ApplyWaterContact(index, clip.FrameCount);
                 _image.Visibility = Visibility.Collapsed;
@@ -1958,7 +1960,7 @@ namespace FishSocialOverlay
                 lineRest = rest.Line(tipX, tipY, contact.LineBottom);
                 contact = new FishingContactFrame
                 {
-                    LineTop = rest.Y(tipX, tipY), LineBottom = contact.LineBottom,
+                    LineTop = rest.RodY(tipX, tipY), LineBottom = contact.LineBottom,
                     BobberY = contact.BobberY, FishTop = contact.FishTop
                 };
             }
@@ -1976,6 +1978,12 @@ namespace FishSocialOverlay
             for (var i = 0; i < _layerImages.Length; i++)
             {
                 var layer = OverlayFishingLayers.LayerNames[i];
+                if (layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands")
+                {
+                    var art = _restSourceImages[i];
+                    var warped = resting ? OverlayFishingRestDrawing.Warp(art, rest.Nod) : art;
+                    if (!ReferenceEquals(_layerImages[i].Source, warped)) _layerImages[i].Source = warped;
+                }
                 Transform transform = Transform.Identity;
                 if (layer == "line" && pose.LineScale != 1)
                     transform = new ScaleTransform(1, pose.LineScale, 0, pose.LinePivot);
@@ -1995,7 +2003,7 @@ namespace FishSocialOverlay
                     }
                     if (resting && (layer == "body" || layer == "head" || layer == "far_hand" || layer == "hands" || layer == "rod" || layer == "line"))
                     {
-                        var restValues = layer == "line" ? lineRest : rest.Matrix;
+                        var restValues = layer == "line" ? lineRest : layer == "rod" ? rest.RodMatrix : rest.Matrix;
                         matrix.Append(new Matrix(restValues[0], restValues[1] * scale / scaleX,
                             restValues[2] * scaleX / scale, restValues[3], restValues[4] * scaleX, restValues[5] * scale));
                     }
@@ -2152,7 +2160,10 @@ namespace FishSocialOverlay
         void ClearLayerSources()
         {
             for (var i = 0; i < _layerImages.Length; i++)
+            {
                 _layerImages[i].Source = null;
+                _restSourceImages[i] = null;
+            }
         }
 
 

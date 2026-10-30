@@ -12,6 +12,7 @@ import soundfile as sf
 from scipy.signal import resample_poly
 from build_pond_ambience import metrics
 from cue_config_selection import verify_selection
+from verify_ambience_config import verify_config
 
 ROOT=Path(__file__).resolve().parents[2]
 AUDIO=ROOT/'fish-social-unity/Assets/StreamingAssets/Audio'
@@ -34,23 +35,28 @@ def verify():
     assert len(adoption['assets'])==47
     for asset in adoption['assets']:
         assert sha(AUDIO/asset['path'])==asset['sha256'],asset['path']
-    assert ambience['version']==2 and len(ambience['assets'])==3
+    verify_config(ambience)
     runtime=ambience['loops']
     assert {track['id'] for track in runtime}=={'water','wind','leaves'}
     measured=[]
-    for track in runtime:
-        assert 0<track['gain']<=1 and track['fadeSeconds']==2
-        asset=next(item for item in ambience['assets'] if item['path']==track['path'])
-        item=metrics(AUDIO/track['path'])
-        item['path']=track['path']
+    for asset in ambience['assets']:
+        item=metrics(AUDIO/asset['path'])
+        item['path']=asset['path']
         assert item['sha256']==asset['sha256']
         assert item['channels']==2 and item['sampleRate']==44100 and item['format']=='PCM_16'
-        assert 40<=item['duration']<=90 and item['seamDifference']==0
-        assert item['seamAdjacentStep']<item['naturalInteriorStep99Percentile']
-        assert item['truePeak4x']<=(.3 if track['id']=='water' else .12) and item['rms']>.005
+        if asset['path']=='ambience/pond_wind_open_loop.wav':
+            assert item['duration']==12
+            assert item['seamDifference']<=item['naturalInteriorStep99Percentile']
+        else:
+            assert 40<=item['duration']<=90 and item['seamDifference']==0
+            assert item['seamAdjacentStep']<item['naturalInteriorStep99Percentile']
+        assert item['truePeak4x']<=(.3 if asset['path']=='ambience/pond_shore.wav' else .12)
+        assert item['rms']>.001, 'Ambience must preserve an audible recording, not silence'
         measured.append(item)
     for builder in ambience['provenance']['builders']:
         assert sha(ROOT/builder['script'])==builder['scriptSha256']
+    configuration=ambience['provenance']['configuration']
+    assert sha(ROOT/configuration['script'])==configuration['scriptSha256']
     for source in ambience['sources']:
         assert source['license']=='CC0-1.0' and len(source['sha256'])==64
         assert source['page'].startswith('https://freesound.org/')
@@ -63,13 +69,19 @@ def verify():
         peaks[item['path']]=float(np.max(abs(resample_poly(pcm,4,1,axis=0))))
     groups={group:max(max(peaks[path] for path in cue['paths'])*cue['gain']
         for cue in config['cues'] if cue['group']==group) for group in ['fishing','voice']}
-    bound=2*groups['fishing']+groups['voice']+sum(item['truePeak4x']*track['gain'] for item,track in zip(measured,runtime))
+    ambient_peaks={item['path']:item['truePeak4x'] for item in measured}
+    # Include two overlapping water sources even without assuming a perfectly complementary fade.
+    water_peak=max(ambient_peaks[profile['path']]*profile['gain'] for profile in ambience['waterProfiles'])
+    w=ambience['weather']
+    maxima=dict(wind=w['windMaxGain'],leaves=max(w['initialLeavesGain'],w['leavesResponseGain']*(w['windMaxGain']/w['leavesReferenceWindGain'])**w['leavesResponseExponent']))
+    gust_peak=sum(ambient_peaks[track['path']]*track['gain']*maxima[track['id']] for track in runtime if track['id']!='water')
+    bound=2*groups['fishing']+groups['voice']+2*water_peak+gust_peak
     db=float(20*np.log10(bound))
     assert db<=-1,'Pond ambience plus all action/cat voices exceeds mix headroom'
     return dict(status='PASS',date='2026-10-30',original47WavHashesUnchanged=True,
         cueConfigChanges='Only ui_close selects the approved page-close variant; all other cue settings match adoption',ambience=measured,pondMusicEnabled=False,pondButtonsEnabled=False,
-        runtime=runtime,pondFullVolumeMixUpperBoundDbTP=db,
-        method='4x oversampling; sum2 max fishing voices+max cat+all3 ambience tracks at full per-track and effects sliders; no BGM/UI in pond',
+        runtime=runtime,waterProfiles=ambience['waterProfiles'],sceneCount=len(ambience['scenes']),weather=ambience['weather'],weatherPeakBounds=maxima,productionMonitorGain=1,pondFullVolumeMixUpperBoundDbTP=db,
+        method='4x oversampling; sum2 max fishing voices+max cat+2 max water sources during crossfade+overlapping continuous wind/leaves at theoretical weather maxima and full sliders; production excludes preview monitor gain; no BGM/UI in pond',
         runtimeBehaviourEvidence='Unity EditMode DesktopAudioTests; see accompanying report',
         windowsHardwareMeasurement='Not run')
 

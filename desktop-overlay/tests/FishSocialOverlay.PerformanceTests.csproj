@@ -11,6 +11,9 @@
     <ProjectReference Include="..\FishSocialOverlay.csproj" />
     <Compile Remove="FishingPresentationSessionTests.cs" />
     <Compile Remove="OverlayAudioTests.cs" />
-    <None Include="../../docs/art/fishing-motion/source-rig.json" Link="TestData/source-rig.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Remove="OverlayLocalizationDisplayStubs.cs" />
+    <Compile Remove="OverlayLocalizationDisplayTests.cs" />
+    <Compile Remove="OverlayFishingRestMotionTests.cs" />
+    <None Include="../../docs/美术/钓鱼动作/source-rig.json" Link="TestData/source-rig.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

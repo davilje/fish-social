@@ -1,87 +1,302 @@
 {
-  "version": 2,
+  "version": 4,
   "loops": [
     {
       "id": "water",
-      "path": "ambience/pond_shore.wav",
-      "gain": 0.65,
-      "fadeSeconds": 2.0
+      "path": "ambience/pond_lake_calm.wav",
+      "gain": 0.6,
+      "fadeSeconds": 2
     },
     {
       "id": "wind",
-      "path": "ambience/pond_wind.wav",
-      "gain": 0.45,
-      "fadeSeconds": 2.0,
-      "defaultMix": 1.0
+      "path": "ambience/pond_wind_open_loop.wav",
+      "gain": 0.18,
+      "fadeSeconds": 2
     },
     {
       "id": "leaves",
       "path": "ambience/pond_leaves.wav",
-      "gain": 0.4,
-      "fadeSeconds": 2.0,
-      "defaultMix": 1.0
+      "gain": 0.65,
+      "fadeSeconds": 2
     }
   ],
-  "sources": [
+  "defaultWaterProfile": "calm",
+  "waterProfiles": [
     {
-      "key": "hudson_shore_ceich93_318064",
-      "title": "Water_Lapping_River.wav",
-      "author": "ceich93",
-      "page": "https://freesound.org/people/ceich93/sounds/318064/",
-      "url": "https://cdn.freesound.org/previews/318/318064_4457609-hq.mp3",
-      "file": "shore-318064.mp3",
-      "sha256": "633f65aa915de7c83aca9d6100cb6a497000f4e39c36b6bef9cdefed06612313",
-      "license": "CC0-1.0",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "licenseEvidence": {
-        "officialPage": "https://freesound.org/people/ceich93/sounds/318064/",
-        "inspectedDate": "2026-10-30",
-        "authorPageLicenseLabel": "Creative Commons 0",
-        "inspectedPageSha256": "af00105b8876ec1890366d904542d1a68e55264bbde811302f487394165012fe"
-      },
-      "sourceDescription": "Hudson River water lapping a pebbly shore at night; Tascam DR-05 with Rode windscreen.",
-      "downloadFormat": "Official public high-quality MP3 preview; decoded44100Hz stereo. Original upload WAV44100Hz16bit stereo."
+      "id": "calm",
+      "label": "平静湖面",
+      "path": "ambience/pond_lake_calm.wav",
+      "gain": 0.6,
+      "fadeSeconds": 2
     },
     {
-      "key": "wind_mario1298_181250",
-      "title": "a gentle breeze, wind 1",
-      "author": "mario1298",
-      "page": "https://freesound.org/people/mario1298/sounds/181250/",
-      "url": "https://cdn.freesound.org/previews/181/181250_499617-hq.mp3",
-      "file": "source-181250.mp3",
-      "sha256": "374de47c58d371a7c8a34558adb9845c596277759019336cce53a050bac7088d",
-      "sourceDescription": "A gentle breeze/wind; creator upload reports stereo48000Hz32bit WAV. The downloaded HQ preview has two identical channels (dual-mono); preserved honestly without synthetic widening.",
-      "license": "CC0-1.0",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "licenseEvidence": {
-        "officialPage": "https://freesound.org/people/mario1298/sounds/181250/",
-        "inspectedDate": "2026-10-30",
-        "authorPageLicenseLabel": "Creative Commons 0",
-        "inspectedPageSha256": "eb46c75019ad45ebf0c280cdb8f7784023f046c0726dd2d8659f9c4631a3bfd3"
-      },
-      "downloadFormat": "Official public HQ MP3 preview; decoded48000Hz twochannel dual-mono"
+      "id": "ripples",
+      "label": "轻晃水面",
+      "path": "ambience/pond_lake_ripples.wav",
+      "gain": 0.65,
+      "fadeSeconds": 2
     },
     {
-      "key": "leaves_ecfike_183496",
-      "title": "Wind and Leaves.wav",
-      "author": "ecfike",
-      "page": "https://freesound.org/people/ecfike/sounds/183496/",
-      "url": "https://cdn.freesound.org/previews/183/183496_2337290-hq.mp3",
-      "file": "source-183496.mp3",
-      "sha256": "a804e75f0c57acd77488a63b8452d8de8593a7f8ed1c0a5b546d0b41d770b8fa",
-      "sourceDescription": "Wind in a small clump of broad-leaf trees; original stereo44100Hz16bit WAV field recording. The leaves track retains this recording's own light breeze; it is not an artificially isolated dry stem.",
-      "license": "CC0-1.0",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "licenseEvidence": {
-        "officialPage": "https://freesound.org/people/ecfike/sounds/183496/",
-        "inspectedDate": "2026-10-30",
-        "authorPageLicenseLabel": "Creative Commons 0",
-        "inspectedPageSha256": "21569182632d445e8f958e497c8f26f83580b9b9fb38df2316cafeb0464caabd"
-      },
-      "downloadFormat": "Official public HQ MP3 preview; decoded44100Hz stereo"
+      "id": "shore",
+      "label": "原河岸水声（对照）",
+      "path": "ambience/pond_shore.wav",
+      "gain": 0.45,
+      "fadeSeconds": 2
     }
   ],
+  "scenes": [
+    {
+      "pondId": "pond-calm",
+      "label": "千岛湖",
+      "waterProfile": "calm"
+    },
+    {
+      "pondId": "pond-mist",
+      "label": "太湖",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-sunset",
+      "label": "洪泽湖",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-bamboo",
+      "label": "鄱阳湖",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-reed",
+      "label": "洞庭湖",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-crystal",
+      "label": "滇池",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-lotus",
+      "label": "洱海",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-mirror",
+      "label": "镜泊湖",
+      "waterProfile": "calm"
+    },
+    {
+      "pondId": "pond-willow",
+      "label": "查干湖",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-stone",
+      "label": "万绿湖",
+      "waterProfile": "calm"
+    },
+    {
+      "pondId": "pond-spring",
+      "label": "北江",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-dusk",
+      "label": "丹江口水库",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-pine",
+      "label": "清江",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-coral",
+      "label": "舟山近海",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-moon",
+      "label": "厦门湾",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-fern",
+      "label": "南澳近海",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-ridge",
+      "label": "长江故道野塘",
+      "waterProfile": "calm"
+    },
+    {
+      "pondId": "pond-harbor",
+      "label": "青岛近海",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-orchid",
+      "label": "涠洲近海",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-frost",
+      "label": "兴凯湖",
+      "waterProfile": "ripples"
+    },
+    {
+      "pondId": "pond-novice",
+      "label": "城郊练杆塘",
+      "waterProfile": "calm"
+    }
+  ],
+  "weather": {
+    "seed": 2201030,
+    "sampleIntervalSeconds": 0.05,
+    "blockSeconds": 30,
+    "initialWindGain": 0.18,
+    "initialLeavesGain": 0.3,
+    "stepMinSeconds": 2.4,
+    "stepMaxSeconds": 4.8,
+    "windMinGain": 0.15,
+    "windMaxGain": 0.49,
+    "windAdjustmentThreshold": 0.045,
+    "windAdjustment": 0.08,
+    "windAdjustedMinimum": 0.13,
+    "firstLullMinSeconds": 26,
+    "firstLullMaxSeconds": 44,
+    "lullGain": 0.015,
+    "lullHoldMinSeconds": 0.8,
+    "lullHoldMaxSeconds": 1.6,
+    "lullGapMinSeconds": 28,
+    "lullGapMaxSeconds": 46,
+    "leavesDelaySeconds": 0.28,
+    "leavesResponseGain": 0.73,
+    "leavesReferenceWindGain": 0.55,
+    "leavesResponseExponent": 0.85,
+    "leavesRiseSeconds": 0.65,
+    "leavesFallSeconds": 1.35,
+    "fadeInSeconds": 2,
+    "fadeOutSeconds": 1.2,
+    "monitorGain": 5,
+    "waterOffsetSeconds": 10,
+    "windOffsetSeconds": 3.2,
+    "leavesOffsetSeconds": 19.7
+  },
   "assets": [
+    {
+      "path": "ambience/pond_lake_calm.wav",
+      "version": 1,
+      "frames": 2116800,
+      "duration": 48.0,
+      "channels": 2,
+      "sampleRate": 44100,
+      "format": "PCM_16",
+      "peak": 0.029296875,
+      "truePeak4x": 0.029419477471519115,
+      "rms": 0.004357938551032836,
+      "rmsDbfs": -47.21437795602888,
+      "seamDifference": 0.0,
+      "sourceSpatialMode": "dual-mono; source mono preserved",
+      "stereoCorrelation": 1.0,
+      "frequencyEnergyRatios": {
+        "below80Hz": 0.2741014448375315,
+        "above2500Hz": 0.0071333036161615035,
+        "above6000Hz": 0.0004887773351578219
+      },
+      "sha256": "d67e448e97dea17f670ca5e9aa1fa2654d24bba27f00ba4903a51baf0f16e4d2",
+      "description": "平静湖面现场录音，极细微水纹与安静湖岸；保留原始单声场，双通道封装",
+      "source": [
+        "lake_calm_mick_705034"
+      ],
+      "processing": {
+        "sourceStartSeconds": 110,
+        "sourceDurationSeconds": 56,
+        "sourceChannels": 1,
+        "sourceSampleRate": 44100,
+        "resampleTo": 44100,
+        "monoHandling": "Exact duplicated channels; no stereo fabrication",
+        "highPassHz": 50,
+        "lowPassHz": 3000,
+        "filter": "2nd-order Butterworth forward/backward zero-phase bandpass",
+        "loop": true,
+        "loopOverlapSeconds": 8,
+        "circularRotationFrames": 431,
+        "seamMethod": "8second complementary sin-squared overlap plus circular rotation at equal PCM stereo samples",
+        "masterGain": 8,
+        "maxAllowedGain": 8,
+        "targetTruePeak4x": 0.11,
+        "gainCappedToAvoidNoiseLift": true,
+        "normalization": "One conservative constant gain; no framewise loudness normalization or dynamics processing",
+        "compression": false,
+        "limiting": false,
+        "saturation": false,
+        "syntheticNoise": false,
+        "syntheticStereo": false,
+        "music": false,
+        "addedVoices": false,
+        "addedBirds": false,
+        "pitchShiftSemitones": 0,
+        "timeStretch": false
+      }
+    },
+    {
+      "path": "ambience/pond_lake_ripples.wav",
+      "version": 1,
+      "frames": 2116800,
+      "duration": 48.0,
+      "channels": 2,
+      "sampleRate": 44100,
+      "format": "PCM_16",
+      "peak": 0.109893798828125,
+      "truePeak4x": 0.10998357847828379,
+      "rms": 0.0039154954725485365,
+      "rmsDbfs": -48.14426547733899,
+      "seamDifference": 0.0,
+      "sourceSpatialMode": "original distinct stereo",
+      "stereoCorrelation": 0.7078526429792095,
+      "frequencyEnergyRatios": {
+        "below80Hz": 0.03052805114823229,
+        "above2500Hz": 0.005746269964219753,
+        "above6000Hz": 4.333908434983595e-06
+      },
+      "sha256": "c5ada66fd70ce3403db8e6097478bc2a8b6b0ba87f826898400d9ce4e1acf7ee",
+      "description": "独立湖岸轻晃水面；选用较轻的后段，保留小波起伏并柔化近水滴响",
+      "source": [
+        "lake_ripples_trp_568819"
+      ],
+      "processing": {
+        "sourceStartSeconds": 72,
+        "sourceDurationSeconds": 56,
+        "sourceChannels": 2,
+        "sourceSampleRate": 48000,
+        "resampleTo": 44100,
+        "monoHandling": "Original channel image retained",
+        "highPassHz": 45,
+        "lowPassHz": 2000,
+        "filter": "2nd-order Butterworth forward/backward zero-phase bandpass",
+        "loop": true,
+        "loopOverlapSeconds": 8,
+        "circularRotationFrames": 9896,
+        "seamMethod": "8second complementary sin-squared overlap plus circular rotation at equal PCM stereo samples",
+        "masterGain": 0.9566080688741382,
+        "maxAllowedGain": 1,
+        "targetTruePeak4x": 0.11,
+        "gainCappedToAvoidNoiseLift": false,
+        "normalization": "One conservative constant gain; no framewise loudness normalization or dynamics processing",
+        "compression": false,
+        "limiting": false,
+        "saturation": false,
+        "syntheticNoise": false,
+        "syntheticStereo": false,
+        "music": false,
+        "addedVoices": false,
+        "addedBirds": false,
+        "pitchShiftSemitones": 0,
+        "timeStretch": false
+      }
+    },
     {
       "path": "ambience/pond_shore.wav",
       "version": 1,
@@ -139,94 +354,87 @@
       }
     },
     {
-      "path": "ambience/pond_wind.wav",
+      "path": "ambience/pond_wind_open_loop.wav",
       "version": 1,
-      "duration": 56.0,
-      "frames": 2469600,
+      "frames": 529200,
+      "duration": 12.0,
       "channels": 2,
       "sampleRate": 44100,
       "format": "PCM_16",
-      "peak": 0.11492919921875,
-      "truePeak4x": 0.11500235913469223,
-      "rms": 0.01618182540205097,
-      "rmsDbfs": -35.81944978139425,
-      "crestDb": 17.02805739581281,
-      "seamDifference": 0.0,
-      "seamAdjacentStep": 0.0,
-      "halfSecondRmsPercentiles": {
-        "5": 0.005667823936748061,
-        "50": 0.015452071790450701,
-        "95": 0.024265551971290357,
-        "100": 0.02691632200466951
+      "peak": 0.10992431640625,
+      "truePeak4x": 0.11000221756278207,
+      "rms": 0.01827292670385406,
+      "rmsDbfs": -34.76383775624551,
+      "seamDifference": 0.011016845703125,
+      "sourceSpatialMode": "original distinct stereo",
+      "stereoCorrelation": -0.26861620457574853,
+      "frequencyEnergyRatios": {
+        "below80Hz": 0.0008361479315394623,
+        "above2500Hz": 0.21319441380044107,
+        "above6000Hz": 0.071375289707322
       },
-      "lowFrequencyEnergyBelow80Hz": 0.001713492613065454,
-      "highFrequencyEnergyAbove6000Hz": 2.3830751894281699e-07,
-      "stereoCorrelation": 0.9999999999999998,
-      "sha256": "a613e1dea9c37a68f946f252033f25b0e1484d3a3b397376b4cb3af747619b16",
-      "description": "轻柔自然微风实录；保留缓慢起伏，削减爆风低频与尖锐高频",
+      "sha256": "f3ba80f4dc960e252f1aa631d4d14eda3de5bfc700c731a5b2a55f9564356753",
+      "description": "已采用的户外风声连续底床；保留原风源，去边缘并2秒互补交叠为12秒循环",
       "source": [
-        "wind_mario1298_181250"
+        "wind_open_uganda_38976"
       ],
       "processing": {
-        "sourceStartSeconds": 84,
-        "sourceDurationSeconds": 64,
-        "sourceExcerptPeak": 0.06020667403936386,
-        "sourceExcerptRms": 0.007404236429869385,
+        "sourceStartSeconds": 48,
+        "sourceDurationSeconds": 16,
         "sourceChannels": 2,
         "sourceSampleRate": 48000,
         "resampleTo": 44100,
-        "sourceSpatialMode": "dual-mono (source channels identical)",
-        "sourceChannelsIdentical": true,
-        "syntheticStereo": false,
-        "highPassHz": 110,
-        "lowPassHz": 2300,
-        "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
-        "overlapSeconds": 8,
-        "loopMethod": "Complementary sin-squared tail-to-head overlap",
-        "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
-        "circularRotationFrames": 38395,
-        "equalStereoSeamCandidates": 36591,
-        "normalization": "One constant linear gain per complete loop",
-        "masterGain": 2.731536550026525,
-        "targetTruePeak4x": 0.115,
+        "monoHandling": "Original channel image retained",
+        "highPassHz": 80,
+        "lowPassHz": 8000,
+        "filter": "2nd-order Butterworth forward/backward zero-phase bandpass",
+        "loop": true,
+        "loopOverlapSeconds": 2,
+        "circularRotationFrames": null,
+        "seamMethod": "Approved preview: original quantized16second gesture, crop1–15s,2second complementary sin-squared overlap; natural adjacent source samples at wrap, no silent dip",
+        "masterGain": 3.487480066209173,
+        "maxAllowedGain": 4,
+        "targetTruePeak4x": 0.11,
+        "gainCappedToAvoidNoiseLift": false,
+        "normalization": "One conservative constant gain; no framewise loudness normalization or dynamics processing",
         "compression": false,
         "limiting": false,
         "saturation": false,
         "syntheticNoise": false,
+        "syntheticStereo": false,
         "music": false,
         "addedVoices": false,
         "addedBirds": false,
         "pitchShiftSemitones": 0,
-        "timeStretch": false,
-        "layeredRecordings": 1
+        "timeStretch": false
       }
     },
     {
       "path": "ambience/pond_leaves.wav",
-      "version": 1,
+      "version": 2,
       "duration": 48.0,
       "frames": 2116800,
       "channels": 2,
       "sampleRate": 44100,
       "format": "PCM_16",
-      "peak": 0.11407470703125,
-      "truePeak4x": 0.11499021013661849,
-      "rms": 0.011308930665228317,
-      "rmsDbfs": -38.931569171422474,
-      "crestDb": 20.07535641308438,
+      "peak": 0.11273193359375,
+      "truePeak4x": 0.11500365875189308,
+      "rms": 0.00897980772043738,
+      "rmsDbfs": -40.93465925072308,
+      "crestDb": 21.975598373613174,
       "seamDifference": 0.0,
-      "seamAdjacentStep": 0.000213623046875,
+      "seamAdjacentStep": 0.00048828125,
       "halfSecondRmsPercentiles": {
-        "5": 0.007902527752955139,
-        "50": 0.010923741563899334,
-        "95": 0.014806957267254311,
-        "100": 0.016089949913467284
+        "5": 0.005812402374276968,
+        "50": 0.008568232479199328,
+        "95": 0.01209415730612924,
+        "100": 0.013006079150814616
       },
-      "lowFrequencyEnergyBelow80Hz": 0.00010231899146915601,
-      "highFrequencyEnergyAbove6000Hz": 0.0009038108154922046,
-      "stereoCorrelation": 0.4676767930012249,
-      "sha256": "c30a53999fa3761274c5a9984ee3aa1ee317161cb5d5f01c293eadce549d2ae6",
-      "description": "独立阔叶树叶响实录；保留细碎沙沙与现场轻微风，不是同一风轨的滤波副本",
+      "lowFrequencyEnergyBelow80Hz": 1.2901136148460353e-06,
+      "highFrequencyEnergyAbove6000Hz": 0.03662553827052344,
+      "stereoCorrelation": 0.41892131975079017,
+      "sha256": "8332a842a5cc398d173786974688cf75f77a97fef6a9eab087097482bf363540",
+      "description": "近景树叶细碎沙沙；削减低频风底，保留较完整叶片摩擦细节；独立现场录音",
       "source": [
         "leaves_ecfike_183496"
       ],
@@ -241,16 +449,16 @@
         "sourceSpatialMode": "original distinct stereo channels",
         "sourceChannelsIdentical": false,
         "syntheticStereo": false,
-        "highPassHz": 240,
-        "lowPassHz": 3800,
+        "highPassHz": 450,
+        "lowPassHz": 6500,
         "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
         "overlapSeconds": 8,
         "loopMethod": "Complementary sin-squared tail-to-head overlap",
         "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
-        "circularRotationFrames": 865281,
-        "equalStereoSeamCandidates": 48,
+        "circularRotationFrames": 1997383,
+        "equalStereoSeamCandidates": 23,
         "normalization": "One constant linear gain per complete loop",
-        "masterGain": 18.23335920399929,
+        "masterGain": 12.999328900162881,
         "targetTruePeak4x": 0.115,
         "compression": false,
         "limiting": false,
@@ -265,8 +473,116 @@
       }
     }
   ],
+  "sources": [
+    {
+      "key": "hudson_shore_ceich93_318064",
+      "title": "Water_Lapping_River.wav",
+      "author": "ceich93",
+      "page": "https://freesound.org/people/ceich93/sounds/318064/",
+      "url": "https://cdn.freesound.org/previews/318/318064_4457609-hq.mp3",
+      "file": "shore-318064.mp3",
+      "sha256": "633f65aa915de7c83aca9d6100cb6a497000f4e39c36b6bef9cdefed06612313",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/ceich93/sounds/318064/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "af00105b8876ec1890366d904542d1a68e55264bbde811302f487394165012fe"
+      },
+      "sourceDescription": "Hudson River water lapping a pebbly shore at night; Tascam DR-05 with Rode windscreen.",
+      "downloadFormat": "Official public high-quality MP3 preview; decoded44100Hz stereo. Original upload WAV44100Hz16bit stereo."
+    },
+    {
+      "key": "lake_calm_mick_705034",
+      "author": "Mick_",
+      "title": "2023-10-03 lake shore ambience.wav",
+      "page": "https://freesound.org/people/Mick_/sounds/705034/",
+      "url": "https://cdn.freesound.org/previews/705/705034_8356325-hq.mp3",
+      "file": "source-705034.mp3",
+      "sha256": "b37260bc8581be7210a1b64e5b0fe87086ad1ddcfdddd97e237106891ee8ca2b",
+      "sourceDescription": "Very soft waves and some wildlife at a calm lake; Lake Pymatuning, PA,2023-10-03.",
+      "originalFormat": "Mono44100Hz32bit WAV; official HQ MP3 preview used",
+      "fieldSoundCaveat": "Original field source includes wildlife; no claim of perfect isolated water-only stem.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/Mick_/sounds/705034/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "690d0d8acda19f5f143f449694e29717c46cd32923ff05588ada05118c7b60c9"
+      }
+    },
+    {
+      "key": "lake_ripples_trp_568819",
+      "author": "TRP",
+      "title": "200906 Water waves lapping, lake, gentle, close, PEC9am.flac",
+      "page": "https://freesound.org/people/TRP/sounds/568819/",
+      "url": "https://cdn.freesound.org/previews/568/568819_97550-hq.mp3",
+      "file": "source-568819.mp3",
+      "sha256": "256c55aff55fed78e4ad2c5251f2a5d2ec91ea20b6d729010ee10fc15e1a7a3f",
+      "sourceDescription": "Small lake waves lapping a rocky shore; homemade parabolic with EM172s.",
+      "originalFormat": "Stereo48000Hz24bit FLAC; official HQ MP3 preview used",
+      "fieldSoundCaveat": "Close natural lake-wave recording; soft lowpass controls small splash transients.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/TRP/sounds/568819/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "1b2d57e5ac02480ebdb3d9e629dfc4c1ddea139b8afd6a220c1ef4780bc3623f"
+      }
+    },
+    {
+      "key": "leaves_ecfike_183496",
+      "title": "Wind and Leaves.wav",
+      "author": "ecfike",
+      "page": "https://freesound.org/people/ecfike/sounds/183496/",
+      "url": "https://cdn.freesound.org/previews/183/183496_2337290-hq.mp3",
+      "file": "source-183496.mp3",
+      "sha256": "a804e75f0c57acd77488a63b8452d8de8593a7f8ed1c0a5b546d0b41d770b8fa",
+      "sourceDescription": "Wind in a small clump of broad-leaf trees; original stereo44100Hz16bit WAV field recording. The leaves track retains this recording's own light breeze; it is not an artificially isolated dry stem.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/ecfike/sounds/183496/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "21569182632d445e8f958e497c8f26f83580b9b9fb38df2316cafeb0464caabd"
+      },
+      "downloadFormat": "Official public HQ MP3 preview; decoded44100Hz stereo"
+    },
+    {
+      "key": "wind_open_uganda_38976",
+      "author": "Uganda",
+      "title": "WIND, Wind through Wheatfield.wav",
+      "page": "https://freesound.org/people/Uganda/sounds/38976/",
+      "url": "https://cdn.freesound.org/previews/38/38976_226484-hq.mp3",
+      "file": "source-38976.mp3",
+      "sha256": "6490b47fcd0bd6daa477a8eb3362af380b1a933209d6aa33328c13eaa8f6619e",
+      "sourceDescription": "Wind through a wheatfield, soft vegetation crackling; Haywards Heath, West Sussex.",
+      "originalFormat": "Stereo48000Hz24bit WAV; official HQ MP3 preview used",
+      "fieldSoundCaveat": "Creator notes a few background birds in full recording; selected gesture avoids stronger high-frequency sections. Technical spectral checks cannot certify absence of every distant call.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/Uganda/sounds/38976/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "3204cfd63c8841a8bcd58f3220fe55f4f47a7b93282dd0696fb9d4f709c77705"
+      }
+    }
+  ],
   "provenance": {
     "builders": [
+      {
+        "script": "tools/audio/build_lake_gust_ambience.py",
+        "scriptSha256": "bcf61fb702cc29cb4874b6bf16e80918ea6ea073031c1fa577a2d8f687ded7c1",
+        "reproduction": "python tools/audio/build_lake_gust_ambience.py --sources <cache>",
+        "sourceRecordingsIndependent": true,
+        "sourceScope": "Three new independent creator files; original shore/leaves retained for comparison",
+        "humanListening": "Not certified by automated signal/source verification"
+      },
       {
         "script": "tools/audio/build_pond_ambience.py",
         "scriptSha256": "b4dfcdfced54d7d37d70bd8f1fd7d336760b5dc7bf7fb22ba5947b6535078868",
@@ -275,11 +591,15 @@
       },
       {
         "script": "tools/audio/build_pond_wind_leaves.py",
-        "scriptSha256": "71ea04472d741f347701ddc14946664ac60352932474b0f8e875443a1104ae6f",
+        "scriptSha256": "f51ed3818e6fd3edac444cdc691056199120028bd4314a5aa64397cbeac46e0e",
         "reproduction": "python tools/audio/build_pond_wind_leaves.py --sources <cache>",
         "independentRecordedSources": true,
-        "scope": "Only wind/leaves WAVs and report; merge only owned wind/leaves metadata into runtime bank, preserving water."
+        "scope": "Only wind/leaves WAVs and report; merge only owned leaves metadata into runtime bank, preserving water."
       }
-    ]
+    ],
+    "configuration": {
+      "script": "tools/audio/pond_scene_config.py",
+      "scriptSha256": "6b4dc39392dd3d4c3929fab9280dd37393bc0f51ab7d1bed5c2b182ba88f3d53"
+    }
   }
 }

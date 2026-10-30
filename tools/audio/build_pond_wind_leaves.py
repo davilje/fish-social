@@ -1,10 +1,13 @@
-"""Build two independent CC0 recorded wind/leaves loops, without changing the shore loop.
+"""Rebuild the retained CC0 leaf recording; the legacy filename is kept for reproduction.
+
+The rejected continuous/window-like wind is retired. New lake beds and outdoor gusts
+are built by build_lake_gust_ambience.py. This command only refreshes the leaf asset.
 
 Requires numpy scipy soundfile. Each natural field recording is downloaded from its
 creator's official public Freesound preview and pinned by SHA256. Uses only excerpt,
 identical stereo filtering, resampling, long overlap and one constant gain. No noise
 synthesis, music, added birds, compressors, limiters or time stretching. Writes only
-pond_wind/pond_leaves WAV+meta and its independent report, merging only owned track IDs
+pond_leaves WAV+meta and its independent report, merging only owned leaf track ID
 into the shared runtime ambience bank through ambience_bank.merge_bank.
 """
 from pathlib import Path
@@ -24,18 +27,6 @@ AUDIO = ROOT/'fish-social-unity/Assets/StreamingAssets/Audio'
 SR = 44100
 TARGET_PEAK = .115
 SOURCES = [
-    dict(key='wind_mario1298_181250', title='a gentle breeze, wind 1', author='mario1298',
-        page='https://freesound.org/people/mario1298/sounds/181250/',
-        url='https://cdn.freesound.org/previews/181/181250_499617-hq.mp3',
-        file='source-181250.mp3',
-        sha256='374de47c58d371a7c8a34558adb9845c596277759019336cce53a050bac7088d',
-        sourceDescription='A gentle breeze/wind; creator upload reports stereo48000Hz32bit WAV. '
-            'The downloaded HQ preview has two identical channels (dual-mono); preserved honestly without synthetic widening.',
-        license='CC0-1.0', licenseUrl='https://creativecommons.org/publicdomain/zero/1.0/',
-        licenseEvidence=dict(officialPage='https://freesound.org/people/mario1298/sounds/181250/',
-            inspectedDate='2026-10-30', authorPageLicenseLabel='Creative Commons 0',
-            inspectedPageSha256='eb46c75019ad45ebf0c280cdb8f7784023f046c0726dd2d8659f9c4631a3bfd3'),
-        downloadFormat='Official public HQ MP3 preview; decoded48000Hz twochannel dual-mono'),
     dict(key='leaves_ecfike_183496', title='Wind and Leaves.wav', author='ecfike',
         page='https://freesound.org/people/ecfike/sounds/183496/',
         url='https://cdn.freesound.org/previews/183/183496_2337290-hq.mp3',
@@ -50,12 +41,9 @@ SOURCES = [
         downloadFormat='Official public HQ MP3 preview; decoded44100Hz stereo'),
 ]
 RECIPES = [
-    dict(id='wind', path='ambience/pond_wind.wav', source=SOURCES[0]['key'], start=84, seconds=64,
-        overlap=8, highPass=110, lowPass=2300, gain=.45,
-        description='轻柔自然微风实录；保留缓慢起伏，削减爆风低频与尖锐高频'),
-    dict(id='leaves', path='ambience/pond_leaves.wav', source=SOURCES[1]['key'], start=128, seconds=56,
-        overlap=8, highPass=240, lowPass=3800, gain=.4,
-        description='独立阔叶树叶响实录；保留细碎沙沙与现场轻微风，不是同一风轨的滤波副本'),
+    dict(id='leaves', path='ambience/pond_leaves.wav', source=SOURCES[0]['key'], start=128, seconds=56,
+        overlap=8, highPass=450, lowPass=6500, gain=.65,
+        description='近景树叶细碎沙沙；削减低频风底，保留较完整叶片摩擦细节；独立现场录音'),
 ]
 
 
@@ -106,7 +94,7 @@ def metrics(path):
     wrms = np.sqrt(np.mean(windows*windows, axis=(1, 2)))
     freq, psd = signal.welch(x, fs=rate, nperseg=8192, axis=0)
     power = psd.sum(axis=1)
-    return dict(path=str(path.relative_to(AUDIO)), version=1, duration=len(x)/rate,
+    return dict(path=str(path.relative_to(AUDIO)), version=2, duration=len(x)/rate,
         frames=len(x), channels=info.channels, sampleRate=rate, format=info.subtype,
         peak=peak, truePeak4x=float(np.max(np.abs(signal.resample_poly(x, 4, 1, axis=0)))),
         rms=rms, rmsDbfs=float(20*np.log10(rms)), crestDb=float(20*np.log10(peak/rms)),
@@ -169,25 +157,23 @@ def build_track(recipe, source, cache):
 
 
 def build(cache, report_path):
-    assert SOURCES[0]['sha256'] != SOURCES[1]['sha256'] and SOURCES[0]['page'] != SOURCES[1]['page']
     assets = [build_track(recipe, source, cache) for recipe, source in zip(RECIPES, SOURCES)]
     runtime = dict(tracks=[dict(id=recipe['id'], path=recipe['path'], gain=recipe['gain'], fadeSeconds=2.0,
         defaultMix=1.0) for recipe in RECIPES])
     provenance = dict(script='tools/audio/build_pond_wind_leaves.py', scriptSha256=sha(Path(__file__)),
         reproduction='python tools/audio/build_pond_wind_leaves.py --sources <cache>',
         independentRecordedSources=True,
-        scope='Only wind/leaves WAVs and report; merge only owned wind/leaves metadata into runtime bank, preserving water.')
+        scope='Only wind/leaves WAVs and report; merge only owned leaves metadata into runtime bank, preserving water.')
     manifest = dict(version=1, runtime=runtime, sources=SOURCES, assets=assets, provenance=provenance)
     from ambience_bank import merge_bank
-    merge_bank(manifest, ['wind', 'leaves'])
+    merge_bank(manifest, ['leaves'])
     report = dict(status='pass', date='2026-10-30', assets=assets, sources=SOURCES,
         runtime=runtime, provenance=provenance,
-        validation=['Two distinct pinned official CC0 natural recordings; wind dual-mono and leaves distinct stereo preserved honestly',
-            'Stereo PCM16 44100Hz, both40–64seconds', '8second natural overlap, exact zero stereo endpoint difference',
-            'Both4x truepeak below.12', 'Only constant gain/filter/resample/overlap; no compressors or generated noise'],
-        sourceNote='Wind HQ source is dual-mono despite creator upload header reporting stereo; no fake widening added. '
-            'Leaves recording has distinct stereo channels and naturally includes its own light breeze. It is a separate tree recording, '
-            'not an alternate filter of the wind source, and not a perfectly isolated leaf-only stem.',
+        validation=['Pinned official CC0 natural leaf recording; original stereo preserved',
+            'Stereo PCM16 44100Hz,48seconds', '8second natural overlap, exact zero stereo endpoint difference',
+            '4x truepeak below.12', 'Only constant gain/filter/resample/overlap; no compressors or generated noise'],
+        sourceNote='Leaves recording has distinct stereo channels and naturally includes its own light breeze; '
+            'not a perfectly isolated leaf-only stem. Runtime uses intermittent excerpts, not a continuous loop.',
         inspectionScope='Creator descriptions and licensing plus full-track spectral/transient measurements; '
             'technical checks do not constitute human listening approval or prove absence of every background field sound.',
         actualWindowsListening='Not performed by asset builder')
@@ -201,7 +187,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sources', type=Path, default=Path.home()/'.cache/fish-social-pond-wind-leaves')
     parser.add_argument('--report', type=Path,
-        default=ROOT/'docs/工程/声音/2026-10-30-pond-wind-leaves-assets.json')
+        default=ROOT/'docs/工程/声音/2026-10-30-retained-leaves-assets.json')
     args = parser.parse_args()
     build(args.sources, args.report)
 

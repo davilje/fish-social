@@ -63,7 +63,11 @@ namespace FishSocial.Desktop.Pet
             for (var index = 0; index < _effects.Length; index++)
             {
                 if (_effects[index] != null)
-                    _effects[index].SetPose(FishingLayerArt.LayerNames[index] == "line" ? line : pose.Body);
+                {
+                    var layer = FishingLayerArt.LayerNames[index];
+                    _effects[index].SetPose(layer == "line" ? line : layer == "rod" ? pose.Rod : pose.Body,
+                        layer == "line" || layer == "rod" ? 0 : pose.Nod);
+                }
             }
             _awakeHead = awakeHead;
             if (sleeping && _sleepHeadSkin != skinId)

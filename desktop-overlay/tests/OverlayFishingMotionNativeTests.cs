@@ -240,9 +240,14 @@ internal static class OverlayFishingMotionNativeTests
                     var height = Field<int>(actor, "_layerDrawH");
                     var horizontal = width / 640d;
                     var vertical = height / 512d;
-                    Data.Check(ReferenceEquals(layers[1].Source, OverlayFishingLayers.BitmapFor(sleepHead, width, height)), "sleep face not published");
+                    Data.Check(ReferenceEquals(Field<ImageSource[]>(actor,"_restSourceImages")[1], OverlayFishingLayers.BitmapFor(sleepHead, width, height)), "sleep face not published");
+                    if (layers[1].Source is DrawingImage nodImage)
+                    {
+                        Data.Check(nodImage.IsFrozen, "nodding drawing is not frozen");
+                        Data.Check(nodImage.Drawing.Bounds == new Rect(0,0,640,512), "nodding changes full-canvas sizing");
+                    }
                     var foot = new Point(264 * horizontal, 450 * vertical);
-                    foreach (var layer in new[] { 0, 1, 2, 3, 6 })
+                    foreach (var layer in new[] { 0, 1, 2, 6 })
                         Data.Check((layers[layer].RenderTransform.Transform(foot) - foot).Length < .001, "breathing foot drift");
                     var tip = new Point(541.5 * horizontal, 149 * vertical);
                     Data.Check((layers[3].RenderTransform.Transform(tip) - layers[4].RenderTransform.Transform(tip)).Length < .25,
@@ -252,7 +257,7 @@ internal static class OverlayFishingMotionNativeTests
                 actor.Apply("cat", "fishing", "waiting", 0, 0, petId: pet, fishingAsleep: false);
                 Wait(() => !actor.FramePending);
                 var awake = OverlayFishingLayers.LayerFile(pet, "fishing", 0, "head");
-                Data.Check(ReferenceEquals(Field<Image[]>(actor, "_layerImages")[1].Source,
+                Data.Check(ReferenceEquals(Field<ImageSource[]>(actor, "_restSourceImages")[1],
                     OverlayFishingLayers.BitmapFor(awake, Field<int>(actor, "_layerDrawW"), Field<int>(actor, "_layerDrawH"))), "wake retained closed eyes");
                 actor.Apply("cat", "sit", "seated", 0, 0, petId: pet);
                 Wait(() => !actor.FramePending);

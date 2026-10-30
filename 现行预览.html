@@ -91,6 +91,18 @@
     .gate div { padding: 1.15rem 1.4rem 1.35rem; }
     .gate p { margin: 0 0 0.7rem; }
     .gate strong { color: var(--accent); }
+    @media (max-width: 700px) {
+      .app { flex-direction: column; height: 100dvh; }
+      aside { width: 100%; border-right: 0; border-bottom: 1px solid var(--line); }
+      aside header { padding: 0.65rem 0.9rem; }
+      aside h1 { font-size: 1rem; }
+      aside header p { margin-top: 0.2rem; font-size: 0.73rem; }
+      nav { display: flex; align-items: center; gap: 0.25rem; padding: 0.4rem 0.55rem; overflow-x: auto; }
+      nav h2 { flex: none; margin: 0 0.4rem; white-space: nowrap; }
+      nav button { width: auto; flex: none; margin: 0; white-space: nowrap; }
+      main { min-height: 0; padding: 0.5rem; }
+      iframe { min-height: 0; }
+    }
   </style>
 </head>
 <body>
@@ -107,7 +119,7 @@
     <aside>
       <header>
         <h1>现行预览</h1>
-        <p>界面、形象、动作、地图、场景、特效和音效都在这一页。点左侧切换。演示数据，声音需要再点播放。</p>
+        <p>界面、形象、动作、地图、场景、特效和音效都在这一页。选择分类切换。演示数据，声音需要再点播放。</p>
       </header>
       <nav>
         <h2>手账</h2>
@@ -141,14 +153,15 @@
         <button type="button" data-src="docs/美术/猫咪形象/sangbiao/index.html">狸花猫丧彪</button>
         <button type="button" data-src="docs/美术/猫咪形象/character-study-2026-10-24/index.html">六款形象稿</button>
         <h2>动作</h2>
-        <button type="button" data-src="docs/美术/钓鱼动作/index.html">塘内钓鱼动作</button>
+        <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=cast" data-route="fishing">塘内钓鱼动作</button>
+        <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=fishing&amp;study=rest-v2" data-route="rest">呼吸与瞌睡</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/home-animation-review.html">家园走路进食</button>
         <h2>场景</h2>
         <button type="button" data-src="docs/美术/场景/motion.html?v=21-restored-sky-clouds&amp;pond=pond-calm">场景图层预览</button>
         <h2>特效</h2>
         <button type="button" data-src="docs/美术/水面特效/index.html?style=magic">水面特效</button>
         <h2>音效</h2>
-        <button type="button" data-src="docs/美术/声音/v5/index.html?v=20261030-layers">环境音与音效</button>
+        <button type="button" data-src="docs/美术/声音/leaf-clusters/index.html?v=20261030-flowing-applied" data-route="audio">环境音与音效</button>
       </nav>
     </aside>
     <main>
@@ -163,22 +176,29 @@
     } else {
       const savedSrc = sessionStorage.getItem('preview-src');
       const saved = buttons.find(button => button.dataset.src === savedSrc) ||
-        (savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : null);
-      const requestedPath = location.hash === '#scene' ? 'docs/美术/场景/motion.html' : location.hash === '#login' ? 'docs/美术/登录/cats-selected-2026-10-29/index.html' : location.hash === '#audio' ? 'docs/美术/声音/v5/index.html' : null;
-      const requested = requestedPath ? buttons.find(button => button.dataset.src.startsWith(requestedPath)) : null;
+        (savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : null);
+      const requestedPath = location.hash === '#scene' ? 'docs/美术/场景/motion.html' : location.hash === '#login' ? 'docs/美术/登录/cats-selected-2026-10-29/index.html' : location.hash === '#audio' ? 'docs/美术/声音/leaf-clusters/index.html' : null;
+      const requested = buttons.find(button => button.dataset.route && '#'+button.dataset.route === location.hash) || (requestedPath ? buttons.find(button => button.dataset.src.startsWith(requestedPath)) : null);
       const current = requested || saved || buttons[0];
       buttons.forEach(button => {
         button.addEventListener('click', () => select(button));
       });
       select(current);
+      window.addEventListener('hashchange', () => {
+        const route = { '#audio': 'audio', '#login': 'login' }[location.hash];
+        const target = route ? buttons.find(button => button.dataset.route === route) :
+          location.hash === '#scene' ? buttons.find(button => button.dataset.src.startsWith('docs/美术/场景/motion.html')) : null;
+        if (target && stage.getAttribute('src') !== target.dataset.src) select(target);
+      });
     }
     function select(button) {
       buttons.forEach(item => {
         if (item === button) item.setAttribute('aria-current', 'true');
         else item.removeAttribute('aria-current');
       });
+      button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       stage.src = button.dataset.src;
-      const hash = button.dataset.route === 'login' ? '#login' : button.dataset.src.startsWith('docs/美术/场景/motion.html') ? '#scene' : button.dataset.src.startsWith('docs/美术/声音/v5/index.html') ? '#audio' : '';
+      const hash = button.dataset.route ? '#'+button.dataset.route : button.dataset.src.startsWith('docs/美术/场景/motion.html') ? '#scene' : '';
       history.replaceState(null, '', location.pathname + location.search + hash);
       sessionStorage.setItem('preview-src', button.dataset.src);
     }

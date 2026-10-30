@@ -1,4 +1,5 @@
 using System;
+using FishSocial.Motion;
 
 namespace FishSocialOverlay
 {
@@ -50,7 +51,7 @@ namespace FishSocialOverlay
             sleepBlend = Math.Max(0, Math.Min(1, sleepBlend));
             var awakeWave = Math.Sin(elapsedMs * Math.PI * 2 / 3200);
             var sleepWave = Math.Sin(elapsedMs * Math.PI * 2 / 4600);
-            var growth = 1 + .006 * awakeWave * (1 - sleepBlend) + .009 * sleepWave * sleepBlend;
+            var growth = 1 + FishingRestGeometry.AwakeAmplitude * awakeWave * (1 - sleepBlend) + FishingRestGeometry.SleepAmplitude * sleepWave * sleepBlend;
             var angle = (2.1 + .9 * Math.Sin(elapsedMs * Math.PI * 2 / 5800)) * sleepBlend * Math.PI / 180;
             var cosine = Math.Cos(angle);
             var sine = Math.Sin(angle);
@@ -58,6 +59,7 @@ namespace FishSocialOverlay
             {
                 Matrix = new[] { cosine, sine, -sine * growth, cosine * growth, 0d, 0d },
                 SleepBlend = sleepBlend,
+                Nod = FishingRestGeometry.Nod(elapsedMs) * sleepBlend,
                 BubbleOpacity = sleepBlend * (.65 + .25 * sleepWave),
                 BubbleRise = 3 * (1 + sleepWave)
             };
@@ -70,7 +72,9 @@ namespace FishSocialOverlay
     internal struct RestPose
     {
         public double[] Matrix;
-        public double SleepBlend, BubbleOpacity, BubbleRise;
+        public double SleepBlend, BubbleOpacity, BubbleRise, Nod;
+        public double[] RodMatrix => FishingRestGeometry.Multiply(Matrix, FishingRestGeometry.Rod(Nod));
+        public double RodY(double x, double y) { var m = RodMatrix; return m[1]*x+m[3]*y+m[5]; }
         public static RestPose Identity => new RestPose { Matrix = new[] { 1d, 0, 0, 1, 0, 0 } };
         public double X(double sourceX, double sourceY) => Matrix[0] * sourceX + Matrix[2] * sourceY + Matrix[4];
         public double Y(double sourceX, double sourceY) => Matrix[1] * sourceX + Matrix[3] * sourceY + Matrix[5];
@@ -79,8 +83,9 @@ namespace FishSocialOverlay
         {
             var length = bottom - tipY;
             if (length <= 1) return Identity.Matrix;
-            var deltaX = X(tipX, tipY) - tipX;
-            var deltaY = Y(tipX, tipY) - tipY;
+            var rod = RodMatrix;
+            var deltaX = rod[0]*tipX+rod[2]*tipY+rod[4] - tipX;
+            var deltaY = rod[1]*tipX+rod[3]*tipY+rod[5] - tipY;
             return new[] { 1d, 0, -deltaX / length, 1 - deltaY / length,
                 deltaX * bottom / length, deltaY * bottom / length };
         }

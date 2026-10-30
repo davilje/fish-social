@@ -77,14 +77,14 @@ namespace FishSocial.Tests.Editor
             DesktopAudioService.SetMusicVolume(float.NaN);DesktopAudioService.SetEffectsVolume(float.PositiveInfinity);
             Assert.AreEqual(.35f,DesktopAudioService.MusicVolume);Assert.AreEqual(.7f,DesktopAudioService.EffectsVolume);
         }
-        [Test] public void FourIndependentLoopsAndFourBoundedNonSpatialShortSources()
+        [Test] public void NineFixedSourcesSeparateWaterCrossfadeWeatherLoopsAndFourShortVoices()
         {
-            var service=Service();var sources=root.GetComponentsInChildren<AudioSource>();Assert.AreEqual(8,sources.Length);
-            Assert.AreEqual(4,sources.Count(s=>s.loop));Assert.IsTrue(sources.Single(s=>s.name=="BackgroundMusic").loop);
-            CollectionAssert.AreEquivalent(new[]{"BackgroundMusic","PondAmbience_water","PondAmbience_wind","PondAmbience_leaves","InterfaceSounds","FishingSoundsA","FishingSoundsB","CatVoice"},sources.Select(s=>s.name));
+            var service=Service();var sources=root.GetComponentsInChildren<AudioSource>();Assert.AreEqual(9,sources.Length);
+            Assert.AreEqual(5,sources.Count(s=>s.loop));Assert.IsTrue(sources.Single(s=>s.name=="BackgroundMusic").loop);
+            CollectionAssert.AreEquivalent(new[]{"BackgroundMusic","PondWaterA","PondWaterB","PondWind","PondLeaves","InterfaceSounds","FishingSoundsA","FishingSoundsB","CatVoice"},sources.Select(s=>s.name));
             foreach(var source in sources){Assert.AreEqual(0,source.spatialBlend);Assert.IsFalse(source.playOnAwake);Assert.IsTrue(source.ignoreListenerPause);}
             DesktopAudioService.SetMusicVolume(.12f);Assert.AreEqual(.12f,sources.Single(s=>s.name=="BackgroundMusic").volume);
-            Assert.AreEqual(0,sources.Single(s=>s.name=="PondAmbience_water").volume);
+            Assert.AreEqual(0,sources.Single(s=>s.name=="PondWaterA").volume);
             Assert.AreEqual(0,service.ActiveShortVoices);
         }
         [Test] public void PondMembershipMutesMusicBeforeFishingStartsAndKeepsUserPreference()
@@ -131,17 +131,25 @@ namespace FishSocial.Tests.Editor
             Invoke(s,"Request","cast","cast");DesktopAudioService.PlayMeow();
             Assert.AreEqual(2,s.ActiveShortVoices,"Only buttons and BGM are suppressed");
         }
-        AudioSource EnvironmentSource(string id) => root.GetComponentsInChildren<AudioSource>().Single(x=>x.name=="PondAmbience_"+id);
+        AudioSource EnvironmentSource(string id) => root.GetComponentsInChildren<AudioSource>().Single(x=>x.name==id);
+        DesktopAudioEnvelope Envelope(string id)=>EnvironmentSource(id).GetComponent<DesktopAmbienceEnvelopeFilter>().envelope;
+        double audioNow;
+        void At(DesktopAudioService service,double time){audioNow=time;Invoke(service,"SyncSceneLoops");}
         void AddEnvironmentClips(DesktopAudioService service)
         {
-            foreach(var id in AmbienceIds){var path="ambience/pond_"+(id=="water"?"shore":id)+".wav";AddClip(service,path,4);EnvironmentSource(id).clip=((Dictionary<string,AudioClip>)Field(service,"clips"))[path];}
+            audioNow=AudioSettings.dspTime;
+            service.GetType().GetField("ambienceClock",Private).SetValue(service,new Func<double>(()=>audioNow));
+            foreach(var name in new[]{"lake_calm","lake_ripples","shore","wind_open_loop","leaves"})AddClip(service,"ambience/pond_"+name+".wav",name=="wind_open_loop"?12:48);
         }
-        void FinishEnvironmentFade(DesktopAudioService service)
-        {
-            foreach(DictionaryEntry pair in (IDictionary)Field(service,"ambienceTracks"))
-                pair.Value.GetType().GetField("changedAt").SetValue(pair.Value,Time.realtimeSinceStartupAsDouble-6);
-            Invoke(service,"Update");
-        }
+        DesktopAmbienceConfiguration EnvironmentConfig()=>new DesktopAmbienceConfiguration{
+            version=4,defaultWaterProfile="calm",
+            loops=new[]{new DesktopAmbienceLoop{id="water",path="ambience/pond_lake_calm.wav",gain=.6f},new DesktopAmbienceLoop{id="wind",path="ambience/pond_wind_open_loop.wav",gain=.18f},new DesktopAmbienceLoop{id="leaves",path="ambience/pond_leaves.wav",gain=.65f}},
+            waterProfiles=new[]{new DesktopAmbienceLoop{id="calm",path="ambience/pond_lake_calm.wav",gain=.6f},new DesktopAmbienceLoop{id="ripples",path="ambience/pond_lake_ripples.wav",gain=.65f},new DesktopAmbienceLoop{id="shore",path="ambience/pond_shore.wav",gain=.45f}},
+            scenes=new[]{new DesktopAmbienceScene{pondId="lake-a",waterProfile="calm"},new DesktopAmbienceScene{pondId="lake-b",waterProfile="ripples"},new DesktopAmbienceScene{pondId="river",waterProfile="shore"}}
+        };
+        void ConfigureEnvironment(DesktopAudioService service,DesktopAmbienceConfiguration config)
+        {Assert.AreEqual(true,service.GetType().GetMethod("ConfigureAmbience",Private).Invoke(service,new object[]{config}));}
+        DesktopWeatherPlayback WeatherPlayback(DesktopAudioService service)=>(DesktopWeatherPlayback)Field(service,"weatherPlayback");
         [Test] public void IndependentAmbienceLevelsPersistClampAndDoNotChangeOtherBuses()
         {
             foreach(var id in AmbienceIds)Assert.AreEqual(1,DesktopAudioService.GetAmbienceLevel(id));
@@ -158,43 +166,106 @@ namespace FishSocial.Tests.Editor
             Assert.Throws<ArgumentException>(()=>DesktopAudioService.SetAmbienceLevel("unknown",.5f));
             Assert.AreEqual(.35f,DesktopAudioService.MusicVolume);Assert.AreEqual(.7f,DesktopAudioService.EffectsVolume);
         }
-        [Test] public void ThreeAmbiencesFadeAcrossVisibilitySceneAndDisableAndMuteIndependently()
+        [Test] public void WaterProfilesFollowPondWithCalmFallbackAndBoundedRapidCrossfades()
         {
-            var s=Service();var user=new PondUserDto{id="own",fishingPhase="waiting"};
-            s.UpdateContext("pond",user,true,"overlay",false,true);
-            foreach(var id in AmbienceIds)Assert.IsFalse(EnvironmentSource(id).isPlaying);
-            AddEnvironmentClips(s);Invoke(s,"SyncSceneLoops");
-            foreach(var id in AmbienceIds){Assert.IsTrue(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume,.001);}
-            FinishEnvironmentFade(s);
-            Assert.AreEqual(.7f*.65f,EnvironmentSource("water").volume,.001);Assert.AreEqual(.7f*.45f,EnvironmentSource("wind").volume,.001);Assert.AreEqual(.7f*.4f,EnvironmentSource("leaves").volume,.001);
-            DesktopAudioService.SetAmbienceLevel("wind",.3f);Assert.AreEqual(.7f*.45f*.3f,EnvironmentSource("wind").volume,.001);
-            DesktopAudioService.SetAmbienceLevel("water",0);Assert.IsFalse(EnvironmentSource("water").isPlaying);Assert.AreEqual(0,EnvironmentSource("water").volume);
-            Assert.IsTrue(EnvironmentSource("wind").isPlaying);Assert.IsTrue(EnvironmentSource("leaves").isPlaying);
-            DesktopAudioService.SetMusicVolume(0);Assert.AreEqual(.7f*.4f,EnvironmentSource("leaves").volume,.001);
-            DesktopAudioService.SetEffectsVolume(0);foreach(var id in AmbienceIds){Assert.IsFalse(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume);}
-            DesktopAudioService.SetEffectsVolume(.5f);FinishEnvironmentFade(s);Assert.IsFalse(EnvironmentSource("water").isPlaying);
-            Assert.AreEqual(.5f*.45f*.3f,EnvironmentSource("wind").volume,.001);Assert.AreEqual(.5f*.4f,EnvironmentSource("leaves").volume,.001);
-            DesktopAudioService.SetAmbienceLevel("water",.8f);FinishEnvironmentFade(s);Assert.AreEqual(.5f*.65f*.8f,EnvironmentSource("water").volume,.001);
-            s.UpdateContext("pond",user,true,"overlay",true);FinishEnvironmentFade(s);foreach(var id in AmbienceIds)Assert.IsFalse(EnvironmentSource(id).isPlaying);
-            s.UpdateContext("pond",user,true,"overlay",false);FinishEnvironmentFade(s);foreach(var id in AmbienceIds)Assert.IsTrue(EnvironmentSource(id).isPlaying);
-            s.enabled=false;Invoke(s,"OnDisable");foreach(var id in AmbienceIds){Assert.IsFalse(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume);}
-            s.enabled=true;Invoke(s,"OnEnable");FinishEnvironmentFade(s);foreach(var id in AmbienceIds)Assert.IsTrue(EnvironmentSource(id).isPlaying);
-            s.UpdateContext("pond",null,false,"unity",false);FinishEnvironmentFade(s);foreach(var id in AmbienceIds){Assert.IsFalse(EnvironmentSource(id).isPlaying);Assert.AreEqual(0,EnvironmentSource(id).volume);}
-            Assert.AreEqual(.8f,DesktopAudioService.GetAmbienceLevel("water"));Assert.AreEqual(.3f,DesktopAudioService.GetAmbienceLevel("wind"));
-            Assert.AreEqual(8,root.GetComponentsInChildren<AudioSource>().Length);
+            var s=Service();ConfigureEnvironment(s,EnvironmentConfig());AddEnvironmentClips(s);
+            Assert.AreEqual("calm",s.WaterProfileForPond("unmapped"));Assert.AreEqual("calm",s.WaterProfileForPond(null));Assert.AreEqual("ripples",s.WaterProfileForPond("lake-b"));
+            var user=new PondUserDto{id="own",fishingPhase="waiting"};s.UpdateContext("lake-a",user,true,"unity",false,true);
+            var entry=audioNow;At(s,entry+2);
+            Assert.AreEqual("ambience/pond_lake_calm.wav",EnvironmentSource("PondWaterA").clip.name);
+            Assert.AreEqual(1,Envelope("PondWaterA").Evaluate(audioNow));Assert.AreEqual(.7f*.6f,EnvironmentSource("PondWaterA").volume,.001);
+            s.UpdateContext("lake-b",user,true,"unity",false,true);At(s,entry+3);
+            Assert.AreEqual(.5f,Envelope("PondWaterA").Evaluate(audioNow),.001);Assert.AreEqual(.5f,Envelope("PondWaterB").Evaluate(audioNow),.001);
+            Assert.AreEqual("ambience/pond_lake_ripples.wav",EnvironmentSource("PondWaterB").clip.name);
+            s.UpdateContext("river",user,true,"unity",false,true);At(s,entry+3.1);s.UpdateContext("lake-a",user,true,"unity",false,true);At(s,entry+6);
+            var water=root.GetComponentsInChildren<AudioSource>().Where(x=>x.name.StartsWith("PondWater",StringComparison.Ordinal)).ToArray();
+            Assert.AreEqual(2,water.Length);Assert.AreEqual(1,water.Count(x=>x.isPlaying));Assert.IsTrue(water.Single(x=>x.isPlaying).clip.name.EndsWith("lake_calm.wav"));
+            Assert.AreEqual(9,root.GetComponentsInChildren<AudioSource>().Length);Assert.AreEqual(0,s.ActiveShortVoices);
+            Assert.IsFalse(((AudioSource)Field(s,"music")).isPlaying);Assert.IsFalse(EnvironmentSource("InterfaceSounds").isPlaying);
         }
-        [Test] public void AmbienceManifestUsesIdsNotOrderAndSupportsLegacyWaterOnly()
+        [Serializable] sealed class WeatherGoldenSample {public double time,wind,leaves;}
+        [Serializable] sealed class WeatherGolden {public int seed;public DesktopWeatherConfiguration config;public WeatherGoldenSample[] samples;}
+        [Test] public void WeatherMatchesAdoptedJavaScriptGoldenAcrossThirtyMinuteTimeline()
         {
-            var s=Service();
-            var v2=JsonUtility.FromJson<DesktopAmbienceConfiguration>("{\"version\":2,\"loops\":[{\"id\":\"leaves\",\"path\":\"ambience/pond_leaves.wav\",\"gain\":0.2},{\"id\":\"water\",\"path\":\"ambience/pond_shore.wav\",\"gain\":0.3},{\"id\":\"wind\",\"path\":\"ambience/pond_wind.wav\",\"gain\":0.4}]}");
-            var configure=s.GetType().GetMethod("ConfigureAmbience",Private);Assert.AreEqual(true,configure.Invoke(s,new object[]{v2}));
-            AddEnvironmentClips(s);s.UpdateContext("pond",new PondUserDto{id="own"},true,"unity",false,true);FinishEnvironmentFade(s);
-            Assert.AreEqual(.7f*.2f,EnvironmentSource("leaves").volume,.001);Assert.AreEqual(.7f*.3f,EnvironmentSource("water").volume,.001);
-            v2.loops[0].id="wind";Assert.AreEqual(false,configure.Invoke(s,new object[]{v2}),"duplicate identity cannot replace valid config");
-            var legacy=JsonUtility.FromJson<DesktopAmbienceConfiguration>("{\"version\":1,\"runtime\":{\"path\":\"ambience/pond_shore.wav\",\"gain\":0.5,\"fadeSeconds\":2}}");
-            Assert.AreEqual(true,configure.Invoke(s,new object[]{legacy}));Invoke(s,"SyncSceneLoops");FinishEnvironmentFade(s);
-            Assert.IsTrue(EnvironmentSource("water").isPlaying);Assert.AreEqual(.7f*.5f,EnvironmentSource("water").volume,.001);
-            Assert.IsFalse(EnvironmentSource("wind").isPlaying);Assert.IsFalse(EnvironmentSource("leaves").isPlaying);
+            var path=Path.GetFullPath(Path.Combine(Application.dataPath,"../../docs/工程/声音/flowing-adoption-2026-10-30/weather-golden.json"));
+            var golden=JsonUtility.FromJson<WeatherGolden>(File.ReadAllText(path));Assert.AreEqual(2201030,golden.seed);Assert.GreaterOrEqual(golden.samples.Length,100);
+            var playback=new DesktopWeatherPlayback(golden.config,0);
+            foreach(var point in golden.samples)
+            {
+                playback.Prepare(point.time);
+                Assert.AreEqual(point.wind,playback.Evaluate(point.time,false),1e-9,"wind at "+point.time);
+                Assert.AreEqual(point.leaves,playback.Evaluate(point.time,true),1e-9,"leaves at "+point.time);
+            }
+        }
+        [Test] public void SharedWeatherIsContinuousAcrossBlocksAndBoundedForSixHours()
+        {
+            var config=new DesktopWeatherConfiguration();var model=new DesktopWeather(config);var first=model.NextBlock();var next=model.NextBlock();
+            Assert.AreEqual(first.wind.Last(),next.wind.First(),1e-12);Assert.AreEqual(first.leaves.Last(),next.leaves.First(),1e-12);
+            var playback=new DesktopWeatherPlayback(config,0);var min=1d;var max=0d;
+            for(var time=0d;time<=6*3600;time+=15)
+            {
+                playback.Prepare(time);Assert.LessOrEqual(playback.window.BlockCount,4);Assert.LessOrEqual(playback.RetainedWindPoints,8);
+                Assert.GreaterOrEqual(playback.window.End-time,60);
+                foreach(var leaf in new[]{false,true}){var gain=playback.Evaluate(time,leaf);Assert.That(gain,Is.InRange(0d,1d));}
+                var wind=playback.Evaluate(time,false);min=Math.Min(min,wind);max=Math.Max(max,wind);
+            }
+            Assert.Less(min,.04);Assert.Greater(max,.4,"Long running weather must keep varying instead of freezing");
+        }
+        [Test] public void DspProcessesSharedWeatherWithoutFramesAndCancellationSilencesNextBlock()
+        {
+            var service=Service();var wind=EnvironmentSource("PondWind").GetComponent<DesktopAmbienceEnvelopeFilter>();var leaves=EnvironmentSource("PondLeaves").GetComponent<DesktopAmbienceEnvelopeFilter>();
+            var playback=new DesktopWeatherPlayback(new DesktopWeatherConfiguration(),0);
+            wind.weather=leaves.weather=playback;wind.envelope=leaves.envelope=new DesktopAudioEnvelope(-2,-1,1,1);
+            var a=Enumerable.Repeat(1f,1024).ToArray();var b=(float[])a.Clone();var c=(float[])a.Clone();
+            wind.Process(a,2,5,44100);wind.Process(b,2,45,44100);leaves.Process(c,2,45,44100);
+            Assert.AreEqual(playback.Evaluate(5,false),a[0],1e-6);Assert.AreEqual(playback.Evaluate(45,false),b[0],1e-6);Assert.AreEqual(playback.Evaluate(45,true),c[0],1e-6);
+            Assert.Greater(Math.Abs(a[0]-b[0]),.01);Assert.Greater(Math.Abs(b[0]-c[0]),.01);Assert.AreEqual(b[0],b[1]);Assert.AreNotEqual(b[0],b[1022]);
+            wind.envelope=null;wind.Process(a,2,46,44100);Assert.IsTrue(a.All(x=>x==0));
+            BackgroundRenderGate.SetOverlayActive(false);BackgroundRenderGate.SetHidden(true);Invoke(service,"RefreshAudioClock");Assert.AreEqual(5,Application.targetFrameRate);
+        }
+        [Test] public void ContinuousWindLeavesShareTimelineAndIndependentMuteRestoresCurrentShape()
+        {
+            var s=Service();ConfigureEnvironment(s,EnvironmentConfig());AddEnvironmentClips(s);
+            s.UpdateContext("lake-a",new PondUserDto{id="own",fishingPhase="waiting"},true,"unity",false,true);
+            var playback=WeatherPlayback(s);var wind=EnvironmentSource("PondWind");var leaves=EnvironmentSource("PondLeaves");
+            Assert.IsTrue(wind.loop);Assert.IsTrue(leaves.loop);Assert.IsTrue(wind.isPlaying);Assert.IsTrue(leaves.isPlaying);
+            Assert.AreSame(playback,wind.GetComponent<DesktopAmbienceEnvelopeFilter>().weather);Assert.AreSame(playback,leaves.GetComponent<DesktopAmbienceEnvelopeFilter>().weather);
+            Assert.AreEqual(0,Envelope("PondWind").Evaluate(audioNow));At(s,audioNow+2);Assert.AreEqual(1,Envelope("PondWind").Evaluate(audioNow));
+            Assert.AreEqual(.7f*.18f,wind.volume,.001);Assert.AreEqual(.7f*.65f,leaves.volume,.001,"Production must not apply the 5x monitoring gain");
+            DesktopAudioService.SetAmbienceLevel("wind",0);Assert.IsFalse(wind.isPlaying);Assert.IsNull(Envelope("PondWind"));Assert.IsTrue(leaves.isPlaying);
+            At(s,audioNow+10);DesktopAudioService.SetAmbienceLevel("wind",.3f);Assert.IsTrue(wind.isPlaying);Assert.AreSame(playback,WeatherPlayback(s));
+            Assert.AreEqual(0,Envelope("PondWind").Evaluate(audioNow));Assert.AreEqual((3.2+audioNow-playback.origin)%12,wind.time,.02,"Resume from current shared timeline, not a stale gust offset");
+            At(s,audioNow+2);Assert.AreEqual(1,Envelope("PondWind").Evaluate(audioNow));
+            DesktopAudioService.SetAmbienceLevel("leaves",0);Assert.IsFalse(leaves.isPlaying);At(s,audioNow+5);DesktopAudioService.SetAmbienceLevel("leaves",.4f);
+            Assert.IsTrue(leaves.isPlaying);Assert.AreSame(playback,WeatherPlayback(s));Assert.AreEqual(.7f*.18f*.3f,wind.volume,.001);Assert.AreEqual(.7f*.65f*.4f,leaves.volume,.001);
+            Assert.AreEqual(0,s.ActiveShortVoices);Assert.AreEqual(9,root.GetComponentsInChildren<AudioSource>().Length);
+            BackgroundRenderGate.SetOverlayActive(false);BackgroundRenderGate.SetHidden(true);Invoke(s,"RefreshAudioClock");Assert.AreEqual(5,Application.targetFrameRate);
+        }
+        [Test] public void WeatherSceneChangesFadeButHiddenDisableAndMasterMuteImmediatelyClearModels()
+        {
+            var s=Service();ConfigureEnvironment(s,EnvironmentConfig());AddEnvironmentClips(s);var user=new PondUserDto{id="own",fishingPhase="waiting"};
+            s.UpdateContext("lake-a",user,true,"unity",false,true);At(s,audioNow+3);var first=WeatherPlayback(s);
+            s.UpdateContext("lake-b",user,true,"unity",false,true);Assert.AreSame(first,WeatherPlayback(s));var exit=audioNow;
+            At(s,exit+.6);Assert.AreEqual(.5f,Envelope("PondWind").Evaluate(audioNow),.001);
+            At(s,exit+1.3);Assert.AreNotSame(first,WeatherPlayback(s));Assert.AreEqual(0,Envelope("PondWind").Evaluate(audioNow));
+            At(s,audioNow+2);s.UpdateContext("lake-b",user,true,"unity",true);Assert.IsNull(WeatherPlayback(s));
+            foreach(var name in new[]{"PondWaterA","PondWaterB","PondWind","PondLeaves"}){Assert.IsFalse(EnvironmentSource(name).isPlaying);Assert.IsNull(Envelope(name));}
+            At(s,audioNow+100);s.UpdateContext("lake-b",user,true,"unity",false);Assert.IsNotNull(WeatherPlayback(s));Assert.AreEqual(audioNow,WeatherPlayback(s).origin);Assert.AreEqual(0,Envelope("PondWind").Evaluate(audioNow));
+            DesktopAudioService.SetEffectsVolume(0);Assert.IsNull(WeatherPlayback(s));At(s,audioNow+100);DesktopAudioService.SetEffectsVolume(.5f);Assert.AreEqual(audioNow,WeatherPlayback(s).origin);
+            s.enabled=false;Invoke(s,"OnDisable");Assert.IsNull(WeatherPlayback(s));At(s,audioNow+100);s.enabled=true;Invoke(s,"OnEnable");Assert.AreEqual(audioNow,WeatherPlayback(s).origin);
+            DesktopAudioService.SetAmbienceLevel("water",0);Assert.IsFalse(EnvironmentSource("PondWaterA").isPlaying);Assert.IsFalse(EnvironmentSource("PondWaterB").isPlaying);Assert.IsNotNull(WeatherPlayback(s));
+            DesktopAudioService.SetAmbienceLevel("water",.8f);At(s,audioNow+2);var water=root.GetComponentsInChildren<AudioSource>().Single(x=>x.name.StartsWith("PondWater",StringComparison.Ordinal)&&x.isPlaying);Assert.AreEqual(.5f*.65f*.8f,water.volume,.001);
+            DesktopAudioService.SetMusicVolume(0);Assert.IsNotNull(WeatherPlayback(s));
+            s.UpdateContext("lake-b",null,false,"unity",false);Assert.IsNotNull(WeatherPlayback(s));At(s,audioNow+1.3);Assert.IsNull(WeatherPlayback(s));Assert.IsFalse(EnvironmentSource("PondWind").isPlaying);At(s,audioNow+1);Assert.IsFalse(water.isPlaying);
+        }
+        [Test] public void AmbienceManifestRejectsInvalidWeatherAndRetiredVersionsAtomically()
+        {
+            var s=Service();var config=EnvironmentConfig();ConfigureEnvironment(s,config);
+            config.scenes[0].waterProfile="missing";Assert.AreEqual(false,s.GetType().GetMethod("ConfigureAmbience",Private).Invoke(s,new object[]{config}));Assert.AreEqual("calm",s.WaterProfileForPond("lake-a"));
+            config=EnvironmentConfig();config.weather.sampleIntervalSeconds=0;Assert.AreEqual(false,s.GetType().GetMethod("ConfigureAmbience",Private).Invoke(s,new object[]{config}));
+            config=EnvironmentConfig();config.weather.leavesFallSeconds=double.NaN;Assert.AreEqual(false,s.GetType().GetMethod("ConfigureAmbience",Private).Invoke(s,new object[]{config}));
+            config=EnvironmentConfig();config.version=3;Assert.AreEqual(false,s.GetType().GetMethod("ConfigureAmbience",Private).Invoke(s,new object[]{config}));
+            Assert.AreEqual("ripples",s.WaterProfileForPond("lake-b"));
         }
         [Test] public void SettingsFitLegacyContentAndRefreshWithoutWritingPreferences()
         {
@@ -368,7 +439,7 @@ namespace FishSocial.Tests.Editor
             Invoke(s,"Request","catch","result-C");Assert.AreEqual(anchored,replacing.GetType().GetField("fadingAt").GetValue(replacing));
             var until=UnityEditor.EditorApplication.timeSinceStartup+.06;while(UnityEditor.EditorApplication.timeSinceStartup<until)yield return null;
             Invoke(s,"Update");Assert.AreEqual("result-C",replacing.GetType().GetField("identity").GetValue(replacing));
-            Assert.AreEqual(8,root.GetComponentsInChildren<AudioSource>().Length);
+            Assert.AreEqual(9,root.GetComponentsInChildren<AudioSource>().Length);
             s.UpdateContext("pond",user,true,"unity",true);Assert.AreEqual(-1d,Field(s,"automaticVoiceAt"));
             until=UnityEditor.EditorApplication.timeSinceStartup+.06;while(UnityEditor.EditorApplication.timeSinceStartup<until)yield return null;
             Invoke(s,"Update");Assert.AreEqual(0,s.ActiveShortVoices);
@@ -388,8 +459,14 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(2,config.version);var paths=config.cues.SelectMany(c=>c.paths).Distinct().ToList();Assert.Greater(paths.Count,40);
             paths.Add("music/pond_daylight.wav");
             var ambience=JsonUtility.FromJson<DesktopAmbienceConfiguration>(File.ReadAllText(Path.Combine(dir,"ambience-manifest.json")));
-            Assert.AreEqual(2,ambience.version);CollectionAssert.AreEquivalent(AmbienceIds,ambience.loops.Select(x=>x.id));
-            paths.AddRange(ambience.loops.Select(x=>x.path));long shortBytes=0;
+            Assert.AreEqual(4,ambience.version);CollectionAssert.AreEquivalent(AmbienceIds,ambience.loops.Select(x=>x.id));
+            Assert.AreEqual(.18f,ambience.loops.Single(x=>x.id=="wind").gain);Assert.AreEqual(.65f,ambience.loops.Single(x=>x.id=="leaves").gain);
+            Assert.AreEqual(2201030,ambience.weather.seed);Assert.IsTrue(ambience.weather.IsValid());
+            Assert.AreEqual(.28,ambience.weather.leavesDelaySeconds);Assert.AreEqual(5,ambience.weather.monitorGain);
+            var service=Service();ConfigureEnvironment(service,ambience);Assert.Greater(ambience.scenes.Length,0);
+            foreach(var scene in ambience.scenes)Assert.AreEqual(scene.waterProfile,service.WaterProfileForPond(scene.pondId));
+            Assert.AreEqual("calm",service.WaterProfileForPond("unknown-pond"));
+            paths.AddRange(ambience.assets.Concat(ambience.waterProfiles).Concat(ambience.loops).Select(x=>x.path).Distinct());long shortBytes=0;
             foreach(var relative in paths)
             {
                 Assert.IsTrue(DesktopAudioService.SafeAudioPath(relative));var streaming=relative.StartsWith("music/",StringComparison.Ordinal)||relative.StartsWith("ambience/",StringComparison.Ordinal);
@@ -399,7 +476,7 @@ namespace FishSocial.Tests.Editor
                     while(!op.isDone&&UnityEditor.EditorApplication.timeSinceStartup<deadline)yield return null;
                     Assert.IsTrue(op.isDone,relative+" timed out");Assert.AreEqual(UnityWebRequest.Result.Success,request.result,relative+": "+request.error);
                     var clip=DownloadHandlerAudioClip.GetContent(request);Assert.IsNotNull(clip,relative);Assert.Greater(clip.samples,0);Assert.AreEqual(44100,clip.frequency);
-                    if(streaming){Assert.AreEqual(2,clip.channels);Assert.That(clip.length,Is.InRange(40f,90f));}else shortBytes+=(long)clip.samples*clip.channels*sizeof(float);
+                    if(streaming){Assert.AreEqual(2,clip.channels);Assert.That(clip.length,relative.EndsWith("pond_wind_open_loop.wav",StringComparison.Ordinal)?Is.InRange(11f,30f):Is.InRange(40f,90f));}else shortBytes+=(long)clip.samples*clip.channels*sizeof(float);
                     UnityEngine.Object.DestroyImmediate(clip);
                 }
             }

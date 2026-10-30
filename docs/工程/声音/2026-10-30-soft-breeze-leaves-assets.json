@@ -1,0 +1,118 @@
+{
+  "status": "pass",
+  "date": "2026-10-30",
+  "assets": [
+    {
+      "path": "ambience/pond_leaves.wav",
+      "version": 2,
+      "duration": 48.0,
+      "frames": 2116800,
+      "channels": 2,
+      "sampleRate": 44100,
+      "format": "PCM_16",
+      "peak": 0.11273193359375,
+      "truePeak4x": 0.11500365875189308,
+      "rms": 0.00897980772043738,
+      "rmsDbfs": -40.93465925072308,
+      "crestDb": 21.975598373613174,
+      "seamDifference": 0.0,
+      "seamAdjacentStep": 0.00048828125,
+      "halfSecondRmsPercentiles": {
+        "5": 0.005812402374276968,
+        "50": 0.008568232479199328,
+        "95": 0.01209415730612924,
+        "100": 0.013006079150814616
+      },
+      "lowFrequencyEnergyBelow80Hz": 1.2901136148460353e-06,
+      "highFrequencyEnergyAbove6000Hz": 0.03662553827052344,
+      "stereoCorrelation": 0.41892131975079017,
+      "sha256": "8332a842a5cc398d173786974688cf75f77a97fef6a9eab087097482bf363540",
+      "description": "近景树叶细碎沙沙；削减低频风底，保留较完整叶片摩擦细节；独立现场录音",
+      "source": [
+        "leaves_ecfike_183496"
+      ],
+      "processing": {
+        "sourceStartSeconds": 128,
+        "sourceDurationSeconds": 56,
+        "sourceExcerptPeak": 0.17808443307876587,
+        "sourceExcerptRms": 0.013443232982604249,
+        "sourceChannels": 2,
+        "sourceSampleRate": 44100,
+        "resampleTo": 44100,
+        "sourceSpatialMode": "original distinct stereo channels",
+        "sourceChannelsIdentical": false,
+        "syntheticStereo": false,
+        "highPassHz": 450,
+        "lowPassHz": 6500,
+        "filter": "2nd-order Butterworth bandpass forward/backward, zero phase, identical for both channels",
+        "overlapSeconds": 8,
+        "loopMethod": "Complementary sin-squared tail-to-head overlap",
+        "seamMethod": "Circular rotation at existing equal adjacent stereo PCM16 vectors; no sample rewrite or silent dip",
+        "circularRotationFrames": 1997383,
+        "equalStereoSeamCandidates": 23,
+        "normalization": "One constant linear gain per complete loop",
+        "masterGain": 12.999328900162881,
+        "targetTruePeak4x": 0.115,
+        "compression": false,
+        "limiting": false,
+        "saturation": false,
+        "syntheticNoise": false,
+        "music": false,
+        "addedVoices": false,
+        "addedBirds": false,
+        "pitchShiftSemitones": 0,
+        "timeStretch": false,
+        "layeredRecordings": 1
+      }
+    }
+  ],
+  "sources": [
+    {
+      "key": "leaves_ecfike_183496",
+      "title": "Wind and Leaves.wav",
+      "author": "ecfike",
+      "page": "https://freesound.org/people/ecfike/sounds/183496/",
+      "url": "https://cdn.freesound.org/previews/183/183496_2337290-hq.mp3",
+      "file": "source-183496.mp3",
+      "sha256": "a804e75f0c57acd77488a63b8452d8de8593a7f8ed1c0a5b546d0b41d770b8fa",
+      "sourceDescription": "Wind in a small clump of broad-leaf trees; original stereo44100Hz16bit WAV field recording. The leaves track retains this recording's own light breeze; it is not an artificially isolated dry stem.",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseEvidence": {
+        "officialPage": "https://freesound.org/people/ecfike/sounds/183496/",
+        "inspectedDate": "2026-10-30",
+        "authorPageLicenseLabel": "Creative Commons 0",
+        "inspectedPageSha256": "21569182632d445e8f958e497c8f26f83580b9b9fb38df2316cafeb0464caabd"
+      },
+      "downloadFormat": "Official public HQ MP3 preview; decoded44100Hz stereo"
+    }
+  ],
+  "runtime": {
+    "tracks": [
+      {
+        "id": "leaves",
+        "path": "ambience/pond_leaves.wav",
+        "gain": 0.65,
+        "fadeSeconds": 2.0,
+        "defaultMix": 1.0
+      }
+    ]
+  },
+  "provenance": {
+    "script": "tools/audio/build_pond_wind_leaves.py",
+    "scriptSha256": "f51ed3818e6fd3edac444cdc691056199120028bd4314a5aa64397cbeac46e0e",
+    "reproduction": "python tools/audio/build_pond_wind_leaves.py --sources <cache>",
+    "independentRecordedSources": true,
+    "scope": "Only wind/leaves WAVs and report; merge only owned leaves metadata into runtime bank, preserving water."
+  },
+  "validation": [
+    "Pinned official CC0 natural leaf recording; original stereo preserved",
+    "Stereo PCM16 44100Hz,48seconds",
+    "8second natural overlap, exact zero stereo endpoint difference",
+    "4x truepeak below.12",
+    "Only constant gain/filter/resample/overlap; no compressors or generated noise"
+  ],
+  "sourceNote": "Leaves recording has distinct stereo channels and naturally includes its own light breeze; not a perfectly isolated leaf-only stem. Runtime uses intermittent excerpts, not a continuous loop.",
+  "inspectionScope": "Creator descriptions and licensing plus full-track spectral/transient measurements; technical checks do not constitute human listening approval or prove absence of every background field sound.",
+  "actualWindowsListening": "Not performed by asset builder"
+}

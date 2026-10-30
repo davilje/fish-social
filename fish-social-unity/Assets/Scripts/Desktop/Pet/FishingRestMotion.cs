@@ -1,4 +1,5 @@
 using System;
+using FishSocial.Motion;
 
 namespace FishSocial.Desktop.Pet
 {
@@ -51,7 +52,7 @@ namespace FishSocial.Desktop.Pet
             sleepBlend = Math.Max(0, Math.Min(1, sleepBlend));
             var awakeWave = Math.Sin(elapsedMs * Math.PI * 2 / 3200);
             var sleepWave = Math.Sin(elapsedMs * Math.PI * 2 / 4600);
-            var growth = 1 + .006 * awakeWave * (1 - sleepBlend) + .009 * sleepWave * sleepBlend;
+            var growth = 1 + FishingRestGeometry.AwakeAmplitude * awakeWave * (1 - sleepBlend) + FishingRestGeometry.SleepAmplitude * sleepWave * sleepBlend;
             var angle = (2.1 + .9 * Math.Sin(elapsedMs * Math.PI * 2 / 5800)) * sleepBlend * Math.PI / 180;
             var cosine = Math.Cos(angle);
             var sine = Math.Sin(angle);
@@ -64,6 +65,7 @@ namespace FishSocial.Desktop.Pet
                     OffsetY = FootY - sine * FootX - cosine * growth * FootY,
                 },
                 SleepBlend = sleepBlend,
+                Nod = FishingRestGeometry.Nod(elapsedMs) * sleepBlend,
                 BubbleOpacity = sleepBlend * (.65 + .25 * sleepWave),
                 BubbleRise = 3 * (1 + sleepWave),
             };
@@ -73,7 +75,8 @@ namespace FishSocial.Desktop.Pet
     public struct FishingRestPose
     {
         public FishingRestTransform Body;
-        public double SleepBlend, BubbleOpacity, BubbleRise;
+        public double SleepBlend, BubbleOpacity, BubbleRise, Nod;
+        public FishingRestTransform Rod => FishingRestTransform.FromArray(FishingRestGeometry.Multiply(Body.ToArray(), FishingRestGeometry.Rod(Nod)));
         public static FishingRestPose Identity => new FishingRestPose { Body = FishingRestTransform.Identity };
 
         public FishingRestTransform Line(double tipX, double tipY, double bottom)
@@ -81,8 +84,9 @@ namespace FishSocial.Desktop.Pet
             var length = bottom - tipY;
             if (length <= 1)
                 return FishingRestTransform.Identity;
-            var deltaX = Body.X(tipX, tipY) - tipX;
-            var deltaY = Body.Y(tipX, tipY) - tipY;
+            var rod = Rod;
+            var deltaX = rod.X(tipX, tipY) - tipX;
+            var deltaY = rod.Y(tipX, tipY) - tipY;
             return new FishingRestTransform
             {
                 XX = 1, XY = -deltaX / length, YY = 1 - deltaY / length,
@@ -95,6 +99,9 @@ namespace FishSocial.Desktop.Pet
     {
         public double XX, YX, XY, YY, OffsetX, OffsetY;
         public static FishingRestTransform Identity => new FishingRestTransform { XX = 1, YY = 1 };
+        public double[] ToArray() => new[] { XX, YX, XY, YY, OffsetX, OffsetY };
+        public static FishingRestTransform FromArray(double[] m) => new FishingRestTransform
+        { XX=m[0], YX=m[1], XY=m[2], YY=m[3], OffsetX=m[4], OffsetY=m[5] };
         public double X(double sourceX, double sourceY) => XX * sourceX + XY * sourceY + OffsetX;
         public double Y(double sourceX, double sourceY) => YX * sourceX + YY * sourceY + OffsetY;
     }

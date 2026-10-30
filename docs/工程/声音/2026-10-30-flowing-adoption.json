@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-30",
+  "approval": "效果不错，可以应用到项目了",
+  "scope": "User-adopted continuous shared wind/leaf weather and seamless loop,with existing pond water profiles and event cues preserved",
+  "preview": "现行预览.html#audio",
+  "approvedPreviewWavSha256": "e21113d6429667d81bfcd7508029cb96af3cac35275ebf2dabd76059f98e5e62",
+  "manifestVersion": 4,
+  "manifestSha256": "d4ba16d9972816ffddcef32dcce675c57c8a29d3f19e9e48bc2b133428443cba",
+  "assets": [
+    {
+      "path": "ambience/pond_lake_calm.wav",
+      "sha256": "d67e448e97dea17f670ca5e9aa1fa2654d24bba27f00ba4903a51baf0f16e4d2",
+      "duration": 48.0
+    },
+    {
+      "path": "ambience/pond_lake_ripples.wav",
+      "sha256": "c5ada66fd70ce3403db8e6097478bc2a8b6b0ba87f826898400d9ce4e1acf7ee",
+      "duration": 48.0
+    },
+    {
+      "path": "ambience/pond_shore.wav",
+      "sha256": "89127aa0c8235f7913fa5c6c0f25f4fd731ccb2ca1b20085a8666604db633289",
+      "duration": 48.0
+    },
+    {
+      "path": "ambience/pond_wind_open_loop.wav",
+      "sha256": "f3ba80f4dc960e252f1aa631d4d14eda3de5bfc700c731a5b2a55f9564356753",
+      "duration": 12.0
+    },
+    {
+      "path": "ambience/pond_leaves.wav",
+      "sha256": "8332a842a5cc398d173786974688cf75f77a97fef6a9eab087097482bf363540",
+      "duration": 48.0
+    }
+  ],
+  "loops": [
+    {
+      "id": "water",
+      "path": "ambience/pond_lake_calm.wav",
+      "gain": 0.6,
+      "fadeSeconds": 2
+    },
+    {
+      "id": "wind",
+      "path": "ambience/pond_wind_open_loop.wav",
+      "gain": 0.18,
+      "fadeSeconds": 2
+    },
+    {
+      "id": "leaves",
+      "path": "ambience/pond_leaves.wav",
+      "gain": 0.65,
+      "fadeSeconds": 2
+    }
+  ],
+  "weather": {
+    "seed": 2201030,
+    "sampleIntervalSeconds": 0.05,
+    "blockSeconds": 30,
+    "initialWindGain": 0.18,
+    "initialLeavesGain": 0.3,
+    "stepMinSeconds": 2.4,
+    "stepMaxSeconds": 4.8,
+    "windMinGain": 0.15,
+    "windMaxGain": 0.49,
+    "windAdjustmentThreshold": 0.045,
+    "windAdjustment": 0.08,
+    "windAdjustedMinimum": 0.13,
+    "firstLullMinSeconds": 26,
+    "firstLullMaxSeconds": 44,
+    "lullGain": 0.015,
+    "lullHoldMinSeconds": 0.8,
+    "lullHoldMaxSeconds": 1.6,
+    "lullGapMinSeconds": 28,
+    "lullGapMaxSeconds": 46,
+    "leavesDelaySeconds": 0.28,
+    "leavesResponseGain": 0.73,
+    "leavesReferenceWindGain": 0.55,
+    "leavesResponseExponent": 0.85,
+    "leavesRiseSeconds": 0.65,
+    "leavesFallSeconds": 1.35,
+    "fadeInSeconds": 2,
+    "fadeOutSeconds": 1.2,
+    "monitorGain": 5,
+    "waterOffsetSeconds": 10,
+    "windOffsetSeconds": 3.2,
+    "leavesOffsetSeconds": 19.7
+  },
+  "productionMonitorGain": 1,
+  "previewMonitorGain": 5,
+  "retiredRuntimeAssets": [
+    "ambience/pond_wind.wav",
+    "ambience/pond_wind_open.wav"
+  ],
+  "unityEvidence": "flowing-adoption-2026-10-30/editmode.xml",
+  "browserEvidence": "flowing-adoption-2026-10-30/preview/browser-validation.json",
+  "windowsBuild": "Not rebuilt in this adoption"
+}

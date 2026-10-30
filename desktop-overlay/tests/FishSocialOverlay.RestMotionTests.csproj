@@ -5,9 +5,12 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../fish-social-unity/Assets/Scripts/Desktop/Pet/FishingRestGeometry.cs" Link="FishingRestGeometry.cs" />
+    <Compile Include="../../fish-social-unity/Assets/Scripts/Desktop/Pet/FishingRestMotion.cs" Link="FishingRestMotion.cs" />
     <Compile Include="../OverlayFishingRestMotion.cs" />
     <Compile Include="../OverlayFishingWaterContact.cs" />
     <Compile Include="../IpcProtocol.cs" />
+    <Compile Include="../OverlayAudioPresentation.cs" />
     <Compile Include="OverlayFishingRestMotionTests.cs" />
   </ItemGroup>
 </Project>

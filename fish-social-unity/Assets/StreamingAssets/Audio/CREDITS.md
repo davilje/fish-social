@@ -2,11 +2,35 @@
 
 Updated 2026-10-24. The user adopted the current v5 music together with all 46 previously accepted v3 effects and cat voices: “将当前方案应用到项目内，剔除旧版无效资源”. All 47 production WAVs and cue settings retain their approved hashes. Acceptance: docs/工程/声音/audio-22i-adoption.json; earlier effects approval: docs/工程/声音/audio-22i-sfx-acceptance.json. Windows hardware audio-visual latency remains unmeasured.
 
+## Current continuous wind/leaf weather — adopted 2026-10-30
+
+The user accepted the unified preview: “效果不错，可以应用到项目了”. Runtime manifest version4 now uses a shared continuous wind/leaf model rather than independent gust on/off events. Wind changes smoothly over2.4–4.8s; leaves follow after0.28s with0.65/1.35s rise/fall. Rare shallow lulls also fade smoothly. Runtime per-track gains remain water0.60,wind0.18,leaves0.65; the preview's extra monitor gain5 is not applied to the game mix or accepted action/cat cues.
+
+`ambience/pond_wind_open_loop.wav` is the adopted preview's same outdoor wind: **Uganda / WIND, Wind through Wheatfield.wav**, https://freesound.org/people/Uganda/sounds/38976/ , **CC0-1.0**. The original processed16s gesture is quantized first, then excerpt1–15s is joined with2s complementary sin-squared overlap into a12s stereo44100HzPCM16 loop. No renormalization, source rotation, synthesized noise, compression or limiting. At wrap, natural consecutive source samples are retained. The resulting waveform differs from the accepted in-memory preview by at most half a PCM16 LSB. Retired `pond_wind_open.wav` and its metadata are removed from the runtime bank. Water and leaf recordings retain their existing bytes.
+
+The retained leaf source is **ecfike / Wind and Leaves.wav**, https://freesound.org/people/ecfike/sounds/183496/ , **CC0-1.0**,48s stereo44100HzPCM16,128–184s excerpt,450–6500Hz filtering and8s overlap. The source includes its own natural breeze; not claimed as a separated dry leaf stem.
+
+Production keeps9 fixed voices, DSP-time envelopes and bounded precomputed control windows; playback adds no render-rate lease. Enter/resume fades2s, ordinary leave/change fades wind/leaves1.2s, while mute/hide/disable immediately cancel old state. Water profile mappings and all47 earlier accepted WAVs remain intact. Rebuild: `python tools/audio/build_lake_gust_ambience.py --sources <cache>`; this command now produces the adopted12s wind loop. Details and verification: `docs/工程/声音/2026-10-30-flowing-adoption.md`.
+
+## Earlier lake beds and intermittent outdoor wind — superseded 2026-10-30
+
+Water now follows each pond's configured profile: a near-still lake or gently moving lake surface. Unknown ponds use the calm profile. Original river-shore water remains available as a preview comparison. Wind and leaves are **not continuously looped**: after6–12seconds, a3–4.5second outdoor breeze rises; leaf rustling follows0.8–1.4seconds later for3–4.8seconds, with wind ending first and leaves trailing. The complete gesture ends before a20–38second quiet gap. New source/asset pins, all21 scene mappings and timing live in version3 `ambience-manifest.json`.
+
+| Asset | Recording and author | License / processing |
+|---|---|---|
+| `ambience/pond_lake_calm.wav` | **2023-10-03 lake shore ambience.wav**, **Mick_**, https://freesound.org/people/Mick_/sounds/705034/ | CC0-1.0. Lake Pymatuning;48s loop from110–166s,8s overlap,50–3000Hz filtering. Original mono stays exact dual-mono. Constant gain capped at8x to preserve a quiet lake without forcing its floor to the peak target. Source includes natural wildlife. |
+| `ambience/pond_lake_ripples.wav` | **200906 Water waves lapping, lake, gentle, close, PEC9am.flac**, **TRP**, https://freesound.org/people/TRP/sounds/568819/ | CC0-1.0. Independent gentle lake-wave recording;48s loop from72–128s,8s overlap,45–2000Hz filtering and constant gain. Original stereo retained. |
+| `ambience/pond_wind_open.wav` | **WIND, Wind through Wheatfield.wav**, **Uganda**, https://freesound.org/people/Uganda/sounds/38976/ | CC0-1.0. Outdoor wheatfield wind with light vegetation;16s nonloop excerpt48–64s, broad80–8000Hz filtering and0.75s file-edge fades. Original stereo retained. Creator notes occasional background birds in the full source; automated checks do not establish a perfectly isolated stem. |
+
+All three use the creators' official public HQ MP3 previews, not claimed lossless masters; output is44100HzPCM16. No synthesized noise, compressor, limiter, pitch shift or fabricated stereo. Water changes crossfade on two fixed sources. Wind and retained leaves use one nonlooping source each, safe randomized excerpt offsets and smooth per-gesture envelopes; mute/hide/scene changes cancel the old plan without replaying it. Runtime music and UI remain disabled inside fishing scenes.
+
+Rebuild new sources: `python tools/audio/build_lake_gust_ambience.py --sources <cache>`. Rebuild retained leaves: `python tools/audio/build_pond_wind_leaves.py --sources <leaf-cache>` (legacy command name, now leaf-only). Original shore: `python tools/audio/build_pond_ambience.py --sources <shore-cache>`. Builders preserve the current scene/timing configuration. The rejected `pond_wind.wav` and its metadata are removed from the shipped bank. The shore comparison hash remains unchanged. Leaves use the same CC0 recording by ecfike (https://freesound.org/people/ecfike/sounds/183496/), reprocessed from128–184s with450–6500Hz filtering and8s overlap to remove low wind bed and retain fine leaf friction. Wind gain is0.18 (previously0.45); leaf gain is0.65 (previously0.40). Gesture attack/release are0.7/1.5s. Latest processing, hashes and verification: `docs/工程/声音/2026-10-30-soft-breeze.md`.
+
 ## Page-close selection — updated 2026-10-30
 
 The user requested only the soft book/page close sound. `ui_close` now selects only `sfx/ui_close_01.wav`; the abrupt `ui_close_02.wav` is inactive and is not loaded or played. The built-in fallback matches this selection. Existing WAV bytes and historical adoption records are preserved. Only this cue's path list changes; the pinned selection and reversible baseline verification are recorded in `docs/工程/声音/2026-10-30-close-cue-selection.json`.
 
-## Pond scene ASMR — updated 2026-10-30
+## Earlier pond scene ASMR — historical 2026-10-30 implementation
 
 The fishing scene now disables BGM and all button/UI cues. Existing action effects and cat calls remain available. Three independent streamed ambience tracks add shore water, gentle wind and leaf rustling, each with its own saved mix level. All follow the saved effects volume, with a2-second scene fade. Music remains available outside the fishing scene; the historical47-WAV adoption lock below is unchanged.
 
@@ -15,7 +39,7 @@ The fishing scene now disables BGM and all button/UI cues. Existing action effec
 - Processing: one continuous56-second excerpt, gentle80–2600Hz filtering,8-second complementary overlap for a48-second loop, constant linear gain. Original stereo retained; no generated noise, music, added voices/birds, pitch shifting, compressor or limiter. Source/output SHA256 and processing are in `ambience-manifest.json`.
 - Rebuild: `python tools/audio/build_pond_ambience.py --sources <cache>`; check: `python tools/audio/verify_desktop_audio.py` and `python tools/audio/verify_pond_ambience.py`.
 
-### Independent wind and leaf layers — 2026-10-30
+### Earlier independent wind and leaf loops — superseded 2026-10-30
 
 - `ambience/pond_wind.wav`:56seconds,44100HzPCM16 twochannel, **a gentle breeze, wind 1** by **mario1298**, https://freesound.org/people/mario1298/sounds/181250/ . CC0-1.0. The official HQ preview has identical channels (dual-mono); it is preserved without artificial stereo widening. Source excerpt84–148s,110–2300Hz gentle bandpass,8s loop overlap, constant gain.
 - `ambience/pond_leaves.wav`:48seconds,44100HzPCM16 distinct stereo, **Wind and Leaves.wav** by **ecfike**, https://freesound.org/people/ecfike/sounds/183496/ . CC0-1.0. Broad-leaf trees in a breeze; the leaves recording includes its own natural light wind and is not an isolated dry stem. Source excerpt128–184s,240–3800Hz gentle bandpass,8s overlap, constant gain.

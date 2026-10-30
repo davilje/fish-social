@@ -2,15 +2,11 @@
 from pathlib import Path
 import array,hashlib,json,math,sys,wave
 from cue_config_selection import verify_selection
+from verify_ambience_config import verify_config
 root=Path(__file__).resolve().parents[2]/'fish-social-unity/Assets/StreamingAssets/Audio'
 manifest=json.loads((root/'manifest.json').read_text());config=json.loads((root/'cue-config.json').read_text())
 ambience=json.loads((root/'ambience-manifest.json').read_text())
-assert ambience['version']==2
-assert {t['id'] for t in ambience['loops']}=={'water','wind','leaves'}
-for track in ambience['loops']:
- assert 0<track['gain']<=1 and .1<=track['fadeSeconds']<=5
-ambient_paths={a['path'] for a in ambience['assets']}
-assert len(ambient_paths)==3 and ambient_paths=={t['path'] for t in ambience['loops']}
+ambient_paths=verify_config(ambience)
 assets=manifest['assets']+ambience['assets']
 expected={p for c in config['cues'] for p in c['paths']}|{'music/pond_daylight.wav'}
 adoption=json.loads((root.parents[3]/'docs/工程/声音/audio-22i-adoption.json').read_text())
@@ -43,8 +39,15 @@ for item in assets:
   for tier,(lo,hi) in {'s':(.12,.26),'m':(.18,.36),'l':(.28,.50),'xl':(.38,.70)}.items():
    if '_'+tier+'_' in path.name:assert lo-.0001<=duration<=hi+.0001,path
  if item['path'].startswith(('music/','ambience/')):
-  assert channels==2 and (40 if item['path'].startswith('ambience/') else 60)<=duration<=90,path
-  assert max(abs(samples[i]-samples[-channels+i]) for i in range(channels))<=3,'Loop seam'
+  assert channels==2,path
+  if item['path']=='ambience/pond_wind_open_loop.wav':
+   assert duration==12,path
+   step=max(abs(samples[i]-samples[-channels+i]) for i in range(channels))
+   interior=sorted(max(abs(samples[i+c]-samples[i-channels+c]) for c in range(channels)) for i in range(channels,len(samples),channels))
+   assert step<=interior[int(len(interior)*.99)],'Wind wrap must match natural neighbouring samples'
+  else:
+   assert (40 if item['path'].startswith('ambience/') else 60)<=duration<=90,path
+   assert max(abs(samples[i]-samples[-channels+i]) for i in range(channels))<=3,'Loop seam'
  else:assert channels==1,path
  print('PASS',item['path'],round(duration,3),'s')
 assert budget<=4*1024*1024,budget

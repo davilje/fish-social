@@ -12,6 +12,24 @@ static class OverlayFishingRestMotionTests
     static void Run(string name, Action test) { test(); passed++; Console.WriteLine("PASS " + name); }
     public static void Main()
     {
+        Run("approved nod has a low hold, lift, recovery and identical Unity timing", () =>
+        {
+            Near(FishSocial.Motion.FishingRestGeometry.Nod(2700),1,"missing lowered head");
+            Near(FishSocial.Motion.FishingRestGeometry.Nod(3200),1,"missing low hold");
+            Near(FishSocial.Motion.FishingRestGeometry.Nod(3900),.18,"missing lift");
+            Near(FishSocial.Motion.FishingRestGeometry.Nod(6400),0,"loop seam");
+            for(var t=0;t<12800;t+=41)
+            {
+                var overlay=OverlayFishingRestMotion.Sample(t,1);
+                var unity=FishSocial.Desktop.Pet.FishingRestMotion.Sample(t,1);
+                Near(overlay.Nod,unity.Nod,"different nod timing");
+                Near(overlay.RodY(541.5,149),unity.Rod.Y(541.5,149),"different rod tip");
+                FishSocial.Motion.FishingRestGeometry.Point(346,348.5,overlay.Nod,out var x,out var y);
+                var rod=overlay.RodMatrix;
+                Near(overlay.X(x,y),rod[0]*346+rod[2]*348.5+rod[4],"grip x detached");
+                Near(overlay.Y(x,y),rod[1]*346+rod[3]*348.5+rod[5],"grip y detached");
+            }
+        });
         Run("long sessions cannot accumulate scale and feet never move", () =>
         {
             var motion = new OverlayFishingRestMotion();
@@ -20,7 +38,7 @@ static class OverlayFishingRestMotionTests
                 var pose = motion.Update(time, true, time >= 1800000);
                 Near(pose.X(264, 450), 264, "foot x drift"); Near(pose.Y(264, 450), 450, "foot y drift");
                 var determinant = pose.Matrix[0] * pose.Matrix[3] - pose.Matrix[1] * pose.Matrix[2];
-                Check(determinant >= .991 - 1e-10 && determinant <= 1.009 + 1e-10, "unbounded body scale");
+                Check(determinant >= .972 - 1e-10 && determinant <= 1.028 + 1e-10, "unbounded body scale");
             }
         });
         Run("sleep and wake are continuous and snapshots do not restart blending", () =>
@@ -47,12 +65,13 @@ static class OverlayFishingRestMotionTests
             {
                 var pose = OverlayFishingRestMotion.Sample(time, time / 12000d);
                 var line = pose.Line(430, 170, 463);
-                Near(430 + line[2] * 170 + line[4], pose.X(430, 170), "detached rod tip x");
-                Near(line[3] * 170 + line[5], pose.Y(430, 170), "detached rod tip y");
+                var rod = pose.RodMatrix;
+                Near(430 + line[2] * 170 + line[4], rod[0]*430+rod[2]*170+rod[4], "detached rod tip x");
+                Near(line[3] * 170 + line[5], pose.RodY(430, 170), "detached rod tip y");
                 Near(540 + line[2] * 463 + line[4], 540, "float x drift");
                 Near(line[3] * 463 + line[5], 463, "float y drift");
                 var water = OverlayFishingWaterContact.Solve(new FishingContactFrame
-                { LineTop = pose.Y(430, 170), LineBottom = 463, BobberY = 463 }, 1, 0, 572, 1);
+                { LineTop = pose.RodY(430, 170), LineBottom = 463, BobberY = 463 }, 1, 0, 572, 1);
                 Near(water.LinePivot + (463 - water.LinePivot) * water.LineScale, 572, "water endpoint disconnected");
             }
         });

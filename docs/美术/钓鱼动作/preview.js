@@ -14,13 +14,16 @@ function sleepBlend() {
   const progress = Math.max(0, Math.min(1, (elapsed-restChangedAt)/800));
   return restFrom + ((asleep?1:0)-restFrom)*progress*progress*(3-2*progress);
 }
-function restingPose(current, sample) {
+function restingPose(current, sample, legacy=false) {
   if (!sample || current.clip !== 'fishing' || !element('breathing').checked) return null;
   const blend=sleepBlend(), awakeWave=Math.sin(elapsed*Math.PI*2/3200), sleepWave=Math.sin(elapsed*Math.PI*2/4600);
-  const growth=1+.006*awakeWave*(1-blend)+.009*sleepWave*blend;
+  const strength=Number(element('breath-strength').value);
+  const growth=1+(legacy ? .006 : .022*strength)*awakeWave*(1-blend)+(legacy ? .009 : .028*strength)*sleepWave*blend;
   const angle=(2.1+.9*Math.sin(elapsed*Math.PI*2/5800))*blend*Math.PI/180,cosine=Math.cos(angle),sine=Math.sin(angle);
   const matrix=[cosine,sine,-sine*growth,cosine*growth,264-cosine*264+sine*growth*450,450-sine*264-cosine*growth*450];
-  return {matrix,blend,opacity:blend*(.65+.25*sleepWave),rise:3*(1+sleepWave)};
+  const nod=legacy?0:restStudy.nod(elapsed)*blend*Number(element('nod-strength').value);
+  const rod=restStudy.rod(nod);
+  return {matrix,rod,rodMatrix:restStudy.multiply(matrix,rod),nod,blend,opacity:blend*(.65+.25*sleepWave),rise:3*(1+sleepWave)};
 }
 function setSleep(value) {
   if(element('clip').value!=='fishing'){element('clip').value='fishing';restart();}
@@ -68,7 +71,7 @@ function contactPose(current,sample,sourceIndex,updated,rest) {
   const fish=(frame.FishTop>=0?Math.max(delta,surface+(updated?settings.FishDepth:14)-frame.FishTop):delta)*weight;
   let lineRest=null,lineTop=frame.LineTop;
   if(rest){
-    const [tipX,tipY]=sample?.Line||[541.5,149],matrix=rest.matrix,bottom=frame.LineBottom,length=bottom-tipY;
+    const [tipX,tipY]=sample?.Line||[541.5,149],matrix=rest.rodMatrix,bottom=frame.LineBottom,length=bottom-tipY;
     const dx=matrix[0]*tipX+matrix[2]*tipY+matrix[4]-tipX,dy=matrix[1]*tipX+matrix[3]*tipY+matrix[5]-tipY;
     if(length>1)lineRest=[1,0,-dx/length,1-dy/length,dx*bottom/length,dy*bottom/length];
     lineTop=tipY+dy;
@@ -79,9 +82,9 @@ function contactPose(current,sample,sourceIndex,updated,rest) {
     ?(delta+settings.GroundbaitDrop)*((position-3)/3)**2:delta*weight;
   return {lineScale,linePivot:lineTop,lineRest,bobber,fish,bait,surface};
 }
-async function draw(canvas, current, sample, sourceIndex, version) {
+async function draw(canvas, current, sample, sourceIndex, version, legacy=false) {
   const order=current.source.frames[sourceIndex];
-  const rest=restingPose(current,sample);
+  const rest=restingPose(current,sample,legacy);
   const assets=await Promise.all(current.manifest.layers.map(layer => !sample && ['reel','reel_empty'].includes(current.clip) && sourceIndex>=2 && ['line','bait'].includes(layer)
     ?image(`line-review/original/${current.clip}/${sourceIndex}/${layer}.png`):image('../../../desktop-overlay/OverlayResources/fishing/'+
     (current.manifest.bodyLayers.includes(layer)?`${current.pet}/body/`:'shared/')+`${current.clip}/${sourceIndex}/${layer==='head' && rest && asleep && data.sleepHeads?.includes(current.pet)?'head-sleep':layer}.png`)));
@@ -97,10 +100,12 @@ async function draw(canvas, current, sample, sourceIndex, version) {
     if(layer==='line'){context.translate(0,pose.linePivot);context.scale(1,pose.lineScale);context.translate(0,-pose.linePivot);}
     else if(['fish','bobber','bait'].includes(layer))context.translate(0,pose[layer]);
     if(rest && ['body','head','far_hand','hands','rod'].includes(layer))context.transform(...rest.matrix);
+    if(rest && layer==='rod')context.transform(...rest.rod);
     if(layer==='line' && pose.lineRest)context.transform(...pose.lineRest);
     if(sample?.Root)context.transform(...sample.Root);
     if(sample) context.transform(...sample.Transforms[index]);
     if(layer==='line' && sample?.Line){const points=sample.Line;context.beginPath();context.moveTo(points[0],points[1]);context.quadraticCurveTo(points[2],points[3],points[4],points[5]);context.strokeStyle='#3e3628';context.lineWidth=1.4;context.stroke();}
+    else if(rest && current.manifest.bodyLayers.includes(layer))restStudy.draw(context,asset,rest.nod);
     else context.drawImage(asset,0,0,640,512);context.restore();
   }
   if(rest && rest.blend>.01){context.save();context.globalAlpha=rest.opacity;context.fillStyle='#75563f';context.font='bold 24px system-ui';context.fillText('Z z z',325,170-rest.rise);context.restore();}
@@ -110,15 +115,18 @@ async function render() {
   const originalTime=current.clip==='groundbait'?elapsed:timeline(elapsed,current);
   const original=atFrame(current.source.durationsMs,originalTime);
   const time=timeline(elapsed,current), index=atFrame(current.samples.map(frame=>frame.DurationMs),time),sample=current.samples[index];
-  await Promise.all([draw(element('before'),current,null,original,version),draw(element('after'),current,sample,sample.Source,version)]);
+  const comparing=current.clip==='fishing';
+  await Promise.all([draw(element('before'),current,comparing?sample:null,comparing?sample.Source:original,version,true),draw(element('after'),current,sample,sample.Source,version)]);
   if(version!==renderVersion)return;
-  element('before-info').textContent=`关键帧 ${original+1}/${current.source.frames.length} · ${Math.round(elapsed)} ms`;
+  element('before-title').textContent=comparing?'原版 · 轻微呼吸 / 睡姿':'关键帧播放';
+  element('after-title').textContent=comparing?'已采用 · 加强呼吸 / 低头再抬头':'连续轨迹采样';
+  element('before-info').textContent=comparing?`原版呼吸 ±0.6% / 睡着 ±0.9% · ${Math.round(elapsed)} ms`:`关键帧 ${original+1}/${current.source.frames.length} · ${Math.round(elapsed)} ms`;
   element('after-info').textContent=`采样 ${index+1}/${current.samples.length} · 源姿势 ${sample.Source+1} · `+
     (current.clip==='groundbait'?(elapsed>=current.end?'收尾 / 准备':elapsed<100?'起手':'循环打窝'):current.source.playback==='intro-loop'||data.motion.Clips[current.clip].Loop?'循环衔接':'总时长不变');
-  element('summary').textContent=`${current.source.frames.length} 张关键姿势 → ${current.samples.length} 个运动采样，单段 ${duration} ms。轨迹复用原画，闭眼使用独立眼部替换图；等待呼吸固定脚底，醒着幅度不超过 ±0.6%，睡着不超过 ±0.9%，不会逐渐变大。`;
+  element('summary').textContent=comparing?`当前预览：呼吸幅度 ${(2.2*Number(element('breath-strength').value)).toFixed(1)}%，睡着 ${(2.8*Number(element('breath-strength').value)).toFixed(1)}%；6.4 秒一轮瞌睡，8 个动作阶段：放松 → 缓慢低头 → 低头停顿 → 抬头 → 轻回落 → 恢复。复用原图做连续形变，并非新绘制的角色帧；脚底固定，身体尺寸每轮回到原值。默认两项“明显”档位对应正式参数。`:`${current.source.frames.length} 张关键姿势 → ${current.samples.length} 个运动采样，单段 ${duration} ms。`;
   element('finish').disabled=current.clip!=='groundbait';
-  element('scrub').max=current.clip==='groundbait'?current.end+280:duration;
-  element('scrub').value=current.loop?time:elapsed;
+  element('scrub').max=comparing?restStudy.duration:current.clip==='groundbait'?current.end+280:duration;
+  element('scrub').value=comparing?elapsed%restStudy.duration:current.loop?time:elapsed;
 }
 function restart(){elapsed=0;stopAt=Infinity;asleep=false;restChangedAt=0;restFrom=0;render();}
 ['pet','clip','duration'].forEach(id=>element(id).addEventListener('change',restart));
@@ -126,10 +134,11 @@ element('surface').addEventListener('input',()=>render());
 element('play').onclick=()=>{playing=!playing;element('play').textContent=playing?'暂停':'播放';};
 element('restart').onclick=restart;
 element('finish').onclick=()=>{stopAt=elapsed;render();};
-element('scrub').oninput=()=>{playing=false;element('play').textContent='播放';elapsed=Number(element('scrub').value);render();};
-function step(direction){playing=false;element('play').textContent='播放';const current=config();const boundaries=[0];current.samples.forEach(frame=>boundaries.push(boundaries.at(-1)+frame.DurationMs));const local=timeline(elapsed,current),target=direction>0?(boundaries.find(value=>value>local+.1)??boundaries.at(-1)):([...boundaries].reverse().find(value=>value<local-.1)??0);elapsed=Math.max(0,elapsed+target-local);render();}
+element('scrub').oninput=()=>{playing=false;element('play').textContent='播放';elapsed=Number(element('scrub').value);if(element('clip').value==='fishing'){restFrom=asleep?1:0;restChangedAt=elapsed;}render();};
+function step(direction){playing=false;element('play').textContent='播放';const current=config();if(current.clip==='fishing'){elapsed=Math.max(0,elapsed+direction*100);render();return;}const boundaries=[0];current.samples.forEach(frame=>boundaries.push(boundaries.at(-1)+frame.DurationMs));const local=timeline(elapsed,current),target=direction>0?(boundaries.find(value=>value>local+.1)??boundaries.at(-1)):([...boundaries].reverse().find(value=>value<local-.1)??0);elapsed=Math.max(0,elapsed+target-local);render();}
 element('previous').onclick=()=>step(-1);element('next').onclick=()=>step(1);
 element('breathing').onchange=()=>render();
+['breath-strength','nod-strength'].forEach(id=>element(id).oninput=()=>render());
 element('sleep').onclick=()=>setSleep(true);
 element('wake').onclick=()=>setSleep(false);
 element('after').onclick=()=>{if(element('clip').value==='fishing')setSleep(false);};

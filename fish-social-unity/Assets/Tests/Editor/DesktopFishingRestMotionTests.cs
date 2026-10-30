@@ -10,6 +10,38 @@ namespace FishSocial.Tests.Editor
     public sealed class DesktopFishingRestMotionTests
     {
         [Test]
+        public void NoddingSubdividesTheCharacterQuadAndPreservesTextureCorners()
+        {
+            var host=new GameObject("NodMesh",typeof(RectTransform),typeof(Image));
+            try
+            {
+                host.GetComponent<RectTransform>().sizeDelta=new Vector2(640,512);
+                var effect=host.AddComponent<FishingRestLayerEffect>();
+                effect.SetPose(FishingRestTransform.Identity,1);
+                using(var vertices=new VertexHelper())
+                {
+                    var rect=host.GetComponent<RectTransform>().rect;
+                    var points=new[]{new Vector2(rect.xMin,rect.yMin),new Vector2(rect.xMin,rect.yMax),
+                        new Vector2(rect.xMax,rect.yMax),new Vector2(rect.xMax,rect.yMin)};
+                    var uv=new[]{new Vector2(0,0),new Vector2(0,1),new Vector2(1,1),new Vector2(1,0)};
+                    for(var i=0;i<4;i++){var vertex=UIVertex.simpleVert;vertex.position=points[i];vertex.uv0=uv[i];vertices.AddVert(vertex);}
+                    vertices.AddTriangle(0,1,2);vertices.AddTriangle(2,3,0);
+                    effect.ModifyMesh(vertices);
+                    Assert.AreEqual(187,vertices.currentVertCount);
+                    Assert.AreEqual(960,vertices.currentIndexCount);
+                    var top=UIVertex.simpleVert;vertices.PopulateUIVertex(ref top,0);
+                    Assert.AreEqual(new Vector4(0,1,0,0),top.uv0);
+                    var bottom=UIVertex.simpleVert;vertices.PopulateUIVertex(ref bottom,186);
+                    Assert.AreEqual(new Vector4(1,0,0,0),bottom.uv0);
+                    Assert.AreEqual(points[3].x,bottom.position.x,.0001f);
+                    Assert.AreEqual(points[3].y,bottom.position.y,.0001f);
+                    effect.SetPose(FishingRestTransform.Identity);
+                    Assert.AreEqual(0,effect.Nod);
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(host); }
+        }
+        [Test]
         public void DayLongBreathingKeepsFootFixedAndScaleBounded()
         {
             var motion = new FishingRestMotion();
@@ -18,7 +50,7 @@ namespace FishSocial.Tests.Editor
                 var pose = motion.Update(time, true, time >= 1800000).Body;
                 Assert.AreEqual(264, pose.X(264, 450), 1e-8);
                 Assert.AreEqual(450, pose.Y(264, 450), 1e-8);
-                Assert.That(pose.XX * pose.YY - pose.YX * pose.XY, Is.InRange(.991 - 1e-10, 1.009 + 1e-10));
+                Assert.That(pose.XX * pose.YY - pose.YX * pose.XY, Is.InRange(.972 - 1e-10, 1.028 + 1e-10));
             }
         }
 
@@ -49,8 +81,8 @@ namespace FishSocial.Tests.Editor
                 var tipY = FishingRestMotion.RodTipY;
                 var bottom = FishingRestMotion.LineBottom;
                 var line = pose.Line(tipX, tipY, bottom);
-                Assert.AreEqual(pose.Body.X(tipX, tipY), line.X(tipX, tipY), 1e-8);
-                Assert.AreEqual(pose.Body.Y(tipX, tipY), line.Y(tipX, tipY), 1e-8);
+                Assert.AreEqual(pose.Rod.X(tipX, tipY), line.X(tipX, tipY), 1e-8);
+                Assert.AreEqual(pose.Rod.Y(tipX, tipY), line.Y(tipX, tipY), 1e-8);
                 Assert.AreEqual(570, line.X(570, bottom), 1e-8);
                 Assert.AreEqual(bottom, line.Y(570, bottom), 1e-8);
             }
@@ -120,8 +152,12 @@ namespace FishSocial.Tests.Editor
                 presentation.Update(0, true, true, skinId, null);
                 presentation.Update(.8f, true, true, skinId, null);
                 var body = layers[0].GetComponent<FishingRestLayerEffect>().Pose;
-                foreach (var name in new[] { "head", "far_hand", "hands", "rod" })
+                foreach (var name in new[] { "head", "far_hand", "hands" })
                     Assert.AreEqual(body, layers[Array.IndexOf(FishingLayerArt.LayerNames, name)].GetComponent<FishingRestLayerEffect>().Pose);
+                var rodEffect = layers[Array.IndexOf(FishingLayerArt.LayerNames,"rod")].GetComponent<FishingRestLayerEffect>();
+                var expected = FishingRestMotion.Sample(800,1);
+                Assert.AreEqual(expected.Rod.XX, rodEffect.Pose.XX, 1e-8);
+                Assert.AreEqual(0, rodEffect.Nod);
                 foreach (var name in new[] { "bobber", "bait", "fish" })
                     Assert.IsNull(layers[Array.IndexOf(FishingLayerArt.LayerNames, name)].GetComponent<FishingRestLayerEffect>());
                 Assert.IsTrue(host.transform.Find("FishingSleepBadge").gameObject.activeSelf);
