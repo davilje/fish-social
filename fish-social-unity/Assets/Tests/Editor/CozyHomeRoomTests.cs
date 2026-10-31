@@ -95,7 +95,7 @@ namespace FishSocial.Desktop.Tests
         }
         [TestCase(835,760,"Floor")]
         [TestCase(835,650,"Companion")]
-        [TestCase(585,705,"Equipment")]
+        [TestCase(585,505,"Equipment")]
         public void NativeRaycastReachesRoomInsteadOfLegacyHome(float x,float y,string expected)
         {
             var hits=new System.Collections.Generic.List<RaycastResult>();
@@ -129,36 +129,26 @@ namespace FishSocial.Desktop.Tests
             room.MoveTo(new Vector2(835,742));Assert.IsFalse(room.IsSleeping);room.Advance(10);
             Assert.AreEqual(new Vector2(835,742),room.Feet);
         }
-        [Test] public void MovingSleepingBedKeepsCatInsideAndPageRetainsSleep()
+        [Test] public void SleepingBedFrontSamplesTheFullApprovedBackground()
         {
-            CozyMotion.SetReduced(true);room.SleepInBed();Assert.IsTrue(room.IsSleeping);
-            var before=room.Feet;var bed=room.Prop("cat-bed");bed.SetBottomCenter(bed.BottomCenter+new Vector2(100,50));room.FurnitureMoved("cat-bed");
-            Assert.That(Vector2.Distance(before+new Vector2(100,50),room.Feet),Is.LessThan(.01f));
-            room.SetPageOpen(true);room.Advance(60);Assert.IsTrue(room.IsSleeping);
-            Assert.IsFalse(room.transform.Find("BedFront").gameObject.activeSelf);
-            room.SetPageOpen(false);Assert.IsTrue(room.transform.Find("BedFront").gameObject.activeSelf);
+            CozyMotion.SetReduced(true);room.SleepInBed();
+            var front=room.transform.Find("BedFront").GetComponent<RawImage>();
+            Assert.AreSame(Resources.Load<Texture2D>(CozyHomeRoom.ResourceRoot+"room-base"),front.texture);
+            Assert.Less(front.uvRect.width,1);Assert.Less(front.uvRect.height,.1f);
+            room.SetPageOpen(true);Assert.IsFalse(front.gameObject.activeSelf);
+            room.SetPageOpen(false);Assert.IsTrue(front.gameObject.activeSelf);
         }
         [TestCase("cat-bed")]
         [TestCase("food-bowls")]
         [TestCase("cat-climber")]
-        public void FurnitureDragClampsFootprintAndDoesNotTriggerClick(string id)
+        public void PaintedFurnitureIgnoresDragInput(string id)
         {
-            var prop=room.Prop(id);var e=Pointer(prop.BottomCenter-new Vector2(8,20));
-            prop.OnBeginDrag(e);Assert.IsFalse(e.eligibleForClick);
-            e.position=Pointer(new Vector2(10000,10000)).position;prop.OnDrag(e);
-            var bounds=CozyHomeRoom.FurnitureBounds(id);
-            Assert.That(Vector2.Distance(new Vector2(bounds.xMax,bounds.yMax),prop.BottomCenter),Is.LessThan(.01f));
-            e.dragging=true;prop.OnEndDrag(e);prop.OnPointerClick(e);
-            Assert.AreEqual(CozyHomeRoom.Activity.Free,room.CurrentActivity);
-            Assert.LessOrEqual(prop.BottomCenter.y,785);
-        }
-        [Test] public void OpeningPageCancelsFurnitureDragAndRestoresGrabOrigin()
-        {
-            var prop=room.Prop("cat-bed");var origin=prop.BottomCenter;var e=Pointer(origin);
-            prop.OnBeginDrag(e);e.position=Pointer(origin+new Vector2(100,60)).position;prop.OnDrag(e);
-            Assert.AreNotEqual(origin,prop.BottomCenter);room.SetPageOpen(true);
-            Assert.AreEqual(origin,prop.BottomCenter);room.SetPageOpen(false);
-            prop.OnDrag(e);Assert.AreEqual(origin,prop.BottomCenter);
+            var prop=room.Prop(id);var origin=prop.BottomCenter;
+            Assert.IsFalse(prop.CanDrag);
+            var e=Pointer(origin);prop.OnBeginDrag(e);
+            e.position=Pointer(origin+new Vector2(100,60)).position;
+            prop.OnDrag(e);prop.OnEndDrag(e);
+            Assert.AreEqual(origin,prop.BottomCenter);
         }
         [Test] public void PropInteractionsAreBlockedByOpenPageAndPause()
         {
@@ -168,16 +158,19 @@ namespace FishSocial.Desktop.Tests
             room.SetPageOpen(false);CozyMotion.SetPaused(true);room.ActivateProp("rod-1");room.SleepInBed();
             Assert.AreEqual(0,opened);Assert.AreEqual(CozyHomeRoom.Activity.Free,room.CurrentActivity);
         }
-        [Test] public void LayoutSavesAndRestoresPerAccountWithSafeClamping()
+        [Test] public void AccountChangesDoNotRestoreMovableFurnitureLayouts()
         {
-            var owner="room-test-"+System.Guid.NewGuid().ToString("N");var other=owner+"-other";
-            preferenceKeys.Add(CozyHomeRoom.LayoutKey(owner));preferenceKeys.Add(CozyHomeRoom.LayoutKey(other));
-            room.SetLayoutOwner(owner);var prop=room.Prop("cat-bed");var original=prop.BottomCenter;
-            prop.SetBottomCenter(new Vector2(300,750));room.SaveLayout();
-            room.SetLayoutOwner(other);Assert.AreEqual(original,prop.BottomCenter);
-            room.SetLayoutOwner(owner);Assert.AreEqual(new Vector2(300,750),prop.BottomCenter);
-            PlayerPrefs.SetString(CozyHomeRoom.LayoutKey(other),"{\"version\":1,\"items\":[{\"id\":\"cat-bed\",\"bottomCenter\":{\"x\":9999,\"y\":9999}}]}");
-            room.SetLayoutOwner(other);Assert.AreEqual(new Vector2(370,785),prop.BottomCenter);
+            var owner="room-test-"+System.Guid.NewGuid().ToString("N");
+            preferenceKeys.Add(CozyHomeRoom.LayoutKey(owner));
+            var original=room.Prop("cat-bed").BottomCenter;
+            PlayerPrefs.SetString(CozyHomeRoom.LayoutKey(owner),"{\"version\":1,\"items\":[{\"id\":\"cat-bed\",\"bottomCenter\":{\"x\":9999,\"y\":9999}}]}");
+            room.SetLayoutOwner(owner);
+            Assert.AreEqual(original,room.Prop("cat-bed").BottomCenter);
+        }
+        [Test] public void RuntimeBackgroundUsesApprovedPaintingBytesUnchanged()
+        {
+            CollectionAssert.AreEqual(System.IO.File.ReadAllBytes("../docs/美术/家园/pastel-interior-2026-10-31/room-pastel-v5.png"),
+                System.IO.File.ReadAllBytes("Assets/Resources/Desktop/Theme/Cozy/home-room/room-base.png"));
         }
         [TestCase(550,400,"rod-1")]
         [TestCase(180,610,"cat-bed")]

@@ -6,7 +6,7 @@ using FishSocial.Desktop.Pet;
 
 namespace FishSocial.Desktop
 {
-    /// <summary>The approved layered room, in the journal's 1672 x 941 design coordinates.</summary>
+    /// <summary>The approved full room painting and fixed input regions, in 1672 x 941 design coordinates.</summary>
     [DisallowMultipleComponent]
     public sealed partial class CozyHomeRoom : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
@@ -50,9 +50,9 @@ namespace FishSocial.Desktop
             // Bottom-center coordinates keep each item's entire footprint clear of the dock.
             switch (id)
             {
-                case "cat-bed": return UnityEngine.Rect.MinMaxRect(170, 675, 370, 785);
+                case "cat-bed": return UnityEngine.Rect.MinMaxRect(170, 645, 370, 785);
                 case "cat-climber": return UnityEngine.Rect.MinMaxRect(180, 600, 350, 665);
-                case "food-bowls": return UnityEngine.Rect.MinMaxRect(1430, 660, 1580, 785);
+                case "food-bowls": return UnityEngine.Rect.MinMaxRect(1430, 645, 1580, 785);
                 default: return new Rect(0, 0, 0, 0);
             }
         }
@@ -69,6 +69,7 @@ namespace FishSocial.Desktop
             var existing = main.Find("HomeRoom")?.GetComponent<CozyHomeRoom>();
             if (existing != null)
             {
+                existing.RefreshAuthoredArtwork();
                 EnsureQuietButton(existing.equipment);
                 EnsureQuietButton(existing.aquarium);
                 existing.EnsurePropInteractions();
@@ -84,7 +85,7 @@ namespace FishSocial.Desktop
             var manifest = Resources.Load<TextAsset>(DesktopLocalization.Concat(ResourceRoot, "manifest"));
             if (manifest == null) throw new InvalidOperationException("Missing home-room manifest");
             var placements = JsonUtility.FromJson<Manifest>(manifest.text).placements;
-            // Stable layer ordering, including three independently replaceable rod instances.
+            // Retain stable input node identities; furniture is baked into the background.
             for (var layer = 0; layer <= 21; layer++)
                 foreach (var p in placements)
                 {
@@ -102,8 +103,8 @@ namespace FishSocial.Desktop
             room.actor = Rect(root, "Companion", 749, 496, 172, 246);
             room.artwork = room.actor.gameObject.AddComponent<RawImage>();
             room.actor.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = true;
-            room.equipment = ActionButton(root, "Equipment", DesktopLocalization.Text("ui.home.room.button.equipment", "我的钓具"), 500, 683);
-            room.aquarium = ActionButton(root, "Aquarium", DesktopLocalization.Text("ui.home.room.button.showcase", "鱼缸 · 展示柜"), 1200, 683);
+            room.equipment = ActionButton(root, "Equipment", DesktopLocalization.Text("ui.home.room.button.equipment", "我的钓具"), 510, 480);
+            room.aquarium = ActionButton(root, "Aquarium", DesktopLocalization.Text("ui.home.room.button.showcase", "鱼缸 · 展示柜"), 1140, 640);
             var note = Rect(root, "Feedback", 715, 436, 240, 42);
             var paper = note.gameObject.AddComponent<Image>();
             CozyJournalTheme.ApplySurface(paper, "surfaces/toast-note");paper.raycastTarget = false;
@@ -114,6 +115,28 @@ namespace FishSocial.Desktop
             room.RefreshSkin();room.Present();
             room.EnsurePropInteractions();
             return room;
+        }
+        // Saved shells retain their objects and bindings while the manifest owns the art layout.
+        void RefreshAuthoredArtwork()
+        {
+            var data = Resources.Load<TextAsset>(ResourceRoot + "manifest");
+            if (data == null) throw new InvalidOperationException("Missing home-room manifest");
+            transform.Find("RoomBase").GetComponent<Image>().sprite = Resources.Load<Sprite>(ResourceRoot + "room-base");
+            foreach (var p in JsonUtility.FromJson<Manifest>(data.text).placements)
+            {
+                var node = transform.Find("Props/" + p.id);
+                if (node == null) continue;
+                var image = node.GetComponent<Image>();
+                image.sprite = Resources.Load<Sprite>(ResourceRoot + p.asset);
+                var w = p.width; var h = p.height;
+                if (p.fit != "fill") { var scale = Mathf.Min(w / image.sprite.rect.width, h / image.sprite.rect.height); w = image.sprite.rect.width * scale; h = image.sprite.rect.height * scale; }
+                var rect = (RectTransform)node;
+                rect.anchoredPosition = new Vector2(p.x + (p.width - w) / 2, -p.y - p.height + h);
+                rect.sizeDelta = new Vector2(w, h);
+                image.preserveAspect = false;
+            }
+            ((RectTransform)equipment.transform).anchoredPosition = new Vector2(510, -480);
+            ((RectTransform)aquarium.transform).anchoredPosition = new Vector2(1140, -640);
         }
         void EnsurePropInteractions()
         {
@@ -138,7 +161,7 @@ namespace FishSocial.Desktop
                 bedFront = rect.gameObject.AddComponent<RawImage>();
                 bedFront.raycastTarget = false;
             }
-            bedFront.texture = Resources.Load<Texture2D>(DesktopLocalization.Concat(ResourceRoot, "cat-bed"));
+            bedFront.texture = Resources.Load<Texture2D>(ResourceRoot + "room-base");
             bedFront.gameObject.SetActive(IsSleeping && !pageOpen);
             EnsureAnimationLayers();
         }
@@ -206,7 +229,7 @@ namespace FishSocial.Desktop
             Present();
         }
         static bool Finite(Vector2 value) => !float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsInfinity(value.x) && !float.IsInfinity(value.y);
-        public static string LayoutKey(string owner) => DesktopLocalization.Concat("FishSocial.HomeRoom.Layout.v1.", Uri.EscapeDataString(owner ?? ""));
+        public static string LayoutKey(string owner) => DesktopLocalization.Concat("FishSocial.HomeRoom.Layout.v2.", Uri.EscapeDataString(owner ?? ""));
         public void SaveLayout()
         {
             if (string.IsNullOrEmpty(layoutOwner)) return;
@@ -372,7 +395,11 @@ namespace FishSocial.Desktop
                     var frontHeight = bed.rect.height * .35f;
                     bedFront.rectTransform.sizeDelta = new Vector2(bed.rect.width,frontHeight);
                     bedFront.rectTransform.anchoredPosition = bed.anchoredPosition + new Vector2(0,-bed.rect.height+frontHeight);
-                    bedFront.uvRect = new Rect(0,0,1,.35f);
+                    // Sample the bed's front directly from the full painting; no separate prop art.
+                    var x = bed.anchoredPosition.x;
+                    var y = -bed.anchoredPosition.y;
+                    bedFront.uvRect = new Rect(x / 1672f, 1 - (y + bed.rect.height) / 941f,
+                        bed.rect.width / 1672f, frontHeight / 941f);
                 }
             }
             PresentFood();

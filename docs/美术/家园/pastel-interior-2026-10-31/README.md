@@ -1,10 +1,12 @@
 # 粉彩室内效果提案
 
-统一入口：仓库根目录 `现行预览.html#home-interior`，导航位于「家园与地图 → 室内画风提案」。提供主界面效果、完整室内原画、上一版对照、现有房间对照和猫咪显隐。主界面 UI、字体和猫咪复用当前浏览器原型，室内原画为本次新设计；当前为效果评审，未替换 Unity 正式家园资源。
+统一入口：仓库根目录 `现行预览.html#home-interior`，导航位于「家园与地图 → 室内画风提案」。提供主界面效果、完整室内原画、上一版对照、现有房间对照和猫咪显隐。主界面 UI、字体和猫咪复用当前浏览器原型，室内原画为本次新设计；用户已采用第五版，已替换 Unity 主界面背景资源并更新 DesktopShell.prefab，同时同步浏览器原型。家具绘制在完整背景中，禁止拖动与旧布局恢复；保留猫咪活动、猫窝休息以及钓具和鱼缸点击入口。
 
-当前默认使用第四版 room-pastel-v4.png，通过内置 image_gen 重绘。以现用粉彩钓鱼场景 lake-01-mint.png 为主要画风与色彩参照，第二版房间仅用于布局参考，猫咪用于判断角色与背景关系。使用薄荷青、奶油黄、鼠尾草绿和淡紫灰的连续色系，恢复粉彩绘本笔触、柔和彩色边缘与简化块面，减少写实木纹和统一粗描边。保留室内均匀光照和空置中央活动区。完整提示词为 [prompt-v4.txt](prompt-v4.txt)。生成源文件：/Users/red/.codex/generated_images/01a1532f-7ed4-7881-a467-94e6e4a376c5/exec-328095a0-2dd1-486f-90a6-aec540adbe51.png。
+当前正式采用第五版 room-pastel-v5.png，通过内置 image_gen 对第四版定向重绘。清除墙面、地板和地毯的密集碎色、黄紫斑驳，改用连续大色块，保留窗外风景、植物和家具边缘的局部粉彩笔触；保留原有布局与色系。提示词为 [prompt-v5.txt](prompt-v5.txt)。源文件：/Users/red/.codex/generated_images/01a1532f-7ed4-7881-a467-94e6e4a376c5/exec-b889c49f-aee6-4f61-9bbd-fd586fba18f6.png。默认主界面截图 main-screen-preview.png 已更新，第四版截图保留为 main-screen-v4.png，上一版对照展示第四版。
 
-整合页增加「钓鱼场景对照」按钮，直接查看同一画风参照整图 fishing-style-reference.png。默认效果图为 main-screen-preview.png，前一版截图保留为 main-screen-v3.png。
+第四版 room-pastel-v4.png，通过内置 image_gen 重绘。以现用粉彩钓鱼场景 lake-01-mint.png 为主要画风与色彩参照，第二版房间仅用于布局参考，猫咪用于判断角色与背景关系。使用薄荷青、奶油黄、鼠尾草绿和淡紫灰的连续色系，恢复粉彩绘本笔触、柔和彩色边缘与简化块面，减少写实木纹和统一粗描边。保留室内均匀光照和空置中央活动区。完整提示词为 [prompt-v4.txt](prompt-v4.txt)。生成源文件：/Users/red/.codex/generated_images/01a1532f-7ed4-7881-a467-94e6e4a376c5/exec-328095a0-2dd1-486f-90a6-aec540adbe51.png。
+
+整合页增加「钓鱼场景对照」按钮，直接查看同一画风参照整图 fishing-style-reference.png。默认效果图为 main-screen-preview.png，第三版截图保留为 main-screen-v3.png。
 
 第三版 room-pastel-v3.png 使用猫咪为主要画法参考，采用粗描边和简化平涂。用户认为它和现用彩绘钓鱼场景差距过大，保留用于上一版对照，不再默认展示。提示词为 [prompt-v3.txt](prompt-v3.txt)。
 
@@ -13,3 +15,5 @@
 原画 `room-pastel-v1.png` 使用内置 image_gen 生成。风格参考是最早 30 张粉彩场景中的 `lake-01-mint.png`，布局参考是 `output/home-room-proposal/room-v4-home.png`。采用奶油黄、鼠尾草绿、薄荷青、暖木与淡紫阴影，统一块面笔触；保留窗边猫窝、低矮钓具柜、鱼缸、猫爬架和中央活动区。完整提示词保存在 [prompt.txt](prompt.txt)。
 
 生成源文件：`/Users/red/.codex/generated_images/01a1532f-7ed4-7881-a467-94e6e4a376c5/exec-c866d0e7-f38b-4f52-a37c-e5920e75c25c.png`。项目目录内保留原画副本；`main-screen-preview.png` 为使用既有主界面 UI 与猫咪叠加后的浏览器截图。
+
+应用验证：CozyHomeRoomAuthoring.Bake 成功，Unity EditMode 中 CozyHomeRoomTests 与 CozyHomeAnimationTests 共 55 项通过；原图与 Unity、浏览器 PNG 背景文件字节完全一致。实际渲染见 unity-home-room-v5.png 与 unity-home-room-v5-sleep.png。未重新打包桌面客户端。

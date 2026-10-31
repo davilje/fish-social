@@ -16,24 +16,24 @@
 </head>
 <body>
   <header>
-    <div><h1>粉彩湖畔小屋</h1><p>对齐钓鱼场景 · 粉彩色块与笔触 · 第四版</p></div>
+    <div><h1>粉彩湖畔小屋</h1><p>第五版已采用 · 完整背景图 · 家具固定</p></div>
     <div class="controls" role="group" aria-label="预览内容">
       <button type="button" data-mode="home" aria-pressed="true">主界面效果</button>
       <button type="button" data-mode="painting" aria-pressed="false">室内原画</button>
       <button type="button" data-mode="fishing" aria-pressed="false">钓鱼场景对照</button>
       <button type="button" data-mode="previous" aria-pressed="false">上一版对照</button>
-      <button type="button" data-mode="current" aria-pressed="false">现有房间</button>
+      <button type="button" data-mode="current" aria-pressed="false">项目内效果</button>
       <label><input type="checkbox" id="show-cat" checked>显示猫咪</label>
     </div>
   </header>
   <p id="status" role="status">正在载入主界面…</p>
   <main class="stage">
     <iframe id="home-frame" title="现有主界面 UI 与猫咪叠加粉彩室内重绘稿" src="../../../设计/界面/原型/手账/index.html?roomView=home&amp;review=pastel-interior-20261031" tabindex="-1"></iframe>
-    <img id="painting" src="room-pastel-v4.png" alt="以现用钓鱼场景为画风参考的粉彩小屋，包含窗边猫窝、钓具柜、鱼缸和中央活动区" hidden>
+    <img id="painting" src="room-pastel-v5.png" alt="以现用钓鱼场景为画风参考的粉彩小屋，包含窗边猫窝、钓具柜、鱼缸和中央活动区" hidden>
   </main>
   <footer>
-    <div class="notes"><span class="palette" aria-label="燕麦、自然木、鼠尾草绿、柔和青蓝配色"><i style="background:#d8d1bb"></i><i style="background:#b59a76"></i><i style="background:#96a08b"></i><i style="background:#7da6a7"></i></span><span>粉彩绘本笔触 · 柔和彩色边缘 · 简化材质结构</span></div>
-    <div class="links"><a class="download" href="room-pastel-v4.png" download>下载室内原画</a><a class="download" id="download-home" href="main-screen-preview.png?v=4" download>下载主界面效果图</a></div>
+    <div class="notes"><span class="palette" aria-label="燕麦、自然木、鼠尾草绿、柔和青蓝配色"><i style="background:#d8d1bb"></i><i style="background:#b59a76"></i><i style="background:#96a08b"></i><i style="background:#7da6a7"></i></span><span>连续大色块 · 减少碎色纹理 · 保留局部粉彩笔触</span></div>
+    <div class="links"><a class="download" href="room-pastel-v5.png" download>下载室内原画</a><a class="download" id="download-home" href="main-screen-preview.png?v=5" download>下载主界面效果图</a></div>
   </footer>
   <script>
     const frame=document.querySelector('#home-frame');
@@ -42,10 +42,10 @@
     const cat=document.querySelector('#show-cat');
     const buttons=[...document.querySelectorAll('[data-mode]')];
     let mode='home',ready=false;
-    const artUrl=new URL('room-pastel-v4.png',location.href).href;
-    const previousUrl=new URL('room-pastel-v3.png',location.href).href;
+    const artUrl=new URL('room-pastel-v5.png',location.href).href;
+    const previousUrl=new URL('room-pastel-v4.png',location.href).href;
     const fishingUrl=new URL('fishing-style-reference.png',location.href).href;
-    const statuses={home:'第四版：以现用粉彩钓鱼场景为画风与色彩参照，重绘室内，叠加现有 UI 与猫咪。',painting:'完整室内原画 · 柔和粉彩色块、简化材质与彩色笔触边缘。',fishing:'画风参照 · 最早 30 张场景中的薄荷湖泊整图，用于直接比较色系、笔触与细节。',previous:'第三版对照 · 查看前一版的粗描边和平涂效果。',current:'现有房间对照 · 使用当前 UI、猫咪和家具资源。'};
+    const statuses={home:'已采用第五版完整背景 · 家具固定，猫咪活动与原有功能入口保留。',painting:'完整室内原画 · 连续大色块与少量局部笔触，降低画面纹理密度。',fishing:'画风参照 · 最早 30 张场景中的薄荷湖泊整图，用于直接比较色系、笔触与细节。',previous:'第四版对照 · 查看清理前墙面、地板和地毯的斑驳纹理。',current:'项目内效果 · 读取与 Unity 同步的完整 PNG 背景和固定点击区域。'};
     function apply(){
       buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
       const showPainting=mode==='painting'||mode==='fishing';
@@ -57,7 +57,7 @@
       const doc=frame.contentDocument;
       doc.body.classList.toggle('pastel-room-proposal',mode!=='current');
       doc.body.classList.toggle('hide-review-cat',!cat.checked);
-      doc.querySelector('#bg').src=mode==='current'?new URL('assets/room-runtime/room-base.jpg',frame.src).href:mode==='previous'?previousUrl:artUrl;
+      doc.querySelector('#bg').src=mode==='current'?new URL('assets/room-runtime/room-base.png',frame.src).href:mode==='previous'?previousUrl:artUrl;
       frame.contentWindow.dispatchEvent(new Event('resize'));
     }
     frame.addEventListener('load',async()=>{

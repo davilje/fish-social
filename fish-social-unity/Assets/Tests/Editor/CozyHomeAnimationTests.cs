@@ -471,44 +471,17 @@ namespace FishSocial.Desktop.Tests
         }
 
         [Test]
-        public void DraggingRaycastBowlProxyDuringEatingCancelsFeedingAndImmediatelyMovesSourceAndView()
+        public void DraggingPaintedBowlDoesNotMoveItOrInterruptEating()
         {
-            room.Feed();
-            AdvanceUntil(CozyHomeRoom.Activity.Eating);
-            room.Advance(.2f);
-            var source = room.Prop("food-bowls");
-            var sourceRect = source.GetComponent<RectTransform>();
-            var view = room.transform.Find("food-bowls").GetComponent<RectTransform>();
-            var origin = source.BottomCenter;
-            var pointer = BowlPointer(true, out var hitTarget);
-            var press = room.PointerPosition(pointer);
-            var handler = ExecuteEvents.ExecuteHierarchy(hitTarget, pointer, ExecuteEvents.beginDragHandler);
-            Assert.AreEqual(view.gameObject, handler);
-            Assert.IsFalse(room.IsFeeding);
-            Assert.AreEqual(CozyHomeRoom.Activity.Free, room.CurrentActivity);
-            Assert.IsFalse(pointer.eligibleForClick);
-            AssertFoodHidden();
-            var offset = new Vector2(40, 25);
-            var destination = press + offset;
-            var world = room.transform.TransformPoint(new Vector3(destination.x, -destination.y));
-            pointer.position = RectTransformUtility.WorldToScreenPoint(camera, world);
-            pointer.pointerDrag = hitTarget;
-            pointer.dragging = true;
-            Assert.AreEqual(view.gameObject, ExecuteEvents.ExecuteHierarchy(hitTarget, pointer, ExecuteEvents.dragHandler));
-            var expected = CozyHomeRoom.ClampFurniture("food-bowls", origin + offset);
-            Assert.Greater(Vector2.Distance(origin, source.BottomCenter), 1);
-            Assert.That(Vector2.Distance(expected, source.BottomCenter), Is.LessThan(.02f));
-            Assert.That(Vector2.Distance(sourceRect.anchoredPosition, view.anchoredPosition), Is.LessThan(.01f), "Proxy must follow during the drag event, without Advance");
-            Assert.AreEqual(sourceRect.rect.size, view.rect.size);
-            Assert.IsFalse(source.GetComponent<Image>().enabled);
-            Assert.AreEqual(view.gameObject, ExecuteEvents.ExecuteHierarchy(hitTarget, pointer, ExecuteEvents.endDragHandler));
-            ExecuteEvents.ExecuteHierarchy(hitTarget, pointer, ExecuteEvents.pointerClickHandler);
-            Assert.IsFalse(room.IsFeeding, "Drag release must not feed again");
-            room.Advance(.25f);
-            Assert.IsFalse(room.IsFeeding);
-            Assert.That(Vector2.Distance(expected, source.BottomCenter), Is.LessThan(.02f));
-            Assert.That(Vector2.Distance(sourceRect.anchoredPosition, view.anchoredPosition), Is.LessThan(.01f));
-            AssertFoodHidden();
+            room.Feed();AdvanceUntil(CozyHomeRoom.Activity.Eating);room.Advance(.2f);
+            var source=room.Prop("food-bowls");var origin=source.BottomCenter;
+            var pointer=BowlPointer(true,out var hitTarget);
+            ExecuteEvents.ExecuteHierarchy(hitTarget,pointer,ExecuteEvents.beginDragHandler);
+            pointer.position+=new Vector2(40,25);pointer.dragging=true;
+            ExecuteEvents.ExecuteHierarchy(hitTarget,pointer,ExecuteEvents.dragHandler);
+            ExecuteEvents.ExecuteHierarchy(hitTarget,pointer,ExecuteEvents.endDragHandler);
+            Assert.AreEqual(origin,source.BottomCenter);
+            Assert.IsTrue(room.IsFeeding);Assert.IsFalse(source.CanDrag);
         }
 
         [Test]

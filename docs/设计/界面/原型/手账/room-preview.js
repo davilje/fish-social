@@ -61,9 +61,7 @@
   const bedFront = document.createElement('div');
   bedFront.id = 'room-bed-front'; bedFront.className = 'room-only'; bedFront.hidden = true;
   actor.after(bedFront);
-  const furnitureBounds = {
-    'cat-bed': [170, 675, 370, 785], 'cat-climber': [180, 600, 350, 665], 'food-bowls': [1430, 660, 1580, 785]
-  };
+  const furnitureBounds = {}; // Furniture belongs to the full painting and cannot move.
   const prop = id => scene.querySelector(`[data-instance="${id}"]`);
   const propBox = img => ({ x: parseFloat(img.style.left), y: parseFloat(img.style.top), w: parseFloat(img.style.width), h: parseFloat(img.style.height) });
   const bedDestination = () => { const b = propBox(prop('cat-bed')); return { x: b.x + b.w / 2, y: b.y + b.h * .71 }; };
@@ -84,7 +82,7 @@
     actor.style.width = `${w}px`; actor.style.height = `${h}px`;
     if (bedState === 'sleeping') {
       const b = propBox(prop('cat-bed'));
-      Object.assign(bedFront.style, { left: `${b.x}px`, top: `${b.y + b.h * .65}px`, width: `${b.w}px`, height: `${b.h * .35}px`, backgroundImage: `url(${prop('cat-bed').src})`, backgroundSize: `${b.w}px ${b.h}px` });
+      Object.assign(bedFront.style, { left: `${b.x}px`, top: `${b.y + b.h * .65}px`, width: `${b.w}px`, height: `${b.h * .35}px`, backgroundImage: `url(assets/room-runtime/room-base.png)`, backgroundSize: '1672px 941px', backgroundPosition: `${-b.x}px ${-(b.y + b.h * .65)}px` });
     }
     bedFront.hidden = bedState !== 'sleeping';
   }
@@ -92,7 +90,7 @@
   function sleepInBed() {
     if (!active()) return;
     interact(); stop(); setBedState('going'); walkTo(bedDestination(), false, true);
-    caption('点击猫窝：小橘去窝里休息；猫窝、猫碗和猫爬架可在各自区域拖放。');
+    caption('点击猫窝：小橘去窝里休息。家具已固定在背景中。');
   }
   function setFurniture(img, center) {
     const bounds = furnitureBounds[img.dataset.instance], b = propBox(img);
@@ -102,11 +100,11 @@
   }
   function saveFurniture() {
     const data = Object.keys(furnitureBounds).map(id => { const b = propBox(prop(id)); return { id, x: b.x+b.w/2, y: b.y+b.h }; });
-    try { localStorage.setItem('fish-room-layout-v1', JSON.stringify(data)); } catch (_) { /* Private browsing may disable storage. */ }
+    try { localStorage.setItem('fish-room-layout-v2', JSON.stringify(data)); } catch (_) { /* Private browsing may disable storage. */ }
   }
   function restoreFurniture() {
     try {
-      const data = JSON.parse(localStorage.getItem('fish-room-layout-v1') || '[]');
+      const data = JSON.parse(localStorage.getItem('fish-room-layout-v2') || '[]');
       if (Array.isArray(data)) for (const p of data) if (furnitureBounds[p.id] && Number.isFinite(p.x) && Number.isFinite(p.y)) setFurniture(prop(p.id), p);
     } catch (_) { /* Invalid local layouts keep the authored positions. */ }
   }
@@ -117,10 +115,10 @@
   }
   function bindProp(img, item) {
     const movable = Boolean(furnitureBounds[item.id]), rod = item.asset === 'fishing-rod';
-    if (!movable && !rod) return;
+    if (!movable && !rod && item.id !== 'cat-bed') return;
     img.draggable = false; img.tabIndex = 0; img.setAttribute('role', 'button');
     img.classList.add('is-interactive'); if (movable) img.classList.add('is-movable');
-    img.alt = movable ? `${item.id === 'cat-bed' ? '猫窝：点击休息；' : ''}${item.id === 'food-bowls' ? '猫碗' : item.id === 'cat-climber' ? '猫爬架' : '猫窝'}，拖动或用方向键摆放` : '鱼竿：打开装备页';
+    img.alt = item.id === 'cat-bed' ? '猫窝：点击休息' : '鱼竿：打开装备页';
     img.addEventListener('click', e => {
       if (!active() || img.dataset.dragged === 'true') { img.dataset.dragged = 'false'; return; }
       if (rod) go('equip'); else if (item.id === 'cat-bed') sleepInBed();
@@ -265,8 +263,8 @@
     cancelPropDrag(); stop(); setBedState('free'); isIndoor = value;
     // Clear outdoor-only persistent poses before switching the same actor indoors.
     zzzLoop.cancel(); actor._sleep?.cancel(); actor._lean?.cancel(); sleeping = false;
-    background.src = value ? 'assets/room-runtime/room-base.jpg' : 'assets/home-sakura.jpg';
-    background.alt = value ? '均匀光照的空房间底图，用品由独立透明切图叠放' : '原有樱花湖畔背景';
+    background.src = value ? 'assets/room-runtime/room-base.png' : 'assets/home-sakura.jpg';
+    background.alt = value ? '完整粉彩绘本小屋，家具固定在背景中' : '原有樱花湖畔背景';
     layerToggle.disabled = !value;
     stage.classList.toggle('room-mode', value);
     indoor.classList.toggle('on', value); outdoor.classList.toggle('on', !value);

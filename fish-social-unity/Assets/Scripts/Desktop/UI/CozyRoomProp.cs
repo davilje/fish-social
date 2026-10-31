@@ -15,7 +15,7 @@ namespace FishSocial.Desktop
         int pointer = int.MinValue;
         bool dragging;
         public string PropId => propId;
-        public bool CanDrag => propId == "cat-bed" || propId == "food-bowls" || propId == "cat-climber";
+        public bool CanDrag => false; // Furniture is painted into the approved room background.
         public Vector2 BottomCenter
         {
             get { var r = (RectTransform)transform; return new Vector2(r.anchoredPosition.x + r.rect.width / 2, -r.anchoredPosition.y + r.rect.height); }

@@ -12,13 +12,26 @@ from PIL import Image
 
 def export(repo: Path):
     source = repo / "docs/设计/界面/原型/手账/assets/room-v4"
+    approved = repo / "docs/美术/家园/pastel-interior-2026-10-31/room-pastel-v5.png"
     target = repo / "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/home-room"
     target.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((source / "manifest.json").read_text())
+    if approved.exists():
+        manifest.update(version=5, background="room-base.png", staticFurniture=True,
+                        artRevision="approved-clean-pastel-v5", sourcePainting=str(approved.relative_to(repo)))
+        # The painting is indivisible. Existing nodes become invisible input regions only.
+        boxes = {"cat-bed": [25, 528, 334, 140], "cat-climber": [65, 371, 447, 280],
+                 "food-bowls": [1423, 594, 162, 64]}
+        for i in range(3):
+            boxes["rod-" + str(i + 1)] = [548 + i * 49, 145 + i * 11, 70, 373 - i * 11]
+        for p in manifest["placements"]:
+            p.update(fit="fill", baked=True)
+            if p["id"] in boxes:
+                p.update(zip(["x", "y", "width", "height"], boxes[p["id"]]))
     rows = []
     for key, entry in manifest["assets"].items():
         placements = [p for p in manifest["placements"] if p["asset"] == key]
-        image = Image.open(source / entry["file"]).convert("RGBA")
+        image = Image.new("RGBA", (1, 1)) if approved.exists() else Image.open(source / entry["file"]).convert("RGBA")
         before = image.size
         w = max(p["width"] for p in placements)
         h = max(p["height"] for p in placements)
@@ -37,7 +50,12 @@ def export(repo: Path):
                "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
         rows.append(row)
         entry.update(width=size[0], height=size[1], masterSize=list(before), runtimeDensity=2)
-    Image.open(source / "room-base.png").save(target / "room-base.png", optimize=True)
+        if approved.exists():
+            entry.update(baked=True, source=str(approved.relative_to(repo)))
+    if approved.exists():
+        shutil.copy2(approved, target / "room-base.png")
+    else:
+        Image.open(source / "room-base.png").save(target / "room-base.png", optimize=True)
     prototype = source.parent
     for pose in ["standing", "sitting"]:
         image = Image.open(prototype / ("room-cat-" + pose + ".png")).convert("RGBA")
@@ -53,8 +71,8 @@ def export(repo: Path):
         cropped.save(poses / name, optimize=True)
         sleep.append({"skin": path.parent.name, "file": "poses/" + name,
                       "width": cropped.width, "height": cropped.height, "source": str(path.relative_to(repo))})
-    manifest["runtimeExport"] = {"density": 2, "masterFolder": str(source.relative_to(repo)),
-                                 "note": "2x maximum layout size; transparent padding trimmed; rug resampled to its existing floor projection"}
+    manifest["runtimeExport"] = {"density": 2, "masterFolder": str((approved.parent if approved.exists() else source).relative_to(repo)),
+                                 "note": "Approved full painting, unchanged pixels; transparent sprites are input regions only" if approved.exists() else "2x maximum layout size; transparent padding trimmed; rug resampled to its existing floor projection"}
     manifest["sleepPoses"] = sleep
     (target / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     before = sum(r["rgbaBytesBefore"] for r in rows)
@@ -67,10 +85,12 @@ def export(repo: Path):
     for path in target.rglob("*"):
         if path.suffix not in [".png", ".json"]:
             continue
+        if "animations" in path.relative_to(target).parts:
+            continue  # Unity animation frames are not consumed by this browser prototype.
         dest = web / path.relative_to(target)
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, dest)
-    Image.open(target / "room-base.png").convert("RGB").save(web / "room-base.jpg", quality=92, optimize=True)
+    Image.open(target / "room-base.png").convert("RGB").save(web / "room-base.jpg", quality=95, optimize=True)
     print(json.dumps({k: report[k] for k in ["count", "rgbaBytesBefore", "rgbaBytesAfter", "reductionPercent"]}))
 
 
