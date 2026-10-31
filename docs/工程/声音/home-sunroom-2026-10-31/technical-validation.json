@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "date": "2026-10-31",
+  "scope": "Objective candidate score/source/PCM validation; no listening acceptance or project adoption",
+  "assets": [
+    {
+      "path": "home-sunroom.wav",
+      "sha256": "4042304f6024b5f10df613f666ffafc630bb45a547101dd6e28488cf426d953e",
+      "frames": 3994912,
+      "durationSeconds": 90.58757369614513,
+      "truePeakDbTP": -9.62973849923962,
+      "boundaryStep": 0,
+      "finite": true
+    },
+    {
+      "path": "excerpt.wav",
+      "sha256": "ee8bb26372b7f65cc010760e7dc4b0f84850164c5941ef502ca6de6a053e642a",
+      "frames": 993525,
+      "durationSeconds": 22.52891156462585,
+      "truePeakDbTP": -10.082890139991068,
+      "boundaryStep": 0,
+      "finite": true
+    }
+  ],
+  "score": {
+    "bars": 32,
+    "events": 407,
+    "melodyEvents": 165,
+    "melodyRangeMidi": [
+      62,
+      88
+    ],
+    "chapters": 4,
+    "nominalTempoBpm": 85,
+    "actualTempoRange": [
+      80,
+      87
+    ],
+    "guitarIntegerSemitoneTransposition": 0,
+    "guitarMaximumTuningCorrectionCents": 29.19886574045023,
+    "orchestraMaxPitchShift": 3,
+    "logicalMelodyGatesDoNotOverlap": true,
+    "naturalReleaseTailsMayOverlap": true
+  },
+  "sources": {
+    "pinnedFiles": 42,
+    "audioFiles": 37,
+    "license": "CC0-1.0",
+    "allActualShaAndGitBlobVerified": true
+  },
+  "excerpt": {
+    "exactPcmPrefixBeforeFade": true,
+    "fadeOutSeconds": 0.65
+  },
+  "formalAudioUnchangedFromHEAD": true,
+  "compositionScriptSha256": "220967588a391b6f0486c2b4113d5b9e638ed4a33997e21c53d8e9f5cf799804",
+  "independentScoreReview": "score-review.json",
+  "formalAssetVerification": "verify_desktop_audio.py: 52/52 PASS"
+}

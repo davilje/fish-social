@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "date": "2026-10-31",
+  "scope": "Browser playback/interaction only; not subjective approval, Unity adoption or Windows hardware validation",
+  "browser": "156.0.8078.79",
+  "duration": 90.587574,
+  "excerptDuration": 22.528912,
+  "actual": {
+    "paused": false,
+    "time": 0.369674,
+    "duration": 90.587574,
+    "volume": 0.7,
+    "loop": true
+  },
+  "results": [
+    "Unified #audio opens the new home music card first; native controls, complete track and no autoplay",
+    "Full WAV actually advances; seek crosses a real native loop; loop toggle and music volume respond",
+    "Excerpt and unchanged current home BGM both play; source switch pauses before changing",
+    "New home music and both real-time ambience / 45-second recording stop one another with no overlap",
+    "Lazy action/meow controls stop music; returning to home music stops prior effects",
+    "Hidden page pauses without auto-resume; stop resets position; leaving unified audio navigation pauses the retired player",
+    "Desktop and 390px mobile layouts fit; zero JavaScript or HTTP errors"
+  ],
+  "errors": [],
+  "httpErrors": []
+}

@@ -9,6 +9,6 @@
 | [Bug 修复](缺陷/README.md) | 33 份 Markdown 及配套文件 |
 | [数据与运营](数据运维/README.md) | 19 份 Markdown 及配套文件 |
 | [桌面客户端](桌面端/README.md) | 55 份 Markdown 及配套文件 |
-| [玩法与数值](玩法/README.md) | 47 份 Markdown 及配套文件 |
+| [玩法与数值](玩法/README.md) | 49 份 Markdown 及配套文件 |
 | [阶段计划](路线图/README.md) | 6 份 Markdown 及配套文件 |
 | [世界与场景](世界观/README.md) | 8 份 Markdown 及配套文件 |

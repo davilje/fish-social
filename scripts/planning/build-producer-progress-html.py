@@ -21,8 +21,8 @@ import openpyxl
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 XLSX = os.path.join(BASE, "项目开发需求计划表.xlsx")
 OUT = os.path.join(BASE, "策划进度看板.html")
-OUT_DOCS_COPY = os.path.join(BASE, "docs", "planning", "策划进度看板.html")
-XLSX_DOCS_FALLBACK = os.path.join(BASE, "docs", "planning", "项目开发需求计划表.xlsx")
+OUT_DOCS_COPY = os.path.join(BASE, "docs", "策划", "策划进度看板.html")
+XLSX_DOCS_FALLBACK = os.path.join(BASE, "docs", "策划", "项目开发需求计划表.xlsx")
 
 DONE = frozenset({"已实现", "已实现（MVP）", "已验收"})
 OPEN = frozenset({"评审中", "已确认", "验收中", "未开始", "待开发"})

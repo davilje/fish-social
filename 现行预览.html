@@ -133,6 +133,7 @@
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=settings">设置</button>
         <h2>家园与地图</h2>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?roomView=home">家园</button>
+        <button type="button" data-src="docs/美术/家园/pastel-interior-2026-10-31/index.html?v=4-painterly-series" data-route="home-interior">室内画风提案</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=map">世界地图</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=ponds">选择鱼塘</button>
         <h2>资料与收获</h2>
@@ -161,7 +162,7 @@
         <h2>特效</h2>
         <button type="button" data-src="docs/美术/水面特效/index.html?style=magic">水面特效</button>
         <h2>音效</h2>
-        <button type="button" data-src="docs/美术/声音/leaf-clusters/index.html?v=20261030-flowing-applied" data-route="audio">环境音与音效</button>
+        <button type="button" data-src="docs/美术/声音/leaf-clusters/index.html?v=20261031-sunroom" data-route="audio">首页音乐与音效</button>
       </nav>
     </aside>
     <main>
@@ -176,7 +177,7 @@
     } else {
       const savedSrc = sessionStorage.getItem('preview-src');
       const saved = buttons.find(button => button.dataset.src === savedSrc) ||
-        (savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : null);
+        (savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : savedSrc?.startsWith('docs/美术/家园/pastel-interior-2026-10-31/') ? buttons.find(button => button.dataset.route === 'home-interior') : null);
       const requestedPath = location.hash === '#scene' ? 'docs/美术/场景/motion.html' : location.hash === '#login' ? 'docs/美术/登录/cats-selected-2026-10-29/index.html' : location.hash === '#audio' ? 'docs/美术/声音/leaf-clusters/index.html' : null;
       const requested = buttons.find(button => button.dataset.route && '#'+button.dataset.route === location.hash) || (requestedPath ? buttons.find(button => button.dataset.src.startsWith(requestedPath)) : null);
       const current = requested || saved || buttons[0];
@@ -185,7 +186,7 @@
       });
       select(current);
       window.addEventListener('hashchange', () => {
-        const route = { '#audio': 'audio', '#login': 'login' }[location.hash];
+        const route = { '#audio': 'audio', '#login': 'login', '#home-interior': 'home-interior' }[location.hash];
         const target = route ? buttons.find(button => button.dataset.route === route) :
           location.hash === '#scene' ? buttons.find(button => button.dataset.src.startsWith('docs/美术/场景/motion.html')) : null;
         if (target && stage.getAttribute('src') !== target.dataset.src) select(target);

@@ -48,7 +48,7 @@
 | [steam-desktop-22-followups-dev.prompt](steam-desktop-22-followups-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22h-water-effects-dev.prompt](steam-desktop-22h-water-effects-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-22hij-design-dev.prompt](steam-desktop-22hij-design-dev.prompt.md) | 专题说明／实施记录 |
-| [steam-desktop-22i-audio-dev.prompt](steam-desktop-22i-audio-dev.prompt.md) | 专题说明／实施记录 |
+| [steam-desktop-22i-audio-dev.prompt](steam-desktop-22i-audio-dev.prompt.md) | 已采用风叶维护／首页 BGM《晴窗小憩》候选待试听采用 |
 | [steam-desktop-22klm-dev.prompt](steam-desktop-22klm-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-account-auth-dev.prompt](steam-desktop-account-auth-dev.prompt.md) | 专题说明／实施记录 |
 | [steam-desktop-art-02-overlay-layout-pipeline-dev.prompt](steam-desktop-art-02-overlay-layout-pipeline-dev.prompt.md) | 专题说明／实施记录 |

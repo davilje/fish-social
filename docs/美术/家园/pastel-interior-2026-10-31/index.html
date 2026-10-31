@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>粉彩湖畔小屋 · 主界面室内提案</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;height:100%}body{display:flex;flex-direction:column;background:#f6f3ee;color:#394e50;font:14px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;padding:14px;gap:10px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}h1{font-size:19px;margin:0}header p{margin:2px 0 0;color:#79847d;font-size:12px}
+    .controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}button,a{font:inherit;color:inherit}button,.download{padding:7px 12px;border:1px solid #d5ded3;background:#fffdf5;border-radius:8px;cursor:pointer;text-decoration:none;white-space:nowrap}button[aria-pressed=true]{background:#456b67;color:#fff;border-color:#456b67}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #9c829f;outline-offset:3px}
+    label{display:flex;align-items:center;gap:5px;padding:5px 7px;white-space:nowrap}input{accent-color:#456b67}#status{margin:0;color:#79847d;font-size:12px}
+    .stage{position:relative;flex:1;min-height:100px;min-width:0;overflow:hidden;border:1px solid #dbe1d7;border-radius:12px;background:#e9e9df;display:grid;place-items:center}iframe{border:0;width:100%;height:100%;pointer-events:none}#painting{width:100%;height:100%;object-fit:contain;min-height:0}
+    [hidden]{display:none!important}footer{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.notes{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:#6e7f77}.palette{display:flex;gap:4px}.palette i{display:block;width:17px;height:17px;border-radius:50%;border:1px solid #0000000b}.links{display:flex;gap:7px;align-items:center;font-size:12px}
+    @media(max-width:760px){body{padding:9px;gap:8px}h1{font-size:17px}header{gap:8px}.controls{gap:4px}button,.download{padding:6px 8px;font-size:12px}.notes{gap:7px}footer{gap:7px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>粉彩湖畔小屋</h1><p>对齐钓鱼场景 · 粉彩色块与笔触 · 第四版</p></div>
+    <div class="controls" role="group" aria-label="预览内容">
+      <button type="button" data-mode="home" aria-pressed="true">主界面效果</button>
+      <button type="button" data-mode="painting" aria-pressed="false">室内原画</button>
+      <button type="button" data-mode="fishing" aria-pressed="false">钓鱼场景对照</button>
+      <button type="button" data-mode="previous" aria-pressed="false">上一版对照</button>
+      <button type="button" data-mode="current" aria-pressed="false">现有房间</button>
+      <label><input type="checkbox" id="show-cat" checked>显示猫咪</label>
+    </div>
+  </header>
+  <p id="status" role="status">正在载入主界面…</p>
+  <main class="stage">
+    <iframe id="home-frame" title="现有主界面 UI 与猫咪叠加粉彩室内重绘稿" src="../../../设计/界面/原型/手账/index.html?roomView=home&amp;review=pastel-interior-20261031" tabindex="-1"></iframe>
+    <img id="painting" src="room-pastel-v4.png" alt="以现用钓鱼场景为画风参考的粉彩小屋，包含窗边猫窝、钓具柜、鱼缸和中央活动区" hidden>
+  </main>
+  <footer>
+    <div class="notes"><span class="palette" aria-label="燕麦、自然木、鼠尾草绿、柔和青蓝配色"><i style="background:#d8d1bb"></i><i style="background:#b59a76"></i><i style="background:#96a08b"></i><i style="background:#7da6a7"></i></span><span>粉彩绘本笔触 · 柔和彩色边缘 · 简化材质结构</span></div>
+    <div class="links"><a class="download" href="room-pastel-v4.png" download>下载室内原画</a><a class="download" id="download-home" href="main-screen-preview.png?v=4" download>下载主界面效果图</a></div>
+  </footer>
+  <script>
+    const frame=document.querySelector('#home-frame');
+    const painting=document.querySelector('#painting');
+    const status=document.querySelector('#status');
+    const cat=document.querySelector('#show-cat');
+    const buttons=[...document.querySelectorAll('[data-mode]')];
+    let mode='home',ready=false;
+    const artUrl=new URL('room-pastel-v4.png',location.href).href;
+    const previousUrl=new URL('room-pastel-v3.png',location.href).href;
+    const fishingUrl=new URL('fishing-style-reference.png',location.href).href;
+    const statuses={home:'第四版：以现用粉彩钓鱼场景为画风与色彩参照，重绘室内，叠加现有 UI 与猫咪。',painting:'完整室内原画 · 柔和粉彩色块、简化材质与彩色笔触边缘。',fishing:'画风参照 · 最早 30 张场景中的薄荷湖泊整图，用于直接比较色系、笔触与细节。',previous:'第三版对照 · 查看前一版的粗描边和平涂效果。',current:'现有房间对照 · 使用当前 UI、猫咪和家具资源。'};
+    function apply(){
+      buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
+      const showPainting=mode==='painting'||mode==='fishing';
+      frame.hidden=showPainting;painting.hidden=!showPainting;cat.disabled=showPainting;
+      painting.src=mode==='fishing'?fishingUrl:artUrl;
+      painting.alt=mode==='fishing'?'当前钓鱼场景画风参照：薄荷湖泊':'粉彩绘本室内原画';
+      status.textContent=ready||showPainting?statuses[mode]:'正在载入主界面…';
+      if(!ready)return;
+      const doc=frame.contentDocument;
+      doc.body.classList.toggle('pastel-room-proposal',mode!=='current');
+      doc.body.classList.toggle('hide-review-cat',!cat.checked);
+      doc.querySelector('#bg').src=mode==='current'?new URL('assets/room-runtime/room-base.jpg',frame.src).href:mode==='previous'?previousUrl:artUrl;
+      frame.contentWindow.dispatchEvent(new Event('resize'));
+    }
+    frame.addEventListener('load',async()=>{
+      try{
+        const win=frame.contentWindow,doc=frame.contentDocument;
+        await win.roomAssetsReady;
+        await doc.fonts.ready;
+        const css=doc.createElement('style');
+        css.textContent=`html,body{background:#e9e9df!important}#toolbar,#caption,#bobber{display:none!important}#viewport{inset:0!important}#page{display:none!important}#compare,#compare-badge{display:none!important}#stage{pointer-events:none!important}#stage.room-mode #corner-cat{visibility:visible!important}.pastel-room-proposal #room-scene,.pastel-room-proposal #room-bed-front{display:none!important}.hide-review-cat #corner-cat{display:none!important}.pastel-room-proposal #room-tackle{left:510px;top:480px}.pastel-room-proposal #room-aquarium{left:1140px;top:640px}`;
+        doc.head.append(css);
+        doc.querySelector('#room-home').click();
+        if(!doc.querySelector('#reduce').textContent.includes('开'))doc.querySelector('#reduce').click();
+        ready=true;apply();
+        await doc.querySelector('#bg').decode();
+        document.body.dataset.ready='true';
+      }catch(error){status.textContent='预览加载失败：'+error.message;document.body.dataset.ready='error';console.error(error);}
+    });
+    buttons.forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;apply();}));
+    cat.addEventListener('change',apply);
+  </script>
+</body>
+</html>

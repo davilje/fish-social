@@ -17,7 +17,7 @@ try{
  await page.goto(url);const frame=await frameReady();
  assert.equal(await frame.locator('#duration').inputValue(),'60');assert.equal(await frame.locator('#master').inputValue(),'70');for(const id of ['water','wind','leaves'])assert.equal(await frame.locator('#'+id).inputValue(),'100');
  assert.equal(await frame.locator('iframe').count(),0);assert.equal(await frame.locator('#water').getAttribute('type'),'range');assert.match(await frame.locator('h1').textContent(),/湖畔的风与叶/);
- assert.match(await frame.locator('.badge').textContent(),/已应用项目/);
+ assert.match(await frame.locator('.badge').last().textContent(),/已应用项目/);
  const identity=await frame.locator('body').evaluate(async()=>{
    const a=AudioClusterLab,bank=a.bank,asset=bank.assets.find(p=>p.path===a.paths.wind),response=await fetch(a.ROOT+asset.path,{cache:'no-store'}),bytes=await response.arrayBuffer();
    const actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');

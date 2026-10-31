@@ -14,6 +14,7 @@ import re
 import shutil
 import subprocess
 import sys
+from copy import copy
 from datetime import date
 from pathlib import Path
 
@@ -22,8 +23,8 @@ from document_paths import rewrite_document_paths
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DOCS_PLANNING = ROOT / "docs" / "planning"
-SPEC_DIR = DOCS_PLANNING / "specs"
+DOCS_PLANNING = ROOT / "docs" / "策划"
+SPEC_DIR = DOCS_PLANNING / "规格"
 TODAY = date.today().isoformat()
 
 # Rows that must exist on the first planning sheet (upsert by 编号).
@@ -1041,10 +1042,12 @@ ENSURE_PLAN_ROWS: list[list[object]] = [
     ['已实现', 'STEAM-DESKTOP-22M', '美术', '狸花猫丧彪完整钓鱼动作', '—', '后续迭代', 'P2', '44原画/63源姿势/16钓鱼动作/74帧槽，头像与选择入口；家园仅站坐，未含行走进食翻滚蜷睡；Windows美术待验收', 'docs/策划/规格/桌面端/Steam桌面端-22KLM呼吸瞌睡与狸花猫.md', '2026-10-24', '2026-10-24'],
     ['已实现', 'STEAM-DESKTOP-22G', '功能', 'Overlay背景场景美术迭代', '—', '后续迭代', 'P2', '2026-10-25/26 全塘粉彩绘本布局、千岛湖分层和登录粉彩已入库；时长限制提示同批进 HUD。Windows 实机未单独验收', 'docs/策划/规格/桌面端/Steam桌面端-22鱼塘表现修复与后续迭代.md', '2026-10-24', '2026-10-26'],
     ['已实现', 'STEAM-DESKTOP-22H', '功能', '钓鱼过程特效', '—', '后续迭代', 'P2', 'v4造型与v8配色已采用；2026-10-26补上钩浮漂沉浮/摆动，水花对齐当前鱼线入水点，正式随包程序已更新；Windows性能/点击穿透及H/I实机待验收', 'docs/策划/规格/桌面端/Steam桌面端-22H钓鱼特效设计.md', '2026-10-24', '2026-10-25'],
-    ['已实现', 'STEAM-DESKTOP-22I', '功能', '钓鱼与UI音效迭代', '—', '后续迭代', 'P2', '钓鱼场景关闭BGM与按钮音，平静/轻晃湖面按塘配置，采用总页连续交融风叶，共享风势与衔接循环；交叉淡化与独立试听，保留动作声/猫叫；Windows画声延迟待实测', 'docs/策划/规格/桌面端/Steam桌面端-22I声音体验设计.md', '2026-10-24', '2026-10-30'],
+    ['已实现', 'STEAM-DESKTOP-22I', '功能', '钓鱼与UI音效迭代', '—', '后续迭代', 'P2', '钓鱼场景关闭BGM与按钮音，分塘湖面与连续交融风叶已采用；保留动作声/猫叫；10月31日首页原创BGM《晴窗小憩》候选加入总页，待试听采用，正式v5暂保留；Windows画声延迟待实测', 'docs/策划/规格/桌面端/Steam桌面端-22I声音体验设计.md', '2026-10-24', '2026-10-30'],
     ['已废弃', 'STEAM-DESKTOP-22J', '功能', '世界地图迭代', '—', '后续迭代', 'P2', '方案已归档，不再开发。现行世界地图为 08A／08A2', 'docs/归档/2026-10-26/替代/策划/规格/Steam桌面端-22J世界地图设计.md', '2026-10-24', '2026-10-27'],
     ['已确认', 'WORLD-CAT-01', '内容', '猫咪世界观与场景描述', '—', 'hotfix', 'P1', '地图和鱼塘场景不再以中国实景为叙事；保留塘 id 与鱼种表，另写猫咪世界分区和每塘场景描述', 'docs/策划/规格/世界观/猫咪世界观与场景描述.md', '2026-10-26', ''],
     ['已确认', 'FISH-ATTR-01', '功能', '体长体重步进与公式评判', '—', 'hotfix', 'P1', '体长步进 0.01m 改为 0.05m，体重展示步进 0.1kg。40m/7日成长和 40m 脱钩 98.5% 判定为不适合当前尺度，本票不改系数', 'docs/策划/规格/玩法/钓鱼体长体重步进与公式评判.md', '2026-10-26', ''],
+    ['已确认', 'FISH-BREAK-01', '功能', '钓鱼断线与断竿表现', '—', '后续迭代', 'P1', '自然脱钩内分配断线表现，不增加总失败率；成功超规格累计满次后折断竿，保留当次鱼获；补权威结果、去重与备用竿衔接', 'docs/策划/规格/玩法/钓鱼断线与断竿表现.md', '2026-10-31', ''],
+    ['已确认', 'FISH-SCALE-01', '功能', '上钩鱼尺寸与实际体长映射', '—', '后续迭代', 'P1', '0.02–50m 十八控制点连续映射到8–204标准逻辑px；40m现行上限192px；跨动作锁定、嘴部/持鱼锚点、水面裁剪与巨物溢出', 'docs/策划/规格/玩法/上钩鱼尺寸与体长映射.md', '2026-10-31', ''],
     ['已废弃', 'OPS-HOT-1', '运维', '桌面资源与数值热更', '—', 'hotfix', 'P1', '不再做。客户端整包上 Steam 后由商店更新内容，不需要单独的资源或数值热更通道', 'docs/策划/规格/后端/桌面资源与数值热更.md', '2026-10-26', '2026-10-29'],
     [
         "已验收",
@@ -2010,6 +2013,10 @@ def ensure_plan_rows(workbook: openpyxl.Workbook) -> int:
         existing = id_to_row.get(plan_id)
         if existing is None:
             ws.append(plan_row)
+            # 新增需求沿用现有表格样式，说明与路径保持换行可读。
+            for col in range(1, len(plan_row) + 1):
+                ws.cell(ws.max_row, col)._style = copy(ws.cell(2, col)._style)
+            ws.row_dimensions[ws.max_row].height = 84
             changed += 1
             continue
         # ENSURE 为验收权威：状态/说明/路径/日期一并回写

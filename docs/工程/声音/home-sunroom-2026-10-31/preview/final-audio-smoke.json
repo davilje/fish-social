@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "date": "2026-10-31",
+  "scope": "Final rendered bytes plus native browser decode/play/loop and four chapter jumps before first playback",
+  "assets": [
+    {
+      "path": "home-sunroom.wav",
+      "hash": "4042304f6024b5f10df613f666ffafc630bb45a547101dd6e28488cf426d953e",
+      "expectedHash": "4042304f6024b5f10df613f666ffafc630bb45a547101dd6e28488cf426d953e",
+      "duration": 90.5875625,
+      "channels": 2,
+      "encodedSampleRate": 44100,
+      "decodedSampleRate": 48000
+    },
+    {
+      "path": "excerpt.wav",
+      "hash": "ee8bb26372b7f65cc010760e7dc4b0f84850164c5941ef502ca6de6a053e642a",
+      "expectedHash": "ee8bb26372b7f65cc010760e7dc4b0f84850164c5941ef502ca6de6a053e642a",
+      "duration": 22.528895833333333,
+      "channels": 2,
+      "encodedSampleRate": 44100,
+      "decodedSampleRate": 48000
+    }
+  ],
+  "chapterSeekSeconds": [
+    0,
+    22.528912,
+    45.025748,
+    67.819716
+  ],
+  "playback": {
+    "time": 0.675565,
+    "paused": false,
+    "duration": 90.587574
+  },
+  "errors": []
+}

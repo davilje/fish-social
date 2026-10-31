@@ -2,6 +2,7 @@
 
 | 文档 | 记录状态 |
 |---|---|
+| [fish-break-size-design-dev.prompt](fish-break-size-design-dev.prompt.md) | FISH-BREAK-01 / FISH-SCALE-01；已确认，待实现 |
 | [bot-pool-reuse-cleanup-dev.prompt](bot-pool-reuse-cleanup-dev.prompt.md) | 专题说明／实施记录 |
 | [bot-spawn-pace-dev.prompt](bot-spawn-pace-dev.prompt.md) | 专题说明／实施记录 |
 | [daily-fishing-shanghai-rollover-dev.prompt](daily-fishing-shanghai-rollover-dev.prompt.md) | 专题说明／实施记录 |

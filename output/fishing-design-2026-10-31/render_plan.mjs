@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import {FileBlob, SpreadsheetFile} from '@oai/artifact-tool';
+const root = '/Users/davilje/fish-social';
+const out = `${root}/output/fishing-design-2026-10-31`;
+const report = JSON.parse(await fs.readFile(`${out}/verification.json`, 'utf8'));
+const book = await SpreadsheetFile.importXlsx(await FileBlob.load(`${root}/项目开发需求计划表.xlsx`));
+const first = Math.min(...report.plan_rows.map(r => r.row));
+const last = Math.max(...report.plan_rows.map(r => r.row));
+const blob = await book.render({sheetName: '开发计划', range: `A${first}:K${last}`, scale: 1.5});
+await fs.writeFile(`${out}/plan-new-rows.png`, new Uint8Array(await blob.arrayBuffer()));
+console.log(`Rendered new rows ${first}–${last}`);

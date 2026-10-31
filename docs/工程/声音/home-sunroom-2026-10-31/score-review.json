@@ -1,0 +1,2198 @@
+{
+  "status": "passed",
+  "scope": "Independent source pitch, score-structure and exported PCM checks; no subjective listening approval.",
+  "hashes": {
+    "score": "ef6d41918e68b633f729a947bc328158483505d40c4e1ed6fcd749f378fb9e46",
+    "manifest": "7f1c9134543f7ce69ca3310d7d2210cf43463faadf92a05e71dc19caa242bbae",
+    "wav": "4042304f6024b5f10df613f666ffafc630bb45a547101dd6e28488cf426d953e",
+    "compositionScript": "220967588a391b6f0486c2b4113d5b9e638ed4a33997e21c53d8e9f5cf799804"
+  },
+  "pitchMethod": "Three onset-relative 16384-frame windows (80/160/280ms); unconstrained 65--4000Hz YIN-style first trough <0.12, quadratic period refinement; median MIDI and cents error. Guitar correction checked against all score event instances, then independently Fourier-resampled source measured with matching time-scaled windows. Additionally the exact current sample_for function is AST-extracted and executed in an isolated context (no main/download/output mutation), and its actual 44.1kHz filtered, corrected sample and cache reuse are checked. Ensemble/vibrato estimates remain natural and uncorrected.",
+  "sourcePitchReview": [
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringA_Vel01Finger_A2_01.ogg",
+      "sha256": "bdccb28f3c24422351d9f8aece2c53efbb8b8ef69df571457aadc6612a882d9d",
+      "declaredActualMidi": 45,
+      "originalEstimatedMidi": 45.02173000923912,
+      "originalCentsFromDeclared": 2.1730009239121273,
+      "originalWindows": [
+        {
+          "hz": 110.12498638150456,
+          "midi": 45.01965980383604,
+          "yinDifference": 0.0034389137031957057
+        },
+        {
+          "hz": 110.15061486460094,
+          "midi": 45.02368829382873,
+          "yinDifference": 0.002354634810097101
+        },
+        {
+          "hz": 110.13815588758396,
+          "midi": 45.02173000923912,
+          "yinDifference": 0.0009703483734928217
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": -2.1730009239121273,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.009324071092464692,
+      "independentProcessedWindows": [
+        {
+          "hz": 109.98683063296271,
+          "midi": 44.99792721622642,
+          "yinDifference": 0.003491226299314281
+        },
+        {
+          "hz": 110.01179739469518,
+          "midi": 45.00185663238499,
+          "yinDifference": 0.0023715244209309475
+        },
+        {
+          "hz": 109.99940756418306,
+          "midi": 44.999906759289075,
+          "yinDifference": 0.001001556508713574
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.015467499113697158,
+      "actualRendererWindows": [
+        {
+          "hz": 109.99122912733715,
+          "midi": 44.9986195419279,
+          "yinDifference": 0.003048411570786537
+        },
+        {
+          "hz": 110.01573872717738,
+          "midi": 45.00247686102663,
+          "yinDifference": 0.0019056412288533113
+        },
+        {
+          "hz": 109.99901722282848,
+          "midi": 44.99984532500886,
+          "yinDifference": 0.0007551917365500551
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 5
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringA_Vel01Finger_B2_01.ogg",
+      "sha256": "ec56cfbdc0659aebb17c17cd3fa38f598f44e158fd7307a630e411398cd2677f",
+      "declaredActualMidi": 47,
+      "originalEstimatedMidi": 46.98582326227287,
+      "originalCentsFromDeclared": -1.4176737727126465,
+      "originalWindows": [
+        {
+          "hz": 123.03961210083268,
+          "midi": 46.93943203651948,
+          "yinDifference": 0.05429166814875942
+        },
+        {
+          "hz": 123.36975885139813,
+          "midi": 46.98582326227287,
+          "yinDifference": 0.016844938880753366
+        },
+        {
+          "hz": 123.51717848648002,
+          "midi": 47.00649814485994,
+          "yinDifference": 0.0027866834650147067
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 1.4176737727126465,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.0073723430375594035,
+      "independentProcessedWindows": [
+        {
+          "hz": 123.14013553009384,
+          "midi": 46.953570453250585,
+          "yinDifference": 0.054294936077487435
+        },
+        {
+          "hz": 123.47135110730436,
+          "midi": 47.000073723430376,
+          "yinDifference": 0.01685503692281718
+        },
+        {
+          "hz": 123.61853121297459,
+          "midi": 47.02069805964551,
+          "yinDifference": 0.002771053112173945
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.16384329805987363,
+      "actualRendererWindows": [
+        {
+          "hz": 123.21914828132974,
+          "midi": 46.96467533777727,
+          "yinDifference": 0.04656977376184564
+        },
+        {
+          "hz": 123.48251109652125,
+          "midi": 47.0016384329806,
+          "yinDifference": 0.01463315591599659
+        },
+        {
+          "hz": 123.60443203339223,
+          "midi": 47.018723406525694,
+          "yinDifference": 0.002363341203829565
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 7
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringA_Vel01Finger_C3_01.ogg",
+      "sha256": "1d2fc1967e765530d1182f11896fef16a52427b81eae3a5e3386aa56828bc2a2",
+      "declaredActualMidi": 48,
+      "originalEstimatedMidi": 47.980854004585524,
+      "originalCentsFromDeclared": -1.9145995414476147,
+      "originalWindows": [
+        {
+          "hz": 130.63792578462073,
+          "midi": 47.97684319109159,
+          "yinDifference": 0.01590567897577515
+        },
+        {
+          "hz": 130.68709137604688,
+          "midi": 47.98335746575603,
+          "yinDifference": 0.0033335119086827635
+        },
+        {
+          "hz": 130.6681946587166,
+          "midi": 47.980854004585524,
+          "yinDifference": 0.0008241158422650518
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 1.9145995414476147,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.0005147277988726273,
+      "independentProcessedWindows": [
+        {
+          "hz": 130.78233302274137,
+          "midi": 47.99596969292701,
+          "yinDifference": 0.01584811815019559
+        },
+        {
+          "hz": 130.83161595180212,
+          "midi": 48.00249230276272,
+          "yinDifference": 0.003313829484858187
+        },
+        {
+          "hz": 130.81274375725323,
+          "midi": 47.99999485272201,
+          "yinDifference": 0.0007952897146859524
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.04304948387670038,
+      "actualRendererWindows": [
+        {
+          "hz": 130.80614999961347,
+          "midi": 47.999122183506444,
+          "yinDifference": 0.013731258907794357
+        },
+        {
+          "hz": 130.80952985339144,
+          "midi": 47.99956950516123,
+          "yinDifference": 0.0029023844242413582
+        },
+        {
+          "hz": 130.81711265558815,
+          "midi": 48.00057304250958,
+          "yinDifference": 0.000687485063107246
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 11
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringB_Vel01Finger_B3_01.ogg",
+      "sha256": "dda8784fa36a36decddd7b39e729258755c89f74817bdfc18c842e5b50f02d7c",
+      "declaredActualMidi": 59,
+      "originalEstimatedMidi": 58.93989124937318,
+      "originalCentsFromDeclared": -6.01087506268172,
+      "originalWindows": [
+        {
+          "hz": 246.17041927947494,
+          "midi": 58.94584666892027,
+          "yinDifference": 0.017652509814931713
+        },
+        {
+          "hz": 246.0857515826146,
+          "midi": 58.93989124937318,
+          "yinDifference": 0.004062467232685454
+        },
+        {
+          "hz": 246.00618732044154,
+          "midi": 58.93429293125116,
+          "yinDifference": 0.0005786700647332779
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 6.01087506268172,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.0003510897066405505,
+      "independentProcessedWindows": [
+        {
+          "hz": 247.02653894061584,
+          "midi": 59.005950243016095,
+          "yinDifference": 0.017744779280991895
+        },
+        {
+          "hz": 246.94160054895062,
+          "midi": 58.999996489102934,
+          "yinDifference": 0.004189632708458012
+        },
+        {
+          "hz": 246.86051924676335,
+          "midi": 58.99431118696576,
+          "yinDifference": 0.0007262986137475558
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.002494066542624296,
+      "actualRendererWindows": [
+        {
+          "hz": 247.02612641135568,
+          "midi": 59.00592133173794,
+          "yinDifference": 0.015770294892979937
+        },
+        {
+          "hz": 246.9412948769344,
+          "midi": 58.999975059334574,
+          "yinDifference": 0.003375785530817267
+        },
+        {
+          "hz": 246.86188354254463,
+          "midi": 58.99440686483236,
+          "yinDifference": 0.0005097939162065508
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 30
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringB_Vel01Finger_C4_01.ogg",
+      "sha256": "61921298564aa209f0e228dcf48e47fb5cb612e048c88cd66d99a212a33ed55f",
+      "declaredActualMidi": 60,
+      "originalEstimatedMidi": 59.93922745402975,
+      "originalCentsFromDeclared": -6.077254597025217,
+      "originalWindows": [
+        {
+          "hz": 260.64603796774617,
+          "midi": 59.93506087451965,
+          "yinDifference": 0.0023296432688816823
+        },
+        {
+          "hz": 260.71406307128024,
+          "midi": 59.939578572589106,
+          "yinDifference": 0.0005182415849188833
+        },
+        {
+          "hz": 260.70877547784426,
+          "midi": 59.93922745402975,
+          "yinDifference": 0.00021309606845129077
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 6.077254597025217,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.013178883261844021,
+      "independentProcessedWindows": [
+        {
+          "hz": 261.5612075417832,
+          "midi": 59.995740781314495,
+          "yinDifference": 0.00247212856543617
+        },
+        {
+          "hz": 261.62910244843005,
+          "midi": 60.000234059288516,
+          "yinDifference": 0.0006529017466666055
+        },
+        {
+          "hz": 261.6235737041061,
+          "midi": 59.99986821116738,
+          "yinDifference": 0.00034501332974098487
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.012893178960382556,
+      "actualRendererWindows": [
+        {
+          "hz": 261.5540501307128,
+          "midi": 59.99526703662565,
+          "yinDifference": 0.0020938104188143953
+        },
+        {
+          "hz": 261.633853965949,
+          "midi": 60.00054847057306,
+          "yinDifference": 0.0005796038880205961
+        },
+        {
+          "hz": 261.6236168796585,
+          "midi": 59.999871068210396,
+          "yinDifference": 0.0003119130325071114
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 20
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringB_Vel01Finger_D4_01.ogg",
+      "sha256": "8421ff65db84f4ab166fb95a9b44805245601e49f36f59cd64e99de905c0faee",
+      "declaredActualMidi": 62,
+      "originalEstimatedMidi": 61.870291480889904,
+      "originalCentsFromDeclared": -12.970851911009618,
+      "originalWindows": [
+        {
+          "hz": 291.61585999572696,
+          "midi": 61.878787935956716,
+          "yinDifference": 0.0061604572465480964
+        },
+        {
+          "hz": 291.472777484395,
+          "midi": 61.870291480889904,
+          "yinDifference": 0.0009414547031134421
+        },
+        {
+          "hz": 291.36420394086343,
+          "midi": 61.86384143658749,
+          "yinDifference": 0.0003888438588133335
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 12.970851911009618,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.004798090315460968,
+      "independentProcessedWindows": [
+        {
+          "hz": 293.81041641930216,
+          "midi": 62.008584248579844,
+          "yinDifference": 0.006133554170491736
+        },
+        {
+          "hz": 293.66395403084664,
+          "midi": 61.999952019096845,
+          "yinDifference": 0.0010642880006103324
+        },
+        {
+          "hz": 293.5533176896331,
+          "midi": 61.99342845746256,
+          "yinDifference": 0.0005630514990457191
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.022035703831591036,
+      "actualRendererWindows": [
+        {
+          "hz": 293.78820139035355,
+          "midi": 62.00727521164989,
+          "yinDifference": 0.005059737582062169
+        },
+        {
+          "hz": 293.66850580081996,
+          "midi": 62.000220357038316,
+          "yinDifference": 0.0007263258563876978
+        },
+        {
+          "hz": 293.5543161648353,
+          "midi": 61.99348734255168,
+          "yinDifference": 0.0002982968673870886
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 10
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringB_Vel02Pick_D4_01.ogg",
+      "sha256": "cc49f6c06ce11bdd752cbdfca8614a80edf727e6089b24175f1a9b24a60244b3",
+      "declaredActualMidi": 62,
+      "originalEstimatedMidi": 61.896229104814125,
+      "originalCentsFromDeclared": -10.377089518587468,
+      "originalWindows": [
+        {
+          "hz": 292.05920453970253,
+          "midi": 61.90508795678147,
+          "yinDifference": 0.0018991668181994588
+        },
+        {
+          "hz": 291.90979392705776,
+          "midi": 61.896229104814125,
+          "yinDifference": 0.0009492508377589209
+        },
+        {
+          "hz": 291.7693973457172,
+          "midi": 61.887900579476536,
+          "yinDifference": 0.0009255388680703041
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 10.377089518587468,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.00015297468110020418,
+      "independentProcessedWindows": [
+        {
+          "hz": 293.81521468794597,
+          "midi": 62.008866977093135,
+          "yinDifference": 0.0019399725184131881
+        },
+        {
+          "hz": 293.66479386610945,
+          "midi": 62.00000152974681,
+          "yinDifference": 0.000991059850516561
+        },
+        {
+          "hz": 293.52386157601245,
+          "midi": 61.99169119262934,
+          "yinDifference": 0.000900683118327745
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.018354227398731382,
+      "actualRendererWindows": [
+        {
+          "hz": 293.8070314486218,
+          "midi": 62.00838479308313,
+          "yinDifference": 0.0015212745332716091
+        },
+        {
+          "hz": 293.6678813141803,
+          "midi": 62.00018354227399,
+          "yinDifference": 0.0005153441633138296
+        },
+        {
+          "hz": 293.5284387444943,
+          "midi": 61.99196115664856,
+          "yinDifference": 0.0005124800728623042
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 6
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringD_Vel01Finger_D3_01.ogg",
+      "sha256": "ece6dc347e579a9f7c0686596075ee1a45ce425586c9841a597e9518b2ed5b97",
+      "declaredActualMidi": 50,
+      "originalEstimatedMidi": 49.996471885663894,
+      "originalCentsFromDeclared": -0.3528114336106114,
+      "originalWindows": [
+        {
+          "hz": 146.81085415212092,
+          "midi": 49.99746133202095,
+          "yinDifference": 0.016374755236639244
+        },
+        {
+          "hz": 146.80246376065804,
+          "midi": 49.996471885663894,
+          "yinDifference": 0.004095883737093342
+        },
+        {
+          "hz": 146.78231230085262,
+          "midi": 49.99409527105354,
+          "yinDifference": 0.0008027879020809002
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.3528114336106114,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.00019399746378212512,
+      "independentProcessedWindows": [
+        {
+          "hz": 146.84087515530885,
+          "midi": 50.00100112953617,
+          "yinDifference": 0.016379531929675235
+        },
+        {
+          "hz": 146.8324004123495,
+          "midi": 50.00000193997464,
+          "yinDifference": 0.004099314812295474
+        },
+        {
+          "hz": 146.81226006052603,
+          "midi": 49.99762711982055,
+          "yinDifference": 0.0008037114162046949
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.14046857455127792,
+      "actualRendererWindows": [
+        {
+          "hz": 146.86212765883855,
+          "midi": 50.00350658964044,
+          "yinDifference": 0.01371038561032966
+        },
+        {
+          "hz": 146.8442981030992,
+          "midi": 50.00140468574551,
+          "yinDifference": 0.003439841946016985
+        },
+        {
+          "hz": 146.8169194489076,
+          "midi": 49.99817655375815,
+          "yinDifference": 0.000742287454148449
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 24
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringD_Vel01Finger_E3_01.ogg",
+      "sha256": "bb708d759c86ead11a307da883e07aa81adb99b2f6c63dd9ee9f146529cf5c53",
+      "declaredActualMidi": 52,
+      "originalEstimatedMidi": 51.950744517902315,
+      "originalCentsFromDeclared": -4.925548209768493,
+      "originalWindows": [
+        {
+          "hz": 164.34553184390828,
+          "midi": 51.950744517902315,
+          "yinDifference": 0.013286451749969425
+        },
+        {
+          "hz": 164.33889431934247,
+          "midi": 51.950045299587316,
+          "yinDifference": 0.00399304279117522
+        },
+        {
+          "hz": 164.39618532742602,
+          "midi": 51.956079589874214,
+          "yinDifference": 0.0011427550595378793
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 4.925548209768493,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.0017067094688627549,
+      "independentProcessedWindows": [
+        {
+          "hz": 164.8136159774808,
+          "midi": 51.99998293290531,
+          "yinDifference": 0.013308380022498047
+        },
+        {
+          "hz": 164.8068539048828,
+          "midi": 51.99927261716977,
+          "yinDifference": 0.004019081672349353
+        },
+        {
+          "hz": 164.86438310353242,
+          "midi": 52.005314788724235,
+          "yinDifference": 0.0011537755488027195
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.24957694988287926,
+      "actualRendererWindows": [
+        {
+          "hz": 164.81432762225896,
+          "midi": 52.00005768528566,
+          "yinDifference": 0.01074598079064088
+        },
+        {
+          "hz": 164.83753993757944,
+          "midi": 52.00249576949883,
+          "yinDifference": 0.0034392566031825264
+        },
+        {
+          "hz": 164.8701548037926,
+          "midi": 52.005920861965805,
+          "yinDifference": 0.0011032386727814246
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 14
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringD_Vel01Finger_Fs3_01.ogg",
+      "sha256": "02469d96231bb334bbc8d9bd1a036facae393736311d0e204bc0a638c48f3c31",
+      "declaredActualMidi": 54,
+      "originalEstimatedMidi": 54.01200854224349,
+      "originalCentsFromDeclared": 1.200854224349257,
+      "originalWindows": [
+        {
+          "hz": 184.98310470995202,
+          "midi": 53.99867982675882,
+          "yinDifference": 0.01161310298605732
+        },
+        {
+          "hz": 185.81160232091605,
+          "midi": 54.07604477471627,
+          "yinDifference": 0.09801205259809362
+        },
+        {
+          "hz": 185.12557744730006,
+          "midi": 54.01200854224349,
+          "yinDifference": 0.03325006676285101
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": -1.200854224349257,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.00010802339289739393,
+      "independentProcessedWindows": [
+        {
+          "hz": 184.8548795936356,
+          "midi": 53.986675235255035,
+          "yinDifference": 0.01157321266827759
+        },
+        {
+          "hz": 185.68075707939727,
+          "midi": 54.06384943659366,
+          "yinDifference": 0.09808323428136886
+        },
+        {
+          "hz": 184.99719981259128,
+          "midi": 53.99999891976607,
+          "yinDifference": 0.03335840423864706
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.5772292864911321,
+      "actualRendererWindows": [
+        {
+          "hz": 184.84161343654424,
+          "midi": 53.98543276618651,
+          "yinDifference": 0.009792646667857055
+        },
+        {
+          "hz": 185.6980620871624,
+          "midi": 54.06546283063434,
+          "yinDifference": 0.07980130322076394
+        },
+        {
+          "hz": 185.0589035416023,
+          "midi": 54.00577229286491,
+          "yinDifference": 0.027068876530918128
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 15
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringG_Vel01Finger_A3_01.ogg",
+      "sha256": "b920b3aa7eb3597acd7a7f1498f082785feb537a548fcf20cb076aee1ebca96c",
+      "declaredActualMidi": 57,
+      "originalEstimatedMidi": 57.04286413323459,
+      "originalCentsFromDeclared": 4.28641332345876,
+      "originalWindows": [
+        {
+          "hz": 220.61048257688074,
+          "midi": 57.04797384272774,
+          "yinDifference": 0.009582568381115143
+        },
+        {
+          "hz": 220.54537935526463,
+          "midi": 57.04286413323459,
+          "yinDifference": 0.003294438441210913
+        },
+        {
+          "hz": 220.4428442490805,
+          "midi": 57.03481347515584,
+          "yinDifference": 0.0007891452284590933
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": -4.28641332345876,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.0053368801879116745,
+      "independentProcessedWindows": [
+        {
+          "hz": 220.06561577691747,
+          "midi": 57.00516269683087,
+          "yinDifference": 0.009528033106940871
+        },
+        {
+          "hz": 220.0006781956788,
+          "midi": 57.00005336880188,
+          "yinDifference": 0.0032536155294378534
+        },
+        {
+          "hz": 219.89711666914855,
+          "midi": 56.99190196425711,
+          "yinDifference": 0.000797412587791028
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.26653562676912657,
+      "actualRendererWindows": [
+        {
+          "hz": 220.05245276225287,
+          "midi": 57.00412714474558,
+          "yinDifference": 0.007735572471818344
+        },
+        {
+          "hz": 219.96613206383088,
+          "midi": 56.99733464373231,
+          "yinDifference": 0.0027964585958108446
+        },
+        {
+          "hz": 219.8732342600445,
+          "midi": 56.99002161740026,
+          "yinDifference": 0.0007756714946597068
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 20
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringG_Vel01Finger_G3_01.ogg",
+      "sha256": "f02c4b08753e037e03e7445414159ebe515401361fb2a85c185b90f554931d31",
+      "declaredActualMidi": 55,
+      "originalEstimatedMidi": 55.009203150697886,
+      "originalCentsFromDeclared": 0.9203150697885576,
+      "originalWindows": [
+        {
+          "hz": 196.61532105257967,
+          "midi": 55.05446667455398,
+          "yinDifference": 0.007990407219780957
+        },
+        {
+          "hz": 196.1019370631317,
+          "midi": 55.009203150697886,
+          "yinDifference": 0.005155555635934878
+        },
+        {
+          "hz": 195.64600903074188,
+          "midi": 54.96890588824405,
+          "yinDifference": 0.0028760881644285963
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": -0.9203150697885576,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.002714129009007138,
+      "independentProcessedWindows": [
+        {
+          "hz": 196.51093862433606,
+          "midi": 55.04527316922596,
+          "yinDifference": 0.00801517151378361
+        },
+        {
+          "hz": 195.99802526504675,
+          "midi": 55.00002714129009,
+          "yinDifference": 0.005131867756537581
+        },
+        {
+          "hz": 195.54116804771672,
+          "midi": 54.95962622395382,
+          "yinDifference": 0.0029675749180050506
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.13654407861452,
+      "actualRendererWindows": [
+        {
+          "hz": 196.51419865300323,
+          "midi": 55.04556037083697,
+          "yinDifference": 0.0068423199921814806
+        },
+        {
+          "hz": 196.01317712722943,
+          "midi": 55.001365440786145,
+          "yinDifference": 0.004408426319720039
+        },
+        {
+          "hz": 195.55323815253524,
+          "midi": 54.96069482407251,
+          "yinDifference": 0.002724439921408995
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 41
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringG_Vel01Finger_Gs3_01.ogg",
+      "sha256": "627d127c2530d1f5eaeb582936e165d5d8fa9eb5dff16f80a4fe197efa8644db",
+      "declaredActualMidi": 56,
+      "originalEstimatedMidi": 55.97358046420818,
+      "originalCentsFromDeclared": -2.6419535791816884,
+      "originalWindows": [
+        {
+          "hz": 207.4402945003907,
+          "midi": 55.982311628777566,
+          "yinDifference": 0.011200591441743455
+        },
+        {
+          "hz": 207.3357021314036,
+          "midi": 55.97358046420818,
+          "yinDifference": 0.005186455972464823
+        },
+        {
+          "hz": 207.26782630000847,
+          "midi": 55.96791196679262,
+          "yinDifference": 0.0019427521641657117
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 2.6419535791816884,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.015539838842926201,
+      "independentProcessedWindows": [
+        {
+          "hz": 207.7583597279528,
+          "midi": 56.008836062509985,
+          "yinDifference": 0.011083576003034492
+        },
+        {
+          "hz": 207.65421271964732,
+          "midi": 56.00015539838843,
+          "yinDifference": 0.005013612604358519
+        },
+        {
+          "hz": 207.58568041927944,
+          "midi": 55.99444084856335,
+          "yinDifference": 0.0018468978340987101
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.1760966132316355,
+      "actualRendererWindows": [
+        {
+          "hz": 207.75650497476545,
+          "midi": 56.00868150669774,
+          "yinDifference": 0.009134522126374516
+        },
+        {
+          "hz": 207.63122800870633,
+          "midi": 55.998239033867684,
+          "yinDifference": 0.004292981342972142
+        },
+        {
+          "hz": 207.58411423368673,
+          "midi": 55.994310230495266,
+          "yinDifference": 0.0017688224446885449
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 2
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel01Finger_E4_01.ogg",
+      "sha256": "7743bd063c273a2e9e01252d74352ab86e0fc6d14a8206e9f53d5d2f98db0e65",
+      "declaredActualMidi": 64,
+      "originalEstimatedMidi": 63.90797074654529,
+      "originalCentsFromDeclared": -9.202925345471158,
+      "originalWindows": [
+        {
+          "hz": 327.90559364026376,
+          "midi": 63.90932386416176,
+          "yinDifference": 0.004431121878963776
+        },
+        {
+          "hz": 327.87996582312473,
+          "midi": 63.90797074654529,
+          "yinDifference": 0.0013325217279071579
+        },
+        {
+          "hz": 327.8666265935756,
+          "midi": 63.90726640957567,
+          "yinDifference": 0.0007238475233745202
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 9.202925345471158,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.0009256174010374707,
+      "independentProcessedWindows": [
+        {
+          "hz": 329.65277460237,
+          "midi": 64.00132440543531,
+          "yinDifference": 0.004443058353753639
+        },
+        {
+          "hz": 329.6277331507879,
+          "midi": 64.00000925617401,
+          "yinDifference": 0.00131098233726082
+        },
+        {
+          "hz": 329.6145702923083,
+          "midi": 63.99931791738502,
+          "yinDifference": 0.0006875873823012046
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.03340426317350875,
+      "actualRendererWindows": [
+        {
+          "hz": 329.6503697849307,
+          "midi": 64.00119811142721,
+          "yinDifference": 0.003790371328212034
+        },
+        {
+          "hz": 329.6339171573994,
+          "midi": 64.00033404263174,
+          "yinDifference": 0.0010217547095742615
+        },
+        {
+          "hz": 329.6185953091488,
+          "midi": 63.99952932198558,
+          "yinDifference": 0.0005080729145553316
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 3
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel01Finger_F4_01.ogg",
+      "sha256": "70c3bfc3830a5faff48b4d714d2fa5782c5fc9d2fa3e201c4bf1e912d999b7a0",
+      "declaredActualMidi": 65,
+      "originalEstimatedMidi": 64.94459146357282,
+      "originalCentsFromDeclared": -5.540853642717991,
+      "originalWindows": [
+        {
+          "hz": 348.03118525479465,
+          "midi": 64.94055672570556,
+          "yinDifference": 0.005528924114776064
+        },
+        {
+          "hz": 348.1123053232015,
+          "midi": 64.94459146357282,
+          "yinDifference": 0.0013358323726455827
+        },
+        {
+          "hz": 348.1994576450432,
+          "midi": 64.94892518521418,
+          "yinDifference": 0.0011342872427831838
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 5.540853642717991,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.02380005384168271,
+      "independentProcessedWindows": [
+        {
+          "hz": 349.14172728487307,
+          "midi": 64.99571118644134,
+          "yinDifference": 0.00586525824207408
+        },
+        {
+          "hz": 349.22343046829104,
+          "midi": 64.99976199946158,
+          "yinDifference": 0.0015841384234958576
+        },
+        {
+          "hz": 349.3119598592238,
+          "midi": 65.00415018362143,
+          "yinDifference": 0.001318338159642821
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.0163881867521809,
+      "actualRendererWindows": [
+        {
+          "hz": 349.10186694709563,
+          "midi": 64.99373458186916,
+          "yinDifference": 0.005414309019343525
+        },
+        {
+          "hz": 349.2249255886032,
+          "midi": 64.99983611813248,
+          "yinDifference": 0.0012997791919733277
+        },
+        {
+          "hz": 349.30804877647466,
+          "midi": 65.00395634435144,
+          "yinDifference": 0.0009879932366725743
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 2
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_A4_01.ogg",
+      "sha256": "a78ac99f02659ad30bd6d4db24ca323b318d56bd09c0cb3271229aaf9f32d9b4",
+      "declaredActualMidi": 69,
+      "originalEstimatedMidi": 68.8541154229497,
+      "originalCentsFromDeclared": -14.588457705029612,
+      "originalWindows": [
+        {
+          "hz": 436.66647463130306,
+          "midi": 68.86833897260064,
+          "yinDifference": 0.0012714702025671298
+        },
+        {
+          "hz": 436.3078635829635,
+          "midi": 68.8541154229497,
+          "yinDifference": 0.000320290897262699
+        },
+        {
+          "hz": 436.03980286143,
+          "midi": 68.84347572318792,
+          "yinDifference": 0.00031185069607696524
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 14.588457705029612,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.0007800743844654789,
+      "independentProcessedWindows": [
+        {
+          "hz": 440.3630872024,
+          "midi": 69.0142802207942,
+          "yinDifference": 0.0012423371836206981
+        },
+        {
+          "hz": 440.0001982590434,
+          "midi": 69.00000780074384,
+          "yinDifference": 0.0003492590638666513
+        },
+        {
+          "hz": 439.728472339101,
+          "midi": 68.98931311281788,
+          "yinDifference": 0.0003578760649826532
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.002500548453099327,
+      "actualRendererWindows": [
+        {
+          "hz": 440.34753084430065,
+          "midi": 69.01366863064706,
+          "yinDifference": 0.0013085432744197717
+        },
+        {
+          "hz": 440.00063552476587,
+          "midi": 69.00002500548453,
+          "yinDifference": 0.0004993952721912766
+        },
+        {
+          "hz": 439.72827391429433,
+          "midi": 68.98930530072745,
+          "yinDifference": 0.000487609878718409
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 32
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_B4_01.ogg",
+      "sha256": "696991a367361b169688835484f794a9284e36c8cc51c3d919587becc354a31d",
+      "declaredActualMidi": 71,
+      "originalEstimatedMidi": 70.85998089714,
+      "originalCentsFromDeclared": -14.001910285999486,
+      "originalWindows": [
+        {
+          "hz": 490.4639760931743,
+          "midi": 70.87972383134895,
+          "yinDifference": 0.0052290310688303445
+        },
+        {
+          "hz": 489.9049714471942,
+          "midi": 70.85998089714,
+          "yinDifference": 0.0010674944441928403
+        },
+        {
+          "hz": 489.5218212924448,
+          "midi": 70.8464357780446,
+          "yinDifference": 0.0007411656011416359
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 14.001910285999486,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.01698935143252811,
+      "independentProcessedWindows": [
+        {
+          "hz": 494.4580492748506,
+          "midi": 71.02013521849071,
+          "yinDifference": 0.0051333782207572155
+        },
+        {
+          "hz": 493.88814797118687,
+          "midi": 71.00016989351433,
+          "yinDifference": 0.0012320142734319143
+        },
+        {
+          "hz": 493.49472561058536,
+          "midi": 70.98637370075859,
+          "yinDifference": 0.0009594792582709227
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.026042275582938146,
+      "actualRendererWindows": [
+        {
+          "hz": 494.41485854681434,
+          "midi": 71.018622925891,
+          "yinDifference": 0.005238450053570082
+        },
+        {
+          "hz": 493.87587201898157,
+          "midi": 70.99973957724417,
+          "yinDifference": 0.0014517348877898899
+        },
+        {
+          "hz": 493.48928007084334,
+          "midi": 70.98618266415085,
+          "yinDifference": 0.0010881819746010085
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 27
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_C5_01.ogg",
+      "sha256": "821972fb813dad74b53ecfe615c60877f9138fa7a0a6a1b68132bb374a684867",
+      "declaredActualMidi": 72,
+      "originalEstimatedMidi": 71.84662394358226,
+      "originalCentsFromDeclared": -15.337605641774132,
+      "originalWindows": [
+        {
+          "hz": 518.9120619998291,
+          "midi": 71.8558385718476,
+          "yinDifference": 0.003516796245102491
+        },
+        {
+          "hz": 518.6359404976586,
+          "midi": 71.84662394358226,
+          "yinDifference": 0.0018370253484217604
+        },
+        {
+          "hz": 518.6345412917348,
+          "midi": 71.84657723728957,
+          "yinDifference": 0.0022257342182862927
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 15.337605641774132,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.023348511145115936,
+      "independentProcessedWindows": [
+        {
+          "hz": 523.5287736102703,
+          "midi": 72.00918368876074,
+          "yinDifference": 0.0025944485879816678
+        },
+        {
+          "hz": 523.2579304682581,
+          "midi": 72.00022497963607,
+          "yinDifference": 0.0011091966930195033
+        },
+        {
+          "hz": 523.2581875426002,
+          "midi": 72.00023348511145,
+          "yinDifference": 0.0015084359426242348
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.058708413503438805,
+      "actualRendererWindows": [
+        {
+          "hz": 523.5330981845628,
+          "midi": 72.00932669559663,
+          "yinDifference": 0.0023179553206230043
+        },
+        {
+          "hz": 523.2649917441089,
+          "midi": 72.00045860511953,
+          "yinDifference": 0.0011836810777006077
+        },
+        {
+          "hz": 523.2688750330544,
+          "midi": 72.00058708413503,
+          "yinDifference": 0.0015153892064485178
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 13
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_D5_01.ogg",
+      "sha256": "e05a71362854c6f003cdf2334fd9d840304c7779130c2a4039ac60f144dcc0f1",
+      "declaredActualMidi": 74,
+      "originalEstimatedMidi": 73.7080113425955,
+      "originalCentsFromDeclared": -29.19886574045023,
+      "originalWindows": [
+        {
+          "hz": 577.614461539904,
+          "midi": 73.71124007040103,
+          "yinDifference": 0.0005536799032587962
+        },
+        {
+          "hz": 577.5067472780202,
+          "midi": 73.7080113425955,
+          "yinDifference": 0.00034909496618174235
+        },
+        {
+          "hz": 577.3229935115951,
+          "midi": 73.70250194552113,
+          "yinDifference": 0.0006716730805256456
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 29.19886574045023,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.0372946847889466,
+      "independentProcessedWindows": [
+        {
+          "hz": 587.4240447431594,
+          "midi": 74.00278555508362,
+          "yinDifference": 0.0008176526611647504
+        },
+        {
+          "hz": 587.3168835686552,
+          "midi": 73.99962705315211,
+          "yinDifference": 0.0005516119062583217
+        },
+        {
+          "hz": 587.1340869019269,
+          "midi": 73.9942379168832,
+          "yinDifference": 0.0007923408393252433
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.0014661184906117342,
+      "actualRendererWindows": [
+        {
+          "hz": 587.4406832674864,
+          "midi": 74.00327591246956,
+          "yinDifference": 0.0005158127254779536
+        },
+        {
+          "hz": 587.329038447227,
+          "midi": 73.9999853388151,
+          "yinDifference": 0.00027834402865806646
+        },
+        {
+          "hz": 587.1485113937892,
+          "midi": 73.99466323480054,
+          "yinDifference": 0.0005024909897117068
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 11
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_E4_01.ogg",
+      "sha256": "e34a00254690b2a3f46dc8e38878b04997d3aec499cc589d0a5053ad8ea6c1cc",
+      "declaredActualMidi": 64,
+      "originalEstimatedMidi": 63.90968078080543,
+      "originalCentsFromDeclared": -9.03192191945692,
+      "originalWindows": [
+        {
+          "hz": 327.95382027728056,
+          "midi": 63.911869885289285,
+          "yinDifference": 0.004150808133061368
+        },
+        {
+          "hz": 327.9002073133168,
+          "midi": 63.90903948141929,
+          "yinDifference": 0.0010637678804013087
+        },
+        {
+          "hz": 327.91235391455524,
+          "midi": 63.90968078080543,
+          "yinDifference": 0.0007411770618794787
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 9.03192191945692,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.012013381551412294,
+      "independentProcessedWindows": [
+        {
+          "hz": 329.6620123844019,
+          "midi": 64.0018095382765,
+          "yinDifference": 0.0042447734296354985
+        },
+        {
+          "hz": 329.6113293325139,
+          "midi": 63.99914769167177,
+          "yinDifference": 0.0010383617060068227
+        },
+        {
+          "hz": 329.62526956883704,
+          "midi": 63.999879866184486,
+          "yinDifference": 0.0007384518759768888
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.013176498453049135,
+      "actualRendererWindows": [
+        {
+          "hz": 329.6526303344195,
+          "midi": 64.0013168289287,
+          "yinDifference": 0.0035263006712142105
+        },
+        {
+          "hz": 329.6079556713868,
+          "midi": 63.99897049427642,
+          "yinDifference": 0.0007485071900093746
+        },
+        {
+          "hz": 329.63006573224345,
+          "midi": 64.00013176498453,
+          "yinDifference": 0.0005110138213587274
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 5
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_E5_01.ogg",
+      "sha256": "997452f7cd2f6b3248801aeb041266bcad75e5455d36b11885aba6a489c6bd6c",
+      "declaredActualMidi": 76,
+      "originalEstimatedMidi": 75.76589320530542,
+      "originalCentsFromDeclared": -23.410679469458273,
+      "originalWindows": [
+        {
+          "hz": 650.5935478649776,
+          "midi": 75.77103589262973,
+          "yinDifference": 0.0014696890413038513
+        },
+        {
+          "hz": 650.4003156268179,
+          "midi": 75.76589320530542,
+          "yinDifference": 0.0008205128805721494
+        },
+        {
+          "hz": 650.1303195947655,
+          "midi": 75.7587049650924,
+          "yinDifference": 0.001057495397225268
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 23.410679469458273,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.010848139901042941,
+      "independentProcessedWindows": [
+        {
+          "hz": 659.454345890963,
+          "midi": 76.0052311346531,
+          "yinDifference": 0.0014570447027969754
+        },
+        {
+          "hz": 659.2592448178007,
+          "midi": 76.00010848139901,
+          "yinDifference": 0.0008108316264879464
+        },
+        {
+          "hz": 658.9858071684088,
+          "midi": 75.99292643925897,
+          "yinDifference": 0.0010502771583169664
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.0258878284370212,
+      "actualRendererWindows": [
+        {
+          "hz": 659.4384000805069,
+          "midi": 76.0048125118335,
+          "yinDifference": 0.0012608118262400648
+        },
+        {
+          "hz": 659.2649720022787,
+          "midi": 76.00025887828437,
+          "yinDifference": 0.0005989095014309603
+        },
+        {
+          "hz": 658.994529979258,
+          "midi": 75.99315559635214,
+          "yinDifference": 0.000775955103310059
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 5
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_F4_01.ogg",
+      "sha256": "a59f97da015a54beaf5497e701256e7aad56735a7fe4372e4269611c976c0ddb",
+      "declaredActualMidi": 65,
+      "originalEstimatedMidi": 64.92173947102897,
+      "originalCentsFromDeclared": -7.8260528971028975,
+      "originalWindows": [
+        {
+          "hz": 347.6531061844126,
+          "midi": 64.92173947102897,
+          "yinDifference": 0.0061817144199003545
+        },
+        {
+          "hz": 347.5914018882568,
+          "midi": 64.9186664635469,
+          "yinDifference": 0.001752241542795426
+        },
+        {
+          "hz": 347.67754699155506,
+          "midi": 64.92295652531347,
+          "yinDifference": 0.001380639502646131
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 7.8260528971028975,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.003132950860162964,
+      "independentProcessedWindows": [
+        {
+          "hz": 349.22759944803425,
+          "midi": 64.9999686704914,
+          "yinDifference": 0.007430746750659806
+        },
+        {
+          "hz": 349.16094701136524,
+          "midi": 64.99666417849336,
+          "yinDifference": 0.0028097069011563894
+        },
+        {
+          "hz": 349.2481399164595,
+          "midi": 65.00098689793518,
+          "yinDifference": 0.0020455066730842046
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.05091835989219362,
+      "actualRendererWindows": [
+        {
+          "hz": 349.21796022369836,
+          "midi": 64.99949081640108,
+          "yinDifference": 0.006260397548855265
+        },
+        {
+          "hz": 349.16352489785913,
+          "midi": 64.99679199657943,
+          "yinDifference": 0.002114924151783532
+        },
+        {
+          "hz": 349.2513793740109,
+          "midi": 65.00114747812339,
+          "yinDifference": 0.0014911907086876811
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 1
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_Fs4_01.ogg",
+      "sha256": "fe8de0b661d676caab284d415cc16fffca01b3d310ef3c79e73b4d2dc1bc3a86",
+      "declaredActualMidi": 66,
+      "originalEstimatedMidi": 65.90378865469064,
+      "originalCentsFromDeclared": -9.621134530935649,
+      "originalWindows": [
+        {
+          "hz": 367.97084975903016,
+          "midi": 65.90505550037253,
+          "yinDifference": 0.007858256937540185
+        },
+        {
+          "hz": 367.8803509916563,
+          "midi": 65.90079717890464,
+          "yinDifference": 0.002208378522759887
+        },
+        {
+          "hz": 367.9439241549027,
+          "midi": 65.90378865469064,
+          "yinDifference": 0.0013939882406660592
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 9.621134530935649,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.006872266820323603,
+      "independentProcessedWindows": [
+        {
+          "hz": 370.016410599258,
+          "midi": 66.0010288006072,
+          "yinDifference": 0.007079169229444957
+        },
+        {
+          "hz": 369.93125607719463,
+          "midi": 65.99704412938468,
+          "yinDifference": 0.0013969983423577949
+        },
+        {
+          "hz": 369.9958914358908,
+          "midi": 66.0000687226682,
+          "yinDifference": 0.0009564775724544604
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.03809083581671757,
+      "actualRendererWindows": [
+        {
+          "hz": 370.0091211428384,
+          "midi": 66.00068773791106,
+          "yinDifference": 0.006553945358599517
+        },
+        {
+          "hz": 369.93740327632787,
+          "midi": 65.99733180856425,
+          "yinDifference": 0.0011796715657070827
+        },
+        {
+          "hz": 370.00256346640964,
+          "midi": 66.00038090835817,
+          "yinDifference": 0.0006065645160755341
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 13
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringHighE_Vel02Pick_G4_01.ogg",
+      "sha256": "1abac816b9da39f145881bda26d064d8fff7a93b63032ca5db1702c8df30c4d7",
+      "declaredActualMidi": 67,
+      "originalEstimatedMidi": 66.88381458758893,
+      "originalCentsFromDeclared": -11.618541241107039,
+      "originalWindows": [
+        {
+          "hz": 389.4808810059259,
+          "midi": 66.88858784017168,
+          "yinDifference": 0.007186177005774934
+        },
+        {
+          "hz": 389.3735105231651,
+          "midi": 66.88381458758893,
+          "yinDifference": 0.0011385878237674563
+        },
+        {
+          "hz": 389.3368841490206,
+          "midi": 66.88218602769058,
+          "yinDifference": 0.0002893339671506047
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 11.618541241107039,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.02439719063005441,
+      "independentProcessedWindows": [
+        {
+          "hz": 392.09876839446986,
+          "midi": 67.00456303825003,
+          "yinDifference": 0.007458833651129877
+        },
+        {
+          "hz": 391.98991187598403,
+          "midi": 66.9997560280937,
+          "yinDifference": 0.0013925233723158352
+        },
+        {
+          "hz": 391.95234376986565,
+          "midi": 66.99809674301109,
+          "yinDifference": 0.0005111104794745136
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.014374278794093698,
+      "actualRendererWindows": [
+        {
+          "hz": 392.0818538840905,
+          "midi": 67.00381619561034,
+          "yinDifference": 0.007540962198669946
+        },
+        {
+          "hz": 391.99218129282167,
+          "midi": 66.99985625721206,
+          "yinDifference": 0.0015469385468778205
+        },
+        {
+          "hz": 391.9548959318599,
+          "midi": 66.99820947037269,
+          "yinDifference": 0.0005899611528970174
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 23
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringLowE_Vel01Finger_E2_01.ogg",
+      "sha256": "145ce2503392ccf2d042e3f4cdbcebeec8acf45178850eae8ab1988e6fafb623",
+      "declaredActualMidi": 40,
+      "originalEstimatedMidi": 39.94753993522369,
+      "originalCentsFromDeclared": -5.2460064776312265,
+      "originalWindows": [
+        {
+          "hz": 82.19184196973346,
+          "midi": 39.954763035514965,
+          "yinDifference": 0.006068232527996159
+        },
+        {
+          "hz": 82.15755682574238,
+          "midi": 39.94753993522369,
+          "yinDifference": 0.0023376683684235796
+        },
+        {
+          "hz": 82.13383852975129,
+          "midi": 39.94254126541483,
+          "yinDifference": 0.001495909645120138
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 5.2460064776312265,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": -0.0002824110481469688,
+      "independentProcessedWindows": [
+        {
+          "hz": 82.44125342295155,
+          "midi": 40.007217850792536,
+          "yinDifference": 0.006086293161351125
+        },
+        {
+          "hz": 82.40687578542847,
+          "midi": 39.99999717588952,
+          "yinDifference": 0.002389854260832753
+        },
+        {
+          "hz": 82.38314429761819,
+          "midi": 39.99501085936435,
+          "yinDifference": 0.001483429384438182
+        }
+      ],
+      "actualRendererCentsFromDeclared": 0.030831341681647473,
+      "actualRendererWindows": [
+        {
+          "hz": 82.42934275104888,
+          "midi": 40.004716475622004,
+          "yinDifference": 0.005898620932039068
+        },
+        {
+          "hz": 82.40835681579401,
+          "midi": 40.00030831341682,
+          "yinDifference": 0.002043930267696971
+        },
+        {
+          "hz": 82.38788181217257,
+          "midi": 39.99600639197713,
+          "yinDifference": 0.001269545861295342
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 6
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringLowE_Vel01Finger_Fs2_01.ogg",
+      "sha256": "136b7f80f042e2dadabce120839a6c0db35fadb9aecae5fecbb05d82c92b8a7c",
+      "declaredActualMidi": 42,
+      "originalEstimatedMidi": 41.874593206970204,
+      "originalCentsFromDeclared": -12.54067930297964,
+      "originalWindows": [
+        {
+          "hz": 91.97599558321056,
+          "midi": 41.901909227113535,
+          "yinDifference": 0.00860525904178537
+        },
+        {
+          "hz": 91.58941242379268,
+          "midi": 41.82899059554006,
+          "yinDifference": 0.007838496192430234
+        },
+        {
+          "hz": 91.83098705010224,
+          "midi": 41.874593206970204,
+          "yinDifference": 0.003589049875833498
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 12.54067930297964,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.002518462220280071,
+      "independentProcessedWindows": [
+        {
+          "hz": 92.64455904371617,
+          "midi": 42.027295578444416,
+          "yinDifference": 0.008605205164763794
+        },
+        {
+          "hz": 92.25534049059132,
+          "midi": 41.95440971872573,
+          "yinDifference": 0.007848908755962137
+        },
+        {
+          "hz": 92.49874023765425,
+          "midi": 42.0000251846222,
+          "yinDifference": 0.003579570984878432
+        }
+      ],
+      "actualRendererCentsFromDeclared": 1.5639649055955829,
+      "actualRendererWindows": [
+        {
+          "hz": 92.62566478106453,
+          "midi": 42.02376447773404,
+          "yinDifference": 0.00810732359738234
+        },
+        {
+          "hz": 92.32165472251457,
+          "midi": 41.96684956379421,
+          "yinDifference": 0.008503975756323987
+        },
+        {
+          "hz": 92.58220496739195,
+          "midi": 42.015639649055956,
+          "yinDifference": 0.0037165017233835138
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 2
+    },
+    {
+      "library": "meta",
+      "sourcePath": "systems/instruments/meta-nylon-guitar/ogg/INSGuitarNylon_StringLowE_Vel01Finger_G2_01.ogg",
+      "sha256": "ad7558174f93be08f3f99c56fdbbda1700156751357160ce623ac43ad7e7f088",
+      "declaredActualMidi": 43,
+      "originalEstimatedMidi": 43.01912465450127,
+      "originalCentsFromDeclared": 1.9124654501268878,
+      "originalWindows": [
+        {
+          "hz": 98.0500313111705,
+          "midi": 43.009037669862884,
+          "yinDifference": 0.006345426852358529
+        },
+        {
+          "hz": 98.39468027101447,
+          "midi": 43.069784393115526,
+          "yinDifference": 0.010495322043292917
+        },
+        {
+          "hz": 98.10717652175627,
+          "midi": 43.01912465450127,
+          "yinDifference": 0.003775323279825866
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": -1.9124654501268878,
+      "metadataResidualCents": 0.0,
+      "independentProcessedCentsFromDeclared": 0.0002972880764673391,
+      "independentProcessedWindows": [
+        {
+          "hz": 97.94216118856625,
+          "midi": 42.98998094667365,
+          "yinDifference": 0.006314062340305273
+        },
+        {
+          "hz": 98.28604533580791,
+          "midi": 43.050659741496176,
+          "yinDifference": 0.010515594252959108
+        },
+        {
+          "hz": 97.99887582383485,
+          "midi": 43.000002972880765,
+          "yinDifference": 0.0037705868855158163
+        }
+      ],
+      "actualRendererCentsFromDeclared": -0.5634936075892938,
+      "actualRendererWindows": [
+        {
+          "hz": 97.96696686356117,
+          "midi": 42.99436506392411,
+          "yinDifference": 0.0060885507810836586
+        },
+        {
+          "hz": 98.25056962536587,
+          "midi": 43.04440983650913,
+          "yinDifference": 0.010151166422972518
+        },
+        {
+          "hz": 97.96117311573525,
+          "midi": 42.99334118511712,
+          "yinDifference": 0.003509849177033668
+        }
+      ],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 9
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Cello Section/susvib/susvib_A2_v1_1.wav",
+      "sha256": "c97a003184fdcb153d6b6c0bae8d82a90592a1b04b06bd7caaeda8b9776d5284",
+      "declaredActualMidi": 57,
+      "originalEstimatedMidi": 56.989521024496426,
+      "originalCentsFromDeclared": -1.0478975503573906,
+      "originalWindows": [
+        {
+          "hz": 219.84663421178138,
+          "midi": 56.987927060723706,
+          "yinDifference": 0.004032408652806013
+        },
+        {
+          "hz": 219.86687663384294,
+          "midi": 56.989521024496426,
+          "yinDifference": 0.0033060228578655716
+        },
+        {
+          "hz": 220.00640170522078,
+          "midi": 57.00050375858206,
+          "yinDifference": 0.0028672813203345546
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": -1.0478975503573906,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 2
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Cello Section/susvib/susvib_B1_v1_1.wav",
+      "sha256": "4f95c087c4b8d87ee591e9d39c3c9caf085c6f1b9125eac3ca9e4e637da628ee",
+      "declaredActualMidi": 47,
+      "originalEstimatedMidi": 47.02744302388717,
+      "originalCentsFromDeclared": 2.7443023887173013,
+      "originalWindows": [
+        {
+          "hz": 123.6661981465103,
+          "midi": 47.027372359315166,
+          "yinDifference": 0.005201302747489873
+        },
+        {
+          "hz": 123.71160481272499,
+          "midi": 47.03372778543246,
+          "yinDifference": 0.0039271069273621425
+        },
+        {
+          "hz": 123.66670292151765,
+          "midi": 47.02744302388717,
+          "yinDifference": 0.0020847227448563366
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 2.7443023887173013,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 4
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Cello Section/susvib/susvib_C3_v1_1.wav",
+      "sha256": "a614ee7ca821b44660236e47b89620cf914ec6ad27a99bc0d9764f47dbe512e1",
+      "declaredActualMidi": 60,
+      "originalEstimatedMidi": 60.01809168580637,
+      "originalCentsFromDeclared": 1.8091685806368218,
+      "originalWindows": [
+        {
+          "hz": 262.3910711453156,
+          "midi": 60.05058124623138,
+          "yinDifference": 0.007298208695464142
+        },
+        {
+          "hz": 261.8991113039298,
+          "midi": 60.01809168580637,
+          "yinDifference": 0.005750357617894178
+        },
+        {
+          "hz": 261.73758170791797,
+          "midi": 60.007410786276225,
+          "yinDifference": 0.003933058988213748
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 1.8091685806368218,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 2
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Cello Section/susvib/susvib_D2_v1_1.wav",
+      "sha256": "e8640dec9febc6e39fcf06b19d2c95a85d5ff8c38f13c9879e69f551eaf38ab8",
+      "declaredActualMidi": 50,
+      "originalEstimatedMidi": 50.03906144551163,
+      "originalCentsFromDeclared": 3.9061445511627824,
+      "originalWindows": [
+        {
+          "hz": 147.2886096976457,
+          "midi": 50.05370811222707,
+          "yinDifference": 0.020844202462025757
+        },
+        {
+          "hz": 147.1640526005495,
+          "midi": 50.03906144551163,
+          "yinDifference": 0.018150344568992487
+        },
+        {
+          "hz": 147.04861315921264,
+          "midi": 50.025475850806686,
+          "yinDifference": 0.00888962551887432
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 3.9061445511627824,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 2
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Cello Section/susvib/susvib_F2_v1_1.wav",
+      "sha256": "162054eab4ba118924f8f8986cf1b17ccfd65211d1945743ffbae30b4953f901",
+      "declaredActualMidi": 53,
+      "originalEstimatedMidi": 53.02965476354839,
+      "originalCentsFromDeclared": 2.965476354839325,
+      "originalWindows": [
+        {
+          "hz": 174.89173385556126,
+          "midi": 53.02750294890043,
+          "yinDifference": 0.025138800482057248
+        },
+        {
+          "hz": 174.91347314516787,
+          "midi": 53.02965476354839,
+          "yinDifference": 0.0252102327894198
+        },
+        {
+          "hz": 174.9970799283578,
+          "midi": 53.03792790142745,
+          "yinDifference": 0.031617394524265034
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 2.965476354839325,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 4
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Viola Section/susvib/ViolaEns_susvib_B2_v1_1.wav",
+      "sha256": "ad96d747c5125adec8f069c49091ee3ba937efd4a5b909d3c4938f17e3c8513d",
+      "declaredActualMidi": 59,
+      "originalEstimatedMidi": 59.013287808398736,
+      "originalCentsFromDeclared": 1.3287808398736445,
+      "originalWindows": [
+        {
+          "hz": 247.05013823006897,
+          "midi": 59.007604071069665,
+          "yinDifference": 0.025035198266252313
+        },
+        {
+          "hz": 247.16104938706943,
+          "midi": 59.01537456188231,
+          "yinDifference": 0.022380032086180213
+        },
+        {
+          "hz": 247.13125947516446,
+          "midi": 59.013287808398736,
+          "yinDifference": 0.023010663841715122
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 1.3287808398736445,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 6
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Strings/Viola Section/susvib/ViolaEns_susvib_D3_v1_1.wav",
+      "sha256": "61ab4cfc0ea90c683433a7c50b3bb4fa86a81c9d4854589562707d54ed028349",
+      "declaredActualMidi": 62,
+      "originalEstimatedMidi": 62.00112751314299,
+      "originalCentsFromDeclared": 0.11275131429897556,
+      "originalWindows": [
+        {
+          "hz": 294.34094834803057,
+          "midi": 62.03981686124597,
+          "yinDifference": 0.12215853177395108
+        },
+        {
+          "hz": 293.68389425495394,
+          "midi": 62.00112751314299,
+          "yinDifference": 0.07229149295768221
+        },
+        {
+          "hz": 293.61769775709445,
+          "midi": 61.997224863020215,
+          "yinDifference": 0.0368101431683514
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 0.11275131429897556,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 1
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Woodwinds/Piccolo/Sus/piccolo_C5_sustain1.wav",
+      "sha256": "d3069f1cf627d1cf9715ea5564e26e0988d321a6e7c5d4ffe8ff5345ff78c09f",
+      "declaredActualMidi": 84,
+      "originalEstimatedMidi": 83.96555178116245,
+      "originalCentsFromDeclared": -3.444821883755367,
+      "originalWindows": [
+        {
+          "hz": 1043.4261591191462,
+          "midi": 83.94903694826259,
+          "yinDifference": 0.002036784023582476
+        },
+        {
+          "hz": 1044.421993875597,
+          "midi": 83.96555178116245,
+          "yinDifference": 0.0017192718319474745
+        },
+        {
+          "hz": 1044.919693009397,
+          "midi": 83.97379967769686,
+          "yinDifference": 0.001681957452729915
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": -3.444821883755367,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 10
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Woodwinds/Piccolo/Sus/piccolo_G4_sustain1.wav",
+      "sha256": "6bdc2e38e2b5982fa5a9a05dc7d8ad5d6a7e0617a1fe4f23df571400757a5a95",
+      "declaredActualMidi": 79,
+      "originalEstimatedMidi": 79.04075363798066,
+      "originalCentsFromDeclared": 4.075363798065723,
+      "originalWindows": [
+        {
+          "hz": 786.3414166098457,
+          "midi": 79.05182783280209,
+          "yinDifference": 0.005810370204043278
+        },
+        {
+          "hz": 785.8385779852757,
+          "midi": 79.04075363798066,
+          "yinDifference": 0.005620919962117043
+        },
+        {
+          "hz": 784.7746449103721,
+          "midi": 79.01729888260124,
+          "yinDifference": 0.00507399681852493
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 4.075363798065723,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 18
+    },
+    {
+      "library": "vsco",
+      "sourcePath": "Woodwinds/Piccolo/Sus/piccolo_G5_sustain1.wav",
+      "sha256": "1d12025a1985e51c4223b21b03baa9dc3c4f6a344f0358bcdcfdecce41158cd5",
+      "declaredActualMidi": 91,
+      "originalEstimatedMidi": 91.10115063480708,
+      "originalCentsFromDeclared": 10.115063480708386,
+      "originalWindows": [
+        {
+          "hz": 1576.595513322922,
+          "midi": 91.0948457420353,
+          "yinDifference": 0.03851726173813676
+        },
+        {
+          "hz": 1577.169790147499,
+          "midi": 91.10115063480708,
+          "yinDifference": 0.034659886749826174
+        },
+        {
+          "hz": 1577.1751181757897,
+          "midi": 91.10120911962252,
+          "yinDifference": 0.010743444466678834
+        }
+      ],
+      "appliedSourceTuningCorrectionCents": 0.0,
+      "metadataResidualCents": 10.115063480708386,
+      "independentProcessedCentsFromDeclared": null,
+      "independentProcessedWindows": [],
+      "actualRendererCentsFromDeclared": null,
+      "actualRendererWindows": [],
+      "allEventInstancesHaveSameCorrection": true,
+      "eventInstancesChecked": 1
+    }
+  ],
+  "maxOriginalSourcePitchErrorCents": 29.19886574045023,
+  "maxCorrectedGuitarResidualCents": 0.0372946847889466,
+  "maxActualRendererGuitarResidualCents": 1.5639649055955829,
+  "maxUncorrectedOrchestralDeviationCents": 10.115063480708386,
+  "correctedOctaveConvention": "VSCO labels C4 at sounding MIDI72, one octave above scientific C4=MIDI60; actual source bases verified. Meta source bases use scientific convention.",
+  "scoreReview": {
+    "bars": 32,
+    "form": "A / A-prime / contrast / varied return, 8 bars each",
+    "harmony": [
+      "Gmaj7",
+      "D/F#",
+      "Em7",
+      "Em7/D",
+      "Cmaj7",
+      "G/B",
+      "Am7",
+      "D7",
+      "Gmaj7",
+      "Bm7",
+      "Cmaj7",
+      "D7",
+      "Em7",
+      "E7",
+      "Am7",
+      "D7",
+      "Cmaj7",
+      "D/C",
+      "Bm7",
+      "Em7",
+      "Am7",
+      "D7",
+      "Gmaj7",
+      "G7",
+      "Cmaj7",
+      "G/B",
+      "Am7",
+      "D7",
+      "Gmaj7",
+      "Cmaj7",
+      "D7",
+      "G6"
+    ],
+    "melodyEventCount": 165,
+    "melodyOnsetsPerBar": [
+      6,
+      4,
+      6,
+      5,
+      5,
+      5,
+      7,
+      6,
+      6,
+      5,
+      4,
+      5,
+      6,
+      4,
+      6,
+      5,
+      4,
+      5,
+      4,
+      3,
+      6,
+      6,
+      3,
+      5,
+      6,
+      5,
+      6,
+      6,
+      6,
+      5,
+      6,
+      4
+    ],
+    "secondaryDominants": "Bar14 E7 B-G#-F#-E (9th included) resolves to bar15 Am7; bar24 G7 leads to bar25 Cmaj7.",
+    "thematicShape": "Four-note descending opening; upward answer; repeated/varied A; middle woodwind transfer; related return.",
+    "articulation": "Guitar 2ms sin-squared attack, 180ms cos-squared tail; small overlaps between released tails are intentional. Do not claim globally monophonic PCM.",
+    "noReferenceTranscription": "Composition source contains authored notes and fixed arrangement; this review did not compare a reference transcription or assess perceptual similarity."
+  },
+  "pcmReview": {
+    "durationSeconds": 90.58757369614513,
+    "seamDifference": 0.0,
+    "last200msRms": 1.5655009759698334e-05,
+    "belowMinus65DbfsRunsAtLeast100ms": [
+      {
+        "startSeconds": 90.13,
+        "durationSeconds": 0.45
+      }
+    ],
+    "loopInterpretation": "The only long near-silent region is a short phrase-ending breath. No long artificial loop gap."
+  },
+  "limitations": [
+    "No subjective listening was performed; pitch/score/PCM metrics cannot establish pleasantness, naturalism or fidelity to reference performance.",
+    "Sample-layer performance is not a live ensemble recording.",
+    "Pitch estimates include recorded vibrato and limited sample windows.",
+    "The processed single-note checks verify both an independent resampling and the exact current renderer sample function, rather than isolating notes from the polyphonic exported mix."
+  ]
+}
