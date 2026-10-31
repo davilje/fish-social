@@ -84,6 +84,7 @@
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2CatalogController.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopAppBootstrap.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyButtonVisual.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyActionIcon.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyWorkspaceBodyMotion.cs" />
     <Compile Include="Assets\Scripts\Desktop\Onboarding\LocalOnboardingSession.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2AchievementController.cs" />
@@ -125,7 +126,9 @@
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopSocialComposeModal.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopGameplayDebugMenu.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopWorldMapPanel.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Localization\LocalizationCatalog.cs" />
     <Compile Include="Assets\Scripts\Desktop\Pet\IPetRenderer.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyActionContentLayout.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2MapViewport.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Motion\JournalV2Particle.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\SteamSocialLobbyAdapter.cs" />
@@ -176,6 +179,7 @@
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2ProfileController.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopDefaultAvatars.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2FeedController.cs" />
+    <Compile Include="Assets\Scripts\Desktop\UI\CozyItemDetailsDialog.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Core\JournalV2Page.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProductMenuAction.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyPanelSkin.cs" />
@@ -199,10 +203,12 @@
     <Compile Include="Assets\Scripts\Desktop\Pet\FishingRestPresentation.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozySocialText.cs" />
     <Compile Include="Assets\Scripts\Desktop\Social\SocialLobbyController.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Localization\DesktopLocalization.cs" />
     <Compile Include="Assets\Scripts\Desktop\DesktopOverlayPondLayoutView.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\PanelRouter.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopProfileHubPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopModalUi.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Localization\DesktopLanguageSettingsView.cs" />
     <Compile Include="Assets\Scripts\Desktop\JournalV2\Views\JournalV2SettingsController.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyIndexMotion.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\CozyRareGlint.cs" />
@@ -235,12 +241,8 @@
     <Compile Include="Assets\Scripts\Desktop\Window\WindowManager.cs" />
     <Compile Include="Assets\Scripts\Desktop\UI\DesktopShopPanel.cs" />
     <Compile Include="Assets\Scripts\Desktop\Auth\AuthenticatedApiClient.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Localization\LocalizationCatalog.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Localization\DesktopLocalization.cs" />
-    <Compile Include="Assets\Scripts\Desktop\Localization\DesktopLanguageSettingsView.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyActionContentLayout.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyItemDetailsDialog.cs" />
-    <Compile Include="Assets\Scripts\Desktop\UI\CozyActionIcon.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Audio\DesktopWeather.cs" />
+    <Compile Include="Assets\Scripts\Desktop\Pet\FishingRestGeometry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Desktop\Pet\Fishing\cow\body\fishing\0\head-sleep-source.txt" />
