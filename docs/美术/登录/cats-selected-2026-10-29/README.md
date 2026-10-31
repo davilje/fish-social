@@ -1,3 +1,13 @@
+# 五猫登录背景 · 当前浅蓝青色相与饱和度调整 v2
+
+2026-10-31：纠正上一版蓝色压暗的问题，从登录原图 login-background-fish-fixed-2026-10-30.png 重新编辑天空与湖水的蓝青色相、饱和度。保持明亮观感、原有粉彩笔触和猫咪构图。当前正式原画 [login-background-hue-saturation-v2.png](login-background-hue-saturation-v2.png)，使用内置 image_gen，提示词 [color-prompt-hue-saturation-v2.txt](color-prompt-hue-saturation-v2.txt)。源文件 exec-4c6bb80b-f7a0-41b9-9768-c97da416d44e.png。
+
+湖水固定区域取样（x > 1100，420 < y < 510，并按原图蓝青色筛选）平均 HSV 饱和度由 0.528 至 0.304（约降低 42%），平均 CIELAB L* 从 74.24 至 78.95，结果更浅亮，没有继续压暗。统计只反映该取样区域，不是全图或逐像素色值锁定。
+
+[统一预览 · 登录](../../../../现行预览.html#login) 默认显示当前 Unity 完整界面，支持 7 档窗口及原画前后对照。正式资源 GUID 保留。此前登录和鱼塘选择相关 23 项测试通过，此次更新原图后重新渲染和检查浏览器预览。验证文件在 output/login-map-hue-saturation-v2/。本轮未重新打包客户端。上一版 login-background-calm-2026-10-31.png 保留历史，不再正式使用。
+
+以下为此前版本记录。
+
 # 五猫登录背景 · 烤鱼细节修复
 
 2026-10-30。用户确认采用柔和调色效果，现已替换 Unity 登录背景。

@@ -1,0 +1,7 @@
+Use case: precise-object-edit, water-color correction only.
+Image1 = edit target, sparse vegetation world map. Keep ALL of its land, trees, species, sparse density, villages, grasslands, coastlines and roads exactly as they are.
+Image2 = WATER PALETTE REFERENCE only, the map before vegetation changes. Do not copy its dense forests.
+
+Correct ONLY the water in image1 (sea, lakes, rivers): match image2's approved soft pale blue-green water hue and lower saturation. The sea at far right should have a representative impression RGB128,193,205 rather than image1's oversaturated RGB102,187,215. Retain image1's existing ripple strokes and reflections and geography, but match image2's soft light blue-green appearance, with perceived lightness similar to image2. No dark blue, deep teal or added contrast.
+This is a targeted water hue/chroma correction. No vegetation changes whatsoever. Especially preserve the thin white-barked birch groves, drooping willows near the northern lake, sparse coastal umbrella pines, local honey-gold deciduous groves and large meadows in image1. Do not introduce a gradient tint, colored land bands or dense forest.
+Exact same composition and 1672x941 dimensions. No new detail, repaint of land, UI, text or borders. Keep the same pastel storybook painting.

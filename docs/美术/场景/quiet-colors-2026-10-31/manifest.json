@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-31",
+  "status": "applied-to-unity-project",
+  "generator": "built-in image_gen",
+  "sourceGeneratedFile": "exec-cbdac241-8acd-4f11-ba1a-78a7518770d9.png",
+  "image": "world-map-sparse-biomes-v1.png",
+  "prompt": "sparse-biomes-generation-prompt.txt",
+  "sha256": "aa4d6b397defc29354331ac945a386f1497fdcffafc1e6617c2d45fade151c8b",
+  "productionAsset": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/scenes/world-map.png",
+  "productionSha256": "aa4d6b397defc29354331ac945a386f1497fdcffafc1e6617c2d45fade151c8b",
+  "beforeImage": "world-map-before.png",
+  "geography": "same composition; no coordinate or catalog changes",
+  "destinations": 20,
+  "validation": {
+    "status": "passed",
+    "currentRenderDirectory": "output/world-map-sparse-biomes-v1",
+    "destinations": 20,
+    "aspectPreserved": true,
+    "markerCatalogUnchanged": true,
+    "assetGuidUnchanged": true,
+    "prefabUnchanged": true,
+    "sameProductionAndPreviewPixels": true,
+    "mapModes": 5,
+    "webPageErrors": 0,
+    "webVerification": "output/world-map-sparse-biomes-v1/web-verification.json",
+    "windowsRebuild": false
+  },
+  "supersededColorRevision": {
+    "image": "world-map-calm.png",
+    "sourceGeneratedFile": "exec-da2e43ce-dcde-45e4-b045-803af62b95e7.png",
+    "sha256": "79539cd612d8fc6296a036b77d0fec65a752384069344eb87eea99989247b1ff"
+  },
+  "colorDirection": "Sparse scene-matched plant groves, no geographic color gradient; preserve approved pale blue-green water.",
+  "previousVegetationRevision": {
+    "image": "world-map-hue-saturation-v2.png",
+    "sourceGeneratedFile": "exec-e15e8771-4b8e-4b1a-b9f4-26f649286be6.png",
+    "sha256": "9e936d8ad7a88ce4fc3cd620180a199670a1daa87a98bbc9210c79412cb2821d",
+    "prompt": "map-color-prompt-hue-saturation-v2.txt"
+  },
+  "vegetationBeforeImage": "world-map-hue-saturation-v2.png",
+  "vegetationMapping": "sparse-biomes-vegetation-mapping.json",
+  "generationSteps": [
+    {
+      "sourceGeneratedFile": "exec-7ba63f3f-d536-45ed-b67f-40b42ebcc77a.png",
+      "prompt": "sparse-biomes-generation-prompt.txt"
+    },
+    {
+      "sourceGeneratedFile": "exec-cbdac241-8acd-4f11-ba1a-78a7518770d9.png",
+      "prompt": "sparse-biomes-water-correction-prompt.txt"
+    }
+  ],
+  "waterSample": {
+    "region": "x>1600;70<y<920",
+    "previous": {
+      "meanLstar": 74.37,
+      "meanHsvSaturation": 0.392
+    },
+    "current": {
+      "meanLstar": 74.43,
+      "meanHsvSaturation": 0.386
+    },
+    "note": "Read-only sample of far-right open water, not whole image or an exact pixel match."
+  }
+}

@@ -132,9 +132,11 @@
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=feed">钓友动态</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=settings">设置</button>
         <h2>家园与地图</h2>
+        <button type="button" data-src="docs/设计/界面/原型/家园与浮层按钮/index.html#home" data-route="home-controls">家园交互按钮设计</button>
+        <button type="button" data-src="docs/设计/界面/原型/家园与浮层按钮/index.html#overlay" data-route="overlay-controls">Overlay 按钮与打窝标记</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?roomView=home">家园</button>
         <button type="button" data-src="docs/美术/家园/pastel-interior-2026-10-31/index.html?v=5-applied-static" data-route="home-interior">室内画风提案</button>
-        <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=map">世界地图</button>
+        <button type="button" data-src="docs/美术/场景/quiet-colors-2026-10-31/index.html?v=sparse-biomes-v1" data-route="world-map">世界地图</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=ponds">选择鱼塘</button>
         <h2>资料与收获</h2>
         <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#profile">个人资料</button>
@@ -148,12 +150,14 @@
         <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#pond">鱼塘聊天</button>
         <button type="button" data-src="docs/设计/界面/原型/钓友来信/index.html#notifications">消息通知</button>
         <h2>登录</h2>
-        <button type="button" data-src="docs/美术/登录/cats-selected-2026-10-29/index.html" data-route="login">五猫完整窗口</button>
+        <button type="button" data-src="docs/美术/登录/cats-selected-2026-10-29/index.html?v=hue-saturation-v2" data-route="login">五猫完整窗口</button>
         <h2>形象</h2>
         <button type="button" data-src="docs/美术/猫咪形象/breeds.html">九种钓鱼猫咪</button>
         <button type="button" data-src="docs/美术/猫咪形象/sangbiao/index.html">狸花猫丧彪</button>
         <button type="button" data-src="docs/美术/猫咪形象/character-study-2026-10-24/index.html">六款形象稿</button>
         <h2>动作</h2>
+        <button type="button" data-src="docs/美术/家园/interaction-study-2026-10-31/index.html" data-route="home-interaction">主界面猫咪交互 · 新提案</button>
+        <button type="button" data-src="docs/美术/家园/rest-poses-2026-10-31/index.html" data-route="home-poses">猫咪睡姿与蹲姿 · 原画</button>
         <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=cast" data-route="fishing">塘内钓鱼动作</button>
         <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=fishing&amp;study=rest-v2" data-route="rest">呼吸与瞌睡</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/home-animation-review.html">家园走路进食</button>
@@ -177,7 +181,7 @@
     } else {
       const savedSrc = sessionStorage.getItem('preview-src');
       const saved = buttons.find(button => button.dataset.src === savedSrc) ||
-        (savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : savedSrc?.startsWith('docs/美术/家园/pastel-interior-2026-10-31/') ? buttons.find(button => button.dataset.route === 'home-interior') : null);
+        (savedSrc === 'docs/设计/界面/原型/手账/index.html?page=map' || savedSrc?.startsWith('docs/美术/场景/quiet-colors-') ? buttons.find(button => button.dataset.route === 'world-map') : savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : savedSrc?.startsWith('docs/美术/家园/pastel-interior-2026-10-31/') ? buttons.find(button => button.dataset.route === 'home-interior') : null);
       const requestedPath = location.hash === '#scene' ? 'docs/美术/场景/motion.html' : location.hash === '#login' ? 'docs/美术/登录/cats-selected-2026-10-29/index.html' : location.hash === '#audio' ? 'docs/美术/声音/leaf-clusters/index.html' : null;
       const requested = buttons.find(button => button.dataset.route && '#'+button.dataset.route === location.hash) || (requestedPath ? buttons.find(button => button.dataset.src.startsWith(requestedPath)) : null);
       const current = requested || saved || buttons[0];
@@ -186,7 +190,7 @@
       });
       select(current);
       window.addEventListener('hashchange', () => {
-        const route = { '#audio': 'audio', '#login': 'login', '#home-interior': 'home-interior' }[location.hash];
+        const route = buttons.find(button => button.dataset.route && '#'+button.dataset.route===location.hash)?.dataset.route;
         const target = route ? buttons.find(button => button.dataset.route === route) :
           location.hash === '#scene' ? buttons.find(button => button.dataset.src.startsWith('docs/美术/场景/motion.html')) : null;
         if (target && stage.getAttribute('src') !== target.dataset.src) select(target);

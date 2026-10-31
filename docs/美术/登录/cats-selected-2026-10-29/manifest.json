@@ -1,16 +1,75 @@
 {
-  "date": "2026-10-30",
+  "date": "2026-10-31",
   "status": "applied-to-unity-project",
-  "sourceGeneratedFile": "exec-71dc372d-0e2a-49e1-bc87-2137e4fa04c3.png",
-  "image": "login-background-fish-fixed-2026-10-30.png",
+  "sourceGeneratedFile": "exec-4c6bb80b-f7a0-41b9-9768-c97da416d44e.png",
+  "image": "login-background-hue-saturation-v2.png",
   "size": [
     1672,
     941
   ],
-  "sha256": "6f2db36a99605e0b8f577231380b488c3f3a73acf0d8618d0283e6442df00e49",
+  "sha256": "198cfbb805453052a42469e165f487371928c2aa7c72af815bdeea189452511c",
   "productionAsset": "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/scenes/login-background-cats-selected.png",
-  "productionSha256": "6f2db36a99605e0b8f577231380b488c3f3a73acf0d8618d0283e6442df00e49",
+  "productionSha256": "198cfbb805453052a42469e165f487371928c2aa7c72af815bdeea189452511c",
   "validation": {
+    "status": "passed",
+    "renderedSizes": [
+      [
+        1280,
+        720
+      ],
+      [
+        1600,
+        900
+      ],
+      [
+        1920,
+        1080
+      ],
+      [
+        2560,
+        1440
+      ],
+      [
+        1280,
+        800
+      ],
+      [
+        1024,
+        768
+      ],
+      [
+        2560,
+        1080
+      ]
+    ],
+    "relatedTestsPassed": 23,
+    "relatedTestsFailed": 0,
+    "loginTestsPassed": 8,
+    "testsXml": "output/login-map-quiet-colors-2026-10-31/tests.xml",
+    "webVerification": "output/login-map-hue-saturation-v2/web-verification.json",
+    "windowsRebuild": false,
+    "windowsRuntime": "not-run",
+    "currentRenderDirectory": "output/login-map-hue-saturation-v2",
+    "webPageErrors": 0
+  },
+  "colorStudy": {
+    "date": "2026-10-31",
+    "image": "login-background-hue-saturation-v2.png",
+    "status": "applied-to-unity-project",
+    "sha256": "198cfbb805453052a42469e165f487371928c2aa7c72af815bdeea189452511c",
+    "generator": "built-in image_gen",
+    "prompt": "color-prompt-hue-saturation-v2.txt"
+  },
+  "previousImage": "login-background-fish-fixed-2026-10-30.png",
+  "previousSha256": "6f2db36a99605e0b8f577231380b488c3f3a73acf0d8618d0283e6442df00e49",
+  "fishDetailFix": {
+    "date": "2026-10-30",
+    "status": "applied-to-unity-project",
+    "beforeImage": "login-background-color-soft-2026-10-30.png",
+    "prompt": "fish-fix-prompt-2026-10-30.txt",
+    "generator": "built-in image_gen"
+  },
+  "previousValidation": {
     "renderedSizes": [
       [
         1280,
@@ -50,21 +109,11 @@
     "webModes": 5,
     "webPageErrors": 0
   },
-  "colorStudy": {
-    "date": "2026-10-30",
-    "image": "login-background-color-soft-2026-10-30.png",
-    "status": "applied-to-unity-project",
-    "sha256": "20fff31abe1db5ecc3df6e1b8f2e5e397b61318a1ed1bb5c039ac30d8feb4fff",
-    "generator": "built-in image_gen",
-    "prompt": "color-prompt-2026-10-30.txt"
+  "supersededColorRevision": {
+    "image": "login-background-calm-2026-10-31.png",
+    "sourceGeneratedFile": "exec-dfe5063f-56d4-4476-ac06-ecab7591e903.png",
+    "sha256": "5cc111cc4e1e961fc26eb8bda3e34aff692d36edb8c116cfc792c8ac42ba7312"
   },
-  "previousImage": "login-background-cats-selected.png",
-  "previousSha256": "012bca860a792b613b07e4fd2bb33f8be1d056d97cf8be0e3acdb4f826e94723",
-  "fishDetailFix": {
-    "date": "2026-10-30",
-    "status": "applied-to-unity-project",
-    "beforeImage": "login-background-color-soft-2026-10-30.png",
-    "prompt": "fish-fix-prompt-2026-10-30.txt",
-    "generator": "built-in image_gen"
-  }
+  "prompt": "color-prompt-hue-saturation-v2.txt",
+  "colorDirection": "Adjust blue/cyan hue and saturation, preserve bright appearance; start from original, not darkened previous revision"
 }

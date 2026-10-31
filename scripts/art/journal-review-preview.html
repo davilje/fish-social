@@ -10,6 +10,7 @@
 </head>
 <body>
 <header><h1>猫咪钓鱼手账 · UI 预览</h1><p>背包、装备、商店、排行榜、个人资料与钓友动态，统一在这里查看。</p></header>
+<div class="controls"><button id="home-controls">新提案 · 家园与 Overlay 交互按钮 ↗</button></div>
 <section class="controls" aria-label="预览筛选">
 <label>预览内容<select id="group"><option value="all">全部截图</option></select></label>
 <label>语言<select id="language"><option value="all">全部语言</option><option value="zh-CN">中文</option><option value="en-US">English</option></select></label>
@@ -74,8 +75,11 @@ function move(direction){if(!visible.length)return;show(visible[(visible.findInd
 $('previous').onclick=()=>move(-1);$('next').onclick=()=>move(1);
 $('fit').onclick=()=>{const original=document.body.classList.toggle('original');$('fit').textContent=original?'适应窗口':'原尺寸查看';$('fit').setAttribute('aria-pressed',original);};
 document.addEventListener('keydown',event=>{if(/^(SELECT|INPUT|TEXTAREA|BUTTON)$/.test(event.target.tagName))return;if(event.key==='ArrowRight')move(1);if(event.key==='ArrowLeft')move(-1);});
+const controlsOption=new Option('家园与 Overlay 交互按钮设计','../../../设计/界面/原型/家园与浮层按钮/index.html');$('reference').add(controlsOption,1);
 $('reference').onchange=()=>{const src=$('reference').value;$('reference-frame').hidden=!src;if(src)$('reference-frame').src=src;else $('reference-frame').removeAttribute('src');};
+$('home-controls').onclick=()=>{$('reference').value=controlsOption.value;$('reference').onchange();$('reference-frame').scrollIntoView({block:'start'});history.replaceState(null,'','#home-controls');};
 function openHash(){
+  if(location.hash==='#home-controls'){$('group').value='actions';$('language').value='zh-CN';filter();$('home-controls').click();return;}
   let initial='';try{initial=decodeURIComponent(location.hash.slice(1));}catch{}
   const record=records.find(record=>record.id===initial);
   $('group').value=record?.group||'actions';$('language').value=record?.language==='shared'?'all':record?.language||'zh-CN';$('state').value='all';

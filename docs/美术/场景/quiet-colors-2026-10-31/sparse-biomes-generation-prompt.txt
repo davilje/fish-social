@@ -1,0 +1,22 @@
+Use case: precise-object-edit.
+Input image 1 is the EDIT TARGET: existing 1672x941 world map. Other images are SPECIES/SHAPE REFERENCES from the game's actual scenes, not references for changing the camera or the water.
+User corrections: NO broad directional color gradient. REDUCE plant quantity greatly. Put plant types from actual game scenes around their matching destinations. Make a readable, open, coherent pastel storybook game map.
+
+Edit vegetation only:
+REMOVE approximately 60% of the current repetitive dense forest crowns, restoring open grassland/meadows underneath in the same original brushwork. Leave substantially more empty land around roads, towns, lakes and rivers. Retained trees should occur as small, discrete, irregular groves of about 3–7 legible miniature trees, separated by ample meadow. Keep some naturally connected woods on existing mountain slopes, but NOT a continuous blanket of tiny treetops or thick hedge borders around every lake. No replacement carpet of new shrubs/flowers. No increase in detail.
+
+Species correspondence (locations are percentages across/down the map from TOP LEFT, do not move geographic features):
+- Around the lake at x33%,y41%, and lakes at x19%,y74% and x33%,y83%: small groups of slender WHITE-BARK BIRCH trees with light open green crowns, recognizable pale trunks, like reference2. Their neighboring lake banks stay open. These are the current Poyang/Dianchi/Erhai game scenes. No bamboo or lotus invented from legacy names.
+- Around x53%,y9% northern lake: a few recognizable WEEPING WILLOWS, long drooping foliage and soft umbrella silhouettes, like reference3. This map remains daytime: green willow, not a blue/purple night filter.
+- Around x36%,y59% and x11%,y82% and x13%,y29%: a few small golden-leaf deciduous/birch groves, soft ochre/honey crowns like reference5, mixed with ordinary green trees. This is local foliage pigmentation, NOT an overall warm gradient or repaint of ground.
+- Around x36%,y19% reservoir and x12%,y12% reservoir: sparse broadleaf trees and low rounded bushes on existing upland banks, softly muted natural greens; keep dams very clear.
+- River banks around x62%,y50% and x16%,y49%: a few ROUND-CROWN BROADLEAF trees, modest shrub clumps. Do not use Christmas-tree/conifer symbols just because a legacy ID says pine; actual river scenes are leafy broadleaf trees.
+- Coastal land near x87%,y27% and x87%,y44% and x83%,y10%: a few COASTAL PINES with bent short trunks and horizontal/flattened umbrella crowns, like reference4. Sparse sand grass, no palm trees. Keep beaches open.
+- At x74%,y66% bay and x60%,y82% river mouth: small REED GRASS tufts and low willow-like scrub close to marshy bank, very few trees.
+- At x85%,y93% lower coast: mostly open soft golden grass with a handful of low scrub and tiny coastal pine groups.
+- Around remaining lakes: ordinary sparse round broadleaf groves and grasses, no invented exotic species.
+
+VARIATION comes from discrete natural tree species, crown silhouettes and inherent leaf color: green birch, drooping green willow, deeper green coastal pine, a few honey-gold deciduous clusters. Palette stays related and restrained. NO global west-to-east/north-to-south recoloring, hue gradients, colored overlay, rainbow stripes, arbitrary monotone biomes, patchwork rectangles, overly saturated orange.
+
+PRESERVE all water hues/lightness of image1: soft pale blue-green sea/lakes/rivers, same reflections. Preserve every coastline, lake, reservoir, island, dam, village, road, hill and river's location, exact map geometry; existing 20 marker coordinates must continue to match. Only delete/reduce or replace vegetation in place with species-guided mini groves. Do not add labels, markers, UI, frames, legend, or new geographic content.
+Same original soft pastel storybook brushwork and texture, same detail level and brightness. No photorealism or sharp vector icons. Exact same 1672x941 framing.

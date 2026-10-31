@@ -424,7 +424,7 @@ function mapBody() {
     <div class="mid-h">世界地图<span class="count">${PONDS.length} 个鱼塘</span></div>
     <div class="map-frame"><i class="tape lake" style="opacity:.95;left:-30px;top:-6px"></i>
       <i class="tape lake" style="opacity:.95;left:auto;right:-30px;top:auto;bottom:-6px;rotate:-28deg"></i>
-      <div class="map-view"><div class="map-content"><img src="assets/world-map.jpg">${buoys}</div></div></div>
+      <div class="map-view"><div class="map-content"><img src="assets/world-map.png?v=sparse-biomes-v1">${buoys}</div></div></div>
     <div class="aside">${mapAside()}</div>
     <div class="status" id="map-status">点选地图上的鱼塘。</div>`;
 }
