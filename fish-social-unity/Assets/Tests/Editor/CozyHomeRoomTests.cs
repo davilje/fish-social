@@ -113,6 +113,53 @@ namespace FishSocial.Desktop.Tests
                 room.SetPageOpen(false); Assert.IsTrue(node.gameObject.activeSelf);
             }
         }
+        [Test] public void HomeActionsDoNotShowHoverOrFocusText()
+        {
+            foreach (var name in new[] { "Equipment", "Aquarium", "Sleep", "Food", "GoFishing" })
+            {
+                var node = room.transform.Find(name).gameObject;
+                ExecuteEvents.Execute(node, Pointer(new Vector2(754.07f, 296.42f)), ExecuteEvents.pointerEnterHandler);
+                ExecuteEvents.Execute(node, new BaseEventData(events.GetComponent<EventSystem>()), ExecuteEvents.selectHandler);
+                Assert.IsNull(room.transform.Find("HomeActionHint"), name + " created hover text");
+                foreach (var label in node.GetComponentsInChildren<Text>())
+                    Assert.IsTrue(string.IsNullOrEmpty(label.text), name + " displayed text");
+                ExecuteEvents.Execute(node, Pointer(new Vector2(754.07f, 296.42f)), ExecuteEvents.pointerExitHandler);
+                ExecuteEvents.Execute(node, new BaseEventData(events.GetComponent<EventSystem>()), ExecuteEvents.deselectHandler);
+            }
+        }
+        [Test] public void HomeActionsKeepJournalPaperAcrossThemeAndPointerStates()
+        {
+            foreach (var name in new[] { "Equipment", "Aquarium", "Sleep", "Food", "GoFishing" })
+            {
+                var node = room.transform.Find(name).gameObject;
+                var button = node.GetComponent<Button>();
+                var visual = node.GetComponent<CozyButtonVisual>();
+                CatTheme.SkinTree(node.transform);
+                visual.ApplyFinalPose();
+                var plate = node.transform.Find("CozyVisual").GetComponent<Image>();
+                Assert.IsNotNull(plate.sprite, name + " lost the journal paper");
+                Assert.AreEqual("button-quiet-default", plate.sprite.name);
+                var wash = plate.transform.Find("ButtonWash");
+                Assert.IsTrue(wash == null || !wash.gameObject.activeSelf, name + " flat wash covers paper");
+                var glyph = node.transform.Find("HomeIcon").GetComponent<RawImage>();
+                var expectedInk = name == "GoFishing" ? (Color)new Color32(212,111,34,255) : CatTheme.Ink;
+                Assert.AreEqual(expectedInk, glyph.color);
+                Assert.AreEqual(name == "GoFishing" ? 28 : 24, glyph.rectTransform.sizeDelta.x);
+                var pointer = Pointer(new Vector2(754.07f,296.42f));
+                ExecuteEvents.Execute(node, pointer, ExecuteEvents.pointerEnterHandler);
+                Assert.AreEqual("button-quiet-hover", plate.sprite.name);
+                ExecuteEvents.Execute(node, pointer, ExecuteEvents.pointerDownHandler);
+                Assert.AreEqual("button-quiet-pressed", plate.sprite.name);
+                ExecuteEvents.Execute(node, pointer, ExecuteEvents.pointerUpHandler);
+                ExecuteEvents.Execute(node, pointer, ExecuteEvents.pointerExitHandler);
+                button.interactable = false;
+                visual.ApplyFinalPose();
+                Assert.AreEqual("button-quiet-disabled", plate.sprite.name);
+                button.interactable = true;
+                visual.ApplyFinalPose();
+                Assert.AreEqual("button-quiet-default", plate.sprite.name);
+            }
+        }
         [Test] public void PagesAndPauseSuspendCompanionWhilePreservingPosition()
         {
             room.SetPageOpen(true);room.Advance(60);Assert.IsFalse(room.IsSitting);
@@ -129,7 +176,7 @@ namespace FishSocial.Desktop.Tests
         }
         [TestCase(835,760,"Floor")]
         [TestCase(835,650,"Companion")]
-        [TestCase(748,571,"Equipment")]
+        [TestCase(754.07f,296.42f,"Equipment")]
         public void NativeRaycastReachesRoomInsteadOfLegacyHome(float x,float y,string expected)
         {
             var hits=new System.Collections.Generic.List<RaycastResult>();

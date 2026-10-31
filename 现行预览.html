@@ -36,6 +36,8 @@
       color: #ecfdf5;
       padding: 1.15rem 1rem 1rem;
     }
+    #reload-preview { width: auto; margin: 0.65rem 0 0; padding: 0.3rem 0.65rem; border: 1px solid #ffffff55; color: #ecfdf5; font-size: 0.8rem; }
+    #reload-preview:hover { background: #ffffff18; }
     aside h1 { margin: 0; font-size: 1.2rem; font-weight: 700; }
     aside header p { margin: 0.45rem 0 0; font-size: 0.82rem; line-height: 1.45; opacity: 0.88; }
     nav { overflow: auto; padding: 0.35rem 0.65rem 1.2rem; }
@@ -120,6 +122,7 @@
       <header>
         <h1>现行预览</h1>
         <p>界面、形象、动作、地图、场景、特效和音效都在这一页。选择分类切换。演示数据，声音需要再点播放。</p>
+        <button type="button" id="reload-preview">刷新当前预览</button>
       </header>
       <nav>
         <h2>手账</h2>
@@ -132,8 +135,8 @@
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=feed">钓友动态</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=settings">设置</button>
         <h2>家园与地图</h2>
-        <button type="button" data-src="docs/设计/界面/原型/家园与浮层按钮/index.html#home" data-route="home-controls">家园交互按钮</button>
-        <button type="button" data-src="docs/设计/界面/原型/家园与浮层按钮/index.html#overlay" data-route="overlay-controls">Overlay 按钮与打窝标记</button>
+        <button type="button" data-src="docs/设计/界面/原型/家园与浮层按钮/index.html#home" data-route="home-controls" data-revision="20261031-overlay-copy-04">家园交互按钮</button>
+        <button type="button" data-src="docs/设计/界面/原型/家园与浮层按钮/index.html#overlay" data-route="overlay-controls" data-revision="20261031-overlay-copy-04">Overlay 按钮与打窝标记</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?roomView=home">家园</button>
         <button type="button" data-src="docs/美术/家园/pastel-interior-2026-10-31/index.html?v=5-applied-static" data-route="home-interior">室内画风提案</button>
         <button type="button" data-src="docs/美术/场景/quiet-colors-2026-10-31/index.html?v=sparse-biomes-v1" data-route="world-map">世界地图</button>
@@ -158,6 +161,7 @@
         <h2>动作</h2>
         <button type="button" data-src="docs/美术/家园/interaction-study-2026-10-31/index.html" data-route="home-interaction">主界面猫咪交互 · 新提案</button>
         <button type="button" data-src="docs/美术/家园/rest-poses-2026-10-31/index.html" data-route="home-poses">猫咪睡姿与蹲姿 · 原画</button>
+        <button type="button" data-src="docs/美术/家园/soft-drag-study-2026-10-31/index.html" data-route="home-soft-drag">猫咪软体拖拽 · 手感试验</button>
         <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=cast" data-route="fishing">塘内钓鱼动作</button>
         <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=fishing&amp;study=rest-v2" data-route="rest">呼吸与瞌睡</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/home-animation-review.html">家园走路进食</button>
@@ -193,16 +197,27 @@
         const route = buttons.find(button => button.dataset.route && '#'+button.dataset.route===location.hash)?.dataset.route;
         const target = route ? buttons.find(button => button.dataset.route === route) :
           location.hash === '#scene' ? buttons.find(button => button.dataset.src.startsWith('docs/美术/场景/motion.html')) : null;
-        if (target && stage.getAttribute('src') !== target.dataset.src) select(target);
+        if (target && stage.getAttribute('src') !== previewSource(target)) select(target);
       });
     }
+    // Keep saved entry identities stable while revisions invalidate stale iframe documents.
+    function previewSource(button, refresh = false) {
+      const url = new URL(button.dataset.src, location.href);
+      if (button.dataset.revision) url.searchParams.set('v', button.dataset.revision);
+      if (refresh) url.searchParams.set('_refresh', String(Date.now()));
+      return url.href;
+    }
+    document.querySelector('#reload-preview').addEventListener('click', () => {
+      const current = buttons.find(button => button.getAttribute('aria-current') === 'true');
+      if (current) stage.src = previewSource(current, true);
+    });
     function select(button) {
       buttons.forEach(item => {
         if (item === button) item.setAttribute('aria-current', 'true');
         else item.removeAttribute('aria-current');
       });
       button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      stage.src = button.dataset.src;
+      stage.src = previewSource(button);
       const hash = button.dataset.route ? '#'+button.dataset.route : button.dataset.src.startsWith('docs/美术/场景/motion.html') ? '#scene' : '';
       history.replaceState(null, '', location.pathname + location.search + hash);
       sessionStorage.setItem('preview-src', button.dataset.src);

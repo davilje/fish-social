@@ -241,6 +241,15 @@ namespace FishSocialOverlay
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
+            if (Sprite != null && Sprite.StartsWith("interaction:", StringComparison.Ordinal))
+            {
+                var glyphScale = Math.Min(ActualWidth, ActualHeight) / 24;
+                if (glyphScale <= 0) return;
+                drawingContext.PushTransform(new TranslateTransform((ActualWidth - 24 * glyphScale) / 2, (ActualHeight - 24 * glyphScale) / 2));
+                drawingContext.PushTransform(new ScaleTransform(glyphScale, glyphScale));
+                CozyInteractionGlyph.Draw(drawingContext, Sprite.Substring("interaction:".Length), CozyTheme.Ink);
+                drawingContext.Pop(); drawingContext.Pop(); return;
+            }
             var source = CozyTheme.LoadInkIcon(Sprite);
             if (source == null || ActualWidth <= 0 || ActualHeight <= 0)
                 return;

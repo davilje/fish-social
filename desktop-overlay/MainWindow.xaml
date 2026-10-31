@@ -217,24 +217,24 @@
                                 Margin="0,0,8,0"
                                 Visibility="Collapsed"
                                 Click="OpenMain_OnClick" />
-                        <Button x:Name="ExitPondButton" Style="{StaticResource CozyInteractionButton}" local:CozyInteractionGlyph.Kind="leave" local:CozyTheme.Icon="cozy/icons-light/lock.png"
-                                Content="退出鱼塘"
+                        <Button x:Name="ExitPondButton" Style="{StaticResource CozyButton}" local:CozyInteractionGlyph.Kind="leave" local:CozyTheme.Icon="cozy/icons-light/lock.png"
+                                Content="回家"
                                 FontSize="13"
-                                Width="112"
-                                Height="40"
+                                Width="88"
+                                Height="36"
                                 Click="ExitPond_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.exit_pond" />
                     </StackPanel>
                 </StackPanel>
-                <!-- Z100: 底部居中 — 打窝 / 开始钓鱼 / 离席 -->
+                <!-- Z100: 底部居中 — 打窝 / 钓鱼 / 离席 -->
                 <StackPanel x:Name="LegacyRightBottomHudStack"
                             Orientation="Horizontal"
                             Canvas.Left="370"
                             Canvas.Bottom="12"
                             Panel.ZIndex="100">
-                    <Button x:Name="GroundbaitButton" Style="{StaticResource CozyInteractionButton}" local:CozyInteractionGlyph.Kind="bait" local:CozyTheme.Icon="cozy/icons-light/leaf.png"
+                    <Button x:Name="GroundbaitButton" Style="{StaticResource CozyButton}" local:CozyInteractionGlyph.Kind="bait" local:CozyTheme.Icon="cozy/icons-light/leaf.png"
                             Content="打窝"
-                            Width="112"
-                            Height="40"
+                            Width="88"
+                            Height="36"
                             FontSize="13"
                             Margin="0,0,8,0"
                             Visibility="Collapsed"
@@ -247,13 +247,13 @@
                                Margin="0,0,8,0"
                                Visibility="Collapsed" />
                     <Button x:Name="FishingToggleButton" local:CozyTheme.Icon="cozy/icons-light/rod.png"
-                            Content="开始钓鱼"
+                            Content="钓鱼"
                             Width="88"
                             Height="36"
                             FontSize="13"
                             Margin="0,0,8,0"
                             Click="FishingToggle_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.start_fishing" />
-                    <Button x:Name="CatchLeaveButton" local:CozyTheme.Icon="cozy/icons-light/gift.png"
+                    <Button x:Name="CatchLeaveButton" local:CozyTheme.Icon="interaction:seat-leave"
                             Content="离席"
                             Width="88"
                             Height="36"

@@ -4,6 +4,7 @@ const paths={
   sleep:'<path d="M16 3a7 7 0 0 1-9 9 7 7 0 1 0 9-9Z"/><path d="M15 17h4l-4 4h4M3 4h3L3 7h3"/>',
   food:'<path d="M3 12h18l-2 8H5zM2 12h20M7 9h.1M12 8h.1M17 9h.1"/><path d="M10 16q2-2 4 0m-3 2h2"/>',
   door:'<path d="M4 21V4l10-2v19M2 21h14M8 12h.1M16 12h6m-3-3 3 3-3 3"/>',
+  'seat-leave':'<path d="M4 3v9h8M4 8h8v7M3 15h10M5 15v6m6-6v6m4-10h7m-3-3 3 3-3 3"/>',
   leave:'<path d="M10 4H4v16h6M9 12h12m-4-4 4 4-4 4"/>',
   left:'<path d="m14 6-6 6 6 6"/>',right:'<path d="m10 6 6 6-6 6"/>',
   bait:'<path d="M8 3h8l-1 4q5 3 4 8-1 3-7 3s-7-1-7-4q0-4 4-7zM8 7h8M9 11h.1m3 2h.1m3-2h.1M4 21q8 3 16 0"/><path d="M5 18h.1m14 0h.1"/>',
@@ -11,7 +12,8 @@ const paths={
   fish:'<path d="M5 12q8-9 15 0-7 9-15 0L2 8v8zM13 7l-3-3m3 13-3 3"/><circle cx="16" cy="11" r=".7"/>',
   chat:'<path d="M4 4h16v12h-9l-5 4v-4H4zM8 10h.1m4 0h.1m4 0h.1"/>'
 };
-const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.fish}</svg>`;
+const homeGlyphs=new Set(['rod','tank','sleep','food','door']);
+const icon=name=>homeGlyphs.has(name)?`<span class="icon glyph-mask" aria-hidden="true" style="--glyph:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/interaction-icons/${name}.png')"></span>`:`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.fish}</svg>`;
 document.querySelectorAll('[data-icon]').forEach(node=>node.innerHTML=icon(node.dataset.icon));
 const $=id=>document.getElementById(id);
 let activeView='home',sleeping=false,foodTimer=null,catTimer=null,toastTimer=null,feeding=false,pan=1,baitCount=12,baitState='active',baitTimer=null,fishing=false,lastFocused=null;
@@ -97,15 +99,19 @@ function setBait(state,{keepCount=false}={}){
   clearTimeout(baitTimer);baitState=state;$('bait-state').value=state;
   if(!keepCount)baitCount=state==='max'?50:state==='empty'||state==='expired'?0:12;
   $('bait-marker').className='bait-marker '+state;
+  $('bait-marker').hidden=state!=='working';
+  if(state!=='working')toggleBait(true);
   $('marker-count').textContent=state==='working'?'···':state==='expired'?'—':baitCount;
   $('marker-note').textContent=baitLabels[state];$('bait-title').textContent=baitLabels[state];
   $('bait-marker').setAttribute('aria-label','查看打窝效果：'+baitLabels[state]);
   $('bait-count').textContent=baitCount+' / 50';$('bait-time').hidden=!['active','max'].includes(state);
   $('bait-help').textContent=state==='working'?'正在投放窝料，投放完成后更新数量。':state==='empty'?'坐席后可投放窝料。':state==='expired'?'效果已结束，可重新投放窝料。':state==='max'?'已达 50 层，暂时无法继续叠加。':'叠加数量与剩余时间分别展示。';
-  $('bait-button-label').innerHTML=state==='working'?'投料中':state==='max'?'已达上限 <small>50/50</small>':`打窝 <small>${baitCount}/50</small>`;
+  $('bait-button-label').textContent='打窝';
   $('add-bait').disabled=state==='working'||state==='max';
 }
 $('bait-state').onchange=()=>setBait($('bait-state').value);
+$('chrome-shown').onchange=()=>{$('overlay-scene').classList.toggle('chrome-hidden',!$('chrome-shown').checked);if(!$('chrome-shown').checked)toggleBait(true);};
+$('leave-seat').onclick=()=>{setBait('active',{keepCount:true});fishing=false;$('fish-toggle').lastElementChild.textContent='钓鱼';toast('已离开座位。');};
 function toggleBait(open=!$('bait-popover').hidden){$('bait-popover').hidden=open;$('bait-marker').setAttribute('aria-expanded',!open);}
 $('bait-marker').onclick=()=>toggleBait(false);
 $('bait-marker').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBait();}};
@@ -115,20 +121,21 @@ $('add-bait').onclick=()=>{
   const count=baitCount;setBait('working',{keepCount:true});toast('正在投放窝料……');
   baitTimer=setTimeout(()=>{baitCount=Math.min(count+1,50);setBait(baitCount===50?'max':'active',{keepCount:true});toast('窝料已投放 · '+baitCount+'/50');},1600);
 };
-$('fish-toggle').onclick=()=>{fishing=!fishing;$('fish-toggle').lastElementChild.textContent=fishing?'收竿休息':'开始钓鱼';toast(fishing?'安静等一条鱼上钩。':'收好鱼竿，休息一下。');};
+$('fish-toggle').onclick=()=>{fishing=!fishing;$('fish-toggle').title=fishing?'收竿':'钓鱼';$('fish-toggle').setAttribute('aria-pressed',String(fishing));toast(fishing?'安静等一条鱼上钩。':'收好鱼竿，休息一下。');};
 $('leave').onclick=()=>{$('leave-confirm').hidden=!$('leave-confirm').hidden;if(!$('leave-confirm').hidden)$('stay').focus();};
 $('stay').onclick=()=>{$('leave-confirm').hidden=true;$('leave').focus();};
-$('confirm-leave').onclick=()=>{fishing=false;$('fish-toggle').lastElementChild.textContent='开始钓鱼';view('home');catNote('回家啦，今天也很开心。');};
+$('confirm-leave').onclick=()=>{fishing=false;$('fish-toggle').lastElementChild.textContent='钓鱼';view('home');catNote('回家啦，今天也很开心。');};
 document.addEventListener('keydown',event=>{
   if(event.key==='Escape'){if(!$('inspect-dialog').hidden)closeInspect();$('leave-confirm').hidden=true;toggleBait(true);}
   if(event.key==='Tab'&&!$('inspect-dialog').hidden){const buttons=[...$('inspect-dialog').querySelectorAll('button')];const first=buttons[0],last=buttons.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
 });
-const samples=[['查看钓竿','rod'],['查看鱼缸','tank'],['去睡觉','sleep'],['开饭啦','food'],['出门钓鱼','door','primary'],['向左看','left'],['向右看','right'],['离开鱼塘','leave']];
+paths.fishing=paths.rod;
+const samples=[['查看钓竿','rod'],['查看鱼缸','tank'],['去睡觉','sleep'],['开饭啦','food'],['出门钓鱼','door','primary'],['向左看','left'],['向右看','right'],['钓鱼','fishing'],['打窝','bait'],['离席','seat-leave'],['回家','leave']];
 $('state-board').innerHTML='<div class="state-row"><span>交互按钮</span><span>默认</span><span>悬停</span><span>按下</span><span>不可用</span></div>'+samples.map(([label,name,kind=''])=>{
   const arrow=name==='left'||name==='right',home=['rod','tank','sleep','food','door'].includes(name);
-  return `<div class="state-row"><span>${label}</span>${['','demo-hover','demo-pressed','demo-disabled'].map(state=>`<button class="action ${kind} ${arrow?'pan':''} ${home?'home-icon-sample':''} ${state}" ${state==='demo-disabled'?'disabled':''} aria-label="${label}" tabindex="-1">${arrow||home?icon(name):`<span class="${name==='leave'?'':'icon-disc'}">${icon(name)}</span><span>${label}</span>`}</button>`).join('')}</div>`;
+  return `<div class="state-row"><span>${label}</span>${['','demo-hover','demo-pressed','demo-disabled'].map(state=>`<button class="action ${kind} ${arrow?'pan':''} ${home?'home-icon-sample':arrow?'':'overlay-action-sample'} ${state}" ${state==='demo-disabled'?'disabled':''} aria-label="${label}" tabindex="-1">${arrow||home?icon(name):`<span class="${name==='leave'?'':'icon-disc'}">${icon(name)}</span><span>${label}</span>`}</button>`).join('')}</div>`;
 }).join('');
-$('marker-samples').innerHTML=[['empty','0','未打窝','静态轮廓'],['working','···','正在打窝','环形缺口缓慢转动'],['active','12','生效中','显示叠加数量'],['max','50','已达上限','停止继续投料'],['expired','—','已到期','灰色并显示到期文字']].map(([state,count,title,note])=>`<div class="marker-sample"><div class="bait-marker ${state}"><span class="marker-art">${icon('bait')}</span><span class="marker-count">${count}</span></div><p>${title}<small>${note}</small></p></div>`).join('');
+$('marker-samples').innerHTML=[['empty','未打窝'],['working','正在打窝'],['active','生效中'],['max','已达上限'],['expired','已到期']].map(([state,title])=>`<div class="marker-sample">${state==='working'?`<div class="bait-marker working"><span class="marker-art">${icon('bait')}</span><span class="marker-count">···</span></div>`:'<span class="marker-absent">—</span>'}<p>${title}<small>${state==='working'?'只在投料时显示':'不显示标记'}</small></p></div>`).join('');
 setBait('active');
 view(['home','overlay','kit'].includes(location.hash.slice(1))?location.hash.slice(1):'home');
 window.addEventListener('hashchange',()=>{

@@ -20,12 +20,13 @@ namespace FishSocialOverlay
             ["left"] = Geometry.Parse("M14,6 L8,12 14,18"),
             ["right"] = Geometry.Parse("M10,6 L16,12 10,18"),
             ["leave"] = Geometry.Parse("M10,4 H4 V20 H10 M9,12 H21 M17,8 L21,12 17,16"),
+            ["seat-leave"] = Geometry.Parse("M4,3 V12 H12 M4,8 H12 V15 M3,15 H13 M5,15 V21 M11,15 V21 M15,11 H22 M19,8 L22,11 19,14"),
             ["bait"] = Geometry.Parse("M8,3 H16 L15,7 Q20,10 19,15 Q18,18 12,18 Q5,18 5,14 Q5,10 9,7 M8,7 H16 M9,11 h0.1 M12,13 h0.1 M15,11 h0.1 M4,21 Q12,24 20,21 M5,18 h0.1 M19,18 h0.1")
         };
-        internal static Brush Ink = Brush("#78866A");
-        internal static Brush Paper = Brush("#FFFAF0");
-        internal static Brush Stroke = Brush("#DCCCAF");
-        internal static Brush Clay = Brush("#B87453");
+        internal static Brush Ink = CozyTheme.Ink;
+        internal static Brush Paper = CozyTheme.Cream;
+        internal static Brush Stroke = Brush("#E8D6B6");
+        internal static Brush Clay = Brush("#D46F22");
         internal static Brush Brush(string color)
         { var brush = (SolidColorBrush)new BrushConverter().ConvertFromString(color); brush.Freeze(); return brush; }
         internal static void Draw(DrawingContext dc, string kind, Brush foreground)
@@ -65,15 +66,22 @@ namespace FishSocialOverlay
         public static void Apply(Button button, string role)
         {
             if (button == null) return;
-            button.Style = (Style)Application.Current.FindResource("CozyInteractionButton");
+            var pan = role == "left" || role == "right";
+            button.Style = (Style)Application.Current.FindResource(pan ? "CozyInteractionButton" : "CozyButton");
             CozyInteractionGlyph.SetKind(button, role);
-            button.Foreground = CozyInteractionGlyph.Ink;
-            button.Padding = new Thickness(0);
-            button.MinHeight = 44;
-            if (role == "left" || role == "right")
+            button.Foreground = pan ? CozyInteractionGlyph.Ink : CozyTheme.Ink;
+            button.MinHeight = pan ? 44 : 0;
+            if (pan)
             {
+                button.Padding = new Thickness(0);
                 button.Content = "";
                 button.ToolTip = OverlayLocalization.Text(role == "left" ? "ui.fishing.overlay.fallback.button.pan_left" : "ui.fishing.overlay.fallback.button.pan_right", role == "left" ? "向左" : "向右");
+            }
+            else
+            {
+                button.SetResourceReference(Control.PaddingProperty, "CozyButtonPadding");
+                CozyTheme.SetIcon(button, "interaction:" + role);
+                CozyTheme.SetIconSize(button, 16);
             }
         }
         public static string GroundbaitDetails(IpcMessage message)

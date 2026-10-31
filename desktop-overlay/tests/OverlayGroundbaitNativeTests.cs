@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FishSocialOverlay;
@@ -42,6 +43,40 @@ internal static class OverlayGroundbaitNativeTests
             OverlayAnimationClock.Now - 60000);
         if (ending) timeline.End(OverlayAnimationClock.Now - 1000);
         typeof(OverlayPetActor).GetField("_groundbaitTimeline", PrivateInstance).SetValue(actor, timeline);
+    }
+
+    public static void MarkerLifecycle()
+    {
+        using (var actor = new OverlayPetActor("groundbait-marker", null))
+        {
+            var marker = Field<Image>(actor, "_groundbaitMarker");
+            var message = new IpcMessage { FishingPhase = "groundbaiting", GroundbaitStack = 4, GroundbaitMaxStack = 50 };
+            actor.SetGroundbaitChromeShown(false);
+            actor.SetGroundbait(message, true);
+            Check(marker.Visibility == Visibility.Collapsed && !marker.IsHitTestVisible, "network snapshot revealed hidden marker");
+            actor.SetGroundbaitChromeShown(true);
+            Check(marker.Visibility == Visibility.Visible && marker.Source != null, "pouring marker failed to resume");
+            var hit = Field<System.Windows.Shapes.Rectangle>(actor, "_hitCatcher");
+            Check(Math.Abs(Canvas.GetLeft(hit) - Canvas.GetLeft(marker) - marker.Width - 6) < .01,
+                "marker followed transparent sprite edge rather than cat hit bounds");
+            Check(Math.Abs(Canvas.GetTop(hit) - Canvas.GetTop(marker)) < .01, "marker not aligned with cat head");
+            Check(Canvas.GetLeft(marker) >= 0 && Canvas.GetTop(marker) >= 0, "marker clipped outside actor root");
+            actor.SetPresentationVisible(false);
+            Check(marker.Visibility == Visibility.Collapsed, "window hide retained marker");
+            actor.SetPresentationVisible(true);
+            Check(marker.Visibility == Visibility.Visible, "window show lost pouring marker");
+            foreach (var phase in new[] { "seated", "waiting", "hooked", "idle" })
+            {
+                message.FishingPhase = phase;
+                actor.SetGroundbait(message, true);
+                Check(marker.Visibility == Visibility.Collapsed && !marker.IsHitTestVisible, "buff retained marker after pouring");
+            }
+            message.FishingPhase = "groundbaiting";
+            actor.SetGroundbait(message, true);
+            Check(marker.Visibility == Visibility.Visible, "second pour failed to reveal marker");
+            actor.SetGroundbait(message, false);
+            Check(marker.Visibility == Visibility.Collapsed, "leaving seat retained marker");
+        }
     }
 
     public static void PhaseLifecycle()

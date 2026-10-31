@@ -7,11 +7,15 @@
 .home-action{left:calc(var(--x)*1px);top:calc(var(--y)*1px)}
 .home-action .icon-disc{width:32px;height:32px;background:transparent;color:inherit}
 .home-action .icon-disc svg,.home-icon-sample svg{width:24px;height:24px}
-.home-action.primary,.home-icon-sample.primary{color:#fff8e9}
+.home-action.primary,.home-icon-sample.primary{background:#fff2db;color:#8f4e31;border-color:#b87453}
+.home-action.primary:hover,.home-icon-sample.primary.demo-hover{background:#ffe7c1}
+.home-action.primary:active,.home-icon-sample.primary.demo-pressed{background:#f6d6a8}
+.home-action.primary .icon-disc{background:transparent;color:inherit}
+.home-action.primary svg,.home-icon-sample.primary svg{width:28px;height:28px;stroke-width:2.1}
 .home-action:before{width:7px;height:7px;top:-4px;left:calc(50% - 4px);border-color:var(--line)}
 .home-action.door-action:before{left:auto;right:-4px;top:calc(50% - 4px);border-color:#aa6b4d}
 .home-tip{display:none;position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);padding:5px 12px;border:1px solid #d9c9ae;border-radius:10px;background:#fffaf2;color:#756047;font-size:14px;line-height:1.5;white-space:nowrap;box-shadow:0 3px 10px #59422e10;pointer-events:none}
-.home-action:hover .home-tip,.home-action:focus-visible .home-tip{display:block}
+.home-action:hover .home-tip,.home-action:focus-visible .home-tip{display:none}
 .home-action.is-active:after,.home-action.is-busy:after{content:"";position:absolute;right:-3px;bottom:-3px;width:10px;height:10px;border-radius:50%;border:2px solid #fff9e9;background:#829570}
 .home-action.is-busy:after{background:#c79754}
 .home-action.is-busy:disabled{opacity:1}
@@ -20,3 +24,51 @@
 .cat-note{pointer-events:none}
 
 .runtime-shots{margin:0 6px 24px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}.runtime-shots summary{cursor:pointer;font-weight:600}.runtime-shots p{margin:12px 0;color:var(--soft);font-size:13px}.runtime-shots img{display:block;width:100%;height:auto;border-radius:10px;margin-top:12px}
+
+/* Bottom actions retain the original journal plate, independent of pan buttons. */
+.fishing-dock{left:320px;gap:10px}
+.fishing-dock button,.leave,.overlay-action-sample{width:88px;min-width:88px;height:36px;padding:0 2px;gap:4px;border:0;border-radius:8px;color:#75472e;background:transparent url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-default.png') center/100% 100% no-repeat;box-shadow:none;font-size:12px}
+.fishing-dock button:hover,.leave:hover,.overlay-action-sample.demo-hover{background:transparent url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-hover.png') center/100% 100% no-repeat;box-shadow:none}
+.fishing-dock button:active,.leave:active,.overlay-action-sample.demo-pressed{background:transparent url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-pressed.png') center/100% 100% no-repeat;box-shadow:none}
+.fishing-dock svg,.leave svg,.overlay-action-sample svg{width:16px;height:16px}.leave:before{display:none}
+.bait-marker{width:36px;height:36px;left:-38px;top:40px}
+.marker-art{width:32px;height:32px}.marker-art svg{width:21px;height:21px}
+.marker-count{right:-2px;top:-2px;bottom:auto}
+.chrome-hidden .pan,.chrome-hidden .fishing-dock,.chrome-hidden .leave,.chrome-hidden .chat-peek,.chrome-hidden .bait-marker,.chrome-hidden .bait-popover{visibility:hidden;pointer-events:none}
+.marker-absent{width:36px;text-align:center;color:var(--soft);font-size:12px}
+.fishing-dock button:disabled,.overlay-action-sample:disabled,.overlay-action-sample.demo-disabled{background:transparent url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-default.png') center/100% 100% no-repeat;color:#75472e;opacity:.45;box-shadow:none}
+
+/* Match the original journal: shared paper artwork, brown ink and periwinkle focus. */
+@font-face{font-family:FishCozy;src:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/fonts/FishCozyRounded-Medium.ttf') format('truetype');font-display:swap}
+:root{--paper:#fff7e9;--ink:#75472e;--soft:#75472ead;--line:#e8d6b6;--sage:#92a3e7;--sage-light:#eeeffb;--clay:#fc923c;--clay-dark:#d46f22;--font:FishCozy,"Microsoft YaHei UI",sans-serif}
+.action{--button-art:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-default.png')}
+.home-action,.home-icon-sample,.pan,.overlay-action-sample,.fishing-dock button,.leave{color:var(--ink);border:0;background:transparent;box-shadow:none;isolation:isolate}
+.home-action:before,.home-icon-sample:before,.pan:before,.overlay-action-sample:before,.fishing-dock button:before,.leave:before{content:"";display:block;position:absolute;inset:1px;border:0;width:auto;height:auto;transform:none;z-index:-1;background:var(--button-art) center/100% 100% no-repeat;pointer-events:none}
+.home-action:hover,.home-icon-sample.demo-hover,.pan:hover,.overlay-action-sample.demo-hover,.fishing-dock button:hover,.leave:hover{--button-art:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-hover.png');background:transparent;box-shadow:none}
+.home-action:active,.home-icon-sample.demo-pressed,.pan:active,.overlay-action-sample.demo-pressed,.fishing-dock button:active,.leave:active{--button-art:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-pressed.png');background:transparent;box-shadow:none}
+.home-action.primary,.home-icon-sample.primary{color:var(--clay-dark);background:transparent;border:0}
+.home-action.primary:hover,.home-action.primary:active,.home-icon-sample.primary.demo-hover,.home-icon-sample.primary.demo-pressed{background:transparent}
+.home-action:disabled,.home-icon-sample.demo-disabled,.pan:disabled,.overlay-action-sample.demo-disabled,.fishing-dock button:disabled{background:transparent;box-shadow:none;opacity:.45}
+.home-icon-sample,.overlay-action-sample,.fishing-dock button{position:relative}
+.home-action .glyph-mask,.home-icon-sample .glyph-mask{display:block;width:24px;height:24px;background:currentColor;mask:var(--glyph) center/contain no-repeat;-webkit-mask:var(--glyph) center/contain no-repeat}
+.home-action.primary .glyph-mask,.home-icon-sample.primary .glyph-mask{width:28px;height:28px}
+.home-action .icon-disc,.overlay-action-sample .icon-disc{background:transparent;color:inherit}
+.home-action.is-active:after{right:2px;top:2px;bottom:auto;width:8px;height:8px;border:0;background:#92a3e7}
+.home-action.is-busy:after{right:2px;top:2px;bottom:auto;width:8px;height:8px;border:0;background:#fc923c}
+.pan{border-radius:50%;color:var(--ink)}.pan:before{inset:0;border-radius:50%;overflow:hidden}
+.pan svg{width:22px;height:22px}
+button:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline-color:#92a3e7}
+.marker-art{background:var(--paper);border-color:var(--line);box-shadow:none;color:var(--ink)}
+.bait-marker.working{color:var(--clay-dark)}.bait-marker.working .marker-art{color:var(--clay-dark)}
+.bait-marker.working .marker-art:before{border-top-color:var(--clay-dark);border-right-color:var(--clay-dark)}
+.bait-marker.working .marker-count{background:var(--clay-dark);color:var(--paper);border-color:var(--paper)}
+.bait-popover,.leave-confirm,.inspect-card,.overlay-toast{background:var(--paper);border-color:var(--line);color:var(--ink)}
+.chat-peek{color:var(--ink);background:#fff7e9ef;border-color:var(--line)}
+.home-action.door-action:before{inset:1px;width:auto;height:auto;transform:none;border:0}
+.pan.demo-hover{--button-art:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-hover.png');background:transparent;box-shadow:none}
+.pan.demo-pressed{--button-art:url('../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-pressed.png');background:transparent;box-shadow:none}
+
+/* Preserve the approved circular pan shape instead of stretching a rectangular plate. */
+.pan:before{background:var(--paper);border:1px solid var(--line);box-shadow:0 2px 0 #dcc8a2;border-radius:50%}
+.pan:hover:before,.pan.demo-hover:before{background:#fff0d8}
+.pan:active:before,.pan.demo-pressed:before{background:#f6e5c9}

@@ -316,6 +316,7 @@ namespace FishSocialOverlay
             OverlayInteractionControls.Apply(BtnPanRight, "right");
             OverlayInteractionControls.Apply(ExitPondButton, "leave");
             OverlayInteractionControls.Apply(GroundbaitButton, "bait");
+            OverlayInteractionControls.Apply(CatchLeaveButton, "seat-leave");
             RegisterActionChrome();
             ApplyInitialViewport();
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
@@ -1404,19 +1405,20 @@ namespace FishSocialOverlay
             if (showDock)
             {
                 FishingToggleButton.Visibility = Visibility.Visible;
+                OverlayLocalization.SetContent(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.start_fishing", "钓鱼"));
                 if (reelPhase)
                 {
-                    OverlayLocalization.SetContent(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.stop_fishing", "收杆"));
+                    OverlayLocalization.SetToolTip(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.stop_fishing", "收杆"));
                     FishingToggleButton.IsEnabled = _canStopFishing && !busyStop;
                 }
                 else if (quotaBlocked)
                 {
-                    OverlayLocalization.SetContent(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.daily_time_exhausted", "今日已满"));
+                    OverlayLocalization.SetToolTip(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.daily_time_exhausted", "今日已满"));
                     FishingToggleButton.IsEnabled = false;
                 }
                 else
                 {
-                    OverlayLocalization.SetContent(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.start_fishing", "开始钓鱼"));
+                    OverlayLocalization.SetToolTip(FishingToggleButton, OverlayLocalization.Text("ui.fishing.overlay.button.start_fishing", "钓鱼"));
                     FishingToggleButton.IsEnabled = _canStartFishing && !busyStart && !busyLeave;
                 }
             }
@@ -1453,9 +1455,7 @@ namespace FishSocialOverlay
             if (GroundbaitStatusText != null)
                 GroundbaitStatusText.Visibility = Visibility.Collapsed;
 
-            var max = message.GroundbaitMaxStack > 0 ? message.GroundbaitMaxStack : 50;
-            var stack = Math.Max(0, message.GroundbaitStack);
-            var label = OverlayLocalization.Format("ui.fishing.overlay.button.groundbait_progress", (object)(stack), (object)(max));
+            var label = OverlayLocalization.Text("ui.fishing.overlay.fallback.button.groundbait", "打窝");
             OverlayLocalization.SetContent(GroundbaitButton, label);
             GroundbaitButton.ToolTip = OverlayInteractionControls.GroundbaitDetails(message);
             GroundbaitButton.FontSize = 12;
@@ -2075,7 +2075,7 @@ namespace FishSocialOverlay
         {
             foreach (var element in _chromeRestingOpacity.Keys)
                 ApplyActionChromeVisual(element, animate);
-            _scene?.SetOtherNameplatesShown(_actionChromeRevealed);
+            _scene?.SetActionChromeShown(_actionChromeRevealed);
         }
 
         void ApplyActionChromeVisual(FrameworkElement element, bool animate)

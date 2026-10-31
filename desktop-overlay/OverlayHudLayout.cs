@@ -935,7 +935,7 @@ namespace FishSocialOverlay
             if (!(element is Button button))
                 return;
 
-            // Bind the three authored HUD labels by control identity. Runtime
+            // Bind authored HUD labels by control identity. Runtime
             // status labels already carry their own translation plan.
             var label = widget.label;
             if (!FishSocial.Localization.LocalizationCatalog.IsLocalized(label))
@@ -945,6 +945,7 @@ namespace FishSocialOverlay
                     case "btn_groundbait": label = OverlayLocalization.Text("ui.fishing.hud.config_button.groundbait", label); break;
                     case "btn_fishing_toggle": label = OverlayLocalization.Text("ui.fishing.hud.config_button.start_fishing", label); break;
                     case "btn_catch_leave": label = OverlayLocalization.Text("ui.fishing.hud.config_button.leave_seat", label); break;
+                    case "btn_exit_pond": label = OverlayLocalization.Text("ui.fishing.overlay.fallback.button.exit_pond", "回家"); break;
                 }
             }
             OverlayLocalization.SetContent(button, label);
@@ -1201,7 +1202,8 @@ namespace FishSocialOverlay
             button.Foreground = CozyTheme.Ink;
             button.SetResourceReference(Control.PaddingProperty, "CozyButtonPadding");
             var role = widget.id == "btn_pan_left" ? "left" : widget.id == "btn_pan_right" ? "right"
-                : widget.id == "btn_exit_pond" ? "leave" : widget.id == "btn_groundbait" ? "bait" : null;
+                : widget.id == "btn_exit_pond" ? "leave" : widget.id == "btn_groundbait" ? "bait"
+                : widget.id == "btn_catch_leave" ? "seat-leave" : null;
             if (role != null) OverlayInteractionControls.Apply(button, role);
         }
 
@@ -1295,15 +1297,14 @@ namespace FishSocialOverlay
             {
                 if (!byId.TryGetValue(id, out var button))
                     continue;
-                StyleBottomButton(button, id == "btn_groundbait" ? 112 : BottomButtonWidth, null);
-                if (id == "btn_groundbait") button.h = 40;
+                StyleBottomButton(button, BottomButtonWidth, null);
                 button.parentId = "dock_fishing";
                 button.x = x;
                 button.y = 0;
                 x += button.w + gap;
             }
             dock.w = Math.Max(0, x - gap);
-            dock.h = Math.Max(BottomButtonHeight, 40);
+            dock.h = BottomButtonHeight;
             var left = byId.TryGetValue("dock_chat", out var chat) ? chat.x + chat.w + 12 : 0;
             var right = byId.TryGetValue("btn_exit_pond", out var exit) ? exit.x - 12 : CanvasWidth;
             dock.x = right - left >= dock.w
@@ -1319,8 +1320,7 @@ namespace FishSocialOverlay
             if (!byId.TryGetValue("btn_exit_pond", out var exit))
                 return;
             exit.parentId = null;
-            StyleBottomButton(exit, 112, OverlayLocalization.Text("ui.fishing.hud_layout.button.exit_pond", "退出鱼塘"));
-            exit.h = 40;
+            StyleBottomButton(exit, 88, OverlayLocalization.Text("ui.fishing.hud_layout.button.exit_pond", "回家"));
             exit.x = CanvasWidth - margin - exit.w;
             exit.y = BottomBaseline - exit.h;
             var top = exit.y;

@@ -89,6 +89,7 @@ namespace FishSocialOverlay
         readonly Image _groundbaitMarker;
         readonly ToolTip _groundbaitTip = new ToolTip();
         IpcMessage _groundbaitState;
+        bool _groundbaitEligible, _groundbaitChromeShown = true;
         string _groundbaitMarkerKey;
         readonly TextBlock _nickname;
         readonly Border _nameBadge;
@@ -258,7 +259,7 @@ namespace FishSocialOverlay
                 IsHitTestVisible = false,
                 Visibility = Visibility.Collapsed,
             };
-            _groundbaitMarker = new Image { Width = 44, Height = 44, Visibility = Visibility.Collapsed, IsHitTestVisible = true,
+            _groundbaitMarker = new Image { Width = OverlayGroundbaitChrome.Size, Height = OverlayGroundbaitChrome.Size, Visibility = Visibility.Collapsed, IsHitTestVisible = true,
                 Cursor = Cursors.Hand, Focusable = true, ToolTip = _groundbaitTip };
             ToolTipService.SetIsEnabled(_groundbaitMarker, true);
             _groundbaitMarker.MouseLeftButtonDown += (_, e) => { _groundbaitMarker.Focus(); RefreshGroundbaitMarker(); _groundbaitTip.IsOpen = !_groundbaitTip.IsOpen; e.Handled = true; };
@@ -657,6 +658,7 @@ namespace FishSocialOverlay
         {
             if (_disposed || _presentationVisible == visible) return;
             _presentationVisible = visible;
+            ApplyGroundbaitVisibility();
             _waterEffects.SetVisible(visible);
             _frameTimer.Suspended = !visible;
             if (visible) OverlayAnimationClock.Wake();
@@ -1217,6 +1219,9 @@ namespace FishSocialOverlay
             var hintX = hintSlotX + (hintSlotW - hintW) * 0.5;
             var hintY = hintSlotY + hintSlotH - hintH;
 
+            var markerX = OverlayGroundbaitChrome.Left(hitX);
+            var markerY = OverlayGroundbaitChrome.Top(hitY);
+            var markerShown = _groundbaitMarker.Visibility == Visibility.Visible;
             var minX = Math.Min(petX, Math.Min(nameX, Math.Min(bubbleX, Math.Min(hintX, hintSlotX))));
             var minY = Math.Min(petY, Math.Min(nameY, Math.Min(bubbleY, Math.Min(hintY, hintSlotY))));
             if (showRing)
@@ -1229,6 +1234,8 @@ namespace FishSocialOverlay
                 minX = Math.Min(minX, statusX);
                 minY = Math.Min(minY, statusY);
             }
+            if (markerShown) { minX = Math.Min(minX, markerX); minY = Math.Min(minY, markerY); }
+            markerX -= minX; markerY -= minY;
             petX -= minX;
             petY -= minY;
             ringX -= minX;
@@ -1260,12 +1267,11 @@ namespace FishSocialOverlay
                 width = Math.Max(width, statusX + statusW);
                 height = Math.Max(height, statusY + statusH);
             }
-            if (_groundbaitMarker.Visibility == Visibility.Visible)
+            if (markerShown)
             {
-                var markerX = petX + petW - 10;
-                var markerY = petY + petH * .42;
                 Canvas.SetLeft(_groundbaitMarker, markerX); Canvas.SetTop(_groundbaitMarker, markerY);
-                width = Math.Max(width, markerX + 44); height = Math.Max(height, markerY + 44);
+                width = Math.Max(width, markerX + OverlayGroundbaitChrome.Size);
+                height = Math.Max(height, markerY + OverlayGroundbaitChrome.Size);
             }
             _content.Width = width;
             _content.Height = height;
@@ -1306,13 +1312,28 @@ namespace FishSocialOverlay
         public void SetGroundbait(IpcMessage message, bool visible)
         {
             _groundbaitState = message;
-            var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            _groundbaitEligible = visible;
+            ApplyGroundbaitVisibility();
+            RefreshGroundbaitMarker();
+        }
+        public void SetGroundbaitChromeShown(bool shown)
+        {
+            _groundbaitChromeShown = shown;
+            ApplyGroundbaitVisibility();
+            UpdateStatusVisuals();
+        }
+        void ApplyGroundbaitVisibility()
+        {
+            var show = OverlayGroundbaitChrome.Show(_groundbaitEligible, _groundbaitState?.FishingPhase,
+                _groundbaitChromeShown, _presentationVisible);
+            var visibility = show ? Visibility.Visible : Visibility.Collapsed;
             var changed = _groundbaitMarker.Visibility != visibility;
             _groundbaitMarker.Visibility = visibility;
-            if (!visible) _groundbaitTip.IsOpen = false;
-            RefreshGroundbaitMarker();
-            SyncRefreshClock();
+            _groundbaitMarker.IsHitTestVisible = show;
+            if (!show) _groundbaitTip.IsOpen = false;
+            else RefreshGroundbaitMarker();
             if (changed) { UpdateStatusVisuals(); RelayoutCluster(); }
+            SyncRefreshClock();
         }
         void RefreshGroundbaitMarker()
         {
@@ -1333,7 +1354,8 @@ namespace FishSocialOverlay
 
         void UpdateStatusVisuals()
         {
-            var iconKind = _fishingAsleep || IsGroundbaitPhase(_fishingPhase) && _groundbaitMarker.Visibility == Visibility.Visible ? null : ResolveStatusIconKind(_fishingPhase);
+            var suppressGroundbait = IsGroundbaitPhase(_fishingPhase) && (_groundbaitState != null || !_groundbaitChromeShown);
+            var iconKind = _fishingAsleep || suppressGroundbait ? null : ResolveStatusIconKind(_fishingPhase);
             if (string.IsNullOrEmpty(iconKind))
             {
                 _statusIcon.Source = null;

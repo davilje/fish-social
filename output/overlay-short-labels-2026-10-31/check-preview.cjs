@@ -1,0 +1,55 @@
+const { chromium } = require('/Users/red/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async () => {
+  const browser = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
+  const page = await browser.newPage({ viewport: { width: 1500, height: 1100 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+  await page.goto('http://127.0.0.1:8772/现行预览.html?v=20261031-overlay-copy-04#overlay-controls');
+  await page.locator('#stage').waitFor();
+  const frame = page.frameLocator('#stage');
+  await frame.locator('#overlay-panel:not([hidden])').waitFor();
+  await frame.locator('.edition').filter({ hasText: '按钮精简 04' }).waitFor();
+  const expected = { 'fish-toggle': '钓鱼', 'add-bait': '打窝', 'leave-seat': '离席', leave: '回家' };
+  const checkLabels = async () => {
+    for (const [id, label] of Object.entries(expected)) assert.equal((await frame.locator(`#${id}`).innerText()).trim(), label);
+    assert.equal(await frame.locator('#add-bait small').count(), 0);
+  };
+  await checkLabels();
+  for (const state of ['active', 'working', 'empty', 'max', 'expired']) {
+    await frame.locator('#bait-state').selectOption(state);
+    await checkLabels();
+    assert.equal(await frame.locator('#add-bait').isDisabled(), ['working', 'max'].includes(state));
+    assert.equal(await frame.locator('#bait-marker').isVisible(), state === 'working');
+  }
+  await frame.locator('#bait-state').selectOption('working');
+  await frame.locator('#chrome-shown').uncheck();
+  assert.equal(await frame.locator('#bait-marker').isVisible(), false);
+  await frame.locator('#chrome-shown').check();
+  await frame.locator('#bait-state').selectOption('active');
+  await frame.locator('#fish-toggle').click();
+  await checkLabels();
+  assert.equal(await frame.locator('#fish-toggle').getAttribute('aria-pressed'), 'true');
+  assert.equal(await frame.locator('#fish-toggle').getAttribute('title'), '收竿');
+  await frame.locator('#fish-toggle').click();
+  assert.equal(await frame.locator('#fish-toggle').getAttribute('aria-pressed'), 'false');
+  await frame.locator('#add-bait').click();
+  await checkLabels();
+  await frame.locator('#bait-marker').waitFor({ state: 'hidden' });
+  await checkLabels();
+  assert.equal(await frame.locator('#bait-count').textContent(), '13 / 50');
+  await frame.locator('#leave-seat').click();
+  await checkLabels();
+  await frame.locator('#leave').click();
+  assert.equal(await frame.locator('#leave-confirm').isVisible(), true);
+  await frame.locator('#stay').click();
+  await frame.locator('#overlay-panel').screenshot({ path: `${__dirname}/overlay-short-labels.png` });
+  await frame.locator('[data-view="kit"]').click();
+  for (const label of Object.values(expected)) assert.equal(await frame.locator('.state-row > span:first-child').filter({ hasText: new RegExp(`^${label}$`) }).count(), 1);
+  assert.deepEqual(errors, []);
+  fs.writeFileSync(`${__dirname}/preview-check.json`, JSON.stringify({ passed: true, labels: expected, baitStates: 5, errors }, null, 2));
+  console.log('PASS: four labels, five bait states, fishing toggle, bait cycle, visibility, leave confirmation, samples; zero JS/resource errors');
+  await browser.close();
+})().catch(error => { console.error(error); process.exitCode = 1; });

@@ -86,31 +86,25 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <!-- Scoped to pan/leave/groundbait; the existing fishing, chat and home chrome keep their styles. -->
+    <!-- Pan controls keep their round shape; compact bottom actions use CozyButton paper. -->
     <Style x:Key="CozyInteractionButton" TargetType="Button" BasedOn="{StaticResource CozyButton}">
-        <Setter Property="Foreground" Value="#78866A" />
+        <Setter Property="Foreground" Value="{StaticResource CozyInk}" />
         <Setter Property="Template">
             <Setter.Value><ControlTemplate TargetType="Button">
                 <Grid Background="Transparent">
-                    <Border x:Name="Plate" CornerRadius="16" Background="#FFFAF0" BorderBrush="#DCCCAF" BorderThickness="1">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <local:CozyInteractionGlyph x:Name="Glyph" Width="22" Height="22" Foreground="{TemplateBinding Foreground}"
-                                Kind="{Binding Path=(local:CozyInteractionGlyph.Kind), RelativeSource={RelativeSource TemplatedParent}}" IsHitTestVisible="False" />
-                            <ContentPresenter x:Name="Caption" VerticalAlignment="Center" Margin="7,0,0,0" />
-                        </StackPanel>
+                    <Ellipse Fill="#DCC8A2" Margin="0,2,0,-2" IsHitTestVisible="False" />
+                    <Border x:Name="Plate" CornerRadius="22" Background="{StaticResource CozyCream}" BorderBrush="#E8D6B6" BorderThickness="1">
+                        <local:CozyInteractionGlyph Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Foreground="{TemplateBinding Foreground}" IsHitTestVisible="False"
+                            Kind="{Binding Path=(local:CozyInteractionGlyph.Kind), RelativeSource={RelativeSource TemplatedParent}}" />
                     </Border>
-                    <Border x:Name="Focus" CornerRadius="16" Margin="3" BorderBrush="#78866A" BorderThickness="1" Visibility="Collapsed" IsHitTestVisible="False" />
+                    <Border x:Name="Focus" CornerRadius="22" Margin="3" BorderBrush="{StaticResource CozyPeriwinkle}" BorderThickness="1" Visibility="Collapsed" IsHitTestVisible="False" />
                 </Grid>
                 <ControlTemplate.Triggers>
-                    <Trigger Property="Content" Value=""><Setter TargetName="Caption" Property="Visibility" Value="Collapsed" /><Setter TargetName="Plate" Property="CornerRadius" Value="22" /></Trigger>
-                    <DataTrigger Binding="{Binding Path=(local:CozyInteractionGlyph.Kind), RelativeSource={RelativeSource Self}}" Value="left"><Setter TargetName="Caption" Property="Visibility" Value="Collapsed" /><Setter TargetName="Plate" Property="CornerRadius" Value="22" /></DataTrigger>
-                    <DataTrigger Binding="{Binding Path=(local:CozyInteractionGlyph.Kind), RelativeSource={RelativeSource Self}}" Value="right"><Setter TargetName="Caption" Property="Visibility" Value="Collapsed" /><Setter TargetName="Plate" Property="CornerRadius" Value="22" /></DataTrigger>
-                    <DataTrigger Binding="{Binding Path=(local:CozyInteractionGlyph.Kind), RelativeSource={RelativeSource Self}}" Value="leave"><Setter TargetName="Plate" Property="Margin" Value="0,2" /></DataTrigger>
-                    <DataTrigger Binding="{Binding Path=(local:CozyInteractionGlyph.Kind), RelativeSource={RelativeSource Self}}" Value="bait"><Setter TargetName="Plate" Property="Margin" Value="0,2" /></DataTrigger>
-                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Plate" Property="Background" Value="#FFF0D8" /><Setter TargetName="Plate" Property="BorderBrush" Value="#BEAA88" /></Trigger>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Plate" Property="Background" Value="#FFF0D8" /></Trigger>
                     <Trigger Property="IsPressed" Value="True"><Setter TargetName="Plate" Property="Background" Value="#F6E5C9" /><Setter TargetName="Plate" Property="RenderTransform"><Setter.Value><TranslateTransform Y="1" /></Setter.Value></Setter></Trigger>
                     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Focus" Property="Visibility" Value="Visible" /></Trigger>
-                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Plate" Property="Opacity" Value="0.4" /></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="{DynamicResource CozyDisabledOpacity}" /></Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate></Setter.Value>
         </Setter>

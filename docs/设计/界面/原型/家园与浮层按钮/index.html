@@ -1,51 +1,51 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>家园与 Overlay · 交互按钮设计</title><link rel="stylesheet" href="style.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>家园与 Overlay · 交互按钮设计</title><link rel="preload" as="image" href="../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-default.png"><link rel="preload" as="image" href="../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-hover.png"><link rel="preload" as="image" href="../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-pressed.png"><link rel="preload" as="image" href="../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/surfaces/button-quiet-disabled.png"><link rel="stylesheet" href="style.css?v=20261031-overlay-copy-04"></head>
 <body>
-<header class="page-head"><div><p class="eyebrow">猫咪钓鱼手账 / 交互设计</p><h1>家园与 Overlay · 交互按钮</h1><p class="intro">奶油色标签、陶土色主按钮与简洁线描，延续当前房间的柔和画风。</p></div><span class="edition">已接入项目 <i></i> 可点击预览</span></header>
+<header class="page-head"><div><p class="eyebrow">猫咪钓鱼手账 / 交互设计</p><h1>家园与 Overlay · 交互按钮</h1><p class="intro">复用原手账纸面与暖棕笔迹，统一家园入口和鱼塘控件。</p></div><span class="edition">已接入项目 <i></i> 按钮精简 04</span></header>
 <nav class="tabs" aria-label="设计场景"><button data-view="home" aria-pressed="true">01 家园主界面</button><button data-view="overlay" aria-pressed="false">02 钓鱼 Overlay</button><button data-view="kit" aria-pressed="false">03 按钮与状态</button><label class="motion-control"><input id="reduce" type="checkbox"> 减少动效</label></nav>
 <main>
 <section id="home-panel" class="view-panel">
-<div class="section-head"><div><h2>家具旁的图标小标签</h2><p>平时只显示图标，悬停或聚焦时提示用途。</p></div><span class="hint">试试点击猫窝、猫碗和房门</span></div>
+<div class="section-head"><div><h2>家具旁的图标小标签</h2><p>只显示图标，悬停不出现文字；入口按家具位置对齐。</p></div><span class="hint">试试点击猫窝、猫碗和房门</span></div>
 <div class="scene-wrap home-wrap"><div class="home-scene" id="home-scene">
 <iframe id="home-base" src="../手账/index.html?roomView=home" title="现有完整主界面"></iframe>
 <div class="prop-glow" id="prop-glow" hidden></div>
 <div class="cat-note" id="cat-note" hidden></div>
-<button class="action home-action" data-action="rod" style="--x:748;--y:547" aria-label="查看钓竿"><span class="icon-disc" data-icon="rod"></span><span class="home-tip">查看钓竿</span></button>
-<button class="action home-action" data-action="tank" style="--x:1401;--y:550" aria-label="查看鱼缸"><span class="icon-disc" data-icon="tank"></span><span class="home-tip">查看鱼缸</span></button>
-<button class="action home-action" data-action="sleep" style="--x:327;--y:637" aria-label="去睡觉"><span class="icon-disc" data-icon="sleep"></span><span class="home-tip" id="sleep-label">去睡觉</span></button>
-<button class="action home-action" data-action="food" style="--x:1558;--y:646" aria-label="开饭啦"><span class="icon-disc" data-icon="food"></span><span class="home-tip" id="food-label">开饭啦</span></button>
+<button class="action home-action" data-action="rod" style="--x:754.07;--y:272.42" aria-label="查看钓竿"><span class="icon-disc" data-icon="rod"></span><span class="home-tip">查看钓竿</span></button>
+<button class="action home-action" data-action="tank" style="--x:1243.97;--y:276.18" aria-label="查看鱼缸"><span class="icon-disc" data-icon="tank"></span><span class="home-tip">查看鱼缸</span></button>
+<button class="action home-action" data-action="sleep" style="--x:190.61;--y:640.35" aria-label="去睡觉"><span class="icon-disc" data-icon="sleep"></span><span class="home-tip" id="sleep-label">去睡觉</span></button>
+<button class="action home-action" data-action="food" style="--x:1500;--y:658" aria-label="开饭啦"><span class="icon-disc" data-icon="food"></span><span class="home-tip" id="food-label">开饭啦</span></button>
 <button class="action home-action primary door-action" data-action="go" style="--x:1591;--y:470" aria-label="出门钓鱼"><span class="icon-disc" data-icon="door"></span><span class="home-tip">出门钓鱼</span></button>
 </div></div>
-<div class="design-notes"><p><b>只调整五个家园入口</b><span>沿用现有完整主界面，顶部栏与底部导航保留原有样式和操作。</span></p><p><b>图标与状态提示</b><span>小标签不显示常驻文字；睡眠、进食用状态圆点，悬停查看用途。</span></p><p><b>Overlay 使用已认可方案</b><span>对应左右移动、离开和打窝控件单独展示。</span></p></div>
-<details class="runtime-shots"><summary>查看 Unity 项目实际截图</summary><p>五个图标入口已接入。主界面中的猫咪可全屏拖动，靠近边缘时保留完整体型。</p><img src="runtime-home.webp" alt="Unity 实际主界面：五个家具图标标签" loading="lazy"><img src="runtime-sleep.webp" alt="Unity 实际主界面：猫咪回窝睡觉" loading="lazy"></details>
+<div class="design-notes"><p><b>只调整五个家园入口</b><span>沿用现有完整主界面，顶部栏与底部导航保留原有样式和操作。</span></p><p><b>图标与状态提示</b><span>小标签仅用图标和状态圆点；出门图标加大、加粗，使用手账深橘棕色。</span></p><p><b>Overlay 使用已认可方案</b><span>左右移动保留圆钮；底部操作恢复原有纸质小按钮。</span></p></div>
+<details class="runtime-shots"><summary>查看 Unity 项目实际截图</summary><p>五个图标入口已接入。主界面中的猫咪可全屏拖动，靠近边缘时保留完整体型。</p><img src="runtime-home.webp?v=20261031-overlay-copy-04" alt="Unity 实际主界面：五个家具图标标签" loading="lazy"><img src="runtime-sleep.webp?v=20261031-overlay-copy-04" alt="Unity 实际主界面：猫咪回窝睡觉" loading="lazy"></details>
 </section>
 <section id="overlay-panel" class="view-panel" hidden>
-<div class="section-head"><div><h2>把湖面留给风景</h2><p>移动轻一点，离开说清楚；打窝的操作与效果分开表达。</p></div><label class="state-select">打窝状态 <select id="bait-state"><option value="active">生效中</option><option value="working">正在打窝</option><option value="empty">未打窝</option><option value="max">已达上限</option><option value="expired">已到期</option></select></label></div>
+<div class="section-head"><div><h2>把湖面留给风景</h2><p>底部操作保持原有样式，打窝标记只在投料过程中显示。</p></div><label class="state-select"><input id="chrome-shown" type="checkbox" checked> 显示控件</label><label class="state-select">打窝状态 <select id="bait-state"><option value="active">生效中</option><option value="working">正在打窝</option><option value="empty">未打窝</option><option value="max">已达上限</option><option value="expired">已到期</option></select></label></div>
 <div class="scene-wrap overlay-wrap"><div class="overlay-scene" id="overlay-scene">
 <div class="pond-art" id="pond-art"></div><div class="scene-shade"></div>
 <div class="location-note">湖畔慢时光 <span>场景示意 · 可左右移动视野</span></div>
 <button class="pan action" id="pan-left" aria-label="向左移动视野"><span data-icon="left"></span><span class="pan-tip">向左看</span></button>
 <button class="pan action" id="pan-right" aria-label="向右移动视野"><span data-icon="right"></span><span class="pan-tip">向右看</span></button>
-<div class="fisher" id="fisher"><img src="../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/illustrations/cat-fishing.png" alt="钓鱼的小猫"><div class="bait-marker" id="bait-marker" tabindex="0" role="button" aria-label="查看打窝效果" aria-expanded="false"><span class="marker-art" data-icon="bait"></span><span class="marker-count" id="marker-count">12</span><span class="marker-note" id="marker-note">窝料生效中</span></div></div>
+<div class="fisher" id="fisher"><img src="../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/illustrations/cat-fishing.png" alt="钓鱼的小猫"><div class="bait-marker" id="bait-marker" hidden tabindex="0" role="button" aria-label="查看打窝效果" aria-expanded="false"><span class="marker-art" data-icon="bait"></span><span class="marker-count" id="marker-count">12</span><span class="marker-note" id="marker-note">窝料生效中</span></div></div>
 <div class="bait-popover" id="bait-popover" hidden><div><span data-icon="bait"></span><strong id="bait-title">窝料生效中</strong><button id="close-bait" aria-label="关闭打窝详情">×</button></div><p>当前窝料 <b id="bait-count">12 / 50</b></p><p id="bait-time">剩余时间 <b>12:48</b></p><small id="bait-help">叠加数量与剩余时间分别展示。</small></div>
 <div class="chat-peek"><span data-icon="chat"></span><span>小溪：今天的风刚刚好。</span><span>⌃</span></div>
-<div class="fishing-dock"><button class="action primary" id="fish-toggle"><span data-icon="rod"></span><span>开始钓鱼</span></button><button class="action" id="add-bait"><span data-icon="bait"></span><span id="bait-button-label">打窝 <small>12/50</small></span></button></div>
-<button class="action leave" id="leave"><span data-icon="leave"></span><span>离开鱼塘</span></button>
+<div class="fishing-dock"><button class="action primary" id="fish-toggle"><span data-icon="rod"></span><span>钓鱼</span></button><button class="action" id="add-bait"><span data-icon="bait"></span><span id="bait-button-label">打窝</span></button><button class="action" id="leave-seat"><span data-icon="seat-leave"></span><span>离席</span></button></div>
+<button class="action leave" id="leave"><span data-icon="leave"></span><span>回家</span></button>
 <div class="leave-confirm" id="leave-confirm" hidden><strong>要回家了吗？</strong><p>收好钓具，带上今天的收获。</p><div><button class="action" id="stay">再待一会</button><button class="action primary" id="confirm-leave">收竿回家</button></div></div>
 <div class="viewport-dots" id="viewport-dots" aria-label="视野位置"><i></i><i class="current"></i><i></i></div>
 <div class="overlay-toast" id="overlay-toast" hidden></div>
 </div></div>
-<div class="design-notes"><p><b>左右箭头 44 × 44</b><span>贴边居中，悬停展示“向左看 / 向右看”，到达边界淡出禁用。</span></p><p><b>离开用完整语义</b><span>门与向外箭头，保留文字；确认后收竿回家。</span></p><p><b>打窝标记不抢鱼讯</b><span>窝料袋 + 颗粒 + 水纹，鼠标悬停或点击才展开详情。</span></p></div>
+<div class="design-notes"><p><b>左右箭头 44 × 44</b><span>贴边居中，悬停展示“向左看 / 向右看”，到达边界淡出禁用。</span></p><p><b>离席、离塘分清楚</b><span>离席使用座椅与向外箭头；离塘保留门与向外箭头，恢复 88 × 36 的纸质按钮。</span></p><p><b>打窝标记不抢鱼讯</b><span>仅投料中显示，靠近猫咪头侧；随控件隐藏，投料结束立即收起。</span></p></div>
 </section>
 <section id="kit-panel" class="view-panel" hidden>
-<div class="section-head"><div><h2>一套笔触，四种反馈</h2><p>20–24 px 线描图标，图文间距 8 px，44 px 起的点击区域。</p></div><span class="hint">状态样例可与场景对照查看</span></div>
+<div class="section-head"><div><h2>一套笔触，四种反馈</h2><p>家园采用纯图标标签；Overlay 底部保持原有紧凑纸质按钮。</p></div><span class="hint">状态样例可与场景对照查看</span></div>
 <div id="state-board" class="state-board"></div>
-<div class="marker-board"><h3>打窝标记</h3><div id="marker-samples"></div><p>状态由图形、文字和数量共同区分。绿色表示效果生效，陶土色表示正在投料；环形缺口只表示投料过程，不表示窝料层数。</p></div>
-<div class="spec-grid"><article><h3>尺寸与留白</h3><p>家园图标标签 48 × 48 px<br>家园图标 24 × 24 px，无常驻文字<br>左右移动 44 × 44 DIP<br>离开鱼塘 112 × 40 DIP，热区高 44 DIP<br>打窝标记 38 × 38 DIP，热区 44 × 44 DIP</p></article><article><h3>动效与输入</h3><p>悬停 120 ms 底色淡变<br>按下下移 1 px，不缩放弹跳<br>键盘聚焦显示 2 px 外环<br>减少动效时关闭循环与位移动效<br>弹层支持 Escape 关闭</p></article><article><h3>使用规则</h3><p>家具拖动时暂隐标签，松手后跟随家具<br>打开手账时家园标签统一隐藏<br>Overlay 仅热区拦截鼠标，其余区域穿透<br>钓鱼进行中，“离开”先确认再收竿<br>本页为交互提案，使用演示状态</p></article></div>
+<div class="marker-board"><h3>打窝标记</h3><div id="marker-samples"></div><p>只有正在投料时出现深橘棕色标记，其余状态不显示角色旁图标。底部按钮仅显示“打窝”，数量在详情中查看。</p></div>
+<div class="spec-grid"><article><h3>尺寸与留白</h3><p>家园图标标签 48 × 48 px<br>家园图标 24 × 24 px，出门 28 × 28 px<br>悬停不显示文字<br>左右移动 44 × 44 DIP<br>底部操作 88 × 36 DIP<br>投料标记 36 × 36 DIP</p></article><article><h3>动效与输入</h3><p>悬停切换原手账纸面高亮<br>按下下移 1 px，不缩放弹跳<br>键盘聚焦显示 2 px 外环<br>减少动效时关闭循环与位移动效<br>弹层支持 Escape 关闭</p></article><article><h3>使用规则</h3><p>家具拖动时暂隐标签，松手后跟随家具<br>打开手账时家园标签统一隐藏<br>Overlay 仅热区拦截鼠标，其余区域穿透<br>钓鱼进行中，“离开”先确认再收竿<br>样式已接入项目，本页使用演示数据</p></article></div>
 </section>
 </main>
 <div class="dialog-shade" id="inspect-dialog" hidden><section class="inspect-card" role="dialog" aria-modal="true" aria-labelledby="inspect-title"><button class="inspect-close" aria-label="关闭">×</button><span class="inspect-icon" id="inspect-icon"></span><p class="eyebrow">交互示意</p><h2 id="inspect-title"></h2><p id="inspect-description"></p><button class="action primary inspect-close">回到小屋</button></section></div>
 <footer>家园与 Overlay 按钮设计 · 使用当前房间与项目内场景素材 · 点击仅切换演示状态</footer>
-<script src="app.js"></script>
+<script src="app.js?v=20261031-overlay-copy-04"></script>
 </body></html>

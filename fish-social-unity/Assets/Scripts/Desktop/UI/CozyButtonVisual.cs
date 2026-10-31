@@ -488,16 +488,24 @@ namespace FishSocial.Desktop
                 var r = plate.rectTransform;
                 r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one;
                 r.offsetMin = Vector2.one; r.offsetMax = -Vector2.one;
-                var primary = compactAction == 4;
-                Color fill = primary ? new Color32(184,116,83,255) : new Color32(255,250,240,255);
-                Color stroke = primary ? new Color32(168,101,70,255) : new Color32(220,204,175,255);
-                if (highlighted) fill = primary ? new Color32(171,103,72,255) : new Color32(255,240,216,255);
-                if (depressed) fill = primary ? new Color32(156,91,63,255) : new Color32(246,229,201,255);
-                if (dimmed) { fill.a = .45f; stroke.a = .45f; }
-                CozyCssGraphic.EnsureWash(plate.transform, "ButtonWash", fill, 14f, 1f, stroke);
+                // Use the same authored paper as journal/Overlay buttons, including its
+                // warm edge and shadow. A flat wash hid that surface in the first pass.
+                var wash = plate.transform.Find("ButtonWash");
+                if (wash != null) wash.gameObject.SetActive(false);
+                var path = SurfacePath(state);
+                if (paintedSurface != path || plate.sprite == null)
+                {
+                    CozyJournalTheme.ApplySurface(plate, path, false);
+                    paintedSurface = path;
+                }
+                plate.color = new Color(1f, 1f, 1f, dimmed ? .45f : 1f);
                 if (icon != null) icon.enabled = false;
                 var glyph = transform.Find("HomeIcon")?.GetComponent<RawImage>();
-                if (glyph != null) glyph.color = primary ? Color.white : (Color)new Color32(120,134,106,255);
+                if (glyph != null)
+                {
+                    var ink = compactAction == 4 ? new Color32(212,111,34,255) : (Color32)CatTheme.Ink;
+                    glyph.color = ink;
+                }
                 var caption = transform.Find("Label");
                 if (caption != null) caption.gameObject.SetActive(false);
             }

@@ -36,6 +36,7 @@ namespace FishSocialOverlay
             new Dictionary<string, OverlayPetActor>();
         OverlayPetActor _ownActor;
         bool _otherNameplatesShown = true;
+        bool _actionChromeShown = true;
         const long PredictedSeatTimeoutMs = 3000;
         IpcMessage _lastMessage;
         string _predictedSpotId;
@@ -169,11 +170,21 @@ namespace FishSocialOverlay
             _backgroundImage.Visibility = Visibility.Collapsed;
         }
 
+        public void SetActionChromeShown(bool shown)
+        {
+            _actionChromeShown = shown;
+            SetOtherNameplatesShown(shown);
+            _ownActor?.SetGroundbaitChromeShown(shown);
+        }
+
         public void SetOtherNameplatesShown(bool shown)
         {
             _otherNameplatesShown = shown;
             foreach (var actor in _others.Values)
+            {
                 actor.SetNameplateShown(shown);
+                actor.SetGroundbaitChromeShown(shown);
+            }
         }
 
         public void CancelAllHovers()
@@ -608,6 +619,7 @@ namespace FishSocialOverlay
             _ownActor.WaterGeometryChanged += UpdateActorVisibility;
             _ownActor.AudioMarkerPublished += marker => AudioMarkerPublished?.Invoke(marker);
             _ownActor.SetPresentationVisible(_windowVisible);
+            _ownActor.SetGroundbaitChromeShown(_actionChromeShown);
             _actorLayer.Children.Add(_ownActor);
         }
 
@@ -675,6 +687,7 @@ namespace FishSocialOverlay
                     _actorLayer.Children.Add(actor);
                     _others[key] = actor;
                     actor.SetNameplateShown(_otherNameplatesShown);
+                    actor.SetGroundbaitChromeShown(_actionChromeShown);
                 }
                 else
                 {

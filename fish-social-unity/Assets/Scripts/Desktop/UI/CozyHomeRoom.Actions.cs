@@ -7,10 +7,11 @@ namespace FishSocial.Desktop
     {
         void EnsureHomeActions()
         {
-            equipment = HomeAction(equipment, "Equipment", "rod", 748, 547, "ui.home.room.button.equipment", "我的钓具");
-            aquarium = HomeAction(aquarium, "Aquarium", "tank", 1401, 550, "ui.home.room.button.showcase", "鱼缸 · 展示柜");
-            sleep = HomeAction(sleep, "Sleep", "sleep", 327, 637, "ui.home.room.button.sleep", "睡觉");
-            food = HomeAction(food, "Food", "food", 1558, 646, "ui.home.room.button.feed", "吃饭");
+            // User annotations are button centers on the 1672x941 painting; y below is the top (center minus 24).
+            equipment = HomeAction(equipment, "Equipment", "rod", 754.07f, 272.42f, "ui.home.room.button.equipment", "我的钓具");
+            aquarium = HomeAction(aquarium, "Aquarium", "tank", 1243.97f, 276.18f, "ui.home.room.button.showcase", "鱼缸 · 展示柜");
+            sleep = HomeAction(sleep, "Sleep", "sleep", 190.61f, 640.35f, "ui.home.room.button.sleep", "睡觉");
+            food = HomeAction(food, "Food", "food", 1500, 658, "ui.home.room.button.feed", "吃饭");
             goFishing = HomeAction(goFishing, "GoFishing", "door", 1591, 470, "ui.home.room.button.go_fishing", "出门钓鱼");
             sleep.onClick.RemoveAllListeners(); sleep.onClick.AddListener(SleepInBed);
             food.onClick.RemoveAllListeners(); food.onClick.AddListener(() => Feed());
@@ -28,6 +29,9 @@ namespace FishSocial.Desktop
             var glyph = r.Find("HomeIcon")?.GetComponent<RawImage>();
             if (glyph == null) glyph = Rect(r, "HomeIcon", 12, 12, 24, 24).gameObject.AddComponent<RawImage>();
             glyph.texture = Resources.Load<Texture2D>("Desktop/Theme/Cozy/interaction-icons/" + icon);
+            var iconSize = name == "GoFishing" ? 28f : 24f;
+            glyph.rectTransform.anchoredPosition = new Vector2((48 - iconSize) / 2, -(48 - iconSize) / 2);
+            glyph.rectTransform.sizeDelta = new Vector2(iconSize, iconSize);
             glyph.raycastTarget = false;
             var tag = button.GetComponent<CozyHomeActionTag>() ?? button.gameObject.AddComponent<CozyHomeActionTag>();
             tag.Configure(this, key, fallback);

@@ -19,6 +19,7 @@ public static class OverlayGroundbaitTests
         Run("hidden and low cadence scheduling catch up without replay", PausedScheduling);
         Run("cancel removes the scheduled callback", Cancel);
         Run("invalid segments and durations fail early", InvalidMetadata);
+        Run("marker follows phase, seat and chrome visibility", MarkerVisibility);
         Console.WriteLine("PASS: " + _passed + "/" + _passed + " groundbait timeline tests");
     }
 
@@ -31,6 +32,16 @@ public static class OverlayGroundbaitTests
         var frame = timeline.Sample(now);
         Check(!frame.Complete && frame.Index == index && Math.Abs(frame.RemainingMs - remaining) < .0001,
             "unexpected frame at " + now + ": " + frame.Index + "/" + frame.RemainingMs);
+    }
+
+    static void MarkerVisibility()
+    {
+        foreach (var phase in new[] { null, "", "seated", "casting", "waiting", "hooked", "idle" })
+            Check(!OverlayGroundbaitChrome.Show(true, phase, true, true), "marker persisted after pouring: " + phase);
+        Check(OverlayGroundbaitChrome.Show(true, "groundbaiting", true, true), "pouring marker missing");
+        Check(!OverlayGroundbaitChrome.Show(false, "groundbaiting", true, true), "unseated marker shown");
+        Check(!OverlayGroundbaitChrome.Show(true, "groundbaiting", false, true), "chrome hide lost on network update");
+        Check(!OverlayGroundbaitChrome.Show(true, "groundbaiting", true, false), "hidden window kept marker");
     }
 
     static void Boundaries()

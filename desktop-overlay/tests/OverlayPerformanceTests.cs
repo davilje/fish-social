@@ -45,6 +45,7 @@ public static class OverlayPerformanceTests
         Run("combined and dual masks preserve rendered alpha", OverlayStaticPerformanceTests.MaskParity);
         Run("chat dock opens, resizes and remains hittable", ChatDockInteraction);
         Run("journal bite progress uses vector paper and ends on deadline", JournalHookProgress);
+        Run("groundbait marker follows phase, cat geometry and HUD visibility", OverlayGroundbaitNativeTests.MarkerLifecycle);
         Run("groundbait follows real phase and latest network destination", OverlayGroundbaitNativeTests.PhaseLifecycle);
         Run("groundbait supports short repeats, interruption and disposal", OverlayGroundbaitNativeTests.RepeatAndInterrupt);
         Run("groundbait preserves hidden cache and resumes after skin changes", OverlayGroundbaitNativeTests.HiddenAndPetChange);
