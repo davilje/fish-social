@@ -222,7 +222,10 @@
     if (!drag || drag.id !== e.pointerId) return;
     const p = stagePoint(e);
     if (Math.hypot(p.x - drag.start.x, p.y - drag.start.y) > 5) drag.moved = true;
-    if (drag.moved) place({ x: p.x + drag.offset.x, y: p.y + drag.offset.y });
+    if (drag.moved) {
+      const { w, h } = dimensions();
+      place({ x: Math.max(w / 2, Math.min(1672 - w / 2, p.x + drag.offset.x)), y: Math.max(h, Math.min(941, p.y + drag.offset.y)) }, true);
+    }
   });
   function finishDrag(e) {
     if (!drag || drag.id !== e.pointerId) return;
@@ -230,7 +233,7 @@
     if (actor.hasPointerCapture(e.pointerId)) actor.releasePointerCapture(e.pointerId);
     drag = null;
     actor.dataset.dragged = moved ? 'true' : 'false';
-    if (moved) { interact(); caption('小橘的位置已调整；活动范围限定在中央地板，避开家具和底部导航。'); }
+    if (moved) { interact(); caption('小橘的位置已调整；可拖到整个主界面，屏幕边缘会保留完整体型。'); }
   }
   actor.addEventListener('pointerup', finishDrag);
   actor.addEventListener('pointercancel', e => { finishDrag(e); });

@@ -79,6 +79,40 @@ namespace FishSocial.Desktop.Tests
             CozyMotion.SetReduced(true);room.MoveTo(new Vector2(900,720));Assert.AreEqual(new Vector2(900,720),room.Feet);
             room.Advance(13);Assert.AreEqual(new Vector2(900,720),room.Feet);
         }
+        [TestCase(-200, -200)]
+        [TestCase(2200, -200)]
+        [TestCase(-200, 1400)]
+        [TestCase(2200, 1400)]
+        public void DragReachesScreenCornersWithoutClipping(float x, float y)
+        {
+            var e = Pointer(new Vector2(835, 650));
+            room.OnBeginDrag(e);
+            e.position = Pointer(new Vector2(x, y)).position;
+            room.OnDrag(e); room.OnEndDrag(e);
+            var actor = (RectTransform)room.transform.Find("Companion");
+            Assert.That(actor.anchoredPosition.x, Is.InRange(-.01f, 1672 - actor.rect.width + .01f));
+            Assert.That(-actor.anchoredPosition.y, Is.InRange(-.01f, 941 - actor.rect.height + .01f));
+            Assert.That(room.Feet, Is.EqualTo(room.ClampDragFeet(new Vector2(x, y + 92))));
+            Assert.That(room.Feet.x < 580 || room.Feet.x > 1070, Is.True);
+            Assert.IsTrue(actor.GetComponent<Canvas>().overrideSorting, "The cat must stay reachable above header and dock");
+            Assert.Greater(actor.GetComponent<Canvas>().sortingOrder, shell.GetComponent<Canvas>().sortingOrder);
+        }
+        [Test] public void AllFiveHomeActionsRetainRoutesAndHideWithPages()
+        {
+            var fishing = 0;
+            room.Bind(null, null, () => fishing++); room.Bind(null, null, () => fishing++);
+            room.transform.Find("GoFishing").GetComponent<Button>().onClick.Invoke();
+            Assert.AreEqual(1, fishing);
+            foreach (var name in new[] { "Equipment", "Aquarium", "Sleep", "Food", "GoFishing" })
+            {
+                var node = room.transform.Find(name);
+                Assert.AreEqual(new Vector2(48,48), ((RectTransform)node).sizeDelta);
+                Assert.IsNotNull(node.Find("HomeIcon").GetComponent<RawImage>().texture);
+                var label = node.Find("Label"); if (label != null) Assert.IsFalse(label.gameObject.activeSelf);
+                room.SetPageOpen(true); Assert.IsFalse(node.gameObject.activeSelf);
+                room.SetPageOpen(false); Assert.IsTrue(node.gameObject.activeSelf);
+            }
+        }
         [Test] public void PagesAndPauseSuspendCompanionWhilePreservingPosition()
         {
             room.SetPageOpen(true);room.Advance(60);Assert.IsFalse(room.IsSitting);
@@ -95,13 +129,15 @@ namespace FishSocial.Desktop.Tests
         }
         [TestCase(835,760,"Floor")]
         [TestCase(835,650,"Companion")]
-        [TestCase(585,505,"Equipment")]
+        [TestCase(748,571,"Equipment")]
         public void NativeRaycastReachesRoomInsteadOfLegacyHome(float x,float y,string expected)
         {
             var hits=new System.Collections.Generic.List<RaycastResult>();
             // BaseRaycaster registers with EventSystem during Play Mode. Exercise its native
             // geometry directly here, after rendering the actual saved canvas in Edit Mode.
-            shell.GetComponent<GraphicRaycaster>().Raycast(Pointer(new Vector2(x,y)),hits);
+            foreach (var raycaster in shell.GetComponentsInChildren<GraphicRaycaster>())
+                raycaster.Raycast(Pointer(new Vector2(x,y)),hits);
+            hits.Sort((a,b) => { var order = b.sortingOrder.CompareTo(a.sortingOrder); return order != 0 ? order : b.depth.CompareTo(a.depth); });
             var graphic=room.transform.Find(expected).GetComponent<Graphic>();
             Assert.IsNotEmpty(hits,"depth="+graphic.depth+", canvas="+graphic.canvas+", screen="+Screen.width+"x"+Screen.height);
             Assert.AreEqual(expected,hits[0].gameObject.name);
@@ -179,7 +215,9 @@ namespace FishSocial.Desktop.Tests
         public void DirectPropArtReceivesNativeRaycast(float x,float y,string expected)
         {
             var hits=new System.Collections.Generic.List<RaycastResult>();
-            shell.GetComponent<GraphicRaycaster>().Raycast(Pointer(new Vector2(x,y)),hits);
+            foreach (var raycaster in shell.GetComponentsInChildren<GraphicRaycaster>())
+                raycaster.Raycast(Pointer(new Vector2(x,y)),hits);
+            hits.Sort((a,b) => { var order = b.sortingOrder.CompareTo(a.sortingOrder); return order != 0 ? order : b.depth.CompareTo(a.depth); });
             Assert.IsNotEmpty(hits);Assert.AreEqual(expected,hits[0].gameObject.name);
         }
         [Test] public void AllRegisteredCatsHaveAnActualSleepSprite()

@@ -6,7 +6,7 @@
     "zh-CN": "zhCN",
     "en-US": "enUS"
   },
-  "generatedAt": "2026-10-30T01:32:32+08:00",
+  "generatedAt": "2026-10-31T18:03:22+08:00",
   "runtimeBinding": "Unity/WPF通过语义Key读取运行时目录；设置即时切换zh-CN/en-US，保存FishSocial.Language，IPC同步Overlay。编辑JSON或导入Excel后运行export-runtime.py刷新发布资源。",
   "keyPolicy": "全小写英文点分层、段内snake_case：ui|game|server.模块.页面或实体.用途。正式Key由key-registry.json登记，独立于中英文措辞与行号；旧Key仅作迁移别名。新增未命名来源使用unreviewed命名空间，审查后登记正式Key。",
   "debugTextPolicy": {
@@ -17,8 +17,8 @@
   },
   "stats": {
     "filesScanned": 911,
-    "entries": 1891,
-    "sourceOccurrences": 2650,
+    "entries": 1895,
+    "sourceOccurrences": 2656,
     "excludedDebugSources": 370,
     "debugExclusionReasons": {
       "Debug与日志输出": 61,
@@ -39,7 +39,7 @@
       "HUD配置": 3,
       "关联服务端提示": 136,
       "游戏数据文案": 388,
-      "运行时界面文本": 1066,
+      "运行时界面文本": 1070,
       "预制体与场景初始文本": 298
     },
     "skipped": {
@@ -30933,6 +30933,14 @@
           "location": "Build",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.home.room.button.equipment\", \"我的钓具\")"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/CozyHomeRoom.Actions.cs",
+          "line": 10,
+          "column": 1,
+          "location": "HomeAction",
+          "kind": "代码常量",
+          "expression": "HomeAction"
         }
       ],
       "enUS": "Gear"
@@ -30953,6 +30961,14 @@
           "location": "Build",
           "kind": "代码常量",
           "expression": "DesktopLocalization.Text(\"ui.home.room.button.showcase\", \"鱼缸 · 展示柜\")"
+        },
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/CozyHomeRoom.Actions.cs",
+          "line": 11,
+          "column": 1,
+          "location": "HomeAction",
+          "kind": "代码常量",
+          "expression": "HomeAction"
         }
       ],
       "enUS": "Showcase"
@@ -46888,9 +46904,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 2222,
+          "line": 2295,
           "column": 11,
-          "location": "document[115]/MonoBehaviour/m_Text GameObject=628769293361069662",
+          "location": "document[119]/MonoBehaviour/m_Text GameObject=628769293361069662",
           "kind": "Unity序列化"
         }
       ],
@@ -46907,9 +46923,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 4101,
+          "line": 4174,
           "column": 11,
-          "location": "document[214]/MonoBehaviour/m_Text GameObject=937060280111407637",
+          "location": "document[218]/MonoBehaviour/m_Text GameObject=937060280111407637",
           "kind": "Unity序列化"
         }
       ],
@@ -46926,9 +46942,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 6746,
+          "line": 8102,
           "column": 11,
-          "location": "document[350]/MonoBehaviour/m_Text GameObject=6355980058116899317",
+          "location": "document[417]/MonoBehaviour/m_Text GameObject=6355980058116899317",
           "kind": "Unity序列化"
         }
       ],
@@ -46945,9 +46961,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 7433,
+          "line": 9075,
           "column": 14,
-          "location": "document[380]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
+          "location": "document[463]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
         }
       ],
@@ -46964,9 +46980,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 8385,
+          "line": 10027,
           "column": 14,
-          "location": "document[414]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
+          "location": "document[497]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
         }
       ],
@@ -46983,9 +46999,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 8642,
+          "line": 10284,
           "column": 14,
-          "location": "document[422]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
+          "location": "document[505]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
         }
       ],
@@ -47002,9 +47018,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 9076,
+          "line": 10718,
           "column": 14,
-          "location": "document[438]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
+          "location": "document[521]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
         }
       ],
@@ -47021,9 +47037,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 9649,
+          "line": 11291,
           "column": 14,
-          "location": "document[460]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
+          "location": "document[543]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
         }
       ],
@@ -47040,9 +47056,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 10099,
+          "line": 11741,
           "column": 14,
-          "location": "document[476]/PrefabInstance/m_Modification/m_Modifications/30/value [propertyPath=m_Text]",
+          "location": "document[559]/PrefabInstance/m_Modification/m_Modifications/30/value",
           "kind": "Unity序列化"
         }
       ],
@@ -47059,9 +47075,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 10786,
+          "line": 12428,
           "column": 14,
-          "location": "document[500]/PrefabInstance/m_Modification/m_Modifications/31/value [propertyPath=m_Text]",
+          "location": "document[583]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
         }
       ],
@@ -47078,9 +47094,9 @@
       "sources": [
         {
           "file": "fish-social-unity/Assets/Resources/Desktop/Prefabs/DesktopShell.prefab",
-          "line": 11079,
+          "line": 12721,
           "column": 14,
-          "location": "document[508]/PrefabInstance/m_Modification/m_Modifications/40/value [propertyPath=m_Text]",
+          "location": "document[591]/PrefabInstance/m_Modification/m_Modifications/40/value",
           "kind": "Unity序列化"
         }
       ],
@@ -49047,6 +49063,93 @@
           "column": 1,
           "location": "document[420]/PrefabInstance/m_Modification/m_Modifications/31/value",
           "kind": "Unity序列化"
+        }
+      ]
+    },
+    {
+      "key": "ui.home.room.button.sleep",
+      "module": "家园与桌宠",
+      "category": "运行时界面文本",
+      "sourceText": "睡觉",
+      "zhCN": "睡觉",
+      "enUS": "Sleep",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/CozyHomeRoom.Actions.cs",
+          "line": 12,
+          "column": 1,
+          "location": "HomeAction",
+          "kind": "代码常量",
+          "expression": "\"ui.home.room.button.sleep\""
+        }
+      ]
+    },
+    {
+      "key": "ui.home.room.button.feed",
+      "module": "家园与桌宠",
+      "category": "运行时界面文本",
+      "sourceText": "吃饭",
+      "zhCN": "吃饭",
+      "enUS": "Eat",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/CozyHomeRoom.Actions.cs",
+          "line": 13,
+          "column": 1,
+          "location": "HomeAction",
+          "kind": "代码常量",
+          "expression": "\"ui.home.room.button.feed\""
+        }
+      ]
+    },
+    {
+      "key": "ui.home.room.button.go_fishing",
+      "module": "家园与桌宠",
+      "category": "运行时界面文本",
+      "sourceText": "出门钓鱼",
+      "zhCN": "出门钓鱼",
+      "enUS": "Go fishing",
+      "placeholders": [],
+      "note": "",
+      "sources": [
+        {
+          "file": "fish-social-unity/Assets/Scripts/Desktop/UI/CozyHomeRoom.Actions.cs",
+          "line": 14,
+          "column": 1,
+          "location": "HomeAction",
+          "kind": "代码常量",
+          "expression": "\"ui.home.room.button.go_fishing\""
+        }
+      ]
+    },
+    {
+      "key": "ui.fishing.overlay.groundbait.details",
+      "module": "钓鱼与鱼塘",
+      "category": "运行时界面文本",
+      "sourceText": "打窝 {0}/{1}\n剩余时间 {2}\n剩余咬钩 {3} 次\n咬钩加成 {4:P0}\n体型加成 {5:P0}",
+      "zhCN": "打窝 {0}/{1}\n剩余时间 {2}\n剩余咬钩 {3} 次\n咬钩加成 {4:P0}\n体型加成 {5:P0}",
+      "enUS": "Groundbait {0}/{1}\nTime remaining {2}\nBites remaining {3}\nBite bonus {4:P0}\nSize bonus {5:P0}",
+      "placeholders": [
+        "{0}",
+        "{1}",
+        "{2}",
+        "{3}",
+        "{4:P0}",
+        "{5:P0}"
+      ],
+      "note": "",
+      "sources": [
+        {
+          "file": "desktop-overlay/CozyInteractionGlyph.cs",
+          "line": 83,
+          "column": 1,
+          "location": "GroundbaitDetails",
+          "kind": "代码常量",
+          "expression": "\"ui.fishing.overlay.groundbait.details\""
         }
       ]
     }

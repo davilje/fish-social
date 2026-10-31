@@ -86,6 +86,10 @@ namespace FishSocialOverlay
         readonly ImageSource[] _restSourceImages = new ImageSource[9];
         bool _fishingAsleep;
         readonly Image _statusIcon;
+        readonly Image _groundbaitMarker;
+        readonly ToolTip _groundbaitTip = new ToolTip();
+        IpcMessage _groundbaitState;
+        string _groundbaitMarkerKey;
         readonly TextBlock _nickname;
         readonly Border _nameBadge;
         readonly TextBlock _speechLabel;
@@ -254,6 +258,15 @@ namespace FishSocialOverlay
                 IsHitTestVisible = false,
                 Visibility = Visibility.Collapsed,
             };
+            _groundbaitMarker = new Image { Width = 44, Height = 44, Visibility = Visibility.Collapsed, IsHitTestVisible = true,
+                Cursor = Cursors.Hand, Focusable = true, ToolTip = _groundbaitTip };
+            ToolTipService.SetIsEnabled(_groundbaitMarker, true);
+            _groundbaitMarker.MouseLeftButtonDown += (_, e) => { _groundbaitMarker.Focus(); RefreshGroundbaitMarker(); _groundbaitTip.IsOpen = !_groundbaitTip.IsOpen; e.Handled = true; };
+            _groundbaitMarker.KeyDown += (_, e) =>
+            {
+                if (e.Key == Key.Escape) { _groundbaitTip.IsOpen = false; e.Handled = true; }
+                else if (e.Key == Key.Enter || e.Key == Key.Space) { RefreshGroundbaitMarker(); _groundbaitTip.IsOpen = !_groundbaitTip.IsOpen; e.Handled = true; }
+            };
             _ringBg = new Image
             {
                 Width = RingSize,
@@ -349,6 +362,7 @@ namespace FishSocialOverlay
             _content.Children.Add(_hookRingImage);
             _content.Children.Add(_hookRing);
             _content.Children.Add(_statusIcon);
+            _content.Children.Add(_groundbaitMarker);
             _content.Children.Add(_stage);
             _content.Children.Add(_hitCatcher);
             _content.Children.Add(_hintAnchor);
@@ -362,6 +376,7 @@ namespace FishSocialOverlay
             Panel.SetZIndex(_hookRingImage, 12);
             Panel.SetZIndex(_hookRing, 12);
             Panel.SetZIndex(_statusIcon, 14);
+            Panel.SetZIndex(_groundbaitMarker, 15);
             Panel.SetZIndex(_speechBadge, 18);
             Panel.SetZIndex(_hintBadge, 19);
             Children.Add(_content);
@@ -645,7 +660,7 @@ namespace FishSocialOverlay
             _waterEffects.SetVisible(visible);
             _frameTimer.Suspended = !visible;
             if (visible) OverlayAnimationClock.Wake();
-            if (!visible) { _frameRequest?.Cancel(); CancelTooltip(); }
+            if (!visible) { _frameRequest?.Cancel(); CancelTooltip(); _groundbaitTip.IsOpen = false; }
             else { ShowFrame(); UpdateStatusVisuals(); }
             SyncRefreshClock();
         }
@@ -653,7 +668,7 @@ namespace FishSocialOverlay
         void SyncRefreshClock()
         {
             if (_refreshTimer == null) return;
-            if (!_disposed && _presentationVisible && (IsRingPhase(_fishingPhase) || _hoverShown))
+            if (!_disposed && _presentationVisible && (IsRingPhase(_fishingPhase) || _hoverShown || _groundbaitMarker.Visibility == Visibility.Visible))
             { _refreshTimer.Start(); OverlayAnimationClock.Wake(); }
             else _refreshTimer.Stop();
         }
@@ -818,6 +833,7 @@ namespace FishSocialOverlay
             AudioMarkerPublished = null;
             if (_disposed) return;
             _disposed = true;
+            _groundbaitTip.IsOpen = false;
             OverlayLocalization.LanguageChanged -= OnLanguageChanged;
             _waterEffects.Dispose();
             _stateVersion++;
@@ -843,6 +859,7 @@ namespace FishSocialOverlay
             _frames = Array.Empty<ImageSource>();
             ClearLayerSources();
             _image.Source = null;
+            _groundbaitTip.IsOpen = false;
             _statusIcon.Source = null;
             _ringBg.Source = null;
             _hookRingImage.Source = null;
@@ -1243,6 +1260,13 @@ namespace FishSocialOverlay
                 width = Math.Max(width, statusX + statusW);
                 height = Math.Max(height, statusY + statusH);
             }
+            if (_groundbaitMarker.Visibility == Visibility.Visible)
+            {
+                var markerX = petX + petW - 10;
+                var markerY = petY + petH * .42;
+                Canvas.SetLeft(_groundbaitMarker, markerX); Canvas.SetTop(_groundbaitMarker, markerY);
+                width = Math.Max(width, markerX + 44); height = Math.Max(height, markerY + 44);
+            }
             _content.Width = width;
             _content.Height = height;
             Width = width;
@@ -1279,9 +1303,37 @@ namespace FishSocialOverlay
                 UpdateHookRing();
         }
 
+        public void SetGroundbait(IpcMessage message, bool visible)
+        {
+            _groundbaitState = message;
+            var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            var changed = _groundbaitMarker.Visibility != visibility;
+            _groundbaitMarker.Visibility = visibility;
+            if (!visible) _groundbaitTip.IsOpen = false;
+            RefreshGroundbaitMarker();
+            SyncRefreshClock();
+            if (changed) { UpdateStatusVisuals(); RelayoutCluster(); }
+        }
+        void RefreshGroundbaitMarker()
+        {
+            if (_groundbaitState == null || _groundbaitMarker.Visibility != Visibility.Visible) return;
+            var m = _groundbaitState;
+            var working = IsGroundbaitPhase(m.FishingPhase);
+            var active = m.GroundbaitStack > 0 && (m.GroundbaitExpiresAt <= 0 || m.GroundbaitExpiresAt > NowMs());
+            var key = m.GroundbaitStack + ":" + working + ":" + active;
+            if (key != _groundbaitMarkerKey)
+            {
+                _groundbaitMarker.Source = CozyInteractionGlyph.GroundbaitMarker(m.GroundbaitStack, working, active);
+                _groundbaitMarkerKey = key;
+            }
+            _groundbaitTip.Content = OverlayInteractionControls.GroundbaitDetails(m);
+            System.Windows.Automation.AutomationProperties.SetName(_groundbaitMarker,
+                OverlayLocalization.Format("ui.fishing.overlay.button.groundbait_progress", Math.Max(0,m.GroundbaitStack), m.GroundbaitMaxStack > 0 ? m.GroundbaitMaxStack : 50));
+        }
+
         void UpdateStatusVisuals()
         {
-            var iconKind = _fishingAsleep ? null : ResolveStatusIconKind(_fishingPhase);
+            var iconKind = _fishingAsleep || IsGroundbaitPhase(_fishingPhase) && _groundbaitMarker.Visibility == Visibility.Visible ? null : ResolveStatusIconKind(_fishingPhase);
             if (string.IsNullOrEmpty(iconKind))
             {
                 _statusIcon.Source = null;
@@ -1391,6 +1443,7 @@ namespace FishSocialOverlay
             if (_hookRing.Visibility == Visibility.Visible ||
                 _hookRingImage.Visibility == Visibility.Visible)
                 UpdateHookRing();
+            RefreshGroundbaitMarker();
             if (_hoverShown)
                 RefreshOpenHover();
         }

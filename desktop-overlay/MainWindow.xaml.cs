@@ -312,6 +312,10 @@ namespace FishSocialOverlay
             DpiChanged += (sender, args) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded,
                 new Action(() => _edgeVignette?.ApplySize(_scenePan.ViewportWidth, _scenePan.ViewportHeight)));
             _scenePan.AttachButtons(BtnPanLeft, BtnPanRight);
+            OverlayInteractionControls.Apply(BtnPanLeft, "left");
+            OverlayInteractionControls.Apply(BtnPanRight, "right");
+            OverlayInteractionControls.Apply(ExitPondButton, "leave");
+            OverlayInteractionControls.Apply(GroundbaitButton, "bait");
             RegisterActionChrome();
             ApplyInitialViewport();
             ApplySceneContentSize(_scene.ContentWidth, _scene.ContentHeight, resetPan: true);
@@ -1453,7 +1457,8 @@ namespace FishSocialOverlay
             var stack = Math.Max(0, message.GroundbaitStack);
             var label = OverlayLocalization.Format("ui.fishing.overlay.button.groundbait_progress", (object)(stack), (object)(max));
             OverlayLocalization.SetContent(GroundbaitButton, label);
-            GroundbaitButton.FontSize = 11;
+            GroundbaitButton.ToolTip = OverlayInteractionControls.GroundbaitDetails(message);
+            GroundbaitButton.FontSize = 12;
             GroundbaitButton.Padding = new Thickness(0);
 
             if (showSideButtons)

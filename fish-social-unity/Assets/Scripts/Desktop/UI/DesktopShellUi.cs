@@ -322,7 +322,8 @@ namespace FishSocial.Desktop
             CozyMotion.EnsureBobber(canvasGo.transform.Find("MainRoot/Nav"));
             _homeRoom = CozyHomeRoom.Build(_mainRoot.transform);
             _homeRoom.Bind(() => ShowMainPanel(ShellPanelId.Equipment),
-                () => OpenProfileHub(DesktopProfileHubPanel.HubTab.Showcase));
+                () => OpenProfileHub(DesktopProfileHubPanel.HubTab.Showcase),
+                () => ShowMainPanel(ShellPanelId.WorldMap));
             var corner = _mainRoot.transform.Find("CozyCornerCat");
             if (corner != null) corner.gameObject.SetActive(false);
             return true;

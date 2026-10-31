@@ -23,7 +23,9 @@ namespace FishSocial.Desktop
         public enum Activity { Free, GoingToBed, Sleeping, Rolling, Pouring, GoingToFood, Eating }
         [SerializeField] RectTransform actor;
         [SerializeField] RawImage artwork;
+        Canvas actorCanvas;
         [SerializeField] Button equipment, aquarium;
+        [SerializeField] Button sleep, food, goFishing;
         [SerializeField] Text bubble;
         Vector2 feet = new Vector2(835, 742), target = new Vector2(835, 742), dragOffset;
         float inactive, wander, feedback;
@@ -73,6 +75,7 @@ namespace FishSocial.Desktop
                 EnsureQuietButton(existing.equipment);
                 EnsureQuietButton(existing.aquarium);
                 existing.EnsurePropInteractions();
+                existing.EnsureHomeActions();
                 existing.RefreshSkin();
                 existing.Present();
                 return existing;
@@ -114,6 +117,7 @@ namespace FishSocial.Desktop
             note.gameObject.SetActive(false);
             room.RefreshSkin();room.Present();
             room.EnsurePropInteractions();
+            room.EnsureHomeActions();
             return room;
         }
         // Saved shells retain their objects and bindings while the manifest owns the art layout.
@@ -164,6 +168,11 @@ namespace FishSocial.Desktop
             bedFront.texture = Resources.Load<Texture2D>(ResourceRoot + "room-base");
             bedFront.gameObject.SetActive(IsSleeping && !pageOpen);
             EnsureAnimationLayers();
+            actorCanvas = actor.GetComponent<Canvas>();
+            if (actorCanvas == null) actorCanvas = actor.gameObject.AddComponent<Canvas>();
+            var parentCanvas = GetComponentInParent<Canvas>();
+            actorCanvas.sortingOrder = parentCanvas != null ? parentCanvas.sortingOrder + 1 : 21;
+            if (actor.GetComponent<GraphicRaycaster>() == null) actor.gameObject.AddComponent<GraphicRaycaster>();
         }
         public CozyRoomProp Prop(string id)
         { return transform.Find(DesktopLocalization.Concat("Props/", id))?.GetComponent<CozyRoomProp>(); }
@@ -285,10 +294,11 @@ namespace FishSocial.Desktop
             CatTheme.StyleButton(button);
             return button;
         }
-        public void Bind(Action openEquipment, Action openAquarium)
+        public void Bind(Action openEquipment, Action openAquarium, Action openFishing = null)
         {
             equipment.onClick.RemoveAllListeners();aquarium.onClick.RemoveAllListeners();
             equipment.onClick.AddListener(()=>openEquipment?.Invoke());aquarium.onClick.AddListener(()=>openAquarium?.Invoke());
+            goFishing.onClick.RemoveAllListeners(); goFishing.onClick.AddListener(() => openFishing?.Invoke());
         }
         public void SetPageOpen(bool value)
         {
@@ -296,6 +306,7 @@ namespace FishSocial.Desktop
             CancelPropDrags();
             pageOpen=value;dragging=false;pointer=int.MinValue;target=feet;inactive=wander=feedback=0;
             actor.gameObject.SetActive(!value);equipment.gameObject.SetActive(!value);aquarium.gameObject.SetActive(!value);
+            sleep.gameObject.SetActive(!value); food.gameObject.SetActive(!value); goFishing.gameObject.SetActive(!value);
             transform.Find("Floor").gameObject.SetActive(!value);bubble.transform.parent.gameObject.SetActive(false);
             var group = transform.Find("Props").GetComponent<CanvasGroup>();
             if (group != null) group.blocksRaycasts = !value;
@@ -362,6 +373,10 @@ namespace FishSocial.Desktop
         void Present()
         {
             if(actor==null)return;
+            // A cat placed over the header or dock must stay visible and draggable.
+            // Bed/feeding scenes retain their authored furniture occlusion.
+            if (actorCanvas != null) actorCanvas.overrideSorting =
+                (activity == Activity.Free || activity == Activity.Rolling) && ClampFeet(feet) != feet;
             var mapped=sitting?mappedSit:mappedRest;
             var size=sitting?new Vector2(176,204):new Vector2(172,246);
             if (IsSleeping && sleepingPose != null)
@@ -412,9 +427,17 @@ namespace FishSocial.Desktop
         public void OnPointerClick(PointerEventData e)
         { if(!CanInteract||e.button!=PointerEventData.InputButton.Left||e.dragging)return;if(ActorHit(e))Respond();else MoveTo(PointerPosition(e)); }
         public void OnBeginDrag(PointerEventData e)
-        {if(!CanInteract||e.button!=PointerEventData.InputButton.Left||!ActorHit(e))return;CancelAnimation();activity=Activity.Free;dragging=true;pointer=e.pointerId;dragOffset=feet-PointerPosition(e);inactive=wander=0;sitting=false;}
+        {if(!CanInteract||e.button!=PointerEventData.InputButton.Left||!ActorHit(e))return;CancelAnimation();activity=Activity.Free;dragging=true;pointer=e.pointerId;dragOffset=feet-PointerPosition(e);inactive=wander=0;sitting=false;Present();}
         public void OnDrag(PointerEventData e)
-        {if(!CanInteract||!dragging||pointer!=e.pointerId)return;feet=target=ClampFeet(PointerPosition(e)+dragOffset);Present();}
+        {if(!CanInteract||!dragging||pointer!=e.pointerId)return;feet=target=ClampDragFeet(PointerPosition(e)+dragOffset);Present();}
+        public Vector2 ClampDragFeet(Vector2 position)
+        {
+            var screen = ((RectTransform)transform).rect.size;
+            var size = actor.rect.size;
+            var halfWidth = Mathf.Min(size.x / 2, screen.x / 2);
+            return new Vector2(Mathf.Clamp(position.x, halfWidth, screen.x - halfWidth),
+                Mathf.Clamp(position.y, Mathf.Min(size.y, screen.y), screen.y));
+        }
         public void OnEndDrag(PointerEventData e) {if(pointer!=e.pointerId)return;dragging=false;pointer=int.MinValue;target=feet;}
         void Update()
         {

@@ -27,6 +27,16 @@ namespace FishSocialOverlay
             if (Cache.TryGetValue(key, out var cached))
                 return cached;
 
+            if (string.Equals(key, "groundbait", StringComparison.OrdinalIgnoreCase))
+            {
+                var group = new DrawingGroup();
+                using (var dc = group.Open())
+                {
+                    dc.DrawRectangle(Brushes.Transparent, null, new Rect(0,0,24,24));
+                    CozyInteractionGlyph.Draw(dc,"bait",CozyInteractionGlyph.Ink);
+                }
+                group.Freeze(); var bag = new DrawingImage(group); bag.Freeze(); Cache[key] = bag; return bag;
+            }
             var icon = string.Equals(key, "hooked", StringComparison.OrdinalIgnoreCase) ? "hook" :
                 string.Equals(key, "groundbait", StringComparison.OrdinalIgnoreCase) ? "leaf" : "rod";
             var loaded = CozyTheme.LoadInkIcon(CozyTheme.IconPath(icon));

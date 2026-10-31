@@ -106,11 +106,11 @@
                 <Canvas x:Name="HoverLayer" Width="960" Height="560" Panel.ZIndex="50" IsHitTestVisible="False" />
                 <Canvas x:Name="ChatBubbleLayer" Width="960" Height="560" Panel.ZIndex="55" IsHitTestVisible="False" />
                 <!-- Z120: 场景横移箭头（HUD JSON 可覆盖位置；默认隐藏，宽场景显示） -->
-                <Button x:Name="BtnPanLeft" Padding="0"
-                        Canvas.Left="8"
-                        Canvas.Top="248"
-                        Width="36"
-                        Height="64"
+                <Button x:Name="BtnPanLeft" Style="{StaticResource CozyInteractionButton}" local:CozyInteractionGlyph.Kind="left" Padding="0"
+                        Canvas.Left="16"
+                        Canvas.Top="247"
+                        Width="44"
+                        Height="44"
                         Panel.ZIndex="120"
                         Content="向左"
                         FontSize="10"
@@ -118,11 +118,11 @@
                         Background="Transparent"
                         Foreground="{StaticResource CozyInk}"
                         BorderThickness="0"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.pan_left" />
-                <Button x:Name="BtnPanRight" Padding="0"
-                        Canvas.Left="916"
-                        Canvas.Top="248"
-                        Width="36"
-                        Height="64"
+                <Button x:Name="BtnPanRight" Style="{StaticResource CozyInteractionButton}" local:CozyInteractionGlyph.Kind="right" Padding="0"
+                        Canvas.Left="900"
+                        Canvas.Top="247"
+                        Width="44"
+                        Height="44"
                         Panel.ZIndex="120"
                         Content="向右"
                         FontSize="10"
@@ -217,11 +217,11 @@
                                 Margin="0,0,8,0"
                                 Visibility="Collapsed"
                                 Click="OpenMain_OnClick" />
-                        <Button x:Name="ExitPondButton" local:CozyTheme.Icon="cozy/icons-light/lock.png"
+                        <Button x:Name="ExitPondButton" Style="{StaticResource CozyInteractionButton}" local:CozyInteractionGlyph.Kind="leave" local:CozyTheme.Icon="cozy/icons-light/lock.png"
                                 Content="退出鱼塘"
                                 FontSize="13"
-                                Width="88"
-                                Height="36"
+                                Width="112"
+                                Height="40"
                                 Click="ExitPond_OnClick"  local:OverlayLocalization.Key="ui.fishing.overlay.fallback.button.exit_pond" />
                     </StackPanel>
                 </StackPanel>
@@ -231,10 +231,10 @@
                             Canvas.Left="370"
                             Canvas.Bottom="12"
                             Panel.ZIndex="100">
-                    <Button x:Name="GroundbaitButton" local:CozyTheme.Icon="cozy/icons-light/leaf.png"
+                    <Button x:Name="GroundbaitButton" Style="{StaticResource CozyInteractionButton}" local:CozyInteractionGlyph.Kind="bait" local:CozyTheme.Icon="cozy/icons-light/leaf.png"
                             Content="打窝"
-                            Width="88"
-                            Height="36"
+                            Width="112"
+                            Height="40"
                             FontSize="13"
                             Margin="0,0,8,0"
                             Visibility="Collapsed"

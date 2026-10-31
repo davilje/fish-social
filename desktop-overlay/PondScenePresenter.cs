@@ -631,6 +631,7 @@ namespace FishSocialOverlay
             if (ownEnvelope != null && (ownEnvelope.PondId != message.PondId || ownEnvelope.SpotId != message.OwnSpotId ||
                 ownEnvelope.ActorId != message.OwnPlayerId && ownEnvelope.ActorId != message.OwnUserId)) ownEnvelope = null;
             _ownActor.SetFishingPresentation(predicted ? null : ownEnvelope, true, message.FishingEffectsQuality);
+            _ownActor.SetGroundbait(message, !predicted && !string.IsNullOrEmpty(ownSpotId));
             _ownActor.Apply(
                 message.OwnNickname,
                 predicted ? "sit" : message.PetVisualState,

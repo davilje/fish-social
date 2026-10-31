@@ -1200,6 +1200,9 @@ namespace FishSocialOverlay
             CozyTheme.SetIconSize(button, widget.iconSize > 0 ? widget.iconSize : 16);
             button.Foreground = CozyTheme.Ink;
             button.SetResourceReference(Control.PaddingProperty, "CozyButtonPadding");
+            var role = widget.id == "btn_pan_left" ? "left" : widget.id == "btn_pan_right" ? "right"
+                : widget.id == "btn_exit_pond" ? "leave" : widget.id == "btn_groundbait" ? "bait" : null;
+            if (role != null) OverlayInteractionControls.Apply(button, role);
         }
 
         static void ApplyCozyResourceMapping(OverlayHudDocument document)
@@ -1292,14 +1295,15 @@ namespace FishSocialOverlay
             {
                 if (!byId.TryGetValue(id, out var button))
                     continue;
-                StyleBottomButton(button, BottomButtonWidth, null);
+                StyleBottomButton(button, id == "btn_groundbait" ? 112 : BottomButtonWidth, null);
+                if (id == "btn_groundbait") button.h = 40;
                 button.parentId = "dock_fishing";
                 button.x = x;
                 button.y = 0;
                 x += button.w + gap;
             }
             dock.w = Math.Max(0, x - gap);
-            dock.h = BottomButtonHeight;
+            dock.h = Math.Max(BottomButtonHeight, 40);
             var left = byId.TryGetValue("dock_chat", out var chat) ? chat.x + chat.w + 12 : 0;
             var right = byId.TryGetValue("btn_exit_pond", out var exit) ? exit.x - 12 : CanvasWidth;
             dock.x = right - left >= dock.w
@@ -1315,13 +1319,14 @@ namespace FishSocialOverlay
             if (!byId.TryGetValue("btn_exit_pond", out var exit))
                 return;
             exit.parentId = null;
-            StyleBottomButton(exit, 88, OverlayLocalization.Text("ui.fishing.hud_layout.button.exit_pond", "退出鱼塘"));
+            StyleBottomButton(exit, 112, OverlayLocalization.Text("ui.fishing.hud_layout.button.exit_pond", "退出鱼塘"));
+            exit.h = 40;
             exit.x = CanvasWidth - margin - exit.w;
             exit.y = BottomBaseline - exit.h;
             var top = exit.y;
             if (byId.TryGetValue("btn_debug_gameplay", out var debug))
             {
-                StyleBottomButton(debug, exit.w, "Debug");
+                StyleBottomButton(debug, 88, "Debug");
                 debug.x = exit.x;
                 debug.y = top - gap - debug.h;
                 top = debug.y;
@@ -1404,13 +1409,13 @@ namespace FishSocialOverlay
             if (!byId.TryGetValue(id, out var button))
                 return;
             var right = CanvasWidth - button.x - button.w;
-            button.w = 64;
-            button.h = 36;
+            button.w = button.h = 44;
+            button.x = id == "btn_pan_right" ? CanvasWidth - 16 - 44 : 16;
+            button.y = 247;
             button.contentAlign = "center";
             button.contentVAlign = "center";
             button.verticalAlign = "center";
-            if (id == "btn_pan_right")
-                button.x = CanvasWidth - right - button.w;
+
         }
 
         static Thickness ComponentPadding(double[] padding)

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>家园与 Overlay · 交互按钮设计</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<header class="page-head"><div><p class="eyebrow">猫咪钓鱼手账 / 交互设计</p><h1>家园与 Overlay · 交互按钮</h1><p class="intro">奶油色标签、陶土色主按钮与简洁线描，延续当前房间的柔和画风。</p></div><span class="edition">设计提案 <i></i> 可点击体验</span></header>
+<header class="page-head"><div><p class="eyebrow">猫咪钓鱼手账 / 交互设计</p><h1>家园与 Overlay · 交互按钮</h1><p class="intro">奶油色标签、陶土色主按钮与简洁线描，延续当前房间的柔和画风。</p></div><span class="edition">已接入项目 <i></i> 可点击预览</span></header>
 <nav class="tabs" aria-label="设计场景"><button data-view="home" aria-pressed="true">01 家园主界面</button><button data-view="overlay" aria-pressed="false">02 钓鱼 Overlay</button><button data-view="kit" aria-pressed="false">03 按钮与状态</button><label class="motion-control"><input id="reduce" type="checkbox"> 减少动效</label></nav>
 <main>
 <section id="home-panel" class="view-panel">
@@ -18,6 +18,7 @@
 <button class="action home-action primary door-action" data-action="go" style="--x:1591;--y:470" aria-label="出门钓鱼"><span class="icon-disc" data-icon="door"></span><span class="home-tip">出门钓鱼</span></button>
 </div></div>
 <div class="design-notes"><p><b>只调整五个家园入口</b><span>沿用现有完整主界面，顶部栏与底部导航保留原有样式和操作。</span></p><p><b>图标与状态提示</b><span>小标签不显示常驻文字；睡眠、进食用状态圆点，悬停查看用途。</span></p><p><b>Overlay 使用已认可方案</b><span>对应左右移动、离开和打窝控件单独展示。</span></p></div>
+<details class="runtime-shots"><summary>查看 Unity 项目实际截图</summary><p>五个图标入口已接入。主界面中的猫咪可全屏拖动，靠近边缘时保留完整体型。</p><img src="runtime-home.webp" alt="Unity 实际主界面：五个家具图标标签" loading="lazy"><img src="runtime-sleep.webp" alt="Unity 实际主界面：猫咪回窝睡觉" loading="lazy"></details>
 </section>
 <section id="overlay-panel" class="view-panel" hidden>
 <div class="section-head"><div><h2>把湖面留给风景</h2><p>移动轻一点，离开说清楚；打窝的操作与效果分开表达。</p></div><label class="state-select">打窝状态 <select id="bait-state"><option value="active">生效中</option><option value="working">正在打窝</option><option value="empty">未打窝</option><option value="max">已达上限</option><option value="expired">已到期</option></select></label></div>

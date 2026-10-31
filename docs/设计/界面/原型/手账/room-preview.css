@@ -14,7 +14,7 @@
 #stage.room-mode .room-only { display: block; }
 #stage.room-mode #corner-cat {
   right: auto; bottom: auto; width: 172px; height: 246px;
-  left: 749px; top: 484px; z-index: 1; pointer-events: auto;
+  left: 749px; top: 484px; z-index: 11; pointer-events: auto;
   transform-origin: 50% 100%; cursor: grab; touch-action: none;
 }
 #stage.room-mode #corner-cat:active { cursor: grabbing; }
@@ -44,3 +44,5 @@
 #room-tackle { left: 510px; top: 480px; }
 #room-aquarium { left: 1140px; top: 640px; }
 #stage.room-mode.room-page-open .room-only, #stage.room-mode.room-page-open #corner-cat { visibility: hidden; pointer-events: none; }
+
+#stage.room-mode #corner-cat.is-sleeping { z-index: 1; }

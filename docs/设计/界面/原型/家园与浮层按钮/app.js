@@ -107,7 +107,7 @@ function setBait(state,{keepCount=false}={}){
 }
 $('bait-state').onchange=()=>setBait($('bait-state').value);
 function toggleBait(open=!$('bait-popover').hidden){$('bait-popover').hidden=open;$('bait-marker').setAttribute('aria-expanded',!open);}
-$('bait-marker').onclick=()=>toggleBait();
+$('bait-marker').onclick=()=>toggleBait(false);
 $('bait-marker').onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBait();}};
 $('bait-marker').onpointerenter=()=>toggleBait(false);
 $('close-bait').onclick=()=>{toggleBait(true);$('bait-marker').focus();};

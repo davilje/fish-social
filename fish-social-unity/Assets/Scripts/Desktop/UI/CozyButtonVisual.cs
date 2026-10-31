@@ -93,7 +93,7 @@ namespace FishSocial.Desktop
             tabs.Sort((a,b) => b.transform.position.y.CompareTo(a.transform.position.y));
             for(var i=0;i<tabs.Count;i++) tabs[i].BeginIndexEntrance(i);
         }
-        bool WorkspaceMotion => GetComponent<CozyWorkspaceInteraction>()?.isActiveAndEnabled == true;
+        bool WorkspaceMotion => compactAction >= 3 || GetComponent<CozyWorkspaceInteraction>()?.isActiveAndEnabled == true;
         bool IsNavigation => transform.parent != null && transform.parent.name == "Nav";
         bool IsPrimary => primarySurface || (!string.IsNullOrEmpty(surfaceNormal) && surfaceNormal.Contains("button-primary"));
         bool IsIndex => !string.IsNullOrEmpty(surfaceNormal) && surfaceNormal.Contains("tab-index");
@@ -133,6 +133,15 @@ namespace FishSocial.Desktop
         public void SetCompactAction(bool destructive)
         {
             compactAction = destructive ? 2 : 1;
+            primarySurface = false;
+            flat = false;
+            expandSurfaceInsets = false;
+            if (initialized) RefreshState();
+        }
+
+        public void SetHomeIconTag(bool primary)
+        {
+            compactAction = primary ? 4 : 3;
             primarySurface = false;
             flat = false;
             expandSurfaceInsets = false;
@@ -473,7 +482,26 @@ namespace FishSocial.Desktop
                 color.a = 0f;
             var state = !interactable ? "disabled" : IsIndex ? selected ? "selected" : "default"
                 : depressed ? "pressed" : selected ? "selected" : highlighted ? "hover" : "default";
-            if (compactAction != 0)
+            if (compactAction >= 3)
+            {
+                expandSurfaceInsets = false;
+                var r = plate.rectTransform;
+                r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one;
+                r.offsetMin = Vector2.one; r.offsetMax = -Vector2.one;
+                var primary = compactAction == 4;
+                Color fill = primary ? new Color32(184,116,83,255) : new Color32(255,250,240,255);
+                Color stroke = primary ? new Color32(168,101,70,255) : new Color32(220,204,175,255);
+                if (highlighted) fill = primary ? new Color32(171,103,72,255) : new Color32(255,240,216,255);
+                if (depressed) fill = primary ? new Color32(156,91,63,255) : new Color32(246,229,201,255);
+                if (dimmed) { fill.a = .45f; stroke.a = .45f; }
+                CozyCssGraphic.EnsureWash(plate.transform, "ButtonWash", fill, 14f, 1f, stroke);
+                if (icon != null) icon.enabled = false;
+                var glyph = transform.Find("HomeIcon")?.GetComponent<RawImage>();
+                if (glyph != null) glyph.color = primary ? Color.white : (Color)new Color32(120,134,106,255);
+                var caption = transform.Find("Label");
+                if (caption != null) caption.gameObject.SetActive(false);
+            }
+            else if (compactAction != 0)
             {
                 expandSurfaceInsets = false;
                 var plateRect = plate.rectTransform;
@@ -541,6 +569,7 @@ namespace FishSocial.Desktop
             if (plateOffset == null) plateOffset = plate.gameObject.AddComponent<CozyGraphicOffset>();
             var pose = IsIndex ? EnsureIndexMotion().Current : new CozyIndexMotion.Pose { Scale = motionScale, Alpha = 1 };
             var displacement = (CozyMotion.Reduced ? Vector2.zero : motionOffset) + Vector2.right * pose.X;
+            if (compactAction >= 3 && depressed) displacement += Vector2.down;
             var scale = IsIndex ? pose.Scale : motionScale;
             if (IsIndex) RefreshIndexGraphic(pose, interactable);
             if (compactAction == 0 && (IsIndex || IsPrimary || IsNavigation))
