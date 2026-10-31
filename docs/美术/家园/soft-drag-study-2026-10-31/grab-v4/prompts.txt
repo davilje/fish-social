@@ -1,0 +1,59 @@
+# V4 source image prompts
+Generated with the built-in ImageGen tool. Originals retained; PNG frames are connected-component slices.
+
+## grabV4Prompt
+Production animation pose atlas, TRUE TRANSPARENT background. Use ONLY the LEFT orange cat from the reference images. Same identity, face, fur markings, brush style, dark outlines, big head and cute feline proportions. Exactly SIX complete orange cats arranged in a neat 3-column x 2-row grid with wide transparent gutters, NO text, NO labels, NO shadows, NO props or human hands. All six HEADS have identical physical size; do not resize each cat to fit its cell. Draw the full tail and all visible paws without cropping. Exactly four limbs per cat. Large square canvas 1536x1536 if possible.
+
+TOP ROW: three successive stages of lifting this cat by its BODY MIDDLE (an invisible support under the belly). Head on viewer LEFT, hips and tail on viewer RIGHT, body horizontal. The central waist is the highest body point.
+TOP LEFT: initial partial lift from crouching: mid-back lifted a little, front paws still almost on ground, head at left tilting down, hind legs bent at right.
+TOP CENTER: mid-lift: waist higher, neck/head and pelvis on either side starting to sag, all four paws dangling down, torso curves as a soft upside-down U.
+TOP RIGHT: relaxed fully lifted over the middle of belly: waist/back at TOP CENTER of cat, head and chest droop distinctly DOWN on LEFT, hips, two hind paws and tail droop DOWN on RIGHT; forelegs hang under head/chest. A rounded soft inverted-U spine, no flat rigid plank body. Cute calm face angled toward viewer, not a pure profile. Head remains recognizably same reference face.
+
+BOTTOM ROW: three successive stages of lifting by ONE FRONT PAW (the cat's front paw on VIEWER RIGHT).
+BOTTOM LEFT: seated cat from reference but the viewer-right front paw has been gently lifted slightly forward and upward, elbow partly unfolding; other front paw down, hindquarters still tucked.
+BOTTOM CENTER: viewer-right front paw above head, arm unfolded to its natural full length, cat starts to hang diagonally down-left from that paw. Head remains upright-ish, body weight below shoulder, other three paws hanging. DO NOT make the held arm longer than its anatomical length.
+BOTTOM RIGHT: stable ONE-PAW hanging. One single raised front paw is the TOPMOST point at upper RIGHT. Its short feline forearm, elbow and upper arm connect visibly to the right shoulder next to the cheek. The head and body hang diagonally DOWN-LEFT of that fixed paw, hips below head, remaining THREE paws hang downward, tail loosely curls to left. Correct joint continuity, no detached hand, no duplicate raised arm, no human arm, no fingers. Cat calm and relaxed.
+
+Keep complete organic silhouettes. Never draw the belly as a separate oval bag. Fur and facial identities stable between frames. White paws and chest, orange striped fur. Keep transparent areas clean.
+
+## grabFourPawsPrompt
+Create a clean 3-column x 2-row animation sprite atlas of the SAME orange tabby cat as reference, TRUE TRANSPARENT background, complete cat in every cell with ample transparent margins. No text, no labels, no human hand or props. Same cute large head size in all 6 cells, same markings, white muzzle/chest/paws and dark outlines. Exactly 4 legs and 1 tail. Same physical size, not resized per pose. No detached parts.
+
+COLUMNS are THREE DIFFERENT grabbed paws, each with one halfway pose (TOP row) and one fully suspended pose (BOTTOM row).
+
+LEFT COLUMN = LEFT FRONT PAW (on viewer LEFT in the normal upright front view). TOP LEFT: cat seated but left front paw lifting upward to ear height, elbow extending, other front paw down. BOTTOM LEFT: left front paw is highest point on upper LEFT, forearm and elbow lead down to left shoulder; cat body and head hang DOWN-RIGHT of this paw, remaining three paws hang down, tail at left. This is the opposite front paw to the raised-right-paw reference. Keep normal short feline limb length, no human arms.
+
+MIDDLE COLUMN = LEFT HIND PAW (viewer LEFT in the ordinary upright stance). TOP MIDDLE: cat being lifted by that hind paw, pelvis raised, torso diagonal, head tilting down, two front paws down, other hind leg relaxed. BOTTOM MIDDLE: cat hangs mostly UPSIDE DOWN / diagonal from this single rear paw at TOP LEFT. Short rear leg connects to pelvis near top, spine and chest descend to a clearly UPSIDE-DOWN head below, BOTH FRONT PAWS dangle near the low head, other hind paw bends downward beside pelvis. Tail attaches to pelvis at top, not beside head. Exactly four paws visible, one of them the held high rear paw. Anatomical belly and face markings rotate with the body.
+
+RIGHT COLUMN = RIGHT HIND PAW (viewer RIGHT in ordinary upright stance). TOP RIGHT: corresponding opposite hind paw raised, pelvis lifted, torso/head diagonally down-left. BOTTOM RIGHT: the RIGHT rear paw highest at TOP RIGHT, pelvis just beneath it, body extends diagonally DOWN-LEFT to the upside-down head. The other hind paw hangs next to pelvis, TWO FRONT PAWS dangle near chest/head at bottom. Tail attaches to upper pelvis. Make clearly distinct opposite rear-leg suspension, not a duplicate of middle column.
+
+Calm cartoon expression throughout, natural feline joints and coherent silhouettes. Head, held paw, free paws and tail must all fit inside their own cell. Use consistent round cute drawing, NOT realistic anatomy, no injury, no extra limbs.
+
+## grabPawsAlphaPrompt
+Remove ONLY the entire brown/glowing background from this 6-cat pose atlas. Preserve all six complete cat drawings and their exact positions, scale, pose, outlines, colors, whiskers, tails and white paws. Output a truly TRANSPARENT alpha background with no glow or shadow outside silhouettes. Do NOT change any pose or anatomy. Exactly the same 3-column 2-row layout and canvas dimensions.
+
+## grabRestPrompt
+Create a 3-column one-row TRUE TRANSPARENT sprite atlas of ONLY the orange tabby from the reference. Same exact face, stripes, round large head and drawing style. Three fully drawn REST poses, same physical HEAD SIZE throughout, clean dark outlines, white muzzle/chest/paw tips, no props, text, shadows or human hands. Large gutters and fully visible tails.
+LEFT: relaxed sitting, body turned slightly toward viewer right, front paws on floor in front, hind haunches gently spread to either side so BOTH hind white paw tips are also VISIBLE. All FOUR paws individually distinguishable and clickable, no extra legs. Cute normal feline sitting, not human seated.
+CENTER: low relaxed crouch on all FOUR paws, head at viewer left and hips at viewer right, three-quarter view slightly toward viewer. Arrange near and far paws offset so all FOUR white paw tips are visible: two front under chest on left, two rear under hips on right. Tail curls upward behind hips, its tip orange rather than white to avoid confusing it with a paw. Keep full face recognizably same cat, no pure profile.
+RIGHT: lying on back, belly up, head at viewer LEFT, hips to viewer RIGHT, same face turned toward viewer. Exactly FOUR short legs point gently upward around belly, four distinct white paw tips in separate positions with space between them. Tail rests behind right hip. Not a standing pose rotated, genuinely relaxed supine curled paws. Head same physical size as other poses.
+No cloned paws, no missing rear legs, no anatomy blobs. Keep coherent organic silhouettes.
+
+## grabV4Prompt-calico-lift
+Recolor this exact game pose atlas into a consistent calico with white muzzle/chest/paws and irregular orange/black body patches. In the HEAD'S OWN upright coordinates the viewer-left forehead and left ear fur are ORANGE, viewer-right forehead and right ear fur BLACK, separated by white muzzle blaze; when head tilts rotate that marking with the head, never flip the marking in world coordinates. Same patch distribution across poses. Preserve the exact canvas size, ALL poses, silhouettes, head sizes, every paw position, tail, line art, spacing and transparent gutters. Color edit only, no redrawing anatomy, no changing scale. Keep exactly the same number of cats and four limbs per cat. True alpha transparent background, NO background or shadow/glow. Same hand-painted cartoon style.
+
+## grabV4Prompt-calico-rest
+Recolor this exact game pose atlas into a consistent calico with white muzzle/chest/paws and irregular orange/black body patches. In the HEAD'S OWN upright coordinates the viewer-left forehead and left ear fur are ORANGE, viewer-right forehead and right ear fur BLACK, separated by white muzzle blaze; when head tilts rotate that marking with the head, never flip the marking in world coordinates. Same patch distribution across poses. Preserve the exact canvas size, ALL poses, silhouettes, head sizes, every paw position, tail, line art, spacing and transparent gutters. Color edit only, no redrawing anatomy, no changing scale. Keep exactly the same number of cats and four limbs per cat. True alpha transparent background, NO background or shadow/glow. Same hand-painted cartoon style.
+
+## grabV4Prompt-calico-paws
+Edit the supplied six-pose cat atlas ONLY by replacing fur coloring with calico, white legs and paws chest and muzzle, orange and black patches, orange on the cat's own left forehead and black on its own right (pattern rotates with head when inverted). Preserve exactly every pose, every paw position, silhouette, head size, expression and stroke, transparent canvas dimensions 1536x1024, all six distinct cells. Preserve alpha transparency: dark/brown visible backdrop is transparent pixels, MUST remain actual alpha zero. No background, no floor, no light effects, no cast shadows. This is an animation texture variant, preserve pixel alignment as closely as possible.
+
+## grabV4Prompt-blue-lift
+Recolor this exact game pose atlas into solid British blue-gray fur over ALL surfaces, darker gray nose, NO white muzzle/bib/paws, NO stripes, NO orange, pink inner ears. Preserve the exact canvas size, ALL poses, silhouettes, head sizes, every paw position, tail, line art, spacing and transparent gutters. Color edit only, no redrawing anatomy, no changing scale. Keep exactly the same number of cats and four limbs per cat. True alpha transparent background, NO background or shadow/glow. Same hand-painted cartoon style.
+
+## grabV4Prompt-blue-rest
+Recolor this exact game pose atlas into solid British blue-gray fur over ALL surfaces, darker gray nose, NO white muzzle/bib/paws, NO stripes, NO orange, pink inner ears. Preserve the exact canvas size, ALL poses, silhouettes, head sizes, every paw position, tail, line art, spacing and transparent gutters. Color edit only, no redrawing anatomy, no changing scale. Keep exactly the same number of cats and four limbs per cat. True alpha transparent background, NO background or shadow/glow. Same hand-painted cartoon style.
+
+## grabV4Prompt-blue-paws
+Edit the supplied six-pose cat atlas ONLY by replacing fur coloring with British shorthair solid blue gray fur, gray nose and muzzle, pink ears, no stripes, no white patches, no orange. Preserve exactly every pose, every paw position, silhouette, head size, expression and stroke, transparent canvas dimensions 1536x1024, all six distinct cells. Preserve alpha transparency: dark/brown visible backdrop is transparent pixels, MUST remain actual alpha zero. No background, no floor, no light effects, no cast shadows. This is an animation texture variant, preserve pixel alignment as closely as possible.
+
