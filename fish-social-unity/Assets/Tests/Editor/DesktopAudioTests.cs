@@ -476,7 +476,7 @@ namespace FishSocial.Tests.Editor
                     while(!op.isDone&&UnityEditor.EditorApplication.timeSinceStartup<deadline)yield return null;
                     Assert.IsTrue(op.isDone,relative+" timed out");Assert.AreEqual(UnityWebRequest.Result.Success,request.result,relative+": "+request.error);
                     var clip=DownloadHandlerAudioClip.GetContent(request);Assert.IsNotNull(clip,relative);Assert.Greater(clip.samples,0);Assert.AreEqual(44100,clip.frequency);
-                    if(streaming){Assert.AreEqual(2,clip.channels);Assert.That(clip.length,relative.EndsWith("pond_wind_open_loop.wav",StringComparison.Ordinal)?Is.InRange(11f,30f):Is.InRange(40f,90f));}else shortBytes+=(long)clip.samples*clip.channels*sizeof(float);
+                    if(streaming){Assert.AreEqual(2,clip.channels);Assert.That(clip.length,relative.EndsWith("pond_wind_open_loop.wav",StringComparison.Ordinal)?Is.InRange(11f,30f):relative.StartsWith("music/",StringComparison.Ordinal)?Is.InRange(60f,180f):Is.InRange(40f,90f));}else shortBytes+=(long)clip.samples*clip.channels*sizeof(float);
                     UnityEngine.Object.DestroyImmediate(clip);
                 }
             }

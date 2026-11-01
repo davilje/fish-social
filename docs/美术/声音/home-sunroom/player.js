@@ -1,7 +1,7 @@
 const $=id=>document.getElementById(id);
 const music=$('homeMusic');
-const paths={full:'../home-sunroom/assets/home-sunroom.wav?v=20261031-sunroom',excerpt:'../home-sunroom/assets/excerpt.wav?v=20261031-sunroom',current:'../../../../fish-social-unity/Assets/StreamingAssets/Audio/music/pond_daylight.wav?v=adopted-v5'};
-const labels={full:'《晴窗小憩》完整新曲',excerpt:'《晴窗小憩》开篇片段',current:'现行首页音乐（对照）'};
+const paths={full:'../home-sunroom/assets/home-sunroom.wav?v=20261031-sunroom',excerpt:'../home-sunroom/assets/excerpt.wav?v=20261031-sunroom',current:'../../../../fish-social-unity/Assets/StreamingAssets/Audio/music/pond_daylight.wav?v=20261101-nuanguang'};
+const labels={full:'《晴窗小憩》完整新曲',excerpt:'《晴窗小憩》开篇片段',current:'现行首页音乐《小室暖光》'};
 const format=seconds=>Math.floor(seconds/60)+':'+String(Math.floor(seconds%60)).padStart(2,'0');
 let pendingChapter=null;
 const loadedSources=new Map(),objectUrls=[];let loadToken=0;
@@ -51,7 +51,9 @@ new MutationObserver(records=>{for(const record of records)for(const node of rec
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMusic();});
 window.addEventListener('pagehide',()=>{stopMusic();for(const url of objectUrls)URL.revokeObjectURL(url);});
 window.HomeMusicLab={music,paths,stop:stopMusic,ready:false,selection:null};
-loadSource('full');
+$('musicChapters').hidden=$('musicSelection').value!=='full';
+$('musicFacts').hidden=$('musicSelection').value==='current';
+loadSource($('musicSelection').value);
 // Composition metadata is optional for playback; the native player remains usable if it cannot load.
 try{
  const response=await fetch('../home-sunroom/assets/score.json?v=20261031-sunroom',{cache:'no-store'});

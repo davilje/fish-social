@@ -50,12 +50,18 @@ def prepare(current, music, lock, adoption):
     assert sha(R / music['provenance']['scoreScript']) == music['provenance']['scoreScriptSha256']
     for asset in music['assets']:
         assert asset['version'] == 5 and sha(P / asset['path']) == asset['sha256'], asset['path']
-    full = copy.deepcopy(next(a for a in music['assets'] if a['path'] == 'sunlight-theme.wav'))
-    assert full['channels'] == 2 and 60 <= full['duration'] <= 90
-    assert full['sha256'] == adoption['music']['sha256'], 'Music requires an explicit new adoption record'
     assert adoption['music']['path'] == 'music/pond_daylight.wav'
-    full['path'] = adoption['music']['path']
-    full['processing']['score'] = 'docs/美术/声音/v5/assets/score.json'
+    theme = copy.deepcopy(next(a for a in music['assets'] if a['path'] == 'sunlight-theme.wav'))
+    adopted_sha = adoption['music']['sha256']
+    if adopted_sha == theme['sha256']:
+        full = theme
+        assert full['channels'] == 2 and 60 <= full['duration'] <= 90
+        full['path'] = adoption['music']['path']
+        full['processing']['score'] = 'docs/美术/声音/v5/assets/score.json'
+    else:
+        full = copy.deepcopy(next(a for a in current['assets'] if a['path'] == 'music/pond_daylight.wav'))
+        assert full['sha256'] == adopted_sha == sha(A/'music/pond_daylight.wav'), 'Music requires an explicit new adoption record'
+        assert full['channels'] == 2 and 60 <= full['duration'] <= 180
     locked_sources = {s['key']: s for s in lock['sources']}
     for source in music['sources']:
         if source['key'] in locked_sources:
@@ -75,6 +81,10 @@ def main():
     args = parser.parse_args()
     current, music, lock, adoption = read(A/'manifest.json'), read(P/'music-manifest.json'), read(LOCK), read(ADOPTION)
     result = prepare(current, music, lock, adoption)
+    theme = next(a for a in music['assets'] if a['path'] == 'sunlight-theme.wav')
+    if adoption['music']['sha256'] != theme['sha256']:
+        print('Validated user-adopted home music; the v5 theme was not copied over the current track.')
+        return
     if not args.check_only:
         # Preserve the adopted audio bytes; repeat integration does not rewrite identical WAVs.
         if sha(A/'music/pond_daylight.wav') != result['assets'][-1]['sha256']:

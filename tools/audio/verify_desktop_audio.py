@@ -46,7 +46,8 @@ for item in assets:
    interior=sorted(max(abs(samples[i+c]-samples[i-channels+c]) for c in range(channels)) for i in range(channels,len(samples),channels))
    assert step<=interior[int(len(interior)*.99)],'Wind wrap must match natural neighbouring samples'
   else:
-   assert (40 if item['path'].startswith('ambience/') else 60)<=duration<=90,path
+   lo,hi=(40,90) if item['path'].startswith('ambience/') else (60,180)
+   assert lo<=duration<=hi,path
    assert max(abs(samples[i]-samples[-channels+i]) for i in range(channels))<=3,'Loop seam'
  else:assert channels==1,path
  print('PASS',item['path'],round(duration,3),'s')

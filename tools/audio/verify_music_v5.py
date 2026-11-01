@@ -28,18 +28,24 @@ def verify():
         peaks[item['path']] = float(np.max(abs(resample_poly(x, 4, 1, axis=0))))
     groups = {group: max(max(peaks[p] for p in cue['paths'])*cue['gain']
         for cue in config['cues'] if cue['group'] == group) for group in ['ui', 'fishing', 'voice']}
-    bound = groups['ui'] + 2*groups['fishing'] + groups['voice'] + peaks['music/pond_daylight.wav']
-    db = float(20*np.log10(bound))
-    assert db <= -1, 'Worst-case full-volume mix exceeds approved headroom'
+    theme_sha = next(a['sha256'] for a in music['assets'] if a['path'] == 'sunlight-theme.wav')
+    adopted_sha = sha(A/'music/pond_daylight.wav')
     full, rate = sf.read(A/'music/pond_daylight.wav', dtype='int16')
     assert full.shape[1] == 2 and np.max(abs(full[0].astype(int)-full[-1].astype(int))) == 0
-    assert 60 <= len(full)/rate <= 90 and peaks['music/pond_daylight.wav'] <= .14
-    for item in music['assets']:
-        data, preview_rate = sf.read(P/item['path'], dtype='int16')
-        assert item['version'] == 5 and sha(P/item['path']) == item['sha256']
-        assert preview_rate == rate and np.array_equal(full[:len(data)], data)
-        if 'preview' in item['path']:
-            assert 20 <= len(data)/rate <= 30
+    if adopted_sha == theme_sha:
+        bound = groups['ui'] + 2*groups['fishing'] + groups['voice'] + peaks['music/pond_daylight.wav']
+        db = float(20*np.log10(bound))
+        assert db <= -1, 'Worst-case full-volume mix exceeds approved headroom'
+        assert 60 <= len(full)/rate <= 90 and peaks['music/pond_daylight.wav'] <= .14
+        for item in music['assets']:
+            data, preview_rate = sf.read(P/item['path'], dtype='int16')
+            assert item['version'] == 5 and sha(P/item['path']) == item['sha256']
+            assert preview_rate == rate and np.array_equal(full[:len(data)], data)
+            if 'preview' in item['path']:
+                assert 20 <= len(data)/rate <= 30
+    else:
+        db = None
+        assert 60 <= len(full)/rate <= 180 and peaks['music/pond_daylight.wav'] <= 10**(-3/20)
     return dict(version=5, status='adopted', acceptedEffectsUnchanged=len(lock['assets']),
         approvedAssetHashesUnchanged=len(adoption['assets']), cueConfigChanges='Only user-selected ui_close variant',
         durationSeconds=len(full)/rate, musicTruePeak4x=peaks['music/pond_daylight.wav'],

@@ -46,13 +46,9 @@ The fishing scene now disables BGM and all button/UI cues. Existing action effec
 - Both use the creators' public HQ MP3 previews with pinned hashes. No synthetic noise, channel widening, compressor, limiter or added birds/voices. File boundaries use natural quantization-equal adjacent samples. Individual runtime gains:water0.65,wind0.45,leaves0.40, each multiplied by its saved0–1 mix level and the effects volume.
 - Rebuild: `python tools/audio/build_pond_wind_leaves.py --sources <cache>`. Both builders merge only their own tracks into version2 `ambience-manifest.json`, preserving the other ambience files and source records. The preview offers separate play/stop/volume controls and a combined mix.
 
-## Current music: 日光下的闲谈 / Sunlit Conversation
+## Current music: 小室暖光
 
-Original 90 BPM G-major composition, 32 bars A/A-prime/B/varied return, 85.333333 seconds. The first eight bars, 21.333333 seconds, are an exact PCM prefix with the same master gain. Upbeats, dotted rhythms, stepwise links, neighbours and three prepared suspensions develop a recurring motif. All decorations are explicitly annotated in score.json; theoretical checks do not certify taste or perceived quality.
-
-The melody uses nine actual Meta Open Sound Vel02Pick light-picked nylon-guitar recordings; accompaniment uses twelve Vel01Finger recordings. Original pitches, no pitch shifting. Lead attack 1ms; no added delay/reverb, high-frequency shelf, compression or limiter. Gentle high-pass at80Hz for lead/65Hz for comp; comp low-pass6500Hz. Per-recording balancing preserves real string attacks. Accompaniment RMS is12dB below the lead stem. Full-master 4x true peak0.134974.
-
-For G4/B4/D5, the first300ms 2.5–6.2kHz energy fraction in new light-pick source recordings is respectively8.527/11.261/9.450dB above old fingerstyle at the same pitch. This level-independent source comparison establishes a real timbre change, not human listening approval. The source method, fixed Git tree/blob identities and full checks are in docs/美术/声音/v5/assets/music-manifest.json.
+User-adopted home-screen track on 2026-11-01. The supplied MP3 was decoded to 44100 Hz, 16-bit stereo PCM and stored at `music/pond_daylight.wav`. Opening silence and the ending fade were trimmed, then 2 seconds were crossfaded so the home screen can loop. Source level is unchanged and the file peak stays under -3 dBFS. `DesktopAudioService` still loops this path; fishing scenes still disable BGM. The previous original, 日光下的闲谈 / Sunlit Conversation, remains documented in `docs/美术/声音/v5/`.
 
 ## Recorded sources — CC0-1.0
 
