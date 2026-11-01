@@ -351,6 +351,12 @@ if (fishCn01.pondFishCleared > 0 || fishCn01.compensated > 0) {
   );
 }
 
+import { migrateIndividualFishGrowth } from './migrations/individual_fish_growth.js';
+const individualFishGrowth = migrateIndividualFishGrowth(db);
+if (individualFishGrowth > 0) {
+  console.log(`Migration: recalculated ${individualFishGrowth} pond fish with individual growth`);
+}
+
 initGameConfig();
 
 console.log(`Database ready: ${dbPath}`);

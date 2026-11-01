@@ -1126,7 +1126,7 @@ namespace FishSocial.Desktop
             _journalPendingCatch = null;
             if (settled != null && pending != null && pending.speciesId == settled.speciesId && _mainRoot != null)
             {
-                var detail = DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.QualityName(settled.quality), " · "), settled.sizeM.ToString("0.00")), " m");
+                var detail = DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.QualityName(settled.quality), " · "), DesktopGameData.FormatFishSize(settled.sizeM)), "");
                 if (settled.autoReturned) detail = DesktopLocalization.Concat(detail, DesktopLocalization.Format("ui.common.settlement.label.release_income", (object)(settled.gold)));
                 var celebration = CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
                     DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail, settled.sizeM);

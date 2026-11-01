@@ -1241,7 +1241,7 @@ namespace FishSocial.Desktop
                     if (fish != null) { showcased = fish; break; }
                 CozyItemArt.Set(authoredProfile, "DesignShowcase/Art", showcased != null ? CozyItemArt.Fish(showcased.speciesId) : null);
                 CozyItemArt.Text(authoredProfile, "DesignShowcase/Species", showcased != null ? DesktopFishCatalog.SpeciesName(showcased.speciesId) : DesktopLocalization.Text("ui.profile.profile_summary.empty.showcase", "暂无展示鱼获"));
-                CozyItemArt.Text(authoredProfile, "DesignShowcase/Size", showcased != null ? DesktopLocalization.Concat(showcased.sizeM.ToString("0.00"), " m") : "");
+                CozyItemArt.Text(authoredProfile, "DesignShowcase/Size", showcased != null ? DesktopGameData.FormatFishSize(showcased.sizeM) : "");
                 RenderJournalProfile(authoredProfile, level, xp);
                 RenderWorkspaceProfile(authoredProfile, level);
                 var showcaseButton = authoredProfile.Find("DesignShowcase/Open")?.GetComponent<Button>();
@@ -1338,12 +1338,12 @@ namespace FishSocial.Desktop
             }
             CozyItemArt.Set(profile, "JournalProgress/RecentArt", latest != null ? CozyItemArt.Fish(latest.speciesId) : null);
             CozyItemArt.Text(profile, "JournalProgress/RecentTitle", latest != null ? DesktopLocalization.Format("ui.profile.workspace.label.latest_species", (object)(DesktopFishCatalog.SpeciesName(latest.speciesId))) : DesktopLocalization.Text("ui.profile.workspace.empty.next_catch", "下一次收获，留给湖边的你"));
-            CozyItemArt.Text(profile, "JournalProgress/RecentDetail", latest != null ? DesktopLocalization.Format("ui.profile.workspace.label.species_size_record", (object)(WorkspaceTime(latest.lastCaughtAt)), (object)(latest.maxSizeM.ToString("0.00"))) : DesktopLocalization.Text("ui.profile.workspace.empty.collection_instructions", "钓到鱼后，这里会记下最近一次相遇。"));
+            CozyItemArt.Text(profile, "JournalProgress/RecentDetail", latest != null ? DesktopLocalization.Format("ui.profile.workspace.label.species_size_record", (object)(WorkspaceTime(latest.lastCaughtAt)), (object)(DesktopGameData.FormatFishSize(latest.maxSizeM))) : DesktopLocalization.Text("ui.profile.workspace.empty.collection_instructions", "钓到鱼后，这里会记下最近一次相遇。"));
             FishInventoryItemDto treasured = null;
             var slot = 0;
             var fishes = _hub.showcaseFish ?? Array.Empty<FishInventoryItemDto>();
             for (var i = 0; i < fishes.Length; i++) if (fishes[i] != null) { treasured = fishes[i]; slot = i + 1; break; }
-            var facts = treasured != null ? new[] { DesktopLocalization.Concat(treasured.sizeM.ToString("0.00"), " m"), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(treasured.sizeM)), WorkspaceTime(treasured.caughtAt), PondLabel(treasured.pondId) } : new[] { "—", "—", "—", "—" };
+            var facts = treasured != null ? new[] { DesktopGameData.FormatFishSize(treasured.sizeM), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(treasured.sizeM)), WorkspaceTime(treasured.caughtAt), PondLabel(treasured.pondId) } : new[] { "—", "—", "—", "—" };
             CozyItemArt.Text(profile, "DesignShowcase/WorkspaceCaption", treasured != null ? DesktopLocalization.Format("ui.profile.workspace.label.showcase_slot", (object)(slot)) : DesktopLocalization.Text("ui.profile.workspace.empty.showcase_slot", "留一个位置，给下一次惊喜"));
             for (var i = 0; i < facts.Length; i++) CozyItemArt.Text(profile, DesktopLocalization.Concat(DesktopLocalization.Concat("DesignShowcase/WorkspaceFact", i), "/Value"), facts[i]);
             CozyItemArt.Text(profile, "DesignShowcase/WorkspaceNote", !_hub.isSelf
@@ -1546,7 +1546,7 @@ namespace FishSocial.Desktop
                 chipRow.anchoredPosition = firstRecord.anchoredPosition + new Vector2(0f, 36f);
                 chipRow.SetSiblingIndex(firstRecord.GetSiblingIndex());
             }
-            var values = new[] { DesktopLocalization.Concat(entry.maxSizeM.ToString("0.00"), " m"), DesktopLocalization.Format("ui.profile.codex.label.catch_count", (object)(entry.totalCaught)), RecordDate(entry.firstCaughtAt), RecordDate(entry.lastCaughtAt) };
+            var values = new[] { DesktopGameData.FormatFishSize(entry.maxSizeM), DesktopLocalization.Format("ui.profile.codex.label.catch_count", (object)(entry.totalCaught)), RecordDate(entry.firstCaughtAt), RecordDate(entry.lastCaughtAt) };
             var labels = new[] { DesktopLocalization.Text("ui.profile.codex.label.maximum_length", "最大体长"), DesktopLocalization.Text("ui.profile.codex.label.total_caught", "累计捕获"), DesktopLocalization.Text("ui.profile.codex.label.first_caught", "首次相遇"), DesktopLocalization.Text("ui.profile.codex.label.last_caught", "最近相遇") };
             for(var i=0;i<4;i++)
             {
@@ -1601,7 +1601,7 @@ namespace FishSocial.Desktop
                 CreateCard(_showcaseGrid, DesktopLocalization.Concat("Slot", i),
                     name,
                     () => SelectShowcase(index),
-                    CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId), false, DesktopLocalization.Concat(DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m · "), DesktopFishCatalog.StarRich(item.quality)), false, slot);
+                    CatTheme.Cream, 15, CozyItemArt.Fish(item.speciesId), false, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopGameData.FormatFishSize(item.sizeM), " · "), DesktopFishCatalog.StarRich(item.quality)), false, slot);
             }
             if (!_hub.isSelf)
                 foreach (Transform slot in _showcaseGrid)
@@ -1728,7 +1728,7 @@ namespace FishSocial.Desktop
                 var rows = root.Find("ShowcaseDetailRows");
                 if (rows != null) rows.gameObject.SetActive(false);
                 target.supportRichText = true;
-                DesktopLocalization.SetText(target, DesktopLocalization.Concat(DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m · "), DesktopFishCatalog.StarRich(item.quality)));
+                DesktopLocalization.SetText(target, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopGameData.FormatFishSize(item.sizeM), " · "), DesktopFishCatalog.StarRich(item.quality)));
                 CozyJournalChips.Show(target, PondLabel(item.pondId), _hub.isSelf
                     ? DesktopLocalization.Text("ui.profile.fish_details.state.showcased", "已珍藏在展示柜")
                     : DesktopLocalization.Text("ui.profile.edit.tab.showcase", "展示柜"));
@@ -1744,7 +1744,7 @@ namespace FishSocial.Desktop
             var cells = new List<string>
             {
                 "star", DesktopLocalization.Text("ui.profile.fish_details.label.quality", "品质"), DesktopFishCatalog.QualityName(item.quality),
-                "hook", DesktopLocalization.Text("ui.profile.fish_details.label.length", "体长"), DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m"),
+                "hook", DesktopLocalization.Text("ui.profile.fish_details.label.length", "体长"), DesktopGameData.FormatFishSize(item.sizeM),
                 "fish", DesktopLocalization.Text("ui.profile.fish_details.label.weight", "重量"), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)),
                 "clock", DesktopLocalization.Text("ui.profile.fish_details.label.caught_at", "捕获时间"), caught,
             };
@@ -1771,7 +1771,7 @@ namespace FishSocial.Desktop
                 DesktopLocalization.SetText(target, name);
                 return;
             }
-            DesktopLocalization.SetText(target, DesktopLocalization.Format("ui.profile.fish_details.message.summary", (object)(title), (object)(name), (object)(DesktopFishCatalog.QualityName(item.quality)), (object)(item.sizeM.ToString("0.00")), (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM))), (object)(caught), (object)((string.IsNullOrEmpty(item.pondId) ? "" : DesktopLocalization.Format("ui.profile.fish_details.label.source_pond", (object)(item.pondId)))), (object)((species != null
+            DesktopLocalization.SetText(target, DesktopLocalization.Format("ui.profile.fish_details.message.summary", (object)(title), (object)(name), (object)(DesktopFishCatalog.QualityName(item.quality)), (object)(DesktopGameData.FormatFishSize(item.sizeM)), (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM))), (object)(caught), (object)((string.IsNullOrEmpty(item.pondId) ? "" : DesktopLocalization.Format("ui.profile.fish_details.label.source_pond", (object)(item.pondId)))), (object)((species != null
                     ? DesktopLocalization.Format("ui.profile.fish_details.message.fishing_preferences", (object)(species.DietLabel), (object)((species.BaseEscapeRate * 100f).ToString("0.0")), (object)(DesktopFishCatalog.TopBaits(species)))
                     : ""))));
         }
@@ -1937,7 +1937,7 @@ namespace FishSocial.Desktop
             var rare = pin.quality == "blue" || pin.quality == "purple" || pin.quality == "red" ||
                        pin.quality == "orange" || pin.quality == "gold";
             body.supportRichText = false;
-            DesktopLocalization.SetText(body, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(pin.speciesId), " · "), pin.sizeM.ToString("0.00")), " m\n"), (rare ? DesktopLocalization.Text("ui.profile.album_card.title.rare_catch", "难忘的稀有鱼获") : DesktopLocalization.Text("ui.profile.album_card.title.memorable_catch", "值得记下的一次收获"))));
+            DesktopLocalization.SetText(body, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(pin.speciesId), " · "), DesktopGameData.FormatFishSize(pin.sizeM)), "\n"), (rare ? DesktopLocalization.Text("ui.profile.album_card.title.rare_catch", "难忘的稀有鱼获") : DesktopLocalization.Text("ui.profile.album_card.title.memorable_catch", "值得记下的一次收获"))));
             date.gameObject.SetActive(true);
             DesktopLocalization.SetText(date, DesktopLocalization.Concat(DesktopLocalization.Concat(AlbumDate(pin), " · "), AlbumPond(pin)));
         }
@@ -1984,14 +1984,14 @@ namespace FishSocial.Desktop
                 return string.Empty;
             var rare = pin.quality == "blue" || pin.quality == "purple" || pin.quality == "red" ||
                        pin.quality == "orange" || pin.quality == "gold";
-            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(pin.speciesId), " · "), pin.sizeM.ToString("0.00")), " m\n"), (rare ? DesktopLocalization.Text("ui.profile.album_card.title.rare_catch", "难忘的稀有鱼获") : DesktopLocalization.Text("ui.profile.album_card.title.memorable_catch", "值得记下的一次收获"))), "\n"), AlbumDate(pin)), " · "), AlbumPond(pin));
+            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(pin.speciesId), " · "), DesktopGameData.FormatFishSize(pin.sizeM)), "\n"), (rare ? DesktopLocalization.Text("ui.profile.album_card.title.rare_catch", "难忘的稀有鱼获") : DesktopLocalization.Text("ui.profile.album_card.title.memorable_catch", "值得记下的一次收获"))), "\n"), AlbumDate(pin)), " · "), AlbumPond(pin));
         }
 
         static string FormatAlbumAside(AlbumCardDto pin)
         {
             if (pin == null)
                 return DesktopLocalization.Text("ui.profile.album.description.memories", "每次相遇都值得留念。新的鱼获故事，会写进湖畔相册。");
-            return DesktopLocalization.Format("ui.profile.album_note.message.encounter", (object)(AlbumPond(pin)), (object)(pin.sizeM.ToString("0.00")), (object)(DesktopFishCatalog.SpeciesName(pin.speciesId)));
+            return DesktopLocalization.Format("ui.profile.album_note.message.encounter", (object)(AlbumPond(pin)), (object)(DesktopGameData.FormatFishSize(pin.sizeM)), (object)(DesktopFishCatalog.SpeciesName(pin.speciesId)));
         }
 
         static string AlbumDate(AlbumCardDto pin)
@@ -2139,7 +2139,7 @@ namespace FishSocial.Desktop
             if (c == null) return "-";
             var name = DesktopFishCatalog.SpeciesName(c.speciesId);
             var pond = string.IsNullOrEmpty(c.pondName) ? (c.pondId ?? "") : DesktopLocalization.Data(c.pondName);
-            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(name, "\n"), DesktopFishCatalog.QualityName(c.quality)), " · "), c.sizeM.ToString("0.00")), "m\n"), pond), " · "), SourceLabel(c.source));
+            return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(name, "\n"), DesktopFishCatalog.QualityName(c.quality)), " · "), DesktopGameData.FormatFishSize(c.sizeM)), "\n"), pond), " · "), SourceLabel(c.source));
         }
 
         static string SourceLabel(string source)

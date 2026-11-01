@@ -47,7 +47,7 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual("catch-8", Field("_fishId"));
             content.Find("FishCard_11").GetComponent<Button>().onClick.Invoke();
             Assert.AreEqual("catch-11", Field("_fishId"));
-            Assert.AreEqual("0.42 m", paper.Find("CatchPreview/Size").GetComponent<Text>().text);
+            Assert.AreEqual("42.0cm", paper.Find("CatchPreview/Size").GetComponent<Text>().text);
             Assert.AreEqual(DesktopGameData.CalcWeightKg(.42f).ToString("0.00") + " kg", paper.Find("CatchPreview/Weight").GetComponent<Text>().text);
             Assert.AreEqual(DesktopFishCatalog.SpeciesName("crucian"), paper.Find("CatchPreview/FishName").GetComponent<Text>().text);
             Assert.AreEqual(AssetDatabase.GetAssetPath(CozyItemArt.Fish("crucian")), AssetDatabase.GetAssetPath(paper.Find("CatchPreview/FishArt").GetComponent<Image>().sprite));

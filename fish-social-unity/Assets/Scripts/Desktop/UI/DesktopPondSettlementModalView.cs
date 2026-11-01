@@ -228,7 +228,7 @@ namespace FishSocial.Desktop
                 SetAt(row.transform, "Name", DesktopFishCatalog.SpeciesName(entry.speciesId));
                 SetAt(row.transform, "Time", Timestamp(entry.caughtAt, "MM.dd · HH:mm:ss"));
                 SetAt(row.transform, "Quality", DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.QualityName(entry.quality), " · "), (entry.outcome == "returned" ? DesktopLocalization.Text("ui.catch.settlement.status.released", "已回塘") : DesktopLocalization.Text("ui.catch.settlement.status.kept", "已入包"))));
-                SetAt(row.transform, "Size", DesktopLocalization.Concat(entry.sizeM.ToString("0.00"), " m"));
+                SetAt(row.transform, "Size", DesktopGameData.FormatFishSize(entry.sizeM));
                 SetAt(row.transform, "Weight", entry.weightKg > 0 ? DesktopLocalization.Concat(entry.weightKg.ToString("0.00"), " kg") : "—");
                 var art = row.transform.Find("FishArt").GetComponent<Image>(); art.sprite = CozyItemArt.Fish(entry.speciesId); art.enabled = art.sprite != null;
                 var share = row.transform.Find("Share").GetComponent<Button>(); share.interactable = CanShare(entry);

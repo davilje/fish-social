@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>45 米巨物 · 成长重设计</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7faf9;color:#243c35;font:16px/1.85 system-ui,sans-serif}main{max-width:1220px;margin:auto;padding:32px 28px 72px}h1{font-size:34px;line-height:1.4;margin:12px 0}h2{font-size:23px;margin:34px 0 12px}p{margin:10px 0}.meta{font-size:14px;color:#65756d}.lead{font-size:18px;max-width:850px}.status{display:inline-block;background:#ede7d8;color:#725e38;padding:4px 12px;border-radius:5px;font-size:13px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:26px 0}.card{padding:20px;background:white;border:1px solid #dbe7df;border-radius:12px}.card strong{display:block;font-size:28px;line-height:1.6;color:#26766b}.card span{font-size:14px;color:#65756d}img{width:100%;height:auto;display:block}.figure{background:white;border:1px solid #dbe7df;border-radius:12px;padding:12px}.table{overflow-x:auto}table{border-collapse:collapse;width:100%;background:#fff}th,td{text-align:left;padding:10px 15px;border-bottom:1px solid #dbe7df}th{background:#eaf2ed}.notice{padding:15px 19px;border-left:3px solid #b58b4e;background:#f3eee3}li{margin:8px 0}a{color:#26766b}code{background:#eaf1ed;padding:2px 5px;border-radius:4px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eaf1ed;padding:15px;border-radius:8px;font-size:14px}details{margin:18px 0}summary{cursor:pointer;color:#26766b}.small{font-size:14px}.links{margin-top:30px;border-top:1px solid #dbe7df;padding-top:18px}@media(max-width:700px){main{padding:22px 16px}h1{font-size:27px}.cards{grid-template-columns:1fr;gap:10px}.card{padding:14px}.card strong{font-size:24px}th,td{padding:8px;font-size:14px}}
+</style>
+<main>
+<p class="meta">鱼体成长重设计 · 2026-11-01</p>
+<span class="status">设计与模拟方案 · 尚未替换业务算法</span>
+<h1>一条泥鳅，也能成为 45 米的传说</h1>
+<p class="lead">所有鱼种、所有品质都保留同一个终点。差异来自长大的速度和留在水中的时间。玩家只需要挂着，等待偶尔到来的收获。</p>
+<div class="cards">
+<div class="card">共同长度上限<strong>45.0 米</strong><span>鱼种与品质都不再锁死最终体型</span></div>
+<div class="card">同龄普通鱼的实际显示<strong>383 种长度</strong><span>10 万条、7 天龄、统一 10cm 出生</span></div>
+<div class="card">成长方式<strong>前期快，巨物慢</strong><span>个体速度固定，离线也按现实时间长大</span></div>
+</div>
+<h2>这次改变什么</h2>
+<div class="table"><table><thead><tr><th>项目</th><th>上一版</th><th>45 米新方案</th></tr></thead><tbody>
+<tr><td>鱼种</td><td>决定长度上限</td><td>决定出生体型，轻微影响速度</td></tr>
+<tr><td>品质</td><td>提高上限，高品质成熟更慢</td><td>提高成长效率，最终上限一致</td></tr>
+<tr><td>个体</td><td>各自拥有不同终点</td><td>同一个终点，各自拥有不同成长速度</td></tr>
+<tr><td>巨物</td><td>小鱼种无法成为巨物</td><td>普通小鱼也有成为传说的可能</td></tr>
+</tbody></table></div>
+<h2>成长曲线与模拟分布</h2>
+<div class="figure"><a href="growth-design.png" target="_blank" rel="noopener" title="打开原图放大查看"><img src="growth-design.png" alt="所有品质最终可以达到45米，但速度不同；同龄普通鱼有连续的长度差异；塘内巨物占比会随鱼龄结构改变。"></a></div>
+<p class="meta">每组 100,000 条，种子 451101。公式模拟，非线上数据。统一出生 10cm、鱼种系数为 1。图中平均鱼龄是输入假设，不代表当前鱼塘，也不代表玩家钓获概率。点击图像可放大。</p>
+<h2>普通鱼也能一直长大</h2>
+<p>普通品质的模拟样本，中间 80% 的个体落在以下区间。每条鱼出生时确定自己的速度，重启或重复更新不会重抽。</p>
+<div class="table"><table><thead><tr><th>鱼龄</th><th>中位长度</th><th>中间 80% 的长度范围</th></tr></thead><tbody>
+<tr><td>1 天</td><td>41.2cm</td><td>28.2–65.1cm</td></tr>
+<tr><td>7 天</td><td>2.09m</td><td>1.30–3.42m</td></tr>
+<tr><td>30 天</td><td>6.84m</td><td>4.46–10.43m</td></tr>
+<tr><td>90 天</td><td>14.6m</td><td>10.2–20.6m</td></tr>
+</tbody></table></div>
+<p class="meta">7 天样本保存了 3,814 种长度；按当前单位规则显示后有 383 种。所有长度保存至 0.1cm，显示仍为：小于 1m 用厘米一位小数，1–10m 用米两位小数，10m 起用米一位小数。</p>
+<h2>45 米是长期纪录，途中每次变大都值得开心</h2>
+<p>标准个体（出生 10cm，鱼种与个体速度系数均为 1）的成长里程碑如下。达到 1 米、5 米、10 米和 20 米本身就是阶段性收获。</p>
+<div class="table"><table><thead><tr><th>长度</th><th>普通鱼</th><th>至尊鱼</th></tr></thead><tbody>
+<tr><td>1m</td><td>2.7 天</td><td>0.6 天</td></tr>
+<tr><td>5m</td><td>18.2 天</td><td>4.2 天</td></tr>
+<tr><td>10m</td><td>45.9 天</td><td>10.7 天</td></tr>
+<tr><td>20m</td><td>138.2 天</td><td>32.2 天</td></tr>
+<tr><td>30m</td><td>307.2 天</td><td>71.7 天</td></tr>
+<tr><td>45m</td><td>822.3 天</td><td>191.9 天</td></tr>
+</tbody></table></div>
+<p>个体速度为 2.5 的至尊鱼，在相同鱼种系数下约 76.7 天到达 45m。普通鱼也可以到达，通常需要更久。这里的时间是鱼在世界里存活的时间，不要求一个玩家一直在线等待。</p>
+<details><summary>查看成长公式与速度参数</summary>
+<p>品质速度依次为 0.70 / 0.90 / 1.15 / 1.50 / 1.90 / 2.40 / 3.00。鱼种速度限制在 0.85–1.15，个体速度为固定的连续分布，范围 0.4–2.5。</p>
+<pre>x = 当前长度 - 出生长度（米）
+G(x) = 2x + 0.12x² + 0.00006x⁴
+P = 鱼龄（天）× 品质速度 × 鱼种速度 × 个体速度
+求 G(x) = P，长度最高为 45m</pre>
+<p>越长大，需要的成长消耗越多，所以自然放缓。具体出生尺寸、分布和复现口径见完整报告。</p></details>
+<h2>鱼塘需要有老鱼，也需要持续更新</h2>
+<ul>
+<li><strong>初始年龄有层次：</strong>多数幼鱼、少量年轻鱼，每塘额外保留 1 条高龄原生鱼，计入总容量。开服就有机会遇到大鱼，老鱼不保证是 45m。</li>
+<li><strong>补鱼以幼鱼为主：</strong>不靠反复直接生成 45m 奖励鱼制造惊喜。</li>
+<li><strong>无人时自然更替：</strong>候选为每天每鱼 1% 迁出、等量幼鱼补位。不能只在同塘换钓点；被锁定的咬钩鱼暂不迁出。</li>
+<li><strong>脱钩奖励避免复利：</strong>候选为一次增加 30 分钟等效成长，每鱼每日最多 2 小时，替代当前按体长 +2%。</li>
+</ul>
+<p class="notice">如果鱼永远不被钓走，也不离开水体，足够久后一定会全部达到 45m。自然更替是本方案的重要配套，目前尚未接入业务或闭环模拟。</p>
+<div class="table"><table><thead><tr><th>假设平均鱼龄</th><th>≥20m 的存量占比</th><th>恰好 45m 的存量占比</th></tr></thead><tbody>
+<tr><td>7 天</td><td>0.071%</td><td>本次未观察到</td></tr>
+<tr><td>30 天</td><td>5.693%</td><td>0.020%</td></tr>
+<tr><td>90 天</td><td>30.223%</td><td>1.013%</td></tr>
+</tbody></table></div>
+<p class="meta">混合品质按参考权重 38/28/18/9/4/2/1 生成。未观察到不代表概率为零；上述比例仅是“假设鱼龄输入 → 长度输出”，不能据此承诺玩家巨物出率。</p>
+<h2>等待很久之后，要有接得住的喜悦</h2>
+<p>配套候选：普通成功钓获间隔平均 40–80 分钟；自动收杆最多约 15 分钟；45m 基础脱钩率降至 30%，再计算个体和渔具修正。品质稀有度尽量只在选鱼时体现一次，避免两次压低高品质收获。</p>
+<p>这些是新的体验目标。当前 40m 附近基础脱钩约 98.5%、收杆约 2 小时，直接沿用会很难获得巨物。新概率、收入与装备损耗仍需完整会话模拟验证。</p>
+<p class="notice">设计边界：业务仍使用上一版鱼种体型上限代码。本页的 45m 成长、自然更替、咬钩配套和经济方案尚未接入。历史鱼获保留，不能通过迁移缩短玩家已有纪录。</p>
+<div class="links small"><a href="../45米巨物成长重设计-2026-11-01.md">完整设计报告</a> · <a href="simulation.json">模拟汇总数据</a> · <a href="simulate.py">复现脚本</a> · <a href="growth-design.svg">矢量图</a> · <a href="../fish-growth-2026-11-01/index.html">上一版鱼种上限方案</a></div>
+</main></html>

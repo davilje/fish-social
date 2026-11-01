@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>鱼体成长与长度显示 · 2026-11-01</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7faf9;color:#243c35;font:16px/1.8 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:40px 28px 70px}h1{font-size:30px;margin:0}h2{font-size:21px;margin:30px 0 10px}p{margin:10px 0}.meta{color:#65756d;font-size:14px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:25px 0}.card{background:white;border:1px solid #dbe7df;border-radius:12px;padding:18px}.card strong{display:block;font-size:25px;color:#26766b}img{display:block;width:100%;height:auto;margin:20px 0}table{border-collapse:collapse;width:100%;background:white}th,td{text-align:left;padding:11px 14px;border-bottom:1px solid #dbe7df}th{background:#eaf2ed}.note{padding:14px 18px;border-left:3px solid #ae674c;background:#f3eee8}a{color:#26766b}@media(max-width:700px){main{padding:24px 16px}.cards{grid-template-columns:1fr}h1{font-size:25px}th,td{padding:8px}}
+</style>
+<main>
+<p class="meta">本页保留上一版鱼种体型上限设计。最新方向请从<a href="../../../现行预览.html#fish-growth">总预览的“45米巨物 · 成长重设计”</a>查看。</p>
+<p class="meta">数值调整报告 · 2026-11-01 · 代码已实现，尚未部署</p>
+<h1>每条鱼，都有自己的长大过程</h1>
+<p>鱼种决定合理体型，品质增加潜力。同种、同品质、同龄的鱼，也保留固定的个体差异。成长自然发生，无需玩家操作。</p>
+<div class="cards">
+<div class="card">同龄普通鲤鱼的长度种类<strong>1 种 → 147 种</strong>1,000 条、7 天、同为 5cm 出生</div>
+<div class="card">新模型的样本长度<strong>43.9–58.5cm</strong>中位数 50.9cm</div>
+<div class="card">成长节奏<strong>前期快，后期缓</strong>达到 90% 后继续缓慢成长</div>
+</div>
+<h2>新旧模型对比</h2>
+<img src="growth-comparison.png" alt="旧模型普通鲤鱼迅速达到20厘米，新模型按个体差异成长到约44至59厘米；7天时旧模型只有一种长度，新模型有147种。">
+<p class="meta">公式模拟，非线上捕获数据。ID 为 fish-0 至 fish-999；左图阴影为个体范围，右图按 1cm 分组。未包含捕捞、补鱼或脱钩。旧模型使用调整前默认 40m/7 天标准曲线，并被普通品质的 0.2m 上限截断。</p>
+<h2>体型与成长规则</h2>
+<p>每条鱼的潜力为「鱼种参考体型 × 品质倍率 × 个体系数」。个体系数固定在 75%–100%，成长时间再有 ±15% 差异；重启或离线补算不会重抽。出生长度为个体潜力的 12%–28%，最小 2cm。</p>
+<table><thead><tr><th>品质</th><th>鱼种参考上限倍率</th><th>长完剩余空间 90% 的基准时间</th></tr></thead><tbody>
+<tr><td>普通</td><td>0.65</td><td>2 天</td></tr><tr><td>优良</td><td>0.80</td><td>3 天</td></tr><tr><td>稀有</td><td>1.00</td><td>4 天</td></tr><tr><td>史诗</td><td>1.15</td><td>5 天</td></tr><tr><td>传说</td><td>1.30</td><td>7 天</td></tr><tr><td>神话</td><td>1.50</td><td>10 天</td></tr><tr><td>至尊</td><td>1.80</td><td>14 天</td></tr>
+</tbody></table>
+<p>例如至尊泥鳅的潜力上界为 45.0cm，至尊中华鲟为 6.30m。小鱼种保持小体型，大鱼种才会成为巨物。以上为游戏设计值。</p>
+<h2>长度自动切换单位</h2>
+<table><thead><tr><th>范围</th><th>精度</th><th>示例</th></tr></thead><tbody>
+<tr><td>不足 1m</td><td>0.1cm</td><td>12.3cm、99.9cm</td></tr>
+<tr><td>1m 至不足 10m</td><td>0.01m</td><td>1.00m、6.30m</td></tr>
+<tr><td>10m 及以上</td><td>0.1m</td><td>10.0m、12.4m</td></tr>
+</tbody></table>
+<p>数据按米保存，精度 0.001m。进位跨越边界时自动换档，例如 9.995m 显示为 10.0m。网页、移动端及桌面端共用相同显示规则。</p>
+<h2>存量处理与验证</h2>
+<p class="note">下次服务启动时，一次性重算未钓获塘鱼，旧塘鱼可能变长或缩短。背包、图鉴、相册和历史排行不回写。尺寸变化会间接影响体重、售价及钓鱼难度，仍需后续验证整体挂机产量。</p>
+<p>相关服务端测试 57 项、Unity 测试 17 项通过。服务端全量 112 项中有 1 项原有阶段数量断言失败；旧 A0 验收脚本也有现行数值与旧断言不一致的问题。详细口径见完整报告。</p>
+<p><a href="../鱼体成长与长度显示-2026-11-01.md">完整实现与验证报告</a> · <a href="comparison-data.json">图表数据</a> · <a href="growth-comparison.svg">矢量图</a></p>
+</main></html>

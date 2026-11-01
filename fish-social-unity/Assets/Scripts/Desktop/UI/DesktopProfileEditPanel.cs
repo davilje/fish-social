@@ -355,7 +355,7 @@ namespace FishSocial.Desktop
                 if (label != null)
                     DesktopLocalization.SetText(label, fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.profile.edit.showcase.empty_surprise", "留给下一次惊喜"));
                 CozyItemArt.Text(slot.transform, "WorkspaceSlot", (i + 1).ToString("00"));
-                CozyItemArt.Text(slot.transform, "WorkspaceMeta", fish != null ? DesktopLocalization.Format("ui.profile.edit.showcase.label.replace_length", (object)(fish.sizeM.ToString("0.00"))) : DesktopLocalization.Text("ui.profile.edit.showcase.hint.choose_catch", "点击选择鱼获"));
+                CozyItemArt.Text(slot.transform, "WorkspaceMeta", fish != null ? DesktopLocalization.Format("ui.profile.edit.showcase.label.replace_length", (object)(DesktopGameData.FormatFishSize(fish.sizeM))) : DesktopLocalization.Text("ui.profile.edit.showcase.hint.choose_catch", "点击选择鱼获"));
                 var empty = slot.transform.Find("WorkspaceEmpty"); if (empty != null) empty.gameObject.SetActive(fish == null);
                 StyleChoice(slot);
                 var button = slot.GetComponent<Button>();
@@ -430,7 +430,7 @@ namespace FishSocial.Desktop
                 row.name = DesktopLocalization.Concat("Fish_", item.id);
                 count++;
                 CozyItemArt.Text(row.transform, "Label", name);
-                CozyItemArt.Text(row.transform, "WorkspaceMeta", DesktopLocalization.Format("ui.profile.edit.picker.label.length_weight", (object)(item.sizeM.ToString("0.00")), (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)))));
+                CozyItemArt.Text(row.transform, "WorkspaceMeta", DesktopLocalization.Format("ui.profile.edit.picker.label.length_weight", (object)(DesktopGameData.FormatFishSize(item.sizeM)), (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM)))));
                 CozyItemArt.Text(row.transform, "WorkspaceRecord", DesktopLocalization.Concat(DesktopLocalization.Concat(RecordTime(item.caughtAt), " · "), PondName(item.pondId)));
                 CozyItemArt.Set(row.transform, "DesignItemArt", CozyItemArt.Fish(item.speciesId));
                 StyleChoice(row, item.id == _pendingFishId);

@@ -3,11 +3,12 @@ import { FISH_QUALITIES, MIN_FISH_SIZE_M, MAX_FISH_SIZE_M, getSpecies, rollFishQ
 import type { PondFishEntity } from './pondEcology';
 import { getRodDef, getFishQualityStats, getFishingFormulaConstant } from './gameData.client';
 import { gameBaitBiteBonus } from './gearRules';
+import { calcIndividualFishLength, getSpeciesSizePotential, roundFishLength } from './fishGrowth';
 
 /** @deprecated A0-v2 已废弃指数模型，保留仅供旧脚本兼容 */
 export const BITE_LAMBDA = 0.02;
 
-/** 品质—尺寸上限（终生不变，成长不超过此值） */
+/** @deprecated 历史品质尺寸帽，仅供旧接口/历史迁移；运行鱼体改用鱼种与个体潜力。 */
 export const QUALITY_SIZE_CAP: Record<FishQuality, number> = {
   gray: 0.2,
   green: 0.35,
@@ -191,7 +192,8 @@ export function formatBiteRatePct(rate: number): string {
   return `${(rate * 100).toFixed(2)}%`;
 }
 
-export function getQualityMaxSize(quality: FishQuality, _species?: FishSpecies): number {
+export function getQualityMaxSize(quality: FishQuality, species?: FishSpecies, individualId?: string): number {
+  if (species) return getSpeciesSizePotential(quality, species, individualId);
   const stats = getFishQualityStats(quality);
   const cap = stats?.sizeCapM ?? QUALITY_SIZE_CAP[quality];
   return Math.min(cap, MAX_FISH_SIZE_M);
@@ -212,9 +214,9 @@ export function getSpeciesBiteRatePerTick(species: FishSpecies): number {
  * - QUALITY_BITE_BASE 为满尺寸（n=1）时的最高值
  * - 尺寸越大咬钩率越高，最小尺寸时降至满尺寸值的 35%
  */
-export function calcQualitySizeBiteRate(quality: FishQuality, sizeM: number): number {
+export function calcQualitySizeBiteRate(quality: FishQuality, sizeM: number, speciesId?: FishSpeciesId): number {
   const stats = getFishQualityStats(quality);
-  const cap = stats?.sizeCapM ?? QUALITY_SIZE_CAP[quality];
+  const cap = getQualityMaxSize(quality, speciesId ? getSpecies(speciesId) : undefined);
   const biteBase = stats?.biteBaseAtMaxSize ?? QUALITY_BITE_BASE[quality];
   const scale = formulaConstant('BITE_BASE_SCALE', BITE_BASE_SCALE);
   const k = formulaConstant('SIZE_BITE_K', SIZE_BITE_K);
@@ -275,7 +277,7 @@ export function calcSingleFishBiteProbability(
   baitBonus = 0,
 ): number {
   const baseBite =
-    calcQualitySizeBiteRate(fish.quality, fish.sizeM) * (fish.biteMultiplier ?? 1.0);
+    calcQualitySizeBiteRate(fish.quality, fish.sizeM, fish.speciesId) * (fish.biteMultiplier ?? 1.0);
   return calcFishBiteContribution(spotMultiplier, baseBite, baitBonus);
 }
 
@@ -319,12 +321,13 @@ export function calcEffectiveEscapeRate(
 }
 
 export function isNearMaxSize(fish: {
+  id?: string;
   quality: FishQuality;
   sizeM: number;
   speciesId: FishSpeciesId;
 }): boolean {
   const species = getSpecies(fish.speciesId);
-  const maxSize = getQualityMaxSize(fish.quality, species);
+  const maxSize = getQualityMaxSize(fish.quality, species, fish.id);
   return fish.sizeM >= maxSize * NEAR_MAX_SIZE_RATIO;
 }
 
@@ -340,7 +343,7 @@ export function getFishBaseBiteRate(
   species?: FishSpecies,
 ): number {
   const mult = fish.biteMultiplier ?? 1.0;
-  return calcQualitySizeBiteRate(fish.quality, fish.sizeM) * mult;
+  return calcQualitySizeBiteRate(fish.quality, fish.sizeM, species?.id ?? fish.speciesId) * mult;
 }
 
 /** A0-v2：每 30s 至少一条鱼咬钩概率 = min(1, Σ effectiveBite) */
@@ -374,32 +377,27 @@ export function rollInitialSize(quality: FishQuality, species: FishSpecies): num
 
   if (Math.random() < NEAR_MAX_SPAWN_CHANCE) {
     const sizeM = threshold + Math.random() * (maxSize - threshold);
-    const rounded = round2(sizeM);
+    const rounded = roundFishLength(sizeM);
     if (rounded < threshold) {
-      return round2(Math.min(maxSize, Math.ceil(threshold * 100) / 100));
+      return roundFishLength(Math.min(maxSize, Math.ceil(threshold * 1000) / 1000));
     }
     return Math.min(maxSize, rounded);
   }
 
   const cap = Math.max(floor, threshold - 0.01);
-  let sizeM = round2(floor + (cap - floor) * Math.random());
+  let sizeM = roundFishLength(floor + (cap - floor) * Math.random());
   if (sizeM >= threshold) {
-    sizeM = round2(Math.max(floor, threshold - 0.02));
+    sizeM = roundFishLength(Math.max(floor, threshold - 0.001));
   }
   return Math.max(MIN_FISH_SIZE_M, sizeM);
 }
 
 /**
- * 播种 / 系统补充专用：绝对幼年体长，无 NEAR_MAX_SPAWN_CHANCE
- * 若随机值超过该鱼品质上限（极少数），截断至 maxSize × 0.95
+ * 播种 / 系统补充：个体潜力的 12%-28%，最小 2cm，保留 0.1cm。
  */
-export function rollJuvenileSize(quality: FishQuality, species: FishSpecies): number {
-  const maxSize = getQualityMaxSize(quality, species);
-  const juvMin = formulaConstant('JUVENILE_SIZE_M_MIN', JUVENILE_SIZE_M_MIN);
-  const juvMax = formulaConstant('JUVENILE_SIZE_M_MAX', JUVENILE_SIZE_M_MAX);
-  const raw = juvMin + Math.random() * (juvMax - juvMin);
-  const capped = Math.min(raw, maxSize * 0.95);
-  return round2(Math.max(MIN_FISH_SIZE_M, capped));
+export function rollJuvenileSize(quality: FishQuality, species: FishSpecies, individualId?: string, random: () => number = Math.random): number {
+  const maxSize = getQualityMaxSize(quality, species, individualId);
+  return roundFishLength(Math.min(maxSize, Math.max(MIN_FISH_SIZE_M, maxSize * (0.12 + clamp01(random()) * 0.16))));
 }
 
 /** 脱钩后即时成长：当前体长 × (1 + ESCAPE_GROWTH_BONUS_RATIO)，触顶截断 */
@@ -407,12 +405,13 @@ export function calcEscapeGrowthSize(
   quality: FishQuality,
   species: FishSpecies,
   currentSizeM: number,
+  individualId?: string,
 ): number {
-  const maxSize = getQualityMaxSize(quality, species);
-  return round2(Math.min(maxSize, currentSizeM * (1 + ESCAPE_GROWTH_BONUS_RATIO)));
+  const maxSize = getQualityMaxSize(quality, species, individualId);
+  return roundFishLength(Math.max(currentSizeM, Math.min(maxSize, currentSizeM * (1 + ESCAPE_GROWTH_BONUS_RATIO))));
 }
 
-/** 全鱼共用标准体长曲线 L(t)，与品质无关 */
+/** @deprecated 旧绝对体长曲线，仅保留历史图表兼容；运行成长使用 calcIndividualFishLength。 */
 export function calcStandardLengthAtAge(ageDays: number): number {
   const progress = clamp01(ageDays / GROWTH_CURVE_DAYS);
   return round2(
@@ -432,7 +431,7 @@ export function rollIndividualBiteWeight(speciesBiteWeight: number): number {
 }
 
 /**
- * v0.3.1 成长：全鱼共用 L(t) 曲线，品质仅作上限截断
+ * 按鱼种/品质/永久个体 ID 生长；重复 tick 不重抽、不累加，已获得的尺寸不倒退。
  */
 export function growFishSizeV2(
   quality: FishQuality,
@@ -441,12 +440,12 @@ export function growFishSizeV2(
   birthSizeM: number,
   bornAt: number,
   now = Date.now(),
+  individualId?: string,
 ): number {
-  const maxSize = getQualityMaxSize(quality, species);
   const ageDays = Math.max(0, (now - bornAt) / 86_400_000);
-  const standardL = calcStandardLengthAtAge(ageDays);
-  const targetSize = Math.min(maxSize, Math.max(birthSizeM, standardL));
-  return round2(Math.max(currentSizeM, targetSize));
+  const key = individualId ?? `${species.id}:${quality}:${bornAt}:${birthSizeM}`;
+  const targetSize = calcIndividualFishLength(quality, species, birthSizeM, ageDays, key);
+  return Math.max(currentSizeM, targetSize);
 }
 
 /** @deprecated D6 使用 calcEffectiveEscapeRate(sizeM, ...) */
@@ -492,7 +491,7 @@ export function upgradeQualityForSize(quality: FishQuality, sizeM: number): Fish
 
 export function weightedPickByWeight<T extends { weight: number }>(
   items: T[],
-  pick: (item: T) => unknown,
+  _pick: (item: T) => unknown,
 ): T | null {
   if (items.length === 0) return null;
   const total = items.reduce((s, i) => s + i.weight, 0);

@@ -88,7 +88,7 @@ namespace FishSocial.Desktop.JournalV2
             if(category=="fish")foreach(var fish in inventory)
             {
                 if(fish==null)continue;var price=DesktopGameData.EstimateSellPrice(fish.quality,fish.sizeM,fish.speciesId);
-                rows.Add(new Row{Id=fish.id,Kind="fish",Fish=fish,Name=DesktopGameData.SpeciesName(fish.speciesId),Meta=DesktopLocalization.Concat(fish.sizeM.ToString("0.00"), " m"),Price=price,Available=true,Art=JournalV2CatalogUi.Fish(fish.speciesId),Facts=DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("体长 ", fish.sizeM.ToString("0.00")), " m · "), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(fish.sizeM))), "\n钓获于 "), JournalV2CatalogUi.Date(fish.caughtAt)), "\n鱼塘 "), (DesktopGameData.GetPond(fish.pondId)?.name??fish.pondId)), "\n预计出售 "), price), " 金币（以结算为准）")});
+                rows.Add(new Row{Id=fish.id,Kind="fish",Fish=fish,Name=DesktopGameData.SpeciesName(fish.speciesId),Meta=DesktopGameData.FormatFishSize(fish.sizeM),Price=price,Available=true,Art=JournalV2CatalogUi.Fish(fish.speciesId),Facts=DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("体长 ", DesktopGameData.FormatFishSize(fish.sizeM)), " · "), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(fish.sizeM))), "\n钓获于 "), JournalV2CatalogUi.Date(fish.caughtAt)), "\n鱼塘 "), (DesktopGameData.GetPond(fish.pondId)?.name??fish.pondId)), "\n预计出售 "), price), " 金币（以结算为准）")});
             }
             if(category=="rod" || category=="owned")foreach(var rod in rods)
             {
@@ -111,7 +111,7 @@ namespace FishSocial.Desktop.JournalV2
         static string RodFacts(ShopTackleDto rod,DesktopGameData.RodDef def)
         {
             var text=new StringBuilder();text.Append("类型：").Append(def?.subType??rod.subType).Append("\n咬钩加成：").Append(DesktopGameData.FormatPct(def?.biteBonus??rod.biteBonus)).Append("\n防脱加成：").Append(DesktopGameData.FormatPct(def?.escapeReduction??rod.escapeReduction));
-            text.Append("\n超规格阈值：").Append((def?.breakSizeM??rod.breakSizeM).ToString("0.##")).Append(" m\n超规格上限：").Append(def?.breakMaxLandings??rod.breakMaxLandings).Append(" 次，满次后损坏");
+            text.Append("\n超规格阈值：").Append(DesktopGameData.FormatFishSize(def?.breakSizeM??rod.breakSizeM)).Append("\n超规格上限：").Append(def?.breakMaxLandings??rod.breakMaxLandings).Append(" 次，满次后损坏");
             text.Append("\n品质适配 灰/绿/蓝/紫/红/橙/金\n").Append(DesktopGameData.FormatMul(def?.fitGray??rod.fitGray)).Append(" / ").Append(DesktopGameData.FormatMul(def?.fitGreen??rod.fitGreen)).Append(" / ").Append(DesktopGameData.FormatMul(def?.fitBlue??rod.fitBlue)).Append(" / ").Append(DesktopGameData.FormatMul(def?.fitPurple??rod.fitPurple)).Append(" / ").Append(DesktopGameData.FormatMul(def?.fitRed??rod.fitRed)).Append(" / ").Append(DesktopGameData.FormatMul(def?.fitOrange??rod.fitOrange)).Append(" / ").Append(DesktopGameData.FormatMul(def?.fitGold??rod.fitGold));return text.ToString();
         }
         Row FindSelected()=>rows.Find(row=>row.Id==selected);

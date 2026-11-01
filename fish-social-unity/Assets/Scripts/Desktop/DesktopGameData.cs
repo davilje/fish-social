@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace FishSocial.Desktop
@@ -391,6 +392,17 @@ namespace FishSocial.Desktop
         public static float CalcWeightJin(float sizeM)
         {
             return Mathf.Round(CalcWeightKg(sizeM) * 2f * 100f) / 100f;
+        }
+
+        /// <summary>小于1m用0.1cm，1-10m用0.01m，10m起用0.1m；数值与服务端保持一致。</summary>
+        public static string FormatFishSize(double sizeM)
+        {
+            var mm = double.IsNaN(sizeM) || double.IsInfinity(sizeM) ? 0d
+                : Math.Max(0d, Math.Round(sizeM * 1000d, MidpointRounding.AwayFromZero));
+            if (mm < 1000d) return (mm / 10d).ToString("0.0", CultureInfo.InvariantCulture) + "cm";
+            var cm = Math.Floor((mm + 5d) / 10d);
+            if (cm < 1000d) return (cm / 100d).ToString("0.00", CultureInfo.InvariantCulture) + "m";
+            return (Math.Floor((mm + 50d) / 100d) / 10d).ToString("0.0", CultureInfo.InvariantCulture) + "m";
         }
 
         public static string FormatWeightKg(float weightKg)

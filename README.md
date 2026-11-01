@@ -38,6 +38,12 @@
 
 ## 快速开始
 
+### 统一效果预览
+
+macOS 双击根目录 `打开现行预览.command`，Windows 双击 `打开现行预览.bat`。也可运行 `python3 scripts/start_preview.py`（Windows 为 `py -3 scripts/start_preview.py`），无需安装 npm 依赖；保留服务窗口，Ctrl+C 停止。
+
+默认入口为 <http://127.0.0.1:8772/preview-current.html>，同时兼容旧端口 8769。端口被其他程序占用时会选用可用端口，以终端显示的地址为准。所有分类仍统一在 `现行预览.html`，支持 `#home-soft-drag`、`#fish-growth`、`#audio` 等原有定位；请通过本地服务打开。
+
 ```bash
 # 安装依赖
 npm install

@@ -4,6 +4,7 @@
 import type { Server } from 'socket.io';
 import {
   calcCatchXpGrant,
+  formatFishSize,
   getQualityInfo,
   getSpecies,
   isAnnounceQuality,
@@ -56,9 +57,9 @@ function buildSettledMessage(
   const species = getSpecies(item.speciesId);
   const q = getQualityInfo(item.quality);
   if (autoReturned && gold != null) {
-    return `【${q.name}】${species.name} ${item.sizeM.toFixed(2)}m 已自动回塘，+${gold} 金币`;
+    return `【${q.name}】${species.name} ${formatFishSize(item.sizeM)} 已自动回塘，+${gold} 金币`;
   }
-  return `已入包：【${q.name}】${species.name} ${item.sizeM.toFixed(2)}m`;
+  return `已入包：【${q.name}】${species.name} ${formatFishSize(item.sizeM)}`;
 }
 
 export function settleAcceptedCatch(

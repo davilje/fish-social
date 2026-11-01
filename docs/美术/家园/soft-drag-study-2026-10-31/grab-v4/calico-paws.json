@@ -3,21 +3,21 @@
     "file": "calico-paws-0.png",
     "rect": [
       91,
-      22,
+      21,
       401,
-      456
+      457
     ],
-    "area": 111373
+    "area": 111583
   },
   {
     "file": "calico-paws-1.png",
     "rect": [
-      513,
-      28,
+      514,
+      29,
       513,
       443
     ],
-    "area": 111759
+    "area": 111920
   },
   {
     "file": "calico-paws-2.png",
@@ -25,29 +25,34 @@
       1025,
       29,
       471,
-      445
+      446
     ],
-    "area": 110379
+    "area": 110495
   },
   {
     "file": "calico-paws-3.png",
     "rect": [
-      34,
-      499,
+      35,
+      498,
       440,
-      489
+      491
     ],
-    "area": 100947
+    "area": 101211
   },
   {
     "file": "calico-paws-4.png",
     "rect": [
       561,
       499,
-      446,
+      448,
       500
     ],
-    "area": 99893
+    "area": 100202,
+    "override": {
+      "type": "standalone-imagegen-head-patch-correction",
+      "prompt": "grabV4Prompt-calico-hind-corrected",
+      "note": "This final frame replaces the atlas cell. Preserve the standalone PNG when re-slicing the atlas."
+    }
   },
   {
     "file": "calico-paws-5.png",
@@ -55,8 +60,8 @@
       1079,
       498,
       446,
-      481
+      482
     ],
-    "area": 98973
+    "area": 99338
   }
 ]

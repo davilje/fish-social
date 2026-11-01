@@ -1,4 +1,12 @@
 # V4 source image prompts
+
+## grabV4Prompt-calico-hind-corrected
+Edit ONLY the upside-down HEAD fur colors in this one calico cat sprite. Currently the LOWEST ear at the bottom of image has ORANGE outer fur; change that lowest ear outer fur and its adjoining large orange forehead/eye patch to CHARCOAL BLACK. Currently the RIGHTMOST ear and the adjacent head patch near the right edge are BLACK; change that RIGHTMOST ear outer fur and adjoining large black forehead/eye patch to ORANGE. These two head halves must exchange colors. White facial blaze, muzzle, nose, pink inner ears, eye positions and black outline stay unchanged. Do NOT change any fur on the torso, tail or legs. Do not move any silhouette or pose. Preserve exact portrait framing, transparent pixels and current dimensions. This is a color-registration correction of an upside-down face. Transparent background, no shadows.
+
+
+## grabV4Prompt-calico-paws-corrected
+Correct the calico HEAD patch registration in this existing transparent six-pose animation atlas. Keep the 1536x1024 canvas, every pose/silhouette/paw/expression, body markings, alpha and exact pixel composition. Only recolor head fur. For top-left, top-middle, top-right, bottom-left, and bottom-middle characters: SWAP the current large orange forehead/ear patch with the charcoal-black forehead/ear patch. The current black head half must become orange and the current orange head half black. Preserve white muzzle/blaze, pink inner ears and blush, eyes and outlines. DO NOT swap the last bottom-right character: its upside-down head with black toward image-left and orange toward image-bottom is already correct; leave bottom-right pixel appearance unchanged. All body patches remain unchanged. Use actual transparent alpha zero, no glow or painted background. This fixes five incorrectly mirrored face-color patterns; do not mirror or move the artwork itself.
+
 Generated with the built-in ImageGen tool. Originals retained; PNG frames are connected-component slices.
 
 ## grabV4Prompt

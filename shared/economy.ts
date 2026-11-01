@@ -1,5 +1,5 @@
 import type { FishInventoryItem, FishQuality } from './types';
-import { getQualityInfo, getSpecies } from './fish';
+import { formatFishSize, getQualityInfo, getSpecies } from './fish';
 import { calcFishWeightJin } from './fishing';
 import { getSellQualityDef, getSellSizeExp } from './gameData.client';
 
@@ -73,7 +73,7 @@ export function calcFishReturnGold(
 export function formatPostFishText(item: Pick<FishInventoryItem, 'speciesId' | 'quality' | 'sizeM'>): string {
   const species = getSpecies(item.speciesId);
   const q = getQualityInfo(item.quality);
-  return `钓到了【${q.name}】${species.name}，体长 ${item.sizeM.toFixed(2)}m`;
+  return `钓到了【${q.name}】${species.name}，体长 ${formatFishSize(item.sizeM)}`;
 }
 
 export function formatEpicCatchPostText(item: Pick<FishInventoryItem, 'speciesId' | 'quality' | 'sizeM'>): string {

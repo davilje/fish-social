@@ -29,6 +29,7 @@ import {
   rollIndividualMultiplier,
   rollJuvenileSize,
   round2,
+  roundFishLength,
   type FishQuality,
   type FishSpeciesId,
   type PondEcologySummary,
@@ -215,14 +216,15 @@ function insertPondFish(
   forcedSpotId?: string,
 ): PondFishEntity {
   const species = getSpecies(speciesId);
-  const sizeM = rollJuvenileSize(quality, species);
+  const id = randomUUID();
+  const sizeM = rollJuvenileSize(quality, species, id);
   const biteMultiplier = rollIndividualMultiplier();
   const escapeMultiplier = rollIndividualMultiplier();
-  const biteBase = calcQualitySizeBiteRate(quality, sizeM);
+  const biteBase = calcQualitySizeBiteRate(quality, sizeM, speciesId);
   const escapeBase = calcSizeEscapeRate(sizeM);
   const spotId = forcedSpotId ?? pickSpotForPond(pondId);
   const fish: PondFishEntity = {
-    id: randomUUID(),
+    id,
     pondId,
     spotId,
     speciesId,
@@ -273,12 +275,13 @@ export function spawnDebugHookFish(
   if (!config) return null;
   const picked = pickPoolOrFallback(pondId, config);
   const species = getSpecies(picked.speciesId);
-  const maxSize = getQualityMaxSize(quality, species);
-  const sizeM = Math.round(maxSize * sizeRatio * 100) / 100;
+  const id = randomUUID();
+  const maxSize = getQualityMaxSize(quality, species, id);
+  const sizeM = roundFishLength(maxSize * sizeRatio);
   const biteMultiplier = rollIndividualMultiplier();
   const escapeMultiplier = rollIndividualMultiplier();
   const fish: PondFishEntity = {
-    id: randomUUID(),
+    id,
     pondId,
     spotId,
     speciesId: picked.speciesId,
@@ -534,7 +537,7 @@ export function applyEscapeGrowthBonus(fishId: string): PondFishEntity | null {
 
   const species = getSpecies(row.species_id as FishSpeciesId);
   const quality = row.quality as PondFishEntity['quality'];
-  const newSize = calcEscapeGrowthSize(quality, species, row.size_m);
+  const newSize = calcEscapeGrowthSize(quality, species, row.size_m, row.id);
   if (newSize > row.size_m) {
     updateFishSizeStmt.run(newSize, fishId);
     return rowToEntity({ ...row, size_m: newSize });
@@ -556,7 +559,7 @@ export function growOrSpawnReturnedFish(opts: {
   const gain = Math.max(0, opts.sizeGainM);
   const candidates = listPondFishEntities(opts.pondId).filter((f) => {
     if (f.speciesId !== opts.speciesId) return false;
-    const cap = getQualityMaxSize(f.quality, getSpecies(f.speciesId));
+    const cap = getQualityMaxSize(f.quality, getSpecies(f.speciesId), f.id);
     return f.sizeM < cap - 1e-6;
   });
   candidates.sort((a, b) => {
@@ -569,21 +572,23 @@ export function growOrSpawnReturnedFish(opts: {
   if (candidates.length > 0) {
     const target = candidates[0]!;
     const species = getSpecies(target.speciesId);
-    const cap = getQualityMaxSize(target.quality, species);
+    const cap = getQualityMaxSize(target.quality, species, target.id);
     const before = target.sizeM;
-    const after = round2(Math.min(cap, before + gain));
+    const after = roundFishLength(Math.min(cap, before + gain));
     updateFishSizeStmt.run(after, target.id);
     return {
       entity: { ...target, sizeM: after },
-      sizeGainApplied: round2(after - before),
+      sizeGainApplied: roundFishLength(after - before),
       spawned: false,
     };
   }
 
   const species = getSpecies(opts.speciesId);
-  const cap = getQualityMaxSize(opts.quality, species);
-  const before = Math.min(cap, Math.max(0.01, opts.baseSizeM));
-  const after = round2(Math.min(cap, before + gain));
+  const id = randomUUID();
+  const cap = getQualityMaxSize(opts.quality, species, id);
+  // 已钓获再回塘的鱼不因新模型而缩水；超出潜力的旧鱼保留原长。
+  const before = Math.max(0.02, opts.baseSizeM);
+  const after = roundFishLength(Math.max(before, Math.min(cap, before + gain)));
   const biteMultiplier = rollIndividualMultiplier();
   const escapeMultiplier = rollIndividualMultiplier();
   const spotId =
@@ -591,7 +596,7 @@ export function growOrSpawnReturnedFish(opts: {
       ? opts.spotId
       : pickSpotForPond(opts.pondId);
   const fish: PondFishEntity = {
-    id: randomUUID(),
+    id,
     pondId: opts.pondId,
     spotId,
     speciesId: opts.speciesId,
@@ -619,7 +624,7 @@ export function growOrSpawnReturnedFish(opts: {
   });
   return {
     entity: fish,
-    sizeGainApplied: round2(after - before),
+    sizeGainApplied: roundFishLength(after - before),
     spawned: true,
   };
 }
@@ -631,7 +636,7 @@ function growAllFish(pondId: string, atMs: number = Date.now()): void {
     const species = getSpecies(row.species_id as FishSpeciesId);
     const quality = row.quality as PondFishEntity['quality'];
     const birthSizeM = row.birth_size_m ?? row.size_m;
-    const newSize = growFishSizeV2(quality, species, row.size_m, birthSizeM, row.born_at, atMs);
+    const newSize = growFishSizeV2(quality, species, row.size_m, birthSizeM, row.born_at, atMs, row.id);
     if (newSize !== row.size_m) {
       updates.push({ id: row.id, sizeM: newSize });
     }

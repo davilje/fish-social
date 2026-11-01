@@ -18,6 +18,7 @@ export * from './pondTileMap';
 export * from './worldTileMap';
 export * from './isoMath';
 export * from './fish';
+export * from './fishGrowth';
 export * from './fishing';
 export * from './defaultAvatars';
 export * from './fishingPhotos';

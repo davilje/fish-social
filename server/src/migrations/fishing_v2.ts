@@ -47,6 +47,14 @@ export function migrateFishingV2(
     result.biteWeightColumnAdded = true;
   }
 
+  // 该旧迁移每次启动都会运行；新模型下体型不再推导品质，不能继续按旧尺寸帽升品。
+  const hasConfig = database.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'game_config'").get();
+  if (hasConfig) {
+    const individualGrowth = database.prepare("SELECT config_value FROM game_config WHERE config_key = 'INDIVIDUAL_FISH_GROWTH_V1'")
+      .get() as { config_value: string } | undefined;
+    if (individualGrowth?.config_value === 'true') return result;
+  }
+
   const rows = database.prepare('SELECT id, species_id, quality, size_m FROM pond_fish').all() as PondFishRow[];
   const updateQualityStmt = database.prepare(
     'UPDATE pond_fish SET quality = @quality WHERE id = @id',

@@ -34,7 +34,7 @@ namespace FishSocial.Desktop.JournalV2
                 JournalV2Nodes.Text(v,"Content",p.text??"",22,76,638,51,17);
                 JournalV2Nodes.Plate(v,"FishWell",22,138,638,112,JournalV2Theme.ArtWell,12,0).ShadowColor=Color.clear;
                 JournalV2Nodes.Image(v,"Fish",p.fish==null?null:JournalV2Pages.CommunityFish(p.fish.speciesId),34,148,210,92);
-                JournalV2Nodes.Text(v,"FishInfo",p.fish==null?"":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(p.fish.speciesId), "\n"), p.fish.sizeM.ToString("0.00")), " m · "), DesktopFishCatalog.QualityName(p.fish.quality)),274,158,350,72,20);
+                JournalV2Nodes.Text(v,"FishInfo",p.fish==null?"":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(p.fish.speciesId), "\n"), DesktopGameData.FormatFishSize(p.fish.sizeM)), " · "), DesktopFishCatalog.QualityName(p.fish.quality)),274,158,350,72,20);
                 var like=JournalV2Nodes.Button(v,"Like",LikeText(p),"heart",22,264,152,38);Select(like,p.likedByMe);Action(like,()=>StartCoroutine(Like(p,like,Epoch)));
                 var comment=JournalV2Nodes.Button(v,"Comment",DesktopLocalization.Concat(p.commentCount, " 条留言"),"message",188,264,182,38);Action(comment,()=>SelectPost(p));
                 cards[c]=p;Action(c,()=>SelectPost(p));CardMotion(c,p.id,i,JournalV2ButtonKind.Sticker,0);

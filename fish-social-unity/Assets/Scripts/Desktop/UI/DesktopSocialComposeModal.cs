@@ -233,7 +233,7 @@ namespace FishSocial.Desktop
             {
                 if (item == null || string.IsNullOrEmpty(item.id) || _fishIds.Contains(item.id)) continue;
                 _fishIds.Add(item.id); _inventory.Add(item);
-                choices.Add(new Dropdown.OptionData(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(item.speciesId), " · "), item.sizeM.ToString("0.00")), " m")));
+                choices.Add(new Dropdown.OptionData(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.SpeciesName(item.speciesId), " · "), DesktopGameData.FormatFishSize(item.sizeM)), "")));
             }
             var requestedIndex = _fishIds.IndexOf(selectedFishId ?? "");
             var missingRequested = !string.IsNullOrEmpty(selectedFishId) && requestedIndex < 0;
@@ -305,7 +305,7 @@ namespace FishSocial.Desktop
             var art = _paper?.Find("CatchPreview/FishArt")?.GetComponent<Image>();
             if (art != null) { art.sprite = item == null ? null : CozyItemArt.Fish(item.speciesId); art.enabled = art.sprite != null; }
             SetText("CatchPreview/FishName", item == null ? DesktopLocalization.Text("ui.social.composer.title.choose_catch", "挑一条今天的鱼获") : DesktopFishCatalog.SpeciesName(item.speciesId));
-            SetText("CatchPreview/Size", item == null ? "—" : DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m"));
+            SetText("CatchPreview/Size", item == null ? "—" : DesktopGameData.FormatFishSize(item.sizeM));
             SetText("CatchPreview/Weight", item == null ? "—" : DesktopLocalization.Concat(DesktopGameData.CalcWeightKg(item.sizeM).ToString("0.00"), " kg"));
             var timestamp = DesktopLocalization.Text("ui.social.composer.label.unknown_catch_time", "记录时间未知");
             if (item != null && item.caughtAt > 0)

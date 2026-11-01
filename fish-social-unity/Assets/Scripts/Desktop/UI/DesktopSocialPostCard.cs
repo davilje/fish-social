@@ -337,7 +337,7 @@ namespace FishSocial.Desktop
             if (_fishInfoText != null)
             {
                 var fish = _post.fish;
-                DesktopLocalization.SetText(_fishInfoText, DesktopLocalization.Format("ui.social.post_card.label.catch_summary", (object)((fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? DesktopFishCatalog.QualityName(fish.quality) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? fish.sizeM.ToString("0.00") : "-")), (object)((fish != null
+                DesktopLocalization.SetText(_fishInfoText, DesktopLocalization.Format("ui.social.post_card.label.catch_summary", (object)((fish != null ? DesktopFishCatalog.SpeciesName(fish.speciesId) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? DesktopFishCatalog.QualityName(fish.quality) : DesktopLocalization.Text("ui.social.post_card.fallback.unknown", "未知"))), (object)((fish != null ? DesktopGameData.FormatFishSize(fish.sizeM) : "-")), (object)((fish != null
                         ? DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(fish.sizeM))
                         : "-")), (object)((_post.visibility == "friends" ? DesktopLocalization.Text("ui.social.post_card.visibility.friends", "仅好友") : DesktopLocalization.Text("ui.social.post_card.visibility.everyone", "所有人")))));
             }
@@ -347,7 +347,7 @@ namespace FishSocial.Desktop
                 _fishInfoText.fontSize = 15;
                 _fishInfoText.color = new Color(0.55f, 0.45f, 0.35f, 1f);
                 DesktopLocalization.SetText(_fishInfoText, _post.fish != null
-                    ? DesktopLocalization.Concat(DesktopLocalization.Concat(_post.fish.sizeM.ToString("0.00"), " m · "), DesktopFishCatalog.StarRich(_post.fish.quality))
+                    ? DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopGameData.FormatFishSize(_post.fish.sizeM), " · "), DesktopFishCatalog.StarRich(_post.fish.quality))
                     : "");
             }
             StyleQuiet(_likeButton, false);

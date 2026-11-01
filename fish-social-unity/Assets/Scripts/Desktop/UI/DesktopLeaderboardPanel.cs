@@ -1476,7 +1476,7 @@ namespace FishSocial.Desktop
             var size = extra != null && extra.sizeM > 0 ? extra.sizeM
                 : boardType == BoardDaily || boardType == BoardWeekly ? entry.value : 0f;
             var measurements = size > 0
-                ? DesktopLocalization.Format("ui.leaderboard.catch.label.measurements", size.ToString("0.00"), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(size)))
+                ? DesktopLocalization.Format("ui.leaderboard.catch.label.measurements", DesktopGameData.FormatFishSize(size), DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(size)))
                 : DesktopLocalization.Text("ui.leaderboard.catch.empty.record", "鱼获记录未提供");
             var pond = extra != null && !string.IsNullOrEmpty(extra.pondId) ? DesktopGameData.GetPond(extra.pondId) : null;
             var pondName = pond != null ? pond.name : DesktopLocalization.Text("ui.leaderboard.catch.empty.pond", "水域未记录");
@@ -1503,7 +1503,7 @@ namespace FishSocial.Desktop
             if (boardType == BoardDaily)
             {
                 var size = extra != null && extra.sizeM > 0 ? extra.sizeM : entry.value;
-                return DesktopLocalization.Concat(size.ToString("0.00"), " m");
+                return DesktopGameData.FormatFishSize(size);
             }
             if (boardType == BoardWeekly)
             {

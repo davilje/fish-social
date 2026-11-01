@@ -230,7 +230,7 @@ namespace FishSocial.Desktop
                 try { first = DateTimeOffset.FromUnixTimeMilliseconds(entry.firstCaughtAt).LocalDateTime.ToString("yyyy-MM-dd HH:mm"); }
                 catch (ArgumentOutOfRangeException) { }
             }
-            DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.codex.gallery.details.species_summary", (object)(species.RarityLabel), (object)(species.DietLabel), (object)((string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel)), (object)(species.TypicalMinM.ToString("0.00")), (object)(species.TypicalMaxM.ToString("0.00")), (object)(DesktopFishCatalog.TopBaits(species)), (object)(entry.totalCaught), (object)(entry.maxSizeM.ToString("0.00")), (object)(first)));
+            DesktopLocalization.SetText(_detail, DesktopLocalization.Format("ui.codex.gallery.details.species_summary", (object)(species.RarityLabel), (object)(species.DietLabel), (object)((string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel)), (object)(DesktopGameData.FormatFishSize(species.TypicalMinM)), (object)(DesktopGameData.FormatFishSize(species.TypicalMaxM)), (object)(DesktopFishCatalog.TopBaits(species)), (object)(entry.totalCaught), (object)(DesktopGameData.FormatFishSize(entry.maxSizeM)), (object)(first)));
         }
     }
 }

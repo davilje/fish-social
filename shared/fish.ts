@@ -52,7 +52,7 @@ export interface FishSpecies {
   id: FishSpeciesId;
   name: string;
   icon: string;
-  /** 图鉴展示参考体长，不参与出生/成长结算 */
+  /** 鱼种参考体长；typicalMaxM 也是个体生长潜力的基准 */
   typicalMinM: number;
   typicalMaxM: number;
   /** 播种品质带：1=gray … 7=gold */
@@ -132,7 +132,12 @@ export function getSpecies(speciesId: FishSpeciesId): FishSpecies {
 }
 
 export function formatFishSize(sizeM: number): string {
-  return `${sizeM.toFixed(2)}m`;
+  const millimetres = Number.isFinite(sizeM) ? Math.max(0, Math.round(sizeM * 1000)) : 0;
+  if (millimetres < 1000) return `${(millimetres / 10).toFixed(1)}cm`;
+  // 单位边界按显示精度进位，避免出现 10.00m。
+  const centimetres = Math.floor((millimetres + 5) / 10);
+  if (centimetres < 1000) return `${(centimetres / 100).toFixed(2)}m`;
+  return `${(Math.floor((millimetres + 50) / 100) / 10).toFixed(1)}m`;
 }
 
 export function formatFishWeight(weightKg: number): string {

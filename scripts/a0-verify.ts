@@ -13,11 +13,7 @@ import {
   FISH_MIGRATION_FRACTION,
   FISH_QUALITIES,
   FISH_SPECIES,
-  GROWTH_CURVE_CEILING_M,
-  GROWTH_CURVE_DAYS,
   HOOK_AT_40M_MS,
-  JUVENILE_SIZE_M_MAX,
-  JUVENILE_SIZE_M_MIN,
   POND_SUPPLEMENT_CHECK_MS,
   POND_SUPPLEMENT_MAX_INTERVAL_MULT,
   QUALITY_BITE_BASE,
@@ -35,13 +31,13 @@ import {
   calcSizeHookDurationMs,
   calcSingleFishBiteProbability,
   calcSpotDestinationWeights,
-  calcStandardLengthAtAge,
   calcSupplementCheckMs,
   calcSupplementQualityWeights,
   calcTickBiteProbability,
   getQualityMaxSize,
+  getFishGrowthDaysTo90,
+  calcIndividualFishLength,
   getSpecies,
-  growFishSizeV2,
   isNearMaxSize,
   pickMigrationSpot,
   pickSpotFishCandidate,
@@ -77,7 +73,7 @@ function simulateNearMaxConstants(): boolean {
   const sp = getSpecies('marlin');
   const maxSize = getQualityMaxSize('gold', sp);
   const fish = { quality: 'gold' as const, sizeM: maxSize, speciesId: sp.id };
-  const biteAtMax = calcQualitySizeBiteRate('gold', maxSize);
+  const biteAtMax = calcQualitySizeBiteRate('gold', maxSize, sp.id);
   const bitePass = Math.abs(biteAtMax - QUALITY_BITE_BASE.gold * BITE_BASE_SCALE) < 0.00001;
   const escAt40 = calcSizeEscapeRate(REFERENCE_SIZE_M);
   const hookAt40 = calcSizeHookDurationMs(REFERENCE_SIZE_M);
@@ -141,49 +137,44 @@ function simulateTackleEscape(): boolean {
   return pass;
 }
 
-function simulateGrowthCurve7d(): boolean {
-  console.log('\n=== 7 日绝对生长曲线 ===');
-  const at7 = calcStandardLengthAtAge(GROWTH_CURVE_DAYS);
-  const ceilingPass = at7 === GROWTH_CURVE_CEILING_M;
-  const sp = getSpecies('crucian');
-  const bornAt = Date.now() - GROWTH_CURVE_DAYS * 86_400_000;
-  const birthSizeM = 0.15;
-  const graySize = growFishSizeV2('gray', sp, birthSizeM, birthSizeM, bornAt);
-  const goldSize = growFishSizeV2('gold', sp, birthSizeM, birthSizeM, bornAt);
-  const grayCap = getQualityMaxSize('gray', sp);
-  const goldCap = getQualityMaxSize('gold', sp);
-  const grayPass = Math.abs(graySize - grayCap) < 0.01;
-  const goldPass = Math.abs(goldSize - goldCap) < 0.01;
-  const sameCurvePass = calcStandardLengthAtAge(3) > grayCap;
-  console.log(`  L(7)=${at7}m (expect ${GROWTH_CURVE_CEILING_M}) ${ceilingPass ? 'OK' : 'FAIL'}`);
-  console.log(`  gray 7d → ${graySize}m (cap ${grayCap}m) ${grayPass ? 'OK' : 'FAIL'}`);
-  console.log(`  gold 7d → ${goldSize}m (cap ${goldCap}m) ${goldPass ? 'OK' : 'FAIL'}`);
-  console.log(`  L(3)>gray cap ${sameCurvePass ? 'OK' : 'FAIL'}`);
-  return ceilingPass && grayPass && goldPass && sameCurvePass;
+function simulateIndividualGrowth(): boolean {
+  console.log('\n=== 鱼种与个体渐近成长 ===');
+  const sp = getSpecies('carp');
+  const id = 'growth-acceptance';
+  const cap = getQualityMaxSize('gray', sp, id);
+  const t90 = getFishGrowthDaysTo90('gray', id);
+  const at90 = calcIndividualFishLength('gray', sp, 0.05, t90, id);
+  const curvePass = Math.abs(at90 - (0.05 + (cap - 0.05) * 0.9)) <= 0.001;
+  const sizes = new Set(Array.from({ length: 1000 }, (_, i) =>
+    calcIndividualFishLength('gray', sp, 0.05, 7, `fish-${i}`)));
+  const diverse = sizes.size > 100;
+  const speciesPass = getQualityMaxSize('gold', getSpecies('loach')) < getQualityMaxSize('gold', sp);
+  console.log(`  T90=${t90.toFixed(2)}d size=${at90}m cap=${cap}m ${curvePass ? 'OK' : 'FAIL'}`);
+  console.log(`  同龄同种 1000 条产生 ${sizes.size} 种体长 ${diverse ? 'OK' : 'FAIL'}`);
+  return curvePass && diverse && speciesPass;
 }
 
 function simulateEscapeGrowth(): boolean {
   console.log('\n=== 脱钩成长 ×1.02 ===');
   const sp = getSpecies('carp');
-  const grown = calcEscapeGrowthSize('blue', sp, 1.0);
-  const pass = grown === 1.02;
-  console.log(`  1.00m → ${grown}m ${pass ? 'OK' : 'FAIL'}`);
+  const grown = calcEscapeGrowthSize('blue', sp, 0.5);
+  const pass = grown === 0.51;
+  console.log(`  0.50m → ${grown}m ${pass ? 'OK' : 'FAIL'}`);
   return pass;
 }
 
 function simulateJuvenileSize(): boolean {
-  console.log('\n=== 幼年体长 0.08~0.20m ===');
+  console.log('\n=== 幼鱼按个体潜力 12%-28% 出生 ===');
   const sp = getSpecies('carp');
-  let min = Infinity;
-  let max = 0;
+  let rangePass = true;
   for (let i = 0; i < SAMPLES; i++) {
     const q = rollFishQuality();
-    const sz = rollJuvenileSize(q, sp);
-    min = Math.min(min, sz);
-    max = Math.max(max, sz);
+    const id = `juvenile-${i}`;
+    const cap = getQualityMaxSize(q, sp, id);
+    const size = rollJuvenileSize(q, sp, id);
+    rangePass &&= size >= Math.max(0.02, cap * 0.12) - 0.001 && size <= cap * 0.28 + 0.001;
   }
-  const rangePass = min >= JUVENILE_SIZE_M_MIN && max <= JUVENILE_SIZE_M_MAX;
-  console.log(`  range [${min.toFixed(2)}, ${max.toFixed(2)}]m ${rangePass ? 'OK' : 'FAIL'}`);
+  console.log(`  ${SAMPLES} 样本符合个体出生区间 ${rangePass ? 'OK' : 'FAIL'}`);
   return rangePass;
 }
 
@@ -445,7 +436,7 @@ const results = [
   simulateSizeOnlyEscapeHook(),
   simulateQualitySizeBiteGradient(),
   simulateTackleEscape(),
-  simulateGrowthCurve7d(),
+  simulateIndividualGrowth(),
   simulateEscapeGrowth(),
   simulateJuvenileSize(),
   simulatePondSeedDistribution(),

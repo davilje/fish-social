@@ -8,6 +8,7 @@ import {
   getMaxPlayerLevel,
   getPlayerLevelDef,
   getQualityMaxSize,
+  formatFishSize,
   getSpecies,
   getQualityInfo,
   isFishingActive,
@@ -510,7 +511,7 @@ export function forceGameplayDebugBite(
     ok: true,
     action: 'force_bite',
     pondId,
-    message: `已强制上钩：${species?.name ?? fish.speciesId} / ${fish.quality} / ${fish.sizeM.toFixed(2)}m`,
+    message: `已强制上钩：${species?.name ?? fish.speciesId} / ${fish.quality} / ${formatFishSize(fish.sizeM)}`,
   };
 }
 
@@ -539,9 +540,9 @@ function formatDebugCatchSuccess(
   const species = getSpecies(settled.item.speciesId);
   const q = getQualityInfo(settled.item.quality);
   const message = settled.autoReturned
-    ? `已自动回塘：【${q.name}】${species.name} ${settled.item.sizeM.toFixed(2)}m` +
+    ? `已自动回塘：【${q.name}】${species.name} ${formatFishSize(settled.item.sizeM)}` +
       (settled.gold != null ? `，+${settled.gold} 金币` : '')
-    : `已入背包：【${q.name}】${species.name} ${settled.item.sizeM.toFixed(2)}m（未达回鱼标准或本局为出售档）`;
+    : `已入背包：【${q.name}】${species.name} ${formatFishSize(settled.item.sizeM)}（未达回鱼标准或本局为出售档）`;
   return {
     ok: true,
     action,

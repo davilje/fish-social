@@ -68,7 +68,7 @@ namespace FishSocial.Desktop.JournalV2
             for(var i=0;i<shown.Count;i++)
             {
                 var species=shown[i];var caught=records.TryGetValue(species.speciesId,out var entry)&&entry.totalCaught>0;
-                var card=JournalV2CatalogUi.Card(grid.content,species.speciesId,species.name,caught?DesktopLocalization.Concat(DesktopLocalization.Concat("最大 ", entry.maxSizeM.ToString("0.00")), " m"):"尚未相遇",JournalV2CatalogUi.Fish(species.speciesId),new Vector2(157,192),i);
+                var card=JournalV2CatalogUi.Card(grid.content,species.speciesId,species.name,caught?DesktopLocalization.Concat(DesktopLocalization.Concat("最大 ", DesktopGameData.FormatFishSize(entry.maxSizeM)), ""):"尚未相遇",JournalV2CatalogUi.Fish(species.speciesId),new Vector2(157,192),i);
                 if(!caught){var art=JournalV2CatalogUi.Visual(card).Find("Artwork").GetComponent<Image>();art.color=new Color(.45f,.39f,.31f,.3f);}
                 cards[species.speciesId]=card;card.onClick.AddListener(()=>{selected=species.speciesId;Details(true);});
             }
@@ -81,7 +81,7 @@ namespace FishSocial.Desktop.JournalV2
             foreach(var pair in cards)pair.Value.GetComponent<JournalV2Button>()?.SetSelected(pair.Key==selected);
             var species=DesktopGameData.GetSpeciesDef(selected);records.TryGetValue(selected??"",out var record);
             JournalV2CatalogUi.Photo(photo,species==null?null:JournalV2CatalogUi.Fish(species.speciesId),species?.name??"等待下一次相遇",reveal);
-            DesktopLocalization.SetText(facts, species==null?"换个分类或关键词找找看。":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("食性：", DesktopGameData.DietLabel(species.diet)), "\n习性："), DesktopGameData.CatchGroupLabel(species.catchGroup)), "\n常见体长："), species.typicalMinM.ToString("0.##")), "—"), species.typicalMaxM.ToString("0.##")), " m\n"), (record==null?"还未钓获，下一次也许就能相遇。":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("累计钓获：", record.totalCaught), "\n最大记录："), record.maxSizeM.ToString("0.00")), " m\n初次相遇："), JournalV2CatalogUi.Date(record.firstCaughtAt)))));
+            DesktopLocalization.SetText(facts, species==null?"换个分类或关键词找找看。":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("食性：", DesktopGameData.DietLabel(species.diet)), "\n习性："), DesktopGameData.CatchGroupLabel(species.catchGroup)), "\n常见体长："), DesktopGameData.FormatFishSize(species.typicalMinM)), "—"), DesktopGameData.FormatFishSize(species.typicalMaxM)), "\n"), (record==null?"还未钓获，下一次也许就能相遇。":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat("累计钓获：", record.totalCaught), "\n最大记录："), DesktopGameData.FormatFishSize(record.maxSizeM)), "\n初次相遇："), JournalV2CatalogUi.Date(record.firstCaughtAt)))));
         }
     }
 }

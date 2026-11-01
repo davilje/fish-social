@@ -33,6 +33,7 @@ import {
   growFishSizeV2,
   pickSpotFishCandidate,
   rollIndividualMultiplier,
+  rollJuvenileSize,
 } from '@fish-social/shared';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -136,11 +137,9 @@ function rollQuality(): FishQuality {
   return 'gray';
 }
 
-function rollJuvenile(quality: FishQuality, speciesId: FishSpeciesId): number {
+function rollJuvenile(quality: FishQuality, speciesId: FishSpeciesId, id: string): number {
   const species = getSpecies(speciesId);
-  const maxSize = getQualityMaxSize(quality, species);
-  const raw = 0.08 + rng() * (0.2 - 0.08);
-  return Math.round(Math.max(0.01, Math.min(raw, maxSize * 0.95)) * 100) / 100;
+  return rollJuvenileSize(quality, species, id, rng);
 }
 
 function pickSpecies(config: PondStockConfig): FishSpeciesId {
@@ -238,9 +237,10 @@ function createFish(
 ): SimFish {
   const speciesId = pickSpecies(config);
   const quality = rollQuality();
-  const sizeM = rollJuvenile(quality, speciesId);
+  const id = `${pondId}-${++fishIdSeq}`;
+  const sizeM = rollJuvenile(quality, speciesId, id);
   return {
-    id: `${pondId}-${++fishIdSeq}`,
+    id,
     spotId: pickSpotForNewFish(spotIds, habitat),
     quality,
     speciesId,
@@ -265,8 +265,8 @@ function seedPond(config: PondStockConfig, bornAt: number): SimFish[] {
 function growFish(fish: SimFish[], now: number) {
   for (const f of fish) {
     const species = getSpecies(f.speciesId);
-    f.sizeM = growFishSizeV2(f.quality, species, f.sizeM, f.birthSizeM, f.bornAt, now);
-    const cap = getQualityMaxSize(f.quality, species);
+    f.sizeM = growFishSizeV2(f.quality, species, f.sizeM, f.birthSizeM, f.bornAt, now, f.id);
+    const cap = getQualityMaxSize(f.quality, species, f.id);
     if (f.sizeM > cap) f.sizeM = cap;
   }
 }
@@ -372,7 +372,7 @@ function simulateFishing(fish: SimFish[], pondId: string, anglers: number, caugh
       const esc = calcEffectiveEscapeRate(simTarget.sizeM, 'basic', simTarget.escapeMultiplier);
       if (rng() < esc) {
         const species = getSpecies(simTarget.speciesId);
-        simTarget.sizeM = calcEscapeGrowthSize(simTarget.quality, species, simTarget.sizeM);
+        simTarget.sizeM = calcEscapeGrowthSize(simTarget.quality, species, simTarget.sizeM, simTarget.id);
         continue;
       }
 

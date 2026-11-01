@@ -1,3 +1,5 @@
+import { formatFishSize } from '@fish-social/shared';
+
 const EVENT_LABELS: Record<string, string> = {
   pending_catch_accept: '收鱼',
   catch_accept: '收鱼',
@@ -95,7 +97,7 @@ export function summarizeEventPayload(
   if (typeof payload.reason === 'string') parts.push(payload.reason);
   if (typeof payload.joinKind === 'string') parts.push(payload.joinKind);
   if (typeof payload.quality === 'string') parts.push(payload.quality);
-  if (typeof payload.sizeM === 'number') parts.push(`${payload.sizeM.toFixed(2)}m`);
+  if (typeof payload.sizeM === 'number') parts.push(`${formatFishSize(payload.sizeM)}`);
   if (typeof payload.speciesId === 'string') parts.push(payload.speciesId);
   if (typeof payload.spotId === 'string') parts.push(`钓位 ${payload.spotId}`);
 

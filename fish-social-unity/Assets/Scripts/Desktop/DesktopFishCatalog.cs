@@ -233,7 +233,7 @@ namespace FishSocial.Desktop
             if (species == null)
                 return "未知鱼种。";
             var size = species.TypicalMinM > 0f || species.TypicalMaxM > 0f
-                ? DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(species.TypicalMinM.ToString("0.00"), "–"), species.TypicalMaxM.ToString("0.00")), "m")
+                ? DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopGameData.FormatFishSize(species.TypicalMinM), "–"), DesktopGameData.FormatFishSize(species.TypicalMaxM)), "")
                 : "—";
             var qMax = DesktopGameData.QualityRankLabel(species.QualityMax > 0 ? species.QualityMax : 7);
             return DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(species.Name, "（"), species.Id), "）\n"), "食性："), species.DietLabel), "\n"), "钓组："), (string.IsNullOrEmpty(species.CatchGroupLabel) ? "—" : species.CatchGroupLabel)), "\n"), "稀有度："), (string.IsNullOrEmpty(species.RarityLabel) ? "—" : species.RarityLabel)), "\n"), "品质上限："), qMax), "\n"), "体型参考："), size), "（图鉴）\n"), "推荐鱼饵："), TopBaits(species));

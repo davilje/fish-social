@@ -64,7 +64,7 @@ namespace FishSocial.Desktop.Auth
         static string SizeWeightLines(float sizeM)
         {
             var weight = DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(sizeM));
-            return DesktopLocalization.Format("ui.fishing.hook_prompt.label.size_and_weight", (object)(sizeM.ToString("0.00")), (object)(weight));
+            return DesktopLocalization.Format("ui.fishing.hook_prompt.label.size_and_weight", (object)(DesktopGameData.FormatFishSize(sizeM)), (object)(weight));
         }
     }
 }

@@ -113,7 +113,8 @@
       <header><h1>现行预览</h1></header>
       <div>
         <p>这一页需要本地服务才能读到场景、音效和图片。直接双击 html 时，浏览器会拦住这些文件。</p>
-        <p>请关闭本页，回到仓库根目录，双击 <strong>打开现行预览.bat</strong>。</p>
+        <p>回到仓库根目录：macOS 双击 <strong>打开现行预览.command</strong>，Windows 双击 <strong>打开现行预览.bat</strong>，并保留服务窗口。</p>
+        <p>也可在终端运行 <code>python3 scripts/start_preview.py</code>，然后打开终端显示的预览地址。</p>
       </div>
     </article>
   </div>
@@ -142,6 +143,7 @@
         <button type="button" data-src="docs/美术/场景/quiet-colors-2026-10-31/index.html?v=sparse-biomes-v1" data-route="world-map">世界地图</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/index.html?page=ponds">选择鱼塘</button>
         <h2>资料与收获</h2>
+        <button type="button" data-src="docs/数据分析/fish-growth-45m-2026-11-01/index.html" data-route="fish-growth" data-revision="45m-design-20261101">45米巨物 · 成长重设计</button>
         <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#profile">个人资料</button>
         <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#edit">编辑资料</button>
         <button type="button" data-src="docs/设计/界面/原型/手账工作台/index.html#compose">分享鱼获</button>
@@ -161,7 +163,7 @@
         <h2>动作</h2>
         <button type="button" data-src="docs/美术/家园/interaction-study-2026-10-31/index.html" data-route="home-interaction">主界面猫咪交互 · 新提案</button>
         <button type="button" data-src="docs/美术/家园/rest-poses-2026-10-31/index.html" data-route="home-poses">猫咪睡姿与蹲姿 · 原画</button>
-        <button type="button" data-src="docs/美术/家园/soft-drag-study-2026-10-31/index.html" data-route="home-soft-drag">猫咪软体拖拽 · 手感试验</button>
+        <button type="button" data-src="docs/美术/家园/soft-drag-study-2026-10-31/index.html" data-route="home-soft-drag">猫咪软体拖拽 · 橘猫分段弯曲</button>
         <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=cast" data-route="fishing">塘内钓鱼动作</button>
         <button type="button" data-src="docs/美术/钓鱼动作/index.html?clip=fishing&amp;study=rest-v2" data-route="rest">呼吸与瞌睡</button>
         <button type="button" data-src="docs/设计/界面/原型/手账/home-animation-review.html">家园走路进食</button>
@@ -183,9 +185,9 @@
     if (location.protocol === 'file:') {
       document.body.classList.add('is-file');
     } else {
-      const savedSrc = sessionStorage.getItem('preview-src');
+      const savedSrc = readSavedPreview();
       const saved = buttons.find(button => button.dataset.src === savedSrc) ||
-        (savedSrc === 'docs/设计/界面/原型/手账/index.html?page=map' || savedSrc?.startsWith('docs/美术/场景/quiet-colors-') ? buttons.find(button => button.dataset.route === 'world-map') : savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : savedSrc?.startsWith('docs/美术/家园/pastel-interior-2026-10-31/') ? buttons.find(button => button.dataset.route === 'home-interior') : null);
+        (savedSrc?.startsWith('docs/数据分析/fish-growth-') ? buttons.find(button => button.dataset.route === 'fish-growth') : savedSrc === 'docs/设计/界面/原型/手账/index.html?page=map' || savedSrc?.startsWith('docs/美术/场景/quiet-colors-') ? buttons.find(button => button.dataset.route === 'world-map') : savedSrc?.startsWith('docs/美术/登录/') ? buttons.find(button => button.dataset.route === 'login') : savedSrc?.startsWith('docs/美术/声音/') ? buttons.find(button => button.dataset.route === 'audio') : savedSrc?.startsWith('docs/美术/钓鱼动作/') ? buttons.find(button => button.dataset.route === 'fishing') : savedSrc?.startsWith('docs/美术/家园/pastel-interior-2026-10-31/') ? buttons.find(button => button.dataset.route === 'home-interior') : null);
       const requestedPath = location.hash === '#scene' ? 'docs/美术/场景/motion.html' : location.hash === '#login' ? 'docs/美术/登录/cats-selected-2026-10-29/index.html' : location.hash === '#audio' ? 'docs/美术/声音/leaf-clusters/index.html' : null;
       const requested = buttons.find(button => button.dataset.route && '#'+button.dataset.route === location.hash) || (requestedPath ? buttons.find(button => button.dataset.src.startsWith(requestedPath)) : null);
       const current = requested || saved || buttons[0];
@@ -220,7 +222,10 @@
       stage.src = previewSource(button);
       const hash = button.dataset.route ? '#'+button.dataset.route : button.dataset.src.startsWith('docs/美术/场景/motion.html') ? '#scene' : '';
       history.replaceState(null, '', location.pathname + location.search + hash);
-      sessionStorage.setItem('preview-src', button.dataset.src);
+      try { sessionStorage.setItem('preview-src', button.dataset.src); } catch (_) { /* Storage can be blocked by browser settings. */ }
+    }
+    function readSavedPreview() {
+      try { return sessionStorage.getItem('preview-src'); } catch (_) { return null; }
     }
   </script>
 </body>

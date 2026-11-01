@@ -97,6 +97,6 @@ namespace FishSocial.Desktop.JournalV2
         IEnumerator LoadPlayer(string player,int epoch)
         {yield return App.Api.GetPublicPlayerView(player,1,(ok,data,error)=>{if(epoch!=Epoch||selected!=player)return;DesktopLocalization.SetText(bio, ok&&data?.profile!=null?data.profile.bio??"这位钓友还没有填写简介。":error??"资料暂不可用。");});}
         string Format(LeaderboardEntryDto entry)
-        {if(entry==null)return"—";if(tab==0)return DesktopLocalization.Concat((entry.extra!=null&&entry.extra.sizeM>0?entry.extra.sizeM:entry.value).ToString("0.00"), " m");if(tab==1)return DesktopLocalization.Concat(Mathf.RoundToInt(entry.value), " 金币");return Mathf.RoundToInt(entry.value)+(tab==2?" 条":" 条史诗+");}
+        {if(entry==null)return"—";if(tab==0)return DesktopGameData.FormatFishSize(entry.extra!=null&&entry.extra.sizeM>0?entry.extra.sizeM:entry.value);if(tab==1)return DesktopLocalization.Concat(Mathf.RoundToInt(entry.value), " 金币");return Mathf.RoundToInt(entry.value)+(tab==2?" 条":" 条史诗+");}
     }
 }

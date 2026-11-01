@@ -1,0 +1,181 @@
+{
+  "status": "design-only",
+  "samples": 100000,
+  "seed": 451101,
+  "birth_m": 0.1,
+  "effort_coefficients": [
+    2,
+    0.12,
+    6e-05
+  ],
+  "quality_rates": {
+    "普通": 0.7,
+    "优良": 0.9,
+    "稀有": 1.15,
+    "史诗": 1.5,
+    "传说": 1.9,
+    "神话": 2.4,
+    "至尊": 3.0
+  },
+  "individual_speed_distribution": "LogNormal(mu=-0.125,sigma=0.5), rejection-truncated to [0.4,2.5]",
+  "species_factor": 1,
+  "quality_weights": [
+    0.38,
+    0.28,
+    0.18,
+    0.09,
+    0.04,
+    0.02,
+    0.01
+  ],
+  "milestones": [
+    {
+      "length_m": 1,
+      "baseline_days": 1.897239366,
+      "gray_days": 2.7103419514285716,
+      "gold_days": 0.632413122
+    },
+    {
+      "length_m": 5,
+      "baseline_days": 12.715788806,
+      "gray_days": 18.16541258,
+      "gold_days": 4.238596268666667
+    },
+    {
+      "length_m": 10,
+      "baseline_days": 32.137557606,
+      "gray_days": 45.91079658,
+      "gold_days": 10.712519202000001
+    },
+    {
+      "length_m": 20,
+      "baseline_days": 96.73063520599999,
+      "gray_days": 138.18662172285713,
+      "gold_days": 32.24354506866666
+    },
+    {
+      "length_m": 30,
+      "baseline_days": 215.03643280599997,
+      "gray_days": 307.19490400857137,
+      "gold_days": 71.67881093533332
+    },
+    {
+      "length_m": 40,
+      "baseline_days": 422.910950406,
+      "gray_days": 604.15850058,
+      "gold_days": 140.97031680199999
+    },
+    {
+      "length_m": 45,
+      "baseline_days": 575.578979206,
+      "gray_days": 822.25568458,
+      "gold_days": 191.85965973533334
+    }
+  ],
+  "same_age_gray_cohorts": [
+    {
+      "display_distinct": 695,
+      "age_days": 1,
+      "p10_m": 0.282,
+      "median_m": 0.412,
+      "p90_m": 0.651,
+      "distinct_mm": 695,
+      "capped_percent": 0.0
+    },
+    {
+      "display_distinct": 383,
+      "age_days": 7,
+      "p10_m": 1.299,
+      "median_m": 2.085,
+      "p90_m": 3.419,
+      "distinct_mm": 3814,
+      "capped_percent": 0.0
+    },
+    {
+      "display_distinct": 683,
+      "age_days": 30,
+      "p10_m": 4.459,
+      "median_m": 6.837,
+      "p90_m": 10.429,
+      "distinct_mm": 9947,
+      "capped_percent": 0.0
+    },
+    {
+      "display_distinct": 319,
+      "age_days": 90,
+      "p10_m": 10.199,
+      "median_m": 14.64,
+      "p90_m": 20.644100000000005,
+      "distinct_mm": 16374,
+      "capped_percent": 0.0
+    },
+    {
+      "display_distinct": 221,
+      "age_days": 180,
+      "p10_m": 16.0219,
+      "median_m": 21.909,
+      "p90_m": 29.334100000000007,
+      "distinct_mm": 20335,
+      "capped_percent": 0.0
+    },
+    {
+      "display_distinct": 245,
+      "age_days": 365,
+      "p10_m": 23.831,
+      "median_m": 31.038,
+      "p90_m": 39.718,
+      "distinct_mm": 22875,
+      "capped_percent": 1.298
+    }
+  ],
+  "assumed_age_scenarios": [
+    {
+      "mean_age_days": 7,
+      "median_m": 1.938,
+      "at_least_percent": {
+        "1": 71.245,
+        "5": 15.586,
+        "10": 2.492,
+        "20": 0.07100000000000001,
+        "30": 0.001,
+        "40": 0.0,
+        "45": 0.0
+      },
+      "capped_count": 0
+    },
+    {
+      "mean_age_days": 30,
+      "median_m": 6.362,
+      "at_least_percent": {
+        "1": 92.154,
+        "5": 59.407,
+        "10": 30.075000000000003,
+        "20": 5.6930000000000005,
+        "30": 0.731,
+        "40": 0.067,
+        "45": 0.02
+      },
+      "capped_count": 20
+    },
+    {
+      "mean_age_days": 90,
+      "median_m": 13.838,
+      "at_least_percent": {
+        "1": 97.339,
+        "5": 83.507,
+        "10": 64.255,
+        "20": 30.223,
+        "30": 10.137,
+        "40": 2.386,
+        "45": 1.013
+      },
+      "capped_count": 1013
+    }
+  ],
+  "notes": [
+    "Formula simulation only; no actual player data, no capture selection or economic simulation.",
+    "Age means 7/30/90 days are assumed scenario inputs; not estimated from existing ecology.",
+    "All samples start at 0.1m and use species factor 1, isolating growth and quality.",
+    "Zero observed extremes in 100000 samples do not prove zero probability."
+  ]
+}

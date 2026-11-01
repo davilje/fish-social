@@ -164,7 +164,7 @@ namespace FishSocial.Desktop
             if (current.Size.HasValue)
             {
                 var t = reduced ? 1 : Mathf.Clamp01((time - .9f) / .36f);
-                DesktopLocalization.SetText(detail, DesktopLocalization.Concat((current.Size.Value * (1 - Mathf.Pow(1 - t, 3))).ToString("0.00"), " m"));
+                DesktopLocalization.SetText(detail, DesktopGameData.FormatFishSize(current.Size.Value * (1 - Mathf.Pow(1 - t, 3))));
             }
             for (var i = 0; i < drops.Count; i++)
             {

@@ -14,6 +14,7 @@ import {
   BAITS,
   FISH_QUALITIES,
   formatBiteRatePct,
+  formatFishSize,
   getBait,
   getQualityInfo,
   getSpecies,
@@ -36,7 +37,7 @@ interface Props {
 type TabKey = 'pond' | number;
 
 const NEAR_MAX_TOOLTIP =
-  '此鱼体长已接近该品质允许的最大值；咬钩率仍按品质×尺寸，脱钩/收杆仅按体长';
+  '此鱼体长已接近该鱼种与个体允许的最大值；咬钩率仍按品质×尺寸，脱钩/收杆仅按体长';
 
 function formatProb(rate: number): string {
   return formatBiteRatePct(rate);
@@ -80,7 +81,7 @@ function PondEcologyCell({ fish }: { fish: PondFishEntity }) {
       <Text style={styles.cellSpecies} numberOfLines={1}>
         {species.name}
       </Text>
-      <Text style={styles.cellSize}>{fish.sizeM.toFixed(2)}m</Text>
+      <Text style={styles.cellSize}>{formatFishSize(fish.sizeM)}</Text>
       <Text style={[styles.cellQuality, { color: quality.color }]}>{quality.name}</Text>
       <Text style={styles.cellAux}>钓点 {fish.spotId}</Text>
       <Text style={styles.cellAux}>{generationLabel(fish)}</Text>
@@ -117,7 +118,7 @@ function SpotFishCell({
       <Text style={styles.cellSpecies} numberOfLines={1}>
         {species.name}
       </Text>
-      <Text style={styles.cellSize}>{row.sizeM.toFixed(2)}m</Text>
+      <Text style={styles.cellSize}>{formatFishSize(row.sizeM)}</Text>
       <Text style={[styles.cellQuality, { color: quality.color }]}>{quality.name}</Text>
       <Pressable onPress={() => copyFishId(row.fishId)} onLongPress={() => copyFishId(row.fishId)}>
         <Text style={styles.cellId}>{row.fishId.slice(0, 8)}…</Text>

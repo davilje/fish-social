@@ -401,7 +401,7 @@ namespace FishSocial.Desktop
                 if (labelText != null)
                 {
                     DesktopLocalization.SetText(labelText, label);
-                    CozyItemArt.Text(slot.transform, "Meta", item == null ? "" : DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m"));
+                    CozyItemArt.Text(slot.transform, "Meta", item == null ? "" : DesktopGameData.FormatFishSize(item.sizeM));
                 }
                 DesktopModalUi.StyleTree(slot.transform);
                 if (slotButton != null)
@@ -489,7 +489,7 @@ namespace FishSocial.Desktop
             var mode = _pond?.CurrentUser?.returnFeeMode;
             if (mode == "sell_only") returnValue = DesktopLocalization.Text("ui.catch.bag.status.sell_mode", "本局出售档 · 不可回鱼");
             else if (mode == "auto_return") returnValue = DesktopLocalization.Text("ui.catch.bag.status.auto_release_mode", "本局自动回鱼");
-            var size = DesktopLocalization.Concat(item.sizeM.ToString("0.00"), " m");
+            var size = DesktopGameData.FormatFishSize(item.sizeM);
             var weight = DesktopLocalization.Format("ui.catch.bag.format.approximate_weight", (object)(DesktopGameData.FormatWeightKg(DesktopGameData.CalcWeightKg(item.sizeM))), (object)(jin.ToString("0.##")));
             CozyItemArt.Text(transform, "DesignName", species);
             _detailsDialog?.Close();
@@ -641,7 +641,7 @@ namespace FishSocial.Desktop
                         DesktopLocalization.SetText(_coins, DesktopLocalization.Format("ui.catch.bag.label.coins", (object)(_coinsValue)));
                     }
                     _selectedId = null;
-                    var status = DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(sizeGainM.ToString("0.00")), (object)(newSizeM.ToString("0.00")));
+                    var status = DesktopLocalization.Format("ui.catch.bag.status.released_with_rewards", (object)(gold), (object)(playerXp), (object)(pondXp), (object)(DesktopGameData.FormatFishSize(sizeGainM)), (object)(DesktopGameData.FormatFishSize(newSizeM)));
                     DesktopLocalization.SetText(_status, status);
                     ShowMessage(status);
                     RenderGrid();

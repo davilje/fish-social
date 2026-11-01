@@ -58,7 +58,7 @@ assert.ok(rules.sizeGainMaxM >= rules.sizeGainMinM);
 
 const light = { quality: 'purple' as const, sizeM: 0.5, speciesId: 'crucian' };
 
-const mid = { quality: 'purple' as const, sizeM: 0.78, speciesId: 'crucian' };
+const mid = { quality: 'purple' as const, sizeM: 0.78, speciesId: 'grass_carp' };
 
 const grayHeavy = { quality: 'gray' as const, sizeM: 0.2, speciesId: 'crucian' };
 
@@ -140,7 +140,7 @@ assert.equal(getQualityMaxSize('purple'), 0.8);
 
 assert.equal(getQualityMaxSize('red'), 3);
 
-assert.ok(mid.sizeM <= getQualityMaxSize('purple', getSpecies('crucian')));
+assert.ok(mid.sizeM <= getQualityMaxSize('purple', getSpecies('grass_carp')));
 
 assert.ok(heavy.sizeM <= getQualityMaxSize('red', getSpecies('chinese_sturgeon')));
 

@@ -68,6 +68,7 @@ export interface FishSellQualityDef {
 /** 品质玩法+卖价同表（原 fish_sell 已并入） */
 export interface FishQualityStatsDef {
   quality: FishQuality;
+  /** 历史品质尺寸帽，供无鱼种的兼容调用；个体成长由 fishGrowth.ts 决定。 */
   sizeCapM: number;
   biteBaseAtMaxSize: number;
   displayName?: string;

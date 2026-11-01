@@ -110,7 +110,7 @@ function buildSpotFishDebugEntries(
   return candidates.map((fish, index) => {
     const bonus = baitBiteBonus(equippedBait, fish.speciesId);
     const baseBite =
-      calcQualitySizeBiteRate(fish.quality, fish.sizeM) * (fish.biteMultiplier ?? 1.0);
+      calcQualitySizeBiteRate(fish.quality, fish.sizeM, fish.speciesId) * (fish.biteMultiplier ?? 1.0);
     const rodMul = rodBiteMultiplier(
       gear?.equippedRod ?? String(gear?.equippedTackle ?? ''),
       fish.quality,
