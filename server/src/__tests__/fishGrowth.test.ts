@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { describe, expect, it } from 'vitest';
 import {
   FISH_QUALITIES, FISH_SPECIES, FISH_GROWTH_PROFILES, calcIndividualFishLength,
-  formatFishSize, getFishGrowthDaysTo90, getQualityMaxSize, getSpecies,
+  formatFishSize, getFishGrowthDaysTo90, getQualityMaxSize, getSpeciesSizePotential, getSpecies,
   growFishSizeV2, rollJuvenileSize, calcSingleFishBiteProbability,
 } from '@fish-social/shared';
 import { migrateIndividualFishGrowth, INDIVIDUAL_FISH_GROWTH_KEY } from '../migrations/individual_fish_growth.js';
@@ -16,16 +16,16 @@ describe('fish size display', () => {
   ])('%s metres displays as %s', (size, display) => expect(formatFishSize(size)).toBe(display));
 });
 
-describe('individual fish growth', () => {
+describe('legacy individual fish growth', () => {
   const carp = getSpecies('carp');
 
   it('keeps species sizes distinct and higher-quality potential increasing', () => {
-    expect(getQualityMaxSize('gold', getSpecies('loach'))).toBe(.45);
-    expect(getQualityMaxSize('gold', getSpecies('chinese_sturgeon'))).toBe(6.3);
+    expect(getSpeciesSizePotential('gold', getSpecies('loach'))).toBe(.45);
+    expect(getSpeciesSizePotential('gold', getSpecies('chinese_sturgeon'))).toBe(6.3);
     for (const species of FISH_SPECIES) {
       let previous = 0;
       for (const quality of FISH_QUALITIES) {
-        const cap = getQualityMaxSize(quality.id, species, 'stable-id');
+        const cap = getSpeciesSizePotential(quality.id, species, 'stable-id');
         expect(cap).toBeGreaterThan(previous);
         previous = cap;
       }
@@ -34,7 +34,7 @@ describe('individual fish growth', () => {
 
   it('reaches 90% of remaining growth at its individual maturity time, then slows down', () => {
     const id = 'carp-90';
-    const cap = getQualityMaxSize('gray', carp, id);
+    const cap = getSpeciesSizePotential('gray', carp, id);
     const days = getFishGrowthDaysTo90('gray', id);
     const length = (age: number) => calcIndividualFishLength('gray', carp, .05, age, id);
     expect(length(0)).toBe(.05);
@@ -49,9 +49,9 @@ describe('individual fish growth', () => {
     const caps = new Set<number>();
     for (let i = 0; i < 1000; i++) {
       const id = `fish-${i}`;
-      const cap = getQualityMaxSize('gray', carp, id);
-      expect(cap).toBeGreaterThanOrEqual(getQualityMaxSize('gray', carp) * .75 - .001);
-      expect(cap).toBeLessThanOrEqual(getQualityMaxSize('gray', carp));
+      const cap = getSpeciesSizePotential('gray', carp, id);
+      expect(cap).toBeGreaterThanOrEqual(getSpeciesSizePotential('gray', carp) * .75 - .001);
+      expect(cap).toBeLessThanOrEqual(getSpeciesSizePotential('gray', carp));
       const size = calcIndividualFishLength('gray', carp, .05, 7, id);
       expect(calcIndividualFishLength('gray', carp, .05, 7, id)).toBe(size);
       expect(size * 1000).toBeCloseTo(Math.round(size * 1000), 7);
@@ -72,20 +72,20 @@ describe('individual fish growth', () => {
     expect(growFishSizeV2('green', carp, .05, .05, bornAt, bornAt - 1, 'replay')).toBe(.05);
   });
 
-  it('seeds juveniles relative to species potential, not a shared two-decimal bucket', () => {
+  it('generates stable juvenile entry baselines between 3.4 and 4.6 centimetres', () => {
     const sizes = new Set<number>();
     for (let i = 0; i < 300; i++) {
       const id = `juvenile-${i}`;
-      const cap = getQualityMaxSize('blue', carp, id);
       const size = rollJuvenileSize('blue', carp, id);
-      expect(size).toBeGreaterThanOrEqual(Math.max(.02, cap * .12) - .001);
-      expect(size).toBeLessThanOrEqual(cap * .28 + .001);
+      expect(size).toBeGreaterThanOrEqual(.034);
+      expect(size).toBeLessThanOrEqual(.046);
+      expect(rollJuvenileSize('gold', getSpecies('loach'), id)).toBe(size);
       sizes.add(size);
     }
-    expect(sizes.size).toBeGreaterThan(60);
+    expect(sizes.size).toBeGreaterThanOrEqual(11);
   });
 
-  it('normalizes bite chance by species potential as fish sizes change', () => {
+  it('normalizes runtime bite chance by quality potential independent of species', () => {
     const base = { quality: 'gray' as const, biteMultiplier: 1 };
     const chance = (speciesId: string) => calcSingleFishBiteProbability({
       ...base, speciesId, sizeM: getQualityMaxSize('gray', getSpecies(speciesId)),

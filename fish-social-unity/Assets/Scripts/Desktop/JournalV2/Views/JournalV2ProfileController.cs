@@ -47,6 +47,7 @@ namespace FishSocial.Desktop.JournalV2
         void Render()
         {
             if(snapshot?.profile==null)return;
+            BindHistory(null,null,false);
             for(var i=0;i<tabs.Length;i++)Select(tabs[i],i==tab);
             DesktopLocalization.SetText(Page.Heading, new[]{"我的钓鱼时光","展示柜","鱼类图鉴","钓鱼相册","我的成就"}[tab]);
             overview.gameObject.SetActive(tab==0);list.gameObject.SetActive(tab!=0);secondary.gameObject.SetActive(false);action.gameObject.SetActive(true);
@@ -76,7 +77,7 @@ namespace FishSocial.Desktop.JournalV2
             if(tab==3)
             {
                 var entries=snapshot.albumPins??Array.Empty<AlbumCardDto>();var count=Mathf.Max(1,Mathf.CeilToInt(entries.Length/2f));albumPage=Mathf.Clamp(albumPage,0,count-1);DesktopLocalization.SetText(pageNumber, DesktopLocalization.Concat(DesktopLocalization.Concat((albumPage+1), " / "), count));Interactable(previous,albumPage>0);Interactable(next,albumPage<count-1);action.gameObject.SetActive(false);
-                foreach(var entry in entries.Skip(albumPage*2).Take(2)){var e=entry;var c=FishCard(list.content,DesktopLocalization.Concat("Album", e.id),new FishInventoryItemDto{speciesId=e.speciesId,sizeM=e.sizeM,quality=e.quality},319,302,cards.Count,DesktopFishCatalog.SpeciesName(e.speciesId));Action(c,()=>{SelectCard(c);JournalV2Pages.CommunityPhoto(photo,JournalV2Pages.CommunityFish(e.speciesId),DesktopFishCatalog.SpeciesName(e.speciesId));DesktopLocalization.SetText(detail, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat((DesktopLocalization.Data(e.pondName)??e.pondId), "\n"), DesktopGameData.FormatFishSize(e.sizeM)), " · "), DesktopFishCatalog.QualityName(e.quality)), "\n"), Date(e.eventAt)));});}
+                foreach(var entry in entries.Skip(albumPage*2).Take(2)){var e=entry;var c=FishCard(list.content,DesktopLocalization.Concat("Album", e.id),new FishInventoryItemDto{speciesId=e.speciesId,sizeM=e.sizeM,quality=e.quality},319,302,cards.Count,DesktopFishCatalog.SpeciesName(e.speciesId));Action(c,()=>{SelectCard(c);JournalV2Pages.CommunityPhoto(photo,JournalV2Pages.CommunityFish(e.speciesId),DesktopFishCatalog.SpeciesName(e.speciesId));DesktopLocalization.SetText(detail, DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat((DesktopLocalization.Data(e.pondName)??e.pondId), "\n"), DesktopGameData.FormatFishSize(e.sizeM)), " · "), DesktopFishCatalog.QualityName(e.quality)), "\n"), Date(e.eventAt)));BindHistory(e.history,e.speciesId,true);});}
                 DesktopLocalization.SetText(detail, entries.Length==0?"值得纪念的收获会自动收进相册。":"选一张照片，回顾那天的收获。");
             }
             if(tab==4){action.gameObject.SetActive(false);JournalV2AchievementController.RenderCards(list,snapshot.achievements,false,a=>{JournalV2Pages.CommunityPhoto(photo,JournalV2Theme.Sprite("icons/medal"),a.name);DesktopLocalization.SetText(detail, DesktopLocalization.Concat(DesktopLocalization.Concat(a.desc, "\n"), (a.unlocked?"已解锁":"尚未解锁")));});}
@@ -92,7 +93,21 @@ namespace FishSocial.Desktop.JournalV2
             cards.Add(c);CardMotion(c,fish?.speciesId??id,index,JournalV2ButtonKind.Sticker,tab==3?(index%2==0?-1.3f:1.3f):(float?)null);return c;
         }
         void SelectCard(Button selected){foreach(var c in cards)Select(c,c==selected);photo.GetComponent<JournalV2Polaroid>()?.PlayReveal();}
-        void ShowFish(FishInventoryItemDto f){JournalV2Pages.CommunityPhoto(photo,f==null?null:JournalV2Pages.CommunityFish(f.speciesId),f==null?"等待新的收获":DesktopFishCatalog.SpeciesName(f.speciesId));DesktopLocalization.SetText(detail, f==null?"把喜欢的鱼收进展示柜，记录属于你的高光时刻。":DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopGameData.FormatFishSize(f.sizeM), " · "), DesktopFishCatalog.QualityName(f.quality)), "\n"), DesktopFishCatalog.FormatCodexProfile(DesktopFishCatalog.GetSpecies(f.speciesId))));}
+        void ShowFish(FishInventoryItemDto fish)
+        {
+            JournalV2Pages.CommunityPhoto(photo,fish==null?null:JournalV2Pages.CommunityFish(fish.speciesId),fish==null?"等待新的收获":DesktopFishCatalog.SpeciesName(fish.speciesId));
+            DesktopLocalization.SetText(detail,fish==null?"把喜欢的鱼收进展示柜，记录属于你的高光时刻。":DesktopGameData.FormatFishSize(fish.sizeM)+" · "+DesktopFishCatalog.QualityName(fish.quality));
+            BindHistory(fish?.history,fish?.speciesId,fish!=null);
+        }
+        void BindHistory(FishHistorySnapshotDto history,string speciesId,bool hasFish)
+        {
+            var button=detail.GetComponent<Button>()??detail.gameObject.AddComponent<Button>();
+            button.onClick.RemoveAllListeners();button.interactable=hasFish;detail.raycastTarget=hasFish;
+            if(!hasFish)return;
+            DesktopLocalization.SetText(detail,detail.text+"\n"+DesktopFishHistory.Summary(history)+"\n点击查看个体履历");
+            button.onClick.AddListener(()=>CozyItemDetailsDialog.BindFishHistory(Page.transform)?.Show(DesktopFishCatalog.SpeciesName(speciesId)+" · 个体履历",DesktopFishHistory.Details(history),JournalV2Pages.CommunityFish(speciesId)));
+        }
+
         void SelectSlot(int slot,FishInventoryItemDto fish){selectedSlot=slot;if(slot<cards.Count)SelectCard(cards[slot]);ShowFish(fish);action.gameObject.SetActive(self&&snapshot.canEdit);secondary.gameObject.SetActive(self&&snapshot.canEdit&&fish!=null);JournalV2Pages.CommunityLabel(action,fish==null?"选择鱼获":"替换这条鱼");Action(action,()=>StartCoroutine(LoadPicker(Epoch)));Action(secondary,()=>StartCoroutine(SaveSlot(null,Epoch)));}
         IEnumerator LoadPicker(int epoch)
         {

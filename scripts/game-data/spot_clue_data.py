@@ -363,6 +363,10 @@ POND_SPOT_PREFIXES: list[tuple[str, str]] = [
     ("pond-novice", "novice"),
 ]
 
+# Derive the full catalog from the same source as ponds.json, including new bays.
+from fish_cn_data import PONDS_CN
+POND_SPOT_PREFIXES = [(p[0], p[0].removeprefix("pond-")) for p in PONDS_CN]
+
 SPOTS_PER_POND = 20
 
 

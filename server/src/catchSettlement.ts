@@ -120,6 +120,7 @@ export function settleAcceptedCatch(
       pondId: ctx.pondId,
       source: wasNewCodex ? 'first_codex' : 'catch',
       inventoryItemId: result.item.id,
+      history: result.item.history,
     });
   }
 
@@ -165,6 +166,7 @@ export function settleAcceptedCatch(
       speciesId: result.item.speciesId,
       quality: result.item.quality,
       sizeM: result.item.sizeM,
+      history: result.item.history,
       autoReturned: settled.autoReturned,
       gold: settled.gold,
       playerXp: settled.playerXp,

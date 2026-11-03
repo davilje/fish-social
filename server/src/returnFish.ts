@@ -12,6 +12,7 @@ import {
   type FishQuality,
   type FishSpeciesId,
 } from '@fish-social/shared';
+import { db } from './db.js';
 import { getFishById, getInventory, removeFishFromInventory } from './inventory.js';
 import { growOrSpawnReturnedFish } from './pondEcology.js';
 import { findLivePondUser } from './forbiddenPolice.js';
@@ -128,91 +129,97 @@ export function returnFishToPond(
     };
   }
 
-  const removed = removeFishFromInventory(playerId, inventoryItemId);
-  if (!removed) {
-    return { ok: false, error: '背包无此鱼', code: 'ITEM_NOT_FOUND' };
-  }
+  return db.transaction((): ReturnFishOk | ReturnFishFail => {
+    const removed = removeFishFromInventory(playerId, inventoryItemId);
+    if (!removed) {
+      return { ok: false, error: '背包无此鱼', code: 'ITEM_NOT_FOUND' };
+    }
 
-  const sizeGain = rollSizeGain(rules.sizeGainMinM, rules.sizeGainMaxM);
-  const grown = growOrSpawnReturnedFish({
-    pondId: live.pondId,
-    spotId: live.user.spotId,
-    speciesId: removed.speciesId as FishSpeciesId,
-    quality: removed.quality,
-    baseSizeM: removed.sizeM,
-    sizeGainM: sizeGain,
-  });
+    const sizeGain = rollSizeGain(rules.sizeGainMinM, rules.sizeGainMaxM);
+    const grown = growOrSpawnReturnedFish({
+      pondId: live.pondId,
+      spotId: live.user.spotId!,
+      speciesId: removed.speciesId as FishSpeciesId,
+      quality: removed.quality,
+      baseSizeM: removed.sizeM,
+      sizeGainM: sizeGain,
+      fishId: removed.history?.fishId,
+      caughtAt: removed.history?.caughtAt ?? removed.caughtAt,
+      returnEventId: `return:${inventoryItemId}`,
+    });
 
-  const gold = calcFishReturnGold(removed, {
-    goldMulVsSell: rules.goldMulVsSell,
-    goldMulHeavy: rules.goldMulHeavy,
-    minWeightJin: rules.minWeightJin,
-    heavyWeightJin: rules.heavyWeightJin,
-  });
-  const totalCoins = addCoins(playerId, gold);
-  const xp = grantReturnProgress(
-    playerId,
-    live.pondId,
-    rules.playerXp,
-    rules.pondXp,
-  );
+    const gold = calcFishReturnGold(removed, {
+      goldMulVsSell: rules.goldMulVsSell,
+      goldMulHeavy: rules.goldMulHeavy,
+      minWeightJin: rules.minWeightJin,
+      heavyWeightJin: rules.heavyWeightJin,
+    });
+    const totalCoins = addCoins(playerId, gold);
+    const xp = grantReturnProgress(
+      playerId,
+      live.pondId,
+      rules.playerXp,
+      rules.pondXp,
+    );
 
-  const metricPayload = {
-    speciesId: removed.speciesId,
-    sizeM: removed.sizeM,
-    gold,
-    sizeGainM: grown.sizeGainApplied,
-    quality: removed.quality,
-    newSizeM: grown.entity.sizeM,
-    sellGold: calcFishSellPrice(removed),
-    spawned: grown.spawned,
-    auto: opts?.auto === true,
-  };
+    const metricPayload = {
+      speciesId: removed.speciesId,
+      sizeM: removed.sizeM,
+      gold,
+      sizeGainM: grown.sizeGainApplied,
+      quality: removed.quality,
+      newSizeM: grown.entity.sizeM,
+      sellGold: calcFishSellPrice(removed),
+      spawned: grown.spawned,
+      auto: opts?.auto === true,
+    };
 
-  recordFishingMetric('fish_returned_to_pond', {
-    playerId,
-    pondId: live.pondId,
-    payload: metricPayload,
-  });
-  if (opts?.auto) {
-    recordFishingMetric('fish_auto_returned', {
+    recordFishingMetric('fish_returned_to_pond', {
       playerId,
       pondId: live.pondId,
       payload: metricPayload,
     });
-  }
-  recordFishingMetric('gold_earn', {
-    playerId,
-    payload: {
-      amount: gold,
-      source: 'fish_return',
-      fishId: inventoryItemId,
+    if (opts?.auto) {
+      recordFishingMetric('fish_auto_returned', {
+        playerId,
+        pondId: live.pondId,
+        payload: metricPayload,
+      });
+    }
+    recordFishingMetric('gold_earn', {
+      playerId,
+      payload: {
+        amount: gold,
+        source: 'fish_return',
+        fishId: inventoryItemId,
+        quality: removed.quality,
+        sizeM: removed.sizeM,
+      },
+    });
+
+    addAlbumCandidate({
+      playerId,
+      speciesId: removed.speciesId,
       quality: removed.quality,
       sizeM: removed.sizeM,
-    },
-  });
+      pondId: live.pondId,
+      source: 'return',
+      inventoryItemId,
+      history: removed.history,
+    });
+    tryUnlockAchievements(playerId);
 
-  addAlbumCandidate({
-    playerId,
-    speciesId: removed.speciesId,
-    quality: removed.quality,
-    sizeM: removed.sizeM,
-    pondId: live.pondId,
-    source: 'return',
-    inventoryItemId,
-  });
-  tryUnlockAchievements(playerId);
-
-  return {
-    ok: true,
-    gold,
-    playerXp: xp.playerXpGranted,
-    pondXp: xp.pondXpGranted,
-    newSizeM: grown.entity.sizeM,
-    sizeGainM: grown.sizeGainApplied,
-    totalCoins,
-    items: getInventory(playerId),
-  };
+    return {
+      ok: true,
+      gold,
+      playerXp: xp.playerXpGranted,
+      pondXp: xp.pondXpGranted,
+      newSizeM: grown.entity.sizeM,
+      sizeGainM: grown.sizeGainApplied,
+      totalCoins,
+      items: getInventory(playerId),
+    };
+  })();
 }
 
 export function tryAutoReturnFish(

@@ -24,6 +24,9 @@ import {
 
 import { getLockedPondFishIds } from './inventory.js';
 import { isCodexNewForPlayer } from './codex.js';
+import { claimFishHook } from './fishLifecycle.js';
+import { db } from './db.js';
+import { persistFishHookContext } from './fishHookContext.js';
 import {
   getSpotBiteWeight,
   ensureInstantTestFishAtSpot,
@@ -35,6 +38,7 @@ import { getHookDurationScale, isInstantFishingTestMode } from './runtimeConfig.
 export type BiteTickResult = { kind: 'none' } | { kind: 'scheduled' };
 
 export interface BiteHookEvent {
+  catchId?: string;
   fish: PondFishEntity;
   escaped: boolean;
   hookDurationMs: number;
@@ -49,6 +53,8 @@ export interface FisherGearContext {
   equippedTackle: TackleId | string;
   equippedRod?: string;
   resolveBait?: (speciesId: string) => string;
+  hookUserId?: string;
+  forceEscape?: boolean;
   /** FEAT-GROUND-01 */
   groundbaitBiteBonus?: number;
   groundbaitSizeBonus?: number;
@@ -110,7 +116,7 @@ function buildSpotFishDebugEntries(
   return candidates.map((fish, index) => {
     const bonus = baitBiteBonus(equippedBait, fish.speciesId);
     const baseBite =
-      calcQualitySizeBiteRate(fish.quality, fish.sizeM, fish.speciesId) * (fish.biteMultiplier ?? 1.0);
+      calcQualitySizeBiteRate(fish.quality, fish.sizeM, fish.speciesId, fish.individualCapM) * (fish.biteMultiplier ?? 1.0);
     const rodMul = rodBiteMultiplier(
       gear?.equippedRod ?? String(gear?.equippedTackle ?? ''),
       fish.quality,
@@ -184,9 +190,7 @@ export function rollBiteHook(
     target.speciesId,
   );
   const gbBonus = Math.max(0, gear?.groundbaitBiteBonus ?? 0);
-  const sizeBonus = Math.max(0, gear?.groundbaitSizeBonus ?? 0);
-  const biteTarget =
-    sizeBonus > 0 ? { ...target, sizeM: target.sizeM + sizeBonus } : target;
+  const biteTarget = target; // Nutrition is permanent; never invent a temporary catch length.
   let pBite =
     calcSingleFishBiteProbability(biteTarget, spotMultiplier, baitBonus) *
     muls.bite *
@@ -201,25 +205,34 @@ export function rollBiteHook(
     return { outcome: 'miss', reason: 'failed', sampledFish: target };
   }
 
-  const tackleId = gear?.equippedRod || gear?.equippedTackle || 'basic';
-  const escaped =
-    !isInstantFishingTestMode() &&
-    Math.random() <
-      calcEffectiveEscapeRate(biteTarget.sizeM, tackleId, target.escapeMultiplier ?? 1.0) *
-        muls.escape;
-  const hookDurationMs = Math.round(
-    (isInstantFishingTestMode() ? 1000 : calcHookDurationMs(target.quality, biteTarget.sizeM, target.speciesId)) *
-      getHookDurationScale(),
-  );
+  return db.transaction((): RollBiteHookResult => {
+    const catchId = randomUUID();
+    const fed = claimFishHook(target.id, catchId, gear?.hookUserId ?? null);
+    if (!fed) return { outcome: 'miss', reason: 'failed', sampledFish: target };
+    const tackleId = gear?.equippedRod || gear?.equippedTackle || 'basic';
+    const escaped = gear?.forceEscape === true || (
+      !isInstantFishingTestMode() &&
+      Math.random() <
+        calcEffectiveEscapeRate(fed.sizeM, tackleId, fed.escapeMultiplier ?? 1.0) *
+          muls.escape);
+    const hookDurationMs = Math.round(
+      (isInstantFishingTestMode() ? 1000 : calcHookDurationMs(fed.quality, fed.sizeM, fed.speciesId)) *
+        getHookDurationScale(),
+    );
+    persistFishHookContext(gear?.hookUserId ?? null, {
+      catchId, fish: fed, escaped, hookDurationMs, hookEndsAt: Date.now()+hookDurationMs,
+    });
 
-  return {
-    outcome: 'hooked',
-    event: {
-      fish: sizeBonus > 0 ? { ...target, sizeM: biteTarget.sizeM } : target,
-      escaped,
-      hookDurationMs,
-    },
-  };
+    return {
+      outcome: 'hooked',
+      event: {
+        catchId,
+        fish: fed,
+        escaped,
+        hookDurationMs,
+      },
+    };
+  })();
 }
 
 export function buildCatchData(

@@ -499,6 +499,7 @@ namespace FishSocial.Desktop
                 (object)size, (object)weight, (object)sell, (object)returnHint, (object)seatHint);
             if (mode == "sell_only" || mode == "auto_return")
                 _detailsBody = DesktopLocalization.Concat(_detailsBody, "\n", returnValue);
+            _detailsBody += "\n\n这条鱼的履历\n" + DesktopFishHistory.Details(item.history);
             if (_itemDetails != null)
             {
                 _itemDetails.gameObject.SetActive(true);

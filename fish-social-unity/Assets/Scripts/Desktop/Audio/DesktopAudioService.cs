@@ -577,6 +577,15 @@ namespace FishSocial.Desktop
 
             }
         }
+        public void PlayLandingReminder(string catchId)
+        {
+            var notices = DesktopNotificationService.Instance;
+            var allowed = notices == null || notices.Settings.Allows(NotificationKind.FishBite);
+            if (phase != "hooked" || policy == null) return;
+            if (policy.ConsumeLandingReminder(catchId, UtcMs,
+                allowed && EffectsVolume > 0 && (!allHidden || BackgroundBiteEnabled)))
+                Request("reel", catchId + ":landing-reminder");
+        }
         public void UnityMarker(string marker,int occurrence,string waterSizeTier="S")
         {
             if(context.owner!="unity")return;

@@ -237,6 +237,33 @@ namespace FishSocial.Desktop.Auth
     }
 
     [Serializable]
+    public sealed class FishEscapeRecordDto
+    {
+        public long at;
+        public string pondId;
+        public string spotId;
+        public float sizeM;
+    }
+
+    [Serializable]
+    public sealed class FishHistorySnapshotDto
+    {
+        public string fishId;
+        public long enteredAt;
+        public float entrySizeM;
+        public long caughtAt;
+        public long residenceMs;
+        public float growthSinceEntryM;
+        public float individualCapM;
+        public string growthRuleVersion;
+        public string source;
+        public int hookFeedCount;
+        public int groundbaitFeedCount;
+        public int escapeCount;
+        public FishEscapeRecordDto[] escapes;
+    }
+
+    [Serializable]
     public sealed class PendingFishCatchDto
     {
         public string catchId;
@@ -246,6 +273,7 @@ namespace FishSocial.Desktop.Auth
         public float sizeM;
         public int hookDurationMs;
         public bool isCodexNew;
+        public FishHistorySnapshotDto history;
     }
 
     [Serializable]
@@ -257,6 +285,7 @@ namespace FishSocial.Desktop.Auth
         public float sizeM;
         public long caughtAt;
         public string pondId;
+        public FishHistorySnapshotDto history;
     }
 
     [Serializable]
@@ -395,6 +424,7 @@ namespace FishSocial.Desktop.Auth
         public float sizeGainM;
         public int totalCoins;
         public string message;
+        public FishHistorySnapshotDto history;
     }
 
     [Serializable]
@@ -462,6 +492,7 @@ namespace FishSocial.Desktop.Auth
         public long eventAt;
         public string inventoryItemId;
         public string photoUrl;
+        public FishHistorySnapshotDto history;
     }
 
     [Serializable]

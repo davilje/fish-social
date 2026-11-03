@@ -27,7 +27,8 @@ describe('offline pond ecology', () => {
     const wakeAt = beforeState.last_simulated_at + POND_ECOSYSTEM_TICK_MS * 4;
     const first = ensurePondEcologyCurrent(pondId, wakeAt);
     expect(first?.offlineMs).toBe(POND_ECOSYSTEM_TICK_MS * 4);
-    expect(first?.replaySteps).toBe(4);
+    expect(first?.replaySteps).toBe(1);
+    expect(first?.migrated).toBe(0);
     const afterFirstWake = listPondFishEntities(pondId);
     expect(afterFirstWake.length).toBeGreaterThanOrEqual(beforeFish.length);
 

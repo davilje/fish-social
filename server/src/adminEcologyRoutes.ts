@@ -3,7 +3,7 @@
  */
 import type { Express, RequestHandler } from 'express';
 import type { BaitId, TackleId } from '@fish-social/shared';
-import { getAdminPondOverview, listPondFishEntities, resetAllEcology } from './pondEcology.js';
+import { getAdminPondOverview, listPondFishEntities } from './pondEcology.js';
 import { listBotsInPond, listUsersInPond } from './gameState.js';
 import { buildFishingDebugReport } from './fishingDebug.js';
 import { logError } from './errorLog.js';
@@ -15,7 +15,7 @@ interface EcologyRouteDeps {
 }
 
 export function registerAdminEcologyRoutes(app: Express, deps: EcologyRouteDeps): void {
-  const { requireAdmin, logAdminAudit } = deps;
+  const { requireAdmin } = deps;
 
   app.get('/api/admin/ponds', requireAdmin, (_req, res) => {
     try {
@@ -77,13 +77,6 @@ export function registerAdminEcologyRoutes(app: Express, deps: EcologyRouteDeps)
   });
 
   app.post('/api/admin/ecology/reset', requireAdmin, (_req, res) => {
-    try {
-      logAdminAudit('ecology_reset', _req);
-      resetAllEcology();
-      res.json({ ok: true, message: '所有鱼塘生态已重置并重新播种' });
-    } catch (e) {
-      logError('reset ecology', e, 'admin');
-      res.status(500).json({ error: '重置失败' });
-    }
+    res.status(409).json({ error: '鱼塘重建需离线执行备份与恢复校验，请使用 rebuild-fish-ecology 工具', code: 'OFFLINE_REBUILD_REQUIRED' });
   });
 }

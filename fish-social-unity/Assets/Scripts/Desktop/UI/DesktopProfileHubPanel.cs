@@ -1805,6 +1805,18 @@ namespace FishSocial.Desktop
                     CozyJournalChips.Show(detail, AlbumDate(card), AlbumPond(card));
                 else
                     CozyJournalChips.Show(detail);
+                if (detail != null)
+                {
+                    detail.raycastTarget = card != null;
+                    var historyButton = detail.GetComponent<Button>() ?? detail.gameObject.AddComponent<Button>();
+                    historyButton.transition = Selectable.Transition.None;
+                    historyButton.interactable = card != null;
+                    historyButton.onClick.RemoveAllListeners();
+                    if (card != null) historyButton.onClick.AddListener(() =>
+                        CozyItemDetailsDialog.BindFishHistory(transform)?.Show(
+                            DesktopFishCatalog.SpeciesName(card.speciesId) + " · 个体履历",
+                            DesktopFishHistory.Details(card.history), CozyItemArt.Fish(card.speciesId)));
+                }
             }
 
             if (pins.Length == 0)
@@ -1991,7 +2003,8 @@ namespace FishSocial.Desktop
         {
             if (pin == null)
                 return DesktopLocalization.Text("ui.profile.album.description.memories", "每次相遇都值得留念。新的鱼获故事，会写进湖畔相册。");
-            return DesktopLocalization.Format("ui.profile.album_note.message.encounter", (object)(AlbumPond(pin)), (object)(DesktopGameData.FormatFishSize(pin.sizeM)), (object)(DesktopFishCatalog.SpeciesName(pin.speciesId)));
+            return DesktopLocalization.Format("ui.profile.album_note.message.encounter", (object)(AlbumPond(pin)), (object)(DesktopGameData.FormatFishSize(pin.sizeM)), (object)(DesktopFishCatalog.SpeciesName(pin.speciesId))) +
+                "\n" + DesktopFishHistory.Summary(pin.history) + "\n点击查看个体履历";
         }
 
         static string AlbumDate(AlbumCardDto pin)

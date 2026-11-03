@@ -369,10 +369,12 @@ export function getPondEcologyDef(pondId: string): PondEcologyDef | undefined {
 export function getFishQualityStats(quality: FishQuality): {
   sizeCapM: number;
   biteBaseAtMaxSize: number;
+  growthT80Days?: number;
 } | undefined {
   const row = qualityStatsList.find((r) => r.quality === quality);
   if (!row) return undefined;
-  return { sizeCapM: Number(row.sizeCapM), biteBaseAtMaxSize: Number(row.biteBaseAtMaxSize) };
+  return { sizeCapM: Number(row.sizeCapM), biteBaseAtMaxSize: Number(row.biteBaseAtMaxSize),
+    growthT80Days: row.growthT80Days == null ? undefined : Number(row.growthT80Days) };
 }
 
 export function getFishingFormulaConstant(key: string, fallback: number): number {

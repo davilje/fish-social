@@ -99,6 +99,12 @@ namespace FishSocial.Desktop
             return Consume(ResultKey("bite.onset", eventId), true) && audible;
         }
         public void ConsumeAuthoritySilently(string marker,string eventId) { Consume(ResultKey(marker,eventId),true); }
+        public bool ConsumeLandingReminder(string eventId, long utcMs, bool audible)
+        {
+            if (Context.source != "authoritative" || Context.eventKind != "bite" || eventId != Context.eventId ||
+                Context.eventDeadlineMs <= utcMs || Context.eventDeadlineMs - utcMs > 5000) return false;
+            return Consume(ResultKey("landing.reminder", eventId), true) && audible;
+        }
         string ResultKey(string marker, string eventId) => Context.presentationSessionId + ":" + Context.actorId + ":" + eventId + ":" + marker;
         public bool TryMarker(NativeOverlayCommandDto message, string sender, string phase, double now, long utcMs, bool audible, out string cue)
         {

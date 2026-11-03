@@ -68,8 +68,10 @@ export interface FishSellQualityDef {
 /** 品质玩法+卖价同表（原 fish_sell 已并入） */
 export interface FishQualityStatsDef {
   quality: FishQuality;
-  /** 历史品质尺寸帽，供无鱼种的兼容调用；个体成长由 fishGrowth.ts 决定。 */
+  /** 品质个体上限基准；每条鱼生成一次固定±15%潜力。 */
   sizeCapM: number;
+  /** 从幼鱼基准自然长至自身上限80%的天数。 */
+  growthT80Days?: number;
   biteBaseAtMaxSize: number;
   displayName?: string;
   QUALITY_BASE?: number;
@@ -218,7 +220,9 @@ export interface GroundbaitDef {
   perStackBiteBonus: number;
   maxBonus: number;
   stackK: number;
+  /** @deprecated Compatibility column, always 0; actual feeding adds persisted growth minutes. */
   sizeBonusPerStack: number;
+  /** @deprecated Compatibility column, always 0; nutrition uses per-cast and rolling time budgets. */
   maxSizeBonus: number;
 }
 

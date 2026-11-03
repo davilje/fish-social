@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 /**
  * FEAT-GROUND-01：打窝会话逻辑（扣金、叠层、phase）。
  */
@@ -10,6 +11,8 @@ import {
   type PondUser,
   type PondUserGroundbaitState,
 } from '@fish-social/shared';
+import { db } from './db.js';
+import { createGroundbaitBudget, feedGroundbaitAtSpot } from './fishLifecycle.js';
 import { deductCoins, getPlayer } from './players.js';
 import { ensurePlayerProgress } from './playerProgress.js';
 import { recordFishingMetric } from './fishingMetrics.js';
@@ -47,7 +50,7 @@ export function getActiveGroundbaitBiteBonus(user: PondUser): number {
 
 export function getActiveGroundbaitSizeBonus(user: PondUser): number {
   refreshGroundbaitExpiry(user);
-  return user.groundbait?.sizeBonus ?? 0;
+  return 0; // All size changes now come from persistent, per-fish nutrition.
 }
 
 /** 乘在 (1+bait) * rod 之后的窝咬钩乘区，再套全局 soft cap。 */
@@ -70,7 +73,7 @@ function buildBuffState(
     expiresAt: nowMs + Math.max(1, def.durationMin) * 60_000,
     bitesLeft: Math.max(1, Math.floor(def.maxBites)),
     biteBonus: buffs.biteBonus,
-    sizeBonus: buffs.sizeBonus,
+    sizeBonus: 0,
   };
 }
 
@@ -82,6 +85,7 @@ export function tryStartGroundbaitCast(
   playerId: string,
   user: PondUser,
   groundbaitId: string,
+  pondId?: string,
 ):
   | { ok: true; castDurationMs: number; costGold: number; stackBefore: number }
   | { ok: false; error: string; code: string; reason: GroundbaitRejectReason } {
@@ -136,7 +140,17 @@ export function tryStartGroundbaitCast(
     };
   }
 
-  const paid = deductCoins(playerId, def.costGoldPerUse);
+  const castId = randomUUID();
+  const createdAt = Date.now();
+  const paid = db.transaction(() => {
+    const result = deductCoins(playerId, def.costGoldPerUse);
+    if (result.ok && pondId) {
+      createGroundbaitBudget({ castId, playerId, pondId, spotId: user.spotId!, groundbaitId,
+        createdAt, expiresAt: createdAt+def.castDurationMs+Math.max(1,def.durationMin)*60_000 });
+      db.prepare("UPDATE groundbait_casts SET status='casting' WHERE cast_id=?").run(castId);
+    }
+    return result;
+  })();
   if (!paid.ok) {
     return {
       ok: false,
@@ -150,6 +164,7 @@ export function tryStartGroundbaitCast(
   // Stash pending cast id on phaseContext via temporary field on user
   (user as PondUser & { _pendingGroundbaitId?: string })._pendingGroundbaitId =
     groundbaitId;
+  (user as PondUser & { _pendingGroundbaitCastId?: string })._pendingGroundbaitCastId = castId;
 
   recordFishingMetric('groundbait_cast_started', {
     playerId,
@@ -174,11 +189,24 @@ export function applyGroundbaitCastComplete(
   pondId: string,
   nowMs: number = Date.now(),
 ): PondUserGroundbaitState | null {
-  const pendingId =
-    (user as PondUser & { _pendingGroundbaitId?: string })._pendingGroundbaitId ??
-    user.groundbait?.groundbaitId;
-  delete (user as PondUser & { _pendingGroundbaitId?: string })._pendingGroundbaitId;
-  if (!pendingId) return user.groundbait ?? null;
+  const pending = user as PondUser & { _pendingGroundbaitId?: string; _pendingGroundbaitCastId?: string };
+  const persisted = db.prepare(`SELECT cast_id, groundbait_id FROM groundbait_casts
+    WHERE player_id=? AND pond_id=? AND spot_id=? AND status='casting' AND expires_at>?
+    ORDER BY created_at DESC LIMIT 1`).get(playerId, pondId, user.spotId, nowMs) as {cast_id:string;groundbait_id:string} | undefined;
+  const pendingId = pending._pendingGroundbaitId ?? persisted?.groundbait_id;
+  const castId = pending._pendingGroundbaitCastId ?? persisted?.cast_id;
+  if (!pendingId || !castId || !user.spotId) return user.groundbait ?? null;
+  const old = db.prepare('SELECT status, expires_at, player_id, pond_id, spot_id FROM groundbait_casts WHERE cast_id=?')
+    .get(castId) as {status:string;expires_at:number;player_id:string;pond_id:string;spot_id:string} | undefined;
+  delete pending._pendingGroundbaitId;
+  delete pending._pendingGroundbaitCastId;
+  if (!old || old.status !== 'casting' || old.player_id !== playerId || old.pond_id !== pondId || old.spot_id !== user.spotId) {
+    return user.groundbait ?? null;
+  }
+  if (old.expires_at <= nowMs) {
+    db.prepare("UPDATE groundbait_casts SET status='expired' WHERE cast_id=? AND status='casting'").run(castId);
+    return user.groundbait ?? null;
+  }
 
   const def = getGroundbaitDef(pendingId);
   if (!def) return user.groundbait ?? null;
@@ -193,8 +221,13 @@ export function applyGroundbaitCastComplete(
   }
 
   const next = buildBuffState(pendingId, stack, nowMs);
-  user.groundbait = next;
   if (next) {
+    db.transaction(() => {
+      db.prepare("UPDATE groundbait_casts SET status='active', created_at=?, expires_at=? WHERE cast_id=?")
+        .run(nowMs, next.expiresAt, castId);
+      feedGroundbaitAtSpot(pondId, user.spotId!, nowMs);
+    })();
+    user.groundbait = next;
     recordFishingMetric('groundbait_applied', {
       playerId,
       pondId,

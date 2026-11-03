@@ -38,6 +38,7 @@ import { removePondFish } from './pondEcology.js';
 import { ensurePlayerGear, equipBait, equipTackle, addBaitToInventory } from './gear.js';
 import { getConfigNumber } from './gameConfig.js';
 import { db } from './db.js';
+import { buildFishHistorySnapshot } from './fishLifecycle.js';
 import { initBotFishingPhase, processWaitingBiteTick } from './fishingStateMachine.js';
 import { setBotHookCatchHandler } from './botHookCatch.js';
 import {
@@ -243,22 +244,18 @@ function handleBotCatch(
   // inventory.player_id → players：池账号若被删库/未 seed，直接 INSERT 会 FK 炸进程（STAB-03）
   ensurePlayer(playerId, bot.nickname);
 
-  const removed = removePondFish(fish.id);
-  if (!removed) return;
-
   let item;
   try {
-    item = addFishToInventory(
-      playerId,
-      {
-        speciesId: removed.speciesId,
-        quality: removed.quality,
-        sizeM: removed.sizeM,
-        caughtAt: Date.now(),
-        pondId,
-      },
-      { pondId },
-    );
+    item = db.transaction(() => {
+      const at = Date.now();
+      const removed = removePondFish(fish.id, { catchId: `bot:${fish.id}:${at}`, caughtAt: at, sizeM: fish.sizeM });
+      if (!removed) return null;
+      return addFishToInventory(playerId, {
+        speciesId: removed.speciesId, quality: removed.quality, sizeM: removed.sizeM,
+        caughtAt: at, pondId, history: buildFishHistorySnapshot(removed, at),
+      }, { pondId });
+    })();
+    if (!item) return;
   } catch (err) {
     console.error('[bots] addFishToInventory failed', {
       playerId,

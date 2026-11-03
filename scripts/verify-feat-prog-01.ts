@@ -28,10 +28,10 @@ function section(name: string) {
 
 section('game-data');
 const meta = getGameDataMeta();
-assert.ok(String(meta.version).startsWith('1.1.'), `meta.version=${meta.version}`);
+assert.ok(String(meta.version).startsWith('1.2.'), `meta.version=${meta.version}`);
 assert.equal(Number(meta.SIZE_EXP), 1.15);
 const ponds = listGamePonds();
-assert.equal(ponds.length, 21);
+assert.equal(ponds.length, 41);
 assert.ok(getGamePondDef('pond-novice'));
 assert.ok(getGamePondDef('pond-calm')?.feePer2h === 200);
 assert.ok(getGamePondDef('pond-crystal')?.feePer2h === 500);

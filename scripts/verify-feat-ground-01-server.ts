@@ -39,14 +39,14 @@ const user = {
 } as PondUser;
 
 db.prepare('UPDATE players SET coins = 0 WHERE player_id = ?').run(playerId);
-const rejectGold = tryStartGroundbaitCast(playerId, { ...user }, 'gb-basic');
+const rejectGold = tryStartGroundbaitCast(playerId, { ...user }, 'gb-basic', 'pond-calm');
 assert(
   !rejectGold.ok && rejectGold.code === 'INSUFFICIENT_GOLD',
   `expected INSUFFICIENT_GOLD, got ${JSON.stringify(rejectGold)}`,
 );
 
 addCoins(playerId, 500);
-const started = tryStartGroundbaitCast(playerId, user, 'gb-basic');
+const started = tryStartGroundbaitCast(playerId, user, 'gb-basic', 'pond-calm');
 assert(started.ok, started.ok ? '' : started.error);
 assert(started.ok && started.costGold === 30);
 const coinsAfter = getPlayer(playerId)?.coins ?? -1;
@@ -61,12 +61,12 @@ const def = getGroundbaitDef('gb-basic')!;
 const expected = calcGroundbaitBiteBonus(1, def.maxBonus, def.stackK);
 assert(Math.abs(user.groundbait!.biteBonus - expected) < 1e-9);
 
-const started2 = tryStartGroundbaitCast(playerId, user, 'gb-basic');
+const started2 = tryStartGroundbaitCast(playerId, user, 'gb-basic', 'pond-calm');
 assert(started2.ok);
 applyGroundbaitCastComplete(playerId, user, 'pond-calm');
 assert(user.groundbait!.stackCount === 2);
 
-const started3 = tryStartGroundbaitCast(playerId, user, 'gb-mix');
+const started3 = tryStartGroundbaitCast(playerId, user, 'gb-mix', 'pond-calm');
 assert(started3.ok);
 applyGroundbaitCastComplete(playerId, user, 'pond-calm');
 assert(user.groundbait!.stackCount === 1);
@@ -80,7 +80,7 @@ user.groundbait = {
   biteBonus: 0.1,
   sizeBonus: 0.05,
 };
-const capped = tryStartGroundbaitCast(playerId, user, 'gb-mix');
+const capped = tryStartGroundbaitCast(playerId, user, 'gb-mix', 'pond-calm');
 assert(!capped.ok && capped.code === 'STACK_CAP', 'expected STACK_CAP');
 
 clearGroundbait(user);

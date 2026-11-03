@@ -39,8 +39,8 @@ export interface WorldTileMap {
   voidColor: string;
 }
 
-/** FEAT-SCENE-TILE-3：边长 144（> TILE-2 的 96） */
-const WORLD = 144;
+/** Forty pond regions retain the existing terrain templates and distinct clickable entries. */
+const WORLD = 224;
 
 type Rect = { c0: number; r0: number; c1: number; r1: number };
 
@@ -244,7 +244,7 @@ const VOID_COLOR = '#2E4A2C';
 const CELL = 27;
 const OX = 3;
 const OY = 3;
-const COLS_P = 5;
+const COLS_P = 8;
 
 let cached: WorldTileMap | null = null;
 
@@ -317,8 +317,8 @@ export function getWorldTileMap(): WorldTileMap {
   const entries: WorldTileMap['entries'] = [];
   const labels: WorldPondLabel[] = [];
 
-  if (POND_CATALOG.length !== 20) {
-    throw new Error(`POND_CATALOG must have 20 ponds, got ${POND_CATALOG.length}`);
+  if (POND_CATALOG.length > COLS_P*Math.floor((WORLD-OY)/CELL)) {
+    throw new Error(`World terrain cannot fit ${POND_CATALOG.length} ponds`);
   }
 
   for (let i = 0; i < POND_CATALOG.length; i++) {

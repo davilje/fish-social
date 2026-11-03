@@ -181,7 +181,7 @@ describe('authoritative fishing sleep', () => {
     expect(getPendingCatch(user.id)).toBeUndefined();
     expect(getPlayer(user.playerId!)!.coins).toBe(coinsBefore - baitCost);
     expect(ensurePlayerProgress(user.playerId!)).toEqual(progressBefore);
-    expect(escapeGrowth).toHaveBeenCalledExactlyOnceWith(fish.id);
+    expect(escapeGrowth).toHaveBeenCalledExactlyOnceWith(fish.id, expect.any(String), Date.now(), spotId);
     expect(escapeDurability).toHaveBeenCalledExactlyOnceWith(user.playerId, io);
     expect(getPondFishById(fish.id)!.sizeM).toBeGreaterThanOrEqual(fish.sizeM);
     expect(buildPondSessionSummary(user.playerId!)).toMatchObject({ biteCount: 1, escapeCount: 1, catches: [] });

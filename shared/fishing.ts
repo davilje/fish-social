@@ -3,12 +3,12 @@ import { FISH_QUALITIES, MIN_FISH_SIZE_M, MAX_FISH_SIZE_M, getSpecies, rollFishQ
 import type { PondFishEntity } from './pondEcology';
 import { getRodDef, getFishQualityStats, getFishingFormulaConstant } from './gameData.client';
 import { gameBaitBiteBonus } from './gearRules';
-import { calcIndividualFishLength, getSpeciesSizePotential, roundFishLength } from './fishGrowth';
+import { calcIndividualFishLength, getFishIndividualCap, getFishJuvenileEntrySize, getFishQualityBaseCap, triangularFishFactor, roundFishLength } from './fishGrowth';
 
 /** @deprecated A0-v2 已废弃指数模型，保留仅供旧脚本兼容 */
 export const BITE_LAMBDA = 0.02;
 
-/** @deprecated 历史品质尺寸帽，仅供旧接口/历史迁移；运行鱼体改用鱼种与个体潜力。 */
+/** 品质基准；运行个体上限还须使用固定±15%差异。 */
 export const QUALITY_SIZE_CAP: Record<FishQuality, number> = {
   gray: 0.2,
   green: 0.35,
@@ -156,8 +156,8 @@ export const JUVENILE_SIZE_M_MIN = 0.02;
 
 export const JUVENILE_SIZE_M_MAX = 0.1;
 
-/** 脱钩后尺寸乘数：newSize = sizeM × (1 + 本值) */
-export const ESCAPE_GROWTH_BONUS_RATIO = 0.02;
+/** E0：脱钩只增加履历，不再增加尺寸。 */
+export const ESCAPE_GROWTH_BONUS_RATIO = 0;
 
 /** 渔具脱钩减免上限 */
 export const MAX_TACKLE_ESCAPE_REDUCTION = 0.3;
@@ -192,11 +192,9 @@ export function formatBiteRatePct(rate: number): string {
   return `${(rate * 100).toFixed(2)}%`;
 }
 
-export function getQualityMaxSize(quality: FishQuality, species?: FishSpecies, individualId?: string): number {
-  if (species) return getSpeciesSizePotential(quality, species, individualId);
-  const stats = getFishQualityStats(quality);
-  const cap = stats?.sizeCapM ?? QUALITY_SIZE_CAP[quality];
-  return Math.min(cap, MAX_FISH_SIZE_M);
+export function getQualityMaxSize(quality: FishQuality, _species?: FishSpecies, individualId?: string): number {
+  return individualId ? getFishIndividualCap(quality, individualId)
+    : Math.min(getFishQualityBaseCap(quality), MAX_FISH_SIZE_M);
 }
 
 function formulaConstant(key: string, fallback: number): number {
@@ -214,9 +212,10 @@ export function getSpeciesBiteRatePerTick(species: FishSpecies): number {
  * - QUALITY_BITE_BASE 为满尺寸（n=1）时的最高值
  * - 尺寸越大咬钩率越高，最小尺寸时降至满尺寸值的 35%
  */
-export function calcQualitySizeBiteRate(quality: FishQuality, sizeM: number, speciesId?: FishSpeciesId): number {
+export function calcQualitySizeBiteRate(quality: FishQuality, sizeM: number, speciesId?: FishSpeciesId, individualCapM?: number): number {
   const stats = getFishQualityStats(quality);
-  const cap = getQualityMaxSize(quality, speciesId ? getSpecies(speciesId) : undefined);
+  const cap = individualCapM && Number.isFinite(individualCapM) && individualCapM > 0
+    ? individualCapM : getQualityMaxSize(quality, speciesId ? getSpecies(speciesId) : undefined);
   const biteBase = stats?.biteBaseAtMaxSize ?? QUALITY_BITE_BASE[quality];
   const scale = formulaConstant('BITE_BASE_SCALE', BITE_BASE_SCALE);
   const k = formulaConstant('SIZE_BITE_K', SIZE_BITE_K);
@@ -277,7 +276,7 @@ export function calcSingleFishBiteProbability(
   baitBonus = 0,
 ): number {
   const baseBite =
-    calcQualitySizeBiteRate(fish.quality, fish.sizeM, fish.speciesId) * (fish.biteMultiplier ?? 1.0);
+    calcQualitySizeBiteRate(fish.quality, fish.sizeM, fish.speciesId, fish.individualCapM) * (fish.biteMultiplier ?? 1.0);
   return calcFishBiteContribution(spotMultiplier, baseBite, baitBonus);
 }
 
@@ -325,9 +324,10 @@ export function isNearMaxSize(fish: {
   quality: FishQuality;
   sizeM: number;
   speciesId: FishSpeciesId;
+  individualCapM?: number;
 }): boolean {
   const species = getSpecies(fish.speciesId);
-  const maxSize = getQualityMaxSize(fish.quality, species, fish.id);
+  const maxSize = fish.individualCapM ?? getQualityMaxSize(fish.quality, species, fish.id);
   return fish.sizeM >= maxSize * NEAR_MAX_SIZE_RATIO;
 }
 
@@ -339,11 +339,12 @@ export function getFishBaseBiteRate(
     speciesId: FishSpeciesId;
     biteWeight?: number | null;
     biteMultiplier?: number | null;
+    individualCapM?: number;
   },
   species?: FishSpecies,
 ): number {
   const mult = fish.biteMultiplier ?? 1.0;
-  return calcQualitySizeBiteRate(fish.quality, fish.sizeM, species?.id ?? fish.speciesId) * mult;
+  return calcQualitySizeBiteRate(fish.quality, fish.sizeM, species?.id ?? fish.speciesId, fish.individualCapM) * mult;
 }
 
 /** A0-v2：每 30s 至少一条鱼咬钩概率 = min(1, Σ effectiveBite) */
@@ -393,25 +394,24 @@ export function rollInitialSize(quality: FishQuality, species: FishSpecies): num
 }
 
 /**
- * 播种 / 系统补充：个体潜力的 12%-28%，最小 2cm，保留 0.1cm。
+ * 幼鱼基准规格4厘米±15%；系统初始/混合规格用createFishEntryGrowth生成。
  */
-export function rollJuvenileSize(quality: FishQuality, species: FishSpecies, individualId?: string, random: () => number = Math.random): number {
-  const maxSize = getQualityMaxSize(quality, species, individualId);
-  return roundFishLength(Math.min(maxSize, Math.max(MIN_FISH_SIZE_M, maxSize * (0.12 + clamp01(random()) * 0.16))));
+export function rollJuvenileSize(_quality: FishQuality, _species: FishSpecies, individualId?: string, random: () => number = Math.random): number {
+  return individualId ? getFishJuvenileEntrySize(individualId)
+    : roundFishLength(formulaConstant('FISH_JUVENILE_ENTRY_BASE_M', .04)*triangularFishFactor(random()));
 }
 
-/** 脱钩后即时成长：当前体长 × (1 + ESCAPE_GROWTH_BONUS_RATIO)，触顶截断 */
+/** E0保留旧接口签名：脱钩本身不发放尺寸成长。 */
 export function calcEscapeGrowthSize(
-  quality: FishQuality,
-  species: FishSpecies,
+  _quality: FishQuality,
+  _species: FishSpecies,
   currentSizeM: number,
-  individualId?: string,
+  _individualId?: string,
 ): number {
-  const maxSize = getQualityMaxSize(quality, species, individualId);
-  return roundFishLength(Math.max(currentSizeM, Math.min(maxSize, currentSizeM * (1 + ESCAPE_GROWTH_BONUS_RATIO))));
+  return currentSizeM;
 }
 
-/** @deprecated 旧绝对体长曲线，仅保留历史图表兼容；运行成长使用 calcIndividualFishLength。 */
+/** @deprecated 旧绝对体长曲线，仅保留历史图表兼容；新鱼使用 calcEntryFishLength。 */
 export function calcStandardLengthAtAge(ageDays: number): number {
   const progress = clamp01(ageDays / GROWTH_CURVE_DAYS);
   return round2(
@@ -431,7 +431,7 @@ export function rollIndividualBiteWeight(speciesBiteWeight: number): number {
 }
 
 /**
- * 按鱼种/品质/永久个体 ID 生长；重复 tick 不重抽、不累加，已获得的尺寸不倒退。
+ * @deprecated 旧鱼种曲线兼容入口。新鱼必须按显式入塘锚点调用calcEntryFishLength。
  */
 export function growFishSizeV2(
   quality: FishQuality,

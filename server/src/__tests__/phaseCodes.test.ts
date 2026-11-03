@@ -9,13 +9,13 @@ import {
 } from '@fish-social/shared';
 
 describe('phaseCodes (D-L2-16)', () => {
-  it('maps all 9 phases 0–8 bijectively', () => {
+  it('maps all 10 phases 0–9 bijectively', () => {
     const phases = Object.keys(PHASE_CODES) as FishingPhase[];
-    expect(phases).toHaveLength(9);
+    expect(phases).toHaveLength(10);
     for (const phase of phases) {
       const code = phaseToCode(phase);
       expect(code).toBeGreaterThanOrEqual(0);
-      expect(code).toBeLessThanOrEqual(8);
+      expect(code).toBeLessThanOrEqual(9);
       expect(codeToPhase(code)).toBe(phase);
     }
   });

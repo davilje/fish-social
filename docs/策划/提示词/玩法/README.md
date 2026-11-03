@@ -2,7 +2,7 @@
 
 | 文档 | 记录状态 |
 |---|---|
-| [fish-ecology-entry-growth-dev.prompt](fish-ecology-entry-growth-dev.prompt.md) | FISH-ECOLOGY-01；已确认，待实现；入塘成长、补鱼与履历 |
+| [fish-ecology-entry-growth-dev.prompt](fish-ecology-entry-growth-dev.prompt.md) | FISH-ECOLOGY-01；本地已实现，实际库切换待执行；入塘成长、补鱼与履历 |
 | [fish-break-size-design-dev.prompt](fish-break-size-design-dev.prompt.md) | FISH-BREAK-01 / FISH-SCALE-01；已确认，待实现 |
 | [bot-pool-reuse-cleanup-dev.prompt](bot-pool-reuse-cleanup-dev.prompt.md) | 专题说明／实施记录 |
 | [bot-spawn-pace-dev.prompt](bot-spawn-pace-dev.prompt.md) | 专题说明／实施记录 |

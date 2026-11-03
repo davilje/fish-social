@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="5" result="Passed" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.1230504">
+  <test-suite type="TestSuite" id="1910" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="764" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.123050" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2809" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="764" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.110292" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="73080" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2810" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="764" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.105434" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2811" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="696" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.100551" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="2812" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="696" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.096356" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="2438" name="DesktopFishHistoryTests" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.087938" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2439" name="ExpandedCatalogExposesAllFortyPondsWithoutDuplicatePositions" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.ExpandedCatalogExposesAllFortyPondsWithoutDuplicatePositions" methodname="ExpandedCatalogExposesAllFortyPondsWithoutDuplicatePositions" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="789350969" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.077942" asserts="0">
+                <properties />
+                <output><![CDATA[[GameData] fish_species loaded 50 rows.
+]]></output>
+              </test-case>
+              <test-case id="2442" name="LandingReminderRejectsExpiredOrUnhookedFishAndHonorsLeadTime" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.LandingReminderRejectsExpiredOrUnhookedFishAndHonorsLeadTime" methodname="LandingReminderRejectsExpiredOrUnhookedFishAndHonorsLeadTime" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1677371517" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.000210" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2440" name="NetworkDtosKeepTheSameCaptureHistory" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.NetworkDtosKeepTheSameCaptureHistory" methodname="NetworkDtosKeepTheSameCaptureHistory" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1030871371" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.000334" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2443" name="ReminderSoundIsDeduplicatedAndMuteConsumesIt" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.ReminderSoundIsDeduplicatedAndMuteConsumesIt" methodname="ReminderSoundIsDeduplicatedAndMuteConsumesIt" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1038683941" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.000523" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2441" name="SummaryUsesCapturedDurationAndActualEntryLength" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.SummaryUsesCapturedDurationAndActualEntryLength" methodname="SummaryUsesCapturedDurationAndActualEntryLength" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="325629926" result="Passed" start-time="2026-11-03 16:22:42Z" end-time="2026-11-03 16:22:42Z" duration="0.003474" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

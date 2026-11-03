@@ -2,7 +2,8 @@ import { randomUUID } from 'crypto';
 import type { FishInventoryItem, PendingFishCatch } from '@fish-social/shared';
 import { FISHING_PROMPT_AUTO_CLOSE_MS } from '@fish-social/shared';
 import { db } from './db.js';
-import { removePondFish } from './pondEcology.js';
+import { removePondFish, getPondFishById } from './pondEcology.js';
+import { buildFishHistorySnapshot, getHookLockedFishIds, parseFishHistory, releaseFishHook } from './fishLifecycle.js';
 import { recordFishingMetric } from './fishingMetrics.js';
 import {
   deletePendingCatchLock,
@@ -21,11 +22,11 @@ const pendingByPondFishId = new Map<string, string>();
 export const PENDING_CATCH_TIMEOUT_MS = FISHING_PROMPT_AUTO_CLOSE_MS + 8_000;
 
 export function getLockedPondFishIds(): Set<string> {
-  return new Set(pendingByPondFishId.keys());
+  return new Set([...pendingByPondFishId.keys(), ...getHookLockedFishIds()]);
 }
 
 export function isPondFishLocked(pondFishId: string): boolean {
-  return pendingByPondFishId.has(pondFishId);
+  return pendingByPondFishId.has(pondFishId) || getHookLockedFishIds().has(pondFishId);
 }
 
 function clearPendingTimeout(userId: string): void {
@@ -39,6 +40,7 @@ function releaseUserPending(
   const pending = pendingByUser.get(userId);
   if (pending) {
     pendingByPondFishId.delete(pending.pondFishId);
+    releaseFishHook(pending.catchId);
     if (opts?.reason === 'expired') {
       recordFishingMetric('pending_catch_expired', {
         playerId: opts.playerId,
@@ -100,6 +102,7 @@ interface InvRow {
   size_m: number;
   caught_at: number;
   pond_id?: string | null;
+  history_json?: string | null;
 }
 
 function rowToItem(row: InvRow): FishInventoryItem {
@@ -110,6 +113,7 @@ function rowToItem(row: InvRow): FishInventoryItem {
     sizeM: row.size_m,
     caughtAt: row.caught_at,
     pondId: row.pond_id ?? null,
+    history: parseFishHistory(row.history_json),
   };
 }
 
@@ -117,8 +121,8 @@ const listInvStmt = db.prepare(
   'SELECT * FROM inventory WHERE player_id = ? ORDER BY caught_at DESC',
 );
 const insertInvStmt = db.prepare(`
-  INSERT INTO inventory (id, player_id, species_id, quality, size_m, caught_at, pond_id)
-  VALUES (@id, @playerId, @speciesId, @quality, @sizeM, @caughtAt, @pondId)
+  INSERT INTO inventory (id, player_id, species_id, quality, size_m, caught_at, pond_id, pond_fish_id, history_json)
+  VALUES (@id, @playerId, @speciesId, @quality, @sizeM, @caughtAt, @pondId, @pondFishId, @historyJson)
 `);
 const deleteInvStmt = db.prepare('DELETE FROM inventory WHERE id = ? AND player_id = ?');
 
@@ -137,6 +141,8 @@ export function setInventory(playerId: string, items: FishInventoryItem[]): void
       sizeM: item.sizeM,
       caughtAt: item.caughtAt,
       pondId: item.pondId ?? null,
+      pondFishId: item.history?.fishId ?? null,
+      historyJson: item.history ? JSON.stringify(item.history) : null,
     });
   }
 }
@@ -156,6 +162,8 @@ export function addFishToInventory(
     sizeM: item.sizeM,
     caughtAt: item.caughtAt,
     pondId,
+    pondFishId: item.history?.fishId ?? null,
+    historyJson: item.history ? JSON.stringify(item.history) : null,
   });
   return item;
 }
@@ -220,34 +228,28 @@ export function acceptCatch(
   if (!pending) return { ok: false, error: '没有待领取的鱼' };
   if (pending.catchId !== catchId) return { ok: false, error: '鱼已过期' };
 
-  const removed = removePondFish(pending.pondFishId);
-  releaseUserPending(userId, { playerId, pondId, reason: 'accepted' });
-  if (!removed) {
-    return { ok: false, error: '这条鱼已被他人钓走' };
-  }
-
-  const item = addFishToInventory(
-    playerId,
-    {
-      speciesId: pending.speciesId,
-      quality: pending.quality,
-      sizeM: pending.sizeM,
-      caughtAt: Date.now(),
-      pondId: pondId ?? null,
-    },
-    { pondId: pondId ?? null },
-  );
-
-  if (pondId) {
-    grantCatchProgress(playerId, pondId, pending.speciesId, pending.quality, pending.sizeM);
-    if (pondId === 'pond-novice') {
-      completeOnboarding(playerId);
+  const result = db.transaction((): { ok: true; item: FishInventoryItem } | { ok: false; error: string } => {
+    const current = getPondFishById(pending.pondFishId);
+    if (!current) return { ok: false, error: '这条鱼已被他人钓走' };
+    const history = pending.history ?? buildFishHistorySnapshot(current, Date.now(), pending.sizeM);
+    const caughtAt = history?.caughtAt ?? Date.now();
+    const removed = removePondFish(pending.pondFishId, { catchId, caughtAt, sizeM: pending.sizeM });
+    if (!removed) return { ok: false, error: '这条鱼已被他人钓走' };
+    const item = addFishToInventory(playerId, {
+      speciesId: pending.speciesId, quality: pending.quality, sizeM: pending.sizeM,
+      caughtAt, pondId: pondId ?? null, history,
+    }, { pondId: pondId ?? null });
+    if (pondId) {
+      grantCatchProgress(playerId, pondId, pending.speciesId, pending.quality, pending.sizeM);
+      if (pondId === 'pond-novice') completeOnboarding(playerId);
     }
-  }
-
-  noteRodOversizeLanding(playerId, pending.sizeM);
-
-  return { ok: true, item };
+    noteRodOversizeLanding(playerId, pending.sizeM);
+    deletePendingCatchLock(userId);
+    return { ok: true, item };
+  })();
+  // Release in-memory ownership only after the database transaction commits.
+  releaseUserPending(userId, { playerId, pondId, reason: 'accepted' });
+  return result;
 }
 
 export function getFishById(playerId: string, fishId: string): FishInventoryItem | null {

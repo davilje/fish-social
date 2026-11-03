@@ -38,7 +38,7 @@ HEADER_FONT = Font(bold=True, color="FFFFFF")
 
 META_ROWS = [
     ("key", "value"),
-    ("version", "1.1.2"),
+    ("version", "1.2.0-entry-growth"),
     ("SIZE_EXP", 1.15),
     ("maxFeeChargesPerDayDefault", 4),
     ("maxStackCount", 50),
@@ -209,10 +209,12 @@ BAITS = [
 GROUNDBAITS = [
     # groundbaitId, name, unlockPlayerLevel, costGoldPerUse, castDurationMs,
     # durationMin, maxBites, perStackBiteBonus, maxBonus, stackK,
-    # sizeBonusPerStack, maxSizeBonus
-    ("gb-basic", "基础窝料", 3, 30, 3000, 20, 8, 0.006, 0.08, 0.08, 0.003, 0.08),
-    ("gb-mix", "混合窝料", 5, 50, 5000, 25, 10, 0.010, 0.12, 0.07, 0.004, 0.10),
-    ("gb-premium", "精品窝料", 7, 80, 8000, 30, 12, 0.014, 0.18, 0.06, 0.005, 0.12),
+    # sizeBonusPerStack, maxSizeBonus: deprecated compatibility columns, always 0.
+    # FISH-ECOLOGY-01: each cast supplies 12 portions × 10 growth minutes locally;
+    # actual feeding persists nutrition, with at most 2 portions per fish/cast.
+    ("gb-basic", "基础窝料", 3, 30, 3000, 20, 8, 0.006, 0.08, 0.08, 0, 0),
+    ("gb-mix", "混合窝料", 5, 50, 5000, 25, 10, 0.010, 0.12, 0.07, 0, 0),
+    ("gb-premium", "精品窝料", 7, 80, 8000, 30, 12, 0.014, 0.18, 0.06, 0, 0),
 ]
 
 # FEAT-ALBUM-01
@@ -299,7 +301,8 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("pond_category_quality_weights", "quality", "品质", "gray…gold。"),
     ("pond_category_quality_weights", "spawnWeight", "品质权重", "选好种后按此表加权抽品质。"),
     ("fish_quality_stats", "quality", "品质", "gray…gold；玩法+卖价同表。"),
-    ("fish_quality_stats", "sizeCapM", "尺寸上限m", "品质体长硬帽。"),
+    ("fish_quality_stats", "sizeCapM", "上限基准m", "个体上限以此基准独立固定±15%。"),
+    ("fish_quality_stats", "growthT80Days", "自然T80天数", "从幼鱼基准自然达到自身上限80%的时间；非真实鱼龄。"),
     ("fish_quality_stats", "biteBaseAtMaxSize", "满尺寸咬钩基数", "公式读表。"),
     ("fish_quality_stats", "displayName", "显示名", "中文品质名。"),
     ("fish_quality_stats", "QUALITY_BASE", "品质底价", "卖价公式底数；钓组不参与卖价。"),
@@ -362,8 +365,8 @@ FIELD_DOCS: list[tuple[str, str, str, str]] = [
     ("groundbaits", "perStackBiteBonus", "每层咬钩参考", "策划标注；实际用 maxBonus/stackK 曲线。"),
     ("groundbaits", "maxBonus", "咬钩加成渐近上限", "bonus=maxBonus*(1-exp(-stackK*stack))。"),
     ("groundbaits", "stackK", "曲线速率", "非线性叠层速率。"),
-    ("groundbaits", "sizeBonusPerStack", "尺寸每层增益m", "临时，不写库。"),
-    ("groundbaits", "maxSizeBonus", "尺寸增益总帽m", "临时 sizeBonus 上限。"),
+    ("groundbaits", "sizeBonusPerStack", "废弃尺寸增益m", "兼容列，固定0。已替换为每窝12份×10分钟的局部实际摄食营养，永久记录成长时间。"),
+    ("groundbaits", "maxSizeBonus", "废弃尺寸增益帽m", "兼容列，固定0。同一条鱼每窝最多2份；未吃完到期失效；营养另受滚动24小时360分钟上限约束。"),
     ("vessels", "vesselId", "船具ID", "程序主键。"),
     ("vessels", "name", "中文名", "商店显示名。"),
     ("vessels", "unlockPlayerLevel", "解锁钓鱼等级", "低于此等级不能买。"),
@@ -466,6 +469,7 @@ def build() -> Path:
 
     pond_rows = []
     dual_categories = {"advanced", "veteran", "forbidden"}
+    formal_index = 0
     for p in PONDS:
         fee = p[4]
         category = p[2]
@@ -473,7 +477,10 @@ def build() -> Path:
         auto_fee = round(fee * 1.75) if dual else 0
         bio, water, ref = pond_extra_fields(p[0])
         mx, mn, init = ecology_fields_for_pond(p[0])
-        pond_rows.append((*p[:5], fee, auto_fee, dual, *p[5:], 0, 0, bio, water, ref, mx, mn, init))
+        map_x, map_y = (0, 0) if category == "novice" else ((formal_index % 8 + .5) / 8, (formal_index // 8 + .5) / 5)
+        if category != "novice":
+            formal_index += 1
+        pond_rows.append((*p[:5], fee, auto_fee, dual, *p[5:], map_x, map_y, bio, water, ref, mx, mn, init))
     write_sheet(wb, "ponds", PONDS_HEADER, pond_rows)
 
     write_sheet(
@@ -585,6 +592,7 @@ def build() -> Path:
             "QUALITY_BASE",
             "SIZE_REF",
             "MIN_SELL",
+            "growthT80Days",
         ],
         FISH_QUALITY_STATS,
     )

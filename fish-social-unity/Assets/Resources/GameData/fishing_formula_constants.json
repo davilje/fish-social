@@ -93,5 +93,90 @@
     "key": "XP_SIZE_EXP",
     "value": 0.85,
     "notes": "上鱼经验体长乘子指数：(sizeM/SIZE_REF)^exp"
+  },
+  {
+    "key": "FISH_JUVENILE_ENTRY_BASE_M",
+    "value": 0.04,
+    "notes": "幼鱼基准投放尺寸；非出生长度"
+  },
+  {
+    "key": "FISH_INDIVIDUAL_VARIATION",
+    "value": 0.15,
+    "notes": "幼鱼基准与品质上限独立三角分布±15%"
+  },
+  {
+    "key": "FISH_OPENING_HISTORY_DAYS",
+    "value": 14,
+    "notes": "开服初始鱼历史入塘范围0～14天"
+  },
+  {
+    "key": "FISH_RESTOCK_JUVENILE_SHARE",
+    "value": 0.5,
+    "notes": "补鱼幼鱼阶段占比"
+  },
+  {
+    "key": "FISH_RESTOCK_GROWING_SHARE",
+    "value": 0.4,
+    "notes": "补鱼成长阶段占比；剩余为较成熟阶段"
+  },
+  {
+    "key": "FISH_RESTOCK_JUVENILE_END_T80",
+    "value": 0.2,
+    "notes": "幼鱼规格阶段终点/T80"
+  },
+  {
+    "key": "FISH_RESTOCK_GROWING_END_T80",
+    "value": 0.8,
+    "notes": "成长规格阶段终点/T80"
+  },
+  {
+    "key": "FISH_RESTOCK_MATURE_END_T80",
+    "value": 1.5,
+    "notes": "较成熟规格阶段终点/T80"
+  },
+  {
+    "key": "FISH_HOOK_FEED_MINUTES",
+    "value": 15,
+    "notes": "单次钩饵实际摄食成长分钟"
+  },
+  {
+    "key": "FISH_GROUNDBAIT_PORTION_MINUTES",
+    "value": 10,
+    "notes": "每份窝料成长分钟"
+  },
+  {
+    "key": "FISH_GROUNDBAIT_PORTIONS",
+    "value": 12,
+    "notes": "每次打窝可摄食份数"
+  },
+  {
+    "key": "FISH_GROUNDBAIT_MAX_PORTIONS_PER_FISH",
+    "value": 2,
+    "notes": "同鱼同次窝料最多摄食份数"
+  },
+  {
+    "key": "FISH_NUTRITION_ROLLING_CAP_MINUTES",
+    "value": 360,
+    "notes": "每鱼滚动24小时摄食成长总上限分钟"
+  },
+  {
+    "key": "POND_SUPPLEMENT_LOW_WATERMARK",
+    "value": 40,
+    "notes": "小时库存检查≤此值补鱼"
+  },
+  {
+    "key": "POND_SUPPLEMENT_LOW_TARGET",
+    "value": 80,
+    "notes": "小时低水位补鱼目标"
+  },
+  {
+    "key": "POND_DAILY_TARGET",
+    "value": 100,
+    "notes": "每日结算补鱼目标"
+  },
+  {
+    "key": "POND_DAILY_SETTLEMENT_HOUR",
+    "value": 4,
+    "notes": "Asia/Shanghai每日结算小时"
   }
 ]

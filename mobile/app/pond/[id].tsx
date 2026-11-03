@@ -22,6 +22,7 @@ import {
 import { BackpackButton } from '../../components/BackpackButton';
 import { BackpackModal } from '../../components/BackpackModal';
 import { CatchFishModal } from '../../components/CatchFishModal';
+import { FishLandingReminder } from '../../components/FishLandingReminder';
 import { AppNoticeModal } from '../../components/AppNoticeModal';
 import { PondSocialPanel } from '../../components/PondSocialPanel';
 import { CodexModal } from '../../components/CodexModal';
@@ -419,6 +420,7 @@ export default function PondScreen() {
   const mainContent = (
     <>
       <View style={pondSideBySide ? styles.pondColumn : styles.pondColumnMobile}>
+        <FishLandingReminder user={me} now={now} />
         <PondScene
           pondId={pond.id}
           users={users}
