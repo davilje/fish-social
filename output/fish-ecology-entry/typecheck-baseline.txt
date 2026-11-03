@@ -1,0 +1,52 @@
+server/src/auth.ts(150,42): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/createApp.ts(198,36): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/fishingStateMachine.ts(450,54): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+server/src/logger.ts(65,5): error TS2353: Object literal may only specify known properties, and 'sync' does not exist in type 'LoggerOptions<never, boolean>'.
+server/src/migrations/audit_log.ts(3,37): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/client_logs.ts(3,39): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/correlation_id.ts(3,42): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/daily_pond_ecology.ts(3,45): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/daily_pond_hook_escape.ts(4,48): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/daily_stats.ts(3,39): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/error_logs.ts(3,38): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/leaderboard_weekly_biggest.ts(3,53): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/migrations/social_v060.ts(3,39): error TS2709: Cannot use namespace 'Database' as a type.
+server/src/shop.ts(292,31): error TS2552: Cannot find name 'getTackle'. Did you mean 'tackle'?
+server/src/shop.ts(298,56): error TS2304: Cannot find name 'TackleId'.
+server/src/socialRoutes.ts(128,5): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+server/src/socialRoutes.ts(133,5): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+server/src/socialRoutes.ts(365,31): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(530,36): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(535,37): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(536,37): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(615,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(646,35): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(649,7): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(675,35): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(677,33): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(696,38): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(699,7): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(700,7): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(826,49): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(831,26): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/src/socialRoutes.ts(832,42): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.

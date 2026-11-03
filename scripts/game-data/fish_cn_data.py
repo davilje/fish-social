@@ -154,6 +154,13 @@ PONDS_CN = [
      "east_plain_lake", "pond", "新手"),
 ]
 
+# FISH-ECOLOGY-01: add independent north-bay ponds while preserving the original
+# twenty pond IDs, access rules, species habitat and category probabilities.
+PONDS_CN += [
+    (p[0] + "-north", p[1] + "·北湾", *p[2:12], p[12] + "（北湾钓区）")
+    for p in list(PONDS_CN) if p[2] != "novice"
+]
+
 DELETED_FOREIGN_IDS = {
     "tuna", "marlin", "salmon", "cod", "herring", "snapper", "mackerel", "pike",
     "sturgeon", "perch", "bass", "trout",
@@ -178,12 +185,12 @@ SPECIES_BASE_WEIGHT = {
 # novice：仅 1 条教学鱼，钓完不补；其余塘统一上限 100
 ECOLOGY_BY_CATEGORY = {
     "novice": (1, 1, 1),
-    "advanced": (100, 15, 100),
-    "veteran": (100, 15, 100),
-    "wilderness": (100, 15, 100),
-    "reservoir": (100, 15, 100),
-    "forbidden": (100, 15, 100),
-    "giant": (100, 15, 100),
+    "advanced": (100, 40, 100),
+    "veteran": (100, 40, 100),
+    "wilderness": (100, 40, 100),
+    "reservoir": (100, 40, 100),
+    "forbidden": (100, 40, 100),
+    "giant": (100, 40, 100),
 }
 
 # Global quality weights (1:1 from FISH_QUALITIES) for POOL-01 category sheet
@@ -241,14 +248,14 @@ CATEGORY_QUALITY_WEIGHTS = {
 }
 
 FISH_QUALITY_STATS = [
-    # quality, sizeCapM, biteBaseAtMaxSize, displayName, QUALITY_BASE, SIZE_REF, MIN_SELL
-    ("gray", 0.2, 0.05, "普通", 80, 0.20, 40),
-    ("green", 0.35, 0.032, "优良", 160, 0.35, 80),
-    ("blue", 0.5, 0.018, "稀有", 360, 0.60, 160),
-    ("purple", 0.8, 0.008, "史诗", 900, 1.00, 400),
-    ("red", 3.0, 0.0035, "传说", 2200, 1.80, 900),
-    ("orange", 15.0, 0.0015, "神话", 5500, 3.00, 2200),
-    ("gold", 40.0, 0.0006, "至尊", 14000, 5.00, 6000),
+    # quality, cap base, bite, name, price base/ref/min, growthT80Days
+    ("gray", 0.2, 0.05, "普通", 80, 0.20, 40, 1),
+    ("green", 0.35, 0.032, "优良", 160, 0.35, 80, 2),
+    ("blue", 0.5, 0.018, "稀有", 360, 0.60, 160, 3),
+    ("purple", 0.8, 0.008, "史诗", 900, 1.00, 400, 5),
+    ("red", 3.0, 0.0035, "传说", 2200, 1.80, 900, 7),
+    ("orange", 15.0, 0.0015, "神话", 5500, 3.00, 2200, 10),
+    ("gold", 40.0, 0.0006, "至尊", 14000, 5.00, 6000, 14),
 ]
 
 FISHING_FORMULA_CONSTANTS = [
@@ -272,6 +279,23 @@ FISHING_FORMULA_CONSTANTS = [
     ("LENGTH_WEIGHT_A", 12.0, "体重 W(kg)=a×L(m)^b 的 a，展示用不落库"),
     ("LENGTH_WEIGHT_B", 3.0, "体重 W(kg)=a×L(m)^b 的 b，展示用不落库"),
     ("XP_SIZE_EXP", 0.85, "上鱼经验体长乘子指数：(sizeM/SIZE_REF)^exp"),
+    ("FISH_JUVENILE_ENTRY_BASE_M", 0.04, "幼鱼基准投放尺寸；非出生长度"),
+    ("FISH_INDIVIDUAL_VARIATION", 0.15, "幼鱼基准与品质上限独立三角分布±15%"),
+    ("FISH_OPENING_HISTORY_DAYS", 14, "开服初始鱼历史入塘范围0～14天"),
+    ("FISH_RESTOCK_JUVENILE_SHARE", 0.5, "补鱼幼鱼阶段占比"),
+    ("FISH_RESTOCK_GROWING_SHARE", 0.4, "补鱼成长阶段占比；剩余为较成熟阶段"),
+    ("FISH_RESTOCK_JUVENILE_END_T80", 0.2, "幼鱼规格阶段终点/T80"),
+    ("FISH_RESTOCK_GROWING_END_T80", 0.8, "成长规格阶段终点/T80"),
+    ("FISH_RESTOCK_MATURE_END_T80", 1.5, "较成熟规格阶段终点/T80"),
+    ("FISH_HOOK_FEED_MINUTES", 15, "单次钩饵实际摄食成长分钟"),
+    ("FISH_GROUNDBAIT_PORTION_MINUTES", 10, "每份窝料成长分钟"),
+    ("FISH_GROUNDBAIT_PORTIONS", 12, "每次打窝可摄食份数"),
+    ("FISH_GROUNDBAIT_MAX_PORTIONS_PER_FISH", 2, "同鱼同次窝料最多摄食份数"),
+    ("FISH_NUTRITION_ROLLING_CAP_MINUTES", 360, "每鱼滚动24小时摄食成长总上限分钟"),
+    ("POND_SUPPLEMENT_LOW_WATERMARK", 40, "小时库存检查≤此值补鱼"),
+    ("POND_SUPPLEMENT_LOW_TARGET", 80, "小时低水位补鱼目标"),
+    ("POND_DAILY_TARGET", 100, "每日结算补鱼目标"),
+    ("POND_DAILY_SETTLEMENT_HOUR", 4, "Asia/Shanghai每日结算小时"),
 ]
 
 
@@ -280,6 +304,10 @@ def species_rows_for_xlsx():
     rows = []
     for sid, name, diet, group, mn, mx, tier, nationwide in FISH_SPECIES_CN:
         qmax = QUALITY_MAX_BY_TIER.get(tier, 7)
+        # 青鱼已在全部正式种池中，补齐无rare/legendary水域的至尊资格；
+        # 不改塘品质概率、不向鱼种池加入异地物种。
+        if sid == "black_carp":
+            qmax = 7
         rows.append((sid, name, diet, group, mn, mx, tier, nationwide, 1, qmax))
     return rows
 

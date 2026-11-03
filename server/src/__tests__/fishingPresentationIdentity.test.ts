@@ -61,16 +61,17 @@ function createFisher(autoReturn = false): { user: PondUser; pondId: string } {
 
 function bite(entry: { user: PondUser; pondId: string }, escaped = false): string {
   const { user, pondId } = entry;
-  const fish = spawnDebugHookFish(pondId, user.spotId!, 'purple', 0.9)!;
+  const fish = spawnDebugHookFish(pondId, user.spotId!, 'red', 0.9)!;
   // Deterministic eligible size for the real automatic-return path.
   fish.sizeM = 2;
-  db.prepare('UPDATE pond_fish SET size_m = ? WHERE id = ?').run(fish.sizeM, fish.id);
+  db.prepare('UPDATE pond_fish SET size_m = ?, entry_size_m = ? WHERE id = ?').run(fish.sizeM, fish.sizeM, fish.id);
   scheduleHookFromBite(io, pondId, user.id, user.id, { fish, escaped, hookDurationMs: 1000 });
   expect(user.fishingPhase).toBe('hooked');
   const catchId = user.phaseContext!.catchId!;
   expect(catchId).toMatch(/^[0-9a-f-]{36}$/);
   expect(getHookContext(user.id)?.catchId).toBe(catchId);
-  expect(user.phaseContext?.sizeM).toBe(2);
+  expect(user.phaseContext?.sizeM).toBeGreaterThanOrEqual(2);
+  expect(user.phaseContext?.sizeM).toBe(getHookContext(user.id)?.fish.sizeM);
   return catchId;
 }
 

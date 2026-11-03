@@ -19,6 +19,7 @@ export * from './worldTileMap';
 export * from './isoMath';
 export * from './fish';
 export * from './fishGrowth';
+export * from './fishHistory';
 export * from './fishing';
 export * from './defaultAvatars';
 export * from './fishingPhotos';

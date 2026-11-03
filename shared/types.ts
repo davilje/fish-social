@@ -38,6 +38,7 @@ export interface PondUserPhaseContext {
 export type ChatMessageType = 'user' | 'announcement';
 
 import type { FishQuality, FishSpeciesId } from './fish';
+import type { FishHistorySnapshot } from './fishHistory';
 import type { DirectMessage, FriendRequest, PostComment } from './social';
 import type { PondEcologySummary } from './pondEcology';
 import type { FishingFloatTextPayload, PlayerGearState, BaitDepletedPayload } from './fishing';
@@ -86,6 +87,7 @@ export interface FishInventoryItem {
   caughtAt: number;
   /** 入库时鱼塘（看板分塘；历史行可空） */
   pondId?: string | null;
+  history?: FishHistorySnapshot;
 }
 
 export interface PendingFishCatch {
@@ -99,6 +101,7 @@ export interface PendingFishCatch {
   hookDurationMs?: number;
   /** 本次钓获是否为该鱼种首次收录图鉴 */
   isCodexNew?: boolean;
+  history?: FishHistorySnapshot;
 }
 
 export interface FishingMiss {
@@ -118,6 +121,7 @@ export interface HookSettleView {
   catchId?: string;
   speciesId?: FishSpeciesId;
   quality?: FishQuality;
+  history?: FishHistorySnapshot;
 }
 
 export type FishingPrompt =
@@ -356,6 +360,7 @@ export interface FishCatchSettledPayload {
   sizeGainM?: number;
   totalCoins?: number;
   message: string;
+  history?: FishHistorySnapshot;
 }
 
 export interface PondSessionCatchEntry {

@@ -10,6 +10,7 @@ import type {
   PostComment,
   PostLikeUser,
   PublicPlayerView,
+  ProfileHubResponse,
   ShareVisibility,
   SocialPost,
 } from '@fish-social/shared';
@@ -29,6 +30,11 @@ export const socialApi = {
 
   getProfile(playerId: string) {
     return api<{ profile: PlayerProfile }>(`/api/players/${playerId}`);
+  },
+
+  getProfileHub(playerId: string) {
+    const id = encodeURIComponent(playerId);
+    return api<{ hub: ProfileHubResponse }>(`/api/players/${id}/profile-hub?viewer=${id}&tab=album`);
   },
 
   getPublicView(playerId: string, viewerPlayerId: string, limit = 20) {

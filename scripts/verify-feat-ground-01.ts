@@ -29,8 +29,11 @@ assert.ok(at50 < basic.maxBonus + 1e-9, 'bonus must not exceed maxBonus');
 assert.ok(at50 > 0);
 
 const size = calcGroundbaitSizeBonus(10, basic.sizeBonusPerStack, basic.maxSizeBonus);
-assert.ok(size <= basic.maxSizeBonus);
-assert.ok(size > 0);
+assert.equal(size, 0, 'FISH-ECOLOGY-01 replaces temporary size boosts with persisted feeding minutes');
+for (const def of list) {
+  assert.equal(def.sizeBonusPerStack, 0, `${def.groundbaitId}: deprecated size increment must be zero`);
+  assert.equal(def.maxSizeBonus, 0, `${def.groundbaitId}: deprecated size cap must be zero`);
+}
 
 const mix = getGroundbaitDef('gb-mix');
 const prem = getGroundbaitDef('gb-premium');

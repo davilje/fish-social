@@ -567,6 +567,8 @@ export function usePondSocket(
           sizeM: payload.sizeM,
           autoReturned: payload.autoReturned === true,
           gold: payload.gold,
+          catchId: payload.catchId,
+          history: payload.history,
         },
       });
     });

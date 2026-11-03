@@ -54,6 +54,12 @@ namespace FishSocial.Desktop
             }
 
             var source = DesktopGameData.Ponds;
+            // An expanded catalog must use one complete coordinate set. Mixing the
+            // old twenty authored positions with new grid positions overlaps markers.
+            var authoredCoversAll = true;
+            foreach (var pond in source)
+                if (pond != null && pond.showOnWorldMap && pond.pondCategory != "novice" && !byId.ContainsKey(pond.pondId))
+                    authoredCoversAll = false;
             var list = new List<WorldMapPondView>();
             for (var i = 0; i < source.Length; i++)
             {
@@ -71,8 +77,8 @@ namespace FishSocial.Desktop
                         (coord != null ? coord.displayName : pond.pondId),
                     pondCategory = pond.pondCategory,
                     theme = coord != null ? coord.theme : pond.mapZoneId,
-                    x = coord != null ? coord.x : pond.mapX,
-                    y = coord != null ? coord.y : pond.mapY,
+                    x = authoredCoversAll && coord != null ? coord.x : pond.mapX,
+                    y = authoredCoversAll && coord != null ? coord.y : pond.mapY,
                     capacity = coord != null ? coord.capacity : 20,
                     feePer2h = pond.feePer2hSellOnly > 0 ? pond.feePer2hSellOnly : pond.feePer2h,
                     feePer2hSellOnly = pond.feePer2hSellOnly > 0 ? pond.feePer2hSellOnly : pond.feePer2h,

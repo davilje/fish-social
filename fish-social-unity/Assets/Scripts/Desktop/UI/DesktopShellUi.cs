@@ -28,6 +28,9 @@ namespace FishSocial.Desktop
         Text _toast;
         GameObject _toastRoot;
         PendingFishCatchDto _journalPendingCatch;
+        string _landingReminderCatchId;
+        long _landingDeadlineAt;
+        long _landingLeadMs;
         int _shownCoins = int.MinValue;
         float _toastUntil;
         SteamAuthController _steamAuth;
@@ -768,6 +771,7 @@ namespace FishSocial.Desktop
 
         void Update()
         {
+            UpdateLandingReminder();
             if (_mainShellEntered && _mainRoot != null && _mainRoot.activeInHierarchy)
             {
                 RefreshHeaderBalance();
@@ -1110,6 +1114,10 @@ namespace FishSocial.Desktop
         void OnPondFishBite(PendingFishCatchDto fishCatch)
         {
             _journalPendingCatch = fishCatch;
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var serverDeadline = _pondSession?.CurrentUser?.phaseEndsAt ?? 0;
+            _landingDeadlineAt = serverDeadline > now ? serverDeadline : now + (fishCatch?.hookDurationMs ?? 0);
+            _landingLeadMs = Math.Min(5000, Math.Max(1, (fishCatch?.hookDurationMs ?? 0) / 3));
             if (_mainRoot != null) CozyMotion.SetCornerPose(_mainRoot.transform, CozyCornerCharacter.Pose.LookUp);
             DesktopAppBootstrap.Instance?.RequestPetVisualRefresh();
             var species = fishCatch != null ? DesktopFishCatalog.SpeciesName(fishCatch.speciesId) : DesktopLocalization.Text("ui.common.bite.label.default_fish", "鱼");
@@ -1128,6 +1136,7 @@ namespace FishSocial.Desktop
             {
                 var detail = DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopLocalization.Concat(DesktopFishCatalog.QualityName(settled.quality), " · "), DesktopGameData.FormatFishSize(settled.sizeM)), "");
                 if (settled.autoReturned) detail = DesktopLocalization.Concat(detail, DesktopLocalization.Format("ui.common.settlement.label.release_income", (object)(settled.gold)));
+                if (DesktopFishHistory.IsRecorded(settled.history)) detail += "\n" + DesktopFishHistory.Summary(settled.history);
                 var celebration = CozyMotion.CelebrateCatch(_mainRoot.transform, pending.catchId,
                     DesktopFishCatalog.SpeciesName(settled.speciesId), CozyItemArt.Fish(settled.speciesId), pending.isCodexNew, detail, settled.sizeM);
                 celebration.CoinsTarget = _mainRoot.transform.Find("Header/FishCoins/Icon") as RectTransform;
@@ -1137,6 +1146,24 @@ namespace FishSocial.Desktop
                 ShowToast(settled.message);
             else if (settled != null && settled.autoReturned)
                 ShowToast(DesktopLocalization.Format("ui.common.settlement.message.auto_release", (object)(settled.gold)));
+        }
+
+        void UpdateLandingReminder()
+        {
+            var pending = _journalPendingCatch;
+            var user = _pondSession?.CurrentUser;
+            if (pending == null || user == null || user.fishingAsleep || string.IsNullOrEmpty(pending.catchId) ||
+                pending.catchId == _landingReminderCatchId ||
+                !DesktopFishHistory.LandingReminderDue(user.fishingPhase,
+                    DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), _landingDeadlineAt, _landingLeadMs)) return;
+            if (!string.IsNullOrEmpty(user.phaseContext?.catchId) && user.phaseContext.catchId != pending.catchId) return;
+            _landingReminderCatchId = pending.catchId;
+            var notices = DesktopNotificationService.Instance;
+            if (notices != null && !notices.Settings.Allows(NotificationKind.FishBite)) return;
+            const string message = "鱼儿正在靠岸，马上揭晓这次收获";
+            ShowToast(message);
+            notices?.Publish(new DesktopNotification(NotificationKind.FishBite, "鱼儿快靠岸了", message));
+            DesktopAudioService.Instance?.PlayLandingReminder(pending.catchId);
         }
 
         void OnPondSessionSummary(PondSessionSummaryDto summary)

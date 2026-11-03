@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import type { AlbumCard, AlbumCardSource, FishQuality } from '@fish-social/shared';
+import type { AlbumCard, AlbumCardSource, FishQuality, FishHistorySnapshot } from '@fish-social/shared';
 import { getAlbumPinCap, getGamePondDef, getSpecies, qualityIndex } from '@fish-social/shared';
 import { db } from './db.js';
+import { parseFishHistory } from './fishLifecycle.js';
 
 export { getAlbumPinCap };
 type CandidateRow = {
@@ -15,6 +16,8 @@ type CandidateRow = {
   source: string;
   event_at: number;
   inventory_item_id: string | null;
+  history_json?: string | null;
+  pond_fish_id?: string | null;
 };
 
 type PinRow = {
@@ -30,6 +33,8 @@ type PinRow = {
   source: string;
   event_at: number;
   pinned_at: number;
+  history_json?: string | null;
+  pond_fish_id?: string | null;
 };
 
 function rowToCard(row: CandidateRow | PinRow, idKey: 'candidate_id' | 'pin_id'): AlbumCard {
@@ -46,6 +51,7 @@ function rowToCard(row: CandidateRow | PinRow, idKey: 'candidate_id' | 'pin_id')
     source: row.source as AlbumCardSource,
     eventAt: row.event_at,
     inventoryItemId: 'inventory_item_id' in row ? row.inventory_item_id : null,
+    history: parseFishHistory(row.history_json),
   };
 }
 
@@ -105,6 +111,7 @@ export function addAlbumCandidate(input: {
   source: AlbumCardSource;
   inventoryItemId?: string | null;
   eventAt?: number;
+  history?: FishHistorySnapshot;
 }): AlbumCard | null {
   if (
     !shouldAutoCandidate({
@@ -125,8 +132,8 @@ export function addAlbumCandidate(input: {
   const eventAt = input.eventAt ?? Date.now();
   db.prepare(
     `INSERT INTO player_album_candidates
-      (candidate_id, player_id, species_id, quality, size_m, pond_id, pond_name, source, event_at, inventory_item_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (candidate_id, player_id, species_id, quality, size_m, pond_id, pond_name, source, event_at, inventory_item_id, pond_fish_id, history_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     candidateId,
     input.playerId,
@@ -138,6 +145,8 @@ export function addAlbumCandidate(input: {
     input.source,
     eventAt,
     input.inventoryItemId ?? null,
+    input.history?.fishId ?? null,
+    input.history ? JSON.stringify(input.history) : null,
   );
 
   // FEAT-ALBUM-01 UI：相册自动入墙，无需玩家钉选候选
@@ -153,6 +162,7 @@ export function addAlbumCandidate(input: {
     source: input.source,
     eventAt,
     inventoryItemId: input.inventoryItemId ?? null,
+    history: input.history,
   };
 }
 
@@ -206,8 +216,8 @@ export function setAlbumPins(
     db.prepare(`DELETE FROM player_album_pins WHERE player_id = ?`).run(playerId);
     const insert = db.prepare(
       `INSERT INTO player_album_pins
-        (player_id, pin_id, sort_order, candidate_id, species_id, quality, size_m, pond_id, pond_name, source, event_at, pinned_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (player_id, pin_id, sort_order, candidate_id, species_id, quality, size_m, pond_id, pond_name, source, event_at, pinned_at, pond_fish_id, history_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     );
     cards.forEach((c, i) => {
       insert.run(
@@ -223,6 +233,8 @@ export function setAlbumPins(
         c.source,
         c.event_at,
         now,
+        c.pond_fish_id ?? null,
+        c.history_json ?? null,
       );
     });
   });

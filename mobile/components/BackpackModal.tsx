@@ -18,6 +18,7 @@ import {
   getSpecies,
 } from '@fish-social/shared';
 import { useResponsive } from '../lib/responsive';
+import { FishHistoryDetails } from './FishHistoryDetails';
 
 interface Props {
   visible: boolean;
@@ -40,7 +41,7 @@ export function BackpackModal({
   onSell,
   onShare,
 }: Props) {
-  const { isDesktop } = useResponsive();
+  const { isDesktop, height } = useResponsive();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const slotCount = Math.max(MIN_SLOTS, items.length);
 
@@ -74,7 +75,7 @@ export function BackpackModal({
           {loading ? (
             <ActivityIndicator style={styles.loader} color="#4A90A4" />
           ) : (
-            <View style={[styles.body, isDesktop && styles.bodyDesktop]}>
+            <ScrollView style={{ maxHeight: height * .9 - 90 }} contentContainerStyle={[styles.body, isDesktop && styles.bodyDesktop]} nestedScrollEnabled>
               <View style={[styles.displayPane, isDesktop && styles.displayPaneDesktop]}>
                 <Text style={styles.paneLabel}>展示</Text>
                 {selected ? (
@@ -128,7 +129,7 @@ export function BackpackModal({
                   </View>
                 </ScrollView>
               </View>
-            </View>
+            </ScrollView>
           )}
         </View>
       </View>
@@ -160,6 +161,7 @@ function FishDisplay({
       </Text>
       <Text style={styles.displaySize}>体长 {formatFishSize(item.sizeM)}</Text>
       <Text style={styles.displaySize}>重量 {formatFishWeight(calcFishWeightKg(item.sizeM))}</Text>
+      <FishHistoryDetails key={item.id} history={item.history} />
       <Text style={styles.displayPrice}>出售可得 {price} 金币</Text>
       <View style={styles.displayActions}>
         {onShare && (

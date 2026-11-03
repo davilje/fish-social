@@ -1,0 +1,407 @@
+
+ RUN  v3.2.7 /Users/davilje/fish-social/server
+
+ ✓ src/__tests__/fishGrowth.test.ts (20 tests) 34ms
+ ✓ src/__tests__/fishEntryGrowth.test.ts (15 tests) 86ms
+stdout | src/__tests__/ownPosts.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/fishingSleep.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/socialLobbyLifecycle.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/fishEcologyIntegration.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/pondEcologyOffline.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/fishingPresentationIdentity.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/fishingPresentationIdentity.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/ownPosts.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/fishingSleep.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/socialLobbyLifecycle.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/fishHookRecovery.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/fishEcologyIntegration.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/pondEcologyOffline.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/fishHookRecovery.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/leaderboardCatchDetails.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/leaderboardCatchDetails.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+ ✓ src/__tests__/fishHookRecovery.test.ts (5 tests) 65ms
+ ✓ src/__tests__/leaderboardCatchDetails.test.ts (5 tests) 15ms
+ ✓ src/__tests__/pondEcologyOffline.test.ts (1 test) 88ms
+ ✓ src/__tests__/fishingPresentationIdentity.test.ts (7 tests) 61ms
+ ✓ src/__tests__/socialLobbyLifecycle.test.ts (2 tests) 72ms
+ ✓ src/__tests__/ownPosts.test.ts (8 tests) 153ms
+ ✓ src/__tests__/timerRegistry.test.ts (4 tests) 20ms
+ ✓ src/__tests__/sessionRegistry.test.ts (3 tests) 4ms
+ ✓ src/__tests__/phaseCodes.test.ts (3 tests) 5ms
+ ✓ src/__tests__/fishingSleep.test.ts (28 tests) 476ms
+ ✓ src/__tests__/pondSessionLedger.test.ts (4 tests) 6ms
+stdout | src/__tests__/steamAuth.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/steamAuth.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+stdout | src/__tests__/auth.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+ ✓ src/__tests__/grayRelease.test.ts (3 tests) 3ms
+ ✓ src/__tests__/fishHistoryPresentation.test.ts (3 tests) 3ms
+ ✓ src/__tests__/steamAuth.test.ts (4 tests) 9ms
+stdout | src/__tests__/auth.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+ ✓ src/__tests__/auth.test.ts (6 tests) 5ms
+ ✓ src/__tests__/fishingPresentation.test.ts (2 tests) 1ms
+ ✓ src/__tests__/defaultAvatarCatalog.test.ts (5 tests) 6ms
+stdout | src/__tests__/steamAuthSession.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/steamAuthSession.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+ ✓ src/__tests__/steamAuthSession.test.ts (3 tests) 3ms
+ ✓ src/__tests__/fishEcologyIntegration.test.ts (9 tests) 1051ms
+stdout | src/__tests__/humanCapacity.test.ts
+Migration C-phase: game_config, config_change_requests, config_audit_log, fishing_metrics, fish_codex, player_gear.tackle_durability
+Migration: pond_fish.birth_size_m column added
+Migration: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.3.0: bite_multiplier/escape_multiplier columns added, 0 rows converted
+Migration v0.3.1: FISH_BITE_CHECK_MS updated to 300000ms
+Migration v0.4.0: pond_fish.spot_id added, backfilled 0 rows
+Migration v1.0-steam-desktop: pond_state.last_simulated_at added, backfilled 0 rows
+Migration v0.4.1: FISH_BITE_CHECK_MS updated to 60000ms
+Migration v0.4.3: idx_fishing_metrics_player_time created
+Migration: fishing_metrics.dedup_key column added
+Migration: idx_fishing_metrics_dedup_key created
+Migration v0.5: player_pond_session, pending_catch_locks
+Migration: player_pond_session.return_fee_mode ensured
+Migration: inventory.pond_id column added
+Migration FEAT-PROG-01: player_fishing_progress
+Migration FEAT-RISK-01: player_forbidden_bans
+Migration: fishing_metrics.correlation_id column added
+Migration: fishing_metrics.correlation_id column added
+Migration: client_logs table created
+Migration: client_logs table created
+Migration: audit_log table created
+Migration: audit_log table created
+Migration v0.6.0 social: likes=true comments=true like_count=true comment_count=true snapshots=true
+Migration v1.0-steam-desktop: steam_accounts table created
+Migration FEAT-ALBUM-01: player_album_candidates, player_album_pins, player_achievements
+Database ready: :memory:
+
+stdout | src/__tests__/humanCapacity.test.ts
+[loki] Loki disabled (LOKI_ENABLED != true)
+
+ ✓ src/__tests__/humanCapacity.test.ts (4 tests) 1ms
+ ✓ src/__tests__/ecologyRebuild.test.ts (7 tests) 2127ms
+   ✓ explicit offline L1 rebuild > validates a complete restored backup before archiving active fish; preserves history and repeats safely  596ms
+   ✓ explicit offline L1 rebuild > rolls back fish, schema, and history when seed fails or modifies player data  590ms
+   ✓ explicit offline L1 rebuild > rebuilds all configured formal ponds with 100 independently aged fish and keeps the novice stock special  346ms
+
+ Test Files  23 passed (23)
+      Tests  151 passed (151)
+   Start at  00:40:21
+   Duration  2.58s (transform 804ms, setup 0ms, collect 6.79s, tests 4.30s, environment 3ms, prepare 1.63s)
+

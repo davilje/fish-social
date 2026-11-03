@@ -131,6 +131,13 @@ namespace FishSocial.Desktop.JournalV2
         {
             var row=FindSelected();foreach(var pair in cards)pair.Value.GetComponent<JournalV2Button>()?.SetSelected(pair.Key==selected);
             JournalV2CatalogUi.Photo(photo,row?.Art,row?.Name??"选择一件物品",reveal);DesktopLocalization.SetText(facts, row?.Facts??(loading?"正在同步，请稍候。":"选择左侧项目查看详情。"));
+            var historyButton=facts.GetComponent<Button>()??facts.gameObject.AddComponent<Button>();
+            historyButton.onClick.RemoveAllListeners();historyButton.interactable=row?.Fish!=null;facts.raycastTarget=row?.Fish!=null;
+            if(row?.Fish!=null)
+            {
+                DesktopLocalization.SetText(facts,DesktopGameData.FormatFishSize(row.Fish.sizeM)+" · 预计出售 "+row.Price+" 金币\n"+DesktopFishHistory.Summary(row.Fish.history)+"\n点击查看个体履历");
+                historyButton.onClick.AddListener(()=>CozyItemDetailsDialog.BindFishHistory(Page.transform)?.Show(row.Name+" · 个体履历",row.Facts+"\n\n"+DesktopFishHistory.Details(row.Fish.history),row.Art));
+            }
             var canAct=row!=null&&!loading&&!busy&&gear!=null;
             var label="选择物品";
             if(row!=null)

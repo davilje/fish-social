@@ -1,7 +1,8 @@
 import type { FishSpeciesId } from './fish';
-import { FISH_QUALITIES, rollFishQuality, type FishQuality } from './fish';
+import { FISH_QUALITIES, type FishQuality } from './fish';
+import type { FishEntryGrowthState } from './fishGrowth';
 import { POND_CATALOG } from './pondCatalog';
-import { getPondEcologyDef, listPondFishPool, getPondCategoryQualityWeights, getGamePondDef, pickPondSpeciesForQuality, pickSpawnFish } from './gameData.client';
+import { getPondEcologyDef, listPondFishPool, getPondCategoryQualityWeights, getGamePondDef, getGameSpecies, getFishingFormulaConstant, pickPondSpeciesForQuality } from './gameData.client';
 import type { PondCategory } from './gameDataTypes';
 /** 鱼塘生态常量 */
 /** @deprecated v0.3.1 仅保留兼容；阻断式恢复已废弃 */
@@ -12,6 +13,22 @@ export const POND_GROWTH_RATE_PER_HOUR = 0.012;
 
 /** 鱼群补充检查间隔（60 分钟） */
 export const POND_SUPPLEMENT_CHECK_MS = 60 * 60 * 1000;
+export const POND_SUPPLEMENT_LOW_WATERMARK = getFishingFormulaConstant('POND_SUPPLEMENT_LOW_WATERMARK', 40);
+export const POND_SUPPLEMENT_LOW_TARGET = getFishingFormulaConstant('POND_SUPPLEMENT_LOW_TARGET', 80);
+export const POND_DAILY_TARGET = getFishingFormulaConstant('POND_DAILY_TARGET', 100);
+export const POND_DAILY_SETTLEMENT_HOUR = getFishingFormulaConstant('POND_DAILY_SETTLEMENT_HOUR', 4);
+
+/** Daily settlement takes priority over the hourly low-watermark check. */
+export function calcPondSupplementCount(currentCount: number, daily = false, maxPopulation = POND_DAILY_TARGET): number {
+  const target = daily ? Math.min(maxPopulation, POND_DAILY_TARGET)
+    : currentCount <= POND_SUPPLEMENT_LOW_WATERMARK ? Math.min(maxPopulation, POND_SUPPLEMENT_LOW_TARGET) : currentCount;
+  return Math.max(0, Math.floor(target-currentCount));
+}
+
+/** Ecology day is anchored at 04:00 Asia/Shanghai, independent of the host timezone. */
+export function getPondEcologyDayKey(now: number): string {
+  return new Date(now+(8-POND_DAILY_SETTLEMENT_HOUR)*3_600_000).toISOString().slice(0,10);
+}
 
 /** 补充目标：补满至 maxPopulation */
 export const POND_SUPPLEMENT_TARGET_RATIO = 1.0;
@@ -106,13 +123,8 @@ export function pickMigrationSpot(
 }
 
 /** v0.3.2 D7：有效补充检查间隔（毫秒） */
-export function calcSupplementCheckMs(activeAnglers: number): number {
-  const shortfall = Math.max(0, POND_SUPPLEMENT_FULL_ACTIVITY_ANGLERS - activeAnglers);
-  const mult = Math.min(
-    POND_SUPPLEMENT_MAX_INTERVAL_MULT,
-    1 + shortfall * POND_SUPPLEMENT_IDLE_INTERVAL_STEP,
-  );
-  return Math.floor(POND_SUPPLEMENT_CHECK_MS * mult);
+export function calcSupplementCheckMs(_activeAnglers: number): number {
+  return POND_SUPPLEMENT_CHECK_MS;
 }
 
 function qualityWeightMap(pondCategory?: PondCategory): Record<FishQuality, number> {
@@ -170,8 +182,8 @@ export function calcSupplementQualityWeights(
     ) {
       raw *= SUPPLEMENT_MID_TIER_PRESENT_MULT;
     }
-    if (index >= SUPPLEMENT_HIGH_TIER_MIN_INDEX && actual > 0) {
-      raw *= SUPPLEMENT_HIGH_TIER_PRESENT_MULT;
+    if (index >= SUPPLEMENT_HIGH_TIER_MIN_INDEX && actual >= idealCount) {
+      raw = 0;
     }
 
     weights.push(raw);
@@ -180,27 +192,28 @@ export function calcSupplementQualityWeights(
   return weights;
 }
 
-/** v0.3.2 D8：按缺口加权抽补充品质；sum=0 时 fallback rollFishQuality() */
+/** No unrestricted fallback: a depleted candidate set means no supplement can be generated. */
 export function rollSupplementQuality(
   actualByQuality: Record<FishQuality, number>,
   maxPopulation: number,
   pondCategory?: PondCategory,
-): FishQuality {
+): FishQuality | undefined {
   const weights = calcSupplementQualityWeights(actualByQuality, maxPopulation, pondCategory);
   const sum = weights.reduce((a, b) => a + b, 0);
-  if (sum <= 0) return rollFishQuality();
+  if (sum <= 0) return undefined;
 
   let r = Math.random() * sum;
   for (let i = 0; i < FISH_QUALITIES.length; i++) {
+    if (weights[i] <= 0) continue;
     r -= weights[i];
     if (r <= 0) return FISH_QUALITIES[i].id;
   }
-  return FISH_QUALITIES[FISH_QUALITIES.length - 1]!.id;
+  return FISH_QUALITIES.filter((_, i) => weights[i] > 0).at(-1)?.id;
 }
 
 /**
- * 补充一条：D8 按缺口抽品质，再在可出种中优先高稀有度选种。
- * 若种池无法覆盖该品质，退回 pickSpawnFish（塘品质分布）。
+ * Supplement weights are masked by the legal species pool before sampling.
+ * A missing species must never bypass the high-quality stock cap via a spawn fallback.
  */
 export function pickSupplementFish(
   pondId: string,
@@ -209,10 +222,29 @@ export function pickSupplementFish(
 ): { speciesId: string; quality: FishQuality } | undefined {
   const pond = getGamePondDef(pondId);
   const category = (pond?.pondCategory ?? 'advanced') as PondCategory;
-  const quality = rollSupplementQuality(actualByQuality, maxPopulation, category);
+  const weights = calcSupplementQualityWeights(actualByQuality,maxPopulation,category);
+  const pool = listPondFishPool(pondId);
+  for (let i=0;i<FISH_QUALITIES.length;i++) {
+    const rank=i+1;
+    if (!pool.some(row => {
+      const species=getGameSpecies(row.speciesId);
+      return row.spawnWeight>0 && species && rank >= (species.qualityMin ?? 1) && rank <= (species.qualityMax ?? 7);
+    })) weights[i]=0;
+  }
+  const total=weights.reduce((sum,w)=>sum+w,0);
+  if (!(total>0)) return undefined;
+  let roll=Math.random()*total;
+  let selected=-1;
+  for (let i=0;i<weights.length;i++) {
+    if (weights[i]<=0) continue;
+    selected=i;
+    roll-=weights[i];
+    if (roll<=0) break;
+  }
+  const quality=FISH_QUALITIES[selected]!.id;
   const speciesId = pickPondSpeciesForQuality(pondId, quality);
   if (speciesId) return { speciesId, quality };
-  return pickSpawnFish(pondId);
+  return undefined;
 }
 
 export interface PondStockConfig {
@@ -227,7 +259,7 @@ export interface PondStockConfig {
   rareSpawnRate: number;
 }
 
-export interface PondFishEntity {
+export interface PondFishEntity extends Partial<FishEntryGrowthState> {
   id: string;
   pondId: string;
   /** 鱼当前归属钓点（v0.4.0 分区咬钩） */

@@ -27,6 +27,22 @@ namespace FishSocial.Desktop
             return view.BindNodes() ? view : null;
         }
 
+        /// <summary>Reuse the authored bag dialog when another page exposes a fish's record.</summary>
+        public static CozyItemDetailsDialog BindFishHistory(Transform page)
+        {
+            if (page == null) return null;
+            if (page.Find("DetailsDialog") == null)
+            {
+                var prefab = Resources.Load<GameObject>("Desktop/Prefabs/PanelCatch");
+                var template = prefab != null ? prefab.transform.Find("DetailsDialog") : null;
+                if (template == null) return null;
+                var dialog = Instantiate(template.gameObject, page, false);
+                dialog.name = "DetailsDialog";
+                dialog.SetActive(false);
+            }
+            return Bind(page);
+        }
+
         bool BindNodes()
         {
             var root = transform.Find("DetailsDialog");

@@ -1,5 +1,7 @@
 import { recordSessionBite, recordSessionEscape } from './pondSessionLedger.js';
 import { randomUUID } from 'crypto';
+import { db } from './db.js';
+import { persistFishHookContext, readPersistedFishHookContext } from './fishHookContext.js';
 import { advanceFishingPresentation } from './fishingPresentation.js';
 import type { Server } from 'socket.io';
 import {
@@ -76,7 +78,8 @@ import {
 import { getLockedPondFishIds, getPendingCatch, lockPendingCatch } from './inventory.js';
 import { isCodexNewForPlayer } from './codex.js';
 import { settleAcceptedCatch } from './catchSettlement.js';
-import { applyEscapeGrowthBonus } from './pondEcology.js';
+import { applyEscapeGrowthBonus, getPondFishById } from './pondEcology.js';
+import { buildFishHistorySnapshot, claimFishHook, releaseFishHook } from './fishLifecycle.js';
 import {
   biteSessionMetricPayload,
   clearBiteSessionCounters,
@@ -223,13 +226,15 @@ function transitionPhase(
     const hookEndsAt =
       phase === 'hooked' && next.phaseEndsAt != null
         ? next.phaseEndsAt
-        : hookContextByUser.get(next.id)?.hookEndsAt ?? null;
+        : getHookContext(next.id)?.hookEndsAt ?? null;
     upsertPlayerPondSession(next, pondId, hookEndsAt);
   }
   return next;
 }
 
 function clearHook(userId: string): void {
+  const ctx = getHookContext(userId);
+  if (ctx) releaseFishHook(ctx.catchId);
   hookContextByUser.delete(userId);
 }
 
@@ -346,7 +351,7 @@ export function beginGroundbaitSequence(
     return { ok: false, error: '请先触碰角色唤醒后再打窝' };
   }
 
-  const started = tryStartGroundbaitCast(user.playerId, user, groundbaitId);
+  const started = tryStartGroundbaitCast(user.playerId, user, groundbaitId, pondId);
   if (!started.ok) {
     recordGroundbaitRejected(user.playerId, pondId, started.reason, started.code);
     return { ok: false, error: started.error, code: started.code };
@@ -392,11 +397,11 @@ export function handleStopFishing(
   }
 
   if (phase === 'hooked') {
-    const ctx = hookContextByUser.get(userId);
+    const ctx = getHookContext(userId);
     if (ctx) {
       sessionFlagsByUser.set(userId, { stopToSeated: true });
       ctx.escaped = true;
-      applyEscapeGrowthBonus(ctx.fish.id);
+      applyEscapeGrowthBonus(ctx.fish.id, ctx.catchId, now(), user.spotId ?? undefined);
       const next = transitionPhase(user, pondId, 'resolving', PHASE_MS.resolvingEscape, 'stop_fishing_escape', {
         outcome: 'escape', catchId: ctx.catchId, resultId: ctx.catchId, sizeM: ctx.fish.sizeM,
       });
@@ -447,7 +452,7 @@ export function handleDisconnect(
   const user = getUserById(pondId, userId);
   if (!user) return;
 
-  const correlationId = resolveCorrelationIdByPlayer(user.playerId);
+  const correlationId = user.playerId ? resolveCorrelationIdByPlayer(user.playerId) : undefined;
   withTraceSpan('fishing.disconnect', correlationId, {
     pondId,
     userId,
@@ -459,7 +464,7 @@ export function handleDisconnect(
   }
 
   if (user.fishingPhase === 'hooked') {
-    const ctx = hookContextByUser.get(userId);
+    const ctx = getHookContext(userId);
     if (ctx) {
       ctx.hookEndsAt = user.phaseEndsAt ?? undefined;
     }
@@ -494,7 +499,7 @@ export function handleDisconnect(
   });
 
   if (user.playerId) {
-    upsertPlayerPondSession(user, pondId, hookContextByUser.get(userId)?.hookEndsAt);
+    upsertPlayerPondSession(user, pondId, getHookContext(userId)?.hookEndsAt);
   }
 
   register({
@@ -617,7 +622,7 @@ export function resumeAfterReconnect(
     resumedToPhase = user.spotId ? 'seated' : 'idle';
     transitionPhase(user, pondId, resumedToPhase, 0, 'stop_to_seated', {}, { socketId });
   } else if (user.fishingPhase === 'disconnected') {
-    const ctx = hookContextByUser.get(user.id);
+    const ctx = getHookContext(user.id);
     const hookEndsAt = ctx?.hookEndsAt;
     const fromPhase: FishingPhase = 'disconnected';
 
@@ -703,13 +708,14 @@ function advanceFromHooked(
   socketId: string | null,
   opts?: { deferAutoSettle?: boolean },
 ): void {
-  const ctx = hookContextByUser.get(user.id);
+  const ctx = getHookContext(user.id);
   if (!ctx) {
     const next = transitionPhase(user, pondId, 'waiting', 0, 'hook_timeout');
     emitPondUserUpdated(io, pondId, next);
     return;
   }
 
+  ctx.fish = getPondFishById(ctx.fish.id) ?? ctx.fish;
   const outcome = ctx.escaped ? 'escape' : 'catch';
   const resultContext: PondUser['phaseContext'] = {
     outcome, catchId: ctx.catchId, sizeM: ctx.fish.sizeM,
@@ -720,7 +726,7 @@ function advanceFromHooked(
   emitPondUserUpdated(io, pondId, next);
 
   if (outcome === 'escape') {
-    applyEscapeGrowthBonus(ctx.fish.id);
+    applyEscapeGrowthBonus(ctx.fish.id, ctx.catchId, now(), user.spotId ?? undefined);
     emitFishingFloatText(io, pondId, user.id, 'escape', ctx.fish);
     if (user.playerId) {
       const counters = noteBiteEscape(user.id);
@@ -742,6 +748,7 @@ function advanceFromHooked(
     if (socketId) io.to(socketId).emit('fish_miss', miss);
     else io.to(pondId).emit('fish_miss', miss);
   } else if (user.isBot) {
+    clearHook(user.id);
     notifyBotHookCatch(io, pondId, user, ctx.fish);
   } else if (user.playerId) {
     const isCodexNew = isCodexNewForPlayer(user.playerId, ctx.fish.speciesId);
@@ -752,6 +759,7 @@ function advanceFromHooked(
       quality: ctx.fish.quality,
       sizeM: ctx.fish.sizeM,
       hookDurationMs: ctx.hookDurationMs,
+      history: buildFishHistorySnapshot(ctx.fish, now()),
       ...(isCodexNew ? { isCodexNew: true } : {}),
     };
     const locked = lockPendingCatch(user.id, catchData, {
@@ -759,7 +767,7 @@ function advanceFromHooked(
       pondId,
     });
     if (!locked) {
-      hookContextByUser.delete(user.id);
+      clearHook(user.id);
       return;
     }
 
@@ -779,7 +787,7 @@ function advanceFromHooked(
     }
   }
 
-  hookContextByUser.delete(user.id);
+  clearHook(user.id);
 }
 
 function advanceFromResolving(
@@ -862,14 +870,20 @@ export function scheduleHookFromBite(
   const asleep = !user.isBot && user.fishingAsleep === true;
   // Allocate the existing catch identity at the authoritative bite, so all later
   // presentation/settlement messages refer to this attempt rather than a new ID.
-  const catchId = randomUUID();
+  const catchId = hook.catchId ?? randomUUID();
+  const fish = claimFishHook(hook.fish.id, catchId, userId, now(), now()+hook.hookDurationMs+120_000);
+  if (!fish) return;
+  hook = { ...hook, catchId, fish };
 
-  hookContextByUser.set(userId, {
+  const context = {
     catchId,
     fish: hook.fish,
     escaped: asleep || hook.escaped,
     hookDurationMs: hook.hookDurationMs,
-  });
+    hookEndsAt: now()+hook.hookDurationMs,
+  };
+  persistFishHookContext(userId, context);
+  hookContextByUser.set(userId, context);
 
   if (!asleep) emitFishingFloatText(io, pondId, userId, 'hook', hook.fish);
   const next = transitionPhase(user, pondId, 'hooked', hook.hookDurationMs, 'bite_hook', {
@@ -933,6 +947,8 @@ export function processWaitingBiteTick(
   const gearState = prepareGearForBiteTick(playerId);
   let baitPick: { baitId: string; cost: number } = { baitId: gearState.equippedBait, cost: 0 };
   const gear: FisherGearContext = {
+    hookUserId: userId,
+    forceEscape: user.fishingAsleep === true,
     equippedBait: gearState.equippedBait,
     equippedTackle: gearState.equippedTackle,
     equippedRod: gearState.equippedRod,
@@ -944,7 +960,20 @@ export function processWaitingBiteTick(
     groundbaitSizeBonus: getActiveGroundbaitSizeBonus(user),
   };
 
-  const result = rollBiteHook(pondId, spotId, getLockedPondFishIds(), gear);
+  let result: ReturnType<typeof rollBiteHook>;
+  try {
+    result = db.transaction(() => {
+      const rolled = rollBiteHook(pondId, spotId, getLockedPondFishIds(), gear);
+      if (rolled.outcome === 'hooked' && baitPick.cost > 0) {
+        const payment = chargeBaitUse(playerId, baitPick.baitId, baitPick.cost);
+        if (!payment.charged) throw new Error('HOOK_BAIT_PAYMENT_FAILED');
+      }
+      return rolled;
+    })();
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== 'HOOK_BAIT_PAYMENT_FAILED') throw error;
+    result = { outcome: 'miss', reason: 'failed' };
+  }
   if (result.outcome === 'miss') {
     noteBiteMiss(userId);
     if (isBiteTickPersistEnabled()) {
@@ -964,9 +993,6 @@ export function processWaitingBiteTick(
     return false;
   }
 
-  if (baitPick.cost > 0) {
-    chargeBaitUse(playerId, baitPick.baitId, baitPick.cost);
-  }
   user.equippedBaitId = baitPick.baitId;
   noteGroundbaitBite(user);
 
@@ -1050,7 +1076,11 @@ export function isUserWaitingForBite(user: PondUser): boolean {
 }
 
 export function getHookContext(userId: string): HookContext | undefined {
-  return hookContextByUser.get(userId);
+  const cached = hookContextByUser.get(userId);
+  if (cached) return cached;
+  const persisted = readPersistedFishHookContext(userId);
+  if (persisted) hookContextByUser.set(userId, persisted);
+  return persisted;
 }
 
 /** Debug：跳过上钩计时，立即进入 resolving 并生成待领取鱼获 */
@@ -1063,7 +1093,7 @@ export function flushHookedPhaseToPendingCatch(
 ): boolean {
   const user = getUserById(pondId, userId);
   if (!user || user.fishingPhase !== 'hooked') return false;
-  if (!hookContextByUser.get(userId)) return false;
+  if (!getHookContext(userId)) return false;
   advanceFromHooked(io, pondId, user, socketId, opts);
   return true;
 }

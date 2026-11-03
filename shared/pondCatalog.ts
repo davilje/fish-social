@@ -1,4 +1,5 @@
-/** 二十塘目录：展示名 / 短前缀 / 色板（FEAT-SCENE-TILE-3） */
+/** 鱼塘目录：原二十塘保留，新增钓区从权威配置派生。 */
+import pondDefinitions from './generated/game-data/ponds.json';
 
 export interface PondPalette {
   grass: string;
@@ -17,7 +18,7 @@ export interface PondCatalogEntry {
   palette: PondPalette;
 }
 
-export const POND_CATALOG: PondCatalogEntry[] = [
+const BASE_POND_CATALOG: PondCatalogEntry[] = [
   {
     id: 'pond-calm',
     name: '千岛湖',
@@ -298,6 +299,16 @@ export const POND_CATALOG: PondCatalogEntry[] = [
       entry: '#0277BD',
     },
   },
+];
+
+export const POND_CATALOG: PondCatalogEntry[] = [
+  ...BASE_POND_CATALOG,
+  ...pondDefinitions.filter(p => p.pondId.endsWith('-north')).map(p => {
+    const original = BASE_POND_CATALOG.find(base => base.id === p.pondId.slice(0, -6));
+    if (!original) throw new Error(`Missing pond layout template: ${p.pondId}`);
+    return { ...original, id: p.pondId, name: p.name,
+      regionId: `${original.regionId}-north`, prefix: `${original.prefix}-north`, palette: { ...original.palette } };
+  }),
 ];
 
 export function getPondCatalogEntry(pondId: string): PondCatalogEntry | undefined {

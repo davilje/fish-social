@@ -1,4 +1,6 @@
 /** FEAT-ALBUM-01：相册卡来源 */
+import type { FishHistorySnapshot } from './fishHistory';
+
 export type AlbumCardSource = 'catch' | 'return' | 'first_codex';
 
 export interface AlbumCard {
@@ -13,6 +15,7 @@ export interface AlbumCard {
   inventoryItemId?: string | null;
   /** 与社交动态一致的钓鱼纪念照路径（如 /image/fishing_photos/...） */
   photoUrl?: string | null;
+  history?: FishHistorySnapshot;
 }
 
 import type { AchievementDef } from './gameDataTypes';

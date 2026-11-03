@@ -1,6 +1,8 @@
 import type { FishingPhase, PendingFishCatch, PondUser } from '@fish-social/shared';
 import { FISHING_PROMPT_AUTO_CLOSE_MS } from '@fish-social/shared';
 import { db } from './db.js';
+import { parseFishHistory } from './fishLifecycle.js';
+import { readPersistedFishHookContext } from './fishHookContext.js';
 import { register, cancelByKind } from './timerRegistry.js';
 import { ensureFishingStartedAt } from './fishingStartedAt.js';
 import { getFishingAttentionAt, restoreFishingSleep } from './fishingSleep.js';
@@ -48,6 +50,7 @@ interface PendingLockRow {
   player_id: string | null;
   pond_id: string | null;
   locked_at: number;
+  history_json?: string | null;
 }
 
 const upsertSessionStmt = db.prepare(`
@@ -87,10 +90,10 @@ const loadSessionStmt = db.prepare(
 const upsertPendingStmt = db.prepare(`
   INSERT INTO pending_catch_locks (
     user_id, catch_id, pond_fish_id, species_id, quality, size_m,
-    hook_duration_ms, is_codex_new, player_id, pond_id, locked_at
+    hook_duration_ms, is_codex_new, player_id, pond_id, locked_at, history_json
   ) VALUES (
     @userId, @catchId, @pondFishId, @speciesId, @quality, @sizeM,
-    @hookDurationMs, @isCodexNew, @playerId, @pondId, @lockedAt
+    @hookDurationMs, @isCodexNew, @playerId, @pondId, @lockedAt, @historyJson
   )
   ON CONFLICT(user_id) DO UPDATE SET
     catch_id = excluded.catch_id,
@@ -102,7 +105,8 @@ const upsertPendingStmt = db.prepare(`
     is_codex_new = excluded.is_codex_new,
     player_id = excluded.player_id,
     pond_id = excluded.pond_id,
-    locked_at = excluded.locked_at
+    locked_at = excluded.locked_at,
+    history_json = excluded.history_json
 `);
 
 const deletePendingStmt = db.prepare('DELETE FROM pending_catch_locks WHERE user_id = ?');
@@ -163,6 +167,7 @@ export function persistPendingCatchLock(
     playerId: meta?.playerId ?? null,
     pondId: meta?.pondId ?? null,
     lockedAt: Date.now(),
+    historyJson: catchData.history ? JSON.stringify(catchData.history) : null,
   });
 }
 
@@ -178,6 +183,7 @@ function rowToPending(row: PendingLockRow): PendingFishCatch {
     quality: row.quality as PendingFishCatch['quality'],
     sizeM: row.size_m,
     hookDurationMs: row.hook_duration_ms,
+    history: parseFishHistory(row.history_json),
     ...(row.is_codex_new ? { isCodexNew: true } : {}),
   };
 }
@@ -187,12 +193,21 @@ export function applyCheckpointToUser(user: PondUser, row: SessionRow): PondUser
   user.spotId = row.spot_id;
   user.fishingPhase = (row.fishing_phase as FishingPhase | null) ?? 'idle';
   user.phaseEndsAt = row.phase_ends_at;
+  const hook = readPersistedFishHookContext(row.user_id);
+  if (hook && (user.fishingPhase === 'hooked' || user.fishingPhase === 'waiting' ||
+      (user.fishingPhase === 'disconnected' && row.disconnected_from_phase === 'hooked'))) {
+    if (user.fishingPhase !== 'disconnected') {
+      user.fishingPhase = 'hooked';
+      user.phaseEndsAt = hook.hookEndsAt;
+    }
+    user.phaseContext = { ...user.phaseContext, catchId: hook.catchId, sizeM: hook.fish.sizeM };
+  }
   user.disconnectedAt = row.disconnected_at;
   setFishingStopRequested(user, row.stop_requested === 1);
   restoreFishingSleep(user, row.fishing_asleep === 1, row.fishing_sleep_at ?? null,
     row.fishing_attention_at ?? null);
   if (user.fishingPhase === 'disconnected' && row.disconnected_from_phase) {
-    user.phaseContext = { disconnectedFromPhase: row.disconnected_from_phase as FishingPhase };
+    user.phaseContext = { ...user.phaseContext, disconnectedFromPhase: row.disconnected_from_phase as FishingPhase };
   }
   user.returnFeeMode =
     row.return_fee_mode === 'auto_return' || row.return_fee_mode === 'sell_only'

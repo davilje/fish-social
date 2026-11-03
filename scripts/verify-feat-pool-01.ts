@@ -85,7 +85,8 @@ for (let i = 0; i < 80; i++) {
 }
 
 assert((getGameSpecies('crucian')?.qualityMax ?? 0) === 5, 'common qualityMax=red');
-assert((getGameSpecies('black_carp')?.qualityMax ?? 0) === 6, 'uncommon qualityMax=orange');
+assert((getGameSpecies('black_carp')?.qualityMax ?? 0) === 7, 'black_carp explicitly covers gold in existing nationwide pools');
+assert((getGameSpecies('mandarin')?.qualityMax ?? 0) === 6, 'other uncommon species retain qualityMax=orange');
 assert((getGameSpecies('grouper')?.qualityMax ?? 0) === 7, 'rare qualityMax=gold');
 assert((getGameSpecies('chinese_sturgeon')?.qualityMax ?? 0) === 7, 'legendary qualityMax=gold');
 

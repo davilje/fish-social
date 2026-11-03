@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, Pressable, StyleSheet } from 'react-native';
 import type { FishingPrompt } from '@fish-social/shared';
+import { FishHistoryDetails } from './FishHistoryDetails';
 import {
   FISHING_PROMPT_AUTO_CLOSE_MS,
   calcFishWeightKg,
@@ -88,6 +89,7 @@ export function CatchFishModal({ prompt, loading, onConfirm }: Props) {
             {'\n'}
             {hint}
           </Text>
+          <FishHistoryDetails key={prompt.data.catchId} history={prompt.data.history} />
           <Text style={styles.countdown}>{countdown} 秒后自动关闭</Text>
           <Pressable style={styles.btn} onPress={onConfirm} disabled={loading}>
             <Text style={styles.btnText}>{loading ? '...' : '知道了'}</Text>

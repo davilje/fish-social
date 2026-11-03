@@ -132,7 +132,7 @@ assert.ok(hubSelf);
 assert.equal(hubSelf!.isSelf, true);
 assert.equal(hubSelf!.canEdit, true);
 assert.equal(hubSelf!.albumPins.length, 3);
-assert.ok(hubSelf!.albumCandidates.length >= 3);
+assert.equal(hubSelf!.albumCandidates.length, 0, 'current profile hub exposes pinned photos; candidates use their separate endpoint');
 assert.ok(hubSelf!.achievements.some((a) => a.unlocked && a.achievementId === 'ach-first-catch'));
 
 const otherId = 'test-album-viewer';

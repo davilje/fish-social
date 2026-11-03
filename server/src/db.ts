@@ -6,6 +6,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../../data');
 const dbPath = process.env.DB_PATH ?? path.join(dataDir, 'fish-social.db');
 
+// The explicit offline ecology rebuild holds this lock until backup and reseeding finish.
+if (dbPath !== ':memory:' && fs.existsSync(`${path.resolve(dbPath)}.ecology-maintenance.lock`)) {
+  throw new Error('Database is undergoing an offline pond ecology rebuild; start the server after it completes.');
+}
+
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
@@ -356,6 +361,9 @@ const individualFishGrowth = migrateIndividualFishGrowth(db);
 if (individualFishGrowth > 0) {
   console.log(`Migration: recalculated ${individualFishGrowth} pond fish with individual growth`);
 }
+
+import { migrateFishEcologyEntry } from './migrations/fish_ecology_entry.js';
+migrateFishEcologyEntry(db);
 
 initGameConfig();
 

@@ -35,14 +35,14 @@ assert(getSpecies('bass').id === 'black_bass', 'legacy bass maps to black_bass')
 assert(getCatchGroup('bass') === 'lure_predator', 'legacy bass catchGroup');
 
 const TIER_MAX: Record<string, number> = {
-  common: 4,
-  uncommon: 5,
-  rare: 6,
+  common: 5,
+  uncommon: 6,
+  rare: 7,
   legendary: 7,
 };
 for (const s of listGameSpecies()) {
   assert(s.qualityMin === 1, `${s.speciesId} qualityMin=${s.qualityMin}`);
-  const expectMax = TIER_MAX[s.rarityTier ?? ''] ?? 7;
+  const expectMax = s.speciesId === 'black_carp' ? 7 : TIER_MAX[s.rarityTier ?? ''] ?? 7;
   assert(s.qualityMax === expectMax, `${s.speciesId} qualityMax=${s.qualityMax} tier=${s.rarityTier}`);
   assert(getSpecies(s.speciesId).qualityMin === 1, `FishSpecies ${s.speciesId} qualityMin`);
   assert(getSpecies(s.speciesId).qualityMax === expectMax, `FishSpecies ${s.speciesId} qualityMax`);
@@ -73,7 +73,7 @@ const expectedNames: Record<string, string> = {
 };
 
 const ponds = listGamePonds();
-assert(ponds.length === 21, `pond count=${ponds.length}`);
+assert(ponds.length === 41, `pond count=${ponds.length}`);
 for (const [id, name] of Object.entries(expectedNames)) {
   const pond = getGamePondDef(id);
   assert(pond, `missing pond ${id}`);

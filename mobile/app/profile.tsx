@@ -14,6 +14,7 @@ import type { FishInventoryItem } from '@fish-social/shared';
 import { SHOWCASE_SLOT_COUNT, formatFishSize, getQualityInfo, getSpecies } from '@fish-social/shared';
 import { ProfileAvatar } from '../components/ProfileAvatar';
 import { DefaultAvatarPicker } from '../components/DefaultAvatarPicker';
+import { FishAlbum } from '../components/FishAlbum';
 import { AppScreen } from '../components/AppScreen';
 import { AppHeader } from '../components/AppHeader';
 import { AdminDebugButton } from '../components/AdminDebugButton';
@@ -252,6 +253,7 @@ export default function ProfileScreen() {
           <Pressable style={styles.refreshBtn} onPress={refresh}>
             <Text style={styles.refreshText}>刷新资料</Text>
           </Pressable>
+          <FishAlbum playerId={playerId} />
       </View>
     </AppScreen>
   );
