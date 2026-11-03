@@ -1,5 +1,7 @@
 # 开发提示词：体长体重步进（FISH-ATTR-01）
 
+> 2026-11-03修订：下文旧0.05米体长步进不再执行，以[FISH-ECOLOGY-01](fish-ecology-entry-growth-dev.prompt.md)的0.001米保存与自动单位为准。保留体重部分的原有范围。
+
 你是 Fish Social 后端。只改体长和体重的步进，不改成长曲线和概率系数。
 
 ## 必读

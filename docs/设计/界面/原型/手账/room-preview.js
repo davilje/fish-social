@@ -16,7 +16,7 @@
   const layerToggle = document.getElementById('room-layers-toggle');
 
   // Individual alpha PNGs and placements are shared with the exported asset manifest.
-  window.roomAssetsReady = fetch('assets/room-runtime/manifest.json').then(response => {
+  window.roomAssetsReady = fetch('assets/room-runtime/manifest.json?v=climber-flip-v8').then(response => {
     if (!response.ok) throw new Error(`Room asset manifest: ${response.status}`);
     return response.json();
   }).then(async manifest => {
@@ -55,7 +55,8 @@
     layerToggle.setAttribute('aria-pressed', String(!scene.hidden));
   });
   let isIndoor = true, seated = false, motion = null, steps = null, drag = null;
-  let point = { x: 835, y: 742 }, bubbleTimer, idleSince = performance.now();
+  const defaultPoint = { x: 1120, y: 775 };
+  let point = { ...defaultPoint }, bubbleTimer, idleSince = performance.now();
   let nextStroll = performance.now() + 12000;
   let bedState = 'free', propDrag = null;
   const bedFront = document.createElement('div');
@@ -68,7 +69,7 @@
   const media = matchMedia('(prefers-reduced-motion: reduce)');
   const calm = () => reduced || media.matches;
   const active = () => isIndoor && !S.open && !document.hidden;
-  const clamp = p => ({ x: Math.max(580, Math.min(1070, p.x)), y: Math.max(690, Math.min(775, p.y)) });
+  const clamp = p => ({ x: Math.max(580, Math.min(1190, p.x)), y: Math.max(690, Math.min(775, p.y)) });
   const dimensions = () => {
     if (bedState === 'sleeping') { const w = propBox(prop('cat-bed')).w * .64; return { w, h: w * 175 / 293 }; }
     return seated ? { w: 176, h: 204 } : { w: 172, h: 246 };
@@ -82,7 +83,7 @@
     actor.style.width = `${w}px`; actor.style.height = `${h}px`;
     if (bedState === 'sleeping') {
       const b = propBox(prop('cat-bed'));
-      Object.assign(bedFront.style, { left: `${b.x}px`, top: `${b.y + b.h * .65}px`, width: `${b.w}px`, height: `${b.h * .35}px`, backgroundImage: `url(assets/room-runtime/room-base.png)`, backgroundSize: '1672px 941px', backgroundPosition: `${-b.x}px ${-(b.y + b.h * .65)}px` });
+      Object.assign(bedFront.style, { left: `${b.x}px`, top: `${b.y + b.h * .65}px`, width: `${b.w}px`, height: `${b.h * .35}px`, backgroundImage: `url(assets/room-runtime/room-base.png?v=climber-flip-v8)`, backgroundSize: '1672px 941px', backgroundPosition: `${-b.x}px ${-(b.y + b.h * .65)}px` });
     }
     bedFront.hidden = bedState !== 'sleeping';
   }
@@ -208,7 +209,7 @@
     return { x: (event.clientX - rect.left) * 1672 / rect.width, y: (event.clientY - rect.top) * 941 / rect.height };
   }
   floor.addEventListener('click', e => {
-    walkTo(e.detail === 0 ? { x: 835, y: 742 } : stagePoint(e));
+    walkTo(e.detail === 0 ? defaultPoint : stagePoint(e));
     caption('点击地板：小橘移动到指定位置。也可以拖动小橘，或聚焦后用方向键移动、R 坐下。');
   });
   actor.addEventListener('pointerdown', e => {
@@ -249,7 +250,7 @@
       e.preventDefault(); stop();
       const [x, y] = directions[e.key]; walkTo({ x: point.x + x, y: point.y + y });
     } else if (e.key.toLowerCase() === 'r') { e.preventDefault(); interact(); rest(); }
-    else if (e.key === 'Home') { e.preventDefault(); walkTo({ x: 835, y: 742 }); }
+    else if (e.key === 'Home') { e.preventDefault(); walkTo(defaultPoint); }
   });
   tackle.addEventListener('click', () => go('equip'));
   aquarium.addEventListener('click', () => go('profile', { tab: 1 }));
@@ -266,7 +267,7 @@
     cancelPropDrag(); stop(); setBedState('free'); isIndoor = value;
     // Clear outdoor-only persistent poses before switching the same actor indoors.
     zzzLoop.cancel(); actor._sleep?.cancel(); actor._lean?.cancel(); sleeping = false;
-    background.src = value ? 'assets/room-runtime/room-base.png' : 'assets/home-sakura.jpg';
+    background.src = value ? 'assets/room-runtime/room-base.png?v=climber-flip-v8' : 'assets/home-sakura.jpg';
     background.alt = value ? '完整粉彩绘本小屋，家具固定在背景中' : '原有樱花湖畔背景';
     layerToggle.disabled = !value;
     stage.classList.toggle('room-mode', value);

@@ -61,16 +61,18 @@ namespace FishSocial.Desktop.Tests
         {
             ExecuteEvents.ExecuteHierarchy(room.transform.Find("Floor").gameObject,Pointer(new Vector2(2000,1000)),ExecuteEvents.pointerClickHandler);
             room.Advance(10);
-            Assert.AreEqual(new Vector2(1070,775),room.Feet);
+            Assert.AreEqual(new Vector2(1190,775),room.Feet);
         }
         [Test] public void DragRetainsGrabOffsetAndCancelsWhenPageOpens()
         {
-            var e=Pointer(new Vector2(850,650));
-            room.OnBeginDrag(e);var next=Pointer(new Vector2(950,675));e.position=next.position;room.OnDrag(e);
-            Assert.That(room.Feet.x,Is.EqualTo(935).Within(.01));Assert.That(room.Feet.y,Is.EqualTo(767).Within(.01));
+            var grab=CozyHomeRoom.DefaultFeet-new Vector2(0,92);
+            var expected=CozyHomeRoom.DefaultFeet+new Vector2(100,25);
+            var e=Pointer(grab);
+            room.OnBeginDrag(e);var next=Pointer(grab+new Vector2(100,25));e.position=next.position;room.OnDrag(e);
+            Assert.That(room.Feet.x,Is.EqualTo(expected.x).Within(.01));Assert.That(room.Feet.y,Is.EqualTo(expected.y).Within(.01));
             room.SetPageOpen(true);e.position=Pointer(new Vector2(580,700)).position;room.OnDrag(e);
-            Assert.That(room.Feet.x,Is.EqualTo(935).Within(.01));
-            room.SetPageOpen(false);room.Advance(1);Assert.That(room.Feet.x,Is.EqualTo(935).Within(.01));
+            Assert.That(room.Feet.x,Is.EqualTo(expected.x).Within(.01));
+            room.SetPageOpen(false);room.Advance(1);Assert.That(room.Feet.x,Is.EqualTo(expected.x).Within(.01));
         }
         [Test] public void TapWakesIdleCatAndReducedMotionDisablesWander()
         {
@@ -85,7 +87,7 @@ namespace FishSocial.Desktop.Tests
         [TestCase(2200, 1400)]
         public void DragReachesScreenCornersWithoutClipping(float x, float y)
         {
-            var e = Pointer(new Vector2(835, 650));
+            var e = Pointer(CozyHomeRoom.DefaultFeet-new Vector2(0,92));
             room.OnBeginDrag(e);
             e.position = Pointer(new Vector2(x, y)).position;
             room.OnDrag(e); room.OnEndDrag(e);
@@ -166,7 +168,7 @@ namespace FishSocial.Desktop.Tests
             Assert.IsFalse(room.transform.Find("Companion").gameObject.activeSelf);
             Assert.IsFalse(room.transform.Find("Floor").gameObject.activeSelf);
             room.SetPageOpen(false);CozyMotion.SetPaused(true);room.MoveTo(new Vector2(900,720));room.Advance(60);
-            Assert.AreEqual(new Vector2(835,742),room.Feet);Assert.IsFalse(room.IsSitting);
+            Assert.AreEqual(CozyHomeRoom.DefaultFeet,room.Feet);Assert.IsFalse(room.IsSitting);
         }
         [Test] public void FurnitureButtonsInvokeExistingRouteCallbacksOnce()
         {
@@ -174,8 +176,8 @@ namespace FishSocial.Desktop.Tests
             room.transform.Find("Equipment").GetComponent<Button>().onClick.Invoke();room.transform.Find("Aquarium").GetComponent<Button>().onClick.Invoke();
             Assert.AreEqual(1,equip);Assert.AreEqual(1,aquarium);
         }
-        [TestCase(835,760,"Floor")]
-        [TestCase(835,650,"Companion")]
+        [TestCase(600,760,"Floor")]
+        [TestCase(1120,650,"Companion")]
         [TestCase(754.07f,296.42f,"Equipment")]
         public void NativeRaycastReachesRoomInsteadOfLegacyHome(float x,float y,string expected)
         {
@@ -200,11 +202,12 @@ namespace FishSocial.Desktop.Tests
         }
         [Test] public void BedClickMovesToNestAndUsesExistingSkinSleepPose()
         {
-            room.Prop("cat-bed").OnPointerClick(Pointer(new Vector2(180,620)));
+            room.Prop("cat-bed").OnPointerClick(Pointer(new Vector2(830,720)));
             Assert.AreEqual(CozyHomeRoom.Activity.GoingToBed,room.CurrentActivity);
             Assert.IsFalse(room.IsSleeping);
             room.Advance(10);Assert.IsTrue(room.IsSleeping);
-            Assert.Less(room.Feet.x,400);Assert.Greater(room.Feet.y,600);
+            Assert.AreEqual(new Vector2(830, 766.5f), room.Feet);
+            Assert.Greater(room.Feet.x, 660);Assert.Less(room.Feet.x,1000);
             var skin=FishSocial.Desktop.Pet.PetArtLoader.CurrentOwnPetId();
             Assert.AreEqual(Resources.Load<Sprite>(CozyHomeRoom.ResourceRoot+"poses/"+skin+"-sleep").texture,
                 room.transform.Find("Companion").GetComponent<RawImage>().texture);
@@ -252,13 +255,13 @@ namespace FishSocial.Desktop.Tests
         }
         [Test] public void RuntimeBackgroundUsesApprovedPaintingBytesUnchanged()
         {
-            CollectionAssert.AreEqual(System.IO.File.ReadAllBytes("../docs/美术/家园/pastel-interior-2026-10-31/room-pastel-v5.png"),
+            CollectionAssert.AreEqual(System.IO.File.ReadAllBytes("../docs/美术/家园/pastel-interior-2026-10-31/room-pastel-v8.png"),
                 System.IO.File.ReadAllBytes("Assets/Resources/Desktop/Theme/Cozy/home-room/room-base.png"));
         }
         [TestCase(550,400,"rod-1")]
-        [TestCase(180,610,"cat-bed")]
-        [TestCase(1480,655,"food-bowls")]
-        [TestCase(200,470,"cat-climber")]
+        [TestCase(830,720,"cat-bed")]
+        [TestCase(1480,750,"food-bowls")]
+        [TestCase(200,500,"cat-climber")]
         public void DirectPropArtReceivesNativeRaycast(float x,float y,string expected)
         {
             var hits=new System.Collections.Generic.List<RaycastResult>();
@@ -266,6 +269,20 @@ namespace FishSocial.Desktop.Tests
                 raycaster.Raycast(Pointer(new Vector2(x,y)),hits);
             hits.Sort((a,b) => { var order = b.sortingOrder.CompareTo(a.sortingOrder); return order != 0 ? order : b.depth.CompareTo(a.depth); });
             Assert.IsNotEmpty(hits);Assert.AreEqual(expected,hits[0].gameObject.name);
+        }
+        [Test] public void DefaultCompanionStaysBesideTheCentralBed()
+        {
+            var bed = (RectTransform)room.Prop("cat-bed").transform;
+            var actor = (RectTransform)room.transform.Find("Companion");
+            Assert.AreEqual(CozyHomeRoom.DefaultFeet, room.Feet);
+            Assert.GreaterOrEqual(actor.anchoredPosition.x, bed.anchoredPosition.x + bed.rect.width);
+        }
+        [Test] public void CentralBedActionStaysClearOfTheBottomDock()
+        {
+            var bed = (RectTransform)room.Prop("cat-bed").transform;
+            var action = (RectTransform)room.transform.Find("Sleep");
+            Assert.AreEqual(room.Prop("cat-bed").BottomCenter.x, action.anchoredPosition.x + action.rect.width / 2);
+            Assert.LessOrEqual(-action.anchoredPosition.y + action.rect.height, -bed.anchoredPosition.y);
         }
         [Test] public void AllRegisteredCatsHaveAnActualSleepSprite()
         {

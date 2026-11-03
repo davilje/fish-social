@@ -78,9 +78,9 @@ namespace FishSocial.Desktop.Editor
                 room.MoveTo(new Vector2(-100,2000),true);Require(room.Feet==new Vector2(580,775),"Movement escapes floor");
                 room.Sit();Require(room.IsSitting,"Sit pose unavailable");room.Respond();Require(!room.IsSitting,"Tap did not wake companion");
                 room.SetPageOpen(true);var position=room.Feet;room.MoveTo(new Vector2(900,700),true);Require(room.Feet==position&&!room.transform.Find("Companion").gameObject.activeSelf,"Page failed to suspend interaction");
-                room.SetPageOpen(false);CozyMotion.SetReduced(true);room.MoveTo(new Vector2(835,742));Require(room.Feet==new Vector2(835,742),"Reduced motion did not settle immediately");
+                room.SetPageOpen(false);CozyMotion.SetReduced(true);room.MoveTo(CozyHomeRoom.DefaultFeet);Require(room.Feet==CozyHomeRoom.DefaultFeet,"Reduced motion did not settle immediately");
                 CozyMotion.SetPaused(true);room.Advance(30);Require(!room.IsSitting,"Paused room advanced");CozyMotion.SetPaused(false);CozyMotion.SetReduced(false);
-                room.Advance(30);Require(room.IsSitting,"Idle companion did not sit");room.MoveTo(new Vector2(835,742),true);
+                room.Advance(30);Require(room.IsSitting,"Idle companion did not sit");room.MoveTo(CozyHomeRoom.DefaultFeet,true);
                 CozyItemArt.Text(main,"Header/ProfileCard/Name","小橘");CozyItemArt.Text(main,"Header/ProfileCard/Level","Lv.7");
                 CozyItemArt.Text(main,"Header/FishCoins/Amount","8,600");CozyItemArt.Text(main,"Header/CatchCount/Amount","24");
                 Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=target;
@@ -88,7 +88,7 @@ namespace FishSocial.Desktop.Editor
                 SaveImage("unity-home-room.png");
                 room.SleepInBed();room.Advance(10);Require(room.IsSleeping,"Bed action failed to settle into sleep");
                 Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=target;SaveImage("unity-home-room-sleep.png");
-                room.MoveTo(new Vector2(835,742),true);
+                room.MoveTo(CozyHomeRoom.DefaultFeet,true);
                 File.WriteAllText("Library/HomeRoom/verification.txt","PASS: saved shell, 17 independent props, no duplicate corner cat, both native routes, movement bounds, tap wake, sit, page suspension, reduced motion, background pause, idle sit.\n");
                 Debug.Log("[HomeRoom] Verification passed; Library/HomeRoom/unity-home-room.png");
             }

@@ -27,7 +27,8 @@ namespace FishSocial.Desktop
         [SerializeField] Button equipment, aquarium;
         [SerializeField] Button sleep, food, goFishing;
         [SerializeField] Text bubble;
-        Vector2 feet = new Vector2(835, 742), target = new Vector2(835, 742), dragOffset;
+        public static Vector2 DefaultFeet => new Vector2(1120, 775);
+        Vector2 feet = DefaultFeet, target = DefaultFeet, dragOffset;
         float inactive, wander, feedback;
         bool dragging, focused = true, pageOpen, sitting;
         int pointer = int.MinValue;
@@ -46,7 +47,7 @@ namespace FishSocial.Desktop
         public bool IsSleeping => activity == Activity.Sleeping;
         public bool PageOpen => pageOpen;
         public bool CanInteract => isActiveAndEnabled && !pageOpen && focused && !CozyMotion.Paused;
-        public static Vector2 ClampFeet(Vector2 value) => new Vector2(Mathf.Clamp(value.x, 580, 1070), Mathf.Clamp(value.y, 690, 775));
+        public static Vector2 ClampFeet(Vector2 value) => new Vector2(Mathf.Clamp(value.x, 580, 1190), Mathf.Clamp(value.y, 690, 775));
         public static Rect FurnitureBounds(string id)
         {
             // Bottom-center coordinates keep each item's entire footprint clear of the dock.
@@ -214,7 +215,7 @@ namespace FishSocial.Desktop
         {
             if (layoutOwner == owner) return;
             CancelAnimation();
-            CancelPropDrags(); layoutOwner = owner; activity = Activity.Free; feet = target = new Vector2(835, 742);
+            CancelPropDrags(); layoutOwner = owner; activity = Activity.Free; feet = target = DefaultFeet;
             var data = Resources.Load<TextAsset>(DesktopLocalization.Concat(ResourceRoot, "manifest"));
             foreach (var p in JsonUtility.FromJson<Manifest>(data.text).placements)
             {
@@ -445,7 +446,7 @@ namespace FishSocial.Desktop
             {
                 var d=new Vector2(Input.GetKey(KeyCode.RightArrow)?1:Input.GetKey(KeyCode.LeftArrow)?-1:0,Input.GetKey(KeyCode.DownArrow)?1:Input.GetKey(KeyCode.UpArrow)?-1:0);
                 if(d!=Vector2.zero)MoveTo(feet+d.normalized*60);
-                if(Input.GetKeyDown(KeyCode.Home))MoveTo(new Vector2(835,742));if(Input.GetKeyDown(KeyCode.R))Sit();
+                if(Input.GetKeyDown(KeyCode.Home))MoveTo(DefaultFeet);if(Input.GetKeyDown(KeyCode.R))Sit();
             }
             Advance(Time.unscaledDeltaTime);
         }

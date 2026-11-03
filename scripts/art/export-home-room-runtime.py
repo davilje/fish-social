@@ -12,16 +12,16 @@ from PIL import Image
 
 def export(repo: Path):
     source = repo / "docs/设计/界面/原型/手账/assets/room-v4"
-    approved = repo / "docs/美术/家园/pastel-interior-2026-10-31/room-pastel-v5.png"
+    approved = repo / "docs/美术/家园/pastel-interior-2026-10-31/room-pastel-v8.png"
     target = repo / "fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/home-room"
     target.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((source / "manifest.json").read_text())
     if approved.exists():
-        manifest.update(version=5, background="room-base.png", staticFurniture=True,
-                        artRevision="approved-clean-pastel-v5", sourcePainting=str(approved.relative_to(repo)))
+        manifest.update(version=8, background="room-base.png", staticFurniture=True,
+                        artRevision="foreground-climber-flipped-v8", sourcePainting=str(approved.relative_to(repo)))
         # The painting is indivisible. Existing nodes become invisible input regions only.
-        boxes = {"cat-bed": [25, 528, 334, 140], "cat-climber": [65, 371, 447, 280],
-                 "food-bowls": [1423, 594, 162, 64]}
+        boxes = {"cat-bed": [660, 660, 340, 150], "cat-climber": [25, 489, 315, 365],
+                 "food-bowls": [1395, 700, 210, 82]}
         for i in range(3):
             boxes["rod-" + str(i + 1)] = [548 + i * 49, 145 + i * 11, 70, 373 - i * 11]
         for p in manifest["placements"]:

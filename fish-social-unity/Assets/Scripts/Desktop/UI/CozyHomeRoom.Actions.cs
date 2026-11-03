@@ -10,8 +10,11 @@ namespace FishSocial.Desktop
             // User annotations are button centers on the 1672x941 painting; y below is the top (center minus 24).
             equipment = HomeAction(equipment, "Equipment", "rod", 754.07f, 272.42f, "ui.home.room.button.equipment", "我的钓具");
             aquarium = HomeAction(aquarium, "Aquarium", "tank", 1243.97f, 276.18f, "ui.home.room.button.showcase", "鱼缸 · 展示柜");
-            sleep = HomeAction(sleep, "Sleep", "sleep", 190.61f, 640.35f, "ui.home.room.button.sleep", "睡觉");
-            food = HomeAction(food, "Food", "food", 1500, 658, "ui.home.room.button.feed", "吃饭");
+            var bedRect = (RectTransform)Prop("cat-bed").transform;
+            var bedPoint = Prop("cat-bed").BottomCenter;
+            var foodPoint = Prop("food-bowls").BottomCenter;
+            sleep = HomeAction(sleep, "Sleep", "sleep", bedPoint.x, -bedRect.anchoredPosition.y - 56, "ui.home.room.button.sleep", "睡觉");
+            food = HomeAction(food, "Food", "food", foodPoint.x, foodPoint.y - 28, "ui.home.room.button.feed", "吃饭");
             goFishing = HomeAction(goFishing, "GoFishing", "door", 1591, 470, "ui.home.room.button.go_fishing", "出门钓鱼");
             sleep.onClick.RemoveAllListeners(); sleep.onClick.AddListener(SleepInBed);
             food.onClick.RemoveAllListeners(); food.onClick.AddListener(() => Feed());

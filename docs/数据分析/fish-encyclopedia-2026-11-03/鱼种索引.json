@@ -1,0 +1,976 @@
+[
+  {
+    "id": "crucian",
+    "name": "鲫鱼",
+    "identity": "鲫属 Carassius；以 C. auratus 资料作例",
+    "group": "淡水常见鱼",
+    "intro": "常与鲤鱼一起出现，但不是小号鲤鱼。辨认时可留意口部、须及体形。",
+    "note": "中文鲫鱼涉及不同种、群体和养殖品系；不能将欧洲鲫 C. carassius 的资料直接照搬。",
+    "status": "重点档案",
+    "fact": "体型例子：C. auratus 数据库常见长度10厘米TL，最大记录48厘米TL。",
+    "limit": "这不等于中国所有鲫鱼的成年分布；本版不据此设定平均寿命或逐龄成长。",
+    "sources": [
+      {
+        "label": "FishBase · Carassius auratus，不能代表全部鲫属鱼",
+        "url": "https://www.fishbase.org/summary/Carassius_auratus.html"
+      }
+    ],
+    "projectRange": [
+      0.03,
+      0.35
+    ]
+  },
+  {
+    "id": "carp",
+    "name": "鲤鱼",
+    "identity": "Cyprinus carpio",
+    "group": "淡水常见鱼",
+    "intro": "底栖觅食为主的杂食鱼，也会利用水体其他层的食物；吃谷物不表示严格草食。",
+    "note": "不同品系和温度下成长明显不同；锦鲤条目需与此区分品系和物种层级。",
+    "status": "重点档案",
+    "fact": "温暖地区混养实例：一个养殖季可达0.6～1.0公斤；温带到1～2公斤可需2～4个养殖季。",
+    "limit": "温度与养殖条件能明显改变时间尺度；这些是体重，不是长度。",
+    "sources": [
+      {
+        "label": "FAO · 鲤鱼",
+        "url": "https://www.fao.org/fishery/docs/CDrom/aquaculture/I1129m/file/en/en_commoncarp.htm"
+      }
+    ],
+    "projectRange": [
+      0.08,
+      0.9
+    ]
+  },
+  {
+    "id": "grass_carp",
+    "name": "草鱼",
+    "identity": "Ctenopharyngodon idella；旧资料常作 idellus",
+    "group": "淡水常见鱼",
+    "intro": "成年偏植物食性，幼早期食物不同；大型成鱼不能仅靠“多活几天”来解释。",
+    "note": "温暖地区的养殖周期不能直接用于寒冷地区；不要把鱼种培育时间当作成鱼上限时间。",
+    "status": "重点档案",
+    "fact": "珠江群体研究样本体长103～665毫米，涉及0+～5+龄；文献拟合见第5章。",
+    "limit": "同一物种的一个水域群体模型，并非每条草鱼的保证长度；4厘米应理解为幼鱼规格。",
+    "sources": [
+      {
+        "label": "2021年原始研究 · 珠江中下游草鱼",
+        "url": "https://www.schinafish.cn/cn/article/Y2021/I5/110"
+      },
+      {
+        "label": "FAO · 草鱼",
+        "url": "https://www.fao.org/fishery/docs/DOCUMENT/aquaculture/CulturedSpecies/file/en/en_grasscarp.htm"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      1.2
+    ]
+  },
+  {
+    "id": "silver_carp",
+    "name": "鲢鱼",
+    "identity": "Hypophthalmichthys molitrix",
+    "group": "滤食与植物食性",
+    "intro": "典型滤食型鱼，利用细小悬浮食物；不能与直接吞下一团饵的鱼等同。",
+    "note": "藻类、颗粒大小和水体食物条件，比“人投了多少块饵”更能解释营养获得。",
+    "status": "重点档案",
+    "fact": "滤食型鱼；FAO繁育实例选择4～6岁、体重超过2.5公斤的亲鱼。",
+    "limit": "这是繁育选用规格，不是首次成熟年龄，也不是所有成鱼的常见体重。",
+    "sources": [
+      {
+        "label": "FAO · 鲢鱼",
+        "url": "https://www.fao.org/fishery/docs/CDrom/aquaculture/I1129m/file/en/en_silvercarp.htm"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      1
+    ]
+  },
+  {
+    "id": "bighead_carp",
+    "name": "鳙鱼",
+    "identity": "Hypophthalmichthys nobilis",
+    "group": "滤食与植物食性",
+    "intro": "鳙鱼俗称胖头鱼，偏利用浮游动物等悬浮食物，与鲢有食物生态位差异。",
+    "note": "滤食偏好不是绝对单一食谱；养殖育成周期不等于寿命或最大体型周期。",
+    "status": "重点档案",
+    "fact": "中国育成实例：8～10个月达到约750～1500克的上市规格。",
+    "limit": "起点是育成投放阶段，不能解读成从孵化到最大尺寸；自然繁殖还涉及流水条件。",
+    "sources": [
+      {
+        "label": "FAO · 鳙鱼",
+        "url": "https://www.fao.org/fishery/docs/DOCUMENT/aquaculture/CulturedSpecies/file/en/en_bigheadcarp.htm"
+      }
+    ],
+    "projectRange": [
+      0.25,
+      1.2
+    ]
+  },
+  {
+    "id": "black_carp",
+    "name": "青鱼",
+    "identity": "Mylopharyngodon piceus",
+    "group": "淡水大型鱼",
+    "intro": "成鱼偏食软体动物，咽齿适于处理带壳食物；食物限制有物种特点。",
+    "note": "“巨青”通常仍是青鱼的大个体，不是另一生物学物种。",
+    "status": "重点档案",
+    "fact": "加拿大DFO概述记载体长可达约1.8米。",
+    "limit": "这是资料所列可达长度，不是该塘每条青鱼的成长目标；大型个体需要合适食物与存活机会。",
+    "sources": [
+      {
+        "label": "加拿大DFO · 青鱼",
+        "url": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/blackcarp-carpenoire-eng.html"
+      }
+    ],
+    "projectRange": [
+      0.3,
+      1.5
+    ]
+  },
+  {
+    "id": "tilapia",
+    "name": "罗非鱼",
+    "identity": "罗非鱼类群；本手册数值例为 Oreochromis niloticus",
+    "group": "暖水鱼",
+    "intro": "可利用多类食物，部分罗非鱼有口孵育幼行为；高繁殖补充不保证每条都长大。",
+    "note": "养殖罗非鱼可能是不同种或杂交群体，尼罗罗非鱼数字不能自动覆盖全部条目。",
+    "status": "重点档案",
+    "fact": "尼罗罗非鱼实例：雄鱼育成5～8个月可达400～500克；池塘成熟年龄可约5～6个月。",
+    "limit": "成长、成熟是不同终点；过度繁殖与竞争可能造成小型化。",
+    "sources": [
+      {
+        "label": "FAO · 尼罗罗非鱼",
+        "url": "https://www.fao.org/fishery/docs/DOCUMENT/aquaculture/CulturedSpecies/file/en/en_niletilapia.htm"
+      }
+    ],
+    "projectRange": [
+      0.1,
+      0.5
+    ]
+  },
+  {
+    "id": "loach",
+    "name": "泥鳅",
+    "identity": "泥鳅 Misgurnus anguillicaudatus 作为定位",
+    "group": "底栖与鳗形鱼",
+    "intro": "小型、细长、近底层生活的代表；不能因为细长就与鳗鲡归为一类。",
+    "note": "泥鳅与大鳞副泥鳅等相似鱼要先确认；资料中TL与SL须保留原标记。",
+    "status": "重点档案",
+    "fact": "USGS物种资料概述的常见体型约10～20厘米，最大长度记录28厘米SL。",
+    "limit": "常见范围与最大记录采用的口径需分别理解，不应把28厘米当作每条泥鳅最终都会到的值。",
+    "sources": [
+      {
+        "label": "USGS · 泥鳅物种资料",
+        "url": "https://nas.er.usgs.gov/queries/greatLakes/FactSheet.aspx?H=&Potential=N&Species_ID=498&Type=0"
+      }
+    ],
+    "projectRange": [
+      0.08,
+      0.25
+    ]
+  },
+  {
+    "id": "bream",
+    "name": "鳊鱼",
+    "identity": "鳊 Parabramis pekinensis，或地方泛称",
+    "group": "鳊鲂与鲴类",
+    "intro": "较高、侧扁的体形与细长鱼差别很大，同长度的视觉体量也不同。",
+    "note": "若此处指P. pekinensis，就可能与长春鳊条目重复；先确认美术与命名。",
+    "status": "重点档案",
+    "fact": "若定位为P. pekinensis，FishBase列最大记录55厘米TL。",
+    "limit": "单一最大记录不能生成完整年龄曲线；中文俗名范围仍要先确定。",
+    "sources": [
+      {
+        "label": "FishBase · 鳊",
+        "url": "https://www.fishbase.se/summary/282"
+      }
+    ],
+    "projectRange": [
+      0.12,
+      0.5
+    ]
+  },
+  {
+    "id": "bluntnose_bream",
+    "name": "团头鲂",
+    "identity": "Megalobrama amblycephala",
+    "group": "鳊鲂与鲴类",
+    "intro": "团头鲂也是通常所称的武昌鱼，名称不同不代表成长史不同。",
+    "note": "不采用缺乏核对的网络极端尺寸；本次未提供可靠统一逐龄体长表。",
+    "status": "重点档案",
+    "fact": "NCBI中M. amblycephala同时关联Wuchang bream与Bluntsnout bream名称。",
+    "limit": "已核对名称关系；不提供未经核对的极端长度和寿命。",
+    "sources": [
+      {
+        "label": "NCBI · 团头鲂/武昌鱼名称",
+        "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=75352"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      0.55
+    ]
+  },
+  {
+    "id": "white_amur_bream",
+    "name": "长春鳊",
+    "identity": "长春鳊：Parabramis pekinensis",
+    "group": "鳊鲂与鲴类",
+    "intro": "2025年的群体比较研究明确使用这一学名；英文White amur bream也对应这一对象。",
+    "note": "注意和鲂属的三角鲂区分；不要依据中文俗名另设一个无依据的物种。",
+    "status": "重点档案",
+    "fact": "2025年长江与黑龙江养殖群体比较研究使用Parabramis pekinensis。",
+    "limit": "这是物种定位与不同群体研究的入口，本版不将体成分实验当作成长曲线。",
+    "sources": [
+      {
+        "label": "2025年原始研究 · 长春鳊群体比较",
+        "url": "https://xuebao.dlou.edu.cn/article/2025/2095-1388/202501015.html"
+      }
+    ],
+    "projectRange": [
+      0.12,
+      0.45
+    ]
+  },
+  {
+    "id": "mandarin",
+    "name": "鳜鱼",
+    "identity": "鳜 Siniperca chuatsi",
+    "group": "淡水捕食鱼",
+    "intro": "躲藏、伏击，幼早期便能捕食其他鱼苗；同类相食也可能使个体差异扩大。",
+    "note": "资料中的克、公斤是体重，不能缺少长重关系就擅自换成厘米。",
+    "status": "重点档案",
+    "fact": "初孵约4毫米；FAO年级描述为一年约400～600克、二年约1～1.5公斤。",
+    "limit": "毫米级出生、厘米级鱼种、公斤级成鱼是不同阶段；避免把4厘米写成现实孵化体长。",
+    "sources": [
+      {
+        "label": "FAO · 鳜鱼",
+        "url": "https://www.fao.org/fishery/docs/DOCUMENT/aquaculture/CulturedSpecies/file/en/en_mandarinfish.htm"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      0.7
+    ]
+  },
+  {
+    "id": "topmouth",
+    "name": "翘嘴鲌",
+    "identity": "翘嘴鲌；候选定位 Culter alburnus",
+    "group": "淡水捕食鱼",
+    "intro": "可先从鲌类的侧扁体形和捕食生活方式认识，辨认时留意口位和轮廓。",
+    "note": "分类索引：尚未逐条核验该项目形象对应的物种及逐龄成长数据。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.2,
+      1
+    ]
+  },
+  {
+    "id": "black_bass",
+    "name": "大口黑鲈",
+    "identity": "大口黑鲈类；传统资料作 Micropterus salmoides",
+    "group": "淡水捕食鱼",
+    "intro": "伏击捕食者；幼鱼和较大个体利用的猎物会有变化。",
+    "note": "近年大口黑鲈与佛罗里达相关类群的命名有调整；项目需注明所采用的分类版本。",
+    "status": "重点档案",
+    "fact": "USFWS传统物种资料给出常见长度16英寸，约40.6厘米。",
+    "limit": "这里只用于认识体型量级；因分类调整，不把旧资料中的极端纪录直接绑定项目的养殖群体。",
+    "sources": [
+      {
+        "label": "USFWS · 大口黑鲈资料，注意分类版本",
+        "url": "https://www.fws.gov/species/largemouth-bass-micropterus-salmoides"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      0.75
+    ]
+  },
+  {
+    "id": "snakehead",
+    "name": "乌鳢",
+    "identity": "Channa argus",
+    "group": "淡水捕食鱼",
+    "intro": "乌鳢俗称黑鱼，属于鳢类，不是黑鲈，也不是鲶鱼。",
+    "note": "成熟时间和体型取决于群体；这里只使用数据库明确列出的指标。",
+    "status": "重点档案",
+    "fact": "FishBase列最大记录100厘米TL，成熟描述约2岁、30厘米。",
+    "limit": "这些是文献记录或概述，不能推导全部群体到2岁都恰好30厘米。",
+    "sources": [
+      {
+        "label": "FishBase · 乌鳢",
+        "url": "https://www.fishbase.se/summary/Channa_argus.html"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.9
+    ]
+  },
+  {
+    "id": "catfish",
+    "name": "鲶鱼",
+    "identity": "以鲶 Silurus asotus 为例",
+    "group": "底栖捕食鱼",
+    "intro": "有须、少鳞或无鳞的外观很醒目；“鲶鱼”俗称也常被用于多种不同的鲇形目鱼。",
+    "note": "不能把南方大口鲇、胡子鲶或其他巨型鲶鱼的纪录归到同一个条目。",
+    "status": "重点档案",
+    "fact": "以S. asotus为例：FishBase常见长度37厘米SL，最大记录130厘米TL。",
+    "limit": "这两个数字测量终点不同，不能直接算“常见到最大”的倍数。",
+    "sources": [
+      {
+        "label": "FishBase · 鲶 Silurus asotus",
+        "url": "https://www.fishbase.se/summary/silurus-asotus.html"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      1.2
+    ]
+  },
+  {
+    "id": "yellow_catfish",
+    "name": "黄颡鱼",
+    "identity": "Tachysurus fulvidraco；可见 Pelteobagrus 等旧属名",
+    "group": "底栖捕食鱼",
+    "intro": "黄颡鱼的须和鳍棘有辨识度；偏底部摄食，雄鱼有守护卵与幼体行为。",
+    "note": "查旧资料须检查异名；旧属名不同不代表存在多套不同生长上限。",
+    "status": "重点档案",
+    "fact": "FishBase列最大记录34.5厘米TL，并描述雄性护卵及护幼行为。",
+    "limit": "本版不将数据库的模型估算世代时间转换成“几天长满”。",
+    "sources": [
+      {
+        "label": "FishBase · 黄颡鱼",
+        "url": "https://www.fishbase.se/summary/Tachysurus-fulvidraco.html"
+      }
+    ],
+    "projectRange": [
+      0.1,
+      0.4
+    ]
+  },
+  {
+    "id": "silver_bream",
+    "name": "银鲴",
+    "identity": "银鲴 Xenocypris argentea",
+    "group": "鳊鲂与鲴类",
+    "intro": "辨认时应把鲴类与鲂、鲌分开；项目英文ID中的bream不是可靠分类依据。",
+    "note": "本次核对到学名入口，未核验统一体长—年龄或寿命数值。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [
+      {
+        "label": "原始调查 · 海南鹦哥岭鱼类，含银鲴学名",
+        "url": "https://www.biodiversity-science.net/EN/10.3724/SP.J.1003.2008.07021"
+      }
+    ],
+    "projectRange": [
+      0.1,
+      0.35
+    ]
+  },
+  {
+    "id": "redfin",
+    "name": "红鳍鲌",
+    "identity": "红鳍鲌；Culter / Chanodichthys 等属名需核对",
+    "group": "淡水捕食鱼",
+    "intro": "红色鱼鳍是外观线索，不能据此与所有“红鳍”的鱼合并。",
+    "note": "项目中文名需要结合图像与当前分类资料定位；本版不强行给出唯一学名。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.15,
+      0.6
+    ]
+  },
+  {
+    "id": "river_chub",
+    "name": "马口鱼",
+    "identity": "马口鱼；候选定位 Opsariichthys bidens",
+    "group": "溪流与特殊鱼",
+    "intro": "可作为溪流鱼的认识入口；不能只按river_chub这个英文ID套入欧美同名鱼资料。",
+    "note": "分类索引：体长、成熟及寿命尚无本次逐条核对数据。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.08,
+      0.25
+    ]
+  },
+  {
+    "id": "chinese_sabre",
+    "name": "鳡鱼",
+    "identity": "鳡；候选定位 Elopichthys bambusa",
+    "group": "淡水大型鱼",
+    "intro": "与同属鲤形目但偏植物或滤食的鱼相比，生活方式可能非常不同。",
+    "note": "分类索引：不要用“都是鲤形目”推导相同食性或成长速度。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.4,
+      1.5
+    ]
+  },
+  {
+    "id": "redeye",
+    "name": "赤眼鳟",
+    "identity": "赤眼鳟；候选定位 Squaliobarbus curriculus",
+    "group": "淡水常见鱼",
+    "intro": "中文带“鳟”字，不表示它就是虹鳟、哲罗鲑那样的鲑科鱼。",
+    "note": "分类索引：名称后缀不能决定温度需求与成长参数。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.15,
+      0.5
+    ]
+  },
+  {
+    "id": "longsnout_cat",
+    "name": "长吻鮠",
+    "identity": "Leiocassis longirostris",
+    "group": "底栖捕食鱼",
+    "intro": "俗称江团、鮰鱼；中科院水生所研究将其作为典型肉食鱼讨论营养适应。",
+    "note": "与黄颡鱼同样有须，也不能共享逐龄长度；本版不填未经核对的成长年表。",
+    "status": "重点档案",
+    "fact": "中科院水生所研究将长吻鮠描述为高蛋白需求、糖利用能力较低的肉食鱼。",
+    "limit": "食物适配有种间差异；本次资料未提供可通用的逐龄长度表。",
+    "sources": [
+      {
+        "label": "中科院水生所 · 长吻鮠食性研究",
+        "url": "https://www.ihb.cas.cn/xwdt/kydt/202408/t20240823_7309953.html"
+      }
+    ],
+    "projectRange": [
+      0.25,
+      0.9
+    ]
+  },
+  {
+    "id": "wuchang_bream",
+    "name": "武昌鱼",
+    "identity": "Megalobrama amblycephala",
+    "group": "鳊鲂与鲴类",
+    "intro": "常见名称武昌鱼对应团头鲂；在生物学档案里应与团头鲂互相关联。",
+    "note": "项目中保留两个ID是内容设计选择，不应据此重复计为两个现实物种。",
+    "status": "重点档案",
+    "fact": "与团头鲂通常指同一物种，见对应档案。",
+    "limit": "可以保留内容条目，但现实生物学档案应共用物种身份。",
+    "sources": [
+      {
+        "label": "NCBI · 团头鲂/武昌鱼名称",
+        "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=75352"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      0.55
+    ]
+  },
+  {
+    "id": "cn_mahseer",
+    "name": "光唇鱼",
+    "identity": "光唇鱼类；Acrossocheilus 等需具体化",
+    "group": "溪流与特殊鱼",
+    "intro": "光唇鱼这个简称可能不足以确定具体种；不能因英文ID含mahseer就套用大型南亚鱼。",
+    "note": "类群索引：先明确中文全名、产地及学名，才有可用的尺寸和成长资料。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.15,
+      0.6
+    ]
+  },
+  {
+    "id": "rock_carp",
+    "name": "岩原鲤",
+    "identity": "岩原鲤；候选定位 Procypris rabaudi",
+    "group": "溪流与特殊鱼",
+    "intro": "中文含“鲤”并不意味着只是普通鲤鱼换一种颜色。",
+    "note": "分类索引：本版未核验当地群体成长曲线与寿命；不挪用普通鲤鱼数字。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.2,
+      0.8
+    ]
+  },
+  {
+    "id": "barbel",
+    "name": "花鲴",
+    "identity": "项目写“花鲴”；可能拟指花䱻 Hemibarbus maculatus",
+    "group": "溪流与特殊鱼",
+    "intro": "鲴与䱻是不同的字；英文barbel也无法唯一锁定物种。",
+    "note": "身份待确认：这是需要核对的命名问题，未确认前不建立貌似精确的物种档案。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.12,
+      0.4
+    ]
+  },
+  {
+    "id": "snow_trout",
+    "name": "裂腹鱼",
+    "identity": "裂腹鱼类；Schizothorax 等",
+    "group": "溪流与特殊鱼",
+    "intro": "裂腹鱼是包含多个对象的类群名称，常与高原水域鱼类研究一起出现。",
+    "note": "类群索引：不能给所有裂腹鱼设一个统一的现实最大体长、鱼龄和温度范围。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.15,
+      0.5
+    ]
+  },
+  {
+    "id": "golden_line",
+    "name": "金线鲃",
+    "identity": "金线鲃属 Sinocyclocheilus 等待具体到种",
+    "group": "溪流与特殊鱼",
+    "intro": "属内有不同栖息与形态类型，不能把一种洞穴鱼的特点赋给全部金线鲃。",
+    "note": "类群索引：需要具体种名；本版不以属级最大值当作每种鱼的上限。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [
+      {
+        "label": "FishBase · 金线鲃属物种索引",
+        "url": "https://www.fishbase.se/identification/SpeciesList.php?genus=Sinocyclocheilus"
+      }
+    ],
+    "projectRange": [
+      0.08,
+      0.25
+    ]
+  },
+  {
+    "id": "bronze_carp",
+    "name": "铜鱼",
+    "identity": "铜鱼；候选定位 Coreius heterodon",
+    "group": "溪流与特殊鱼",
+    "intro": "属于需要结合河流生态认识的鱼种；不应仅因名字含carp就复制鲤鱼设定。",
+    "note": "分类索引：铜鱼与近似名称、近缘种需区分；未填未经核验的数值。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.2,
+      0.7
+    ]
+  },
+  {
+    "id": "black_porgy",
+    "name": "黑鲷",
+    "identity": "黑鲷；候选定位 Acanthopagrus schlegelii",
+    "group": "海水与河口鱼",
+    "intro": "与真鲷同属鲷类认识范围，但不是同种鱼换一个颜色。",
+    "note": "分类索引：性别、成长和繁殖资料要匹配具体物种；本版未填逐龄数字。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.15,
+      0.5
+    ]
+  },
+  {
+    "id": "red_porgy",
+    "name": "真鲷",
+    "identity": "Pagrus major",
+    "group": "海水与河口鱼",
+    "intro": "真鲷是侧扁而较高体的海鱼；食物包括底栖无脊椎动物等。",
+    "note": "常见长度与最大记录口径不同，不能直接作为同一分布的两端。",
+    "status": "重点档案",
+    "fact": "FishBase常见长度30厘米TL，最大记录100厘米SL；最大报告年龄26年。",
+    "limit": "口径不同、记录含义不同；26年不是野生个体的平均预期寿命。",
+    "sources": [
+      {
+        "label": "FishBase · 真鲷",
+        "url": "https://www.fishbase.se/summary/PAGRUS-MAJOR.html"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.7
+    ]
+  },
+  {
+    "id": "yellow_croaker",
+    "name": "大黄鱼",
+    "identity": "大黄鱼；候选定位 Larimichthys crocea",
+    "group": "海水与河口鱼",
+    "intro": "不能与小黄鱼仅凭市场俗名混为同一个物种档案。",
+    "note": "分类索引：自然种群与养殖群体应分别查证；未填成长与寿命年表。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.2,
+      0.6
+    ]
+  },
+  {
+    "id": "hairtail",
+    "name": "带鱼",
+    "identity": "带鱼类；以下例子仅为 Trichiurus lepturus",
+    "group": "海水与河口鱼",
+    "intro": "带状细长体形使它很长却不一定很重；长度不等于体量。",
+    "note": "带鱼涉及多个种与分类问题，例子的记录不能覆盖全部中国带鱼。",
+    "status": "重点档案",
+    "fact": "T. lepturus数据库常见长度100厘米TL，最大记录234厘米TL。",
+    "limit": "只代表该具体物种；带状外形说明“长”不一定意味着同等重量的大块头。",
+    "sources": [
+      {
+        "label": "FishBase · Trichiurus lepturus，仅代表该物种",
+        "url": "https://www.fishbase.se/summary/Trichiurus-lepturus"
+      }
+    ],
+    "projectRange": [
+      0.4,
+      1.2
+    ]
+  },
+  {
+    "id": "chinese_mackerel",
+    "name": "鲐鱼",
+    "identity": "日本鲐 Scomber japonicus 作为候选定位",
+    "group": "海水与河口鱼",
+    "intro": "鲐、鲅等相似俗名应分开；游泳型体形与伏底鱼不同。",
+    "note": "数据库的常见长度为叉长FL，不能与全长TL无标记混用。",
+    "status": "重点档案",
+    "fact": "以S. japonicus为例：常见长度30厘米FL，最大记录64厘米TL。",
+    "limit": "保留叉长与全长标记；不要把不同鲐种或旧分布资料混为一谈。",
+    "sources": [
+      {
+        "label": "FishBase · 日本鲐",
+        "url": "https://www.fishbase.se/summary/Scomber-japonicus.html"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.55
+    ]
+  },
+  {
+    "id": "flounder",
+    "name": "牙鲆",
+    "identity": "Paralichthys olivaceus",
+    "group": "海水与河口鱼",
+    "intro": "牙鲆是平扁体形的底栖鱼，左右不对称的成鱼外观来自发育变化。",
+    "note": "养殖上市时间只说明特定条件下的生产周期，不是寿命或生理极限。",
+    "status": "重点档案",
+    "fact": "2025年养殖团队会议摘要概述：可在12～18个月达到0.8～1.2公斤上市规格。",
+    "limit": "这是会议摘要中的生产量级说明，证据细节少于完整生长论文，不作为野生成长曲线。",
+    "sources": [
+      {
+        "label": "2025年研究团队会议摘要 · 牙鲆养殖",
+        "url": "https://www.was.org/Meeting/Program/PaperDetail/166172"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.7
+    ]
+  },
+  {
+    "id": "sea_bass",
+    "name": "花鲈",
+    "identity": "花鲈；优先核对 Lateolabrax maculatus",
+    "group": "海水与河口鱼",
+    "intro": "花鲈不是大口黑鲈；都被俗称鲈鱼，不表示共享同一生活史。",
+    "note": "部分旧数据库链接跳向L. japonicus；本版不把该页数字直接当作花鲈数据。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.25,
+      0.8
+    ]
+  },
+  {
+    "id": "pomfret",
+    "name": "银鲳",
+    "identity": "银鲳；Pampus 类群需明确具体种",
+    "group": "海水与河口鱼",
+    "intro": "银色、高而侧扁的体形有辨识度，但市场名可能混入相似对象。",
+    "note": "分类索引：应核实学名与地区，不能用某个银鲳旧名下的数字覆盖全部。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.15,
+      0.45
+    ]
+  },
+  {
+    "id": "grouper",
+    "name": "石斑鱼",
+    "identity": "石斑鱼类群；具体示例 Epinephelus akaara",
+    "group": "海水与河口鱼",
+    "intro": "石斑鱼不是一个单一物种，不同种之间的体型和生活史差异很大。",
+    "note": "本版赤点石斑鱼的30/58厘米仅属于示例种，不是整个类群的常见值与上限。",
+    "status": "重点档案",
+    "fact": "仅以赤点石斑鱼E. akaara为例：常见长度30厘米TL，最大记录58厘米TL。",
+    "limit": "不同石斑鱼种可能相差很大；不能把这一示例套给项目尚未明确的整个石斑条目。",
+    "sources": [
+      {
+        "label": "FishBase · 赤点石斑鱼，仅作具体物种示例",
+        "url": "https://www.fishbase.se/summary/Epinephelus_akaara.html"
+      }
+    ],
+    "projectRange": [
+      0.3,
+      1
+    ]
+  },
+  {
+    "id": "mullet",
+    "name": "鲻鱼",
+    "identity": "Mugil cephalus 作为定位",
+    "group": "海水与河口鱼",
+    "intro": "可见于海岸、河口等多类盐度环境；完整生活史不能只按静水淡水塘解释。",
+    "note": "数据库记录保留SL；类群与区域鉴定仍应留意。",
+    "status": "重点档案",
+    "fact": "M. cephalus数据库常见长度50厘米SL，最大记录100厘米SL，最大报告年龄16年。",
+    "limit": "最大年龄不是平均寿命；SL也不是含完整尾鳍的全长。",
+    "sources": [
+      {
+        "label": "FishBase · 鲻鱼",
+        "url": "https://www.fishbase.se/summary/Mugil-cephalus"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.6
+    ]
+  },
+  {
+    "id": "rainbow_trout",
+    "name": "虹鳟",
+    "identity": "Oncorhynchus mykiss",
+    "group": "冷水与长寿鱼",
+    "intro": "有淡水定居和降海生活型；同一物种也可能有不同成长经历。",
+    "note": "“冷水鱼”不等于任何低温都长得好，也不代表温度越低越好。",
+    "status": "重点档案",
+    "fact": "FAO育成实例：到30～40厘米上市规格通常约9个月；更大规格可更久。",
+    "limit": "这是人工条件下的育成阶段；淡水与降海生活型的成长也可能不同。",
+    "sources": [
+      {
+        "label": "FAO · 虹鳟",
+        "url": "https://www.fao.org/fishery/docs/DOCUMENT/aquaculture/CulturedSpecies/file/en/en_rainbowtrout.htm"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.7
+    ]
+  },
+  {
+    "id": "lenok",
+    "name": "细鳞鲑",
+    "identity": "细鳞鲑；Brachymystax 类群需确认",
+    "group": "冷水与长寿鱼",
+    "intro": "可先按冷水鲑类理解，与热带罗非鱼的环境需求明显不同。",
+    "note": "类群索引：分类与不同种群需核实，不能用哲罗鲑或虹鳟的曲线代替。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.25,
+      0.7
+    ]
+  },
+  {
+    "id": "taimen",
+    "name": "哲罗鲑",
+    "identity": "Hucho taimen",
+    "group": "冷水与长寿鱼",
+    "intro": "大型鲑科鱼，有较长生活史；能够形成跨多年的个体经历。",
+    "note": "本版研究来自贝加尔湖流域，不能自动当成所有地区群体的平均寿命。",
+    "status": "重点档案",
+    "fact": "贝加尔湖流域研究记载可达29岁、60公斤。",
+    "limit": "年龄与体重是该研究汇总的可达量级，不是同一条29岁个体必然重60公斤，也不是平均值。",
+    "sources": [
+      {
+        "label": "1998年原始研究 · 贝加尔湖流域哲罗鲑",
+        "url": "https://pubs.usgs.gov/publication/1000685"
+      }
+    ],
+    "projectRange": [
+      0.5,
+      1.8
+    ]
+  },
+  {
+    "id": "whitefish",
+    "name": "雅罗鱼",
+    "identity": "雅罗鱼；例为瓦氏雅罗鱼 Leuciscus waleckii",
+    "group": "冷水与长寿鱼",
+    "intro": "项目英文ID为whitefish，但雅罗鱼不能直接套用鲑科白鲑资料。",
+    "note": "中文雅罗鱼需具体化；本版成长研究只针对瓦氏雅罗鱼的一个水域群体。",
+    "status": "重点档案",
+    "fact": "以汤旺河瓦氏雅罗鱼为例：L∞约35.175厘米、k=0.26/年；第5章有重算曲线。",
+    "limit": "L∞是拟合参数，不是这类鱼的绝对硬上限；雅罗鱼条目仍需确认具体种。",
+    "sources": [
+      {
+        "label": "2019年原始研究 · 汤旺河瓦氏雅罗鱼",
+        "url": "https://xuebao.dlou.edu.cn/article/2019/2095-1388/201906010.html"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      0.45
+    ]
+  },
+  {
+    "id": "chinese_sturgeon",
+    "name": "中华鲟",
+    "identity": "Acipenser sinensis",
+    "group": "鲟类与洄游鱼",
+    "intro": "长寿、大型、溯河繁殖的代表；现实成长与成熟按多年尺度理解。",
+    "note": "不要把海洋育肥与江河繁殖阶段压成静水鱼塘里的单一生活方式。",
+    "status": "重点档案",
+    "fact": "NOAA概述：可达16英尺，约4.88米；寿命至少35年，雄雌成熟约8/14年。",
+    "limit": "可达长度不代表常态；它是溯河繁殖鱼，不是终生静水塘鱼。",
+    "sources": [
+      {
+        "label": "NOAA · 中华鲟",
+        "url": "https://www.fisheries.noaa.gov/species/chinese-sturgeon/resources"
+      }
+    ],
+    "projectRange": [
+      0.8,
+      3.5
+    ]
+  },
+  {
+    "id": "dabry_sturgeon",
+    "name": "达氏鲟",
+    "identity": "达氏鲟；候选定位 Acipenser dabryanus",
+    "group": "鲟类与洄游鱼",
+    "intro": "与中华鲟是不同物种；不能因为都叫鲟就复制中华鲟的全部生活史。",
+    "note": "分类索引：本次未核验该物种专属的逐龄成长、最大体长和寿命数字。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [],
+    "projectRange": [
+      0.5,
+      2
+    ]
+  },
+  {
+    "id": "eel",
+    "name": "鳗鲡",
+    "identity": "鳗鲡属 Anguilla；例为日本鳗鲡 A. japonica",
+    "group": "底栖与鳗形鱼",
+    "intro": "鳗鲡的海洋繁殖和幼体发育有独特阶段，与黄鳝不同。",
+    "note": "项目需确定是日本鳗鲡还是其他鳗鲡；不能把黄鳝资料混入。",
+    "status": "重点档案",
+    "fact": "FAO日本鳗鲡资料明确描述个体成长差异显著，需定期分级。",
+    "limit": "这支持“同种鱼有成长差异”，但不能据此推导统一±15%的现实区间。",
+    "sources": [
+      {
+        "label": "FAO · 日本鳗鲡",
+        "url": "https://www.fao.org/fishery/docs/DOCUMENT/aquaculture/CulturedSpecies/file/en/en_japaneseeel.htm"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      1
+    ]
+  },
+  {
+    "id": "ricefield_eel",
+    "name": "黄鳝",
+    "identity": "Monopterus albus 类群",
+    "group": "底栖与鳗形鱼",
+    "intro": "黄鳝虽像鳗鲡，但不是鳗鲡属；研究记录有先雌后雄的自然性反转。",
+    "note": "不能用“鳝”和“鳗”俗称相近推导同一种生活史；群体和分类也需注意。",
+    "status": "重点档案",
+    "fact": "中科院水生所研究介绍黄鳝具有先雌后雄的自然性反转特性。",
+    "limit": "不是所有鳗形鱼都如此；本版不混用鳗鲡寿命与成长参数。",
+    "sources": [
+      {
+        "label": "中科院水生所 · 黄鳝及性反转",
+        "url": "https://www.ihb.cas.cn/xwdt/kydt/202510/t20251027_7997821.html"
+      }
+    ],
+    "projectRange": [
+      0.2,
+      0.7
+    ]
+  },
+  {
+    "id": "koi",
+    "name": "锦鲤",
+    "identity": "鲤的观赏选育品种，Cyprinus carpio 相关",
+    "group": "观赏与特殊条目",
+    "intro": "色彩与花纹是主要辨识维度；观赏价值不是独立的生物学体型等级。",
+    "note": "与鲤鱼建立品种关联；本版不为“锦鲤”虚构一条独立物种成长曲线。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [
+      {
+        "label": "FAO · 鲤鱼",
+        "url": "https://www.fao.org/fishery/docs/CDrom/aquaculture/I1129m/file/en/en_commoncarp.htm"
+      }
+    ],
+    "projectRange": [
+      0.15,
+      0.8
+    ]
+  },
+  {
+    "id": "giant_black_carp",
+    "name": "巨青",
+    "identity": "大型青鱼个体，Mylopharyngodon piceus",
+    "group": "观赏与特殊条目",
+    "intro": "巨青适合表达“大个体”的收获，但名字本身不产生一个新物种。",
+    "note": "与青鱼关联；个体大可以来自年龄、遗传、营养和存活经历。",
+    "status": "分类索引",
+    "fact": "本版未提供经逐条核对的成长或寿命数值。",
+    "limit": "此项用于分类检索；具体到种、地区和群体后再补充生物学参数。",
+    "sources": [
+      {
+        "label": "加拿大DFO · 青鱼",
+        "url": "https://www.dfo-mpo.gc.ca/species-especes/profiles-profils/blackcarp-carpenoire-eng.html"
+      }
+    ],
+    "projectRange": [
+      0.8,
+      2
+    ]
+  }
+]
