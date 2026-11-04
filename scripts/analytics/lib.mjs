@@ -4,10 +4,11 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isCurrentSimulation } from './simulation-policy.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ANALYTICS_ROOT = path.join(__dirname, '../../docs/数据分析');
-export const RUNS_DIR = path.join(ANALYTICS_ROOT, 'runs');
+export const RUNS_DIR = path.join(ANALYTICS_ROOT, '运行记录');
 export const Q_IDS = ['gray', 'green', 'blue', 'purple', 'red', 'orange', 'gold'];
 export const Q_NAMES = ['普通', '优良', '稀有', '史诗', '传说', '神话', '至尊'];
 
@@ -339,16 +340,17 @@ export function buildManifest() {
           id: d.name,
           type: meta.type || 'pond-day',
           ...meta,
-          reportPath: `runs/${d.name}/report.html`,
-          compactPath: `runs/${d.name}/compact.json`,
-          analysisPath: `runs/${d.name}/analysis.json`,
+          ruleStatus: isCurrentSimulation(meta) ? 'current-simulation' : 'historical-simulation',
+          reportPath: `运行记录/${d.name}/report.html`,
+          compactPath: `运行记录/${d.name}/compact.json`,
+          analysisPath: `运行记录/${d.name}/analysis.json`,
         };
       })
       .filter(Boolean);
     runs.push(...pondDayRuns);
   }
 
-  const dailyDir = path.join(ANALYTICS_ROOT, 'daily');
+  const dailyDir = path.join(ANALYTICS_ROOT, '日报');
   if (fs.existsSync(dailyDir)) {
     const dailyRuns = fs
       .readdirSync(dailyDir, { withFileTypes: true })
@@ -366,8 +368,9 @@ export function buildManifest() {
           date: d.name,
           totalCatches: compact.totalCatches,
           activePlayers: compact.activePlayers,
-          reportPath: `daily/${d.name}/report.html`,
-          compactPath: `daily/${d.name}/compact.json`,
+          ruleStatus: 'live-daily',
+          reportPath: `日报/${d.name}/report.html`,
+          compactPath: `日报/${d.name}/compact.json`,
         };
       })
       .filter(Boolean);

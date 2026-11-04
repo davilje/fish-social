@@ -50,7 +50,7 @@ namespace FishSocial.Desktop.Editor
             AssetDatabase.SaveAssets();
             ValidatePondPreviews();
             WriteThemeManifest();
-            Debug.Log("[PondPhotos] Refreshed and validated 21 pond photos from complete scene paintings without GPU rendering.");
+            Debug.Log("[PondPhotos] Refreshed and validated " + DesktopGameData.Ponds.Length + " pond photos from complete scene paintings without GPU rendering.");
         }
 
         public static bool Configure(TextureImporter importer)
@@ -158,7 +158,9 @@ namespace FishSocial.Desktop.Editor
                 }
                 finally { Object.DestroyImmediate(source); Object.DestroyImmediate(photo); }
             }
-            if (pending.Count != 21) throw new InvalidDataException("Expected 21 complete pond photos, got " + pending.Count);
+            var expected = DesktopGameData.Ponds.Select(pond => pond.pondId).ToArray();
+            if (pending.Count != expected.Length || expected.Any(id => !pending.ContainsKey(Root + "ponds/" + id + ".png")))
+                throw new InvalidDataException("Pond photos must cover every game pond; got " + pending.Count + " of " + expected.Length);
             // Validate the whole batch before replacing any existing photo. Keep all .meta GUIDs.
             foreach (var entry in pending) File.WriteAllBytes(entry.Key, entry.Value);
             File.WriteAllText(Root + "pond-manifest.json", new JObject { ["schema"] = 1, ["ponds"] = rows }.ToString());
@@ -179,7 +181,10 @@ namespace FishSocial.Desktop.Editor
         public static void ValidatePondPreviews()
         {
             var rows = JObject.Parse(File.ReadAllText(Root + "pond-manifest.json"))["ponds"];
-            if (rows.Count() != 21) throw new InvalidDataException("Expected 21 pond photos.");
+            var expected = DesktopGameData.Ponds.Select(pond => pond.pondId).ToArray();
+            var actual = rows.Select(row => (string)row["pondId"]).ToArray();
+            if (actual.Length != expected.Length || !new System.Collections.Generic.HashSet<string>(actual).SetEquals(expected))
+                throw new InvalidDataException("Pond photo manifest must cover every game pond exactly once.");
             foreach (var row in rows)
             {
                 var path = "Assets/Resources/" + (string)row["resourcesPath"] + ".png";
@@ -236,7 +241,7 @@ namespace FishSocial.Desktop.Editor
             foreach (var p in Directory.GetFiles(Root,"*.png",SearchOption.AllDirectories))
                 if (AssetDatabase.LoadAssetAtPath<Sprite>(p.Replace('\\','/')) == null) throw new Exception("Not imported as sprite: " + p);
             var ponds = JObject.Parse(File.ReadAllText(Root+"pond-manifest.json"))["ponds"];
-            if (ponds.Count()!=21) throw new Exception("Expected 21 scene previews, got " + ponds.Count());
+            if (ponds.Count()!=DesktopGameData.Ponds.Length) throw new Exception("Expected one scene preview per game pond, got " + ponds.Count());
             foreach (var item in ponds)
                 if (Resources.Load<Sprite>((string)item["resourcesPath"]) == null) throw new Exception("Unresolved pond: "+item["pondId"]);
             var characters = JObject.Parse(File.ReadAllText(Root+"character-manifest.json"))["assets"];

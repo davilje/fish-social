@@ -2,10 +2,12 @@
  * 生成综合分析报告 HTML（版本演进 + 目标评估 + 当前规则解读）
  */
 import fs from 'fs';
+import { rejectRetiredSimulationEntry } from './simulation-policy.mjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { ANALYTICS_ROOT, RUNS_DIR, buildManifest, readJson } from './lib.mjs';
 
+rejectRetiredSimulationEntry('analytics:report');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.join(ANALYTICS_ROOT, 'pond-day-simulation');
 const compact = readJson(path.join(outDir, 'compact.json'));

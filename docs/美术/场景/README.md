@@ -4,11 +4,11 @@
 
 预览直接读取 Unity 项目内的场景资源和 `motion.json`，覆盖原始 30 张系列场景及千岛湖，共 31 套。当前方案只使用最早的完整原图 `background.png`，叠加要动的树叶、植被前层。完整原图同时作为固定后层，天空、云、太阳、月亮及其余景物均保留在原图中，不单独拆层和移动。原图逐字节保留，风动层在原画布位置从原图取色；原始分辨率下静止叠加的 RGBA 像素差为 0。
 
-系列场景每套为完整原图和两层风动植被，共 3 层；千岛湖保留完整原图、两层树叶和六块灌木，共 9 层，中央两块灌木的风动幅度仍为 2.2。21 个鱼塘的 Unity 预制体和两处 Overlay 导出资源已同步，座椅、角色、浮漂与水线坐标保持现有值。通过「显示图层」中的勾选按钮自由组合有效图层，提供「全选／全部隐藏」和「归位检查对齐」；切换场景后默认全选。总预览链接加 `#scene` 可直接进入「场景」。
+系列场景每套为完整原图和两层风动植被，共 3 层；千岛湖保留完整原图、两层树叶和六块灌木，共 9 层，中央两块灌木的风动幅度仍为 2.2。40 个正式鱼塘及教学塘的 Unity 预制体和两处 Overlay 导出资源已同步。新增20个鱼塘的钓位按对应场景的 groundY 对齐岸线，使用原有猫咪与木凳接触关系，水面线采用同场景的导出配置。通过「显示图层」中的勾选按钮自由组合有效图层，提供「全选／全部隐藏」和「归位检查对齐」；切换场景后默认显示完整原图与风动植被；天空、云景、钓位及岸线检查层可单独勾选。总预览链接加 `#scene` 可直接进入「场景」。
 
 当前图层保存在 `fish-social-unity/Assets/Desktop/OverlayArt/Ponds/layered/pastel-scenes-v1/` 和 `layered/qiandao-wind-v3/`，同步到两处 Overlay 资源目录。资源依赖以各场景 `layout.json`、`motion.json` 为准。
 
-鱼塘世界和选择页的照片存放于 `Assets/Resources/Desktop/Theme/Cozy/journal/ponds/`，共 21 张，按 `catalog.json` 的鱼塘绑定从完整原图生成。2026-10-29 修复了无图形模式下 `Camera.Render` 将照片覆盖为空白的问题：`CozyJournalResourcePreparation.RefreshPondPreviews` 现在通过 CPU 读取和居中裁切原画，沿用 1024×640 的照片尺寸、原有资源路径和 `.meta` GUID，生成前检查整批图像的有效细节。`pond-manifest.json` 记录每张照片的 `sourceImage`。该流程可以在 `-batchmode -nographics` 下运行，已验证全部照片可通过 `Resources.Load<Sprite>` 加载。修复核对图及检查记录位于 `/Users/red/Desktop/fish/output/pond-photo-repair-v1/`。
+鱼塘世界和选择页的照片存放于 `Assets/Resources/Desktop/Theme/Cozy/journal/ponds/`，共 41 张，按 `catalog.json` 的鱼塘绑定从完整原图生成。2026-10-29 修复了无图形模式下 `Camera.Render` 将照片覆盖为空白的问题：`CozyJournalResourcePreparation.RefreshPondPreviews` 现在通过 CPU 读取和居中裁切原画，沿用 1024×640 的照片尺寸、原有资源路径和 `.meta` GUID，生成前检查整批图像的有效细节。`pond-manifest.json` 记录每张照片的 `sourceImage`。该流程可以在 `-batchmode -nographics` 下运行，已验证全部照片可通过 `Resources.Load<Sprite>` 加载。修复核对图及检查记录位于 `/Users/red/Desktop/fish/output/pond-photo-repair-v1/`。
 
 2026-10-29 按要求从清理备份中恢复全部 31 套场景的 `sky.png`（无云天空）和 `cloud-complete.png`（含天空的完整云景补绘），包括原有 Unity `.meta`，同步到两处 Overlay 资源目录。恢复文件逐字节等同于清理前版本，没有重新绘制。`layout.json` 的 `previewLayers` 单独登记这两张备选资源，预览提供勾选按钮，默认关闭；正式 `layers` 和风动配置保持“完整原图＋风动植被”。要单独查看天空或云景，先点击「全部隐藏」再勾选对应按钮。恢复清单见 `/Users/red/Desktop/fish/output/original-backdrop-leaves-v1/restored-sky-clouds.json`。
 
@@ -21,3 +21,5 @@
 | [overlay-scene-update-and-editor-menus](overlay-scene-update-and-editor-menus.md) | 专题说明／实施记录 |
 | [pond-pastel-series-rollout](pond-pastel-series-rollout.md) | 专题说明／实施记录 |
 
+
+2026-11-04：40个世界地图点位改为沿实际水域分布，完整坐标表覆盖全部正式鱼塘，避免回退到8×5规则网格。40个正式鱼塘使用全部30张粉彩系列场景及千岛湖专用版本，按水域匹配复用部分场景；每个鱼塘有独立的图片、动效、照片和布局绑定。详见 [40鱼塘更新记录](forty-pond-rollout-2026-11-04/README.md) 及 [绑定表](forty-pond-rollout-2026-11-04/mapping.json)。

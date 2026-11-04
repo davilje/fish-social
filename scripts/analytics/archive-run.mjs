@@ -3,6 +3,7 @@
  * 用法: node scripts/analytics/archive-run.mjs <type> [runId] [sourceDir]
  */
 import fs from 'fs';
+import { rejectRetiredSimulationEntry } from './simulation-policy.mjs';
 import path from 'path';
 import {
   ANALYTICS_ROOT,
@@ -17,6 +18,7 @@ import {
   writeJson,
 } from './lib.mjs';
 
+rejectRetiredSimulationEntry('analytics:archive-ecology / archive-run.mjs');
 const type = process.argv[2] || 'pond-day';
 const sourceDir =
   process.argv[4] ||

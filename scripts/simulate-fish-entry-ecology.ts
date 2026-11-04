@@ -13,6 +13,7 @@ import {
 } from '../shared/index';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const RULES=JSON.parse(fs.readFileSync(path.join(ROOT,'scripts/fishing-rules/current-rules.json'),'utf8'));
 const OUT=path.join(ROOT,'docs/数据分析/fish-growth-opening-2026-11-02');
 const START=Date.UTC(2026,10,3,20); // 2026-11-04 04:00 Asia/Shanghai
 const HOUR=3_600_000, DAYS=30, REPLICATES=10;
@@ -178,7 +179,7 @@ const summaries=SCENARIOS.flatMap(([pondId,label])=>[0,5,20].map(anglers=>{
   };
 }));
 
-const result={version:'FISH-ECOLOGY-01 implementation stress model',date:'2026-11-04',startAt:START,days:DAYS,seeds:Array.from({length:REPLICATES},(_,i)=>20261104+i),
+const result={rulesetId:RULES.rulesetId,modelKind:'growth-restock-stress',version:'FISH-ECOLOGY-01 implementation stress model',date:'2026-11-04',startAt:START,days:DAYS,seeds:Array.from({length:REPLICATES},(_,i)=>20261104+i),
   assumptions:{successLoad:'Exactly one successful catch per active angler-hour; a stress input, not a measured probability result.',
     captureAllocation:'Fully mixed pond; weight per fish = quality candidate weight × current shared single-fish bite rate × bamboo rod multiplier × pond bite multiplier × (1 - rod-adjusted escape rate × pond escape multiplier).',
     stock:'Actual shared opening/mixed growth, original category/species pool, hourly <=40 to80, Shanghai04:00 to100, strict high-quality cap.',

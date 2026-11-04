@@ -1,6 +1,202 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>鱼群成长 · 实现与生态验证</title><style>
 :root{--bg:#f4f5ef;--paper:#fffef9;--ink:#263e36;--muted:#66776d;--line:#d9e2d7;--green:#297763}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}header,main,footer{max-width:1220px;margin:auto;padding:30px clamp(18px,4vw,56px)}header{padding-top:48px;padding-bottom:20px}.eyebrow{color:var(--green);font-size:12px;letter-spacing:2px}h1{font-size:clamp(27px,3.5vw,42px);line-height:1.4;margin:12px 0}header p{color:var(--muted);max-width:870px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:25px}.stat{padding:15px 20px;background:var(--paper);border:1px solid var(--line);border-radius:12px}.stat b{display:block;color:var(--green);font-size:24px}.stat span{font-size:12px;color:var(--muted)}nav{position:sticky;top:0;background:var(--bg);z-index:5;border-bottom:1px solid var(--line);padding:12px 0;display:flex;gap:8px;overflow:auto}button{flex:none;cursor:pointer;color:var(--green);border:1px solid var(--line);border-radius:9px;background:var(--paper);padding:10px 16px;font:inherit;font-size:14px}button[aria-selected=true]{background:var(--green);color:white;border-color:var(--green)}article{padding:8px 0 20px}article>h1{font-size:28px}h2{font-size:24px;border-top:1px solid var(--line);margin-top:40px;padding-top:23px;line-height:1.5}h3{font-size:19px;margin-top:27px}p{margin:16px 0}a{color:var(--green);text-underline-offset:4px;overflow-wrap:anywhere}img{display:block;max-width:100%;height:auto;margin:25px auto;border:1px solid var(--line);border-radius:12px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:22px 0}table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);min-width:95px;vertical-align:top}th{background:#e8eee3}tr:last-child td{border-bottom:0}li{margin:8px 0}pre{overflow:auto;padding:18px;background:#e8eee4;border-radius:10px;font-size:13px}code{font-size:.88em;overflow-wrap:anywhere}blockquote{margin-left:0;border-left:3px solid #94b49e;padding-left:20px;color:var(--muted)}.history{border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:14px}.history summary{cursor:pointer;color:var(--green)}.notice{border-left:3px solid #b49358;background:#f4edde;padding:12px 16px;font-size:13px}.foot{font-size:12px;color:var(--muted);padding-top:0}[hidden]{display:none!important}@media(max-width:650px){header{padding-top:25px}.stats{gap:7px}.stat{padding:12px 10px}.stat b{font-size:20px}.stat span{font-size:11px}main{padding-top:5px}body{font-size:15px}button{padding:9px 12px}h2{font-size:22px}article>h1{font-size:24px}th,td{padding:10px}}@media print{nav,.history{display:none}article[hidden]{display:block!important}header,main{padding:0}.stats{break-inside:avoid}h2{break-after:avoid}img{break-inside:avoid}body{background:white}}
-</style></head><body><header><div class="eyebrow">FISH-ECOLOGY-01 / 2026.11.04 / 本地已实现 · 未部署</div><h1>记录一条鱼，如何在塘里长大</h1><p>以投放体长和入塘日期建立独立履历。开服鱼拥有前14天的入塘批次；自然成长、吃饵加速与真实在塘时间分别记录。</p><div class="stats"><div class="stat"><b>3.4～4.6 cm</b><span>幼鱼基准规格 · 固定个体差异</span></div><div class="stat"><b>−14～0 天</b><span>开服初始鱼的历史入塘范围</span></div><div class="stat"><b>±15%</b><span>独立于投放规格的品质上限波动</span></div></div></header><main><nav role="tablist" aria-label="方案内容"><button role="tab" id="tab-implementation" aria-controls="implementation" aria-selected="true" data-panel="implementation">实现与验证</button><button role="tab" id="tab-pending" aria-controls="pending" aria-selected="false" data-panel="pending">未完成事项</button><button role="tab" id="tab-simulation" aria-controls="simulation" aria-selected="false" data-panel="simulation">24小时／30天</button><button role="tab" id="tab-report" aria-controls="report" aria-selected="false" data-panel="report">曲线与数据</button><button role="tab" id="tab-spec" aria-controls="spec" aria-selected="false" data-panel="spec">最终规格</button><button role="tab" id="tab-checklist" aria-controls="checklist" aria-selected="false" data-panel="checklist">修改清单</button><button role="tab" id="tab-options" aria-controls="options" aria-selected="false" data-panel="options">B / E0 / L1</button></nav><article role="tabpanel" aria-labelledby="tab-implementation" id="implementation" ><h1>FISH-ECOLOGY-01 实现与验证报告</h1>
+</style></head><body><header><div class="eyebrow">FISH-ECOLOGY-01 / 2026.11.04 / 本地已实现 · 未部署</div><h1>记录一条鱼，如何在塘里长大</h1><p>以投放体长和入塘日期建立独立履历。开服鱼拥有前14天的入塘批次；自然成长、吃饵加速与真实在塘时间分别记录。</p><div class="stats"><div class="stat"><b>3.4～4.6 cm</b><span>幼鱼基准规格 · 固定个体差异</span></div><div class="stat"><b>−14～0 天</b><span>开服初始鱼的历史入塘范围</span></div><div class="stat"><b>±15%</b><span>独立于投放规格的品质上限波动</span></div></div></header><main><nav role="tablist" aria-label="方案内容"><button role="tab" id="tab-current-rules" aria-controls="current-rules" aria-selected="true" data-panel="current-rules">现行规则</button><button role="tab" id="tab-implementation" aria-controls="implementation" aria-selected="false" data-panel="implementation">实现与验证</button><button role="tab" id="tab-pending" aria-controls="pending" aria-selected="false" data-panel="pending">未完成事项</button><button role="tab" id="tab-simulation" aria-controls="simulation" aria-selected="false" data-panel="simulation">24小时／30天</button><button role="tab" id="tab-report" aria-controls="report" aria-selected="false" data-panel="report">曲线与数据</button><button role="tab" id="tab-spec" aria-controls="spec" aria-selected="false" data-panel="spec">最终规格</button><button role="tab" id="tab-checklist" aria-controls="checklist" aria-selected="false" data-panel="checklist">修改清单</button><button role="tab" id="tab-options" aria-controls="options" aria-selected="false" data-panel="options">B / E0 / L1</button></nav><article role="tabpanel" aria-labelledby="tab-current-rules" id="current-rules" ><h1>钓鱼系统现行规则</h1>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>当前口径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>整理编号</td>
+<td>FISH-RULES-01（文档与工具维护，不是新概率方案）</td>
+</tr>
+<tr>
+<td>状态</td>
+<td>已实现；本地文档、脚本入口与回归核对</td>
+</tr>
+<tr>
+<td>设计时间</td>
+<td>2026-11-04</td>
+</tr>
+<tr>
+<td>完成时间</td>
+<td>2026-11-04</td>
+</tr>
+<tr>
+<td>规则标识</td>
+<td><code>FISH-CURRENT-2026-11-04</code></td>
+</tr>
+<tr>
+<td>环境边界</td>
+<td>本地源码与默认配置；实际测试库切换、部署和热更核对仍待执行</td>
+</tr>
+</tbody></table>
+<p>本页是钓鱼概率、成长和补鱼的现行查阅入口。用户已确认的成长需求以<a href="../../策划/规格/玩法/%E9%B1%BC%E5%A1%98%E6%88%90%E9%95%BF%E8%A1%A5%E9%B1%BC%E4%B8%8E%E4%B8%AA%E4%BD%93%E5%B1%A5%E5%8E%86.md">FISH-ECOLOGY-01</a>为准；尚未重新定稿的概率，以<a href="../../%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/fishing-probability-audit-2026-11-04/%E5%BD%93%E5%89%8D%E9%92%93%E9%B1%BC%E6%A6%82%E7%8E%87%E5%AE%8C%E6%95%B4%E8%AF%B4%E6%98%8E.md">当前代码审计</a>描述现状，不能把已发现的问题当成新需求已经确认。</p>
+<h2>使用顺序</h2>
+<ol>
+<li>开发前先读本页，再读对应有效规格与开发交接。</li>
+<li>旧页首标有“历史阶段记录”时，只继承其中明确保留的交互、配置或兼容范围；历史正文里的旧数字不作为新开发与验收要求。</li>
+<li>用户新确认的需求必须先更新对应规格、交接、规则登记和验证，再更新本页；不能通过恢复旧脚本来补验收。</li>
+<li>“已实现”描述对应阶段曾交付的工作，不自动意味着其所有历史数值至今有效；“本地已实现”也不表示实际环境已部署。</li>
+</ol>
+<h2>现行有效资料</h2>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>权威资料</th>
+<th>适用范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>成长、补鱼、履历、摄食</td>
+<td><a href="../../策划/规格/玩法/%E9%B1%BC%E5%A1%98%E6%88%90%E9%95%BF%E8%A1%A5%E9%B1%BC%E4%B8%8E%E4%B8%AA%E4%BD%93%E5%B1%A5%E5%8E%86.md">FISH-ECOLOGY-01</a> · <a href="../../策划/%E6%8F%90%E7%A4%BA%E8%AF%8D/%E7%8E%A9%E6%B3%95/fish-ecology-entry-growth-dev.prompt.md">开发交接</a></td>
+<td>已确认且本地实现的需求</td>
+</tr>
+<tr>
+<td>当前概率全链路</td>
+<td><a href="../../%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/fishing-probability-audit-2026-11-04/%E5%BD%93%E5%89%8D%E9%92%93%E9%B1%BC%E6%A6%82%E7%8E%87%E5%AE%8C%E6%95%B4%E8%AF%B4%E6%98%8E.md">概率审计</a></td>
+<td>记录当前代码，整体重设计待定稿</td>
+</tr>
+<tr>
+<td>鱼竿与自动选饵</td>
+<td><a href="../../策划/规格/玩法/%E9%92%93%E5%85%B7%E4%B8%8E%E9%B1%BC%E9%A5%B5%E9%85%8D%E7%BD%AE.md">钓具与鱼饵配置</a></td>
+<td>与当前生成配置、正式调用共同核对</td>
+</tr>
+<tr>
+<td>回鱼准入与体验</td>
+<td><a href="../../策划/规格/玩法/%E5%9B%9E%E9%B1%BC%E4%BD%93%E9%87%8D%E5%88%86%E6%A1%A3.md">回鱼体重分档</a> · <a href="../../策划/规格/玩法/%E8%87%AA%E5%8A%A8%E5%9B%9E%E9%B1%BC%E4%BD%93%E9%AA%8C%E9%97%AD%E7%8E%AF.md">自动回鱼体验闭环</a></td>
+<td>保留原鱼身份及经济规则；成长与在塘时长按FISH-ECOLOGY-01</td>
+</tr>
+<tr>
+<td>睡眠、配额、巡警等状态</td>
+<td><a href="../../../%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/fishing-probability-audit-2026-11-04/%E5%BD%93%E5%89%8D%E9%92%93%E9%B1%BC%E6%A6%82%E7%8E%87%E5%AE%8C%E6%95%B4%E8%AF%B4%E6%98%8E.md#9-%E9%9A%8F%E6%9C%BA%E4%B9%8B%E5%A4%96%E5%93%AA%E4%BA%9B%E6%83%85%E5%86%B5%E4%BC%9A%E8%AE%A9%E9%B1%BC%E6%8B%BF%E4%B8%8D%E5%88%B0">概率审计第9节</a></td>
+<td>现状，不视为已满足纯挂机目标</td>
+</tr>
+<tr>
+<td>本地验证与未部署事项</td>
+<td><a href="../../%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/fish-growth-opening-2026-11-02/%E5%AE%9E%E7%8E%B0%E4%B8%8E%E9%AA%8C%E8%AF%81%E6%8A%A5%E5%91%8A.md">实现与验证</a> · <a href="../../策划/%E6%8A%A5%E5%91%8A/FISH-ECOLOGY-01-%E6%9C%AA%E5%AE%8C%E6%88%90%E4%BA%8B%E9%A1%B9%E4%B8%8E%E5%90%8E%E7%BB%AD%E4%BA%A4%E6%8E%A5.md">后续交接</a></td>
+<td>不宣称已切换实际服务器或数据库</td>
+</tr>
+</tbody></table>
+<h2>已确认的成长与生态需求</h2>
+<table>
+<thead>
+<tr>
+<th>品质</th>
+<th>上限基准</th>
+<th>个体上限波动</th>
+<th>自然达到自身上限80%的时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通</td>
+<td>20厘米</td>
+<td>±15%</td>
+<td>1天</td>
+</tr>
+<tr>
+<td>优良</td>
+<td>35厘米</td>
+<td>±15%</td>
+<td>2天</td>
+</tr>
+<tr>
+<td>稀有</td>
+<td>50厘米</td>
+<td>±15%</td>
+<td>3天</td>
+</tr>
+<tr>
+<td>史诗</td>
+<td>80厘米</td>
+<td>±15%</td>
+<td>5天</td>
+</tr>
+<tr>
+<td>传说</td>
+<td>3米</td>
+<td>±15%</td>
+<td>7天</td>
+</tr>
+<tr>
+<td>神话</td>
+<td>15米</td>
+<td>±15%</td>
+<td>10天</td>
+</tr>
+<tr>
+<td>至尊</td>
+<td>40米</td>
+<td>±15%</td>
+<td>14天</td>
+</tr>
+</tbody></table>
+<ul>
+<li>幼鱼基准投放规格4厘米±15%，与上限独立固定；品质决定上限和T80，本轮不叠加鱼种速度或鱼种上限倍率。</li>
+<li>从入塘规格开始先快后慢地渐近成长，不设14天长满终点。初始鱼历史入塘分布为开服前14～0天；不推算生物学出生日期。</li>
+<li>40个正式塘，每塘100条、20钓位；新手教学独立。日常补入50%幼鱼、40%成长鱼、10%较成熟鱼，实际投放时起算在塘时长。</li>
+<li>每小时库存≤40补80；上海04:00补100，同刻以日结为先。高品质按原品质目标库存限补，不删除超额存鱼。</li>
+<li>自然体长按时间推导，04:00可写快照；塘内钓位迁徙每小时判定，无真人活跃时依既有休眠与有界补算规则处理。</li>
+<li>钩饵实际摄食加15成长分钟；每窝12份、每份10分钟，每鱼每窝最多2份，仅同位实际摄食者获得，余量过期作废；共同受滚动24小时360分钟上限约束。</li>
+<li>脱钩额外成长为0（E0），履历照常记录。摄食成长不会改早入塘时间。</li>
+<li>体长保存0.001米精度；不足1米显示厘米、精确到0.1厘米；1～不足10米保留两位米小数；10米起保留一位米小数。</li>
+</ul>
+<h2>正式钓鱼当前如何判定</h2>
+<p>默认每分钟只为在线、等待中的玩家判定一次。从当前钓位未锁定实体鱼中，按每条鱼品质权重38／28／18／9／4／2／1抽一条；再用它的品质、成长比例、个体偏置、钓位系数、自动匹配鱼饵、鱼竿、塘和窝料计算咬钩。不能把所有鱼的咬钩率直接求和。</p>
+<p>满长、其他系数均为1、无付费饵的单鱼基础咬钩率为0.25%／0.16%／0.09%／0.04%／0.0175%／0.0075%／0.003%。匹配付费饵是先加0.06或0.07，鱼竿和窝料再按各自乘区修正。脱钩与收杆主要按实际体长，在咬钩时固定结果与时长；成功后自动入包续钓。完整适配、状态门禁和边界见概率审计。</p>
+<p>**待重设计而非本次已改动：**默认30分钟无关注进入睡眠后命中必脱；35厘米处脱钩曲线不连续；大鱼收杆占用较长；免费和付费饵差距大；平均每小时一条不保证每小时至少一条。本次只统一记录，不自行选择新概率或关闭既有状态机制。</p>
+<h2>历史方案与兼容范围</h2>
+<table>
+<thead>
+<tr>
+<th>历史口径</th>
+<th>当前处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>指数咬钩、所有鱼概率求和、品质脱钩表、近满固定98.4%脱钩</td>
+<td>不参与正式判定，旧正文仅供追溯</td>
+</tr>
+<tr>
+<td>统一14天长满、七天截断、全部鱼45米、按鱼种乘体型／速度</td>
+<td>新鱼不采用；旧鱼迁移和历史读取的兼容函数仍保留</td>
+</tr>
+<tr>
+<td>脱钩×1.02、临时窝料尺寸加成、5厘米粗步进</td>
+<td>已被E0、实际摄食、毫米精度替代</td>
+</tr>
+<tr>
+<td>30秒／5分钟咬钩、15分钟迁徙／旧补鱼</td>
+<td>不作为现行正式塘要求</td>
+</tr>
+<tr>
+<td><code>qualityWeightSkew</code>、<code>sizeCapMul</code>、窝料1.5倍封顶</td>
+<td>不能仅凭有配置就认定正式链路已生效，见审计</td>
+</tr>
+<tr>
+<td>新手5秒教学、演示随机鱼、旧饵／旧渔具、旧鱼成长回退</td>
+<td>仍有明确用途，不在本次清理中删除</td>
+</tr>
+<tr>
+<td>衰老、自然死亡、繁殖、自然迁出</td>
+<td>暂缓，不是已确认实施或已否定的方案</td>
+</tr>
+</tbody></table>
+<p>历史正文保留原路径，防止旧链接失效；页首覆盖状态优先于正文中当年的“已实现”。旧模拟代码另存<a href="../../../scripts/legacy/fishing-2026-11-04/README.md">历史脚本目录</a>，原命令入口明确退出，不再生成现行报告。</p>
+<h2>工具与验收</h2>
+<pre><code class="language-bash">npm run verify:fishing-rules     # 资料状态、历史入口、核心源码版本核对；不访问数据库
+npm run verify:fishing-current   # 上述核对 + shared构建 + 现有服务端回归（隔离库）
+npm run report:fishing-current   # 核对后刷新当前概率说明
+npm run simulate:fish-entry      # 当前成长／补鱼压力模型；不是全流程鱼获预测
+</code></pre>
+<p>规则登记在<a href="../../../scripts/fishing-rules/current-rules.json">scripts/fishing-rules/current-rules.json</a>。关键源码／生成配置变化后，版本检查会提示先重新核对规格与报告，不能静默把旧报告认作最新。登记中的摘要只有在审阅并更新受影响资料后才可更新。</p>
+<p>模拟进入真实日报对比需要同时匹配规则标识与<code>modelKind=full-flow-fishing</code>。现阶段仅有静态概率审计、成长补鱼压力模型，<strong>尚无获准用作真实鱼获基准的完整会话模拟</strong>；日报应显示未建立基准，不套用旧结果。</p>
+<p>验收：现行入口可追溯；旧正文带局部替代范围；旧模拟执行前拒绝写报告；真实日报不读取旧模拟基准；当前成长、补鱼、营养、履历与恢复回归通过。没有改动概率和经济规则，没有部署。</p>
+<p>本次首次回归发现原Vitest入口未全局隔离数据库，部分旧测试打开并修改了本地默认库，出现锁冲突。已将测试配置和现行核对入口同时固定到内存库，重新完成回归；现场备份与影响边界见<a href="../../策划/%E6%8A%A5%E5%91%8A/FISH-RULES-01-%E7%BB%B4%E6%8A%A4%E9%AA%8C%E8%AF%81%E4%B8%8E%E6%9C%AC%E5%9C%B0%E5%BA%93%E4%BA%8B%E4%BB%B6.md">维护验证与本地库事件说明</a>。不能把这次工作描述成“完全未访问本地默认库”。</p>
+</article><article role="tabpanel" aria-labelledby="tab-implementation" id="implementation" hidden><h1>FISH-ECOLOGY-01 实现与验证报告</h1>
 <p>2026-11-04。本地代码已实现，真实测试服务器及数据库尚未切换。所有数据库验证使用内存库或隔离临时库；没有操作项目中的实际数据文件。</p>
 <h2>玩家会看到什么</h2>
 <p>同品质鱼的成长上限不再完全相同。普通鱼上限在17～23厘米间固定抽取，幼鱼基准规格为3.4～4.6厘米；每条鱼的上限与幼鱼规格分别生成，重启和迁徙不会重抽。普通鱼自然成长1天达到自身上限80%，优良2天，其余依次3／5／7／10／14天，之后继续放缓。</p>
@@ -1046,7 +1242,7 @@ L = C-(C-E)*exp(-k*(r+G))
 </tbody></table>
 <p>| 2026-11-04 | 完成共享配置、40塘、惰性成长、日结补鱼、局部营养、E0、持久上钩恢复、捕获与回鱼事务、双端履历和提醒；临时库L1演练及30天模拟完成。真实服务器部署和测试库切换未执行。 |</p>
 </article><article role="tabpanel" aria-labelledby="tab-checklist" id="checklist" hidden><h1>鱼塘成长、补鱼与个体履历：完整修改清单</h1>
-<p>2026-11-03修订。设计已整理，业务代码和数据库未切换。权威规格：<a href="../../%E7%AD%96%E5%88%92/%E8%A7%84%E6%A0%BC/%E7%8E%A9%E6%B3%95/%E9%B1%BC%E5%A1%98%E6%88%90%E9%95%BF%E8%A1%A5%E9%B1%BC%E4%B8%8E%E4%B8%AA%E4%BD%93%E5%B1%A5%E5%8E%86.md">FISH-ECOLOGY-01</a>。</p>
+<p>2026-11-04状态同步。以下勾选表示本地实现与隔离验证完成，不代表实际目标库或服务器已切换。权威规格：<a href="../../%E7%AD%96%E5%88%92/%E8%A7%84%E6%A0%BC/%E7%8E%A9%E6%B3%95/%E9%B1%BC%E5%A1%98%E6%88%90%E9%95%BF%E8%A1%A5%E9%B1%BC%E4%B8%8E%E4%B8%AA%E4%BD%93%E5%B1%A5%E5%8E%86.md">FISH-ECOLOGY-01</a>。</p>
 <h2>本次替换的概念</h2>
 <table>
 <thead>
@@ -1078,48 +1274,50 @@ L = C-(C-E)*exp(-k*(r+G))
 </tbody></table>
 <h2>参数与成长</h2>
 <ul>
-<li><input disabled="" type="checkbox"> 品质基准上限依次20厘米、35厘米、50厘米、80厘米、3米、15米、40米；个体固定±15%，独立于幼鱼规格。</li>
-<li><input disabled="" type="checkbox"> 自然T80依次1／2／3／5／7／10／14天；初期快后期慢，14天后继续渐近，不设14天生长终点。</li>
-<li><input disabled="" type="checkbox"> S为幼鱼基准，C为上限，k=ln((C-S)/(0.2C))/T；幼鱼从S起，成长规格从实际入塘长度E起，不能入塘后缩水。</li>
-<li><input disabled="" type="checkbox"> 不添加本次未定的鱼种倍率、随机速度；同品质差异来自固定规格、上限、入塘时刻与实际摄食。</li>
-<li><input disabled="" type="checkbox"> 体长保存0.001米；不足1米显示厘米一位小数，1～不足10米显示米两位小数，10米及以上显示米一位小数；单位用量化后的实际区间判断。</li>
-<li><input disabled="" type="checkbox"> 成长、定价、重量、尺寸归一化、回鱼、图鉴与客户端共用新口径；FISH-ATTR-01旧0.05米粗步进不再执行。</li>
+<li><input checked="" disabled="" type="checkbox"> 品质基准上限依次20厘米、35厘米、50厘米、80厘米、3米、15米、40米；个体固定±15%，独立于幼鱼规格。</li>
+<li><input checked="" disabled="" type="checkbox"> 自然T80依次1／2／3／5／7／10／14天；初期快后期慢，14天后继续渐近，不设14天生长终点。</li>
+<li><input checked="" disabled="" type="checkbox"> S为幼鱼基准，C为上限，k=ln((C-S)/(0.2C))/T；幼鱼从S起，成长规格从实际入塘长度E起，不能入塘后缩水。</li>
+<li><input checked="" disabled="" type="checkbox"> 不添加本次未定的鱼种倍率、随机速度；同品质差异来自固定规格、上限、入塘时刻与实际摄食。</li>
+<li><input checked="" disabled="" type="checkbox"> 体长保存0.001米；不足1米显示厘米一位小数，1～不足10米显示米两位小数，10米及以上显示米一位小数；单位用量化后的实际区间判断。</li>
+<li><input checked="" disabled="" type="checkbox"> 成长、定价、重量、尺寸归一化、回鱼、图鉴与客户端共用新口径；FISH-ATTR-01旧0.05米粗步进不再执行。</li>
 </ul>
 <h2>初始铺鱼与补鱼</h2>
 <ul>
-<li><input disabled="" type="checkbox"> 正式塘初始100条，原品质权重与合法鱼种池不变，新手塘独立处理。</li>
-<li><input disabled="" type="checkbox"> 开服先生成S、C，在S至14天自然可达长度间抽取长度，再倒推历史入塘日期，范围前14～0天；入塘长度为S。</li>
-<li><input disabled="" type="checkbox"> 初始批次标记pre_opening_seed；不编造开服前摄食、玩家或脱钩经历，重启不重复播种。</li>
-<li><input disabled="" type="checkbox"> 已明确确认50%幼鱼、40%成长鱼、10%较成熟鱼混合补入，对应0～0.2T／0.2～0.8T／0.8～1.5T成长阶段；幼鱼以3.4～4.6厘米为基准，实际入塘长度按阶段生成。这是规格生成参数，不是真实鱼龄，在塘时长从实际投放时刻开始。</li>
-<li><input disabled="" type="checkbox"> 日常补入记录实际入塘长度和真实投放时刻；本塘生存时间从0开始。</li>
-<li><input disabled="" type="checkbox"> 每小时库存≤40补到80，41不补；每日Asia/Shanghai凌晨04:00补100；重合只执行日结，事务与批次幂等。</li>
-<li><input disabled="" type="checkbox"> 史诗及以上沿原分布计算容量100下目标；实际整数达到浮点目标即停止自动补入，等效向上取整；高级塘参考9／4／2／1，其余逐塘原表计算。</li>
-<li><input disabled="" type="checkbox"> 限制覆盖小时、日结、离线和兜底，每新增一条立即更新库存；合法低品质可补足，不绕过限制。</li>
-<li><input disabled="" type="checkbox"> 无人塘按既有休眠协议唤醒补算，不重放虚构捕获；塘内迁徙每小时一次。</li>
-<li><input disabled="" type="checkbox"> 40塘、每塘100条、每塘20位是容量规划；鱼塘目录、地图、解锁与鱼种需同步扩充，物理多机另立计划。</li>
+<li><input checked="" disabled="" type="checkbox"> 正式塘初始100条，原品质权重与合法鱼种池不变，新手塘独立处理。</li>
+<li><input checked="" disabled="" type="checkbox"> 开服先生成S、C，在S至14天自然可达长度间抽取长度，再倒推历史入塘日期，范围前14～0天；入塘长度为S。</li>
+<li><input checked="" disabled="" type="checkbox"> 初始批次标记pre_opening_seed；不编造开服前摄食、玩家或脱钩经历，重启不重复播种。</li>
+<li><input checked="" disabled="" type="checkbox"> 已明确确认50%幼鱼、40%成长鱼、10%较成熟鱼混合补入，对应0～0.2T／0.2～0.8T／0.8～1.5T成长阶段；幼鱼以3.4～4.6厘米为基准，实际入塘长度按阶段生成。这是规格生成参数，不是真实鱼龄，在塘时长从实际投放时刻开始。</li>
+<li><input checked="" disabled="" type="checkbox"> 日常补入记录实际入塘长度和真实投放时刻；本塘生存时间从0开始。</li>
+<li><input checked="" disabled="" type="checkbox"> 每小时库存≤40补到80，41不补；每日Asia/Shanghai凌晨04:00补100；重合只执行日结，事务与批次幂等。</li>
+<li><input checked="" disabled="" type="checkbox"> 史诗及以上沿原分布计算容量100下目标；实际整数达到浮点目标即停止自动补入，等效向上取整；高级塘参考9／4／2／1，其余逐塘原表计算。</li>
+<li><input checked="" disabled="" type="checkbox"> 限制覆盖小时、日结、离线和兜底，每新增一条立即更新库存；合法低品质可补足，不绕过限制。</li>
+<li><input checked="" disabled="" type="checkbox"> 无人塘按既有休眠协议唤醒补算，不重放虚构捕获；塘内迁徙每小时一次。</li>
+<li><input checked="" disabled="" type="checkbox"> 40塘、每塘100条、每塘20位是容量规划；鱼塘目录、地图、解锁与鱼种需同步扩充，物理多机另立计划。</li>
 </ul>
 <h2>摄食、身份与挂机体验</h2>
 <ul>
-<li><input disabled="" type="checkbox"> B：实际钩饵摄食一次+15分钟；一次打窝总120鱼分钟，12份各10分钟，每鱼每次最多2份，仅附近实际摄食，未吃完到期失效。</li>
-<li><input disabled="" type="checkbox"> 同鱼钩饵和窝料滚动24小时合计最多360分钟；04:00不清空滚动窗口，不重复发放、不积攒未获奖励。</li>
-<li><input disabled="" type="checkbox"> E0：脱钩仅记经历，取消脱钩×1.02；已吃到的钩饵成长保留一次。</li>
-<li><input disabled="" type="checkbox"> 固定fishId；保存入塘时刻、实际入塘体长、上限、规则版本、来源、营养和事件幂等标识。</li>
-<li><input disabled="" type="checkbox"> 咬钩、摄食、脱钩、捕获、回鱼贯通原身份；脱钩记录时间、位置和尺寸。</li>
-<li><input disabled="" type="checkbox"> 钓获展示在塘时长、入塘长度、长大量、吃饵及脱钩经历；快照在捕获时冻结，不随今天日期继续计时。</li>
-<li><input disabled="" type="checkbox"> 近上岸可静音提示、音效与视觉线索，保持自动挂机。回鱼付费与收益不擅改，具体成长经济参数另统一。</li>
+<li><input checked="" disabled="" type="checkbox"> B：实际钩饵摄食一次+15分钟；一次打窝总120鱼分钟，12份各10分钟，每鱼每次最多2份，仅附近实际摄食，未吃完到期失效。</li>
+<li><input checked="" disabled="" type="checkbox"> 同鱼钩饵和窝料滚动24小时合计最多360分钟；04:00不清空滚动窗口，不重复发放、不积攒未获奖励。</li>
+<li><input checked="" disabled="" type="checkbox"> E0：脱钩仅记经历，取消脱钩×1.02；已吃到的钩饵成长保留一次。</li>
+<li><input checked="" disabled="" type="checkbox"> 固定fishId；保存入塘时刻、实际入塘体长、上限、规则版本、来源、营养和事件幂等标识。</li>
+<li><input checked="" disabled="" type="checkbox"> 咬钩、摄食、脱钩、捕获、回鱼贯通原身份；脱钩记录时间、位置和尺寸。</li>
+<li><input checked="" disabled="" type="checkbox"> 钓获展示在塘时长、入塘长度、长大量、吃饵及脱钩经历；快照在捕获时冻结，不随今天日期继续计时。</li>
+<li><input checked="" disabled="" type="checkbox"> 近上岸可静音提示、音效与视觉线索，保持自动挂机。回鱼付费与收益不擅改，具体成长经济参数另统一。</li>
 </ul>
 <h2>数据与验证</h2>
 <ul>
-<li><input disabled="" type="checkbox"> 自然成长按时间实时推导，取消30秒全塘写尺寸；04:00快照，不代表日内停止成长。</li>
-<li><input disabled="" type="checkbox"> 捕获资产、鱼增减、摄食、营养和脱钩事实按事件持久化，不把全部关键事实攒到日结。</li>
-<li><input disabled="" type="checkbox"> L1：全库备份并验证恢复，当前测试环境保留玩家资产和所有历史；旧活跃鱼按批次归档，仅重建活跃鱼群，使用新ID。</li>
-<li><input disabled="" type="checkbox"> 不把旧born_at／birth_size_m改名后冒充可靠入塘资料，不覆盖历史快照；清理前处理上钩和待领取状态。</li>
-<li><input disabled="" type="checkbox"> 七品质T80、尺寸边界、初始化反解、营养守恒、调度重试与库存阈值验证；长期捕捞模拟须用本版参数重跑。</li>
-<li><input disabled="" type="checkbox"> 本轮离线模型合计70万样本，已校验自然曲线、初始反解与成长规格连续性；未验证业务实现或保证人均每小时1条。</li>
+<li><input checked="" disabled="" type="checkbox"> 自然成长按时间实时推导，取消30秒全塘写尺寸；04:00快照，不代表日内停止成长。</li>
+<li><input checked="" disabled="" type="checkbox"> 捕获资产、鱼增减、摄食、营养和脱钩事实按事件持久化，不把全部关键事实攒到日结。</li>
+<li><input checked="" disabled="" type="checkbox"> L1工具：全库备份、恢复验证、历史保护、按批次归档与仅重建活跃鱼群已在隔离临时库验证。</li>
+<li><input disabled="" type="checkbox"> 实际目标环境：按已核对的主机、路径和备份执行L1，验证玩家资产与历史后部署；此步骤尚未执行。</li>
+<li><input checked="" disabled="" type="checkbox"> 不把旧born_at／birth_size_m改名后冒充可靠入塘资料，不覆盖历史快照；清理前处理上钩和待领取状态。</li>
+<li><input checked="" disabled="" type="checkbox"> 七品质T80、尺寸边界、初始化反解、营养守恒、调度重试与库存阈值验证；长期捕捞模拟须用本版参数重跑。</li>
+<li><input checked="" disabled="" type="checkbox"> 自然曲线70万样本校验、服务端151项隔离回归及180次成长补鱼压力模拟通过；不保证现有概率人均每小时1条。</li>
 </ul>
-<p>自然死亡、衰老、繁殖、跨塘迁移后续再做。旧捕捞报告保留为历史参考，不作为本版生态已经稳定的证据。数据库备份、归档和重建本轮均未执行。</p>
+<p>自然死亡、衰老、繁殖、跨塘迁移后续再做。旧捕捞报告保留为历史参考，不作为本版生态已经稳定的证据。实际目标环境的备份、归档、重建和部署尚未执行。</p>
+<p>现行维护见<a href="../../%E7%AD%96%E5%88%92/%E8%A7%84%E6%A0%BC/%E7%8E%A9%E6%B3%95/%E9%92%93%E9%B1%BC%E7%B3%BB%E7%BB%9F%E7%8E%B0%E8%A1%8C%E8%A7%84%E5%88%99.md">统一入口</a>；本次维护首次测试误触本地默认库的情况与现场保留见<a href="../../%E7%AD%96%E5%88%92/%E6%8A%A5%E5%91%8A/FISH-RULES-01-%E7%BB%B4%E6%8A%A4%E9%AA%8C%E8%AF%81%E4%B8%8E%E6%9C%AC%E5%9C%B0%E5%BA%93%E4%BA%8B%E4%BB%B6.md">事件说明</a>，不能把本地默认库视为已经完成环境验收。</p>
 </article><article role="tabpanel" aria-labelledby="tab-options" id="options" hidden><h1>已确认参数与额外成长、旧鱼兼容选项</h1>
-<p>2026-11-03。设计选项，未修改正式代码、配置或数据库。</p>
+<p>2026-11-04状态同步。本文保留B／E0／L1的决策过程，已选方案本地实现与隔离验证完成；A／C、E1／E2、L2／L3仅为历史备选，不能作为待执行需求。实际目标环境切换与部署尚未执行，现状见<a href="../../%E7%AD%96%E5%88%92/%E8%A7%84%E6%A0%BC/%E7%8E%A9%E6%B3%95/%E9%92%93%E9%B1%BC%E7%B3%BB%E7%BB%9F%E7%8E%B0%E8%A1%8C%E8%A7%84%E5%88%99.md">统一入口</a>。</p>
 <blockquote>
 <p>2026-11-03入塘口径修订：4厘米改为幼鱼基准规格，固定波动3.4～4.6厘米；不再推算真实出生日期或真实鱼龄。正文的B／E0／L1选择保留；历史备选中的出生资料仍指旧数据。最新完整要求见<a href="../../%E7%AD%96%E5%88%92/%E8%A7%84%E6%A0%BC/%E7%8E%A9%E6%B3%95/%E9%B1%BC%E5%A1%98%E6%88%90%E9%95%BF%E8%A1%A5%E9%B1%BC%E4%B8%8E%E4%B8%AA%E4%BD%93%E5%B1%A5%E5%8E%86.md">最终规格</a>。</p>
 </blockquote>
@@ -1157,7 +1355,7 @@ L = C-(C-E)*exp(-k*(r+G))
 </tr>
 </tbody></table>
 <p>“按当前分布方式”沿用现有浮点理想数，不发明另一套品质配比：目标=100×该品质权重／该塘品质总权重。每补1条后更新整数存量，若存量≥目标则不再补；目标1.7条时，1条仍允许补、达到2条即停止，等效向上取整作为停止阈值。高级塘史诗／传说／神话／至尊对应9／4／2／1条。池外品质不生成；没有合法鱼种的品质需从有效表中剔除，归一化规则与原选种逻辑同步校验，不能让兜底绕过限制。</p>
-<p>历史模拟稀有T80=4天且尚未加高品质硬限制，本轮改为3天，因此旧图只作历史对照，不能当作最新参数的仿真结果。本次不重跑全部曲线，先确定下述选项。</p>
+<p>历史模拟稀有T80=4天且未加当前高品质硬限制，旧图只作历史对照；现行参数为3天。最新共享函数压力模型已重跑，见<a href="implementation-simulation.md">当前模拟及其限制</a>，下述备选不再等待选择。</p>
 <h2>一、统一额外成长的计量</h2>
 <p>用“额外成长分钟”代替直接加几厘米或将当前长度乘1.02。自然成长从实际入塘长度E延续，经过的成长时间＝在塘生存时间＋入塘后累计额外成长时间；enteredAt保持不变。混合规格仅使用数学成长阶段生成入塘长度，不记录虚构的入塘前年龄、不消耗本塘奖励额度。</p>
 <p>同一份额外时间对早期鱼增量更明显、接近上限时增量变小，自然遵循原曲线。它不会突破个体上限，也不改变品质。界面仍显示在塘生存时间；成长奖励另行展示，不能把有效年龄当真实存活时长。</p>
@@ -1284,7 +1482,7 @@ L = C-(C-E)*exp(-k*(r+G))
 <td>部分鱼会缩水；估计成熟度不等于真实年龄，不推荐已有正式用户时采用</td>
 </tr>
 </tbody></table>
-<p>本次仅确认设计和更新清单，没有执行备份、清塘或数据库转换。实际实施只针对已核对的测试库；保留账号、资产、背包、已钓获记录、图鉴、相册、帖子和历史统计，历史不能只留备份而从当前环境删掉。</p>
+<p>已完成本地工具与隔离临时库验证，实际目标环境的L1尚未执行。实际实施只针对已核对的测试库；保留账号、资产、背包、已钓获记录、图鉴、相册、帖子和历史统计，历史不能只留备份而从当前环境删掉。</p>
 <h3>L1实施顺序</h3>
 <ol>
 <li>暂停新捕获和补鱼任务，处理好上钩、待领取与事务中的任务，再取一致的全库备份并验证可打开、可恢复。</li>
@@ -1302,11 +1500,11 @@ L = C-(C-E)*exp(-k*(r+G))
 <li>已超高品质目标的旧鱼只停止该品质补入，不删鱼，不挪作品质；统计分别显示legacy与新规则鱼。</li>
 <li>如果历史出生时间与记录可靠，按原数据展示；不可靠部分标记未知或迁移估算。体长锚点、真实年龄、入塘年龄各有字段，不用一个假出生日期兼任。</li>
 </ol>
-<h2>推荐组合</h2>
+<h2>已选组合与当前状态</h2>
 <p>B适中营养、E0仅记录脱钩、L1测试环境备份与重建，均已确认。当前测试环境保留所有已有历史和玩家资产，新的活跃鱼群从新规则开塘。</p>
-<p>落地前需对新T80表、04:00生态日、高品质硬限制和已选B＋E0参数重新跑24小时及长期模拟；旧图不直接替换标注冒充新结果。L1已确定但尚未执行，目前仅更新设计，尚未写入正式业务。</p>
+<p>本地T80、04:00生态日、高品质硬限制和B／E0已完成共享实现、服务端隔离回归及成长压力模拟；旧图继续作为历史，不改标签冒充新结果。L1工具已实现，实际目标环境尚未执行。首次维护回归误触本地默认库的边界另见<a href="../../%E7%AD%96%E5%88%92/%E6%8A%A5%E5%91%8A/FISH-RULES-01-%E7%BB%B4%E6%8A%A4%E9%AA%8C%E8%AF%81%E4%B8%8E%E6%9C%AC%E5%9C%B0%E5%BA%93%E4%BA%8B%E4%BB%B6.md">事件说明</a>。</p>
 </article><details class="history"><summary>历史推演与资料（参数有差异）</summary><p class="notice">以下捕捞与占用率推演保留旧参数，含稀有T80=4天及固定4厘米出生口径，仅供追溯；本版重跑结果见“24小时／30天”。历史推演不能作为新方案已经上线的证明。</p><p><a href="历史推演.html">此前完整图表与捕捞推演</a> · <a href="历史报告-出生口径.md">历史Markdown</a> · <a href="../../策划/提示词/玩法/fish-ecology-entry-growth-dev.prompt.md">开发交接</a></p></details></main><footer class="foot">本地业务实现与隔离库验证完成；未部署，未对实际测试库执行备份、归档或清塘。</footer><script>
-const ids=["implementation","pending","simulation","report","spec","checklist","options"];
+const ids=["current-rules","implementation","pending","simulation","report","spec","checklist","options"];
 function select(id){if(!ids.includes(id))id='implementation';document.querySelectorAll('[role=tabpanel]').forEach(el=>el.hidden=el.id!==id);document.querySelectorAll('[data-panel]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.panel===id)));}
 document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListener('click',()=>{history.replaceState(null,'','#'+button.dataset.panel);select(button.dataset.panel)}));
 window.addEventListener('hashchange',()=>select(location.hash.slice(1)));select(location.hash.slice(1));

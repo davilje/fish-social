@@ -62,7 +62,7 @@
 </head>
 <body>
   <header>
-    <h1>场景分层</h1>
+    <h1>40处鱼塘 · 场景与动效</h1>
     <label>鱼塘 <select id="pond"></select></label>
     <button id="play" type="button">暂停</button>
     <button id="rest" type="button">归位检查对齐</button>
@@ -90,6 +90,8 @@
     const layerInfo = document.querySelector('#layer-info');
     const layerNames = {
       'pond-bg': '原始完整场景', 'scene-celestial': '太阳／月亮',
+      'preview-actors': '钓位与猫咪（正式运行布局）',
+      'preview-ground-lines': '岸线与浮漂水面参考线',
       'preview-sky': '无云天空（恢复备选）',
       'preview-cloud-complete': '完整云景补绘（含天空，恢复备选）',
       'scene-cloud-complete': '完整云景补绘底层（含天空）',
@@ -384,12 +386,41 @@
         layers.push(item);
         if (generation !== token) return;
       }
+      const pondId = pondSelect.selectedOptions[0].dataset.pondId;
+      if (pondId) {
+        const resources = '../../../desktop-overlay/OverlayResources/';
+        const placement = await (await fetch(resources + 'layouts/' + pondId + '.json', { cache: 'no-store' })).json();
+        const [seat, pet] = await Promise.all([
+          loadImage(resources + 'seats/seat-stool-v3.png'),
+          loadImage(root + '../orange/cast/0.png')
+        ]);
+        if (generation !== token) return;
+        const actors = document.createElement('canvas');
+        actors.width = width; actors.height = height;
+        const actorCtx = actors.getContext('2d');
+        for (const part of placement.objects.filter(part => part.kind === 'actor-seat'))
+          actorCtx.drawImage(seat, part.x, part.y, part.w, part.h);
+        for (const part of placement.objects.filter(part => part.kind === 'actor-pet'))
+          actorCtx.drawImage(pet, part.x, part.y, part.w, part.h);
+        layers.push({ id: 'preview-actors', canvas: actors, defaultVisible: false });
+        const guides = document.createElement('canvas');
+        guides.width = width; guides.height = height;
+        const guideCtx = guides.getContext('2d');
+        guideCtx.font = '14px sans-serif';
+        guideCtx.setLineDash([8, 6]);
+        for (const [y, color, label] of [[layout.groundY, '#435f45', '座椅落地线'], [placement.pond.waterlineY, '#1f586d', '浮漂水面线']]) {
+          guideCtx.strokeStyle = color; guideCtx.fillStyle = color;
+          guideCtx.beginPath(); guideCtx.moveTo(0, y); guideCtx.lineTo(width, y); guideCtx.stroke();
+          guideCtx.fillText(label, width - 100, y - 6);
+        }
+        layers.push({ id: 'preview-ground-lines', canvas: guides, defaultVisible: false });
+      }
       const scene = { layers, motion, scale };
       currentScene = scene;
       populateLayerButtons(scene);
       elapsed = 0;
       runningFrom = performance.now();
-      status.textContent = `${pondSelect.selectedOptions[0].textContent} · 勾选图层叠加查看；单独查看恢复的天空／云景，请先全部隐藏`;
+      status.textContent = `${pondSelect.selectedOptions[0].textContent} · 40个正式鱼塘与教学塘已逐一绑定；可勾选「钓位与猫咪」检查落地。原图固定，前层植被风动。`;
       fit();
       requestAnimationFrame(fit);
       cancelAnimationFrame(frame);
@@ -441,20 +472,21 @@
       for (const pond of ponds) {
         const option = document.createElement('option');
         option.value = pond.layerLayout;
+        option.dataset.pondId = pond.pondId;
         option.textContent = pond.displayName;
         if (pond.pondId === (requestedPondId || 'pond-calm')) option.selected = true;
         pondSelect.append(option);
       }
       const group = document.createElement('optgroup');
       group.label = '未分配鱼塘';
-      for (const name of unassigned) {
+      for (const name of unassigned.filter(name => !ponds.some(pond => pond.layerLayout.includes('/' + name + '/')))) {
         const [theme, , tone] = name.split('-');
         const option = document.createElement('option');
         option.value = `layered/pastel-scenes-v1/${name}/layout.json`;
         option.textContent = `${themeNames[theme] || theme} · ${toneNames[tone] || tone}`;
         group.append(option);
       }
-      pondSelect.append(group);
+      if (group.childElementCount) pondSelect.append(group);
       show(pondSelect.value, token).catch(error => {
         status.textContent = '场景没有打开：' + error.message;
       });

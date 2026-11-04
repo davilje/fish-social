@@ -3,10 +3,12 @@
  * 用法: node scripts/analytics/generate-pond-day-report.mjs [compact.json] [out.html]
  */
 import fs from 'fs';
+import { rejectRetiredSimulationEntry } from './simulation-policy.mjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { computeAnalysis, inferRulesVersion, readJson } from './lib.mjs';
 
+rejectRetiredSimulationEntry('report:pond-day');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const compactPath = process.argv[2] || path.join(__dirname, '../../docs/数据分析/鱼塘日模拟/compact.json');
 const outPath = process.argv[3] || path.join(__dirname, '../../docs/数据分析/鱼塘日模拟/report.html');

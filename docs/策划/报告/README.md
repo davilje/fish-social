@@ -2,6 +2,7 @@
 
 | 文档 | 记录状态 |
 |---|---|
+| [FISH-RULES-01-维护验证与本地库事件](FISH-RULES-01-维护验证与本地库事件.md) | 现行规则治理、验证结果与首次测试误触默认库的影响边界 |
 | [STEAM-DESKTOP-07A-07E-工具与缺陷](STEAM-DESKTOP-07A-07E-工具与缺陷.md) | 专题说明／实施记录 |
 | [UNITY-P1-P2-验收与Debug记录-2026-08-12](UNITY-P1-P2-验收与Debug记录-2026-08-12.md) | 专题说明／实施记录 |
 | [Unity桌面UI新建须同步Prefab](Unity桌面UI新建须同步Prefab.md) | 专题说明／实施记录 |

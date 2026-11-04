@@ -95,12 +95,12 @@ namespace FishSocial.Desktop.Editor
         /// Nest OverlayPondActor.prefab under the spot host (prefab instance, not a copy).
         /// Removes legacy inline actor-* children from older bakers.
         /// </summary>
-        public static void EnsureOnSpot(Transform spot, string spotId)
+        public static void EnsureOnSpot(Transform spot, string spotId, bool templateReady = false)
         {
             if (spot == null || string.IsNullOrEmpty(spotId))
                 return;
 
-            Ensure();
+            if (!templateReady) Ensure();
             ExpandSpotHost(spot);
             StripLegacyInlineParts(spot);
 

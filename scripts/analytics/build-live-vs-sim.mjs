@@ -5,32 +5,13 @@
 import fs from 'fs';
 import path from 'path';
 import { ANALYTICS_ROOT, RUNS_DIR, readJson } from './lib.mjs';
+import { CURRENT_FISH_RULESET_ID, loadLatestCurrentSimulation } from './simulation-policy.mjs';
 
-const dailyDir = path.join(ANALYTICS_ROOT, 'daily');
+const dailyDir = path.join(ANALYTICS_ROOT, '日报');
 const SIM_ANGLERS = 5;
 
 function loadLatestSimDaily() {
-  if (!fs.existsSync(RUNS_DIR)) return null;
-  const dirs = fs
-    .readdirSync(RUNS_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .sort((a, b) => b.name.localeCompare(a.name));
-  for (const d of dirs) {
-    const analysisPath = path.join(RUNS_DIR, d.name, 'analysis.json');
-    if (!fs.existsSync(analysisPath)) continue;
-    const analysis = readJson(analysisPath);
-    const row = analysis.scenarioRows?.find((r) => r.anglers === SIM_ANGLERS);
-    if (row) {
-      return {
-        runId: d.name,
-        rulesVersion: analysis.generatedAt ? readJson(path.join(RUNS_DIR, d.name, 'meta.json')).rulesVersion : 'sim',
-        perDayCaught: row.perDayCaught,
-        perAnglerPerHour: row.perAnglerPerHour,
-        popRatio: row.popRatio,
-      };
-    }
-  }
-  return { runId: null, rulesVersion: 'v0.4.1', perDayCaught: 118, perAnglerPerHour: 0.98, popRatio: 92, fallback: true };
+  return loadLatestCurrentSimulation(RUNS_DIR, SIM_ANGLERS);
 }
 
 function loadLiveDailyAvg(days = 7) {
@@ -54,12 +35,14 @@ function loadLiveDailyAvg(days = 7) {
 const sim = loadLatestSimDaily();
 const live = loadLiveDailyAvg(7);
 const deviationPct =
-  sim.perDayCaught > 0 ? ((live.avgCatches - sim.perDayCaught) / sim.perDayCaught) * 100 : null;
+  sim?.perDayCaught > 0 ? ((live.avgCatches - sim.perDayCaught) / sim.perDayCaught) * 100 : null;
 
 const report = {
   generatedAt: new Date().toISOString(),
   simAnglers: SIM_ANGLERS,
-  sim: { perDayCaught: sim.perDayCaught, rulesVersion: sim.rulesVersion, runId: sim.runId },
+  rulesetId: CURRENT_FISH_RULESET_ID,
+  baselineStatus: sim ? 'available' : 'not-established',
+  sim: sim ? { perDayCaught: sim.perDayCaught, rulesVersion: sim.rulesVersion, runId: sim.runId } : null,
   live: { avgDailyCatches: Math.round(live.avgCatches * 10) / 10, sampleDays: live.days },
   deviationPct: deviationPct != null ? Math.round(deviationPct * 10) / 10 : null,
   entries: live.entries,
@@ -83,13 +66,13 @@ th{background:#ebf4ff}
 <h1>线上实测 vs 模拟对照（${SIM_ANGLERS} 人/塘）</h1>
 <p>生成于 ${new Date(report.generatedAt).toLocaleString('zh-CN')}</p>
 <div class="card">
-  <div class="stat"><div class="val">${sim.perDayCaught}</div><div class="lbl">模拟日均钓获（四塘合计）</div></div>
+  <div class="stat"><div class="val">${sim?.perDayCaught ?? '—'}</div><div class="lbl">同场景模拟日均钓获</div></div>
   <div class="stat"><div class="val">${report.live.avgDailyCatches}</div><div class="lbl">线上 ${live.days} 日均钓获</div></div>
   <div class="stat"><div class="val ${deviationPct != null && Math.abs(deviationPct) > 15 ? 'down' : 'up'}">${deviationPct != null ? (deviationPct >= 0 ? '+' : '') + deviationPct + '%' : '—'}</div><div class="lbl">偏差</div></div>
 </div>
 <div class="card">
-  <p><strong>模拟来源</strong>：${sim.runId ?? '默认基准'} · ${sim.rulesVersion}</p>
-  <p><strong>说明</strong>：对比模拟 ${SIM_ANGLERS} 人/塘场景与线上 daily_pond_stats 聚合日均钓获。</p>
+  <p><strong>模拟来源</strong>：${sim ? `${sim.runId} · ${sim.rulesVersion}` : '现行模拟基准尚未建立；历史模拟不参与偏差计算。'}</p>
+  <p><strong>说明</strong>：仅接受 ${CURRENT_FISH_RULESET_ID} 的完整流程模拟。当前无同口径基准时，偏差显示为 —。线上数据为实际日报，不把旧版本默认数值填作基准。</p>
 </div>
 <h2>近 ${live.days} 日线上日报</h2>
 <table><tr><th>日期</th><th>钓获</th><th>活跃玩家</th></tr>
@@ -99,4 +82,4 @@ ${live.entries.map((e) => `<tr><td>${e.date}</td><td>${e.catches}</td><td>${e.pl
 </body></html>`;
 
 fs.writeFileSync(path.join(ANALYTICS_ROOT, 'live-vs-sim.html'), html, 'utf8');
-console.log(`[live-vs-sim] sim=${sim.perDayCaught} live=${report.live.avgDailyCatches} deviation=${deviationPct}%`);
+console.log(`[live-vs-sim] baseline=${report.baselineStatus} sim=${sim?.perDayCaught ?? 'not-established'} live=${report.live.avgDailyCatches} deviation=${deviationPct ?? '—'}`);

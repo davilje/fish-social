@@ -43,7 +43,8 @@ namespace FishSocial.Desktop.Editor
             finally { PrefabUtility.UnloadPrefabContents(root); }
 
             var ponds = WorldMapPondCatalog.LoadVisible();
-            if (ponds.Length != 20) throw new InvalidOperationException("Expected the existing 20 world-map destinations.");
+            if (ponds.Length != 40 || WorldMapPondCatalog.Load().Length != 40)
+                throw new InvalidOperationException("Expected 40 authored world-map destinations.");
             var ids = new System.Collections.Generic.HashSet<string>();
             foreach (var pond in ponds)
             {
@@ -57,9 +58,9 @@ namespace FishSocial.Desktop.Editor
             if (render == null) throw new MissingMethodException("CozyRedesignPreview.Render");
             render.Invoke(null, new object[] { "PanelWorldMap", null, null, 0f });
             File.WriteAllText("Library/CozyRedesignPreviews/world-map-verification.json",
-                "{\"status\":\"PASS\",\"destinations\":20,\"width\":" + sprite.rect.width +
+                "{\"status\":\"PASS\",\"destinations\":40,\"width\":" + sprite.rect.width +
                 ",\"height\":" + sprite.rect.height + ",\"aspectPreserved\":true}");
-            Debug.Log("[WorldMapScene] PASS: 20 destinations, native image aspect, saved prefab and full UI render.");
+            Debug.Log("[WorldMapScene] PASS: 40 destinations, native image aspect, saved prefab and full UI render.");
         }
     }
 }

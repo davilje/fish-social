@@ -1,5 +1,17 @@
 # FEAT-POOL-01 开发交接：塘生态数值表驱动
 
+<!-- fishing-rule-status: historical-partial; reviewed: 2026-11-04 -->
+
+> **交接适用状态（2026-11-04）：表驱动交接保留；旧生成与补入方式局部替代。**
+>
+> 不得用旧先抽种再抽品质、rollJuvenileSize统一补入和固定上限覆盖当前实现。表驱动、sheet结构与重量仅展示等仍保留；成长与日常50/40/10规格依FISH-ECOLOGY-01。
+>
+> 先读[钓鱼系统现行规则](../../规格/玩法/钓鱼系统现行规则.md)与[FISH-ECOLOGY-01开发交接](fish-ecology-entry-growth-dev.prompt.md)，再按有效范围使用本文件。概率现状见[代码审计](../../../数据分析/fishing-probability-audit-2026-11-04/当前钓鱼概率完整说明.md)，新的概率方案尚未定稿。
+>
+> 以下保留原阶段交接供追溯。不要直接按旧派发命令重做已被替代的实现，也不要用旧验收项覆盖现行需求。
+
+---
+
 你是 Fish Social **后端 + shared** 开发 Agent（Unity 重量展示可顺手）。策划已完成，**只写代码**。
 
 ## 必读（顺序）

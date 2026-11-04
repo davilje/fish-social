@@ -60,9 +60,11 @@ namespace FishSocial.Desktop.JournalV2
             var viewport=JournalV2Nodes.Rect(group,"Viewport",10,10,690,420);
             var mask=viewport.gameObject.AddComponent<Image>();mask.sprite=JournalV2Theme.Sprite("surfaces/pond-map-clip");mask.type=Image.Type.Sliced;mask.raycastTarget=true;
             viewport.gameObject.AddComponent<Mask>().showMaskGraphic=false;
-            var content=JournalV2Nodes.Rect(viewport,"MapContent",-180,-140,1050,700);
-            JournalV2Nodes.Image(content,"Landscape",JournalV2Theme.Sprite("scenes/world-map"),0,0,1050,700).preserveAspect=false;
-            markers=JournalV2Nodes.Rect(content,"Markers",0,0,1050,700);
+            var landscape=JournalV2Theme.Sprite("scenes/world-map");
+            var mapWidth=landscape==null?1050f:700f*landscape.rect.width/landscape.rect.height;
+            var content=JournalV2Nodes.Rect(viewport,"MapContent",-180,-140,mapWidth,700);
+            JournalV2Nodes.Image(content,"Landscape",landscape,0,0,mapWidth,700).preserveAspect=false;
+            markers=JournalV2Nodes.Rect(content,"Markers",0,0,mapWidth,700);
             cameraView=viewport.gameObject.AddComponent<JournalV2MapViewport>();cameraView.Configure(viewport,content);
             reset.onClick.AddListener(()=>cameraView.ResetView());
             var left=JournalV2Nodes.Image(group,"TapeLeft",JournalV2Theme.Sprite("decor/tape-blue-stripe"),-30,-6,104,26);left.rectTransform.localEulerAngles=new Vector3(0,0,28);
@@ -114,7 +116,7 @@ namespace FishSocial.Desktop.JournalV2
                 Button button;
                 if(map)
                 {
-                    var root=JournalV2Nodes.Rect(markers,pond.pondId,pond.x*1050-32,pond.y*700-32,64,64);
+                    var root=JournalV2Nodes.Rect(markers,pond.pondId,pond.x*markers.rect.width-32,pond.y*markers.rect.height-32,64,64);
                     var hit=root.gameObject.AddComponent<Image>();hit.color=Color.clear;button=root.gameObject.AddComponent<Button>();button.targetGraphic=hit;button.transition=Selectable.Transition.None;
                     var visual=JournalV2Nodes.Rect(root,"Visual",0,0,64,64);
                     var body=JournalV2Nodes.Image(visual,"Body",JournalV2Theme.Sprite("motion/bobber-base"),15,-12,34,48);body.preserveAspect=false;

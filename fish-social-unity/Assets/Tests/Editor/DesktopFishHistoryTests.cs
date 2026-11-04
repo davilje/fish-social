@@ -22,6 +22,14 @@ namespace FishSocial.Tests.Editor
             Assert.AreEqual(40, ponds.Length);
             Assert.AreEqual(40, ponds.Select(pond => pond.pondId).Distinct().Count());
             Assert.AreEqual(40, ponds.Select(pond => new Vector2(pond.x, pond.y)).Distinct().Count());
+            var authored = WorldMapPondCatalog.Load();
+            Assert.AreEqual(40, authored.Length, "The map must have authored water locations for all formal ponds.");
+            foreach (var pond in ponds)
+            {
+                var position = authored.Single(item => item.pondId == pond.pondId);
+                Assert.AreEqual(position.x, pond.x);
+                Assert.AreEqual(position.y, pond.y);
+            }
             Assert.IsTrue(ponds.All(pond => pond.capacity == 20 && pond.x >= 0 && pond.x <= 1 && pond.y >= 0 && pond.y <= 1));
         }
 

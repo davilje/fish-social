@@ -71,6 +71,17 @@ namespace FishSocial.Desktop.Editor
                       " prefabs in " + Folder + " (new " + created + ").");
         }
 
+        public static void EnsureMissing()
+        {
+            Directory.CreateDirectory(Folder);
+            OverlayPondActorBaker.Ensure();
+            foreach (var pond in DesktopGameData.Ponds)
+                if (pond != null && !string.IsNullOrEmpty(pond.pondId) && !File.Exists(PrefabPath(pond.pondId)))
+                    EnsurePond(pond.pondId, pond.name);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
         static bool EnsurePond(string pondId, string pondName)
         {
             var path = PrefabPath(pondId);
@@ -349,7 +360,7 @@ namespace FishSocial.Desktop.Editor
                 if (item == null || !string.Equals(item.kind, "spot", System.StringComparison.Ordinal))
                     continue;
                 var id = string.IsNullOrWhiteSpace(item.spotId) ? item.objectId : item.spotId;
-                OverlayPondActorBaker.EnsureOnSpot(item.transform, id);
+                OverlayPondActorBaker.EnsureOnSpot(item.transform, id, true);
             }
         }
 
@@ -444,9 +455,9 @@ namespace FishSocial.Desktop.Editor
         public static void DefaultSpotPosition(int index, int count, out float x, out float y)
         {
             var n = Mathf.Max(1, count);
-            var angle = (2f * Mathf.PI * index / n) - (Mathf.PI * 0.5f);
-            x = Mathf.Clamp(480f + 360f * Mathf.Cos(angle), 40f, 920f);
-            y = Mathf.Clamp(360f + 140f * Mathf.Sin(angle), 80f, 520f);
+            // Side-on panoramas have one horizontal bank, never a ring around a pond.
+            x = n == 1 ? CanvasWidth * .5f : Mathf.Lerp(84f, CanvasWidth - 84f, index / (float)(n - 1));
+            y = 430f;
         }
 
         static Color ColorForKind(string kind)

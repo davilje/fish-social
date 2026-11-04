@@ -42,22 +42,26 @@ const indexHtml = `<!DOCTYPE html>
     <h1>鱼塘数据分析归档</h1>
     <p class="meta">
       <strong>两栏内容请分清：</strong><br>
-      · <strong>线上日报</strong>：真实服日批产出的 <code>daily/YYYY-MM-DD/report.html</code>（下方「最新运营日报」卡片 + 表中 <code>live-daily</code>）。<br>
-      · <strong>模拟 / 校准</strong>：鱼塘模拟、咬钩脱钩校准、初始生态等实验报告（表中其它 type；也可点右侧快捷链）。<br>
+      · <strong>线上日报</strong>：真实服日批产出的 <code>日报/YYYY-MM-DD/report.html</code>（下方「最新运营日报」卡片 + 表中 <code>live-daily</code>）。<br>
+      · <strong>历史模拟 / 校准</strong>：旧规则下的鱼塘实验，仅保留追溯，不作为当前实现或产量验收依据。<br>
+      · <strong>现行规则</strong>：以最新需求与本地代码审计为准，完整流程模拟基准尚未建立。<br>
       本页是<strong>给人看的报告目录</strong>，不是 Excel 下载页——CSV 请去
       <a href="/ops/">运营平台</a> 的「BI CSV」或 <a href="warehouse/latest/">warehouse/latest</a>。<br>
-      每次模拟/导出自动归档，支持多版本对比 · 更新于 <span id="updated"></span>
+      历史实验支持版本对比；真实日报独立更新 · 更新于 <span id="updated"></span>
     </p>
 
     <div class="latest" id="latest"></div>
 
     <div class="actions">
       <button class="btn" id="btnCompare" disabled>对比已选 (<span id="selCount">0</span>)</button>
-      <a class="btn secondary" href="growth/">增长看板</a>
+      <a class="btn secondary" href="增长/">增长看板</a>
+      <a class="btn" href="../../现行预览.html#fish-rules" target="_top">现行钓鱼规则</a>
+      <a class="btn secondary" href="../../现行预览.html#fish-probability" target="_top">当前概率审计</a>
+      <a class="btn secondary" href="../../现行预览.html#fish-growth" target="_top">现行成长与补鱼验证</a>
       <a class="btn secondary" href="live-vs-sim.html">线上 vs 模拟</a>
-      <a class="btn secondary" href="pond-day-simulation/report.html">最新模拟报告</a>
-      <a class="btn secondary" href="bite-escape-calibration/report.html">咬钩/脱钩校准</a>
-      <a class="btn secondary" href="pond-ecology-initial/report.html">初始生态报告</a>
+      <a class="btn secondary" href="鱼塘日模拟/report.html">历史鱼塘模拟</a>
+      <a class="btn secondary" href="咬钩脱钩校准/report.html">历史概率校准</a>
+      <a class="btn secondary" href="鱼塘生态初值/report.html">历史初始生态</a>
     </div>
 
     <table>
@@ -66,7 +70,7 @@ const indexHtml = `<!DOCTYPE html>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-    <p class="empty" id="empty" style="display:none">暂无归档。运行 <code>npm run analytics:pond-day</code> 生成首份报告。</p>
+    <p class="empty" id="empty" style="display:none">暂无归档。现行公式可运行 <code>npm run report:fishing-current</code>；完整流程模拟基准尚未建立。</p>
   </div>
   <script>
     const MANIFEST = ${JSON.stringify(manifest)};
@@ -80,7 +84,7 @@ const indexHtml = `<!DOCTYPE html>
       const opsExtra = latestOps
         ? '<br><span style="color:var(--muted);font-size:.85rem">日钓 ' + (latestOps.totalCatches ?? '—') + ' · DAU ' + (latestOps.activePlayers ?? '—') + '</span>'
         : '';
-      const title = latestOps ? '最新运营日报' : '最新归档';
+      const title = latestOps ? '最新运营日报' : (latest.ruleStatus === 'current-simulation' ? '现行模型归档' : '历史实验归档（非当前规则）');
       document.getElementById('latest').innerHTML = '<div class="card"><div><strong>' + title + '</strong><br><span style="color:var(--muted);font-size:.9rem">' + latest.title + ' · ' + latest.rulesVersion + ' · ' + new Date(latest.generatedAt).toLocaleString('zh-CN') + '</span>' + opsExtra + '</div><a class="btn" href="' + latest.reportPath + '">打开报告</a></div>';
     }
 
@@ -95,7 +99,7 @@ const indexHtml = `<!DOCTYPE html>
         const isLive = r.type === 'live-daily';
         tr.innerHTML = '<td>' + (canCompare ? '<input type="checkbox" class="chk" data-id="' + r.id + '">' : '') + '</td>' +
           '<td><code>' + r.id + '</code></td>' +
-          '<td><span class="type-tag">' + r.type + '</span></td>' +
+          '<td><span class="type-tag">' + (isLive ? '真实日报' : r.ruleStatus === 'current-simulation' ? '现行完整模拟' : '历史实验') + '</span><br><small>' + r.type + '</small></td>' +
           '<td>' + (r.rulesVersion || '—') + '</td>' +
           '<td>' + new Date(r.generatedAt).toLocaleString('zh-CN') + '</td>' +
           '<td>' + (r.seed ?? (isLive ? (r.totalCatches ?? '—') : '—')) + '</td>' +
@@ -162,6 +166,7 @@ const compareHtml = `<!DOCTYPE html>
   <div class="wrap">
     <nav class="nav"><a href="index.html">← 归档索引</a></nav>
     <h1>鱼塘模拟 · 多版本对比</h1>
+    <p style="margin-bottom:1rem">历史实验用于追溯，不代表当前需求或实际产量。<a href="../../现行预览.html#fish-rules" target="_top">查看现行规则</a></p>
     <p style="color:var(--muted);margin-bottom:1rem" id="runLabels"></p>
 
     <div class="controls">
@@ -196,7 +201,7 @@ const compareHtml = `<!DOCTYPE html>
       const entry = MANIFEST.runs.find(r => r.id === id);
       if (!entry) throw new Error('归档不存在: ' + id);
       if (entry.type !== 'pond-day') throw new Error(id + ' 不是 pond-day 类型，无法对比');
-      const base = 'runs/' + id + '/';
+      const base = entry.compactPath.slice(0, entry.compactPath.lastIndexOf('/') + 1);
       const metaRes = await fetch(base + 'meta.json');
       if (!metaRes.ok) throw new Error(id + ' meta.json 加载失败');
       const meta = await metaRes.json();
@@ -389,7 +394,7 @@ const compareHtml = `<!DOCTYPE html>
 </html>`;
 
 // Build live-daily section
-const DAILY_DIR = path.join(ANALYTICS_ROOT, 'daily');
+const DAILY_DIR = path.join(ANALYTICS_ROOT, '日报');
 const dailyReports = [];
 if (fs.existsSync(DAILY_DIR)) {
   const entries = fs.readdirSync(DAILY_DIR, { withFileTypes: true })
@@ -416,7 +421,7 @@ const dailySectionHtml = dailyReports.length > 0
 <table>
   <thead><tr><th>日期</th><th>总钓获</th><th>活跃玩家</th><th>报告</th></tr></thead>
   <tbody>
-    ${dailyReports.map(r => `<tr><td><code>${r.date}</code></td><td>${r.catches}</td><td>${r.players}</td><td><a href="daily/${r.reportPath}">report.html</a> · <a href="daily/${r.compactPath}">compact.json</a></td></tr>`).join('\n')}
+    ${dailyReports.map(r => `<tr><td><code>${r.date}</code></td><td>${r.catches}</td><td>${r.players}</td><td><a href="日报/${r.reportPath}">report.html</a> · <a href="日报/${r.compactPath}">compact.json</a></td></tr>`).join('\n')}
   </tbody></table>`
   : '';
 

@@ -6,6 +6,7 @@ import {marked} from '/Users/red/.cache/codex-runtimes/codex-primary-runtime/dep
 const out=path.dirname(fileURLToPath(import.meta.url));
 const spec=path.resolve(out,'../../策划/规格/玩法/鱼塘成长补鱼与个体履历.md');
 const parts=[
+  ['current-rules','现行规则',path.resolve(out,'../../策划/规格/玩法/钓鱼系统现行规则.md')],
   ['implementation','实现与验证',path.join(out,'实现与验证报告.md')],
   ['pending','未完成事项',path.resolve(out,'../../策划/报告/FISH-ECOLOGY-01-未完成事项与后续交接.md')],
   ['simulation','24小时／30天',path.join(out,'implementation-simulation.md')],

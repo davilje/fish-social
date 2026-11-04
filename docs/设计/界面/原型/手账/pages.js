@@ -188,13 +188,13 @@ function pondsBody() {
   return `<div class="mid-h">挑一片喜欢的水<span class="count" id="j-pond-count">${list.length} 个鱼塘</span><label class="j-search"><img src="${icon('map')}" alt=""><input id="j-pond-search" type="search" placeholder="搜索鱼塘 / 水域" value="${jEscape(J.pondQuery)}" aria-label="搜索鱼塘"></label></div><div class="mid j-pond-mid"><div class="grid c2 j-pond-grid">${jPondCards(list)}</div></div><div class="aside">${pondsAside()}</div><div class="status">鱼塘照片是旅行的起点。选好水域，再决定今天的回鱼方式。</div>`;
 }
 function jPondCards(list) {
-  return list.length ? list.map((p, i) => `<button class="sticker j-pond-card ${J.pondSelected === p.id ? 'sel' : ''} ${p.locked ? 'j-pond-locked' : ''}" data-id="${p.id}" style="rotate:${tilt(p.id)}deg"><i class="tape lake"></i><div class="j-pond-photo"><img src="assets/${PONDS.indexOf(p) % 3 ? 'pond-afternoon.jpg' : 'home-sakura.jpg'}" style="object-position:${20 + i % 5 * 15}% 50%" alt="${p.name}"><span>${p.locked ? `Lv.${p.lv} 解锁` : '可进入'}</span></div><div class="name">${p.name}</div><div class="meta"><span style="color:${p.cat.color}">●</span>${p.cat.label} · ${WATER[p.water]}<b>${p.fee ? p.fee + ' 金币' : '免费'}</b></div></button>`).join('') + `<div class="j-list-end"><img src="${icon('fish')}" alt=""> 到底了，愿你今天满载而归。</div>` : '<div class="j-search-empty">没有找到这片水域。<br><small>试试“湖”“千岛湖”或“野外”。</small></div>';
+  return list.length ? list.map((p, i) => `<button class="sticker j-pond-card ${J.pondSelected === p.id ? 'sel' : ''} ${p.locked ? 'j-pond-locked' : ''}" data-id="${p.id}" style="rotate:${tilt(p.id)}deg"><i class="tape lake"></i><div class="j-pond-photo"><img src="${p.photo}" style="object-position:50% 50%" alt="${p.name}"><span>${p.locked ? `Lv.${p.lv} 解锁` : '可进入'}</span></div><div class="name">${p.name}</div><div class="meta"><span style="color:${p.cat.color}">●</span>${p.cat.label} · ${WATER[p.water]}<b>${p.fee ? p.fee + ' 金币' : '免费'}</b></div></button>`).join('') + `<div class="j-list-end"><img src="${icon('fish')}" alt=""> 到底了，愿你今天满载而归。</div>` : '<div class="j-search-empty">没有找到这片水域。<br><small>试试“湖”“千岛湖”或“野外”。</small></div>';
 }
 function pondsAside() {
   const p = PONDS.find(p => p.id === J.pondSelected);
   if (!p) return `<div class="heading">鱼塘详情</div>${jPolaroid(icon('map'), '下一站，还没选好', 'lake')}<div class="detail">换一个搜索词试试，或者切到「全部鱼塘」看看。</div>`;
   const old = S.sel.map; S.sel.map = p.id; const html = mapAside(); S.sel.map = old;
-  return html.replace('data-act="enter"', 'data-act="j-enter-list"').replace('assets/pond-afternoon.jpg', `assets/${PONDS.indexOf(p) % 3 ? 'pond-afternoon.jpg' : 'home-sakura.jpg'}`);
+  return html.replace('data-act="enter"', 'data-act="j-enter-list"');
 }
 
 /* ---------------- local modal / actions ---------------- */
@@ -250,7 +250,7 @@ async function jEnterList() {
   if (!p || p.locked) return;
   if (p.fee > S.coins) { toast(`还差 ${p.fee - S.coins} 金币，先去免费鱼塘吧`, 'error'); return; }
   pondEntering = true; stopPageLoops(); bobFloat.pause();
-  const modal = jDialog(`出发去${p.name}`, `<div class="j-departure"><div class="j-depart-bobber">${bobberSvg()}</div><p>浮漂轻轻落水，出发啦…</p><div class="j-depart-ready" hidden><img src="assets/pond-afternoon.jpg" alt="${p.name}"><p>${p.theme} · ${WATER[p.water]} · ${S.feeMode ? '自动回鱼' : '回鱼出售'}</p><small>已完成鱼塘进入预览，实际游戏会在这里打开桌面鱼塘。</small>${jButton('回到手账', 'return-list', '', 'primary')}</div></div>`);
+  const modal = jDialog(`出发去${p.name}`, `<div class="j-departure"><div class="j-depart-bobber">${bobberSvg()}</div><p>浮漂轻轻落水，出发啦…</p><div class="j-depart-ready" hidden><img src="${p.photo}" alt="${p.name}"><p>${p.theme} · ${WATER[p.water]} · ${S.feeMode ? '自动回鱼' : '回鱼出售'}</p><small>已完成鱼塘进入预览，实际游戏会在这里打开桌面鱼塘。</small>${jButton('回到手账', 'return-list', '', 'primary')}</div></div>`);
   $('.j-dialog-close', modal).hidden = true;
   const animation = play($('.j-depart-bobber', modal), [{ translate: '0 0' }, { translate: '0 16px', offset: .35 }, { translate: '0 -4px', offset: .7 }, { translate: '0 0' }], { duration: T.celebrate || 900, easing: EASE.inOutSine });
   await animation.finished;

@@ -62,6 +62,12 @@ namespace FishSocial.Desktop.JournalV2.Editor
             }
             finally {UnityEngine.Object.DestroyImmediate(root);}
         }
+        public static void BakeMap()
+        {
+            if (!File.Exists(Folder+"map.prefab")) return;
+            Save(JournalV2Pages.BuildCatalog(null,"map").gameObject,"map");
+            AssetDatabase.SaveAssets();
+        }
         [MenuItem("Fish Social/校验/日记页面")]
         public static void Verify()
         {

@@ -354,6 +354,33 @@ namespace FishSocial.Desktop.Editor
             SyncPastelSceneBundles();
         }
 
+        // Expanded destinations get their own saved geometry and explicit scene bundle.
+        // Original destinations retain their authored seats, arrival lane and waterline.
+        public static void ApplyExpandedPondCatalogAndExport()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                throw new InvalidOperationException("Close the Prefab Stage before applying pond scenery.");
+            var catalog = ReadCatalog();
+            var expected = new HashSet<string>(DesktopGameData.Ponds.Select(pond => pond.pondId));
+            if (catalog.bindings.Length != expected.Count || !expected.SetEquals(catalog.bindings.Select(binding => binding.pondId)))
+                throw new InvalidOperationException("Every pond needs exactly one explicit scenery binding.");
+            OverlayPondLayoutBaker.EnsureMissing();
+            foreach (var binding in catalog.bindings.Where(binding => binding.pondId.EndsWith("-north", StringComparison.Ordinal)))
+            {
+                var profile = ResolveProfile(catalog, binding);
+                foreach (var layer in ReadLayerLayout(profile).layers) ImportSprite(ArtFolder + "/" + layer.image);
+                ApplyPond(binding, profile, catalog.seats.Single(seat => seat.name == binding.seat));
+            }
+            AssetDatabase.SaveAssets();
+            var error = OverlayLayoutExporter.ExportAll(out var count, false);
+            if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
+            SyncPastelSceneBundles();
+            Verify();
+            CozyJournalResourcePreparation.RefreshPondPreviews();
+            OverlayResourceSync.SyncExportedResources();
+            Debug.Log("[PondArt] Expanded rollout: " + count + " layouts, explicit art/motion bindings and grounded north-bank seats.");
+        }
+
         // Replace scenery only; saved actor, arrival and water-contact geometry is retained.
         public static void ApplyOriginalBackdropsAndExport()
         {
@@ -474,8 +501,8 @@ namespace FishSocial.Desktop.Editor
             var catalog = ReadCatalog();
             var selected = catalog.bindings.Where(b => b.pondId != "pond-calm").ToArray();
             var profiles = selected.Select(b => ResolveProfile(catalog, b)).ToArray();
-            if (selected.Length != 20)
-                throw new InvalidOperationException("Expected 20 pastel pond layouts.");
+            if (selected.Length != DesktopGameData.Ponds.Length - 1)
+                throw new InvalidOperationException("Pastel layouts must cover every pond except the original Qiandao scene.");
             foreach (var profile in profiles)
                 ValidateRepairedPastelLayers(ReadLayerLayout(profile), profile.layerLayout);
             foreach (var image in profiles.SelectMany(p => ReadLayerLayout(p).layers).Select(l => l.image).Distinct())

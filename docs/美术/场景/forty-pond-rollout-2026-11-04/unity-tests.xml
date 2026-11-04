@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="8" result="Passed" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:49Z" duration="2.2011937">
+  <test-suite type="TestSuite" id="1913" name="fish-social-unity" fullname="fish-social-unity" runstate="Runnable" testcasecount="766" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:49Z" duration="2.201194" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2815" name="Assembly-CSharp-Editor.dll" fullname="/Users/davilje/fish-social/fish-social-unity/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="766" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:49Z" duration="2.185619" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="44397" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2816" name="FishSocial" fullname="FishSocial" runstate="Runnable" testcasecount="766" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:49Z" duration="2.178060" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2817" name="Tests" fullname="FishSocial.Tests" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:49Z" duration="2.165065" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="2818" name="Editor" fullname="FishSocial.Tests.Editor" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:49Z" duration="2.156923" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="2101" name="CozyPondParityTests" fullname="FishSocial.Tests.Editor.CozyPondParityTests" classname="FishSocial.Tests.Editor.CozyPondParityTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:48Z" duration="1.070221" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2102" name="EveryWorldPondPhotoContainsSceneArtAndResolvesAtRuntime" fullname="FishSocial.Tests.Editor.CozyPondParityTests.EveryWorldPondPhotoContainsSceneArtAndResolvesAtRuntime" methodname="EveryWorldPondPhotoContainsSceneArtAndResolvesAtRuntime" classname="FishSocial.Tests.Editor.CozyPondParityTests" runstate="Runnable" seed="1563583598" result="Passed" start-time="2026-11-03 20:10:47Z" end-time="2026-11-03 20:10:48Z" duration="1.063796" asserts="0">
+                <properties />
+                <output><![CDATA[[GameData] fish_species loaded 50 rows.
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2441" name="DesktopFishHistoryTests" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:48Z" duration="0.021691" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2442" name="ExpandedCatalogExposesAllFortyPondsWithoutDuplicatePositions" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.ExpandedCatalogExposesAllFortyPondsWithoutDuplicatePositions" methodname="ExpandedCatalogExposesAllFortyPondsWithoutDuplicatePositions" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="879662918" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:48Z" duration="0.014094" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2445" name="LandingReminderRejectsExpiredOrUnhookedFishAndHonorsLeadTime" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.LandingReminderRejectsExpiredOrUnhookedFishAndHonorsLeadTime" methodname="LandingReminderRejectsExpiredOrUnhookedFishAndHonorsLeadTime" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1078729113" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:48Z" duration="0.000193" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2443" name="NetworkDtosKeepTheSameCaptureHistory" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.NetworkDtosKeepTheSameCaptureHistory" methodname="NetworkDtosKeepTheSameCaptureHistory" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1018994085" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:48Z" duration="0.000323" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2446" name="ReminderSoundIsDeduplicatedAndMuteConsumesIt" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.ReminderSoundIsDeduplicatedAndMuteConsumesIt" methodname="ReminderSoundIsDeduplicatedAndMuteConsumesIt" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1931888012" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:48Z" duration="0.000549" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2444" name="SummaryUsesCapturedDurationAndActualEntryLength" fullname="FishSocial.Tests.Editor.DesktopFishHistoryTests.SummaryUsesCapturedDurationAndActualEntryLength" methodname="SummaryUsesCapturedDurationAndActualEntryLength" classname="FishSocial.Tests.Editor.DesktopFishHistoryTests" runstate="Runnable" seed="1698423545" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:48Z" duration="0.003446" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="2684" name="ExpandedPondSceneryTests" fullname="FishSocial.Tests.Editor.ExpandedPondSceneryTests" classname="FishSocial.Tests.Editor.ExpandedPondSceneryTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:49Z" duration="1.035227" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2685" name="AllDestinationsHaveSavedArtMotionPhotosAndGroundedActors" fullname="FishSocial.Tests.Editor.ExpandedPondSceneryTests.AllDestinationsHaveSavedArtMotionPhotosAndGroundedActors" methodname="AllDestinationsHaveSavedArtMotionPhotosAndGroundedActors" classname="FishSocial.Tests.Editor.ExpandedPondSceneryTests" runstate="Runnable" seed="678098095" result="Passed" start-time="2026-11-03 20:10:48Z" end-time="2026-11-03 20:10:49Z" duration="1.033898" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2686" name="MissingLayoutFallbackKeepsAllSeatsOnOneBank" fullname="FishSocial.Tests.Editor.ExpandedPondSceneryTests.MissingLayoutFallbackKeepsAllSeatsOnOneBank" methodname="MissingLayoutFallbackKeepsAllSeatsOnOneBank" classname="FishSocial.Tests.Editor.ExpandedPondSceneryTests" runstate="Runnable" seed="1758448863" result="Passed" start-time="2026-11-03 20:10:49Z" end-time="2026-11-03 20:10:49Z" duration="0.000484" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

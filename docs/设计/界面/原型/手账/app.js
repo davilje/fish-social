@@ -182,24 +182,530 @@ const CATEGORY = [
   { id: 'forbidden', label: '禁区', color: '#DB6152' },
 ];
 const WATER = { reservoir: '水库', lake: '湖泊', river: '河流', coastal: '近海', estuary: '河口' };
+// Coordinates and photos mirror the forty authored Unity destinations.
+const MAP_WIDTH = 700 * 1672 / 941;
 const PONDS = [
-  ['pond-calm', '千岛湖', '湖畔', 0.1, 0.15, 'reservoir'], ['pond-mist', '太湖', '云雾', 0.3, 0.15, 'lake'],
-  ['pond-sunset', '洪泽湖', '落日', 0.5, 0.15, 'lake'], ['pond-bamboo', '鄱阳湖', '竹影', 0.7, 0.15, 'lake'],
-  ['pond-reed', '洞庭湖', '芦苇', 0.9, 0.15, 'lake'], ['pond-crystal', '滇池', '晶莹', 0.1, 0.38, 'lake'],
-  ['pond-lotus', '洱海', '荷塘', 0.3, 0.38, 'lake'], ['pond-mirror', '镜泊湖', '镜面', 0.5, 0.38, 'lake'],
-  ['pond-willow', '查干湖', '垂柳', 0.7, 0.38, 'lake'], ['pond-stone', '万绿湖', '石滩', 0.9, 0.38, 'reservoir'],
-  ['pond-spring', '北江', '春水', 0.1, 0.62, 'river'], ['pond-dusk', '丹江口水库', '黄昏', 0.3, 0.62, 'reservoir'],
-  ['pond-pine', '清江', '松林', 0.5, 0.62, 'river'], ['pond-coral', '舟山近海', '珊瑚', 0.7, 0.62, 'coastal'],
-  ['pond-moon', '厦门湾', '月色', 0.9, 0.62, 'estuary'], ['pond-fern', '南澳近海', '蕨影', 0.1, 0.85, 'coastal'],
-  ['pond-ridge', '长江故道野塘', '山脊', 0.3, 0.85, 'river'], ['pond-harbor', '青岛近海', '港湾', 0.5, 0.85, 'coastal'],
-  ['pond-orchid', '涠洲近海', '兰花', 0.7, 0.85, 'coastal'], ['pond-frost', '兴凯湖', '霜降', 0.9, 0.85, 'lake'],
-].map(([id, name, theme, x, y, water], i) => ({
-  id, name, theme, x, y, water,
-  cat: CATEGORY[i % CATEGORY.length],
-  locked: i >= 12,
-  lv: i >= 12 ? 8 + (i - 12) : 1 + (i % 6),
-  fee: i < 3 ? 0 : 20 + (i % 5) * 10,
-}));
+  {
+    "id": "pond-calm",
+    "name": "千岛湖",
+    "theme": "湖畔",
+    "x": 0.356,
+    "y": 0.182,
+    "water": "reservoir",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-calm.png"
+  },
+  {
+    "id": "pond-mist",
+    "name": "太湖",
+    "theme": "云雾",
+    "x": 0.647,
+    "y": 0.272,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-mist.png"
+  },
+  {
+    "id": "pond-sunset",
+    "name": "洪泽湖",
+    "theme": "夕阳",
+    "x": 0.553,
+    "y": 0.242,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-sunset.png"
+  },
+  {
+    "id": "pond-bamboo",
+    "name": "鄱阳湖",
+    "theme": "竹林",
+    "x": 0.322,
+    "y": 0.408,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-bamboo.png"
+  },
+  {
+    "id": "pond-reed",
+    "name": "洞庭湖",
+    "theme": "芦苇",
+    "x": 0.346,
+    "y": 0.585,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-reed.png"
+  },
+  {
+    "id": "pond-crystal",
+    "name": "滇池",
+    "theme": "晶石",
+    "x": 0.168,
+    "y": 0.744,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-crystal.png"
+  },
+  {
+    "id": "pond-lotus",
+    "name": "洱海",
+    "theme": "荷花",
+    "x": 0.323,
+    "y": 0.84,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-lotus.png"
+  },
+  {
+    "id": "pond-mirror",
+    "name": "镜泊湖",
+    "theme": "镜湖",
+    "x": 0.523,
+    "y": 0.08,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-mirror.png"
+  },
+  {
+    "id": "pond-willow",
+    "name": "查干湖",
+    "theme": "柳荫",
+    "x": 0.167,
+    "y": 0.873,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-willow.png"
+  },
+  {
+    "id": "pond-stone",
+    "name": "万绿湖",
+    "theme": "叠石",
+    "x": 0.12,
+    "y": 0.281,
+    "water": "reservoir",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-stone.png"
+  },
+  {
+    "id": "pond-spring",
+    "name": "北江",
+    "theme": "清泉",
+    "x": 0.592,
+    "y": 0.506,
+    "water": "river",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-spring.png"
+  },
+  {
+    "id": "pond-dusk",
+    "name": "丹江口水库",
+    "theme": "暮色",
+    "x": 0.112,
+    "y": 0.126,
+    "water": "reservoir",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-dusk.png"
+  },
+  {
+    "id": "pond-pine",
+    "name": "清江",
+    "theme": "松林",
+    "x": 0.19,
+    "y": 0.505,
+    "water": "river",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-pine.png"
+  },
+  {
+    "id": "pond-coral",
+    "name": "舟山近海",
+    "theme": "珊瑚",
+    "x": 0.876,
+    "y": 0.267,
+    "water": "coastal",
+    "category": "reservoir",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-coral.png"
+  },
+  {
+    "id": "pond-moon",
+    "name": "厦门湾",
+    "theme": "月影",
+    "x": 0.75,
+    "y": 0.663,
+    "water": "estuary",
+    "category": "reservoir",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-moon.png"
+  },
+  {
+    "id": "pond-fern",
+    "name": "南澳近海",
+    "theme": "蕨泽",
+    "x": 0.86,
+    "y": 0.45,
+    "water": "coastal",
+    "category": "reservoir",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-fern.png"
+  },
+  {
+    "id": "pond-ridge",
+    "name": "长江故道野塘",
+    "theme": "山谷",
+    "x": 0.566,
+    "y": 0.817,
+    "water": "river",
+    "category": "forbidden",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-ridge.png"
+  },
+  {
+    "id": "pond-harbor",
+    "name": "青岛近海",
+    "theme": "港湾",
+    "x": 0.824,
+    "y": 0.106,
+    "water": "coastal",
+    "category": "forbidden",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-harbor.png"
+  },
+  {
+    "id": "pond-orchid",
+    "name": "涠洲近海",
+    "theme": "兰花",
+    "x": 0.854,
+    "y": 0.94,
+    "water": "coastal",
+    "category": "forbidden",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-orchid.png"
+  },
+  {
+    "id": "pond-frost",
+    "name": "兴凯湖",
+    "theme": "冰霜",
+    "x": 0.264,
+    "y": 0.065,
+    "water": "lake",
+    "category": "giant",
+    "locked": true,
+    "lv": 15,
+    "fee": 2500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-frost.png"
+  },
+  {
+    "id": "pond-calm-north",
+    "name": "千岛湖·北湾",
+    "theme": "湖畔",
+    "x": 0.262,
+    "y": 0.252,
+    "water": "reservoir",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-calm-north.png"
+  },
+  {
+    "id": "pond-mist-north",
+    "name": "太湖·北湾",
+    "theme": "云雾",
+    "x": 0.49,
+    "y": 0.716,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-mist-north.png"
+  },
+  {
+    "id": "pond-sunset-north",
+    "name": "洪泽湖·北湾",
+    "theme": "夕阳",
+    "x": 0.202,
+    "y": 0.792,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-sunset-north.png"
+  },
+  {
+    "id": "pond-bamboo-north",
+    "name": "鄱阳湖·北湾",
+    "theme": "竹林",
+    "x": 0.093,
+    "y": 0.388,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-bamboo-north.png"
+  },
+  {
+    "id": "pond-reed-north",
+    "name": "洞庭湖·北湾",
+    "theme": "芦苇",
+    "x": 0.103,
+    "y": 0.587,
+    "water": "lake",
+    "category": "advanced",
+    "locked": false,
+    "lv": 0,
+    "fee": 200,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-reed-north.png"
+  },
+  {
+    "id": "pond-crystal-north",
+    "name": "滇池·北湾",
+    "theme": "晶石",
+    "x": 0.32,
+    "y": 0.775,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-crystal-north.png"
+  },
+  {
+    "id": "pond-lotus-north",
+    "name": "洱海·北湾",
+    "theme": "荷花",
+    "x": 0.374,
+    "y": 0.797,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-lotus-north.png"
+  },
+  {
+    "id": "pond-mirror-north",
+    "name": "镜泊湖·北湾",
+    "theme": "镜湖",
+    "x": 0.651,
+    "y": 0.089,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-mirror-north.png"
+  },
+  {
+    "id": "pond-willow-north",
+    "name": "查干湖·北湾",
+    "theme": "柳荫",
+    "x": 0.083,
+    "y": 0.807,
+    "water": "lake",
+    "category": "veteran",
+    "locked": false,
+    "lv": 5,
+    "fee": 500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-willow-north.png"
+  },
+  {
+    "id": "pond-stone-north",
+    "name": "万绿湖·北湾",
+    "theme": "叠石",
+    "x": 0.261,
+    "y": 0.586,
+    "water": "reservoir",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-stone-north.png"
+  },
+  {
+    "id": "pond-spring-north",
+    "name": "北江·北湾",
+    "theme": "清泉",
+    "x": 0.444,
+    "y": 0.335,
+    "water": "river",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-spring-north.png"
+  },
+  {
+    "id": "pond-dusk-north",
+    "name": "丹江口水库·北湾",
+    "theme": "暮色",
+    "x": 0.216,
+    "y": 0.354,
+    "water": "reservoir",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-dusk-north.png"
+  },
+  {
+    "id": "pond-pine-north",
+    "name": "清江·北湾",
+    "theme": "松林",
+    "x": 0.469,
+    "y": 0.42,
+    "water": "river",
+    "category": "wilderness",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-pine-north.png"
+  },
+  {
+    "id": "pond-coral-north",
+    "name": "舟山近海·北湾",
+    "theme": "珊瑚",
+    "x": 0.918,
+    "y": 0.17,
+    "water": "coastal",
+    "category": "reservoir",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-coral-north.png"
+  },
+  {
+    "id": "pond-moon-north",
+    "name": "厦门湾·北湾",
+    "theme": "月影",
+    "x": 0.806,
+    "y": 0.832,
+    "water": "estuary",
+    "category": "reservoir",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-moon-north.png"
+  },
+  {
+    "id": "pond-fern-north",
+    "name": "南澳近海·北湾",
+    "theme": "蕨泽",
+    "x": 0.908,
+    "y": 0.565,
+    "water": "coastal",
+    "category": "reservoir",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-fern-north.png"
+  },
+  {
+    "id": "pond-ridge-north",
+    "name": "长江故道野塘·北湾",
+    "theme": "山谷",
+    "x": 0.674,
+    "y": 0.602,
+    "water": "river",
+    "category": "forbidden",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-ridge-north.png"
+  },
+  {
+    "id": "pond-harbor-north",
+    "name": "青岛近海·北湾",
+    "theme": "港湾",
+    "x": 0.94,
+    "y": 0.365,
+    "water": "coastal",
+    "category": "forbidden",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-harbor-north.png"
+  },
+  {
+    "id": "pond-orchid-north",
+    "name": "涠洲近海·北湾",
+    "theme": "兰花",
+    "x": 0.921,
+    "y": 0.746,
+    "water": "coastal",
+    "category": "forbidden",
+    "locked": false,
+    "lv": 0,
+    "fee": 0,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-orchid-north.png"
+  },
+  {
+    "id": "pond-frost-north",
+    "name": "兴凯湖·北湾",
+    "theme": "冰霜",
+    "x": 0.625,
+    "y": 0.746,
+    "water": "lake",
+    "category": "giant",
+    "locked": true,
+    "lv": 15,
+    "fee": 2500,
+    "photo": "../../../../../fish-social-unity/Assets/Resources/Desktop/Theme/Cozy/journal/ponds/pond-frost-north.png"
+  }
+].map(p => ({ ...p, cat: CATEGORY.find(c => c.id === p.category) }));
 
 const S = {
   page: 'shop',
@@ -417,14 +923,14 @@ function achBody() {
 
 function mapBody() {
   const legend = CATEGORY.map(c => `<div><i style="background:${c.color}"></i>${c.label}</div>`).join('');
-  const buoys = PONDS.map(p => `<div class="buoy ${p.locked ? 'locked' : ''}" data-id="${p.id}" style="left:${p.x * 1050}px;top:${p.y * 700}px">
+  const buoys = PONDS.map(p => `<div class="buoy ${p.locked ? 'locked' : ''}" data-id="${p.id}" style="left:${p.x * MAP_WIDTH}px;top:${p.y * 700}px">
       <div class="body">${bobberSvg(p.locked ? '#9aa0a6' : p.cat.color)}</div><span class="label">${p.locked ? '🔒 ' : ''}${p.name}</span></div>`).join('');
   return `<div class="rail"><div class="legend">${legend}<div><i style="background:#61666B"></i>未解锁</div></div>
       <div class="note">拖动地图浏览<br>点浮标查看鱼塘</div></div>
     <div class="mid-h">世界地图<span class="count">${PONDS.length} 个鱼塘</span></div>
     <div class="map-frame"><i class="tape lake" style="opacity:.95;left:-30px;top:-6px"></i>
       <i class="tape lake" style="opacity:.95;left:auto;right:-30px;top:auto;bottom:-6px;rotate:-28deg"></i>
-      <div class="map-view"><div class="map-content"><img src="assets/world-map.png?v=sparse-biomes-v1">${buoys}</div></div></div>
+      <div class="map-view"><div class="map-content" style="width:${MAP_WIDTH}px"><img src="assets/world-map.png?v=forty-ponds-v1">${buoys}</div></div></div>
     <div class="aside">${mapAside()}</div>
     <div class="status" id="map-status">点选地图上的鱼塘。</div>`;
 }
@@ -433,7 +939,7 @@ function mapAside() {
   const p = PONDS.find(x => x.id === S.sel.map);
   if (!p) return `<div class="heading">鱼塘详情</div><div class="polaroid" style="opacity:.55"><div class="photo"><img class="cover" src="assets/pond-afternoon.jpg"></div><div class="caption">还没选鱼塘</div></div><div class="detail">点地图上的浮标，小猫会帮你把照片贴到这里。</div>`;
     return `<div class="heading">鱼塘详情</div>
-    <div class="polaroid pond-photo"><i class="tape lake"></i><div class="photo"><img class="cover" src="assets/pond-afternoon.jpg"></div><div class="caption">${p.name}</div></div>
+    <div class="polaroid pond-photo"><i class="tape lake"></i><div class="photo"><img class="cover" src="${p.photo}"></div><div class="caption">${p.name}</div></div>
     <div class="detail pond-info"><div class="pond-description">${p.theme} · ${WATER[p.water]} · <span style="color:${p.cat.color}">●</span> ${p.cat.label}</div>
       <div class="pond-species">可遇鱼种：鲫鱼 · 鲤鱼 · 草鱼</div>
       <div class="chips"><span class="chip">Lv.${p.lv}</span><span class="chip">${coinIcon}${p.fee ? p.fee + ' 金币入场' : '免费入场'}</span></div></div>
@@ -1176,7 +1682,7 @@ function mapApply(animate) {
 
 function clampMap() {
   const m = S.map;
-  m.ox = Math.min(0, Math.max(690 - 1050 * m.s, m.ox));
+  m.ox = Math.min(0, Math.max(690 - MAP_WIDTH * m.s, m.ox));
   m.oy = Math.min(0, Math.max(420 - 700 * m.s, m.oy));
 }
 
@@ -1240,7 +1746,7 @@ function selectPond(b) {
   b.appendChild(paw);
   play(paw, [{ opacity: 0, translate: '0 -30px', scale: '1.6' }, { opacity: 0.85, translate: '0 0', scale: '1' }], { duration: 260, delay: 120, easing: EASE.outBack });
   S.map.s = 1.15;
-  S.map.ox = 345 - p.x * 1050 * S.map.s;
+  S.map.ox = 345 - p.x * MAP_WIDTH * S.map.s;
   S.map.oy = 210 - p.y * 700 * S.map.s;
   clampMap();
   mapApply(true);

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { shanghaiDayBounds, previousDateKeys } from './date-utils.mjs';
 import { maxPopulation, POND_IDS } from './pond-config.mjs';
 import { resolveRulesVersion } from './resolve-rules-version.mjs';
+import { readCurrentSimulationReference } from './simulation-policy.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ANALYTICS_DAILY = path.join(__dirname, '../../docs/数据分析/日报');
@@ -187,14 +188,7 @@ function makeKpi(value, prev, avg7d, status) {
 
 function readSimRef() {
   const analysisPath = path.join(__dirname, '../../docs/数据分析/鱼塘日模拟/analysis.json');
-  if (!fs.existsSync(analysisPath)) return null;
-  try {
-    const analysis = JSON.parse(fs.readFileSync(analysisPath, 'utf8'));
-    const row = analysis.scenarioRows?.find((r) => r.anglers === 5);
-    return row?.perDayCaught ?? null;
-  } catch {
-    return null;
-  }
+  return readCurrentSimulationReference(analysisPath, 5);
 }
 
 function loadEcology(db, dateKey) {

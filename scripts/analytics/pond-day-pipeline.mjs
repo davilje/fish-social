@@ -2,6 +2,7 @@
  * 鱼塘多日模拟完整分析流水线：data → compact → analysis → report → archive
  */
 import fs from 'fs';
+import { rejectRetiredSimulationEntry } from './simulation-policy.mjs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -13,6 +14,7 @@ import {
   writeJson,
 } from './lib.mjs';
 
+rejectRetiredSimulationEntry('analytics:build / analytics:pond-day');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const sourceDir = path.join(ANALYTICS_ROOT, 'pond-day-simulation');

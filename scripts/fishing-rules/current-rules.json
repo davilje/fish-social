@@ -1,0 +1,157 @@
+{
+  "rulesetId": "FISH-CURRENT-2026-11-04",
+  "reviewedAt": "2026-11-04",
+  "currentDocument": "docs/策划/规格/玩法/钓鱼系统现行规则.md",
+  "growthSpecification": "docs/策划/规格/玩法/鱼塘成长补鱼与个体履历.md",
+  "probabilityAudit": "docs/数据分析/fishing-probability-audit-2026-11-04/当前钓鱼概率完整说明.md",
+  "probabilityRedesign": "pending-user-confirmation",
+  "approvedFullFlowSimulation": null,
+  "currentModels": {
+    "scripts/simulate-fish-entry-ecology.ts": "growth-restock-stress",
+    "docs/数据分析/fishing-probability-audit-2026-11-04/derive-current-odds.ts": "static-formula-audit"
+  },
+  "historicalDocuments": [
+    "docs/策划/规格/玩法/中国鱼种与区域分布.md",
+    "docs/策划/规格/玩法/分析与修复-钓鱼概率与饵文案.md",
+    "docs/策划/规格/玩法/咬钩产量调优-单鱼抽样与脱钩.md",
+    "docs/策划/规格/玩法/塘人口与品质权重调参.md",
+    "docs/策划/规格/玩法/塘生态数值表驱动.md",
+    "docs/策划/规格/玩法/打窝机制.md",
+    "docs/策划/规格/玩法/数值重构-品质尺寸咬钩脱钩.md",
+    "docs/策划/规格/玩法/数值重构v2-成长咬钩与文案.md",
+    "docs/策划/规格/玩法/生态调优-咬钩间隔与鱼群恢复.md",
+    "docs/策划/规格/玩法/钓点鱼群流动性与分区咬钩.md",
+    "docs/策划/规格/玩法/钓鱼体长体重步进与公式评判.md",
+    "docs/策划/提示词/玩法/feat-fish-cn-01-species-regions-dev.prompt.md",
+    "docs/策划/提示词/玩法/feat-ground-01-groundbait-dev.prompt.md",
+    "docs/策划/提示词/玩法/feat-pool-01-ecology-table-dev.prompt.md",
+    "docs/策划/提示词/玩法/feat-pool-02-ecology-tuning-dev.prompt.md",
+    "docs/策划/提示词/玩法/fish-attr-01-size-step-dev.prompt.md"
+  ],
+  "historicalAnalysisDocuments": [
+    "docs/数据分析/鱼塘日模拟/README.md",
+    "docs/数据分析/鱼塘生态初值/README.md",
+    "docs/数据分析/45米巨物成长重设计-2026-11-01.md",
+    "docs/数据分析/鱼体成长与长度显示-2026-11-01.md",
+    "docs/数据分析/fish-growth-opening-2026-11-02/历史报告-出生口径.md",
+    "docs/数据分析/fish-growth-opening-2026-11-02/harvest-report.md",
+    "docs/数据分析/fish-growth-opening-2026-11-02/full-pond-report.md",
+    "docs/数据分析/fish-growth-opening-2026-11-02/restock-50-40-10-report.md",
+    "docs/数据分析/fish-growth-opening-2026-11-02/occupancy-cycles-report.md"
+  ],
+  "historicalReportPages": [
+    "docs/数据分析/鱼塘日模拟/analysis-report.html",
+    "docs/数据分析/鱼塘日模拟/report.html",
+    "docs/数据分析/鱼塘生态初值/report.html",
+    "docs/数据分析/咬钩脱钩校准/report.html",
+    "docs/数据分析/fish-growth-2026-11-01/index.html",
+    "docs/数据分析/fish-growth-45m-2026-11-01/index.html",
+    "docs/数据分析/fish-growth-opening-2026-11-02/历史推演.html"
+  ],
+  "retiredEntries": [
+    {
+      "entry": "scripts/a0-verify.ts",
+      "archive": "scripts/legacy/fishing-2026-11-04/scripts__a0-verify.ts.txt",
+      "sha256": "c759b4e11e6ca9943b566013226d354c265e91be55d7cebc0aba8180bd4a9baa"
+    },
+    {
+      "entry": "scripts/simulate-pond-day.ts",
+      "archive": "scripts/legacy/fishing-2026-11-04/scripts__simulate-pond-day.ts.txt",
+      "sha256": "a705e9fd3c387f9b89d36fb75046c77c0ffb205fa0e721ec5aad303880e6dc28"
+    },
+    {
+      "entry": "scripts/pond-viz-data.ts",
+      "archive": "scripts/legacy/fishing-2026-11-04/scripts__pond-viz-data.ts.txt",
+      "sha256": "4b53439d711ddf6bb492ed441085e59e30ceeeaa45e88f14fe668236f89d5c31"
+    },
+    {
+      "entry": "scripts/export-pond-ecology-report.ts",
+      "archive": "scripts/legacy/fishing-2026-11-04/scripts__export-pond-ecology-report.ts.txt",
+      "sha256": "180f3da95986c8202704fb4dd64ecc1ecc3e7279f2b8b4c471b1ef0808323a7b"
+    },
+    {
+      "entry": "scripts/generate-bite-escape-report.ts",
+      "archive": "scripts/legacy/fishing-2026-11-04/scripts__generate-bite-escape-report.ts.txt",
+      "sha256": "ddaff17e29f075bd7c0ee03e098e4f7afee25843d8e223f9db9253918cabedbd"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-opening-2026-11-02/analyze.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-opening-2026-11-02__analyze.py.txt",
+      "sha256": "a2acb48dfa1bbc5d0c6ecb68e97f282468a6f7ef5b2c50693e124325f8132486"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-opening-2026-11-02/simulate_harvest.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-opening-2026-11-02__simulate_harvest.py.txt",
+      "sha256": "b6bce5e85c522ddca1e2465892e7b0a2018952f3c7b99b030c1c97fefce57c38"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-opening-2026-11-02/simulate_full_pond.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-opening-2026-11-02__simulate_full_pond.py.txt",
+      "sha256": "f1a272780a05ac3917f5032784777127ba84d0cf48cc9e3781297b3ae6e56fb0"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-opening-2026-11-02/analyze_occupancy_cycles.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-opening-2026-11-02__analyze_occupancy_cycles.py.txt",
+      "sha256": "ca97bef7a6706b4b2b9883df0f3bc5abb4ff751a6eea53f37bfb18b2a8a0714c"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-opening-2026-11-02/compare_restock_50_40_10.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-opening-2026-11-02__compare_restock_50_40_10.py.txt",
+      "sha256": "2d41045cb7bb87c1f4998310b9a59c35b0f2821705552a2e7ec9e5fe4f902fbd"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-45m-2026-11-01/simulate.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-45m-2026-11-01__simulate.py.txt",
+      "sha256": "7b8ef4e737da88c86a9004c89405e7159ed8ff09400aa7f150c6addbca1d8ee2"
+    },
+    {
+      "entry": "docs/数据分析/fish-growth-2026-11-01/build_chart.py",
+      "archive": "scripts/legacy/fishing-2026-11-04/docs__数据分析__fish-growth-2026-11-01__build_chart.py.txt",
+      "sha256": "19488a280299d98c8f66cc56635c181c629039710457693ffeacdf8c676ab4a6"
+    }
+  ],
+  "reviewedSources": {
+    "shared/fishing.ts": "4c56404ca98800d1df7c7b54c767d11c2f2994ee8597ccf4e2c374e628a8996f",
+    "shared/fishGrowth.ts": "942adf08b2c0e7ea7c6dfff42a333cd2c8db13b2df2aafb80a2d565ef90be9f5",
+    "shared/pondEcology.ts": "afec087fb067d7cba46a57a81111a88ea61205eebed97ead749be06f56c8fb9d",
+    "shared/gearRules.ts": "dede43bbe963866ba01a4844065623ce5c515cbd8e50305861bb077d145f89a2",
+    "shared/groundbaitRules.ts": "86ec2d49d2b82b99cc3c4bd0bf719fec11d2c6224f08502d69f680888bde5dde",
+    "shared/fish.ts": "56761f8d496542c6382471cd23639920e595a69cb2c62ff09669f9b7a75ff31c",
+    "shared/constants.ts": "8e46b7494fa953a0858306da35cb642a78c408e1cfd4dad0a01999f1b2ea8fcf",
+    "shared/gameData.client.ts": "3fde5e6b51d7ad81579ed7c7f6e92117b7abdb6d334fad9dbc62c12a4087a5a3",
+    "shared/riskRules.ts": "d0f4edd0de0652fff9333272c7c1238e2bd406f7faf25d5bf55b3207af4fcce6",
+    "server/src/fishingSession.ts": "d8f62eab72c28a3f8d36240b451e0d537a075222eab65ce6c165a84971baf3a8",
+    "server/src/fishingStateMachine.ts": "26b4d973e77e1d30707fd05e42c02cbab0689d83a5e1e4067cfd0247b9b0573b",
+    "server/src/fishLifecycle.ts": "ca672506cc4d99b6eca53ce68a381b0ab2e1750dc7e5046d7bb722e417021200",
+    "server/src/pondEcology.ts": "4c451e640e921151e2f14af43dd1d2d705622e13a1e9dc17997b1117add53e7e",
+    "server/src/serverLoops.ts": "f908cd5f1c1b4f3c22d76cbc1a0f4a43166bc928f2e71b0fd59fec25f0cfc41c",
+    "server/src/fishingSleep.ts": "f47653cdbf3d8f24311a600e344e5074f38a7b4b1d008d058f5c731b40b6b079",
+    "server/src/groundbait.ts": "5e355d120330d7f743a191458a953840da45a029e75d85d9e369f99b1f00ec71",
+    "server/src/gear.ts": "d5c9ea70f87baf6f1f34c5603470d9734b324bc55d05ac43cbdd2e02a47c2f54",
+    "server/src/runtimeConfig.ts": "246d6d2f58d4da034c0d6609fc4f13dd313d60f724828e3cf5d3222b9dd277b0",
+    "server/src/gameConfig.ts": "7c804faa0fe88617e1c73d873f607e963734a4b7c21b45b0036e64ffcda393ee",
+    "server/src/forbiddenPolice.ts": "35c8242cab53307950d0024df3217c354bfe2b13a69fda00a5a54c351cdb8309",
+    "server/src/bots.ts": "192f6a9dc009f03a0f49328bdc7c712a4ab08f018aac498d9cfcd5d300638b1e",
+    "shared/generated/game-data/_index.json": "a246a82ea26764855a13ea5b6fad29ee8bcd6db9d729cfecd382c46abbd46d79",
+    "shared/generated/game-data/_meta.json": "cfa87153cfa81967fba7301048af10dc98060590158f2bef90a69ce2d0a8e196",
+    "shared/generated/game-data/achievements.json": "d2b4f3af381a2bd98d8c6fb6a6bc4b7fbe493937a5cfa8a2de82270c2b8fdc95",
+    "shared/generated/game-data/baits.json": "c707f1437c929f9c1f4922b10be4c1b3dec4ff57de26db050262b13936338433",
+    "shared/generated/game-data/fish_quality_stats.json": "36053690d85ea165cde6b0925496976500c4f3e72eab9b2bafc6c50c5b61d87a",
+    "shared/generated/game-data/fish_species.json": "994760dd1c055361fcaf004d5c99366b06dbcb00a3082945c38df552f1162fed",
+    "shared/generated/game-data/fish_xp.json": "49f915c63ac671cbd678b23df824cdd5b6b6a3025391723bcd6ceb340ac33145",
+    "shared/generated/game-data/fishing_formula_constants.json": "12101df9a33b45a9cb0481c43d5876817428612c2d44ab99b9dacdacc9d255a2",
+    "shared/generated/game-data/groundbaits.json": "31539f19a7af0e09b081fe5ee84fce346f690c998263aaf8f96037693983b0ab",
+    "shared/generated/game-data/player_levels.json": "fc16a07b14b528506f8e42d159ddd8dcc3c65e4c1de9e383e36509a4262aabda",
+    "shared/generated/game-data/pond_category_quality_weights.json": "a7523c9b5d5d51d86a2d2e07ac0fc4f99f810e0437ea9de26df584de0232a158",
+    "shared/generated/game-data/pond_fish_pool.json": "eec44bd506c2be5f54f66ca69f9eb745fdf4bdd56584fe48a78a734e3036b117",
+    "shared/generated/game-data/pond_levels.json": "b8d3ba7e74081a763cc9c8a69ef99e48bc65609a3210b35a8b0fde0b0a9607eb",
+    "shared/generated/game-data/pond_modifiers.json": "273f1c248c78cc897823e52911160b7ba1aa1fdc00bd6b8d376686f4d1070d9e",
+    "shared/generated/game-data/pond_spot_tags.json": "aa1bffc751eea9afbdbe0f5bab06540b806b655b41cde9e7825466f367f77ce5",
+    "shared/generated/game-data/ponds.json": "8c0c07a01105a38efbc56c861faa09fe08bda1d8c3f7f08c191dc298462eb758",
+    "shared/generated/game-data/return_rules.json": "60784c4d29ff08376774ef2b4ea9e7d552ae9b1bf34980388dc870a867cff4dc",
+    "shared/generated/game-data/rods.json": "def80ace2378869f630ae55dfdd107f26ac7d1d169798f7bed9a5f00d08332d7",
+    "shared/generated/game-data/spot_clue_texts.json": "48dd3dc67dc890fc9a6b813c550a9a5f0285e0d0070805792bb7cce753d7fb0e",
+    "shared/generated/game-data/spot_tag_defs.json": "1d260d4dd89c1fade37fcda83653e0aecf40bde0816cea4f0bc3d124586a3f61",
+    "shared/generated/game-data/vessels.json": "e7db0ea9ee877464c3207609df0f9805e8d7b0c4e33821947a23b746edccba7f"
+  }
+}
